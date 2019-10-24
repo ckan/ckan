@@ -1,18 +1,10 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
-from nose.tools import (
-    assert_equal,
-    assert_not_equal,
-    assert_raises,
-    assert_true,
-    assert_not_in,
-    assert_in,
-)
 import mock
 
 from ckan.lib.helpers import url_for
-
+import pytest
 import ckan.model as model
 import ckan.model.activity as activity_model
 import ckan.plugins as p
@@ -33,19 +25,19 @@ def _get_package_new_page(app):
     return env, response
 
 
-class TestPackageNew(helpers.FunctionalTestBase):
-    def test_form_renders(self):
-        app = self._get_test_app()
+class TestPackageNew(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_form_renders(self, app):
         env, response = _get_package_new_page(app)
-        assert_true("dataset-edit" in response.forms)
+        assert "dataset-edit" in response.forms
 
-    @helpers.change_config("ckan.auth.create_unowned_dataset", "false")
-    def test_needs_organization_but_no_organizations_has_button(self):
+    @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
+    @pytest.mark.usefixtures("clean_db")
+    def test_needs_organization_but_no_organizations_has_button(self, app):
         """ Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is allowed to create an
         organization they should be prompted to do so when they try to create
         a new dataset"""
-        app = self._get_test_app()
         sysadmin = factories.Sysadmin()
 
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
@@ -53,11 +45,12 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert "dataset-edit" not in response.forms
         assert url_for(controller="organization", action="new") in response
 
-    @helpers.mock_auth("ckan.logic.auth.create.package_create")
-    @helpers.change_config("ckan.auth.create_unowned_dataset", "false")
-    @helpers.change_config("ckan.auth.user_create_organizations", "false")
+    @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
+    @pytest.mark.ckan_config("ckan.auth.user_create_organizations", "false")
+    @mock.patch("ckan.logic.auth.create.package_create")
+    @pytest.mark.usefixtures("clean_db")
     def test_needs_organization_but_no_organizations_no_button(
-        self, mock_p_create
+        self, mock_p_create, app
     ):
         """ Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is not allowed to create an
@@ -66,7 +59,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
         a plugin to overwrite the package_create behavior"""
         mock_p_create.return_value = {"success": True}
 
-        app = self._get_test_app()
         user = factories.User()
 
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -76,36 +68,36 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert url_for(controller="organization", action="new") not in response
         assert "Ask a system administrator" in response
 
-    def test_name_required(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_name_required(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
 
         response = webtest_submit(form, "save", status=200, extra_environ=env)
-        assert_true("dataset-edit" in response.forms)
-        assert_true("Name: Missing value" in response)
+        assert "dataset-edit" in response.forms
+        assert "Name: Missing value" in response
 
-    def test_resource_form_renders(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_resource_form_renders(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"resource-form-renders"
 
         response = submit_and_follow(app, form, env, "save")
-        assert_true("resource-edit" in response.forms)
+        assert "resource-edit" in response.forms
 
-    def test_first_page_creates_draft_package(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_first_page_creates_draft_package(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"first-page-creates-draft"
 
         webtest_submit(form, "save", status=302, extra_environ=env)
         pkg = model.Package.by_name(u"first-page-creates-draft")
-        assert_equal(pkg.state, "draft")
+        assert pkg.state == "draft"
 
-    def test_resource_required(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_resource_required(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"one-resource-required"
@@ -116,11 +108,11 @@ class TestPackageNew(helpers.FunctionalTestBase):
         response = webtest_submit(
             form, "save", value="go-metadata", status=200, extra_environ=env
         )
-        assert_true("resource-edit" in response.forms)
-        assert_true("You must add at least one data resource" in response)
+        assert "resource-edit" in response.forms
+        assert "You must add at least one data resource" in response
 
-    def test_complete_package_with_one_resource(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_complete_package_with_one_resource(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"complete-package-with-one-resource"
@@ -131,11 +123,11 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
         submit_and_follow(app, form, env, "save", "go-metadata")
         pkg = model.Package.by_name(u"complete-package-with-one-resource")
-        assert_equal(pkg.resources[0].url, u"http://example.com/resource")
-        assert_equal(pkg.state, "active")
+        assert pkg.resources[0].url == u"http://example.com/resource"
+        assert pkg.state == "active"
 
-    def test_complete_package_with_two_resources(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_complete_package_with_two_resources(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"complete-package-with-two-resources"
@@ -150,9 +142,9 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
         submit_and_follow(app, form, env, "save", "go-metadata")
         pkg = model.Package.by_name(u"complete-package-with-two-resources")
-        assert_equal(pkg.resources[0].url, u"http://example.com/resource0")
-        assert_equal(pkg.resources[1].url, u"http://example.com/resource1")
-        assert_equal(pkg.state, "active")
+        assert pkg.resources[0].url == u"http://example.com/resource0"
+        assert pkg.resources[1].url == u"http://example.com/resource1"
+        assert pkg.state == "active"
 
     # def test_resource_uploads(self):
     #     app = self._get_test_app()
@@ -178,8 +170,8 @@ class TestPackageNew(helpers.FunctionalTestBase):
     #     )
     #     assert_equal('data', response.body)
 
-    def test_previous_button_works(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_previous_button_works(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"previous-button-works"
@@ -188,10 +180,10 @@ class TestPackageNew(helpers.FunctionalTestBase):
         form = response.forms["resource-edit"]
 
         response = submit_and_follow(app, form, env, "save", "go-dataset")
-        assert_true("dataset-edit" in response.forms)
+        assert "dataset-edit" in response.forms
 
-    def test_previous_button_populates_form(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_previous_button_populates_form(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"previous-button-populates-form"
@@ -201,11 +193,11 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
         response = submit_and_follow(app, form, env, "save", "go-dataset")
         form = response.forms["dataset-edit"]
-        assert_true("title" in form.fields)
-        assert_equal(form["name"].value, u"previous-button-populates-form")
+        assert "title" in form.fields
+        assert form["name"].value == u"previous-button-populates-form"
 
-    def test_previous_next_maintains_draft_state(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_previous_next_maintains_draft_state(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"previous-next-maintains-draft"
@@ -218,10 +210,11 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
         webtest_submit(form, "save", status=302, extra_environ=env)
         pkg = model.Package.by_name(u"previous-next-maintains-draft")
-        assert_equal(pkg.state, "draft")
+        assert pkg.state == "draft"
 
+    @pytest.mark.usefixtures("clean_db")
     def test_dataset_edit_org_dropdown_visible_to_normal_user_with_orgs_available(
-        self
+        self, app
     ):
         """
         The 'Organization' dropdown is available on the dataset create/edit
@@ -234,7 +227,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
             name="my-org", users=[{"name": user["id"], "capacity": "admin"}]
         )
 
-        app = self._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
@@ -252,7 +244,7 @@ class TestPackageNew(helpers.FunctionalTestBase):
         resource_form["url"] = u"http://example.com/resource"
         submit_and_follow(app, resource_form, env, "save", "go-metadata")
         pkg = model.Package.by_name(u"my-dataset")
-        assert_equal(pkg.state, "active")
+        assert pkg.state == "active"
 
         # edit package page response
         url = url_for("dataset.edit", id=pkg.id)
@@ -264,7 +256,8 @@ class TestPackageNew(helpers.FunctionalTestBase):
         owner_org_options = [value for (value, _) in form["owner_org"].options]
         assert org["id"] in owner_org_options
 
-    def test_dataset_edit_org_dropdown_normal_user_can_remove_org(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_dataset_edit_org_dropdown_normal_user_can_remove_org(self, app):
         """
         A normal user (non-sysadmin) can remove an organization from a dataset
         have permissions on.
@@ -275,7 +268,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
             name="my-org", users=[{"name": user["id"], "capacity": "admin"}]
         )
 
-        app = self._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
@@ -290,9 +282,9 @@ class TestPackageNew(helpers.FunctionalTestBase):
         resource_form["url"] = u"http://example.com/resource"
         submit_and_follow(app, resource_form, env, "save", "go-metadata")
         pkg = model.Package.by_name(u"my-dataset")
-        assert_equal(pkg.state, "active")
-        assert_equal(pkg.owner_org, org["id"])
-        assert_not_equal(pkg.owner_org, None)
+        assert pkg.state == "active"
+        assert pkg.owner_org == org["id"]
+        assert pkg.owner_org is not None
 
         # edit package page response
         url = url_for("dataset.edit", id=pkg.id)
@@ -303,11 +295,12 @@ class TestPackageNew(helpers.FunctionalTestBase):
         edit_form["owner_org"] = ""
         submit_and_follow(app, edit_form, env, "save")
         post_edit_pkg = model.Package.by_name(u"my-dataset")
-        assert_equal(post_edit_pkg.owner_org, None)
-        assert_not_equal(post_edit_pkg.owner_org, org["id"])
+        assert post_edit_pkg.owner_org == None
+        assert post_edit_pkg.owner_org != org["id"]
 
+    @pytest.mark.usefixtures("clean_db")
     def test_dataset_edit_org_dropdown_not_visible_to_normal_user_with_no_orgs_available(
-        self
+        self, app
     ):
         """
         The 'Organization' dropdown is not available on the dataset
@@ -318,7 +311,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
         # user isn't admin of org.
         org = factories.Organization(name="my-org")
 
-        app = self._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
@@ -335,7 +327,7 @@ class TestPackageNew(helpers.FunctionalTestBase):
         resource_form["url"] = u"http://example.com/resource"
         submit_and_follow(app, resource_form, env, "save", "go-metadata")
         pkg = model.Package.by_name(u"my-dataset")
-        assert_equal(pkg.state, "active")
+        assert pkg.state == "active"
 
         # edit package response
         url = url_for(
@@ -348,8 +340,9 @@ class TestPackageNew(helpers.FunctionalTestBase):
         # The organization id is in the response in a value attribute
         assert 'value="{0}"'.format(org["id"]) not in pkg_edit_response
 
+    @pytest.mark.usefixtures("clean_db")
     def test_dataset_edit_org_dropdown_visible_to_sysadmin_with_no_orgs_available(
-        self
+        self, app
     ):
         """
         The 'Organization' dropdown is available to sysadmin users regardless
@@ -362,7 +355,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
             name="my-org", users=[{"name": user["id"], "capacity": "admin"}]
         )
 
-        app = self._get_test_app()
         # user in env is sysadmin
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
@@ -381,7 +373,7 @@ class TestPackageNew(helpers.FunctionalTestBase):
         resource_form["url"] = u"http://example.com/resource"
         submit_and_follow(app, resource_form, env, "save", "go-metadata")
         pkg = model.Package.by_name(u"my-dataset")
-        assert_equal(pkg.state, "active")
+        assert pkg.state == "active"
 
         # edit package page response
         url = url_for("dataset.edit", id=pkg.id)
@@ -391,8 +383,8 @@ class TestPackageNew(helpers.FunctionalTestBase):
         # The organization id is in the response in a value attribute
         assert 'value="{0}"'.format(org["id"]) in pkg_edit_response
 
-    def test_unauthed_user_creating_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_unauthed_user_creating_dataset(self, app):
 
         # provide REMOTE_ADDR to idenfity as remote user, see
         # ckan.views.identify_user() for details
@@ -403,14 +395,14 @@ class TestPackageNew(helpers.FunctionalTestBase):
         )
 
 
-class TestPackageEdit(helpers.FunctionalTestBase):
-    def test_organization_admin_can_edit(self):
+class TestPackageEdit(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_organization_admin_can_edit(self, app):
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]), extra_environ=env
@@ -420,15 +412,15 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         submit_and_follow(app, form, env, "save")
 
         result = helpers.call_action("package_show", id=dataset["id"])
-        assert_equal(u"edited description", result["notes"])
+        assert u"edited description" == result["notes"]
 
-    def test_organization_editor_can_edit(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_organization_editor_can_edit(self, app):
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "editor"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]), extra_environ=env
@@ -438,15 +430,15 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         submit_and_follow(app, form, env, "save")
 
         result = helpers.call_action("package_show", id=dataset["id"])
-        assert_equal(u"edited description", result["notes"])
+        assert u"edited description" == result["notes"]
 
-    def test_organization_member_cannot_edit(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_organization_member_cannot_edit(self, app):
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "member"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]),
@@ -454,11 +446,11 @@ class TestPackageEdit(helpers.FunctionalTestBase):
             status=403,
         )
 
-    def test_user_not_in_organization_cannot_edit(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_user_not_in_organization_cannot_edit(self, app):
         user = factories.User()
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]),
@@ -474,10 +466,10 @@ class TestPackageEdit(helpers.FunctionalTestBase):
             status=403,
         )
 
-    def test_anonymous_user_cannot_edit(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_anonymous_user_cannot_edit(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
-        app = helpers._get_test_app()
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]), status=403
         )
@@ -488,14 +480,14 @@ class TestPackageEdit(helpers.FunctionalTestBase):
             status=403,
         )
 
-    def test_validation_errors_for_dataset_name_appear(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_validation_errors_for_dataset_name_appear(self, app):
         """fill out a bad dataset set name and make sure errors appear"""
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]), extra_environ=env
@@ -503,35 +495,35 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         form = response.forms["dataset-edit"]
         form["name"] = u"this is not a valid name"
         response = webtest_submit(form, "save", status=200, extra_environ=env)
-        assert_in("The form contains invalid entries", response.body)
+        assert "The form contains invalid entries" in response.body
 
-        assert_in(
+        assert (
             "Name: Must be purely lowercase alphanumeric (ascii) "
-            "characters and these symbols: -_",
-            response.body,
+            "characters and these symbols: -_" in response.body
         )
 
-    def test_edit_a_dataset_that_does_not_exist_404s(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_edit_a_dataset_that_does_not_exist_404s(self, app):
         user = factories.User()
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.edit", id="does-not-exist"),
             extra_environ=env,
             expect_errors=True,
         )
-        assert_equal(404, response.status_int)
+        assert 404 == response.status_int
 
 
-class TestPackageRead(helpers.FunctionalTestBase):
-    def test_read(self):
+class TestPackageRead(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_read(self, app):
         dataset = factories.Dataset()
-        app = helpers._get_test_app()
         response = app.get(url_for("dataset.read", id=dataset["name"]))
         response.mustcontain("Test Dataset")
         response.mustcontain("Just another test dataset")
 
-    def test_organization_members_can_read_private_datasets(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_organization_members_can_read_private_datasets(self, app):
         members = {
             "member": factories.User(),
             "editor": factories.User(),
@@ -546,8 +538,6 @@ class TestPackageRead(helpers.FunctionalTestBase):
             ]
         )
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
-        app = helpers._get_test_app()
-
         for user, user_dict in members.items():
             response = app.get(
                 url_for("dataset.read", id=dataset["name"]),
@@ -555,47 +545,48 @@ class TestPackageRead(helpers.FunctionalTestBase):
                     "REMOTE_USER": user_dict["name"].encode("ascii")
                 },
             )
-            assert_in("Test Dataset", response.body)
-            assert_in("Just another test dataset", response.body)
+            assert "Test Dataset" in response.body
+            assert "Just another test dataset" in response.body
 
-    def test_anonymous_users_cannot_read_private_datasets(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_anonymous_users_cannot_read_private_datasets(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
-        app = helpers._get_test_app()
         response = app.get(
             url_for("dataset.read", id=dataset["name"]), status=404
         )
-        assert_equal(404, response.status_int)
+        assert 404 == response.status_int
 
-    def test_user_not_in_organization_cannot_read_private_datasets(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_user_not_in_organization_cannot_read_private_datasets(self, app):
         user = factories.User()
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
-        app = helpers._get_test_app()
         response = app.get(
             url_for("dataset.read", id=dataset["name"]),
             extra_environ={"REMOTE_USER": user["name"].encode("ascii")},
             status=404,
         )
-        assert_equal(404, response.status_int)
+        assert 404 == response.status_int
 
-    def test_read_rdf(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_read_rdf(self, app):
         """ The RDF outputs now live in ckanext-dcat"""
         dataset1 = factories.Dataset()
 
         offset = url_for("dataset.read", id=dataset1["name"]) + ".rdf"
-        app = self._get_test_app()
         app.get(offset, status=404)
 
-    def test_read_n3(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_read_n3(self, app):
         """ The RDF outputs now live in ckanext-dcat"""
         dataset1 = factories.Dataset()
 
         offset = url_for("dataset.read", id=dataset1["name"]) + ".n3"
-        app = self._get_test_app()
         app.get(offset, status=404)
 
-    def test_read_dataset_as_it_used_to_be(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_read_dataset_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Original title")
         activity = (
             model.Session.query(model.Activity)
@@ -605,7 +596,6 @@ class TestPackageRead(helpers.FunctionalTestBase):
         dataset["title"] = "Changed title"
         helpers.call_action("package_update", **dataset)
 
-        app = helpers._get_test_app()
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
         response = app.get(
@@ -616,11 +606,11 @@ class TestPackageRead(helpers.FunctionalTestBase):
         )
         response.mustcontain("Original title")
 
-    def test_read_dataset_as_it_used_to_be_but_is_unmigrated(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_read_dataset_as_it_used_to_be_but_is_unmigrated(self, app):
         # Renders the dataset using the activity detail, when that Activity was
         # created with an earlier version of CKAN, and it has not been migrated
         # (with migrate_package_activity.py), which should give a 404
-        app = self._get_test_app()
 
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -678,37 +668,37 @@ class TestPackageRead(helpers.FunctionalTestBase):
         )
 
 
-class TestPackageDelete(helpers.FunctionalTestBase):
-    def test_owner_delete(self):
+class TestPackageDelete(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_owner_delete(self, app):
         user = factories.User()
         owner_org = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]), extra_environ=env
         )
         response = response.follow()
-        assert_equal(200, response.status_int)
+        assert 200 == response.status_int
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
-        assert_equal("deleted", deleted["state"])
+        assert "deleted" == deleted["state"]
 
-    def test_delete_on_non_existing_dataset(self):
-        app = helpers._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_on_non_existing_dataset(self, app):
         response = app.post(
             url_for("dataset.delete", id="schrodingersdatset"),
             expect_errors=True,
         )
-        assert_equal(404, response.status_int)
+        assert 404 == response.status_int
 
-    def test_sysadmin_can_delete_any_dataset(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_sysadmin_can_delete_any_dataset(self, app):
         owner_org = factories.Organization()
         dataset = factories.Dataset(owner_org=owner_org["id"])
-        app = helpers._get_test_app()
 
         user = factories.Sysadmin()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -717,35 +707,35 @@ class TestPackageDelete(helpers.FunctionalTestBase):
             url_for("dataset.delete", id=dataset["name"]), extra_environ=env
         )
         response = response.follow()
-        assert_equal(200, response.status_int)
+        assert 200 == response.status_int
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
-        assert_equal("deleted", deleted["state"])
+        assert "deleted" == deleted["state"]
 
-    def test_anon_user_cannot_delete_owned_dataset(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_anon_user_cannot_delete_owned_dataset(self, app):
         user = factories.User()
         owner_org = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
-        app = helpers._get_test_app()
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]), status=403
         )
         response.mustcontain("Unauthorized to delete package")
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
-        assert_equal("active", deleted["state"])
+        assert "active" == deleted["state"]
 
-    def test_logged_in_user_cannot_delete_owned_dataset(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_logged_in_user_cannot_delete_owned_dataset(self, app):
         owner = factories.User()
         owner_org = factories.Organization(
             users=[{"name": owner["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
-        app = helpers._get_test_app()
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.post(
@@ -753,10 +743,11 @@ class TestPackageDelete(helpers.FunctionalTestBase):
             extra_environ=env,
             expect_errors=True,
         )
-        assert_equal(403, response.status_int)
+        assert 403 == response.status_int
         response.mustcontain("Unauthorized to delete package")
 
-    def test_confirm_cancel_delete(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_confirm_cancel_delete(self, app):
         """Test confirmation of deleting datasets
 
         When package_delete is made as a get request, it should return a
@@ -767,68 +758,69 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.delete", id=dataset["name"]), extra_environ=env
         )
-        assert_equal(200, response.status_int)
+        assert 200 == response.status_int
         message = "Are you sure you want to delete dataset - {name}?"
         response.mustcontain(message.format(name=dataset["title"]))
 
         form = response.forms["confirm-dataset-delete-form"]
         response = form.submit("cancel")
         response = helpers.webtest_maybe_follow(response, extra_environ=env)
-        assert_equal(200, response.status_int)
+        assert 200 == response.status_int
 
 
-class TestResourceNew(helpers.FunctionalTestBase):
-    def test_manage_dataset_resource_listing_page(self):
+class TestResourceNew(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_manage_dataset_resource_listing_page(self, app):
         user = factories.User()
         organization = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=organization["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.resources", id=dataset["name"]), extra_environ=env
         )
-        assert_in(resource["name"], response)
-        assert_in(resource["description"], response)
-        assert_in(resource["format"], response)
+        assert resource["name"] in response
+        assert resource["description"] in response
+        assert resource["format"] in response
 
-    def test_unauth_user_cannot_view_manage_dataset_resource_listing_page(self):
-        user = factories.User()
-        organization = factories.Organization(user=user)
-        dataset = factories.Dataset(owner_org=organization["id"])
-        resource = factories.Resource(package_id=dataset["id"])
-        app = helpers._get_test_app()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(
-            url_for("dataset.resources", id=dataset["name"]), extra_environ=env
-        )
-        assert_in(resource["name"], response)
-        assert_in(resource["description"], response)
-        assert_in(resource["format"], response)
-
-    def test_404_on_manage_dataset_resource_listing_page_that_does_not_exist(
-        self
+    @pytest.mark.usefixtures("clean_db")
+    def test_unauth_user_cannot_view_manage_dataset_resource_listing_page(
+        self, app
     ):
         user = factories.User()
-        app = helpers._get_test_app()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization["id"])
+        resource = factories.Resource(package_id=dataset["id"])
+        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        response = app.get(
+            url_for("dataset.resources", id=dataset["name"]), extra_environ=env
+        )
+        assert resource["name"] in response
+        assert resource["description"] in response
+        assert resource["format"] in response
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_404_on_manage_dataset_resource_listing_page_that_does_not_exist(
+        self, app
+    ):
+        user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for("dataset.resources", id="does-not-exist"),
             extra_environ=env,
             expect_errors=True,
         )
-        assert_equal(404, response.status_int)
+        assert 404 == response.status_int
 
-    def test_add_new_resource_with_link_and_download(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_add_new_resource_with_link_and_download(self, app):
         user = factories.User()
         dataset = factories.Dataset()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app = helpers._get_test_app()
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]), extra_environ=env
@@ -849,16 +841,16 @@ class TestResourceNew(helpers.FunctionalTestBase):
             ),
             extra_environ=env,
         )
-        assert_equal(302, response.status_int)
+        assert 302 == response.status_int
 
-    def test_editor_can_add_new_resource(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_editor_can_add_new_resource(self, app):
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "editor"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app = helpers._get_test_app()
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]), extra_environ=env
@@ -872,17 +864,17 @@ class TestResourceNew(helpers.FunctionalTestBase):
         )
 
         result = helpers.call_action("package_show", id=dataset["id"])
-        assert_equal(1, len(result["resources"]))
-        assert_equal(u"test resource", result["resources"][0]["name"])
+        assert 1 == len(result["resources"])
+        assert u"test resource" == result["resources"][0]["name"]
 
-    def test_admin_can_add_new_resource(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_admin_can_add_new_resource(self, app):
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app = helpers._get_test_app()
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]), extra_environ=env
@@ -896,17 +888,17 @@ class TestResourceNew(helpers.FunctionalTestBase):
         )
 
         result = helpers.call_action("package_show", id=dataset["id"])
-        assert_equal(1, len(result["resources"]))
-        assert_equal(u"test resource", result["resources"][0]["name"])
+        assert 1 == len(result["resources"])
+        assert u"test resource" == result["resources"][0]["name"]
 
-    def test_member_cannot_add_new_resource(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_member_cannot_add_new_resource(self, app):
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "member"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app = helpers._get_test_app()
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]),
@@ -921,13 +913,13 @@ class TestResourceNew(helpers.FunctionalTestBase):
             status=403,
         )
 
-    def test_non_organization_users_cannot_add_new_resource(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_non_organization_users_cannot_add_new_resource(self, app):
         """on an owned dataset"""
         user = factories.User()
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app = helpers._get_test_app()
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]),
@@ -942,10 +934,10 @@ class TestResourceNew(helpers.FunctionalTestBase):
             status=403,
         )
 
-    def test_anonymous_users_cannot_add_new_resource(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_anonymous_users_cannot_add_new_resource(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
-        app = helpers._get_test_app()
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]), status=403
@@ -957,11 +949,11 @@ class TestResourceNew(helpers.FunctionalTestBase):
             status=403,
         )
 
-    def test_anonymous_users_cannot_edit_resource(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_anonymous_users_cannot_edit_resource(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        app = helpers._get_test_app()
 
         with app.flask_app.test_request_context():
             response = app.get(
@@ -984,24 +976,10 @@ class TestResourceNew(helpers.FunctionalTestBase):
             )
 
 
-class TestResourceView(helpers.FunctionalTestBase):
-    @classmethod
-    def _apply_config_changes(cls, cfg):
-        cfg["ckan.plugins"] = "image_view"
-
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-
-        if not p.plugin_loaded("image_view"):
-            p.load("image_view")
-        helpers.reset_db()
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload("image_view")
-
-    def test_resource_view_create(self):
+class TestResourceView(object):
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
+    def test_resource_view_create(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
@@ -1018,13 +996,14 @@ class TestResourceView(helpers.FunctionalTestBase):
             view_type="image_view",
         )
 
-        app = self._get_test_app()
         response = app.post(
             url, {"title": "Test Image View"}, extra_environ=env
         ).follow(extra_environ=env)
         response.mustcontain("Test Image View")
 
-    def test_resource_view_edit(self):
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
+    def test_resource_view_edit(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
@@ -1042,13 +1021,14 @@ class TestResourceView(helpers.FunctionalTestBase):
             view_id=resource_view["id"],
         )
 
-        app = self._get_test_app()
         response = app.post(
             url, {"title": "Updated RV Title"}, extra_environ=env
         ).follow(extra_environ=env)
         response.mustcontain("Updated RV Title")
 
-    def test_resource_view_delete(self):
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
+    def test_resource_view_delete(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
@@ -1066,13 +1046,14 @@ class TestResourceView(helpers.FunctionalTestBase):
             view_id=resource_view["id"],
         )
 
-        app = self._get_test_app()
         response = app.post(
             url, {"delete": "Delete"}, extra_environ=env
         ).follow(extra_environ=env)
         response.mustcontain("This resource has no views")
 
-    def test_existent_resource_view_page_returns_ok_code(self):
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
+    def test_existent_resource_view_page_returns_ok_code(self, app):
         resource_view = factories.ResourceView()
 
         url = url_for(
@@ -1082,10 +1063,11 @@ class TestResourceView(helpers.FunctionalTestBase):
             view_id=resource_view["id"],
         )
 
-        app = self._get_test_app()
         app.get(url, status=200)
 
-    def test_inexistent_resource_view_page_returns_not_found_code(self):
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
+    def test_inexistent_resource_view_page_returns_not_found_code(self, app):
         resource_view = factories.ResourceView()
 
         url = url_for(
@@ -1095,10 +1077,11 @@ class TestResourceView(helpers.FunctionalTestBase):
             view_id="inexistent-view-id",
         )
 
-        app = self._get_test_app()
         app.get(url, status=404)
 
-    def test_resource_view_description_is_rendered_as_markdown(self):
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
+    def test_resource_view_description_is_rendered_as_markdown(self, app):
         resource_view = factories.ResourceView(description="Some **Markdown**")
         url = url_for(
             "resource.read",
@@ -1106,13 +1089,13 @@ class TestResourceView(helpers.FunctionalTestBase):
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
         )
-        app = self._get_test_app()
         response = app.get(url)
         response.mustcontain("Some <strong>Markdown</strong>")
 
 
-class TestResourceRead(helpers.FunctionalTestBase):
-    def test_existing_resource_with_not_associated_dataset(self):
+class TestResourceRead(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_existing_resource_with_not_associated_dataset(self, app):
 
         dataset = factories.Dataset()
         resource = factories.Resource()
@@ -1121,10 +1104,10 @@ class TestResourceRead(helpers.FunctionalTestBase):
             "resource.read", id=dataset["id"], resource_id=resource["id"]
         )
 
-        app = self._get_test_app()
         app.get(url, status=404)
 
-    def test_resource_read_logged_in_user(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_resource_read_logged_in_user(self, app):
         """
         A logged-in user can view resource page.
         """
@@ -1137,10 +1120,10 @@ class TestResourceRead(helpers.FunctionalTestBase):
             "resource.read", id=dataset["id"], resource_id=resource["id"]
         )
 
-        app = self._get_test_app()
         app.get(url, status=200, extra_environ=env)
 
-    def test_resource_read_anon_user(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_resource_read_anon_user(self, app):
         """
         An anon user can view resource page.
         """
@@ -1151,10 +1134,10 @@ class TestResourceRead(helpers.FunctionalTestBase):
             "resource.read", id=dataset["id"], resource_id=resource["id"]
         )
 
-        app = self._get_test_app()
         app.get(url, status=200)
 
-    def test_resource_read_sysadmin(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_resource_read_sysadmin(self, app):
         """
         A sysadmin can view resource page.
         """
@@ -1167,10 +1150,10 @@ class TestResourceRead(helpers.FunctionalTestBase):
             "resource.read", id=dataset["id"], resource_id=resource["id"]
         )
 
-        app = self._get_test_app()
         app.get(url, status=200, extra_environ=env)
 
-    def test_user_not_in_organization_cannot_read_private_dataset(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_user_not_in_organization_cannot_read_private_dataset(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         organization = factories.Organization()
@@ -1181,10 +1164,12 @@ class TestResourceRead(helpers.FunctionalTestBase):
             "resource.read", id=dataset["id"], resource_id=resource["id"]
         )
 
-        app = self._get_test_app()
         response = app.get(url, status=404, extra_environ=env)
 
-    def test_organization_members_can_read_resources_in_private_datasets(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_organization_members_can_read_resources_in_private_datasets(
+        self, app
+    ):
         members = {
             "member": factories.User(),
             "editor": factories.User(),
@@ -1201,8 +1186,6 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         resource = factories.Resource(package_id=dataset["id"])
 
-        app = helpers._get_test_app()
-
         for user, user_dict in members.items():
             response = app.get(
                 url_for(
@@ -1214,27 +1197,27 @@ class TestResourceRead(helpers.FunctionalTestBase):
                     "REMOTE_USER": user_dict["name"].encode("ascii")
                 },
             )
-            assert_in("Just another test resource", response.body)
+            assert "Just another test resource" in response.body
 
-    def test_anonymous_users_cannot_read_private_datasets(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_anonymous_users_cannot_read_private_datasets(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
-        app = helpers._get_test_app()
         response = app.get(
             url_for("dataset.read", id=dataset["name"]), status=404
         )
-        assert_equal(404, response.status_int)
+        assert 404 == response.status_int
 
 
-class TestResourceDelete(helpers.FunctionalTestBase):
-    def test_dataset_owners_can_delete_resources(self):
+class TestResourceDelete(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_dataset_owners_can_delete_resources(self, app):
         user = factories.User()
         owner_org = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.post(
             url_for(
@@ -1245,24 +1228,20 @@ class TestResourceDelete(helpers.FunctionalTestBase):
             extra_environ=env,
         )
         response = response.follow()
-        assert_equal(200, response.status_int)
+        assert 200 == response.status_int
         response.mustcontain("This dataset has no data")
 
-        assert_raises(
-            p.toolkit.ObjectNotFound,
-            helpers.call_action,
-            "resource_show",
-            id=resource["id"],
-        )
+        with pytest.raises(p.toolkit.ObjectNotFound):
+            helpers.call_action("resource_show", id=resource["id"])
 
-    def test_deleting_non_existing_resource_404s(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_deleting_non_existing_resource_404s(self, app):
         user = factories.User()
         owner_org = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app = helpers._get_test_app()
         response = app.post(
             url_for(
                 "resource.delete",
@@ -1272,9 +1251,10 @@ class TestResourceDelete(helpers.FunctionalTestBase):
             extra_environ=env,
             expect_errors=True,
         )
-        assert_equal(404, response.status_int)
+        assert 404 == response.status_int
 
-    def test_anon_users_cannot_delete_owned_resources(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_anon_users_cannot_delete_owned_resources(self, app):
         user = factories.User()
         owner_org = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
@@ -1282,7 +1262,6 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
 
-        app = helpers._get_test_app()
         response = app.post(
             url_for(
                 "resource.delete",
@@ -1293,7 +1272,8 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         )
         response.mustcontain("Unauthorized to delete package")
 
-    def test_logged_in_users_cannot_delete_resources_they_do_not_own(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_logged_in_users_cannot_delete_resources_they_do_not_own(self, app):
         # setup our dataset
         owner = factories.User()
         owner_org = factories.Organization(
@@ -1305,7 +1285,6 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         # access as another user
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app = helpers._get_test_app()
         response = app.post(
             url_for(
                 "resource.delete",
@@ -1315,16 +1294,16 @@ class TestResourceDelete(helpers.FunctionalTestBase):
             extra_environ=env,
             expect_errors=True,
         )
-        assert_equal(403, response.status_int)
+        assert 403 == response.status_int
         response.mustcontain("Unauthorized to delete package")
 
-    def test_sysadmins_can_delete_any_resource(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_sysadmins_can_delete_any_resource(self, app):
         owner_org = factories.Organization()
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
 
         sysadmin = factories.Sysadmin()
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
         response = app.post(
             url_for(
@@ -1335,17 +1314,14 @@ class TestResourceDelete(helpers.FunctionalTestBase):
             extra_environ=env,
         )
         response = response.follow()
-        assert_equal(200, response.status_int)
+        assert 200 == response.status_int
         response.mustcontain("This dataset has no data")
 
-        assert_raises(
-            p.toolkit.ObjectNotFound,
-            helpers.call_action,
-            "resource_show",
-            id=resource["id"],
-        )
+        with pytest.raises(p.toolkit.ObjectNotFound):
+            helpers.call_action("resource_show", id=resource["id"])
 
-    def test_confirm_and_cancel_deleting_a_resource(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_confirm_and_cancel_deleting_a_resource(self, app):
         """Test confirmation of deleting resources
 
         When resource_delete is made as a get request, it should return a
@@ -1356,7 +1332,6 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
             url_for(
@@ -1366,7 +1341,7 @@ class TestResourceDelete(helpers.FunctionalTestBase):
             ),
             extra_environ=env,
         )
-        assert_equal(200, response.status_int)
+        assert 200 == response.status_int
         message = "Are you sure you want to delete resource - {name}?"
         response.mustcontain(message.format(name=resource["name"]))
 
@@ -1374,23 +1349,23 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         form = response.forms["confirm-resource-delete-form"]
         response = form.submit("cancel")
         response = response.follow(extra_environ=env)
-        assert_equal(200, response.status_int)
+        assert 200 == response.status_int
 
 
-class TestSearch(helpers.FunctionalTestBase):
-    def test_search_basic(self):
+class TestSearch(object):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_basic(self, app):
         dataset1 = factories.Dataset()
 
         offset = url_for("dataset.search")
-        app = self._get_test_app()
         page = app.get(offset)
 
         assert dataset1["name"] in page.body.decode("utf8")
 
-    def test_search_language_toggle(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_language_toggle(self, app):
         dataset1 = factories.Dataset()
 
-        app = self._get_test_app()
         with app.flask_app.test_request_context():
             offset = url_for("dataset.search", q=dataset1["name"])
         page = app.get(offset)
@@ -1398,22 +1373,22 @@ class TestSearch(helpers.FunctionalTestBase):
         assert dataset1["name"] in page.body.decode("utf8")
         assert ("q=" + dataset1["name"]) in page.body.decode("utf8")
 
-    def test_search_sort_by_blank(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_sort_by_blank(self, app):
         factories.Dataset()
 
         # ?sort has caused an exception in the past
         offset = url_for("dataset.search") + "?sort"
-        app = self._get_test_app()
         app.get(offset)
 
-    def test_search_sort_by_bad(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_sort_by_bad(self, app):
         factories.Dataset()
 
         # bad spiders try all sorts of invalid values for sort. They should get
         # a 400 error with specific error message. No need to alert the
         # administrator.
         offset = url_for("dataset.search") + "?sort=gvgyr_fgevat+nfp"
-        app = self._get_test_app()
         response = app.get(offset, status=[200, 400])
         if response.status == 200:
             import sys
@@ -1425,7 +1400,8 @@ class TestSearch(helpers.FunctionalTestBase):
                 "in ckan/lib/search/query.py:run"
             )
 
-    def test_search_solr_syntax_error(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_solr_syntax_error(self, app):
         factories.Dataset()
 
         # SOLR raises SyntaxError when it can't parse q (or other fields?).
@@ -1433,28 +1409,28 @@ class TestSearch(helpers.FunctionalTestBase):
         # because CKAN mangled things somehow and therefore we flag it up to
         # the administrator and give a meaningless error, just in case
         offset = url_for("dataset.search") + "?q=--included"
-        app = self._get_test_app()
         search_response = app.get(offset)
 
         search_response_html = BeautifulSoup(search_response.body)
         err_msg = search_response_html.select("#search-error")
         err_msg = "".join([n.text for n in err_msg])
-        assert_in("error while searching", err_msg)
+        assert "error while searching" in err_msg
 
-    def test_search_plugin_hooks(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_plugin_hooks(self, app):
         with p.use_plugin("test_package_controller_plugin") as plugin:
 
             offset = url_for("dataset.search")
-            app = self._get_test_app()
             app.get(offset)
 
             # get redirected ...
             assert plugin.calls["before_search"] == 1, plugin.calls
             assert plugin.calls["after_search"] == 1, plugin.calls
 
-    def test_search_page_request(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_page_request(self, app):
         """Requesting package search page returns list of datasets."""
-        app = self._get_test_app()
+
         factories.Dataset(name="dataset-one", title="Dataset One")
         factories.Dataset(name="dataset-two", title="Dataset Two")
         factories.Dataset(name="dataset-three", title="Dataset Three")
@@ -1462,7 +1438,7 @@ class TestSearch(helpers.FunctionalTestBase):
         search_url = url_for("dataset.search")
         search_response = app.get(search_url)
 
-        assert_true("3 datasets found" in search_response)
+        assert "3 datasets found" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
         ds_titles = search_response_html.select(
@@ -1470,14 +1446,15 @@ class TestSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [n.string for n in ds_titles]
 
-        assert_equal(len(ds_titles), 3)
-        assert_true("Dataset One" in ds_titles)
-        assert_true("Dataset Two" in ds_titles)
-        assert_true("Dataset Three" in ds_titles)
+        assert len(ds_titles) == 3
+        assert "Dataset One" in ds_titles
+        assert "Dataset Two" in ds_titles
+        assert "Dataset Three" in ds_titles
 
-    def test_search_page_results(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_page_results(self, app):
         """Searching for datasets returns expected results."""
-        app = self._get_test_app()
+
         factories.Dataset(name="dataset-one", title="Dataset One")
         factories.Dataset(name="dataset-two", title="Dataset Two")
         factories.Dataset(name="dataset-three", title="Dataset Three")
@@ -1489,7 +1466,7 @@ class TestSearch(helpers.FunctionalTestBase):
         search_form["q"] = "One"
         search_results = webtest_submit(search_form)
 
-        assert_true("1 dataset found" in search_results)
+        assert "1 dataset found" in search_results
 
         search_response_html = BeautifulSoup(search_results.body)
         ds_titles = search_response_html.select(
@@ -1497,12 +1474,13 @@ class TestSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [n.string for n in ds_titles]
 
-        assert_equal(len(ds_titles), 1)
-        assert_true("Dataset One" in ds_titles)
+        assert len(ds_titles) == 1
+        assert "Dataset One" in ds_titles
 
-    def test_search_page_no_results(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_page_no_results(self, app):
         """Search with non-returning phrase returns no results."""
-        app = self._get_test_app()
+
         factories.Dataset(name="dataset-one", title="Dataset One")
         factories.Dataset(name="dataset-two", title="Dataset Two")
         factories.Dataset(name="dataset-three", title="Dataset Three")
@@ -1514,7 +1492,7 @@ class TestSearch(helpers.FunctionalTestBase):
         search_form["q"] = "Nout"
         search_results = webtest_submit(search_form)
 
-        assert_true('No datasets found for "Nout"' in search_results)
+        assert 'No datasets found for "Nout"' in search_results
 
         search_response_html = BeautifulSoup(search_results.body)
         ds_titles = search_response_html.select(
@@ -1522,11 +1500,12 @@ class TestSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [n.string for n in ds_titles]
 
-        assert_equal(len(ds_titles), 0)
+        assert len(ds_titles) == 0
 
-    def test_search_page_results_tag(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_page_results_tag(self, app):
         """Searching with a tag returns expected results."""
-        app = self._get_test_app()
+
         factories.Dataset(
             name="dataset-one", title="Dataset One", tags=[{"name": "my-tag"}]
         )
@@ -1535,11 +1514,11 @@ class TestSearch(helpers.FunctionalTestBase):
 
         search_url = url_for("dataset.search")
         search_response = app.get(search_url)
-        assert_true("/dataset/?tags=my-tag" in search_response)
+        assert "/dataset/?tags=my-tag" in search_response
 
         tag_search_response = app.get("/dataset?tags=my-tag")
 
-        assert_true("1 dataset found" in tag_search_response)
+        assert "1 dataset found" in tag_search_response
 
         search_response_html = BeautifulSoup(tag_search_response.body)
         ds_titles = search_response_html.select(
@@ -1547,13 +1526,13 @@ class TestSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [n.string for n in ds_titles]
 
-        assert_equal(len(ds_titles), 1)
-        assert_true("Dataset One" in ds_titles)
+        assert len(ds_titles) == 1
+        assert "Dataset One" in ds_titles
 
-    def test_search_page_results_tags(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_page_results_tags(self, app):
         """Searching with a tag returns expected results with multiple tags"""
 
-        app = self._get_test_app()
         factories.Dataset(
             name="dataset-one",
             title="Dataset One",
@@ -1569,15 +1548,15 @@ class TestSearch(helpers.FunctionalTestBase):
         params = "/dataset/?tags=my-tag-1&tags=my-tag-2&tags=my-tag-3"
         tag_search_response = app.get(params)
 
-        assert_true("1 dataset found" in tag_search_response)
+        assert "1 dataset found" in tag_search_response
 
         search_response_html = BeautifulSoup(tag_search_response.body)
         ds_titles = search_response_html.select(".filtered")
-        assert_equal(len(ds_titles), 3)
+        assert len(ds_titles) == 3
 
-    def test_search_page_results_private(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_search_page_results_private(self, app):
         """Private datasets don't show up in dataset search results."""
-        app = self._get_test_app()
         org = factories.Organization()
 
         factories.Dataset(
@@ -1598,13 +1577,14 @@ class TestSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [n.string for n in ds_titles]
 
-        assert_equal(len(ds_titles), 2)
-        assert_true("Dataset One" not in ds_titles)
-        assert_true("Dataset Two" in ds_titles)
-        assert_true("Dataset Three" in ds_titles)
+        assert len(ds_titles) == 2
+        assert "Dataset One" not in ds_titles
+        assert "Dataset Two" in ds_titles
+        assert "Dataset Three" in ds_titles
 
-    def test_user_not_in_organization_cannot_search_private_datasets(self):
-        app = helpers._get_test_app()
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_user_not_in_organization_cannot_search_private_datasets(self, app):
+
         user = factories.User()
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
@@ -1616,10 +1596,11 @@ class TestSearch(helpers.FunctionalTestBase):
         ds_titles = search_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        assert_equal([n.string for n in ds_titles], [])
+        assert [n.string for n in ds_titles] == []
 
-    def test_user_in_organization_can_search_private_datasets(self):
-        app = helpers._get_test_app()
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_user_in_organization_can_search_private_datasets(self, app):
+
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "member"}]
@@ -1637,12 +1618,12 @@ class TestSearch(helpers.FunctionalTestBase):
         ds_titles = search_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        assert_equal([n.string for n in ds_titles], ["A private dataset"])
+        assert [n.string for n in ds_titles] == ["A private dataset"]
 
+    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_user_in_different_organization_cannot_search_private_datasets(
-        self
+        self, app
     ):
-        app = helpers._get_test_app()
         user = factories.User()
         org1 = factories.Organization(
             users=[{"name": user["id"], "capacity": "member"}]
@@ -1659,11 +1640,11 @@ class TestSearch(helpers.FunctionalTestBase):
         ds_titles = search_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        assert_equal([n.string for n in ds_titles], [])
+        assert [n.string for n in ds_titles] == []
 
-    @helpers.change_config("ckan.search.default_include_private", "false")
-    def test_search_default_include_private_false(self):
-        app = helpers._get_test_app()
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    @pytest.mark.ckan_config("ckan.search.default_include_private", "false")
+    def test_search_default_include_private_false(self, app):
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "member"}]
@@ -1677,10 +1658,10 @@ class TestSearch(helpers.FunctionalTestBase):
         ds_titles = search_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        assert_equal([n.string for n in ds_titles], [])
+        assert [n.string for n in ds_titles] == []
 
-    def test_sysadmin_can_search_private_datasets(self):
-        app = helpers._get_test_app()
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_sysadmin_can_search_private_datasets(self, app):
         user = factories.Sysadmin()
         organization = factories.Organization()
         dataset = factories.Dataset(
@@ -1696,12 +1677,12 @@ class TestSearch(helpers.FunctionalTestBase):
         ds_titles = search_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        assert_equal([n.string for n in ds_titles], ["A private dataset"])
+        assert [n.string for n in ds_titles] == ["A private dataset"]
 
 
-class TestPackageFollow(helpers.FunctionalTestBase):
-    def test_package_follow(self):
-        app = self._get_test_app()
+class TestPackageFollow(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_package_follow(self, app):
 
         user = factories.User()
         package = factories.Dataset()
@@ -1710,13 +1691,11 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         follow_url = url_for("dataset.follow", id=package["id"])
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
-        assert_true(
-            "You are now following {0}".format(package["title"]) in response
-        )
+        assert "You are now following {0}".format(package["title"]) in response
 
-    def test_package_follow_not_exist(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_package_follow_not_exist(self, app):
         """Pass an id for a package that doesn't exist"""
-        app = self._get_test_app()
 
         user_one = factories.User()
 
@@ -1724,10 +1703,10 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         follow_url = url_for("dataset.follow", id="not-here")
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=404)
-        assert_true("Dataset not found" in response)
+        assert "Dataset not found" in response
 
-    def test_package_unfollow(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_package_unfollow(self, app):
 
         user_one = factories.User()
         package = factories.Dataset()
@@ -1742,14 +1721,14 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         )
         unfollow_response = unfollow_response.follow()
 
-        assert_true(
+        assert (
             "You are no longer following {0}".format(package["title"])
             in unfollow_response
         )
 
-    def test_package_unfollow_not_following(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_package_unfollow_not_following(self, app):
         """Unfollow a package not currently following"""
-        app = self._get_test_app()
 
         user_one = factories.User()
         package = factories.Dataset()
@@ -1762,14 +1741,14 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         unfollow_response = unfollow_response.follow()  # /package/[id] 302s to
         unfollow_response = unfollow_response.follow()  # /package/[name]
 
-        assert_true(
+        assert (
             "You are not following {0}".format(package["id"])
             in unfollow_response
         )
 
-    def test_package_unfollow_not_exist(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_package_unfollow_not_exist(self, app):
         """Unfollow a package that doesn't exist."""
-        app = self._get_test_app()
 
         user_one = factories.User()
 
@@ -1779,11 +1758,11 @@ class TestPackageFollow(helpers.FunctionalTestBase):
             unfollow_url, extra_environ=env, status=302
         )
         unfollow_response = unfollow_response.follow(status=404)
-        assert_true("Dataset not found" in unfollow_response)
+        assert "Dataset not found" in unfollow_response
 
-    def test_package_follower_list(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_package_follower_list(self, app):
         """Following users appear on followers list page."""
-        app = self._get_test_app()
 
         user_one = factories.Sysadmin()
         package = factories.Dataset()
@@ -1798,32 +1777,33 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         followers_response = app.get(
             followers_url, extra_environ=env, status=200
         )
-        assert_true(user_one["display_name"] in followers_response)
+        assert user_one["display_name"] in followers_response
 
 
-class TestDatasetRead(helpers.FunctionalTestBase):
-    def test_dataset_read(self):
-        app = self._get_test_app()
+class TestDatasetRead(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_dataset_read(self, app):
 
         dataset = factories.Dataset()
 
         url = url_for("dataset.read", id=dataset["name"])
         response = app.get(url)
-        assert_in(dataset["title"], response)
+        assert dataset["title"] in response
 
-    def test_redirect_when_given_id(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_redirect_when_given_id(self, app):
         dataset = factories.Dataset()
-        app = helpers._get_test_app()
         response = app.get(
             url_for("dataset.read", id=dataset["id"]), status=302
         )
         # redirect replaces the ID with the name in the URL
         redirected_response = response.follow()
         expected_url = url_for("dataset.read", id=dataset["name"])
-        assert_equal(redirected_response.request.path, expected_url)
-        assert_equal(redirected_response.request.query_string, "")
+        assert redirected_response.request.path == expected_url
+        assert redirected_response.request.query_string == ""
 
-    def test_redirect_also_with_activity_parameter(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_redirect_also_with_activity_parameter(self, app):
         dataset = factories.Dataset()
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
@@ -1831,7 +1811,6 @@ class TestDatasetRead(helpers.FunctionalTestBase):
         # view as an admin because viewing the old versions of a dataset
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
-        app = helpers._get_test_app()
         response = app.get(
             url_for("dataset.read", id=dataset["id"], activity_id=activity.id),
             status=302,
@@ -1839,53 +1818,57 @@ class TestDatasetRead(helpers.FunctionalTestBase):
         )
         redirected_response = response.follow(extra_environ=env)
         expected_path = url_for("dataset.read", id=dataset["name"])
-        assert_equal(redirected_response.request.path, expected_path)
-        assert_equal(
-            redirected_response.request.query_string,
-            "activity_id={}".format(activity.id),
+        assert redirected_response.request.path == expected_path
+        assert (
+            redirected_response.request.query_string
+            == "activity_id={}".format(activity.id)
         )
 
-    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         dataset = factories.Dataset(id="abc", name="abc")
-        app = helpers._get_test_app()
         app.get(
             url_for("dataset.read", id=dataset["id"]), status=200
         )  # ie no redirect
 
 
-class TestActivity(helpers.FunctionalTestBase):
-    def test_simple(self):
+class TestActivity(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_simple(self, app):
         """Checking the template shows the activity stream."""
-        app = self._get_test_app()
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in("Mr. Test User", response)
-        assert_in("created the dataset", response)
+        assert "Mr. Test User" in response
+        assert "created the dataset" in response
 
-    def test_create_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_dataset(self, app):
+
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("created the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        assert "created the dataset" in response
+        assert (
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            in response
         )
 
+    @pytest.mark.usefixtures("clean_db")
     def _clear_activities(self):
         model.Session.query(model.Activity).delete()
         model.Session.flush()
 
-    def test_change_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_change_dataset(self, app):
+
         user = factories.User()
         dataset = factories.Dataset(user=user)
         self._clear_activities()
@@ -1896,19 +1879,20 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the dataset", response)
-        assert_in(
+        assert "updated the dataset" in response
+        assert (
             '<a href="/dataset/{}">Dataset with changed title'.format(
                 dataset["id"]
-            ),
-            response,
+            )
+            in response
         )
 
-    def test_delete_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_dataset(self, app):
+
         user = factories.User()
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org["id"], user=user)
@@ -1919,35 +1903,39 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("deleted the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        assert "deleted the dataset" in response
+        assert (
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            in response
         )
 
-    def test_admin_can_see_old_versions(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_admin_can_see_old_versions(self, app):
+
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         dataset = factories.Dataset(user=user)
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url, extra_environ=env)
-        assert_in("View this version", response)
+        assert "View this version" in response
 
-    def test_public_cant_see_old_versions(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_public_cant_see_old_versions(self, app):
+
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_not_in("View this version", response)
+        assert "View this version" not in response
 
-    def test_admin_can_see_changes(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_admin_can_see_changes(self, app):
+
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         dataset = factories.Dataset()  # activities by system user aren't shown
@@ -1956,24 +1944,24 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url, extra_environ=env)
-        assert_in("Changes", response)
+        assert "Changes" in response
         changes_page = response.click("Changes", extra_environ=env)
 
-    def test_public_cant_see_changes(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_public_cant_see_changes(self, app):
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
         helpers.call_action("package_update", **dataset)
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_not_in("Changes", response)
+        assert "Changes" not in response
 
-    def test_legacy_changed_package_activity(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_legacy_changed_package_activity(self, app):
         """Render an activity that was created with an earlier version of CKAN,
         and it has not been migrated (with migrate_package_activity.py)
         """
-        app = self._get_test_app()
 
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -2022,12 +2010,13 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        assert "updated the dataset" in response
+        assert (
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            in response
         )
 
     # ckanext-canada uses their IActivity to add their custom activity to the
@@ -2040,10 +2029,10 @@ class TestActivity(helpers.FunctionalTestBase):
             + [("changed datastore", package_id_exists)]
         ),
     )
-    def test_custom_activity(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_custom_activity(self, app):
         """Render a custom activity
         """
-        app = self._get_test_app()
 
         user = factories.User()
         organization = factories.Organization(
@@ -2071,26 +2060,22 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
         # it renders the activity with fallback.html, since we've not defined
         # changed_datastore.html in this case
-        assert_in("changed datastore", response)
+        assert "changed datastore" in response
 
 
 class TestChanges(object):  # i.e. the diff
-    @classmethod
-    def setup_class(cls):
-        helpers.reset_db()
-
-    def test_simple(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_simple(self, app):
         user = factories.User()
         dataset = factories.Dataset(title="First title", user=user)
         dataset["title"] = "Second title"
         helpers.call_action("package_update", **dataset)
 
-        app = helpers._get_test_app()
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]

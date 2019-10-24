@@ -1,59 +1,56 @@
 # encoding: utf-8
 
+import pytest
 from bs4 import BeautifulSoup
-from nose.tools import assert_equal, assert_true, assert_in
 from mock import patch
 
-from ckan.lib.helpers import url_for
 from ckan import model
-
+from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 from ckan.tests.helpers import webtest_submit, submit_and_follow
 
 
-class TestOrganizationNew(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestOrganizationNew, self).setup()
-        self.app = helpers._get_test_app()
-        self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
-        self.organization_new_url = url_for("organization.new")
+class TestOrganizationNew(object):
+    @pytest.fixture
+    def user_env(self):
+        user = factories.User()
+        return {"REMOTE_USER": user["name"].encode("ascii")}
 
-    def test_not_logged_in(self):
-        self.app.get(url=url_for("group.new"), status=403)
+    def test_not_logged_in(self, app):
+        app.get(url=url_for("group.new"), status=403)
 
-    def test_name_required(self):
-        response = self.app.get(
-            url=self.organization_new_url, extra_environ=self.user_env
+    @pytest.mark.usefixtures("clean_db")
+    def test_name_required(self, app, user_env):
+        response = app.get(
+            url=url_for("organization.new"), extra_environ=user_env
         )
         form = response.forms["organization-edit-form"]
-        response = webtest_submit(
-            form, name="save", extra_environ=self.user_env
-        )
+        response = webtest_submit(form, name="save", extra_environ=user_env)
 
-        assert_true("organization-edit-form" in response.forms)
-        assert_true("Name: Missing value" in response)
+        assert "organization-edit-form" in response.forms
+        assert "Name: Missing value" in response
 
-    def test_saved(self):
-        response = self.app.get(
-            url=self.organization_new_url, extra_environ=self.user_env
+    @pytest.mark.usefixtures("clean_db")
+    def test_saved(self, app, user_env):
+        response = app.get(
+            url=url_for("organization.new"), extra_environ=user_env
         )
 
         form = response.forms["organization-edit-form"]
         form["name"] = u"saved"
 
         response = submit_and_follow(
-            self.app, form, name="save", extra_environ=self.user_env
+            app, form, name="save", extra_environ=user_env
         )
         group = helpers.call_action("organization_show", id="saved")
-        assert_equal(group["title"], u"")
-        assert_equal(group["type"], "organization")
-        assert_equal(group["state"], "active")
+        assert group["title"] == u""
+        assert group["type"] == "organization"
+        assert group["state"] == "active"
 
-    def test_all_fields_saved(self):
-        app = helpers._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_all_fields_saved(self, app, user_env):
         response = app.get(
-            url=self.organization_new_url, extra_environ=self.user_env
+            url=url_for("organization.new"), extra_environ=user_env
         )
 
         form = response.forms["organization-edit-form"]
@@ -63,95 +60,101 @@ class TestOrganizationNew(helpers.FunctionalTestBase):
         form["image_url"] = "http://example.com/image.png"
 
         response = submit_and_follow(
-            self.app, form, name="save", extra_environ=self.user_env
+            app, form, name="save", extra_environ=user_env
         )
         group = helpers.call_action("organization_show", id="all-fields-saved")
-        assert_equal(group["title"], u"Science")
-        assert_equal(group["description"], "Sciencey datasets")
+        assert group["title"] == u"Science"
+        assert group["description"] == "Sciencey datasets"
 
 
-class TestOrganizationList(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestOrganizationList, self).setup()
-        self.app = helpers._get_test_app()
+class TestOrganizationList(object):
+    @patch(
+        "ckan.logic.auth.get.organization_list", return_value={"success": False}
+    )
+    @pytest.mark.usefixtures("clean_db")
+    def test_error_message_shown_when_no_organization_list_permission(
+        self, mock_check_access, app
+    ):
         self.user = factories.User()
         self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
         self.organization_list_url = url_for("organization.index")
 
-    @patch(
-        "ckan.logic.auth.get.organization_list", return_value={"success": False}
-    )
-    def test_error_message_shown_when_no_organization_list_permission(
-        self, mock_check_access
-    ):
-        response = self.app.get(
+        response = app.get(
             url=self.organization_list_url,
             extra_environ=self.user_env,
             status=403,
         )
 
 
-class TestOrganizationRead(helpers.FunctionalTestBase):
-    def test_group_read(self):
+class TestOrganizationRead(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_read(self, app):
         org = factories.Organization()
-        app = helpers._get_test_app()
         response = app.get(url=url_for("organization.read", id=org["name"]))
-        assert_in(org["title"], response)
-        assert_in(org["description"], response)
+        assert org["title"] in response
+        assert org["description"] in response
 
-    def test_read_redirect_when_given_id(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_read_redirect_when_given_id(self, app):
         org = factories.Organization()
-        app = helpers._get_test_app()
         response = app.get(
             url_for("organization.read", id=org["id"]), status=302
         )
         # redirect replaces the ID with the name in the URL
         redirected_response = response.follow()
         expected_url = url_for("organization.read", id=org["name"])
-        assert_equal(redirected_response.request.path, expected_url)
+        assert redirected_response.request.path == expected_url
 
-    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         org = factories.Organization(id="abc", name="abc")
-        app = helpers._get_test_app()
         app.get(
             url_for("organization.read", id=org["id"]), status=200
         )  # ie no redirect
 
 
-class TestOrganizationEdit(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestOrganizationEdit, self).setup()
-        self.app = helpers._get_test_app()
-        self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
-        self.organization = factories.Organization(user=self.user)
-        self.organization_edit_url = url_for(
-            "organization.edit", id=self.organization["id"]
-        )
+class TestOrganizationEdit(object):
+    @pytest.fixture
+    def initial_data(self):
+        user = factories.User()
+        return {
+            "user": user,
+            "user_env": {"REMOTE_USER": user["name"].encode("ascii")},
+            "organization": factories.Organization(user=user),
+        }
 
-    def test_group_doesnt_exist(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_doesnt_exist(self, app, initial_data):
         url = url_for("organization.edit", id="doesnt_exist")
-        self.app.get(url=url, extra_environ=self.user_env, status=404)
+        app.get(url=url, extra_environ=initial_data["user_env"], status=404)
 
-    def test_saved(self):
-        response = self.app.get(
-            url=self.organization_edit_url, extra_environ=self.user_env
+    @pytest.mark.usefixtures("clean_db")
+    def test_saved(self, app, initial_data):
+        response = app.get(
+            url=url_for(
+                "organization.edit", id=initial_data["organization"]["id"]
+            ),
+            extra_environ=initial_data["user_env"],
         )
 
         form = response.forms["organization-edit-form"]
         response = webtest_submit(
-            form, name="save", extra_environ=self.user_env
+            form, name="save", extra_environ=initial_data["user_env"]
         )
         group = helpers.call_action(
-            "organization_show", id=self.organization["id"]
+            "organization_show", id=initial_data["organization"]["id"]
         )
-        assert_equal(group["title"], u"Test Organization")
-        assert_equal(group["type"], "organization")
-        assert_equal(group["state"], "active")
+        assert group["title"] == u"Test Organization"
+        assert group["type"] == "organization"
+        assert group["state"] == "active"
 
-    def test_all_fields_saved(self):
-        response = self.app.get(
-            url=self.organization_edit_url, extra_environ=self.user_env
+    @pytest.mark.usefixtures("clean_db")
+    def test_all_fields_saved(self, app, initial_data):
+        response = app.get(
+            url=url_for(
+                "organization.edit", id=initial_data["organization"]["id"]
+            ),
+            extra_environ=initial_data["user_env"],
         )
 
         form = response.forms["organization-edit-form"]
@@ -160,138 +163,158 @@ class TestOrganizationEdit(helpers.FunctionalTestBase):
         form["description"] = "Sciencey datasets"
         form["image_url"] = "http://example.com/image.png"
         response = webtest_submit(
-            form, name="save", extra_environ=self.user_env
+            form, name="save", extra_environ=initial_data["user_env"]
         )
 
         group = helpers.call_action(
-            "organization_show", id=self.organization["id"]
+            "organization_show", id=initial_data["organization"]["id"]
         )
-        assert_equal(group["title"], u"Science")
-        assert_equal(group["description"], "Sciencey datasets")
-        assert_equal(group["image_url"], "http://example.com/image.png")
+        assert group["title"] == u"Science"
+        assert group["description"] == "Sciencey datasets"
+        assert group["image_url"] == "http://example.com/image.png"
 
 
-class TestOrganizationDelete(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestOrganizationDelete, self).setup()
-        self.app = helpers._get_test_app()
-        self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
-        self.organization = factories.Organization(user=self.user)
+class TestOrganizationDelete(object):
+    @pytest.fixture
+    def initial_data(self):
+        user = factories.User()
+        return {
+            "user": user,
+            "user_env": {"REMOTE_USER": user["name"].encode("ascii")},
+            "organization": factories.Organization(user=user),
+        }
 
-    def test_owner_delete(self):
-        response = self.app.get(
-            url=url_for("organization.delete", id=self.organization["id"]),
+    @pytest.mark.usefixtures("clean_db")
+    def test_owner_delete(self, app, initial_data):
+        response = app.get(
+            url=url_for(
+                "organization.delete", id=initial_data["organization"]["id"]
+            ),
             status=200,
-            extra_environ=self.user_env,
+            extra_environ=initial_data["user_env"],
         )
 
         form = response.forms["organization-confirm-delete-form"]
         response = submit_and_follow(
-            self.app, form, name="delete", extra_environ=self.user_env
+            app, form, name="delete", extra_environ=initial_data["user_env"]
         )
         organization = helpers.call_action(
-            "organization_show", id=self.organization["id"]
+            "organization_show", id=initial_data["organization"]["id"]
         )
-        assert_equal(organization["state"], "deleted")
+        assert organization["state"] == "deleted"
 
-    def test_sysadmin_delete(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_sysadmin_delete(self, app, initial_data):
         sysadmin = factories.Sysadmin()
         extra_environ = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
-        response = self.app.get(
-            url=url_for("organization.delete", id=self.organization["id"]),
+        response = app.get(
+            url=url_for(
+                "organization.delete", id=initial_data["organization"]["id"]
+            ),
             status=200,
             extra_environ=extra_environ,
         )
 
         form = response.forms["organization-confirm-delete-form"]
         response = submit_and_follow(
-            self.app, form, name="delete", extra_environ=self.user_env
+            app, form, name="delete", extra_environ=initial_data["user_env"]
         )
         organization = helpers.call_action(
-            "organization_show", id=self.organization["id"]
+            "organization_show", id=initial_data["organization"]["id"]
         )
-        assert_equal(organization["state"], "deleted")
+        assert organization["state"] == "deleted"
 
-    def test_non_authorized_user_trying_to_delete_fails(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_non_authorized_user_trying_to_delete_fails(
+        self, app, initial_data
+    ):
         user = factories.User()
         extra_environ = {"REMOTE_USER": user["name"].encode("ascii")}
-        self.app.get(
-            url=url_for("organization.delete", id=self.organization["id"]),
+        app.get(
+            url=url_for(
+                "organization.delete", id=initial_data["organization"]["id"]
+            ),
             status=403,
             extra_environ=extra_environ,
         )
 
         organization = helpers.call_action(
-            "organization_show", id=self.organization["id"]
+            "organization_show", id=initial_data["organization"]["id"]
         )
-        assert_equal(organization["state"], "active")
+        assert organization["state"] == "active"
 
-    def test_anon_user_trying_to_delete_fails(self):
-        self.app.get(
-            url=url_for("organization.delete", id=self.organization["id"]),
+    @pytest.mark.usefixtures("clean_db")
+    def test_anon_user_trying_to_delete_fails(self, app, initial_data):
+        app.get(
+            url=url_for(
+                "organization.delete", id=initial_data["organization"]["id"]
+            ),
             status=403,
         )
 
         organization = helpers.call_action(
-            "organization_show", id=self.organization["id"]
+            "organization_show", id=initial_data["organization"]["id"]
         )
-        assert_equal(organization["state"], "active")
+        assert organization["state"] == "active"
 
-    @helpers.change_config("ckan.auth.create_unowned_dataset", False)
-    def test_delete_organization_with_datasets(self):
+    @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_organization_with_datasets(self, app, initial_data):
         """ Test deletion of organization that has datasets"""
         text = "Organization cannot be deleted while it still has datasets"
         datasets = [
-            factories.Dataset(owner_org=self.organization["id"])
+            factories.Dataset(owner_org=initial_data["organization"]["id"])
             for i in range(0, 5)
         ]
-        response = self.app.get(
-            url=url_for("organization.delete", id=self.organization["id"]),
+        response = app.get(
+            url=url_for(
+                "organization.delete", id=initial_data["organization"]["id"]
+            ),
             status=200,
-            extra_environ=self.user_env,
+            extra_environ=initial_data["user_env"],
         )
 
         form = response.forms["organization-confirm-delete-form"]
         response = submit_and_follow(
-            self.app, form, name="delete", extra_environ=self.user_env
+            app, form, name="delete", extra_environ=initial_data["user_env"]
         )
         assert text in response.body
 
-    def test_delete_organization_with_unknown_dataset_true(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_organization_with_unknown_dataset_true(self, initial_data):
         """ Test deletion of organization that has datasets and unknown
             datasets are set to true"""
-        dataset = factories.Dataset(owner_org=self.organization["id"])
-        assert_equal(dataset["owner_org"], self.organization["id"])
+        dataset = factories.Dataset(
+            owner_org=initial_data["organization"]["id"]
+        )
+        assert dataset["owner_org"] == initial_data["organization"]["id"]
         user = factories.User()
         helpers.call_action(
             "organization_delete",
-            id=self.organization["id"],
+            id=initial_data["organization"]["id"],
             context={"user": user["name"]},
         )
 
         dataset = helpers.call_action("package_show", id=dataset["id"])
-        assert_equal(dataset["owner_org"], None)
+        assert dataset["owner_org"] == None
 
 
-class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestOrganizationBulkProcess, self).setup()
-        self.app = helpers._get_test_app()
+class TestOrganizationBulkProcess(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_make_private(self, app):
         self.user = factories.User()
         self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
         self.organization = factories.Organization(user=self.user)
-        self.organization_bulk_url = url_for(
-            "organization.bulk_process", id=self.organization["id"]
-        )
 
-    def test_make_private(self):
         datasets = [
             factories.Dataset(owner_org=self.organization["id"])
             for i in range(0, 5)
         ]
-        response = self.app.get(
-            url=self.organization_bulk_url, extra_environ=self.user_env
+        response = app.get(
+            url=url_for(
+                "organization.bulk_process", id=self.organization["id"]
+            ),
+            extra_environ=self.user_env,
         )
         form = response.forms[1]
         for v in form.fields.values():
@@ -308,15 +331,23 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
 
         for dataset in datasets:
             d = helpers.call_action("package_show", id=dataset["id"])
-            assert_equal(d["private"], True)
+            assert d["private"]
 
-    def test_make_public(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_make_public(self, app):
+        self.user = factories.User()
+        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.organization = factories.Organization(user=self.user)
+
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
             for i in range(0, 5)
         ]
-        response = self.app.get(
-            url=self.organization_bulk_url, extra_environ=self.user_env
+        response = app.get(
+            url=url_for(
+                "organization.bulk_process", id=self.organization["id"]
+            ),
+            extra_environ=self.user_env,
         )
         form = response.forms[1]
         for v in form.fields.values():
@@ -333,15 +364,22 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
 
         for dataset in datasets:
             d = helpers.call_action("package_show", id=dataset["id"])
-            assert_equal(d["private"], False)
+            assert not (d["private"])
 
-    def test_delete(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete(self, app):
+        self.user = factories.User()
+        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.organization = factories.Organization(user=self.user)
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
             for i in range(0, 5)
         ]
-        response = self.app.get(
-            url=self.organization_bulk_url, extra_environ=self.user_env
+        response = app.get(
+            url=url_for(
+                "organization.bulk_process", id=self.organization["id"]
+            ),
+            extra_environ=self.user_env,
         )
         form = response.forms[1]
         for v in form.fields.values():
@@ -358,41 +396,42 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
 
         for dataset in datasets:
             d = helpers.call_action("package_show", id=dataset["id"])
-            assert_equal(d["state"], "deleted")
+            assert d["state"] == "deleted"
 
 
-class TestOrganizationSearch(helpers.FunctionalTestBase):
+class TestOrganizationSearch(object):
     """Test searching for organizations."""
 
-    def setup(self):
-        super(TestOrganizationSearch, self).setup()
-        self.app = self._get_test_app()
-        factories.Organization(name="org-one", title="AOrg One")
-        factories.Organization(name="org-two", title="AOrg Two")
-        factories.Organization(name="org-three", title="Org Three")
-        self.search_url = url_for("organization.index")
-
-    def test_organization_search(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_organization_search(self, app):
         """Requesting organization search (index) returns list of
         organizations and search form."""
 
-        index_response = self.app.get(self.search_url)
+        factories.Organization(name="org-one", title="AOrg One")
+        factories.Organization(name="org-two", title="AOrg Two")
+        factories.Organization(name="org-three", title="Org Three")
+
+        index_response = app.get(url_for("organization.index"))
         index_response_html = BeautifulSoup(index_response.body)
         org_names = index_response_html.select(
             "ul.media-grid " "li.media-item " "h3.media-heading"
         )
         org_names = [n.string for n in org_names]
 
-        assert_equal(len(org_names), 3)
-        assert_true("AOrg One" in org_names)
-        assert_true("AOrg Two" in org_names)
-        assert_true("Org Three" in org_names)
+        assert len(org_names) == 3
+        assert "AOrg One" in org_names
+        assert "AOrg Two" in org_names
+        assert "Org Three" in org_names
 
-    def test_organization_search_results(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_organization_search_results(self, app):
         """Searching via organization search form returns list of expected
         organizations."""
+        factories.Organization(name="org-one", title="AOrg One")
+        factories.Organization(name="org-two", title="AOrg Two")
+        factories.Organization(name="org-three", title="Org Three")
 
-        index_response = self.app.get(self.search_url)
+        index_response = app.get(url_for("organization.index"))
         search_form = index_response.forms["organization-search-form"]
         search_form["q"] = "AOrg"
         search_response = webtest_submit(search_form)
@@ -403,15 +442,19 @@ class TestOrganizationSearch(helpers.FunctionalTestBase):
         )
         org_names = [n.string for n in org_names]
 
-        assert_equal(len(org_names), 2)
-        assert_true("AOrg One" in org_names)
-        assert_true("AOrg Two" in org_names)
-        assert_true("Org Three" not in org_names)
+        assert len(org_names) == 2
+        assert "AOrg One" in org_names
+        assert "AOrg Two" in org_names
+        assert "Org Three" not in org_names
 
-    def test_organization_search_no_results(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_organization_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
+        factories.Organization(name="org-one", title="AOrg One")
+        factories.Organization(name="org-two", title="AOrg Two")
+        factories.Organization(name="org-three", title="Org Three")
 
-        index_response = self.app.get(self.search_url)
+        index_response = app.get(url_for("organization.index"))
         search_form = index_response.forms["organization-search-form"]
         search_form["q"] = "No Results Here"
         search_response = webtest_submit(search_form)
@@ -422,21 +465,20 @@ class TestOrganizationSearch(helpers.FunctionalTestBase):
         )
         org_names = [n.string for n in org_names]
 
-        assert_equal(len(org_names), 0)
-        assert_true(
+        assert len(org_names) == 0
+        assert (
             'No organizations found for "No Results Here"'
             in search_response.body
         )
 
 
-class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
+class TestOrganizationInnerSearch(object):
     """Test searching within an organization."""
 
-    def test_organization_search_within_org(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_organization_search_within_org(self, app):
         """Organization read page request returns list of datasets owned by
         organization."""
-        app = self._get_test_app()
-
         org = factories.Organization()
         factories.Dataset(
             name="ds-one", title="Dataset One", owner_org=org["id"]
@@ -457,17 +499,16 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [t.string for t in ds_titles]
 
-        assert_true("3 datasets found" in org_response)
-        assert_equal(len(ds_titles), 3)
-        assert_true("Dataset One" in ds_titles)
-        assert_true("Dataset Two" in ds_titles)
-        assert_true("Dataset Three" in ds_titles)
+        assert "3 datasets found" in org_response
+        assert len(ds_titles) == 3
+        assert "Dataset One" in ds_titles
+        assert "Dataset Two" in ds_titles
+        assert "Dataset Three" in ds_titles
 
-    def test_organization_search_within_org_results(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_organization_search_within_org_results(self, app):
         """Searching within an organization returns expected dataset
         results."""
-        app = self._get_test_app()
-
         org = factories.Organization()
         factories.Dataset(
             name="ds-one", title="Dataset One", owner_org=org["id"]
@@ -484,7 +525,7 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         search_form = org_response.forms["organization-datasets-search-form"]
         search_form["q"] = "One"
         search_response = webtest_submit(search_form)
-        assert_true("1 dataset found for &#34;One&#34;" in search_response)
+        assert "1 dataset found for &#34;One&#34;" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -493,15 +534,15 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [t.string for t in ds_titles]
 
-        assert_equal(len(ds_titles), 1)
-        assert_true("Dataset One" in ds_titles)
-        assert_true("Dataset Two" not in ds_titles)
-        assert_true("Dataset Three" not in ds_titles)
+        assert len(ds_titles) == 1
+        assert "Dataset One" in ds_titles
+        assert "Dataset Two" not in ds_titles
+        assert "Dataset Three" not in ds_titles
 
-    def test_organization_search_within_org_no_results(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_organization_search_within_org_no_results(self, app):
         """Searching for non-returning phrase within an organization returns
         no results."""
-        app = self._get_test_app()
 
         org = factories.Organization()
         factories.Dataset(
@@ -520,7 +561,7 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         search_form["q"] = "Nout"
         search_response = webtest_submit(search_form)
 
-        assert_true('No datasets found for "Nout"' in search_response.body)
+        assert 'No datasets found for "Nout"' in search_response.body
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -529,19 +570,18 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [t.string for t in ds_titles]
 
-        assert_equal(len(ds_titles), 0)
+        assert len(ds_titles) == 0
 
 
-class TestOrganizationMembership(helpers.FunctionalTestBase):
-    def test_editor_users_cannot_add_members(self):
+class TestOrganizationMembership(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_editor_users_cannot_add_members(self, app):
 
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["name"], "capacity": "editor"}]
         )
 
-        app = helpers._get_test_app()
-
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
         with app.flask_app.test_request_context():
@@ -563,15 +603,13 @@ class TestOrganizationMembership(helpers.FunctionalTestBase):
                 status=403,
             )
 
-    def test_member_users_cannot_add_members(self):
-
+    @pytest.mark.usefixtures("clean_db")
+    def test_member_users_cannot_add_members(self, app):
         user = factories.User()
         organization = factories.Organization(
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
-        app = helpers._get_test_app()
-
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
         with app.flask_app.test_request_context():
@@ -593,10 +631,9 @@ class TestOrganizationMembership(helpers.FunctionalTestBase):
                 status=403,
             )
 
-    def test_anonymous_users_cannot_add_members(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_anonymous_users_cannot_add_members(self, app):
         organization = factories.Organization()
-
-        app = helpers._get_test_app()
 
         with app.flask_app.test_request_context():
             app.get(
@@ -616,32 +653,32 @@ class TestOrganizationMembership(helpers.FunctionalTestBase):
             )
 
 
-class TestActivity(helpers.FunctionalTestBase):
-    def test_simple(self):
+class TestActivity(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_simple(self, app):
         """Checking the template shows the activity stream."""
-        app = self._get_test_app()
         user = factories.User()
         org = factories.Organization(user=user)
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert_in("Mr. Test User", response)
-        assert_in("created the organization", response)
+        assert "Mr. Test User" in response
+        assert "created the organization" in response
 
-    def test_create_organization(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_organization(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("created the organization", response)
-        assert_in(
-            '<a href="/organization/{}">Test Organization'.format(org["name"]),
-            response,
+        assert "created the organization" in response
+        assert (
+            '<a href="/organization/{}">Test Organization'.format(org["name"])
+            in response
         )
 
     def _clear_activities(self):
@@ -649,8 +686,8 @@ class TestActivity(helpers.FunctionalTestBase):
         model.Session.query(model.Activity).delete()
         model.Session.flush()
 
-    def test_change_organization(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_change_organization(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
         self._clear_activities()
@@ -661,19 +698,19 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the organization", response)
-        assert_in(
+        assert "updated the organization" in response
+        assert (
             '<a href="/organization/{}">Organization with changed title'.format(
                 org["name"]
-            ),
-            response,
+            )
+            in response
         )
 
-    def test_delete_org_using_organization_delete(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_org_using_organization_delete(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
         self._clear_activities()
@@ -690,8 +727,8 @@ class TestActivity(helpers.FunctionalTestBase):
         # hope that organization_delete was the same as organization_update
         # state=deleted but they are not...
 
-    def test_delete_org_by_updating_state(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_org_by_updating_state(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
         self._clear_activities()
@@ -703,17 +740,17 @@ class TestActivity(helpers.FunctionalTestBase):
         url = url_for("organization.activity", id=org["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(url, extra_environ=env)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("deleted the organization", response)
-        assert_in(
-            '<a href="/organization/{}">Test Organization'.format(org["name"]),
-            response,
+        assert "deleted the organization" in response
+        assert (
+            '<a href="/organization/{}">Test Organization'.format(org["name"])
+            in response
         )
 
-    def test_create_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_dataset(self, app):
         user = factories.User()
         org = factories.Organization()
         self._clear_activities()
@@ -721,16 +758,17 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("created the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        assert "created the dataset" in response
+        assert (
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            in response
         )
 
-    def test_change_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_change_dataset(self, app):
         user = factories.User()
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org["id"], user=user)
@@ -742,19 +780,19 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the dataset", response)
-        assert_in(
+        assert "updated the dataset" in response
+        assert (
             '<a href="/dataset/{}">Dataset with changed title'.format(
                 dataset["id"]
-            ),
-            response,
+            )
+            in response
         )
 
-    def test_delete_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_dataset(self, app):
         user = factories.User()
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org["id"], user=user)
@@ -765,10 +803,11 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("deleted the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        assert "deleted the dataset" in response
+        assert (
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            in response
         )

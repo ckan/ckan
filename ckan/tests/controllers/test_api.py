@@ -5,11 +5,12 @@ controller itself.
 """
 import json
 import re
-import mock
+
 import __builtin__ as builtins
 
+import mock
 import pytest
-from nose.tools import assert_equal, assert_in, eq_
+
 from pyfakefs import fake_filesystem
 
 from ckan.lib.helpers import url_for
@@ -61,8 +62,8 @@ class TestApiController(object):
             # content_type= 'application/json'
         )
         result = resp.json["result"]
-        eq_("upload", result["url_type"])
-        eq_(len(upload_content), result["size"])
+        assert "upload" == result["url_type"]
+        assert len(upload_content) == result["size"]
 
     @pytest.mark.usefixtures("clean_db")
     def test_unicode_in_error_message_works_ok(self, app):
@@ -150,10 +151,10 @@ class TestApiController(object):
 
         results = json.loads(response.body)
         assert len(results) == 1
-        assert_equal(results[0]["name"], "rivers")
-        assert_equal(results[0]["title"], "Bridges")
-        assert_equal(
-            response.headers["Content-Type"], "application/json;charset=utf-8"
+        assert results[0]["name"] == "rivers"
+        assert results[0]["title"] == "Bridges"
+        assert (
+            response.headers["Content-Type"] == "application/json;charset=utf-8"
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -164,8 +165,8 @@ class TestApiController(object):
         response = app.get(url=url, params={"q": u"bug"}, status=200)
 
         results = json.loads(response.body)
-        assert_equal(len(results), 1)
-        assert_equal(results[0]["name"], "frogs")
+        assert len(results) == 1
+        assert results[0]["name"] == "frogs"
 
     @pytest.mark.usefixtures("clean_db")
     def test_organization_autocomplete_by_name(self, app):
@@ -173,16 +174,16 @@ class TestApiController(object):
         url = url_for(
             controller="api", action="organization_autocomplete", ver="/2"
         )
-        assert_equal(url, "/api/2/util/organization/autocomplete")
+        assert url == "/api/2/util/organization/autocomplete"
 
         response = app.get(url=url, params={"q": u"simple"}, status=200)
 
         results = json.loads(response.body)
-        assert_equal(len(results), 1)
-        assert_equal(results[0]["name"], "simple-dummy-org")
-        assert_equal(results[0]["title"], org["title"])
-        assert_equal(
-            response.headers["Content-Type"], "application/json;charset=utf-8"
+        assert len(results) == 1
+        assert results[0]["name"] == "simple-dummy-org"
+        assert results[0]["title"] == org["title"]
+        assert (
+            response.headers["Content-Type"] == "application/json;charset=utf-8"
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -195,8 +196,8 @@ class TestApiController(object):
         response = app.get(url=url, params={"q": u"simple dum"}, status=200)
 
         results = json.loads(response.body)
-        assert_equal(len(results), 1)
-        assert_equal(results[0]["title"], "Simple dummy org")
+        assert len(results) == 1
+        assert results[0]["title"] == "Simple dummy org"
 
     @pytest.mark.usefixtures("clean_db")
     def test_config_option_list_access_sysadmin(self, app):
@@ -250,10 +251,9 @@ class TestApiController(object):
         # Unwrap JSONP callback (we want to look at the data).
         msg = res.body[len("my_callback") + 1 : -2]
         res_dict = json.loads(msg)
-        eq_(res_dict["success"], True)
-        eq_(
-            sorted(res_dict["result"]),
-            sorted([dataset1["name"], dataset2["name"]]),
+        assert res_dict["success"]
+        assert sorted(res_dict["result"]) == sorted(
+            [dataset1["name"], dataset2["name"]]
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -266,7 +266,7 @@ class TestApiController(object):
         )
 
         res = app.get(url=url, params={"callback": "my_callback"})
-        assert_in("application/javascript", res.headers.get("Content-Type"))
+        assert "application/javascript" in res.headers.get("Content-Type")
 
     @pytest.mark.usefixtures("clean_db")
     def test_jsonp_does_not_work_on_post_requests(self, app):
@@ -286,8 +286,7 @@ class TestApiController(object):
         # The callback param is ignored and the normal response is returned
         assert not res.body.startswith("my_callback")
         res_dict = json.loads(res.body)
-        eq_(res_dict["success"], True)
-        eq_(
-            sorted(res_dict["result"]),
-            sorted([dataset1["name"], dataset2["name"]]),
+        assert res_dict["success"]
+        assert sorted(res_dict["result"]) == sorted(
+            [dataset1["name"], dataset2["name"]]
         )

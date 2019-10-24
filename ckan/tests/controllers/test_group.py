@@ -1,10 +1,7 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
-from nose.tools import assert_equal, assert_true, assert_in
-
-from six.moves import xrange
-
+import pytest
 from ckan.lib.helpers import url_for
 
 import ckan.tests.helpers as helpers
@@ -15,20 +12,17 @@ webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
 
-class TestGroupController(helpers.FunctionalTestBase):
-    def setup(self):
-        model.repo.rebuild_db()
-
-    def test_bulk_process_throws_404_for_nonexistent_org(self):
-        app = self._get_test_app()
+class TestGroupController(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_bulk_process_throws_404_for_nonexistent_org(self, app):
         bulk_process_url = url_for(
             "organization.bulk_process", id="does-not-exist"
         )
         app.get(url=bulk_process_url, status=404)
 
-    def test_page_thru_list_of_orgs_preserves_sort_order(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
         orgs = [factories.Organization() for _ in range(35)]
-        app = self._get_test_app()
         org_url = url_for("organization.index", sort="name desc")
         response = app.get(url=org_url)
         assert orgs[-1]["name"] in response
@@ -38,9 +32,9 @@ class TestGroupController(helpers.FunctionalTestBase):
         assert orgs[-1]["name"] not in response2
         assert orgs[0]["name"] in response2
 
-    def test_page_thru_list_of_groups_preserves_sort_order(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_page_thru_list_of_groups_preserves_sort_order(self, app):
         groups = [factories.Group() for _ in range(35)]
-        app = self._get_test_app()
         group_url = url_for("group.index", sort="title desc")
 
         response = app.get(url=group_url)
@@ -51,8 +45,8 @@ class TestGroupController(helpers.FunctionalTestBase):
         assert groups[-1]["title"] not in response2
         assert groups[0]["title"] in response2
 
-    def test_invalid_sort_param_does_not_crash(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_invalid_sort_param_does_not_crash(self, app):
 
         with app.flask_app.test_request_context():
             group_url = url_for("group.index", sort="title desc nope")
@@ -71,39 +65,37 @@ def _get_group_new_page(app):
     return env, response
 
 
-class TestGroupControllerNew(helpers.FunctionalTestBase):
-    def test_not_logged_in(self):
-        app = self._get_test_app()
+class TestGroupControllerNew(object):
+    def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
 
-    def test_form_renders(self):
-        app = self._get_test_app()
+    def test_form_renders(self, app):
         env, response = _get_group_new_page(app)
-        assert_in("group-edit", response.forms)
+        assert "group-edit" in response.forms
 
-    def test_name_required(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_name_required(self, app):
         env, response = _get_group_new_page(app)
         form = response.forms["group-edit"]
 
         response = webtest_submit(form, "save", status=200, extra_environ=env)
-        assert_true("group-edit" in response.forms)
-        assert_true("Name: Missing value" in response)
+        assert "group-edit" in response.forms
+        assert "Name: Missing value" in response
 
-    def test_saved(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_saved(self, app):
         env, response = _get_group_new_page(app)
         form = response.forms["group-edit"]
         form["name"] = u"saved"
 
         response = submit_and_follow(app, form, env, "save")
         group = model.Group.by_name(u"saved")
-        assert_equal(group.title, u"")
-        assert_equal(group.type, "group")
-        assert_equal(group.state, "active")
+        assert group.title == u""
+        assert group.type == "group"
+        assert group.state == "active"
 
-    def test_all_fields_saved(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_all_fields_saved(self, app):
         env, response = _get_group_new_page(app)
         form = response.forms["group-edit"]
         form["name"] = u"all-fields-saved"
@@ -113,8 +105,8 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
 
         response = submit_and_follow(app, form, env, "save")
         group = model.Group.by_name(u"all-fields-saved")
-        assert_equal(group.title, u"Science")
-        assert_equal(group.description, "Sciencey datasets")
+        assert group.title == u"Science"
+        assert group.description == "Sciencey datasets"
 
 
 def _get_group_edit_page(app, group_name=None):
@@ -128,34 +120,31 @@ def _get_group_edit_page(app, group_name=None):
     return env, response, group_name
 
 
-class TestGroupControllerEdit(helpers.FunctionalTestBase):
-    def test_not_logged_in(self):
-        app = self._get_test_app()
+class TestGroupControllerEdit(object):
+    def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
 
-    def test_group_doesnt_exist(self):
-        app = self._get_test_app()
+    def test_group_doesnt_exist(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         url = url_for("group.edit", id="doesnt_exist")
         app.get(url=url, extra_environ=env, status=404)
 
-    def test_form_renders(self):
-        app = self._get_test_app()
+    def test_form_renders(self, app):
         env, response, group_name = _get_group_edit_page(app)
-        assert_in("group-edit", response.forms)
+        assert "group-edit" in response.forms
 
-    def test_saved(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_saved(self, app):
         env, response, group_name = _get_group_edit_page(app)
         form = response.forms["group-edit"]
 
         response = submit_and_follow(app, form, env, "save")
         group = model.Group.by_name(group_name)
-        assert_equal(group.state, "active")
+        assert group.state == "active"
 
-    def test_all_fields_saved(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_all_fields_saved(self, app):
         env, response, group_name = _get_group_edit_page(app)
         form = response.forms["group-edit"]
         form["name"] = u"all-fields-edited"
@@ -165,19 +154,21 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
 
         response = submit_and_follow(app, form, env, "save")
         group = model.Group.by_name(u"all-fields-edited")
-        assert_equal(group.title, u"Science")
-        assert_equal(group.description, "Sciencey datasets")
-        assert_equal(group.image_url, "http://example.com/image.png")
+        assert group.title == u"Science"
+        assert group.description == "Sciencey datasets"
+        assert group.image_url == "http://example.com/image.png"
 
 
-class TestGroupRead(helpers.FunctionalTestBase):
+class TestGroupRead(object):
+    @pytest.mark.usefixtures("clean_db")
     def test_group_read(self):
         group = factories.Group()
         app = helpers._get_test_app()
         response = app.get(url=url_for("group.read", id=group["name"]))
-        assert_in(group["title"], response)
-        assert_in(group["description"], response)
+        assert group["title"] in response
+        assert group["description"] in response
 
+    @pytest.mark.usefixtures("clean_db")
     def test_redirect_when_given_id(self):
         group = factories.Group()
         app = helpers._get_test_app()
@@ -185,8 +176,9 @@ class TestGroupRead(helpers.FunctionalTestBase):
         # redirect replaces the ID with the name in the URL
         redirected_response = response.follow()
         expected_url = url_for("group.read", id=group["name"])
-        assert_equal(redirected_response.request.path, expected_url)
+        assert redirected_response.request.path == expected_url
 
+    @pytest.mark.usefixtures("clean_db")
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
         group = factories.Group(id="abc", name="abc")
         app = helpers._get_test_app()
@@ -194,66 +186,79 @@ class TestGroupRead(helpers.FunctionalTestBase):
         app.get(url_for("group.read", id=group["id"]), status=200)
 
 
-class TestGroupDelete(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestGroupDelete, self).setup()
-        self.app = helpers._get_test_app()
-        self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
-        self.group = factories.Group(user=self.user)
+class TestGroupDelete(object):
+    @pytest.fixture
+    def initial_data(self):
+        user = factories.User()
+        return {
+            "user": user,
+            "user_env": {"REMOTE_USER": user["name"].encode("ascii")},
+            "group": factories.Group(user=user),
+        }
 
-    def test_owner_delete(self):
-        response = self.app.get(
-            url=url_for("group.delete", id=self.group["id"]),
+    def test_owner_delete(self, app, initial_data):
+        response = app.get(
+            url=url_for("group.delete", id=initial_data["group"]["id"]),
             status=200,
-            extra_environ=self.user_env,
+            extra_environ=initial_data["user_env"],
         )
 
         form = response.forms["group-confirm-delete-form"]
         response = submit_and_follow(
-            self.app, form, name="delete", extra_environ=self.user_env
+            app, form, name="delete", extra_environ=initial_data["user_env"]
         )
-        group = helpers.call_action("group_show", id=self.group["id"])
-        assert_equal(group["state"], "deleted")
+        group = helpers.call_action(
+            "group_show", id=initial_data["group"]["id"]
+        )
+        assert group["state"] == "deleted"
 
-    def test_sysadmin_delete(self):
+    def test_sysadmin_delete(self, app, initial_data):
         sysadmin = factories.Sysadmin()
         extra_environ = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
-        response = self.app.get(
-            url=url_for("group.delete", id=self.group["id"]),
+        response = app.get(
+            url=url_for("group.delete", id=initial_data["group"]["id"]),
             status=200,
             extra_environ=extra_environ,
         )
 
         form = response.forms["group-confirm-delete-form"]
         response = submit_and_follow(
-            self.app, form, name="delete", extra_environ=self.user_env
+            app, form, name="delete", extra_environ=initial_data["user_env"]
         )
-        group = helpers.call_action("group_show", id=self.group["id"])
-        assert_equal(group["state"], "deleted")
+        group = helpers.call_action(
+            "group_show", id=initial_data["group"]["id"]
+        )
+        assert group["state"] == "deleted"
 
-    def test_non_authorized_user_trying_to_delete_fails(self):
+    def test_non_authorized_user_trying_to_delete_fails(
+        self, app, initial_data
+    ):
         user = factories.User()
         extra_environ = {"REMOTE_USER": user["name"].encode("ascii")}
-        self.app.get(
-            url=url_for("group.delete", id=self.group["id"]),
+        app.get(
+            url=url_for("group.delete", id=initial_data["group"]["id"]),
             status=403,
             extra_environ=extra_environ,
         )
 
-        group = helpers.call_action("group_show", id=self.group["id"])
-        assert_equal(group["state"], "active")
+        group = helpers.call_action(
+            "group_show", id=initial_data["group"]["id"]
+        )
+        assert group["state"] == "active"
 
-    def test_anon_user_trying_to_delete_fails(self):
-        self.app.get(
-            url=url_for("group.delete", id=self.group["id"]), status=403
+    def test_anon_user_trying_to_delete_fails(self, app, initial_data):
+        app.get(
+            url=url_for("group.delete", id=initial_data["group"]["id"]),
+            status=403,
         )
 
-        group = helpers.call_action("group_show", id=self.group["id"])
-        assert_equal(group["state"], "active")
+        group = helpers.call_action(
+            "group_show", id=initial_data["group"]["id"]
+        )
+        assert group["state"] == "active"
 
 
-class TestGroupMembership(helpers.FunctionalTestBase):
+class TestGroupMembership(object):
     def _create_group(self, owner_username, users=None):
         """Create a group with the owner defined by owner_username and
         optionally with a list of other users."""
@@ -271,9 +276,9 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         response = app.get(url=url, extra_environ=env)
         return env, response
 
-    def test_membership_list(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_membership_list(self, app):
         """List group admins and members"""
-        app = self._get_test_app()
         user_one = factories.User(fullname="User One", name="user-one")
         user_two = factories.User(fullname="User Two")
 
@@ -286,7 +291,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         member_list_response = app.get(member_list_url, extra_environ=env)
 
-        assert_true("2 members" in member_list_response)
+        assert "2 members" in member_list_response
 
         member_response_html = BeautifulSoup(member_list_response.body)
         user_names = [
@@ -300,12 +305,12 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         user_roles = dict(zip(user_names, roles))
 
-        assert_equal(user_roles["User One"], "Admin")
-        assert_equal(user_roles["User Two"], "Member")
+        assert user_roles["User One"] == "Admin"
+        assert user_roles["User Two"] == "Member"
 
-    def test_membership_add(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_membership_add(self, app):
         """Member can be added via add member page"""
-        app = self._get_test_app()
         owner = factories.User(fullname="My Owner")
         factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(owner["name"])
@@ -318,7 +323,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         add_form["username"] = "my-user"
         add_response = submit_and_follow(app, add_form, env, "save")
 
-        assert_true("2 members" in add_response)
+        assert "2 members" in add_response
 
         add_response_html = BeautifulSoup(add_response.body)
         user_names = [
@@ -332,12 +337,12 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         user_roles = dict(zip(user_names, roles))
 
-        assert_equal(user_roles["My Owner"], "Admin")
-        assert_equal(user_roles["My Fullname"], "Member")
+        assert user_roles["My Owner"] == "Admin"
+        assert user_roles["My Fullname"] == "Member"
 
-    def test_admin_add(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_admin_add(self, app):
         """Admin can be added via add member page"""
-        app = self._get_test_app()
         owner = factories.User(fullname="My Owner")
         factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(owner["name"])
@@ -351,7 +356,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         add_form["role"] = "admin"
         add_response = submit_and_follow(app, add_form, env, "save")
 
-        assert_true("2 members" in add_response)
+        assert "2 members" in add_response
 
         add_response_html = BeautifulSoup(add_response.body)
         user_names = [
@@ -365,12 +370,12 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         user_roles = dict(zip(user_names, roles))
 
-        assert_equal(user_roles["My Owner"], "Admin")
-        assert_equal(user_roles["My Fullname"], "Admin")
+        assert user_roles["My Owner"] == "Admin"
+        assert user_roles["My Fullname"] == "Admin"
 
-    def test_remove_member(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_remove_member(self, app):
         """Member can be removed from group"""
-        app = self._get_test_app()
         user_one = factories.User(fullname="User One", name="user-one")
         user_two = factories.User(fullname="User Two")
 
@@ -387,8 +392,8 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         # redirected to member list after removal
         remove_response = remove_response.follow(extra_environ=env)
 
-        assert_true("Group member has been deleted." in remove_response)
-        assert_true("1 members" in remove_response)
+        assert "Group member has been deleted." in remove_response
+        assert "1 members" in remove_response
 
         remove_response_html = BeautifulSoup(remove_response.body)
         user_names = [
@@ -402,9 +407,10 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         user_roles = dict(zip(user_names, roles))
 
-        assert_equal(len(user_roles.keys()), 1)
-        assert_equal(user_roles["User One"], "Admin")
+        assert len(user_roles.keys()) == 1
+        assert user_roles["User One"] == "Admin"
 
+    @pytest.mark.usefixtures("clean_db")
     def test_member_users_cannot_add_members(self):
 
         user = factories.User()
@@ -435,6 +441,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
                 status=403,
             )
 
+    @pytest.mark.usefixtures("clean_db")
     def test_anonymous_users_cannot_add_members(self):
         group = factories.Group()
 
@@ -455,9 +462,9 @@ class TestGroupMembership(helpers.FunctionalTestBase):
             )
 
 
-class TestGroupFollow(helpers.FunctionalTestBase):
-    def test_group_follow(self):
-        app = self._get_test_app()
+class TestGroupFollow:
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_follow(self, app):
 
         user = factories.User()
         group = factories.Group()
@@ -466,25 +473,24 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         follow_url = url_for("group.follow", id=group["id"])
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
-        assert_true(
+        assert (
             "You are now following {0}".format(group["display_name"])
             in response
         )
 
-    def test_group_follow_not_exist(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_follow_not_exist(self, app):
         """Pass an id for a group that doesn't exist"""
-        app = self._get_test_app()
-
         user_one = factories.User()
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
         follow_url = url_for("group.follow", id="not-here")
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=404)
-        assert_true("Group not found" in response)
+        assert "Group not found" in response
 
-    def test_group_unfollow(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_unfollow(self, app):
 
         user_one = factories.User()
         group = factories.Group()
@@ -499,14 +505,14 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         )
         unfollow_response = unfollow_response.follow()
 
-        assert_true(
+        assert (
             "You are no longer following {0}".format(group["display_name"])
             in unfollow_response
         )
 
-    def test_group_unfollow_not_following(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_unfollow_not_following(self, app):
         """Unfollow a group not currently following"""
-        app = self._get_test_app()
 
         user_one = factories.User()
         group = factories.Group()
@@ -519,13 +525,13 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         unfollow_response = unfollow_response.follow()  # /group/[id] 302s to:
         unfollow_response = unfollow_response.follow()  # /group/[name]
 
-        assert_true(
+        assert (
             "You are not following {0}".format(group["id"]) in unfollow_response
         )
 
-    def test_group_unfollow_not_exist(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_unfollow_not_exist(self, app):
         """Unfollow a group that doesn't exist."""
-        app = self._get_test_app()
 
         user_one = factories.User()
 
@@ -534,11 +540,11 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         unfollow_response = app.post(
             unfollow_url, extra_environ=env, status=302
         )
-        assert_in("group/not-here", unfollow_response.headers["location"])
+        assert "group/not-here" in unfollow_response.headers["location"]
 
-    def test_group_follower_list(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_follower_list(self, app):
         """Following users appear on followers list page."""
-        app = self._get_test_app()
 
         user_one = factories.Sysadmin()
         group = factories.Group()
@@ -553,40 +559,40 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         followers_response = app.get(
             followers_url, extra_environ=env, status=200
         )
-        assert_true(user_one["display_name"] in followers_response)
+        assert user_one["display_name"] in followers_response
 
 
-class TestGroupSearch(helpers.FunctionalTestBase):
+class TestGroupSearch(object):
     """Test searching for groups."""
 
-    def setup(self):
-        super(TestGroupSearch, self).setup()
-        self.app = self._get_test_app()
-        factories.Group(name="grp-one", title="AGrp One")
-        factories.Group(name="grp-two", title="AGrp Two")
-        factories.Group(name="grp-three", title="Grp Three")
-        self.search_url = url_for("group.index")
-
-    def test_group_search(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_group_search(self, app):
         """Requesting group search (index) returns list of groups and search
         form."""
 
-        index_response = self.app.get(self.search_url)
+        factories.Group(name="grp-one", title="AGrp One")
+        factories.Group(name="grp-two", title="AGrp Two")
+        factories.Group(name="grp-three", title="Grp Three")
+        index_response = app.get(url_for("group.index"))
         index_response_html = BeautifulSoup(index_response.body)
         grp_names = index_response_html.select(
             "ul.media-grid " "li.media-item " "h3.media-heading"
         )
         grp_names = [n.string for n in grp_names]
 
-        assert_equal(len(grp_names), 3)
-        assert_true("AGrp One" in grp_names)
-        assert_true("AGrp Two" in grp_names)
-        assert_true("Grp Three" in grp_names)
+        assert len(grp_names) == 3
+        assert "AGrp One" in grp_names
+        assert "AGrp Two" in grp_names
+        assert "Grp Three" in grp_names
 
-    def test_group_search_results(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_group_search_results(self, app):
         """Searching via group search form returns list of expected groups."""
+        factories.Group(name="grp-one", title="AGrp One")
+        factories.Group(name="grp-two", title="AGrp Two")
+        factories.Group(name="grp-three", title="Grp Three")
 
-        index_response = self.app.get(self.search_url)
+        index_response = app.get(url_for("group.index"))
         search_form = index_response.forms["group-search-form"]
         search_form["q"] = "AGrp"
         search_response = webtest_submit(search_form)
@@ -597,15 +603,19 @@ class TestGroupSearch(helpers.FunctionalTestBase):
         )
         grp_names = [n.string for n in grp_names]
 
-        assert_equal(len(grp_names), 2)
-        assert_true("AGrp One" in grp_names)
-        assert_true("AGrp Two" in grp_names)
-        assert_true("Grp Three" not in grp_names)
+        assert len(grp_names) == 2
+        assert "AGrp One" in grp_names
+        assert "AGrp Two" in grp_names
+        assert "Grp Three" not in grp_names
 
-    def test_group_search_no_results(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_group_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
 
-        index_response = self.app.get(self.search_url)
+        factories.Group(name="grp-one", title="AGrp One")
+        factories.Group(name="grp-two", title="AGrp Two")
+        factories.Group(name="grp-three", title="Grp Three")
+        index_response = app.get(url_for("group.index"))
         search_form = index_response.forms["group-search-form"]
         search_form["q"] = "No Results Here"
         search_response = webtest_submit(search_form)
@@ -616,17 +626,16 @@ class TestGroupSearch(helpers.FunctionalTestBase):
         )
         grp_names = [n.string for n in grp_names]
 
-        assert_equal(len(grp_names), 0)
-        assert_true('No groups found for "No Results Here"' in search_response)
+        assert len(grp_names) == 0
+        assert 'No groups found for "No Results Here"' in search_response
 
 
-class TestGroupInnerSearch(helpers.FunctionalTestBase):
+class TestGroupInnerSearch(object):
     """Test searching within an group."""
 
-    def test_group_search_within_org(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_group_search_within_org(self, app):
         """Group read page request returns list of datasets owned by group."""
-        app = self._get_test_app()
-
         grp = factories.Group()
         factories.Dataset(
             name="ds-one", title="Dataset One", groups=[{"id": grp["id"]}]
@@ -647,15 +656,15 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [t.string for t in ds_titles]
 
-        assert_true("3 datasets found" in grp_response)
-        assert_equal(len(ds_titles), 3)
-        assert_true("Dataset One" in ds_titles)
-        assert_true("Dataset Two" in ds_titles)
-        assert_true("Dataset Three" in ds_titles)
+        assert "3 datasets found" in grp_response
+        assert len(ds_titles) == 3
+        assert "Dataset One" in ds_titles
+        assert "Dataset Two" in ds_titles
+        assert "Dataset Three" in ds_titles
 
-    def test_group_search_within_org_results(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_group_search_within_org_results(self, app):
         """Searching within an group returns expected dataset results."""
-        app = self._get_test_app()
 
         grp = factories.Group()
         factories.Dataset(
@@ -673,7 +682,7 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         search_form = grp_response.forms["group-datasets-search-form"]
         search_form["q"] = "One"
         search_response = webtest_submit(search_form)
-        assert_true("1 dataset found for &#34;One&#34;" in search_response)
+        assert "1 dataset found for &#34;One&#34;" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -682,15 +691,15 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [t.string for t in ds_titles]
 
-        assert_equal(len(ds_titles), 1)
-        assert_true("Dataset One" in ds_titles)
-        assert_true("Dataset Two" not in ds_titles)
-        assert_true("Dataset Three" not in ds_titles)
+        assert len(ds_titles) == 1
+        assert "Dataset One" in ds_titles
+        assert "Dataset Two" not in ds_titles
+        assert "Dataset Three" not in ds_titles
 
-    def test_group_search_within_org_no_results(self):
+    @pytest.mark.usefixtures("clean_db", "clean_index")
+    def test_group_search_within_org_no_results(self, app):
         """Searching for non-returning phrase within an group returns no
         results."""
-        app = self._get_test_app()
 
         grp = factories.Group()
         factories.Dataset(
@@ -709,7 +718,7 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         search_form["q"] = "Nout"
         search_response = webtest_submit(search_form)
 
-        assert_true('No datasets found for "Nout"' in search_response.body)
+        assert 'No datasets found for "Nout"' in search_response.body
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -718,14 +727,14 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         )
         ds_titles = [t.string for t in ds_titles]
 
-        assert_equal(len(ds_titles), 0)
+        assert len(ds_titles) == 0
 
 
-class TestGroupIndex(helpers.FunctionalTestBase):
-    def test_group_index(self):
-        app = self._get_test_app()
+class TestGroupIndex(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_group_index(self, app):
 
-        for i in xrange(1, 26):
+        for i in range(1, 26):
             _i = "0" + str(i) if i < 10 else i
             factories.Group(
                 name="test-group-{0}".format(_i),
@@ -735,55 +744,55 @@ class TestGroupIndex(helpers.FunctionalTestBase):
         url = url_for("group.index")
         response = app.get(url)
 
-        for i in xrange(1, 21):
+        for i in range(1, 21):
             _i = "0" + str(i) if i < 10 else i
-            assert_in("Test Group {0}".format(_i), response)
+            assert "Test Group {0}".format(_i) in response
 
         assert "Test Group 21" not in response
 
         url = url_for("group.index", page=1)
         response = app.get(url)
 
-        for i in xrange(1, 21):
+        for i in range(1, 21):
             _i = "0" + str(i) if i < 10 else i
-            assert_in("Test Group {0}".format(_i), response)
+            assert "Test Group {0}".format(_i) in response
 
         assert "Test Group 21" not in response
 
         url = url_for("group.index", page=2)
         response = app.get(url)
 
-        for i in xrange(21, 26):
-            assert_in("Test Group {0}".format(i), response)
+        for i in range(21, 26):
+            assert "Test Group {0}".format(i) in response
 
         assert "Test Group 20" not in response
 
 
-class TestActivity(helpers.FunctionalTestBase):
-    def test_simple(self):
+class TestActivity:
+    @pytest.mark.usefixtures("clean_db")
+    def test_simple(self, app):
         """Checking the template shows the activity stream."""
-        app = self._get_test_app()
         user = factories.User()
         group = factories.Group(user=user)
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in("Mr. Test User", response)
-        assert_in("created the group", response)
+        assert "Mr. Test User" in response
+        assert "created the group" in response
 
-    def test_create_group(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_group(self, app):
         user = factories.User()
         group = factories.Group(user=user)
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("created the group", response)
-        assert_in(
-            '<a href="/group/{}">Test Group'.format(group["name"]), response
+        assert "created the group" in response
+        assert (
+            '<a href="/group/{}">Test Group'.format(group["name"]) in response
         )
 
     def _clear_activities(self):
@@ -791,8 +800,8 @@ class TestActivity(helpers.FunctionalTestBase):
         model.Session.query(model.Activity).delete()
         model.Session.flush()
 
-    def test_change_group(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_change_group(self, app):
         user = factories.User()
         group = factories.Group(user=user)
         self._clear_activities()
@@ -803,19 +812,17 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the group", response)
-        assert_in(
-            '<a href="/group/{}">Group with changed title'.format(
-                group["name"]
-            ),
-            response,
+        assert "updated the group" in response
+        assert (
+            '<a href="/group/{}">Group with changed title'.format(group["name"])
+            in response
         )
 
-    def test_delete_group_using_group_delete(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_group_using_group_delete(self, app):
         user = factories.User()
         group = factories.Group(user=user)
         self._clear_activities()
@@ -832,8 +839,8 @@ class TestActivity(helpers.FunctionalTestBase):
         # group_delete was the same as group_update state=deleted but they are
         # not...
 
-    def test_delete_group_by_updating_state(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_group_by_updating_state(self, app):
         user = factories.User()
         group = factories.Group(user=user)
         self._clear_activities()
@@ -845,16 +852,16 @@ class TestActivity(helpers.FunctionalTestBase):
         url = url_for("group.activity", id=group["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(url, extra_environ=env)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("deleted the group", response)
-        assert_in(
-            '<a href="/group/{}">Test Group'.format(group["name"]), response
+        assert "deleted the group" in response
+        assert (
+            '<a href="/group/{}">Test Group'.format(group["name"]) in response
         )
 
-    def test_create_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_dataset(self, app):
         user = factories.User()
         group = factories.Group(user=user)
         self._clear_activities()
@@ -862,16 +869,18 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("created the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        assert "created the dataset" in response
+        assert (
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            in response
         )
 
-    def test_change_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_change_dataset(self, app):
+
         user = factories.User()
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
@@ -883,19 +892,19 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the dataset", response)
-        assert_in(
+        assert "updated the dataset" in response
+        assert (
             '<a href="/dataset/{}">Dataset with changed title'.format(
                 dataset["id"]
-            ),
-            response,
+            )
+            in response
         )
 
-    def test_delete_dataset(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_dataset(self, app):
         user = factories.User()
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
@@ -906,10 +915,11 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("deleted the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        assert "deleted the dataset" in response
+        assert (
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            in response
         )
