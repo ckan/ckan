@@ -289,7 +289,8 @@ def submit_and_follow(
     and return the response from following that redirect.
     """
     response = webtest_submit(
-        form, name, value=value, status=302, extra_environ=extra_environ, **args
+        form, name, value=value, status=302, extra_environ=extra_environ,
+        **args
     )
     return app.get(
         url=response.headers["Location"], extra_environ=extra_environ

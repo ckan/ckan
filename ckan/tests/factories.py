@@ -254,7 +254,9 @@ class Group(factory.Factory):
     title = factory.LazyAttribute(_generate_group_title)
     description = "A test description for this test group."
 
-    user = factory.LazyAttribute(lambda _: helpers.call_action("get_site_user"))
+    user = factory.LazyAttribute(
+        lambda _: helpers.call_action("get_site_user")
+    )
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):

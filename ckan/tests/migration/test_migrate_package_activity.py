@@ -68,7 +68,7 @@ def test_migration_with_multiple_revisions():
         migrate_dataset(dataset["name"], {})
 
     activity_data_migrated = package_activity_list(dataset["id"], 0, 0)[1].data[
-        "package"
+        u"package"
     ]
     assert activity_data_as_it_should_be == activity_data_migrated
     assert activity_data_migrated["title"] == u"Title 2"

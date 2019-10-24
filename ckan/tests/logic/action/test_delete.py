@@ -577,7 +577,7 @@ class TestUserDelete(object):
         # Member objects are still there, but flagged as deleted
         assert len(user_memberships) == 2
 
-        assert [m.state for m in user_memberships] == [u"deleted" == u"deleted"]
+        assert [m.state for m in user_memberships] == [u"deleted", u"deleted"]
 
 
 class TestJobClear(helpers.FunctionalRQTestBase):

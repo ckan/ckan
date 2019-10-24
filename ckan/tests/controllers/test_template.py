@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "url,expected",
+    u"url,expected",
     [
         (u"/robots.txt", u"text/plain; charset=utf-8"),
         (u"/page", u"text/html; charset=utf-8"),

@@ -295,7 +295,7 @@ class TestPackageNew(object):
         edit_form["owner_org"] = ""
         submit_and_follow(app, edit_form, env, "save")
         post_edit_pkg = model.Package.by_name(u"my-dataset")
-        assert post_edit_pkg.owner_org == None
+        assert post_edit_pkg.owner_org is None
         assert post_edit_pkg.owner_org != org["id"]
 
     @pytest.mark.usefixtures("clean_db")

@@ -296,7 +296,7 @@ class TestOrganizationDelete(object):
         )
 
         dataset = helpers.call_action("package_show", id=dataset["id"])
-        assert dataset["owner_org"] == None
+        assert dataset["owner_org"] is None
 
 
 class TestOrganizationBulkProcess(object):

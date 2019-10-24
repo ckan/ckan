@@ -33,7 +33,7 @@ def test_create():
     assert pkg.license.title == u"Open Data Commons Attribution License"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_update():
     dataset = factories.Dataset()
     pkg = model.Package.by_name(dataset[u"name"])
@@ -76,7 +76,7 @@ def test_delete():
     assert [p.name for p in tag.packages] == [dataset[u"name"]]
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_purge():
     org = factories.Organization()
     group = factories.Group()
