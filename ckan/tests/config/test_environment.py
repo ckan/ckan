@@ -49,7 +49,9 @@ def test_update_config_env_vars(ckan_config):
 
     assert ckan_config[u"solr_url"] == u"http://mynewsolrurl/solr"
     assert ckan_config[u"sqlalchemy.url"] == u"postgresql://mynewsqlurl/"
-    assert ckan_config[u"ckan.datastore.write_url"] == u"http://mynewdbwriteurl/"
+    assert (
+        ckan_config[u"ckan.datastore.write_url"] == u"http://mynewdbwriteurl/"
+    )
     assert ckan_config[u"ckan.datastore.read_url"] == u"http://mynewdbreadurl/"
     assert ckan_config[u"ckan.site_id"] == u"my-site"
     assert ckan_config[u"smtp.server"] == u"mail.example.com"

@@ -27,8 +27,9 @@ class TestDelete:
 
         # Not even a sysadmin can see it now
         with pytest.raises(logic.NotFound):
-            helpers.call_action("resource_show", {"user": sysadmin["name"]},
-                                **params)
+            helpers.call_action(
+                "resource_show", {"user": sysadmin["name"]}, **params
+            )
         # It is still there but with state=deleted
         res_obj = model.Resource.get(resource["id"])
         assert res_obj.state == "deleted"
@@ -103,9 +104,9 @@ class TestClearResourceViews(object):
 
         assert count == 4
 
-        helpers.call_action("resource_view_clear",
-                            context={},
-                            view_types=["image_view"])
+        helpers.call_action(
+            "resource_view_clear", context={}, view_types=["image_view"]
+        )
 
         view_types = model.Session.query(model.ResourceView.view_type).all()
 
@@ -136,10 +137,7 @@ class TestGroupPurge(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
                 "group_purge",
-                context={
-                    "user": user["name"],
-                    "ignore_auth": False
-                },
+                context={"user": user["name"], "ignore_auth": False},
                 id=group["name"],
             )
 
@@ -167,9 +165,9 @@ class TestGroupPurge(object):
 
         helpers.call_action("group_purge", id=group["name"])
 
-        dataset_shown = helpers.call_action("package_show",
-                                            context={},
-                                            id=dataset["id"])
+        dataset_shown = helpers.call_action(
+            "package_show", context={}, id=dataset["id"]
+        )
         assert dataset_shown["groups"] == []
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -178,8 +176,9 @@ class TestGroupPurge(object):
         dataset = factories.Dataset(groups=[{"name": group["name"]}])
 
         def get_search_result_groups():
-            results = helpers.call_action("package_search",
-                                          q=dataset["title"])["results"]
+            results = helpers.call_action("package_search", q=dataset["title"])[
+                "results"
+            ]
             return [g["name"] for g in results[0]["groups"]]
 
         assert get_search_result_groups() == [group["name"]]
@@ -194,16 +193,9 @@ class TestGroupPurge(object):
         user = factories.User()
         group1 = factories.Group(
             name="group1",
-            extras=[{
-                "key": "key1",
-                "value": "val1"
-            }],
-            users=[{
-                "name": user["name"]
-            }],
-            groups=[{
-                "name": "parent"
-            }],
+            extras=[{"key": "key1", "value": "val1"}],
+            users=[{"name": user["name"]}],
+            groups=[{"name": "parent"}],
         )
         factories.Dataset(name="ds", groups=[{"name": "group1"}])
         factories.Group(name="child", groups=[{"name": "group1"}])
@@ -213,26 +205,24 @@ class TestGroupPurge(object):
         num_revisions_after = model.Session.query(model.Revision).count()
 
         # the Group and related objects are gone
-        assert sorted([g.name
-                       for g in model.Session.query(model.Group).all()]) == [
-                           "child",
-                           "parent",
-                       ]
+        assert sorted(
+            [g.name for g in model.Session.query(model.Group).all()]
+        ) == ["child", "parent"]
         assert model.Session.query(model.GroupExtra).all() == []
         # the only members left are the users for the parent and child
-        assert sorted([
-            (m.table_name, m.group.name)
-            for m in model.Session.query(model.Member).join(model.Group)
-        ]) == [("user", "child"), ("user", "parent")]
+        assert sorted(
+            [
+                (m.table_name, m.group.name)
+                for m in model.Session.query(model.Member).join(model.Group)
+            ]
+        ) == [("user", "child"), ("user", "parent")]
         # the dataset is still there though
         assert [p.name for p in model.Session.query(model.Package)] == ["ds"]
 
         # the group's object revisions were purged too
         assert sorted(
-            [gr.name for gr in model.Session.query(model.GroupRevision)]) == [
-                "child",
-                "parent",
-            ]
+            [gr.name for gr in model.Session.query(model.GroupRevision)]
+        ) == ["child", "parent"]
         # GroupExtra is not revisioned
         # Member is not revisioned
 
@@ -259,10 +249,7 @@ class TestOrganizationPurge(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
                 "organization_purge",
-                context={
-                    "user": user["name"],
-                    "ignore_auth": False
-                },
+                context={"user": user["name"], "ignore_auth": False},
                 id=org["name"],
             )
 
@@ -273,9 +260,7 @@ class TestOrganizationPurge(object):
         helpers.call_action("organization_purge", id=org["name"])
 
         with pytest.raises(logic.NotFound):
-            helpers.call_action("organization_show",
-                                context={},
-                                id=org["name"])
+            helpers.call_action("organization_show", context={}, id=org["name"])
 
     @pytest.mark.usefixtures("clean_db")
     def test_purged_org_is_not_listed(self):
@@ -292,9 +277,9 @@ class TestOrganizationPurge(object):
 
         helpers.call_action("organization_purge", id=org["name"])
 
-        dataset_shown = helpers.call_action("package_show",
-                                            context={},
-                                            id=dataset["id"])
+        dataset_shown = helpers.call_action(
+            "package_show", context={}, id=dataset["id"]
+        )
         assert dataset_shown["owner_org"] is None
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -303,8 +288,9 @@ class TestOrganizationPurge(object):
         dataset = factories.Dataset(owner_org=org["id"])
 
         def get_search_result_owner_org():
-            results = helpers.call_action("package_search",
-                                          q=dataset["title"])["results"]
+            results = helpers.call_action("package_search", q=dataset["title"])[
+                "results"
+            ]
             return results[0]["owner_org"]
 
         assert get_search_result_owner_org() == org["id"]
@@ -319,16 +305,9 @@ class TestOrganizationPurge(object):
         user = factories.User()
         org1 = factories.Organization(
             name="org1",
-            extras=[{
-                "key": "key1",
-                "value": "val1"
-            }],
-            users=[{
-                "name": user["name"]
-            }],
-            groups=[{
-                "name": "parent"
-            }],
+            extras=[{"key": "key1", "value": "val1"}],
+            users=[{"name": user["name"]}],
+            groups=[{"name": "parent"}],
         )
         factories.Dataset(name="ds", owner_org=org1["id"])
         factories.Organization(name="child", groups=[{"name": "org1"}])
@@ -338,26 +317,24 @@ class TestOrganizationPurge(object):
         num_revisions_after = model.Session.query(model.Revision).count()
 
         # the Organization and related objects are gone
-        assert sorted([o.name
-                       for o in model.Session.query(model.Group).all()]) == [
-                           "child",
-                           "parent",
-                       ]
+        assert sorted(
+            [o.name for o in model.Session.query(model.Group).all()]
+        ) == ["child", "parent"]
         assert model.Session.query(model.GroupExtra).all() == []
         # the only members left are the users for the parent and child
-        assert sorted([
-            (m.table_name, m.group.name)
-            for m in model.Session.query(model.Member).join(model.Group)
-        ]) == [("user", "child"), ("user", "parent")]
+        assert sorted(
+            [
+                (m.table_name, m.group.name)
+                for m in model.Session.query(model.Member).join(model.Group)
+            ]
+        ) == [("user", "child"), ("user", "parent")]
         # the dataset is still there though
         assert [p.name for p in model.Session.query(model.Package)] == ["ds"]
 
         # the organization's object revisions were purged too
         assert sorted(
-            [gr.name for gr in model.Session.query(model.GroupRevision)]) == [
-                "child",
-                "parent",
-            ]
+            [gr.name for gr in model.Session.query(model.GroupRevision)]
+        ) == ["child", "parent"]
         # GroupExtra is not revisioned
         # Member is not revisioned
 
@@ -385,10 +362,7 @@ class TestDatasetPurge(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
                 "dataset_purge",
-                context={
-                    "user": user["name"],
-                    "ignore_auth": False
-                },
+                context={"user": user["name"], "ignore_auth": False},
                 id=dataset["name"],
             )
 
@@ -396,9 +370,9 @@ class TestDatasetPurge(object):
     def test_purged_dataset_does_not_show(self):
         dataset = factories.Dataset()
 
-        helpers.call_action("dataset_purge",
-                            context={"ignore_auth": True},
-                            id=dataset["name"])
+        helpers.call_action(
+            "dataset_purge", context={"ignore_auth": True}, id=dataset["name"]
+        )
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("package_show", context={}, id=dataset["name"])
@@ -418,10 +392,9 @@ class TestDatasetPurge(object):
 
         helpers.call_action("dataset_purge", id=dataset["name"])
 
-        dataset_shown = helpers.call_action("group_show",
-                                            context={},
-                                            id=group["id"],
-                                            include_datasets=True)
+        dataset_shown = helpers.call_action(
+            "group_show", context={}, id=group["id"], include_datasets=True
+        )
         assert dataset_shown["packages"] == []
 
     @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
@@ -429,8 +402,9 @@ class TestDatasetPurge(object):
         dataset = factories.Dataset()
 
         def get_search_results():
-            results = helpers.call_action("package_search",
-                                          q=dataset["title"])["results"]
+            results = helpers.call_action("package_search", q=dataset["title"])[
+                "results"
+            ]
             return [d["name"] for d in results]
 
         assert get_search_results() == [dataset["name"]]
@@ -443,24 +417,17 @@ class TestDatasetPurge(object):
         factories.Group(name="group1")
         org = factories.Organization()
         dataset = factories.Dataset(
-            tags=[{
-                "name": "tag1"
-            }],
-            groups=[{
-                "name": "group1"
-            }],
+            tags=[{"name": "tag1"}],
+            groups=[{"name": "group1"}],
             owner_org=org["id"],
-            extras=[{
-                "key": "testkey",
-                "value": "testvalue"
-            }],
+            extras=[{"key": "testkey", "value": "testvalue"}],
         )
         factories.Resource(package_id=dataset["id"])
         num_revisions_before = model.Session.query(model.Revision).count()
 
-        helpers.call_action("dataset_purge",
-                            context={"ignore_auth": True},
-                            id=dataset["name"])
+        helpers.call_action(
+            "dataset_purge", context={"ignore_auth": True}, id=dataset["name"]
+        )
         num_revisions_after = model.Session.query(model.Revision).count()
 
         # the Package and related objects are gone
@@ -468,15 +435,18 @@ class TestDatasetPurge(object):
         assert model.Session.query(model.Resource).all() == []
         assert model.Session.query(model.PackageTag).all() == []
         # there is no clean-up of the tag object itself, just the PackageTag.
-        assert [t.name
-                for t in model.Session.query(model.Tag).all()] == ["tag1"]
+        assert [t.name for t in model.Session.query(model.Tag).all()] == [
+            "tag1"
+        ]
         assert model.Session.query(model.PackageExtra).all() == []
         # the only member left is for the user created in factories.Group() and
         # factories.Organization()
-        assert sorted([
-            (m.table_name, m.group.name)
-            for m in model.Session.query(model.Member).join(model.Group)
-        ]) == [("user", "group1"), ("user", org["name"])]
+        assert sorted(
+            [
+                (m.table_name, m.group.name)
+                for m in model.Session.query(model.Member).join(model.Group)
+            ]
+        ) == [("user", "group1"), ("user", org["name"])]
 
         # all the object revisions were purged too
         assert model.Session.query(model.PackageRevision).all() == []
@@ -510,9 +480,9 @@ class TestDatasetPurge(object):
 
         assert len(model.Session.query(model.PackageRelationship).all()) == 2
 
-        helpers.call_action("dataset_purge",
-                            context={"ignore_auth": True},
-                            id=parent["name"])
+        helpers.call_action(
+            "dataset_purge", context={"ignore_auth": True}, id=parent["name"]
+        )
 
         assert model.Session.query(model.PackageRelationship).all() == []
 
@@ -552,15 +522,17 @@ class TestUserDelete(object):
     @pytest.mark.usefixtures("clean_db")
     def test_user_delete_removes_memberships(self):
         user = factories.User()
-        factories.Organization(users=[{
-            u"name": user[u"id"],
-            u"capacity": u"admin"
-        }])
+        factories.Organization(
+            users=[{u"name": user[u"id"], u"capacity": u"admin"}]
+        )
 
         factories.Group(users=[{u"name": user[u"id"], u"capacity": u"admin"}])
 
-        user_memberships = (model.Session.query(
-            model.Member).filter(model.Member.table_id == user[u"id"]).all())
+        user_memberships = (
+            model.Session.query(model.Member)
+            .filter(model.Member.table_id == user[u"id"])
+            .all()
+        )
 
         assert len(user_memberships) == 2
 
@@ -571,8 +543,11 @@ class TestUserDelete(object):
 
         helpers.call_action(u"user_delete", context, **params)
 
-        user_memberships = (model.Session.query(
-            model.Member).filter(model.Member.table_id == user[u"id"]).all())
+        user_memberships = (
+            model.Session.query(model.Member)
+            .filter(model.Member.table_id == user[u"id"])
+            .all()
+        )
 
         # Member objects are still there, but flagged as deleted
         assert len(user_memberships) == 2
@@ -582,10 +557,9 @@ class TestUserDelete(object):
     @pytest.mark.usefixtures("clean_db")
     def test_user_delete_removes_memberships_when_using_name(self):
         user = factories.User()
-        factories.Organization(users=[{
-            u"name": user[u"id"],
-            u"capacity": u"admin"
-        }])
+        factories.Organization(
+            users=[{u"name": user[u"id"], u"capacity": u"admin"}]
+        )
 
         factories.Group(users=[{u"name": user[u"id"], u"capacity": u"admin"}])
 
@@ -594,14 +568,16 @@ class TestUserDelete(object):
 
         helpers.call_action(u"user_delete", context, **params)
 
-        user_memberships = (model.Session.query(
-            model.Member).filter(model.Member.table_id == user[u"id"]).all())
+        user_memberships = (
+            model.Session.query(model.Member)
+            .filter(model.Member.table_id == user[u"id"])
+            .all()
+        )
 
         # Member objects are still there, but flagged as deleted
         assert len(user_memberships) == 2
 
-        assert [m.state
-                for m in user_memberships] == [u"deleted" == u"deleted"]
+        assert [m.state for m in user_memberships] == [u"deleted" == u"deleted"]
 
 
 class TestJobClear(helpers.FunctionalRQTestBase):

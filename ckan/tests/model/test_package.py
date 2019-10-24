@@ -51,16 +51,9 @@ def test_update():
 def test_delete():
     group = factories.Group()
     dataset = factories.Dataset(
-        groups=[{
-            u"id": group[u"id"]
-        }],
-        tags=[{
-            u"name": u"science"
-        }],
-        extras=[{
-            u"key": u"subject",
-            u"value": u"science"
-        }],
+        groups=[{u"id": group[u"id"]}],
+        tags=[{u"name": u"science"}],
+        extras=[{u"key": u"subject", u"value": u"science"}],
     )
     pkg = model.Package.by_name(dataset[u"name"])
 
@@ -88,21 +81,16 @@ def test_purge():
     org = factories.Organization()
     group = factories.Group()
     dataset = factories.Dataset(
-        resources=[{
-            u"url": u"http://example.com/image.png",
-            u"format": u"png",
-            u"name": u"Image 1",
-        }],
-        tags=[{
-            u"name": u"science"
-        }],
-        extras=[{
-            u"key": u"subject",
-            u"value": u"science"
-        }],
-        groups=[{
-            u"id": group[u"id"]
-        }],
+        resources=[
+            {
+                u"url": u"http://example.com/image.png",
+                u"format": u"png",
+                u"name": u"Image 1",
+            }
+        ],
+        tags=[{u"name": u"science"}],
+        extras=[{u"key": u"subject", u"value": u"science"}],
+        groups=[{u"id": group[u"id"]}],
         owner_org=org[u"id"],
     )
     pkg = model.Package.by_name(dataset[u"name"])

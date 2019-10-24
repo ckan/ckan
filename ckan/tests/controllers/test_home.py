@@ -17,8 +17,10 @@ class TestHome(helpers.FunctionalTestBase):
     def test_template_head_end(self):
         app = self._get_test_app()
         # test-core.ini sets ckan.template_head_end to this:
-        test_link = ('<link rel="stylesheet" '
-                     'href="TEST_TEMPLATE_HEAD_END.css" type="text/css">')
+        test_link = (
+            '<link rel="stylesheet" '
+            'href="TEST_TEMPLATE_HEAD_END.css" type="text/css">'
+        )
         response = app.get(url_for("home.index"))
         assert test_link in response.body
 
@@ -56,8 +58,9 @@ class TestHome(helpers.FunctionalTestBase):
 
         assert "add your email address" not in response
 
-    @helpers.change_config("ckan.legacy_route_mappings",
-                           '{"my_home_route": "home.index"}')
+    @helpers.change_config(
+        "ckan.legacy_route_mappings", '{"my_home_route": "home.index"}'
+    )
     def test_map_pylons_to_flask_route(self):
         app = self._get_test_app()
         response = app.get(url_for("my_home_route"))
@@ -66,8 +69,9 @@ class TestHome(helpers.FunctionalTestBase):
         response = app.get(url_for("home"))
         assert "Welcome to CKAN" in response.body
 
-    @helpers.change_config("ckan.legacy_route_mappings",
-                           {"my_home_route": "home.index"})
+    @helpers.change_config(
+        "ckan.legacy_route_mappings", {"my_home_route": "home.index"}
+    )
     def test_map_pylons_to_flask_route_using_dict(self):
         app = self._get_test_app()
         response = app.get(url_for("my_home_route"))

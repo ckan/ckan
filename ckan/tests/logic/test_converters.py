@@ -34,8 +34,8 @@ def test_not_a_string():
 
 def test_convert_to_extras_output_unflattened():
 
-    key = ("test_field", )
-    data = {("test_field", ): "test_value"}
+    key = ("test_field",)
+    data = {("test_field",): "test_value"}
     errors = {}
     context = {}
 
@@ -44,16 +44,16 @@ def test_convert_to_extras_output_unflattened():
     assert data[("extras", 0, "key")] == "test_field"
     assert data[("extras", 0, "value")] == "test_value"
 
-    assert ("extras", ) not in data
+    assert ("extras",) not in data
 
     assert errors == {}
 
 
 def test_convert_to_extras_output_unflattened_with_correct_index():
 
-    key = ("test_field", )
+    key = ("test_field",)
     data = {
-        ("test_field", ): "test_value",
+        ("test_field",): "test_value",
         ("extras", 0, "deleted"): "",
         ("extras", 0, "id"): "",
         ("extras", 0, "key"): "proper_extra",
@@ -71,6 +71,6 @@ def test_convert_to_extras_output_unflattened_with_correct_index():
     assert data[("extras", 1, "key")] == "test_field"
     assert data[("extras", 1, "value")] == "test_value"
 
-    assert ("extras", ) not in data
+    assert ("extras",) not in data
 
     assert errors == {}

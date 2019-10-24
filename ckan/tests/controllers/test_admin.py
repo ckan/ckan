@@ -17,8 +17,9 @@ webtest_submit = helpers.webtest_submit
 def _get_admin_config_page(app):
     user = factories.Sysadmin()
     env = {"REMOTE_USER": user["name"].encode("ascii")}
-    response = app.get(url=url_for(controller="admin", action="config"),
-                       extra_environ=env)
+    response = app.get(
+        url=url_for(controller="admin", action="config"), extra_environ=env
+    )
     return env, response
 
 
@@ -31,6 +32,7 @@ def _reset_config(app):
 
 class TestConfig(object):
     """View tests to go along with 'Customizing look and feel' docs."""
+
     @pytest.mark.usefixtures("clean_db")
     def test_form_renders(self, app):
         """admin-config-form in the response"""
@@ -69,7 +71,8 @@ class TestConfig(object):
         env, config_response = _get_admin_config_page(app)
         config_response_html = BeautifulSoup(config_response.body)
         style_select_options = config_response_html.select(
-            "#field-ckan-main-css option")
+            "#field-ckan-main-css option"
+        )
         for option in style_select_options:
             assert option.string in STYLE_NAMES
 
@@ -89,15 +92,20 @@ class TestConfig(object):
 
         # new style
         new_index_response = app.get("/")
-        assert "red.css" in new_index_response or "red.min.css" in new_index_response
+        assert (
+            "red.css" in new_index_response
+            or "red.min.css" in new_index_response
+        )
         assert "main.css" not in new_index_response
         assert "main.min.css" not in new_index_response
 
         # reset config value
         _reset_config(app)
         reset_index_response = app.get("/")
-        assert ("main.css" in reset_index_response
-                or "main.min.css" in reset_index_response)
+        assert (
+            "main.css" in reset_index_response
+            or "main.min.css" in reset_index_response
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_tag_line(self, app):
@@ -219,17 +227,22 @@ class TestConfig(object):
 
         # new style
         new_index_response = app.get("/")
-        assert "<!-- Snippet home/layout1.html start -->" not in new_index_response
+        assert (
+            "<!-- Snippet home/layout1.html start -->" not in new_index_response
+        )
         assert "<!-- Snippet home/layout2.html start -->" in new_index_response
 
         # reset config value
         _reset_config(app)
         reset_index_response = app.get("/")
-        assert "<!-- Snippet home/layout1.html start -->" in reset_index_response
+        assert (
+            "<!-- Snippet home/layout1.html start -->" in reset_index_response
+        )
 
 
 class TestTrashView(object):
     """View tests for permanently deleting datasets with Admin Trash."""
+
     @pytest.mark.ckan_config("debug", True)
     def test_trash_view_anon_user(self, app):
         """An anon user shouldn't be able to access trash view."""
@@ -312,10 +325,9 @@ class TestTrashView(object):
 
         # submit the purge form
         purge_form = trash_response.forms["form-purge-packages"]
-        purge_response = webtest_submit(purge_form,
-                                        "purge-packages",
-                                        status=302,
-                                        extra_environ=env)
+        purge_response = webtest_submit(
+            purge_form, "purge-packages", status=302, extra_environ=env
+        )
         purge_response = purge_response.follow(extra_environ=env)
         # redirected back to trash page
         assert "Purge complete" in purge_response
@@ -346,8 +358,9 @@ class TestAdminConfigUpdate(object):
 
         # test value before update
         # config_option_show returns default value
-        before_update = helpers.call_action("config_option_show",
-                                            key="ckan.site_title")
+        before_update = helpers.call_action(
+            "config_option_show", key="ckan.site_title"
+        )
         assert before_update == "CKAN"
 
         # system_info.get_system_info returns None, or default
@@ -355,8 +368,9 @@ class TestAdminConfigUpdate(object):
         before_update = get_system_info("ckan.site_title")
         assert before_update is None
         # test value before update with default
-        before_update_default = get_system_info("ckan.site_title",
-                                                config["ckan.site_title"])
+        before_update_default = get_system_info(
+            "ckan.site_title", config["ckan.site_title"]
+        )
         assert before_update_default == "CKAN"
 
         # title tag contains default value
@@ -368,16 +382,18 @@ class TestAdminConfigUpdate(object):
         self._update_config_option(app)
 
         # test config_option_show returns new value after update
-        after_update = helpers.call_action("config_option_show",
-                                           key="ckan.site_title")
+        after_update = helpers.call_action(
+            "config_option_show", key="ckan.site_title"
+        )
         assert after_update == "My Updated Site Title"
 
         # system_info.get_system_info returns new value
         after_update = get_system_info("ckan.site_title")
         assert after_update == "My Updated Site Title"
         # test value after update with default
-        after_update_default = get_system_info("ckan.site_title",
-                                               config["ckan.site_title"])
+        after_update_default = get_system_info(
+            "ckan.site_title", config["ckan.site_title"]
+        )
         assert after_update_default == "My Updated Site Title"
 
         # title tag contains new value

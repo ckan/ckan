@@ -68,16 +68,13 @@ class TestFeedNew(helpers.FunctionalTestBase):
         assert u"<title>{0}</title>".format(dataset["title"]) in res.body
 
     def test_custom_atom_feed_works(self):
-        dataset1 = factories.Dataset(title=u"Test weekly",
-                                     extras=[{
-                                         "key": "frequency",
-                                         "value": "weekly"
-                                     }])
-        dataset2 = factories.Dataset(title=u"Test daily",
-                                     extras=[{
-                                         "key": "frequency",
-                                         "value": "daily"
-                                     }])
+        dataset1 = factories.Dataset(
+            title=u"Test weekly",
+            extras=[{"key": "frequency", "value": "weekly"}],
+        )
+        dataset2 = factories.Dataset(
+            title=u"Test daily", extras=[{"key": "frequency", "value": "daily"}]
+        )
 
         offset = url_for(u"feeds.custom")
         params = {"q": "frequency:weekly"}
@@ -109,7 +106,9 @@ class TestFeedInterface(helpers.FunctionalTestBase):
         app = self._get_test_app()
         res = app.get(offset)
 
-        assert 'xmlns:georss="http://www.georss.org/georss"' in res.body, res.body
+        assert (
+            'xmlns:georss="http://www.georss.org/georss"' in res.body
+        ), res.body
 
     def test_additional_fields_added(self):
         metadata = {
@@ -130,7 +129,8 @@ class TestFeedInterface(helpers.FunctionalTestBase):
 
         assert (
             "<georss:box>-2373790.000000 2937940.000000 -1681290.000000 3567770.000000</georss:box>"
-            in res.body), res.body
+            in res.body
+        ), res.body
 
 
 class MockFeedPlugin(plugins.SingletonPlugin):
@@ -143,5 +143,6 @@ class MockFeedPlugin(plugins.SingletonPlugin):
         extras = {e["key"]: e["value"] for e in dataset_dict["extras"]}
 
         box = tuple(
-            float(extras.get(n)) for n in ("ymin", "xmin", "ymax", "xmax"))
+            float(extras.get(n)) for n in ("ymin", "xmin", "ymax", "xmax")
+        )
         return {"geometry": box}

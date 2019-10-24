@@ -41,7 +41,9 @@ class MockRoutingPlugin(p.SingletonPlugin):
             conditions={u"method": u"POST"},
         )
         # This one conflicts with an extension Flask route
-        _map.connect(u"/pylons_and_flask", controller=self.controller, action=u"view")
+        _map.connect(
+            u"/pylons_and_flask", controller=self.controller, action=u"view"
+        )
 
         # This one conflicts with a core Flask route
         _map.connect(u"/about", controller=self.controller, action=u"view")
@@ -128,7 +130,9 @@ def patched_app(app):
 
     # This endpoint is defined both in Flask and a Pylons extension
     flask_app.add_url_rule(
-        u"/pylons_and_flask", view_func=test_view, endpoint=u"pylons_and_flask.index"
+        u"/pylons_and_flask",
+        view_func=test_view,
+        endpoint=u"pylons_and_flask.index",
     )
     return app
 
@@ -184,7 +188,10 @@ def test_ask_around_pylons_extension_route_get_before_map(patched_app):
 
     answers = patched_app.app.ask_around(environ)
 
-    assert answers == [(False, u"flask_app"), (True, u"pylons_app", u"extension")]
+    assert answers == [
+        (False, u"flask_app"),
+        (True, u"pylons_app", u"extension"),
+    ]
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
@@ -197,7 +204,10 @@ def test_ask_around_pylons_extension_route_post(patched_app):
 
     answers = patched_app.app.ask_around(environ)
 
-    assert answers == [(False, u"flask_app"), (True, u"pylons_app", u"extension")]
+    assert answers == [
+        (False, u"flask_app"),
+        (True, u"pylons_app", u"extension"),
+    ]
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
@@ -225,7 +235,10 @@ def test_ask_around_pylons_extension_route_get_after_map(patched_app):
 
     answers = patched_app.app.ask_around(environ)
 
-    assert answers == [(False, u"flask_app"), (True, u"pylons_app", u"extension")]
+    assert answers == [
+        (False, u"flask_app"),
+        (True, u"pylons_app", u"extension"),
+    ]
 
 
 def test_flask_core_route_is_served_by_flask(patched_app):
@@ -271,7 +284,8 @@ def test_user_objects_in_g_normal_user(app):
 
     with app.flask_app.app_context():
         app.get(
-            u"/simple_flask", extra_environ={u"REMOTE_USER": username.encode(u"ascii")}
+            u"/simple_flask",
+            extra_environ={u"REMOTE_USER": username.encode(u"ascii")},
         )
         assert flask.g.user == username
         assert flask.g.userobj == test_user_obj
@@ -342,7 +356,8 @@ def test_user_objects_in_c_anon_user(app):
     """
 
     resp = app.get(
-        u"/from_pylons_extension_before_map", extra_environ={u"REMOTE_USER": str(u"")}
+        u"/from_pylons_extension_before_map",
+        extra_environ={u"REMOTE_USER": str(u"")},
     )
 
     # tmpl_context available on response
@@ -379,7 +394,9 @@ def test_secret_key_is_used_if_present(app):
 
 @pytest.mark.ckan_config(u"SECRET_KEY", None)
 def test_beaker_secret_is_used_by_default(app):
-    assert app.flask_app.config[u"SECRET_KEY"] == config[u"beaker.session.secret"]
+    assert (
+        app.flask_app.config[u"SECRET_KEY"] == config[u"beaker.session.secret"]
+    )
 
 
 @pytest.mark.ckan_config(u"SECRET_KEY", None)
@@ -387,7 +404,9 @@ def test_beaker_secret_is_used_by_default(app):
 def test_no_beaker_secret_crashes(make_app):
     # TODO: When Pylons is finally removed, we should test for
     # RuntimeError instead (thrown on `make_flask_stack`)
-    with pytest.raises(ValueError, match=u"'secret' or 'secretfile' must not be None"):
+    with pytest.raises(
+        ValueError, match=u"'secret' or 'secretfile' must not be None"
+    ):
         make_app()
 
 
@@ -471,4 +490,7 @@ def test_ask_around_flask_core_route_post(app):
     # Even though this route is defined in Flask, there is catch all route
     # in Pylons for all requests to point arbitrary urls to templates with
     # the same name, so we get two positive answers
-    assert answers == [(True, u"flask_app", u"core"), (True, u"pylons_app", u"core")]
+    assert answers == [
+        (True, u"flask_app", u"core"),
+        (True, u"pylons_app", u"core"),
+    ]

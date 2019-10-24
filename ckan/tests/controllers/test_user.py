@@ -151,7 +151,8 @@ class TestLoginView(helpers.FunctionalTestBase):
         # and we're definitely not on the dashboard.
         final_response.mustcontain(no='<a href="/dashboard">Dashboard</a>'),
         final_response.mustcontain(
-            no='<span class="username">{0}</span>'.format(user["fullname"]))
+            no='<span class="username">{0}</span>'.format(user["fullname"])
+        )
 
 
 class TestLogout(helpers.FunctionalTestBase):
@@ -198,14 +199,11 @@ class TestUser(helpers.FunctionalTestBase):
     def test_own_datasets_show_up_on_user_dashboard(self):
         user = factories.User()
         dataset_title = "My very own dataset"
-        factories.Dataset(user=user,
-                          name="my-own-dataset",
-                          title=dataset_title)
+        factories.Dataset(user=user, name="my-own-dataset", title=dataset_title)
 
         app = self._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url=url_for("dashboard.datasets"),
-                           extra_environ=env)
+        response = app.get(url=url_for("dashboard.datasets"), extra_environ=env)
 
         assert_true(dataset_title in response)
 
@@ -213,14 +211,13 @@ class TestUser(helpers.FunctionalTestBase):
         user1 = factories.User()
         user2 = factories.User()
         dataset_title = "Someone else's dataset"
-        factories.Dataset(user=user1,
-                          name="someone-elses-dataset",
-                          title=dataset_title)
+        factories.Dataset(
+            user=user1, name="someone-elses-dataset", title=dataset_title
+        )
 
         app = self._get_test_app()
         env = {"REMOTE_USER": user2["name"].encode("ascii")}
-        response = app.get(url=url_for("dashboard.datasets"),
-                           extra_environ=env)
+        response = app.get(url=url_for("dashboard.datasets"), extra_environ=env)
 
         assert_false(dataset_title in response)
 
@@ -235,8 +232,9 @@ class TestUserEdit(helpers.FunctionalTestBase):
         """Attempt to read edit user for an unknown user redirects to login
         page."""
         app = self._get_test_app()
-        response = app.get(url_for("user.edit", id="unknown_person"),
-                           status=403)
+        response = app.get(
+            url_for("user.edit", id="unknown_person"), status=403
+        )
 
     def test_user_edit_not_logged_in(self):
         """Attempt to read edit user for an existing, not-logged in user
@@ -456,13 +454,15 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_two = factories.User()
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
-        follow_url = url_for(controller="user",
-                             action="follow",
-                             id=user_two["id"])
+        follow_url = url_for(
+            controller="user", action="follow", id=user_two["id"]
+        )
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
-        assert_true("You are now following {0}".format(
-            user_two["display_name"]) in response)
+        assert_true(
+            "You are now following {0}".format(user_two["display_name"])
+            in response
+        )
 
     def test_user_follow_not_exist(self):
         """Pass an id for a user that doesn't exist"""
@@ -483,19 +483,21 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_two = factories.User()
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
-        follow_url = url_for(controller="user",
-                             action="follow",
-                             id=user_two["id"])
+        follow_url = url_for(
+            controller="user", action="follow", id=user_two["id"]
+        )
         app.post(follow_url, extra_environ=env, status=302)
 
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         unfollow_response = unfollow_response.follow()
 
-        assert_true("You are no longer following {0}".format(
-            user_two["display_name"]) in unfollow_response)
+        assert_true(
+            "You are no longer following {0}".format(user_two["display_name"])
+            in unfollow_response
+        )
 
     def test_user_unfollow_not_following(self):
         """Unfollow a user not currently following"""
@@ -506,13 +508,15 @@ class TestUserFollow(helpers.FunctionalTestBase):
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         unfollow_response = unfollow_response.follow()
 
-        assert_true("You are not following {0}".format(user_two["id"]) in
-                    unfollow_response)
+        assert_true(
+            "You are not following {0}".format(user_two["id"])
+            in unfollow_response
+        )
 
     def test_user_unfollow_not_exist(self):
         """Unfollow a user that doesn't exist."""
@@ -522,9 +526,9 @@ class TestUserFollow(helpers.FunctionalTestBase):
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
         unfollow_url = url_for("user.unfollow", id="not-here")
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         unfollow_response = unfollow_response.follow(status=302)
         assert_in("user/login", unfollow_response.headers["location"])
 
@@ -536,17 +540,17 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_two = factories.User()
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
-        follow_url = url_for(controller="user",
-                             action="follow",
-                             id=user_two["id"])
+        follow_url = url_for(
+            controller="user", action="follow", id=user_two["id"]
+        )
         app.post(follow_url, extra_environ=env, status=302)
 
         followers_url = url_for("user.followers", id=user_two["id"])
 
         # Only sysadmins can view the followers list pages
-        followers_response = app.get(followers_url,
-                                     extra_environ=env,
-                                     status=200)
+        followers_response = app.get(
+            followers_url, extra_environ=env, status=200
+        )
         assert_true(user_one["display_name"] in followers_response)
 
 
@@ -650,9 +654,9 @@ class TestUserSearch(helpers.FunctionalTestBase):
         user_response = app.get(user_url, status=200, extra_environ=env)
         search_form = user_response.forms["user-search-form"]
         search_form["q"] = "useroneemail@example.com"
-        search_response = webtest_submit(search_form,
-                                         status=200,
-                                         extra_environ=env)
+        search_response = webtest_submit(
+            search_form, status=200, extra_environ=env
+        )
 
         search_response_html = BeautifulSoup(search_response.body)
         user_list = search_response_html.select("ul.user-list li")
@@ -677,8 +681,9 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("signed up", response)
 
     def _clear_activities(self):
@@ -691,14 +696,15 @@ class TestActivity(helpers.FunctionalTestBase):
         user = factories.User()
         self._clear_activities()
         user["fullname"] = "Mr. Changed Name"
-        helpers.call_action("user_update",
-                            context={"user": user["name"]},
-                            **user)
+        helpers.call_action(
+            "user_update", context={"user": user["name"]}, **user
+        )
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Changed Name'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Changed Name'.format(user["name"]), response
+        )
         assert_in("updated their profile", response)
 
     def test_create_dataset(self):
@@ -709,11 +715,13 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("created the dataset", response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset["id"]),
-                  response)
+        assert_in(
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        )
 
     def test_change_dataset(self):
         app = self._get_test_app()
@@ -721,18 +729,20 @@ class TestActivity(helpers.FunctionalTestBase):
         dataset = factories.Dataset(user=user)
         self._clear_activities()
         dataset["title"] = "Dataset with changed title"
-        helpers.call_action("package_update",
-                            context={"user": user["name"]},
-                            **dataset)
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("updated the dataset", response)
         assert_in(
             '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]),
+                dataset["id"]
+            ),
             response,
         )
 
@@ -741,18 +751,20 @@ class TestActivity(helpers.FunctionalTestBase):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         self._clear_activities()
-        helpers.call_action("package_delete",
-                            context={"user": user["name"]},
-                            **dataset)
+        helpers.call_action(
+            "package_delete", context={"user": user["name"]}, **dataset
+        )
 
         url = url_for("user.activity", id=user["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(url, extra_environ=env)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("deleted the dataset", response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset["id"]),
-                  response)
+        assert_in(
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        )
 
     def test_create_group(self):
         app = self._get_test_app()
@@ -761,11 +773,13 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("created the group", response)
-        assert_in('<a href="/group/{}">Test Group'.format(group["id"]),
-                  response)
+        assert_in(
+            '<a href="/group/{}">Test Group'.format(group["id"]), response
+        )
 
     def test_change_group(self):
         app = self._get_test_app()
@@ -773,35 +787,39 @@ class TestActivity(helpers.FunctionalTestBase):
         group = factories.Group(user=user)
         self._clear_activities()
         group["title"] = "Group with changed title"
-        helpers.call_action("group_update",
-                            context={"user": user["name"]},
-                            **group)
+        helpers.call_action(
+            "group_update", context={"user": user["name"]}, **group
+        )
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("updated the group", response)
         assert_in(
             '<a href="/group/{}">Group with changed title'.format(group["id"]),
-            response)
+            response,
+        )
 
     def test_delete_group_using_group_delete(self):
         app = self._get_test_app()
         user = factories.User()
         group = factories.Group(user=user)
         self._clear_activities()
-        helpers.call_action("group_delete",
-                            context={"user": user["name"]},
-                            **group)
+        helpers.call_action(
+            "group_delete", context={"user": user["name"]}, **group
+        )
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("deleted the group", response)
-        assert_in('<a href="/group/{}">Test Group'.format(group["id"]),
-                  response)
+        assert_in(
+            '<a href="/group/{}">Test Group'.format(group["id"]), response
+        )
 
     def test_delete_group_by_updating_state(self):
         app = self._get_test_app()
@@ -809,18 +827,20 @@ class TestActivity(helpers.FunctionalTestBase):
         group = factories.Group(user=user)
         self._clear_activities()
         group["state"] = "deleted"
-        helpers.call_action("group_update",
-                            context={"user": user["name"]},
-                            **group)
+        helpers.call_action(
+            "group_update", context={"user": user["name"]}, **group
+        )
 
         url = url_for("group.activity", id=group["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(url, extra_environ=env)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("deleted the group", response)
-        assert_in('<a href="/group/{}">Test Group'.format(group["name"]),
-                  response)
+        assert_in(
+            '<a href="/group/{}">Test Group'.format(group["name"]), response
+        )
 
 
 class TestUserResetRequest(helpers.FunctionalTestBase):
@@ -829,9 +849,9 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
         user = factories.User()
         app = self._get_test_app()
         offset = url_for("user.request_reset")
-        response = app.post(offset,
-                            params=dict(user=user["email"]),
-                            status=302).follow()
+        response = app.post(
+            offset, params=dict(user=user["email"]), status=302
+        ).follow()
 
         assert_in("A reset link has been emailed to you", response)
         assert_equal(send_reset_link.call_args[0][0].id, user["id"])
@@ -841,8 +861,9 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
         user = factories.User()
         app = self._get_test_app()
         offset = url_for("user.request_reset")
-        response = app.post(offset, params=dict(user=user["name"]),
-                            status=302).follow()
+        response = app.post(
+            offset, params=dict(user=user["name"]), status=302
+        ).follow()
 
         assert_in("A reset link has been emailed to you", response)
         assert_equal(send_reset_link.call_args[0][0].id, user["id"])
@@ -853,9 +874,9 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
         user_b = factories.User(email="me@example.com")
         app = self._get_test_app()
         offset = url_for("user.request_reset")
-        response = app.post(offset,
-                            params=dict(user="me@example.com"),
-                            status=302).follow()
+        response = app.post(
+            offset, params=dict(user="me@example.com"), status=302
+        ).follow()
 
         assert_in("A reset link has been emailed to you", response)
         emailed_users = [
@@ -874,8 +895,9 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
     def test_request_reset_for_unknown_username(self, send_reset_link):
         app = self._get_test_app()
         offset = url_for("user.request_reset")
-        response = app.post(offset, params=dict(user="unknown"),
-                            status=302).follow()
+        response = app.post(
+            offset, params=dict(user="unknown"), status=302
+        ).follow()
 
         # doesn't reveal account does or doesn't exist
         assert_in("A reset link has been emailed to you", response)
@@ -885,9 +907,9 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
     def test_request_reset_for_unknown_email(self, send_reset_link):
         app = self._get_test_app()
         offset = url_for("user.request_reset")
-        response = app.post(offset,
-                            params=dict(user="unknown@example.com"),
-                            status=302).follow()
+        response = app.post(
+            offset, params=dict(user="unknown@example.com"), status=302
+        ).follow()
 
         # doesn't reveal account does or doesn't exist
         assert_in("A reset link has been emailed to you", response)
@@ -901,8 +923,10 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
         # This is the exception when the mailer is not configured:
         send_reset_link.side_effect = MailerException(
             'SMTP server could not be connected to: "localhost" '
-            "[Errno 111] Connection refused")
-        response = app.post(offset, params=dict(user=user["name"]),
-                            status=302).follow()
+            "[Errno 111] Connection refused"
+        )
+        response = app.post(
+            offset, params=dict(user=user["name"]), status=302
+        ).follow()
 
         assert_in("Error sending the email", response)

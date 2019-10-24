@@ -53,12 +53,13 @@ class TestApiController(object):
         upload_content = "test-content"
         upload_info = ("upload", "test-upload.txt", upload_content)
 
-        resp = app.post(url,
-                        params=postparams,
-                        upload_files=[upload_info],
-                        extra_environ=env
-                        # content_type= 'application/json'
-                        )
+        resp = app.post(
+            url,
+            params=postparams,
+            upload_files=[upload_info],
+            extra_environ=env
+            # content_type= 'application/json'
+        )
         result = resp.json["result"]
         eq_("upload", result["url_type"])
         eq_(len(upload_content), result["size"])
@@ -78,9 +79,7 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_dataset_autocomplete_name(self, app):
         dataset = factories.Dataset(name="rivers")
-        url = url_for(controller="api",
-                      action="dataset_autocomplete",
-                      ver="/2")
+        url = url_for(controller="api", action="dataset_autocomplete", ver="/2")
         assert url == "/api/2/util/dataset/autocomplete"
 
         response = app.get(url=url, params={"incomplete": u"rive"}, status=200)
@@ -88,23 +87,24 @@ class TestApiController(object):
         results = json.loads(response.body)
         assert results == {
             u"ResultSet": {
-                u"Result": [{
-                    u"match_field": u"name",
-                    u"name": u"rivers",
-                    u"match_displayed": u"rivers",
-                    u"title": dataset["title"],
-                }]
+                u"Result": [
+                    {
+                        u"match_field": u"name",
+                        u"name": u"rivers",
+                        u"match_displayed": u"rivers",
+                        u"title": dataset["title"],
+                    }
+                ]
             }
         }
-        assert response.headers[
-            "Content-Type"] == "application/json;charset=utf-8"
+        assert (
+            response.headers["Content-Type"] == "application/json;charset=utf-8"
+        )
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_dataset_autocomplete_title(self, app):
         dataset = factories.Dataset(name="test_ri", title="Rivers")
-        url = url_for(controller="api",
-                      action="dataset_autocomplete",
-                      ver="/2")
+        url = url_for(controller="api", action="dataset_autocomplete", ver="/2")
         assert url == "/api/2/util/dataset/autocomplete"
 
         response = app.get(url=url, params={"incomplete": u"riv"}, status=200)
@@ -112,16 +112,19 @@ class TestApiController(object):
         results = json.loads(response.body)
         assert results == {
             u"ResultSet": {
-                u"Result": [{
-                    u"match_field": u"title",
-                    u"name": dataset["name"],
-                    u"match_displayed": u"Rivers (test_ri)",
-                    u"title": u"Rivers",
-                }]
+                u"Result": [
+                    {
+                        u"match_field": u"title",
+                        u"name": dataset["name"],
+                        u"match_displayed": u"Rivers (test_ri)",
+                        u"title": u"Rivers",
+                    }
+                ]
             }
         }
-        assert response.headers[
-            "Content-Type"] == "application/json;charset=utf-8"
+        assert (
+            response.headers["Content-Type"] == "application/json;charset=utf-8"
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_tag_autocomplete(self, app):
@@ -133,8 +136,9 @@ class TestApiController(object):
 
         results = json.loads(response.body)
         assert results == {"ResultSet": {"Result": [{"Name": "rivers"}]}}
-        assert response.headers[
-            "Content-Type"] == "application/json;charset=utf-8"
+        assert (
+            response.headers["Content-Type"] == "application/json;charset=utf-8"
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_autocomplete_by_name(self, app):
@@ -148,8 +152,9 @@ class TestApiController(object):
         assert len(results) == 1
         assert_equal(results[0]["name"], "rivers")
         assert_equal(results[0]["title"], "Bridges")
-        assert_equal(response.headers["Content-Type"],
-                     "application/json;charset=utf-8")
+        assert_equal(
+            response.headers["Content-Type"], "application/json;charset=utf-8"
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_autocomplete_by_title(self, app):
@@ -165,9 +170,9 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_db")
     def test_organization_autocomplete_by_name(self, app):
         org = factories.Organization(name="simple-dummy-org")
-        url = url_for(controller="api",
-                      action="organization_autocomplete",
-                      ver="/2")
+        url = url_for(
+            controller="api", action="organization_autocomplete", ver="/2"
+        )
         assert_equal(url, "/api/2/util/organization/autocomplete")
 
         response = app.get(url=url, params={"q": u"simple"}, status=200)
@@ -176,15 +181,16 @@ class TestApiController(object):
         assert_equal(len(results), 1)
         assert_equal(results[0]["name"], "simple-dummy-org")
         assert_equal(results[0]["title"], org["title"])
-        assert_equal(response.headers["Content-Type"],
-                     "application/json;charset=utf-8")
+        assert_equal(
+            response.headers["Content-Type"], "application/json;charset=utf-8"
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_organization_autocomplete_by_title(self, app):
         org = factories.Organization(title="Simple dummy org")
-        url = url_for(controller="api",
-                      action="organization_autocomplete",
-                      ver="/2")
+        url = url_for(
+            controller="api", action="organization_autocomplete", ver="/2"
+        )
 
         response = app.get(url=url, params={"q": u"simple dum"}, status=200)
 
@@ -232,26 +238,32 @@ class TestApiController(object):
         dataset1 = factories.Dataset()
         dataset2 = factories.Dataset()
 
-        url = url_for(controller="api",
-                      action="action",
-                      logic_function="package_list",
-                      ver="/3")
+        url = url_for(
+            controller="api",
+            action="action",
+            logic_function="package_list",
+            ver="/3",
+        )
 
         res = app.get(url=url, params={"callback": "my_callback"})
         assert re.match(r"my_callback\(.*\);", res.body), res
         # Unwrap JSONP callback (we want to look at the data).
-        msg = res.body[len("my_callback") + 1:-2]
+        msg = res.body[len("my_callback") + 1 : -2]
         res_dict = json.loads(msg)
         eq_(res_dict["success"], True)
-        eq_(sorted(res_dict["result"]),
-            sorted([dataset1["name"], dataset2["name"]]))
+        eq_(
+            sorted(res_dict["result"]),
+            sorted([dataset1["name"], dataset2["name"]]),
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_jsonp_returns_javascript_content_type(self, app):
-        url = url_for(controller="api",
-                      action="action",
-                      logic_function="status_show",
-                      ver="/3")
+        url = url_for(
+            controller="api",
+            action="action",
+            logic_function="status_show",
+            ver="/3",
+        )
 
         res = app.get(url=url, params={"callback": "my_callback"})
         assert_in("application/javascript", res.headers.get("Content-Type"))
@@ -275,5 +287,7 @@ class TestApiController(object):
         assert not res.body.startswith("my_callback")
         res_dict = json.loads(res.body)
         eq_(res_dict["success"], True)
-        eq_(sorted(res_dict["result"]),
-            sorted([dataset1["name"], dataset2["name"]]))
+        eq_(
+            sorted(res_dict["result"]),
+            sorted([dataset1["name"], dataset2["name"]]),
+        )

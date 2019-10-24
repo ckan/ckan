@@ -57,7 +57,8 @@ class TestPackageNew(helpers.FunctionalTestBase):
     @helpers.change_config("ckan.auth.create_unowned_dataset", "false")
     @helpers.change_config("ckan.auth.user_create_organizations", "false")
     def test_needs_organization_but_no_organizations_no_button(
-            self, mock_p_create):
+        self, mock_p_create
+    ):
         """ Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is not allowed to create an
         organization they should be told to ask the admin but no link should be
@@ -112,11 +113,9 @@ class TestPackageNew(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, "save")
         form = response.forms["resource-edit"]
 
-        response = webtest_submit(form,
-                                  "save",
-                                  value="go-metadata",
-                                  status=200,
-                                  extra_environ=env)
+        response = webtest_submit(
+            form, "save", value="go-metadata", status=200, extra_environ=env
+        )
         assert_true("resource-edit" in response.forms)
         assert_true("You must add at least one data resource" in response)
 
@@ -222,7 +221,8 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_equal(pkg.state, "draft")
 
     def test_dataset_edit_org_dropdown_visible_to_normal_user_with_orgs_available(
-            self):
+        self
+    ):
         """
         The 'Organization' dropdown is available on the dataset create/edit
         page to normal (non-sysadmin) users who have organizations available
@@ -230,11 +230,9 @@ class TestPackageNew(helpers.FunctionalTestBase):
         """
         user = factories.User()
         # user is admin of org.
-        org = factories.Organization(name="my-org",
-                                     users=[{
-                                         "name": user["id"],
-                                         "capacity": "admin"
-                                     }])
+        org = factories.Organization(
+            name="my-org", users=[{"name": user["id"], "capacity": "admin"}]
+        )
 
         app = self._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -273,11 +271,9 @@ class TestPackageNew(helpers.FunctionalTestBase):
         """
         user = factories.User()
         # user is admin of org.
-        org = factories.Organization(name="my-org",
-                                     users=[{
-                                         "name": user["id"],
-                                         "capacity": "admin"
-                                     }])
+        org = factories.Organization(
+            name="my-org", users=[{"name": user["id"], "capacity": "admin"}]
+        )
 
         app = self._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -311,7 +307,8 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_not_equal(post_edit_pkg.owner_org, org["id"])
 
     def test_dataset_edit_org_dropdown_not_visible_to_normal_user_with_no_orgs_available(
-            self):
+        self
+    ):
         """
         The 'Organization' dropdown is not available on the dataset
         create/edit page to normal (non-sysadmin) users who have no
@@ -341,8 +338,9 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_equal(pkg.state, "active")
 
         # edit package response
-        url = url_for("dataset.edit",
-                      id=model.Package.by_name(u"my-dataset").id)
+        url = url_for(
+            "dataset.edit", id=model.Package.by_name(u"my-dataset").id
+        )
         pkg_edit_response = app.get(url=url, extra_environ=env)
         # A field with the correct id is in the response
         form = pkg_edit_response.forms["dataset-edit"]
@@ -351,7 +349,8 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert 'value="{0}"'.format(org["id"]) not in pkg_edit_response
 
     def test_dataset_edit_org_dropdown_visible_to_sysadmin_with_no_orgs_available(
-            self):
+        self
+    ):
         """
         The 'Organization' dropdown is available to sysadmin users regardless
         of whether they personally have an organization they administrate.
@@ -359,11 +358,9 @@ class TestPackageNew(helpers.FunctionalTestBase):
         user = factories.User()
         sysadmin = factories.Sysadmin()
         # user is admin of org.
-        org = factories.Organization(name="my-org",
-                                     users=[{
-                                         "name": user["id"],
-                                         "capacity": "admin"
-                                     }])
+        org = factories.Organization(
+            name="my-org", users=[{"name": user["id"], "capacity": "admin"}]
+        )
 
         app = self._get_test_app()
         # user in env is sysadmin
@@ -409,15 +406,15 @@ class TestPackageNew(helpers.FunctionalTestBase):
 class TestPackageEdit(helpers.FunctionalTestBase):
     def test_organization_admin_can_edit(self):
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.edit", id=dataset["name"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]), extra_environ=env
+        )
         form = response.forms["dataset-edit"]
         form["notes"] = u"edited description"
         submit_and_follow(app, form, env, "save")
@@ -427,15 +424,15 @@ class TestPackageEdit(helpers.FunctionalTestBase):
 
     def test_organization_editor_can_edit(self):
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "editor"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "editor"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.edit", id=dataset["name"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]), extra_environ=env
+        )
         form = response.forms["dataset-edit"]
         form["notes"] = u"edited description"
         submit_and_follow(app, form, env, "save")
@@ -445,16 +442,17 @@ class TestPackageEdit(helpers.FunctionalTestBase):
 
     def test_organization_member_cannot_edit(self):
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "member"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "member"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.edit", id=dataset["name"]),
-                           extra_environ=env,
-                           status=403)
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]),
+            extra_environ=env,
+            status=403,
+        )
 
     def test_user_not_in_organization_cannot_edit(self):
         user = factories.User()
@@ -462,9 +460,11 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.edit", id=dataset["name"]),
-                           extra_environ=env,
-                           status=403)
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]),
+            extra_environ=env,
+            status=403,
+        )
 
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.post(
@@ -478,8 +478,9 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
         app = helpers._get_test_app()
-        response = app.get(url_for("dataset.edit", id=dataset["name"]),
-                           status=403)
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]), status=403
+        )
 
         response = app.post(
             url_for("dataset.edit", id=dataset["name"]),
@@ -490,15 +491,15 @@ class TestPackageEdit(helpers.FunctionalTestBase):
     def test_validation_errors_for_dataset_name_appear(self):
         """fill out a bad dataset set name and make sure errors appear"""
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.edit", id=dataset["name"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]), extra_environ=env
+        )
         form = response.forms["dataset-edit"]
         form["name"] = u"this is not a valid name"
         response = webtest_submit(form, "save", status=200, extra_environ=env)
@@ -537,20 +538,13 @@ class TestPackageRead(helpers.FunctionalTestBase):
             "admin": factories.User(),
             "sysadmin": factories.Sysadmin(),
         }
-        organization = factories.Organization(users=[
-            {
-                "name": members["member"]["id"],
-                "capacity": "member"
-            },
-            {
-                "name": members["editor"]["id"],
-                "capacity": "editor"
-            },
-            {
-                "name": members["admin"]["id"],
-                "capacity": "admin"
-            },
-        ])
+        organization = factories.Organization(
+            users=[
+                {"name": members["member"]["id"], "capacity": "member"},
+                {"name": members["editor"]["id"], "capacity": "editor"},
+                {"name": members["admin"]["id"], "capacity": "admin"},
+            ]
+        )
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         app = helpers._get_test_app()
 
@@ -568,8 +562,9 @@ class TestPackageRead(helpers.FunctionalTestBase):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         app = helpers._get_test_app()
-        response = app.get(url_for("dataset.read", id=dataset["name"]),
-                           status=404)
+        response = app.get(
+            url_for("dataset.read", id=dataset["name"]), status=404
+        )
         assert_equal(404, response.status_int)
 
     def test_user_not_in_organization_cannot_read_private_datasets(self):
@@ -602,8 +597,11 @@ class TestPackageRead(helpers.FunctionalTestBase):
 
     def test_read_dataset_as_it_used_to_be(self):
         dataset = factories.Dataset(title="Original title")
-        activity = (model.Session.query(
-            model.Activity).filter_by(object_id=dataset["id"]).one())
+        activity = (
+            model.Session.query(model.Activity)
+            .filter_by(object_id=dataset["id"])
+            .one()
+        )
         dataset["title"] = "Changed title"
         helpers.call_action("package_update", **dataset)
 
@@ -611,9 +609,9 @@ class TestPackageRead(helpers.FunctionalTestBase):
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
         response = app.get(
-            url_for("dataset.read",
-                    id=dataset["name"],
-                    activity_id=activity.id),
+            url_for(
+                "dataset.read", id=dataset["name"], activity_id=activity.id
+            ),
             extra_environ=env,
         )
         response.mustcontain("Original title")
@@ -628,8 +626,11 @@ class TestPackageRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset(user=user)
 
         # delete the modern Activity object that's been automatically created
-        modern_activity = (model.Session.query(
-            model.Activity).filter_by(object_id=dataset["id"]).one())
+        modern_activity = (
+            model.Session.query(model.Activity)
+            .filter_by(object_id=dataset["id"])
+            .one()
+        )
         revision_id = modern_activity.revision_id
         modern_activity.delete()
 
@@ -638,7 +639,8 @@ class TestPackageRead(helpers.FunctionalTestBase):
         # https://github.com/ckan/ckan/blob/b348bf2fe68db6704ea0a3e22d533ded3d8d4344/ckan/model/package.py#L508
         activity_type = "changed"
         dataset_table_dict = dictization.table_dictize(
-            model.Package.get(dataset["id"]), context={"model": model})
+            model.Package.get(dataset["id"]), context={"model": model}
+        )
         activity = model.Activity(
             user_id=user["id"],
             object_id=dataset["id"],
@@ -668,9 +670,9 @@ class TestPackageRead(helpers.FunctionalTestBase):
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
         response = app.get(
-            url_for("dataset.read",
-                    id=dataset["name"],
-                    activity_id=activity.id),
+            url_for(
+                "dataset.read", id=dataset["name"], activity_id=activity.id
+            ),
             extra_environ=env,
             status=404,
         )
@@ -679,16 +681,16 @@ class TestPackageRead(helpers.FunctionalTestBase):
 class TestPackageDelete(helpers.FunctionalTestBase):
     def test_owner_delete(self):
         user = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.post(url_for("dataset.delete", id=dataset["name"]),
-                            extra_environ=env)
+        response = app.post(
+            url_for("dataset.delete", id=dataset["name"]), extra_environ=env
+        )
         response = response.follow()
         assert_equal(200, response.status_int)
 
@@ -697,8 +699,10 @@ class TestPackageDelete(helpers.FunctionalTestBase):
 
     def test_delete_on_non_existing_dataset(self):
         app = helpers._get_test_app()
-        response = app.post(url_for("dataset.delete", id="schrodingersdatset"),
-                            expect_errors=True)
+        response = app.post(
+            url_for("dataset.delete", id="schrodingersdatset"),
+            expect_errors=True,
+        )
         assert_equal(404, response.status_int)
 
     def test_sysadmin_can_delete_any_dataset(self):
@@ -709,8 +713,9 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         user = factories.Sysadmin()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
-        response = app.post(url_for("dataset.delete", id=dataset["name"]),
-                            extra_environ=env)
+        response = app.post(
+            url_for("dataset.delete", id=dataset["name"]), extra_environ=env
+        )
         response = response.follow()
         assert_equal(200, response.status_int)
 
@@ -719,15 +724,15 @@ class TestPackageDelete(helpers.FunctionalTestBase):
 
     def test_anon_user_cannot_delete_owned_dataset(self):
         user = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
         app = helpers._get_test_app()
-        response = app.post(url_for("dataset.delete", id=dataset["name"]),
-                            status=403)
+        response = app.post(
+            url_for("dataset.delete", id=dataset["name"]), status=403
+        )
         response.mustcontain("Unauthorized to delete package")
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
@@ -735,10 +740,9 @@ class TestPackageDelete(helpers.FunctionalTestBase):
 
     def test_logged_in_user_cannot_delete_owned_dataset(self):
         owner = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": owner["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": owner["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
         app = helpers._get_test_app()
@@ -758,16 +762,16 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         When package_delete is made as a get request, it should return a
         'do you want to delete this dataset? confirmation page"""
         user = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.delete", id=dataset["name"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("dataset.delete", id=dataset["name"]), extra_environ=env
+        )
         assert_equal(200, response.status_int)
         message = "Are you sure you want to delete dataset - {name}?"
         response.mustcontain(message.format(name=dataset["title"]))
@@ -786,28 +790,30 @@ class TestResourceNew(helpers.FunctionalTestBase):
         resource = factories.Resource(package_id=dataset["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.resources", id=dataset["name"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("dataset.resources", id=dataset["name"]), extra_environ=env
+        )
         assert_in(resource["name"], response)
         assert_in(resource["description"], response)
         assert_in(resource["format"], response)
 
-    def test_unauth_user_cannot_view_manage_dataset_resource_listing_page(
-            self):
+    def test_unauth_user_cannot_view_manage_dataset_resource_listing_page(self):
         user = factories.User()
         organization = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=organization["id"])
         resource = factories.Resource(package_id=dataset["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.resources", id=dataset["name"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("dataset.resources", id=dataset["name"]), extra_environ=env
+        )
         assert_in(resource["name"], response)
         assert_in(resource["description"], response)
         assert_in(resource["format"], response)
 
     def test_404_on_manage_dataset_resource_listing_page_that_does_not_exist(
-            self):
+        self
+    ):
         user = factories.User()
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -824,13 +830,15 @@ class TestResourceNew(helpers.FunctionalTestBase):
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         app = helpers._get_test_app()
 
-        response = app.get(url_for("resource.new", id=dataset["id"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("resource.new", id=dataset["id"]), extra_environ=env
+        )
 
         form = response.forms["resource-edit"]
         form["url"] = u"http://test.com/"
-        response = submit_and_follow(app, form, env, "save",
-                                     "go-dataset-complete")
+        response = submit_and_follow(
+            app, form, env, "save", "go-dataset-complete"
+        )
 
         result = helpers.call_action("package_show", id=dataset["id"])
         response = app.get(
@@ -845,22 +853,23 @@ class TestResourceNew(helpers.FunctionalTestBase):
 
     def test_editor_can_add_new_resource(self):
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "editor"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "editor"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         app = helpers._get_test_app()
 
-        response = app.get(url_for("resource.new", id=dataset["id"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("resource.new", id=dataset["id"]), extra_environ=env
+        )
 
         form = response.forms["resource-edit"]
         form["name"] = u"test resource"
         form["url"] = u"http://test.com/"
-        response = submit_and_follow(app, form, env, "save",
-                                     "go-dataset-complete")
+        response = submit_and_follow(
+            app, form, env, "save", "go-dataset-complete"
+        )
 
         result = helpers.call_action("package_show", id=dataset["id"])
         assert_equal(1, len(result["resources"]))
@@ -868,22 +877,23 @@ class TestResourceNew(helpers.FunctionalTestBase):
 
     def test_admin_can_add_new_resource(self):
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         app = helpers._get_test_app()
 
-        response = app.get(url_for("resource.new", id=dataset["id"]),
-                           extra_environ=env)
+        response = app.get(
+            url_for("resource.new", id=dataset["id"]), extra_environ=env
+        )
 
         form = response.forms["resource-edit"]
         form["name"] = u"test resource"
         form["url"] = u"http://test.com/"
-        response = submit_and_follow(app, form, env, "save",
-                                     "go-dataset-complete")
+        response = submit_and_follow(
+            app, form, env, "save", "go-dataset-complete"
+        )
 
         result = helpers.call_action("package_show", id=dataset["id"])
         assert_equal(1, len(result["resources"]))
@@ -891,26 +901,22 @@ class TestResourceNew(helpers.FunctionalTestBase):
 
     def test_member_cannot_add_new_resource(self):
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "member"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "member"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         app = helpers._get_test_app()
 
-        response = app.get(url_for("resource.new", id=dataset["id"]),
-                           extra_environ=env,
-                           status=403)
+        response = app.get(
+            url_for("resource.new", id=dataset["id"]),
+            extra_environ=env,
+            status=403,
+        )
 
         response = app.post(
             url_for("resource.new", id=dataset["id"]),
-            {
-                "name": "test",
-                "url": "test",
-                "save": "save",
-                "id": ""
-            },
+            {"name": "test", "url": "test", "save": "save", "id": ""},
             extra_environ=env,
             status=403,
         )
@@ -923,18 +929,15 @@ class TestResourceNew(helpers.FunctionalTestBase):
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         app = helpers._get_test_app()
 
-        response = app.get(url_for("resource.new", id=dataset["id"]),
-                           extra_environ=env,
-                           status=403)
+        response = app.get(
+            url_for("resource.new", id=dataset["id"]),
+            extra_environ=env,
+            status=403,
+        )
 
         response = app.post(
             url_for("resource.new", id=dataset["id"]),
-            {
-                "name": "test",
-                "url": "test",
-                "save": "save",
-                "id": ""
-            },
+            {"name": "test", "url": "test", "save": "save", "id": ""},
             extra_environ=env,
             status=403,
         )
@@ -944,17 +947,13 @@ class TestResourceNew(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization["id"])
         app = helpers._get_test_app()
 
-        response = app.get(url_for("resource.new", id=dataset["id"]),
-                           status=403)
+        response = app.get(
+            url_for("resource.new", id=dataset["id"]), status=403
+        )
 
         response = app.post(
             url_for("resource.new", id=dataset["id"]),
-            {
-                "name": "test",
-                "url": "test",
-                "save": "save",
-                "id": ""
-            },
+            {"name": "test", "url": "test", "save": "save", "id": ""},
             status=403,
         )
 
@@ -966,22 +965,21 @@ class TestResourceNew(helpers.FunctionalTestBase):
 
         with app.flask_app.test_request_context():
             response = app.get(
-                url_for("resource.edit",
-                        id=dataset["id"],
-                        resource_id=resource["id"]),
+                url_for(
+                    "resource.edit",
+                    id=dataset["id"],
+                    resource_id=resource["id"],
+                ),
                 status=403,
             )
 
             response = app.post(
-                url_for("resource.edit",
-                        id=dataset["id"],
-                        resource_id=resource["id"]),
-                {
-                    "name": "test",
-                    "url": "test",
-                    "save": "save",
-                    "id": ""
-                },
+                url_for(
+                    "resource.edit",
+                    id=dataset["id"],
+                    resource_id=resource["id"],
+                ),
+                {"name": "test", "url": "test", "save": "save", "id": ""},
                 status=403,
             )
 
@@ -1007,10 +1005,9 @@ class TestResourceView(helpers.FunctionalTestBase):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1022,20 +1019,18 @@ class TestResourceView(helpers.FunctionalTestBase):
         )
 
         app = self._get_test_app()
-        response = app.post(url, {
-            "title": "Test Image View"
-        },
-                            extra_environ=env).follow(extra_environ=env)
+        response = app.post(
+            url, {"title": "Test Image View"}, extra_environ=env
+        ).follow(extra_environ=env)
         response.mustcontain("Test Image View")
 
     def test_resource_view_edit(self):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1048,20 +1043,18 @@ class TestResourceView(helpers.FunctionalTestBase):
         )
 
         app = self._get_test_app()
-        response = app.post(url, {
-            "title": "Updated RV Title"
-        },
-                            extra_environ=env).follow(extra_environ=env)
+        response = app.post(
+            url, {"title": "Updated RV Title"}, extra_environ=env
+        ).follow(extra_environ=env)
         response.mustcontain("Updated RV Title")
 
     def test_resource_view_delete(self):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1074,9 +1067,9 @@ class TestResourceView(helpers.FunctionalTestBase):
         )
 
         app = self._get_test_app()
-        response = app.post(url, {
-            "delete": "Delete"
-        }, extra_environ=env).follow(extra_environ=env)
+        response = app.post(
+            url, {"delete": "Delete"}, extra_environ=env
+        ).follow(extra_environ=env)
         response.mustcontain("This resource has no views")
 
     def test_existent_resource_view_page_returns_ok_code(self):
@@ -1124,9 +1117,9 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         resource = factories.Resource()
 
-        url = url_for("resource.read",
-                      id=dataset["id"],
-                      resource_id=resource["id"])
+        url = url_for(
+            "resource.read", id=dataset["id"], resource_id=resource["id"]
+        )
 
         app = self._get_test_app()
         app.get(url, status=404)
@@ -1140,9 +1133,9 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset["id"])
 
-        url = url_for("resource.read",
-                      id=dataset["id"],
-                      resource_id=resource["id"])
+        url = url_for(
+            "resource.read", id=dataset["id"], resource_id=resource["id"]
+        )
 
         app = self._get_test_app()
         app.get(url, status=200, extra_environ=env)
@@ -1154,9 +1147,9 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset["id"])
 
-        url = url_for("resource.read",
-                      id=dataset["id"],
-                      resource_id=resource["id"])
+        url = url_for(
+            "resource.read", id=dataset["id"], resource_id=resource["id"]
+        )
 
         app = self._get_test_app()
         app.get(url, status=200)
@@ -1170,9 +1163,9 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset["id"])
 
-        url = url_for("resource.read",
-                      id=dataset["id"],
-                      resource_id=resource["id"])
+        url = url_for(
+            "resource.read", id=dataset["id"], resource_id=resource["id"]
+        )
 
         app = self._get_test_app()
         app.get(url, status=200, extra_environ=env)
@@ -1184,9 +1177,9 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         resource = factories.Resource(package_id=dataset["id"])
 
-        url = url_for("resource.read",
-                      id=dataset["id"],
-                      resource_id=resource["id"])
+        url = url_for(
+            "resource.read", id=dataset["id"], resource_id=resource["id"]
+        )
 
         app = self._get_test_app()
         response = app.get(url, status=404, extra_environ=env)
@@ -1198,20 +1191,13 @@ class TestResourceRead(helpers.FunctionalTestBase):
             "admin": factories.User(),
             "sysadmin": factories.Sysadmin(),
         }
-        organization = factories.Organization(users=[
-            {
-                "name": members["member"]["id"],
-                "capacity": "member"
-            },
-            {
-                "name": members["editor"]["id"],
-                "capacity": "editor"
-            },
-            {
-                "name": members["admin"]["id"],
-                "capacity": "admin"
-            },
-        ])
+        organization = factories.Organization(
+            users=[
+                {"name": members["member"]["id"], "capacity": "member"},
+                {"name": members["editor"]["id"], "capacity": "editor"},
+                {"name": members["admin"]["id"], "capacity": "admin"},
+            ]
+        )
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1219,9 +1205,11 @@ class TestResourceRead(helpers.FunctionalTestBase):
 
         for user, user_dict in members.items():
             response = app.get(
-                url_for("resource.read",
-                        id=dataset["name"],
-                        resource_id=resource["id"]),
+                url_for(
+                    "resource.read",
+                    id=dataset["name"],
+                    resource_id=resource["id"],
+                ),
                 extra_environ={
                     "REMOTE_USER": user_dict["name"].encode("ascii")
                 },
@@ -1232,26 +1220,28 @@ class TestResourceRead(helpers.FunctionalTestBase):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         app = helpers._get_test_app()
-        response = app.get(url_for("dataset.read", id=dataset["name"]),
-                           status=404)
+        response = app.get(
+            url_for("dataset.read", id=dataset["name"]), status=404
+        )
         assert_equal(404, response.status_int)
 
 
 class TestResourceDelete(helpers.FunctionalTestBase):
     def test_dataset_owners_can_delete_resources(self):
         user = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.post(
-            url_for("resource.delete",
-                    id=dataset["name"],
-                    resource_id=resource["id"]),
+            url_for(
+                "resource.delete",
+                id=dataset["name"],
+                resource_id=resource["id"],
+            ),
             extra_environ=env,
         )
         response = response.follow()
@@ -1267,17 +1257,18 @@ class TestResourceDelete(helpers.FunctionalTestBase):
 
     def test_deleting_non_existing_resource_404s(self):
         user = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         app = helpers._get_test_app()
         response = app.post(
-            url_for("resource.delete",
-                    id=dataset["name"],
-                    resource_id="doesnotexist"),
+            url_for(
+                "resource.delete",
+                id=dataset["name"],
+                resource_id="doesnotexist",
+            ),
             extra_environ=env,
             expect_errors=True,
         )
@@ -1285,18 +1276,19 @@ class TestResourceDelete(helpers.FunctionalTestBase):
 
     def test_anon_users_cannot_delete_owned_resources(self):
         user = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
 
         app = helpers._get_test_app()
         response = app.post(
-            url_for("resource.delete",
-                    id=dataset["name"],
-                    resource_id=resource["id"]),
+            url_for(
+                "resource.delete",
+                id=dataset["name"],
+                resource_id=resource["id"],
+            ),
             status=403,
         )
         response.mustcontain("Unauthorized to delete package")
@@ -1304,10 +1296,9 @@ class TestResourceDelete(helpers.FunctionalTestBase):
     def test_logged_in_users_cannot_delete_resources_they_do_not_own(self):
         # setup our dataset
         owner = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": owner["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": owner["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1316,9 +1307,11 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         app = helpers._get_test_app()
         response = app.post(
-            url_for("resource.delete",
-                    id=dataset["name"],
-                    resource_id=resource["id"]),
+            url_for(
+                "resource.delete",
+                id=dataset["name"],
+                resource_id=resource["id"],
+            ),
             extra_environ=env,
             expect_errors=True,
         )
@@ -1334,9 +1327,11 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         app = helpers._get_test_app()
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
         response = app.post(
-            url_for("resource.delete",
-                    id=dataset["name"],
-                    resource_id=resource["id"]),
+            url_for(
+                "resource.delete",
+                id=dataset["name"],
+                resource_id=resource["id"],
+            ),
             extra_environ=env,
         )
         response = response.follow()
@@ -1356,18 +1351,19 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         When resource_delete is made as a get request, it should return a
         'do you want to delete this reource? confirmation page"""
         user = factories.User()
-        owner_org = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        owner_org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
         app = helpers._get_test_app()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(
-            url_for("resource.delete",
-                    id=dataset["name"],
-                    resource_id=resource["id"]),
+            url_for(
+                "resource.delete",
+                id=dataset["name"],
+                resource_id=resource["id"],
+            ),
             extra_environ=env,
         )
         assert_equal(200, response.status_int)
@@ -1423,9 +1419,11 @@ class TestSearch(helpers.FunctionalTestBase):
             import sys
 
             sys.stdout.write(response.body)
-            raise Exception("Solr returned an unknown error message. "
-                            "Please check the error handling "
-                            "in ckan/lib/search/query.py:run")
+            raise Exception(
+                "Solr returned an unknown error message. "
+                "Please check the error handling "
+                "in ckan/lib/search/query.py:run"
+            )
 
     def test_search_solr_syntax_error(self):
         factories.Dataset()
@@ -1467,9 +1465,9 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true("3 datasets found" in search_response)
 
         search_response_html = BeautifulSoup(search_response.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         ds_titles = [n.string for n in ds_titles]
 
         assert_equal(len(ds_titles), 3)
@@ -1494,9 +1492,9 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true("1 dataset found" in search_results)
 
         search_response_html = BeautifulSoup(search_results.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         ds_titles = [n.string for n in ds_titles]
 
         assert_equal(len(ds_titles), 1)
@@ -1519,9 +1517,9 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true('No datasets found for "Nout"' in search_results)
 
         search_response_html = BeautifulSoup(search_results.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         ds_titles = [n.string for n in ds_titles]
 
         assert_equal(len(ds_titles), 0)
@@ -1529,11 +1527,9 @@ class TestSearch(helpers.FunctionalTestBase):
     def test_search_page_results_tag(self):
         """Searching with a tag returns expected results."""
         app = self._get_test_app()
-        factories.Dataset(name="dataset-one",
-                          title="Dataset One",
-                          tags=[{
-                              "name": "my-tag"
-                          }])
+        factories.Dataset(
+            name="dataset-one", title="Dataset One", tags=[{"name": "my-tag"}]
+        )
         factories.Dataset(name="dataset-two", title="Dataset Two")
         factories.Dataset(name="dataset-three", title="Dataset Three")
 
@@ -1546,9 +1542,9 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true("1 dataset found" in tag_search_response)
 
         search_response_html = BeautifulSoup(tag_search_response.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         ds_titles = [n.string for n in ds_titles]
 
         assert_equal(len(ds_titles), 1)
@@ -1561,13 +1557,11 @@ class TestSearch(helpers.FunctionalTestBase):
         factories.Dataset(
             name="dataset-one",
             title="Dataset One",
-            tags=[{
-                "name": "my-tag-1"
-            }, {
-                "name": "my-tag-2"
-            }, {
-                "name": "my-tag-3"
-            }],
+            tags=[
+                {"name": "my-tag-1"},
+                {"name": "my-tag-2"},
+                {"name": "my-tag-3"},
+            ],
         )
         factories.Dataset(name="dataset-two", title="Dataset Two")
         factories.Dataset(name="dataset-three", title="Dataset Three")
@@ -1586,10 +1580,12 @@ class TestSearch(helpers.FunctionalTestBase):
         app = self._get_test_app()
         org = factories.Organization()
 
-        factories.Dataset(name="dataset-one",
-                          title="Dataset One",
-                          owner_org=org["id"],
-                          private=True)
+        factories.Dataset(
+            name="dataset-one",
+            title="Dataset One",
+            owner_org=org["id"],
+            private=True,
+        )
         factories.Dataset(name="dataset-two", title="Dataset Two")
         factories.Dataset(name="dataset-three", title="Dataset Three")
 
@@ -1597,9 +1593,9 @@ class TestSearch(helpers.FunctionalTestBase):
         search_response = app.get(search_url)
 
         search_response_html = BeautifulSoup(search_response.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         ds_titles = [n.string for n in ds_titles]
 
         assert_equal(len(ds_titles), 2)
@@ -1617,87 +1613,89 @@ class TestSearch(helpers.FunctionalTestBase):
         search_response = app.get(search_url, extra_environ=env)
 
         search_response_html = BeautifulSoup(search_response.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         assert_equal([n.string for n in ds_titles], [])
 
     def test_user_in_organization_can_search_private_datasets(self):
         app = helpers._get_test_app()
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "member"
-        }])
-        dataset = factories.Dataset(title="A private dataset",
-                                    owner_org=organization["id"],
-                                    private=True)
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "member"}]
+        )
+        dataset = factories.Dataset(
+            title="A private dataset",
+            owner_org=organization["id"],
+            private=True,
+        )
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
         search_response_html = BeautifulSoup(search_response.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         assert_equal([n.string for n in ds_titles], ["A private dataset"])
 
     def test_user_in_different_organization_cannot_search_private_datasets(
-            self):
+        self
+    ):
         app = helpers._get_test_app()
         user = factories.User()
-        org1 = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "member"
-        }])
+        org1 = factories.Organization(
+            users=[{"name": user["id"], "capacity": "member"}]
+        )
         org2 = factories.Organization()
-        dataset = factories.Dataset(title="A private dataset",
-                                    owner_org=org2["id"],
-                                    private=True)
+        dataset = factories.Dataset(
+            title="A private dataset", owner_org=org2["id"], private=True
+        )
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
         search_response_html = BeautifulSoup(search_response.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         assert_equal([n.string for n in ds_titles], [])
 
     @helpers.change_config("ckan.search.default_include_private", "false")
     def test_search_default_include_private_false(self):
         app = helpers._get_test_app()
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "member"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "member"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
         search_response_html = BeautifulSoup(search_response.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         assert_equal([n.string for n in ds_titles], [])
 
     def test_sysadmin_can_search_private_datasets(self):
         app = helpers._get_test_app()
         user = factories.Sysadmin()
         organization = factories.Organization()
-        dataset = factories.Dataset(title="A private dataset",
-                                    owner_org=organization["id"],
-                                    private=True)
+        dataset = factories.Dataset(
+            title="A private dataset",
+            owner_org=organization["id"],
+            private=True,
+        )
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
         search_response_html = BeautifulSoup(search_response.body)
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         assert_equal([n.string for n in ds_titles], ["A private dataset"])
 
 
@@ -1713,7 +1711,8 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
         assert_true(
-            "You are now following {0}".format(package["title"]) in response)
+            "You are now following {0}".format(package["title"]) in response
+        )
 
     def test_package_follow_not_exist(self):
         """Pass an id for a package that doesn't exist"""
@@ -1738,13 +1737,15 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         app.post(follow_url, extra_environ=env, status=302)
 
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         unfollow_response = unfollow_response.follow()
 
-        assert_true("You are no longer following {0}".format(package["title"])
-                    in unfollow_response)
+        assert_true(
+            "You are no longer following {0}".format(package["title"])
+            in unfollow_response
+        )
 
     def test_package_unfollow_not_following(self):
         """Unfollow a package not currently following"""
@@ -1755,14 +1756,16 @@ class TestPackageFollow(helpers.FunctionalTestBase):
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         unfollow_response = unfollow_response.follow()  # /package/[id] 302s to
         unfollow_response = unfollow_response.follow()  # /package/[name]
 
-        assert_true("You are not following {0}".format(package["id"]) in
-                    unfollow_response)
+        assert_true(
+            "You are not following {0}".format(package["id"])
+            in unfollow_response
+        )
 
     def test_package_unfollow_not_exist(self):
         """Unfollow a package that doesn't exist."""
@@ -1772,9 +1775,9 @@ class TestPackageFollow(helpers.FunctionalTestBase):
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
         unfollow_url = url_for("dataset.unfollow", id="not-here")
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         unfollow_response = unfollow_response.follow(status=404)
         assert_true("Dataset not found" in unfollow_response)
 
@@ -1792,9 +1795,9 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         followers_url = url_for("dataset.followers", id=package["id"])
 
         # Only sysadmins can view the followers list pages
-        followers_response = app.get(followers_url,
-                                     extra_environ=env,
-                                     status=200)
+        followers_response = app.get(
+            followers_url, extra_environ=env, status=200
+        )
         assert_true(user_one["display_name"] in followers_response)
 
 
@@ -1811,8 +1814,9 @@ class TestDatasetRead(helpers.FunctionalTestBase):
     def test_redirect_when_given_id(self):
         dataset = factories.Dataset()
         app = helpers._get_test_app()
-        response = app.get(url_for("dataset.read", id=dataset["id"]),
-                           status=302)
+        response = app.get(
+            url_for("dataset.read", id=dataset["id"]), status=302
+        )
         # redirect replaces the ID with the name in the URL
         redirected_response = response.follow()
         expected_url = url_for("dataset.read", id=dataset["name"])
@@ -1821,9 +1825,9 @@ class TestDatasetRead(helpers.FunctionalTestBase):
 
     def test_redirect_also_with_activity_parameter(self):
         dataset = factories.Dataset()
-        activity = activity_model.package_activity_list(dataset["id"],
-                                                        limit=1,
-                                                        offset=0)[0]
+        activity = activity_model.package_activity_list(
+            dataset["id"], limit=1, offset=0
+        )[0]
         # view as an admin because viewing the old versions of a dataset
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
@@ -1844,8 +1848,9 @@ class TestDatasetRead(helpers.FunctionalTestBase):
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
         dataset = factories.Dataset(id="abc", name="abc")
         app = helpers._get_test_app()
-        app.get(url_for("dataset.read", id=dataset["id"]),
-                status=200)  # ie no redirect
+        app.get(
+            url_for("dataset.read", id=dataset["id"]), status=200
+        )  # ie no redirect
 
 
 class TestActivity(helpers.FunctionalTestBase):
@@ -1867,11 +1872,13 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("created the dataset", response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset["id"]),
-                  response)
+        assert_in(
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        )
 
     def _clear_activities(self):
         model.Session.query(model.Activity).delete()
@@ -1883,18 +1890,20 @@ class TestActivity(helpers.FunctionalTestBase):
         dataset = factories.Dataset(user=user)
         self._clear_activities()
         dataset["title"] = "Dataset with changed title"
-        helpers.call_action("package_update",
-                            context={"user": user["name"]},
-                            **dataset)
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("updated the dataset", response)
         assert_in(
             '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]),
+                dataset["id"]
+            ),
             response,
         )
 
@@ -1904,17 +1913,19 @@ class TestActivity(helpers.FunctionalTestBase):
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         self._clear_activities()
-        helpers.call_action("package_delete",
-                            context={"user": user["name"]},
-                            **dataset)
+        helpers.call_action(
+            "package_delete", context={"user": user["name"]}, **dataset
+        )
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("deleted the dataset", response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset["id"]),
-                  response)
+        assert_in(
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        )
 
     def test_admin_can_see_old_versions(self):
         app = self._get_test_app()
@@ -1968,8 +1979,11 @@ class TestActivity(helpers.FunctionalTestBase):
         dataset = factories.Dataset(user=user)
 
         # delete the modern Activity object that's been automatically created
-        modern_activity = (model.Session.query(
-            model.Activity).filter_by(object_id=dataset["id"]).one())
+        modern_activity = (
+            model.Session.query(model.Activity)
+            .filter_by(object_id=dataset["id"])
+            .one()
+        )
         revision_id = modern_activity.revision_id
         modern_activity.delete()
 
@@ -1978,7 +1992,8 @@ class TestActivity(helpers.FunctionalTestBase):
         # https://github.com/ckan/ckan/blob/b348bf2fe68db6704ea0a3e22d533ded3d8d4344/ckan/model/package.py#L508
         activity_type = "changed"
         dataset_table_dict = dictization.table_dictize(
-            model.Package.get(dataset["id"]), context={"model": model})
+            model.Package.get(dataset["id"]), context={"model": model}
+        )
         activity = model.Activity(
             user_id=user["id"],
             object_id=dataset["id"],
@@ -2007,19 +2022,23 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("updated the dataset", response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset["id"]),
-                  response)
+        assert_in(
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        )
 
     # ckanext-canada uses their IActivity to add their custom activity to the
     # list of validators: https://github.com/open-data/ckanext-canada/blob/6870e5bc38a04aa8cef191b5e9eb361f9560872b/ckanext/canada/plugins.py#L596
     # but it's easier here to just hack patch it in
     @mock.patch(
         "ckan.logic.validators.object_id_validators",
-        dict(object_id_validators.items() +
-             [("changed datastore", package_id_exists)]),
+        dict(
+            object_id_validators.items()
+            + [("changed datastore", package_id_exists)]
+        ),
     )
     def test_custom_activity(self):
         """Render a custom activity
@@ -2027,10 +2046,9 @@ class TestActivity(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         user = factories.User()
-        organization = factories.Organization(users=[{
-            "name": user["id"],
-            "capacity": "admin"
-        }])
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         dataset = factories.Dataset(owner_org=organization["id"], user=user)
         resource = factories.Resource(package_id=dataset["id"])
         self._clear_activities()
@@ -2053,8 +2071,9 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         # it renders the activity with fallback.html, since we've not defined
         # changed_datastore.html in this case
         assert_in("changed datastore", response)
@@ -2072,11 +2091,12 @@ class TestChanges(object):  # i.e. the diff
         helpers.call_action("package_update", **dataset)
 
         app = helpers._get_test_app()
-        activity = activity_model.package_activity_list(dataset["id"],
-                                                        limit=1,
-                                                        offset=0)[0]
+        activity = activity_model.package_activity_list(
+            dataset["id"], limit=1, offset=0
+        )[0]
         env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url_for("dataset.changes", id=activity.id),
-                           extra_environ=env)
+        response = app.get(
+            url_for("dataset.changes", id=activity.id), extra_environ=env
+        )
         response.mustcontain("First")
         response.mustcontain("Second")

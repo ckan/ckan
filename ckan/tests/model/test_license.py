@@ -31,8 +31,9 @@ def test_default_register_has_basic_properties_of_a_license():
 
 
 @pytest.mark.usefixtures("reset")
-@pytest.mark.ckan_config("licenses_group_url",
-                         "file:///%s/licenses.v1" % this_dir)
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v1" % this_dir
+)
 def test_import_v1_style_register():
     reg = LicenseRegister()
 
@@ -44,8 +45,9 @@ def test_import_v1_style_register():
 
 # v2 is used by http://licenses.opendefinition.org in recent times
 @pytest.mark.usefixtures("reset")
-@pytest.mark.ckan_config("licenses_group_url",
-                         "file:///%s/licenses.v2" % this_dir)
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v2" % this_dir
+)
 def test_import_v2_style_register():
     reg = LicenseRegister()
     license = reg["CC-BY-4.0"]
@@ -55,24 +57,28 @@ def test_import_v2_style_register():
 
 
 @pytest.mark.usefixtures("reset")
-@pytest.mark.ckan_config("licenses_group_url",
-                         "file:///%s/licenses.v1" % this_dir)
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v1" % this_dir
+)
 @pytest.mark.ckan_config("ckan.locale_default", "ca")
 def test_import_v1_style_register_i18n(app):
     sysadmin = factories.Sysadmin()
-    resp = app.get("/dataset/new",
-                   extra_environ={"REMOTE_USER": str(sysadmin["name"])})
+    resp = app.get(
+        "/dataset/new", extra_environ={"REMOTE_USER": str(sysadmin["name"])}
+    )
     assert "Altres (Oberta)" in resp.body
 
 
 @pytest.mark.usefixtures("reset")
-@pytest.mark.ckan_config("licenses_group_url",
-                         "file:///%s/licenses.v2" % this_dir)
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v2" % this_dir
+)
 @pytest.mark.ckan_config("ckan.locale_default", "ca")
 def test_import_v2_style_register_i18n(app):
     sysadmin = factories.Sysadmin()
-    resp = app.get("/dataset/new",
-                   extra_environ={"REMOTE_USER": str(sysadmin["name"])})
+    resp = app.get(
+        "/dataset/new", extra_environ={"REMOTE_USER": str(sysadmin["name"])}
+    )
     assert "Altres (Oberta)" in resp.body
 
 

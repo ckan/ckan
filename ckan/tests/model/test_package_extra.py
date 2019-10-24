@@ -30,16 +30,12 @@ def test_create_extras():
 @pytest.mark.usefixtures(u"clean_db")
 def test_delete_extras():
 
-    dataset = factories.Dataset(extras=[
-        {
-            u"key": u"subject",
-            u"value": u"science"
-        },
-        {
-            u"key": u"accuracy",
-            u"value": u"metre"
-        },
-    ])
+    dataset = factories.Dataset(
+        extras=[
+            {u"key": u"subject", u"value": u"science"},
+            {u"key": u"accuracy", u"value": u"metre"},
+        ]
+    )
     pkg = model.Package.by_name(dataset[u"name"])
 
     model.repo.new_revision()
@@ -54,18 +50,9 @@ def test_delete_extras():
 @pytest.mark.usefixtures(u"clean_db")
 def test_extras_list():
     extras = [
-        {
-            u"key": u"subject",
-            u"value": u"science"
-        },
-        {
-            u"key": u"accuracy",
-            u"value": u"metre"
-        },
-        {
-            u"key": u"sample_years",
-            u"value": u"2012-2013"
-        },
+        {u"key": u"subject", u"value": u"science"},
+        {u"key": u"accuracy", u"value": u"metre"},
+        {u"key": u"sample_years", u"value": u"2012-2013"},
     ]
     dataset = factories.Dataset(extras=extras)
     # delete the 'subject' extra
@@ -76,9 +63,12 @@ def test_extras_list():
 
     pkg = model.Package.by_name(dataset[u"name"])
     assert isinstance(pkg.extras_list[0], model.PackageExtra)
-    assert set([(pe.package_id, pe.key, pe.value, pe.state)
-                for pe in pkg.extras_list]) == set([
-                    (dataset["id"], u"subject", u"science", u"deleted"),
-                    (dataset["id"], u"accuracy", u"metre", u"active"),
-                    (dataset["id"], u"sample_years", u"2012-2013", u"active"),
-                ])
+    assert set(
+        [(pe.package_id, pe.key, pe.value, pe.state) for pe in pkg.extras_list]
+    ) == set(
+        [
+            (dataset["id"], u"subject", u"science", u"deleted"),
+            (dataset["id"], u"accuracy", u"metre", u"active"),
+            (dataset["id"], u"sample_years", u"2012-2013", u"active"),
+        ]
+    )

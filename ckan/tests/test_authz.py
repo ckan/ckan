@@ -12,7 +12,9 @@ _check = auth.check_config_permission
     "perm", ["anon_create_dataset", "ckan.auth.anon_create_dataset"]
 )
 def test_get_default_value_if_not_set_in_config(perm):
-    assert _check(perm) == auth.CONFIG_PERMISSIONS_DEFAULTS["anon_create_dataset"]
+    assert (
+        _check(perm) == auth.CONFIG_PERMISSIONS_DEFAULTS["anon_create_dataset"]
+    )
 
 
 @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
@@ -38,7 +40,9 @@ def test_default_roles_that_cascade_to_sub_groups_is_a_list():
     assert isinstance(_check("roles_that_cascade_to_sub_groups"), list)
 
 
-@pytest.mark.ckan_config("ckan.auth.roles_that_cascade_to_sub_groups", "admin editor")
+@pytest.mark.ckan_config(
+    "ckan.auth.roles_that_cascade_to_sub_groups", "admin editor"
+)
 def test_roles_that_cascade_to_sub_groups_is_a_list():
     assert sorted(_check("roles_that_cascade_to_sub_groups")) == sorted(
         ["admin", "editor"]

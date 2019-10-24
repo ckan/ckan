@@ -30,19 +30,20 @@ def test_create_package_with_tags():
     model.Session.remove()
 
     pkg = model.Package.by_name(u"test-package")
-    assert set([tag.name for tag in pkg.get_tags()
-                ]) == set([u"science", u"geology", u"energy"])
+    assert set([tag.name for tag in pkg.get_tags()]) == set(
+        [u"science", u"geology", u"energy"]
+    )
 
 
 @pytest.mark.usefixtures(u"clean_db")
 def test_delete_tag():
-    dataset = factories.Dataset(tags=[{
-        u"name": u"science"
-    }, {
-        u"name": u"geology"
-    }, {
-        u"name": u"energy"
-    }])
+    dataset = factories.Dataset(
+        tags=[
+            {u"name": u"science"},
+            {u"name": u"geology"},
+            {u"name": u"energy"},
+        ]
+    )
     pkg = model.Package.by_name(dataset[u"name"])
 
     model.repo.new_revision()
@@ -52,8 +53,12 @@ def test_delete_tag():
     pkg.remove_tag(tag)
 
     # method 2
-    package_tag = (model.Session.query(model.PackageTag).join(
-        model.Tag).filter(model.Tag.name == u"geology").one())
+    package_tag = (
+        model.Session.query(model.PackageTag)
+        .join(model.Tag)
+        .filter(model.Tag.name == u"geology")
+        .one()
+    )
     package_tag.state = u"deleted"
 
     model.Session.commit()

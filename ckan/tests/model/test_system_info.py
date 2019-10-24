@@ -7,7 +7,7 @@ from ckan import model
 from ckan.model.system_info import SystemInfo, set_system_info
 
 
-@pytest.mark.usefixtures('clean_db')
+@pytest.mark.usefixtures("clean_db")
 def test_set_value():
 
     key = "config_option_1"
@@ -24,7 +24,7 @@ def test_set_value():
     assert obj.value == value
 
 
-@pytest.mark.usefixtures('clean_db')
+@pytest.mark.usefixtures("clean_db")
 def test_sets_new_value_for_same_key():
 
     config = factories.SystemInfo()
@@ -32,8 +32,9 @@ def test_sets_new_value_for_same_key():
 
     set_system_info(config.key, "new_value")
 
-    new_config = model.Session.query(SystemInfo).filter_by(
-        key=config.key).first()
+    new_config = (
+        model.Session.query(SystemInfo).filter_by(key=config.key).first()
+    )
 
     assert config.id == new_config.id
     assert first_revision != new_config.revision_id
@@ -41,15 +42,16 @@ def test_sets_new_value_for_same_key():
     assert new_config.value == "new_value"
 
 
-@pytest.mark.usefixtures('clean_db')
+@pytest.mark.usefixtures("clean_db")
 def test_does_not_set_same_value_for_same_key():
 
     config = factories.SystemInfo()
 
     set_system_info(config.key, config.value)
 
-    new_config = model.Session.query(SystemInfo).filter_by(
-        key=config.key).first()
+    new_config = (
+        model.Session.query(SystemInfo).filter_by(key=config.key).first()
+    )
 
     assert config.id == new_config.id
     assert config.revision_id == new_config.revision_id

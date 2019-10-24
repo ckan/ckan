@@ -135,9 +135,9 @@ def test_user_generate_own_apikey():
     context["user"] = fred.name
     params = {"id": fred.id}
 
-    result = helpers.call_auth("user_generate_apikey",
-                               context=context,
-                               **params)
+    result = helpers.call_auth(
+        "user_generate_apikey", context=context, **params
+    )
     assert result is True
 
 
@@ -207,9 +207,9 @@ def test_authorized_if_user_has_permissions_on_dataset():
     }
 
     context = {"user": user["name"], "model": model}
-    response = helpers.call_auth("resource_view_update",
-                                 context=context,
-                                 **params)
+    response = helpers.call_auth(
+        "resource_view_update", context=context, **params
+    )
 
     assert response
 

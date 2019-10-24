@@ -26,8 +26,9 @@ def test_anon_can_create():
 
 
 @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
-@pytest.mark.ckan_config("ckan.auth.create_dataset_if_not_in_organization",
-                         False)
+@pytest.mark.ckan_config(
+    "ckan.auth.create_dataset_if_not_in_organization", False
+)
 def test_cdnio_overrides_acd():
     response = auth_create.package_create({"user": None}, None)
     assert not response["success"]
@@ -49,8 +50,9 @@ def test_no_org_user_can_create():
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
-@pytest.mark.ckan_config("ckan.auth.create_dataset_if_not_in_organization",
-                         False)
+@pytest.mark.ckan_config(
+    "ckan.auth.create_dataset_if_not_in_organization", False
+)
 def test_no_org_user_cant_create_if_cdnio_false():
     user = factories.User()
     response = auth_create.package_create({"user": user["name"]}, None)
@@ -85,7 +87,7 @@ def test_different_org_user_cant_create():
     org2 = factories.Organization()
     dataset = {
         "name": "different-org-user-cant-create",
-        "owner_org": org2["id"]
+        "owner_org": org2["id"],
     }
     context = {"user": user["name"], "model": core_model}
     response = auth_create.package_create(context, dataset)
@@ -126,9 +128,9 @@ def test_authorized_if_user_has_permissions_on_dataset():
     }
 
     context = {"user": user["name"], "model": core_model}
-    response = helpers.call_auth("resource_view_create",
-                                 context=context,
-                                 **resource_view)
+    response = helpers.call_auth(
+        "resource_view_create", context=context, **resource_view
+    )
     assert response
 
 
@@ -158,9 +160,9 @@ def test_not_authorized_if_user_has_no_permissions_on_dataset():
 
     context = {"user": user_2["name"], "model": core_model}
     with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("resource_view_create",
-                          context=context,
-                          **resource_view)
+        helpers.call_auth(
+            "resource_view_create", context=context, **resource_view
+        )
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
@@ -175,9 +177,9 @@ def test_not_authorized_if_not_logged_in_3():
 
     context = {"user": None, "model": core_model}
     with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("resource_view_create",
-                          context=context,
-                          **resource_view)
+        helpers.call_auth(
+            "resource_view_create", context=context, **resource_view
+        )
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -190,9 +192,11 @@ def test_authorized_if_user_has_permissions_on_dataset_3():
     resource = factories.Resource(user=user, package_id=dataset["id"])
 
     context = {"user": user["name"], "model": core_model}
-    response = helpers.call_auth("resource_create_default_resource_views",
-                                 context=context,
-                                 resource=resource)
+    response = helpers.call_auth(
+        "resource_create_default_resource_views",
+        context=context,
+        resource=resource,
+    )
     assert response
 
 
@@ -215,9 +219,11 @@ def test_not_authorized_if_user_has_no_permissions_on_dataset_2():
     context = {"user": user_2["name"], "model": core_model}
     with pytest.raises(logic.NotAuthorized):
 
-        helpers.call_auth("resource_create_default_resource_views",
-                          context=context,
-                          resource=resource)
+        helpers.call_auth(
+            "resource_create_default_resource_views",
+            context=context,
+            resource=resource,
+        )
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -228,9 +234,11 @@ def test_not_authorized_if_not_logged_in_2():
 
     context = {"user": None, "model": core_model}
     with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("resource_create_default_resource_views",
-                          context=context,
-                          resource=resource)
+        helpers.call_auth(
+            "resource_create_default_resource_views",
+            context=context,
+            resource=resource,
+        )
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -241,9 +249,11 @@ def test_authorized_if_user_has_permissions_on_dataset_2():
     dataset = factories.Dataset(user=user)
 
     context = {"user": user["name"], "model": core_model}
-    response = helpers.call_auth("package_create_default_resource_views",
-                                 context=context,
-                                 package=dataset)
+    response = helpers.call_auth(
+        "package_create_default_resource_views",
+        context=context,
+        package=dataset,
+    )
     assert response
 
 
@@ -263,9 +273,11 @@ def test_not_authorized_if_user_has_no_permissions_on_dataset_3():
 
     context = {"user": user_2["name"], "model": core_model}
     with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("package_create_default_resource_views",
-                          context=context,
-                          package=dataset)
+        helpers.call_auth(
+            "package_create_default_resource_views",
+            context=context,
+            package=dataset,
+        )
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -274,9 +286,11 @@ def test_not_authorized_if_not_logged_in():
 
     context = {"user": None, "model": core_model}
     with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("package_create_default_resource_views",
-                          context=context,
-                          package=dataset)
+        helpers.call_auth(
+            "package_create_default_resource_views",
+            context=context,
+            package=dataset,
+        )
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -294,9 +308,7 @@ def test_authorized_if_user_has_permissions_on_dataset_4():
     }
 
     context = {"user": user["name"], "model": core_model}
-    response = helpers.call_auth("resource_create",
-                                 context=context,
-                                 **resource)
+    response = helpers.call_auth("resource_create", context=context, **resource)
     assert response
 
 
@@ -344,9 +356,7 @@ def test_sysadmin_is_authorized():
     resource = {"title": "Resource", "url": "http://test", "format": "csv"}
 
     context = {"user": sysadmin["name"], "model": core_model}
-    response = helpers.call_auth("resource_create",
-                                 context=context,
-                                 **resource)
+    response = helpers.call_auth("resource_create", context=context, **resource)
     assert response
 
 

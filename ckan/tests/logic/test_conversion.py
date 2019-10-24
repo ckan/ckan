@@ -16,7 +16,7 @@ def test_convert_to_extras_field_gets_stored_as_extra():
 
     schema = {
         "custom_text": [convert_to_extras],
-        "extras": default_extras_schema()
+        "extras": default_extras_schema(),
     }
 
     data, errors = validate(data_dict, schema, context)
@@ -31,15 +31,12 @@ def test_convert_to_extras_field_can_be_combined_with_a_proper_extra():
 
     data_dict = {
         "custom_text": "Hi",
-        "extras": [{
-            "key": "proper_extra",
-            "value": "Bye"
-        }],
+        "extras": [{"key": "proper_extra", "value": "Bye"}],
     }
 
     schema = {
         "custom_text": [convert_to_extras],
-        "extras": default_extras_schema()
+        "extras": default_extras_schema(),
     }
 
     context = {"model": model, "session": model.Session}
@@ -48,31 +45,26 @@ def test_convert_to_extras_field_can_be_combined_with_a_proper_extra():
 
     assert "extras" in data
     assert len(data["extras"]) == 2
-    assert sorted([e["key"] for e in data["extras"]
-                   ]) == ["custom_text", "proper_extra"]
+    assert sorted([e["key"] for e in data["extras"]]) == [
+        "custom_text",
+        "proper_extra",
+    ]
     assert sorted([e["value"] for e in data["extras"]]) == ["Bye", "Hi"]
 
 
 def test_convert_to_extras_field_can_be_combined_with_more_extras():
 
     data_dict = {
-        "custom_text":
-        "Hi",
+        "custom_text": "Hi",
         "extras": [
-            {
-                "key": "proper_extra",
-                "value": "Bye"
-            },
-            {
-                "key": "proper_extra2",
-                "value": "Bye2"
-            },
+            {"key": "proper_extra", "value": "Bye"},
+            {"key": "proper_extra2", "value": "Bye2"},
         ],
     }
 
     schema = {
         "custom_text": [convert_to_extras],
-        "extras": default_extras_schema()
+        "extras": default_extras_schema(),
     }
 
     context = {"model": model, "session": model.Session}
@@ -86,31 +78,22 @@ def test_convert_to_extras_field_can_be_combined_with_more_extras():
         "proper_extra",
         "proper_extra2",
     ]
-    assert sorted([e["value"]
-                   for e in data["extras"]]) == ["Bye", "Bye2", "Hi"]
+    assert sorted([e["value"] for e in data["extras"]]) == ["Bye", "Bye2", "Hi"]
 
 
 def test_convert_to_extras_field_can_be_combined_with_extras_deleted():
 
     data_dict = {
-        "custom_text":
-        "Hi",
+        "custom_text": "Hi",
         "extras": [
-            {
-                "key": "proper_extra",
-                "value": "Bye",
-                "deleted": True
-            },
-            {
-                "key": "proper_extra2",
-                "value": "Bye2"
-            },
+            {"key": "proper_extra", "value": "Bye", "deleted": True},
+            {"key": "proper_extra2", "value": "Bye2"},
         ],
     }
 
     schema = {
         "custom_text": [convert_to_extras],
-        "extras": default_extras_schema()
+        "extras": default_extras_schema(),
     }
 
     context = {"model": model, "session": model.Session}
@@ -124,23 +107,19 @@ def test_convert_to_extras_field_can_be_combined_with_extras_deleted():
         "proper_extra",
         "proper_extra2",
     ]
-    assert sorted([e["value"]
-                   for e in data["extras"]]) == ["Bye", "Bye2", "Hi"]
+    assert sorted([e["value"] for e in data["extras"]]) == ["Bye", "Bye2", "Hi"]
 
 
 def test_convert_to_extras_free_extra_can_not_have_the_same_key():
 
     data_dict = {
         "custom_text": "Hi",
-        "extras": [{
-            "key": "custom_text",
-            "value": "Bye"
-        }],
+        "extras": [{"key": "custom_text", "value": "Bye"}],
     }
 
     schema = {
         "custom_text": [convert_to_extras],
-        "extras": default_extras_schema()
+        "extras": default_extras_schema(),
     }
 
     context = {"model": model, "session": model.Session}
@@ -148,6 +127,6 @@ def test_convert_to_extras_free_extra_can_not_have_the_same_key():
     data, errors = validate(data_dict, schema, context)
 
     assert "extras" in errors
-    assert errors["extras"] == [{
-        "key": [u"There is a schema field with the same name"]
-    }]
+    assert errors["extras"] == [
+        {"key": [u"There is a schema field with the same name"]}
+    ]

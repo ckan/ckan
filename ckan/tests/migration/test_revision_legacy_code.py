@@ -10,7 +10,10 @@ from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_save import package_dict_save
 from ckan.migration.migrate_package_activity import PackageDictizeMonkeyPatch
-from ckan.migration.revision_legacy_code import package_dictize_with_revisions as package_dictize, make_package_revision
+from ckan.migration.revision_legacy_code import (
+    package_dictize_with_revisions as package_dictize,
+    make_package_revision,
+)
 
 
 @pytest.fixture
@@ -27,14 +30,11 @@ def wrap_test(clean_db):
 @pytest.mark.usefixtures("wrap_test")
 def test_09_package_alter():
 
-    context = {
-        "model": model,
-        "session": model.Session,
-        "user": "testsysadmin"
-    }
+    context = {"model": model, "session": model.Session, "user": "testsysadmin"}
 
-    anna1 = model.Session.query(
-        model.Package).filter_by(name="annakarenina").one()
+    anna1 = (
+        model.Session.query(model.Package).filter_by(name="annakarenina").one()
+    )
 
     anna_dictized = package_dictize(anna1, context)
 
@@ -48,17 +48,23 @@ def test_09_package_alter():
     model.Session.remove()
     make_package_revision(model.Package.by_name("annakarenina_changed"))
 
-    pkg = (model.Session.query(
-        model.Package).filter_by(name="annakarenina_changed").one())
+    pkg = (
+        model.Session.query(model.Package)
+        .filter_by(name="annakarenina_changed")
+        .one()
+    )
 
     package_dictized = package_dictize(pkg, context)
 
-    resources_revisions = (model.Session.query(
-        model.ResourceRevision).filter_by(package_id=anna1.id).all())
+    resources_revisions = (
+        model.Session.query(model.ResourceRevision)
+        .filter_by(package_id=anna1.id)
+        .all()
+    )
 
-    sorted_resource_revisions = sorted(resources_revisions,
-                                       key=lambda x:
-                                       (x.revision_timestamp, x.url))[::-1]
+    sorted_resource_revisions = sorted(
+        resources_revisions, key=lambda x: (x.revision_timestamp, x.url)
+    )[::-1]
     assert len(sorted_resource_revisions) == 3
 
     # Make sure we remove changeable fields BEFORE we store the pretty-printed version
@@ -68,14 +74,18 @@ def test_09_package_alter():
     anna_original = pformat(anna_dictized)
     anna_after_save = pformat(clean_package_dictized)
 
-    assert remove_changable_columns(
-        anna_dictized) == clean_package_dictized, "\n".join(
-            unified_diff(anna_original.split("\n"),
-                         anna_after_save.split("\n")))
+    assert (
+        remove_changable_columns(anna_dictized) == clean_package_dictized
+    ), "\n".join(
+        unified_diff(anna_original.split("\n"), anna_after_save.split("\n"))
+    )
 
     # changes to the package, relied upon by later tests
-    anna1 = (model.Session.query(
-        model.Package).filter_by(name="annakarenina_changed").one())
+    anna1 = (
+        model.Session.query(model.Package)
+        .filter_by(name="annakarenina_changed")
+        .one()
+    )
     anna_dictized = package_dictize(anna1, context)
     anna_dictized["name"] = u"annakarenina_changed2"
     anna_dictized["resources"][0]["url"] = u"http://new_url2"
@@ -89,14 +99,16 @@ def test_09_package_alter():
     model.Session.remove()
     make_package_revision(model.Package.by_name("annakarenina_changed2"))
 
-    anna1 = (model.Session.query(
-        model.Package).filter_by(name="annakarenina_changed2").one())
+    anna1 = (
+        model.Session.query(model.Package)
+        .filter_by(name="annakarenina_changed2")
+        .one()
+    )
     anna_dictized = package_dictize(anna1, context)
     anna_dictized["notes"] = "wee"
-    anna_dictized["resources"].append({
-        "format": u"plain text",
-        "url": u"http://newurl"
-    })
+    anna_dictized["resources"].append(
+        {"format": u"plain text", "url": u"http://newurl"}
+    )
     anna_dictized["tags"].append({"name": u"newnew_tag"})
     anna_dictized["extras"].append({"key": "david", "value": u"new_value"})
 
@@ -110,24 +122,30 @@ def test_09_package_alter():
 
     context = {"model": model, "session": model.Session}
 
-    anna1 = (model.Session.query(
-        model.Package).filter_by(name="annakarenina_changed2").one())
+    anna1 = (
+        model.Session.query(model.Package)
+        .filter_by(name="annakarenina_changed2")
+        .one()
+    )
 
-    pkgrevisions = (model.Session.query(
-        model.PackageRevision).filter_by(id=anna1.id).all())
+    pkgrevisions = (
+        model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
+    )
     sorted_packages = sorted(pkgrevisions, key=lambda x: x.revision_timestamp)
 
     context["revision_id"] = sorted_packages[0].revision_id  # original state
 
     with PackageDictizeMonkeyPatch():
         first_dictized = remove_changable_columns(
-            package_dictize(anna1, context))
+            package_dictize(anna1, context)
+        )
         assert remove_changable_columns(_package_expected) == first_dictized
 
         context["revision_id"] = sorted_packages[1].revision_id
 
         second_dictized = remove_changable_columns(
-            package_dictize(anna1, context))
+            package_dictize(anna1, context)
+        )
 
         first_dictized["name"] = u"annakarenina_changed"
         first_dictized["resources"][0]["url"] = u"http://new_url"
@@ -136,7 +154,8 @@ def test_09_package_alter():
 
         context["revision_id"] = sorted_packages[2].revision_id
         third_dictized = remove_changable_columns(
-            package_dictize(anna1, context))
+            package_dictize(anna1, context)
+        )
 
         second_dictized["name"] = u"annakarenina_changed2"
         second_dictized["resources"][0]["url"] = u"http://new_url2"
@@ -147,9 +166,11 @@ def test_09_package_alter():
         assert second_dictized == third_dictized
 
         context["revision_id"] = sorted_packages[
-            3].revision_id  # original state
+            3
+        ].revision_id  # original state
         forth_dictized = remove_changable_columns(
-            package_dictize(anna1, context))
+            package_dictize(anna1, context)
+        )
 
     third_dictized["notes"] = "wee"
     third_dictized["resources"].insert(
@@ -174,11 +195,14 @@ def test_09_package_alter():
     )
     third_dictized["num_resources"] = third_dictized["num_resources"] + 1
 
-    third_dictized["tags"].insert(1, {
-        "name": u"newnew_tag",
-        "display_name": u"newnew_tag",
-        "state": "active"
-    })
+    third_dictized["tags"].insert(
+        1,
+        {
+            "name": u"newnew_tag",
+            "display_name": u"newnew_tag",
+            "state": "active",
+        },
+    )
     third_dictized["num_tags"] = third_dictized["num_tags"] + 1
     third_dictized["state"] = "active"
     third_dictized["state"] = "active"
@@ -203,8 +227,9 @@ def remove_changable_columns(dict, remove_package_id=False):
         if isinstance(value, list):
             for new_dict in value:
                 remove_changable_columns(
-                    new_dict, key in ["resources", "extras"]
-                    or remove_package_id)
+                    new_dict,
+                    key in ["resources", "extras"] or remove_package_id,
+                )
 
         # TEMPORARY HACK - we remove 'extras' so they aren't tested. This
         # is due to package_extra_revisions being migrated from ckan/model
@@ -221,12 +246,9 @@ def remove_changable_columns(dict, remove_package_id=False):
 
 
 _package_expected = {
-    u"author":
-    None,
-    u"author_email":
-    None,
-    u"creator_user_id":
-    None,
+    u"author": None,
+    u"author_email": None,
+    u"creator_user_id": None,
     "extras": [
         # extra_revision_table is no longer being populated because
         # PackageExtra no longer has
@@ -265,30 +287,18 @@ _package_expected = {
             u"approval_status": u"approved",
         },
     ],
-    "isopen":
-    True,
-    u"license_id":
-    u"other-open",
-    "license_title":
-    u"Other (Open)",
-    "organization":
-    None,
-    u"owner_org":
-    None,
-    u"maintainer":
-    None,
-    u"maintainer_email":
-    None,
-    u"name":
-    u"annakarenina",
-    u"notes":
-    u"Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n",
-    "num_resources":
-    2,
-    "num_tags":
-    3,
-    u"private":
-    False,
+    "isopen": True,
+    u"license_id": u"other-open",
+    "license_title": u"Other (Open)",
+    "organization": None,
+    u"owner_org": None,
+    u"maintainer": None,
+    u"maintainer_email": None,
+    u"name": u"annakarenina",
+    u"notes": u"Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n",
+    "num_resources": 2,
+    "num_tags": 3,
+    u"private": False,
     "relationships_as_object": [],
     "relationships_as_subject": [],
     "resources": [
@@ -331,31 +341,18 @@ _package_expected = {
             u"url": u"http://datahub.io/index.json",
         },
     ],
-    u"state":
-    u"active",
+    u"state": u"active",
     "tags": [
         {
             u"name": u"Flexible \u30a1",
             "display_name": u"Flexible \u30a1",
             u"state": u"active",
         },
-        {
-            "display_name": u"russian",
-            u"name": u"russian",
-            u"state": u"active"
-        },
-        {
-            "display_name": u"tolstoy",
-            u"name": u"tolstoy",
-            u"state": u"active"
-        },
+        {"display_name": u"russian", u"name": u"russian", u"state": u"active"},
+        {"display_name": u"tolstoy", u"name": u"tolstoy", u"state": u"active"},
     ],
-    u"title":
-    u"A Novel By Tolstoy",
-    u"type":
-    u"dataset",
-    u"url":
-    u"http://datahub.io",
-    u"version":
-    u"0.7a",
+    u"title": u"A Novel By Tolstoy",
+    u"type": u"dataset",
+    u"url": u"http://datahub.io",
+    u"version": u"0.7a",
 }

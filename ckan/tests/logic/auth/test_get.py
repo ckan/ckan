@@ -68,9 +68,7 @@ def test_package_show__deleted_dataset_is_visible_to_editor():
     context = {"model": model}
     context["user"] = "fred"
 
-    ret = helpers.call_auth("package_show",
-                            context=context,
-                            id=dataset["name"])
+    ret = helpers.call_auth("package_show", context=context, id=dataset["name"])
     assert ret
 
 
@@ -118,10 +116,9 @@ def test_group_show__user_is_hidden_to_public():
     context["user"] = ""
 
     with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("group_show",
-                          context=context,
-                          id=group["name"],
-                          include_users=True)
+        helpers.call_auth(
+            "group_show", context=context, id=group["name"], include_users=True
+        )
 
 
 @pytest.mark.usefixtures(u"clean_db")
@@ -210,7 +207,9 @@ def test_config_option_public_activity_stream_detail():
         """
     dataset = factories.Dataset()
     context = {"user": None, "model": model}
-    helpers.call_auth("package_activity_list",
-                      context=context,
-                      id=dataset["id"],
-                      include_data=True)
+    helpers.call_auth(
+        "package_activity_list",
+        context=context,
+        id=dataset["id"],
+        include_data=True,
+    )

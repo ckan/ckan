@@ -33,13 +33,15 @@ def returns_arg(function):
         call_validator(key, data, errors)
 
     """
+
     def call_and_assert(arg, context=None):
         if context is None:
             context = {}
         result = function(arg, context=context)
         assert result == arg, (
             "Should return the argument that was passed to it, unchanged "
-            "({arg})".format(arg=repr(arg)))
+            "({arg})".format(arg=repr(arg))
+        )
         return result
 
     return call_and_assert
@@ -57,6 +59,7 @@ def raises_Invalid(function):
         call_validator(key, data, errors)
 
     """
+
     def call_and_assert(*args, **kwargs):
         with pytest.raises(df.Invalid):
             function(*args, **kwargs)
@@ -82,6 +85,7 @@ def does_not_modify_other_keys_in_errors_dict(validator):
         call_validator(key, data, errors)
 
     """
+
     def call_and_assert(key, data, errors, context=None):
         if context is None:
             context = {}
@@ -106,7 +110,8 @@ def does_not_modify_other_keys_in_errors_dict(validator):
                 data=original_data,
                 errors=original_errors,
                 context=original_context,
-            ))
+            )
+        )
         for key_ in errors:
             assert errors[key_] == original_errors[key_], (
                 "Should not modify other keys in errors dict when called with "
@@ -116,7 +121,8 @@ def does_not_modify_other_keys_in_errors_dict(validator):
                     data=original_data,
                     errors=original_errors,
                     context=original_context,
-                ))
+                )
+            )
         return result
 
     return call_and_assert
@@ -138,13 +144,15 @@ def adds_message_to_errors_dict(error_message):
         call_validator(key, data, errors)
 
     """
+
     def decorator(validator):
         def call_and_assert(key, data, errors, context):
             result = validator(key, data, errors, context)
             assert errors[key] == [
                 error_message
             ], "Should add message to errors dict: {msg}".format(
-                msg=error_message)
+                msg=error_message
+            )
             return result
 
         return call_and_assert
@@ -167,10 +175,8 @@ def test_name_validator_with_invalid_value():
         False,
         ("a", 2, False),
         [13, None, True],
-        {
-            "foo": "bar"
-        },
-        lambda x: x**2,
+        {"foo": "bar"},
+        lambda x: x ** 2,
         # Certain reserved strings aren't allowed as names.
         "new",
         "edit",
@@ -282,10 +288,8 @@ def test_user_name_validator_with_non_string_value():
         False,
         ("a", 2, False),
         [13, None, True],
-        {
-            "foo": "bar"
-        },
-        lambda x: x**2,
+        {"foo": "bar"},
+        lambda x: x ** 2,
     ]
 
     # Mock ckan.model.
@@ -293,7 +297,7 @@ def test_user_name_validator_with_non_string_value():
     # model.User.get(some_user_id) needs to return None for this test.
     mock_model.User.get.return_value = None
 
-    key = ("name", )
+    key = ("name",)
     for non_string_value in non_string_values:
         data = factories.validator_data_dict()
         data[key] = non_string_value
@@ -322,7 +326,7 @@ def test_user_name_validator_with_a_name_that_already_exists():
     mock_model = mock.MagicMock()
 
     data = factories.validator_data_dict()
-    key = ("name", )
+    key = ("name",)
     data[key] = "user_name"
     errors = factories.validator_errors_dict()
     errors[key] = []
@@ -340,7 +344,7 @@ def test_user_name_validator_with_a_name_that_already_exists():
 def test_user_name_validator_successful():
     """user_name_validator() should do nothing if given a valid name."""
     data = factories.validator_data_dict()
-    key = ("name", )
+    key = ("name",)
     data[key] = "new_user_name"
     errors = factories.validator_errors_dict()
     errors[key] = []
@@ -366,25 +370,15 @@ def test_user_name_validator_successful():
 
 def test_if_empty_guess_format():
     data = {
-        "name":
-        "package_name",
+        "name": "package_name",
         "resources": [
-            {
-                "url": "http://fakedomain/my.csv",
-                "format": ""
-            },
-            {
-                "url": "http://fakedomain/my.pdf",
-                "format": df.Missing
-            },
-            {
-                "url": "http://fakedomain/my.pdf",
-                "format": "pdf"
-            },
+            {"url": "http://fakedomain/my.csv", "format": ""},
+            {"url": "http://fakedomain/my.pdf", "format": df.Missing},
+            {"url": "http://fakedomain/my.pdf", "format": "pdf"},
             {
                 "url": "http://fakedomain/my.pdf",
                 "id": "fake_resource_id",
-                "format": ""
+                "format": "",
             },
         ],
     }
@@ -395,31 +389,27 @@ def test_if_empty_guess_format():
         return validators.if_empty_guess_format(*args, **kwargs)
 
     new_data = copy.deepcopy(data)
-    call_validator(key=("resources", 0, "format"),
-                   data=new_data,
-                   errors={},
-                   context={})
+    call_validator(
+        key=("resources", 0, "format"), data=new_data, errors={}, context={}
+    )
     assert new_data[("resources", 0, "format")] == "text/csv"
 
     new_data = copy.deepcopy(data)
-    call_validator(key=("resources", 1, "format"),
-                   data=new_data,
-                   errors={},
-                   context={})
+    call_validator(
+        key=("resources", 1, "format"), data=new_data, errors={}, context={}
+    )
     assert new_data[("resources", 1, "format")] == "application/pdf"
 
     new_data = copy.deepcopy(data)
-    call_validator(key=("resources", 2, "format"),
-                   data=new_data,
-                   errors={},
-                   context={})
+    call_validator(
+        key=("resources", 2, "format"), data=new_data, errors={}, context={}
+    )
     assert new_data[("resources", 2, "format")] == "pdf"
 
     new_data = copy.deepcopy(data)
-    call_validator(key=("resources", 3, "format"),
-                   data=new_data,
-                   errors={},
-                   context={})
+    call_validator(
+        key=("resources", 3, "format"), data=new_data, errors={}, context={}
+    )
     assert new_data[("resources", 3, "format")] == ""
 
 
@@ -441,11 +431,11 @@ def test_datasets_with_org_can_be_private_when_creating():
     data = factories.validator_data_dict()
     errors = factories.validator_errors_dict()
 
-    key = ("private", )
+    key = ("private",)
     data[key] = True
     errors[key] = []
 
-    data[("owner_org", )] = "some_org_id"
+    data[("owner_org",)] = "some_org_id"
 
     # Mock ckan.model.
     mock_model = mock.MagicMock()
@@ -455,7 +445,8 @@ def test_datasets_with_org_can_be_private_when_creating():
     @t.returns_None
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
-            *args, **kwargs)
+            *args, **kwargs
+        )
 
     call_validator(key, data, errors, context={"model": mock_model})
 
@@ -464,7 +455,7 @@ def test_datasets_with_no_org_cannot_be_private_when_creating():
     data = factories.validator_data_dict()
     errors = factories.validator_errors_dict()
 
-    key = ("private", )
+    key = ("private",)
     data[key] = True
     errors[key] = []
 
@@ -473,10 +464,12 @@ def test_datasets_with_no_org_cannot_be_private_when_creating():
 
     @t.does_not_modify_data_dict
     @adds_message_to_errors_dict(
-        "Datasets with no organization can't be private.")
+        "Datasets with no organization can't be private."
+    )
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
-            *args, **kwargs)
+            *args, **kwargs
+        )
 
     call_validator(key, data, errors, context={"model": mock_model})
 
@@ -485,12 +478,12 @@ def test_datasets_with_org_can_be_private_when_updating():
     data = factories.validator_data_dict()
     errors = factories.validator_errors_dict()
 
-    key = ("private", )
+    key = ("private",)
     data[key] = True
     errors[key] = []
 
-    data[("id", )] = "some_dataset_id"
-    data[("owner_org", )] = "some_org_id"
+    data[("id",)] = "some_dataset_id"
+    data[("owner_org",)] = "some_org_id"
 
     # Mock ckan.model.
     mock_model = mock.MagicMock()
@@ -500,7 +493,8 @@ def test_datasets_with_org_can_be_private_when_updating():
     @t.returns_None
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
-            *args, **kwargs)
+            *args, **kwargs
+        )
 
     call_validator(key, data, errors, context={"model": mock_model})
 
@@ -534,8 +528,10 @@ def test_decimal_converted():
 
 
 def test_long_int_string_converted():
-    assert (validators.int_validator("528735648764587235684376",
-                                     {}) == 528735648764587235684376)
+    assert (
+        validators.int_validator("528735648764587235684376", {})
+        == 528735648764587235684376
+    )
 
 
 def test_negative_int_string_converted():
@@ -691,7 +687,7 @@ def test_role_exists_empty():
 
 def test_password_ok():
     passwords = ["MyPassword1", "my1Password", "1PasswordMY"]
-    key = ("password", )
+    key = ("password",)
 
     @t.does_not_modify_errors_dict
     def call_validator(*args, **kwargs):
@@ -705,10 +701,11 @@ def test_password_ok():
 
 def test_password_too_short():
     password = "MyPass1"
-    key = ("password", )
+    key = ("password",)
 
-    @adds_message_to_errors_dict("Your password must be 8 characters or "
-                                 "longer")
+    @adds_message_to_errors_dict(
+        "Your password must be 8 characters or " "longer"
+    )
     def call_validator(*args, **kwargs):
         return validators.user_password_validator(*args, **kwargs)
 
@@ -723,7 +720,7 @@ def test_url_ok():
         "https://example.com",
         "https://example.com/path?test=1&key=2",
     ]
-    key = ("url", )
+    key = ("url",)
 
     @t.does_not_modify_errors_dict
     def call_validator(*args, **kwargs):
@@ -737,7 +734,7 @@ def test_url_ok():
 
 def test_url_invalid():
     urls = ["ftp://example.com", "test123", "https://example.com]"]
-    key = ("url", )
+    key = ("url",)
 
     @adds_message_to_errors_dict("Please provide a valid URL")
     def call_validator(*args, **kwargs):

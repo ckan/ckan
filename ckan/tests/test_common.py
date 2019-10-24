@@ -104,8 +104,7 @@ def test_setting_a_key_sets_it_on_pylons_config():
     assert pylons.config[u"ckan.site_title"] == u"Example title"
 
 
-def test_setting_a_key_sets_it_on_flask_config_if_app_context(
-        app, monkeypatch):
+def test_setting_a_key_sets_it_on_flask_config_if_app_context(app, monkeypatch):
     with app.flask_app.app_context():
         monkeypatch.setitem(ckan_config, u"ckan.site_title", u"Example title")
         assert flask.current_app.config[u"ckan.site_title"] == u"Example title"
@@ -113,7 +112,8 @@ def test_setting_a_key_sets_it_on_flask_config_if_app_context(
 
 @pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
 def test_setting_a_key_does_not_set_it_on_flask_config_if_outside_app_context(
-        app):
+    app
+):
     with app.flask_app.app_context():
         assert flask.current_app.config[u"ckan.site_title"] != u"Example title"
 
@@ -133,10 +133,9 @@ def test_deleting_a_key_delets_it_on_flask_config(app, monkeypatch):
 
 @pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
 def test_update_works_on_pylons_config():
-    ckan_config.update({
-        u"ckan.site_title": u"Example title 2",
-        u"ckan.new_key": u"test"
-    })
+    ckan_config.update(
+        {u"ckan.site_title": u"Example title 2", u"ckan.new_key": u"test"}
+    )
     assert pylons.config[u"ckan.site_title"] == u"Example title 2"
     assert pylons.config[u"ckan.new_key"] == u"test"
 
@@ -145,12 +144,12 @@ def test_update_works_on_flask_config(app):
     with app.flask_app.app_context():
         ckan_config[u"ckan.site_title"] = u"Example title"
 
-        ckan_config.update({
-            u"ckan.site_title": u"Example title 2",
-            u"ckan.new_key": u"test"
-        })
-        assert flask.current_app.config[
-            u"ckan.site_title"] == u"Example title 2"
+        ckan_config.update(
+            {u"ckan.site_title": u"Example title 2", u"ckan.new_key": u"test"}
+        )
+        assert (
+            flask.current_app.config[u"ckan.site_title"] == u"Example title 2"
+        )
         assert flask.current_app.config[u"ckan.new_key"] == u"test"
 
 

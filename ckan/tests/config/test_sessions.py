@@ -90,7 +90,9 @@ class FlashMessagePlugin(p.SingletonPlugin):
 
         return blueprint
 
-    controller = u"ckan.tests.config.test_sessions:PylonsAddFlashMessageController"
+    controller = (
+        u"ckan.tests.config.test_sessions:PylonsAddFlashMessageController"
+    )
 
     def before_map(self, _map):
         u"""Update the pylons route map to be used by the Pylons app."""

@@ -73,12 +73,12 @@ class TestUpdate(object):
     def test_user_generate_apikey(self):
         user = factories.User()
         context = {"user": user["name"]}
-        result = helpers.call_action("user_generate_apikey",
-                                     context=context,
-                                     id=user["id"])
-        updated_user = helpers.call_action("user_show",
-                                           context=context,
-                                           id=user["id"])
+        result = helpers.call_action(
+            "user_generate_apikey", context=context, id=user["id"]
+        )
+        updated_user = helpers.call_action(
+            "user_show", context=context, id=user["id"]
+        )
 
         assert updated_user["apikey"] != user["apikey"]
         assert result["apikey"] == updated_user["apikey"]
@@ -88,12 +88,12 @@ class TestUpdate(object):
         user = factories.User()
         sysadmin = factories.Sysadmin()
         context = {"user": sysadmin["name"], "ignore_auth": False}
-        result = helpers.call_action("user_generate_apikey",
-                                     context=context,
-                                     id=user["id"])
-        updated_user = helpers.call_action("user_show",
-                                           context=context,
-                                           id=user["id"])
+        result = helpers.call_action(
+            "user_generate_apikey", context=context, id=user["id"]
+        )
+        updated_user = helpers.call_action(
+            "user_show", context=context, id=user["id"]
+        )
 
         assert updated_user["apikey"] != user["apikey"]
         assert result["apikey"] == updated_user["apikey"]
@@ -107,9 +107,9 @@ class TestUpdate(object):
         }
         context = {"user": user["name"]}
         with pytest.raises(logic.NotFound):
-            helpers.call_action("user_generate_apikey",
-                                context=context,
-                                id=user["id"])
+            helpers.call_action(
+                "user_generate_apikey", context=context, id=user["id"]
+            )
 
     @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_id_that_does_not_exist(self):
@@ -173,10 +173,12 @@ class TestUpdate(object):
 
         # FIXME we have to pass the email address to user_update even though
         # we're not updating it, otherwise validation fails.
-        helpers.call_action("user_update",
-                            id=user["name"],
-                            email=user["email"],
-                            password="new password")
+        helpers.call_action(
+            "user_update",
+            id=user["name"],
+            email=user["email"],
+            password="new password",
+        )
 
         # user_show() never returns the user's password, so we have to access
         # the model directly to test it.
@@ -273,8 +275,9 @@ class TestUpdate(object):
             fullname="updated full name",
         )
 
-        activity_stream = helpers.call_action("user_activity_list",
-                                              id=user["id"])
+        activity_stream = helpers.call_action(
+            "user_activity_list", id=user["id"]
+        )
         latest_activity = activity_stream[0]
         assert latest_activity["activity_type"] == "changed user"
         assert latest_activity["object_id"] == user["id"]
@@ -412,9 +415,7 @@ class TestUpdate(object):
         resource_urls = ["http://a.html", "http://b.html", "http://c.html"]
         dataset = {
             "name": "basic",
-            "resources": [{
-                "url": url
-            } for url in resource_urls],
+            "resources": [{"url": url} for url in resource_urls],
         }
 
         dataset = helpers.call_action("package_create", **dataset)
@@ -422,8 +423,10 @@ class TestUpdate(object):
             resource["url"] for resource in dataset["resources"]
         ]
         assert created_resource_urls == resource_urls
-        mapping = dict((resource["url"], resource["id"])
-                       for resource in dataset["resources"])
+        mapping = dict(
+            (resource["url"], resource["id"])
+            for resource in dataset["resources"]
+        )
 
         # This should put c.html at the front
         reorder = {"id": dataset["id"], "order": [mapping["http://c.html"]]}
@@ -442,8 +445,7 @@ class TestUpdate(object):
         ]
 
         reorder = {
-            "id":
-            dataset["id"],
+            "id": dataset["id"],
             "order": [
                 mapping["http://b.html"],
                 mapping["http://c.html"],
@@ -467,26 +469,30 @@ class TestUpdate(object):
     @pytest.mark.usefixtures("clean_db")
     def test_update_dataset_cant_change_type(self):
         user = factories.User()
-        dataset = factories.Dataset(type="dataset",
-                                    name="unchanging",
-                                    user=user)
+        dataset = factories.Dataset(
+            type="dataset", name="unchanging", user=user
+        )
 
-        dataset = helpers.call_action("package_update",
-                                      id=dataset["id"],
-                                      name="unchanging",
-                                      type="cabinet")
+        dataset = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            name="unchanging",
+            type="cabinet",
+        )
 
         assert dataset["type"] == "dataset"
-        assert helpers.call_action("package_show",
-                                   id="unchanging")["type"] == "dataset"
+        assert (
+            helpers.call_action("package_show", id="unchanging")["type"]
+            == "dataset"
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
-        org = factories.Organization(type="organization",
-                                     name="unchanging",
-                                     user=user)
+        org = factories.Organization(
+            type="organization", name="unchanging", user=user
+        )
 
         org = helpers.call_action(
             "organization_update",
@@ -497,8 +503,10 @@ class TestUpdate(object):
         )
 
         assert org["type"] == "organization"
-        assert (helpers.call_action("organization_show",
-                                    id="unchanging")["type"] == "organization")
+        assert (
+            helpers.call_action("organization_show", id="unchanging")["type"]
+            == "organization"
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_update_group_cant_change_type(self):
@@ -515,8 +523,10 @@ class TestUpdate(object):
         )
 
         assert group["type"] == "group"
-        assert helpers.call_action("group_show",
-                                   id="unchanging")["type"] == "group"
+        assert (
+            helpers.call_action("group_show", id="unchanging")["type"]
+            == "group"
+        )
 
 
 class TestDatasetUpdate(object):
@@ -533,26 +543,30 @@ class TestDatasetUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action("package_update",
-                                       id=dataset["id"],
-                                       name="new-name")
+        dataset_ = helpers.call_action(
+            "package_update", id=dataset["id"], name="new-name"
+        )
 
         assert dataset_["name"] == "new-name"
-        assert (helpers.call_action("package_show",
-                                    id=dataset["id"])["name"] == "new-name")
+        assert (
+            helpers.call_action("package_show", id=dataset["id"])["name"]
+            == "new-name"
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_title(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action("package_update",
-                                       id=dataset["id"],
-                                       title="New Title")
+        dataset_ = helpers.call_action(
+            "package_update", id=dataset["id"], title="New Title"
+        )
 
         assert dataset_["title"] == "New Title"
-        assert (helpers.call_action("package_show",
-                                    id=dataset["id"])["title"] == "New Title")
+        assert (
+            helpers.call_action("package_show", id=dataset["id"])["title"]
+            == "New Title"
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_extras(self):
@@ -562,10 +576,7 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action(
             "package_update",
             id=dataset["id"],
-            extras=[{
-                "key": u"original media",
-                "value": u'"book"'
-            }],
+            extras=[{"key": u"original media", "value": u'"book"'}],
         )
 
         assert dataset_["extras"][0]["key"] == "original media"
@@ -579,9 +590,9 @@ class TestDatasetUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action("package_update",
-                                       id=dataset["id"],
-                                       license_id="other-open")
+        dataset_ = helpers.call_action(
+            "package_update", id=dataset["id"], license_id="other-open"
+        )
 
         assert dataset_["license_id"] == "other-open"
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
@@ -592,9 +603,9 @@ class TestDatasetUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action("package_update",
-                                       id=dataset["id"],
-                                       notes="some notes")
+        dataset_ = helpers.call_action(
+            "package_update", id=dataset["id"], notes="some notes"
+        )
 
         assert dataset_["notes"] == "some notes"
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
@@ -612,11 +623,8 @@ class TestDatasetUpdate(object):
                 {
                     "alt_url": u"alt123",
                     "description": u"Full text.",
-                    "somekey":
-                    "somevalue",  # this is how to do resource extras
-                    "extras": {
-                        u"someotherkey": u"alt234"
-                    },  # this isnt
+                    "somekey": "somevalue",  # this is how to do resource extras
+                    "extras": {u"someotherkey": u"alt234"},  # this isnt
                     "format": u"plain text",
                     "hash": u"abc123",
                     "position": 0,
@@ -645,8 +653,9 @@ class TestDatasetUpdate(object):
         assert resources_[1]["format"] == "JSON"
         assert resources_[1]["url"] == "http://datahub.io/index.json"
         assert resources_[1]["position"] == 1
-        resources_ = helpers.call_action("package_show",
-                                         id=dataset["id"])["resources"]
+        resources_ = helpers.call_action("package_show", id=dataset["id"])[
+            "resources"
+        ]
         assert resources_[0]["alt_url"] == "alt123"
         assert resources_[0]["description"] == "Full text."
         assert resources_[0]["somekey"] == "somevalue"
@@ -669,11 +678,7 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action(
             "package_update",
             id=dataset["id"],
-            tags=[{
-                "name": u"russian"
-            }, {
-                "name": u"tolstoy"
-            }],
+            tags=[{"name": u"russian"}, {"name": u"tolstoy"}],
         )
 
         tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
@@ -709,8 +714,9 @@ class TestUpdateSendEmailNotifications(object):
     def test_not_calling_through_paster_validates_auth(self, mock_request):
         mock_request.environ.get.return_value = False
         with pytest.raises(logic.NotAuthorized):
-            helpers.call_action("send_email_notifications",
-                                context={"ignore_auth": False})
+            helpers.call_action(
+                "send_email_notifications", context={"ignore_auth": False}
+            )
 
 
 class TestResourceViewUpdate(object):
@@ -733,7 +739,8 @@ class TestResourceViewUpdate(object):
     @pytest.mark.ckan_config("ckan.plugins", "image_view")
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
-            self, datapreview_mock):
+        self, datapreview_mock
+    ):
         filterable_view = mock.MagicMock()
         filterable_view.info.return_value = {"filterable": True}
         datapreview_mock.get_view_plugin.return_value = filterable_view
@@ -747,7 +754,7 @@ class TestResourceViewUpdate(object):
         result = helpers.call_action("resource_view_update", context, **params)
         expected_filters = {
             "country": ["Brazil", "Argentina"],
-            "weather": ["warm"]
+            "weather": ["warm"],
         }
         assert result["filters"] == expected_filters
 
@@ -774,11 +781,13 @@ class TestResourceViewUpdate(object):
 
         resource_id = resource_view_1["resource_id"]
 
-        resource_view_2 = factories.ResourceView(resource_id=resource_id,
-                                                 title="View 2")
+        resource_view_2 = factories.ResourceView(
+            resource_id=resource_id, title="View 2"
+        )
 
-        resource_view_list = helpers.call_action("resource_view_list",
-                                                 id=resource_id)
+        resource_view_list = helpers.call_action(
+            "resource_view_list", id=resource_id
+        )
 
         assert resource_view_list[0]["title"] == "View 1"
         assert resource_view_list[1]["title"] == "View 2"
@@ -790,12 +799,11 @@ class TestResourceViewUpdate(object):
             id=resource_id,
             order=[resource_view_2["id"], resource_view_1["id"]],
         )
-        assert result["order"] == [
-            resource_view_2["id"], resource_view_1["id"]
-        ]
+        assert result["order"] == [resource_view_2["id"], resource_view_1["id"]]
 
-        resource_view_list = helpers.call_action("resource_view_list",
-                                                 id=resource_id)
+        resource_view_list = helpers.call_action(
+            "resource_view_list", id=resource_id
+        )
 
         assert resource_view_list[0]["title"] == "View 2"
         assert resource_view_list[1]["title"] == "View 1"
@@ -807,20 +815,22 @@ class TestResourceViewUpdate(object):
 
         resource_id = resource_view_1["resource_id"]
 
-        resource_view_2 = factories.ResourceView(resource_id=resource_id,
-                                                 title="View 2")
+        resource_view_2 = factories.ResourceView(
+            resource_id=resource_id, title="View 2"
+        )
 
         # Reorder Views back just by specifiying a single view to go first
 
-        result = helpers.call_action("resource_view_reorder",
-                                     id=resource_id,
-                                     order=[resource_view_2["id"]])
-        assert result["order"] == [
-            resource_view_2["id"], resource_view_1["id"]
-        ]
+        result = helpers.call_action(
+            "resource_view_reorder",
+            id=resource_id,
+            order=[resource_view_2["id"]],
+        )
+        assert result["order"] == [resource_view_2["id"], resource_view_1["id"]]
 
-        resource_view_list = helpers.call_action("resource_view_list",
-                                                 id=resource_id)
+        resource_view_list = helpers.call_action(
+            "resource_view_list", id=resource_id
+        )
 
         assert resource_view_list[0]["title"] == "View 2"
         assert resource_view_list[1]["title"] == "View 1"
@@ -855,9 +865,9 @@ class TestResourceUpdate(object):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset, url="http://first")
 
-        res_returned = helpers.call_action("resource_update",
-                                           id=resource["id"],
-                                           url="http://second")
+        res_returned = helpers.call_action(
+            "resource_update", id=resource["id"], url="http://second"
+        )
 
         assert res_returned["url"] == "http://second"
         resource = helpers.call_action("resource_show", id=resource["id"])
@@ -869,10 +879,12 @@ class TestResourceUpdate(object):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset, newfield="first")
 
-        res_returned = helpers.call_action("resource_update",
-                                           id=resource["id"],
-                                           url=resource["url"],
-                                           newfield="second")
+        res_returned = helpers.call_action(
+            "resource_update",
+            id=resource["id"],
+            url=resource["url"],
+            newfield="second",
+        )
 
         assert res_returned["newfield"] == "second"
         resource = helpers.call_action("resource_show", id=resource["id"])
@@ -882,14 +894,16 @@ class TestResourceUpdate(object):
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_both_extra_and_url(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://first",
-                                      newfield="first")
+        resource = factories.Resource(
+            package=dataset, url="http://first", newfield="first"
+        )
 
-        res_returned = helpers.call_action("resource_update",
-                                           id=resource["id"],
-                                           url="http://second",
-                                           newfield="second")
+        res_returned = helpers.call_action(
+            "resource_update",
+            id=resource["id"],
+            url="http://second",
+            newfield="second",
+        )
 
         assert res_returned["url"] == "http://second"
         assert res_returned["newfield"] == "second"
@@ -902,9 +916,9 @@ class TestResourceUpdate(object):
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extra_gets_deleted_on_both_core_and_extra_update(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://first",
-                                      newfield="first")
+        resource = factories.Resource(
+            package=dataset, url="http://first", newfield="first"
+        )
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -926,9 +940,9 @@ class TestResourceUpdate(object):
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extra_gets_deleted_on_extra_only_update(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://first",
-                                      newfield="first")
+        resource = factories.Resource(
+            package=dataset, url="http://first", newfield="first"
+        )
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -950,14 +964,16 @@ class TestResourceUpdate(object):
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_persisted_if_true_and_not_provided(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://example.com",
-                                      datastore_active=True)
+        resource = factories.Resource(
+            package=dataset, url="http://example.com", datastore_active=True
+        )
 
-        res_returned = helpers.call_action("resource_update",
-                                           id=resource["id"],
-                                           url="http://example.com",
-                                           name="Test")
+        res_returned = helpers.call_action(
+            "resource_update",
+            id=resource["id"],
+            url="http://example.com",
+            name="Test",
+        )
 
         assert res_returned["datastore_active"]
 
@@ -965,14 +981,16 @@ class TestResourceUpdate(object):
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_persisted_if_false_and_not_provided(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://example.com",
-                                      datastore_active=False)
+        resource = factories.Resource(
+            package=dataset, url="http://example.com", datastore_active=False
+        )
 
-        res_returned = helpers.call_action("resource_update",
-                                           id=resource["id"],
-                                           url="http://example.com",
-                                           name="Test")
+        res_returned = helpers.call_action(
+            "resource_update",
+            id=resource["id"],
+            url="http://example.com",
+            name="Test",
+        )
 
         assert not res_returned["datastore_active"]
 
@@ -980,9 +998,9 @@ class TestResourceUpdate(object):
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_updated_if_false_and_provided(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://example.com",
-                                      datastore_active=False)
+        resource = factories.Resource(
+            package=dataset, url="http://example.com", datastore_active=False
+        )
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -998,9 +1016,9 @@ class TestResourceUpdate(object):
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_updated_if_true_and_provided(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://example.com",
-                                      datastore_active=True)
+        resource = factories.Resource(
+            package=dataset, url="http://example.com", datastore_active=True
+        )
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -1015,17 +1033,19 @@ class TestResourceUpdate(object):
     @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled(
-            self):
+        self
+    ):
         assert not p.plugin_loaded("datastore")
 
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://example.com")
+        resource = factories.Resource(package=dataset, url="http://example.com")
 
-        res_returned = helpers.call_action("resource_update",
-                                           id=resource["id"],
-                                           url="http://example.com",
-                                           name="Test")
+        res_returned = helpers.call_action(
+            "resource_update",
+            id=resource["id"],
+            url="http://example.com",
+            name="Test",
+        )
 
         assert "datastore_active" not in res_returned
 
@@ -1043,13 +1063,15 @@ class TestResourceUpdate(object):
         be guessed, based on the url
         """
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://localhost/data.csv",
-                                      name="Test")
+        resource = factories.Resource(
+            package=dataset, url="http://localhost/data.csv", name="Test"
+        )
 
-        res_update = helpers.call_action("resource_update",
-                                         id=resource["id"],
-                                         url="http://localhost/data.json")
+        res_update = helpers.call_action(
+            "resource_update",
+            id=resource["id"],
+            url="http://localhost/data.json",
+        )
 
         org_mimetype = resource.pop("mimetype")
         upd_mimetype = res_update.pop("mimetype")
@@ -1067,9 +1089,9 @@ class TestResourceUpdate(object):
         and the user wanted to specify the mimetype themselves
         """
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://localhost/data.csv",
-                                      name="Test")
+        resource = factories.Resource(
+            package=dataset, url="http://localhost/data.csv", name="Test"
+        )
 
         res_update = helpers.call_action(
             "resource_update",
@@ -1099,21 +1121,24 @@ class TestResourceUpdate(object):
         If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
         """
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://localhost/data.csv",
-                                      name="Test")
+        resource = factories.Resource(
+            package=dataset, url="http://localhost/data.csv", name="Test"
+        )
 
         import StringIO
 
         update_file = StringIO.StringIO()
-        update_file.write("""
+        update_file.write(
+            """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
-        """)
+        """
+        )
         update_resource = TestResourceUpdate.FakeFileStorage(
-            update_file, "update_test")
+            update_file, "update_test"
+        )
 
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
@@ -1146,7 +1171,8 @@ class TestResourceUpdate(object):
         import StringIO
 
         test_file = StringIO.StringIO()
-        test_file.write("""
+        test_file.write(
+            """
         "info": {
             "title": "BC Data Catalogue API",
             "description": "This API provides information about datasets in the BC Data Catalogue.",
@@ -1162,9 +1188,11 @@ class TestResourceUpdate(object):
             },
             "version": "3.0.0"
         }
-        """)
+        """
+        )
         test_resource = TestResourceUpdate.FakeFileStorage(
-            test_file, "test.json")
+            test_file, "test.json"
+        )
         dataset = factories.Dataset()
 
         # Mock url_for as using a test request context interferes with the FS mocking
@@ -1177,14 +1205,17 @@ class TestResourceUpdate(object):
             )
 
         update_file = StringIO.StringIO()
-        update_file.write("""
+        update_file.write(
+            """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
-        """)
+        """
+        )
         update_resource = TestResourceUpdate.FakeFileStorage(
-            update_file, "update_test.csv")
+            update_file, "update_test.csv"
+        )
 
         with mock.patch("ckan.lib.helpers.url_for"):
             res_update = helpers.call_action(
@@ -1209,10 +1240,12 @@ class TestResourceUpdate(object):
         Real world usage would be using the FileStore API and the user provides a size for the resource
         """
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url="http://localhost/data.csv",
-                                      name="Test",
-                                      size=500)
+        resource = factories.Resource(
+            package=dataset,
+            url="http://localhost/data.csv",
+            name="Test",
+            size=500,
+        )
 
         res_update = helpers.call_action(
             "resource_update",
@@ -1239,7 +1272,8 @@ class TestResourceUpdate(object):
         import StringIO
 
         test_file = StringIO.StringIO()
-        test_file.write("""
+        test_file.write(
+            """
         "info": {
             "title": "BC Data Catalogue API",
             "description": "This API provides information about datasets in the BC Data Catalogue.",
@@ -1255,9 +1289,11 @@ class TestResourceUpdate(object):
             },
             "version": "3.0.0"
         }
-        """)
+        """
+        )
         test_resource = TestResourceUpdate.FakeFileStorage(
-            test_file, "test.json")
+            test_file, "test.json"
+        )
         dataset = factories.Dataset()
 
         # Mock url_for as using a test request context interferes with the FS mocking
@@ -1270,14 +1306,17 @@ class TestResourceUpdate(object):
             )
 
         update_file = StringIO.StringIO()
-        update_file.write("""
+        update_file.write(
+            """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
-        """)
+        """
+        )
         update_resource = TestResourceUpdate.FakeFileStorage(
-            update_file, "update_test.csv")
+            update_file, "update_test.csv"
+        )
 
         with mock.patch("ckan.lib.helpers.url_for"):
             res_update = helpers.call_action(
@@ -1298,7 +1337,8 @@ class TestResourceUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(
             user=user,
-            resources=[dict(format=u"json", url=u"http://datahub.io/")])
+            resources=[dict(format=u"json", url=u"http://datahub.io/")],
+        )
 
         resource = helpers.call_action(
             "resource_update",
@@ -1312,95 +1352,99 @@ class TestResourceUpdate(object):
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
-        resource = helpers.call_action("package_show",
-                                       id=dataset["id"])["resources"][0]
+        resource = helpers.call_action("package_show", id=dataset["id"])[
+            "resources"
+        ][0]
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
 
-    @helpers.change_config("ckan.views.default_views",
-                           "image_view recline_view")
+    @helpers.change_config(
+        "ckan.views.default_views", "image_view recline_view"
+    )
     @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_format_update(self):
         dataset = factories.Dataset()
 
         # Create resource without format
-        resource = factories.Resource(package=dataset,
-                                      url="http://localhost",
-                                      name="Test")
-        res_views = helpers.call_action("resource_view_list",
-                                        id=resource["id"])
+        resource = factories.Resource(
+            package=dataset, url="http://localhost", name="Test"
+        )
+        res_views = helpers.call_action("resource_view_list", id=resource["id"])
 
         assert len(res_views) == 0
 
         # Update resource with format
-        resource = helpers.call_action("resource_update",
-                                       id=resource["id"],
-                                       format="CSV")
+        resource = helpers.call_action(
+            "resource_update", id=resource["id"], format="CSV"
+        )
 
         # Format changed
         assert resource["format"] == "CSV"
 
-        res_views = helpers.call_action("resource_view_list",
-                                        id=resource["id"])
+        res_views = helpers.call_action("resource_view_list", id=resource["id"])
 
         # View for resource is created
         assert len(res_views) == 1
 
-        second_resource = factories.Resource(package=dataset,
-                                             url="http://localhost",
-                                             name="Test2",
-                                             format="CSV")
+        second_resource = factories.Resource(
+            package=dataset, url="http://localhost", name="Test2", format="CSV"
+        )
 
-        res_views = helpers.call_action("resource_view_list",
-                                        id=second_resource["id"])
+        res_views = helpers.call_action(
+            "resource_view_list", id=second_resource["id"]
+        )
 
         assert len(res_views) == 1
 
-        second_resource = helpers.call_action("resource_update",
-                                              id=second_resource["id"],
-                                              format="PNG")
+        second_resource = helpers.call_action(
+            "resource_update", id=second_resource["id"], format="PNG"
+        )
 
         # Format changed
         assert second_resource["format"] == "PNG"
 
-        res_views = helpers.call_action("resource_view_list",
-                                        id=second_resource["id"])
+        res_views = helpers.call_action(
+            "resource_view_list", id=second_resource["id"]
+        )
 
         assert len(res_views) == 2
 
-        third_resource = factories.Resource(package=dataset,
-                                            url="http://localhost",
-                                            name="Test2")
+        third_resource = factories.Resource(
+            package=dataset, url="http://localhost", name="Test2"
+        )
 
-        res_views = helpers.call_action("resource_view_list",
-                                        id=third_resource["id"])
+        res_views = helpers.call_action(
+            "resource_view_list", id=third_resource["id"]
+        )
 
         assert len(res_views) == 0
 
-        third_resource = helpers.call_action("resource_update",
-                                             id=third_resource["id"],
-                                             format="Test format")
+        third_resource = helpers.call_action(
+            "resource_update", id=third_resource["id"], format="Test format"
+        )
 
         # Format added
         assert third_resource["format"] == "Test format"
 
-        res_views = helpers.call_action("resource_view_list",
-                                        id=third_resource["id"])
+        res_views = helpers.call_action(
+            "resource_view_list", id=third_resource["id"]
+        )
 
         # No view created, cause no such format
         assert len(res_views) == 0
 
-        third_resource = helpers.call_action("resource_update",
-                                             id=third_resource["id"],
-                                             format="CSV")
+        third_resource = helpers.call_action(
+            "resource_update", id=third_resource["id"], format="CSV"
+        )
 
         # Format changed
         assert third_resource["format"] == "CSV"
 
-        res_views = helpers.call_action("resource_view_list",
-                                        id=third_resource["id"])
+        res_views = helpers.call_action(
+            "resource_view_list", id=third_resource["id"]
+        )
 
         # View is created
         assert len(res_views) == 1
@@ -1533,21 +1577,28 @@ class TestBulkOperations(object):
         )
 
         # Check search index
-        datasets = helpers.call_action("package_search", {},
-                                       q="owner_org:{0}".format(org["id"]))
+        datasets = helpers.call_action(
+            "package_search", {}, q="owner_org:{0}".format(org["id"])
+        )
 
         for dataset in datasets["results"]:
             assert dataset["private"]
 
         # Check DB
-        datasets = (model.Session.query(
-            model.Package).filter(model.Package.owner_org == org["id"]).all())
+        datasets = (
+            model.Session.query(model.Package)
+            .filter(model.Package.owner_org == org["id"])
+            .all()
+        )
         for dataset in datasets:
             assert dataset.private
 
-        revisions = (model.Session.query(model.PackageRevision).filter(
-            model.PackageRevision.owner_org == org["id"]).filter(
-                model.PackageRevision.current is True).all())
+        revisions = (
+            model.Session.query(model.PackageRevision)
+            .filter(model.PackageRevision.owner_org == org["id"])
+            .filter(model.PackageRevision.current is True)
+            .all()
+        )
         for revision in revisions:
             assert revision.private
 
@@ -1567,21 +1618,28 @@ class TestBulkOperations(object):
         )
 
         # Check search index
-        datasets = helpers.call_action("package_search", {},
-                                       q="owner_org:{0}".format(org["id"]))
+        datasets = helpers.call_action(
+            "package_search", {}, q="owner_org:{0}".format(org["id"])
+        )
 
         for dataset in datasets["results"]:
             assert not (dataset["private"])
 
         # Check DB
-        datasets = (model.Session.query(
-            model.Package).filter(model.Package.owner_org == org["id"]).all())
+        datasets = (
+            model.Session.query(model.Package)
+            .filter(model.Package.owner_org == org["id"])
+            .all()
+        )
         for dataset in datasets:
             assert not (dataset.private)
 
-        revisions = (model.Session.query(model.PackageRevision).filter(
-            model.PackageRevision.owner_org == org["id"]).filter(
-                model.PackageRevision.current is True).all())
+        revisions = (
+            model.Session.query(model.PackageRevision)
+            .filter(model.PackageRevision.owner_org == org["id"])
+            .filter(model.PackageRevision.current is True)
+            .all()
+        )
         for revision in revisions:
             assert not (revision.private)
 
@@ -1601,20 +1659,27 @@ class TestBulkOperations(object):
         )
 
         # Check search index
-        datasets = helpers.call_action("package_search", {},
-                                       q="owner_org:{0}".format(org["id"]))
+        datasets = helpers.call_action(
+            "package_search", {}, q="owner_org:{0}".format(org["id"])
+        )
 
         assert datasets["results"] == []
 
         # Check DB
-        datasets = (model.Session.query(
-            model.Package).filter(model.Package.owner_org == org["id"]).all())
+        datasets = (
+            model.Session.query(model.Package)
+            .filter(model.Package.owner_org == org["id"])
+            .all()
+        )
         for dataset in datasets:
             assert dataset.state == "deleted"
 
-        revisions = (model.Session.query(model.PackageRevision).filter(
-            model.PackageRevision.owner_org == org["id"]).filter(
-                model.PackageRevision.current is True).all())
+        revisions = (
+            model.Session.query(model.PackageRevision)
+            .filter(model.PackageRevision.owner_org == org["id"])
+            .filter(model.PackageRevision.current is True)
+            .all()
+        )
         for revision in revisions:
             assert revision.state == "deleted"
 
@@ -1626,37 +1691,52 @@ class TestDashboardMarkActivitiesOld(object):
         user = factories.User()
         # now some activity that is "new" because it is by a followed user
         followed_user = factories.User()
-        helpers.call_action("follow_user",
-                            context={"user": user["name"]},
-                            **followed_user)
+        helpers.call_action(
+            "follow_user", context={"user": user["name"]}, **followed_user
+        )
         dataset = factories.Dataset(user=followed_user)
         dataset["title"] = "Dataset with changed title"
-        helpers.call_action("package_update",
-                            context={"user": followed_user["name"]},
-                            **dataset)
-        assert (helpers.call_action("dashboard_new_activities_count",
-                                    context={"user": user["id"]}) == 3)
-        activities = helpers.call_action("dashboard_activity_list",
-                                         context={"user": user["id"]})
-        assert [(activity["activity_type"], activity["is_new"])
-                for activity in activities[::-1]] == [
-                    ("new user", False),
-                    ("new user", True),
-                    ("new package", True),
-                    ("changed package", True),
-                ]
+        helpers.call_action(
+            "package_update", context={"user": followed_user["name"]}, **dataset
+        )
+        assert (
+            helpers.call_action(
+                "dashboard_new_activities_count", context={"user": user["id"]}
+            )
+            == 3
+        )
+        activities = helpers.call_action(
+            "dashboard_activity_list", context={"user": user["id"]}
+        )
+        assert [
+            (activity["activity_type"], activity["is_new"])
+            for activity in activities[::-1]
+        ] == [
+            ("new user", False),
+            ("new user", True),
+            ("new package", True),
+            ("changed package", True),
+        ]
 
-        helpers.call_action("dashboard_mark_activities_old",
-                            context={"user": user["name"]})
+        helpers.call_action(
+            "dashboard_mark_activities_old", context={"user": user["name"]}
+        )
 
-        assert (helpers.call_action("dashboard_new_activities_count",
-                                    context={"user": user["id"]}) == 0)
-        activities = helpers.call_action("dashboard_activity_list",
-                                         context={"user": user["id"]})
-        assert [(activity["activity_type"], activity["is_new"])
-                for activity in activities[::-1]] == [
-                    ("new user", False),
-                    ("new user", False),
-                    ("new package", False),
-                    ("changed package", False),
-                ]
+        assert (
+            helpers.call_action(
+                "dashboard_new_activities_count", context={"user": user["id"]}
+            )
+            == 0
+        )
+        activities = helpers.call_action(
+            "dashboard_activity_list", context={"user": user["id"]}
+        )
+        assert [
+            (activity["activity_type"], activity["is_new"])
+            for activity in activities[::-1]
+        ] == [
+            ("new user", False),
+            ("new user", False),
+            ("new package", False),
+            ("changed package", False),
+        ]

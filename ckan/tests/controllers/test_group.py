@@ -21,8 +21,9 @@ class TestGroupController(helpers.FunctionalTestBase):
 
     def test_bulk_process_throws_404_for_nonexistent_org(self):
         app = self._get_test_app()
-        bulk_process_url = url_for("organization.bulk_process",
-                                   id="does-not-exist")
+        bulk_process_url = url_for(
+            "organization.bulk_process", id="does-not-exist"
+        )
         app.get(url=bulk_process_url, status=404)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self):
@@ -209,10 +210,9 @@ class TestGroupDelete(helpers.FunctionalTestBase):
         )
 
         form = response.forms["group-confirm-delete-form"]
-        response = submit_and_follow(self.app,
-                                     form,
-                                     name="delete",
-                                     extra_environ=self.user_env)
+        response = submit_and_follow(
+            self.app, form, name="delete", extra_environ=self.user_env
+        )
         group = helpers.call_action("group_show", id=self.group["id"])
         assert_equal(group["state"], "deleted")
 
@@ -226,10 +226,9 @@ class TestGroupDelete(helpers.FunctionalTestBase):
         )
 
         form = response.forms["group-confirm-delete-form"]
-        response = submit_and_follow(self.app,
-                                     form,
-                                     name="delete",
-                                     extra_environ=self.user_env)
+        response = submit_and_follow(
+            self.app, form, name="delete", extra_environ=self.user_env
+        )
         group = helpers.call_action("group_show", id=self.group["id"])
         assert_equal(group["state"], "deleted")
 
@@ -246,8 +245,9 @@ class TestGroupDelete(helpers.FunctionalTestBase):
         assert_equal(group["state"], "active")
 
     def test_anon_user_trying_to_delete_fails(self):
-        self.app.get(url=url_for("group.delete", id=self.group["id"]),
-                     status=403)
+        self.app.get(
+            url=url_for("group.delete", id=self.group["id"]), status=403
+        )
 
         group = helpers.call_action("group_show", id=self.group["id"])
         assert_equal(group["state"], "active")
@@ -260,10 +260,9 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         if users is None:
             users = []
         context = {"user": owner_username, "ignore_auth": True}
-        group = helpers.call_action("group_create",
-                                    context=context,
-                                    name="test-group",
-                                    users=users)
+        group = helpers.call_action(
+            "group_create", context=context, name="test-group", users=users
+        )
         return group
 
     def _get_group_add_member_page(self, app, user, group_name):
@@ -312,7 +311,8 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         group = self._create_group(owner["name"])
 
         env, response = self._get_group_add_member_page(
-            app, owner, group["name"])
+            app, owner, group["name"]
+        )
 
         add_form = response.forms["add-member-form"]
         add_form["username"] = "my-user"
@@ -343,7 +343,8 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         group = self._create_group(owner["name"])
 
         env, response = self._get_group_add_member_page(
-            app, owner, group["name"])
+            app, owner, group["name"]
+        )
 
         add_form = response.forms["add-member-form"]
         add_form["username"] = "my-user"
@@ -377,9 +378,9 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         group = self._create_group(user_one["name"], other_users)
 
-        remove_url = url_for("group.member_delete",
-                             user=user_two["id"],
-                             id=group["id"])
+        remove_url = url_for(
+            "group.member_delete", user=user_two["id"], id=group["id"]
+        )
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
         remove_response = app.post(remove_url, extra_environ=env, status=302)
@@ -407,10 +408,9 @@ class TestGroupMembership(helpers.FunctionalTestBase):
     def test_member_users_cannot_add_members(self):
 
         user = factories.User()
-        group = factories.Group(users=[{
-            "name": user["name"],
-            "capacity": "member"
-        }])
+        group = factories.Group(
+            users=[{"name": user["name"], "capacity": "member"}]
+        )
 
         app = helpers._get_test_app()
 
@@ -429,7 +429,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
                     "id": "test",
                     "username": "test",
                     "save": "save",
-                    "role": "test"
+                    "role": "test",
                 },
                 extra_environ=env,
                 status=403,
@@ -449,7 +449,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
                     "id": "test",
                     "username": "test",
                     "save": "save",
-                    "role": "test"
+                    "role": "test",
                 },
                 status=403,
             )
@@ -466,8 +466,10 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         follow_url = url_for("group.follow", id=group["id"])
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
-        assert_true("You are now following {0}".format(group["display_name"])
-                    in response)
+        assert_true(
+            "You are now following {0}".format(group["display_name"])
+            in response
+        )
 
     def test_group_follow_not_exist(self):
         """Pass an id for a group that doesn't exist"""
@@ -492,13 +494,15 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         app.post(follow_url, extra_environ=env, status=302)
 
         unfollow_url = url_for("group.unfollow", id=group["id"])
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         unfollow_response = unfollow_response.follow()
 
-        assert_true("You are no longer following {0}".format(
-            group["display_name"]) in unfollow_response)
+        assert_true(
+            "You are no longer following {0}".format(group["display_name"])
+            in unfollow_response
+        )
 
     def test_group_unfollow_not_following(self):
         """Unfollow a group not currently following"""
@@ -509,14 +513,15 @@ class TestGroupFollow(helpers.FunctionalTestBase):
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
         unfollow_url = url_for("group.unfollow", id=group["id"])
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         unfollow_response = unfollow_response.follow()  # /group/[id] 302s to:
         unfollow_response = unfollow_response.follow()  # /group/[name]
 
-        assert_true("You are not following {0}".format(group["id"]) in
-                    unfollow_response)
+        assert_true(
+            "You are not following {0}".format(group["id"]) in unfollow_response
+        )
 
     def test_group_unfollow_not_exist(self):
         """Unfollow a group that doesn't exist."""
@@ -526,9 +531,9 @@ class TestGroupFollow(helpers.FunctionalTestBase):
 
         env = {"REMOTE_USER": user_one["name"].encode("ascii")}
         unfollow_url = url_for("group.unfollow", id="not-here")
-        unfollow_response = app.post(unfollow_url,
-                                     extra_environ=env,
-                                     status=302)
+        unfollow_response = app.post(
+            unfollow_url, extra_environ=env, status=302
+        )
         assert_in("group/not-here", unfollow_response.headers["location"])
 
     def test_group_follower_list(self):
@@ -545,14 +550,15 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         followers_url = url_for("group.followers", id=group["id"])
 
         # Only sysadmins can view the followers list pages
-        followers_response = app.get(followers_url,
-                                     extra_environ=env,
-                                     status=200)
+        followers_response = app.get(
+            followers_url, extra_environ=env, status=200
+        )
         assert_true(user_one["display_name"] in followers_response)
 
 
 class TestGroupSearch(helpers.FunctionalTestBase):
     """Test searching for groups."""
+
     def setup(self):
         super(TestGroupSearch, self).setup()
         self.app = self._get_test_app()
@@ -567,9 +573,9 @@ class TestGroupSearch(helpers.FunctionalTestBase):
 
         index_response = self.app.get(self.search_url)
         index_response_html = BeautifulSoup(index_response.body)
-        grp_names = index_response_html.select("ul.media-grid "
-                                               "li.media-item "
-                                               "h3.media-heading")
+        grp_names = index_response_html.select(
+            "ul.media-grid " "li.media-item " "h3.media-heading"
+        )
         grp_names = [n.string for n in grp_names]
 
         assert_equal(len(grp_names), 3)
@@ -586,9 +592,9 @@ class TestGroupSearch(helpers.FunctionalTestBase):
         search_response = webtest_submit(search_form)
 
         search_response_html = BeautifulSoup(search_response.body)
-        grp_names = search_response_html.select("ul.media-grid "
-                                                "li.media-item "
-                                                "h3.media-heading")
+        grp_names = search_response_html.select(
+            "ul.media-grid " "li.media-item " "h3.media-heading"
+        )
         grp_names = [n.string for n in grp_names]
 
         assert_equal(len(grp_names), 2)
@@ -605,9 +611,9 @@ class TestGroupSearch(helpers.FunctionalTestBase):
         search_response = webtest_submit(search_form)
 
         search_response_html = BeautifulSoup(search_response.body)
-        grp_names = search_response_html.select("ul.media-grid "
-                                                "li.media-item "
-                                                "h3.media-heading")
+        grp_names = search_response_html.select(
+            "ul.media-grid " "li.media-item " "h3.media-heading"
+        )
         grp_names = [n.string for n in grp_names]
 
         assert_equal(len(grp_names), 0)
@@ -616,34 +622,29 @@ class TestGroupSearch(helpers.FunctionalTestBase):
 
 class TestGroupInnerSearch(helpers.FunctionalTestBase):
     """Test searching within an group."""
+
     def test_group_search_within_org(self):
         """Group read page request returns list of datasets owned by group."""
         app = self._get_test_app()
 
         grp = factories.Group()
-        factories.Dataset(name="ds-one",
-                          title="Dataset One",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
-        factories.Dataset(name="ds-two",
-                          title="Dataset Two",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
-        factories.Dataset(name="ds-three",
-                          title="Dataset Three",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
+        factories.Dataset(
+            name="ds-one", title="Dataset One", groups=[{"id": grp["id"]}]
+        )
+        factories.Dataset(
+            name="ds-two", title="Dataset Two", groups=[{"id": grp["id"]}]
+        )
+        factories.Dataset(
+            name="ds-three", title="Dataset Three", groups=[{"id": grp["id"]}]
+        )
 
         grp_url = url_for("group.read", id=grp["name"])
         grp_response = app.get(grp_url)
         grp_response_html = BeautifulSoup(grp_response.body)
 
-        ds_titles = grp_response_html.select(".dataset-list "
-                                             ".dataset-item "
-                                             ".dataset-heading a")
+        ds_titles = grp_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         ds_titles = [t.string for t in ds_titles]
 
         assert_true("3 datasets found" in grp_response)
@@ -657,21 +658,15 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         grp = factories.Group()
-        factories.Dataset(name="ds-one",
-                          title="Dataset One",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
-        factories.Dataset(name="ds-two",
-                          title="Dataset Two",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
-        factories.Dataset(name="ds-three",
-                          title="Dataset Three",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
+        factories.Dataset(
+            name="ds-one", title="Dataset One", groups=[{"id": grp["id"]}]
+        )
+        factories.Dataset(
+            name="ds-two", title="Dataset Two", groups=[{"id": grp["id"]}]
+        )
+        factories.Dataset(
+            name="ds-three", title="Dataset Three", groups=[{"id": grp["id"]}]
+        )
 
         grp_url = url_for("group.read", id=grp["name"])
         grp_response = app.get(grp_url)
@@ -682,9 +677,9 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
 
         search_response_html = BeautifulSoup(search_response.body)
 
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         ds_titles = [t.string for t in ds_titles]
 
         assert_equal(len(ds_titles), 1)
@@ -698,21 +693,15 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         grp = factories.Group()
-        factories.Dataset(name="ds-one",
-                          title="Dataset One",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
-        factories.Dataset(name="ds-two",
-                          title="Dataset Two",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
-        factories.Dataset(name="ds-three",
-                          title="Dataset Three",
-                          groups=[{
-                              "id": grp["id"]
-                          }])
+        factories.Dataset(
+            name="ds-one", title="Dataset One", groups=[{"id": grp["id"]}]
+        )
+        factories.Dataset(
+            name="ds-two", title="Dataset Two", groups=[{"id": grp["id"]}]
+        )
+        factories.Dataset(
+            name="ds-three", title="Dataset Three", groups=[{"id": grp["id"]}]
+        )
 
         grp_url = url_for("group.read", id=grp["name"])
         grp_response = app.get(grp_url)
@@ -724,9 +713,9 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
 
         search_response_html = BeautifulSoup(search_response.body)
 
-        ds_titles = search_response_html.select(".dataset-list "
-                                                ".dataset-item "
-                                                ".dataset-heading a")
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
         ds_titles = [t.string for t in ds_titles]
 
         assert_equal(len(ds_titles), 0)
@@ -738,8 +727,10 @@ class TestGroupIndex(helpers.FunctionalTestBase):
 
         for i in xrange(1, 26):
             _i = "0" + str(i) if i < 10 else i
-            factories.Group(name="test-group-{0}".format(_i),
-                            title="Test Group {0}".format(_i))
+            factories.Group(
+                name="test-group-{0}".format(_i),
+                title="Test Group {0}".format(_i),
+            )
 
         url = url_for("group.index")
         response = app.get(url)
@@ -787,11 +778,13 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("created the group", response)
-        assert_in('<a href="/group/{}">Test Group'.format(group["name"]),
-                  response)
+        assert_in(
+            '<a href="/group/{}">Test Group'.format(group["name"]), response
+        )
 
     def _clear_activities(self):
         model.Session.query(model.ActivityDetail).delete()
@@ -804,18 +797,20 @@ class TestActivity(helpers.FunctionalTestBase):
         group = factories.Group(user=user)
         self._clear_activities()
         group["title"] = "Group with changed title"
-        helpers.call_action("group_update",
-                            context={"user": user["name"]},
-                            **group)
+        helpers.call_action(
+            "group_update", context={"user": user["name"]}, **group
+        )
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("updated the group", response)
         assert_in(
             '<a href="/group/{}">Group with changed title'.format(
-                group["name"]),
+                group["name"]
+            ),
             response,
         )
 
@@ -824,9 +819,9 @@ class TestActivity(helpers.FunctionalTestBase):
         user = factories.User()
         group = factories.Group(user=user)
         self._clear_activities()
-        helpers.call_action("group_delete",
-                            context={"user": user["name"]},
-                            **group)
+        helpers.call_action(
+            "group_delete", context={"user": user["name"]}, **group
+        )
 
         url = url_for("group.activity", id=group["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -843,18 +838,20 @@ class TestActivity(helpers.FunctionalTestBase):
         group = factories.Group(user=user)
         self._clear_activities()
         group["state"] = "deleted"
-        helpers.call_action("group_update",
-                            context={"user": user["name"]},
-                            **group)
+        helpers.call_action(
+            "group_update", context={"user": user["name"]}, **group
+        )
 
         url = url_for("group.activity", id=group["id"])
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         response = app.get(url, extra_environ=env)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("deleted the group", response)
-        assert_in('<a href="/group/{}">Test Group'.format(group["name"]),
-                  response)
+        assert_in(
+            '<a href="/group/{}">Test Group'.format(group["name"]), response
+        )
 
     def test_create_dataset(self):
         app = self._get_test_app()
@@ -865,11 +862,13 @@ class TestActivity(helpers.FunctionalTestBase):
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("created the dataset", response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset["id"]),
-                  response)
+        assert_in(
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        )
 
     def test_change_dataset(self):
         app = self._get_test_app()
@@ -878,18 +877,20 @@ class TestActivity(helpers.FunctionalTestBase):
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         self._clear_activities()
         dataset["title"] = "Dataset with changed title"
-        helpers.call_action("package_update",
-                            context={"user": user["name"]},
-                            **dataset)
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("updated the dataset", response)
         assert_in(
             '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]),
+                dataset["id"]
+            ),
             response,
         )
 
@@ -899,14 +900,16 @@ class TestActivity(helpers.FunctionalTestBase):
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         self._clear_activities()
-        helpers.call_action("package_delete",
-                            context={"user": user["name"]},
-                            **dataset)
+        helpers.call_action(
+            "package_delete", context={"user": user["name"]}, **dataset
+        )
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user["name"]),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
         assert_in("deleted the dataset", response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset["id"]),
-                  response)
+        assert_in(
+            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"]), response
+        )

@@ -94,9 +94,9 @@ def test_get_group_object_id_none():
 def test_get_package_object_with_id():
 
     user_name = helpers.call_action("get_site_user")["name"]
-    dataset = helpers.call_action("package_create",
-                                  context={"user": user_name},
-                                  name="test_dataset")
+    dataset = helpers.call_action(
+        "package_create", context={"user": user_name}, name="test_dataset"
+    )
     context = {"model": core_model}
     obj = logic_auth.get_package_object(context, {"id": dataset["id"]})
 
@@ -108,9 +108,9 @@ def test_get_package_object_with_id():
 def test_get_resource_object_with_id():
 
     user_name = helpers.call_action("get_site_user")["name"]
-    dataset = helpers.call_action("package_create",
-                                  context={"user": user_name},
-                                  name="test_dataset")
+    dataset = helpers.call_action(
+        "package_create", context={"user": user_name}, name="test_dataset"
+    )
     resource = helpers.call_action(
         "resource_create",
         context={"user": user_name},
@@ -147,9 +147,9 @@ def test_get_user_object_with_id():
 def test_get_group_object_with_id():
 
     user_name = helpers.call_action("get_site_user")["name"]
-    group = helpers.call_action("group_create",
-                                context={"user": user_name},
-                                name="test_group")
+    group = helpers.call_action(
+        "group_create", context={"user": user_name}, name="test_group"
+    )
     context = {"model": core_model}
     obj = logic_auth.get_group_object(context, {"id": group["id"]})
 
