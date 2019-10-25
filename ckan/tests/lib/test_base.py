@@ -113,11 +113,11 @@ def test_cors_config_origin_allow_all_true_with_origin(app):
     assert response_headers["Access-Control-Allow-Origin"] == "*"
     assert (
         response_headers["Access-Control-Allow-Methods"]
-        == "POST, PUT, GET, DELETE, OPTIONS",
+        == "POST, PUT, GET, DELETE, OPTIONS"
     )
     assert (
         response_headers["Access-Control-Allow-Headers"]
-        == "X-CKAN-API-KEY, Authorization, Content-Type",
+        == "X-CKAN-API-KEY, Authorization, Content-Type"
     )
 
 
@@ -156,15 +156,15 @@ def test_cors_config_origin_allow_all_false_with_whitelisted_origin(app):
     assert "Access-Control-Allow-Origin" in response_headers
     assert (
         response_headers["Access-Control-Allow-Origin"]
-        == "http://thirdpartyrequests.org",
+        == "http://thirdpartyrequests.org"
     )
     assert (
         response_headers["Access-Control-Allow-Methods"]
-        == "POST, PUT, GET, DELETE, OPTIONS",
+        == "POST, PUT, GET, DELETE, OPTIONS"
     )
     assert (
         response_headers["Access-Control-Allow-Headers"]
-        == "X-CKAN-API-KEY, Authorization, Content-Type",
+        == "X-CKAN-API-KEY, Authorization, Content-Type"
     )
 
 
@@ -190,15 +190,15 @@ def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins(
     assert "Access-Control-Allow-Origin" in response_headers
     assert (
         response_headers["Access-Control-Allow-Origin"]
-        == "http://thirdpartyrequests.org",
+        == "http://thirdpartyrequests.org"
     )
     assert (
         response_headers["Access-Control-Allow-Methods"]
-        == "POST, PUT, GET, DELETE, OPTIONS",
+        == "POST, PUT, GET, DELETE, OPTIONS"
     )
     assert (
         response_headers["Access-Control-Allow-Headers"]
-        == "X-CKAN-API-KEY, Authorization, Content-Type",
+        == "X-CKAN-API-KEY, Authorization, Content-Type"
     )
 
 
@@ -298,11 +298,11 @@ def test_cors_config_origin_allow_all_true_with_origin_2(app):
     assert response_headers["Access-Control-Allow-Origin"] == "*"
     assert (
         response_headers["Access-Control-Allow-Methods"]
-        == "POST, PUT, GET, DELETE, OPTIONS",
+        == "POST, PUT, GET, DELETE, OPTIONS"
     )
     assert (
         response_headers["Access-Control-Allow-Headers"]
-        == "X-CKAN-API-KEY, Authorization, Content-Type",
+        == "X-CKAN-API-KEY, Authorization, Content-Type"
     )
 
 
@@ -347,15 +347,15 @@ def test_cors_config_origin_allow_all_false_with_whitelisted_origin_2(app):
     assert "Access-Control-Allow-Origin" in response_headers
     assert (
         response_headers["Access-Control-Allow-Origin"]
-        == "http://thirdpartyrequests.org",
+        == "http://thirdpartyrequests.org"
     )
     assert (
         response_headers["Access-Control-Allow-Methods"]
-        == "POST, PUT, GET, DELETE, OPTIONS",
+        == "POST, PUT, GET, DELETE, OPTIONS"
     )
     assert (
         response_headers["Access-Control-Allow-Headers"]
-        == "X-CKAN-API-KEY, Authorization, Content-Type",
+        == "X-CKAN-API-KEY, Authorization, Content-Type"
     )
 
 
@@ -383,15 +383,15 @@ def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins_2(
     assert "Access-Control-Allow-Origin" in response_headers
     assert (
         response_headers["Access-Control-Allow-Origin"]
-        == "http://thirdpartyrequests.org",
+        == "http://thirdpartyrequests.org"
     )
     assert (
         response_headers["Access-Control-Allow-Methods"]
-        == "POST, PUT, GET, DELETE, OPTIONS",
+        == "POST, PUT, GET, DELETE, OPTIONS"
     )
     assert (
         response_headers["Access-Control-Allow-Headers"]
-        == "X-CKAN-API-KEY, Authorization, Content-Type",
+        == "X-CKAN-API-KEY, Authorization, Content-Type"
     )
 
 

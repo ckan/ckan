@@ -12,7 +12,7 @@ def _new_pkg(new):
     return {u"pkg_id": new["id"], u"name": new["name"], u"title": new["title"]}
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_title():
     changes = []
     original = Dataset()
@@ -28,7 +28,7 @@ def test_title():
     assert changes[0]["new_title"] == u"New title"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_name():
     changes = []
     original = Dataset()
@@ -44,7 +44,7 @@ def test_name():
     assert changes[0]["new_name"] == u"new-name"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_extra():
     changes = []
     original = Dataset()
@@ -66,7 +66,7 @@ def test_add_extra():
 # TODO how to test 'add_one_no_value'?
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_multiple_extras():
     changes = []
     original = Dataset()
@@ -87,7 +87,7 @@ def test_add_multiple_extras():
     assert set(changes[0]["key_list"]) == set([u"subject", u"topic"])
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_extra():
     changes = []
     original = Dataset(
@@ -115,7 +115,7 @@ def test_change_extra():
     assert changes[0]["new_value"] == u"scientific"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_multiple_extras():
     changes = []
     original = Dataset(
@@ -149,7 +149,7 @@ def test_change_multiple_extras():
 # TODO how to test change2?
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_delete_extra():
     changes = []
     original = Dataset(
@@ -172,7 +172,7 @@ def test_delete_extra():
     assert changes[0]["key"] == u"subject"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_delete_multiple_extras():
     changes = []
     original = Dataset(
@@ -196,7 +196,7 @@ def test_delete_multiple_extras():
     assert set(changes[0]["key_list"]) == set((u"subject", u"geography"))
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_maintainer():
     changes = []
     original = Dataset()
@@ -211,7 +211,7 @@ def test_add_maintainer():
     assert changes[0]["new_maintainer"] == u"new maintainer"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_maintainer():
     changes = []
     original = Dataset(maintainer=u"first maintainer")
@@ -227,7 +227,7 @@ def test_change_maintainer():
     assert changes[0]["new_maintainer"] == u"new maintainer"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_remove_maintainer():
     changes = []
     original = Dataset(maintainer=u"first maintainer")
@@ -241,7 +241,7 @@ def test_remove_maintainer():
     assert changes[0]["method"] == u"remove"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_notes():
     changes = []
     original = Dataset(notes=u"")
@@ -256,7 +256,7 @@ def test_add_notes():
     assert changes[0]["new_notes"] == u"new notes"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_notes():
     changes = []
     original = Dataset(notes=u"first notes")
@@ -272,7 +272,7 @@ def test_change_notes():
     assert changes[0]["new_notes"] == u"new notes"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_remove_notes():
     changes = []
     original = Dataset(notes=u"first notes")
@@ -285,7 +285,7 @@ def test_remove_notes():
 
 
 @pytest.mark.ckan_config(u"ckan.auth.create_unowned_dataset", True)
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_org():
     changes = []
     original = Dataset(owner_org=None)
@@ -301,7 +301,7 @@ def test_add_org():
     assert changes[0]["new_org_id"] == new_org["id"]
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_org():
     changes = []
     old_org = Organization()
@@ -320,7 +320,7 @@ def test_change_org():
 
 
 @pytest.mark.ckan_config(u"ckan.auth.create_unowned_dataset", True)
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_remove_org():
     changes = []
     old_org = Organization()
@@ -340,7 +340,7 @@ def test_remove_org():
     assert changes[0]["method"] == u"remove"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_make_private():
     changes = []
     old_org = Organization()
@@ -356,7 +356,7 @@ def test_make_private():
     assert changes[0]["new"] == u"Private"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_make_public():
     changes = []
     old_org = Organization()
@@ -372,7 +372,7 @@ def test_make_public():
     assert changes[0]["new"] == u"Public"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_tag():
     changes = []
     original = Dataset(tags=[{u"name": u"rivers"}])
@@ -390,7 +390,7 @@ def test_add_tag():
     assert changes[0]["tag"] == u"oceans"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_multiple_tags():
     changes = []
     original = Dataset(tags=[{u"name": u"rivers"}])
@@ -412,7 +412,7 @@ def test_add_multiple_tags():
     assert set(changes[0]["tags"]) == set((u"oceans", u"streams"))
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_delete_tag():
     changes = []
     original = Dataset(tags=[{u"name": u"rivers"}, {u"name": u"oceans"}])
@@ -428,7 +428,7 @@ def test_delete_tag():
     assert changes[0]["tag"] == u"oceans"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_remove_multiple_tags():
     changes = []
     original = Dataset(
@@ -450,7 +450,7 @@ def test_remove_multiple_tags():
     assert set(changes[0]["tags"]) == set((u"oceans", u"streams"))
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_url():
     changes = []
     original = Dataset()
@@ -465,7 +465,7 @@ def test_add_url():
     assert changes[0]["new_url"] == u"new url"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_url():
     changes = []
     original = Dataset(url=u"first url")
@@ -481,7 +481,7 @@ def test_change_url():
     assert changes[0]["new_url"] == u"new url"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_remove_url():
     changes = []
     original = Dataset(url=u"first url")
@@ -493,7 +493,7 @@ def test_remove_url():
     assert changes[0]["method"] == u"remove"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_version():
     changes = []
     original = Dataset()
@@ -508,7 +508,7 @@ def test_add_version():
     assert changes[0]["new_version"] == u"new version"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_version():
     changes = []
     original = Dataset(version=u"first version")
@@ -524,7 +524,7 @@ def test_change_version():
     assert changes[0]["new_version"] == u"new version"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_remove_version():
     changes = []
     original = Dataset(version=u"first version")
@@ -536,7 +536,7 @@ def test_remove_version():
     assert changes[0]["method"] == u"remove"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_resource():
     changes = []
     original = Dataset()
@@ -559,7 +559,7 @@ def test_add_resource():
     assert changes[0]["resource_name"] == u"Image 1"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_multiple_resources():
     changes = []
     original = Dataset()
@@ -592,7 +592,7 @@ def test_add_multiple_resources():
         assert changes[0]["resource_name"] == u"Image 2"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_resource_url():
     changes = []
     original = Dataset(
@@ -620,7 +620,7 @@ def test_change_resource_url():
     assert changes[0]["resource_name"] == u"Image 2"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_resource_format():
     changes = []
     original = Dataset(
@@ -648,7 +648,7 @@ def test_change_resource_format():
     assert changes[0]["resource_name"] == u"Image 2"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_resource_name():
     changes = []
     original = Dataset(
@@ -677,7 +677,7 @@ def test_change_resource_name():
     assert changes[0]["new_resource_name"] == u"Image changed"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_resource_description():
     changes = []
     original = Dataset(
@@ -708,7 +708,7 @@ def test_change_resource_description():
     assert changes[0]["resource_name"] == u"Image 2"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_add_resource_extra():
     changes = []
     original = Dataset(
@@ -733,7 +733,7 @@ def test_add_resource_extra():
     assert changes[0]["value"] == u"new value"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_resource_extra():
     changes = []
     original = Dataset(
@@ -760,7 +760,7 @@ def test_change_resource_extra():
     assert changes[0]["new_value"] == u"new value"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_remove_resource_extra():
     changes = []
     original = Dataset(
@@ -785,7 +785,7 @@ def test_remove_resource_extra():
     assert changes[0]["key"] == u"key1"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_change_multiple_resources():
     changes = []
     original = Dataset(
@@ -824,7 +824,7 @@ def test_change_multiple_resources():
         assert changes[0]["new_resource_name"] == u"changed-2"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_delete_resource():
     changes = []
     original = Dataset(
@@ -852,7 +852,7 @@ def test_delete_resource():
     assert changes[0]["resource_name"] == u"Image 1"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_delete_multiple_resources():
     changes = []
     original = Dataset(

@@ -217,15 +217,13 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
     def setup_class(cls):
         CreateTestData.create()
 
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-
+    @pytest.mark.usefixtures('clean_db')
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
         offset = url_for('dataset.read', id=name)
         res = self.app.get(offset, status=404)
 
+    @pytest.mark.usefixtures('clean_db')
     def test_read_internal_links(self):
         pkg_name = u'link-test',
         CreateTestData.create_arbitrary([
@@ -249,6 +247,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res
 
+    @pytest.mark.usefixtures('clean_db')
     def test_read_plugin_hook(self):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
@@ -260,6 +259,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         assert plugin.calls['after_show'] == 1, plugin.calls
         plugins.unload('test_package_controller_plugin')
 
+    @pytest.mark.usefixtures('clean_db')
     def test_resource_list(self):
         # TODO restore this test. It doesn't make much sense with the
         # present resource list design.
