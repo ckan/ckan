@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-'''**All lib functions should have tests**.
+"""**All lib functions should have tests**.
 
 .. todo::
 
@@ -16,4 +16,4 @@
    extensions) to use, so all of these functions should really have tests and
    docstrings. It's probably worth focusing on these modules first.
 
-'''
+"""
