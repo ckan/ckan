@@ -769,6 +769,7 @@ class TestUserList(helpers.FunctionalTestBase):
         assert 'datasets' not in got_user
 
     @helpers.change_config('ckan.auth.allow_anonymous_access', 'false')
+    @helpers.change_config('ckan.auth.public_user_details', 'false')
     def test_user_list_raises_not_authorized_if_config_allow_anon_access_false(self):
         user = factories.User()
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_action,

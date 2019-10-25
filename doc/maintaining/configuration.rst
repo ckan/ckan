@@ -646,7 +646,7 @@ Restricts access to 'view this version' and 'changes' in the Activity Stream pag
 .. _ckan.auth.allow_anonymous_access:
 
 ckan.auth.allow_anonymous_access
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
