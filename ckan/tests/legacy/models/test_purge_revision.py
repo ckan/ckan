@@ -1,44 +1,40 @@
 # encoding: utf-8
 
-from ckan.tests.legacy import *
-
+from ckan.tests.legacy import CreateTestData
+import pytest
 import ckan.model as model
 
+
 class TestRevisionPurge:
-    
-    @classmethod
-    def setup_class(self):
-        model.Session.remove()
+    pkgname = u"revision-purge-test"
+    old_url = u"abc.com"
+    pkgname2 = u"revision-purge-test-2"
+
+    @pytest.fixture(autouse=True)
+    def initial_data(self, clean_db):
         CreateTestData.create()
 
-    @classmethod
-    def teardown_class(self):
-        model.repo.rebuild_db()
-
-    def setup(self):
-        self.pkgname = u'revision-purge-test'
-
         model.repo.new_revision()
-        self.pkg = model.Package(name=self.pkgname)
-        self.old_url = u'abc.com'
-        self.pkg.url = self.old_url
-        tag1 = model.Tag.by_name(u'russian')
-        tag2 = model.Tag.by_name(u'tolstoy')
-        self.pkg.add_tag(tag1)
-        self.pkg.add_tag(tag2)
+        pkg = model.Package(name=self.pkgname)
+
+        pkg.url = self.old_url
+        tag1 = model.Tag.by_name(u"russian")
+        tag2 = model.Tag.by_name(u"tolstoy")
+        pkg.add_tag(tag1)
+        pkg.add_tag(tag2)
         model.repo.commit_and_remove()
 
-        txn2 = model.repo.new_revision()
+        model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
-        newurl = u'blah.com'
+        newurl = u"blah.com"
         pkg.url = newurl
         for tag in pkg.get_tags():
             pkg.remove_tag(tag)
-        self.pkgname2 = u'revision-purge-test-2'
-        self.pkg_new = model.Package(name=self.pkgname2)
+
+        model.Package(name=self.pkgname2)
         model.repo.commit_and_remove()
 
-    def teardown(self):
+    def teardown_method(self):
         model.Session.remove()
         pkg_new = model.Package.by_name(self.pkgname2)
         if pkg_new:
@@ -55,10 +51,10 @@ class TestRevisionPurge:
         rev = model.repo.youngest_revision()
         pkg = model.Package.by_name(self.pkgname)
 
-        assert rev.message.startswith('PURGED'), rev.message
+        assert rev.message.startswith("PURGED"), rev.message
         assert pkg.url == self.old_url
         pkg2 = model.Package.by_name(self.pkgname2)
-        assert pkg2 is None, 'pkgname2 should no longer exist'
+        assert pkg2 is None, "pkgname2 should no longer exist"
         assert len(pkg.get_tags()) == 2
 
     def test_2(self):
@@ -85,4 +81,3 @@ class TestRevisionPurge:
         # either none or should equal num - 2 or be None (if no lower revision)
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.all_revisions) == 1
-

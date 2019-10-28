@@ -55,7 +55,7 @@ here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
 # Invoke websetup with the current config file
-SetupCommand('setup-app').run([config['__file__']])
+# SetupCommand('setup-app').run([config['__file__']])
 
 # monkey patch paste.fixtures.TestRespose
 # webtest (successor library) already has this

@@ -197,4 +197,4 @@ class JsonMockResourcePreviewExtension(mock_plugin.MockSingletonPlugin):
 
 # importing this file loads all these extensions by default
 # so clean up the extensions
-p.plugins_update()
+# p.plugins_update()

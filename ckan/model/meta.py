@@ -137,7 +137,8 @@ metadata = MetaData()
 
 def engine_is_sqlite(sa_engine=None):
     # Returns true iff the engine is connected to a sqlite database.
-    return (sa_engine or engine).url.drivername == 'sqlite'
+
+    return (sa_engine or engine).engine.url.drivername == 'sqlite'
 
 
 def engine_is_pg(sa_engine=None):
