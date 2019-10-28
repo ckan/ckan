@@ -212,11 +212,11 @@ class TestDatastoreUpsert(DatastoreFunctionalTestBase):
             'force': True,
             'primary_key': 'id',
             'fields': [{'id': 'id', 'type': 'text'},
-                       {'id': 'book', 'type': 'text'},
+                       {'id': 'bo%ok', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
             'records': [
                 {'id': '1%',
-                 'book': u'El Niño',
+                 'bo%ok': u'El Niño',
                  'author': 'Torres'}],
         }
         helpers.call_action('datastore_create', **data)
@@ -227,18 +227,18 @@ class TestDatastoreUpsert(DatastoreFunctionalTestBase):
             'method': 'upsert',
             'records': [
                 {'id': '1%',
-                 'book': u'The % boy',
+                 'bo%ok': u'The % boy',
                  'author': u'F Torres'},
                 {'id': '2%',
-                 'book': u'Gu%ide',
+                 'bo%ok': u'Gu%ide',
                  'author': u'Adams'}],
         }
         helpers.call_action('datastore_upsert', **data)
 
         search_result = _search(resource['id'])
         assert_equal(search_result['total'], 2)
-        assert_equal(search_result['records'][0]['book'], 'The % boy')
-        assert_equal(search_result['records'][1]['book'], 'Gu%ide')
+        assert_equal(search_result['records'][0]['bo%ok'], 'The % boy')
+        assert_equal(search_result['records'][1]['bo%ok'], 'Gu%ide')
 
     def test_missing_key(self):
         resource = factories.Resource()

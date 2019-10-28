@@ -436,6 +436,28 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
                                           {u'the year': 2015, u'_id': 2}])
         assert_equals(result['limit'], 2)
 
+    def test_search_filter_with_percent_in_column_name(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'primary_key': 'id',
+            'fields': [{'id': 'id', 'type': 'text'},
+                       {'id': 'bo%ok', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'records': [
+                {'id': '1%',
+                 'bo%ok': u'El Nino',
+                 'author': 'Torres'}],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        search_data = {
+            'resource_id': resource['id'],
+            'filters': {u'bo%ok': 'El Nino'}}
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(result['total'], 1)
+
 
 class TestDatastoreSearchLegacyTests(DatastoreLegacyTestBase):
     sysadmin_user = None
