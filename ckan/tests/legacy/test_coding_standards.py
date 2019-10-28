@@ -460,7 +460,6 @@ class TestPep8(object):
         'ckanext/datastore/logic/action.py',
         'ckanext/datastore/tests/test_create.py',
         'ckanext/datastore/tests/test_search.py',
-        'ckanext/datastore/tests/test_upsert.py',
         'ckanext/example_idatasetform/plugin.py',
         'ckanext/example_itemplatehelpers/plugin.py',
         'ckanext/multilingual/plugin.py',
