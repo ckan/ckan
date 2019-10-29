@@ -1,5 +1,10 @@
 # encoding: utf-8
 
+# This file is at the top of the ckan repository, because it needs to be run
+# separately from all the other tests, because when it imports
+# revision_legacy_code.py it changes the core model, which causes a number of
+# test failures which we're not concerned about.
+
 from difflib import unified_diff
 from pprint import pprint, pformat
 
