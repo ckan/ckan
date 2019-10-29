@@ -9,7 +9,8 @@ from ckan.common import config
 
 
 class MockSmtpServer(SMTPServer):
-    '''A mock SMTP server that operates in an asyncore loop'''
+    """A mock SMTP server that operates in an asyncore loop"""
+
     def __init__(self, host, port):
         self.msgs = []
         SMTPServer.__init__(self, (host, port), None)
@@ -25,7 +26,8 @@ class MockSmtpServer(SMTPServer):
 
 
 class MockSmtpServerThread(threading.Thread):
-    '''Runs the mock SMTP server in a thread'''
+    """Runs the mock SMTP server in a thread"""
+
     def __init__(self, host, port):
         self.assert_port_free(host, port)
         # init thread
@@ -37,9 +39,11 @@ class MockSmtpServerThread(threading.Thread):
 
     def assert_port_free(self, host, port):
         test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        test_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,
-                               test_socket.getsockopt(socket.SOL_SOCKET,
-                                                      socket.SO_REUSEADDR) | 1)
+        test_socket.setsockopt(
+            socket.SOL_SOCKET,
+            socket.SO_REUSEADDR,
+            test_socket.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR) | 1,
+        )
         test_socket.bind((host, port))
         test_socket.close()
 
@@ -60,14 +64,14 @@ class MockSmtpServerThread(threading.Thread):
 
 
 class SmtpServerHarness(object):
-    '''Derive from this class to run MockSMTP - a test harness that
-    records what email messages are requested to be sent by it.'''
+    """Derive from this class to run MockSMTP - a test harness that
+    records what email messages are requested to be sent by it."""
 
     @classmethod
     def setup_class(cls):
-        smtp_server = config.get('smtp.test_server') or config['smtp_server']
-        if ':' in smtp_server:
-            host, port = smtp_server.split(':')
+        smtp_server = config.get("smtp.test_server") or config["smtp_server"]
+        if ":" in smtp_server:
+            host, port = smtp_server.split(":")
         else:
             host, port = smtp_server, 25
         cls.port = port

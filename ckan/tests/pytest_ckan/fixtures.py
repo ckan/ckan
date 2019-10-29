@@ -68,6 +68,10 @@ def clean_index(reset_index):
 
 @pytest.fixture
 def with_plugins(ckan_config):
-    ckan.plugins.load_all()
+    plugins = ckan_config['ckan.plugins'].split()
+    for plugin in plugins:
+        ckan.plugins.load(plugin)
     yield
+    for plugin in plugins:
+        ckan.plugins.unload(plugin)
     # ckan.plugins.unload_all()

@@ -19,5 +19,6 @@ def pytest_runtest_setup(item):
     custom_config = [
         mark.args for mark in item.iter_markers(name=u"ckan_config")
     ]
+
     if custom_config:
         item.fixturenames.append(u"ckan_config")
