@@ -1,11 +1,12 @@
 # encoding: utf-8
 
-
+import pytest
 import ckan
 from ckan.lib.navl.dictization_functions import validate
 import ckan.logic.schema
 
 
+@pytest.mark.usefixtures("clean_db")
 def test_name_validation():
     context = {"model": ckan.model, "session": ckan.model.Session}
     schema = ckan.logic.schema.default_create_package_schema()
@@ -129,6 +130,7 @@ def test_convert_from_extras():
     assert data["extras"][0]["key"] == "another_extra"
 
 
+@pytest.mark.usefixtures("clean_db")
 def test_tag_name_validation():
     context = {"model": ckan.model}
     schema = ckan.logic.schema.default_tags_schema()

@@ -74,7 +74,7 @@ def with_plugins(ckan_config):
             ckan.plugins.load(plugin)
     # ckan.plugins.load_all()
     yield
-    for plugin in plugins:
+    for plugin in reversed(plugins):
         if ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.unload(plugin)
     # ckan.plugins.unload_all()

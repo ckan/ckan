@@ -12,7 +12,7 @@ def scrape_search_results(response, object_type):
     assert object_type in ("dataset", "group_dataset", "group", "user")
     if object_type != "group_dataset":
         exp = 'a href="/%s/%s_(\d\d)' % (object_type, object_type)
-        results = re.findall(epx, str(response))
+        results = re.findall(exp, str(response))
     else:
         object_type = "dataset"
         exp = 'href="/%s/%s_(\d\d)' % (object_type, object_type)

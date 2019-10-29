@@ -1,34 +1,27 @@
 # encoding: utf-8
 
-import nose
+import pytest
 
-import ckan.tests.legacy as tests
-from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
 import ckan.tests.factories as factories
+import ckan.tests.legacy as tests
 
 
-class TestController(DatastoreFunctionalTestBase):
-    sysadmin_user = None
-    normal_user = None
+@pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+def test_resource_data(app):
+    if not tests.is_datastore_supported():
+        pytest.skip(u"Datastore not supported")
 
-    _load_plugins = [u'datastore', u'datapusher']
+    user = factories.User()
+    dataset = factories.Dataset(creator_user_id=user["id"])
+    resource = factories.Resource(
+        package_id=dataset["id"], creator_user_id=user["id"]
+    )
+    auth = {u"Authorization": str(user["apikey"])}
 
-    @classmethod
-    def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest(u'Datastore not supported')
-        super(TestController, cls).setup_class()
-        cls.app = cls._get_test_app()
-
-    def test_resource_data(self):
-        user = factories.User()
-        dataset = factories.Dataset(creator_user_id=user['id'])
-        resource = factories.Resource(package_id=dataset['id'],
-                                      creator_user_id=user['id'])
-        auth = {u'Authorization': str(user['apikey'])}
-
-        self.app.get(
-            url=u'/dataset/{id}/resource_data/{resource_id}'
-            .format(id=str(dataset['name']),
-                    resource_id=str(resource['id'])),
-            extra_environ=auth)
+    app.get(
+        url=u"/dataset/{id}/resource_data/{resource_id}".format(
+            id=str(dataset["name"]), resource_id=str(resource["id"])
+        ),
+        extra_environ=auth,
+    )

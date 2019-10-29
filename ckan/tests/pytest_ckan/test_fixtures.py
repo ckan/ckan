@@ -26,12 +26,6 @@ def test_ckan_config_mark_without_explicit_config_fixture():
     assert config[u"some.new.config"] == u"exists"
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"")
-@pytest.mark.usefixtures(u"with_plugins")
-def test_with_plugins_is_able_to_run_without_plugins():
-    assert not plugins.plugin_loaded(u"stats")
-
-
 @pytest.mark.ckan_config(u"ckan.plugins", u"stats")
 @pytest.mark.usefixtures(u"with_plugins")
 def test_with_plugins_is_able_to_run_with_stats():
