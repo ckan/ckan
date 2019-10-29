@@ -1273,7 +1273,9 @@ class TestResourceDelete(object):
         response.mustcontain("Unauthorized to delete package")
 
     @pytest.mark.usefixtures("clean_db")
-    def test_logged_in_users_cannot_delete_resources_they_do_not_own(self, app):
+    def test_logged_in_users_cannot_delete_resources_they_do_not_own(
+        self, app
+    ):
         # setup our dataset
         owner = factories.User()
         owner_org = factories.Organization(
@@ -1583,7 +1585,9 @@ class TestSearch(object):
         assert "Dataset Three" in ds_titles
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
-    def test_user_not_in_organization_cannot_search_private_datasets(self, app):
+    def test_user_not_in_organization_cannot_search_private_datasets(
+        self, app
+    ):
 
         user = factories.User()
         organization = factories.Organization()

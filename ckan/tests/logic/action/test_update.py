@@ -799,7 +799,10 @@ class TestResourceViewUpdate(object):
             id=resource_id,
             order=[resource_view_2["id"], resource_view_1["id"]],
         )
-        assert result["order"] == [resource_view_2["id"], resource_view_1["id"]]
+        assert result["order"] == [
+            resource_view_2["id"],
+            resource_view_1["id"],
+        ]
 
         resource_view_list = helpers.call_action(
             "resource_view_list", id=resource_id
@@ -826,7 +829,10 @@ class TestResourceViewUpdate(object):
             id=resource_id,
             order=[resource_view_2["id"]],
         )
-        assert result["order"] == [resource_view_2["id"], resource_view_1["id"]]
+        assert result["order"] == [
+            resource_view_2["id"],
+            resource_view_1["id"],
+        ]
 
         resource_view_list = helpers.call_action(
             "resource_view_list", id=resource_id
@@ -1038,7 +1044,9 @@ class TestResourceUpdate(object):
         assert not p.plugin_loaded("datastore")
 
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset, url="http://example.com")
+        resource = factories.Resource(
+            package=dataset, url="http://example.com"
+        )
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -1371,7 +1379,9 @@ class TestResourceUpdate(object):
         resource = factories.Resource(
             package=dataset, url="http://localhost", name="Test"
         )
-        res_views = helpers.call_action("resource_view_list", id=resource["id"])
+        res_views = helpers.call_action(
+            "resource_view_list", id=resource["id"]
+        )
 
         assert len(res_views) == 0
 
@@ -1383,7 +1393,9 @@ class TestResourceUpdate(object):
         # Format changed
         assert resource["format"] == "CSV"
 
-        res_views = helpers.call_action("resource_view_list", id=resource["id"])
+        res_views = helpers.call_action(
+            "resource_view_list", id=resource["id"]
+        )
 
         # View for resource is created
         assert len(res_views) == 1
@@ -1697,7 +1709,9 @@ class TestDashboardMarkActivitiesOld(object):
         dataset = factories.Dataset(user=followed_user)
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
-            "package_update", context={"user": followed_user["name"]}, **dataset
+            "package_update",
+            context={"user": followed_user["name"]},
+            **dataset
         )
         assert (
             helpers.call_action(

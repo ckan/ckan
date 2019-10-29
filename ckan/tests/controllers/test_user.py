@@ -478,7 +478,8 @@ def test_user_follow(app):
     response = app.post(follow_url, extra_environ=env, status=302)
     response = response.follow()
     assert (
-        "You are now following {0}".format(user_two["display_name"]) in response
+        "You are now following {0}".format(user_two["display_name"])
+        in response
     )
 
 
@@ -673,7 +674,9 @@ def test_user_page_sysadmin_user(app):
     user_response = app.get(user_url, status=200, extra_environ=env)
     search_form = user_response.forms["user-search-form"]
     search_form["q"] = "useroneemail@example.com"
-    search_response = webtest_submit(search_form, status=200, extra_environ=env)
+    search_response = webtest_submit(
+        search_form, status=200, extra_environ=env
+    )
 
     search_response_html = BeautifulSoup(search_response.body)
     user_list = search_response_html.select("ul.user-list li")
@@ -752,7 +755,9 @@ def test_change_dataset(app):
     assert '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
     assert "updated the dataset" in response
     assert (
-        '<a href="/dataset/{}">Dataset with changed title'.format(dataset["id"])
+        '<a href="/dataset/{}">Dataset with changed title'.format(
+            dataset["id"]
+        )
         in response
     )
 
@@ -797,7 +802,9 @@ def test_change_group(app):
     group = factories.Group(user=user)
     _clear_activities()
     group["title"] = "Group with changed title"
-    helpers.call_action("group_update", context={"user": user["name"]}, **group)
+    helpers.call_action(
+        "group_update", context={"user": user["name"]}, **group
+    )
 
     url = url_for("user.activity", id=user["id"])
     response = app.get(url)
@@ -815,7 +822,9 @@ def test_delete_group_using_group_delete(app):
     user = factories.User()
     group = factories.Group(user=user)
     _clear_activities()
-    helpers.call_action("group_delete", context={"user": user["name"]}, **group)
+    helpers.call_action(
+        "group_delete", context={"user": user["name"]}, **group
+    )
 
     url = url_for("user.activity", id=user["id"])
     response = app.get(url)
@@ -831,7 +840,9 @@ def test_delete_group_by_updating_state(app):
     group = factories.Group(user=user)
     _clear_activities()
     group["state"] = "deleted"
-    helpers.call_action("group_update", context={"user": user["name"]}, **group)
+    helpers.call_action(
+        "group_update", context={"user": user["name"]}, **group
+    )
 
     url = url_for("group.activity", id=group["id"])
     env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -881,7 +892,9 @@ def test_request_reset_when_duplicate_emails(send_reset_link, app):
     ).follow()
 
     assert "A reset link has been emailed to you" in response
-    emailed_users = [call[0][0].name for call in send_reset_link.call_args_list]
+    emailed_users = [
+        call[0][0].name for call in send_reset_link.call_args_list
+    ]
     assert emailed_users == [user_a["name"], user_b["name"]]
 
 

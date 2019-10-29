@@ -31,7 +31,7 @@ class TestUser:
 
     def test_1_timestamp_any_existing(self):
         user = model.Session.query(model.User).first()
-        assert len(str(user.created)) > 5, out.created
+        assert len(str(user.created)) > 5
 
     def test_2_timestamp_new(self):
         user = model.User()

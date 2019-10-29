@@ -187,7 +187,9 @@ class TestPackageShow(object):
         custom_schema["new_field"] = [foo]
 
         dataset2 = helpers.call_action(
-            "package_show", id=dataset1["id"], context={"schema": custom_schema}
+            "package_show",
+            id=dataset1["id"],
+            context={"schema": custom_schema},
         )
 
         assert dataset2["new_field"] == "foo"
@@ -293,7 +295,9 @@ class TestGroupList(object):
         factories.Dataset(groups=[{"name": "aa"}, {"name": "bb"}])
         factories.Dataset(groups=[{"name": "aa"}])
 
-        group_list = helpers.call_action("group_list", sort="package_count asc")
+        group_list = helpers.call_action(
+            "group_list", sort="package_count asc"
+        )
 
         assert group_list == ["bb", "aa"]
 
@@ -303,12 +307,9 @@ class TestGroupList(object):
             ("%s=%s" % (k, result_dict[k]) for k in superfluous_keys)
         )
         for key in expected_dict:
-            assert (
-                expected_dict[key] == result_dict[key]
-            ), "%s=%s should be %s" % (
-                key,
-                result_dict[key],
-                expected_dict[key],
+            assert expected_dict[key] == result_dict[key], (
+                "%s=%s should be %s"
+                % (key, result_dict[key], expected_dict[key])
             )
 
     @pytest.mark.usefixtures("clean_db")
@@ -1422,7 +1423,8 @@ class TestPackageSearch(object):
 
         search_result = helpers.call_action("package_search", q="resource_abc")
         assert (
-            search_result["results"][0]["resources"][0]["name"] == resource_name
+            search_result["results"][0]["resources"][0]["name"]
+            == resource_name
         )
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -1579,7 +1581,9 @@ class TestPackageSearch(object):
         other_user = factories.User()
         org = factories.Organization(user=user)
         dataset = factories.Dataset(user=user, name="dataset")
-        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        other_dataset = factories.Dataset(
+            user=other_user, name="other-dataset"
+        )
         factories.Dataset(user=user, state="deleted", name="deleted-dataset")
         draft_dataset = factories.Dataset(
             user=user, state="draft", name="draft-dataset"
@@ -1617,7 +1621,9 @@ class TestPackageSearch(object):
         other_user = factories.User()
         org = factories.Organization(user=user)
         dataset = factories.Dataset(user=user, name="dataset")
-        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        other_dataset = factories.Dataset(
+            user=other_user, name="other-dataset"
+        )
         factories.Dataset(user=user, state="deleted", name="deleted-dataset")
         draft_dataset = factories.Dataset(
             user=user, state="draft", name="draft-dataset"
@@ -1720,7 +1726,9 @@ class TestPackageSearch(object):
         other_user = factories.User()
         org = factories.Organization(user=user)
         factories.Dataset(user=user, name="dataset")
-        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        other_dataset = factories.Dataset(
+            user=other_user, name="other-dataset"
+        )
         factories.Dataset(user=user, state="deleted", name="deleted-dataset")
         factories.Dataset(user=user, state="draft", name="draft-dataset")
         other_draft_dataset = factories.Dataset(
@@ -1905,7 +1913,9 @@ class TestBadLimitQueryParameters(object):
                     offset="not_an_int",
                 )
             with pytest.raises(logic.ValidationError):
-                helpers.call_action(action, id="test_user", limit=-1, offset=-1)
+                helpers.call_action(
+                    action, id="test_user", limit=-1, offset=-1
+                )
 
     @pytest.mark.usefixtures("clean_db")
     def test_package_search_facet_field_is_json(self):
@@ -2431,7 +2441,9 @@ class TestConfigOptionShow(object):
         """config_option_show returns value from config when value on in
         system_info table."""
 
-        title = helpers.call_action("config_option_show", key="ckan.site_title")
+        title = helpers.call_action(
+            "config_option_show", key="ckan.site_title"
+        )
         assert title == "My Test CKAN"
 
     @pytest.mark.ckan_config("ckan.site_title", "My Test CKAN")
@@ -2443,7 +2455,9 @@ class TestConfigOptionShow(object):
         params = {"ckan.site_title": "Test site title"}
         helpers.call_action("config_option_update", **params)
 
-        title = helpers.call_action("config_option_show", key="ckan.site_title")
+        title = helpers.call_action(
+            "config_option_show", key="ckan.site_title"
+        )
         assert title == "Test site title"
 
     @pytest.mark.ckan_config("ckan.not.editable", "My non editable option")
@@ -2589,7 +2603,9 @@ class TestRevisionList(object):
     @pytest.mark.usefixtures("clean_db")
     def test_date_instead_of_revision(self):
         with pytest.raises(logic.NotFound):
-            helpers.call_action("revision_list", since_id="2010-01-01T00:00:00")
+            helpers.call_action(
+                "revision_list", since_id="2010-01-01T00:00:00"
+            )
 
     @pytest.mark.usefixtures("clean_db")
     def test_date_invalid(self):
@@ -3284,7 +3300,9 @@ class TestPackageActivityList(object):
     @pytest.mark.usefixtures("clean_db")
     def test_limit_hits_max(self):
         id = self._create_bulk_package_activities(9)
-        results = helpers.call_action("package_activity_list", id=id, limit="9")
+        results = helpers.call_action(
+            "package_activity_list", id=id, limit="9"
+        )
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
     @pytest.mark.usefixtures("clean_db")
@@ -4169,14 +4187,18 @@ class TestRecentlyChangedPackagesActivityList(object):
     @pytest.mark.usefixtures("clean_db")
     def test_limit_default(self):
         self._create_bulk_package_activities(35)
-        results = helpers.call_action("recently_changed_packages_activity_list")
+        results = helpers.call_action(
+            "recently_changed_packages_activity_list"
+        )
         assert len(results) == 31  # i.e. default value
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     @pytest.mark.usefixtures("clean_db")
     def test_limit_configured(self):
         self._create_bulk_package_activities(7)
-        results = helpers.call_action("recently_changed_packages_activity_list")
+        results = helpers.call_action(
+            "recently_changed_packages_activity_list"
+        )
         assert len(results) == 5  # i.e. ckan.activity_list_limit
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
@@ -4350,10 +4372,14 @@ class TestDashboardNewActivities(object):
         dataset = factories.Dataset(user=followed_user)
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
-            "package_update", context={"user": followed_user["name"]}, **dataset
+            "package_update",
+            context={"user": followed_user["name"]},
+            **dataset
         )
         helpers.call_action(
-            "package_delete", context={"user": followed_user["name"]}, **dataset
+            "package_delete",
+            context={"user": followed_user["name"]},
+            **dataset
         )
         group = factories.Group(user=followed_user)
         group["title"] = "Group with changed title"
@@ -4367,7 +4393,9 @@ class TestDashboardNewActivities(object):
         activities = helpers.call_action(
             "dashboard_activity_list", context={"user": user["id"]}
         )
-        assert [activity["activity_type"] for activity in activities[::-1]] == [
+        assert [
+            activity["activity_type"] for activity in activities[::-1]
+        ] == [
             "new package",
             "changed package",
             "deleted package",

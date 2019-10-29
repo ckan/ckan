@@ -62,14 +62,16 @@ def test_migration_with_multiple_revisions():
     model.Session.commit()
     model.Session.remove()
     # double check that worked...
-    assert not model.Activity.get(activity.id).data["package"].get(u"resources")
+    assert (
+        not model.Activity.get(activity.id).data["package"].get(u"resources")
+    )
 
     with PackageDictizeMonkeyPatch():
         migrate_dataset(dataset["name"], {})
 
-    activity_data_migrated = package_activity_list(dataset["id"], 0, 0)[1].data[
-        u"package"
-    ]
+    activity_data_migrated = package_activity_list(dataset["id"], 0, 0)[
+        1
+    ].data[u"package"]
     assert activity_data_as_it_should_be == activity_data_migrated
     assert activity_data_migrated["title"] == u"Title 2"
 
@@ -107,7 +109,9 @@ def test_revision_missing():
     model.Session.commit()
     model.Session.remove()
     # double check that worked...
-    assert not model.Activity.get(activity.id).data["package"].get(u"resources")
+    assert (
+        not model.Activity.get(activity.id).data["package"].get(u"resources")
+    )
 
     errors = defaultdict(int)
     with PackageDictizeMonkeyPatch():
@@ -162,7 +166,9 @@ def test_package_show_error():
     model.Session.commit()
     model.Session.remove()
     # double check that worked...
-    assert not model.Activity.get(activity.id).data["package"].get(u"resources")
+    assert (
+        not model.Activity.get(activity.id).data["package"].get(u"resources")
+    )
 
     errors = defaultdict(int)
     # package_show raises an exception - could be because data doesn't

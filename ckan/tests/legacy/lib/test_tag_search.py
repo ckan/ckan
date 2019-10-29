@@ -9,9 +9,10 @@ import pytest
 
 class TestTagSearch(object):
     @pytest.fixture(autouse=True)
+    @pytest.mark.skipif(
+        not is_search_supported(), reason="Search not supported"
+    )
     def initial_data(self, clean_db, clean_index):
-        if not is_search_supported():
-            raise SkipTest("Search not supported")
         CreateTestData.create()
 
     def test_good_search_query(self):

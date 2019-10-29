@@ -30,7 +30,11 @@ def wrap_test(clean_db):
 @pytest.mark.usefixtures("wrap_test")
 def test_09_package_alter():
 
-    context = {"model": model, "session": model.Session, "user": "testsysadmin"}
+    context = {
+        "model": model,
+        "session": model.Session,
+        "user": "testsysadmin",
+    }
 
     anna1 = (
         model.Session.query(model.Package).filter_by(name="annakarenina").one()

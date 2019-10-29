@@ -526,7 +526,8 @@ class TestGroupFollow:
         unfollow_response = unfollow_response.follow()  # /group/[name]
 
         assert (
-            "You are not following {0}".format(group["id"]) in unfollow_response
+            "You are not following {0}".format(group["id"])
+            in unfollow_response
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -817,7 +818,9 @@ class TestActivity:
         )
         assert "updated the group" in response
         assert (
-            '<a href="/group/{}">Group with changed title'.format(group["name"])
+            '<a href="/group/{}">Group with changed title'.format(
+                group["name"]
+            )
             in response
         )
 

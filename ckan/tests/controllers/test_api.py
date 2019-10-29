@@ -80,7 +80,9 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_dataset_autocomplete_name(self, app):
         dataset = factories.Dataset(name="rivers")
-        url = url_for(controller="api", action="dataset_autocomplete", ver="/2")
+        url = url_for(
+            controller="api", action="dataset_autocomplete", ver="/2"
+        )
         assert url == "/api/2/util/dataset/autocomplete"
 
         response = app.get(url=url, params={"incomplete": u"rive"}, status=200)
@@ -99,13 +101,16 @@ class TestApiController(object):
             }
         }
         assert (
-            response.headers["Content-Type"] == "application/json;charset=utf-8"
+            response.headers["Content-Type"]
+            == "application/json;charset=utf-8"
         )
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_dataset_autocomplete_title(self, app):
         dataset = factories.Dataset(name="test_ri", title="Rivers")
-        url = url_for(controller="api", action="dataset_autocomplete", ver="/2")
+        url = url_for(
+            controller="api", action="dataset_autocomplete", ver="/2"
+        )
         assert url == "/api/2/util/dataset/autocomplete"
 
         response = app.get(url=url, params={"incomplete": u"riv"}, status=200)
@@ -124,7 +129,8 @@ class TestApiController(object):
             }
         }
         assert (
-            response.headers["Content-Type"] == "application/json;charset=utf-8"
+            response.headers["Content-Type"]
+            == "application/json;charset=utf-8"
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -138,7 +144,8 @@ class TestApiController(object):
         results = json.loads(response.body)
         assert results == {"ResultSet": {"Result": [{"Name": "rivers"}]}}
         assert (
-            response.headers["Content-Type"] == "application/json;charset=utf-8"
+            response.headers["Content-Type"]
+            == "application/json;charset=utf-8"
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -154,7 +161,8 @@ class TestApiController(object):
         assert results[0]["name"] == "rivers"
         assert results[0]["title"] == "Bridges"
         assert (
-            response.headers["Content-Type"] == "application/json;charset=utf-8"
+            response.headers["Content-Type"]
+            == "application/json;charset=utf-8"
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -183,7 +191,8 @@ class TestApiController(object):
         assert results[0]["name"] == "simple-dummy-org"
         assert results[0]["title"] == org["title"]
         assert (
-            response.headers["Content-Type"] == "application/json;charset=utf-8"
+            response.headers["Content-Type"]
+            == "application/json;charset=utf-8"
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -249,7 +258,7 @@ class TestApiController(object):
         res = app.get(url=url, params={"callback": "my_callback"})
         assert re.match(r"my_callback\(.*\);", res.body), res
         # Unwrap JSONP callback (we want to look at the data).
-        msg = res.body[len("my_callback") + 1: -2]
+        msg = res.body[len("my_callback") + 1 : -2]
         res_dict = json.loads(msg)
         assert res_dict["success"]
         assert sorted(res_dict["result"]) == sorted(

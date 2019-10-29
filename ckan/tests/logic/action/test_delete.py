@@ -176,9 +176,9 @@ class TestGroupPurge(object):
         dataset = factories.Dataset(groups=[{"name": group["name"]}])
 
         def get_search_result_groups():
-            results = helpers.call_action("package_search", q=dataset["title"])[
-                "results"
-            ]
+            results = helpers.call_action(
+                "package_search", q=dataset["title"]
+            )["results"]
             return [g["name"] for g in results[0]["groups"]]
 
         assert get_search_result_groups() == [group["name"]]
@@ -260,7 +260,9 @@ class TestOrganizationPurge(object):
         helpers.call_action("organization_purge", id=org["name"])
 
         with pytest.raises(logic.NotFound):
-            helpers.call_action("organization_show", context={}, id=org["name"])
+            helpers.call_action(
+                "organization_show", context={}, id=org["name"]
+            )
 
     @pytest.mark.usefixtures("clean_db")
     def test_purged_org_is_not_listed(self):
@@ -288,9 +290,9 @@ class TestOrganizationPurge(object):
         dataset = factories.Dataset(owner_org=org["id"])
 
         def get_search_result_owner_org():
-            results = helpers.call_action("package_search", q=dataset["title"])[
-                "results"
-            ]
+            results = helpers.call_action(
+                "package_search", q=dataset["title"]
+            )["results"]
             return results[0]["owner_org"]
 
         assert get_search_result_owner_org() == org["id"]
@@ -402,9 +404,9 @@ class TestDatasetPurge(object):
         dataset = factories.Dataset()
 
         def get_search_results():
-            results = helpers.call_action("package_search", q=dataset["title"])[
-                "results"
-            ]
+            results = helpers.call_action(
+                "package_search", q=dataset["title"]
+            )["results"]
             return [d["name"] for d in results]
 
         assert get_search_results() == [dataset["name"]]

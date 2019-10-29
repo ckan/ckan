@@ -228,7 +228,8 @@ class TestConfig(object):
         # new style
         new_index_response = app.get("/")
         assert (
-            "<!-- Snippet home/layout1.html start -->" not in new_index_response
+            "<!-- Snippet home/layout1.html start -->"
+            not in new_index_response
         )
         assert "<!-- Snippet home/layout2.html start -->" in new_index_response
 
@@ -257,7 +258,9 @@ class TestTrashView(object):
         env = {"REMOTE_USER": user["name"].encode("ascii")}
         trash_url = url_for(controller="admin", action="trash")
         trash_response = app.get(trash_url, extra_environ=env, status=403)
-        assert "Need to be system administrator to administer" in trash_response
+        assert (
+            "Need to be system administrator to administer" in trash_response
+        )
 
     @pytest.mark.usefixtures("clean_db")
     def test_trash_view_sysadmin(self, app):

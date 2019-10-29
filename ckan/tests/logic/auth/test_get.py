@@ -68,7 +68,9 @@ def test_package_show__deleted_dataset_is_visible_to_editor():
     context = {"model": model}
     context["user"] = "fred"
 
-    ret = helpers.call_auth("package_show", context=context, id=dataset["name"])
+    ret = helpers.call_auth(
+        "package_show", context=context, id=dataset["name"]
+    )
     assert ret
 
 

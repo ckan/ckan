@@ -104,7 +104,9 @@ def test_setting_a_key_sets_it_on_pylons_config():
     assert pylons.config[u"ckan.site_title"] == u"Example title"
 
 
-def test_setting_a_key_sets_it_on_flask_config_if_app_context(app, monkeypatch):
+def test_setting_a_key_sets_it_on_flask_config_if_app_context(
+    app, monkeypatch
+):
     with app.flask_app.app_context():
         monkeypatch.setitem(ckan_config, u"ckan.site_title", u"Example title")
         assert flask.current_app.config[u"ckan.site_title"] == u"Example title"

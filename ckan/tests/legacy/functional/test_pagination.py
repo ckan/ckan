@@ -11,14 +11,12 @@ from ckan.tests.legacy import url_for
 def scrape_search_results(response, object_type):
     assert object_type in ("dataset", "group_dataset", "group", "user")
     if object_type != "group_dataset":
-        results = re.findall(
-            'a href="/%s/%s_(\d\d)' % (object_type, object_type), str(response)
-        )
+        exp = 'a href="/%s/%s_(\d\d)' % (object_type, object_type)
+        results = re.findall(epx, str(response))
     else:
         object_type = "dataset"
-        results = re.findall(
-            'href="/%s/%s_(\d\d)' % (object_type, object_type), str(response)
-        )
+        exp = 'href="/%s/%s_(\d\d)' % (object_type, object_type)
+        results = re.findall(exp, str(response))
     return results
 
 
@@ -85,60 +83,54 @@ def test_package_search_p1(app):
     res = app.get(url_for("dataset.search", q="groups:group_00"))
     assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=2"' in res
     pkg_numbers = scrape_search_results(res, "dataset")
-    assert (
-        [
-            "50",
-            "49",
-            "48",
-            "47",
-            "46",
-            "45",
-            "44",
-            "43",
-            "42",
-            "41",
-            "40",
-            "39",
-            "38",
-            "37",
-            "36",
-            "35",
-            "34",
-            "33",
-            "32",
-            "31",
-        ]
-        == pkg_numbers,
-    )
+    assert [
+        "50",
+        "49",
+        "48",
+        "47",
+        "46",
+        "45",
+        "44",
+        "43",
+        "42",
+        "41",
+        "40",
+        "39",
+        "38",
+        "37",
+        "36",
+        "35",
+        "34",
+        "33",
+        "32",
+        "31",
+    ] == pkg_numbers
 
     res = app.get(url_for("dataset.search", q="groups:group_00", page=2))
     assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=1"' in res
     pkg_numbers = scrape_search_results(res, "dataset")
-    assert (
-        [
-            "30",
-            "29",
-            "28",
-            "27",
-            "26",
-            "25",
-            "24",
-            "23",
-            "22",
-            "21",
-            "20",
-            "19",
-            "18",
-            "17",
-            "16",
-            "15",
-            "14",
-            "13",
-            "12",
-            "11",
-        ]
-        == pkg_numbers,
-    )
+    assert [
+        "30",
+        "29",
+        "28",
+        "27",
+        "26",
+        "25",
+        "24",
+        "23",
+        "22",
+        "21",
+        "20",
+        "19",
+        "18",
+        "17",
+        "16",
+        "15",
+        "14",
+        "13",
+        "12",
+        "11",
+    ] == pkg_numbers
 
 
 @pytest.mark.usefixtures("clean_index", "clean_db", "fake_packages")
@@ -146,62 +138,56 @@ def test_group_datasets_read_p1(app):
     res = app.get(url_for(controller="group", action="read", id="group_00"))
     assert 'href="/group/group_00?page=2' in res, res
     pkg_numbers = scrape_search_results(res, "group_dataset")
-    assert (
-        [
-            "50",
-            "49",
-            "48",
-            "47",
-            "46",
-            "45",
-            "44",
-            "43",
-            "42",
-            "41",
-            "40",
-            "39",
-            "38",
-            "37",
-            "36",
-            "35",
-            "34",
-            "33",
-            "32",
-            "31",
-        ]
-        == pkg_numbers,
-    )
+    assert [
+        "50",
+        "49",
+        "48",
+        "47",
+        "46",
+        "45",
+        "44",
+        "43",
+        "42",
+        "41",
+        "40",
+        "39",
+        "38",
+        "37",
+        "36",
+        "35",
+        "34",
+        "33",
+        "32",
+        "31",
+    ] == pkg_numbers
 
     res = app.get(
         url_for(controller="group", action="read", id="group_00", page=2)
     )
     assert 'href="/group/group_00?page=1' in res, res
     pkg_numbers = scrape_search_results(res, "group_dataset")
-    assert (
-        [
-            "30",
-            "29",
-            "28",
-            "27",
-            "26",
-            "25",
-            "24",
-            "23",
-            "22",
-            "21",
-            "20",
-            "19",
-            "18",
-            "17",
-            "16",
-            "15",
-            "14",
-            "13",
-            "12",
-            "11",
-        ]
-        == pkg_numbers,
-    )
+    assert [
+        "30",
+        "29",
+        "28",
+        "27",
+        "26",
+        "25",
+        "24",
+        "23",
+        "22",
+        "21",
+        "20",
+        "19",
+        "18",
+        "17",
+        "16",
+        "15",
+        "14",
+        "13",
+        "12",
+        "11",
+    ] == pkg_numbers
 
 
 @pytest.mark.usefixtures("clean_index", "clean_db", "fake_groups")
@@ -209,31 +195,28 @@ def test_group_index(app):
     res = app.get(url_for("group.index"))
     assert 'href="/group/?q=&amp;sort=&amp;page=2"' in res, res
     grp_numbers = scrape_search_results(res, "group")
-    assert (
-        [
-            "00",
-            "01",
-            "02",
-            "03",
-            "04",
-            "05",
-            "06",
-            "07",
-            "08",
-            "09",
-            "10",
-            "11",
-            "12",
-            "13",
-            "14",
-            "15",
-            "16",
-            "17",
-            "18",
-            "19",
-        ]
-        == grp_numbers,
-    )
+    assert [
+        "00",
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+    ] == grp_numbers
 
     res = app.get(url_for("group.index", page=2))
     assert 'href="/group/?q=&amp;sort=&amp;page=1"' in res
@@ -250,30 +233,27 @@ def test_users_index(app):
     # this page will list default user, created after db reset,
     # that is skipped by our scraper. So, actually there 20 items,
     # but only 19 of them have been caught by regExp
-    assert (
-        [
-            "00",
-            "01",
-            "02",
-            "03",
-            "04",
-            "05",
-            "06",
-            "07",
-            "08",
-            "09",
-            "10",
-            "11",
-            "12",
-            "13",
-            "14",
-            "15",
-            "16",
-            "17",
-            "18",
-        ]
-        == user_numbers,
-    )
+    assert [
+        "00",
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+    ] == user_numbers
 
     res = app.get(url_for("user.index", page=2))
     assert 'href="/user/?q=&amp;order_by=name&amp;page=1"' in res

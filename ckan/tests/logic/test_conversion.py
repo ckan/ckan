@@ -78,7 +78,11 @@ def test_convert_to_extras_field_can_be_combined_with_more_extras():
         "proper_extra",
         "proper_extra2",
     ]
-    assert sorted([e["value"] for e in data["extras"]]) == ["Bye", "Bye2", "Hi"]
+    assert sorted([e["value"] for e in data["extras"]]) == [
+        "Bye",
+        "Bye2",
+        "Hi",
+    ]
 
 
 def test_convert_to_extras_field_can_be_combined_with_extras_deleted():
@@ -107,7 +111,11 @@ def test_convert_to_extras_field_can_be_combined_with_extras_deleted():
         "proper_extra",
         "proper_extra2",
     ]
-    assert sorted([e["value"] for e in data["extras"]]) == ["Bye", "Bye2", "Hi"]
+    assert sorted([e["value"] for e in data["extras"]]) == [
+        "Bye",
+        "Bye2",
+        "Hi",
+    ]
 
 
 def test_convert_to_extras_free_extra_can_not_have_the_same_key():

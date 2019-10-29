@@ -66,7 +66,9 @@ def test_wrong_plurals():
 
 
 def test_simple_conv_specs():
-    assert simple_conv_specs("Authorization function not found: %s") == (["%s"])
+    assert simple_conv_specs("Authorization function not found: %s") == (
+        ["%s"]
+    )
     assert simple_conv_specs("Problem purging revision %s: %s") == (
         ["%s", "%s"]
     )

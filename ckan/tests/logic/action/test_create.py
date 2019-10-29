@@ -747,7 +747,9 @@ class TestMemberCreate(object):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-                "organization_member_create", username="someuser", role="member"
+                "organization_member_create",
+                username="someuser",
+                role="member",
             )
 
     @pytest.mark.usefixtures("clean_db")

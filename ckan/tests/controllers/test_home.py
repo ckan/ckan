@@ -92,7 +92,9 @@ class TestI18nURLs(object):
             elif option.text.strip() == u"srpski (latinica)":
                 assert option["value"] == "/sr_Latn/"
 
-    def test_default_english_option_is_selected_on_language_selector(self, app):
+    def test_default_english_option_is_selected_on_language_selector(
+        self, app
+    ):
         response = app.get(url_for("home.index"))
         html = BeautifulSoup(response.body)
 

@@ -69,7 +69,8 @@ class TestOrganizationNew(object):
 
 class TestOrganizationList(object):
     @patch(
-        "ckan.logic.auth.get.organization_list", return_value={"success": False}
+        "ckan.logic.auth.get.organization_list",
+        return_value={"success": False},
     )
     @pytest.mark.usefixtures("clean_db")
     def test_error_message_shown_when_no_organization_list_permission(

@@ -153,7 +153,9 @@ def test_ask_around_flask_core_and_pylons_extension_route(patched_app):
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_flask_core_and_pylons_extension_route_is_served_by_pylons(patched_app):
+def test_flask_core_and_pylons_extension_route_is_served_by_pylons(
+    patched_app
+):
     res = patched_app.get(u"/pylons_and_flask")
 
     assert res.environ[u"ckan.app"] == u"pylons_app"

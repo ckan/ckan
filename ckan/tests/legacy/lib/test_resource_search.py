@@ -10,10 +10,10 @@ from ckan.lib.create_test_data import CreateTestData
 
 class TestSearch(object):
     @pytest.fixture(autouse=True)
+    @pytest.mark.skipif(
+        not is_search_supported(), reason="Search not supported"
+    )
     def initial_data(self, clean_db):
-        if not is_search_supported():
-            raise SkipTest("Search not supported")
-
         self.ab = "http://site.com/a/b.txt"
         self.cd = "http://site.com/c/d.txt"
         self.ef = "http://site.com/e/f.txt"

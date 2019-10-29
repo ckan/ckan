@@ -308,7 +308,9 @@ def test_authorized_if_user_has_permissions_on_dataset_4():
     }
 
     context = {"user": user["name"], "model": core_model}
-    response = helpers.call_auth("resource_create", context=context, **resource)
+    response = helpers.call_auth(
+        "resource_create", context=context, **resource
+    )
     assert response
 
 
@@ -356,7 +358,9 @@ def test_sysadmin_is_authorized():
     resource = {"title": "Resource", "url": "http://test", "format": "csv"}
 
     context = {"user": sysadmin["name"], "model": core_model}
-    response = helpers.call_auth("resource_create", context=context, **resource)
+    response = helpers.call_auth(
+        "resource_create", context=context, **resource
+    )
     assert response
 
 
