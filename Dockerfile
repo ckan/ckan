@@ -34,6 +34,9 @@ RUN apt-get -q -y update \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN export CPLUS_INCLUDE_PATH=/usr/include/gdal
+RUN export C_INCLUDE_PATH=/usr/include/gdal
+
 # Define environment variables
 ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/venv
@@ -74,6 +77,7 @@ RUN ckan-pip install -U pip && \
 RUN ckan-pip install factory_boy
 RUN ckan-pip install mock
 RUN ckan-pip install urllib3
+RUN ckan-pip install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==2.1.0
 
 # for debugging
 RUN ckan-pip install flask_debugtoolbar
