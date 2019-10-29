@@ -5,8 +5,8 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 
 
-@pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+@pytest.mark.ckan_config(u"ckan.plugins", u"datastore datapusher")
+@pytest.mark.usefixtures(u"clean_datastore", u"with_plugins")
 def test_read(app):
     user = factories.User()
     dataset = factories.Dataset(creator_user_id=user["id"])

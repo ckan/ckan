@@ -6,8 +6,8 @@ import ckan.tests.factories as factories
 import ckan.tests.legacy as tests
 
 
-@pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
+@pytest.mark.usefixtures(u"clean_db", u"with_plugins")
 def test_resource_data(app):
     if not tests.is_datastore_supported():
         pytest.skip(u"Datastore not supported")
