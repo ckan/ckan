@@ -3,6 +3,11 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 #
+# 
+# Translators:	
+# Serhii Riznychuk <serhii.riznychuk@gmail.com>, 2019
+# 
+
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.8.3\n"
