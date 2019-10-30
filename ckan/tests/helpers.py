@@ -3,9 +3,8 @@
 """This is a collection of helper functions for use in tests.
 
 We want to avoid sharing test helper functions between test modules as
-much as possible, and we definitely don't want to share test fixtures between
-test modules, or to introduce a complex hierarchy of test class subclasses,
-etc.
+much as possible, and we definitely don't want to introduce a complex
+hierarchy of test class subclasses, etc.
 
 We want to reduce the amount of "travel" that a reader needs to undertake to
 understand a test method -- reducing the number of other files they need to go
@@ -15,6 +14,9 @@ coupling test modules to each other by having them share code.
 But some test helper functions just increase the readability of tests so much
 and make writing tests so much easier, that it's worth having them despite the
 potential drawbacks.
+
+Consider using :ref:`fixtures` whenever is possible for setting up initial
+state of a test or creating related objects.
 
 This module is reserved for these very useful functions.
 
@@ -43,7 +45,7 @@ import ckan.logic as logic
 def reset_db():
     """Reset CKAN's database.
 
-    If a test class uses the database, then it should call this function in its
+    If a test class uses the database, then it may call this function in its
     ``setup()`` method to make sure that it has a clean database to start with
     (nothing left over from other test classes or from previous test runs).
 

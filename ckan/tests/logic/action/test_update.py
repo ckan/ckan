@@ -126,33 +126,17 @@ class TestUpdate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user_dict)
 
-    # START-FOR-LOOP-EXAMPLE
-
     @pytest.mark.usefixtures("clean_db")
-    def test_user_update_with_invalid_name(self):
+    @pytest.mark.parametrize('name', (
+        "", "a", False, 0, -1, 23, "new", "edit", "search", "a" * 200, "Hi!",
+        "i++%",
+    ))
+    def test_user_update_with_invalid_name(self, name):
         user = factories.User()
+        user["name"] = name
+        with pytest.raises(logic.ValidationError):
 
-        invalid_names = (
-            "",
-            "a",
-            False,
-            0,
-            -1,
-            23,
-            "new",
-            "edit",
-            "search",
-            "a" * 200,
-            "Hi!",
-            "i++%",
-        )
-        for name in invalid_names:
-            user["name"] = name
-            with pytest.raises(logic.ValidationError):
-
-                helpers.call_action("user_update", **user)
-
-    # END-FOR-LOOP-EXAMPLE
+            helpers.call_action("user_update", **user)
 
     @pytest.mark.usefixtures("clean_db")
     def test_user_update_to_name_that_already_exists(self):

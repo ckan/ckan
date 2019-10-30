@@ -171,15 +171,10 @@ class ResourceView(factory.Factory):
 
     Example::
 
-        class TestSomethingWithResourceViews(object):
-            @classmethod
-            def setup_class(cls):
-                if not p.plugin_loaded('image_view'):
-                    p.load('image_view')
-
-            @classmethod
-            def teardown_class(cls):
-                p.unload('image_view')
+        @pytest.mark.ckan_config("ckan.plugins", "image_view")
+        @pytest.mark.usefixtures("with_plugins")
+        def test_resource_view_factory():
+            ...
 
     """
 

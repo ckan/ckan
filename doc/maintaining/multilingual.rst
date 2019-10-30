@@ -34,6 +34,6 @@ If you have a source installation of CKAN you can test the multilingual extensio
 
 ::
 
-  nosetests --ckan ckanext/multilingual/tests
+  pytest --ckan-ini=test-core.ini ckanext/multilingual/tests
 
 See :doc:`/contributing/test` for more information.

@@ -15,10 +15,11 @@ def test_ckan_config_do_not_have_some_new_config(ckan_config):
     assert u"some.new.config" not in ckan_config
 
 
+# START-CONFIG-OVERRIDE
 @pytest.mark.ckan_config(u"some.new.config", u"exists")
 def test_ckan_config_mark(ckan_config):
     assert ckan_config[u"some.new.config"] == u"exists"
-
+# END-CONFIG-OVERRIDE
 
 @pytest.mark.ckan_config(u"some.new.config", u"exists")
 @pytest.mark.usefixtures(u"ckan_config")

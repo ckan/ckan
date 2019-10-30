@@ -66,8 +66,6 @@ made:
 
 6. Do a dump again, then a diff again to see if the the only thing left are drop index statements.
 
-7. run nosetests with ``--ckan-migration`` flag.
-
 It's that simple.  Well almost.
 
 *  If you are doing any table/field renaming adding that to your new migrate
