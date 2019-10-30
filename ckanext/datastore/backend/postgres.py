@@ -7,14 +7,14 @@ import sqlalchemy
 import os
 import pprint
 import sqlalchemy.engine.url as sa_url
-import urllib
-import urllib2
-import urlparse
 import datetime
 import hashlib
 import json
 from cStringIO import StringIO
 
+from six.moves.urllib.parse import (
+    urlencode, unquote, urlunparse, parse_qsl, urlparse
+)
 from six import string_types, text_type
 
 import ckan.lib.cli as cli
@@ -365,6 +365,10 @@ def _where_clauses(data_dict, fields_types):
         if field not in fields_types:
             continue
         field_array_type = _is_array_type(fields_types[field])
+        # "%" needs to be escaped as "%%" in any query going to
+        # connection.execute, otherwise it will think the "%" is for
+        # substituting a bind parameter
+        field = field.replace('%', '%%')
         if isinstance(value, list) and not field_array_type:
             clause_str = (u'"{0}" in ({1})'.format(field,
                           ','.join(['%s'] * len(value))))
@@ -676,10 +680,10 @@ def _insert_links(data_dict, limit, offset):
         return  # no links required for local actions
 
     # change the offset in the url
-    parsed = list(urlparse.urlparse(urlstring))
-    query = urllib2.unquote(parsed[4])
+    parsed = list(urlparse(urlstring))
+    query = unquote(parsed[4])
 
-    arguments = dict(urlparse.parse_qsl(query))
+    arguments = dict(parse_qsl(query))
     arguments_start = dict(arguments)
     arguments_prev = dict(arguments)
     arguments_next = dict(arguments)
@@ -691,15 +695,15 @@ def _insert_links(data_dict, limit, offset):
     parsed_start = parsed[:]
     parsed_prev = parsed[:]
     parsed_next = parsed[:]
-    parsed_start[4] = urllib.urlencode(arguments_start)
-    parsed_next[4] = urllib.urlencode(arguments_next)
-    parsed_prev[4] = urllib.urlencode(arguments_prev)
+    parsed_start[4] = urlencode(arguments_start)
+    parsed_next[4] = urlencode(arguments_next)
+    parsed_prev[4] = urlencode(arguments_prev)
 
     # add the links to the data dict
-    data_dict['_links']['start'] = urlparse.urlunparse(parsed_start)
-    data_dict['_links']['next'] = urlparse.urlunparse(parsed_next)
+    data_dict['_links']['start'] = urlunparse(parsed_start)
+    data_dict['_links']['next'] = urlunparse(parsed_next)
     if int(offset) - int(limit) > 0:
-        data_dict['_links']['prev'] = urlparse.urlunparse(parsed_prev)
+        data_dict['_links']['prev'] = urlunparse(parsed_prev)
 
 
 def _where(where_clauses_and_values):
@@ -1148,8 +1152,9 @@ def upsert_data(context, data_dict):
                                     WHERE ({primary_key}) = ({primary_value}));
                 '''.format(
                     res_id=data_dict['resource_id'],
-                    columns=u', '.join([u'"{0}"'.format(field)
-                                        for field in used_field_names]),
+                    columns=u', '.join([
+                        u'"{0}"'.format(field.replace('%', '%%'))
+                        for field in used_field_names]),
                     values=u', '.join(['%s::nested'
                                        if field['type'] == 'nested' else '%s'
                                        for field in used_fields]),
