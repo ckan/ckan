@@ -21,6 +21,7 @@ def test_ckan_config_mark(ckan_config):
     assert ckan_config[u"some.new.config"] == u"exists"
 # END-CONFIG-OVERRIDE
 
+
 @pytest.mark.ckan_config(u"some.new.config", u"exists")
 @pytest.mark.usefixtures(u"ckan_config")
 def test_ckan_config_mark_without_explicit_config_fixture():

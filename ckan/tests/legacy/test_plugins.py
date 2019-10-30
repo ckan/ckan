@@ -69,12 +69,13 @@ def test_provided_by():
 
 @pytest.fixture
 def observer():
-    yield plugins.load("test_observer_plugin")
+    observer = plugins.load("test_observer_plugin")
+    observer.reset_calls()
+    yield observer
     plugins.unload("test_observer_plugin")
 
 
 def test_notified_on_load(observer):
-    observer.reset_calls()
     with plugins.use_plugin("action_plugin"):
         assert get_calls(observer.before_load) == ["action_plugin"]
         assert get_calls(observer.after_load) == ["action_plugin"]
@@ -91,12 +92,13 @@ def test_notified_on_unload(observer):
     assert observer.after_unload.calls == _make_calls(action)
 
 
-def test_plugins_load(monkeypatch):
-    # XXX: otherwise this test may fail depending on order of
-    # previously executed tests.
-    # Exception: Plugin `domain_object_mods` already loaded
-    plugins.load("test_observer_plugin").unload()
+@pytest.fixture(autouse=True)
+def reset_observer():
+    plugins.load("test_observer_plugin")
+    plugins.unload("test_observer_plugin")
 
+
+def test_plugins_load(monkeypatch):
     monkeypatch.setitem(config, "ckan.plugins", "mapper_plugin routes_plugin")
     plugins.load_all()
     # synchronous_search automatically gets loaded
@@ -110,17 +112,52 @@ def test_plugins_load(monkeypatch):
     assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
 
 
+@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
+@pytest.mark.usefixtures("with_plugins")
+def test_only_configured_plugins_loaded():
+    plugin = plugins.get_plugin("mapper_plugin")
+    # MapperPlugin should be loaded as it is listed in
+    assert plugin in plugins.PluginImplementations(plugins.IMapper)
+    # MapperPlugin2 and RoutesPlugin should NOT be loaded
+    assert len(plugins.PluginImplementations(plugins.IMapper)) == 1
+
+
+@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+def test_mapper_plugin_fired_on_insert():
+    plugin = plugins.get_plugin("mapper_plugin")
+    CreateTestData.create_arbitrary([{"name": u"testpkg"}])
+    assert plugin.calls == [
+        ("before_insert", "testpkg"),
+        ("after_insert", "testpkg"),
+    ]
+
+
+@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+def test_mapper_plugin_fired_on_delete():
+    plugin = plugins.get_plugin("mapper_plugin")
+    CreateTestData.create_arbitrary([{"name": u"testpkg"}])
+    plugin.calls = []
+    # remove this data
+    user = factories.User()
+    context = {"user": user["name"]}
+    logic.get_action("package_delete")(context, {"id": "testpkg"})
+    # state=deleted doesn't trigger before_delete()
+    assert plugin.calls == []
+    from ckan import model
+
+    # purging the package does trigger before_delete()
+    model.Package.get("testpkg").purge()
+    model.Session.commit()
+    model.Session.remove()
+    assert plugin.calls == [
+        ("before_delete", "testpkg"),
+        ("after_delete", "testpkg"),
+    ]
+
+
 class TestPlugins:
-    def setup_method(self):
-        plugins.unload_all()
-
-    def test_only_configured_plugins_loaded(self):
-        with plugins.use_plugin("mapper_plugin") as p:
-            # MapperPlugin should be loaded as it is listed in
-            assert p in plugins.PluginImplementations(plugins.IMapper)
-            # MapperPlugin2 and RoutesPlugin should NOT be loaded
-            assert len(plugins.PluginImplementations(plugins.IMapper)) == 1
-
     def test_plugin_loading_order(self):
         """
         Check that plugins are loaded in the order specified in the config
@@ -165,50 +202,6 @@ class TestPlugins:
         # cleanup
         config["ckan.plugins"] = config_plugins
         plugins.load_all()
-
-    def test_mapper_plugin_fired_on_insert(self):
-        with plugins.use_plugin("mapper_plugin") as mapper_plugin:
-            CreateTestData.create_arbitrary([{"name": u"testpkg"}])
-            assert mapper_plugin.calls == [
-                ("before_insert", "testpkg"),
-                ("after_insert", "testpkg"),
-            ]
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_mapper_plugin_fired_on_delete(self):
-        with plugins.use_plugin("mapper_plugin") as mapper_plugin:
-            CreateTestData.create_arbitrary([{"name": u"testpkg"}])
-            mapper_plugin.calls = []
-            # remove this data
-            user = factories.User()
-            context = {"user": user["name"]}
-            logic.get_action("package_delete")(context, {"id": "testpkg"})
-            # state=deleted doesn't trigger before_delete()
-            assert mapper_plugin.calls == []
-            from ckan import model
-
-            # purging the package does trigger before_delete()
-            model.Package.get("testpkg").purge()
-            model.Session.commit()
-            model.Session.remove()
-            assert mapper_plugin.calls == [
-                ("before_delete", "testpkg"),
-                ("after_delete", "testpkg"),
-            ]
-
-    def test_routes_plugin_fired(self):
-        with plugins.use_plugin("routes_plugin"):
-            pca = PluginGlobals.env["pca"]
-            routes_plugin_idx = pca.singleton_services[
-                pca.plugin_registry["RoutesPlugin"]
-            ]
-
-            routes_plugin = PluginGlobals.plugin_instances[routes_plugin_idx]
-
-            assert routes_plugin.calls_made == [
-                "before_map",
-                "after_map",
-            ], routes_plugin.calls_made
 
     def test_action_plugin_override(self):
         status_show_original = logic.get_action("status_show")(None, {})
