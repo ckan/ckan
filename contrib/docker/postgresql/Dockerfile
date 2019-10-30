@@ -1,5 +1,5 @@
 #FROM postgres:9.6
-FROM mdillon/postgis
+FROM mdillon/postgis:11
 MAINTAINER Open Knowledge
 
 # Allow connections; we don't map out any ports so only linked docker containers can connect

@@ -2,10 +2,11 @@
 
 import json
 import nose
-import urllib
 import pprint
 
 import sqlalchemy.orm as orm
+
+from six.moves.urllib.parse import urlencode
 
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
@@ -434,6 +435,28 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
         assert_equals(result['records'], [{u'the year': 2016, u'_id': 1},
                                           {u'the year': 2015, u'_id': 2}])
         assert_equals(result['limit'], 2)
+
+    def test_search_filter_with_percent_in_column_name(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'primary_key': 'id',
+            'fields': [{'id': 'id', 'type': 'text'},
+                       {'id': 'bo%ok', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'records': [
+                {'id': '1%',
+                 'bo%ok': u'El Nino',
+                 'author': 'Torres'}],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        search_data = {
+            'resource_id': resource['id'],
+            'filters': {u'bo%ok': 'El Nino'}}
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(result['total'], 1)
 
 
 class TestDatastoreSearchLegacyTests(DatastoreLegacyTestBase):
@@ -1148,7 +1171,7 @@ class TestDatastoreSQLLegacyTests(DatastoreLegacyTestBase):
             where a.author = b.author
             limit 2
             '''.format(self.data['resource_id'])
-        data = urllib.urlencode({'sql': query})
+        data = urlencode({'sql': query})
         auth = {'Authorization': str(self.normal_user.apikey)}
         res = self.app.post('/api/action/datastore_search_sql', params=data,
                             extra_environ=auth)
@@ -1211,7 +1234,7 @@ class TestDatastoreSQLLegacyTests(DatastoreLegacyTestBase):
         ]
         for query in test_cases:
             data = {'sql': query.replace('\n', '')}
-            postparams = urllib.urlencode(data)
+            postparams = urlencode(data)
             res = self.app.post('/api/action/datastore_search_sql',
                                 params=postparams,
                                 status=403)

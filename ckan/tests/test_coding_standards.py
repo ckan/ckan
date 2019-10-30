@@ -31,6 +31,7 @@ PROJECT_ROOT = os.path.normpath(os.path.join(HERE, u'..', u'..'))
 # Directories which are ignored when checking Python source code files
 IGNORED_DIRS = [
     u'ckan/include',
+    u'contrib/cookiecutter'
 ]
 
 

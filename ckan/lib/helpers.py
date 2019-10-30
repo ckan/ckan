@@ -12,11 +12,8 @@ import re
 import os
 import pytz
 import tzlocal
-import urllib
 import pprint
 import copy
-import urlparse
-from urllib import urlencode
 import uuid
 
 from paste.deploy import converters
@@ -35,7 +32,11 @@ from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
+
 from six import string_types, text_type
+from six.moves.urllib.parse import (
+    urlencode, quote, unquote, urlparse, urlunparse
+)
 import jinja2
 
 import ckan.exceptions
@@ -233,7 +234,7 @@ def get_site_protocol_and_host():
     '''
     site_url = config.get('ckan.site_url', None)
     if site_url is not None:
-        parsed_url = urlparse.urlparse(site_url)
+        parsed_url = urlparse(site_url)
         return (
             parsed_url.scheme.encode('utf-8'),
             parsed_url.netloc.encode('utf-8')
@@ -395,9 +396,9 @@ def _url_for_flask(*args, **kw):
         # Flask to pass the host explicitly, so we rebuild the URL manually
         # based on `ckan.site_url`, which is essentially what we did on Pylons
         protocol, host = get_site_protocol_and_host()
-        parts = urlparse.urlparse(my_url)
-        my_url = urlparse.urlunparse((protocol, host, parts.path, parts.params,
-                                      parts.query, parts.fragment))
+        parts = urlparse(my_url)
+        my_url = urlunparse((protocol, host, parts.path, parts.params,
+                             parts.query, parts.fragment))
 
     return my_url
 
@@ -435,7 +436,7 @@ def url_for_static(*args, **kw):
     This is a wrapper for :py:func:`routes.url_for`
     '''
     if args:
-        url = urlparse.urlparse(args[0])
+        url = urlparse(args[0])
         url_is_external = (url.scheme != '' or url.netloc != '')
         if url_is_external:
             CkanUrlException = ckan.exceptions.CkanUrlException
@@ -451,7 +452,7 @@ def url_for_static_or_external(*args, **kw):
     This is a wrapper for :py:func:`routes.url_for`
     '''
     def fix_arg(arg):
-        url = urlparse.urlparse(str(arg))
+        url = urlparse(str(arg))
         url_is_relative = (url.scheme == '' and url.netloc == '' and
                            not url.path.startswith('/'))
         if url_is_relative:
@@ -474,7 +475,7 @@ def is_url(*args, **kw):
     if not args:
         return False
     try:
-        url = urlparse.urlparse(args[0])
+        url = urlparse(args[0])
     except ValueError:
         return False
 
@@ -556,9 +557,9 @@ def url_is_local(url):
     '''Returns True if url is local'''
     if not url or url.startswith('//'):
         return False
-    parsed = urlparse.urlparse(url)
+    parsed = urlparse(url)
     if parsed.scheme:
-        domain = urlparse.urlparse(url_for('/', qualified=True)).netloc
+        domain = urlparse(url_for('/', qualified=True)).netloc
         if domain != parsed.netloc:
             return False
     return True
@@ -574,7 +575,7 @@ def full_current_url():
 @core_helper
 def current_url():
     ''' Returns current url unquoted'''
-    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
+    return unquote(request.environ['CKAN_CURRENT_URL'])
 
 
 @core_helper
@@ -1333,7 +1334,7 @@ def gravatar(email_hash, size=100, default=None):
 
     if default not in _VALID_GRAVATAR_DEFAULTS:
         # treat the default as a url
-        default = urllib.quote(default, safe='')
+        default = quote(default, safe='')
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" width="%s" height="%s" alt="Gravatar" />'''
