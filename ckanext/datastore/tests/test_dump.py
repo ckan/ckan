@@ -386,7 +386,6 @@ class TestDatastoreDump(object):
         )
         assert get_csv_record_values(response.body) == range(6)
 
-
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "6")
