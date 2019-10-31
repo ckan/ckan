@@ -365,6 +365,10 @@ def _where_clauses(data_dict, fields_types):
         if field not in fields_types:
             continue
         field_array_type = _is_array_type(fields_types[field])
+        # "%" needs to be escaped as "%%" in any query going to
+        # connection.execute, otherwise it will think the "%" is for
+        # substituting a bind parameter
+        field = field.replace('%', '%%')
         if isinstance(value, list) and not field_array_type:
             clause_str = (u'"{0}" in ({1})'.format(field,
                           ','.join(['%s'] * len(value))))
@@ -1148,8 +1152,9 @@ def upsert_data(context, data_dict):
                                     WHERE ({primary_key}) = ({primary_value}));
                 '''.format(
                     res_id=data_dict['resource_id'],
-                    columns=u', '.join([u'"{0}"'.format(field)
-                                        for field in used_field_names]),
+                    columns=u', '.join([
+                        u'"{0}"'.format(field.replace('%', '%%'))
+                        for field in used_field_names]),
                     values=u', '.join(['%s::nested'
                                        if field['type'] == 'nested' else '%s'
                                        for field in used_fields]),
