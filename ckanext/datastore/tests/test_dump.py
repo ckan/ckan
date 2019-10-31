@@ -354,6 +354,7 @@ class TestDatastoreDump(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "7")
     @mock.patch("ckanext.datastore.blueprint.PAGINATE_BY", 5)
+    def test_dump_pagination_with_limit(self, app):
         resource = factories.Resource()
         data = {
             "resource_id": resource["id"],
