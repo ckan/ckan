@@ -623,7 +623,6 @@ class TestActivityDictize(object):
         activity = factories.Activity(
             user_id=user['id'],
             object_id=dataset['id'],
-            revision_id=None,
             activity_type='new package',
             data={
                 'package': copy.deepcopy(dataset),
@@ -645,7 +644,6 @@ class TestActivityDictize(object):
         activity = factories.Activity(
             user_id=user['id'],
             object_id=dataset['id'],
-            revision_id=None,
             activity_type='new package',
             data={
                 'package': copy.deepcopy(dataset),

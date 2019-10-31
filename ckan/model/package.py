@@ -52,7 +52,6 @@ package_table = Table('package', meta.metadata,
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
-        Column('revision_id', types.UnicodeText),  # unused
 )
 
 
@@ -191,7 +190,6 @@ class Package(core.StatefulObjectMixin,
 
     def as_dict(self, ref_package_by='name', ref_group_by='name'):
         _dict = domain_object.DomainObject.as_dict(self)
-        del _dict['revision_id']  # no longer contains a value
         # Set 'license' in _dict to cater for old clients.
         # Todo: Remove from Version 2?
         _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')

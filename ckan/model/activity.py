@@ -30,7 +30,6 @@ activity_table = Table(
     Column('timestamp', types.DateTime),
     Column('user_id', types.UnicodeText),
     Column('object_id', types.UnicodeText),
-    Column('revision_id', types.UnicodeText),  # blank for now
     Column('activity_type', types.UnicodeText),
     Column('data', _types.JsonDictType),
     )

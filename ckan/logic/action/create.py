@@ -246,8 +246,6 @@ def resource_create(context, data_dict):
     :type package_id: string
     :param url: url of resource
     :type url: string
-    :param revision_id: (optional)
-    :type revision_id: string
     :param description: (optional)
     :type description: string
     :param format: (optional)
