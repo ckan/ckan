@@ -444,7 +444,7 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
         assert_equals(get_csv_record_values(response.body),
                       range(12))
 
-    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    @mock.patch('ckanext.datastore.blueprint.PAGINATE_BY', 5)
     def test_dump_pagination(self):
         resource = factories.Resource()
         data = {
@@ -460,7 +460,7 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
                       range(12))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '7')
-    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    @mock.patch('ckanext.datastore.blueprint.PAGINATE_BY', 5)
     def test_dump_pagination_csv_with_limit(self):
         resource = factories.Resource()
         data = {
@@ -477,7 +477,7 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
                       range(11))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '7')
-    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 6)
+    @mock.patch('ckanext.datastore.blueprint.PAGINATE_BY', 6)
     def test_dump_pagination_csv_with_limit_same_as_paginate(self):
         resource = factories.Resource()
         data = {
@@ -494,7 +494,7 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
                       range(6))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '6')
-    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    @mock.patch('ckanext.datastore.blueprint.PAGINATE_BY', 5)
     def test_dump_pagination_with_rows_max(self):
         resource = factories.Resource()
         data = {
@@ -510,7 +510,7 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
                       range(7))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '6')
-    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 6)
+    @mock.patch('ckanext.datastore.blueprint.PAGINATE_BY', 6)
     def test_dump_pagination_with_rows_max_same_as_paginate(self):
         resource = factories.Resource()
         data = {
@@ -526,7 +526,7 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
                       range(7))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '7')
-    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    @mock.patch('ckanext.datastore.blueprint.PAGINATE_BY', 5)
     def test_dump_pagination_json_with_limit(self):
         resource = factories.Resource()
         data = {
@@ -543,7 +543,7 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
                       range(6))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '6')
-    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    @mock.patch('ckanext.datastore.blueprint.PAGINATE_BY', 5)
     def test_dump_pagination_json_with_rows_max(self):
         resource = factories.Resource()
         data = {

@@ -12,7 +12,7 @@ from ckan.common import config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.create_test_data as create_test_data
-import ckanext.resourceproxy.controller as controller
+import ckanext.resourceproxy.blueprint as blueprint
 import ckanext.resourceproxy.plugin as proxy
 
 
@@ -53,10 +53,11 @@ class TestProxyPrettyfied(unittest.TestCase):
     @classmethod
     def setup_class(cls):
         cls._original_config = config.copy()
-        cls.app = _get_test_app()
         if not p.plugin_loaded('resource_proxy'):
             p.load('resource_proxy')
         config['ckan.plugins'] = 'resource_proxy'
+        cls.app = _get_test_app()
+
         create_test_data.CreateTestData.create()
 
     @classmethod
@@ -106,7 +107,7 @@ class TestProxyPrettyfied(unittest.TestCase):
 
     @responses.activate
     def test_large_file(self):
-        cl = controller.MAX_FILE_SIZE + 1
+        cl = blueprint.MAX_FILE_SIZE + 1
         self.mock_out_urls(
             self.url,
             headers={'Content-Length': six.text_type(cl)},
@@ -119,7 +120,7 @@ class TestProxyPrettyfied(unittest.TestCase):
 
     @responses.activate
     def test_large_file_streaming(self):
-        cl = controller.MAX_FILE_SIZE + 1
+        cl = blueprint.MAX_FILE_SIZE + 1
         self.mock_out_urls(
             self.url,
             stream=True,

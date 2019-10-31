@@ -19,7 +19,7 @@ from ckanext.datastore.backend import (
     DatastoreBackend
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
-import ckanext.datastore.view as view
+import ckanext.datastore.blueprint as view
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
