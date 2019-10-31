@@ -337,7 +337,7 @@ class TestDatastoreDump(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
-    @mock.patch("ckanext.datastore.controller.PAGINATE_BY", 5)
+    @mock.patch("ckanext.datastore.blueprint.PAGINATE_BY", 5)
     def test_dump_pagination(self, app):
         resource = factories.Resource()
         data = {
@@ -353,8 +353,7 @@ class TestDatastoreDump(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "7")
-    @mock.patch("ckanext.datastore.controller.PAGINATE_BY", 5)
-    def test_dump_pagination_csv_with_limit(self, app):
+    @mock.patch("ckanext.datastore.blueprint.PAGINATE_BY", 5)
         resource = factories.Resource()
         data = {
             "resource_id": resource["id"],
@@ -371,7 +370,7 @@ class TestDatastoreDump(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "7")
-    @mock.patch("ckanext.datastore.controller.PAGINATE_BY", 6)
+    @mock.patch("ckanext.datastore.blueprint.PAGINATE_BY", 6)
     def test_dump_pagination_csv_with_limit_same_as_paginate(self, app):
         resource = factories.Resource()
         data = {
@@ -386,10 +385,11 @@ class TestDatastoreDump(object):
         )
         assert get_csv_record_values(response.body) == range(6)
 
+
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "6")
-    @mock.patch("ckanext.datastore.controller.PAGINATE_BY", 5)
+    @mock.patch("ckanext.datastore.blueprint.PAGINATE_BY", 5)
     def test_dump_pagination_with_rows_max(self, app):
         resource = factories.Resource()
         data = {
@@ -407,7 +407,7 @@ class TestDatastoreDump(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "6")
-    @mock.patch("ckanext.datastore.controller.PAGINATE_BY", 6)
+    @mock.patch("ckanext.datastore.blueprint.PAGINATE_BY", 6)
     def test_dump_pagination_with_rows_max_same_as_paginate(self, app):
         resource = factories.Resource()
         data = {
@@ -425,7 +425,7 @@ class TestDatastoreDump(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "7")
-    @mock.patch("ckanext.datastore.controller.PAGINATE_BY", 5)
+    @mock.patch("ckanext.datastore.blueprint.PAGINATE_BY", 5)
     def test_dump_pagination_json_with_limit(self, app):
         resource = factories.Resource()
         data = {
@@ -445,7 +445,7 @@ class TestDatastoreDump(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "6")
-    @mock.patch("ckanext.datastore.controller.PAGINATE_BY", 5)
+    @mock.patch("ckanext.datastore.blueprint.PAGINATE_BY", 5)
     def test_dump_pagination_json_with_rows_max(self, app):
         resource = factories.Resource()
         data = {
