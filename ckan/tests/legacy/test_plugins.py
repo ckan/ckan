@@ -157,7 +157,31 @@ def test_mapper_plugin_fired_on_delete():
     ]
 
 
+def test_action_plugin_override():
+    status_show_original = logic.get_action("status_show")(None, {})
+    with plugins.use_plugin("action_plugin"):
+        assert (
+            logic.get_action("status_show")(None, {}) != status_show_original
+        )
+    assert logic.get_action("status_show")(None, {}) == status_show_original
+
+
+def test_auth_plugin_override():
+    package_list_original = authz.is_authorized("package_list", {})
+    with plugins.use_plugin("auth_plugin"):
+        assert authz.is_authorized("package_list", {}) != package_list_original
+    assert authz.is_authorized("package_list", {}) == package_list_original
+
+
+def test_inexistent_plugin_loading():
+    with pytest.raises(plugins.PluginNotFoundException):
+        plugins.load("inexistent-plugin")
+
+
 class TestPlugins:
+    def teardown_method(self):
+        plugins.unload_all()
+
     def test_plugin_loading_order(self):
         """
         Check that plugins are loaded in the order specified in the config
@@ -202,27 +226,3 @@ class TestPlugins:
         # cleanup
         config["ckan.plugins"] = config_plugins
         plugins.load_all()
-
-    def test_action_plugin_override(self):
-        status_show_original = logic.get_action("status_show")(None, {})
-        with plugins.use_plugin("action_plugin"):
-            assert (
-                logic.get_action("status_show")(None, {})
-                != status_show_original
-            )
-        assert (
-            logic.get_action("status_show")(None, {}) == status_show_original
-        )
-
-    def test_auth_plugin_override(self):
-        package_list_original = authz.is_authorized("package_list", {})
-        with plugins.use_plugin("auth_plugin"):
-            assert (
-                authz.is_authorized("package_list", {})
-                != package_list_original
-            )
-        assert authz.is_authorized("package_list", {}) == package_list_original
-
-    def test_inexistent_plugin_loading(self):
-        with pytest.raises(plugins.PluginNotFoundException):
-            plugins.load("inexistent-plugin")
