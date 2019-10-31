@@ -64,6 +64,7 @@ class ValidationError(ActionError):
     ``data_dict`` fails.
 
     '''
+
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
         if not isinstance(error_dict, dict):
             error_dict = {'message': error_dict}
@@ -304,7 +305,7 @@ def check_access(action, context, data_dict=None):
             config.get('ckan.auth.allow_anonymous_access', True)
         )
         if (not allow_anon_access and
-                not context['auth_user_obj'] and
+                not context.get('user', False) and
                 not context.get('ignore_auth', False)):
             raise NotAuthorized('Authentication Required')
 
