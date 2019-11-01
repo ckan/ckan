@@ -18,7 +18,6 @@ depends_on = None
 
 
 def upgrade():
-    op.drop_column(u'activity', u'revision_id')
     op.drop_constraint(u'group_revision_id_fkey', u'group',
                        type_=u'foreignkey')
     op.drop_column(u'group', u'revision_id')
@@ -92,5 +91,3 @@ def downgrade():
                                       autoincrement=False, nullable=True))
     op.create_foreign_key(u'group_revision_id_fkey', u'group', u'revision',
                           [u'revision_id'], ['id'])
-    op.add_column(u'activity', sa.Column(u'revision_id', sa.TEXT(),
-                                         autoincrement=False, nullable=True))
