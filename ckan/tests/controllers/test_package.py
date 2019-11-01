@@ -2078,7 +2078,6 @@ class TestActivity(helpers.FunctionalTestBase):
 
         assert_equal(len(activities), 1)
 
-
     def test_delete_dataset(self):
         app = self._get_test_app()
         user = factories.User()
