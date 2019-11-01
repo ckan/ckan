@@ -7,7 +7,8 @@ from sqlalchemy import engine_from_config, pool
 from ckan.model import init_model
 from ckan.model.meta import metadata
 
-# Include in the model the revision tables - otherwise
+# Include in the model the revision tables - otherwise Alembic wants to delete
+# them
 from ckan.migration.revision_legacy_code import RevisionTableMappings
 RevisionTableMappings.instance()
 

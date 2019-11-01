@@ -215,8 +215,10 @@ def _execute_with_revision(q, rev_table, context):
     return session.execute(q)
 
 
-# This function is copied from vdm, but with the addition of the 'frozen' param
-# and the bits from ckan.model.core.make_revisioned_table()
+# This function is copied from vdm, but:
+# * added the 'frozen' param
+# * copied in bits from ckan.model.core.make_revisioned_table()
+# * it no longer adds revision_id to the base table (e.g. package.revision_id)
 def make_revisioned_table(base_table, frozen=False):
     '''Modify base_table and create correponding revision table.
 
@@ -225,11 +227,14 @@ def make_revisioned_table(base_table, frozen=False):
 
     @return revision table (e.g. package_revision)
     '''
-    base_table.append_column(
-        Column(u'revision_id', UnicodeText, ForeignKey(u'revision.id'))
-    )
     revision_table = Table(base_table.name + u'_revision', base_table.metadata)
     copy_table(base_table, revision_table)
+    # we no longer add revision_id to the base table (e.g. package.revision_id)
+    # because it is redundant - package_revision.current flags the latest.
+    # However the revision_table needs revision_id still
+    revision_table.append_column(
+        Column(u'revision_id', UnicodeText, ForeignKey(u'revision.id'))
+    )
 
     # create foreign key 'continuity' constraint
     # remember base table primary cols have been exactly duplicated onto our
@@ -504,25 +509,8 @@ def make_revision(instances):
     # that triggered on table changes and records a copy in the
     # corresponding revision table (e.g. PackageRevision).
 
-    # In Revisioner.before_insert() it does this:
-    for instance in instances:
-        is_changed = True  # fake: check_real_change(instance)
-        if is_changed:
-            # set_revision(instance)
-            # which does this:
-            instance.revision = revision
-            instance.revision_id = revision.id
-    # Unfortunately modifying the Package (or whatever the instances are)
-    # will create another Activity object when we save the session, so
-    # delete that
-    existing_latest_activity = model.Session.query(model.Activity) \
-        .order_by(model.Activity.timestamp.desc()).first()
-    model.Session.commit()
-    new_latest_activity = model.Session.query(model.Activity) \
-        .order_by(model.Activity.timestamp.desc()).first()
-    if new_latest_activity != existing_latest_activity:
-        new_latest_activity.delete()
-        model.Session.commit()
+    # In Revisioner.before_insert() it set instance.revision_id, however we no
+    # longer have that column on the package (or whatever the instance is)
 
     # In Revision.after_update() or after_insert() it does this:
     # self.make_revision(instance, mapper, connection)
@@ -535,8 +523,7 @@ def make_revision(instances):
         for key in table.c.keys():
             val = getattr(instance, key)
             colvalues[key] = val
-        assert instance.revision.id
-        colvalues['revision_id'] = instance.revision.id
+        colvalues['revision_id'] = revision.id
         colvalues['continuity_id'] = instance.id
 
         # Allow for multiple SQLAlchemy flushes/commits per VDM revision

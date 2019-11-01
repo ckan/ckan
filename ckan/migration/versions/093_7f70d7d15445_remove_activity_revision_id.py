@@ -1,8 +1,8 @@
 """Remove activity.revision_id
 
-Revision ID: 7f70d7d15445
+Revision ID: d4d9be9189fe
 Revises: 01afcadbd8c0
-Create Date: 2019-11-01 15:52:49.095301
+Create Date: 2019-11-01 16:33:28.320542
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '7f70d7d15445'
+revision = 'd4d9be9189fe'
 down_revision = u'01afcadbd8c0'
 branch_labels = None
 depends_on = None
@@ -24,7 +24,11 @@ def upgrade():
     op.drop_index('idx_activity_detail_activity_id', table_name='activity_detail')
     op.drop_index('idx_group_id', table_name='group')
     op.drop_index('idx_group_name', table_name='group')
+    op.drop_constraint(u'group_revision_id_fkey', 'group', type_='foreignkey')
+    op.drop_column('group', 'revision_id')
     op.drop_index('idx_group_extra_group_id', table_name='group_extra')
+    op.drop_constraint(u'group_extra_revision_id_fkey', 'group_extra', type_='foreignkey')
+    op.drop_column('group_extra', 'revision_id')
     op.drop_index('idx_group_extra_current', table_name='group_extra_revision')
     op.drop_index('idx_group_extra_period', table_name='group_extra_revision')
     op.drop_index('idx_group_extra_period_group', table_name='group_extra_revision')
@@ -37,6 +41,8 @@ def upgrade():
     op.drop_index('idx_package_group_id', table_name='member')
     op.drop_index('idx_package_group_pkg_id', table_name='member')
     op.drop_index('idx_package_group_pkg_id_group_id', table_name='member')
+    op.drop_constraint(u'member_revision_id_fkey', 'member', type_='foreignkey')
+    op.drop_column('member', 'revision_id')
     op.drop_index('idx_member_continuity_id', table_name='member_revision')
     op.drop_index('idx_package_group_current', table_name='member_revision')
     op.drop_index('idx_package_group_period_package_group', table_name='member_revision')
@@ -49,8 +55,12 @@ def upgrade():
     op.drop_index('idx_pkg_srev_id', table_name='package')
     op.drop_index('idx_pkg_stitle', table_name='package')
     op.drop_index('idx_pkg_title', table_name='package')
+    op.drop_constraint(u'package_revision_id_fkey', 'package', type_='foreignkey')
+    op.drop_column('package', 'revision_id')
     op.drop_index('idx_extra_id_pkg_id', table_name='package_extra')
     op.drop_index('idx_extra_pkg_id', table_name='package_extra')
+    op.drop_constraint(u'package_extra_revision_id_fkey', 'package_extra', type_='foreignkey')
+    op.drop_column('package_extra', 'revision_id')
     op.drop_index('idx_package_extra_continuity_id', table_name='package_extra_revision')
     op.drop_index('idx_package_extra_current', table_name='package_extra_revision')
     op.drop_index('idx_package_extra_package_id', table_name='package_extra_revision')
@@ -58,6 +68,8 @@ def upgrade():
     op.drop_index('idx_package_extra_period_package', table_name='package_extra_revision')
     op.drop_index('idx_package_extra_rev_id', table_name='package_extra_revision')
     op.create_foreign_key(None, 'package_extra_revision', 'package_extra', ['continuity_id'], ['id'])
+    op.drop_constraint(u'package_relationship_revision_id_fkey', 'package_relationship', type_='foreignkey')
+    op.drop_column('package_relationship', 'revision_id')
     op.drop_index('idx_package_relationship_current', table_name='package_relationship_revision')
     op.drop_index('idx_period_package_relationship', table_name='package_relationship_revision')
     op.drop_index('idx_package_continuity_id', table_name='package_revision')
@@ -70,6 +82,8 @@ def upgrade():
     op.drop_index('idx_package_tag_pkg_id', table_name='package_tag')
     op.drop_index('idx_package_tag_pkg_id_tag_id', table_name='package_tag')
     op.drop_index('idx_package_tag_tag_id', table_name='package_tag')
+    op.drop_constraint(u'package_tag_revision_id_fkey', 'package_tag', type_='foreignkey')
+    op.drop_column('package_tag', 'revision_id')
     op.drop_index('idx_package_tag_continuity_id', table_name='package_tag_revision')
     op.drop_index('idx_package_tag_current', table_name='package_tag_revision')
     op.drop_index('idx_package_tag_revision_id', table_name='package_tag_revision')
@@ -88,7 +102,9 @@ def upgrade():
     op.drop_index('idx_package_resource_id', table_name='resource')
     op.drop_index('idx_package_resource_package_id', table_name='resource')
     op.drop_index('idx_package_resource_url', table_name='resource')
+    op.drop_constraint(u'resource_revision_id_fkey', 'resource', type_='foreignkey')
     op.create_foreign_key(None, 'resource', 'package', ['package_id'], ['id'])
+    op.drop_column('resource', 'revision_id')
     op.drop_column('resource', 'webstore_last_updated')
     op.drop_column('resource', 'webstore_url')
     op.alter_column('resource_revision', 'package_id',
@@ -110,6 +126,8 @@ def upgrade():
                existing_type=sa.TEXT(),
                nullable=True,
                existing_server_default=sa.text(u"'active'::text"))
+    op.drop_constraint(u'system_info_revision_id_fkey', 'system_info', type_='foreignkey')
+    op.drop_column('system_info', 'revision_id')
     op.alter_column('system_info_revision', 'state',
                existing_type=sa.TEXT(),
                nullable=True,
@@ -155,6 +173,8 @@ def downgrade():
                existing_type=sa.TEXT(),
                nullable=False,
                existing_server_default=sa.text(u"'active'::text"))
+    op.add_column('system_info', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
+    op.create_foreign_key(u'system_info_revision_id_fkey', 'system_info', 'revision', ['revision_id'], ['id'])
     op.alter_column('system_info', 'state',
                existing_type=sa.TEXT(),
                nullable=False,
@@ -176,7 +196,9 @@ def downgrade():
                existing_server_default=sa.text(u"''::text"))
     op.add_column('resource', sa.Column('webstore_url', sa.TEXT(), autoincrement=False, nullable=True))
     op.add_column('resource', sa.Column('webstore_last_updated', postgresql.TIMESTAMP(), autoincrement=False, nullable=True))
+    op.add_column('resource', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
     op.drop_constraint(None, 'resource', type_='foreignkey')
+    op.create_foreign_key(u'resource_revision_id_fkey', 'resource', 'revision', ['revision_id'], ['id'])
     op.create_index('idx_package_resource_url', 'resource', ['url'], unique=False)
     op.create_index('idx_package_resource_package_id', 'resource', ['package_id'], unique=False)
     op.create_index('idx_package_resource_id', 'resource', ['id'], unique=False)
@@ -195,6 +217,8 @@ def downgrade():
     op.create_index('idx_package_tag_revision_id', 'package_tag_revision', ['id'], unique=False)
     op.create_index('idx_package_tag_current', 'package_tag_revision', ['current'], unique=False)
     op.create_index('idx_package_tag_continuity_id', 'package_tag_revision', ['continuity_id'], unique=False)
+    op.add_column('package_tag', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
+    op.create_foreign_key(u'package_tag_revision_id_fkey', 'package_tag', 'revision', ['revision_id'], ['id'])
     op.create_index('idx_package_tag_tag_id', 'package_tag', ['tag_id'], unique=False)
     op.create_index('idx_package_tag_pkg_id_tag_id', 'package_tag', ['tag_id', 'package_id'], unique=False)
     op.create_index('idx_package_tag_pkg_id', 'package_tag', ['package_id'], unique=False)
@@ -207,6 +231,8 @@ def downgrade():
     op.create_index('idx_package_continuity_id', 'package_revision', ['continuity_id'], unique=False)
     op.create_index('idx_period_package_relationship', 'package_relationship_revision', ['revision_timestamp', 'expired_timestamp', 'object_package_id', 'subject_package_id'], unique=False)
     op.create_index('idx_package_relationship_current', 'package_relationship_revision', ['current'], unique=False)
+    op.add_column('package_relationship', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
+    op.create_foreign_key(u'package_relationship_revision_id_fkey', 'package_relationship', 'revision', ['revision_id'], ['id'])
     op.drop_constraint(None, 'package_extra_revision', type_='foreignkey')
     op.create_index('idx_package_extra_rev_id', 'package_extra_revision', ['revision_id'], unique=False)
     op.create_index('idx_package_extra_period_package', 'package_extra_revision', ['revision_timestamp', 'expired_timestamp', 'package_id'], unique=False)
@@ -214,8 +240,12 @@ def downgrade():
     op.create_index('idx_package_extra_package_id', 'package_extra_revision', ['package_id', 'current'], unique=False)
     op.create_index('idx_package_extra_current', 'package_extra_revision', ['current'], unique=False)
     op.create_index('idx_package_extra_continuity_id', 'package_extra_revision', ['continuity_id'], unique=False)
+    op.add_column('package_extra', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
+    op.create_foreign_key(u'package_extra_revision_id_fkey', 'package_extra', 'revision', ['revision_id'], ['id'])
     op.create_index('idx_extra_pkg_id', 'package_extra', ['package_id'], unique=False)
     op.create_index('idx_extra_id_pkg_id', 'package_extra', ['id', 'package_id'], unique=False)
+    op.add_column('package', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
+    op.create_foreign_key(u'package_revision_id_fkey', 'package', 'revision', ['revision_id'], ['id'])
     op.create_index('idx_pkg_title', 'package', ['title'], unique=False)
     op.create_index('idx_pkg_stitle', 'package', ['title', 'state'], unique=False)
     op.create_index('idx_pkg_srev_id', 'package', ['revision_id', 'state'], unique=False)
@@ -228,6 +258,8 @@ def downgrade():
     op.create_index('idx_package_group_period_package_group', 'member_revision', ['revision_timestamp', 'expired_timestamp', 'table_id', 'group_id'], unique=False)
     op.create_index('idx_package_group_current', 'member_revision', ['current'], unique=False)
     op.create_index('idx_member_continuity_id', 'member_revision', ['continuity_id'], unique=False)
+    op.add_column('member', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
+    op.create_foreign_key(u'member_revision_id_fkey', 'member', 'revision', ['revision_id'], ['id'])
     op.create_index('idx_package_group_pkg_id_group_id', 'member', ['group_id', 'table_id'], unique=False)
     op.create_index('idx_package_group_pkg_id', 'member', ['table_id'], unique=False)
     op.create_index('idx_package_group_id', 'member', ['id'], unique=False)
@@ -240,7 +272,11 @@ def downgrade():
     op.create_index('idx_group_extra_period_group', 'group_extra_revision', ['revision_timestamp', 'expired_timestamp', 'group_id'], unique=False)
     op.create_index('idx_group_extra_period', 'group_extra_revision', ['revision_timestamp', 'expired_timestamp', 'id'], unique=False)
     op.create_index('idx_group_extra_current', 'group_extra_revision', ['current'], unique=False)
+    op.add_column('group_extra', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
+    op.create_foreign_key(u'group_extra_revision_id_fkey', 'group_extra', 'revision', ['revision_id'], ['id'])
     op.create_index('idx_group_extra_group_id', 'group_extra', ['group_id'], unique=False)
+    op.add_column('group', sa.Column('revision_id', sa.TEXT(), autoincrement=False, nullable=True))
+    op.create_foreign_key(u'group_revision_id_fkey', 'group', 'revision', ['revision_id'], ['id'])
     op.create_index('idx_group_name', 'group', ['name'], unique=False)
     op.create_index('idx_group_id', 'group', ['id'], unique=False)
     op.create_index('idx_activity_detail_activity_id', 'activity_detail', ['activity_id'], unique=False)
