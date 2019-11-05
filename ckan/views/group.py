@@ -324,7 +324,7 @@ def _read(id, limit, group_type):
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
                     fields.append((param, value))
-                    q += u' %s: "%s"' % (param, value)
+                    fq += u' %s: "%s"' % (param, value)
                     if param not in fields_grouped:
                         fields_grouped[param] = [value]
                     else:
