@@ -1,4 +1,4 @@
-# encoding: utf-8
+g encoding: utf-8
 
 import collections
 import datetime
@@ -858,3 +858,20 @@ def email_validator(value, context):
         if not email_pattern.match(value):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
+
+def one_of(value,context):
+   ''' Implementation of OneOf method
+       for Python Library Formencode
+   '''
+
+   if (value == '' or value == None):
+      raise Invalid(_('A value must be provided'))
+
+   else:
+    if value:
+      for x in context:
+        if (x == value):
+          return value
+
+   raise Invalid(_('value not found')
+
