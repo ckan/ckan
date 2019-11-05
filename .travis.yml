@@ -8,7 +8,7 @@ flake8-steps: &flake8-steps
   before_script:
     - flake8 --version
     # stop the build if there are Python syntax errors or undefined names
-    - flake8 . --count --select=E9,F63,F72,F82 --show-source --statistics --exclude ./ckan/include/rjsmin.py,./contrib/cookiecutter/*
+    - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude ./ckan/include/rjsmin.py,./contrib/cookiecutter/*
     # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
     - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
   script:
@@ -43,6 +43,5 @@ matrix:
     - python: "2.7"
       <<: *flake8-steps
 
-    - python: "3.7"
-      dist: xenial    # required for Python 3.7
+    - python: "3.8"
       <<: *flake8-steps
