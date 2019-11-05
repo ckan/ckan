@@ -5,6 +5,7 @@ Babel==2.3.4
 bleach==3.0.2
 click==6.7
 fanstatic==0.12
+feedgen==0.8.0
 Flask==1.1.1
 Flask-Babel==0.11.2
 Jinja2==2.10.1
