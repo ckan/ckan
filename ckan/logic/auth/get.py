@@ -41,23 +41,6 @@ def current_package_list_with_resources(context, data_dict):
     return authz.is_authorized('package_list', context, data_dict)
 
 
-def revision_list(context, data_dict):
-    # In our new model everyone can read the revison list
-    return {'success': True}
-
-
-def group_revision_list(context, data_dict):
-    return authz.is_authorized('group_show', context, data_dict)
-
-
-def organization_revision_list(context, data_dict):
-    return authz.is_authorized('group_show', context, data_dict)
-
-
-def package_revision_list(context, data_dict):
-    return authz.is_authorized('package_show', context, data_dict)
-
-
 def group_list(context, data_dict):
     # List of all active groups is visible by default
     return {'success': True}
@@ -176,11 +159,6 @@ def resource_view_show(context, data_dict):
 
 def resource_view_list(context, data_dict):
     return authz.is_authorized('resource_show', context, data_dict)
-
-
-def revision_show(context, data_dict):
-    # No authz check in the logic function
-    return {'success': True}
 
 
 def group_show(context, data_dict):

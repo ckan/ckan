@@ -21,6 +21,7 @@ this.ckan.module('autocomplete', function (jQuery) {
     /* Options for the module */
     options: {
       tags: false,
+      createtags: true,
       key: false,
       label: false,
       items: 10,
@@ -61,6 +62,13 @@ this.ckan.module('autocomplete', function (jQuery) {
       if (!this.el.is('select')) {
         if (this.options.tags) {
           settings.tags = this._onQuery;
+
+          // Disable creating new tags
+          if (!this.options.createtags) {
+            settings.createSearchChoice = function(params) {
+              return undefined;
+            }
+          }
         } else {
           settings.query = this._onQuery;
           settings.createSearchChoice = this.formatTerm;

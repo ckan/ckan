@@ -275,7 +275,6 @@ class TestAuthOrgHierarchy(TestAuth):
         config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
 
     def _reset_a_datasets_owner_org(self):
-        rev = model.repo.new_revision()
         get_action('package_owner_org_update')(
             {'model': model, 'user': self.sysadmin['name'],
              'ignore_auth': True},
@@ -285,7 +284,6 @@ class TestAuthOrgHierarchy(TestAuth):
     def _undelete_package_if_needed(self, package_name):
         pkg = model.Package.by_name(package_name)
         if pkg and pkg.state == 'deleted':
-            rev = model.repo.new_revision()
             pkg.state = 'active'
             model.repo.commit_and_remove()
 

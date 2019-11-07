@@ -1733,26 +1733,8 @@ def convert_to_dict(object_type, objs):
     ''' This is a helper function for converting lists of objects into
     lists of dicts. It is for backwards compatability only. '''
 
-    def dictize_revision_list(revision, context):
-        # conversionof revision lists
-
-        def process_names(items):
-            array = []
-            for item in items:
-                array.append(item.name)
-            return array
-
-        rev = {'id': revision.id,
-               'state': revision.state,
-               'timestamp': revision.timestamp,
-               'author': revision.author,
-               'packages': process_names(revision.packages),
-               'groups': process_names(revision.groups),
-               'message': revision.message, }
-        return rev
     import ckan.lib.dictization.model_dictize as md
-    converters = {'package': md.package_dictize,
-                  'revisions': dictize_revision_list}
+    converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
     context = {'model': model}

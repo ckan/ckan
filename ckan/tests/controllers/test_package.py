@@ -664,7 +664,6 @@ class TestPackageRead(helpers.FunctionalTestBase):
         modern_activity = model.Session.query(model.Activity) \
             .filter_by(object_id=dataset['id']) \
             .one()
-        revision_id = modern_activity.revision_id
         modern_activity.delete()
 
         # Create an Activity object as it was in earlier versions of CKAN.
@@ -676,7 +675,6 @@ class TestPackageRead(helpers.FunctionalTestBase):
         activity = model.Activity(
             user_id=user['id'],
             object_id=dataset['id'],
-            revision_id=revision_id,
             activity_type="%s package" % activity_type,
             data={
                 # "actor": a legacy activity had no "actor"
@@ -1955,6 +1953,131 @@ class TestActivity(helpers.FunctionalTestBase):
                   .format(dataset['id']),
                   response)
 
+    def test_create_tag_directly(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        dataset['tags'] = [{'name': 'some_tag'}]
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">{}'
+                  .format(dataset['id'], dataset['title']),
+                  response)
+
+        activities = helpers.call_action(
+            'package_activity_list', id=dataset['id'])
+
+        assert_equal(len(activities), 1)
+
+    def test_create_tag(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        dataset['tags'] = [{'name': 'some_tag'}]
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">{}'
+                  .format(dataset['id'], dataset['title']),
+                  response)
+
+        activities = helpers.call_action(
+            'package_activity_list', id=dataset['id'])
+
+        assert_equal(len(activities), 1)
+
+    def test_create_extra(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        dataset['extras'] = [{'key': 'some', 'value': 'extra'}]
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">{}'
+                  .format(dataset['id'], dataset['title']),
+                  response)
+
+        activities = helpers.call_action(
+            'package_activity_list', id=dataset['id'])
+
+        assert_equal(len(activities), 1)
+
+    def test_create_resource(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'resource_create', context={'user': user['name']},
+            name='Test resource',
+            package_id=dataset['id'])
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">{}'
+                  .format(dataset['id'], dataset['title']),
+                  response)
+
+        activities = helpers.call_action(
+            'package_activity_list', id=dataset['id'])
+
+        assert_equal(len(activities), 1)
+
+    def test_update_resource(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        resource = factories.Resource(package_id=dataset['id'])
+        self._clear_activities()
+
+        helpers.call_action(
+            'resource_update', context={'user': user['name']},
+            id=resource['id'],
+            name='Test resource updated',
+            package_id=dataset['id'])
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">{}'
+                  .format(dataset['id'], dataset['title']),
+                  response)
+
+        activities = helpers.call_action(
+            'package_activity_list', id=dataset['id'])
+
+        assert_equal(len(activities), 1)
+
     def test_delete_dataset(self):
         app = self._get_test_app()
         user = factories.User()
@@ -2033,7 +2156,6 @@ class TestActivity(helpers.FunctionalTestBase):
         modern_activity = model.Session.query(model.Activity) \
             .filter_by(object_id=dataset['id']) \
             .one()
-        revision_id = modern_activity.revision_id
         modern_activity.delete()
 
         # Create an Activity object as it was in earlier versions of CKAN.
@@ -2045,7 +2167,6 @@ class TestActivity(helpers.FunctionalTestBase):
         activity = model.Activity(
             user_id=user['id'],
             object_id=dataset['id'],
-            revision_id=revision_id,
             activity_type="%s package" % activity_type,
             data={
                 # "actor": a legacy activity had no "actor"

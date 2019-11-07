@@ -41,15 +41,6 @@ class TestBasicDictize:
                     self.remove_changable_columns(new_dict)
         return dict
 
-    def remove_revision_id(self, dict):
-        for key, value in dict.items():
-            if key == 'revision_id':
-                dict.pop(key)
-            if isinstance(value, list):
-                for new_dict in value:
-                    self.remove_revision_id(new_dict)
-        return dict
-
     def test_1_package_schema(self):
         pkg = model.Session.query(model.Package)\
             .filter_by(name='annakarenina')\
