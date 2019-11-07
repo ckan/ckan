@@ -51,14 +51,17 @@ def _package_search(data_dict):
 
 
 def _enclosure(pkg):
-    links = []
-    links.append({
-        u'href': h.url(u'api.action', logic_function=u'package_show',
-                       ver=3, id=pkg['id'], _external=True),
-        u'rel': u'',
-        u'length': text_type(len(json.dumps(pkg))),
-        u'type': u'application/json'})
-    return links
+    enc = Enclosure(
+        h.url_for(
+            u'api.action',
+            logic_function=u'package_show',
+            id=pkg['name'],
+            ver=3,
+            _external=True),
+    )
+    enc.type = u'application/json'
+    enc.length = text_type(len(json.dumps(pkg)))
+    return enc
 
 
 def _set_extras(**kw):
@@ -70,11 +73,10 @@ def _set_extras(**kw):
 
 class Enclosure(text_type):
     def __init__(self, url):
+        super(Enclosure, self).__init__(url)
         self.url = url
         self.length = u'0'
         self.mime_type = u'application/json'
-
-        super(Enclosure, self).__init__(url)
 
 
 class CKANFeed(FeedGenerator):
@@ -185,14 +187,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             author_name=pkg.get(u'author', u''),
             author_email=pkg.get(u'author_email', u''),
             categories=[t[u'name'] for t in pkg.get(u'tags', [])],
-            enclosure=Enclosure(
-                h.url_for(
-                    u'api.action',
-                    logic_function=u'package_show',
-                    id=pkg['name'],
-                    ver=3,
-                    _external=True),
-            ),
+            enclosure=_enclosure(pkg),
             **additional_fields)
 
     resp = make_response(feed.writeString(u'utf-8'), 200)
