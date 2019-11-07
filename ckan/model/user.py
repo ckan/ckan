@@ -176,24 +176,6 @@ class User(core.StatefulObjectMixin,
         del _dict['password']
         return _dict
 
-    def number_of_edits(self):
-        # have to import here to avoid circular imports
-        import ckan.model as model
-
-        # Get count efficiently without spawning the SQLAlchemy subquery
-        # wrapper. Reset the VDM-forced order_by on timestamp.
-        return meta.Session.execute(
-            meta.Session.query(
-                model.Revision
-            ).filter_by(
-                author=self.name
-            ).statement.with_only_columns(
-                [func.count()]
-            ).order_by(
-                None
-            )
-        ).scalar()
-
     def number_created_packages(self, include_private_and_draft=False):
         # have to import here to avoid circular imports
         import ckan.model as model

@@ -7,6 +7,11 @@ from sqlalchemy import engine_from_config, pool
 from ckan.model import init_model
 from ckan.model.meta import metadata
 
+# When auto-generating migration scripts, uncomment these lines to include in
+# the model the revision tables - otherwise Alembic wants to delete them
+# from ckan.migration.revision_legacy_code import RevisionTableMappings
+# RevisionTableMappings.instance()
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -61,7 +66,7 @@ def run_migrations_online():
         poolclass=pool.NullPool
     )
     connection = connectable.connect()
-    init_model(connection)
+    init_model(connectable)
 
     context.configure(connection=connection, target_metadata=target_metadata)
 

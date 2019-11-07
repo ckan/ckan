@@ -516,13 +516,12 @@ def activity_dict_save(activity_dict, context):
     session = context['session']
     user_id = activity_dict['user_id']
     object_id = activity_dict['object_id']
-    revision_id = activity_dict['revision_id']
     activity_type = activity_dict['activity_type']
     if activity_dict.has_key('data'):
         data = activity_dict['data']
     else:
         data = None
-    activity_obj = model.Activity(user_id, object_id, revision_id,
+    activity_obj = model.Activity(user_id, object_id,
             activity_type, data)
     session.add(activity_obj)
 

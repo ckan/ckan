@@ -1,5 +1,10 @@
 # encoding: utf-8
 
+# This file is at the top of the ckan repository, because it needs to be run
+# separately from all the other tests, because when it imports
+# revision_legacy_code.py it changes the core model, which causes a number of
+# test failures which we're not concerned about.
+
 from difflib import unified_diff
 from pprint import pprint, pformat
 
@@ -8,9 +13,10 @@ from ckan import model
 import ckan.lib.search as search
 from ckan.lib.dictization.model_save import package_dict_save
 from ckan.lib.create_test_data import CreateTestData
+from ckan.tests import helpers
 
 from ckan.migration.revision_legacy_code import package_dictize_with_revisions as package_dictize
-from ckan.migration.revision_legacy_code import make_package_revision
+from ckan.migration.revision_legacy_code import RevisionTableMappings, make_package_revision
 from ckan.migration.migrate_package_activity import PackageDictizeMonkeyPatch
 
 
@@ -18,11 +24,6 @@ from ckan.migration.migrate_package_activity import PackageDictizeMonkeyPatch
 class TestPackageDictizeWithRevisions(object):
     @classmethod
     def setup_class(cls):
-        # clean the db so we can run these tests on their own
-        model.repo.rebuild_db()
-        search.clear_all()
-        CreateTestData.create()
-        make_package_revision(model.Package.by_name('annakarenina'))
 
         cls.package_expected = {
             u'author': None,
@@ -124,12 +125,17 @@ class TestPackageDictizeWithRevisions(object):
             u'type': u'dataset',
             u'url': u'http://datahub.io',
             u'version': u'0.7a',
-            }
+        }
 
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-        model.Session.remove()
+    def setup(self):
+        helpers.reset_db()
+        search.clear_all()
+        CreateTestData.create()
+        make_package_revision(model.Package.by_name('annakarenina'))
+
+    def teardown(self):
+        helpers.reset_db()
+        search.clear_all()
 
     def test_09_package_alter(self):
 
@@ -145,8 +151,6 @@ class TestPackageDictizeWithRevisions(object):
         anna_dictized["name"] = u'annakarenina_changed'
         anna_dictized["resources"][0]["url"] = u'http://new_url'
 
-        model.repo.new_revision()
-
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
@@ -156,12 +160,12 @@ class TestPackageDictizeWithRevisions(object):
 
         package_dictized = package_dictize(pkg, context)
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(package_id=anna1.id).all()
+        resources_revisions = model.Session.query(RevisionTableMappings.instance().ResourceRevision).filter_by(package_id=anna1.id).all()
 
         sorted_resource_revisions = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         for res in sorted_resource_revisions:
             print(res.id, res.revision_timestamp, res.state)
-        assert len(sorted_resource_revisions) == 3
+        assert len(sorted_resource_revisions) == 4  # 2 resources originally, then make_package_revision saves them both again
 
         # Make sure we remove changeable fields BEFORE we store the pretty-printed version
         # for comparison
@@ -182,7 +186,6 @@ class TestPackageDictizeWithRevisions(object):
         anna_dictized['tags'][0].pop('id')  # test if
         anna_dictized['extras'][0]['value'] = u'new_value'
 
-        model.repo.new_revision()
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
@@ -199,20 +202,17 @@ class TestPackageDictizeWithRevisions(object):
         anna_dictized['extras'].append({'key': 'david',
                                         'value': u'new_value'})
 
-        model.repo.new_revision()
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
         make_package_revision(model.Package.by_name('annakarenina_changed2'))
-
-    def test_13_get_package_in_past(self):
 
         context = {'model': model,
                    'session': model.Session}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
 
-        pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
+        pkgrevisions = model.Session.query(RevisionTableMappings.instance().PackageRevision).filter_by(id=anna1.id).all()
         sorted_packages = sorted(pkgrevisions, key=lambda x: x.revision_timestamp)
 
         context['revision_id'] = sorted_packages[0].revision_id  # original state

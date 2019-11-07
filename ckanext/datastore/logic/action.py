@@ -603,13 +603,9 @@ def set_datastore_active_flag(model, data_dict, flag):
     )
     extras, package_id = res_query.one()
 
-    # update extras in database for record and its revision
+    # update extras in database for record
     extras.update(update_dict)
     res_query.update({'extras': extras}, synchronize_session=False)
-    model.Session.query(model.resource_revision_table).filter(
-        model.ResourceRevision.id == data_dict['resource_id'],
-        model.ResourceRevision.current is True
-    ).update({'extras': extras}, synchronize_session=False)
 
     model.Session.commit()
 

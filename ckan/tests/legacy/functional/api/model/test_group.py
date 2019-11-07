@@ -100,21 +100,18 @@ class GroupsTestCase(BaseModelApiTestCase):
     def test_10_edit_group_name_duplicate(self):
         # create a group with testgroupvalues
         if not model.Group.by_name(self.testgroupvalues['name']):
-            rev = model.repo.new_revision()
             group = model.Group()
             model.Session.add(group)
             group.name = self.testgroupvalues['name']
             model.Session.commit()
 
             group = model.Group.by_name(self.testgroupvalues['name'])
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert model.Group.by_name(self.testgroupvalues['name'])
 
         # create a group with name 'dupname'
         dupname = u'dupname'
         if not model.Group.by_name(dupname):
-            rev = model.repo.new_revision()
             group = model.Group()
             model.Session.add(group)
             group.name = dupname
@@ -136,13 +133,11 @@ class GroupsTestCase(BaseModelApiTestCase):
         # create a group with testgroupvalues
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
-            rev = model.repo.new_revision()
             group = model.Group()
             model.Session.add(group)
             group.name = self.testgroupvalues['name']
             model.repo.commit_and_remove()
 
-            rev = model.repo.new_revision()
             group = model.Group.by_name(self.testgroupvalues['name'])
             model.repo.commit_and_remove()
         assert group

@@ -43,7 +43,7 @@ def table_dictize(obj, context, **kw):
         name = field
         if name in ('current', 'expired_timestamp', 'expired_id'):
             continue
-        if name == 'continuity_id':
+        if name in ('continuity_id', 'revision_id'):
             continue
         value = getattr(obj, name)
         if value is None:
