@@ -457,7 +457,7 @@ def mock_auth(auth_function_path):
             try:
                 with mock.patch(auth_function_path) as mocked_auth:
                     clear_auth_functions_cache()
-                    new_args = args + tuple([mocked_auth])
+                    new_args = args + (mocked_auth,)
                     return_value = func(*new_args, **kwargs)
             finally:
                 clear_auth_functions_cache()
@@ -513,7 +513,7 @@ def mock_action(action_name):
                     mock_get_action.side_effect = side_effect
                     mock_get_action_toolkit.side_effect = side_effect
 
-                    new_args = args + tuple([mock_action])
+                    new_args = args + (mock_action,)
                     return_value = func(*new_args, **kwargs)
             finally:
                 # Make sure to stop the mock, even with an exception
