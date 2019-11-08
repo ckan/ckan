@@ -22,7 +22,14 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-jetty openjdk-8-jdk redis-server
+
+.. note::
+
+    For Python 2 (deprecated, but compatible with CKAN 2.9 and earlier), do
+    this instead:
+
+        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -32,16 +39,16 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v9.3 or newer <http://www.postgresql.org/download/>`_
+Python                 `The Python programming language, v3.6 or newer (or v2.7) <https://www.python.org/getit/>`_
+|postgres|             `The PostgreSQL database system, v9.3 or newer <https://www.postgresql.org/docs/9.5/libpq.html>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
-pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
-virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
-Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
-Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
-Jetty                  `An HTTP server <http://www.eclipse.org/jetty/>`_ (used for Solr).
-OpenJDK JDK            `The Java Development Kit <http://openjdk.java.net/install/>`_ (used by Jetty)
-Redis                  `An in-memory data structure store <http://redis.io/>`_
+pip                    `A tool for installing and managing Python packages <https://pip.pypa.io/en/stable/>`_
+python3-venv           `The Python3 virtual environment builder (or for Python 2 use 'virtualenv' instead) <https://virtualenv.pypa.io/en/latest/>`_
+Git                    `A distributed version control system <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
+Apache Solr            `A search platform <https://lucene.apache.org/solr/>`_
+Jetty                  `An HTTP server <https://www.eclipse.org/jetty/>`_ (used for Solr).
+OpenJDK JDK            `The Java Development Kit <https://openjdk.java.net/install/>`_ (used by Jetty)
+Redis                  `An in-memory data structure store <https://redis.io/>`_
 =====================  ===============================================
 
 
@@ -66,27 +73,15 @@ Redis                  `An in-memory data structure store <http://redis.io/>`_
      mkdir -p ~/ckan/etc
      sudo ln -s ~/ckan/etc |config_parent_dir|
 
-a. Create a Python `virtual environment <http://www.virtualenv.org>`_
+a. Create a Python `virtual environment <https://virtualenv.pypa.io/en/latest/>`_
    (virtualenv) to install CKAN into, and activate it:
 
    .. parsed-literal::
 
        sudo mkdir -p |virtualenv|
        sudo chown \`whoami\` |virtualenv|
-       virtualenv --no-site-packages |virtualenv|
+       python3 -m venv |virtualenv|
        |activate|
-
-.. note::
-
-    If your system uses Python3 by default (e.g. Ubuntu 18.04) make sure to create
-    the virtualenv using the Python2.7 executable with the ``--python`` option:
-
-    .. parsed-literal::
-
-        sudo mkdir -p |virtualenv|
-        sudo chown \`whoami\` |virtualenv|
-        virtualenv --python=/usr/bin/python2.7 --no-site-packages |virtualenv|
-        |activate|
 
 .. important::
 
@@ -105,11 +100,21 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the recommended ``setuptools`` version:
+.. note::
+
+    For Python 2 then replace the `python3 -m venv` command with:
+
+    .. parsed-literal::
+
+        virtualenv --python=/usr/bin/python2.7 --no-site-packages |virtualenv|
+        |activate|
+
+b. Install the recommended ``setuptools`` version and up-to-date pip:
 
    .. parsed-literal::
 
        pip install setuptools==\ |min_setuptools_version|
+       pip install --upgrade pip
 
 c. Install the CKAN source code into your virtualenv.
 
@@ -139,6 +144,10 @@ d. Install the Python modules that CKAN requires into your virtualenv:
    .. parsed-literal::
 
        pip install -r |virtualenv|/src/ckan/requirements.txt
+
+.. note::
+
+    For Python 2 adjust the filename to: `requirements-py2.txt`
 
 e. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
