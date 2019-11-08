@@ -113,8 +113,8 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
         return False, alias
 
     def get_all_ids(self):
-        return map(lambda t: t.name, self._get_engine().execute(
+        return [t.name for t in self._get_engine().execute(
             u'''
             select name from sqlite_master
             where type = "table"'''
-        ).fetchall())
+        ).fetchall()]
