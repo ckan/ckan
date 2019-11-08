@@ -1512,7 +1512,7 @@ def date_str_to_datetime(date_str):
         microseconds = int(m.groupdict(0).get('microseconds'))
         time_tuple = time_tuple[:5] + [seconds, microseconds]
 
-    return datetime.datetime(*list(map(int, time_tuple)))
+    return datetime.datetime(*list(int(item) for item in time_tuple))
 
 
 @core_helper

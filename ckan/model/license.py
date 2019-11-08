@@ -35,7 +35,7 @@ class License(object):
             if key == 'date_created':
                 # Parse ISO formatted datetime.
                 value = datetime.datetime(
-                    *list(map(int, re.split('[^\d]', value))))
+                    *list(int(item) for item in re.split('[^\d]', value)))
                 self._data[key] = value
             elif isinstance(value, str):
                 # Convert str to unicode (keeps Pylons and SQLAlchemy happy).

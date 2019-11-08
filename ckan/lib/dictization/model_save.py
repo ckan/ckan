@@ -420,7 +420,7 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
     package_ids.extend( pkgs_edited['added'] )
     if package_ids:
         session.commit()
-        list(map(rebuild, package_ids))
+        [rebuild(package_id) for package_id in package_ids]
 
     return group
 

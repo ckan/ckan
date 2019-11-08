@@ -288,7 +288,7 @@ class ApiController(base.BaseController):
             return out
 
         query = query.limit(limit)
-        out = list(map(convert_to_dict, query.all()))
+        out = [convert_to_dict(q) for q in query.all()]
         return out
 
     @jsonp.jsonpify
