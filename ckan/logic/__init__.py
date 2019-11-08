@@ -674,7 +674,7 @@ def get_validator(validator):
         _validators_cache.update(validators)
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
-        _validators_cache.update({'OneOf': ckan.logic.validators.one_of})
+        _validators_cache.update({'OneOf':'ckan.logic.validators.one_of'})
         converters = _import_module_functions('ckan.logic.converters')
         _validators_cache.update(converters)
 
