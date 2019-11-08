@@ -53,6 +53,6 @@ class TestSolrSearch:
 
     def test_1_basic(self):
         results = self.solr.search(q='sweden', fq=self.fq)
-        result_names = sorted([r['name'] for r in results])
+        result_names = sorted(r['name'] for r in results)
 
         assert_equal([u'se-opengov', u'se-publications'], result_names)

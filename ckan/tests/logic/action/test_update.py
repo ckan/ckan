@@ -644,12 +644,12 @@ class TestDatasetUpdate(helpers.FunctionalTestBase):
             tags=[{'name': u'russian'}, {'name': u'tolstoy'}],
         )
 
-        tag_names = sorted([tag_dict['name']
-                            for tag_dict in dataset_['tags']])
+        tag_names = sorted(tag_dict['name']
+                           for tag_dict in dataset_['tags'])
         assert_equals(tag_names, ['russian', 'tolstoy'])
         dataset_ = helpers.call_action('package_show', id=dataset['id'])
-        tag_names = sorted([tag_dict['name']
-                            for tag_dict in dataset_['tags']])
+        tag_names = sorted(tag_dict['name']
+                           for tag_dict in dataset_['tags'])
         assert_equals(tag_names, ['russian', 'tolstoy'])
 
     def test_return_id_only(self):

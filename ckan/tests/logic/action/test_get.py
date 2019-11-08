@@ -203,7 +203,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         group_list = helpers.call_action('group_list')
 
         assert (sorted(group_list) ==
-                sorted([g['name'] for g in [group1, group2]]))
+                sorted(g['name'] for g in [group1, group2]))
 
     def test_group_list_in_presence_of_organizations(self):
         '''
@@ -218,7 +218,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         group_list = helpers.call_action('group_list')
 
         assert (sorted(group_list) ==
-                sorted([g['name'] for g in [group1, group2]]))
+                sorted(g['name'] for g in [group1, group2]))
 
     def test_group_list_in_presence_of_custom_group_types(self):
         '''Getting the group_list shouldn't return custom group types.'''
@@ -229,7 +229,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         group_list = helpers.call_action('group_list')
 
         assert (sorted(group_list) ==
-                sorted([g['name'] for g in [group1, group2]]))
+                sorted(g['name'] for g in [group1, group2]))
 
     def test_group_list_return_custom_group(self):
         '''
@@ -244,7 +244,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         group_list = helpers.call_action('group_list', type='custom')
 
         assert (sorted(group_list) ==
-                sorted([g['name'] for g in [group1, group2]]))
+                sorted(g['name'] for g in [group1, group2]))
 
     def test_group_list_sort_by_package_count(self):
 
@@ -575,7 +575,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         org_list = helpers.call_action('organization_list')
 
         assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org1, org2]]))
+                sorted(g['name'] for g in [org1, org2]))
 
     def test_organization_list_in_presence_of_groups(self):
         '''
@@ -590,7 +590,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         org_list = helpers.call_action('organization_list')
 
         assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org1, org2]]))
+                sorted(g['name'] for g in [org1, org2]))
 
     def test_organization_list_in_presence_of_custom_group_types(self):
         '''
@@ -605,7 +605,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         org_list = helpers.call_action('organization_list')
 
         assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org1, org2]]))
+                sorted(g['name'] for g in [org1, org2]))
 
     def test_organization_list_return_custom_organization_type(self):
         '''
@@ -620,7 +620,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         org_list = helpers.call_action('organization_list', type='custom_org')
 
         assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org2]])), '{}'.format(org_list)
+                sorted(g['name'] for g in [org2])), '{}'.format(org_list)
 
     def _create_bulk_orgs(self, name, count):
         from ckan import model
@@ -1937,12 +1937,14 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         org_list_for_user1 = helpers.call_action('organization_list_for_user',
                                                  id=user1['id'])
 
-        assert sorted([org['id'] for org in org_list_for_user1]) == sorted([org1['id'], org2['id'], org3['id']])
+        assert sorted(org['id'] for org in org_list_for_user1) == \
+            sorted([org1['id'], org2['id'], org3['id']])
 
         org_list_for_user2 = helpers.call_action('organization_list_for_user',
                                                  id=user2['id'])
 
-        assert sorted([org['id'] for org in org_list_for_user2]) == sorted([org1['id'], org2['id']])
+        assert sorted(org['id'] for org in org_list_for_user2) == \
+            sorted([org1['id'], org2['id']])
 
         org_list_for_user3 = helpers.call_action('organization_list_for_user',
                                                  id=user3['id'])
@@ -2313,7 +2315,7 @@ class TestFollow(helpers.FunctionalTestBase):
                                             id=user['name'])
 
         eq(len(followee_list), 2)
-        eq(sorted([f['display_name'] for f in followee_list]),
+        eq(sorted(f['display_name'] for f in followee_list),
            ['Environment', 'Finance'])
 
     def test_followee_list_with_q(self):

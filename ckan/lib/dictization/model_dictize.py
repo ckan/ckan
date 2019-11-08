@@ -539,9 +539,11 @@ def group_to_api(group, context):
     dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     if api_version == 1:
-        dictized["packages"] = sorted([pkg["name"] for pkg in dictized["packages"]])
+        dictized["packages"] = sorted(pkg["name"]
+                                      for pkg in dictized["packages"])
     else:
-        dictized["packages"] = sorted([pkg["id"] for pkg in dictized["packages"]])
+        dictized["packages"] = sorted(pkg["id"]
+                                      for pkg in dictized["packages"])
     return dictized
 
 def tag_to_api(tag, context):
@@ -549,9 +551,9 @@ def tag_to_api(tag, context):
     assert api_version, 'No api_version supplied in context'
     dictized = tag_dictize(tag, context)
     if api_version == 1:
-        return sorted([package["name"] for package in dictized["packages"]])
+        return sorted(package["name"] for package in dictized["packages"])
     else:
-        return sorted([package["id"] for package in dictized["packages"]])
+        return sorted(package["id"] for package in dictized["packages"])
 
 
 def resource_dict_to_api(res_dict, package_id, context):
