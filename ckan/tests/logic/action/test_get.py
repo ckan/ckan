@@ -956,7 +956,7 @@ class TestUserShow(helpers.FunctionalTestBase):
                                        id=user['id'])
 
         eq(len(got_user['datasets']), 3)
-        datasets_got = set([user_['name'] for user_ in got_user['datasets']])
+        datasets_got = {user_['name'] for user_ in got_user['datasets']}
         assert dataset_deleted['name'] not in datasets_got
         eq(got_user['number_created_packages'], 3)
 
@@ -977,7 +977,7 @@ class TestUserShow(helpers.FunctionalTestBase):
                                        id=user['id'])
 
         eq(len(got_user['datasets']), 3)
-        datasets_got = set([user_['name'] for user_ in got_user['datasets']])
+        datasets_got = {user_['name'] for user_ in got_user['datasets']}
         assert dataset_deleted['name'] not in datasets_got
         eq(got_user['number_created_packages'], 3)
 

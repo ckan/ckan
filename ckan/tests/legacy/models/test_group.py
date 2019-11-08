@@ -88,11 +88,11 @@ class TestGroup(object):
 
     def _search_results(self, query, is_org=False):
         results = model.Group.search_by_name_or_title(query,is_org=is_org)
-        return set([group.name for group in results])
+        return {group.name for group in results}
 
-name_set_from_dicts = lambda groups: set([group['name'] for group in groups])
-name_set_from_group_tuple = lambda tuples: set([t[1] for t in tuples])
-name_set_from_groups = lambda groups: set([group.name for group in groups])
+name_set_from_dicts = lambda groups: {group['name'] for group in groups}
+name_set_from_group_tuple = lambda tuples: {t[1] for t in tuples}
+name_set_from_groups = lambda groups: {group.name for group in groups}
 names_from_groups = lambda groups: [group.name for group in groups]
 
 group_type = 'organization'

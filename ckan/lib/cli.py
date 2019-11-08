@@ -2272,8 +2272,8 @@ Not used when using the `-d` option.''')
                         view_types=loaded_view_plugins)
 
                     if views:
-                        view_types = list(set([view['view_type']
-                                               for view in views]))
+                        view_types = list({view['view_type']
+                                           for view in views})
                         msg = ('Added {0} view(s) of type(s) {1} to ' +
                                'resources from dataset {2}')
                         log.debug(msg.format(len(views),
