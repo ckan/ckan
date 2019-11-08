@@ -1,4 +1,4 @@
-g encoding: utf-8
+# encoding: utf-8
 
 import collections
 import datetime
