@@ -14,6 +14,7 @@ import pysolr
 from ckan.common import config
 from ckan.common import asbool
 from six import text_type
+from six.moves import map
 
 from common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
