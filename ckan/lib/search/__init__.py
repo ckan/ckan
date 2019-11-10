@@ -220,7 +220,7 @@ def check():
     log.debug("Checking packages search index...")
     pkgs_q = model.Session.query(model.Package).filter_by(
         state=model.State.ACTIVE)
-    pkgs = set([pkg.id for pkg in pkgs_q])
+    pkgs = {pkg.id for pkg in pkgs_q}
     indexed_pkgs = set(package_query.get_all_entity_ids(max_results=len(pkgs)))
     pkgs_not_indexed = pkgs - indexed_pkgs
     print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),

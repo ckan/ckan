@@ -74,7 +74,8 @@ class TestDefaultViewsConfig(object):
 
         default_views = datapreview.get_default_view_plugins()
 
-        eq_(sorted([view_plugin.info()['name'] for view_plugin in default_views]),
+        eq_(sorted(view_plugin.info()['name']
+                   for view_plugin in default_views),
             sorted(datapreview.DEFAULT_RESOURCE_VIEW_TYPES))
 
     @helpers.change_config('ckan.views.default_views', '')
@@ -89,7 +90,8 @@ class TestDefaultViewsConfig(object):
 
         default_views = datapreview.get_default_view_plugins()
 
-        eq_(sorted([view_plugin.info()['name'] for view_plugin in default_views]),
+        eq_(sorted(view_plugin.info()['name']
+                   for view_plugin in default_views),
             ['image_view'])
 
     @helpers.change_config('ckan.views.default_views', 'test_datastore_view')
@@ -97,7 +99,8 @@ class TestDefaultViewsConfig(object):
 
         default_views = datapreview.get_default_view_plugins(get_datastore_views=True)
 
-        eq_(sorted([view_plugin.info()['name'] for view_plugin in default_views]),
+        eq_(sorted(view_plugin.info()['name']
+                   for view_plugin in default_views),
             ['test_datastore_view'])
 
     @helpers.change_config('ckan.views.default_views', 'test_datastore_view')
@@ -112,7 +115,8 @@ class TestDefaultViewsConfig(object):
 
         default_views = datapreview.get_default_view_plugins()
 
-        eq_(sorted([view_plugin.info()['name'] for view_plugin in default_views]),
+        eq_(sorted(view_plugin.info()['name']
+                   for view_plugin in default_views),
             ['image_view'])
 
     @helpers.change_config('ckan.views.default_views', 'image_view test_datastore_view')
@@ -120,7 +124,8 @@ class TestDefaultViewsConfig(object):
 
         default_views = datapreview.get_default_view_plugins(get_datastore_views=True)
 
-        eq_(sorted([view_plugin.info()['name'] for view_plugin in default_views]),
+        eq_(sorted(view_plugin.info()['name']
+                   for view_plugin in default_views),
             ['test_datastore_view'])
 
 

@@ -124,7 +124,7 @@ def get_all_key_combinations(data, flattened_schema):
     match the schema ignoring the last value in the tuple.
 
     '''
-    schema_prefixes = set([key[:-1] for key in flattened_schema])
+    schema_prefixes = {key[:-1] for key in flattened_schema}
     combinations = set([()])
 
     for key in sorted(data.keys(), key=flattened_order_key):
