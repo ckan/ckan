@@ -1,4 +1,5 @@
-g encoding: utf-8
+
+# encoding: utf-8
 
 import collections
 import datetime
@@ -859,19 +860,13 @@ def email_validator(value, context):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
 
-def one_of(value,context):
+def one_of(list_of_value):
    ''' Implementation of OneOf method
        for Python Library Formencode
    '''
+   def callable(value):
+      if value not in list_of_values:
+	raise Invalid(_('Value must be one of {}'.format(list_of_value)))
+      return value
 
-   if (value == '' or value == None):
-      raise Invalid(_('A value must be provided'))
-
-   else:
-    if value:
-      for x in context:
-        if (x == value):
-          return value
-
-   raise Invalid(_('value not found')
 

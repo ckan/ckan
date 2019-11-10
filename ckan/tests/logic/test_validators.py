@@ -1,4 +1,5 @@
-g encoding: utf-8
+
+# encoding: utf-8
 
 '''Unit tests for ckan/logic/validators.py.
 
@@ -669,29 +670,15 @@ class TestUrlValidator(object):
 
 class TestOneOfValidator(object):
 
-      def test_val_true(self):
-        val = 1
+      def test_val_in_list(self):
         cont = [1,2,3,4]
-        y = validators.one_of(val,cont)
-        if y is not None:
-           self.assert_equals(y,1)
+        func = validators.one_of(cont)
+        assert_equals(func(1),1)
 
-      def test_val_false(self):
-        val = 0
+      @raises_Invalid
+      def test_val_not_in_list(self):
         cont = [1,2,3,4]
-        y = validators.one_of(val,cont)
-        self.assertIs(y,False)
-
-      def test_val(self):
-        val = ''
-        cont = [1,2,3,4]
-        y = validators.one_of(val,cont)
-        self.assertIs(y,False)
-
-      def test_val_none(self):
-        val = None
-        cont = [1,2,3,4]
-        y = validators.one_of(val,cont)
-        self.assertIs(y,False)
+        y = validators.one_of(cont)
+	raises_invalid(func)(5)
 
 # TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show
