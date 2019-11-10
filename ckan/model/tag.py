@@ -3,14 +3,15 @@
 from sqlalchemy.orm import relation
 from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
 
-import package as _package
-import extension as _extension
-import core
-import meta
-import types as _types
-import domain_object
-import vocabulary
-import activity
+from ckan.model import (
+    core,
+    meta,
+    types as _types,
+    domain_object,
+    vocabulary,
+    package as _package,
+    extension as _extension,
+)
 import ckan  # this import is needed
 import ckan.lib.dictization
 import ckan.lib.maintain as maintain

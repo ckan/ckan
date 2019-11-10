@@ -2,10 +2,7 @@
 
 from sqlalchemy import types, Column, Table
 
-import meta
-import types as _types
-import tag
-import domain_object
+from ckan.model import meta, types as _types, tag, domain_object
 
 VOCABULARY_NAME_MIN_LENGTH = 2
 VOCABULARY_NAME_MAX_LENGTH = 100

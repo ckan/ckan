@@ -6,9 +6,7 @@ import inspect
 import json
 
 from six import text_type
-from ckan.common import config
-
-from ckan.common import _
+from ckan.common import config, _
 
 
 class Missing(object):

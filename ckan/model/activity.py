@@ -16,9 +16,8 @@ from sqlalchemy import (
 )
 
 import ckan.model
-import meta
-import types as _types
-import domain_object
+from ckan.model import meta
+from ckan.model import domain_object, types as _types
 
 __all__ = ['Activity', 'activity_table',
            'ActivityDetail', 'activity_detail_table',

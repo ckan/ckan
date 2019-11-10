@@ -1,11 +1,6 @@
 # encoding: utf-8
 
-import datetime
-
-from sqlalchemy import Column, DateTime, Text, Boolean
-
-import domain_object
-import meta
+from ckan.model import domain_object
 
 
 __all__ = ['System', 'State', 'StatefulObjectMixin']

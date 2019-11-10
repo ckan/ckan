@@ -9,7 +9,7 @@ import simplejson as json
 from sqlalchemy import types
 from six import string_types, text_type
 
-import meta
+from ckan.model import meta
 
 __all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
            'JsonType', 'JsonDictType']

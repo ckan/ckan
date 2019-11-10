@@ -19,24 +19,25 @@ from alembic.command import (
 )
 from alembic.config import Config as AlembicConfig
 
-import meta
-from meta import (
+from ckan.model import meta
+
+from ckan.model.meta import (
     Session,
     engine_is_sqlite,
     engine_is_pg,
 )
-from core import (
+from ckan.model.core import (
     System,
     State,
 )
-from package import (
+from ckan.model.package import (
     Package,
     PACKAGE_NAME_MIN_LENGTH,
     PACKAGE_NAME_MAX_LENGTH,
     PACKAGE_VERSION_MAX_LENGTH,
     package_table,
 )
-from tag import (
+from ckan.model.tag import (
     Tag,
     PackageTag,
     MAX_TAG_LENGTH,
@@ -44,82 +45,82 @@ from tag import (
     tag_table,
     package_tag_table,
 )
-from user import (
+from ckan.model.user import (
     User,
     user_table,
 )
-from group import (
+from ckan.model.group import (
     Member,
     Group,
     group_table,
     member_table,
 )
-from group_extra import (
+from ckan.model.group_extra import (
     GroupExtra,
     group_extra_table,
 )
-from package_extra import (
+from ckan.model.package_extra import (
     PackageExtra,
     package_extra_table,
 )
-from resource import (
+from ckan.model.resource import (
     Resource,
     DictProxy,
     resource_table,
 )
-from resource_view import (
+from ckan.model.resource_view import (
     ResourceView,
     resource_view_table,
 )
-from tracking import (
+from ckan.model.tracking import (
     tracking_summary_table,
     TrackingSummary,
     tracking_raw_table
 )
-from rating import (
+from ckan.model.rating import (
     Rating,
     MIN_RATING,
     MAX_RATING,
 )
-from package_relationship import (
+from ckan.model.package_relationship import (
     PackageRelationship,
     package_relationship_table,
 )
-from task_status import (
+from ckan.model.task_status import (
     TaskStatus,
     task_status_table,
 )
-from vocabulary import (
+from ckan.model.vocabulary import (
     Vocabulary,
     VOCABULARY_NAME_MAX_LENGTH,
     VOCABULARY_NAME_MIN_LENGTH,
 )
-from activity import (
+from ckan.model.activity import (
     Activity,
     ActivityDetail,
     activity_table,
     activity_detail_table,
 )
-from term_translation import (
+from ckan.model.term_translation import (
     term_translation_table,
 )
-from follower import (
+from ckan.model.follower import (
     UserFollowingUser,
     UserFollowingDataset,
     UserFollowingGroup,
 )
-from system_info import (
+from ckan.model.system_info import (
     system_info_table,
     SystemInfo,
     get_system_info,
     set_system_info,
     delete_system_info,
 )
-from domain_object import (
+from ckan.model.domain_object import (
     DomainObjectOperation,
     DomainObject,
 )
-from dashboard import (
+from ckan.model.dashboard import (
     Dashboard,
 )
 
