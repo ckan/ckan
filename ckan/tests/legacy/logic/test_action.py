@@ -280,7 +280,6 @@ class TestAction(WsgiAppCase):
         assert 'created' in result
         assert 'display_name' in result
         assert 'number_created_packages' in result
-        assert 'number_of_edits' in result
         assert not 'password' in result
 
         #Sysadmin users can update themselves
@@ -616,7 +615,7 @@ class TestAction(WsgiAppCase):
             {'id': group_id}
         )
         assert len(group_packages) == 2, group_packages
-        group_names = set([g.get('name') for g in group_packages])
+        group_names = {g.get('name') for g in group_packages}
         assert group_names == set(['annakarenina', 'warandpeace']), group_names
 
 

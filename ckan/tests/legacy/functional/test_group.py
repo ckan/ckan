@@ -34,6 +34,7 @@ class TestGroup(FunctionalTestCase):
         pkg2 = model.Package(name="pkg2")
         model.Session.add(pkg1)
         model.Session.add(pkg2)
+        model.Session.commit()
 
         CreateTestData.create_groups([{'name': "alpha",
                                        'title': "Alpha",

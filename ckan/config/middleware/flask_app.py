@@ -129,9 +129,9 @@ def make_flask_stack(conf, **app_conf):
             session.save()
 
     namespace = 'beaker.session.'
-    session_opts = dict([(k.replace('beaker.', ''), v)
-                        for k, v in config.iteritems()
-                        if k.startswith(namespace)])
+    session_opts = {k.replace('beaker.', ''): v
+                    for k, v in config.iteritems()
+                    if k.startswith(namespace)}
     if (not session_opts.get('session.data_dir') and
             session_opts.get('session.type', 'file') == 'file'):
         cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')

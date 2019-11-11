@@ -100,7 +100,7 @@ class TestPlugins(object):
         plugins.load_all()
 
         # synchronous_search automatically gets loaded
-        current_plugins = set([plugins.get_plugin(p) for p in ['mapper_plugin', 'routes_plugin', 'synchronous_search'] + find_system_plugins()])
+        current_plugins = {plugins.get_plugin(p) for p in ['mapper_plugin', 'routes_plugin', 'synchronous_search'] + find_system_plugins()}
         assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
         # cleanup
         config['ckan.plugins'] = config_plugins

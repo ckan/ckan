@@ -19,8 +19,6 @@ class TestPackage(object):
         # * ckan.lib.dictization.model_save.py:package_dict_save
         # etc
 
-        model.repo.new_revision()
-
         pkg = model.Package(name=u'test-package')
         pkg.notes = u'Some notes'
         pkg.author = u'bob'
@@ -41,7 +39,6 @@ class TestPackage(object):
         dataset = factories.Dataset()
         pkg = model.Package.by_name(dataset['name'])
 
-        model.repo.new_revision()
         pkg.author = u'bob'
         model.Session.commit()
         model.Session.remove()
@@ -58,7 +55,6 @@ class TestPackage(object):
         )
         pkg = model.Package.by_name(dataset['name'])
 
-        model.repo.new_revision()
         pkg.delete()
         model.Session.commit()
         model.Session.remove()
@@ -89,7 +85,6 @@ class TestPackage(object):
         )
         pkg = model.Package.by_name(dataset['name'])
 
-        model.repo.new_revision()
         pkg.purge()
         model.Session.commit()
         model.Session.remove()

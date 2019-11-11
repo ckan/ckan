@@ -116,6 +116,8 @@ class PackageDictizeMonkeyPatch(object):
 
 def migrate_dataset(dataset_name, errors):
     '''
+    Migrates a single dataset.
+
     NB this function should be run in a `with PackageDictizeMonkeyPatch():`
     '''
 
@@ -160,11 +162,13 @@ def migrate_dataset(dataset_name, errors):
         context = dict(
             get_context(),
             for_view=False,
-            revision_id=activity[u'revision_id'],
+            revision_id=activity_obj.revision_id,
             use_cache=False,  # avoid the cache (which would give us the
                               # latest revision)
         )
         try:
+            assert activity_obj.revision_id, \
+                u'Revision missing on the activity'
             dataset = logic.get_action(u'package_show')(
                 context,
                 {u'id': activity[u'object_id'], u'include_tracking': False})
@@ -174,8 +178,9 @@ def migrate_dataset(dataset_name, errors):
             else:
                 error_msg = text_type(exc)
             print(u'    Error: {}! Skipping this version '
-                  '(revision_id={})'
-                  .format(error_msg, activity[u'revision_id']))
+                  '(revision_id={}, timestamp={})'
+                  .format(error_msg, activity_obj.revision_id,
+                          activity_obj.timestamp))
             errors[error_msg] += 1
             # We shouldn't leave the activity.data['package'] with missing
             # resources, extras & tags, which could cause the package_read
@@ -289,5 +294,6 @@ if __name__ == u'__main__':
         wipe_activity_detail(delete_activity_detail=args.delete)
     else:
         errors = defaultdict(int)
-        migrate_dataset(args.dataset, errors)
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(args.dataset, errors)
         print_errors(errors)

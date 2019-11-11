@@ -71,7 +71,6 @@ class TestPackageShow(helpers.FunctionalTestBase):
             dict_[key] = re.sub(r'\d+$', 'num', dict_[key])
 
         replace_uuid(dataset2, 'id')
-        replace_uuid(dataset2, 'revision_id')
         replace_uuid(dataset2, 'creator_user_id')
         replace_uuid(dataset2, 'owner_org')
         replace_number_suffix(dataset2, 'name')
@@ -82,12 +81,10 @@ class TestPackageShow(helpers.FunctionalTestBase):
         replace_number_suffix(dataset2['groups'][0], 'title')
         replace_number_suffix(dataset2['groups'][0], 'display_name')
         replace_uuid(dataset2['organization'], 'id')
-        replace_uuid(dataset2['organization'], 'revision_id')
         replace_number_suffix(dataset2['organization'], 'name')
         replace_number_suffix(dataset2['organization'], 'title')
         replace_datetime(dataset2['organization'], 'created')
         replace_uuid(dataset2['resources'][0], 'id')
-        replace_uuid(dataset2['resources'][0], 'revision_id')
         replace_uuid(dataset2['resources'][0], 'package_id')
         replace_number_suffix(dataset2['resources'][0], 'name')
         replace_datetime(dataset2['resources'][0], 'created')
@@ -127,7 +124,6 @@ class TestPackageShow(helpers.FunctionalTestBase):
                 u'image_url': u'http://placekitten.com/g/200/100',
                 u'is_organization': True,
                 u'name': u'test_org_num',
-                u'revision_id': u'<SOME-UUID>',
                 u'state': u'active',
                 u'title': u'Test Organization',
                 u'type': u'organization'},
@@ -150,12 +146,10 @@ class TestPackageShow(helpers.FunctionalTestBase):
                 u'package_id': u'<SOME-UUID>',
                 u'position': 0,
                 u'resource_type': None,
-                u'revision_id': u'<SOME-UUID>',
                 u'size': None,
                 u'state': u'active',
                 u'url': u'http://example.com/image.png',
                 u'url_type': None}],
-            u'revision_id': u'<SOME-UUID>',
             u'state': u'active',
             u'tags': [{
                 u'display_name': u'science',
@@ -209,7 +203,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         group_list = helpers.call_action('group_list')
 
         assert (sorted(group_list) ==
-                sorted([g['name'] for g in [group1, group2]]))
+                sorted(g['name'] for g in [group1, group2]))
 
     def test_group_list_in_presence_of_organizations(self):
         '''
@@ -224,7 +218,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         group_list = helpers.call_action('group_list')
 
         assert (sorted(group_list) ==
-                sorted([g['name'] for g in [group1, group2]]))
+                sorted(g['name'] for g in [group1, group2]))
 
     def test_group_list_in_presence_of_custom_group_types(self):
         '''Getting the group_list shouldn't return custom group types.'''
@@ -235,7 +229,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         group_list = helpers.call_action('group_list')
 
         assert (sorted(group_list) ==
-                sorted([g['name'] for g in [group1, group2]]))
+                sorted(g['name'] for g in [group1, group2]))
 
     def test_group_list_return_custom_group(self):
         '''
@@ -250,7 +244,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         group_list = helpers.call_action('group_list', type='custom')
 
         assert (sorted(group_list) ==
-                sorted([g['name'] for g in [group1, group2]]))
+                sorted(g['name'] for g in [group1, group2]))
 
     def test_group_list_sort_by_package_count(self):
 
@@ -302,7 +296,6 @@ class TestGroupList(helpers.FunctionalTestBase):
 
     def _create_bulk_groups(self, name, count):
         from ckan import model
-        model.repo.new_revision()
         groups = [model.Group(name='{}_{}'.format(name, i))
                   for i in range(count)]
         model.Session.add_all(groups)
@@ -582,7 +575,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         org_list = helpers.call_action('organization_list')
 
         assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org1, org2]]))
+                sorted(g['name'] for g in [org1, org2]))
 
     def test_organization_list_in_presence_of_groups(self):
         '''
@@ -597,7 +590,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         org_list = helpers.call_action('organization_list')
 
         assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org1, org2]]))
+                sorted(g['name'] for g in [org1, org2]))
 
     def test_organization_list_in_presence_of_custom_group_types(self):
         '''
@@ -612,7 +605,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         org_list = helpers.call_action('organization_list')
 
         assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org1, org2]]))
+                sorted(g['name'] for g in [org1, org2]))
 
     def test_organization_list_return_custom_organization_type(self):
         '''
@@ -627,11 +620,10 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         org_list = helpers.call_action('organization_list', type='custom_org')
 
         assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org2]])), '{}'.format(org_list)
+                sorted(g['name'] for g in [org2])), '{}'.format(org_list)
 
     def _create_bulk_orgs(self, name, count):
         from ckan import model
-        model.repo.new_revision()
         orgs = [model.Group(name='{}_{}'.format(name, i), is_organization=True,
                             type='organization')
                 for i in range(count)]
@@ -760,7 +752,6 @@ class TestUserList(helpers.FunctionalTestBase):
         assert got_user['created'] == user['created']
         assert got_user['about'] == user['about']
         assert got_user['sysadmin'] == user['sysadmin']
-        assert got_user['number_of_edits'] == 0
         assert got_user['number_created_packages'] == 0
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
@@ -782,7 +773,6 @@ class TestUserList(helpers.FunctionalTestBase):
         assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user['number_created_packages'] == 1
-        assert got_user['number_of_edits'] == 2
 
     def test_user_list_excludes_deleted_users(self):
 
@@ -832,7 +822,6 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert got_user['created'] == user['created']
         assert got_user['about'] == user['about']
         assert got_user['sysadmin'] == user['sysadmin']
-        assert got_user['number_of_edits'] == 0
         assert got_user['number_created_packages'] == 0
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
@@ -967,7 +956,7 @@ class TestUserShow(helpers.FunctionalTestBase):
                                        id=user['id'])
 
         eq(len(got_user['datasets']), 3)
-        datasets_got = set([user_['name'] for user_ in got_user['datasets']])
+        datasets_got = {user_['name'] for user_ in got_user['datasets']}
         assert dataset_deleted['name'] not in datasets_got
         eq(got_user['number_created_packages'], 3)
 
@@ -988,7 +977,7 @@ class TestUserShow(helpers.FunctionalTestBase):
                                        id=user['id'])
 
         eq(len(got_user['datasets']), 3)
-        datasets_got = set([user_['name'] for user_ in got_user['datasets']])
+        datasets_got = {user_['name'] for user_ in got_user['datasets']}
         assert dataset_deleted['name'] not in datasets_got
         eq(got_user['number_created_packages'], 3)
 
@@ -1155,7 +1144,6 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
     def _create_bulk_datasets(self, name, count):
         from ckan import model
-        model.repo.new_revision()
         pkgs = [model.Package(name='{}_{}'.format(name, i))
                 for i in range(count)]
         model.Session.add_all(pkgs)
@@ -1949,12 +1937,14 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         org_list_for_user1 = helpers.call_action('organization_list_for_user',
                                                  id=user1['id'])
 
-        assert sorted([org['id'] for org in org_list_for_user1]) == sorted([org1['id'], org2['id'], org3['id']])
+        assert sorted(org['id'] for org in org_list_for_user1) == \
+            sorted([org1['id'], org2['id'], org3['id']])
 
         org_list_for_user2 = helpers.call_action('organization_list_for_user',
                                                  id=user2['id'])
 
-        assert sorted([org['id'] for org in org_list_for_user2]) == sorted([org1['id'], org2['id']])
+        assert sorted(org['id'] for org in org_list_for_user2) == \
+            sorted([org1['id'], org2['id']])
 
         org_list_for_user3 = helpers.call_action('organization_list_for_user',
                                                  id=user3['id'])
@@ -2193,91 +2183,6 @@ class TestTagList(helpers.FunctionalTestBase):
             helpers.call_action, 'tag_list', vocabulary_id='does-not-exist')
 
 
-class TestRevisionList(helpers.FunctionalTestBase):
-
-    @classmethod
-    def setup_class(cls):
-        super(TestRevisionList, cls).setup_class()
-        helpers.reset_db()
-
-    # Error cases
-
-    def test_date_instead_of_revision(self):
-        nose.tools.assert_raises(
-            logic.NotFound,
-            helpers.call_action,
-            'revision_list',
-            since_id='2010-01-01T00:00:00')
-
-    def test_date_invalid(self):
-        nose.tools.assert_raises(
-            logic.ValidationError,
-            helpers.call_action,
-            'revision_list',
-            since_time='2010-02-31T00:00:00')
-
-    def test_revision_doesnt_exist(self):
-        nose.tools.assert_raises(
-            logic.NotFound,
-            helpers.call_action,
-            'revision_list',
-            since_id='1234')
-
-    def test_sort_param_not_valid(self):
-        nose.tools.assert_raises(
-            logic.ValidationError,
-            helpers.call_action,
-            'revision_list',
-            sort='invalid')
-
-    # Normal usage
-
-    @classmethod
-    def _create_revisions(cls, num_revisions):
-        from ckan import model
-        rev_ids = []
-        for i in xrange(num_revisions):
-            rev = model.repo.new_revision()
-            rev.id = text_type(i)
-            model.Session.commit()
-            rev_ids.append(rev.id)
-        return rev_ids
-
-    def test_all_revisions(self):
-        rev_ids = self._create_revisions(2)
-        revs = helpers.call_action('revision_list')
-        # only test the 2 newest revisions, since the system creates one at
-        # start-up.
-        eq(revs[:2], rev_ids[::-1])
-
-    def test_revisions_since_id(self):
-        self._create_revisions(4)
-        revs = helpers.call_action('revision_list', since_id='1')
-        eq(revs, ['3', '2'])
-
-    def test_revisions_since_time(self):
-        from ckan import model
-        self._create_revisions(4)
-
-        rev1 = model.Session.query(model.Revision).get('1')
-        revs = helpers.call_action('revision_list',
-                                   since_time=rev1.timestamp.isoformat())
-        eq(revs, ['3', '2'])
-
-    def test_revisions_returned_are_limited(self):
-        self._create_revisions(55)
-        revs = helpers.call_action('revision_list', since_id='1')
-        eq(len(revs), 50)  # i.e. limited to 50
-        eq(revs[0], '54')
-        eq(revs[-1], '5')
-
-    def test_sort_asc(self):
-        self._create_revisions(4)
-        revs = helpers.call_action('revision_list', since_id='1',
-                                   sort='time_asc')
-        eq(revs, ['2', '3'])
-
-
 class TestMembersList():
 
     def setup(self):
@@ -2410,7 +2315,7 @@ class TestFollow(helpers.FunctionalTestBase):
                                             id=user['name'])
 
         eq(len(followee_list), 2)
-        eq(sorted([f['display_name'] for f in followee_list]),
+        eq(sorted(f['display_name'] for f in followee_list),
            ['Environment', 'Finance'])
 
     def test_followee_list_with_q(self):
@@ -2515,7 +2420,7 @@ class TestActivityShow(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         user = factories.User()
         activity = factories.Activity(
-            user_id=user['id'], object_id=dataset['id'], revision_id=None,
+            user_id=user['id'], object_id=dataset['id'],
             activity_type='new package',
             data={
                 'package': copy.deepcopy(dataset),
@@ -2534,7 +2439,7 @@ class TestActivityShow(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         user = factories.User()
         activity = factories.Activity(
-            user_id=user['id'], object_id=dataset['id'], revision_id=None,
+            user_id=user['id'], object_id=dataset['id'],
             activity_type='new package',
             data={
                 'package': copy.deepcopy(dataset),
@@ -2779,7 +2684,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         from ckan import model
         objs = [
             model.Activity(
-                user_id=None, object_id=dataset['id'], revision_id=None,
+                user_id=None, object_id=dataset['id'],
                 activity_type=None, data=None)
             for i in range(count)]
         model.Session.add_all(objs)
@@ -2998,7 +2903,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
         from ckan import model
         objs = [
             model.Activity(
-                user_id=user['id'], object_id=None, revision_id=None,
+                user_id=user['id'], object_id=None,
                 activity_type=None, data=None)
             for i in range(count)]
         model.Session.add_all(objs)
@@ -3194,7 +3099,7 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
         from ckan import model
         objs = [
             model.Activity(
-                user_id=None, object_id=group['id'], revision_id=None,
+                user_id=None, object_id=group['id'],
                 activity_type=None, data=None)
             for i in range(count)]
         model.Session.add_all(objs)
@@ -3396,7 +3301,7 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
         from ckan import model
         objs = [
             model.Activity(
-                user_id=None, object_id=org['id'], revision_id=None,
+                user_id=None, object_id=org['id'],
                 activity_type=None, data=None)
             for i in range(count)]
         model.Session.add_all(objs)
@@ -3539,7 +3444,7 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
         from ckan import model
         objs = [
             model.Activity(
-                user_id=None, object_id=None, revision_id=None,
+                user_id=None, object_id=None,
                 activity_type='new_package', data=None)
             for i in range(count)]
         model.Session.add_all(objs)
@@ -3627,7 +3532,7 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
         from ckan import model
         objs = [
             model.Activity(
-                user_id=user['id'], object_id=None, revision_id=None,
+                user_id=user['id'], object_id=None,
                 activity_type=None, data=None)
             for i in range(count)]
         model.Session.add_all(objs)

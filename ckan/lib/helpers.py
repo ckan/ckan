@@ -37,6 +37,7 @@ from six import string_types, text_type
 from six.moves.urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
 )
+from six.moves import map
 import jinja2
 
 import ckan.exceptions
@@ -186,8 +187,7 @@ def redirect_to(*args, **kw):
         kw['__no_cache__'] = True
 
     # Routes router doesn't like unicode args
-    uargs = map(lambda arg: str(arg) if isinstance(arg, text_type) else arg,
-                args)
+    uargs = [str(arg) if isinstance(arg, text_type) else arg for arg in args]
 
     _url = ''
     skip_url_parsing = False
@@ -1512,7 +1512,7 @@ def date_str_to_datetime(date_str):
         microseconds = int(m.groupdict(0).get('microseconds'))
         time_tuple = time_tuple[:5] + [seconds, microseconds]
 
-    return datetime.datetime(*map(int, time_tuple))
+    return datetime.datetime(*list(int(item) for item in time_tuple))
 
 
 @core_helper
@@ -1733,26 +1733,8 @@ def convert_to_dict(object_type, objs):
     ''' This is a helper function for converting lists of objects into
     lists of dicts. It is for backwards compatability only. '''
 
-    def dictize_revision_list(revision, context):
-        # conversionof revision lists
-
-        def process_names(items):
-            array = []
-            for item in items:
-                array.append(item.name)
-            return array
-
-        rev = {'id': revision.id,
-               'state': revision.state,
-               'timestamp': revision.timestamp,
-               'author': revision.author,
-               'packages': process_names(revision.packages),
-               'groups': process_names(revision.groups),
-               'message': revision.message, }
-        return rev
     import ckan.lib.dictization.model_dictize as md
-    converters = {'package': md.package_dictize,
-                  'revisions': dictize_revision_list}
+    converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
     context = {'model': model}
