@@ -385,8 +385,8 @@ def tag_autocomplete(ver=API_REST_DEFAULT_VERSION):
                    u'user': g.user, u'auth_user_obj': g.userobj}
 
         data_dict = {u'q': q, u'limit': limit}
-        if vocab != '':
-            data_dict['vocabulary_id'] = vocab
+        if vocab != u'':
+            data_dict[u'vocabulary_id'] = vocab
 
         tag_names = get_action(u'tag_autocomplete')(context, data_dict)
 
