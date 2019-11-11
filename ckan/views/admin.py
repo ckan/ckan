@@ -184,10 +184,11 @@ class TrashView(MethodView):
 
         elif req_action and u'purge-' in req_action:
             for ent in self.data_type[req_action.split(u'-')[-1]]:
-                logic.get_action(ent.type + u'_purge')({u'user': g.user}, 
+                logic.get_action(ent.type + u'_purge')({u'user': g.user},
                                                        {u'id': ent.id})
             model.Session.remove()
-            h.flash_success(_(u'{}s purge complete'.format(
+            h.flash_success(
+                _(u'{}s purge complete'.format(
                     req_action.split(u'-')[-1].title())))
 
         else:
