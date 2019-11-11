@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from nose.tools import assert_true, assert_equal
+from nose.tools import assert_true, assert_equal, assert_false
 
 from bs4 import BeautifulSoup
 from ckan.lib.helpers import url_for
@@ -286,7 +286,7 @@ class TestTrashView(helpers.FunctionalTestBase):
         trash_url = url_for(controller='admin', action='trash')
         trash_response = app.get(trash_url, extra_environ=env, status=200)
         # On the purge page
-        assert_true('form-purge-packages' in trash_response)
+        assert_true('purge-all' in trash_response)
 
     def test_trash_no_datasets(self):
         '''Getting the trash view with no 'deleted' datasets should list no
@@ -300,10 +300,41 @@ class TestTrashView(helpers.FunctionalTestBase):
         trash_response = app.get(trash_url, extra_environ=env, status=200)
 
         trash_response_html = BeautifulSoup(trash_response.body)
-        # it's called a 'user list' for some reason
-        trash_pkg_list = trash_response_html.select('ul.user-list li')
+        trash_pkg_list = trash_response_html.select('ul.package-list li')
         # no packages available to purge
         assert_equal(len(trash_pkg_list), 0)
+
+    def test_trash_no_groups(self):
+        '''Getting the trash view with no 'deleted' groups should list no
+        groups.'''
+        factories.Group()
+        user = factories.Sysadmin()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        trash_response_html = BeautifulSoup(trash_response.body)
+        trash_grp_list = trash_response_html.select('ul.group-list li')
+        # no packages available to purge
+        assert_equal(len(trash_grp_list), 0)
+
+    def test_trash_no_organizations(self):
+        '''Getting the trash view with no 'deleted' organizations should list no
+        organizations.'''
+        factories.Organization()
+        user = factories.Sysadmin()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        trash_response_html = BeautifulSoup(trash_response.body)
+        trash_org_list = trash_response_html.select('ul.organization-list li')
+        # no packages available to purge
+        assert_equal(len(trash_org_list), 0)
 
     def test_trash_with_deleted_datasets(self):
         '''Getting the trash view with 'deleted' datasets should list the
@@ -319,10 +350,70 @@ class TestTrashView(helpers.FunctionalTestBase):
         trash_response = app.get(trash_url, extra_environ=env, status=200)
 
         trash_response_html = BeautifulSoup(trash_response.body)
-        # it's called a 'user list' for some reason
-        trash_pkg_list = trash_response_html.select('ul.user-list li')
+        trash_pkg_list = trash_response_html.select('ul.package-list li')
         # Two packages in the list to purge
         assert_equal(len(trash_pkg_list), 2)
+
+    def test_trash_with_deleted_groups(self):
+        '''Getting the trash view with 'deleted' groups should list the
+        groups.'''
+        user = factories.Sysadmin()
+        factories.Group(state='deleted')
+        factories.Group(state='deleted')
+        factories.Group()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        trash_response_html = BeautifulSoup(trash_response.body)
+        trash_grp_list = trash_response_html.select('ul.group-list li')
+        # Two groups in the list to purge
+        assert_equal(len(trash_grp_list), 2)
+
+    def test_trash_with_deleted_organizations(self):
+        '''Getting the trash view with 'deleted' organizations should list the
+        organizations.'''
+        user = factories.Sysadmin()
+        factories.Organization(state='deleted')
+        factories.Organization(state='deleted')
+        factories.Organization()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        trash_response_html = BeautifulSoup(trash_response.body)
+        trash_org_list = trash_response_html.select('ul.organization-list li')
+        # Two organizations in the list to purge
+        assert_equal(len(trash_org_list), 2)
+
+    def test_trash_with_deleted_entities(self):
+        '''Getting the trash view with 'deleted' entities should list the
+        all types of entities.'''
+        user = factories.Sysadmin()
+        factories.Dataset(state='deleted')
+        factories.Group(state='deleted')
+        factories.Organization(state='deleted')
+        factories.Organization()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        trash_response_html = BeautifulSoup(trash_response.body)
+
+        # Getting the amount of entity of each type to purge
+        trash_pkg_list = len(trash_response_html.select('ul.package-list li'))
+        trash_grp_list = len(trash_response_html.select('ul.group-list li'))
+        trash_org_list = len(trash_response_html.select('ul.organization-list li'))
+        entities_amount = trash_pkg_list + trash_grp_list + trash_org_list
+
+        # One entity of each type in the list to purge
+        assert_equal(entities_amount, 3)
 
     def test_trash_purge_deleted_datasets(self):
         '''Posting the trash view with 'deleted' datasets, purges the
@@ -338,20 +429,166 @@ class TestTrashView(helpers.FunctionalTestBase):
         assert_equal(pkgs_before_purge, 3)
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        trash_url = url_for(controller='admin', action='trash')
+        trash_url = url_for(controller='admin', action='trash', name='purge-package')
         trash_response = app.get(trash_url, extra_environ=env, status=200)
 
-        # submit the purge form
-        purge_form = trash_response.forms['form-purge-packages']
-        purge_response = webtest_submit(purge_form, 'purge-packages',
-                                        status=302, extra_environ=env)
-        purge_response = purge_response.follow(extra_environ=env)
-        # redirected back to trash page
-        assert_true('Purge complete' in purge_response)
+        # submit the purge packages form
+        purge_form = trash_response.forms['package-confirm-delete-form']
+        purge_response = submit_and_follow(app, purge_form, name='package',
+                                           extra_environ=env)
+
+        # check for flash success msg
+        assert_true('Packages purge complete' in purge_response)
 
         # how many datasets after purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert_equal(pkgs_before_purge, 1)
+
+    def test_trash_purge_deleted_groups(self):
+        '''Posting the trash view with 'deleted' groups, purges the
+        groups.'''
+        user = factories.Sysadmin()
+        factories.Group(state='deleted')
+        factories.Group(state='deleted')
+        factories.Group()
+        app = self._get_test_app()
+
+        # how many groups before purge
+        grps_before_purge = model.Session.query(model.Group).count()
+        assert_equal(grps_before_purge, 3)
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash', name='purge-group')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        # submit the purge groups form
+        purge_form = trash_response.forms['group-confirm-delete-form']
+        purge_response = submit_and_follow(app, purge_form, name='group',
+                                           extra_environ=env)
+
+        # check for flash success msg
+        assert_true('Groups purge complete' in purge_response)
+
+        # how many groups after purge
+        grps_before_purge = model.Session.query(model.Group).count()
+        assert_equal(grps_before_purge, 1)
+
+    def test_trash_purge_deleted_organization(self):
+        '''Posting the trash view with 'deleted' organizations, purges the
+        organizations.'''
+        user = factories.Sysadmin()
+        factories.Organization(state='deleted')
+        factories.Organization(state='deleted')
+        factories.Organization()
+        app = self._get_test_app()
+
+        # how many organizations before purge
+        orgs_before_purge = model.Session.query(model.Group).filter_by(
+            is_organization=True).count()
+        assert_equal(orgs_before_purge, 3)
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash', name='purge-organization')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        # submit the purge organizations form
+        purge_form = trash_response.forms['organization-confirm-delete-form']
+        purge_response = submit_and_follow(app, purge_form, name='organization',
+                                           extra_environ=env)
+
+        # check for flash success msg
+        assert_true('Organizations purge complete' in purge_response)
+
+        # how many organizations after purge
+        orgs_before_purge = model.Session.query(model.Group).filter_by(
+            is_organization=True).count()
+        assert_equal(orgs_before_purge, 1)
+
+    def test_trash_purge_all(self):
+        """Posting the trash view with 'deleted' entities and
+        purge all button purges everything"""
+        user = factories.Sysadmin()
+        factories.Dataset(state='deleted')
+        factories.Group(state='deleted')
+        factories.Organization(state='deleted')
+        factories.Organization()
+        app = self._get_test_app()
+
+        # how many entities before purge
+        pkgs_before_purge = model.Session.query(model.Package).count()
+        orgs_and_grps_before_purge = model.Session.query(model.Group).count()
+        entities_amount = pkgs_before_purge + orgs_and_grps_before_purge
+        assert_equal(entities_amount, 4)
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash', name='purge-all')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        # submit the purge all form
+        purge_form = trash_response.forms['all-confirm-delete-form']
+        purge_response = submit_and_follow(app, purge_form, name='all',
+                                           extra_environ=env)
+
+        # check for flash success msg
+        assert_true('Massive purge complete' in purge_response)
+
+        # how many entities after purge
+        pkgs_before_purge = model.Session.query(model.Package).count()
+        orgs_and_grps_before_purge = model.Session.query(model.Group).count()
+        entities_amount = pkgs_before_purge + orgs_and_grps_before_purge
+        assert_equal(entities_amount, 1)
+
+    def test_trash_cancel_purge(self):
+        '''Cancelling purge doesn't purge anything.'''
+        user = factories.Sysadmin()
+        factories.Organization(state='deleted')
+        factories.Organization(state='deleted')
+        app = self._get_test_app()
+
+        # how many organizations before purge
+        orgs_before_purge = model.Session.query(model.Group).filter_by(
+            is_organization=True).count()
+        assert_equal(orgs_before_purge, 2)
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash', name='purge-organization')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        # submit the purge organizations form
+        purge_form = trash_response.forms['organization-confirm-delete-form']
+        purge_response = submit_and_follow(app, purge_form, name='cancel',
+                                           extra_environ=env)
+
+        # flash success msg should be absent
+        assert_true('Organizations purge complete' not in purge_response)
+
+        # how many organizations after cancel purge
+        orgs_before_purge = model.Session.query(model.Group).filter_by(
+            is_organization=True).count()
+        assert_equal(orgs_before_purge, 2)
+
+    def test_trash_no_button_with_no_deleted_datasets(self):
+        """Getting the trash view with no 'deleted' datasets should not
+        contain the purge button."""
+        user = factories.Sysadmin()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+        assert_true('form-purge-package' not in trash_response)
+
+    def test_trash_button_with_deleted_datasets(self):
+        """Getting the trash view with 'deleted' datasets should
+        contain the purge button."""
+        user = factories.Sysadmin()
+        factories.Dataset(state='deleted')
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+        assert_true('form-purge-package' in trash_response)
 
 
 class TestAdminConfigUpdate(helpers.FunctionalTestBase):
