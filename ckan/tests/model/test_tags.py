@@ -12,8 +12,6 @@ class TestPackage(object):
         helpers.reset_db()
 
     def test_create_package_with_tags(self):
-        model.repo.new_revision()
-
         pkg = model.Package(name=u'test-package')
 
         # method 1
@@ -44,8 +42,6 @@ class TestPackage(object):
                                           {u'name': u'geology'},
                                           {u'name': u'energy'}])
         pkg = model.Package.by_name(dataset['name'])
-
-        model.repo.new_revision()
 
         # method 1 - unused by ckan core
         tag = model.Tag.by_name(u'science')

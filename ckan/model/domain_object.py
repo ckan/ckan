@@ -26,7 +26,6 @@ class Enum(set):
 
 DomainObjectOperation = Enum('new', 'changed', 'deleted')
 
-# TODO: replace this (or at least inherit from) standard SqlalchemyMixin in vdm
 class DomainObject(object):
 
     text_search_fields = []

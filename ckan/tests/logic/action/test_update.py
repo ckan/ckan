@@ -644,12 +644,12 @@ class TestDatasetUpdate(helpers.FunctionalTestBase):
             tags=[{'name': u'russian'}, {'name': u'tolstoy'}],
         )
 
-        tag_names = sorted([tag_dict['name']
-                            for tag_dict in dataset_['tags']])
+        tag_names = sorted(tag_dict['name']
+                           for tag_dict in dataset_['tags'])
         assert_equals(tag_names, ['russian', 'tolstoy'])
         dataset_ = helpers.call_action('package_show', id=dataset['id'])
-        tag_names = sorted([tag_dict['name']
-                            for tag_dict in dataset_['tags']])
+        tag_names = sorted(tag_dict['name']
+                           for tag_dict in dataset_['tags'])
         assert_equals(tag_names, ['russian', 'tolstoy'])
 
     def test_return_id_only(self):
@@ -1498,13 +1498,6 @@ class TestBulkOperations(object):
         for dataset in datasets:
             eq_(dataset.private, True)
 
-        revisions = model.Session.query(model.PackageRevision) \
-            .filter(model.PackageRevision.owner_org == org['id']) \
-            .filter(model.PackageRevision.current is True) \
-            .all()
-        for revision in revisions:
-            eq_(revision.private, True)
-
     def test_bulk_make_public(self):
 
         org = factories.Organization()
@@ -1529,13 +1522,6 @@ class TestBulkOperations(object):
         for dataset in datasets:
             eq_(dataset.private, False)
 
-        revisions = model.Session.query(model.PackageRevision) \
-            .filter(model.PackageRevision.owner_org == org['id']) \
-            .filter(model.PackageRevision.current is True) \
-            .all()
-        for revision in revisions:
-            eq_(revision.private, False)
-
     def test_bulk_delete(self):
 
         org = factories.Organization()
@@ -1558,13 +1544,6 @@ class TestBulkOperations(object):
             .filter(model.Package.owner_org == org['id']).all()
         for dataset in datasets:
             eq_(dataset.state, 'deleted')
-
-        revisions = model.Session.query(model.PackageRevision) \
-            .filter(model.PackageRevision.owner_org == org['id']) \
-            .filter(model.PackageRevision.current is True) \
-            .all()
-        for revision in revisions:
-            eq_(revision.state, 'deleted')
 
 
 class TestDashboardMarkActivitiesOld(helpers.FunctionalTestBase):

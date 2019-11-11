@@ -62,6 +62,7 @@ __version__ = '1.0.3'
 __all__ = ['jsmin']
 
 import re as _re
+from six.moves import map
 
 
 def _make_jsmin(python_only=False):

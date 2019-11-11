@@ -32,7 +32,6 @@ class TestResource(object):
         res_dict = factories.Resource(url='http://first')
         res = Resource.get(res_dict['id'])
         res.url = 'http://second'
-        model.repo.new_revision()
         model.repo.commit_and_remove()
         res = Resource.get(res_dict['id'])
         assert_equals(res.url, 'http://second')
@@ -42,7 +41,6 @@ class TestResource(object):
         res = Resource.get(res_dict['id'])
         res.extras = {'newfield': 'second'}
         res.url
-        model.repo.new_revision()
         model.repo.commit_and_remove()
         res = Resource.get(res_dict['id'])
         assert_equals(res.extras['newfield'], 'second')

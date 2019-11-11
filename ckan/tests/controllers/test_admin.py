@@ -441,8 +441,8 @@ class TestTrashView(helpers.FunctionalTestBase):
         assert_true('Packages purge complete' in purge_response)
 
         # how many datasets after purge
-        pkgs_before_purge = model.Session.query(model.Package).count()
-        assert_equal(pkgs_before_purge, 1)
+        pkgs_after_purge = model.Session.query(model.Package).count()
+        assert_equal(pkgs_after_purge, 1)
 
     def test_trash_purge_deleted_groups(self):
         '''Posting the trash view with 'deleted' groups, purges the

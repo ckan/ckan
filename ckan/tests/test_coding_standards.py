@@ -562,7 +562,7 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/tests/logic/test_schema.py',
     u'ckan/tests/logic/test_validators.py',
     u'ckan/tests/migration/__init__.py',
-    u'ckan/tests/migration/test_revision_legacy_code.py',
+    u'test_revision_legacy_code.py',
     u'ckan/tests/model/__init__.py',
     u'ckan/tests/model/test_license.py',
     u'ckan/tests/model/test_resource.py',

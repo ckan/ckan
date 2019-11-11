@@ -101,7 +101,6 @@ class TestUserFollowingGroup(FollowerClassesTests):
     @classmethod
     def setup_class(cls):
         model.repo.rebuild_db()
-        model.repo.new_revision()
         cls.follower = CreateTestData.create_user('follower')
         cls.followee = cls._create_group('followee')
         cls.FOLLOWER_CLASS(cls.follower.id, cls.followee.id).save()

@@ -10,7 +10,6 @@ class TestMemberLogic(object):
 
     @classmethod
     def setup_class(cls):
-        model.repo.new_revision()
         create_test_data.CreateTestData.create()
         cls.user = model.User.get('testsysadmin')
         cls.tester = model.User.get('tester')
@@ -20,7 +19,6 @@ class TestMemberLogic(object):
                     model.Package.by_name('annakarenina')]
 
         # 'Tester' becomes an admin for the 'roger' group
-        model.repo.new_revision()
         model.Member(group=cls.roger, table_id=cls.tester.id,
                      table_name='user', capacity='admin')
         model.repo.commit_and_remove()

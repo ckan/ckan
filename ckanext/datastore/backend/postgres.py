@@ -820,7 +820,7 @@ def create_indexes(context, data_dict):
             name=_generate_index_name(data_dict['resource_id'], fields_string),
             fields=fields_string))
 
-    sql_index_strings = map(lambda x: x.replace('%', '%%'), sql_index_strings)
+    sql_index_strings = [x.replace('%', '%%') for x in sql_index_strings]
     current_indexes = _get_index_names(context['connection'],
                                        data_dict['resource_id'])
     for sql_index_string in sql_index_strings:
@@ -882,7 +882,7 @@ def create_table(context, data_dict):
             field['type'] = _guess_type(records[0][field['id']])
 
     # Check for duplicate fields
-    unique_fields = set([f['id'] for f in supplied_fields])
+    unique_fields = {f['id'] for f in supplied_fields}
     if not len(unique_fields) == len(supplied_fields):
         raise ValidationError({
             'field': ['Duplicate column names are not supported']

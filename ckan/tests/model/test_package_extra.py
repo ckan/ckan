@@ -12,7 +12,6 @@ class TestPackage(object):
         helpers.reset_db()
 
     def test_create_extras(self):
-        model.repo.new_revision()
 
         pkg = model.Package(name=u'test-package')
 
@@ -42,7 +41,6 @@ class TestPackage(object):
         )
         pkg = model.Package.by_name(dataset['name'])
 
-        model.repo.new_revision()
         del pkg.extras[u'subject']
         model.Session.commit()
         model.Session.remove()

@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import vdm.sqlalchemy
 from sqlalchemy.orm import relation
 from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
 
@@ -17,7 +16,6 @@ import ckan.lib.dictization
 import ckan.lib.maintain as maintain
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
-           'package_tag_revision_table',
            'MAX_TAG_LENGTH', 'MIN_TAG_LENGTH']
 
 MAX_TAG_LENGTH = 100
@@ -39,8 +37,6 @@ package_tag_table = Table('package_tag', meta.metadata,
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
         )
 
-# TODO: this has a composite primary key ...
-package_tag_revision_table = core.make_revisioned_table(package_tag_table)
 
 class Tag(domain_object.DomainObject):
     def __init__(self, name='', vocabulary_id=None):
@@ -221,8 +217,7 @@ class Tag(domain_object.DomainObject):
     def __repr__(self):
         return '<Tag %s>' % self.name
 
-class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
-                 core.StatefulObjectMixin,
+class PackageTag(core.StatefulObjectMixin,
                  domain_object.DomainObject):
     def __init__(self, package=None, tag=None, state=None, **kwargs):
         self.package = package
@@ -296,7 +291,5 @@ meta.mapper(PackageTag, package_tag_table, properties={
         )
     },
     order_by=package_tag_table.c.id,
-    extension=[vdm.sqlalchemy.Revisioner(package_tag_revision_table),
-               _extension.PluginMapperExtension(),
-               ],
+    extension=[_extension.PluginMapperExtension()],
     )

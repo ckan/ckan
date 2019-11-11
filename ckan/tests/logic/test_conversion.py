@@ -63,9 +63,9 @@ class TestConvertToExtras(object):
 
         assert 'extras' in data
         eq_(len(data['extras']), 2)
-        eq_(sorted([e['key'] for e in data['extras']]),
+        eq_(sorted(e['key'] for e in data['extras']),
             ['custom_text', 'proper_extra'])
-        eq_(sorted([e['value'] for e in data['extras']]),
+        eq_(sorted(e['value'] for e in data['extras']),
             ['Bye', 'Hi'])
 
     def test_convert_to_extras_field_can_be_combined_with_more_extras(self):
@@ -92,9 +92,9 @@ class TestConvertToExtras(object):
 
         assert 'extras' in data
         eq_(len(data['extras']), 3)
-        eq_(sorted([e['key'] for e in data['extras']]),
+        eq_(sorted(e['key'] for e in data['extras']),
             ['custom_text', 'proper_extra', 'proper_extra2'])
-        eq_(sorted([e['value'] for e in data['extras']]),
+        eq_(sorted(e['value'] for e in data['extras']),
             ['Bye', 'Bye2', 'Hi'])
 
     def test_convert_to_extras_field_can_be_combined_with_extras_deleted(self):
@@ -121,9 +121,9 @@ class TestConvertToExtras(object):
 
         assert 'extras' in data
         eq_(len(data['extras']), 3)
-        eq_(sorted([e['key'] for e in data['extras']]),
+        eq_(sorted(e['key'] for e in data['extras']),
             ['custom_text', 'proper_extra', 'proper_extra2'])
-        eq_(sorted([e['value'] for e in data['extras']]),
+        eq_(sorted(e['value'] for e in data['extras']),
             ['Bye', 'Bye2', 'Hi'])
 
     def test_convert_to_extras_free_extra_can_not_have_the_same_key(self):
