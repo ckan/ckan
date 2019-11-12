@@ -378,12 +378,15 @@ def dataset_autocomplete(ver=API_REST_DEFAULT_VERSION):
 def tag_autocomplete(ver=API_REST_DEFAULT_VERSION):
     q = request.args.get(u'incomplete', u'')
     limit = request.args.get(u'limit', 10)
+    vocab = request.args.get(u'vocabulary_id', u'')
     tag_names = []
     if q:
         context = {u'model': model, u'session': model.Session,
                    u'user': g.user, u'auth_user_obj': g.userobj}
 
         data_dict = {u'q': q, u'limit': limit}
+        if vocab != u'':
+            data_dict[u'vocabulary_id'] = vocab
 
         tag_names = get_action(u'tag_autocomplete')(context, data_dict)
 
