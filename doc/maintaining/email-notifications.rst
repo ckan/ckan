@@ -66,6 +66,11 @@ notifications for a CKAN site, a sysadmin must:
 
     From: PublicData.eu <mailmain@publicdata.eu>
 
+   If you would like to use an alternate reply address, such as a "no-reply"
+   address, set :ref:`smtp.reply_to` in the ``[app:main]``
+   section of your CKAN configuration file. For example::
+
+    smtp.reply_to = noreply@example.com
 
 5. If you do not have an SMTP server running locally on the machine that hosts
    your CKAN instance, you can change the :ref:`email-settings` to send email via an
