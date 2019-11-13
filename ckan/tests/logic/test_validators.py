@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5021e632b0c0e434e00f100e3c68a1ec4ab9558c
 # encoding: utf-8
 
 '''Unit tests for ckan/logic/validators.py.
