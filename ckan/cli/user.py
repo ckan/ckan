@@ -40,12 +40,11 @@ def add_user(ctx, username, args):
             )
 
     # Required
-    while u'@' not in data_dict.get(u'email', ''):
-        error_shout(u'Error: Invalid email address')
-        data_dict['email'] = click.prompt(u'Email address: ').strip()
+    if 'email' not in data_dict:
+        data_dict['email'] = click.prompt(u'Email address ').strip()
 
     if u'password' not in data_dict:
-        data_dict['password'] = click.prompt(u'Password: ', hide_input=True,
+        data_dict['password'] = click.prompt(u'Password ', hide_input=True,
                                              confirmation_prompt=True)
 
     # Optional
@@ -54,7 +53,7 @@ def add_user(ctx, username, args):
             sys.getfilesystemencoding()
         )
 
-    pprint(u'Creating user: %r' % username)
+    # pprint(u'Creating user: %r' % username)
 
     try:
         import ckan.logic as logic
@@ -73,7 +72,7 @@ def add_user(ctx, username, args):
         flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
         with flask_app.test_request_context():
             user_dict = logic.get_action('user_create')(context, data_dict)
-            click.secho(user_dict)
+            click.secho(u"Successfully created user: %s" % user_dict['name'], fg=u'green', bold=True)
     except logic.ValidationError as e:
         error_shout(e)
 
