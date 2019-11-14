@@ -6,6 +6,7 @@ import logging
 
 from sqlalchemy.orm import class_mapper
 from six import string_types
+from six.moves import map
 
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
@@ -419,7 +420,7 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
     package_ids.extend( pkgs_edited['added'] )
     if package_ids:
         session.commit()
-        map( rebuild, package_ids )
+        [rebuild(package_id) for package_id in package_ids]
 
     return group
 

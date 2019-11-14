@@ -223,14 +223,14 @@ class TestGroupPurge(object):
         helpers.call_action('group_purge', id=group1['name'])
 
         # the Group and related objects are gone
-        assert_equals(sorted([g.name for g in
-                              model.Session.query(model.Group).all()]),
+        assert_equals(sorted(g.name for g in
+                             model.Session.query(model.Group).all()),
                       ['child', 'parent'])
         assert_equals(model.Session.query(model.GroupExtra).all(), [])
         # the only members left are the users for the parent and child
-        assert_equals(sorted([
+        assert_equals(sorted(
             (m.table_name, m.group.name)
-            for m in model.Session.query(model.Member).join(model.Group)]),
+            for m in model.Session.query(model.Member).join(model.Group)),
             [('user', 'child'), ('user', 'parent')])
         # the dataset is still there though
         assert_equals([p.name for p in model.Session.query(model.Package)],
@@ -313,14 +313,14 @@ class TestOrganizationPurge(object):
         helpers.call_action('organization_purge', id=org1['name'])
 
         # the Organization and related objects are gone
-        assert_equals(sorted([o.name for o in
-                              model.Session.query(model.Group).all()]),
+        assert_equals(sorted(o.name for o in
+                             model.Session.query(model.Group).all()),
                       ['child', 'parent'])
         assert_equals(model.Session.query(model.GroupExtra).all(), [])
         # the only members left are the users for the parent and child
-        assert_equals(sorted([
+        assert_equals(sorted(
             (m.table_name, m.group.name)
-            for m in model.Session.query(model.Member).join(model.Group)]),
+            for m in model.Session.query(model.Member).join(model.Group)),
             [('user', 'child'), ('user', 'parent')])
         # the dataset is still there though
         assert_equals([p.name for p in model.Session.query(model.Package)],
@@ -416,8 +416,8 @@ class TestDatasetPurge(object):
         # the only member left is for the user created in factories.Group() and
         # factories.Organization()
         assert_equals(sorted(
-            [(m.table_name, m.group.name)
-             for m in model.Session.query(model.Member).join(model.Group)]),
+            (m.table_name, m.group.name)
+            for m in model.Session.query(model.Member).join(model.Group)),
             [('user', 'group1'), ('user', org['name'])])
 
     def test_purged_dataset_removed_from_relationships(self):

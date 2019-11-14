@@ -127,7 +127,7 @@ class TestPackageForm(TestPackageBase):
         self.check_tag_and_data(main_res, prefix+'notes', params['notes'])
         self.check_tag_and_data(main_res, 'selected', params['license_id'])
         if isinstance(params['tags'], (str, unicode)):
-            tags = map(lambda s: s.strip(), params['tags'].split(','))
+            tags = [s.strip() for s in params['tags'].split(',')]
         else:
             tags = params['tags']
         for tag in tags:

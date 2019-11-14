@@ -19,6 +19,7 @@ import ckan.lib.munge as munge
 from ckan.views import identify_user
 
 from ckan.common import _, c, request, response
+from six.moves import map
 
 
 log = logging.getLogger(__name__)
@@ -287,7 +288,7 @@ class ApiController(base.BaseController):
             return out
 
         query = query.limit(limit)
-        out = map(convert_to_dict, query.all())
+        out = [convert_to_dict(q) for q in query.all()]
         return out
 
     @jsonp.jsonpify
