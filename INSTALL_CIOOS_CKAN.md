@@ -653,6 +653,7 @@ copy updated extension code to the volumes
 ```bash
 cd ~/ckan/contrib/docker
 sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
+sudo cp -r src/ckanext-cioos_harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/pycsw/ $VOL_CKAN_HOME/venv/src/
@@ -668,6 +669,7 @@ update permissions
 ```bash
 cd ~/ckan/contrib/docker
 docker cp -r src/ckanext-cioos_theme/ ckan:/usr/lib/ckan/venv/src/
+docker cp -r src/ckanext-cioos_harvest/ ckan:/usr/lib/ckan/venv/src/
 docker cp -r src/ckanext-harvest/ ckan:/usr/lib/ckan/venv/src/
 docker cp -r src/ckanext-spatial/ ckan:/usr/lib/ckan/venv/src/
 docker cp -r src/pycsw/ ckan:/usr/lib/ckan/venv/src/
