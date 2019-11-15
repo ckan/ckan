@@ -865,7 +865,7 @@ def one_of(list_of_value):
        for Python Library Formencode
    '''
    def callable(value):
-      if value not in list_of_values:
+      if value not in list_of_value:
 	      raise Invalid(_('Value must be one of {}'.format(list_of_value)))
       return value
 
