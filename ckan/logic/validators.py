@@ -29,6 +29,7 @@ StopOnError = df.StopOnError
 Missing = df.Missing
 missing = df.missing
 
+
 def owner_org_validator(key, data, errors, context):
 
     value = data.get(key)
@@ -860,13 +861,11 @@ def email_validator(value, context):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
 
+
 def one_of(list_of_value):
-   ''' Implementation of OneOf method
-       for Python Library Formencode
-   '''
-   def callable(value):
-      if value not in list_of_value:
-	      raise Invalid(_('Value must be one of {}'.format(list_of_value)))
-      return value
-
-
+    ''' Checks if the provided value is present in a list '''
+    def callable(value):
+        if value not in list_of_value:
+            raise Invalid(_('Value must be one of {}'.format(list_of_value)))
+        return value
+    return callable

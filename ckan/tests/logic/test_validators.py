@@ -668,16 +668,16 @@ class TestUrlValidator(object):
             errors[key] = []
             call_validator(key, {key: url}, errors, None)
 
+
 class TestOneOfValidator(object):
 
     def test_val_in_list(self):
-        cont = [1,2,3,4]
+        cont = [1, 2, 3, 4]
         func = validators.one_of(cont)
-        assert_equals(func(1),1)
+        assert_equals(func(1), 1)
 
-    @raises_Invalid
     def test_val_not_in_list(self):
-        cont = [1,2,3,4]
+        cont = [1, 2, 3, 4]
         func = validators.one_of(cont)
         raises_Invalid(func)(5)
 
