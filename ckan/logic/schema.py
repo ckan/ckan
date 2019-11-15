@@ -343,13 +343,13 @@ def default_extras_schema(
 
 @validator_args
 def default_relationship_schema(
-        ignore_missing, unicode_safe, not_empty, OneOf, ignore):
+        ignore_missing, unicode_safe, not_empty, one_of, ignore):
     return {
         'id': [ignore_missing, unicode_safe],
         'subject': [ignore_missing, unicode_safe],
         'object': [ignore_missing, unicode_safe],
         'type': [not_empty,
-                 OneOf(ckan.model.PackageRelationship.get_all_types())],
+                 one_of(ckan.model.PackageRelationship.get_all_types())],
         'comment': [ignore_missing, unicode_safe],
         'state': [ignore],
     }
