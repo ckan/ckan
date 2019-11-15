@@ -1,3 +1,4 @@
+
 # encoding: utf-8
 
 '''Unit tests for ckan/logic/validators.py.
@@ -666,5 +667,18 @@ class TestUrlValidator(object):
             errors = factories.validator_errors_dict()
             errors[key] = []
             call_validator(key, {key: url}, errors, None)
+
+class TestOneOfValidator(object):
+
+    def test_val_in_list(self):
+        cont = [1,2,3,4]
+        func = validators.one_of(cont)
+        assert_equals(func(1),1)
+
+    @raises_Invalid
+    def test_val_not_in_list(self):
+        cont = [1,2,3,4]
+        func = validators.one_of(cont)
+        raises_Invalid(func)(5)
 
 # TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show

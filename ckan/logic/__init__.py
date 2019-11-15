@@ -1,4 +1,5 @@
-# encoding: utf-8
+
+#encoding: utf-8
 
 import functools
 import logging
@@ -6,13 +7,13 @@ import re
 import sys
 from collections import defaultdict
 
-import formencode.validators
 from six import string_types, text_type
 
 import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
+import ckan.logic.validators as valid_one_of
 
 from ckan.common import _, c
 
@@ -674,7 +675,7 @@ def get_validator(validator):
         _validators_cache.update(validators)
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
-        _validators_cache.update({'OneOf': formencode.validators.OneOf})
+        _validators_cache.update({'OneOf': valid_one_of.one_of})
         converters = _import_module_functions('ckan.logic.converters')
         _validators_cache.update(converters)
 
