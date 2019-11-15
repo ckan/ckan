@@ -125,6 +125,7 @@ class TestVocabulary(object):
         else:
             assert updated_vocab["name"] == original_vocab["name"]
         # tags should change only if given in params.
+
         if "tags" in params:
             assert sorted([tag["name"] for tag in params["tags"]]) == sorted(
                 [tag["name"] for tag in updated_vocab["tags"]]

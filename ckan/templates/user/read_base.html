@@ -53,10 +53,6 @@
           <dt>{{ _('Datasets') }}</dt>
           <dd>{{ h.SI_number_span(user.number_created_packages) }}</dd>
         </dl>
-        <dl>
-          <dt>{{ _('Edits') }}</dt>
-          <dd>{{ h.SI_number_span(user.number_of_edits) }}</dd>
-        </dl>
       </div>
       {% endblock %}
       {% if is_myself == false %}
@@ -79,7 +75,7 @@
         </dl>
         {% if is_myself %}
           <dl>
-            <dt>{{ _('Email') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+            <dt>{{ _('Email') }} <span class="label label-default" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
             <dd>{{ user.email }}</dd>
           </dl>
         {% endif %}

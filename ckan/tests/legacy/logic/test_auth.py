@@ -289,7 +289,6 @@ class TestAuthOrgHierarchy(object):
         )
 
     def _reset_a_datasets_owner_org(self):
-        rev = model.repo.new_revision()
         get_action("package_owner_org_update")(
             {
                 "model": model,
@@ -302,7 +301,6 @@ class TestAuthOrgHierarchy(object):
     def _undelete_package_if_needed(self, package_name):
         pkg = model.Package.by_name(package_name)
         if pkg and pkg.state == "deleted":
-            rev = model.repo.new_revision()
             pkg.state = "active"
             model.repo.commit_and_remove()
 

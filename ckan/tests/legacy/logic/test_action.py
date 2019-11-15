@@ -337,7 +337,6 @@ class TestAction(object):
         assert "created" in result
         assert "display_name" in result
         assert "number_created_packages" in result
-        assert "number_of_edits" in result
         assert not "password" in result
 
         # Sysadmin users can update themselves

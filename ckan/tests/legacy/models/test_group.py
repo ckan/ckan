@@ -12,7 +12,6 @@ class TestGroup(object):
         CreateTestData.create()
 
     def test_1_basic(self):
-        model.repo.new_revision()
         group1 = model.Group(
             name=u"group1",
             title=u"Test Group",
@@ -26,13 +25,12 @@ class TestGroup(object):
         assert grp.packages() == []
 
     def test_2_add_packages(self):
-        model.repo.new_revision()
-
         self.russian_group = model.Group(
             name=u"russian",
             title=u"Russian Group",
             description=u"This is the russian group",
         )
+
         model.Session.add(self.russian_group)
         anna = model.Package.by_name(u"annakarenina")
         war = model.Package.by_name(u"warandpeace")
@@ -58,12 +56,12 @@ class TestGroup(object):
         assert grp in anna.get_groups()
 
     def test_3_search(self):
-        model.repo.new_revision()
         model.Session.add(
             model.Group(
                 name=u"test_org", title=u"Test org", type=u"organization"
             )
         )
+
         model.repo.commit_and_remove()
 
         assert self._search_results("random") == set([])
@@ -79,12 +77,11 @@ class TestGroup(object):
         assert self._search_results("Test", is_org=True) == set(["test_org"])
 
     def test_search_by_name_or_title_only_returns_active_groups(self):
-        model.repo.new_revision()
-
         active_group = model.Group(name=u"active_group")
         active_group.state = u"active"
         inactive_group = model.Group(name=u"inactive_group")
         inactive_group.state = u"inactive"
+
         model.Session.add(active_group)
         model.Session.add(inactive_group)
         model.repo.commit_and_remove()
@@ -236,47 +233,3 @@ class TestHierarchy:
         assert "cabinet-office" in names
         assert "natonal-health-service" not in names
         assert "nhs-wirral-ccg" not in names
-
-
-class TestGroupRevisions:
-    @pytest.fixture
-    def initial_data(self, clean_db):
-        CreateTestData.create()
-        name = u"revisiontest"
-
-        # create pkg
-        desc = [
-            u"Written by Puccini",
-            u"Written by Rossini",
-            u"Not written at all",
-            u"Written again",
-            u"Written off",
-        ]
-        rev = model.repo.new_revision()
-        group = model.Group(name=name)
-        model.Session.add(group)
-        group.description = desc[0]
-        group.extras["mykey"] = desc[0]
-        model.repo.commit_and_remove()
-
-        # edit pkg
-        for i in range(5)[1:]:
-            rev = model.repo.new_revision()
-            grp = model.Group.by_name(name)
-            grp.description = desc[i]
-            grp.extras["mykey"] = desc[i]
-            model.repo.commit_and_remove()
-
-        group = model.Group.by_name(name)
-        return group, desc
-
-    def test_1_all_revisions(self, initial_data):
-        group, desc = initial_data
-        all_rev = group.all_revisions
-        num_descs = len(desc)
-        assert len(all_rev) == num_descs, len(all_rev)
-        for i, rev in enumerate(all_rev):
-            assert rev.description == desc[num_descs - i - 1], "%s != %s" % (
-                rev.description,
-                desc[i],
-            )

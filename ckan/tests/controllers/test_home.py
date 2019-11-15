@@ -32,8 +32,6 @@ class TestHome(object):
         # before CKAN 1.6, users were allowed to have no email addresses
         # can't use factory to create user as without email it fails validation
         from ckan import model
-
-        model.repo.new_revision()
         user = model.user.User(name="has-no-email")
         model.Session.add(user)
         model.Session.commit()

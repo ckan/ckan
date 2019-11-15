@@ -1341,7 +1341,7 @@ Example::
 
 Default value: ``//jsonpdataproxy.appspot.com``
 
-Custom URL to a self-hosted DataProxy instance. The DataProxy is an external service currently used to stream data in 
+Custom URL to a self-hosted DataProxy instance. The DataProxy is an external service currently used to stream data in
 JSON format to the Recline-based views when data is not on the DataStore. The main instance is deprecated and will
 be eventually shut down, so users that require it can host an instance themselves and use this configuration option
 to point Recline to it.
@@ -2086,6 +2086,21 @@ Default value: ``None``
 
 The email address that emails sent by CKAN will come from. Note that, if left blank, the
 SMTP server may insert its own.
+
+.. _smtp.reply_to:
+
+smtp.reply_to
+^^^^^^^^^^^^^
+
+Example::
+
+  smtp.mail_from = noreply.example.com
+
+Default value: ``None``
+
+The email address that will be used if someone attempts to reply to a system email.
+If left blank, no ``Reply-to`` will be added to the email and the value of
+``smtp.mail_from`` will be used.
 
 .. _email_to:
 

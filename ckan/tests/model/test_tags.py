@@ -8,8 +8,6 @@ from ckan.tests import factories
 
 @pytest.mark.usefixtures(u"clean_db")
 def test_create_package_with_tags():
-    model.repo.new_revision()
-
     pkg = model.Package(name=u"test-package")
 
     # method 1
@@ -45,8 +43,6 @@ def test_delete_tag():
         ]
     )
     pkg = model.Package.by_name(dataset[u"name"])
-
-    model.repo.new_revision()
 
     # method 1 - unused by ckan core
     tag = model.Tag.by_name(u"science")

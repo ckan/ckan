@@ -52,7 +52,6 @@ class TestAction(object):
         assert "created" in result
         assert "display_name" in result
         assert "number_created_packages" in result
-        assert "number_of_edits" in result
         assert not "password" in result
 
     def test_15a_tag_search_with_empty_query(self, app):

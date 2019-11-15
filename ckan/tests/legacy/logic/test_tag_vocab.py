@@ -86,7 +86,6 @@ class TestVocabFacets(object):
 
         ctd.CreateTestData.create()
 
-        model.repo.new_revision()
         self.vocab = model.Vocabulary(TEST_VOCAB_NAME)
         model.Session.add(self.vocab)
         model.Session.commit()

@@ -8,8 +8,6 @@ from ckan.tests import helpers, factories
 
 @pytest.mark.usefixtures(u"clean_db")
 def test_create_extras():
-    model.repo.new_revision()
-
     pkg = model.Package(name=u"test-package")
 
     # method 1
@@ -38,7 +36,6 @@ def test_delete_extras():
     )
     pkg = model.Package.by_name(dataset[u"name"])
 
-    model.repo.new_revision()
     del pkg.extras[u"subject"]
     model.Session.commit()
     model.Session.remove()

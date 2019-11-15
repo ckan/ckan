@@ -99,7 +99,6 @@ class TestUserGroups:
             [{"name": "testpkg"}], extra_user_names=["brian", "sandra"]
         )
         CreateTestData.create_groups([{"name": "grp1", "phone": "1234"}])
-        model.repo.new_revision()
         grp1 = model.Group.by_name(u"grp1")
         brian = model.User.by_name(u"brian")
         model.Session.add(
@@ -135,26 +134,6 @@ class TestUser2(object):
     @pytest.fixture(autouse=True)
     def setup_class(self, clean_db):
         CreateTestData.create()
-
-    def test_number_of_edits(self):
-        # initially annafan won't have made any edits
-        assert (
-            model.User.by_name(u"annafan").number_of_edits() == 0
-        ), "annafan shouldn't have made any edits"
-
-        # so we'll get him to edit his package twice
-        for i in [1, 2]:
-
-            rev = model.repo.new_revision()
-            pkg = model.Package.by_name(u"annakarenina")
-            pkg.notes = u"Changed notes %i" % i
-            rev.author = u"annafan"
-            model.repo.commit_and_remove()
-
-            # and each time check that number_of_edits is correct
-            assert model.User.by_name(u"annafan").number_of_edits() == i, (
-                "annafan should have made %i edit(s)" % i
-            )
 
     def test_number_of_administered_packages(self):
         model.User.by_name(

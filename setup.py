@@ -25,7 +25,9 @@ from ckan import (__version__, __description__, __long_description__,
 #
 
 def parse_version(s):
-    return map(int, s.split('.'))
+    return [int(part) for part in s.split('.')]
+
+
 
 HERE = os.path.dirname(__file__)
 with open(os.path.join(HERE, 'requirement-setuptools.txt')) as f:

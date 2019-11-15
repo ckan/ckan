@@ -84,7 +84,7 @@ class TestSearch(object):
         assert set([self.ab]) == urls, urls
 
     def test_03_search_url_multiple_words(self):
-        fields = dict([["url", "e f"]])
+        fields = {'url': 'e f'}
         urls = self.res_search(fields=fields)
         assert {self.ef} == urls
 

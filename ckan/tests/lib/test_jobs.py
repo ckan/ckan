@@ -253,7 +253,6 @@ class TestWorker(RQTestBase):
         must be closed.
         """
         pkg_name = u"test-fork-within-a-transaction"
-        model.repo.new_revision()
         pkg = model.Package.get(pkg_name)
         if not pkg:
             pkg = model.Package(name=pkg_name)

@@ -74,9 +74,7 @@ def test_no_config():
 )
 @pytest.mark.usefixtures("with_plugins")
 def test_empty_config():
-
     default_views = datapreview.get_default_view_plugins()
-
     assert default_views == []
 
 
@@ -130,7 +128,6 @@ def test_in_config_datastore_view_only_with_get_datastore_views():
 )
 @pytest.mark.usefixtures("with_plugins")
 def test_both_plugins_in_config_only_non_datastore():
-
     default_views = datapreview.get_default_view_plugins()
 
     assert sorted(

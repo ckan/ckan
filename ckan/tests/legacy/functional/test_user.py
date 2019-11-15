@@ -16,10 +16,8 @@ def initial_data(clean_db):
 
     # make 3 changes, authored by annafan
     for i in range(3):
-        rev = model.repo.new_revision()
         pkg = model.Package.by_name(u"annakarenina")
         pkg.notes = u"Changed notes %i" % i
-        rev.author = u"annafan"
         model.repo.commit_and_remove()
 
     CreateTestData.create_user(

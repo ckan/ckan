@@ -137,7 +137,6 @@ class ApiTestCase(object):
                 "description",
                 "created",
                 "state",
-                "revision_id",
                 "packages",
             ]
         )

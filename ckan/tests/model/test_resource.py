@@ -14,7 +14,6 @@ def test_edit_url():
     res_dict = factories.Resource(url="http://first")
     res = Resource.get(res_dict["id"])
     res.url = "http://second"
-    model.repo.new_revision()
     model.repo.commit_and_remove()
     res = Resource.get(res_dict["id"])
     assert res.url == "http://second"
@@ -26,8 +25,6 @@ def test_edit_extra():
     res_dict = factories.Resource(newfield="first")
     res = Resource.get(res_dict["id"])
     res.extras = {"newfield": "second"}
-    res.url
-    model.repo.new_revision()
     model.repo.commit_and_remove()
     res = Resource.get(res_dict["id"])
     assert res.extras["newfield"] == "second"

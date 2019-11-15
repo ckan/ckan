@@ -239,3 +239,26 @@ class TestMailer(MailerBase):
         }
         with pytest.raises(mailer.MailerException):
             mailer.mail_recipient(**test_email)
+
+    @helpers.change_config('smtp.reply_to', 'norply@ckan.org')
+    def test_reply_to(self):
+
+        msgs = self.get_smtp_messages()
+        assert_equal(msgs, [])
+
+        # send email
+        test_email = {'recipient_name': 'Bob',
+                      'recipient_email': 'Bob@bob.com',
+                      'subject': 'Meeting',
+                      'body': 'The meeting is cancelled.',
+                      'headers': {'header1': 'value1'}}
+        mailer.mail_recipient(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = self.get_smtp_messages()
+        msg = msgs[0]
+
+        expected_from_header = "Reply-to: {}".format(
+            config.get('smtp.reply_to'))
+
+        assert expected_from_header in msg[3]

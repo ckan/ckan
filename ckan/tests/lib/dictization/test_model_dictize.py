@@ -114,7 +114,6 @@ class TestGroupListDictize:
             group=group_obj, table_id=tag.id, table_name="tag"
         )
         model.Session.add(member)
-        model.repo.new_revision()
         model.Session.commit()
         group_list = model.Session.query(model.Group).filter_by().all()
         context = {"model": model, "session": model.Session}
@@ -679,7 +678,6 @@ class TestActivityDictize(object):
         activity = factories.Activity(
             user_id=user["id"],
             object_id=dataset["id"],
-            revision_id=None,
             activity_type="new package",
             data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
         )
@@ -701,7 +699,6 @@ class TestActivityDictize(object):
         activity = factories.Activity(
             user_id=user["id"],
             object_id=dataset["id"],
-            revision_id=None,
             activity_type="new package",
             data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
         )

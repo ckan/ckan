@@ -136,7 +136,7 @@ class TestPackageForm(TestPackageBase):
         self.check_tag_and_data(main_res, prefix + "notes", params["notes"])
         self.check_tag_and_data(main_res, "selected", params["license_id"])
         if isinstance(params["tags"], string_types):
-            tags = map(lambda s: s.strip(), params["tags"].split(","))
+            tags = list(map(lambda s: s.strip(), params["tags"].split(",")))
         else:
             tags = params["tags"]
         for tag in tags:
@@ -216,7 +216,6 @@ class TestPackageForm(TestPackageBase):
             # revert name change or pkg creation
             pkg = model.Package.by_name(new_name)
             if pkg:
-                rev = model.repo.new_revision()
                 if pkg_name_to_edit:
                     pkg.name = pkg_name_to_edit
                 else:
@@ -372,7 +371,6 @@ class TestEdit(TestPackageForm):
         # add a relationship to a package
         pkg = model.Package.by_name(self.editpkg_name)
         anna = model.Package.by_name(u"annakarenina")
-        model.repo.new_revision()
         pkg.add_relationship(u"depends_on", anna)
         model.repo.commit_and_remove()
 
@@ -502,7 +500,6 @@ class TestNonActivePackages:
     def initial_data(self, clean_db):
         CreateTestData.create()
         pkg = model.Package(name=self.non_active_name)
-        model.repo.new_revision()
         model.Session.add(pkg)
         model.repo.commit_and_remove()
 
@@ -514,7 +511,6 @@ class TestNonActivePackages:
         admin = model.User.by_name(u"joeadmin")
         model.repo.commit_and_remove()
 
-        model.repo.new_revision()
         pkg = (
             model.Session.query(model.Package)
             .filter_by(name=self.non_active_name)

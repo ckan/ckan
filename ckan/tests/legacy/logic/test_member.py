@@ -7,6 +7,7 @@ import pytest
 
 
 class TestMemberLogic(object):
+
     @pytest.fixture(autouse=True)
     def setup_method(self, clean_db):
         create_test_data.CreateTestData.create()
@@ -20,7 +21,6 @@ class TestMemberLogic(object):
         ]
 
         # 'Tester' becomes an admin for the 'roger' group
-        model.repo.new_revision()
         model.Member(
             group=self.roger,
             table_id=self.tester.id,

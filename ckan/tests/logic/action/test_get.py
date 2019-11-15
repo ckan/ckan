@@ -68,7 +68,6 @@ class TestPackageShow(object):
             dict_[key] = re.sub(r"\d+$", "num", dict_[key])
 
         replace_uuid(dataset2, "id")
-        replace_uuid(dataset2, "revision_id")
         replace_uuid(dataset2, "creator_user_id")
         replace_uuid(dataset2, "owner_org")
         replace_number_suffix(dataset2, "name")
@@ -79,12 +78,10 @@ class TestPackageShow(object):
         replace_number_suffix(dataset2["groups"][0], "title")
         replace_number_suffix(dataset2["groups"][0], "display_name")
         replace_uuid(dataset2["organization"], "id")
-        replace_uuid(dataset2["organization"], "revision_id")
         replace_number_suffix(dataset2["organization"], "name")
         replace_number_suffix(dataset2["organization"], "title")
         replace_datetime(dataset2["organization"], "created")
         replace_uuid(dataset2["resources"][0], "id")
-        replace_uuid(dataset2["resources"][0], "revision_id")
         replace_uuid(dataset2["resources"][0], "package_id")
         replace_number_suffix(dataset2["resources"][0], "name")
         replace_datetime(dataset2["resources"][0], "created")
@@ -125,7 +122,6 @@ class TestPackageShow(object):
                 u"image_url": u"http://placekitten.com/g/200/100",
                 u"is_organization": True,
                 u"name": u"test_org_num",
-                u"revision_id": u"<SOME-UUID>",
                 u"state": u"active",
                 u"title": u"Test Organization",
                 u"type": u"organization",
@@ -150,14 +146,12 @@ class TestPackageShow(object):
                     u"package_id": u"<SOME-UUID>",
                     u"position": 0,
                     u"resource_type": None,
-                    u"revision_id": u"<SOME-UUID>",
                     u"size": None,
                     u"state": u"active",
                     u"url": u"http://example.com/image.png",
                     u"url_type": None,
                 }
             ],
-            u"revision_id": u"<SOME-UUID>",
             u"state": u"active",
             u"tags": [
                 {
@@ -332,8 +326,6 @@ class TestGroupList(object):
 
     def _create_bulk_groups(self, name, count):
         from ckan import model
-
-        model.repo.new_revision()
         groups = [
             model.Group(name="{}_{}".format(name, i)) for i in range(count)
         ]
@@ -719,7 +711,6 @@ class TestOrganizationList(object):
     def _create_bulk_orgs(self, name, count):
         from ckan import model
 
-        model.repo.new_revision()
         orgs = [
             model.Group(
                 name="{}_{}".format(name, i),
@@ -728,6 +719,7 @@ class TestOrganizationList(object):
             )
             for i in range(count)
         ]
+
         model.Session.add_all(orgs)
         model.repo.commit_and_remove()
 
@@ -866,7 +858,6 @@ class TestUserList(object):
         assert got_user["created"] == user["created"]
         assert got_user["about"] == user["about"]
         assert got_user["sysadmin"] == user["sysadmin"]
-        assert got_user["number_of_edits"] == 0
         assert got_user["number_created_packages"] == 0
         assert "password" not in got_user
         assert "reset_key" not in got_user
@@ -889,7 +880,6 @@ class TestUserList(object):
         assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["number_created_packages"] == 1
-        assert got_user["number_of_edits"] == 2
 
     @pytest.mark.usefixtures("clean_db")
     def test_user_list_excludes_deleted_users(self):
@@ -943,7 +933,6 @@ class TestUserShow(object):
         assert got_user["created"] == user["created"]
         assert got_user["about"] == user["about"]
         assert got_user["sysadmin"] == user["sysadmin"]
-        assert got_user["number_of_edits"] == 0
         assert got_user["number_created_packages"] == 0
         assert "password" not in got_user
         assert "reset_key" not in got_user
@@ -1314,8 +1303,6 @@ class TestPackageSearch(object):
 
     def _create_bulk_datasets(self, name, count):
         from ckan import model
-
-        model.repo.new_revision()
         pkgs = [
             model.Package(name="{}_{}".format(name, i)) for i in range(count)
         ]
@@ -2597,90 +2584,6 @@ class TestTagList(object):
             helpers.call_action("tag_list", vocabulary_id="does-not-exist")
 
 
-class TestRevisionList(object):
-    # Error cases
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_date_instead_of_revision(self):
-        with pytest.raises(logic.NotFound):
-            helpers.call_action(
-                "revision_list", since_id="2010-01-01T00:00:00"
-            )
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_date_invalid(self):
-        with pytest.raises(logic.ValidationError):
-            helpers.call_action(
-                "revision_list", since_time="2010-02-31T00:00:00"
-            )
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_revision_doesnt_exist(self):
-        with pytest.raises(logic.NotFound):
-            helpers.call_action("revision_list", since_id="1234")
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_sort_param_not_valid(self):
-        with pytest.raises(logic.ValidationError):
-            helpers.call_action("revision_list", sort="invalid")
-
-    # Normal usage
-
-    @classmethod
-    def _create_revisions(cls, num_revisions):
-        from ckan import model
-
-        rev_ids = []
-        for i in xrange(num_revisions):
-            rev = model.repo.new_revision()
-            rev.id = text_type(i)
-            model.Session.commit()
-            rev_ids.append(rev.id)
-        return rev_ids
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_all_revisions(self):
-        rev_ids = self._create_revisions(2)
-        revs = helpers.call_action("revision_list")
-        # only test the 2 newest revisions, since the system creates one at
-        # start-up.
-        assert revs[:2] == rev_ids[::-1]
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_revisions_since_id(self):
-        self._create_revisions(4)
-        revs = helpers.call_action("revision_list", since_id="1")
-        assert revs == ["3", "2"]
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_revisions_since_time(self):
-        from ckan import model
-
-        self._create_revisions(4)
-
-        rev1 = model.Session.query(model.Revision).get("1")
-        revs = helpers.call_action(
-            "revision_list", since_time=rev1.timestamp.isoformat()
-        )
-        assert revs == ["3", "2"]
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_revisions_returned_are_limited(self):
-        self._create_revisions(55)
-        revs = helpers.call_action("revision_list", since_id="1")
-        assert len(revs) == 50  # i.e. limited to 50
-        assert revs[0] == "54"
-        assert revs[-1] == "5"
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_sort_asc(self):
-        self._create_revisions(4)
-        revs = helpers.call_action(
-            "revision_list", since_id="1", sort="time_asc"
-        )
-        assert revs == ["2", "3"]
-
-
 class TestMembersList(object):
     @pytest.mark.usefixtures("clean_db")
     def test_dataset_delete_marks_membership_of_group_as_deleted(self):
@@ -2936,7 +2839,6 @@ class TestActivityShow(object):
         activity = factories.Activity(
             user_id=user["id"],
             object_id=dataset["id"],
-            revision_id=None,
             activity_type="new package",
             data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
         )
@@ -2961,7 +2863,6 @@ class TestActivityShow(object):
         activity = factories.Activity(
             user_id=user["id"],
             object_id=dataset["id"],
-            revision_id=None,
             activity_type="new package",
             data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
         )
@@ -3272,7 +3173,6 @@ class TestPackageActivityList(object):
             model.Activity(
                 user_id=None,
                 object_id=dataset["id"],
-                revision_id=None,
                 activity_type=None,
                 data=None,
             )
@@ -3524,7 +3424,6 @@ class TestUserActivityList(object):
             model.Activity(
                 user_id=user["id"],
                 object_id=None,
-                revision_id=None,
                 activity_type=None,
                 data=None,
             )
@@ -3750,7 +3649,6 @@ class TestGroupActivityList(object):
             model.Activity(
                 user_id=None,
                 object_id=group["id"],
-                revision_id=None,
                 activity_type=None,
                 data=None,
             )
@@ -3995,7 +3893,6 @@ class TestOrganizationActivityList(object):
             model.Activity(
                 user_id=None,
                 object_id=org["id"],
-                revision_id=None,
                 activity_type=None,
                 data=None,
             )
@@ -4175,7 +4072,6 @@ class TestRecentlyChangedPackagesActivityList(object):
             model.Activity(
                 user_id=None,
                 object_id=None,
-                revision_id=None,
                 activity_type="new_package",
                 data=None,
             )
@@ -4290,7 +4186,6 @@ class TestDashboardActivityList(object):
             model.Activity(
                 user_id=user["id"],
                 object_id=None,
-                revision_id=None,
                 activity_type=None,
                 data=None,
             )

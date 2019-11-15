@@ -37,6 +37,7 @@ def _mail_recipient(recipient_name, recipient_email,
         headers = {}
 
     mail_from = config.get('smtp.mail_from')
+    reply_to = config.get('smtp.reply_to')
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items():
         if k in msg.keys():
@@ -50,6 +51,8 @@ def _mail_recipient(recipient_name, recipient_email,
     msg['To'] = Header(recipient, 'utf-8')
     msg['Date'] = Utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
+    if reply_to and reply_to != '':
+        msg['Reply-to'] = reply_to
 
     # Send the email using Python's smtplib.
     smtp_connection = smtplib.SMTP()

@@ -336,8 +336,8 @@ class TestTrashView(object):
         assert "Purge complete" in purge_response
 
         # how many datasets after purge
-        pkgs_before_purge = model.Session.query(model.Package).count()
-        assert pkgs_before_purge == 1
+        pkgs_after_purge = model.Session.query(model.Package).count()
+        assert_equal(pkgs_after_purge, 1)
 
 
 class TestAdminConfigUpdate(object):

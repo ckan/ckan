@@ -1589,15 +1589,6 @@ class TestBulkOperations(object):
         for dataset in datasets:
             assert dataset.private
 
-        revisions = (
-            model.Session.query(model.PackageRevision)
-            .filter(model.PackageRevision.owner_org == org["id"])
-            .filter(model.PackageRevision.current is True)
-            .all()
-        )
-        for revision in revisions:
-            assert revision.private
-
     @pytest.mark.usefixtures("clean_db")
     def test_bulk_make_public(self):
 
@@ -1630,15 +1621,6 @@ class TestBulkOperations(object):
         for dataset in datasets:
             assert not (dataset.private)
 
-        revisions = (
-            model.Session.query(model.PackageRevision)
-            .filter(model.PackageRevision.owner_org == org["id"])
-            .filter(model.PackageRevision.current is True)
-            .all()
-        )
-        for revision in revisions:
-            assert not (revision.private)
-
     @pytest.mark.usefixtures("clean_db")
     def test_bulk_delete(self):
 
@@ -1669,15 +1651,6 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert dataset.state == "deleted"
-
-        revisions = (
-            model.Session.query(model.PackageRevision)
-            .filter(model.PackageRevision.owner_org == org["id"])
-            .filter(model.PackageRevision.current is True)
-            .all()
-        )
-        for revision in revisions:
-            assert revision.state == "deleted"
 
 
 class TestDashboardMarkActivitiesOld(object):
