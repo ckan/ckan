@@ -553,3 +553,12 @@ meta.mapper(Package, package_table, properties={
     order_by=package_table.c.name,
     extension=[extension.PluginMapperExtension()],
     )
+
+meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
+    'pkg':orm.relation(Package, backref='package_tag_all',
+        cascade='none',
+        )
+    },
+    order_by=tag.package_tag_table.c.id,
+    extension=[extension.PluginMapperExtension()],
+    )

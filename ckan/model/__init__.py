@@ -27,8 +27,10 @@ from ckan.model.meta import (
     engine_is_pg,
 )
 from ckan.model.core import (
-    System,
     State,
+)
+from ckan.model.system import (
+    System,
 )
 from ckan.model.package import (
     Package,
