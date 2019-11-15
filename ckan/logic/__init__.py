@@ -3,10 +3,8 @@
 import functools
 import logging
 import re
-import sys
 from collections import defaultdict
 
-import formencode.validators
 from six import string_types, text_type
 
 import ckan.model as model
@@ -674,9 +672,9 @@ def get_validator(validator):
         _validators_cache.update(validators)
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
-        _validators_cache.update({'OneOf': formencode.validators.OneOf})
         converters = _import_module_functions('ckan.logic.converters')
         _validators_cache.update(converters)
+        _validators_cache.update({'OneOf': _validators_cache['one_of']})
 
         for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
             for name, fn in plugin.get_validators().items():
