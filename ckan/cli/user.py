@@ -72,16 +72,17 @@ def add_user(ctx, username, args):
         flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
         with flask_app.test_request_context():
             user_dict = logic.get_action(u'user_create')(context, data_dict)
-            click.secho(u"Successfully created user: %s" % user_dict['name'], fg=u'green', bold=True)
+            click.secho(u"Successfully created user: %s" % user_dict['name'],
+                        fg=u'green', bold=True)
     except logic.ValidationError as e:
         error_shout(e)
 
 
 def get_user_str(user):
-        user_str = u'name=%s' % user.name
-        if user.name != user.display_name:
-            user_str += u' display=%s' % user.display_name
-        return user_str
+    user_str = u'name=%s' % user.name
+    if user.name != user.display_name:
+        user_str += u' display=%s' % user.display_name
+    return user_str
 
 
 @user.command(u'list', short_help=u'List all users')
