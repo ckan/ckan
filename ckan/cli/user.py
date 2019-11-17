@@ -21,8 +21,8 @@ def user():
 
 
 @user.command(u'add', short_help=u'Add new user')
-@click.argument('username')
-@click.argument('args', nargs=-1)
+@click.argument(u'username')
+@click.argument(u'args', nargs=-1)
 @click.pass_context
 def add_user(ctx, username, args):
     u'''Add new user if we use ckan sysadmin add
@@ -40,7 +40,7 @@ def add_user(ctx, username, args):
             )
 
     # Required
-    if 'email' not in data_dict:
+    if u'email' not in data_dict:
         data_dict['email'] = click.prompt(u'Email address ').strip()
 
     if u'password' not in data_dict:
@@ -58,7 +58,7 @@ def add_user(ctx, username, args):
     try:
         import ckan.logic as logic
         import ckan.model as model
-        site_user = logic.get_action('get_site_user')({
+        site_user = logic.get_action(u'get_site_user')({
             u'model': model,
             u'ignore_auth': True},
             {}
@@ -71,7 +71,7 @@ def add_user(ctx, username, args):
         }
         flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
         with flask_app.test_request_context():
-            user_dict = logic.get_action('user_create')(context, data_dict)
+            user_dict = logic.get_action(u'user_create')(context, data_dict)
             click.secho(u"Successfully created user: %s" % user_dict['name'], fg=u'green', bold=True)
     except logic.ValidationError as e:
         error_shout(e)
@@ -107,7 +107,7 @@ def remove_user(ctx, username):
     site_user = l.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     context = {u'user': site_user[u'name']}
     with flask_app.test_request_context():
-        p.toolkit.get_action('user_delete')(context, {u'id': username})
+        p.toolkit.get_action(u'user_delete')(context, {u'id': username})
         click.secho(u'Deleted user: %s' % username, fg=u'green', bold=True)
 
 
