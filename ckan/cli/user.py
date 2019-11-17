@@ -7,8 +7,7 @@ from pprint import pprint
 import click
 from six import text_type
 
-import ckan.logic as l
-import ckan.plugins as p
+import ckan.logic as logic
 from ckan.cli import error_shout
 
 log = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ def add_user(ctx, username, args):
     or ckan user add
     '''
     # parse args into data_dict
-    data_dict = {'name': username}
+    data_dict = {u'name': username}
     for arg in args:
         try:
             field, value = arg.split(u'=', 1)
@@ -105,7 +104,7 @@ def remove_user(ctx, username):
         return
 
     flask_app = ctx.obj.app.apps['flask_app']._wsgi_app
-    site_user = l.get_action(u'get_site_user')({u'ignore_auth': True}, {})
+    site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     context = {u'user': site_user[u'name']}
     with flask_app.test_request_context():
         p.toolkit.get_action(u'user_delete')(context, {u'id': username})
