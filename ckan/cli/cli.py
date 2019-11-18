@@ -6,6 +6,7 @@ import click
 from ckan.cli import config_tool
 from ckan.cli import (
     datapusher,
+    front_end_build,
     click_config_option, db, load_config, search_index, server,
     asset,
     datastore,
@@ -41,6 +42,7 @@ def ckan(ctx, config, *args, **kwargs):
 
 
 ckan.add_command(config_tool.config_tool)
+ckan.add_command(front_end_build.front_end_build)
 ckan.add_command(server.run)
 ckan.add_command(seed.seed)
 ckan.add_command(db.db)
