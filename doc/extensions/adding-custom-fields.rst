@@ -279,9 +279,9 @@ Otherwise this is the same as the single-parameter form above.
 Validators that need to access or update multiple fields
 may be written as a callable taking four parameters.
 
-All fields and errors in a ``flattened`` form are passed to the 
-validator. The validator must fetch values from ``flattened_data`` 
-and may replace values in ``flattened_data``. The return value 
+All fields and errors in a ``flattened`` form are passed to the
+validator. The validator must fetch values from ``flattened_data``
+and may replace values in ``flattened_data``. The return value
 from this function is ignored.
 
 ``key`` is the flattened key for the field to which this validator was
@@ -435,8 +435,8 @@ on the dataset search page.
 
 The SOLR sort ordering can define arbitrary functions for custom sorting, but
 this is beyond the scope of this tutorial for further details see
-http://wiki.apache.org/solr/CommonQueryParameters#sort and
-http://wiki.apache.org/solr/FunctionQuery
+https://lucene.apache.org/solr/guide/6_6/common-query-parameters.html#CommonQueryParameters-ThesortParameter and
+https://lucene.apache.org/solr/guide/6_6/function-queries.html
 
 
 You can find the complete source for this tutorial at
