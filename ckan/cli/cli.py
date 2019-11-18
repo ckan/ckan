@@ -11,6 +11,7 @@ from ckan.cli import (
     datastore,
     translation,
     dataset,
+    views,
     plugin_info,
     notify,
     tracking,
@@ -50,6 +51,7 @@ ckan.add_command(asset.asset)
 ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
 ckan.add_command(dataset.dataset)
+ckan.add_command(views.views)
 ckan.add_command(plugin_info.plugin_info)
 ckan.add_command(notify.notify)
 ckan.add_command(tracking.tracking)
