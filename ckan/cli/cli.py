@@ -7,6 +7,7 @@ from ckan.cli import config_tool
 from ckan.cli import (
     datapusher,
     click_config_option, db, load_config, search_index, server,
+    profile,
     asset,
     datastore,
     translation,
@@ -42,6 +43,7 @@ def ckan(ctx, config, *args, **kwargs):
 
 ckan.add_command(config_tool.config_tool)
 ckan.add_command(server.run)
+ckan.add_command(profile.profile)
 ckan.add_command(seed.seed)
 ckan.add_command(db.db)
 ckan.add_command(datapusher.datapusher)
