@@ -146,30 +146,6 @@ class TestPackageNew(object):
         assert pkg.resources[1].url == u"http://example.com/resource1"
         assert pkg.state == "active"
 
-    # def test_resource_uploads(self):
-    #     app = self._get_test_app()
-    #     env, response = _get_package_new_page(app)
-    #     form = response.forms['dataset-edit']
-    #     form['name'] = u'complete-package-with-two-resources'
-
-    #     response = submit_and_follow(app, form, env, 'save')
-    #     form = response.forms['resource-edit']
-    #     form['upload'] = ('README.rst', b'data')
-
-    #     response = submit_and_follow(app, form, env, 'save', 'go-metadata')
-    #     pkg = model.Package.by_name(u'complete-package-with-two-resources')
-    #     assert_equal(pkg.resources[0].url_type, u'upload')
-    #     assert_equal(pkg.state, 'active')
-    #     response = app.get(
-    #         url_for(
-    #             controller='package',
-    #             action='resource_download',
-    #             id=pkg.id,
-    #             resource_id=pkg.resources[0].id
-    #         ),
-    #     )
-    #     assert_equal('data', response.body)
-
     @pytest.mark.usefixtures("clean_db")
     def test_previous_button_works(self, app):
         env, response = _get_package_new_page(app)
@@ -620,6 +596,7 @@ class TestPackageRead(object):
             model.Session.query(model.Activity)
             .filter_by(object_id=dataset["id"])
             .one()
+        )
         modern_activity.delete()
 
         # Create an Activity object as it was in earlier versions of CKAN.
@@ -1862,7 +1839,6 @@ class TestActivity(object):
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def _clear_activities(self):
         model.Session.query(model.Activity).delete()
         model.Session.flush()
@@ -1891,131 +1867,149 @@ class TestActivity(object):
             in response
         )
 
-    def test_create_tag_directly(self):
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_tag_directly(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        dataset["tags"] = [{"name": "some_tag"}]
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+
+        url = url_for("dataset.activity", id=dataset["id"])
+        response = app.get(url)
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+        )
+        assert "updated the dataset" in response
+        assert (
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
+            in response
+        )
+
+        activities = helpers.call_action(
+            "package_activity_list", id=dataset["id"]
+        )
+
+        assert len(activities) == 1
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_tag(self, app):
         app = self._get_test_app()
         user = factories.User()
         dataset = factories.Dataset(user=user)
         self._clear_activities()
-        dataset['tags'] = [{'name': 'some_tag'}]
+        dataset["tags"] = [{"name": "some_tag"}]
         helpers.call_action(
-            'package_update', context={'user': user['name']}, **dataset)
+            "package_update", context={"user": user["name"]}, **dataset
+        )
 
-        url = url_for('dataset.activity',
-                      id=dataset['id'])
+        url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
-                  response)
-        assert_in('updated the dataset', response)
-        assert_in('<a href="/dataset/{}">{}'
-                  .format(dataset['id'], dataset['title']),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
+        assert_in("updated the dataset", response)
+        assert_in(
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"]),
+            response,
+        )
 
         activities = helpers.call_action(
-            'package_activity_list', id=dataset['id'])
+            "package_activity_list", id=dataset["id"]
+        )
 
         assert_equal(len(activities), 1)
 
-    def test_create_tag(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_extra(self, app):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         self._clear_activities()
-        dataset['tags'] = [{'name': 'some_tag'}]
+        dataset["extras"] = [{"key": "some", "value": "extra"}]
         helpers.call_action(
-            'package_update', context={'user': user['name']}, **dataset)
+            "package_update", context={"user": user["name"]}, **dataset
+        )
 
-        url = url_for('dataset.activity',
-                      id=dataset['id'])
+        url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
-                  response)
-        assert_in('updated the dataset', response)
-        assert_in('<a href="/dataset/{}">{}'
-                  .format(dataset['id'], dataset['title']),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
+        assert_in("updated the dataset", response)
+        assert_in(
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"]),
+            response,
+        )
 
         activities = helpers.call_action(
-            'package_activity_list', id=dataset['id'])
+            "package_activity_list", id=dataset["id"]
+        )
 
         assert_equal(len(activities), 1)
 
-    def test_create_extra(self):
-        app = self._get_test_app()
-        user = factories.User()
-        dataset = factories.Dataset(user=user)
-        self._clear_activities()
-        dataset['extras'] = [{'key': 'some', 'value': 'extra'}]
-        helpers.call_action(
-            'package_update', context={'user': user['name']}, **dataset)
-
-        url = url_for('dataset.activity',
-                      id=dataset['id'])
-        response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
-                  response)
-        assert_in('updated the dataset', response)
-        assert_in('<a href="/dataset/{}">{}'
-                  .format(dataset['id'], dataset['title']),
-                  response)
-
-        activities = helpers.call_action(
-            'package_activity_list', id=dataset['id'])
-
-        assert_equal(len(activities), 1)
-
-    def test_create_resource(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_create_resource(self, app):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         self._clear_activities()
         helpers.call_action(
-            'resource_create', context={'user': user['name']},
-            name='Test resource',
-            package_id=dataset['id'])
+            "resource_create",
+            context={"user": user["name"]},
+            name="Test resource",
+            package_id=dataset["id"],
+        )
 
-        url = url_for('dataset.activity',
-                      id=dataset['id'])
+        url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
-                  response)
-        assert_in('updated the dataset', response)
-        assert_in('<a href="/dataset/{}">{}'
-                  .format(dataset['id'], dataset['title']),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
+        assert_in("updated the dataset", response)
+        assert_in(
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"]),
+            response,
+        )
 
         activities = helpers.call_action(
-            'package_activity_list', id=dataset['id'])
+            "package_activity_list", id=dataset["id"]
+        )
 
         assert_equal(len(activities), 1)
 
-    def test_update_resource(self):
-        app = self._get_test_app()
+    @pytest.mark.usefixtures("clean_db")
+    def test_update_resource(self, app):
         user = factories.User()
         dataset = factories.Dataset(user=user)
-        resource = factories.Resource(package_id=dataset['id'])
+        resource = factories.Resource(package_id=dataset["id"])
         self._clear_activities()
 
         helpers.call_action(
-            'resource_update', context={'user': user['name']},
-            id=resource['id'],
-            name='Test resource updated',
-            package_id=dataset['id'])
+            "resource_update",
+            context={"user": user["name"]},
+            id=resource["id"],
+            name="Test resource updated",
+            package_id=dataset["id"],
+        )
 
-        url = url_for('dataset.activity',
-                      id=dataset['id'])
+        url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
-                  response)
-        assert_in('updated the dataset', response)
-        assert_in('<a href="/dataset/{}">{}'
-                  .format(dataset['id'], dataset['title']),
-                  response)
+        assert_in(
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        )
+        assert_in("updated the dataset", response)
+        assert_in(
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"]),
+            response,
+        )
 
         activities = helpers.call_action(
-            'package_activity_list', id=dataset['id'])
+            "package_activity_list", id=dataset["id"]
+        )
 
         assert_equal(len(activities), 1)
-
 
     @pytest.mark.usefixtures("clean_db")
     def test_delete_dataset(self, app):
