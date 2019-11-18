@@ -1545,8 +1545,8 @@ def package_search(context, data_dict):
 
     **Solr Parameters:**
 
-    For more in depth treatment of each paramter, please read the `Solr
-    Documentation <http://wiki.apache.org/solr/CommonQueryParameters>`_.
+    For more in depth treatment of each parameter, please read the `Solr
+    Documentation <https://lucene.apache.org/solr/guide/6_6/common-query-parameters.html>`_.
 
     This action accepts a *subset* of solr's search query parameters:
 
