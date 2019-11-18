@@ -1604,8 +1604,8 @@ def package_search(context, data_dict):
     ``qf``, ``wt``, ``bf``, ``boost``, ``tie``, ``defType``, ``mm``
 
 
-    .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
-    .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
+    .. _dismax: https://lucene.apache.org/solr/guide/6_6/the-dismax-query-parser.html
+    .. _edismax: https://lucene.apache.org/solr/guide/6_6/the-extended-dismax-query-parser.html
 
 
     **Examples:**
