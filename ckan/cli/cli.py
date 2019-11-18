@@ -9,6 +9,7 @@ from ckan.cli import (
     click_config_option, db, load_config, search_index, server,
     asset,
     datastore,
+    sysadmin,
     translation,
     dataset,
     plugin_info,
@@ -46,6 +47,7 @@ ckan.add_command(seed.seed)
 ckan.add_command(db.db)
 ckan.add_command(datapusher.datapusher)
 ckan.add_command(search_index.search_index)
+ckan.add_command(sysadmin.sysadmin)
 ckan.add_command(asset.asset)
 ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
