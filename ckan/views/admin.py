@@ -171,11 +171,12 @@ class TrashView(MethodView):
             return h.redirect_to(u'admin.trash')
 
         if req_action and (u'purge-all' in request.params.get(u'name')):
-            ent_types = (self.deleted_packages, self.deleted_groups,
+            ent_types = (self.deleted_groups, self.deleted_packages,
                          self.deleted_orgs)
-            func_names = (u'dataset_purge', u'group_purge',
+            func_names = (u'group_purge', u'dataset_purge',
                           u'organization_purge')
             for ent_type, func_name in zip(ent_types, func_names):
+
                 for ent in ent_type:
                     logic.get_action(func_name)({u'user': g.user},
                                                 {u'id': ent.id})
@@ -183,13 +184,16 @@ class TrashView(MethodView):
             h.flash_success(_(u'Massive purge complete'))
 
         elif req_action and u'purge-' in req_action:
-            for ent in self.data_type[req_action.split(u'-')[-1]]:
+            entities = self.data_type[req_action.split(u'-')[-1]]
+            counter = entities.count()
+            for ent in entities:
                 logic.get_action(ent.type + u'_purge')({u'user': g.user},
                                                        {u'id': ent.id})
             model.Session.remove()
             h.flash_success(
-                _(u'{}s purge complete'.format(
-                    req_action.split(u'-')[-1].title())))
+                _(u'{}s have been purged: {}'.format(
+                    req_action.split(u'-')[-1].title(),
+                    counter)))
 
         else:
             h.flash_error(_(u'Action not implemented.'))
