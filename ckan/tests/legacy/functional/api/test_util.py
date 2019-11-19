@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
 import pytest
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData

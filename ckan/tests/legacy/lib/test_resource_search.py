@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from nose.tools import assert_raises, assert_equal, assert_set_equal
 import pytest
 from ckan.tests.legacy import is_search_supported
 import ckan.lib.search as search
@@ -84,7 +83,7 @@ class TestSearch(object):
         assert set([self.ab]) == urls, urls
 
     def test_03_search_url_multiple_words(self):
-        fields = {'url': 'e f'}
+        fields = {"url": "e f"}
         urls = self.res_search(fields=fields)
         assert {self.ef} == urls
 

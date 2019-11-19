@@ -423,6 +423,7 @@ class TestDatasetPurge(object):
                 for m in model.Session.query(model.Member).join(model.Group)
             ]
         ) == [("user", "group1"), ("user", org["name"])]
+
     @pytest.mark.usefixtures("clean_db")
     def test_purged_dataset_removed_from_relationships(self):
         child = factories.Dataset()

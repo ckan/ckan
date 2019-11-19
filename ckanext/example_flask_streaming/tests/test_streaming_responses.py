@@ -4,7 +4,6 @@ import os.path as path
 
 import pytest
 
-from nose.tools import eq_, assert_raises, ok_
 from webtest.app import TestRequest
 from webtest import lint  # NOQA
 
@@ -19,52 +18,55 @@ class TestFlaskStreaming(object):
 
         return _get_resp
 
-    @pytest.mark.ckan_config(u'ckan.plugins', u'example_flask_streaming')
+    @pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_streaming")
     def test_accordance_of_chunks(self, get_response):
-        u'''Test streaming of items collection.'''
-        url = str(u'/stream/string')  # produces list of words
+        u"""Test streaming of items collection."""
+        url = str(u"/stream/string")  # produces list of words
         resp = get_response(url)
-        eq_(u'Hello World, this is served from an extension'.split(),
-            list(resp.app_iter))
+        assert u"Hello World, this is served from an extension".split() == list(
+            resp.app_iter
+        )
         resp.app_iter.close()
 
-    @pytest.mark.ckan_config(u'ckan.plugins', u'example_flask_streaming')
+    @pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_streaming")
     def test_template_streaming(self, get_response):
-        u'''Test streaming of template response.'''
+        u"""Test streaming of template response."""
         bound = 7
-        url = str(u'/stream/template/{}'.format(bound))  # produces nums list
+        url = str(u"/stream/template/{}".format(bound))  # produces nums list
         resp = get_response(url)
-        content = u''.join(resp.app_iter)
+        content = u"".join(resp.app_iter)
         for i in range(bound):
-            ok_(str(i) in content)
+            assert str(i) in content
         resp._app_iter.close()
 
-    @pytest.mark.ckan_config(u'ckan.plugins', u'example_flask_streaming')
+    @pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_streaming")
     def test_file_streaming(self, get_response):
-        u'''Test streaming of existing file(10lines.txt).'''
-        url = str(u'/stream/file')  # streams file
+        u"""Test streaming of existing file(10lines.txt)."""
+        url = str(u"/stream/file")  # streams file
         resp = get_response(url)
-        f_path = path.join(path.dirname(path.abspath(__file__)),
-                           u'10lines.txt')
+        f_path = path.join(
+            path.dirname(path.abspath(__file__)), u"10lines.txt"
+        )
         with open(f_path) as test_file:
             content = test_file.readlines()
-            eq_(content, list(resp.app_iter))
+            assert content == list(resp.app_iter)
         resp._app_iter.close()
 
-    @pytest.mark.ckan_config(u'ckan.plugins', u'example_flask_streaming')
+    @pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_streaming")
     def test_render_with_context(self, get_response):
-        u'''Test availability of context inside templates.'''
-        url = str(u'/stream/context?var=10')  # produces `var` value
+        u"""Test availability of context inside templates."""
+        url = str(u"/stream/context?var=10")  # produces `var` value
         resp = get_response(url)
-        eq_(u'10', resp.body)
+        assert u"10" == resp.body
 
-    @pytest.mark.ckan_config(u'ckan.plugins', u'example_flask_streaming')
+    @pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_streaming")
     def test_render_without_context(self, get_response):
-        u'''
+        u"""
         Test that error raised if there is an
         attempt to pick variable if context is not provider.
-        '''
-        url = str(u'/stream/without_context?var=10')
+        """
+        url = str(u"/stream/without_context?var=10")
         resp = get_response(url)
-        assert_raises(AttributeError, u''.join, resp.app_iter)
+        with pytest.raises(AttributeError):
+            u"".join(resp.app_iter)
         resp.app_iter.close()

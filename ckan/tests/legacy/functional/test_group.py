@@ -8,13 +8,12 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic import get_action
 from ckan.lib.helpers import url_for
+import ckan.tests.factories as factories
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 def test_sorting():
-    testsysadmin = model.User(name=u"testsysadmin")
-    testsysadmin.sysadmin = True
-    model.Session.add(testsysadmin)
+    testsysadmin = factories.Sysadmin(name=u"testsysadmin")
 
     pkg1 = model.Package(name="pkg1")
     pkg2 = model.Package(name="pkg2")

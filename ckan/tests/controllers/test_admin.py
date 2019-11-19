@@ -354,7 +354,7 @@ class TestAdminConfigUpdate(object):
         webtest_submit(form, "save", status=302, extra_environ=env)
 
     @pytest.mark.usefixtures("clean_db")
-    def test_admin_config_update(self, make_app):
+    def test_admin_config_update(self, app):
         """Changing a config option using the admin interface appropriately
         updates value returned by config_option_show,
         system_info.get_system_info and in the title tag in templates."""
@@ -377,7 +377,7 @@ class TestAdminConfigUpdate(object):
         assert before_update_default == "CKAN"
 
         # title tag contains default value
-        app = make_app()
+        # app = make_app()
         home_page_before = app.get("/", status=200)
         assert "Welcome - CKAN" in home_page_before
 

@@ -161,17 +161,16 @@ class TestGroupControllerEdit(object):
 
 class TestGroupRead(object):
     @pytest.mark.usefixtures("clean_db")
-    def test_group_read(self):
+    def test_group_read(self, app):
         group = factories.Group()
-        app = helpers._get_test_app()
         response = app.get(url=url_for("group.read", id=group["name"]))
         assert group["title"] in response
         assert group["description"] in response
 
     @pytest.mark.usefixtures("clean_db")
-    def test_redirect_when_given_id(self):
+    def test_redirect_when_given_id(self, app):
         group = factories.Group()
-        app = helpers._get_test_app()
+
         response = app.get(url_for("group.read", id=group["id"]), status=302)
         # redirect replaces the ID with the name in the URL
         redirected_response = response.follow()
@@ -179,9 +178,9 @@ class TestGroupRead(object):
         assert redirected_response.request.path == expected_url
 
     @pytest.mark.usefixtures("clean_db")
-    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
+    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         group = factories.Group(id="abc", name="abc")
-        app = helpers._get_test_app()
+
         # 200 == no redirect
         app.get(url_for("group.read", id=group["id"]), status=200)
 
@@ -411,14 +410,12 @@ class TestGroupMembership(object):
         assert user_roles["User One"] == "Admin"
 
     @pytest.mark.usefixtures("clean_db")
-    def test_member_users_cannot_add_members(self):
+    def test_member_users_cannot_add_members(self, app):
 
         user = factories.User()
         group = factories.Group(
             users=[{"name": user["name"], "capacity": "member"}]
         )
-
-        app = helpers._get_test_app()
 
         env = {"REMOTE_USER": user["name"].encode("ascii")}
 
@@ -442,10 +439,8 @@ class TestGroupMembership(object):
             )
 
     @pytest.mark.usefixtures("clean_db")
-    def test_anonymous_users_cannot_add_members(self):
+    def test_anonymous_users_cannot_add_members(self, app):
         group = factories.Group()
-
-        app = helpers._get_test_app()
 
         with app.flask_app.test_request_context():
             app.get(url_for("group.member_new", id=group["id"]), status=403)

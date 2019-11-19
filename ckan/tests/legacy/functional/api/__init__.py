@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
 import copy
 
 
@@ -43,4 +42,4 @@ def assert_dicts_equal_ignoring_ordering(dict1, dict2):
     dicts = [copy.deepcopy(dict1), copy.deepcopy(dict2)]
     for d in dicts:
         d = change_lists_to_sets(d)
-    assert_equal(dicts[0], dicts[1])
+    assert dicts[0] == dicts[1]

@@ -28,7 +28,6 @@ def test_set_value():
 def test_sets_new_value_for_same_key():
 
     config = factories.SystemInfo()
-    first_revision = config.revision_id
     config = factories.SystemInfo()
 
     new_config = (
@@ -36,7 +35,6 @@ def test_sets_new_value_for_same_key():
     )
 
     assert config.id == new_config.id
-    assert first_revision != new_config.revision_id
 
     assert config.id == new_config.id
 

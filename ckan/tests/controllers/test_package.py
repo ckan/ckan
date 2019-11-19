@@ -1897,7 +1897,6 @@ class TestActivity(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_create_tag(self, app):
-        app = self._get_test_app()
         user = factories.User()
         dataset = factories.Dataset(user=user)
         self._clear_activities()
@@ -1908,20 +1907,20 @@ class TestActivity(object):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"]),
-            response,
+        assert "updated the dataset" in response
+        assert (
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
+            in response
         )
 
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
         )
 
-        assert_equal(len(activities), 1)
+        assert len(activities) == 1
 
     @pytest.mark.usefixtures("clean_db")
     def test_create_extra(self, app):
@@ -1935,20 +1934,20 @@ class TestActivity(object):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"]),
-            response,
+        assert "updated the dataset" in response
+        assert (
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
+            in response
         )
 
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
         )
 
-        assert_equal(len(activities), 1)
+        assert len(activities) == 1
 
     @pytest.mark.usefixtures("clean_db")
     def test_create_resource(self, app):
@@ -1964,20 +1963,20 @@ class TestActivity(object):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"]),
-            response,
+        assert "updated the dataset" in response
+        assert (
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
+            in response
         )
 
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
         )
 
-        assert_equal(len(activities), 1)
+        assert len(activities) == 1
 
     @pytest.mark.usefixtures("clean_db")
     def test_update_resource(self, app):
@@ -1996,20 +1995,20 @@ class TestActivity(object):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert_in(
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]), response
+        assert (
+            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
         )
-        assert_in("updated the dataset", response)
-        assert_in(
-            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"]),
-            response,
+        assert "updated the dataset" in response
+        assert (
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
+            in response
         )
 
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
         )
 
-        assert_equal(len(activities), 1)
+        assert len(activities) == 1
 
     @pytest.mark.usefixtures("clean_db")
     def test_delete_dataset(self, app):

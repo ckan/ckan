@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import time
-from nose.tools import assert_equal
+
 from ckan.common import config
 import hashlib
 
@@ -23,7 +23,7 @@ class TestMockMailServer(SmtpServerHarness):
 
     def test_basic(self):
         msgs = self.get_smtp_messages()
-        assert_equal(msgs, [])
+        assert msgs == []
 
         test_email = {
             "recipient_name": "Bob",
@@ -36,4 +36,4 @@ class TestMockMailServer(SmtpServerHarness):
         time.sleep(0.1)
 
         msgs = self.get_smtp_messages()
-        assert_equal(len(msgs), 1)
+        assert len(msgs) == 1
