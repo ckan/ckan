@@ -5,6 +5,7 @@ import logging
 import click
 from ckan.cli import config_tool
 from ckan.cli import (
+    jobs,
     datapusher,
     front_end_build,
     click_config_option, db, load_config, search_index, server,
@@ -42,6 +43,7 @@ def ckan(ctx, config, *args, **kwargs):
     ctx.obj = CkanCommand(config)
 
 
+ckan.add_command(jobs.jobs)
 ckan.add_command(config_tool.config_tool)
 ckan.add_command(front_end_build.front_end_build)
 ckan.add_command(server.run)
