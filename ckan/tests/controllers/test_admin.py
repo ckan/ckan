@@ -438,7 +438,7 @@ class TestTrashView(helpers.FunctionalTestBase):
                                            extra_environ=env)
 
         # check for flash success msg
-        assert_true('Packages purge complete' in purge_response)
+        assert_true('Packages have been purged' in purge_response)
 
         # how many datasets after purge
         pkgs_after_purge = model.Session.query(model.Package).count()
@@ -467,7 +467,7 @@ class TestTrashView(helpers.FunctionalTestBase):
                                            extra_environ=env)
 
         # check for flash success msg
-        assert_true('Groups purge complete' in purge_response)
+        assert_true('Groups have been purged' in purge_response)
 
         # how many groups after purge
         grps_before_purge = model.Session.query(model.Group).count()
@@ -497,7 +497,7 @@ class TestTrashView(helpers.FunctionalTestBase):
                                            extra_environ=env)
 
         # check for flash success msg
-        assert_true('Organizations purge complete' in purge_response)
+        assert_true('Organizations have been purged' in purge_response)
 
         # how many organizations after purge
         orgs_before_purge = model.Session.query(model.Group).filter_by(
@@ -560,7 +560,7 @@ class TestTrashView(helpers.FunctionalTestBase):
                                            extra_environ=env)
 
         # flash success msg should be absent
-        assert_true('Organizations purge complete' not in purge_response)
+        assert_true('Organizations have been purged' not in purge_response)
 
         # how many organizations after cancel purge
         orgs_before_purge = model.Session.query(model.Group).filter_by(
