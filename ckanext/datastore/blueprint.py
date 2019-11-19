@@ -29,7 +29,7 @@ from ckanext.datastore.writer import (
 int_validator = get_validator(u'int_validator')
 boolean_validator = get_validator(u'boolean_validator')
 ignore_missing = get_validator(u'ignore_missing')
-OneOf = get_validator(u'OneOf')
+one_of = get_validator(u'one_of')
 default = get_validator(u'default')
 unicode_only = get_validator(u'unicode_only')
 
@@ -43,7 +43,7 @@ def dump_schema():
     return {
         u'offset': [default(0), int_validator],
         u'limit': [ignore_missing, int_validator],
-        u'format': [default(u'csv'), OneOf(DUMP_FORMATS)],
+        u'format': [default(u'csv'), one_of(DUMP_FORMATS)],
         u'bom': [default(False), boolean_validator],
         u'filters': [ignore_missing, json_validator],
         u'q': [ignore_missing, unicode_or_json_validator],
