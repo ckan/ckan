@@ -744,6 +744,21 @@ Controls whether the default search page (``/dataset``) should include
 private datasets visible to the current user or only public datasets
 visible to everyone.
 
+.. _ckan.search.default_include_drafts:
+
+ckan.search.default_include_drafts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.default_include_drafts = false
+
+Default value:  ``true``
+
+Controls whether the default search page (``/dataset``) should include
+draft datasets visible to the current user or only public datasets
+visible to everyone.
+
 .. _search.facets.limit:
 
 search.facets.limit
