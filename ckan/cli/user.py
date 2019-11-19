@@ -8,6 +8,7 @@ import click
 from six import text_type
 
 import ckan.logic as logic
+import ckan.plugins as plugin
 from ckan.cli import error_shout
 
 log = logging.getLogger(__name__)
@@ -107,7 +108,7 @@ def remove_user(ctx, username):
     site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     context = {u'user': site_user[u'name']}
     with flask_app.test_request_context():
-        p.toolkit.get_action(u'user_delete')(context, {u'id': username})
+        plugin.toolkit.get_action(u'user_delete')(context, {u'id': username})
         click.secho(u'Deleted user: %s' % username, fg=u'green', bold=True)
 
 
