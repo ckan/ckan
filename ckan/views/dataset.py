@@ -283,8 +283,10 @@ def search(package_type):
             u'sort': sort_by,
             u'extras': search_extras,
             u'include_private': asbool(
-                config.get(u'ckan.search.default_include_private', True)
-            ),
+                config.get(u'ckan.search.default_include_private', True)),
+            u'include_drafts': asbool(
+                config.get(u'ckan.search.default_include_drafts', True)
+            )
         }
 
         query = get_action(u'package_search')(context, data_dict)

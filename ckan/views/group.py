@@ -361,6 +361,7 @@ def _read(id, limit, group_type):
             u'q': q,
             u'fq': fq,
             u'include_private': True,
+            u'include_drafts': True,
             u'facet.field': facets.keys(),
             u'rows': limit,
             u'sort': sort_by,

@@ -282,6 +282,8 @@ class PackageController(base.BaseController):
                 'extras': search_extras,
                 'include_private': asbool(config.get(
                     'ckan.search.default_include_private', True)),
+                'include_drafts': asbool(config.get(
+                    'ckan.search_default_include_drafts', True)),
             }
 
             query = get_action('package_search')(context, data_dict)
