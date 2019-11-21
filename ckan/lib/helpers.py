@@ -18,7 +18,6 @@ import uuid
 
 from paste.deploy import converters
 import dominate.tags as dom_tags
-from webhelpers.html import HTML, tools
 from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
@@ -1462,8 +1461,8 @@ class Page(paginate.Page):
 
     def _pagerlink(self, page, text, extra_attributes=None):
         anchor = super(Page, self)._pagerlink(page, text)
-        extra_attributes = extra_attributes or {}
-        return HTML.li(anchor, **extra_attributes)
+        extra_attributes = _preprocess_dom_attrs(extra_attributes or {})
+        return literal(dom_tags.li(anchor, **extra_attributes))
 
     # Change 'current page' link from <span> to <li><a>
     # and '..' into '<li><a>..'
@@ -1473,12 +1472,14 @@ class Page(paginate.Page):
         html = super(Page, self)._range(regexp_match)
         # Convert ..
         dotdot = '<span class="pager_dotdot">..</span>'
-        dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
+        dotdot_link = dom_tags.li(dom_tags.a('...', href='#'), cls='disabled')
         html = re.sub(dotdot, dotdot_link, html)
 
         # Convert current page
         text = '%s' % self.page
-        current_page_span = str(HTML.span(c=text, **self.curpage_attr))
+        current_page_span = dom_tags.span(
+            text, **_preprocess_dom_attrs(self.curpage_attr)
+        )
         current_page_link = self._pagerlink(self.page, text,
                                             extra_attributes=self.curpage_attr)
         return re.sub(current_page_span, current_page_link, html)

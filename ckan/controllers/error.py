@@ -5,12 +5,11 @@ import cgi
 from paste.urlparser import PkgResourcesParser
 from pylons import request
 from pylons.controllers.util import forward
-from webhelpers.html.builder import literal
 
 from ckan.common import c
 from ckan.lib.base import BaseController
 from ckan.lib.base import render
-
+from ckan.lib.helpers import literal
 
 class ErrorController(BaseController):
     """Generates error documents as and when they are required.
