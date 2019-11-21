@@ -4,13 +4,21 @@ import os
 import sys
 import click
 from ckan.cli import error_shout
-from cookiecutter.main import cookiecutter
 
 
 @click.group(name=u'generate',
-             short_help=u"Generate empty extension files to expand CKAN.")
+             short_help=u"Generate empty extension files to expand CKAN.",
+             invoke_without_command=True,
+)
 def generate():
-    pass
+    try:
+        from cookiecutter.main import cookiecutter
+    except ImportError:
+        error_shout(u"`cookiecutter` library is missing from import path.")
+        error_shout(u"Make sure you have dev-dependencies installed:")
+        error_shout(u"\tpip install -r dev-requirements.txt")
+        raise click.Abort()
+
 
 
 @generate.command(name=u'extension', short_help=u"Create empty extension.")
@@ -18,6 +26,7 @@ def generate():
                                            u"template.",
               default=u'.')
 def extension(output_dir):
+    from cookiecutter.main import cookiecutter
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     os.chdir(cur_loc)
     os.chdir(u'../../contrib/cookiecutter/ckan_extension/')
