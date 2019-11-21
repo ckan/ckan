@@ -1,4 +1,4 @@
-# The file contains the direct ckan requirements.
+# The file contains the direct ckan requirements (python2).
 # Use pip-compile to create a requirements.txt file from this
 alembic==1.0.0
 Babel==2.3.4
