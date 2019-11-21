@@ -6,9 +6,10 @@ import click
 from ckan.cli import error_shout
 
 
-@click.group(name=u'generate',
-             short_help=u"Generate empty extension files to expand CKAN.",
-             invoke_without_command=True,
+@click.group(
+    name=u'generate',
+    short_help=u"Generate empty extension files to expand CKAN.",
+    invoke_without_command=True,
 )
 def generate():
     try:
@@ -18,7 +19,6 @@ def generate():
         error_shout(u"Make sure you have dev-dependencies installed:")
         error_shout(u"\tpip install -r dev-requirements.txt")
         raise click.Abort()
-
 
 
 @generate.command(name=u'extension', short_help=u"Create empty extension.")
