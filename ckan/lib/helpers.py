@@ -17,7 +17,7 @@ import copy
 import uuid
 
 from paste.deploy import converters
-from webhelpers.html import HTML, literal, tags, tools
+from webhelpers.html import HTML, tags, tools
 from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
@@ -107,6 +107,19 @@ class HelperAttributeDict(dict):
 # Builtin helper functions.
 _builtin_functions = {}
 helper_functions = HelperAttributeDict()
+
+
+class literal(markupsafe.Markup):
+    """Represents an HTML literal.
+
+    """
+    __slots__ = ()
+
+    @classmethod
+    def escape(cls, s):
+        if s is None:
+            return EMPTY
+        return super(literal, cls).escape(s)
 
 
 def core_helper(f, name=None):
@@ -1207,7 +1220,7 @@ def linked_user(user, maxlength=0, avatar=20):
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return tags.literal(u'{icon} {link}'.format(
+        return literal(u'{icon} {link}'.format(
             icon=gravatar(
                 email_hash=user.email_hash,
                 size=avatar
@@ -2640,7 +2653,7 @@ core_helper(localised_filesize)
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
 # Useful additions from the webhelpers library.
-core_helper(tags.literal)
+core_helper(literal)
 core_helper(tags.link_to)
 core_helper(tags.file)
 core_helper(tags.submit)
