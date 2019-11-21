@@ -19,7 +19,6 @@ import uuid
 from paste.deploy import converters
 import dominate.tags as dom_tags
 from webhelpers import paginate
-import webhelpers.text as whtext
 import webhelpers.date as date
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
@@ -1314,6 +1313,51 @@ def group_name_to_title(name):
 
 
 @core_helper
+def truncate(text, length=30, indicator='...', whole_word=False):
+    """Truncate ``text`` with replacement characters.
+
+    ``length``
+        The maximum length of ``text`` before replacement
+    ``indicator``
+        If ``text`` exceeds the ``length``, this string will replace
+        the end of the string
+    ``whole_word``
+        If true, shorten the string further to avoid breaking a word in the
+        middle.  A word is defined as any string not containing whitespace.
+        If the entire text before the break is a single word, it will have to
+        be broken.
+
+    Example::
+
+        >>> truncate('Once upon a time in a world far far away', 14)
+        'Once upon a...'
+
+    TODO: try to replace it with built-in `textwrap.shorten`
+    (available starting from Python 3.4) when support for Python 2
+    completely dropped.
+    """
+    if not text:
+        return ""
+    if len(text) <= length:
+        return text
+    short_length = length - len(indicator)
+    if not whole_word:
+        return text[:short_length] + indicator
+    # Go back to end of previous word.
+    i = short_length
+    while i >= 0 and not text[i].isspace():
+        i -= 1
+    while i >= 0 and text[i].isspace():
+        i -= 1
+    #if i < short_length:
+    #    i += 1   # Set to one after the last char we want to keep.
+    if i <= 0:
+        # Entire text before break is one word, or we miscalculated.
+        return text[:short_length] + indicator
+    return text[:i+1] + indicator
+
+
+@core_helper
 def markdown_extract(text, extract_length=190):
     ''' return the plain text representation of markdown encoded text.  That
     is the texted without any html tags.  If extract_length is 0 then it
@@ -1326,7 +1370,7 @@ def markdown_extract(text, extract_length=190):
 
     return literal(
         text_type(
-            whtext.truncate(
+            truncate(
                 plain,
                 length=extract_length,
                 indicator='...',
@@ -2729,7 +2773,6 @@ core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
 # Useful additions from the webhelpers library.
 core_helper(literal)
-core_helper(whtext.truncate)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
