@@ -18,8 +18,6 @@ import uuid
 
 from paste.deploy import converters
 import dominate.tags as dom_tags
-from webhelpers import paginate
-import webhelpers.date as date
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
@@ -50,6 +48,7 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
+from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -117,7 +116,7 @@ class literal(Markup):
     @classmethod
     def escape(cls, s):
         if s is None:
-            return EMPTY
+            return Markup(u"")
         return super(literal, cls).escape(s)
 
 
@@ -1349,8 +1348,6 @@ def truncate(text, length=30, indicator='...', whole_word=False):
         i -= 1
     while i >= 0 and text[i].isspace():
         i -= 1
-    #if i < short_length:
-    #    i += 1   # Set to one after the last char we want to keep.
     if i <= 0:
         # Entire text before break is one word, or we miscalculated.
         return text[:short_length] + indicator
@@ -1486,47 +1483,6 @@ def pager_url(page, partial=None, **kwargs):
             kwargs['id'] = routes_dict['id']
     kwargs['page'] = page
     return url_for(*pargs, **kwargs)
-
-
-class Page(paginate.Page):
-    # Curry the pager method of the webhelpers.paginate.Page class, so we have
-    # our custom layout set as default.
-
-    def pager(self, *args, **kwargs):
-        kwargs.update(
-            format=u"<div class='pagination-wrapper'><ul class='pagination'>"
-            "$link_previous ~2~ $link_next</ul></div>",
-            symbol_previous=u'«', symbol_next=u'»',
-            curpage_attr={'class': 'active'}, link_attr={}
-        )
-        return super(Page, self).pager(*args, **kwargs)
-
-    # Put each page link into a <li> (for Bootstrap to style it)
-
-    def _pagerlink(self, page, text, extra_attributes=None):
-        anchor = super(Page, self)._pagerlink(page, text)
-        extra_attributes = _preprocess_dom_attrs(extra_attributes or {})
-        return literal(dom_tags.li(anchor, **extra_attributes))
-
-    # Change 'current page' link from <span> to <li><a>
-    # and '..' into '<li><a>..'
-    # (for Bootstrap to style them properly)
-
-    def _range(self, regexp_match):
-        html = super(Page, self)._range(regexp_match)
-        # Convert ..
-        dotdot = '<span class="pager_dotdot">..</span>'
-        dotdot_link = dom_tags.li(dom_tags.a('...', href='#'), cls='disabled')
-        html = re.sub(dotdot, dotdot_link, html)
-
-        # Convert current page
-        text = '%s' % self.page
-        current_page_span = dom_tags.span(
-            text, **_preprocess_dom_attrs(self.curpage_attr)
-        )
-        current_page_link = self._pagerlink(self.page, text,
-                                            extra_attributes=self.curpage_attr)
-        return re.sub(current_page_span, current_page_link, html)
 
 
 @core_helper
@@ -1723,10 +1679,13 @@ class _RFC2282TzInfo(datetime.tzinfo):
 def time_ago_in_words_from_str(date_str, granularity='month'):
     '''Deprecated in 2.2 use time_ago_from_timestamp'''
     if date_str:
-        return date.time_ago_in_words(date_str_to_datetime(date_str),
-                                      granularity=granularity)
-    else:
-        return _('Unknown')
+        try:
+            return formatters.localised_nice_date(
+                date_str_to_datetime(date_str), show_date=False
+            )
+        except ValueError:
+            pass
+    return _('Unknown')
 
 
 @core_helper
@@ -2771,7 +2730,6 @@ core_helper(localised_filesize)
 # Useful additionsfrom the i18n library.
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
-# Useful additions from the webhelpers library.
 core_helper(literal)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
