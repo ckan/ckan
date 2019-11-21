@@ -17,7 +17,8 @@ import copy
 import uuid
 
 from paste.deploy import converters
-from webhelpers.html import HTML, tags, tools
+import dominate.tags as dom_tags
+from webhelpers.html import HTML, tools
 from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
@@ -109,7 +110,7 @@ _builtin_functions = {}
 helper_functions = HelperAttributeDict()
 
 
-class literal(markupsafe.Markup):
+class literal(Markup):
     """Represents an HTML literal.
 
     """
@@ -779,11 +780,84 @@ def _link_to(text, *args, **kwargs):
 
     icon = kwargs.pop('icon', None)
     class_ = _link_class(kwargs)
-    return tags.link_to(
+    return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
         class_=class_
     )
+
+
+def _preprocess_dom_attrs(attrs):
+    """Strip leading underscore from keys of dict.
+
+    This hack was used in `webhelpers` library for some attributes,
+    like `class` that cannot be used because it special meaning in
+    Python.
+    """
+    return {key.rstrip('_'): value for key, value in attrs.items()}
+
+
+def _make_safe_id_component(idstring):
+    """Make a string safe for including in an id attribute.
+
+    The HTML spec says that id attributes 'must begin with
+    a letter ([A-Za-z]) and may be followed by any number
+    of letters, digits ([0-9]), hyphens ("-"), underscores
+    ("_"), colons (":"), and periods (".")'. These regexps
+    are slightly over-zealous, in that they remove colons
+    and periods unnecessarily.
+
+    Whitespace is transformed into underscores, and then
+    anything which is not a hyphen or a character that
+    matches \w (alphanumerics and underscore) is removed.
+
+    """
+    # Transform all whitespace to underscore
+    idstring = re.sub(r'\s', "_", '%s' % idstring)
+    # Remove everything that is not a hyphen or a member of \w
+    idstring = re.sub(r'(?!-)\W', "", idstring).lower()
+    return idstring
+
+
+def _input_tag(type, name, value=None, id=None, **attrs):
+    attrs = _preprocess_dom_attrs(attrs)
+    attrs.update(type=type, name=name, value=value)
+    if u"id" not in attrs:
+        attrs[u"id"] = id if id else _make_safe_id_component(name)
+
+    return dom_tags.input(**attrs)
+
+
+@core_helper
+def link_to(label, url, **attrs):
+    attrs = _preprocess_dom_attrs(attrs)
+    attrs['href'] = url
+    if label == '' or label is None:
+        label = url
+    return literal(dom_tags.a(label, **attrs))
+
+
+@core_helper
+def file(name, value=None, id=None, **attrs):
+    """Create a file upload field.
+
+    If you are using file uploads then you will also need to set the
+    multipart option for the form.
+
+    Example::
+
+        >>> file('myfile')
+        literal(u'<input id="myfile" name="myfile" type="file" />')
+
+    """
+    return literal(_input_tag(u"file"), name, value, id, **attrs)
+
+
+@core_helper
+def submit(name, value=None, id=None, **attrs):
+    """Create a submit field.
+    """
+    return literal(_input_tag(u"submit"), name, value, id, **attrs)
 
 
 @core_helper
@@ -1225,7 +1299,7 @@ def linked_user(user, maxlength=0, avatar=20):
                 email_hash=user.email_hash,
                 size=avatar
             ),
-            link=tags.link_to(
+            link=link_to(
                 displayname,
                 url_for('user.read', id=name)
             )
@@ -1651,7 +1725,7 @@ def dataset_link(package_or_package_dict):
     else:
         name = package_or_package_dict.name
     text = dataset_display_name(package_or_package_dict)
-    return tags.link_to(
+    return link_to(
         text,
         url_for('dataset.read', id=name)
     )
@@ -1680,26 +1754,26 @@ def resource_link(resource_dict, package_id):
     url = url_for('resource.read',
                   id=package_id,
                   resource_id=resource_dict['id'])
-    return tags.link_to(text, url)
+    return link_to(text, url)
 
 
 @core_helper
 def tag_link(tag):
     url = url_for('dataset.search', tags=tag['name'])
-    return tags.link_to(tag.get('title', tag['name']), url)
+    return link_to(tag.get('title', tag['name']), url)
 
 
 @core_helper
 def group_link(group):
     url = url_for('group.read', id=group['name'])
-    return tags.link_to(group['title'], url)
+    return link_to(group['title'], url)
 
 
 @core_helper
 def organization_link(organization):
     url = url_for(controller='organization', action='read',
                   id=organization['name'])
-    return tags.link_to(organization['title'], url)
+    return link_to(organization['title'], url)
 
 
 @core_helper
@@ -2654,9 +2728,6 @@ core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
 # Useful additions from the webhelpers library.
 core_helper(literal)
-core_helper(tags.link_to)
-core_helper(tags.file)
-core_helper(tags.submit)
 core_helper(whtext.truncate)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
