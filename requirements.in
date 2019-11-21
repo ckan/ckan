@@ -2,6 +2,7 @@
 # Use pip-compile to create a requirements.txt file from this
 alembic==1.0.0
 Babel==2.3.4
+Beaker==1.11.0
 bleach==3.0.2
 click==6.7
 fanstatic==0.12
