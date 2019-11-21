@@ -8,8 +8,7 @@ import ckan.lib.app_globals as app_globals
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.model as model
 import ckan.logic as logic
-import ckan.plugins as plugins
-from home import CACHE_PARAMETERS
+from ckan.controllers.home import CACHE_PARAMETERS
 
 
 c = base.c

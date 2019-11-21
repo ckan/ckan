@@ -6,10 +6,11 @@ import sqlalchemy as sa
 from sqlalchemy import orm
 from sqlalchemy.util import OrderedDict
 
-import meta
-import core
+from ckan.model import meta, core
+
 
 __all__ = ['DomainObject', 'DomainObjectOperation']
+
 
 class Enum(set):
     '''Simple enumeration

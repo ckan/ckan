@@ -26,12 +26,12 @@ from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
-from flask import _request_ctx_stack, current_app
+from flask import _request_ctx_stack
 from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
-import i18n
+from ckan.lib import i18n
 
 from six import string_types, text_type
 from six.moves.urllib.parse import (
@@ -2775,7 +2775,7 @@ def compare_pkg_dicts(old, new, old_activity_id):
     string indicating the type of change made as well as other data necessary
     to form a detailed summary of the change.
     '''
-    from changes import check_metadata_changes, check_resource_changes
+    from ckan.lib.changes import check_metadata_changes, check_resource_changes
     change_list = []
 
     check_metadata_changes(change_list, old, new)

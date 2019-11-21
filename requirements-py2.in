@@ -1,10 +1,9 @@
-# The file contains the direct ckan requirements (python3).
+# The file contains the direct ckan requirements (python2).
 # Use pip-compile to create a requirements.txt file from this
 alembic==1.0.0
 Babel==2.3.4
 bleach==3.0.2
 click==6.7
-dominate==2.4.0
 fanstatic==0.12
 Flask==1.1.1
 Flask-Babel==0.11.2
@@ -17,10 +16,12 @@ polib==1.0.7
 psycopg2==2.8.2
 python-magic==0.4.15
 pysolr==3.6.0
+Pylons==0.9.7
 python-dateutil>=1.5.0
 pytz==2016.7
 PyUtilib==5.7.1
 pyyaml  # needed by webassets. latest should be fine.
+repoze.who-friendlyform==1.0.8
 repoze.who==2.3
 requests==2.22.0
 Routes==1.13
@@ -32,6 +33,8 @@ sqlparse==0.2.2
 tzlocal==1.3
 unicodecsv>=0.9
 webassets==0.12.1
-WebTest==1.4.3
+WebHelpers==1.3
+WebOb==1.0.8
+WebTest==1.4.3  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
 werkzeug==0.15.5
 zope.interface==4.3.2

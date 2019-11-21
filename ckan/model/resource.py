@@ -7,15 +7,15 @@ from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-from sqlalchemy import types, func, Column, Table, ForeignKey, and_
+from sqlalchemy import types, func, Column, Table, ForeignKey
 
-import meta
-import core
-import package as _package
-import types as _types
-import extension
-import activity
-import domain_object
+from ckan.model import (
+    meta,
+    core,
+    types as _types,
+    extension,
+    domain_object,
+)
 import ckan.lib.dictization
 from .package import Package
 import ckan.model
