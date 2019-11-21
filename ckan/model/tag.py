@@ -3,15 +3,16 @@
 from sqlalchemy.orm import relation
 from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
 
-import package as _package
-import extension as _extension
-import core
-import meta
-import types as _types
-import domain_object
-import vocabulary
-import activity
+from ckan.model import (
+    core,
+    meta,
+    types as _types,
+    domain_object,
+    vocabulary,
+    extension as _extension,
+)
 import ckan  # this import is needed
+import ckan.model
 import ckan.lib.dictization
 import ckan.lib.maintain as maintain
 
@@ -206,11 +207,11 @@ class Tag(domain_object.DomainObject):
         :rtype: list of ckan.model.package.Package objects
 
         '''
-        q = meta.Session.query(_package.Package)
+        q = meta.Session.query(ckan.model.package.Package)
         q = q.join(PackageTag)
         q = q.filter_by(tag_id=self.id)
         q = q.filter_by(state='active')
-        q = q.order_by(_package.Package.name)
+        q = q.order_by(ckan.model.package.Package.name)
         packages = q.all()
         return packages
 
@@ -261,13 +262,13 @@ class PackageTag(core.StatefulObjectMixin,
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
-            query = (meta.Session.query(PackageTag, Tag, _package.Package)
+            query = (meta.Session.query(PackageTag, Tag, ckan.model.Package)
                     .filter(Tag.vocabulary_id == vocab.id)
-                    .filter(_package.Package.name==package_name)
+                    .filter(ckan.model.Package.name==package_name)
                     .filter(Tag.name==tag_name))
         else:
             query = (meta.Session.query(PackageTag)
-                    .filter(_package.Package.name==package_name)
+                    .filter(ckan.model.Package.name==package_name)
                     .filter(Tag.name==tag_name))
         query = query.autoflush(autoflush)
         return query.one()[0]
@@ -285,11 +286,5 @@ meta.mapper(Tag, tag_table, properties={
     order_by=tag_table.c.name,
     )
 
-meta.mapper(PackageTag, package_tag_table, properties={
-    'pkg':relation(_package.Package, backref='package_tag_all',
-        cascade='none',
-        )
-    },
-    order_by=package_tag_table.c.id,
-    extension=[_extension.PluginMapperExtension()],
-    )
+# NB meta.mapper(tag.PackageTag... is found in package.py, because if it was
+# here it we'd get circular references

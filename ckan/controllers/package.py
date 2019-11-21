@@ -25,7 +25,7 @@ import ckan.plugins as p
 import ckan.lib.render
 
 from ckan.common import OrderedDict, _, json, request, c, response
-from home import CACHE_PARAMETERS
+from ckan.controllers.home import CACHE_PARAMETERS
 
 log = logging.getLogger(__name__)
 

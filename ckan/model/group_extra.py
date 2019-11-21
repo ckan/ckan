@@ -4,11 +4,13 @@ from sqlalchemy import orm, types, Column, Table, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 from six import text_type
 
-import group
-import meta
-import core
-import types as _types
-import domain_object
+from ckan.model import (
+    group,
+    meta,
+    core,
+    types as _types,
+    domain_object
+)
 
 
 __all__ = ['GroupExtra', 'group_extra_table']
