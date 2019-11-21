@@ -16,13 +16,13 @@ Please do not add new files to the list as any new files should meet the
 current coding standards.  Please add comments by files that fail if there
 are legitimate reasons for the failure.
 '''
-
-import cStringIO
 import inspect
 import itertools
 import os
 import re
 import sys
+
+from six import StringIO
 
 import pycodestyle
 
@@ -517,7 +517,7 @@ class TestPep8(object):
     @classmethod
     def find_pep8_errors(cls, filename=None, lines=None):
         try:
-            sys.stdout = cStringIO.StringIO()
+            sys.stdout = StringIO()
             config = {'ignore': [
                 # W503/W504 - breaking before/after binary operators is agreed
                 # to not be a concern and was changed to be ignored by default.

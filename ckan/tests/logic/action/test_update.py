@@ -14,6 +14,9 @@ import mock
 import nose.tools
 from ckan import model
 from ckan.common import config
+
+
+from six import StringIO
 from pyfakefs import fake_filesystem
 
 assert_equals = eq_ = nose.tools.assert_equals
@@ -1059,8 +1062,8 @@ class TestResourceUpdate(object):
                                       url='http://localhost/data.csv',
                                       name='Test')
 
-        import StringIO
-        update_file = StringIO.StringIO()
+
+        update_file = StringIO()
         update_file.write('''
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
@@ -1093,8 +1096,8 @@ class TestResourceUpdate(object):
         Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
         If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
         '''
-        import StringIO
-        test_file = StringIO.StringIO()
+
+        test_file = StringIO()
         test_file.write('''
         "info": {
             "title": "BC Data Catalogue API",
@@ -1122,7 +1125,7 @@ class TestResourceUpdate(object):
                                           name='Test',
                                           upload=test_resource)
 
-        update_file = StringIO.StringIO()
+        update_file = StringIO()
         update_file.write('''
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
@@ -1173,8 +1176,8 @@ class TestResourceUpdate(object):
         '''
         The size of the resource determined by the uploaded file
         '''
-        import StringIO
-        test_file = StringIO.StringIO()
+
+        test_file = StringIO()
         test_file.write('''
         "info": {
             "title": "BC Data Catalogue API",
@@ -1202,7 +1205,7 @@ class TestResourceUpdate(object):
                                           name='Test',
                                           upload=test_resource)
 
-        update_file = StringIO.StringIO()
+        update_file = StringIO()
         update_file.write('''
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54

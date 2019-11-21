@@ -5,7 +5,6 @@
 '''
 import __builtin__ as builtins
 
-import six
 
 import ckan
 import ckan.logic as logic
@@ -16,6 +15,9 @@ import ckan.tests.helpers as helpers
 import mock
 import nose.tools
 from ckan.common import config
+
+from six import string_types, StringIO
+
 from pyfakefs import fake_filesystem
 
 eq = assert_equals = nose.tools.assert_equals
@@ -523,8 +525,8 @@ class TestResourceCreate(object):
         Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
         If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
         '''
-        import StringIO
-        test_file = StringIO.StringIO()
+
+        test_file = StringIO()
         test_file.write('''
         "info": {
             "title": "BC Data Catalogue API",
@@ -573,8 +575,8 @@ class TestResourceCreate(object):
         Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
         If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
         '''
-        import StringIO
-        test_file = StringIO.StringIO()
+
+        test_file = StringIO()
         test_file.write('''
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
@@ -608,8 +610,8 @@ class TestResourceCreate(object):
         '''
         The size of the resource determined by the uploaded file
         '''
-        import StringIO
-        test_file = StringIO.StringIO()
+
+        test_file = StringIO()
         test_file.write('''
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
@@ -991,7 +993,7 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             context={'return_id_only': True},
         )
 
-        assert isinstance(dataset, six.string_types)
+        assert isinstance(dataset, string_types)
 
 
 class TestGroupCreate(helpers.FunctionalTestBase):

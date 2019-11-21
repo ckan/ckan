@@ -10,12 +10,11 @@ import sqlalchemy.engine.url as sa_url
 import datetime
 import hashlib
 import json
-from cStringIO import StringIO
 
 from six.moves.urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
-from six import string_types, text_type
+from six import string_types, text_type, StringIO
 
 import ckan.lib.cli as cli
 import ckan.plugins as p

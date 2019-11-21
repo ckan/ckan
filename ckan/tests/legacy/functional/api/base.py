@@ -1,18 +1,13 @@
 # encoding: utf-8
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
 from nose.tools import assert_equal
 from paste.fixture import TestRequest
 from webhelpers.html import url_escape
 
 from six.moves.urllib.parse import quote
+from six import StringIO
 
 import ckan.model as model
-from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.common import json
 
