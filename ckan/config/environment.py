@@ -6,8 +6,8 @@ import logging
 import warnings
 import pytz
 
+import six
 import sqlalchemy
-from pylons import config as pylons_config
 
 from six.moves.urllib.parse import urlparse
 
@@ -20,7 +20,6 @@ import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
-import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
@@ -29,6 +28,10 @@ from ckan.lib.i18n import build_js_translations
 
 from ckan.common import _, ungettext, config
 from ckan.exceptions import CkanConfigurationException
+
+if six.PY2:
+    from pylons import config as pylons_config
+
 
 log = logging.getLogger(__name__)
 
@@ -97,13 +100,15 @@ def load_environment(global_conf, app_conf):
     config.update(global_conf)
     config.update(app_conf)
 
-    # Initialize Pylons own config object
-    pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
+    if six.PY2:
+        # Initialize Pylons own config object
+        pylons_config.init_app(
+            global_conf, app_conf, package='ckan', paths=paths)
 
-    # Update the main CKAN config object with the Pylons specific stuff, as it
-    # is quite hard to keep them separated. This should be removed once Pylons
-    # support is dropped
-    config.update(pylons_config)
+        # Update the main CKAN config object with the Pylons specific stuff,
+        # as it is quite hard to keep them separated. This should be removed
+        # once Pylons support is dropped
+        config.update(pylons_config)
 
     # Setup the SQLAlchemy database engine
     # Suppress a couple of sqlalchemy warnings

@@ -17,22 +17,17 @@ import copy
 import uuid
 
 from paste.deploy import converters
-from webhelpers.html import HTML, literal, tags
-from webhelpers import paginate
-import webhelpers.text as whtext
-import webhelpers.date as date
+
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
-from routes import redirect_to as _routes_redirect_to
-from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
 
+import six
 from six import string_types, text_type
 from six.moves.urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
@@ -54,6 +49,18 @@ import ckan
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
+
+if six.PY2:
+    # TODO: webhelpers should be removed after #4794 is done
+    from webhelpers.html import HTML, literal, tags
+    from webhelpers import paginate
+    import webhelpers.text as whtext
+    import webhelpers.date as date
+
+    from pylons import url as _pylons_default_url
+    from routes import redirect_to as _routes_redirect_to
+    from routes import url_for as _routes_default_url_for
+
 
 
 log = logging.getLogger(__name__)
@@ -1358,43 +1365,45 @@ def pager_url(page, partial=None, **kwargs):
     return url_for(*pargs, **kwargs)
 
 
-class Page(paginate.Page):
-    # Curry the pager method of the webhelpers.paginate.Page class, so we have
-    # our custom layout set as default.
+# TODO: remove once #4794 is done
+if six.PY2:
+    class Page(paginate.Page):
+        # Curry the pager method of the webhelpers.paginate.Page class, so we have
+        # our custom layout set as default.
 
-    def pager(self, *args, **kwargs):
-        kwargs.update(
-            format=u"<div class='pagination-wrapper'><ul class='pagination'>"
-            "$link_previous ~2~ $link_next</ul></div>",
-            symbol_previous=u'«', symbol_next=u'»',
-            curpage_attr={'class': 'active'}, link_attr={}
-        )
-        return super(Page, self).pager(*args, **kwargs)
+        def pager(self, *args, **kwargs):
+            kwargs.update(
+                format=u"<div class='pagination-wrapper'><ul class='pagination'>"
+                "$link_previous ~2~ $link_next</ul></div>",
+                symbol_previous=u'«', symbol_next=u'»',
+                curpage_attr={'class': 'active'}, link_attr={}
+            )
+            return super(Page, self).pager(*args, **kwargs)
 
-    # Put each page link into a <li> (for Bootstrap to style it)
+        # Put each page link into a <li> (for Bootstrap to style it)
 
-    def _pagerlink(self, page, text, extra_attributes=None):
-        anchor = super(Page, self)._pagerlink(page, text)
-        extra_attributes = extra_attributes or {}
-        return HTML.li(anchor, **extra_attributes)
+        def _pagerlink(self, page, text, extra_attributes=None):
+            anchor = super(Page, self)._pagerlink(page, text)
+            extra_attributes = extra_attributes or {}
+            return HTML.li(anchor, **extra_attributes)
 
-    # Change 'current page' link from <span> to <li><a>
-    # and '..' into '<li><a>..'
-    # (for Bootstrap to style them properly)
+        # Change 'current page' link from <span> to <li><a>
+        # and '..' into '<li><a>..'
+        # (for Bootstrap to style them properly)
 
-    def _range(self, regexp_match):
-        html = super(Page, self)._range(regexp_match)
-        # Convert ..
-        dotdot = '<span class="pager_dotdot">..</span>'
-        dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
-        html = re.sub(dotdot, dotdot_link, html)
+        def _range(self, regexp_match):
+            html = super(Page, self)._range(regexp_match)
+            # Convert ..
+            dotdot = '<span class="pager_dotdot">..</span>'
+            dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
+            html = re.sub(dotdot, dotdot_link, html)
 
-        # Convert current page
-        text = '%s' % self.page
-        current_page_span = str(HTML.span(c=text, **self.curpage_attr))
-        current_page_link = self._pagerlink(self.page, text,
-                                            extra_attributes=self.curpage_attr)
-        return re.sub(current_page_span, current_page_link, html)
+            # Convert current page
+            text = '%s' % self.page
+            current_page_span = str(HTML.span(c=text, **self.curpage_attr))
+            current_page_link = self._pagerlink(self.page, text,
+                                                extra_attributes=self.curpage_attr)
+            return re.sub(current_page_span, current_page_link, html)
 
 
 @core_helper
@@ -2640,11 +2649,13 @@ core_helper(localised_filesize)
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
 # Useful additions from the webhelpers library.
-core_helper(tags.literal)
-core_helper(tags.link_to)
-core_helper(tags.file)
-core_helper(tags.submit)
-core_helper(whtext.truncate)
+# TODO: remove once #4794 is done
+if six.PY2:
+    core_helper(tags.literal)
+    core_helper(tags.link_to)
+    core_helper(tags.file)
+    core_helper(tags.submit)
+    core_helper(whtext.truncate)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
