@@ -851,14 +851,14 @@ def file(name, value=None, id=None, **attrs):
         literal(u'<input id="myfile" name="myfile" type="file" />')
 
     """
-    return literal(_input_tag(u"file"), name, value, id, **attrs)
+    return literal(_input_tag(u"file", name, value, id, **attrs))
 
 
 @core_helper
 def submit(name, value=None, id=None, **attrs):
     """Create a submit field.
     """
-    return literal(_input_tag(u"submit"), name, value, id, **attrs)
+    return literal(_input_tag(u"submit", name, value, id, **attrs))
 
 
 @core_helper
