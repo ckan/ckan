@@ -5,6 +5,7 @@ import logging
 import re
 from collections import defaultdict
 
+from werkzeug.local import LocalProxy
 from six import string_types, text_type
 
 import ckan.model as model
@@ -392,7 +393,7 @@ def get_action(action):
         for part in module_path.split('.')[1:]:
             module = getattr(module, part)
         for k, v in module.__dict__.items():
-            if not k.startswith('_'):
+            if not k.startswith('_') and not isinstance(v, LocalProxy):
                 # Only load functions from the action module or already
                 # replaced functions.
                 if (hasattr(v, '__call__') and
