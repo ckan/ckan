@@ -70,32 +70,13 @@ def error(msg):
     sys.exit(1)
 
 
-def parse_db_config(config_key='sqlalchemy.url'):
-    ''' Takes a config key for a database connection url and parses it into
-    a dictionary. Expects a url like:
-
-    'postgres://tester:pass@localhost/ckantest3'
-    '''
-    from ckan.common import config
-    url = config[config_key]
-    regex = [
-        '^\s*(?P<db_type>\w*)',
-        '://',
-        '(?P<db_user>[^:]*)',
-        ':?',
-        '(?P<db_pass>[^@]*)',
-        '@',
-        '(?P<db_host>[^/:]*)',
-        ':?',
-        '(?P<db_port>[^/]*)',
-        '/',
-        '(?P<db_name>[\w.-]*)'
-    ]
-    db_details_match = re.match(''.join(regex), url)
-    if not db_details_match:
-        raise Exception('Could not extract db details from url: %r' % url)
-    db_details = db_details_match.groupdict()
-    return db_details
+def _parse_db_config(config_key=u'sqlalchemy.url'):
+    db_config = model.parse_db_config(config_key)
+    if not db_config:
+        raise Exception(
+            u'Could not extract db details from url: %r' % config[config_key]
+        )
+    return db_config
 
 
 def user_add(args):

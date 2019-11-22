@@ -16,7 +16,6 @@ from six.moves.urllib.parse import (
 )
 from six import string_types, text_type, StringIO
 
-import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.lazyjson import LazyJSONObject
@@ -330,7 +329,7 @@ def _pg_version_is_at_least(connection, version):
 
 
 def _get_read_only_user(data_dict):
-    parsed = cli.parse_db_config('ckan.datastore.read_url')
+    parsed = model.parse_db_config('ckan.datastore.read_url')
     return parsed['db_user']
 
 
