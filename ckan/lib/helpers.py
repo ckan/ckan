@@ -776,11 +776,11 @@ def _link_to(text, *args, **kwargs):
         return text
 
     icon = kwargs.pop('icon', None)
-    class_ = _link_class(kwargs)
+    cls = _link_class(kwargs)
     return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
-        class_=class_
+        cls=cls
     )
 
 
@@ -791,7 +791,11 @@ def _preprocess_dom_attrs(attrs):
     like `class` that cannot be used because it special meaning in
     Python.
     """
-    return {key.rstrip('_'): value for key, value in attrs.items()}
+    return {
+        key.rstrip('_'): value
+        for key, value in attrs.items()
+        if value is not None
+    }
 
 
 def _make_safe_id_component(idstring):
@@ -806,7 +810,7 @@ def _make_safe_id_component(idstring):
 
     Whitespace is transformed into underscores, and then
     anything which is not a hyphen or a character that
-    matches \w (alphanumerics and underscore) is removed.
+    matches \\w (alphanumerics and underscore) is removed.
 
     """
     # Transform all whitespace to underscore
@@ -1351,7 +1355,7 @@ def truncate(text, length=30, indicator='...', whole_word=False):
     if i <= 0:
         # Entire text before break is one word, or we miscalculated.
         return text[:short_length] + indicator
-    return text[:i+1] + indicator
+    return text[:i + 1] + indicator
 
 
 @core_helper

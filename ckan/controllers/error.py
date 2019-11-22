@@ -11,6 +11,7 @@ from ckan.lib.base import BaseController
 from ckan.lib.base import render
 from ckan.lib.helpers import literal
 
+
 class ErrorController(BaseController):
     """Generates error documents as and when they are required.
 

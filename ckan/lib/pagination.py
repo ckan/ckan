@@ -145,7 +145,8 @@ class BasePage(list):
             self.page_count = ((self.item_count - 1) / self.items_per_page) + 1
             self.last_page = self.first_page + self.page_count - 1
 
-            # Make sure that the requested page number is the range of valid pages
+            # Make sure that the requested page number is the range of
+            # valid pages
             if self.page > self.last_page:
                 self.page = self.last_page
             elif self.page < self.first_page:
@@ -241,8 +242,7 @@ class BasePage(list):
         dotdot_attr={u"class": u"pager_dotdot"},
         **kwargs
     ):
-        """
-        Return string with links to other pages (e.g. "1 2 [3] 4 5 6 7").
+        """Return string with links to other pages (e.g. "1 2 [3] 4 5 6 7").
 
         format:
             Format string that defines how the pager is rendered. The string
@@ -374,10 +374,10 @@ class BasePage(list):
             Default: { 'class':'pager_dotdot' }
 
         onclick (optional)
-            This paramter is a string containing optional Javascript code
-            that will be used as the 'onclick' action of each pager link.
-            It can be used to enhance your pager with AJAX actions loading another
-            page into a DOM object.
+            This paramter is a string containing optional Javascript
+            code that will be used as the 'onclick' action of each
+            pager link.  It can be used to enhance your pager with
+            AJAX actions loading another page into a DOM object.
 
             In this string the variable '$partial_url' will be replaced by
             the URL linking to the desired page with an added 'partial=1'
@@ -385,27 +385,34 @@ class BasePage(list):
             In addition the '$page' variable gets replaced by the
             respective page number.
 
-            Note that the URL to the destination page contains a 'partial_param'
-            parameter so that you can distinguish between AJAX requests (just
-            refreshing the paginated area of your page) and full requests (loading
-            the whole new page).
+            Note that the URL to the destination page contains a
+            'partial_param' parameter so that you can distinguish
+            between AJAX requests (just refreshing the paginated area
+            of your page) and full requests (loading the whole new
+            page).
 
-            [Backward compatibility: you can use '%s' instead of '$partial_url']
+            [Backward compatibility: you can use '%s' instead of
+            '$partial_url']
 
             jQuery example:
                 "$('#my-page-area').load('$partial_url'); return false;"
 
             Yahoo UI example:
                 "YAHOO.util.Connect.asyncRequest('GET','$partial_url',{
-                    success:function(o){YAHOO.util.Dom.get('#my-page-area').innerHTML=o.responseText;}
-                    },null); return false;"
+                    success:function(o){
+                        YAHOO.util.Dom.get(
+                            '#my-page-area'
+                        ).innerHTML=o.responseText;
+                    }
+                },null); return false;"
 
             scriptaculous example:
                 "new Ajax.Updater('#my-page-area', '$partial_url',
                     {asynchronous:true, evalScripts:true}); return false;"
 
             ExtJS example:
-                "Ext.get('#my-page-area').load({url:'$partial_url'}); return false;"
+                "Ext.get('#my-page-area').load({url:'$partial_url'});
+                return false;"
 
             Custom example:
                 "my_load_page($page)"
@@ -413,6 +420,7 @@ class BasePage(list):
         Additional keyword arguments are used as arguments in the links.
         Otherwise the link will be created with url_for() which points
         to the page you are currently displaying.
+
         """
         self.curpage_attr = curpage_attr
         self.separator = separator
@@ -430,7 +438,7 @@ class BasePage(list):
             return u""
 
         # Replace ~...~ in token format by range of pages
-        result = re.sub(r"~(\d+)~", self._range, format)
+        result = re.sub(u"~(\\d+)~", self._range, format)
 
         # Interpolate '%' variables
         result = Template(result).safe_substitute(
@@ -460,7 +468,7 @@ class BasePage(list):
 
         return Markup(result)
 
-    #### Private methods ####
+    # Private methods
     def _range(self, regexp_match):
         """
         Return range of linked pages (e.g. '1 2 [3] 4 5 6 7 8').
@@ -563,7 +571,9 @@ class BasePage(list):
             # updates)
             link_params[self.partial_param] = 1
             partial_url = url_generator(**link_params)
-            try:  # if '%s' is used in the 'onclick' parameter (backwards compatibility)
+            try:
+                # if '%s' is used in the 'onclick' parameter
+                # (backwards compatibility)
                 onclick_action = self.onclick % (partial_url,)
             except TypeError:
                 onclick_action = Template(self.onclick).safe_substitute(
