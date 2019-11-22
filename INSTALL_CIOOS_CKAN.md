@@ -291,6 +291,30 @@ The settings for harvesters are fairly straightforward. The one exception is the
 }
 ```
 
+#### 19115-3 WAF (ERDDAP)
+
+```json
+{
+  "default_tags": [],
+  "default_extras": {
+    "encoding": "utf8",
+    "h_source_id": "{harvest_source_id}",
+    "h_source_url": "{harvest_source_url}",
+    "h_source_title": "{harvest_source_title}",
+    "h_job_id": "{harvest_job_id}",
+    "h_object_id": "{harvest_object_id}"
+  },
+  "override_extras": false,
+  "clean_tags": true,
+  "validator_profiles": ["iso19115"],
+  "remote_orgs": "only_local",
+  "harvest_iso_categories": false,
+  "organization_mapping": {
+    "Institute of Ocean Sciences, 9860 West Saanich Road, Sidney, B.C., Canada": "Fisheries and Oceans Canada"
+  }
+}
+```
+
 #### CKAN
 
 ```json
@@ -316,6 +340,12 @@ The settings for harvesters are fairly straightforward. The one exception is the
 ```
 Note that `use_default_schema` and `force_package_type` are not needed and will cause validation errors if harvesting between two ckans using the same custom schema (the CIOOS setup)
 
+### reindex Harvesters
+it may become nesisary to reindex harvesters, especially if they no longer report the correct number of harveted datasets.
+
+```bash
+sudo docker exec -it ckan //usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester reindex --config=/etc/ckan/production.ini
+```
 ---
 
 #### Finish setting up pyCSW
@@ -662,6 +692,7 @@ sudo cp -r src/ckanext-package_converter/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-fluent/ $VOL_CKAN_HOME/venv/src/
 sudo cp src/cioos-siooc-schema/cioos-siooc_schema.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
 sudo cp src/cioos-siooc-schema/organization.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/organization.json
+sudo cp src/cioos-siooc-schema/ckan_license.json $VOL_CKAN_HOME/venv/src/ckan/contrib/docker/src/cioos-siooc-schema/ckan_license.json
 ```
 
 update permissions
@@ -695,3 +726,11 @@ cd ~/ckan/contrib/docker
 sudo docker-compose restart ckan
 sudo docker-compose restart ckan_run_harvester ckan_fetch_harvester ckan_gather_harvester
 ```
+
+### Set timezone
+
+timedatectl
+ls -l /etc/localtime
+timedatectl list-timezones
+sudo timedatectl set-timezone UTC
+sudo timedatectl set-timezone America/Vancouver
