@@ -14,7 +14,7 @@ from pyutilib.component.core import Plugin as _pca_Plugin
 from ckan.common import asbool
 from six import string_types
 
-import interfaces
+from ckan.plugins import interfaces
 
 from ckan.common import config
 

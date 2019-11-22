@@ -9,7 +9,7 @@ from sqlalchemy import MetaData, and_
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.session import SessionExtension
 
-import extension
+from ckan.model import extension
 
 __all__ = ['Session', 'engine_is_sqlite', 'engine_is_pg']
 

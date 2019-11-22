@@ -4,12 +4,12 @@ import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
 
-import meta
-import core
-import package as _package
-import types as _types
-import domain_object
-import user as _user
+from ckan.model import meta
+from ckan.model import core
+from ckan.model import package as _package
+from ckan.model import types as _types
+from ckan.model import domain_object
+from ckan.model import user as _user
 
 __all__ = ['group_table', 'Group',
            'Member',

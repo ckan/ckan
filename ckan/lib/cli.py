@@ -1295,8 +1295,7 @@ class CreateTestDataCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import plugins
-        from create_test_data import CreateTestData
+        from ckan.lib.create_test_data import CreateTestData
 
         if self.args:
             cmd = self.args[0]
@@ -2364,7 +2363,7 @@ class ConfigToolCommand(paste.script.command.Command):
         help='Supply an options file to merge in')
 
     def command(self):
-        import config_tool
+        from ckan.lib import config_tool
         if len(self.args) < 1:
             self.parser.error('Not enough arguments (got %i, need at least 1)'
                               % len(self.args))

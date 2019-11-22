@@ -5,12 +5,16 @@ import logging
 import click
 from ckan.cli import config_tool
 from ckan.cli import (
+    jobs,
     datapusher,
+    front_end_build,
     click_config_option, db, load_config, search_index, server,
+    profile,
     asset,
     datastore,
     translation,
     dataset,
+    views,
     plugin_info,
     notify,
     tracking,
@@ -40,8 +44,11 @@ def ckan(ctx, config, *args, **kwargs):
     ctx.obj = CkanCommand(config)
 
 
+ckan.add_command(jobs.jobs)
 ckan.add_command(config_tool.config_tool)
+ckan.add_command(front_end_build.front_end_build)
 ckan.add_command(server.run)
+ckan.add_command(profile.profile)
 ckan.add_command(seed.seed)
 ckan.add_command(db.db)
 ckan.add_command(datapusher.datapusher)
@@ -50,6 +57,7 @@ ckan.add_command(asset.asset)
 ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
 ckan.add_command(dataset.dataset)
+ckan.add_command(views.views)
 ckan.add_command(plugin_info.plugin_info)
 ckan.add_command(notify.notify)
 ckan.add_command(tracking.tracking)

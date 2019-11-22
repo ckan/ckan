@@ -12,10 +12,10 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from six import text_type
 
-import meta
-import core
-import types as _types
-import domain_object
+from ckan.model import meta
+from ckan.model import core
+from ckan.model import types as _types
+from ckan.model import domain_object
 
 
 user_table = Table('user', meta.metadata,

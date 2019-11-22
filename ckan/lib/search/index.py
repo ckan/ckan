@@ -16,7 +16,7 @@ from ckan.common import asbool
 from six import text_type
 from six.moves import map
 
-from common import SearchIndexError, make_connection
+from .common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
 import ckan.model as model
 from ckan.plugins import (PluginImplementations,

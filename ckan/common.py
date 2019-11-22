@@ -11,19 +11,20 @@
 from collections import MutableMapping
 
 import flask
-import pylons
 import six
 
 from werkzeug.local import Local, LocalProxy
 
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
-from pylons.i18n import (ugettext as pylons_ugettext,
-                         ungettext as pylons_ungettext)
-
-from pylons import response
 
 import simplejson as json
+
+if six.PY2:
+    import pylons
+    from pylons.i18n import (ugettext as pylons_ugettext,
+                             ungettext as pylons_ungettext)
+    from pylons import response
 
 current_app = flask.current_app
 
@@ -38,7 +39,8 @@ def is_flask_request():
     A centralized way to determine whether we are in the context of a
     request being served by Flask or Pylons
     '''
-
+    if six.PY3:
+        return True
     try:
         pylons.request.environ
         pylons_request_available = True

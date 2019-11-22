@@ -4,14 +4,14 @@ from six import text_type
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 
-import meta
-import core
-import package as _package
-import extension
-import domain_object
-import types as _types
-import ckan.lib.dictization
-import activity
+from ckan.model import (
+    meta,
+    core,
+    package as _package,
+    extension,
+    domain_object,
+    types as _types,
+)
 
 __all__ = ['PackageExtra', 'package_extra_table']
 
