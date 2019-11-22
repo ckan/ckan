@@ -45,35 +45,36 @@ def load_environment(global_conf, app_conf):
     Configure the Pylons environment via the ``pylons.config`` object. This
     code should only need to be run once.
     """
-    # this must be run at a time when the env is semi-setup, thus inlined here.
-    # Required by the deliverance plugin and iATI
-    from pylons.wsgiapp import PylonsApp
-    import pkg_resources
-    find_controller_generic = getattr(
-        PylonsApp.find_controller,
-        '_old_find_controller',
-        PylonsApp.find_controller)
+    if six.PY2:
+        # this must be run at a time when the env is semi-setup, thus inlined
+        # here. Required by the deliverance plugin and iATI
+        from pylons.wsgiapp import PylonsApp
+        import pkg_resources
+        find_controller_generic = getattr(
+            PylonsApp.find_controller,
+            '_old_find_controller',
+            PylonsApp.find_controller)
 
-    # This is from pylons 1.0 source, will monkey-patch into 0.9.7
-    def find_controller(self, controller):
-        if controller in self.controller_classes:
-            return self.controller_classes[controller]
-        # Check to see if its a dotted name
-        if '.' in controller or ':' in controller:
-            ep = pkg_resources.EntryPoint.parse('x={0}'.format(controller))
+        # This is from pylons 1.0 source, will monkey-patch into 0.9.7
+        def find_controller(self, controller):
+            if controller in self.controller_classes:
+                return self.controller_classes[controller]
+            # Check to see if its a dotted name
+            if '.' in controller or ':' in controller:
+                ep = pkg_resources.EntryPoint.parse('x={0}'.format(controller))
 
-            if hasattr(ep, 'resolve'):
-                # setuptools >= 10.2
-                mycontroller = ep.resolve()
-            else:
-                # setuptools >= 11.3
-                mycontroller = ep.load(False)
+                if hasattr(ep, 'resolve'):
+                    # setuptools >= 10.2
+                    mycontroller = ep.resolve()
+                else:
+                    # setuptools >= 11.3
+                    mycontroller = ep.load(False)
 
-            self.controller_classes[controller] = mycontroller
-            return mycontroller
-        return find_controller_generic(self, controller)
-    find_controller._old_find_controller = find_controller_generic
-    PylonsApp.find_controller = find_controller
+                self.controller_classes[controller] = mycontroller
+                return mycontroller
+            return find_controller_generic(self, controller)
+        find_controller._old_find_controller = find_controller_generic
+        PylonsApp.find_controller = find_controller
 
     os.environ['CKAN_CONFIG'] = global_conf['__file__']
 
@@ -235,20 +236,23 @@ def update_config():
                              config.get('solr_password'))
     search.check_solr_schema_version()
 
-    routes_map = routing.make_map()
+    if six.PY2:
+        routes_map = routing.make_map()
 
     lib_plugins.reset_package_plugins()
     lib_plugins.register_package_plugins()
     lib_plugins.reset_group_plugins()
     lib_plugins.register_group_plugins()
 
-    config['routes.map'] = routes_map
-    # The RoutesMiddleware needs its mapper updating if it exists
-    if 'routes.middleware' in config:
-        config['routes.middleware'].mapper = routes_map
-    # routes.named_routes is a CKAN thing
-    config['routes.named_routes'] = routing.named_routes
-    config['pylons.app_globals'] = app_globals.app_globals
+    if six.PY2:
+        config['routes.map'] = routes_map
+        # The RoutesMiddleware needs its mapper updating if it exists
+        if 'routes.middleware' in config:
+            config['routes.middleware'].mapper = routes_map
+        # routes.named_routes is a CKAN thing
+        config['routes.named_routes'] = routing.named_routes
+        config['pylons.app_globals'] = app_globals.app_globals
+
     # initialise the globals
     app_globals.app_globals._init()
 
@@ -281,13 +285,14 @@ def update_config():
     # root logger.
     logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
 
-    # Create Jinja2 environment
-    env = jinja_extensions.Environment(
-        **jinja_extensions.get_jinja_env_options())
-    env.install_gettext_callables(_, ungettext, newstyle=True)
-    # custom filters
-    env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
-    config['pylons.app_globals'].jinja_env = env
+    if six.PY2:
+        # Create Jinja2 environment
+        env = jinja_extensions.Environment(
+            **jinja_extensions.get_jinja_env_options())
+        env.install_gettext_callables(_, ungettext, newstyle=True)
+        # custom filters
+        env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
+        config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
