@@ -60,7 +60,6 @@ if six.PY2:
     import pylons
 
 
-
 log = logging.getLogger(__name__)
 
 # Default Portuguese language to Brazilian territory, since

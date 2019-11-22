@@ -284,7 +284,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
             t['literal'] = webhelpers.html.tags.literal
             t['response'] = pylons.response
-            self.docstring_overrides['response'] = '''The Pylons response object.
+            self.docstring_overrides['response'] = '''
+The Pylons response object.
 
 Pylons uses this object to generate the HTTP response it returns to the web
 browser. It has attributes like the HTTP status code, the response headers,

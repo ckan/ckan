@@ -62,7 +62,6 @@ if six.PY2:
     from routes import url_for as _routes_default_url_for
 
 
-
 log = logging.getLogger(__name__)
 
 DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
@@ -1368,12 +1367,13 @@ def pager_url(page, partial=None, **kwargs):
 # TODO: remove once #4794 is done
 if six.PY2:
     class Page(paginate.Page):
-        # Curry the pager method of the webhelpers.paginate.Page class, so we have
-        # our custom layout set as default.
+        # Curry the pager method of the webhelpers.paginate.Page class, so we
+        # have our custom layout set as default.
 
         def pager(self, *args, **kwargs):
             kwargs.update(
-                format=u"<div class='pagination-wrapper'><ul class='pagination'>"
+                format=u"<div class='pagination-wrapper'>"
+                "<ul class='pagination'>"
                 "$link_previous ~2~ $link_next</ul></div>",
                 symbol_previous=u'«', symbol_next=u'»',
                 curpage_attr={'class': 'active'}, link_attr={}
@@ -1401,8 +1401,8 @@ if six.PY2:
             # Convert current page
             text = '%s' % self.page
             current_page_span = str(HTML.span(c=text, **self.curpage_attr))
-            current_page_link = self._pagerlink(self.page, text,
-                                                extra_attributes=self.curpage_attr)
+            current_page_link = self._pagerlink(
+                self.page, text, extra_attributes=self.curpage_attr)
             return re.sub(current_page_span, current_page_link, html)
 
 

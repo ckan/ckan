@@ -1062,7 +1062,6 @@ class TestResourceUpdate(object):
                                       url='http://localhost/data.csv',
                                       name='Test')
 
-
         update_file = StringIO()
         update_file.write('''
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
