@@ -341,7 +341,7 @@ The settings for harvesters are fairly straightforward. The one exception is the
 Note that `use_default_schema` and `force_package_type` are not needed and will cause validation errors if harvesting between two ckans using the same custom schema (the CIOOS setup)
 
 ### reindex Harvesters
-it may become nesisary to reindex harvesters, especially if they no longer report the correct number of harveted datasets.
+it may become nesisary to reindex harvesters, especially if they no longer report the correct number of harveted datasets. If modifying the harvester config you will also need to reindex to make the new config take affect
 
 ```bash
 sudo docker exec -it ckan //usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester reindex --config=/etc/ckan/production.ini
@@ -493,6 +493,42 @@ Restart apache
 
 ```bash
   sudo apachectl restart
+```
+
+
+# Customize interface
+Now that you have ckan running you can customize the interface via the admin config page. Go to http://localhost:5000/ckan-admin/config and configure some of the site options.
+
+- Site_logo can be used to set the CIOOS logo that appears on every page.
+- Homepage should be set to CIOOS for the CIOOS style home page layout
+- Custom CSS can be used to change the colour pallet of the site as well as any of the other css items. An example css that sets the colour pallet is:
+
+```CSS
+.box, .wrapper {
+    border: 1px solid #006e90;
+    border-width: 0 0 0 4px;
+}
+
+#topmenu {
+    background: #006e90;
+}
+
+.account-masthead{
+  background-image: none;
+  background: #006e90;
+}
+
+#footer{
+  background: #006e90;
+}
+
+
+#footer a {
+  color: rgb(255,255,255,.5);
+}
+.account-masthead .account ul li a {
+  color: rgb(255,255,255,.5);
+}
 ```
 
 ---
