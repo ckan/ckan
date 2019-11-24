@@ -128,7 +128,7 @@ def show_user(username):
 def set_password(username):
     import ckan.model as model
     if not username:
-        click.secho(u'Need name of the user.', fg=u'yellow')
+        error_shout(u'Need name of the user.')
         return
     user = model.User.get(username)
     if not user:
