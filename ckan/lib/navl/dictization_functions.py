@@ -1,8 +1,6 @@
 # encoding: utf-8
 
 import copy
-import formencode as fe
-import inspect
 import json
 
 from six import text_type
@@ -213,22 +211,6 @@ def augment_data(data, schema):
 
 
 def convert(converter, key, converted_data, errors, context):
-
-    if inspect.isclass(converter) and issubclass(converter, fe.Validator):
-        try:
-            value = converted_data.get(key)
-            value = converter().to_python(value, state=context)
-        except fe.Invalid as e:
-            errors[key].append(e.msg)
-        return
-
-    if isinstance(converter, fe.Validator):
-        try:
-            value = converted_data.get(key)
-            value = converter.to_python(value, state=context)
-        except fe.Invalid as e:
-            errors[key].append(e.msg)
-        return
 
     try:
         value = converter(converted_data.get(key))
