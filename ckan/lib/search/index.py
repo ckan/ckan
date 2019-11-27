@@ -13,6 +13,7 @@ import re
 import pysolr
 from ckan.common import config
 from ckan.common import asbool
+import six
 from six import text_type
 from six.moves import map
 
