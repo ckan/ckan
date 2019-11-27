@@ -51,6 +51,7 @@ from ckan.common import aslist
 from pylons import i18n
 import pylons
 import polib
+import six
 
 from ckan.common import config, is_flask_request
 import ckan.i18n
