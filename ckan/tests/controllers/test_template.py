@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from nose.tools import assert_equal
+import six
 
 import ckan.tests.helpers as helpers
 
@@ -14,6 +15,6 @@ class TestTemplateController(helpers.FunctionalTestBase):
             u'/page.html': u'text/html; charset=utf-8',
         }
         app = self._get_test_app()
-        for url, expected in cases.iteritems():
+        for url, expected in six.iteritems(cases):
             response = app.get(url, status=200)
             assert_equal(response.headers.get(u'Content-Type'), expected)

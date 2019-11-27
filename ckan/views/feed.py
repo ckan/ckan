@@ -4,6 +4,7 @@ import logging
 
 from six.moves.urllib.parse import urlparse
 from flask import Blueprint, make_response
+import six
 from six import text_type
 import webhelpers.feedgenerator
 from ckan.common import _, config, g, request, response
@@ -61,7 +62,7 @@ def _enclosure(pkg):
 
 def _set_extras(**kw):
     extras = []
-    for key, value in kw.iteritems():
+    for key, value in six.iteritems(kw):
         extras.append({key: value})
     return extras
 
@@ -361,7 +362,7 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    for item in query.iteritems():
+    for item in six.iteritems(query):
         kwargs['query'] = item
     return h.url_for(controller=controller, action=action, **kwargs)
 

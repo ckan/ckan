@@ -3,8 +3,9 @@
 import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
+
+import six
 from six import text_type
-from ckan.common import config
 from ckan.model.core import State
 
 try:
@@ -146,7 +147,7 @@ def table_dict_save(table_dict, ModelClass, context):
     if not obj:
         obj = ModelClass()
 
-    for key, value in table_dict.iteritems():
+    for key, value in six.iteritems(table_dict):
         if isinstance(value, list):
             continue
         setattr(obj, key, value)

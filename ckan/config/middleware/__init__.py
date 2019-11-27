@@ -103,7 +103,7 @@ class AskAppDispatcherMiddleware(object):
         '''
         answers = [
             app._wsgi_app.can_handle_request(environ)
-            for name, app in self.apps.iteritems()
+            for name, app in six.iteritems(self.apps)
         ]
         # Sort answers by app name
         answers = sorted(answers, key=lambda x: x[1])

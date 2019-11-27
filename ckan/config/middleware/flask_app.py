@@ -12,6 +12,7 @@ from flask import Flask, Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 
+import six
 from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
@@ -23,7 +24,6 @@ from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
-import ckan
 import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers
@@ -130,7 +130,7 @@ def make_flask_stack(conf, **app_conf):
 
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v
-                    for k, v in config.iteritems()
+                    for k, v in six.iteritems(config)
                     if k.startswith(namespace)}
     if (not session_opts.get('session.data_dir') and
             session_opts.get('session.type', 'file') == 'file'):
@@ -417,7 +417,7 @@ class CKANFlask(Flask):
 
         # Get the new blueprint rules
         bp_rules = itertools.chain.from_iterable(
-            v for k, v in self.url_map._rules_by_endpoint.iteritems()
+            v for k, v in six.iteritems(self.url_map._rules_by_endpoint)
             if k.startswith(u'{0}.'.format(blueprint.name))
         )
 

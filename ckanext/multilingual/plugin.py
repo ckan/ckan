@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import six
 from six import string_types
 
 import ckan
@@ -225,7 +226,7 @@ class MultilingualDataset(SingletonPlugin):
 
         ## translate rest
         all_terms = []
-        for key, value in search_data.iteritems():
+        for key, value in six.iteritems(search_data):
             if key in KEYS_TO_IGNORE or key.startswith('title'):
                 continue
             if not isinstance(value, list):
@@ -247,7 +248,7 @@ class MultilingualDataset(SingletonPlugin):
             lang_field = 'text_' + translation['lang_code']
             text_field_items[lang_field].append(translation['term_translation'])
 
-        for key, value in text_field_items.iteritems():
+        for key, value in six.iteritems(text_field_items):
             search_data[key] = ' '.join(value)
 
         return search_data
