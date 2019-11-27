@@ -6,6 +6,8 @@ import re
 from six.moves.urllib.parse import urlencode
 
 from pylons.i18n import get_lang
+
+import six
 from six import string_types, text_type
 
 import ckan.lib.base as base
@@ -811,7 +813,7 @@ class BulkProcessView(MethodView):
         actions = form_names.intersection(actions_in_form)
         # ie7 puts all buttons in form params but puts submitted one twice
 
-        for key, value in request.form.to_dict().iteritems():
+        for key, value in six.iteritems(request.form.to_dict()):
             if value in [u'private', u'public']:
                 action = key.split(u'.')[-1]
                 break

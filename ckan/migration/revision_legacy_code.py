@@ -330,7 +330,7 @@ class Revision(object):
     the revision attribute.
     '''
     def __init__(self, **kw):
-        for k, v in kw.iteritems():
+        for k, v in six.iteritems(kw):
             setattr(self, k, v)
 
     # @property
@@ -364,7 +364,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
     # If not need to do an explicit check
     class MyClass(object):
         def __init__(self, **kw):
-            for k, v in kw.iteritems():
+            for k, v in six.iteritems(kw):
                 setattr(self, k, v)
 
     name = base_object.__name__ + u'Revision'

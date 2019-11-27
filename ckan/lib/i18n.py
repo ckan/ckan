@@ -51,6 +51,7 @@ from ckan.common import aslist
 from pylons import i18n
 import pylons
 import polib
+import six
 
 from ckan.common import config, is_flask_request
 import ckan.i18n
@@ -378,7 +379,7 @@ def build_js_translations():
     # the POT files for that, since they contain all translation entries
     # (even those for which no translation exists, yet).
     js_entries = set()
-    for i18n_dir, domain in i18n_dirs.iteritems():
+    for i18n_dir, domain in six.iteritems(i18n_dirs):
         pot_file = os.path.join(i18n_dir, domain + u'.pot')
         if os.path.isfile(pot_file):
             js_entries.update(_get_js_translation_entries(pot_file))
@@ -393,7 +394,7 @@ def build_js_translations():
                     u'LC_MESSAGES',
                     domain + u'.po'
                 )
-                for i18n_dir, domain in i18n_dirs.iteritems()
+                for i18n_dir, domain in six.iteritems(i18n_dirs)
             ) if os.path.isfile(fn)
         ]
         if not po_files:

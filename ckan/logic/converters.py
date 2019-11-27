@@ -2,6 +2,7 @@
 
 import json
 
+import six
 from six import string_types, text_type
 
 import ckan.model as model
@@ -27,14 +28,14 @@ def convert_from_extras(key, data, errors, context):
 
     def remove_from_extras(data, key):
         to_remove = []
-        for data_key, data_value in data.iteritems():
+        for data_key, data_value in six.iteritems(data):
             if (data_key[0] == 'extras'
                 and data_key[1] == key):
                 to_remove.append(data_key)
         for item in to_remove:
             del data[item]
 
-    for data_key, data_value in data.iteritems():
+    for data_key, data_value in six.iteritems(data):
         if (data_key[0] == 'extras'
             and data_key[-1] == 'key'
             and data_value == key[-1]):

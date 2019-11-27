@@ -13,6 +13,7 @@ import re
 import pysolr
 from ckan.common import config
 from ckan.common import asbool
+import six
 from six import text_type
 from six.moves import map
 
@@ -216,7 +217,7 @@ class PackageSearchIndex(SearchIndex):
         for rel in subjects:
             type = rel['type']
             rel_dict[type].append(model.Package.get(rel['object_package_id']).name)
-        for key, value in rel_dict.iteritems():
+        for key, value in six.iteritems(rel_dict):
             if key not in pkg_dict:
                 pkg_dict[key] = value
 

@@ -33,6 +33,7 @@ from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
 
+import six
 from six import string_types, text_type
 from six.moves.urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
@@ -938,7 +939,7 @@ def build_extra_admin_nav():
     admin_tabs_dict = config.get('ckan.admin_tabs')
     output = ''
     if admin_tabs_dict:
-        for k, v in admin_tabs_dict.iteritems():
+        for k, v in six.iteritems(admin_tabs_dict):
             if v['icon']:
                 output += build_nav_icon(k, v['label'], icon=v['icon'])
             else:

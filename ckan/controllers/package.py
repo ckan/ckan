@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import logging
+import six
 from six.moves.urllib.parse import urlencode
 import datetime
 import mimetypes
@@ -648,7 +649,7 @@ class PackageController(base.BaseController):
 
             # see if we have any data that we are trying to save
             data_provided = False
-            for key, value in data.iteritems():
+            for key, value in six.iteritems(data):
                 if ((value or isinstance(value, cgi.FieldStorage))
                         and key != 'resource_type'):
                     data_provided = True

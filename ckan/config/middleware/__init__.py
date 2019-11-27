@@ -5,6 +5,7 @@
 import webob
 from routes import request_config as routes_request_config
 
+import six
 from six.moves.urllib.parse import urlparse, quote
 
 from ckan.lib.i18n import get_locales_from_config
@@ -12,8 +13,6 @@ from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.config.middleware.pylons_app import make_pylons_stack
 from ckan.common import config
-
-from ckan.lib.i18n import get_locales_from_config
 
 import logging
 log = logging.getLogger(__name__)
@@ -103,7 +102,7 @@ class AskAppDispatcherMiddleware(object):
         '''
         answers = [
             app._wsgi_app.can_handle_request(environ)
-            for name, app in self.apps.iteritems()
+            for name, app in six.iteritems(self.apps)
         ]
         # Sort answers by app name
         answers = sorted(answers, key=lambda x: x[1])
