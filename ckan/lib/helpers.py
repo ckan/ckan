@@ -33,6 +33,7 @@ from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
 
+import six
 from six import string_types, text_type
 from six.moves.urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
