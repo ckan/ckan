@@ -3,6 +3,7 @@
 """WSGI app initialization"""
 
 import logging
+
 import six
 from six.moves.urllib.parse import urlparse, quote
 
@@ -10,6 +11,7 @@ from ckan.lib.i18n import get_locales_from_config
 from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.common import config
+
 
 log = logging.getLogger(__name__)
 

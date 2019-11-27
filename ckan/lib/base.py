@@ -10,7 +10,7 @@ import inspect
 import sys
 
 from jinja2.exceptions import TemplateNotFound
-
+import six
 from flask import (
     render_template as flask_render_template,
     abort as flask_abort

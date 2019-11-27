@@ -24,7 +24,6 @@ import sys
 
 import six
 from six import StringIO
-
 import pycodestyle
 
 file_path = os.path.dirname(__file__)
