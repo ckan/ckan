@@ -16,7 +16,7 @@ from pylons.decorators import jsonify
 from pylons.templating import cached_template, pylons_globals
 from webhelpers.html import literal
 from jinja2.exceptions import TemplateNotFound
-
+import six
 from flask import (
     render_template as flask_render_template,
     abort as flask_abort
