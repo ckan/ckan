@@ -2,6 +2,8 @@
 
 import logging
 
+import six
+
 from ckan.common import json
 import ckan.plugins as p
 import ckanext.resourceproxy.plugin as proxy
@@ -51,7 +53,7 @@ class TextView(p.SingletonPlugin):
     def update_config(self, config):
 
         formats = get_formats(config)
-        for key, value in formats.iteritems():
+        for key, value in six.iteritems(formats):
             setattr(self, key, value)
 
         self.no_jsonp_formats = (self.text_formats +

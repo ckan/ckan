@@ -11,8 +11,8 @@ The basic recipe is to call:
 
 which builds the dictionary by iterating over the table columns.
 '''
-import datetime
 
+import six
 from six.moves.urllib.parse import urlsplit
 
 from ckan.common import config
@@ -76,7 +76,7 @@ def resource_list_dictize(res_list, context):
 
 def extras_dict_dictize(extras_dict, context):
     result_list = []
-    for name, extra in extras_dict.iteritems():
+    for name, extra in six.iteritems(extras_dict):
         dictized = d.table_dictize(extra, context)
         if not extra.state == 'active':
             continue

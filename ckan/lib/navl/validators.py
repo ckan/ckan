@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import six
 from six import text_type
 
 import ckan.lib.navl.dictization_functions as df
@@ -17,7 +18,7 @@ def identity_converter(key, data, errors, context):
 def keep_extras(key, data, errors, context):
 
     extras = data.pop(key, {})
-    for extras_key, value in extras.iteritems():
+    for extras_key, value in six.iteritems(extras):
         data[key[:-1] + (extras_key,)] = value
 
 def not_missing(key, data, errors, context):

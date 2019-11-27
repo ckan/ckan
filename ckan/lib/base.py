@@ -217,7 +217,7 @@ def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
         allow_cache = False
     # Don't cache if we have extra vars containing data.
     elif extra_vars:
-        for k, v in extra_vars.iteritems():
+        for k, v in six.iteritems(extra_vars):
             allow_cache = False
             break
 
