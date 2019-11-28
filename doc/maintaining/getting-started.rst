@@ -36,7 +36,7 @@ example, to create a new user called ``seanh`` and make him a sysadmin:
 
 .. parsed-literal::
 
-   paster sysadmin add seanh email=seanh@localhost name=seanh -c |production.ini|
+   ckan sysadmin add seanh email=seanh@localhost name=seanh -c |production.ini|
    
 You'll be prompted to enter a password during account creation.
 
@@ -44,11 +44,11 @@ Or, if you already have an existing user, you could promote him to a sysadmin:
 
 .. parsed-literal::
 
-   paster sysadmin add seanh -c |production.ini|
+   ckan sysadmin add seanh -c |production.ini|
 
 For a list of other command line commands for managing sysadmins, run::
 
- paster sysadmin --help
+ ckan sysadmin --help
 
 Read the :doc:`/sysadmin-guide` to learn what you can do as a
 CKAN sysadmin.
