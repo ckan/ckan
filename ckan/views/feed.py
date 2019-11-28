@@ -116,7 +116,6 @@ class CKANFeed(FeedGenerator):
             self.link(href=href, rel=rel)
 
     def writeString(self, encoding):
-        # import ipdb; ipdb.set_trace()
         return self.atom_str(encoding=encoding)
 
     def add_item(self, **kwargs):
