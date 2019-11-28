@@ -13,6 +13,7 @@ click==6.7
 decorator==4.4.1          # via sqlalchemy-migrate
 dominate==2.4.0
 fanstatic==0.12
+feedgen==0.8.0
 flask-babel==0.11.2
 flask==1.1.1
 idna==2.8                 # via requests
