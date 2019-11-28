@@ -15,7 +15,6 @@ from flask import (
     render_template as flask_render_template,
     abort as flask_abort
 )
-import six
 
 import ckan.lib.i18n as i18n
 import ckan.lib.render as render_
@@ -35,7 +34,6 @@ if six.PY2:
     from pylons.controllers import WSGIController
     from pylons.controllers.util import abort as _abort
     from pylons.templating import cached_template, pylons_globals
-    from webhelpers.html import literal
     from ckan.common import response
 
 
@@ -98,7 +96,7 @@ def render_snippet(*template_names, **kw):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
-            return literal(output)
+            return h.literal(output)
         except TemplateNotFound as exc:
             if exc.name == template_name:
                 # the specified template doesn't exist - try the next fallback

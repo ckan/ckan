@@ -18,6 +18,7 @@ import uuid
 
 from paste.deploy import converters
 
+import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import config, is_flask_request
@@ -46,17 +47,12 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
+from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
 
 if six.PY2:
-    # TODO: webhelpers should be removed after #4794 is done
-    from webhelpers.html import HTML, literal, tags
-    from webhelpers import paginate
-    import webhelpers.text as whtext
-    import webhelpers.date as date
-
     from pylons import url as _pylons_default_url
     from routes import redirect_to as _routes_redirect_to
     from routes import url_for as _routes_default_url_for
@@ -113,6 +109,19 @@ class HelperAttributeDict(dict):
 # Builtin helper functions.
 _builtin_functions = {}
 helper_functions = HelperAttributeDict()
+
+
+class literal(Markup):
+    """Represents an HTML literal.
+
+    """
+    __slots__ = ()
+
+    @classmethod
+    def escape(cls, s):
+        if s is None:
+            return Markup(u"")
+        return super(literal, cls).escape(s)
 
 
 def core_helper(f, name=None):
@@ -771,12 +780,89 @@ def _link_to(text, *args, **kwargs):
         return text
 
     icon = kwargs.pop('icon', None)
-    class_ = _link_class(kwargs)
-    return tags.link_to(
+    cls = _link_class(kwargs)
+    return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
-        class_=class_
+        cls=cls
     )
+
+
+def _preprocess_dom_attrs(attrs):
+    """Strip leading underscore from keys of dict.
+
+    This hack was used in `webhelpers` library for some attributes,
+    like `class` that cannot be used because it special meaning in
+    Python.
+    """
+    return {
+        key.rstrip('_'): value
+        for key, value in attrs.items()
+        if value is not None
+    }
+
+
+def _make_safe_id_component(idstring):
+    """Make a string safe for including in an id attribute.
+
+    The HTML spec says that id attributes 'must begin with
+    a letter ([A-Za-z]) and may be followed by any number
+    of letters, digits ([0-9]), hyphens ("-"), underscores
+    ("_"), colons (":"), and periods (".")'. These regexps
+    are slightly over-zealous, in that they remove colons
+    and periods unnecessarily.
+
+    Whitespace is transformed into underscores, and then
+    anything which is not a hyphen or a character that
+    matches \\w (alphanumerics and underscore) is removed.
+
+    """
+    # Transform all whitespace to underscore
+    idstring = re.sub(r'\s', "_", '%s' % idstring)
+    # Remove everything that is not a hyphen or a member of \w
+    idstring = re.sub(r'(?!-)\W', "", idstring).lower()
+    return idstring
+
+
+def _input_tag(type, name, value=None, id=None, **attrs):
+    attrs = _preprocess_dom_attrs(attrs)
+    attrs.update(type=type, name=name, value=value)
+    if u"id" not in attrs:
+        attrs[u"id"] = id if id else _make_safe_id_component(name)
+
+    return dom_tags.input(**attrs)
+
+
+@core_helper
+def link_to(label, url, **attrs):
+    attrs = _preprocess_dom_attrs(attrs)
+    attrs['href'] = url
+    if label == '' or label is None:
+        label = url
+    return literal(dom_tags.a(label, **attrs))
+
+
+@core_helper
+def file(name, value=None, id=None, **attrs):
+    """Create a file upload field.
+
+    If you are using file uploads then you will also need to set the
+    multipart option for the form.
+
+    Example::
+
+        >>> file('myfile')
+        literal(u'<input id="myfile" name="myfile" type="file" />')
+
+    """
+    return literal(_input_tag(u"file", name, value, id, **attrs))
+
+
+@core_helper
+def submit(name, value=None, id=None, **attrs):
+    """Create a submit field.
+    """
+    return literal(_input_tag(u"submit", name, value, id, **attrs))
 
 
 @core_helper
@@ -1213,12 +1299,12 @@ def linked_user(user, maxlength=0, avatar=20):
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return tags.literal(u'{icon} {link}'.format(
+        return literal(u'{icon} {link}'.format(
             icon=gravatar(
                 email_hash=user.email_hash,
                 size=avatar
             ),
-            link=tags.link_to(
+            link=link_to(
                 displayname,
                 url_for('user.read', id=name)
             )
@@ -1234,6 +1320,49 @@ def group_name_to_title(name):
 
 
 @core_helper
+def truncate(text, length=30, indicator='...', whole_word=False):
+    """Truncate ``text`` with replacement characters.
+
+    ``length``
+        The maximum length of ``text`` before replacement
+    ``indicator``
+        If ``text`` exceeds the ``length``, this string will replace
+        the end of the string
+    ``whole_word``
+        If true, shorten the string further to avoid breaking a word in the
+        middle.  A word is defined as any string not containing whitespace.
+        If the entire text before the break is a single word, it will have to
+        be broken.
+
+    Example::
+
+        >>> truncate('Once upon a time in a world far far away', 14)
+        'Once upon a...'
+
+    TODO: try to replace it with built-in `textwrap.shorten`
+    (available starting from Python 3.4) when support for Python 2
+    completely dropped.
+    """
+    if not text:
+        return ""
+    if len(text) <= length:
+        return text
+    short_length = length - len(indicator)
+    if not whole_word:
+        return text[:short_length] + indicator
+    # Go back to end of previous word.
+    i = short_length
+    while i >= 0 and not text[i].isspace():
+        i -= 1
+    while i >= 0 and text[i].isspace():
+        i -= 1
+    if i <= 0:
+        # Entire text before break is one word, or we miscalculated.
+        return text[:short_length] + indicator
+    return text[:i + 1] + indicator
+
+
+@core_helper
 def markdown_extract(text, extract_length=190):
     ''' return the plain text representation of markdown encoded text.  That
     is the texted without any html tags.  If extract_length is 0 then it
@@ -1246,7 +1375,7 @@ def markdown_extract(text, extract_length=190):
 
     return literal(
         text_type(
-            whtext.truncate(
+            truncate(
                 plain,
                 length=extract_length,
                 indicator='...',
@@ -1362,48 +1491,6 @@ def pager_url(page, partial=None, **kwargs):
             kwargs['id'] = routes_dict['id']
     kwargs['page'] = page
     return url_for(*pargs, **kwargs)
-
-
-# TODO: remove once #4794 is done
-if six.PY2:
-    class Page(paginate.Page):
-        # Curry the pager method of the webhelpers.paginate.Page class, so we
-        # have our custom layout set as default.
-
-        def pager(self, *args, **kwargs):
-            kwargs.update(
-                format=u"<div class='pagination-wrapper'>"
-                "<ul class='pagination'>"
-                "$link_previous ~2~ $link_next</ul></div>",
-                symbol_previous=u'«', symbol_next=u'»',
-                curpage_attr={'class': 'active'}, link_attr={}
-            )
-            return super(Page, self).pager(*args, **kwargs)
-
-        # Put each page link into a <li> (for Bootstrap to style it)
-
-        def _pagerlink(self, page, text, extra_attributes=None):
-            anchor = super(Page, self)._pagerlink(page, text)
-            extra_attributes = extra_attributes or {}
-            return HTML.li(anchor, **extra_attributes)
-
-        # Change 'current page' link from <span> to <li><a>
-        # and '..' into '<li><a>..'
-        # (for Bootstrap to style them properly)
-
-        def _range(self, regexp_match):
-            html = super(Page, self)._range(regexp_match)
-            # Convert ..
-            dotdot = '<span class="pager_dotdot">..</span>'
-            dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
-            html = re.sub(dotdot, dotdot_link, html)
-
-            # Convert current page
-            text = '%s' % self.page
-            current_page_span = str(HTML.span(c=text, **self.curpage_attr))
-            current_page_link = self._pagerlink(
-                self.page, text, extra_attributes=self.curpage_attr)
-            return re.sub(current_page_span, current_page_link, html)
 
 
 @core_helper
@@ -1600,10 +1687,13 @@ class _RFC2282TzInfo(datetime.tzinfo):
 def time_ago_in_words_from_str(date_str, granularity='month'):
     '''Deprecated in 2.2 use time_ago_from_timestamp'''
     if date_str:
-        return date.time_ago_in_words(date_str_to_datetime(date_str),
-                                      granularity=granularity)
-    else:
-        return _('Unknown')
+        try:
+            return formatters.localised_nice_date(
+                date_str_to_datetime(date_str), show_date=False
+            )
+        except ValueError:
+            pass
+    return _('Unknown')
 
 
 @core_helper
@@ -1647,7 +1737,7 @@ def dataset_link(package_or_package_dict):
     else:
         name = package_or_package_dict.name
     text = dataset_display_name(package_or_package_dict)
-    return tags.link_to(
+    return link_to(
         text,
         url_for('dataset.read', id=name)
     )
@@ -1676,26 +1766,26 @@ def resource_link(resource_dict, package_id):
     url = url_for('resource.read',
                   id=package_id,
                   resource_id=resource_dict['id'])
-    return tags.link_to(text, url)
+    return link_to(text, url)
 
 
 @core_helper
 def tag_link(tag):
     url = url_for('dataset.search', tags=tag['name'])
-    return tags.link_to(tag.get('title', tag['name']), url)
+    return link_to(tag.get('title', tag['name']), url)
 
 
 @core_helper
 def group_link(group):
     url = url_for('group.read', id=group['name'])
-    return tags.link_to(group['title'], url)
+    return link_to(group['title'], url)
 
 
 @core_helper
 def organization_link(organization):
     url = url_for(controller='organization', action='read',
                   id=organization['name'])
-    return tags.link_to(organization['title'], url)
+    return link_to(organization['title'], url)
 
 
 @core_helper
@@ -2648,14 +2738,7 @@ core_helper(localised_filesize)
 # Useful additionsfrom the i18n library.
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
-# Useful additions from the webhelpers library.
-# TODO: remove once #4794 is done
-if six.PY2:
-    core_helper(tags.literal)
-    core_helper(tags.link_to)
-    core_helper(tags.file)
-    core_helper(tags.submit)
-    core_helper(whtext.truncate)
+core_helper(literal)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.

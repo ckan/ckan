@@ -2,7 +2,6 @@
 
 from nose.tools import assert_equal
 from paste.fixture import TestRequest
-from webhelpers.html import url_escape
 
 from six.moves.urllib.parse import quote
 from six import StringIO
@@ -37,7 +36,7 @@ class ApiTestCase(object):
         return response
 
     def post(self, offset, data, status=[200,201], *args, **kwds):
-        params = '%s=1' % url_escape(self.dumps(data))
+        params = '%s=1' % quote(self.dumps(data))
         if 'extra_environ' in kwds:
             self.extra_environ = kwds['extra_environ']
         response = self.app.post(offset, params=params, status=status,
