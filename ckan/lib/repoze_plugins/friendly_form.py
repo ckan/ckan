@@ -30,7 +30,7 @@ from six.moves.urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
 from webob import Request, UnicodeMultiDict
 from webob.exc import HTTPFound, HTTPUnauthorized
-from zope.interface import implements
+from zope.interface import implementer
 
 from repoze.who.interfaces import IChallenger, IIdentifier
 
@@ -41,6 +41,7 @@ def construct_url(environ):
     return Request(environ).url
 
 
+@implementer(IChallenger, IIdentifier)
 class FriendlyFormPlugin(object):
     u'''
     :class:`RedirectingFormPlugin
@@ -66,7 +67,6 @@ class FriendlyFormPlugin(object):
     supported) and ISO-8859-1 (aka 'Latin-1') is the default one.
 
     '''
-    implements(IChallenger, IIdentifier)
 
     classifications = {
         IIdentifier: [u'browser'],
