@@ -14,7 +14,6 @@ from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.decorators import jsonify
 from pylons.templating import cached_template, pylons_globals
-from webhelpers.html import literal
 from jinja2.exceptions import TemplateNotFound
 import six
 from flask import (
@@ -100,7 +99,7 @@ def render_snippet(*template_names, **kw):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
-            return literal(output)
+            return h.literal(output)
         except TemplateNotFound as exc:
             if exc.name == template_name:
                 # the specified template doesn't exist - try the next fallback
