@@ -232,6 +232,9 @@ def _prepopulate_context(context):
     except AttributeError:
         # c.user not set
         pass
+    except RuntimeError:
+        # Outside of request context
+        pass
     except TypeError:
         # c not registered
         pass
