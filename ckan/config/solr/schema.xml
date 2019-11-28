@@ -135,6 +135,8 @@ schema. In this case the version should be set to the next CKAN version number.
     <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="groups" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="organization" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="organization_en" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="organization_fr" type="string" indexed="true" stored="true" multiValued="false"/>
 
     <field name="capacity" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="permission_labels" type="string" indexed="true" stored="false" multiValued="true"/>
@@ -171,6 +173,10 @@ schema. In this case the version should be set to the next CKAN version number.
     <!-- Copy the title field into titleString, and treat as a string
          (rather than text type).  This allows us to sort on the titleString -->
     <field name="title_string" type="string" indexed="true" stored="false" />
+    <!-- Copy the title field into title_en and title_fr, and treat as a string
+         (rather than text type).  This allows us to sort on the title by langauge -->
+    <field name="title_en" type="string" indexed="true" stored="false" />
+    <field name="title_fr" type="string" indexed="true" stored="false" />
 
     <field name="data_dict" type="string" indexed="false" stored="true" />
     <field name="validated_data_dict" type="string" indexed="false" stored="true" />
