@@ -3,7 +3,7 @@
 import os.path
 import sys
 import logging
-import ConfigParser
+import configparser
 from ckan.common import config
 
 from fanstatic import Library, Resource, Group, get_library_registry
@@ -127,7 +127,7 @@ def create_library(name, path, depend_base=True):
     # parse the resource.config file if it exists
     config_path = os.path.join(resource_path, 'resource.config')
     if os.path.exists(config_path):
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         config.read(config_path)
 
         if config.has_option('main', 'order'):
