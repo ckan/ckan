@@ -64,7 +64,7 @@ class TestHelpers(TestController):
         two_months_ago = datetime.datetime.now() - datetime.timedelta(days=65)
         two_months_ago_str = two_months_ago.isoformat()
         res = h.time_ago_in_words_from_str(two_months_ago_str)
-        assert_equal(res, '2 months')
+        assert_equal(res, '2 months ago')
 
     def test_gravatar(self):
         email = 'zephod@gmail.com'

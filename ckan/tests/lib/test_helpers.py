@@ -420,13 +420,13 @@ class TestHelpersRenderMarkdown(object):
     def test_internal_tag_linked_with_quotes(self):
         """Asserts links like 'tag:"test-tag"' work"""
         data = 'tag:"test-tag" foobar'
-        output = '<p><a href="/dataset/?tags=test-tag">tag:&#34;test-tag&#34;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_internal_tag_linked_with_quotes_and_space(self):
         """Asserts links like 'tag:"test tag"' work"""
         data = 'tag:"test tag" foobar'
-        output = '<p><a href="/dataset/?tags=test+tag">tag:&#34;test tag&#34;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_internal_tag_with_no_opening_quote_only_matches_single_word(self):
@@ -450,7 +450,7 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
-        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&#34;Test- _.&#34;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_tag_names_do_not_match_commas(self):
@@ -471,7 +471,7 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_with_unicode_alphanumeric(self):
         """Asserts that unicode alphanumeric characters are captured"""
         data = u'tag:"Japanese katakana \u30a1" blah'
-        output = u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>'
+        output = u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>'
         eq_(h.render_markdown(data), output)
 
     def test_normal_link(self):
