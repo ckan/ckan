@@ -344,7 +344,8 @@ content type, cookies, etc.
             relative_path,
             'extra_public_paths'
         )
-        add_public_path(path, h.url_for_static('/'))
+        url = h._local_url('/', locale='default')
+        add_public_path(path, url)
 
     @classmethod
     def _add_served_directory(cls, config, relative_path, config_var):
