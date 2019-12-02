@@ -408,8 +408,9 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
         for key in set(old_extras) - new_extras:
             del group.extras[key]
         for x in extras:
-            if 'deleted' in x and x['key'] in old_extras:
-                del group.extras[x['key']]
+            if 'deleted' in x:
+                if x['key'] in old_extras:
+                    del group.extras[x['key']]
                 continue
             group.extras[x['key']] = x['value']
 
