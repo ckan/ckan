@@ -5,7 +5,7 @@ from six import text_type
 
 import ckan.model as model
 from ckan.cli import error_shout
-from ckan.lib.cli import user_add
+from ckan.cli.user import add_user
 
 
 @click.group(
@@ -51,8 +51,7 @@ def add(username, args):
         if click.confirm(
             u"Create new user: %s?" % username, default=True, abort=True
         ):
-            # TODO: once, cli.user is merged, invoke `user.add_user` instead
-            user_add([username] + list(args))
+            add_user([username] + list(args))
             user = model.User.by_name(text_type(username))
 
     user.sysadmin = True
