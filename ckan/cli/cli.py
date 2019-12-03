@@ -12,6 +12,7 @@ from ckan.cli import (
     profile,
     asset,
     datastore,
+    sysadmin,
     translation,
     dataset,
     views,
@@ -20,7 +21,8 @@ from ckan.cli import (
     tracking,
     minify,
     less,
-    generate
+    generate,
+    user
 )
 
 from ckan.config.middleware import make_app
@@ -53,6 +55,7 @@ ckan.add_command(seed.seed)
 ckan.add_command(db.db)
 ckan.add_command(datapusher.datapusher)
 ckan.add_command(search_index.search_index)
+ckan.add_command(sysadmin.sysadmin)
 ckan.add_command(asset.asset)
 ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
@@ -64,3 +67,4 @@ ckan.add_command(tracking.tracking)
 ckan.add_command(minify.minify)
 ckan.add_command(less.less)
 ckan.add_command(generate.generate)
+ckan.add_command(user.user)

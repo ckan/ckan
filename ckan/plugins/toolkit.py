@@ -150,7 +150,6 @@ class _Toolkit(object):
         if six.PY2:
             import ckan.lib.cli as cli
             import pylons
-            import webhelpers.html.tags
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -237,7 +236,7 @@ string from the config file into a list.
 For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
 '''
-
+        t['literal'] = h.literal
         t['get_action'] = logic.get_action
         t['chained_action'] = logic.chained_action
         t['get_converter'] = logic.get_validator  # For backwards compatibility
