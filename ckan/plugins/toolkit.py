@@ -280,8 +280,6 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['enqueue_job'] = enqueue_job
 
         if six.PY2:
-
-            t['literal'] = webhelpers.html.tags.literal
             t['response'] = pylons.response
             self.docstring_overrides['response'] = '''
 The Pylons response object.
