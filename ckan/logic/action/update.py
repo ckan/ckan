@@ -6,11 +6,10 @@ import logging
 import datetime
 import time
 import json
-import mimetypes
-import os
 
 from ckan.common import config
 import ckan.common as converters
+import six
 from six import text_type
 
 import ckan.lib.helpers as h
@@ -1186,7 +1185,7 @@ def config_option_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    for key, value in data.iteritems():
+    for key, value in six.iteritems(data):
 
         # Set full Logo url
         if key == 'ckan.site_logo' and value and not value.startswith('http')\

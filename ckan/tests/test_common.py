@@ -3,6 +3,9 @@
 import flask
 import pylons
 import pytest
+from nose.tools import eq_, assert_not_equal as neq_, assert_raises
+
+import six
 from six import text_type
 
 from ckan.common import (
@@ -80,7 +83,7 @@ def test_iteritems_works():
     my_conf[u"test_key_2"] = u"Test value 2"
 
     cnt = 0
-    for key, value in my_conf.iteritems():
+    for key, value in six.iteritems(my_conf):
         cnt += 1
         assert key.startswith(u"test_key_")
         assert value.startswith(u"Test value")

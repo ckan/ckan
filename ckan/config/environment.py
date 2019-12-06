@@ -8,7 +8,6 @@ import pytz
 
 import sqlalchemy
 from pylons import config as pylons_config
-import formencode
 
 from six.moves.urllib.parse import urlparse
 
@@ -271,12 +270,6 @@ def update_config():
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
     config['computed_template_paths'] = template_paths
-
-    # Set the default language for validation messages from formencode
-    # to what is set as the default locale in the config
-    default_lang = config.get('ckan.locale_default', 'en')
-    formencode.api.set_stdtranslation(domain="FormEncode",
-                                      languages=[default_lang])
 
     # Markdown ignores the logger config, so to get rid of excessive
     # markdown debug messages in the log, set it to the level of the

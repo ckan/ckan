@@ -6,7 +6,6 @@ except ImportError:
     from StringIO import StringIO
 
 from paste.fixture import TestRequest
-from webhelpers.html import url_escape
 
 from six.moves.urllib.parse import quote
 
@@ -41,16 +40,12 @@ class ApiTestCase(object):
         )
         return response
 
-    def post(self, offset, data, status=[200, 201], *args, **kwds):
-        params = "%s=1" % url_escape(self.dumps(data))
-        if "extra_environ" in kwds:
-            self.extra_environ = kwds["extra_environ"]
-        response = self.app.post(
-            offset,
-            params=params,
-            status=status,
-            extra_environ=self.get_extra_environ(),
-        )
+    def post(self, offset, data, status=[200,201], *args, **kwds):
+        params = '%s=1' % quote(self.dumps(data))
+        if 'extra_environ' in kwds:
+            self.extra_environ = kwds['extra_environ']
+        response = self.app.post(offset, params=params, status=status,
+            extra_environ=self.get_extra_environ())
         return response
 
     def app_delete(self, offset, status=[200, 201], *args, **kwds):

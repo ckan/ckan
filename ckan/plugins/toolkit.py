@@ -148,7 +148,6 @@ class _Toolkit(object):
 
         import ckan.common as converters
         import pylons
-        import webhelpers.html.tags
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -234,7 +233,7 @@ string from the config file into a list.
 For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
 '''
-        t['literal'] = webhelpers.html.tags.literal
+        t['literal'] = h.literal
 
         t['get_action'] = logic.get_action
         t['chained_action'] = logic.chained_action

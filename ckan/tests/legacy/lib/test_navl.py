@@ -24,8 +24,6 @@ from ckan.lib.navl.validators import (
     ignore,
 )
 
-from formencode import validators
-
 
 schema = {
     "__after": [identity_converter],
@@ -328,38 +326,6 @@ def test_simple_converter_types():
 
     assert isinstance(converted_data["name"], text_type)
     assert isinstance(converted_data["gender"], str)
-
-
-def test_formencode_compat():
-    schema = {
-        "name": [not_empty, text_type],
-        "email": [validators.Email],
-        "email2": [validators.Email],
-    }
-
-    data = {"name": "fred", "email": "32", "email2": "david@david.com"}
-
-    converted_data, errors = validate(data, schema)
-    assert errors == {
-        "email": [u"An email address must contain a single @"]
-    }, errors
-
-
-def test_range_validator():
-
-    schema = {
-        "name": [not_empty, text_type],
-        "email": [validators.Int(min=1, max=10)],
-        "email2": [validators.Email],
-    }
-
-    data = {"email": "32", "email2": "david@david.com"}
-
-    converted_data, errors = validate(data, schema)
-    assert errors == {
-        "name": [u"Missing value"],
-        "email": [u"Please enter a number that is 10 or smaller"],
-    }, errors
 
 
 def validate_flattened(data, schema, context=None):

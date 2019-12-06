@@ -6,6 +6,7 @@ import logging
 import os
 
 import click
+import six
 
 from ckan.cli import error_shout
 from ckan.common import config
@@ -145,7 +146,7 @@ def check_po_file(path):
             for function in (
                 simple_conv_specs, mapping_keys, replacement_fields
             ):
-                for key, msgstr in entry.msgstr_plural.iteritems():
+                for key, msgstr in six.iteritems(entry.msgstr_plural):
                     if key == u'0':
                         error = check_translation(
                             function, entry.msgid, entry.msgstr_plural[key]

@@ -213,16 +213,13 @@ Any of the following objects may be used as validators as part
 of a custom dataset, group or organization schema. CKAN's validation
 code will check for and attempt to use them in this order:
 
-1. a `formencode Validator class <http://www.formencode.org/en/latest/Validator.html>`_ (not discussed)
 
-2. a formencode Validator instance (not discussed)
+1. a callable object taking a single parameter: ``validator(value)``
 
-3. a callable object taking a single parameter: ``validator(value)``
-
-4. a callable object taking four parameters:
+2. a callable object taking four parameters:
    ``validator(key, flattened_data, errors, context)``
 
-5. a callable object taking two parameters
+3. a callable object taking two parameters
    ``validator(value, context)``
 
 

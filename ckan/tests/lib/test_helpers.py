@@ -315,12 +315,12 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"test-tag" foobar',
-                '<p><a href="/dataset/?tags=test-tag">tag:&#34;test-tag&#34;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>',
                 False,
             ),
             (
                 'tag:"test tag" foobar',
-                '<p><a href="/dataset/?tags=test+tag">tag:&#34;test tag&#34;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>',
                 False,
             ),
             (
@@ -337,7 +337,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"Test- _." foobar',
-                '<p><a href="/dataset/?tags=Test-+_.">tag:&#34;Test- _.&#34;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>',
                 False,
             ),
             (
@@ -347,7 +347,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 u'tag:"Japanese katakana \u30a1" blah',
-                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>',
+                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>',
                 False,
             ),
             (
@@ -385,6 +385,18 @@ class TestHelpersRenderMarkdown(object):
         data = 'tag:"test tag foobar'
         out = h.render_markdown(data)
         assert "<a href" not in out
+
+    def test_tag_names_match_simple_punctuation(self):
+        """Asserts punctuation and capital letters are matched in the tag name"""
+        data = 'tag:"Test- _." foobar'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
+        assert h.render_markdown(data) == output
+
+    def test_tag_names_do_not_match_commas(self):
+        """Asserts commas don't get matched as part of a tag name"""
+        data = 'tag:Test,tag foobar'
+        output = '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>'
+        assert h.render_markdown(data) == output
 
     def test_tag_names_dont_match_non_space_whitespace(self):
         """Asserts that the only piece of whitespace matched in a tagname is a space"""

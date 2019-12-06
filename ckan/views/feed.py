@@ -4,7 +4,10 @@ import logging
 
 from six.moves.urllib.parse import urlparse
 from flask import Blueprint, make_response
+import six
 from six import text_type
+from dateutil.tz import tzutc
+from feedgen.feed import FeedGenerator
 import webhelpers.feedgenerator
 from ckan.common import _, config, g, request, response
 import ckan.lib.helpers as h
@@ -49,21 +52,93 @@ def _package_search(data_dict):
 
 
 def _enclosure(pkg):
-    links = []
-    links.append({
-        u'href': h.url(u'api.action', logic_function=u'package_show',
-                       ver=3, id=pkg['id'], _external=True),
-        u'rel': u'',
-        u'length': text_type(len(json.dumps(pkg))),
-        u'type': u'application/json'})
-    return links
+    enc = Enclosure(
+        h.url_for(
+            u'api.action',
+            logic_function=u'package_show',
+            id=pkg['name'],
+            ver=3,
+            _external=True),
+    )
+    enc.type = u'application/json'
+    enc.length = text_type(len(json.dumps(pkg)))
+    return enc
 
 
 def _set_extras(**kw):
     extras = []
-    for key, value in kw.iteritems():
+    for key, value in six.iteritems(kw):
         extras.append({key: value})
     return extras
+
+
+class Enclosure(text_type):
+    def __init__(self, url):
+        super(Enclosure, self).__init__(url)
+        self.url = url
+        self.length = u'0'
+        self.mime_type = u'application/json'
+
+
+class CKANFeed(FeedGenerator):
+    def __init__(
+        self,
+        feed_title,
+        feed_link,
+        feed_description,
+        language,
+        author_name,
+        feed_guid,
+        feed_url,
+        previous_page,
+        next_page,
+        first_page,
+        last_page,
+    ):
+        super(CKANFeed, self).__init__()
+
+        self.title(feed_title)
+        self.link(href=feed_link, rel=u"alternate")
+        self.description(feed_description)
+        self.language(language)
+        self.author({u"name": author_name})
+        self.id(feed_guid)
+        self.link(href=feed_url, rel=u"self")
+        links = (
+            (u"prev", previous_page),
+            (u"next", next_page),
+            (u"first", first_page),
+            (u"last", last_page),
+        )
+        for rel, href in links:
+            if not href:
+                continue
+            self.link(href=href, rel=rel)
+
+    def writeString(self, encoding):
+        return self.atom_str(encoding=encoding)
+
+    def add_item(self, **kwargs):
+        entry = self.add_entry()
+        for key, value in kwargs.items():
+            if key in {u"published", u"updated"} and not value.tzinfo:
+                value = value.replace(tzinfo=tzutc())
+            elif key == u'unique_id':
+                key = u'id'
+            elif key == u'categories':
+                key = u'category'
+                value = [{u'term': t} for t in value]
+            elif key == u'link':
+                value = {u'href': value}
+            elif key == u'author_name':
+                key = u'author'
+                value = {u'name': value}
+            elif key == u'author_email':
+                key = u'author'
+                value = {u'email': value}
+
+            key = key.replace(u"field_", u"")
+            getattr(entry, key)(value)
 
 
 def output_feed(results, feed_title, feed_description, feed_link, feed_url,
@@ -72,13 +147,10 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         config.get(u'ckan.site_id', u'').strip()
 
     # TODO: language
-    feed_class = None
+    feed_class = CKANFeed
     for plugin in plugins.PluginImplementations(plugins.IFeed):
         if hasattr(plugin, u'get_feed_class'):
             feed_class = plugin.get_feed_class()
-
-    if not feed_class:
-        feed_class = _FixedAtom1Feed
 
     feed = feed_class(
         feed_title,
@@ -114,15 +186,8 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
             author_name=pkg.get(u'author', u''),
             author_email=pkg.get(u'author_email', u''),
-            categories=[t['name'] for t in pkg.get(u'tags', [])],
-            enclosure=webhelpers.feedgenerator.Enclosure(
-                h.url_for(
-                    u'api.action',
-                    logic_function=u'package_show',
-                    id=pkg['name'],
-                    ver=3,
-                    _external=True),
-                text_type(len(json.dumps(pkg))), u'application/json'),
+            categories=[t[u'name'] for t in pkg.get(u'tags', [])],
+            enclosure=_enclosure(pkg),
             **additional_fields)
 
     resp = make_response(feed.writeString(u'utf-8'), 200)
@@ -361,7 +426,7 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    for item in query.iteritems():
+    for item in six.iteritems(query):
         kwargs['query'] = item
     return h.url_for(controller=controller, action=action, **kwargs)
 
