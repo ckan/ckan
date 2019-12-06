@@ -28,7 +28,12 @@ u'''Collection of :mod:`repoze.who` friendly forms'''
 
 from six.moves.urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
-from webob import Request, UnicodeMultiDict
+from webob import Request
+try:
+    from webob import UnicodeMultiDict as multidict
+except ImportError:
+    from webob import multidict
+
 from webob.exc import HTTPFound, HTTPUnauthorized
 from zope.interface import implementer
 
@@ -182,7 +187,7 @@ class FriendlyFormPlugin(object):
             #    We are on the URL where repoze.who logs the user out.    #
             r = Request(environ)
             params = dict(list(r.GET.items()) + list(r.POST.items()))
-            form = UnicodeMultiDict(params)
+            form = multidict(params)
             form.update(query)
             referer = environ.get(u'HTTP_REFERER', script_name)
             came_from = form.get(u'came_from', referer)
@@ -285,7 +290,13 @@ class FriendlyFormPlugin(object):
         Otherwise, it will be ``None`` or an string.
 
         '''
-        variables = Request(environ).queryvars
+        try:
+            # Webob 1.8.5 (py3)
+            variables = Request(environ).params
+        except AttributeError:
+            # Webob 1.0.8 (py2)
+            variables = Request(environ).queryvars
+
         failed_logins = variables.get(self.login_counter_name)
         if force_typecast:
             try:
