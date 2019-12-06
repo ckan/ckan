@@ -197,6 +197,9 @@ def make_flask_stack(conf, **app_conf):
     lib_plugins.register_group_blueprints(app)
 
     # Set flask routes in named_routes
+    # TODO: refactor whatever helper is using this to not do it
+    if 'routes.named_routes' not in config:
+        config['routes.named_routes'] = {}
     for rule in app.url_map.iter_rules():
         if '.' not in rule.endpoint:
             continue

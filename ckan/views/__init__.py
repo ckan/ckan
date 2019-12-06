@@ -157,7 +157,7 @@ def _identify_user_default():
     # .plugins.sql )
     g.user = request.environ.get(u'REMOTE_USER', u'')
     if g.user:
-        g.user = g.user.decode(u'utf8')
+        #g.user = g.user.decode(u'utf8')
         g.userobj = model.User.by_name(g.user)
 
         if g.userobj is None or not g.userobj.is_active():
