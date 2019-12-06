@@ -456,7 +456,6 @@ class TestPep8(object):
         'ckan/tests/legacy/schema/test_schema.py',
         'ckan/tests/legacy/test_plugins.py',
         'ckan/tests/legacy/test_versions.py',
-        'ckan/tests/migration/revision_legacy_code_tests.py',
         'test_revision_legacy_code.py',
         'ckan/websetup.py',
         'ckanext/datastore/bin/datastore_setup.py',
