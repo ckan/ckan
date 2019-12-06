@@ -264,7 +264,6 @@ def _get_auto_flask_context():
     '''
 
     from ckan.config.middleware import _internal_test_request_context
-    from ckan.lib.cli import _cli_test_request_context
 
     # This is a normal web request, there is a request context present
     if _request_ctx_stack.top:
@@ -275,10 +274,14 @@ def _get_auto_flask_context():
     if _internal_test_request_context:
         return _internal_test_request_context
 
-    # We are outside a web request. This is a CLI command. A test request
-    # context was created when setting it up
-    if _cli_test_request_context:
-        return _cli_test_request_context
+    if six.Py2:
+
+        from ckan.lib.cli import _cli_test_request_context
+
+        # We are outside a web request. This is a CLI command. A test request
+        # context was created when setting it up
+        if _cli_test_request_context:
+            return _cli_test_request_context
 
 
 @core_helper
