@@ -5,6 +5,7 @@ import logging
 import re
 from collections import defaultdict
 
+from werkzeug.local import LocalProxy
 import six
 from six import string_types, text_type
 
@@ -231,6 +232,9 @@ def _prepopulate_context(context):
     except AttributeError:
         # c.user not set
         pass
+    except RuntimeError:
+        # Outside of request context
+        pass
     except TypeError:
         # c not registered
         pass
@@ -393,7 +397,7 @@ def get_action(action):
         for part in module_path.split('.')[1:]:
             module = getattr(module, part)
         for k, v in module.__dict__.items():
-            if not k.startswith('_'):
+            if not k.startswith('_') and not isinstance(v, LocalProxy):
                 # Only load functions from the action module or already
                 # replaced functions.
                 if (hasattr(v, '__call__') and

@@ -39,8 +39,6 @@ class TestApiController(helpers.FunctionalTestBase):
     def test_resource_create_upload_file(self, _):
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user['id'])
-        # upload_content = StringIO()
-        # upload_content.write('test-content')
 
         url = url_for(
             controller='api',

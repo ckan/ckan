@@ -6,16 +6,18 @@
 #
 alembic==1.0.0
 babel==2.3.4
+beaker==1.11.0
 bleach==3.0.2
-certifi==2019.9.11        # via requests
+certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
 click==6.7
 decorator==4.4.1          # via sqlalchemy-migrate
 dominate==2.4.0
-fanstatic==0.12
+fanstatic==1.1
 feedgen==0.8.0
 flask-babel==0.11.2
 flask==1.1.1
+funcsigs==1.0.2           # via beaker
 idna==2.8                 # via requests
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.1
@@ -28,7 +30,7 @@ passlib==1.6.5
 paste==1.7.5.1
 pastedeploy==2.0.1        # via pastescript
 pastescript==2.0.2
-pbr==5.4.3                # via sqlalchemy-migrate
+pbr==5.4.4                # via sqlalchemy-migrate
 polib==1.0.7
 psycopg2==2.8.2
 pysolr==3.6.0
@@ -44,6 +46,7 @@ repoze.who==2.3
 requests==2.22.0
 routes==1.13
 rq==1.0
+shutilwhich==1.1.0        # via fanstatic
 simplejson==3.10.0
 six==1.13.0               # via bleach, pastescript, python-dateutil, pyutilib, sqlalchemy-migrate
 sqlalchemy-migrate==0.12.0
@@ -52,10 +55,10 @@ sqlparse==0.2.2
 tempita==0.5.2            # via sqlalchemy-migrate
 tzlocal==1.3
 unicodecsv==0.14.1
-urllib3==1.25.6           # via requests
+urllib3==1.25.7           # via requests
 webassets==0.12.1
 webencodings==0.5.1       # via bleach
-webob==1.0.8              # via fanstatic, repoze.who, webtest
+webob==1.8.5              # via fanstatic, repoze.who, webtest
 webtest==1.4.3
 werkzeug==0.15.5
 zope.interface==4.3.2

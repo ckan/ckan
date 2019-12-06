@@ -124,12 +124,14 @@ class CKANConfig(MutableMapping):
             flask.current_app.config.clear()
         except RuntimeError:
             pass
-        try:
-            pylons.config.clear()
-            # Pylons set this default itself
-            pylons.config[u'lang'] = None
-        except TypeError:
-            pass
+
+        if six.PY2:
+            try:
+                pylons.config.clear()
+                # Pylons set this default itself
+                pylons.config[u'lang'] = None
+            except TypeError:
+                pass
 
     def __setitem__(self, key, value):
         self.store[key] = value
@@ -137,10 +139,12 @@ class CKANConfig(MutableMapping):
             flask.current_app.config[key] = value
         except RuntimeError:
             pass
-        try:
-            pylons.config[key] = value
-        except TypeError:
-            pass
+
+        if six.PY2:
+            try:
+                pylons.config[key] = value
+            except TypeError:
+                pass
 
     def __delitem__(self, key):
         del self.store[key]
@@ -148,10 +152,12 @@ class CKANConfig(MutableMapping):
             del flask.current_app.config[key]
         except RuntimeError:
             pass
-        try:
-            del pylons.config[key]
-        except TypeError:
-            pass
+
+        if six.PY2:
+            try:
+                del pylons.config[key]
+            except TypeError:
+                pass
 
 
 def _get_request():

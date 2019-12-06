@@ -5,11 +5,10 @@ import os
 import smtplib
 import socket
 import logging
-import uuid
 from time import time
 from email.mime.text import MIMEText
 from email.header import Header
-from email import Utils
+from email import utils
 
 from ckan.common import config
 import ckan.common
@@ -49,7 +48,7 @@ def _mail_recipient(recipient_name, recipient_email,
     msg['From'] = _("%s <%s>") % (sender_name, mail_from)
     recipient = u"%s <%s>" % (recipient_name, recipient_email)
     msg['To'] = Header(recipient, 'utf-8')
-    msg['Date'] = Utils.formatdate(time())
+    msg['Date'] = utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
     if reply_to and reply_to != '':
         msg['Reply-to'] = reply_to
