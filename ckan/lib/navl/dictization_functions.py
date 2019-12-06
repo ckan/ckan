@@ -291,7 +291,8 @@ def validate(data, schema, context=None):
     dicts_to_process = [errors_unflattened]
     while dicts_to_process:
         dict_to_process = dicts_to_process.pop()
-        for key, value in dict_to_process.items():
+        dict_to_process_copy = copy.deepcopy(dict_to_process)
+        for key, value in dict_to_process_copy.items():
             if not value:
                 dict_to_process.pop(key)
                 continue
