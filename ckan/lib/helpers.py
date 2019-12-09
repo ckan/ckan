@@ -423,7 +423,7 @@ def _url_for_flask(*args, **kw):
                                 u'{}={}'.format(quote(key), quote(value)))
                     else:
                         query_args.append(
-                            u'{}={}'.format(quote(key), quote(value)))
+                            u'{}={}'.format(quote(key), quote(val)))
                 my_url += '&'.join(query_args)
         else:
             raise
