@@ -32,12 +32,12 @@ from ckan.cli import seed
 log = logging.getLogger(__name__)
 
 
-class IClick(click.Group):
+class CustomGroup(click.Group):
     def get_command(self, ctx, name):
-        cmd = self.commands.get(name)
+        cmd = super(CustomGroup, self).get_command(ctx, name)
         if not cmd:
-            ckan.invoke(ctx)
-            cmd = self.commands.get(name)
+            self.invoke(ctx)
+            cmd = super(CustomGroup, self).get_command(ctx, name)
         return cmd
 
 
@@ -50,15 +50,16 @@ class CkanCommand(object):
 
 @click.group(
     invoke_without_command=True,
-    cls=IClick
+    cls=CustomGroup
 )
 @click.help_option(u'-h', u'--help')
 @click_config_option
 @click.pass_context
 def ckan(ctx, config, *args, **kwargs):
     ctx.obj = CkanCommand(config)
-    for plugin in p.PluginImplementations(p.ICLICommands):
-        ckan.add_command(plugin.get_commands())
+    for plugin in p.PluginImplementations(p.IClick):
+        for cmd in plugin.get_commands():
+            ckan.add_command(cmd)
 
 
 ckan.add_command(jobs.jobs)
