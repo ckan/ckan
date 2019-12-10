@@ -650,7 +650,4 @@ class TestSecretKey(object):
     @helpers.change_config('beaker.session.secret', None)
     def test_no_beaker_secret_crashes(self):
 
-        assert_raises(ValueError, helpers._get_test_app)
-
-        # TODO: When Pylons is finally removed, we should test for
-        # RuntimeError instead (thrown on `make_flask_stack`)
+        assert_raises(RuntimeError, helpers._get_test_app)

@@ -160,6 +160,12 @@
       }
 
       var map = {};
+      // If given a 'result' array then convert it into a Result dict inside a Result dict.
+      // new syntax (not used until all browsers support arrow notation):
+      //data = data.result ? { 'ResultSet': { 'Result': data.result.map(x => ({'Name': x})) } } : data;
+      // compatible syntax:
+      data = data.result ? { 'ResultSet': { 'Result': data.result.map(function(val){ return { 'Name' :val } }) } } : data;
+      // If given a Result dict inside a ResultSet dict then use the Result dict.
       var raw = jQuery.isArray(data) ? data : data.ResultSet && data.ResultSet.Result || {};
 
       var items = jQuery.map(raw, function (item) {
