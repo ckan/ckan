@@ -76,6 +76,8 @@ class _Toolkit(object):
         'CkanCommand',
         # function for initializing CLI interfaces
         'load_config',
+        # function to promt the exception in CLI command
+        'error_shout',
         # base class for IDatasetForm plugins
         'DefaultDatasetForm',
         # base class for IGroupForm plugins
@@ -137,7 +139,8 @@ class _Toolkit(object):
         import ckan.logic.validators as logic_validators
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
-        import ckan.lib.cli as cli
+        import ckan.lib.cli as old_cli
+        import ckan.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
         from ckan.exceptions import (
@@ -250,8 +253,9 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
 
-        t['CkanCommand'] = cli.CkanCommand
-        t['load_config'] = cli.load_config
+        t['CkanCommand'] = old_cli.CkanCommand
+        t['load_config'] = old_cli.load_config
+        t['error_shout'] = cli.error_shout
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
         t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
         t['DefaultOrganizationForm'] = lib_plugins.DefaultOrganizationForm
