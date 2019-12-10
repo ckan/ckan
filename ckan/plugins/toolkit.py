@@ -258,6 +258,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
         t['DefaultOrganizationForm'] = lib_plugins.DefaultOrganizationForm
 
+        t['error_shout'] = cli.error_shout
+
         t['redirect_to'] = h.redirect_to
         t['url_for'] = h.url_for
         t['get_or_bust'] = logic.get_or_bust
