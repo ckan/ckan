@@ -6,7 +6,7 @@ import re
 
 import click
 
-from ckan.cli import error_shout
+from ckan.model import parse_db_config
 from ckan.common import config
 
 import ckanext.datastore as datastore_module
@@ -30,9 +30,9 @@ def set_permissions():
     u'''Emit an SQL script that will set the permissions for the datastore
     users as configured in your configuration file.'''
 
-    write_url = parse_db_config(u'ckan.datastore.write_url')
-    read_url = parse_db_config(u'ckan.datastore.read_url')
-    db_url = parse_db_config(u'sqlalchemy.url')
+    write_url = _parse_db_config(u'ckan.datastore.write_url')
+    read_url = _parse_db_config(u'ckan.datastore.read_url')
+    db_url = _parse_db_config(u'sqlalchemy.url')
 
     # Basic validation that read and write URLs reference the same database.
     # This obviously doesn't check they're the same database (the hosts/ports
@@ -102,25 +102,13 @@ def dump(ctx, resource_id, output_file, format, offset, limit, bom):
         )
 
 
-def parse_db_config(config_key=u'sqlalchemy.url'):
-    u''' Takes a config key for a database connection url and parses it into
-    a dictionary. Expects a url like:
-
-    'postgres://tester:pass@localhost/ckantest3'
-    '''
-    url = config[config_key]
-    regex = [
-        u'^\\s*(?P<db_type>\\w*)', u'://', u'(?P<db_user>[^:]*)', u':?',
-        u'(?P<db_pass>[^@]*)', u'@', u'(?P<db_host>[^/:]*)', u':?',
-        u'(?P<db_port>[^/]*)', u'/', u'(?P<db_name>[\\w.-]*)'
-    ]
-    db_details_match = re.match(u''.join(regex), url)
-    if not db_details_match:
+def _parse_db_config(config_key=u'sqlalchemy.url'):
+    db_config = parse_db_config(config_key)
+    if not db_config:
         click.secho(
-            u'Could not extract db details from url: %r' % url,
+            u'Could not extract db details from url: %r' % config[config_key],
             fg=u'red',
             bold=True
         )
         raise click.Abort()
-    db_details = db_details_match.groupdict()
-    return db_details
+    return db_config

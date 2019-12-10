@@ -132,14 +132,14 @@ class _Toolkit(object):
     def _initialize(self):
         ''' get the required functions/objects, store them for later
         access and check that they match the contents dict. '''
-
+        import six
         import ckan
-        import ckan.lib.base as base
         import ckan.logic as logic
+
+        import ckan.lib.base as base
         import ckan.logic.validators as logic_validators
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
-        import ckan.lib.cli as old_cli
         import ckan.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
@@ -150,7 +150,9 @@ class _Toolkit(object):
         from ckan.lib.jobs import enqueue as enqueue_job
 
         import ckan.common as converters
-        import pylons
+        if six.PY2:
+            import ckan.lib.cli as old_cli
+            import pylons
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -215,6 +217,7 @@ request body variables, cookies, the request URL, etc.
 
 '''
         t['render'] = base.render
+        t['abort'] = base.abort
         t['asbool'] = converters.asbool
         self.docstring_overrides['asbool'] = '''Convert a string (e.g. 1,
 true, True) from the config file into a boolean.
@@ -237,7 +240,6 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
 '''
         t['literal'] = h.literal
-
         t['get_action'] = logic.get_action
         t['chained_action'] = logic.chained_action
         t['get_converter'] = logic.get_validator  # For backwards compatibility
@@ -252,24 +254,10 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['StopOnError'] = dictization_functions.StopOnError
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
-
-        t['CkanCommand'] = old_cli.CkanCommand
-        t['load_config'] = old_cli.load_config
-        t['error_shout'] = cli.error_shout
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
         t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
         t['DefaultOrganizationForm'] = lib_plugins.DefaultOrganizationForm
 
-        t['response'] = pylons.response
-        self.docstring_overrides['response'] = '''The Pylons response object.
-
-Pylons uses this object to generate the HTTP response it returns to the web
-browser. It has attributes like the HTTP status code, the response headers,
-content type, cookies, etc.
-
-'''
-        t['BaseController'] = base.BaseController
-        t['abort'] = base.abort
         t['redirect_to'] = h.redirect_to
         t['url_for'] = h.url_for
         t['get_or_bust'] = logic.get_or_bust
@@ -292,6 +280,21 @@ content type, cookies, etc.
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
+
+        if six.PY2:
+            t['response'] = pylons.response
+            self.docstring_overrides['response'] = '''
+The Pylons response object.
+
+Pylons uses this object to generate the HTTP response it returns to the web
+browser. It has attributes like the HTTP status code, the response headers,
+content type, cookies, etc.
+
+'''
+            t['BaseController'] = base.BaseController
+            # TODO: Sort these out
+            t['CkanCommand'] = old_cli.CkanCommand
+            t['load_config'] = old_cli.load_config
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))

@@ -2,8 +2,7 @@
 
 """WSGI app initialization"""
 
-import webob
-from routes import request_config as routes_request_config
+import logging
 
 import six
 from six.moves.urllib.parse import urlparse, quote
@@ -11,34 +10,36 @@ from six.moves.urllib.parse import urlparse, quote
 from ckan.lib.i18n import get_locales_from_config
 from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
-from ckan.config.middleware.pylons_app import make_pylons_stack
 from ckan.common import config
 
-import logging
+
 log = logging.getLogger(__name__)
 
-# This monkey-patches the webob request object because of the way it messes
-# with the WSGI environ.
+if six.PY2:
+    import webob
+    from routes import request_config as routes_request_config
+    from ckan.config.middleware.pylons_app import make_pylons_stack
 
-# Start of webob.requests.BaseRequest monkey patch
-original_charset__set = webob.request.BaseRequest._charset__set
+    # This monkey-patches the webob request object because of the way it messes
+    # with the WSGI environ.
 
+    # Start of webob.requests.BaseRequest monkey patch
+    original_charset__set = webob.request.BaseRequest._charset__set
 
-def custom_charset__set(self, charset):
-    original_charset__set(self, charset)
-    if self.environ.get('CONTENT_TYPE', '').startswith(';'):
-        self.environ['CONTENT_TYPE'] = ''
+    def custom_charset__set(self, charset):
+        original_charset__set(self, charset)
+        if self.environ.get('CONTENT_TYPE', '').startswith(';'):
+            self.environ['CONTENT_TYPE'] = ''
 
+    webob.request.BaseRequest._charset__set = custom_charset__set
 
-webob.request.BaseRequest._charset__set = custom_charset__set
+    webob.request.BaseRequest.charset = property(
+        webob.request.BaseRequest._charset__get,
+        custom_charset__set,
+        webob.request.BaseRequest._charset__del,
+        webob.request.BaseRequest._charset__get.__doc__)
 
-webob.request.BaseRequest.charset = property(
-    webob.request.BaseRequest._charset__get,
-    custom_charset__set,
-    webob.request.BaseRequest._charset__del,
-    webob.request.BaseRequest._charset__get.__doc__)
-
-# End of webob.requests.BaseRequest monkey patch
+    # End of webob.requests.BaseRequest monkey patch
 
 # This is a test Flask request context to be used internally.
 # Do not use it!
@@ -53,12 +54,16 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     load_environment(conf, app_conf)
 
-    pylons_app = make_pylons_stack(conf, full_stack, static_files,
-                                   **app_conf)
     flask_app = make_flask_stack(conf, **app_conf)
+    if six.PY2:
+        pylons_app = make_pylons_stack(
+            conf, full_stack, static_files, **app_conf)
 
-    app = AskAppDispatcherMiddleware({'pylons_app': pylons_app,
-                                      'flask_app': flask_app})
+        app = AskAppDispatcherMiddleware(
+            {'pylons_app': pylons_app,
+             'flask_app': flask_app})
+    else:
+        app = flask_app
 
     # Set this internal test request context with the configured environment so
     # it can be used when calling url_for from tests
