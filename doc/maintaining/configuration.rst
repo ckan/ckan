@@ -1925,6 +1925,10 @@ This setting is used to construct URLs inside CKAN. It specifies two things:
 
     The host of your CKAN installation can be set via :ref:`ckan.site_url`.
 
+The CKAN repoze config file ``who.ini`` file will also need to be edited
+by adding the path prefix to the options in the ``[plugin:friendlyform]``
+section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
+Do not change the login/logout_handler_path options.
 
 .. _ckan.resource_formats:
 
