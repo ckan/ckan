@@ -39,7 +39,8 @@ from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
-                        set_controller_and_action
+                        set_controller_and_action,
+                        handle_i18n,
                         )
 
 import logging
@@ -296,6 +297,9 @@ def get_locale():
 
 def ckan_before_request():
     u'''Common handler executed before all Flask requests'''
+
+    # Handle locale in URL
+    handle_i18n()
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
