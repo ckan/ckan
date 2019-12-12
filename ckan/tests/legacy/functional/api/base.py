@@ -1,13 +1,9 @@
 # encoding: utf-8
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
 from paste.fixture import TestRequest
 
 from six.moves.urllib.parse import quote
+from six import StringIO
 
 import ckan.model as model
 from ckan.tests.legacy import CreateTestData

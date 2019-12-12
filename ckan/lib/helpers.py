@@ -17,15 +17,13 @@ import copy
 import uuid
 
 from paste.deploy import converters
+
 import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
-from routes import redirect_to as _routes_redirect_to
-from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
@@ -53,6 +51,17 @@ from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
+
+if six.PY2:
+    # TODO: webhelpers should be removed after #4794 is done
+    from webhelpers.html import HTML, literal, tags
+    from webhelpers import paginate
+    import webhelpers.text as whtext
+    import webhelpers.date as date
+
+    from pylons import url as _pylons_default_url
+    from routes import redirect_to as _routes_redirect_to
+    from routes import url_for as _routes_default_url_for
 
 
 log = logging.getLogger(__name__)

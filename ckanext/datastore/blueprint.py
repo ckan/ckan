@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from itertools import izip_longest
+from six.moves import zip_longest
 
 from flask import Blueprint, make_response
 from flask.views import MethodView
@@ -143,7 +143,7 @@ class DictionaryView(MethodView):
                     u'id': f[u'id'],
                     u'type': f[u'type'],
                     u'info': fi if isinstance(fi, dict) else {}
-                } for f, fi in izip_longest(fields, info)]
+                } for f, fi in zip_longest(fields, info)]
             }
         )
 

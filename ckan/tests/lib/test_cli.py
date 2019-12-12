@@ -4,12 +4,13 @@ import datetime
 import logging
 import os
 import os.path
-from StringIO import StringIO
 import sys
 import tempfile
 import pytest
 
 from paste.script.command import run
+
+from six import StringIO
 
 import ckan.lib.cli as cli
 import ckan.lib.jobs as jobs

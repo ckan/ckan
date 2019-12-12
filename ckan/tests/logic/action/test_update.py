@@ -5,7 +5,6 @@ import datetime
 
 import mock
 import pytest
-from pyfakefs import fake_filesystem
 
 import ckan
 import ckan.lib.app_globals as app_globals
@@ -15,6 +14,9 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import model
 from ckan.common import config
+
+from six import StringIO
+from pyfakefs import fake_filesystem
 
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
@@ -1117,9 +1119,7 @@ class TestResourceUpdate(object):
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
 
-        import StringIO
-
-        update_file = StringIO.StringIO()
+        update_file = StringIO()
         update_file.write(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1160,9 +1160,7 @@ class TestResourceUpdate(object):
         Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
         If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
         """
-        import StringIO
-
-        test_file = StringIO.StringIO()
+        test_file = StringIO()
         test_file.write(
             """
         "info": {
@@ -1196,7 +1194,7 @@ class TestResourceUpdate(object):
                 upload=test_resource,
             )
 
-        update_file = StringIO.StringIO()
+        update_file = StringIO()
         update_file.write(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1261,9 +1259,7 @@ class TestResourceUpdate(object):
         """
         The size of the resource determined by the uploaded file
         """
-        import StringIO
-
-        test_file = StringIO.StringIO()
+        test_file = StringIO()
         test_file.write(
             """
         "info": {
@@ -1297,7 +1293,7 @@ class TestResourceUpdate(object):
                 upload=test_resource,
             )
 
-        update_file = StringIO.StringIO()
+        update_file = StringIO()
         update_file.write(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm

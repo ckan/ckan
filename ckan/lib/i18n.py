@@ -42,21 +42,23 @@ import logging
 import os
 import os.path
 
+import six
 from babel import Locale
 from babel.core import (LOCALE_ALIASES,
                         get_locale_identifier,
                         UnknownLocaleError)
 from babel.support import Translations
-from ckan.common import aslist
-from pylons import i18n
-import pylons
 import polib
 import six
 
-from ckan.common import config, is_flask_request
+from ckan.common import config, is_flask_request, aslist
 import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
+
+if six.PY2:
+    from pylons import i18n
+    import pylons
 
 
 log = logging.getLogger(__name__)

@@ -7,8 +7,6 @@ import __builtin__ as builtins
 import cgi
 import mock
 import pytest
-import six
-from pyfakefs import fake_filesystem
 
 import ckan
 import ckan.logic as logic
@@ -17,6 +15,10 @@ import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
+
+from six import string_types, StringIO
+
+from pyfakefs import fake_filesystem
 
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
@@ -512,9 +514,8 @@ class TestResourceCreate:
         Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
         If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
         """
-        import StringIO
 
-        test_file = StringIO.StringIO()
+        test_file = StringIO()
         test_file.write(
             """
         "info": {
@@ -566,9 +567,8 @@ class TestResourceCreate:
         Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
         If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
         """
-        import StringIO
 
-        test_file = StringIO.StringIO()
+        test_file = StringIO()
         test_file.write(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -605,9 +605,8 @@ class TestResourceCreate:
         """
         The size of the resource determined by the uploaded file
         """
-        import StringIO
 
-        test_file = StringIO.StringIO()
+        test_file = StringIO()
         test_file.write(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -989,7 +988,7 @@ class TestDatasetCreate(object):
             "package_create", name="test-id", context={"return_id_only": True}
         )
 
-        assert isinstance(dataset, six.string_types)
+        assert isinstance(dataset, string_types)
 
 
 class TestGroupCreate(object):

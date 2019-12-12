@@ -444,12 +444,6 @@ Writing :mod:`ckan.plugins` tests
 .. automodule:: ckan.tests.plugins
 
 
-Writing :mod:`ckan.migration` tests
------------------------------------
-
-.. automodule:: ckan.tests.migration
-
-
 Writing :mod:`ckan.ckanext` tests
 ---------------------------------
 

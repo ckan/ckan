@@ -127,6 +127,7 @@ from ckan.model.dashboard import (
 )
 
 import ckan.migration
+from ckan.common import config
 
 
 log = logging.getLogger(__name__)
@@ -336,3 +337,23 @@ def is_id(id_string):
     '''Tells the client if the string looks like a revision id or not'''
     reg_ex = '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
     return bool(re.match(reg_ex, id_string))
+
+
+def parse_db_config(config_key=u'sqlalchemy.url'):
+    u''' Takes a config key for a database connection url and parses it into
+    a dictionary. Expects a url like:
+
+    'postgres://tester:pass@localhost/ckantest3'
+
+    Returns None if the url could not be parsed.
+    '''
+    url = config[config_key]
+    regex = [
+        u'^\\s*(?P<db_type>\\w*)', u'://', u'(?P<db_user>[^:]*)', u':?',
+        u'(?P<db_pass>[^@]*)', u'@', u'(?P<db_host>[^/:]*)', u':?',
+        u'(?P<db_port>[^/]*)', u'/', u'(?P<db_name>[\\w.-]*)'
+    ]
+    db_details_match = re.match(u''.join(regex), url)
+    if not db_details_match:
+        return
+    return db_details_match.groupdict()
