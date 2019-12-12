@@ -291,11 +291,11 @@ class FriendlyFormPlugin(object):
 
         '''
         try:
-            # Webob 1.8.5 (py3)
-            variables = Request(environ).params
-        except AttributeError:
             # Webob 1.0.8 (py2)
             variables = Request(environ).queryvars
+        except AttributeError:
+            # Webob 1.8.5 (py3)
+            variables = Request(environ).params
 
         failed_logins = variables.get(self.login_counter_name)
         if force_typecast:
