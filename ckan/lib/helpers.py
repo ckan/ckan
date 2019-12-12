@@ -250,10 +250,13 @@ def get_site_protocol_and_host():
     site_url = config.get('ckan.site_url', None)
     if site_url is not None:
         parsed_url = urlparse(site_url)
-        return (
-            parsed_url.scheme.encode('utf-8'),
-            parsed_url.netloc.encode('utf-8')
-        )
+        if six.PY2:
+            return (
+                parsed_url.scheme.encode('utf-8'),
+                parsed_url.netloc.encode('utf-8')
+            )
+        else:
+            return (parsed_url.scheme, parsed_url.netloc)
     return (None, None)
 
 
@@ -549,10 +552,13 @@ def _local_url(url_to_amend, **kw):
     if kw.get('qualified', False) or kw.get('_external', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
-        root = _routes_default_url_for('/',
-                                       qualified=True,
-                                       host=host,
-                                       protocol=protocol)[:-1]
+        parts = urlparse(
+            _flask_default_url_for('home.index', _external=True)
+        )
+        root = urlunparse(
+            (protocol, host, parts.path,
+                parts.params, parts.query, parts.fragment))
+
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
