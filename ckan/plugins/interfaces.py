@@ -39,7 +39,7 @@ __all__ = [
     u'IBlueprint',
     u'IPermissionLabels',
     u'IForkObserver',
-    u'ICLICommands',
+    u'IClick',
 ]
 
 
