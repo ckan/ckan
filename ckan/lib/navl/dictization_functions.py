@@ -249,7 +249,9 @@ def convert(converter, key, converted_data, errors, context):
 
 def _remove_blank_keys(schema):
 
-    for key, value in schema.items():
+    schema_copy = copy.deepcopy(schema)
+
+    for key, value in schema_copy.items():
         if len(value) and isinstance(value[0], dict):
             for item in value:
                 if not item:
