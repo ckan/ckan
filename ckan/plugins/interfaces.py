@@ -1782,12 +1782,15 @@ class IForkObserver(Interface):
         '''
 
 
-class ICLICommands(Interface):
+class IClick(Interface):
     u'''
     Allow extensions to define click commands.
     '''
     def get_commands(self):
         u'''
-        Return command function object
+        Return a list of command functions objects
         to be registered by the click.add_command.
+
+        :returns: command functions objects
+        :rtype: list of function objects
         '''
