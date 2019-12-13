@@ -28,7 +28,8 @@ u'''Collection of :mod:`repoze.who` friendly forms'''
 
 from six.moves.urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
-from webob import Request, UnicodeMultiDict
+from webob import Request
+from webob.multidict import MultiDict
 from webob.exc import HTTPFound, HTTPUnauthorized
 from zope.interface import implements
 
@@ -182,7 +183,7 @@ class FriendlyFormPlugin(object):
             #    We are on the URL where repoze.who logs the user out.    #
             r = Request(environ)
             params = dict(list(r.GET.items()) + list(r.POST.items()))
-            form = UnicodeMultiDict(params)
+            form = MultiDict(params)
             form.update(query)
             referer = environ.get(u'HTTP_REFERER', script_name)
             came_from = form.get(u'came_from', referer)
