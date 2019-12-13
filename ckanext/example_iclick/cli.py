@@ -3,6 +3,7 @@
 import click
 import ckan.plugins.toolkit as tk
 
+
 @click.command(u"example-iclick-hello")
 def hello_cmd():
     """Example of single command.
@@ -26,7 +27,6 @@ def bye(name):
         tk.error_shout(u"I do not know your name.")
     else:
         click.secho(u"Bye, {}".format(name))
-
 
 
 def get_commands():
