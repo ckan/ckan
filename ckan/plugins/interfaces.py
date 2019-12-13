@@ -1791,6 +1791,19 @@ class IClick(Interface):
         Return a list of command functions objects
         to be registered by the click.add_command.
 
+        Example::
+
+            p.implements(p.IClick)
+            # IClick
+            def get_commands(self):
+                """Call me via: `ckan hello`"""
+                import click
+                @click.command()
+                def hello():
+                    click.echo('Hello, World!')
+                return [hello]
+
         :returns: command functions objects
         :rtype: list of function objects
         '''
+        return []
