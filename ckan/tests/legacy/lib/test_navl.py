@@ -281,7 +281,7 @@ def test_simple():
     converted_data, errors = validate(data, schema)
 
     print(errors)
-    assert errors == {'numbers': [{'code': [u'Missing value']}, {}]}
+    assert errors == {'numbers': [{'code': [u'Missing value']}]}
 
 
 def test_simple_converter_types():
