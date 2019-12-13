@@ -212,7 +212,7 @@ def set_controller_and_action():
 
 
 def handle_i18n(environ=None):
-    '''
+    u'''
     Strips the locale code from the requested url
     (eg '/sk/about' -> '/about') and sets environ variables for the
     language selected:
@@ -224,35 +224,35 @@ def handle_i18n(environ=None):
 
     environ = environ or request.environ
     locale_list = get_locales_from_config()
-    default_locale = config.get('ckan.locale_default', 'en')
+    default_locale = config.get(u'ckan.locale_default', u'en')
 
     # We only update once for a request so we can keep
     # the language and original url which helps with 404 pages etc
-    if 'CKAN_LANG' not in environ:
-        path_parts = environ['PATH_INFO'].split('/')
+    if u'CKAN_LANG' not in environ:
+        path_parts = environ[u'PATH_INFO'].split(u'/')
         if len(path_parts) > 1 and path_parts[1] in locale_list:
-            environ['CKAN_LANG'] = path_parts[1]
-            environ['CKAN_LANG_IS_DEFAULT'] = False
+            environ[u'CKAN_LANG'] = path_parts[1]
+            environ[u'CKAN_LANG_IS_DEFAULT'] = False
             # rewrite url
             if len(path_parts) > 2:
-                environ['PATH_INFO'] = '/'.join([''] + path_parts[2:])
+                environ[u'PATH_INFO'] = u'/'.join([u''] + path_parts[2:])
             else:
-                environ['PATH_INFO'] = '/'
+                environ[u'PATH_INFO'] = u'/'
         else:
-            environ['CKAN_LANG'] = default_locale
-            environ['CKAN_LANG_IS_DEFAULT'] = True
+            environ[u'CKAN_LANG'] = default_locale
+            environ[u'CKAN_LANG_IS_DEFAULT'] = True
 
         # Current application url
-        path_info = environ['PATH_INFO']
+        path_info = environ[u'PATH_INFO']
         # sort out weird encodings
         path_info = \
-            '/'.join(quote(pce, '') for pce in path_info.split('/'))
+            u'/'.join(quote(pce, u'') for pce in path_info.split(u'/'))
 
-        qs = environ.get('QUERY_STRING')
+        qs = environ.get(u'QUERY_STRING')
 
         if qs:
             # sort out weird encodings
-            qs = quote(qs, '')
-            environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
+            qs = quote(qs, u'')
+            environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
         else:
-            environ['CKAN_CURRENT_URL'] = path_info
+            environ[u'CKAN_CURRENT_URL'] = path_info
