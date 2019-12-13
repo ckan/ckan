@@ -416,6 +416,8 @@ def _url_for_flask(*args, **kw):
             my_url = args[0]
             if request.environ.get('SCRIPT_NAME'):
                 my_url = request.environ['SCRIPT_NAME'] + my_url
+            kw.pop('host', None)
+            kw.pop('protocol', None)
             if kw:
                 my_url += '?'
                 query_args = []
@@ -503,8 +505,8 @@ def url_for_static_or_external(*args, **kw):
         args = (fix_arg(args[0]), ) + args[1:]
     if kw.get('qualified', False):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
-    my_url = url_for(*args, **kw)
-    return _local_url(my_url, locale='default', **kw)
+    kw['locale'] = 'default'
+    return url_for(*args, **kw)
 
 
 @core_helper
@@ -552,11 +554,21 @@ def _local_url(url_to_amend, **kw):
     if kw.get('qualified', False) or kw.get('_external', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
+        _auto_flask_context = _get_auto_flask_context()
+
+        if _auto_flask_context:
+            _auto_flask_context.push()
+
         parts = urlparse(
             _flask_default_url_for('home.index', _external=True)
         )
+
+        if _auto_flask_context:
+            _auto_flask_context.pop()
+
+        path = parts.path.rstrip('/')
         root = urlunparse(
-            (protocol, host, parts.path,
+            (protocol, host, path,
                 parts.params, parts.query, parts.fragment))
 
     # ckan.root_path is defined when we have none standard language
