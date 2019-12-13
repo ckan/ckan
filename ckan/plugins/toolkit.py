@@ -76,6 +76,8 @@ class _Toolkit(object):
         'CkanCommand',
         # function for initializing CLI interfaces
         'load_config',
+        # function to promt the exception in CLI command
+        'error_shout',
         # base class for IDatasetForm plugins
         'DefaultDatasetForm',
         # base class for IGroupForm plugins
@@ -138,6 +140,7 @@ class _Toolkit(object):
         import ckan.logic.validators as logic_validators
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
+        import ckan.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
         from ckan.exceptions import (
@@ -148,7 +151,7 @@ class _Toolkit(object):
 
         import ckan.common as converters
         if six.PY2:
-            import ckan.lib.cli as cli
+            import ckan.lib.cli as old_cli
             import pylons
 
         # Allow class access to these modules
@@ -251,10 +254,11 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['StopOnError'] = dictization_functions.StopOnError
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
-
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
         t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
         t['DefaultOrganizationForm'] = lib_plugins.DefaultOrganizationForm
+
+        t['error_shout'] = cli.error_shout
 
         t['redirect_to'] = h.redirect_to
         t['url_for'] = h.url_for
@@ -291,8 +295,8 @@ content type, cookies, etc.
 '''
             t['BaseController'] = base.BaseController
             # TODO: Sort these out
-            t['CkanCommand'] = cli.CkanCommand
-            t['load_config'] = cli.load_config
+            t['CkanCommand'] = old_cli.CkanCommand
+            t['load_config'] = old_cli.load_config
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))

@@ -39,6 +39,7 @@ __all__ = [
     u'IBlueprint',
     u'IPermissionLabels',
     u'IForkObserver',
+    u'IClick',
 ]
 
 
@@ -1778,4 +1779,18 @@ class IForkObserver(Interface):
     def before_fork(self):
         u'''
         Called shortly before the CKAN process is forked.
+        '''
+
+
+class IClick(Interface):
+    u'''
+    Allow extensions to define click commands.
+    '''
+    def get_commands(self):
+        u'''
+        Return a list of command functions objects
+        to be registered by the click.add_command.
+
+        :returns: command functions objects
+        :rtype: list of function objects
         '''
