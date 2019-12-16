@@ -3,6 +3,9 @@
 import os
 import sys
 import click
+import uuid
+import random
+import string
 from ckan.cli import error_shout
 
 
@@ -76,3 +79,36 @@ def extension(output_dir):
 
     cookiecutter(template_loc, no_input=True, extra_context=context,
                  output_dir=output_dir)
+
+
+@generate.command(name=u'config', short_help=u'Create config from template.')
+@click.option(u'-o', u'--output-dir', help=u'Location to put the generated '
+                                           u'template.', default=u'.')
+def make_config(output_dir):
+    if not any(name in output_dir for name in
+               ['development.ini', 'production.ini']):
+        print('\nERROR: File name must be development.ini or production.ini')
+        sys.exit(1)
+
+    cur_loc = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(cur_loc)
+    os.chdir('../config')
+    template_loc = os.getcwd() + '/deployment.ini_tmpl'
+    template_variables = {
+        'app_instance_uuid': uuid.uuid4(),
+        'app_instance_secret': ''.join(
+            random.SystemRandom().choice(string.ascii_letters + string.digits)
+            for _ in range(25))
+    }
+
+    with open(template_loc, 'r') as file_in:
+        template = string.Template(file_in.read())
+        print(output_dir)
+
+        try:
+            with open(output_dir, 'w') as file_out:
+                file_out.writelines(template.substitute(template_variables))
+
+        except IOError as e:
+            error_shout(e)
+            sys.exit(1)
