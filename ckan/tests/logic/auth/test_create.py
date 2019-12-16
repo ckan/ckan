@@ -1,395 +1,402 @@
 # encoding: utf-8
+"""Unit tests for ckan/logic/auth/create.py.
 
-'''Unit tests for ckan/logic/auth/create.py.
-
-'''
+"""
 
 import mock
-import nose
+import pytest
 
-import ckan.model as core_model
-import ckan.plugins as p
-
-import ckan.tests.helpers as helpers
-import ckan.tests.factories as factories
 import ckan.logic.auth.create as auth_create
+import ckan.model as core_model
+import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
 
 logic = helpers.logic
-assert_equals = nose.tools.assert_equals
-
-
-class TestCreateDatasetAnonymousSettings(object):
-    def test_anon_cant_create(self):
-        response = auth_create.package_create({'user': None}, None)
-        assert_equals(response['success'], False)
-
-    @helpers.change_config('ckan.auth.anon_create_dataset', True)
-    def test_anon_can_create(self):
-        response = auth_create.package_create({'user': None}, None)
-        assert_equals(response['success'], True)
-
-    @helpers.change_config('ckan.auth.anon_create_dataset', True)
-    @helpers.change_config('ckan.auth.create_dataset_if_not_in_organization',
-                           False)
-    def test_cdnio_overrides_acd(self):
-        response = auth_create.package_create({'user': None}, None)
-        assert_equals(response['success'], False)
-
-    @helpers.change_config('ckan.auth.anon_create_dataset', True)
-    @helpers.change_config('ckan.auth.create_unowned_dataset', False)
-    def test_cud_overrides_acd(self):
-        response = auth_create.package_create({'user': None}, None)
-        assert_equals(response['success'], False)
-
-
-class TestCreateDatasetLoggedInSettings(object):
-    def setup(self):
-        helpers.reset_db()
-
-    def test_no_org_user_can_create(self):
-        user = factories.User()
-        response = auth_create.package_create({'user': user['name']}, None)
-        assert_equals(response['success'], True)
-
-    @helpers.change_config('ckan.auth.anon_create_dataset', True)
-    @helpers.change_config('ckan.auth.create_dataset_if_not_in_organization',
-                           False)
-    def test_no_org_user_cant_create_if_cdnio_false(self):
-        user = factories.User()
-        response = auth_create.package_create({'user': user['name']}, None)
-        assert_equals(response['success'], False)
 
-    @helpers.change_config('ckan.auth.anon_create_dataset', True)
-    @helpers.change_config('ckan.auth.create_unowned_dataset', False)
-    def test_no_org_user_cant_create_if_cud_false(self):
-        user = factories.User()
-        response = auth_create.package_create({'user': user['name']}, None)
-        assert_equals(response['success'], False)
 
-    def test_same_org_user_can_create(self):
-        user = factories.User()
-        org_users = [{'name': user['name'], 'capacity': 'editor'}]
-        org = factories.Organization(users=org_users)
-        dataset = {'name': 'same-org-user-can-create', 'owner_org': org['id']}
-        context = {'user': user['name'], 'model': core_model}
-        response = auth_create.package_create(context, dataset)
-        assert_equals(response['success'], True)
+def test_anon_cant_create():
+    response = auth_create.package_create({"user": None}, None)
+    assert not response["success"]
+
 
-    def test_different_org_user_cant_create(self):
-        user = factories.User()
-        org_users = [{'name': user['name'], 'capacity': 'editor'}]
-        org1 = factories.Organization(users=org_users)
-        org2 = factories.Organization()
-        dataset = {'name': 'different-org-user-cant-create',
-                   'owner_org': org2['id']}
-        context = {'user': user['name'], 'model': core_model}
-        response = auth_create.package_create(context, dataset)
-        assert_equals(response['success'], False)
+@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
+def test_anon_can_create():
+    response = auth_create.package_create({"user": None}, None)
+    assert response["success"]
 
 
-class TestCreate(object):
+@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
+@pytest.mark.ckan_config(
+    "ckan.auth.create_dataset_if_not_in_organization", False
+)
+def test_cdnio_overrides_acd():
+    response = auth_create.package_create({"user": None}, None)
+    assert not response["success"]
+
+
+@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
+@pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
+def test_cud_overrides_acd():
+    response = auth_create.package_create({"user": None}, None)
+    assert not response["success"]
 
-    def setup(self):
-        helpers.reset_db()
 
-    @mock.patch('ckan.logic.auth.create.group_member_create')
-    def test_user_invite_delegates_correctly_to_group_member_create(self, gmc):
-        user = factories.User()
-        context = {
-            'user': user['name'],
-            'model': None,
-            'auth_user_obj': user
-        }
-        data_dict = {'group_id': 42}
+@pytest.mark.usefixtures("clean_db")
+def test_no_org_user_can_create():
+    user = factories.User()
+    response = auth_create.package_create({"user": user["name"]}, None)
+    assert response["success"]
 
-        gmc.return_value = {'success': False}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'user_invite', context=context, **data_dict)
 
-        gmc.return_value = {'success': True}
-        result = helpers.call_auth('user_invite', context=context, **data_dict)
-        assert result is True
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
+@pytest.mark.ckan_config(
+    "ckan.auth.create_dataset_if_not_in_organization", False
+)
+def test_no_org_user_cant_create_if_cdnio_false():
+    user = factories.User()
+    response = auth_create.package_create({"user": user["name"]}, None)
+    assert not response["success"]
 
 
-class TestCreateResourceViews(object):
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
+@pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
+def test_no_org_user_cant_create_if_cud_false():
+    user = factories.User()
+    response = auth_create.package_create({"user": user["name"]}, None)
+    assert not response["success"]
 
-    @classmethod
-    def setup_class(cls):
-        if not p.plugin_loaded('image_view'):
-            p.load('image_view')
 
-        helpers.reset_db()
+@pytest.mark.usefixtures("clean_db")
+def test_same_org_user_can_create():
+    user = factories.User()
+    org_users = [{"name": user["name"], "capacity": "editor"}]
+    org = factories.Organization(users=org_users)
+    dataset = {"name": "same-org-user-can-create", "owner_org": org["id"]}
+    context = {"user": user["name"], "model": core_model}
+    response = auth_create.package_create(context, dataset)
+    assert response["success"]
 
-    @classmethod
-    def teardown_class(cls):
-        p.unload('image_view')
 
-    def test_authorized_if_user_has_permissions_on_dataset(self):
+@pytest.mark.usefixtures("clean_db")
+def test_different_org_user_cant_create():
+    user = factories.User()
+    org_users = [{"name": user["name"], "capacity": "editor"}]
+    org1 = factories.Organization(users=org_users)
+    org2 = factories.Organization()
+    dataset = {
+        "name": "different-org-user-cant-create",
+        "owner_org": org2["id"],
+    }
+    context = {"user": user["name"], "model": core_model}
+    response = auth_create.package_create(context, dataset)
+    assert not response["success"]
 
-        user = factories.User()
 
-        dataset = factories.Dataset(user=user)
+@pytest.mark.usefixtures("clean_db")
+@mock.patch("ckan.logic.auth.create.group_member_create")
+def test_user_invite_delegates_correctly_to_group_member_create(gmc):
+    user = factories.User()
+    context = {"user": user["name"], "model": None, "auth_user_obj": user}
+    data_dict = {"group_id": 42}
 
-        resource = factories.Resource(user=user, package_id=dataset['id'])
+    gmc.return_value = {"success": False}
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth("user_invite", context=context, **data_dict)
 
-        resource_view = {'resource_id': resource['id'],
-                         'title': u'Resource View',
-                         'view_type': u'image_view',
-                         'image_url': 'url'}
+    gmc.return_value = {"success": True}
+    result = helpers.call_auth("user_invite", context=context, **data_dict)
+    assert result
 
-        context = {'user': user['name'], 'model': core_model}
-        response = helpers.call_auth('resource_view_create',
-                                     context=context, **resource_view)
-        assert_equals(response, True)
 
-    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+def test_authorized_if_user_has_permissions_on_dataset():
 
-        org = factories.Organization()
+    user = factories.User()
 
-        user = factories.User()
+    dataset = factories.Dataset(user=user)
 
-        member = {'username': user['name'],
-                  'role': 'admin',
-                  'id': org['id']}
-        helpers.call_action('organization_member_create', **member)
+    resource = factories.Resource(user=user, package_id=dataset["id"])
 
-        user_2 = factories.User()
+    resource_view = {
+        "resource_id": resource["id"],
+        "title": u"Resource View",
+        "view_type": u"image_view",
+        "image_url": "url",
+    }
 
-        dataset = factories.Dataset(owner_org=org['id'])
+    context = {"user": user["name"], "model": core_model}
+    response = helpers.call_auth(
+        "resource_view_create", context=context, **resource_view
+    )
+    assert response
 
-        resource = factories.Resource(package_id=dataset['id'])
 
-        resource_view = {'resource_id': resource['id'],
-                         'title': u'Resource View',
-                         'view_type': u'image_view',
-                         'image_url': 'url'}
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+def test_not_authorized_if_user_has_no_permissions_on_dataset():
 
-        context = {'user': user_2['name'], 'model': core_model}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'resource_view_create', context=context,
-                                 **resource_view)
+    org = factories.Organization()
 
-    def test_not_authorized_if_not_logged_in(self):
+    user = factories.User()
 
-        resource_view = {'title': u'Resource View',
-                         'view_type': u'image_view',
-                         'image_url': 'url'}
+    member = {"username": user["name"], "role": "admin", "id": org["id"]}
+    helpers.call_action("organization_member_create", **member)
 
-        context = {'user': None, 'model': core_model}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'resource_view_create', context=context,
-                                 **resource_view)
+    user_2 = factories.User()
 
+    dataset = factories.Dataset(owner_org=org["id"])
 
-class TestCreateDefaultResourceViewsOnResource(object):
+    resource = factories.Resource(package_id=dataset["id"])
 
-    @classmethod
-    def setup_class(cls):
+    resource_view = {
+        "resource_id": resource["id"],
+        "title": u"Resource View",
+        "view_type": u"image_view",
+        "image_url": "url",
+    }
 
-        helpers.reset_db()
+    context = {"user": user_2["name"], "model": core_model}
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth(
+            "resource_view_create", context=context, **resource_view
+        )
 
-    def test_authorized_if_user_has_permissions_on_dataset(self):
 
-        user = factories.User()
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+def test_not_authorized_if_not_logged_in_3():
 
-        dataset = factories.Dataset(user=user)
+    resource_view = {
+        "title": u"Resource View",
+        "view_type": u"image_view",
+        "image_url": "url",
+    }
 
-        resource = factories.Resource(user=user, package_id=dataset['id'])
+    context = {"user": None, "model": core_model}
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth(
+            "resource_view_create", context=context, **resource_view
+        )
 
-        context = {'user': user['name'], 'model': core_model}
-        response = helpers.call_auth('resource_create_default_resource_views',
-                                     context=context, resource=resource)
-        assert_equals(response, True)
 
-    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+@pytest.mark.usefixtures("clean_db")
+def test_authorized_if_user_has_permissions_on_dataset_3():
 
-        org = factories.Organization()
+    user = factories.User()
 
-        user = factories.User()
+    dataset = factories.Dataset(user=user)
 
-        member = {'username': user['name'],
-                  'role': 'admin',
-                  'id': org['id']}
-        helpers.call_action('organization_member_create', **member)
+    resource = factories.Resource(user=user, package_id=dataset["id"])
 
-        user_2 = factories.User()
+    context = {"user": user["name"], "model": core_model}
+    response = helpers.call_auth(
+        "resource_create_default_resource_views",
+        context=context,
+        resource=resource,
+    )
+    assert response
 
-        dataset = factories.Dataset(owner_org=org['id'])
 
-        resource = factories.Resource(package_id=dataset['id'])
+@pytest.mark.usefixtures("clean_db")
+def test_not_authorized_if_user_has_no_permissions_on_dataset_2():
 
-        context = {'user': user_2['name'], 'model': core_model}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'resource_create_default_resource_views',
-                                 context=context,
-                                 resource=resource)
+    org = factories.Organization()
 
-    def test_not_authorized_if_not_logged_in(self):
-        dataset = factories.Dataset()
+    user = factories.User()
 
-        resource = factories.Resource(package_id=dataset['id'])
+    member = {"username": user["name"], "role": "admin", "id": org["id"]}
+    helpers.call_action("organization_member_create", **member)
 
-        context = {'user': None, 'model': core_model}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'resource_create_default_resource_views',
-                                 context=context,
-                                 resource=resource)
+    user_2 = factories.User()
 
+    dataset = factories.Dataset(owner_org=org["id"])
 
-class TestCreateDefaultResourceViewsOnDataset(object):
+    resource = factories.Resource(package_id=dataset["id"])
 
-    @classmethod
-    def setup_class(cls):
+    context = {"user": user_2["name"], "model": core_model}
+    with pytest.raises(logic.NotAuthorized):
 
-        helpers.reset_db()
+        helpers.call_auth(
+            "resource_create_default_resource_views",
+            context=context,
+            resource=resource,
+        )
 
-    def test_authorized_if_user_has_permissions_on_dataset(self):
 
-        user = factories.User()
+@pytest.mark.usefixtures("clean_db")
+def test_not_authorized_if_not_logged_in_2():
+    dataset = factories.Dataset()
 
-        dataset = factories.Dataset(user=user)
+    resource = factories.Resource(package_id=dataset["id"])
 
-        context = {'user': user['name'], 'model': core_model}
-        response = helpers.call_auth('package_create_default_resource_views',
-                                     context=context, package=dataset)
-        assert_equals(response, True)
+    context = {"user": None, "model": core_model}
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth(
+            "resource_create_default_resource_views",
+            context=context,
+            resource=resource,
+        )
 
-    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
 
-        org = factories.Organization()
+@pytest.mark.usefixtures("clean_db")
+def test_authorized_if_user_has_permissions_on_dataset_2():
 
-        user = factories.User()
+    user = factories.User()
 
-        member = {'username': user['name'],
-                  'role': 'admin',
-                  'id': org['id']}
-        helpers.call_action('organization_member_create', **member)
+    dataset = factories.Dataset(user=user)
 
-        user_2 = factories.User()
+    context = {"user": user["name"], "model": core_model}
+    response = helpers.call_auth(
+        "package_create_default_resource_views",
+        context=context,
+        package=dataset,
+    )
+    assert response
 
-        dataset = factories.Dataset(owner_org=org['id'])
 
-        context = {'user': user_2['name'], 'model': core_model}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'package_create_default_resource_views',
-                                 context=context,
-                                 package=dataset)
+@pytest.mark.usefixtures("clean_db")
+def test_not_authorized_if_user_has_no_permissions_on_dataset_3():
 
-    def test_not_authorized_if_not_logged_in(self):
-        dataset = factories.Dataset()
+    org = factories.Organization()
 
-        context = {'user': None, 'model': core_model}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'package_create_default_resource_views',
-                                 context=context,
-                                 package=dataset)
+    user = factories.User()
 
+    member = {"username": user["name"], "role": "admin", "id": org["id"]}
+    helpers.call_action("organization_member_create", **member)
 
-class TestCreateResources(object):
+    user_2 = factories.User()
 
-    @classmethod
-    def setup_class(cls):
+    dataset = factories.Dataset(owner_org=org["id"])
 
-        helpers.reset_db()
+    context = {"user": user_2["name"], "model": core_model}
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth(
+            "package_create_default_resource_views",
+            context=context,
+            package=dataset,
+        )
 
-    def test_authorized_if_user_has_permissions_on_dataset(self):
 
-        user = factories.User()
+@pytest.mark.usefixtures("clean_db")
+def test_not_authorized_if_not_logged_in():
+    dataset = factories.Dataset()
 
-        dataset = factories.Dataset(user=user)
+    context = {"user": None, "model": core_model}
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth(
+            "package_create_default_resource_views",
+            context=context,
+            package=dataset,
+        )
 
-        resource = {'package_id': dataset['id'],
-                    'title': 'Resource',
-                    'url': 'http://test',
-                    'format': 'csv'}
 
-        context = {'user': user['name'], 'model': core_model}
-        response = helpers.call_auth('resource_create',
-                                     context=context, **resource)
-        assert_equals(response, True)
+@pytest.mark.usefixtures("clean_db")
+def test_authorized_if_user_has_permissions_on_dataset_4():
 
-    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+    user = factories.User()
 
-        org = factories.Organization()
+    dataset = factories.Dataset(user=user)
 
-        user = factories.User()
+    resource = {
+        "package_id": dataset["id"],
+        "title": "Resource",
+        "url": "http://test",
+        "format": "csv",
+    }
 
-        member = {'username': user['name'],
-                  'role': 'admin',
-                  'id': org['id']}
-        helpers.call_action('organization_member_create', **member)
+    context = {"user": user["name"], "model": core_model}
+    response = helpers.call_auth(
+        "resource_create", context=context, **resource
+    )
+    assert response
 
-        user_2 = factories.User()
 
-        dataset = factories.Dataset(user=user, owner_org=org['id'])
+@pytest.mark.usefixtures("clean_db")
+def test_not_authorized_if_user_has_no_permissions_on_dataset_4():
 
-        resource = {'package_id': dataset['id'],
-                    'title': 'Resource',
-                    'url': 'http://test',
-                    'format': 'csv'}
+    org = factories.Organization()
 
-        context = {'user': user_2['name'], 'model': core_model}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'resource_create', context=context,
-                                 **resource)
+    user = factories.User()
 
-    def test_not_authorized_if_not_logged_in(self):
+    member = {"username": user["name"], "role": "admin", "id": org["id"]}
+    helpers.call_action("organization_member_create", **member)
 
-        resource = {'title': 'Resource',
-                    'url': 'http://test',
-                    'format': 'csv'}
+    user_2 = factories.User()
 
-        context = {'user': None, 'model': core_model}
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'resource_create', context=context,
-                                 **resource)
+    dataset = factories.Dataset(user=user, owner_org=org["id"])
 
-    def test_sysadmin_is_authorized(self):
+    resource = {
+        "package_id": dataset["id"],
+        "title": "Resource",
+        "url": "http://test",
+        "format": "csv",
+    }
 
-        sysadmin = factories.Sysadmin()
+    context = {"user": user_2["name"], "model": core_model}
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth("resource_create", context=context, **resource)
 
-        resource = {'title': 'Resource',
-                    'url': 'http://test',
-                    'format': 'csv'}
 
-        context = {'user': sysadmin['name'], 'model': core_model}
-        response = helpers.call_auth('resource_create',
-                                     context=context, **resource)
-        assert_equals(response, True)
+@pytest.mark.usefixtures("clean_db")
+def test_not_authorized_if_not_logged_in_4():
 
-    def test_raises_not_found_if_no_package_id_provided(self):
+    resource = {"title": "Resource", "url": "http://test", "format": "csv"}
 
-        user = factories.User()
+    context = {"user": None, "model": core_model}
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth("resource_create", context=context, **resource)
 
-        resource = {'title': 'Resource',
-                    'url': 'http://test',
-                    'format': 'csv'}
 
-        context = {'user': user['name'], 'model': core_model}
-        nose.tools.assert_raises(logic.NotFound, helpers.call_auth,
-                                 'resource_create', context=context,
-                                 **resource)
+@pytest.mark.usefixtures("clean_db")
+def test_sysadmin_is_authorized():
 
-    def test_raises_not_found_if_dataset_was_not_found(self):
+    sysadmin = factories.Sysadmin()
 
-        user = factories.User()
+    resource = {"title": "Resource", "url": "http://test", "format": "csv"}
 
-        resource = {'package_id': 'does_not_exist',
-                    'title': 'Resource',
-                    'url': 'http://test',
-                    'format': 'csv'}
+    context = {"user": sysadmin["name"], "model": core_model}
+    response = helpers.call_auth(
+        "resource_create", context=context, **resource
+    )
+    assert response
 
-        context = {'user': user['name'], 'model': core_model}
-        nose.tools.assert_raises(logic.NotFound, helpers.call_auth,
-                                 'resource_create', context=context,
-                                 **resource)
 
+@pytest.mark.usefixtures("clean_db")
+def test_raises_not_found_if_no_package_id_provided():
 
-class TestActivityCreate(helpers.FunctionalTestBase):
-    def test_normal_user_cant_use_it(self):
-        normal_user = factories.User()
-        context = {'user': normal_user['name'], 'model': core_model}
+    user = factories.User()
 
-        nose.tools.assert_raises(
-            logic.NotAuthorized, helpers.call_auth,
-            'activity_create', context=context)
+    resource = {"title": "Resource", "url": "http://test", "format": "csv"}
+
+    context = {"user": user["name"], "model": core_model}
+    with pytest.raises(logic.NotFound):
+        helpers.call_auth("resource_create", context=context, **resource)
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_raises_not_found_if_dataset_was_not_found():
+
+    user = factories.User()
+
+    resource = {
+        "package_id": "does_not_exist",
+        "title": "Resource",
+        "url": "http://test",
+        "format": "csv",
+    }
+
+    context = {"user": user["name"], "model": core_model}
+    with pytest.raises(logic.NotFound):
+        helpers.call_auth("resource_create", context=context, **resource)
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_normal_user_cant_use_it():
+    normal_user = factories.User()
+    context = {"user": normal_user["name"], "model": core_model}
+
+    with pytest.raises(logic.NotAuthorized):
+        helpers.call_auth("activity_create", context=context)

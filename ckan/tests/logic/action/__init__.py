@@ -1,6 +1,5 @@
 # encoding: utf-8
-
-'''**All action functions should have tests.**
+"""**All action functions should have tests.**
 
 Most action function tests will be high-level tests that both test the code in
 the action function itself, and also indirectly test the code in
@@ -35,4 +34,4 @@ Here's an example of a simple :mod:`ckan.logic.action` test:
    Insert the names of all tests for ``ckan.logic.action.update.user_update``,
    for example, to show what level of detail things should be tested in.
 
-'''
+"""

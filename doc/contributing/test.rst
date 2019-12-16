@@ -34,7 +34,7 @@ virtual environment:
 
     |activate|
 
-Install nose and other test-specific CKAN dependencies into your virtual
+Install pytest and other test-specific CKAN dependencies into your virtual
 environment:
 
 .. parsed-literal::
@@ -119,63 +119,19 @@ Run the tests
 ~~~~~~~~~~~~~
 
 To run CKAN's tests using PostgreSQL as the database, you have to give the
-``--with-pylons=test-core.ini`` option on the command line. This command will
+``--ckan-ini=test-core.ini`` option on the command line. This command will
 run the tests for CKAN core and for the core extensions::
 
-     nosetests --ckan --with-pylons=test-core.ini ckan ckanext
+     pytest --ckan-ini=test-core.ini ckan/ ckanext/
 
 The speed of the PostgreSQL tests can be improved by running PostgreSQL in
 memory and turning off durability, as described
 `in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_.
 
-By default the tests will keep the database between test runs. If you wish to
-drop and reinitialize the database before the run you can use the ``reset-db``
-option::
-
-     nosetests --ckan --reset-db --with-pylons=test-core.ini ckan
-
-
-
-.. _migrationtesting:
-
-~~~~~~~~~~~~~~~~~
-Migration testing
-~~~~~~~~~~~~~~~~~
-
-If you're a CKAN developer or extension developer and your new code requires a
-change to CKAN's model, you'll need to write a migration script. To ensure that
-the migration script itself gets tested, you should run the tests with
-the ``--ckan-migration`` option, for example::
-
-     nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan ckanext
-
-By default tests are run using the model defined in ``ckan/model``.
-With the ``--ckan-migration`` option the tests will run using a database that
-has been created by running the migration scripts in ``ckan/migration``, which
-is how the database is created and upgraded in production.
-
-.. warning ::
-
-   A common error when wanting to run tests against a particular database is to
-   change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem
-   is that these are versioned files and people have checked in these by
-   mistake, creating problems for other developers.
 
 ~~~~~~~~~~~~~~~~~~~~~
 Common error messages
 ~~~~~~~~~~~~~~~~~~~~~
-
-ConfigError
-===========
-
-``nose.config.ConfigError: Error reading config file 'setup.cfg': no such option 'with-pylons'``
-   This error can result when you run nosetests for two reasons:
-
-   1. Pylons nose plugin failed to run. If this is the case, then within a couple of lines of running `nosetests` you'll see this warning: `Unable to load plugin pylons` followed by an error message. Fix the error here first`.
-
-   2. The Python module 'Pylons' is not installed into you Python environment. Confirm this with::
-
-        python -c "import pylons"
 
 OperationalError
 ================
@@ -183,34 +139,6 @@ OperationalError
 ``OperationalError: (OperationalError) no such function: plainto_tsquery ...``
    This error usually results from running a test which involves search functionality, which requires using a PostgreSQL database, but another (such as SQLite) is configured. The particular test is either missing a `@search_related` decorator or there is a mixup with the test configuration files leading to the wrong database being used.
 
-nosetests
-=========
-
-``nosetests: error: no such option: --ckan``
-   Nose is either unable to find ckan/ckan_nose_plugin.py in the python environment it is running in, or there is an error loading it. If there is an error, this will surface it::
-
-         nosetests --version
-
-   There are a few things to try to remedy this:
-
-   Commonly this is because the nosetests isn't running in the python environment. You need to have nose actually installed in the python environment. To see which you are running, do this::
-
-         which nosetests
-
-   If you have activated the environment and this still reports ``/usr/bin/nosetests`` then you need to::
-
-         pip install --ignore-installed nose
-
-   If ``nose --version`` still fails, ensure that ckan is installed in your environment:
-
-   .. parsed-literal::
-
-         cd |virtualenv|/src/ckan
-         python setup.py develop
-
-   One final check - the version of nose should be at least 1.0. Check with::
-
-         pip freeze | grep -i nose
 
 SolrError
 =========
