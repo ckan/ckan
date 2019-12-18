@@ -19,6 +19,7 @@ from ckanext.datastore.backend import (
     DatastoreBackend
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
+import ckanext.datastore.commands as cmd
 import ckanext.datastore.blueprint as view
 
 log = logging.getLogger(__name__)
@@ -41,6 +42,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
     p.implements(p.IBlueprint)
+    p.implements(p.IClick)
 
     resource_show_action = None
 
@@ -252,3 +254,8 @@ class DatastorePlugin(p.SingletonPlugin):
         u'''Return a Flask Blueprint object to be registered by the app.'''
 
         return view.datastore
+
+    # IClick
+
+    def get_commands(self):
+        return [cmd.datastore]
