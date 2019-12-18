@@ -443,7 +443,6 @@ class TestPep8(object):
         "/tests/test_plugin.py",
         "contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}"
         "/ckanext/{{cookiecutter.project_shortname}}/plugin.py",
-        "ckan/tests/legacy/models/test_package.py",
         "ckan/tests/legacy/models/test_purge_revision.py",
         "ckan/tests/legacy/models/test_revision.py",
     ]
