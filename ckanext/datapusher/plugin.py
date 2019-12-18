@@ -10,6 +10,7 @@ import ckanext.datapusher.blueprint as blueprint
 import ckanext.datapusher.helpers as helpers
 import ckanext.datapusher.logic.action as action
 import ckanext.datapusher.logic.auth as auth
+import ckanext.datapusher.commands as cmd
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -40,6 +41,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IBlueprint)
+    p.implements(p.IClick)
 
     legacy_mode = False
     resource_show_action = None
@@ -144,3 +146,8 @@ class DatapusherPlugin(p.SingletonPlugin):
 
     def get_blueprint(self):
         return blueprint.datapusher
+
+    # IClick
+
+    def get_commands(self):
+        return [cmd.datapusher]
