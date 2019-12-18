@@ -117,7 +117,7 @@ def test_setting_a_key_sets_it_on_flask_config_if_app_context(
 
 @pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
 def test_setting_a_key_does_not_set_it_on_flask_config_if_outside_app_context(
-    app
+    app,
 ):
     with app.flask_app.app_context():
         assert flask.current_app.config[u"ckan.site_title"] != u"Example title"
@@ -131,12 +131,14 @@ def test_deleting_a_key_deletes_it_on_pylons_config():
 
 # START-CONFIG-OVERRIDE
 def test_deleting_a_key_delets_it_on_flask_config(
-        app, monkeypatch, ckan_config
+    app, monkeypatch, ckan_config
 ):
     with app.flask_app.app_context():
         monkeypatch.setitem(ckan_config, u"ckan.site_title", u"Example title")
         del ckan_config[u"ckan.site_title"]
         assert u"ckan.site_title" not in flask.current_app.config
+
+
 # END-CONFIG-OVERRIDE
 
 

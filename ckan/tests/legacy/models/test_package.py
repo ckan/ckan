@@ -42,6 +42,7 @@ class TestPackage:
             == '<p>A great package  like <a href="/dataset/pollution_stats">package:pollution_stats</a></p>'
         )
 
+
 class TestPackageTagSearch:
     orderedfirst = u"000-zzz"
     tagname = u"russian-tag-we-will-delete"

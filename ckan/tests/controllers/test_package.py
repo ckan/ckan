@@ -25,14 +25,13 @@ def _get_package_new_page(app):
     return env, response
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestPackageNew(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_form_renders(self, app):
         env, response = _get_package_new_page(app)
         assert "dataset-edit" in response.forms
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
-    @pytest.mark.usefixtures("clean_db")
     def test_needs_organization_but_no_organizations_has_button(self, app):
         """ Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is allowed to create an
@@ -48,7 +47,6 @@ class TestPackageNew(object):
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
     @pytest.mark.ckan_config("ckan.auth.user_create_organizations", "false")
     @mock.patch("ckan.logic.auth.create.package_create")
-    @pytest.mark.usefixtures("clean_db")
     def test_needs_organization_but_no_organizations_no_button(
         self, mock_p_create, app
     ):
@@ -68,7 +66,6 @@ class TestPackageNew(object):
         assert url_for(controller="organization", action="new") not in response
         assert "Ask a system administrator" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_name_required(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -77,7 +74,6 @@ class TestPackageNew(object):
         assert "dataset-edit" in response.forms
         assert "Name: Missing value" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_form_renders(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -86,7 +82,6 @@ class TestPackageNew(object):
         response = submit_and_follow(app, form, env, "save")
         assert "resource-edit" in response.forms
 
-    @pytest.mark.usefixtures("clean_db")
     def test_first_page_creates_draft_package(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -96,7 +91,6 @@ class TestPackageNew(object):
         pkg = model.Package.by_name(u"first-page-creates-draft")
         assert pkg.state == "draft"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_required(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -111,7 +105,6 @@ class TestPackageNew(object):
         assert "resource-edit" in response.forms
         assert "You must add at least one data resource" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_complete_package_with_one_resource(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -126,7 +119,6 @@ class TestPackageNew(object):
         assert pkg.resources[0].url == u"http://example.com/resource"
         assert pkg.state == "active"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_complete_package_with_two_resources(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -146,7 +138,6 @@ class TestPackageNew(object):
         assert pkg.resources[1].url == u"http://example.com/resource1"
         assert pkg.state == "active"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_previous_button_works(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -158,7 +149,6 @@ class TestPackageNew(object):
         response = submit_and_follow(app, form, env, "save", "go-dataset")
         assert "dataset-edit" in response.forms
 
-    @pytest.mark.usefixtures("clean_db")
     def test_previous_button_populates_form(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -172,7 +162,6 @@ class TestPackageNew(object):
         assert "title" in form.fields
         assert form["name"].value == u"previous-button-populates-form"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_previous_next_maintains_draft_state(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
@@ -188,7 +177,6 @@ class TestPackageNew(object):
         pkg = model.Package.by_name(u"previous-next-maintains-draft")
         assert pkg.state == "draft"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_dataset_edit_org_dropdown_visible_to_normal_user_with_orgs_available(
         self, app
     ):
@@ -232,7 +220,6 @@ class TestPackageNew(object):
         owner_org_options = [value for (value, _) in form["owner_org"].options]
         assert org["id"] in owner_org_options
 
-    @pytest.mark.usefixtures("clean_db")
     def test_dataset_edit_org_dropdown_normal_user_can_remove_org(self, app):
         """
         A normal user (non-sysadmin) can remove an organization from a dataset
@@ -274,7 +261,6 @@ class TestPackageNew(object):
         assert post_edit_pkg.owner_org is None
         assert post_edit_pkg.owner_org != org["id"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_dataset_edit_org_dropdown_not_visible_to_normal_user_with_no_orgs_available(
         self, app
     ):
@@ -316,7 +302,6 @@ class TestPackageNew(object):
         # The organization id is in the response in a value attribute
         assert 'value="{0}"'.format(org["id"]) not in pkg_edit_response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_dataset_edit_org_dropdown_visible_to_sysadmin_with_no_orgs_available(
         self, app
     ):
@@ -359,7 +344,6 @@ class TestPackageNew(object):
         # The organization id is in the response in a value attribute
         assert 'value="{0}"'.format(org["id"]) in pkg_edit_response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_unauthed_user_creating_dataset(self, app):
 
         # provide REMOTE_ADDR to idenfity as remote user, see
@@ -371,8 +355,8 @@ class TestPackageNew(object):
         )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestPackageEdit(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_admin_can_edit(self, app):
         user = factories.User()
         organization = factories.Organization(
@@ -390,7 +374,6 @@ class TestPackageEdit(object):
         result = helpers.call_action("package_show", id=dataset["id"])
         assert u"edited description" == result["notes"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_editor_can_edit(self, app):
         user = factories.User()
         organization = factories.Organization(
@@ -408,7 +391,6 @@ class TestPackageEdit(object):
         result = helpers.call_action("package_show", id=dataset["id"])
         assert u"edited description" == result["notes"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_member_cannot_edit(self, app):
         user = factories.User()
         organization = factories.Organization(
@@ -422,7 +404,6 @@ class TestPackageEdit(object):
             status=403,
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_not_in_organization_cannot_edit(self, app):
         user = factories.User()
         organization = factories.Organization()
@@ -442,7 +423,6 @@ class TestPackageEdit(object):
             status=403,
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anonymous_user_cannot_edit(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
@@ -456,7 +436,6 @@ class TestPackageEdit(object):
             status=403,
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_validation_errors_for_dataset_name_appear(self, app):
         """fill out a bad dataset set name and make sure errors appear"""
         user = factories.User()
@@ -478,7 +457,6 @@ class TestPackageEdit(object):
             "characters and these symbols: -_" in response.body
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_edit_a_dataset_that_does_not_exist_404s(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -490,15 +468,14 @@ class TestPackageEdit(object):
         assert 404 == response.status_int
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestPackageRead(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_read(self, app):
         dataset = factories.Dataset()
         response = app.get(url_for("dataset.read", id=dataset["name"]))
         response.mustcontain("Test Dataset")
         response.mustcontain("Just another test dataset")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_members_can_read_private_datasets(self, app):
         members = {
             "member": factories.User(),
@@ -524,7 +501,6 @@ class TestPackageRead(object):
             assert "Test Dataset" in response.body
             assert "Just another test dataset" in response.body
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anonymous_users_cannot_read_private_datasets(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
@@ -533,7 +509,6 @@ class TestPackageRead(object):
         )
         assert 404 == response.status_int
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_not_in_organization_cannot_read_private_datasets(self, app):
         user = factories.User()
         organization = factories.Organization()
@@ -545,7 +520,6 @@ class TestPackageRead(object):
         )
         assert 404 == response.status_int
 
-    @pytest.mark.usefixtures("clean_db")
     def test_read_rdf(self, app):
         """ The RDF outputs now live in ckanext-dcat"""
         dataset1 = factories.Dataset()
@@ -553,7 +527,6 @@ class TestPackageRead(object):
         offset = url_for("dataset.read", id=dataset1["name"]) + ".rdf"
         app.get(offset, status=404)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_read_n3(self, app):
         """ The RDF outputs now live in ckanext-dcat"""
         dataset1 = factories.Dataset()
@@ -561,7 +534,6 @@ class TestPackageRead(object):
         offset = url_for("dataset.read", id=dataset1["name"]) + ".n3"
         app.get(offset, status=404)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_read_dataset_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Original title")
         activity = (
@@ -582,7 +554,6 @@ class TestPackageRead(object):
         )
         response.mustcontain("Original title")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_read_dataset_as_it_used_to_be_but_is_unmigrated(self, app):
         # Renders the dataset using the activity detail, when that Activity was
         # created with an earlier version of CKAN, and it has not been migrated
@@ -642,8 +613,8 @@ class TestPackageRead(object):
         )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestPackageDelete(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_owner_delete(self, app):
         user = factories.User()
         owner_org = factories.Organization(
@@ -661,7 +632,6 @@ class TestPackageDelete(object):
         deleted = helpers.call_action("package_show", id=dataset["id"])
         assert "deleted" == deleted["state"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_on_non_existing_dataset(self, app):
         response = app.post(
             url_for("dataset.delete", id="schrodingersdatset"),
@@ -669,7 +639,6 @@ class TestPackageDelete(object):
         )
         assert 404 == response.status_int
 
-    @pytest.mark.usefixtures("clean_db")
     def test_sysadmin_can_delete_any_dataset(self, app):
         owner_org = factories.Organization()
         dataset = factories.Dataset(owner_org=owner_org["id"])
@@ -686,7 +655,6 @@ class TestPackageDelete(object):
         deleted = helpers.call_action("package_show", id=dataset["id"])
         assert "deleted" == deleted["state"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anon_user_cannot_delete_owned_dataset(self, app):
         user = factories.User()
         owner_org = factories.Organization(
@@ -702,7 +670,6 @@ class TestPackageDelete(object):
         deleted = helpers.call_action("package_show", id=dataset["id"])
         assert "active" == deleted["state"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_logged_in_user_cannot_delete_owned_dataset(self, app):
         owner = factories.User()
         owner_org = factories.Organization(
@@ -720,7 +687,6 @@ class TestPackageDelete(object):
         assert 403 == response.status_int
         response.mustcontain("Unauthorized to delete package")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_confirm_cancel_delete(self, app):
         """Test confirmation of deleting datasets
 
@@ -746,8 +712,8 @@ class TestPackageDelete(object):
         assert 200 == response.status_int
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestResourceNew(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_manage_dataset_resource_listing_page(self, app):
         user = factories.User()
         organization = factories.Organization(user=user)
@@ -761,7 +727,6 @@ class TestResourceNew(object):
         assert resource["description"] in response
         assert resource["format"] in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_unauth_user_cannot_view_manage_dataset_resource_listing_page(
         self, app
     ):
@@ -777,7 +742,6 @@ class TestResourceNew(object):
         assert resource["description"] in response
         assert resource["format"] in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_404_on_manage_dataset_resource_listing_page_that_does_not_exist(
         self, app
     ):
@@ -790,7 +754,6 @@ class TestResourceNew(object):
         )
         assert 404 == response.status_int
 
-    @pytest.mark.usefixtures("clean_db")
     def test_add_new_resource_with_link_and_download(self, app):
         user = factories.User()
         dataset = factories.Dataset()
@@ -817,7 +780,6 @@ class TestResourceNew(object):
         )
         assert 302 == response.status_int
 
-    @pytest.mark.usefixtures("clean_db")
     def test_editor_can_add_new_resource(self, app):
         user = factories.User()
         organization = factories.Organization(
@@ -841,7 +803,6 @@ class TestResourceNew(object):
         assert 1 == len(result["resources"])
         assert u"test resource" == result["resources"][0]["name"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_admin_can_add_new_resource(self, app):
         user = factories.User()
         organization = factories.Organization(
@@ -865,7 +826,6 @@ class TestResourceNew(object):
         assert 1 == len(result["resources"])
         assert u"test resource" == result["resources"][0]["name"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_member_cannot_add_new_resource(self, app):
         user = factories.User()
         organization = factories.Organization(
@@ -887,7 +847,6 @@ class TestResourceNew(object):
             status=403,
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_non_organization_users_cannot_add_new_resource(self, app):
         """on an owned dataset"""
         user = factories.User()
@@ -908,7 +867,6 @@ class TestResourceNew(object):
             status=403,
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anonymous_users_cannot_add_new_resource(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
@@ -923,7 +881,6 @@ class TestResourceNew(object):
             status=403,
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anonymous_users_cannot_edit_resource(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
@@ -950,9 +907,9 @@ class TestResourceNew(object):
             )
 
 
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceView(object):
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_create(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -975,8 +932,6 @@ class TestResourceView(object):
         ).follow(extra_environ=env)
         response.mustcontain("Test Image View")
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_edit(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -1000,8 +955,6 @@ class TestResourceView(object):
         ).follow(extra_environ=env)
         response.mustcontain("Updated RV Title")
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_delete(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -1025,8 +978,6 @@ class TestResourceView(object):
         ).follow(extra_environ=env)
         response.mustcontain("This resource has no views")
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_existent_resource_view_page_returns_ok_code(self, app):
         resource_view = factories.ResourceView()
 
@@ -1039,8 +990,6 @@ class TestResourceView(object):
 
         app.get(url, status=200)
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_inexistent_resource_view_page_returns_not_found_code(self, app):
         resource_view = factories.ResourceView()
 
@@ -1053,8 +1002,6 @@ class TestResourceView(object):
 
         app.get(url, status=404)
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_description_is_rendered_as_markdown(self, app):
         resource_view = factories.ResourceView(description="Some **Markdown**")
         url = url_for(
@@ -1067,8 +1014,8 @@ class TestResourceView(object):
         response.mustcontain("Some <strong>Markdown</strong>")
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestResourceRead(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_existing_resource_with_not_associated_dataset(self, app):
 
         dataset = factories.Dataset()
@@ -1080,7 +1027,6 @@ class TestResourceRead(object):
 
         app.get(url, status=404)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_read_logged_in_user(self, app):
         """
         A logged-in user can view resource page.
@@ -1096,7 +1042,6 @@ class TestResourceRead(object):
 
         app.get(url, status=200, extra_environ=env)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_read_anon_user(self, app):
         """
         An anon user can view resource page.
@@ -1110,7 +1055,6 @@ class TestResourceRead(object):
 
         app.get(url, status=200)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_read_sysadmin(self, app):
         """
         A sysadmin can view resource page.
@@ -1126,7 +1070,6 @@ class TestResourceRead(object):
 
         app.get(url, status=200, extra_environ=env)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_not_in_organization_cannot_read_private_dataset(self, app):
         user = factories.User()
         env = {"REMOTE_USER": user["name"].encode("ascii")}
@@ -1140,7 +1083,6 @@ class TestResourceRead(object):
 
         response = app.get(url, status=404, extra_environ=env)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_members_can_read_resources_in_private_datasets(
         self, app
     ):
@@ -1173,7 +1115,6 @@ class TestResourceRead(object):
             )
             assert "Just another test resource" in response.body
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anonymous_users_cannot_read_private_datasets(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
@@ -1183,8 +1124,8 @@ class TestResourceRead(object):
         assert 404 == response.status_int
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestResourceDelete(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_dataset_owners_can_delete_resources(self, app):
         user = factories.User()
         owner_org = factories.Organization(
@@ -1208,7 +1149,6 @@ class TestResourceDelete(object):
         with pytest.raises(p.toolkit.ObjectNotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
-    @pytest.mark.usefixtures("clean_db")
     def test_deleting_non_existing_resource_404s(self, app):
         user = factories.User()
         owner_org = factories.Organization(
@@ -1227,7 +1167,6 @@ class TestResourceDelete(object):
         )
         assert 404 == response.status_int
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anon_users_cannot_delete_owned_resources(self, app):
         user = factories.User()
         owner_org = factories.Organization(
@@ -1246,7 +1185,6 @@ class TestResourceDelete(object):
         )
         response.mustcontain("Unauthorized to delete package")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_logged_in_users_cannot_delete_resources_they_do_not_own(
         self, app
     ):
@@ -1273,7 +1211,6 @@ class TestResourceDelete(object):
         assert 403 == response.status_int
         response.mustcontain("Unauthorized to delete package")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_sysadmins_can_delete_any_resource(self, app):
         owner_org = factories.Organization()
         dataset = factories.Dataset(owner_org=owner_org["id"])
@@ -1296,7 +1233,6 @@ class TestResourceDelete(object):
         with pytest.raises(p.toolkit.ObjectNotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
-    @pytest.mark.usefixtures("clean_db")
     def test_confirm_and_cancel_deleting_a_resource(self, app):
         """Test confirmation of deleting resources
 
@@ -1328,8 +1264,8 @@ class TestResourceDelete(object):
         assert 200 == response.status_int
 
 
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestSearch(object):
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_basic(self, app):
         dataset1 = factories.Dataset()
 
@@ -1338,7 +1274,6 @@ class TestSearch(object):
 
         assert dataset1["name"] in page.body.decode("utf8")
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_language_toggle(self, app):
         dataset1 = factories.Dataset()
 
@@ -1349,7 +1284,6 @@ class TestSearch(object):
         assert dataset1["name"] in page.body.decode("utf8")
         assert ("q=" + dataset1["name"]) in page.body.decode("utf8")
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_sort_by_blank(self, app):
         factories.Dataset()
 
@@ -1357,7 +1291,6 @@ class TestSearch(object):
         offset = url_for("dataset.search") + "?sort"
         app.get(offset)
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_sort_by_bad(self, app):
         factories.Dataset()
 
@@ -1376,7 +1309,6 @@ class TestSearch(object):
                 "in ckan/lib/search/query.py:run"
             )
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_solr_syntax_error(self, app):
         factories.Dataset()
 
@@ -1392,7 +1324,6 @@ class TestSearch(object):
         err_msg = "".join([n.text for n in err_msg])
         assert "error while searching" in err_msg
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_plugin_hooks(self, app):
         with p.use_plugin("test_package_controller_plugin") as plugin:
 
@@ -1403,7 +1334,6 @@ class TestSearch(object):
             assert plugin.calls["before_search"] == 1, plugin.calls
             assert plugin.calls["after_search"] == 1, plugin.calls
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_page_request(self, app):
         """Requesting package search page returns list of datasets."""
 
@@ -1427,7 +1357,6 @@ class TestSearch(object):
         assert "Dataset Two" in ds_titles
         assert "Dataset Three" in ds_titles
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_page_results(self, app):
         """Searching for datasets returns expected results."""
 
@@ -1453,7 +1382,6 @@ class TestSearch(object):
         assert len(ds_titles) == 1
         assert "Dataset One" in ds_titles
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_page_no_results(self, app):
         """Search with non-returning phrase returns no results."""
 
@@ -1478,7 +1406,6 @@ class TestSearch(object):
 
         assert len(ds_titles) == 0
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_page_results_tag(self, app):
         """Searching with a tag returns expected results."""
 
@@ -1505,7 +1432,6 @@ class TestSearch(object):
         assert len(ds_titles) == 1
         assert "Dataset One" in ds_titles
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_page_results_tags(self, app):
         """Searching with a tag returns expected results with multiple tags"""
 
@@ -1530,7 +1456,6 @@ class TestSearch(object):
         ds_titles = search_response_html.select(".filtered")
         assert len(ds_titles) == 3
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_search_page_results_private(self, app):
         """Private datasets don't show up in dataset search results."""
         org = factories.Organization()
@@ -1558,7 +1483,6 @@ class TestSearch(object):
         assert "Dataset Two" in ds_titles
         assert "Dataset Three" in ds_titles
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_user_not_in_organization_cannot_search_private_datasets(
         self, app
     ):
@@ -1576,7 +1500,6 @@ class TestSearch(object):
         )
         assert [n.string for n in ds_titles] == []
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_user_in_organization_can_search_private_datasets(self, app):
 
         user = factories.User()
@@ -1598,7 +1521,6 @@ class TestSearch(object):
         )
         assert [n.string for n in ds_titles] == ["A private dataset"]
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_user_in_different_organization_cannot_search_private_datasets(
         self, app
     ):
@@ -1620,7 +1542,6 @@ class TestSearch(object):
         )
         assert [n.string for n in ds_titles] == []
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     @pytest.mark.ckan_config("ckan.search.default_include_private", "false")
     def test_search_default_include_private_false(self, app):
         user = factories.User()
@@ -1638,7 +1559,6 @@ class TestSearch(object):
         )
         assert [n.string for n in ds_titles] == []
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_sysadmin_can_search_private_datasets(self, app):
         user = factories.Sysadmin()
         organization = factories.Organization()
@@ -1658,8 +1578,8 @@ class TestSearch(object):
         assert [n.string for n in ds_titles] == ["A private dataset"]
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestPackageFollow(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_package_follow(self, app):
 
         user = factories.User()
@@ -1671,7 +1591,6 @@ class TestPackageFollow(object):
         response = response.follow()
         assert "You are now following {0}".format(package["title"]) in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_follow_not_exist(self, app):
         """Pass an id for a package that doesn't exist"""
 
@@ -1683,7 +1602,6 @@ class TestPackageFollow(object):
         response = response.follow(status=404)
         assert "Dataset not found" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_unfollow(self, app):
 
         user_one = factories.User()
@@ -1704,7 +1622,6 @@ class TestPackageFollow(object):
             in unfollow_response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_unfollow_not_following(self, app):
         """Unfollow a package not currently following"""
 
@@ -1724,7 +1641,6 @@ class TestPackageFollow(object):
             in unfollow_response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_unfollow_not_exist(self, app):
         """Unfollow a package that doesn't exist."""
 
@@ -1738,7 +1654,6 @@ class TestPackageFollow(object):
         unfollow_response = unfollow_response.follow(status=404)
         assert "Dataset not found" in unfollow_response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_follower_list(self, app):
         """Following users appear on followers list page."""
 
@@ -1758,8 +1673,8 @@ class TestPackageFollow(object):
         assert user_one["display_name"] in followers_response
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestDatasetRead(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_dataset_read(self, app):
 
         dataset = factories.Dataset()
@@ -1768,7 +1683,6 @@ class TestDatasetRead(object):
         response = app.get(url)
         assert dataset["title"] in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_redirect_when_given_id(self, app):
         dataset = factories.Dataset()
         response = app.get(
@@ -1780,7 +1694,6 @@ class TestDatasetRead(object):
         assert redirected_response.request.path == expected_url
         assert redirected_response.request.query_string == ""
 
-    @pytest.mark.usefixtures("clean_db")
     def test_redirect_also_with_activity_parameter(self, app):
         dataset = factories.Dataset()
         activity = activity_model.package_activity_list(
@@ -1802,7 +1715,6 @@ class TestDatasetRead(object):
             == "activity_id={}".format(activity.id)
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         dataset = factories.Dataset(id="abc", name="abc")
         app.get(
@@ -1810,8 +1722,8 @@ class TestDatasetRead(object):
         )  # ie no redirect
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestActivity(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
         user = factories.User()
@@ -1822,7 +1734,6 @@ class TestActivity(object):
         assert "Mr. Test User" in response
         assert "created the dataset" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_dataset(self, app):
 
         user = factories.User()
@@ -1843,7 +1754,6 @@ class TestActivity(object):
         model.Session.query(model.Activity).delete()
         model.Session.flush()
 
-    @pytest.mark.usefixtures("clean_db")
     def test_change_dataset(self, app):
 
         user = factories.User()
@@ -1867,7 +1777,6 @@ class TestActivity(object):
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_tag_directly(self, app):
 
         user = factories.User()
@@ -1895,7 +1804,6 @@ class TestActivity(object):
 
         assert len(activities) == 1
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_tag(self, app):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -1922,7 +1830,6 @@ class TestActivity(object):
 
         assert len(activities) == 1
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_extra(self, app):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -1949,7 +1856,6 @@ class TestActivity(object):
 
         assert len(activities) == 1
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_resource(self, app):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -1978,7 +1884,6 @@ class TestActivity(object):
 
         assert len(activities) == 1
 
-    @pytest.mark.usefixtures("clean_db")
     def test_update_resource(self, app):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -2010,7 +1915,6 @@ class TestActivity(object):
 
         assert len(activities) == 1
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_dataset(self, app):
         user = factories.User()
         org = factories.Organization()
@@ -2031,7 +1935,6 @@ class TestActivity(object):
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_admin_can_see_old_versions(self, app):
 
         user = factories.User()
@@ -2042,7 +1945,6 @@ class TestActivity(object):
         response = app.get(url, extra_environ=env)
         assert "View this version" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_public_cant_see_old_versions(self, app):
 
         user = factories.User()
@@ -2052,7 +1954,6 @@ class TestActivity(object):
         response = app.get(url)
         assert "View this version" not in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_admin_can_see_changes(self, app):
 
         user = factories.User()
@@ -2066,7 +1967,6 @@ class TestActivity(object):
         assert "Changes" in response
         changes_page = response.click("Changes", extra_environ=env)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_public_cant_see_changes(self, app):
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
@@ -2076,7 +1976,6 @@ class TestActivity(object):
         response = app.get(url)
         assert "Changes" not in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_legacy_changed_package_activity(self, app):
         """Render an activity that was created with an earlier version of CKAN,
         and it has not been migrated (with migrate_package_activity.py)
@@ -2146,7 +2045,6 @@ class TestActivity(object):
             + [("changed datastore", package_id_exists)]
         ),
     )
-    @pytest.mark.usefixtures("clean_db")
     def test_custom_activity(self, app):
         """Render a custom activity
         """
@@ -2185,8 +2083,8 @@ class TestActivity(object):
         assert "changed datastore" in response
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestChanges(object):  # i.e. the diff
-    @pytest.mark.usefixtures("clean_db")
     def test_simple(self, app):
         user = factories.User()
         dataset = factories.Dataset(title="First title", user=user)

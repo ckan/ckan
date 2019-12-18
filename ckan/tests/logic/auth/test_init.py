@@ -91,67 +91,62 @@ def test_get_group_object_id_none():
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_get_package_object_with_id():
+class TestInit(object):
+    def test_get_package_object_with_id(self):
 
-    user_name = helpers.call_action("get_site_user")["name"]
-    dataset = helpers.call_action(
-        "package_create", context={"user": user_name}, name="test_dataset"
-    )
-    context = {"model": core_model}
-    obj = logic_auth.get_package_object(context, {"id": dataset["id"]})
+        user_name = helpers.call_action("get_site_user")["name"]
+        dataset = helpers.call_action(
+            "package_create", context={"user": user_name}, name="test_dataset"
+        )
+        context = {"model": core_model}
+        obj = logic_auth.get_package_object(context, {"id": dataset["id"]})
 
-    assert obj.id == dataset["id"]
-    assert context["package"] == obj
+        assert obj.id == dataset["id"]
+        assert context["package"] == obj
 
+    def test_get_resource_object_with_id(self):
 
-@pytest.mark.usefixtures("clean_db")
-def test_get_resource_object_with_id():
+        user_name = helpers.call_action("get_site_user")["name"]
+        dataset = helpers.call_action(
+            "package_create", context={"user": user_name}, name="test_dataset"
+        )
+        resource = helpers.call_action(
+            "resource_create",
+            context={"user": user_name},
+            package_id=dataset["id"],
+            url="http://foo",
+        )
 
-    user_name = helpers.call_action("get_site_user")["name"]
-    dataset = helpers.call_action(
-        "package_create", context={"user": user_name}, name="test_dataset"
-    )
-    resource = helpers.call_action(
-        "resource_create",
-        context={"user": user_name},
-        package_id=dataset["id"],
-        url="http://foo",
-    )
+        context = {"model": core_model}
+        obj = logic_auth.get_resource_object(context, {"id": resource["id"]})
 
-    context = {"model": core_model}
-    obj = logic_auth.get_resource_object(context, {"id": resource["id"]})
+        assert obj.id == resource["id"]
+        assert context["resource"] == obj
 
-    assert obj.id == resource["id"]
-    assert context["resource"] == obj
+    def test_get_user_object_with_id(self):
 
+        user_name = helpers.call_action("get_site_user")["name"]
+        user = helpers.call_action(
+            "user_create",
+            context={"user": user_name},
+            name="test_user",
+            email="a@a.com",
+            password="TestPassword1",
+        )
+        context = {"model": core_model}
+        obj = logic_auth.get_user_object(context, {"id": user["id"]})
 
-@pytest.mark.usefixtures("clean_db")
-def test_get_user_object_with_id():
+        assert obj.id == user["id"]
+        assert context["user_obj"] == obj
 
-    user_name = helpers.call_action("get_site_user")["name"]
-    user = helpers.call_action(
-        "user_create",
-        context={"user": user_name},
-        name="test_user",
-        email="a@a.com",
-        password="TestPassword1",
-    )
-    context = {"model": core_model}
-    obj = logic_auth.get_user_object(context, {"id": user["id"]})
+    def test_get_group_object_with_id(self):
 
-    assert obj.id == user["id"]
-    assert context["user_obj"] == obj
+        user_name = helpers.call_action("get_site_user")["name"]
+        group = helpers.call_action(
+            "group_create", context={"user": user_name}, name="test_group"
+        )
+        context = {"model": core_model}
+        obj = logic_auth.get_group_object(context, {"id": group["id"]})
 
-
-@pytest.mark.usefixtures("clean_db")
-def test_get_group_object_with_id():
-
-    user_name = helpers.call_action("get_site_user")["name"]
-    group = helpers.call_action(
-        "group_create", context={"user": user_name}, name="test_group"
-    )
-    context = {"model": core_model}
-    obj = logic_auth.get_group_object(context, {"id": group["id"]})
-
-    assert obj.id == group["id"]
-    assert context["group"] == obj
+        assert obj.id == group["id"]
+        assert context["group"] == obj

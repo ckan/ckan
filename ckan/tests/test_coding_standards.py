@@ -218,7 +218,7 @@ def find_unprefixed_string_literals(filename):
                 for lineno, line in renumerate(lines[:lineno]):
                     try:
                         i = line.rindex(quotes)
-                        if (i > 1) and (line[i - 2: i].lower() == u"ur"):
+                        if (i > 1) and (line[i - 2 : i].lower() == u"ur"):
                             col_offset = i - 2
                         elif (i > 0) and (line[i - 1].lower() in u"rbu"):
                             col_offset = i - 1
@@ -227,7 +227,7 @@ def find_unprefixed_string_literals(filename):
                         break
                     except ValueError:
                         continue
-            leading = lines[lineno][col_offset - 1: col_offset + 1]
+            leading = lines[lineno][col_offset - 1 : col_offset + 1]
             if leading[:-1] == u"[":  # data['id'] is unambiguous, ignore these
                 continue
             if leading[-1:] not in u"ub":  # Don't allow capital U and B either

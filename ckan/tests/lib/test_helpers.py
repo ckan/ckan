@@ -394,7 +394,7 @@ class TestHelpersRenderMarkdown(object):
 
     def test_tag_names_do_not_match_commas(self):
         """Asserts commas don't get matched as part of a tag name"""
-        data = 'tag:Test,tag foobar'
+        data = "tag:Test,tag foobar"
         output = '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>'
         assert h.render_markdown(data) == output
 

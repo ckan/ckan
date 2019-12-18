@@ -9,34 +9,31 @@ from ckan.lib.base import render as pylons_render
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_flash_plugin")
-def test_flash_populated_by_flask_redirect_to_flask(app):
-    u"""
-    Flash store is populated by Flask view is accessible by another Flask
-    view.
-    """
-    res = app.get(u"/flask_add_flash_message_redirect_to_flask").follow()
+class TestWithFlashPlugin:
+    def test_flash_populated_by_flask_redirect_to_flask(self, app):
+        u"""
+        Flash store is populated by Flask view is accessible by another Flask
+        view.
+        """
+        res = app.get(u"/flask_add_flash_message_redirect_to_flask").follow()
 
-    assert u"This is a success message populated by Flask" in res.body
+        assert u"This is a success message populated by Flask" in res.body
 
+    def test_flash_populated_in_pylons_action_redirect_to_flask(self, app):
+        u"""
+        Flash store is populated by pylons action is accessible by Flask view.
+        """
+        res = app.get(u"/pylons_add_flash_message_redirect_view").follow()
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_flash_plugin")
-def test_flash_populated_in_pylons_action_redirect_to_flask(app):
-    u"""
-    Flash store is populated by pylons action is accessible by Flask view.
-    """
-    res = app.get(u"/pylons_add_flash_message_redirect_view").follow()
+        assert u"This is a success message populated by Pylons" in res.body
 
-    assert u"This is a success message populated by Pylons" in res.body
+    def test_flash_populated_in_flask_view_redirect_to_pylons(self, app):
+        u"""
+        Flash store is populated by flask view is accessible by pylons action.
+        """
+        res = app.get(u"/flask_add_flash_message_redirect_pylons").follow()
 
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_flash_plugin")
-def test_flash_populated_in_flask_view_redirect_to_pylons(app):
-    u"""
-    Flash store is populated by flask view is accessible by pylons action.
-    """
-    res = app.get(u"/flask_add_flash_message_redirect_pylons").follow()
-
-    assert u"This is a success message populated by Flask" in res.body
+        assert u"This is a success message populated by Flask" in res.body
 
 
 class FlashMessagePlugin(p.SingletonPlugin):

@@ -65,8 +65,8 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert res_dict["result"]["count"] == 1, res_dict["result"]["count"]
 
     def test_06_uri_q_tags(self):
-        query = escape('annakarenina tags:russian tags:tolstoy')
-        offset = self.base_url + '?q=%s' % query
+        query = escape("annakarenina tags:russian tags:tolstoy")
+        offset = self.base_url + "?q=%s" % query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         self.assert_results(res_dict, "annakarenina")

@@ -326,6 +326,7 @@ class TestGroupList(object):
 
     def _create_bulk_groups(self, name, count):
         from ckan import model
+
         groups = [
             model.Group(name="{}_{}".format(name, i)) for i in range(count)
         ]
@@ -1211,7 +1212,7 @@ class TestPackageAutocomplete(object):
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_package_autocomplete_does_return_private_datasets_from_my_org(
-        self
+        self,
     ):
         user = factories.User()
         org = factories.Organization(
@@ -1303,6 +1304,7 @@ class TestPackageSearch(object):
 
     def _create_bulk_datasets(self, name, count):
         from ckan import model
+
         pkgs = [
             model.Package(name="{}_{}".format(name, i)) for i in range(count)
         ]
@@ -1480,7 +1482,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_package_search_with_include_drafts_option_excludes_drafts_for_anon_user(
-        self
+        self,
     ):
         """
         An anon user can't user include_drafts to get draft datasets.
@@ -1502,7 +1504,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_package_search_with_include_drafts_option_includes_drafts_for_sysadmin(
-        self
+        self,
     ):
         """
         A sysadmin can use the include_drafts option to get draft datasets for
@@ -1530,7 +1532,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_package_search_with_include_drafts_false_option_doesnot_include_drafts_for_sysadmin(
-        self
+        self,
     ):
         """
         A sysadmin with include_drafts option set to `False` will not get
@@ -1558,7 +1560,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_package_search_with_include_drafts_option_includes_drafts_for_user(
-        self
+        self,
     ):
         """
         The include_drafts option will include draft datasets for the
@@ -1598,7 +1600,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_package_search_with_fq_for_create_user_id_will_include_datasets_for_other_users(
-        self
+        self,
     ):
         """
         A normal user can use the fq creator_user_id to get active datasets
@@ -1639,7 +1641,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_package_search_with_fq_for_create_user_id_will_not_include_drafts_for_other_users(
-        self
+        self,
     ):
         """
         A normal user can't use fq creator_user_id and drafts to get draft
@@ -1671,7 +1673,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_package_search_with_fq_for_creator_user_id_and_drafts_and_include_drafts_option_will_not_include_drafts_for_other_user(
-        self
+        self,
     ):
         """
         A normal user can't use fq creator_user_id and drafts and the
@@ -1703,7 +1705,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_package_search_with_fq_for_creator_user_id_and_include_drafts_option_will_not_include_drafts_for_other_user(
-        self
+        self,
     ):
         """
         A normal user can't use fq creator_user_id and the include_drafts
@@ -1740,7 +1742,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_package_search_with_fq_for_create_user_id_will_include_drafts_for_other_users_for_sysadmin(
-        self
+        self,
     ):
         """
         Sysadmins can use fq to get draft datasets for another user.
@@ -1797,7 +1799,7 @@ class TestPackageSearch(object):
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_package_search_private_with_include_private_wont_show_other_orgs_private(
-        self
+        self,
     ):
         user = factories.User()
         user2 = factories.User()

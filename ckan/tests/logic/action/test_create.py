@@ -723,7 +723,7 @@ class TestMemberCreate(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_member_creation_raises_validation_error_if_username_missing(
-        self
+        self,
     ):
 
         with pytest.raises(logic.ValidationError):
@@ -733,7 +733,7 @@ class TestMemberCreate(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_member_creation_raises_validation_error_if_role_missing(
-        self
+        self,
     ):
 
         with pytest.raises(logic.ValidationError):
@@ -753,7 +753,7 @@ class TestMemberCreate(object):
 
     @pytest.mark.usefixtures("clean_db")
     def test_org_member_creation_raises_validation_error_if_username_missing(
-        self
+        self,
     ):
 
         with pytest.raises(logic.ValidationError):

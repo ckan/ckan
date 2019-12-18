@@ -175,7 +175,7 @@ def test_cors_config_origin_allow_all_false_with_whitelisted_origin(app):
 )
 @pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
 def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins(
-    app
+    app,
 ):
     """
     With origin_allow_all set to false, with an origin in the request
@@ -208,7 +208,7 @@ def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins(
 )
 @pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
 def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin(
-    app
+    app,
 ):
     """
     With origin_allow_all set to false, with an origin in the request
@@ -311,7 +311,7 @@ def test_cors_config_origin_allow_all_true_with_origin_2(app):
 @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_false_with_origin_without_whitelist_2(
-    app
+    app,
 ):
     """
     With origin_allow_all set to false, with an origin in the request
@@ -368,7 +368,7 @@ def test_cors_config_origin_allow_all_false_with_whitelisted_origin_2(app):
 @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins_2(
-    app
+    app,
 ):
     """
     With origin_allow_all set to false, with an origin in the request
@@ -403,7 +403,7 @@ def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins_2(
 @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin_2(
-    app
+    app,
 ):
     """
     With origin_allow_all set to false, with an origin in the request

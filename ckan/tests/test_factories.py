@@ -37,6 +37,8 @@ def test_resource_view_factory():
     resource_view1 = factories.ResourceView()
     resource_view2 = factories.ResourceView()
     assert resource_view1[u"id"] != resource_view2[u"id"]
+
+
 # END-CONFIG-OVERRIDE
 
 

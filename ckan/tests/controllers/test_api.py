@@ -31,8 +31,8 @@ def mock_open_if_open_fails(*args, **kwargs):
         return fake_open(*args, **kwargs)
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestApiController(object):
-    @pytest.mark.usefixtures("clean_db")
     @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan_uploader, "os", fake_os)
@@ -63,7 +63,6 @@ class TestApiController(object):
         assert "upload" == result["url_type"]
         assert len(upload_content) == result["size"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_unicode_in_error_message_works_ok(self, app):
         # Use tag_delete to echo back some unicode
 
@@ -75,7 +74,7 @@ class TestApiController(object):
         # you do str(exception) )
         assert "Delta symbol: \\u0394" in response.body
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
+    @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_name(self, app):
         dataset = factories.Dataset(name="rivers")
         url = url_for(
@@ -103,7 +102,7 @@ class TestApiController(object):
             == "application/json;charset=utf-8"
         )
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
+    @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_title(self, app):
         dataset = factories.Dataset(name="test_ri", title="Rivers")
         url = url_for(
@@ -131,7 +130,6 @@ class TestApiController(object):
             == "application/json;charset=utf-8"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_tag_autocomplete(self, app):
         factories.Dataset(tags=[{"name": "rivers"}])
         url = url_for(controller="api", action="tag_autocomplete", ver="/2")
@@ -146,7 +144,6 @@ class TestApiController(object):
             == "application/json;charset=utf-8"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_autocomplete_by_name(self, app):
         org = factories.Group(name="rivers", title="Bridges")
         url = url_for(controller="api", action="group_autocomplete", ver="/2")
@@ -163,7 +160,6 @@ class TestApiController(object):
             == "application/json;charset=utf-8"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_autocomplete_by_title(self, app):
         org = factories.Group(name="frogs", title="Bugs")
         url = url_for(controller="api", action="group_autocomplete", ver="/2")
@@ -174,7 +170,6 @@ class TestApiController(object):
         assert len(results) == 1
         assert results[0]["name"] == "frogs"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_autocomplete_by_name(self, app):
         org = factories.Organization(name="simple-dummy-org")
         url = url_for(
@@ -193,7 +188,6 @@ class TestApiController(object):
             == "application/json;charset=utf-8"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_autocomplete_by_title(self, app):
         org = factories.Organization(title="Simple dummy org")
         url = url_for(
@@ -206,7 +200,6 @@ class TestApiController(object):
         assert len(results) == 1
         assert results[0]["title"] == "Simple dummy org"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_config_option_list_access_sysadmin(self, app):
         user = factories.Sysadmin()
         url = url_for(
@@ -223,7 +216,6 @@ class TestApiController(object):
             status=200,
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_config_option_list_access_sysadmin_jsonp(self, app):
         user = factories.Sysadmin()
         url = url_for(
@@ -240,7 +232,6 @@ class TestApiController(object):
             status=403,
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_jsonp_works_on_get_requests(self, app):
 
         dataset1 = factories.Dataset()
@@ -257,14 +248,13 @@ class TestApiController(object):
         assert re.match(r"my_callback\(.*\);", res.body), res
         # Unwrap JSONP callback (we want to look at the data).
         start = len("my_callback") + 1
-        msg = res.body[start: -2]
+        msg = res.body[start:-2]
         res_dict = json.loads(msg)
         assert res_dict["success"]
         assert sorted(res_dict["result"]) == sorted(
             [dataset1["name"], dataset2["name"]]
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_jsonp_returns_javascript_content_type(self, app):
         url = url_for(
             controller="api",
@@ -276,7 +266,6 @@ class TestApiController(object):
         res = app.get(url=url, params={"callback": "my_callback"})
         assert "application/javascript" in res.headers.get("Content-Type")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_jsonp_does_not_work_on_post_requests(self, app):
 
         dataset1 = factories.Dataset()
