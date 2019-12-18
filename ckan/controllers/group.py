@@ -334,6 +334,7 @@ class GroupController(base.BaseController):
                 'q': q,
                 'fq': fq,
                 'include_private': True,
+                'include_drafts': True,
                 'facet.field': facets.keys(),
                 'rows': limit,
                 'sort': sort_by,
