@@ -15,10 +15,8 @@ But some test helper functions just increase the readability of tests so much
 and make writing tests so much easier, that it's worth having them despite the
 potential drawbacks.
 
-Consider using :ref:`fixtures` whenever is possible for setting up initial
-state of a test or creating related objects.
-
-This module is reserved for these very useful functions.
+New in CKAN 2.9: Consider using :ref:`fixtures` whenever possible for setting
+up the initial state of a test or to create helpers objects like client apps.
 
 """
 
@@ -44,6 +42,22 @@ import ckan.logic as logic
 
 def reset_db():
     """Reset CKAN's database.
+
+    Rather than use this function directly, use the ``clean_db`` fixture
+    either for all tests in a class::
+
+        @pytest.mark.usefixtures("clean_db")
+        class TestExample(object):
+
+            def test_example(self):
+
+    or for a single test::
+
+        class TestExample(object):
+
+            @pytest.mark.usefixtures("clean_db")
+            def test_example(self):
+
 
     If a test class uses the database, then it may call this function in its
     ``setup()`` method to make sure that it has a clean database to start with
@@ -167,6 +181,15 @@ class CKANTestApp(webtest.TestApp):
 def _get_test_app():
     """Return a webtest.TestApp for CKAN, with legacy templates disabled.
 
+    Don't use this function directly, use the ``app`` fixture::
+
+        def test_dataset_search(self, app):
+
+            url = h.url_for('dataset.search')
+
+            response = app.get(url)
+
+
     For functional tests that need to request CKAN pages or post to the API.
     Unit tests shouldn't need this.
 
@@ -180,6 +203,20 @@ def _get_test_app():
 
 class FunctionalTestBase(object):
     """A base class for functional test classes to inherit from.
+
+    Deprecated: Use the ``app``, ``clean_db``, ``ckan_config`` and
+    ``with_plugins`` ref:`fixtures` as needed to create functional test
+    classes, eg::
+
+        @pytest.mark.ckan_config('ckan.plugins', 'image_view')
+        @pytest.mark.usefixtures('with_plugins')
+        @pytest.mark.usefixtures('clean_db')
+        class TestDatasetSearch(object):
+
+            def test_dataset_search(self, app):
+
+                url = h.url_for('dataset.search')
+                response = app.get(url)
 
     Allows configuration changes by overriding _apply_config_changes and
     resetting the CKAN config after your test class has run. It creates a
