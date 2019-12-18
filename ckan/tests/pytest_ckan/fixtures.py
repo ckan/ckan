@@ -56,9 +56,8 @@ def ckan_config(request, monkeypatch):
 
     """
     _original = config.copy()
-    for mark in request.node.own_markers:
-        if mark.name == u"ckan_config":
-            monkeypatch.setitem(config, *mark.args)
+    for mark in request.node.iter_markers(u"ckan_config"):
+        monkeypatch.setitem(config, *mark.args)
     yield config
     config.clear()
     config.update(_original)

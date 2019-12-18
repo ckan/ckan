@@ -30,17 +30,16 @@ def _reset_config(app):
     app.post(url=url_for("admin.reset_config"), extra_environ=env)
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestConfig(object):
     """View tests to go along with 'Customizing look and feel' docs."""
 
-    @pytest.mark.usefixtures("clean_db")
     def test_form_renders(self, app):
         """admin-config-form in the response"""
 
         env, response = _get_admin_config_page(app)
         assert "admin-config-form" in response.forms
 
-    @pytest.mark.usefixtures("clean_db")
     def test_site_title(self, app):
         """Configure the site title"""
         # current site title
@@ -62,7 +61,6 @@ class TestConfig(object):
         reset_index_response = app.get("/")
         assert "Welcome - CKAN" in reset_index_response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_main_css_list(self, app):
         """Style list contains pre-configured styles"""
 
@@ -76,7 +74,6 @@ class TestConfig(object):
         for option in style_select_options:
             assert option.string in STYLE_NAMES
 
-    @pytest.mark.usefixtures("clean_db")
     def test_main_css(self, app):
         """Select a colour style"""
 
@@ -107,7 +104,6 @@ class TestConfig(object):
             or "main.min.css" in reset_index_response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_tag_line(self, app):
         """Add a tag line (only when no logo)"""
         # current tagline
@@ -139,7 +135,6 @@ class TestConfig(object):
         reset_index_response = app.get("/")
         assert "Special Tagline" not in reset_index_response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_about(self, app):
         """Add some About tag text"""
 
@@ -162,7 +157,6 @@ class TestConfig(object):
         reset_about_response = app.get("/about")
         assert "My special about text" not in reset_about_response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_intro(self, app):
         """Add some Intro tag text"""
 
@@ -185,7 +179,6 @@ class TestConfig(object):
         reset_intro_response = app.get("/")
         assert "My special intro text" not in reset_intro_response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_custom_css(self, app):
         """Add some custom css to the head element"""
         # current tagline
@@ -212,7 +205,6 @@ class TestConfig(object):
         assert len(style_tag) == 0
 
     @pytest.mark.ckan_config("debug", True)
-    @pytest.mark.usefixtures("clean_db")
     def test_homepage_style(self, app):
         """Select a homepage style"""
         # current style
@@ -241,16 +233,15 @@ class TestConfig(object):
         )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestTrashView(object):
     """View tests for permanently deleting datasets with Admin Trash."""
 
-    @pytest.mark.ckan_config("debug", True)
     def test_trash_view_anon_user(self, app):
         """An anon user shouldn't be able to access trash view."""
         trash_url = url_for(controller="admin", action="trash")
         trash_response = app.get(trash_url, status=403)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_trash_view_normal_user(self, app):
         """A normal logged in user shouldn't be able to access trash view."""
         user = factories.User()
@@ -262,7 +253,6 @@ class TestTrashView(object):
             "Need to be system administrator to administer" in trash_response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_trash_view_sysadmin(self, app):
         """A sysadmin should be able to access trash view."""
         user = factories.Sysadmin()
@@ -273,7 +263,6 @@ class TestTrashView(object):
         # On the purge page
         assert "form-purge-packages" in trash_response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_trash_no_datasets(self, app):
         """Getting the trash view with no 'deleted' datasets should list no
         datasets."""
@@ -290,7 +279,6 @@ class TestTrashView(object):
         # no packages available to purge
         assert len(trash_pkg_list) == 0
 
-    @pytest.mark.usefixtures("clean_db")
     def test_trash_with_deleted_datasets(self, app):
         """Getting the trash view with 'deleted' datasets should list the
         datasets."""
@@ -309,7 +297,6 @@ class TestTrashView(object):
         # Two packages in the list to purge
         assert len(trash_pkg_list) == 2
 
-    @pytest.mark.usefixtures("clean_db")
     def test_trash_purge_deleted_datasets(self, app):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
@@ -340,6 +327,7 @@ class TestTrashView(object):
         assert pkgs_after_purge == 1
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestAdminConfigUpdate(object):
     def _update_config_option(self, app):
         sysadmin = factories.Sysadmin()
@@ -353,7 +341,6 @@ class TestAdminConfigUpdate(object):
 
         webtest_submit(form, "save", status=302, extra_environ=env)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_admin_config_update(self, app):
         """Changing a config option using the admin interface appropriately
         updates value returned by config_option_show,

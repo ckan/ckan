@@ -264,7 +264,7 @@ class TestPackageSearchIndex:
         assert "title" in validated_data_dict
 
     def test_index_package_stores_validated_data_dict_without_unvalidated_data_dict(
-        self
+        self,
     ):
         # This is a regression test for #1764
         index = search.index.PackageSearchIndex()
@@ -277,7 +277,7 @@ class TestPackageSearchIndex:
         assert "data_dict" not in validated_data_dict
 
     def test_index_package_stores_unvalidated_data_dict_without_validated_data_dict(
-        self
+        self,
     ):
         # This is a regression test for #2208
         index = search.index.PackageSearchIndex()

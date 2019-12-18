@@ -7,7 +7,6 @@ import pytest
 
 
 class TestMemberLogic(object):
-
     @pytest.fixture(autouse=True)
     def setup_method(self, clean_db):
         create_test_data.CreateTestData.create()

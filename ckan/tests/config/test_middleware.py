@@ -137,31 +137,6 @@ def patched_app(app):
     return app
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_ask_around_flask_core_and_pylons_extension_route(patched_app):
-
-    environ = {u"PATH_INFO": u"/pylons_and_flask", u"REQUEST_METHOD": u"GET"}
-    wsgiref.util.setup_testing_defaults(environ)
-
-    answers = patched_app.app.ask_around(environ)
-    answers = sorted(answers, key=lambda a: a[1])
-
-    assert answers == [
-        (True, u"flask_app", u"core"),
-        (True, u"pylons_app", u"extension"),
-    ]
-
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_flask_core_and_pylons_extension_route_is_served_by_pylons(
-    patched_app
-):
-    res = patched_app.get(u"/pylons_and_flask")
-
-    assert res.environ[u"ckan.app"] == u"pylons_app"
-    assert res.body == u"Hello World, this is served from a Pylons extension"
-
-
 def test_ask_around_pylons_core_route_get(patched_app):
     environ = {u"PATH_INFO": u"/tag", u"REQUEST_METHOD": u"GET"}
     wsgiref.util.setup_testing_defaults(environ)
@@ -180,88 +155,10 @@ def test_ask_around_pylons_core_route_post(patched_app):
     assert answers == [(False, u"flask_app"), (True, u"pylons_app", u"core")]
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_ask_around_pylons_extension_route_get_before_map(patched_app):
-    environ = {
-        u"PATH_INFO": u"/from_pylons_extension_before_map",
-        u"REQUEST_METHOD": u"GET",
-    }
-    wsgiref.util.setup_testing_defaults(environ)
-
-    answers = patched_app.app.ask_around(environ)
-
-    assert answers == [
-        (False, u"flask_app"),
-        (True, u"pylons_app", u"extension"),
-    ]
-
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_ask_around_pylons_extension_route_post(patched_app):
-    environ = {
-        u"PATH_INFO": u"/from_pylons_extension_before_map_post_only",
-        u"REQUEST_METHOD": u"POST",
-    }
-    wsgiref.util.setup_testing_defaults(environ)
-
-    answers = patched_app.app.ask_around(environ)
-
-    assert answers == [
-        (False, u"flask_app"),
-        (True, u"pylons_app", u"extension"),
-    ]
-
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_ask_around_pylons_extension_route_post_using_get(patched_app):
-    environ = {
-        u"PATH_INFO": u"/from_pylons_extension_before_map_post_only",
-        u"REQUEST_METHOD": u"GET",
-    }
-    wsgiref.util.setup_testing_defaults(environ)
-
-    answers = patched_app.app.ask_around(environ)
-
-    # We are going to get an answer from Pylons, but just because it will
-    # match the catch-all template route, hence the `core` origin.
-    assert answers == [(False, u"flask_app"), (True, u"pylons_app", u"core")]
-
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_ask_around_pylons_extension_route_get_after_map(patched_app):
-    environ = {
-        u"PATH_INFO": u"/from_pylons_extension_after_map",
-        u"REQUEST_METHOD": u"GET",
-    }
-    wsgiref.util.setup_testing_defaults(environ)
-
-    answers = patched_app.app.ask_around(environ)
-
-    assert answers == [
-        (False, u"flask_app"),
-        (True, u"pylons_app", u"extension"),
-    ]
-
-
 def test_flask_core_route_is_served_by_flask(patched_app):
     res = patched_app.get(u"/")
 
     assert res.environ[u"ckan.app"] == u"flask_app"
-
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_flask_extension_route_is_served_by_flask(patched_app):
-    res = patched_app.get(u"/simple_flask")
-    assert res.environ[u"ckan.app"] == u"flask_app"
-
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_pylons_extension_route_is_served_by_pylons(patched_app):
-
-    res = patched_app.get(u"/from_pylons_extension_before_map")
-
-    assert res.environ[u"ckan.app"] == u"pylons_app"
-    assert res.body == u"Hello World, this is served from a Pylons extension"
 
 
 def test_flask_core_and_pylons_core_route_is_served_by_flask(patched_app):
@@ -274,119 +171,203 @@ def test_flask_core_and_pylons_core_route_is_served_by_flask(patched_app):
     assert res.body == u"This was served from Flask"
 
 
-@pytest.mark.usefixtures(u"clean_db")
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_user_objects_in_g_normal_user(app):
-    """
-    A normal logged in user request will have expected user objects added
-    to request.
-    """
-    username = factories.User()[u"name"]
-    test_user_obj = model.User.by_name(username)
+class TestMiddlewareWithRoutingPlugin:
+    def test_ask_around_pylons_extension_route_get_before_map(
+        self, patched_app
+    ):
+        environ = {
+            u"PATH_INFO": u"/from_pylons_extension_before_map",
+            u"REQUEST_METHOD": u"GET",
+        }
+        wsgiref.util.setup_testing_defaults(environ)
 
-    with app.flask_app.app_context():
-        app.get(
-            u"/simple_flask",
+        answers = patched_app.app.ask_around(environ)
+
+        assert answers == [
+            (False, u"flask_app"),
+            (True, u"pylons_app", u"extension"),
+        ]
+
+    def test_ask_around_pylons_extension_route_post(self, patched_app):
+        environ = {
+            u"PATH_INFO": u"/from_pylons_extension_before_map_post_only",
+            u"REQUEST_METHOD": u"POST",
+        }
+        wsgiref.util.setup_testing_defaults(environ)
+
+        answers = patched_app.app.ask_around(environ)
+
+        assert answers == [
+            (False, u"flask_app"),
+            (True, u"pylons_app", u"extension"),
+        ]
+
+    def test_ask_around_pylons_extension_route_post_using_get(
+        self, patched_app
+    ):
+        environ = {
+            u"PATH_INFO": u"/from_pylons_extension_before_map_post_only",
+            u"REQUEST_METHOD": u"GET",
+        }
+        wsgiref.util.setup_testing_defaults(environ)
+
+        answers = patched_app.app.ask_around(environ)
+
+        # We are going to get an answer from Pylons, but just because it will
+        # match the catch-all template route, hence the `core` origin.
+        assert answers == [
+            (False, u"flask_app"),
+            (True, u"pylons_app", u"core"),
+        ]
+
+    def test_ask_around_pylons_extension_route_get_after_map(
+        self, patched_app
+    ):
+        environ = {
+            u"PATH_INFO": u"/from_pylons_extension_after_map",
+            u"REQUEST_METHOD": u"GET",
+        }
+        wsgiref.util.setup_testing_defaults(environ)
+
+        answers = patched_app.app.ask_around(environ)
+
+        assert answers == [
+            (False, u"flask_app"),
+            (True, u"pylons_app", u"extension"),
+        ]
+
+    def test_flask_extension_route_is_served_by_flask(self, patched_app):
+        res = patched_app.get(u"/simple_flask")
+        assert res.environ[u"ckan.app"] == u"flask_app"
+
+    def test_pylons_extension_route_is_served_by_pylons(self, patched_app):
+
+        res = patched_app.get(u"/from_pylons_extension_before_map")
+
+        assert res.environ[u"ckan.app"] == u"pylons_app"
+        assert (
+            res.body == u"Hello World, this is served from a Pylons extension"
+        )
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_user_objects_in_g_normal_user(self, app):
+        """
+        A normal logged in user request will have expected user objects added
+        to request.
+        """
+        username = factories.User()[u"name"]
+        test_user_obj = model.User.by_name(username)
+
+        with app.flask_app.app_context():
+            app.get(
+                u"/simple_flask",
+                extra_environ={u"REMOTE_USER": username.encode(u"ascii")},
+            )
+            assert flask.g.user == username
+            assert flask.g.userobj == test_user_obj
+            assert flask.g.author == username
+            assert flask.g.remote_addr == u"Unknown IP Address"
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_user_objects_in_g_anon_user(self, app):
+        """
+        An anon user request will have expected user objects added to request.
+        """
+        with app.flask_app.app_context():
+            app.get(u"/simple_flask", extra_environ={u"REMOTE_USER": str(u"")})
+            assert flask.g.user == u""
+            assert flask.g.userobj is None
+            assert flask.g.author == u"Unknown IP Address"
+            assert flask.g.remote_addr == u"Unknown IP Address"
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_user_objects_in_g_sysadmin(self, app):
+        """
+        A sysadmin user request will have expected user objects added to
+        request.
+        """
+        user = factories.Sysadmin()
+        test_user_obj = model.User.by_name(user[u"name"])
+
+        with app.flask_app.app_context():
+            app.get(
+                u"/simple_flask",
+                extra_environ={u"REMOTE_USER": user[u"name"].encode(u"ascii")},
+            )
+            assert flask.g.user == user[u"name"]
+            assert flask.g.userobj == test_user_obj
+            assert flask.g.author == user[u"name"]
+            assert flask.g.remote_addr == u"Unknown IP Address"
+
+    def test_user_objects_in_c_normal_user(self, app):
+        """
+        A normal logged in user request will have expected user objects added
+        to request.
+        """
+        username = factories.User()[u"name"]
+        test_user_obj = model.User.by_name(username)
+
+        resp = app.get(
+            u"/from_pylons_extension_before_map",
             extra_environ={u"REMOTE_USER": username.encode(u"ascii")},
         )
-        assert flask.g.user == username
-        assert flask.g.userobj == test_user_obj
-        assert flask.g.author == username
-        assert flask.g.remote_addr == u"Unknown IP Address"
 
+        # tmpl_context available on response
+        assert resp.tmpl_context.user == username
+        assert resp.tmpl_context.userobj == test_user_obj
+        assert resp.tmpl_context.author == username
+        assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
 
-@pytest.mark.usefixtures(u"clean_db")
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_user_objects_in_g_anon_user(app):
-    """
-    An anon user request will have expected user objects added to request.
-    """
-    with app.flask_app.app_context():
-        app.get(u"/simple_flask", extra_environ={u"REMOTE_USER": str(u"")})
-        assert flask.g.user == u""
-        assert flask.g.userobj is None
-        assert flask.g.author == u"Unknown IP Address"
-        assert flask.g.remote_addr == u"Unknown IP Address"
+    def test_user_objects_in_c_anon_user(self, app):
+        """An anon user request will have expected user objects added to
+        request.
+        """
 
-
-@pytest.mark.usefixtures(u"clean_db")
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_user_objects_in_g_sysadmin(app):
-    """
-    A sysadmin user request will have expected user objects added to
-    request.
-    """
-    user = factories.Sysadmin()
-    test_user_obj = model.User.by_name(user[u"name"])
-
-    with app.flask_app.app_context():
-        app.get(
-            u"/simple_flask",
-            extra_environ={u"REMOTE_USER": user[u"name"].encode(u"ascii")},
+        resp = app.get(
+            u"/from_pylons_extension_before_map",
+            extra_environ={u"REMOTE_USER": str(u"")},
         )
-        assert flask.g.user == user[u"name"]
-        assert flask.g.userobj == test_user_obj
-        assert flask.g.author == user[u"name"]
-        assert flask.g.remote_addr == u"Unknown IP Address"
 
+        # tmpl_context available on response
+        assert resp.tmpl_context.user == u""
+        assert resp.tmpl_context.userobj is None
+        assert resp.tmpl_context.author == u"Unknown IP Address"
+        assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_user_objects_in_c_normal_user(app):
-    """
-    A normal logged in user request will have expected user objects added
-    to request.
-    """
-    username = factories.User()[u"name"]
-    test_user_obj = model.User.by_name(username)
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_user_objects_in_c_sysadmin(self, app):
+        """A sysadmin user request will have expected user objects added to
+        request.
+        """
+        username = factories.Sysadmin()[u"name"]
+        test_user_obj = model.User.by_name(username)
 
-    resp = app.get(
-        u"/from_pylons_extension_before_map",
-        extra_environ={u"REMOTE_USER": username.encode(u"ascii")},
+        resp = app.get(
+            u"/from_pylons_extension_before_map",
+            extra_environ={u"REMOTE_USER": username.encode(u"ascii")},
+        )
+
+        # tmpl_context available on response
+        assert resp.tmpl_context.user == username
+        assert resp.tmpl_context.userobj == test_user_obj
+        assert resp.tmpl_context.author == username
+        assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
+
+    @pytest.mark.ckan_config(
+        u"ckan.use_pylons_response_cleanup_middleware", True
     )
+    def test_pylons_route_with_cleanup_middleware_activated(self, app):
+        u"""Test the home page renders with the middleware activated
 
-    # tmpl_context available on response
-    assert resp.tmpl_context.user == username
-    assert resp.tmpl_context.userobj == test_user_obj
-    assert resp.tmpl_context.author == username
-    assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
+        We are just testing the home page renders without any troubles and that
+        the middleware has not done anything strange to the response string"""
 
+        response = app.get(url=u"/pylons_translated")
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_user_objects_in_c_anon_user(app):
-    """An anon user request will have expected user objects added to
-    request.
-    """
-
-    resp = app.get(
-        u"/from_pylons_extension_before_map",
-        extra_environ={u"REMOTE_USER": str(u"")},
-    )
-
-    # tmpl_context available on response
-    assert resp.tmpl_context.user == u""
-    assert resp.tmpl_context.userobj is None
-    assert resp.tmpl_context.author == u"Unknown IP Address"
-    assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
-
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-def test_user_objects_in_c_sysadmin(app):
-    """A sysadmin user request will have expected user objects added to
-    request.
-    """
-    username = factories.Sysadmin()[u"name"]
-    test_user_obj = model.User.by_name(username)
-
-    resp = app.get(
-        u"/from_pylons_extension_before_map",
-        extra_environ={u"REMOTE_USER": username.encode(u"ascii")},
-    )
-
-    # tmpl_context available on response
-    assert resp.tmpl_context.user == username
-    assert resp.tmpl_context.userobj == test_user_obj
-    assert resp.tmpl_context.author == username
-    assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
+        assert response.status_int == 200
+        # make sure we haven't overwritten the response too early.
+        assert u"cleanup middleware" not in response.body
 
 
 @pytest.mark.ckan_config(u"SECRET_KEY", u"super_secret_stuff")
@@ -406,25 +387,8 @@ def test_beaker_secret_is_used_by_default(app):
 def test_no_beaker_secret_crashes(make_app):
     # TODO: When Pylons is finally removed, we should test for
     # RuntimeError instead (thrown on `make_flask_stack`)
-    with pytest.raises(
-        RuntimeError
-    ):
+    with pytest.raises(RuntimeError):
         make_app()
-
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-@pytest.mark.ckan_config(u"ckan.use_pylons_response_cleanup_middleware", True)
-def test_pylons_route_with_cleanup_middleware_activated(app):
-    u"""Test the home page renders with the middleware activated
-
-    We are just testing the home page renders without any troubles and that
-    the middleware has not done anything strange to the response string"""
-
-    response = app.get(url=u"/pylons_translated")
-
-    assert response.status_int == 200
-    # make sure we haven't overwritten the response too early.
-    assert u"cleanup middleware" not in response.body
 
 
 @pytest.mark.parametrize(

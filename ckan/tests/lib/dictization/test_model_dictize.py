@@ -294,7 +294,7 @@ class TestGroupDictize:
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_with_no_packages_field_but_still_package_count(
-        self
+        self,
     ):
         # logic.get.group_show calls it like this when not include_datasets
         group_ = factories.Group()

@@ -170,104 +170,100 @@ def test_user_generate_apikey_for_another_user():
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_anon_can_not_update():
+class TestUpdateWithView(object):
+    def test_anon_can_not_update(self):
 
-    resource_view = factories.ResourceView()
+        resource_view = factories.ResourceView()
 
-    params = {
-        "id": resource_view["id"],
-        "title": "Resource View Updated",
-        "view_type": "image_view",
-        "image_url": "url",
-    }
+        params = {
+            "id": resource_view["id"],
+            "title": "Resource View Updated",
+            "view_type": "image_view",
+            "image_url": "url",
+        }
 
-    context = {"user": None, "model": model}
-    with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("resource_view_update", context=context, **params)
+        context = {"user": None, "model": model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                "resource_view_update", context=context, **params
+            )
 
+    def test_authorized_if_user_has_permissions_on_dataset(self):
 
-@pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_authorized_if_user_has_permissions_on_dataset():
+        user = factories.User()
 
-    user = factories.User()
+        dataset = factories.Dataset(user=user)
 
-    dataset = factories.Dataset(user=user)
+        resource = factories.Resource(user=user, package_id=dataset["id"])
 
-    resource = factories.Resource(user=user, package_id=dataset["id"])
+        resource_view = factories.ResourceView(resource_id=resource["id"])
 
-    resource_view = factories.ResourceView(resource_id=resource["id"])
+        params = {
+            "id": resource_view["id"],
+            "resource_id": resource["id"],
+            "title": "Resource View Updated",
+            "view_type": "image_view",
+            "image_url": "url",
+        }
 
-    params = {
-        "id": resource_view["id"],
-        "resource_id": resource["id"],
-        "title": "Resource View Updated",
-        "view_type": "image_view",
-        "image_url": "url",
-    }
+        context = {"user": user["name"], "model": model}
+        response = helpers.call_auth(
+            "resource_view_update", context=context, **params
+        )
 
-    context = {"user": user["name"], "model": model}
-    response = helpers.call_auth(
-        "resource_view_update", context=context, **params
-    )
+        assert response
 
-    assert response
+    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
 
+        org = factories.Organization()
 
-@pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_not_authorized_if_user_has_no_permissions_on_dataset():
+        user = factories.User()
 
-    org = factories.Organization()
+        member = {"username": user["name"], "role": "admin", "id": org["id"]}
+        helpers.call_action("organization_member_create", **member)
 
-    user = factories.User()
+        user_2 = factories.User()
 
-    member = {"username": user["name"], "role": "admin", "id": org["id"]}
-    helpers.call_action("organization_member_create", **member)
+        dataset = factories.Dataset(owner_org=org["id"])
 
-    user_2 = factories.User()
+        resource = factories.Resource(package_id=dataset["id"])
 
-    dataset = factories.Dataset(owner_org=org["id"])
+        resource_view = factories.ResourceView(resource_id=resource["id"])
 
-    resource = factories.Resource(package_id=dataset["id"])
+        params = {
+            "id": resource_view["id"],
+            "resource_id": resource["id"],
+            "title": "Resource View Updated",
+            "view_type": "image_view",
+            "image_url": "url",
+        }
 
-    resource_view = factories.ResourceView(resource_id=resource["id"])
-
-    params = {
-        "id": resource_view["id"],
-        "resource_id": resource["id"],
-        "title": "Resource View Updated",
-        "view_type": "image_view",
-        "image_url": "url",
-    }
-
-    context = {"user": user_2["name"], "model": model}
-    with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("resource_view_update", context=context, **params)
-
-
-@pytest.mark.usefixtures("clean_db")
-def test_config_option_update_anon_user():
-    """An anon user is not authorized to use config_option_update
-    action."""
-    context = {"user": None, "model": None}
-    with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("config_option_update", context=context)
+        context = {"user": user_2["name"], "model": model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                "resource_view_update", context=context, **params
+            )
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_config_option_update_normal_user():
-    """A normal logged in user is not authorized to use config_option_update
-    action."""
-    factories.User(name="fred")
-    context = {"user": "fred", "model": None}
-    with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("config_option_update", context=context)
+class TestUpdate(object):
+    def test_config_option_update_anon_user(self):
+        """An anon user is not authorized to use config_option_update
+        action."""
+        context = {"user": None, "model": None}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("config_option_update", context=context)
 
+    def test_config_option_update_normal_user(self):
+        """A normal logged in user is not authorized to use config_option_update
+        action."""
+        factories.User(name="fred")
+        context = {"user": "fred", "model": None}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("config_option_update", context=context)
 
-@pytest.mark.usefixtures("clean_db")
-def test_config_option_update_sysadmin():
-    """A sysadmin is authorized to use config_option_update action."""
-    factories.Sysadmin(name="fred")
-    context = {"user": "fred", "model": None}
-    assert helpers.call_auth("config_option_update", context=context)
+    def test_config_option_update_sysadmin(self):
+        """A sysadmin is authorized to use config_option_update action."""
+        factories.Sysadmin(name="fred")
+        context = {"user": "fred", "model": None}
+        assert helpers.call_auth("config_option_update", context=context)

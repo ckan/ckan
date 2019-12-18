@@ -666,7 +666,7 @@ class TestActionAuth(object):
     def test_fn_docstrings(self):
         errors = []
         for name, fn in six.iteritems(self.actions):
-            if not getattr(fn, '__doc__', None):
+            if not getattr(fn, "__doc__", None):
                 if name not in self.ACTION_NO_DOC_STR_BLACKLIST:
                     errors.append(name)
         assert not errors, (

@@ -129,10 +129,23 @@ class TestUpdate(object):
             helpers.call_action("user_update", **user_dict)
 
     @pytest.mark.usefixtures("clean_db")
-    @pytest.mark.parametrize('name', (
-        "", "a", False, 0, -1, 23, "new", "edit", "search", "a" * 200, "Hi!",
-        "i++%",
-    ))
+    @pytest.mark.parametrize(
+        "name",
+        (
+            "",
+            "a",
+            False,
+            0,
+            -1,
+            23,
+            "new",
+            "edit",
+            "search",
+            "a" * 200,
+            "Hi!",
+            "i++%",
+        ),
+    )
     def test_user_update_with_invalid_name(self, name):
         user = factories.User()
         user["name"] = name
@@ -1025,7 +1038,7 @@ class TestResourceUpdate(object):
     @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
     @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled(
-        self
+        self,
     ):
         assert not p.plugin_loaded("datastore")
 

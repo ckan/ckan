@@ -12,15 +12,14 @@ webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestGroupController(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_bulk_process_throws_404_for_nonexistent_org(self, app):
         bulk_process_url = url_for(
             "organization.bulk_process", id="does-not-exist"
         )
         app.get(url=bulk_process_url, status=404)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
         orgs = [factories.Organization() for _ in range(35)]
         org_url = url_for("organization.index", sort="name desc")
@@ -32,7 +31,6 @@ class TestGroupController(object):
         assert orgs[-1]["name"] not in response2
         assert orgs[0]["name"] in response2
 
-    @pytest.mark.usefixtures("clean_db")
     def test_page_thru_list_of_groups_preserves_sort_order(self, app):
         groups = [factories.Group() for _ in range(35)]
         group_url = url_for("group.index", sort="title desc")
@@ -45,7 +43,6 @@ class TestGroupController(object):
         assert groups[-1]["title"] not in response2
         assert groups[0]["title"] in response2
 
-    @pytest.mark.usefixtures("clean_db")
     def test_invalid_sort_param_does_not_crash(self, app):
 
         with app.flask_app.test_request_context():
@@ -65,6 +62,7 @@ def _get_group_new_page(app):
     return env, response
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -73,7 +71,6 @@ class TestGroupControllerNew(object):
         env, response = _get_group_new_page(app)
         assert "group-edit" in response.forms
 
-    @pytest.mark.usefixtures("clean_db")
     def test_name_required(self, app):
         env, response = _get_group_new_page(app)
         form = response.forms["group-edit"]
@@ -82,7 +79,6 @@ class TestGroupControllerNew(object):
         assert "group-edit" in response.forms
         assert "Name: Missing value" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_saved(self, app):
         env, response = _get_group_new_page(app)
         form = response.forms["group-edit"]
@@ -94,7 +90,6 @@ class TestGroupControllerNew(object):
         assert group.type == "group"
         assert group.state == "active"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_all_fields_saved(self, app):
         env, response = _get_group_new_page(app)
         form = response.forms["group-edit"]
@@ -120,6 +115,7 @@ def _get_group_edit_page(app, group_name=None):
     return env, response, group_name
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -134,7 +130,6 @@ class TestGroupControllerEdit(object):
         env, response, group_name = _get_group_edit_page(app)
         assert "group-edit" in response.forms
 
-    @pytest.mark.usefixtures("clean_db")
     def test_saved(self, app):
         env, response, group_name = _get_group_edit_page(app)
         form = response.forms["group-edit"]
@@ -143,7 +138,6 @@ class TestGroupControllerEdit(object):
         group = model.Group.by_name(group_name)
         assert group.state == "active"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_all_fields_saved(self, app):
         env, response, group_name = _get_group_edit_page(app)
         form = response.forms["group-edit"]
@@ -159,15 +153,14 @@ class TestGroupControllerEdit(object):
         assert group.image_url == "http://example.com/image.png"
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestGroupRead(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_group_read(self, app):
         group = factories.Group()
         response = app.get(url=url_for("group.read", id=group["name"]))
         assert group["title"] in response
         assert group["description"] in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_redirect_when_given_id(self, app):
         group = factories.Group()
 
@@ -177,7 +170,6 @@ class TestGroupRead(object):
         expected_url = url_for("group.read", id=group["name"])
         assert redirected_response.request.path == expected_url
 
-    @pytest.mark.usefixtures("clean_db")
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         group = factories.Group(id="abc", name="abc")
 
@@ -257,6 +249,7 @@ class TestGroupDelete(object):
         assert group["state"] == "active"
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestGroupMembership(object):
     def _create_group(self, owner_username, users=None):
         """Create a group with the owner defined by owner_username and
@@ -275,7 +268,6 @@ class TestGroupMembership(object):
         response = app.get(url=url, extra_environ=env)
         return env, response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_membership_list(self, app):
         """List group admins and members"""
         user_one = factories.User(fullname="User One", name="user-one")
@@ -307,7 +299,6 @@ class TestGroupMembership(object):
         assert user_roles["User One"] == "Admin"
         assert user_roles["User Two"] == "Member"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_membership_add(self, app):
         """Member can be added via add member page"""
         owner = factories.User(fullname="My Owner")
@@ -339,7 +330,6 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Member"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_admin_add(self, app):
         """Admin can be added via add member page"""
         owner = factories.User(fullname="My Owner")
@@ -372,7 +362,6 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Admin"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_remove_member(self, app):
         """Member can be removed from group"""
         user_one = factories.User(fullname="User One", name="user-one")
@@ -409,7 +398,6 @@ class TestGroupMembership(object):
         assert len(user_roles.keys()) == 1
         assert user_roles["User One"] == "Admin"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_member_users_cannot_add_members(self, app):
 
         user = factories.User()
@@ -438,7 +426,6 @@ class TestGroupMembership(object):
                 status=403,
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anonymous_users_cannot_add_members(self, app):
         group = factories.Group()
 
@@ -457,8 +444,8 @@ class TestGroupMembership(object):
             )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestGroupFollow:
-    @pytest.mark.usefixtures("clean_db")
     def test_group_follow(self, app):
 
         user = factories.User()
@@ -473,7 +460,6 @@ class TestGroupFollow:
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_follow_not_exist(self, app):
         """Pass an id for a group that doesn't exist"""
         user_one = factories.User()
@@ -484,7 +470,6 @@ class TestGroupFollow:
         response = response.follow(status=404)
         assert "Group not found" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_unfollow(self, app):
 
         user_one = factories.User()
@@ -505,7 +490,6 @@ class TestGroupFollow:
             in unfollow_response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_unfollow_not_following(self, app):
         """Unfollow a group not currently following"""
 
@@ -525,7 +509,6 @@ class TestGroupFollow:
             in unfollow_response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_unfollow_not_exist(self, app):
         """Unfollow a group that doesn't exist."""
 
@@ -538,7 +521,6 @@ class TestGroupFollow:
         )
         assert "group/not-here" in unfollow_response.headers["location"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_follower_list(self, app):
         """Following users appear on followers list page."""
 
@@ -558,10 +540,10 @@ class TestGroupFollow:
         assert user_one["display_name"] in followers_response
 
 
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupSearch(object):
     """Test searching for groups."""
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_search(self, app):
         """Requesting group search (index) returns list of groups and search
         form."""
@@ -581,7 +563,6 @@ class TestGroupSearch(object):
         assert "AGrp Two" in grp_names
         assert "Grp Three" in grp_names
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_search_results(self, app):
         """Searching via group search form returns list of expected groups."""
         factories.Group(name="grp-one", title="AGrp One")
@@ -604,7 +585,6 @@ class TestGroupSearch(object):
         assert "AGrp Two" in grp_names
         assert "Grp Three" not in grp_names
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
 
@@ -626,10 +606,10 @@ class TestGroupSearch(object):
         assert 'No groups found for "No Results Here"' in search_response
 
 
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupInnerSearch(object):
     """Test searching within an group."""
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_search_within_org(self, app):
         """Group read page request returns list of datasets owned by group."""
         grp = factories.Group()
@@ -658,7 +638,6 @@ class TestGroupInnerSearch(object):
         assert "Dataset Two" in ds_titles
         assert "Dataset Three" in ds_titles
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_search_within_org_results(self, app):
         """Searching within an group returns expected dataset results."""
 
@@ -692,7 +671,6 @@ class TestGroupInnerSearch(object):
         assert "Dataset Two" not in ds_titles
         assert "Dataset Three" not in ds_titles
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_search_within_org_no_results(self, app):
         """Searching for non-returning phrase within an group returns no
         results."""
@@ -726,8 +704,8 @@ class TestGroupInnerSearch(object):
         assert len(ds_titles) == 0
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestGroupIndex(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_group_index(self, app):
 
         for i in range(1, 26):
@@ -764,8 +742,8 @@ class TestGroupIndex(object):
         assert "Test Group 20" not in response
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestActivity:
-    @pytest.mark.usefixtures("clean_db")
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
         user = factories.User()
@@ -776,7 +754,6 @@ class TestActivity:
         assert "Mr. Test User" in response
         assert "created the group" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_group(self, app):
         user = factories.User()
         group = factories.Group(user=user)
@@ -796,7 +773,6 @@ class TestActivity:
         model.Session.query(model.Activity).delete()
         model.Session.flush()
 
-    @pytest.mark.usefixtures("clean_db")
     def test_change_group(self, app):
         user = factories.User()
         group = factories.Group(user=user)
@@ -819,7 +795,6 @@ class TestActivity:
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_group_using_group_delete(self, app):
         user = factories.User()
         group = factories.Group(user=user)
@@ -837,7 +812,6 @@ class TestActivity:
         # group_delete was the same as group_update state=deleted but they are
         # not...
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_group_by_updating_state(self, app):
         user = factories.User()
         group = factories.Group(user=user)
@@ -858,7 +832,6 @@ class TestActivity:
             '<a href="/group/{}">Test Group'.format(group["name"]) in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_dataset(self, app):
         user = factories.User()
         group = factories.Group(user=user)
@@ -876,7 +849,6 @@ class TestActivity:
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_change_dataset(self, app):
 
         user = factories.User()
@@ -901,7 +873,6 @@ class TestActivity:
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_dataset(self, app):
         user = factories.User()
         group = factories.Group(user=user)

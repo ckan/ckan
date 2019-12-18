@@ -16,6 +16,16 @@ def pytest_sessionstart(session):
 
 
 def pytest_runtest_setup(item):
+    """Automatically apply `ckan_config` fixture if test has `ckan_config`
+    mark.
+
+    `ckan_config` mark itself does nothing(as any mark). All actual
+    config changes performed inside `ckan_config` fixture. So let's
+    implicitely use `ckan_config` fixture inside any test that patches
+    config object. This will save us from adding
+    `@mark.usefixtures("ckan_config")` every time.
+
+    """
     custom_config = [
         mark.args for mark in item.iter_markers(name=u"ckan_config")
     ]

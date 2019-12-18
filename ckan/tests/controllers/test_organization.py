@@ -10,6 +10,7 @@ from ckan.tests import factories, helpers
 from ckan.tests.helpers import webtest_submit, submit_and_follow
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationNew(object):
     @pytest.fixture
     def user_env(self):
@@ -19,7 +20,6 @@ class TestOrganizationNew(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_name_required(self, app, user_env):
         response = app.get(
             url=url_for("organization.new"), extra_environ=user_env
@@ -30,7 +30,6 @@ class TestOrganizationNew(object):
         assert "organization-edit-form" in response.forms
         assert "Name: Missing value" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_saved(self, app, user_env):
         response = app.get(
             url=url_for("organization.new"), extra_environ=user_env
@@ -47,7 +46,6 @@ class TestOrganizationNew(object):
         assert group["type"] == "organization"
         assert group["state"] == "active"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_all_fields_saved(self, app, user_env):
         response = app.get(
             url=url_for("organization.new"), extra_environ=user_env
@@ -87,15 +85,14 @@ class TestOrganizationList(object):
         )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationRead(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_group_read(self, app):
         org = factories.Organization()
         response = app.get(url=url_for("organization.read", id=org["name"]))
         assert org["title"] in response
         assert org["description"] in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_read_redirect_when_given_id(self, app):
         org = factories.Organization()
         response = app.get(
@@ -106,7 +103,6 @@ class TestOrganizationRead(object):
         expected_url = url_for("organization.read", id=org["name"])
         assert redirected_response.request.path == expected_url
 
-    @pytest.mark.usefixtures("clean_db")
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         org = factories.Organization(id="abc", name="abc")
         app.get(
@@ -114,6 +110,7 @@ class TestOrganizationRead(object):
         )  # ie no redirect
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationEdit(object):
     @pytest.fixture
     def initial_data(self):
@@ -124,12 +121,10 @@ class TestOrganizationEdit(object):
             "organization": factories.Organization(user=user),
         }
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_doesnt_exist(self, app, initial_data):
         url = url_for("organization.edit", id="doesnt_exist")
         app.get(url=url, extra_environ=initial_data["user_env"], status=404)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_saved(self, app, initial_data):
         response = app.get(
             url=url_for(
@@ -149,7 +144,6 @@ class TestOrganizationEdit(object):
         assert group["type"] == "organization"
         assert group["state"] == "active"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_all_fields_saved(self, app, initial_data):
         response = app.get(
             url=url_for(
@@ -175,6 +169,7 @@ class TestOrganizationEdit(object):
         assert group["image_url"] == "http://example.com/image.png"
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationDelete(object):
     @pytest.fixture
     def initial_data(self):
@@ -185,7 +180,6 @@ class TestOrganizationDelete(object):
             "organization": factories.Organization(user=user),
         }
 
-    @pytest.mark.usefixtures("clean_db")
     def test_owner_delete(self, app, initial_data):
         response = app.get(
             url=url_for(
@@ -204,7 +198,6 @@ class TestOrganizationDelete(object):
         )
         assert organization["state"] == "deleted"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_sysadmin_delete(self, app, initial_data):
         sysadmin = factories.Sysadmin()
         extra_environ = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
@@ -225,7 +218,6 @@ class TestOrganizationDelete(object):
         )
         assert organization["state"] == "deleted"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_non_authorized_user_trying_to_delete_fails(
         self, app, initial_data
     ):
@@ -244,7 +236,6 @@ class TestOrganizationDelete(object):
         )
         assert organization["state"] == "active"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anon_user_trying_to_delete_fails(self, app, initial_data):
         app.get(
             url=url_for(
@@ -259,7 +250,6 @@ class TestOrganizationDelete(object):
         assert organization["state"] == "active"
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_organization_with_datasets(self, app, initial_data):
         """ Test deletion of organization that has datasets"""
         text = "Organization cannot be deleted while it still has datasets"
@@ -281,7 +271,6 @@ class TestOrganizationDelete(object):
         )
         assert text in response.body
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_organization_with_unknown_dataset_true(self, initial_data):
         """ Test deletion of organization that has datasets and unknown
             datasets are set to true"""
@@ -300,8 +289,8 @@ class TestOrganizationDelete(object):
         assert dataset["owner_org"] is None
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationBulkProcess(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_make_private(self, app):
         self.user = factories.User()
         self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
@@ -334,7 +323,6 @@ class TestOrganizationBulkProcess(object):
             d = helpers.call_action("package_show", id=dataset["id"])
             assert d["private"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_make_public(self, app):
         self.user = factories.User()
         self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
@@ -367,7 +355,6 @@ class TestOrganizationBulkProcess(object):
             d = helpers.call_action("package_show", id=dataset["id"])
             assert not (d["private"])
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete(self, app):
         self.user = factories.User()
         self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
@@ -400,10 +387,10 @@ class TestOrganizationBulkProcess(object):
             assert d["state"] == "deleted"
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationSearch(object):
     """Test searching for organizations."""
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_search(self, app):
         """Requesting organization search (index) returns list of
         organizations and search form."""
@@ -424,7 +411,6 @@ class TestOrganizationSearch(object):
         assert "AOrg Two" in org_names
         assert "Org Three" in org_names
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_search_results(self, app):
         """Searching via organization search form returns list of expected
         organizations."""
@@ -448,7 +434,6 @@ class TestOrganizationSearch(object):
         assert "AOrg Two" in org_names
         assert "Org Three" not in org_names
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
         factories.Organization(name="org-one", title="AOrg One")
@@ -473,10 +458,10 @@ class TestOrganizationSearch(object):
         )
 
 
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestOrganizationInnerSearch(object):
     """Test searching within an organization."""
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_organization_search_within_org(self, app):
         """Organization read page request returns list of datasets owned by
         organization."""
@@ -506,7 +491,6 @@ class TestOrganizationInnerSearch(object):
         assert "Dataset Two" in ds_titles
         assert "Dataset Three" in ds_titles
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_organization_search_within_org_results(self, app):
         """Searching within an organization returns expected dataset
         results."""
@@ -540,7 +524,6 @@ class TestOrganizationInnerSearch(object):
         assert "Dataset Two" not in ds_titles
         assert "Dataset Three" not in ds_titles
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_organization_search_within_org_no_results(self, app):
         """Searching for non-returning phrase within an organization returns
         no results."""
@@ -574,8 +557,8 @@ class TestOrganizationInnerSearch(object):
         assert len(ds_titles) == 0
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationMembership(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_editor_users_cannot_add_members(self, app):
 
         user = factories.User()
@@ -604,7 +587,6 @@ class TestOrganizationMembership(object):
                 status=403,
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_member_users_cannot_add_members(self, app):
         user = factories.User()
         organization = factories.Organization(
@@ -632,7 +614,6 @@ class TestOrganizationMembership(object):
                 status=403,
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_anonymous_users_cannot_add_members(self, app):
         organization = factories.Organization()
 
@@ -654,8 +635,8 @@ class TestOrganizationMembership(object):
             )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestActivity(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
         user = factories.User()
@@ -666,7 +647,6 @@ class TestActivity(object):
         assert "Mr. Test User" in response
         assert "created the organization" in response
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_organization(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
@@ -687,7 +667,6 @@ class TestActivity(object):
         model.Session.query(model.Activity).delete()
         model.Session.flush()
 
-    @pytest.mark.usefixtures("clean_db")
     def test_change_organization(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
@@ -710,7 +689,6 @@ class TestActivity(object):
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_org_using_organization_delete(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
@@ -728,7 +706,6 @@ class TestActivity(object):
         # hope that organization_delete was the same as organization_update
         # state=deleted but they are not...
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_org_by_updating_state(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
@@ -750,7 +727,6 @@ class TestActivity(object):
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_dataset(self, app):
         user = factories.User()
         org = factories.Organization()
@@ -768,7 +744,6 @@ class TestActivity(object):
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_change_dataset(self, app):
         user = factories.User()
         org = factories.Organization()
@@ -792,7 +767,6 @@ class TestActivity(object):
             in response
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_delete_dataset(self, app):
         user = factories.User()
         org = factories.Organization()
