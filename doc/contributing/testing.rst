@@ -53,8 +53,8 @@ Fast
     ``setup_class()`` methods, saved against the ``self`` attribute of test
     classes, or in test helper modules).
 
-    Instead use fixtures that create test objects and return them, and
-    inject into every method only required fixtures.
+    Instead use fixtures that create test objects and pass them as parameters, and
+    inject into every method only the required fixtures.
 
   * Where appropriate, use the ``monkeypatch`` `fixture
     <https://docs.pytest.org/en/latest/monkeypatch.html>`_ to avoid

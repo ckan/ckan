@@ -37,17 +37,27 @@ from ckan.common import config
 
 @pytest.fixture
 def ckan_config(request, monkeypatch):
-    """Configuration object used by application.
+    """Allows to override the configuration object used by tests
 
-    Takes into account config patches introduced by `ckan_config`
-    mark.  For using custom config in the whole test, apply
-    `ckan_config` mark to it and inject `ckan_config` fixture:
+    Takes into account config patches introduced by the ``ckan_config``
+    mark.
+
+    If you just want to set one or more configuration options for the
+    scope of a test (or a test class), use the ``ckan_config`` mark::
+
+        @pytest.mark.ckan_config('ckan.auth.create_unowned_dataset', True)
+        def test_auth_create_unowned_dataset():
+
+            # ...
+
+    To use the custom config inside a test, apply the
+    ``ckan_config`` mark to it and inject the ``ckan_config`` fixture:
 
     .. literalinclude:: /../ckan/tests/pytest_ckan/test_fixtures.py
        :start-after: # START-CONFIG-OVERRIDE
        :end-before: # END-CONFIG-OVERRIDE
 
-    Otherwise, when change only need to be applied locally, use
+    If the change only needs to be applied locally, use the
     ``monkeypatch`` fixture
 
     .. literalinclude:: /../ckan/tests/test_common.py
@@ -65,24 +75,36 @@ def ckan_config(request, monkeypatch):
 
 @pytest.fixture
 def make_app(ckan_config):
-    """Factory for client app.
+    """Factory for client app instances.
 
-    Prefer using ``app`` instead if you have no need in lazy instantiation.
+    Unless you need to create app instances lazily for some reason,
+    use the ``app`` fixture instead.
     """
     return test_helpers._get_test_app
 
 
 @pytest.fixture
 def app(make_app):
-    """Instance of client app.
+    """Returns a client app instance to use in functional tests
+
+    To use it, just add the ``app`` parameter to your test function signature::
+
+        def test_dataset_search(self, app):
+
+            url = h.url_for('dataset.search')
+
+            response = app.get(url)
+
+
     """
     return make_app()
 
 
 @pytest.fixture(scope=u"session")
 def reset_db():
-    """Callable for setting DB into initial state. Prefer using
-    ``clean_db``.
+    """Callable for resetting the database to the initial state.
+
+    If possible use the ``clean_db`` fixture instead.
 
     """
     return test_helpers.reset_db
@@ -90,31 +112,47 @@ def reset_db():
 
 @pytest.fixture(scope=u"session")
 def reset_index():
-    """Callable for cleaning search index. Prefer using ``clean_index``.
+    """Callable for cleaning search index.
 
+    If possible use the ``clean_index`` fixture instead.
     """
     return search.clear_all
 
 
 @pytest.fixture
 def clean_db(reset_db):
-    """Start test with database in initial state.
+    """Resets the database to the initial state.
+
+    This can be used either for all tests in a class::
+
+        @pytest.mark.usefixtures("clean_db")
+        class TestExample(object):
+
+            def test_example(self):
+
+    or for a single test::
+
+        class TestExample(object):
+
+            @pytest.mark.usefixtures("clean_db")
+            def test_example(self):
+
     """
     reset_db()
 
 
 @pytest.fixture
 def clean_index(reset_index):
-    """Start test with empty search index.
+    """Clear search index before starting the test.
     """
     reset_index()
 
 
 @pytest.fixture
 def with_plugins(ckan_config):
-    """Load all plugins specified by ``ckan.plugins`` config option in the
-    beginning of the test. When test ends (event with fail) unload all
-    those plugins in reverse order.
+    """Load all plugins specified by the ``ckan.plugins`` config option
+    at the beginning of the test. When the test ends (even it fails), it will
+    unload all the plugins in the reverse order.
 
     .. literalinclude:: /../ckan/tests/test_factories.py
        :start-after: # START-CONFIG-OVERRIDE
@@ -125,9 +163,7 @@ def with_plugins(ckan_config):
     for plugin in plugins:
         if not ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.load(plugin)
-    # ckan.plugins.load_all()
     yield
     for plugin in reversed(plugins):
         if ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.unload(plugin)
-    # ckan.plugins.unload_all()
