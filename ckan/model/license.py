@@ -7,8 +7,8 @@ import requests
 
 from ckan.common import config
 from ckan.common import asbool
+import six
 from six import text_type, string_types
-from six.moves import map
 
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
@@ -35,11 +35,13 @@ class License(object):
             if key == 'date_created':
                 # Parse ISO formatted datetime.
                 value = datetime.datetime(
-                    *list(int(item) for item in re.split('[^\d]', value)))
+                    *list(int(item) for item in re.split(r'[^\d]', value)))
                 self._data[key] = value
             elif isinstance(value, str):
-                # Convert str to unicode (keeps Pylons and SQLAlchemy happy).
-                value = value.decode('utf8')
+                if six.PY2:
+                    # Convert str to unicode
+                    # (keeps Pylons and SQLAlchemy happy).
+                    value = value.decode('utf8')
                 self._data[key] = value
 
     def __getattr__(self, name):
