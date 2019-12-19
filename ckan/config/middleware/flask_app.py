@@ -464,9 +464,11 @@ def _register_error_handler(app):
     def error_handler(e):
         log.error(e, exc_info=sys.exc_info)
         if isinstance(e, HTTPException):
-            extra_vars = {u'code': [e.code], u'content': e.description}
-            # TODO: Remove
-            g.code = [e.code]
+            extra_vars = {
+                u'code': e.code,
+                u'content': e.description,
+                u'name': e.name
+            }
 
             return base.render(
                 u'error_document_template.html', extra_vars), e.code
