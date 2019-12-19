@@ -10,6 +10,9 @@ import ckan.lib.helpers as h
 
 from ckan.common import g, config, _
 
+CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
+
+
 home = Blueprint(u'home', __name__)
 
 

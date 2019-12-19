@@ -1,14 +1,12 @@
 # encoding: utf-8
 
-import datetime
 import logging
 import re
 from six.moves.urllib.parse import urlencode
 
-from pylons.i18n import get_lang
 
 import six
-from six import string_types, text_type
+from six import string_types
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -19,7 +17,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, c, g, config, request, _
+from ckan.common import OrderedDict, g, config, request, _
 from flask import Blueprint
 from flask.views import MethodView
 

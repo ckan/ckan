@@ -2,13 +2,14 @@
 
 """Common middleware used by both Flask and Pylons app stacks."""
 import hashlib
-import json
 import cgi
 
 from six.moves.urllib.parse import unquote
 
 import sqlalchemy as sa
 from webob.request import FakeCGIBody
+
+from ckan.lib.i18n import get_locales_from_config
 
 
 class RootPathMiddleware(object):
