@@ -40,6 +40,7 @@ def datetime_from_string(s):
     return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestUpdate(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -50,7 +51,6 @@ class TestUpdate(object):
 
     # START-AFTER
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_name(self):
         """Test that updating a user's name works successfully."""
 
@@ -71,7 +71,6 @@ class TestUpdate(object):
 
     # END-BEFORE
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_generate_apikey(self):
         user = factories.User()
         context = {"user": user["name"]}
@@ -85,7 +84,6 @@ class TestUpdate(object):
         assert updated_user["apikey"] != user["apikey"]
         assert result["apikey"] == updated_user["apikey"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_generate_apikey_sysadmin_user(self):
         user = factories.User()
         sysadmin = factories.Sysadmin()
@@ -100,7 +98,6 @@ class TestUpdate(object):
         assert updated_user["apikey"] != user["apikey"]
         assert result["apikey"] == updated_user["apikey"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_generate_apikey_nonexistent_user(self):
         user = {
             "id": "nonexistent",
@@ -113,7 +110,6 @@ class TestUpdate(object):
                 "user_generate_apikey", context=context, id=user["id"]
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_id_that_does_not_exist(self):
         user_dict = factories.User.attributes()
         user_dict["id"] = "there's no user with this id"
@@ -121,14 +117,12 @@ class TestUpdate(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("user_update", **user_dict)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_no_id(self):
         user_dict = factories.User.attributes()
         assert "id" not in user_dict
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user_dict)
 
-    @pytest.mark.usefixtures("clean_db")
     @pytest.mark.parametrize(
         "name",
         (
@@ -153,7 +147,6 @@ class TestUpdate(object):
 
             helpers.call_action("user_update", **user)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_to_name_that_already_exists(self):
         fred = factories.User(name="fred")
         bob = factories.User(name="bob")
@@ -164,7 +157,6 @@ class TestUpdate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **fred)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_password(self):
         """Test that updating a user's password works successfully."""
 
@@ -186,7 +178,6 @@ class TestUpdate(object):
         updated_user = model.User.get(user["id"])
         assert updated_user.validate_password("new password")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_short_password(self):
         user = factories.User()
 
@@ -194,7 +185,6 @@ class TestUpdate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_empty_password(self):
         """If an empty password is passed to user_update, nothing should
         happen.
@@ -215,7 +205,6 @@ class TestUpdate(object):
         updated_user = model.User.get(user_dict["id"])
         assert updated_user.validate_password(original_password)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_null_password(self):
         user = factories.User()
 
@@ -223,7 +212,6 @@ class TestUpdate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_invalid_password(self):
         user = factories.User()
 
@@ -233,7 +221,6 @@ class TestUpdate(object):
 
                 helpers.call_action("user_update", **user)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_without_email_address(self):
         """You have to pass an email address when you call user_update.
 
@@ -256,7 +243,6 @@ class TestUpdate(object):
 
     # TODO: Valid and invalid values for the rest of the user model's fields.
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_activity_stream(self):
         """Test that the right activity is emitted when updating a user."""
 
@@ -285,7 +271,6 @@ class TestUpdate(object):
         timestamp = datetime_from_string(latest_activity["timestamp"])
         assert timestamp >= before and timestamp <= after
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_custom_schema(self):
         """Test that custom schemas passed to user_update do get used.
 
@@ -327,7 +312,6 @@ class TestUpdate(object):
         # user['name'] as arg.
         mock_validator.assert_called_once_with(user["name"])
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
 
@@ -351,7 +335,6 @@ class TestUpdate(object):
         assert updated_user["fullname"] == "updated full name"
         assert updated_user["about"] == "updated about"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_does_not_return_password(self):
         """The user dict that user_update returns should not include the user's
         password."""
@@ -369,7 +352,6 @@ class TestUpdate(object):
         updated_user = helpers.call_action("user_update", **params)
         assert "password" not in updated_user
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_does_not_return_apikey(self):
         """The user dict that user_update returns should not include the user's
         API key."""
@@ -387,7 +369,6 @@ class TestUpdate(object):
         updated_user = helpers.call_action("user_update", **params)
         assert "apikey" not in updated_user
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_does_not_return_reset_key(self):
         """The user dict that user_update returns should not include the user's
         reset key."""
@@ -409,7 +390,6 @@ class TestUpdate(object):
         updated_user = helpers.call_action("user_update", **params)
         assert "reset_key" not in updated_user
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_reorder(self):
         resource_urls = ["http://a.html", "http://b.html", "http://c.html"]
         dataset = {
@@ -465,7 +445,6 @@ class TestUpdate(object):
             "http://a.html",
         ]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_update_dataset_cant_change_type(self):
         user = factories.User()
         dataset = factories.Dataset(
@@ -485,7 +464,6 @@ class TestUpdate(object):
             == "dataset"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
@@ -507,7 +485,6 @@ class TestUpdate(object):
             == "organization"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_update_group_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
@@ -528,8 +505,8 @@ class TestUpdate(object):
         )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestDatasetUpdate(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_missing_id(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -537,7 +514,6 @@ class TestDatasetUpdate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("package_update")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_name(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -552,7 +528,6 @@ class TestDatasetUpdate(object):
             == "new-name"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_title(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -567,7 +542,6 @@ class TestDatasetUpdate(object):
             == "New Title"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -584,7 +558,6 @@ class TestDatasetUpdate(object):
         assert dataset_["extras"][0]["key"] == "original media"
         assert dataset_["extras"][0]["value"] == '"book"'
 
-    @pytest.mark.usefixtures("clean_db")
     def test_license(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -597,7 +570,6 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
         assert dataset_["license_id"] == "other-open"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_notes(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -610,7 +582,6 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
         assert dataset_["notes"] == "some notes"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resources(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -669,7 +640,6 @@ class TestDatasetUpdate(object):
         assert resources_[1]["url"] == "http://datahub.io/index.json"
         assert resources_[1]["position"] == 1
 
-    @pytest.mark.usefixtures("clean_db")
     def test_tags(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -686,7 +656,6 @@ class TestDatasetUpdate(object):
         tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
         assert tag_names == ["russian", "tolstoy"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_return_id_only(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -718,9 +687,9 @@ class TestUpdateSendEmailNotifications(object):
             )
 
 
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceViewUpdate(object):
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_update(self):
         resource_view = factories.ResourceView()
         params = {
@@ -735,8 +704,6 @@ class TestResourceViewUpdate(object):
         assert result["description"] == params["description"]
 
     @mock.patch("ckan.lib.datapreview")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
         self, datapreview_mock
     ):
@@ -757,24 +724,18 @@ class TestResourceViewUpdate(object):
         }
         assert result["filters"] == expected_filters
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_update_requires_id(self):
         params = {}
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_update", **params)
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_update_requires_existing_id(self):
         params = {"id": "inexistent_id"}
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("resource_view_update", **params)
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_list_reorder(self):
         resource_view_1 = factories.ResourceView(title="View 1")
 
@@ -810,8 +771,6 @@ class TestResourceViewUpdate(object):
         assert resource_view_list[0]["title"] == "View 2"
         assert resource_view_list[1]["title"] == "View 1"
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_list_reorder_just_one_id(self):
         resource_view_1 = factories.ResourceView(title="View 1")
 
@@ -840,8 +799,6 @@ class TestResourceViewUpdate(object):
         assert resource_view_list[0]["title"] == "View 2"
         assert resource_view_list[1]["title"] == "View 1"
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_calling_with_only_id_doesnt_update_anything(self):
         resource_view = factories.ResourceView()
         params = {"id": resource_view["id"]}
@@ -850,6 +807,8 @@ class TestResourceViewUpdate(object):
         assert result == resource_view
 
 
+@pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceUpdate(object):
     import cgi
 
@@ -864,8 +823,6 @@ class TestResourceUpdate(object):
 
             model.repo.rebuild_db()
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_url_only(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset, url="http://first")
@@ -878,8 +835,6 @@ class TestResourceUpdate(object):
         resource = helpers.call_action("resource_show", id=resource["id"])
         assert resource["url"] == "http://second"
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extra_only(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset, newfield="first")
@@ -895,8 +850,6 @@ class TestResourceUpdate(object):
         resource = helpers.call_action("resource_show", id=resource["id"])
         assert resource["newfield"] == "second"
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_both_extra_and_url(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -917,8 +870,6 @@ class TestResourceUpdate(object):
         assert res_returned["url"] == "http://second"
         assert resource["newfield"] == "second"
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extra_gets_deleted_on_both_core_and_extra_update(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -941,8 +892,6 @@ class TestResourceUpdate(object):
         assert res_returned["anotherfield"] == "second"
         assert "newfield" not in res_returned
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extra_gets_deleted_on_extra_only_update(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -965,8 +914,6 @@ class TestResourceUpdate(object):
         assert res_returned["anotherfield"] == "second"
         assert "newfield" not in res_returned
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_persisted_if_true_and_not_provided(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -982,8 +929,6 @@ class TestResourceUpdate(object):
 
         assert res_returned["datastore_active"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_persisted_if_false_and_not_provided(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -999,8 +944,6 @@ class TestResourceUpdate(object):
 
         assert not res_returned["datastore_active"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_updated_if_false_and_provided(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -1017,8 +960,6 @@ class TestResourceUpdate(object):
 
         assert res_returned["datastore_active"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_updated_if_true_and_provided(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -1035,8 +976,6 @@ class TestResourceUpdate(object):
 
         assert not res_returned["datastore_active"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled(
         self,
     ):
@@ -1060,8 +999,6 @@ class TestResourceUpdate(object):
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_mimetype_by_url(self, mock_open):
         """
         The mimetype is guessed from the url
@@ -1086,8 +1023,6 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert upd_mimetype == "application/json"
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_mimetype_by_user(self):
         """
         The mimetype is supplied by the user
@@ -1118,8 +1053,6 @@ class TestResourceUpdate(object):
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_mimetype_by_upload_by_file(self, mock_open):
         """
         The mimetype is guessed from an uploaded file by the contents inside
@@ -1164,8 +1097,6 @@ class TestResourceUpdate(object):
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_mimetype_by_upload_by_filename(self, mock_open):
         """
         The mimetype is guessed from an uploaded file with a filename
@@ -1234,8 +1165,6 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert upd_mimetype == "text/csv"
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_size_of_resource_by_user(self):
         """
         The size of the resource is provided by the users
@@ -1266,8 +1195,6 @@ class TestResourceUpdate(object):
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_size_of_resource_by_upload(self, mock_open):
         """
         The size of the resource determined by the uploaded file
@@ -1332,8 +1259,6 @@ class TestResourceUpdate(object):
 
         assert org_size > upd_size
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(
@@ -1363,8 +1288,6 @@ class TestResourceUpdate(object):
     @helpers.change_config(
         "ckan.views.default_views", "image_view recline_view"
     )
-    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_format_update(self):
         dataset = factories.Dataset()
 
@@ -1455,12 +1378,13 @@ class TestResourceUpdate(object):
         assert len(res_views) == 1
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestConfigOptionUpdate(object):
 
     # NOTE: the opposite is tested in
     # ckan/ckanext/example_iconfigurer/tests/test_iconfigurer_update_config.py
     # as we need to enable an external config option from an extension
-    @pytest.mark.usefixtures("clean_db")
+
     def test_app_globals_set_if_defined(self):
         key = "ckan.site_title"
         value = "Test site title"
@@ -1475,8 +1399,8 @@ class TestConfigOptionUpdate(object):
         assert getattr(app_globals.app_globals, globals_key) == value
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestUserUpdate(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
         context = {"user": sysadmin["name"]}
@@ -1492,7 +1416,6 @@ class TestUserUpdate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password == "pretend-this-is-a-valid-hash"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_create_password_hash_not_for_normal_users(self):
         normal_user = factories.User()
         context = {"user": normal_user["name"]}
@@ -1510,8 +1433,8 @@ class TestUserUpdate(object):
         assert user_obj.password != "pretend-this-is-a-valid-hash"
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestPackageOwnerOrgUpdate(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_package_owner_org_added(self):
         """A package without an owner_org can have one added."""
         sysadmin = factories.Sysadmin()
@@ -1528,7 +1451,6 @@ class TestPackageOwnerOrgUpdate(object):
         dataset_obj = model.Package.get(dataset["id"])
         assert dataset_obj.owner_org == org["id"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_owner_org_changed(self):
         """A package with an owner_org can have it changed."""
 
@@ -1547,7 +1469,6 @@ class TestPackageOwnerOrgUpdate(object):
         dataset_obj = model.Package.get(dataset["id"])
         assert dataset_obj.owner_org == org_2["id"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_owner_org_removed(self):
         """A package with an owner_org can have it removed."""
         sysadmin = factories.Sysadmin()
@@ -1565,8 +1486,8 @@ class TestPackageOwnerOrgUpdate(object):
         assert dataset_obj.owner_org is None
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestBulkOperations(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_bulk_make_private(self):
 
         org = factories.Organization()
@@ -1598,7 +1519,6 @@ class TestBulkOperations(object):
         for dataset in datasets:
             assert dataset.private
 
-    @pytest.mark.usefixtures("clean_db")
     def test_bulk_make_public(self):
 
         org = factories.Organization()
@@ -1630,7 +1550,6 @@ class TestBulkOperations(object):
         for dataset in datasets:
             assert not (dataset.private)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_bulk_delete(self):
 
         org = factories.Organization()
@@ -1662,8 +1581,8 @@ class TestBulkOperations(object):
             assert dataset.state == "deleted"
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestDashboardMarkActivitiesOld(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_mark_as_old_some_activities_by_a_followed_user(self):
         # do some activity that will show up on user's dashboard
         user = factories.User()

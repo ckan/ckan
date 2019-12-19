@@ -5,8 +5,8 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 
 
-class TestCreation:
-    @pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db")
+class TestCreation(object):
     def test_normal_creation(self):
         create = CreateTestData
         create.create_arbitrary(
@@ -50,7 +50,6 @@ class TestCreation:
         assert pr.subject == thechild
         assert pr.object == theparent
 
-    @pytest.mark.usefixtures("clean_db")
     def test_reverse_creation(self):
         create = CreateTestData
         create.create_arbitrary(
@@ -75,7 +74,6 @@ class TestCreation:
         assert pr.subject == thechild
         assert pr.object == theparent
 
-    @pytest.mark.usefixtures("clean_db")
     def test_types(self):
         create = CreateTestData
         create.create_arbitrary(
@@ -136,8 +134,8 @@ class TestCreation:
         assert rel4.object == pkga, rel4.type
 
 
-class TestSimple:
-    @pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db")
+class TestSimple(object):
     def test_usage(self):
         create = CreateTestData
         create.create_arbitrary(
@@ -172,7 +170,8 @@ class TestSimple:
             assert rel.object == pkgb
 
 
-class TestComplicated:
+@pytest.mark.usefixtures("clean_db")
+class TestComplicated(object):
     def _check(self, rels, subject, type, object):
         for rel in rels:
             if (
@@ -183,7 +182,6 @@ class TestComplicated:
                 return
         assert 0, "Could not find relationship in: %r" % rels
 
-    @pytest.mark.usefixtures("clean_db")
     def test_01_rels(self):
         create = CreateTestData
         create.create_family_test_data()

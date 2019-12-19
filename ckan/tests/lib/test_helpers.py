@@ -595,24 +595,20 @@ class TestBuildNavMain(object):
         )
 
 
+@pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
+@pytest.mark.usefixtures("with_plugins")
 class TestHelperException(object):
-    @pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
-    @pytest.mark.usefixtures("with_plugins")
     def test_helper_exception_non_existing_helper_as_attribute(self, app):
         """Calling a non-existing helper on `h` raises a HelperException."""
         with pytest.raises(ckan.exceptions.HelperError):
             app.get("/broken_helper_as_attribute")
 
-    @pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
-    @pytest.mark.usefixtures("with_plugins")
     def test_helper_exception_non_existing_helper_as_item(self, app):
         """Calling a non-existing helper on `h` raises a HelperException."""
 
         with pytest.raises(ckan.exceptions.HelperError):
             app.get("/broken_helper_as_item")
 
-    @pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
-    @pytest.mark.usefixtures("with_plugins")
     def test_helper_existing_helper_as_attribute(self, app):
         """Calling an existing helper on `h` doesn't raises a
         HelperException."""
@@ -621,8 +617,6 @@ class TestHelperException(object):
 
         assert "My lang is: en" in res.body
 
-    @pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
-    @pytest.mark.usefixtures("with_plugins")
     def test_helper_existing_helper_as_item(self, app):
         """Calling an existing helper on `h` doesn't raises a
         HelperException."""
@@ -681,8 +675,8 @@ class TestHelperController(p.toolkit.BaseController):
         return base.render("tests/helper_as_item.html")
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestActivityListSelect(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_simple(self):
         pkg_activity = {
             "id": "id1",
@@ -699,7 +693,6 @@ class TestActivityListSelect(object):
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup
 
-    @pytest.mark.usefixtures("clean_db")
     def test_selected(self):
         pkg_activity = {
             "id": "id1",
@@ -716,7 +709,6 @@ class TestActivityListSelect(object):
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup
 
-    @pytest.mark.usefixtures("clean_db")
     def test_escaping(self):
         pkg_activity = {
             "id": '">',  # hacked somehow

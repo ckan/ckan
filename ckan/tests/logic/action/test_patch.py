@@ -5,8 +5,8 @@ import pytest
 from ckan.tests import helpers, factories
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestPatch(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_package_patch_updating_single_field(self):
         user = factories.User()
         dataset = factories.Dataset(
@@ -25,7 +25,6 @@ class TestPatch(object):
         assert dataset2["name"] == "somethingnew"
         assert dataset2["notes"] == "some test now"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_patch_updating_single_field(self):
         user = factories.User()
         dataset = factories.Dataset(
@@ -50,7 +49,6 @@ class TestPatch(object):
         assert resource2["name"] == "somethingnew"
         assert resource2["url"] == "http://example.com/resource"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_patch_updating_single_field(self):
         user = factories.User()
         group = factories.Group(
@@ -72,7 +70,6 @@ class TestPatch(object):
         assert group2["name"] == "economy"
         assert group2["description"] == "somethingnew"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_patch_preserve_datasets(self):
         user = factories.User()
         group = factories.Group(
@@ -102,7 +99,6 @@ class TestPatch(object):
         )
         assert 0 == group4["package_count"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_patch_updating_single_field(self):
         user = factories.User()
         organization = factories.Organization(

@@ -14,8 +14,8 @@ class TestMemberLogic(object):
             logic.model_name_to_class(model, "inexistent_model_name")
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestCheckAccess(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_check_access_auth_user_obj_is_set(self):
 
         create_test_data.CreateTestData.create_test_user()
@@ -29,7 +29,6 @@ class TestCheckAccess(object):
         assert context["__auth_user_obj_checked"]
         assert context["auth_user_obj"].name == user_name
 
-    @pytest.mark.usefixtures("clean_db")
     def test_check_access_auth_user_obj_is_not_set_when_ignoring_auth(self):
 
         create_test_data.CreateTestData.create_test_user()
@@ -43,7 +42,6 @@ class TestCheckAccess(object):
         assert "__auth_user_obj_checked" not in context
         assert context["auth_user_obj"] is None
 
-    @pytest.mark.usefixtures("clean_db")
     def test_check_access_auth_user_obj_is_not_set(self):
 
         user_names = ("unknown_user", "", None)

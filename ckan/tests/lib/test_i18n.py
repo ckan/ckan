@@ -35,6 +35,8 @@ class TestJSTranslationsPlugin(plugins.SingletonPlugin, DefaultTranslation):
         return u"ckanext-test_js_translations"
 
 
+@pytest.mark.ckan_config(u"ckan.plugins", u"test_js_translations_plugin")
+@pytest.mark.usefixtures(u"with_plugins")
 class TestBuildJSTranslations(object):
     u"""
     Tests for ``ckan.lib.i18n.build_js_translations``.
@@ -57,8 +59,6 @@ class TestBuildJSTranslations(object):
         finally:
             i18n._JS_TRANSLATIONS_DIR = old_translations_dir
 
-    @pytest.mark.ckan_config(u"ckan.plugins", u"test_js_translations_plugin")
-    @pytest.mark.usefixtures(u"with_plugins")
     def test_output_is_valid(self):
         u"""
         Test that the generated JS files are valid.
@@ -81,8 +81,6 @@ class TestBuildJSTranslations(object):
         for filename in files:
             check_file(os.path.join(self.temp_dir, filename))
 
-    @pytest.mark.ckan_config(u"ckan.plugins", u"test_js_translations_plugin")
-    @pytest.mark.usefixtures(u"with_plugins")
     def test_regenerate_only_if_necessary(self):
         u"""
         Test that translation files are only generated when necessary.
@@ -117,8 +115,6 @@ class TestBuildJSTranslations(object):
             new_mtime = os.path.getmtime(fullname)
             assert new_mtime == mtimes[filename]
 
-    @pytest.mark.ckan_config(u"ckan.plugins", u"test_js_translations_plugin")
-    @pytest.mark.usefixtures(u"with_plugins")
     def test_translations_from_extensions(self):
         u"""
         Test that translations from extensions are taken into account.
@@ -140,9 +136,9 @@ class TestBuildJSTranslations(object):
         assert u"Test JS Translations 2" not in de
 
 
+@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
+@pytest.mark.usefixtures(u"with_plugins")
 class TestI18nFlaskAndPylons(object):
-    @pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-    @pytest.mark.usefixtures(u"with_plugins")
     def test_translation_works_on_flask_and_pylons(self, app):
         resp = app.get(u"/flask_translated")
         assert resp.body == u"Dataset"

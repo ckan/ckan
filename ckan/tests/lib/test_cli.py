@@ -70,6 +70,7 @@ def paster(*args, **kwargs):
     return code, stdout, stderr
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestUserAdd(object):
 
     """Tests for UserCmd.add"""
@@ -78,7 +79,6 @@ class TestUserAdd(object):
     def setup_class(cls):
         cls.user_cmd = cli.UserCmd("user-command")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_cli_user_add_valid_args(self):
         """Command shouldn't raise SystemExit when valid args are provided."""
         self.user_cmd.args = [
@@ -93,14 +93,12 @@ class TestUserAdd(object):
         except SystemExit:
             assert False, "SystemExit exception shouldn't be raised"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_cli_user_add_no_args(self):
         """Command with no args raises SystemExit."""
         self.user_cmd.args = ["add"]
         with pytest.raises(SystemExit):
             self.user_cmd.add()
 
-    @pytest.mark.usefixtures("clean_db")
     def test_cli_user_add_no_fullname(self):
         """Command shouldn't raise SystemExit when fullname arg not present."""
         self.user_cmd.args = [
@@ -114,7 +112,6 @@ class TestUserAdd(object):
         except SystemExit:
             assert False, "SystemExit exception shouldn't be raised"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_cli_user_add_unicode_fullname_unicode_decode_error(self):
         """
         Command shouldn't raise UnicodeDecodeError when fullname contains
@@ -132,7 +129,6 @@ class TestUserAdd(object):
         except UnicodeDecodeError:
             assert False, "UnicodeDecodeError exception shouldn't be raised"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_cli_user_add_unicode_fullname_system_exit(self):
         """
         Command shouldn't raise SystemExit when fullname contains

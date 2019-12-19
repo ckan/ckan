@@ -9,6 +9,8 @@ from ckan.common import config
 import ckan.lib.search as search
 
 
+@pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
+@pytest.mark.usefixtures("clean_index")
 class TestSearchIndex(object):
     @classmethod
     def setup_class(cls):
@@ -31,8 +33,6 @@ class TestSearchIndex(object):
             "metadata_modified": datetime.datetime.now().isoformat(),
         }
 
-    @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-    @pytest.mark.usefixtures("clean_index")
     def test_index_basic(self):
 
         self.package_index.index_package(self.base_package_dict)
@@ -53,8 +53,6 @@ class TestSearchIndex(object):
 
         assert response.docs[0]["index_id"] == index_id
 
-    @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-    @pytest.mark.usefixtures("clean_index")
     def test_no_state_no_index(self):
         pkg_dict = self.base_package_dict.copy()
         pkg_dict.update({"state": None})
@@ -65,8 +63,6 @@ class TestSearchIndex(object):
 
         assert len(response) == 0
 
-    @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-    @pytest.mark.usefixtures("clean_index")
     def test_clear_index(self):
 
         self.package_index.index_package(self.base_package_dict)
@@ -76,8 +72,6 @@ class TestSearchIndex(object):
         response = self.solr_client.search(q="name:monkey", fq=self.fq)
         assert len(response) == 0
 
-    @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-    @pytest.mark.usefixtures("clean_index")
     def test_delete_package(self):
         self.package_index.index_package(self.base_package_dict)
 
@@ -97,8 +91,6 @@ class TestSearchIndex(object):
         response_ids = sorted([x["id"] for x in response.docs])
         assert response_ids == ["test-index"]
 
-    @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-    @pytest.mark.usefixtures("clean_index")
     def test_index_illegal_xml_chars(self):
 
         pkg_dict = self.base_package_dict.copy()
@@ -115,8 +107,6 @@ class TestSearchIndex(object):
         assert len(response) == 1
         assert response.docs[0]["title"] == u"\u00c3altimo n\u00famero penguin"
 
-    @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-    @pytest.mark.usefixtures("clean_index")
     def test_index_date_field(self):
 
         pkg_dict = self.base_package_dict.copy()
@@ -144,8 +134,6 @@ class TestSearchIndex(object):
             == "2014-03-22 05:42:14"
         )
 
-    @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-    @pytest.mark.usefixtures("clean_index")
     def test_index_date_field_wrong_value(self):
 
         pkg_dict = self.base_package_dict.copy()
@@ -167,8 +155,6 @@ class TestSearchIndex(object):
         assert "test_wrong_date" not in response.docs[0]
         assert "test_another_wrong_date" not in response.docs[0]
 
-    @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-    @pytest.mark.usefixtures("clean_index")
     def test_index_date_field_empty_value(self):
 
         pkg_dict = self.base_package_dict.copy()

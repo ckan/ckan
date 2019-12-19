@@ -59,267 +59,225 @@ class MockDatastoreBasedResourceView(p.SingletonPlugin):
     "ckan.plugins", "image_view recline_view webpage_view test_datastore_view"
 )
 @pytest.mark.usefixtures("with_plugins")
-def test_no_config():
+class TestDatapreviewWithWebpageView(object):
+    def test_no_config(self):
 
-    default_views = datapreview.get_default_view_plugins()
+        default_views = datapreview.get_default_view_plugins()
 
-    assert sorted(
-        [view_plugin.info()["name"] for view_plugin in default_views]
-    ) == sorted(datapreview.DEFAULT_RESOURCE_VIEW_TYPES)
+        assert sorted(
+            [view_plugin.info()["name"] for view_plugin in default_views]
+        ) == sorted(datapreview.DEFAULT_RESOURCE_VIEW_TYPES)
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
+    def test_empty_config(self):
+        default_views = datapreview.get_default_view_plugins()
+        assert default_views == []
 
-@pytest.mark.ckan_config("ckan.views.default_views", "")
-@pytest.mark.ckan_config(
-    "ckan.plugins", "image_view recline_view webpage_view test_datastore_view"
-)
-@pytest.mark.usefixtures("with_plugins")
-def test_empty_config():
-    default_views = datapreview.get_default_view_plugins()
-    assert default_views == []
+    @pytest.mark.ckan_config("ckan.views.default_views", "image_view")
+    def test_in_config(self):
 
+        default_views = datapreview.get_default_view_plugins()
 
-@pytest.mark.ckan_config("ckan.views.default_views", "image_view")
-@pytest.mark.ckan_config(
-    "ckan.plugins", "image_view recline_view webpage_view test_datastore_view"
-)
-@pytest.mark.usefixtures("with_plugins")
-def test_in_config():
+        assert sorted(
+            [view_plugin.info()["name"] for view_plugin in default_views]
+        ) == ["image_view"]
 
-    default_views = datapreview.get_default_view_plugins()
+    @pytest.mark.ckan_config("ckan.views.default_views", "test_datastore_view")
+    def test_in_config_datastore_view_only(self):
 
-    assert sorted(
-        [view_plugin.info()["name"] for view_plugin in default_views]
-    ) == ["image_view"]
+        default_views = datapreview.get_default_view_plugins(
+            get_datastore_views=True
+        )
 
+        assert sorted(
+            [view_plugin.info()["name"] for view_plugin in default_views]
+        ) == ["test_datastore_view"]
 
-@pytest.mark.ckan_config("ckan.views.default_views", "test_datastore_view")
-@pytest.mark.ckan_config(
-    "ckan.plugins", "image_view recline_view webpage_view test_datastore_view"
-)
-@pytest.mark.usefixtures("with_plugins")
-def test_in_config_datastore_view_only():
+    @pytest.mark.ckan_config("ckan.views.default_views", "test_datastore_view")
+    def test_in_config_datastore_view_only_with_get_datastore_views(self):
 
-    default_views = datapreview.get_default_view_plugins(
-        get_datastore_views=True
+        default_views = datapreview.get_default_view_plugins()
+
+        assert default_views == []
+
+    @pytest.mark.ckan_config(
+        "ckan.views.default_views", "image_view test_datastore_view"
     )
+    def test_both_plugins_in_config_only_non_datastore(self):
+        default_views = datapreview.get_default_view_plugins()
 
-    assert sorted(
-        [view_plugin.info()["name"] for view_plugin in default_views]
-    ) == ["test_datastore_view"]
+        assert sorted(
+            [view_plugin.info()["name"] for view_plugin in default_views]
+        ) == ["image_view"]
 
-
-@pytest.mark.ckan_config("ckan.views.default_views", "test_datastore_view")
-@pytest.mark.ckan_config(
-    "ckan.plugins", "image_view recline_view webpage_view test_datastore_view"
-)
-@pytest.mark.usefixtures("with_plugins")
-def test_in_config_datastore_view_only_with_get_datastore_views():
-
-    default_views = datapreview.get_default_view_plugins()
-
-    assert default_views == []
-
-
-@pytest.mark.ckan_config(
-    "ckan.views.default_views", "image_view test_datastore_view"
-)
-@pytest.mark.ckan_config(
-    "ckan.plugins", "image_view recline_view webpage_view test_datastore_view"
-)
-@pytest.mark.usefixtures("with_plugins")
-def test_both_plugins_in_config_only_non_datastore():
-    default_views = datapreview.get_default_view_plugins()
-
-    assert sorted(
-        [view_plugin.info()["name"] for view_plugin in default_views]
-    ) == ["image_view"]
-
-
-@pytest.mark.ckan_config(
-    "ckan.views.default_views", "image_view test_datastore_view"
-)
-@pytest.mark.ckan_config(
-    "ckan.plugins", "image_view recline_view webpage_view test_datastore_view"
-)
-@pytest.mark.usefixtures("with_plugins")
-def test_both_plugins_in_config_only_datastore():
-
-    default_views = datapreview.get_default_view_plugins(
-        get_datastore_views=True
+    @pytest.mark.ckan_config(
+        "ckan.views.default_views", "image_view test_datastore_view"
     )
+    def test_both_plugins_in_config_only_datastore(self):
 
-    assert sorted(
-        [view_plugin.info()["name"] for view_plugin in default_views]
-    ) == ["test_datastore_view"]
+        default_views = datapreview.get_default_view_plugins(
+            get_datastore_views=True
+        )
+
+        assert sorted(
+            [view_plugin.info()["name"] for view_plugin in default_views]
+        ) == ["test_datastore_view"]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_get_view_plugins():
+class TestDatapreview(object):
+    def test_get_view_plugins(self):
 
-    view_types = ["image_view", "not_there", "test_datastore_view"]
+        view_types = ["image_view", "not_there", "test_datastore_view"]
 
-    view_plugins = datapreview.get_view_plugins(view_types)
+        view_plugins = datapreview.get_view_plugins(view_types)
 
-    assert len(view_plugins) == 2
+        assert len(view_plugins) == 2
 
-    assert view_plugins[0].info()["name"] == "image_view"
-    assert view_plugins[1].info()["name"] == "test_datastore_view"
+        assert view_plugins[0].info()["name"] == "image_view"
+        assert view_plugins[1].info()["name"] == "test_datastore_view"
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
+    def test_add_views_to_dataset_resources(self):
 
-@pytest.mark.ckan_config("ckan.views.default_views", "")
-@pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_add_views_to_dataset_resources():
+        # New resources have no views
+        dataset_dict = factories.Dataset(
+            resources=[
+                {
+                    "url": "http://some.image.png",
+                    "format": "png",
+                    "name": "Image 1",
+                },
+                {
+                    "url": "http://some.image.png",
+                    "format": "png",
+                    "name": "Image 2",
+                },
+            ]
+        )
+        context = {"user": helpers.call_action("get_site_user")["name"]}
+        created_views = datapreview.add_views_to_dataset_resources(
+            context, dataset_dict, view_types=["image_view"]
+        )
 
-    # New resources have no views
-    dataset_dict = factories.Dataset(
-        resources=[
-            {
-                "url": "http://some.image.png",
-                "format": "png",
-                "name": "Image 1",
-            },
-            {
-                "url": "http://some.image.png",
-                "format": "png",
-                "name": "Image 2",
-            },
-        ]
-    )
-    context = {"user": helpers.call_action("get_site_user")["name"]}
-    created_views = datapreview.add_views_to_dataset_resources(
-        context, dataset_dict, view_types=["image_view"]
-    )
+        assert len(created_views) == 2
 
-    assert len(created_views) == 2
+        assert created_views[0]["view_type"] == "image_view"
+        assert created_views[1]["view_type"] == "image_view"
 
-    assert created_views[0]["view_type"] == "image_view"
-    assert created_views[1]["view_type"] == "image_view"
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
+    def test_add_views_to_dataset_resources_no_type_provided(self):
 
+        # New resources have no views
+        dataset_dict = factories.Dataset(
+            resources=[
+                {
+                    "url": "http://some.image.png",
+                    "format": "png",
+                    "name": "Image 1",
+                },
+                {
+                    "url": "http://some.image.png",
+                    "format": "png",
+                    "name": "Image 2",
+                },
+            ]
+        )
 
-@pytest.mark.ckan_config("ckan.views.default_views", "")
-@pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_add_views_to_dataset_resources_no_type_provided():
+        # Change default views config setting
+        config["ckan.views.default_views"] = "image_view"
 
-    # New resources have no views
-    dataset_dict = factories.Dataset(
-        resources=[
-            {
-                "url": "http://some.image.png",
-                "format": "png",
-                "name": "Image 1",
-            },
-            {
-                "url": "http://some.image.png",
-                "format": "png",
-                "name": "Image 2",
-            },
-        ]
-    )
+        context = {"user": helpers.call_action("get_site_user")["name"]}
+        created_views = datapreview.add_views_to_dataset_resources(
+            context, dataset_dict, view_types=[]
+        )
 
-    # Change default views config setting
-    config["ckan.views.default_views"] = "image_view"
+        assert len(created_views) == 2
 
-    context = {"user": helpers.call_action("get_site_user")["name"]}
-    created_views = datapreview.add_views_to_dataset_resources(
-        context, dataset_dict, view_types=[]
-    )
+        assert created_views[0]["view_type"] == "image_view"
+        assert created_views[1]["view_type"] == "image_view"
 
-    assert len(created_views) == 2
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
+    def test_add_views_to_resource(self):
 
-    assert created_views[0]["view_type"] == "image_view"
-    assert created_views[1]["view_type"] == "image_view"
+        resource_dict = factories.Resource(
+            url="http://some.image.png", format="png"
+        )
 
+        context = {"user": helpers.call_action("get_site_user")["name"]}
 
-@pytest.mark.ckan_config("ckan.views.default_views", "")
-@pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_add_views_to_resource():
+        created_views = datapreview.add_views_to_resource(
+            context, resource_dict, view_types=["image_view"]
+        )
 
-    resource_dict = factories.Resource(
-        url="http://some.image.png", format="png"
-    )
+        assert len(created_views) == 1
 
-    context = {"user": helpers.call_action("get_site_user")["name"]}
+        assert created_views[0]["view_type"] == "image_view"
 
-    created_views = datapreview.add_views_to_resource(
-        context, resource_dict, view_types=["image_view"]
-    )
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
+    def test_add_views_to_resource_no_type_provided(self):
 
-    assert len(created_views) == 1
+        resource_dict = factories.Resource(
+            url="http://some.image.png", format="png"
+        )
 
-    assert created_views[0]["view_type"] == "image_view"
+        # Change default views config setting
+        config["ckan.views.default_views"] = "image_view"
 
+        context = {"user": helpers.call_action("get_site_user")["name"]}
+        created_views = datapreview.add_views_to_resource(
+            context, resource_dict
+        )
 
-@pytest.mark.ckan_config("ckan.views.default_views", "")
-@pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_add_views_to_resource_no_type_provided():
+        assert len(created_views) == 1
 
-    resource_dict = factories.Resource(
-        url="http://some.image.png", format="png"
-    )
+        assert created_views[0]["view_type"] == "image_view"
 
-    # Change default views config setting
-    config["ckan.views.default_views"] = "image_view"
+    def test_default_views_created_on_package_create(self):
 
-    context = {"user": helpers.call_action("get_site_user")["name"]}
-    created_views = datapreview.add_views_to_resource(context, resource_dict)
+        dataset_dict = factories.Dataset(
+            resources=[
+                {
+                    "url": "http://some.image.png",
+                    "format": "png",
+                    "name": "Image 1",
+                },
+                {
+                    "url": "http://some.image.png",
+                    "format": "png",
+                    "name": "Image 2",
+                },
+            ]
+        )
 
-    assert len(created_views) == 1
+        for resource in dataset_dict["resources"]:
+            views_list = helpers.call_action(
+                "resource_view_list", id=resource["id"]
+            )
 
-    assert created_views[0]["view_type"] == "image_view"
+            assert len(views_list) == 1
+            assert views_list[0]["view_type"] == "image_view"
 
+    def test_default_views_created_on_resource_create(self):
 
-@pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_default_views_created_on_package_create():
+        dataset_dict = factories.Dataset(
+            resources=[{"url": "http://not.for.viewing", "format": "xxx"}]
+        )
 
-    dataset_dict = factories.Dataset(
-        resources=[
-            {
-                "url": "http://some.image.png",
-                "format": "png",
-                "name": "Image 1",
-            },
-            {
-                "url": "http://some.image.png",
-                "format": "png",
-                "name": "Image 2",
-            },
-        ]
-    )
+        resource_dict = {
+            "package_id": dataset_dict["id"],
+            "url": "http://some.image.png",
+            "format": "png",
+        }
 
-    for resource in dataset_dict["resources"]:
+        new_resource_dict = helpers.call_action(
+            "resource_create", **resource_dict
+        )
+
         views_list = helpers.call_action(
-            "resource_view_list", id=resource["id"]
+            "resource_view_list", id=new_resource_dict["id"]
         )
 
         assert len(views_list) == 1
         assert views_list[0]["view_type"] == "image_view"
-
-
-@pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_default_views_created_on_resource_create():
-
-    dataset_dict = factories.Dataset(
-        resources=[{"url": "http://not.for.viewing", "format": "xxx"}]
-    )
-
-    resource_dict = {
-        "package_id": dataset_dict["id"],
-        "url": "http://some.image.png",
-        "format": "png",
-    }
-
-    new_resource_dict = helpers.call_action("resource_create", **resource_dict)
-
-    views_list = helpers.call_action(
-        "resource_view_list", id=new_resource_dict["id"]
-    )
-
-    assert len(views_list) == 1
-    assert views_list[0]["view_type"] == "image_view"

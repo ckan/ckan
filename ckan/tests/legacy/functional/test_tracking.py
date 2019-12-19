@@ -10,6 +10,7 @@ from ckan.lib.helpers import url_for
 import ckan.tests.legacy as tests
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestTracking(object):
     def _create_sysadmin(self, app):
         """Create a sysadmin user.
@@ -102,7 +103,6 @@ class TestTracking(object):
 
         ckan.lib.cli.SearchIndexCommand("SearchIndexCommand").rebuild()
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_with_0_views(self, app):
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -124,7 +124,6 @@ class TestTracking(object):
             "total views"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_with_0_views(self, app):
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -166,7 +165,6 @@ class TestTracking(object):
             "total views"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_with_one_view(self, app):
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -207,7 +205,6 @@ class TestTracking(object):
             "of the package's resources"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_with_one_preview(self, app):
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -256,7 +253,6 @@ class TestTracking(object):
             "recent views"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_with_one_download(self, app):
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -301,7 +297,6 @@ class TestTracking(object):
             "views"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_view_page(self, app):
         # Visit the front page.
         self._post_to_tracking(app, url="", type_="page")
@@ -333,7 +328,6 @@ class TestTracking(object):
                 tracking_summary.running_total == 0
             ), "running_total for a page is always 0"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_with_many_views(self, app):
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -372,7 +366,6 @@ class TestTracking(object):
             "package's resources"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_with_many_downloads(self, app):
 
         sysadmin_user, apikey = self._create_sysadmin(app)
@@ -412,7 +405,6 @@ class TestTracking(object):
             "package's total views"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_page_with_many_views(self, app):
 
         # View each page three times, from three different IPs.
@@ -450,7 +442,6 @@ class TestTracking(object):
                 "running_total for " "pages is always 0"
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_dataset_view_count_throttling(self, app):
         """If the same user visits the same dataset multiple times on the same
         day, only one view should get counted.
@@ -479,7 +470,6 @@ class TestTracking(object):
             "Repeat dataset views should " "not add to total views count"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_download_count_throttling(self, app):
         """If the same user downloads the same resource multiple times on the
         same day, only one view should get counted.
@@ -508,7 +498,6 @@ class TestTracking(object):
             tracking_summary["total"] == 1
         ), "Repeat resource downloads should not add to total views count"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_sorting_datasets_by_recent_views(self, app, reset_index):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
@@ -542,7 +531,6 @@ class TestTracking(object):
         assert packages[1]["name"] == "the_player_of_games"
         assert packages[2]["name"] == "consider_phlebas"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_sorting_datasets_by_total_views(self, app, reset_index):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
@@ -596,7 +584,6 @@ class TestTracking(object):
         lines = [line for line in csv.DictReader(open(f.name, "r"))]
         return lines
 
-    @pytest.mark.usefixtures("clean_db")
     def test_export(self, app):
         """`paster tracking export` should export tracking data for all
         datasets in CSV format.

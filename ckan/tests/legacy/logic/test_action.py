@@ -1130,15 +1130,14 @@ class MockPackageSearchPlugin(SingletonPlugin):
 # MockPackageSearchPlugin().disable()
 
 
+@pytest.mark.ckan_config("ckan.plugins", "legacy_mock_search_plugin")
+@pytest.mark.usefixtures("with_plugins")
 class TestSearchPluginInterface(object):
     @pytest.fixture(autouse=True)
-    @pytest.mark.ckan_config("ckan.plugins", "legacy_mock_search_plugin")
     def initial_data(self, clean_db, clean_index, with_plugins):
         CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
 
-    @pytest.mark.ckan_config("ckan.plugins", "legacy_mock_search_plugin")
-    @pytest.mark.usefixtures("with_plugins")
     def test_search_plugin_interface_search(self, app):
         avoid = "Tolstoy"
         search_params = "%s=1" % json.dumps(
@@ -1153,8 +1152,6 @@ class TestSearchPluginInterface(object):
 
         assert results_dict["count"] == 1
 
-    @pytest.mark.ckan_config("ckan.plugins", "legacy_mock_search_plugin")
-    @pytest.mark.usefixtures("with_plugins")
     def test_search_plugin_interface_abort(self, app):
 
         search_params = "%s=1" % json.dumps(
@@ -1168,8 +1165,6 @@ class TestSearchPluginInterface(object):
         assert res_dict["count"] == 0
         assert len(res_dict["results"]) == 0
 
-    @pytest.mark.ckan_config("ckan.plugins", "legacy_mock_search_plugin")
-    @pytest.mark.usefixtures("with_plugins")
     def test_before_index(self, app):
 
         # no datasets get aaaaaaaa
@@ -1189,8 +1184,6 @@ class TestSearchPluginInterface(object):
         assert res_dict["count"] == 2, res_dict["count"]
         assert len(res_dict["results"]) == 2
 
-    @pytest.mark.ckan_config("ckan.plugins", "legacy_mock_search_plugin")
-    @pytest.mark.usefixtures("with_plugins")
     def test_before_view(self, app):
         res = app.get("/dataset/annakarenina")
 

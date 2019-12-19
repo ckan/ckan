@@ -11,8 +11,8 @@ from ckan.lib import search
 from ckan.tests import helpers, factories
 
 
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupListDictize:
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_list_dictize(self):
         group = factories.Group()
         group_list = model.Session.query(model.Group).filter_by().all()
@@ -27,7 +27,6 @@ class TestGroupListDictize:
         assert "tags" not in group_dicts[0]
         assert "groups" not in group_dicts[0]
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_list_dictize_sorted(self):
         factories.Group(name="aa")
         factories.Group(name="bb")
@@ -40,7 +39,6 @@ class TestGroupListDictize:
         assert group_dicts[0]["name"] == "aa"
         assert group_dicts[1]["name"] == "bb"
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_list_dictize_reverse_sorted(self):
         factories.Group(name="aa")
         factories.Group(name="bb")
@@ -54,7 +52,6 @@ class TestGroupListDictize:
         assert group_dicts[0]["name"] == "bb"
         assert group_dicts[1]["name"] == "aa"
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_list_dictize_sort_by_package_count(self):
         factories.Group(name="aa")
         factories.Group(name="bb")
@@ -74,7 +71,6 @@ class TestGroupListDictize:
         assert group_dicts[0]["name"] == "aa"
         assert group_dicts[1]["name"] == "bb"
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_list_dictize_without_package_count(self):
         group_ = factories.Group()
         factories.Dataset(groups=[{"name": group_["name"]}])
@@ -87,7 +83,6 @@ class TestGroupListDictize:
 
         assert "packages" not in group_dicts[0]
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_list_dictize_including_extras(self):
         factories.Group(extras=[{"key": "k1", "value": "v1"}])
         group_list = model.Session.query(model.Group).filter_by().all()
@@ -99,7 +94,6 @@ class TestGroupListDictize:
 
         assert group_dicts[0]["extras"][0]["key"] == "k1"
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_list_dictize_including_tags(self):
         factories.Group()
         # group tags aren't in the group_create schema, so its slightly more
@@ -124,7 +118,6 @@ class TestGroupListDictize:
 
         assert group_dicts[0]["tags"][0]["name"] == "t1"
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_list_dictize_including_groups(self):
         factories.Group(name="parent")
         factories.Group(name="child", groups=[{"name": "parent"}])
@@ -141,8 +134,8 @@ class TestGroupListDictize:
         assert child_dict["groups"][0]["name"] == "parent"
 
 
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupDictize:
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize(self):
         group = factories.Group(name="test_dictize")
         group_obj = model.Session.query(model.Group).filter_by().first()
@@ -156,7 +149,6 @@ class TestGroupDictize:
         assert group["tags"] == []
         assert group["groups"] == []
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_group_with_dataset(self):
         group_ = factories.Group()
         package = factories.Dataset(groups=[{"name": group_["name"]}])
@@ -168,7 +160,6 @@ class TestGroupDictize:
         assert group["packages"][0]["name"] == package["name"]
         assert group["packages"][0]["groups"][0]["name"] == group_["name"]
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_group_with_extra(self):
         factories.Group(extras=[{"key": "k1", "value": "v1"}])
         group_obj = model.Session.query(model.Group).filter_by().first()
@@ -178,7 +169,6 @@ class TestGroupDictize:
 
         assert group["extras"][0]["key"] == "k1"
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_group_with_parent_group(self):
         factories.Group(name="parent")
         factories.Group(name="child", groups=[{"name": "parent"}])
@@ -191,7 +181,6 @@ class TestGroupDictize:
         assert group["groups"][0]["name"] == "parent"
         assert group["groups"][0]["package_count"] == 0
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_without_packages(self):
         # group_list_dictize might not be interested in packages at all
         # so sets these options. e.g. it is not all_fields nor are the results
@@ -206,7 +195,6 @@ class TestGroupDictize:
 
         assert "packages" not in group
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_with_package_list(self):
         group_ = factories.Group()
         package = factories.Dataset(groups=[{"name": group_["name"]}])
@@ -219,7 +207,6 @@ class TestGroupDictize:
         assert len(group["packages"]) == 1
         assert group["packages"][0]["name"] == package["name"]
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_with_package_list_limited(self):
         """
         Packages returned in group are limited by context var.
@@ -239,7 +226,6 @@ class TestGroupDictize:
 
         assert len(group["packages"]) == 4
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_with_package_list_limited_over(self):
         """
         Packages limit is set higher than number of packages in group.
@@ -259,7 +245,6 @@ class TestGroupDictize:
 
         assert len(group["packages"]) == 3
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     @pytest.mark.ckan_config("ckan.search.rows_max", "4")
     def test_group_dictize_with_package_list_limited_by_config(self):
         group_ = factories.Group()
@@ -273,7 +258,6 @@ class TestGroupDictize:
         assert len(group["packages"]) == 4
         # limited by ckan.search.rows_max
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_with_package_count(self):
         # group_list_dictize calls it like this by default
         group_ = factories.Group()
@@ -292,7 +276,6 @@ class TestGroupDictize:
         )
         assert group["package_count"] == 1
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_with_no_packages_field_but_still_package_count(
         self,
     ):
@@ -310,7 +293,6 @@ class TestGroupDictize:
         assert "packages" not in group
         assert group["package_count"] == 1
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_for_org_with_package_list(self):
         org_ = factories.Organization()
         package = factories.Dataset(owner_org=org_["id"])
@@ -323,7 +305,6 @@ class TestGroupDictize:
         assert len(org["packages"]) == 1
         assert org["packages"][0]["name"] == package["name"]
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_group_dictize_for_org_with_package_count(self):
         # group_list_dictize calls it like this by default
         org_ = factories.Organization()
@@ -344,6 +325,7 @@ class TestGroupDictize:
         assert org["package_count"] == 1
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestPackageDictize:
     def remove_changable_values(self, dict_):
         dict_ = copy.deepcopy(dict_)
@@ -373,7 +355,6 @@ class TestPackageDictize:
                 % (key, result_dict[key], expected_dict[key])
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_basic(self):
         dataset = factories.Dataset(
             name="test_dataset_dictize",
@@ -421,7 +402,6 @@ class TestPackageDictize:
         }
         self.assert_equals_expected(expected_dict, result)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_license(self):
         dataset = factories.Dataset(license_id="cc-by")
         dataset_obj = model.Package.get(dataset["id"])
@@ -437,7 +417,6 @@ class TestPackageDictize:
         )
         assert result["license_title"] == "Creative Commons Attribution"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_title_stripped_of_whitespace(self):
         dataset = factories.Dataset(title=" has whitespace \t")
         dataset_obj = model.Package.get(dataset["id"])
@@ -448,7 +427,6 @@ class TestPackageDictize:
         assert result["title"] == "has whitespace"
         assert dataset_obj.title == " has whitespace \t"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_resource(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -479,7 +457,6 @@ class TestPackageDictize:
         }
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_resource_upload_and_striped(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -496,7 +473,6 @@ class TestPackageDictize:
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_resource_upload_with_url_and_striped(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -513,7 +489,6 @@ class TestPackageDictize:
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_tags(self):
         dataset = factories.Dataset(tags=[{"name": "fish"}])
         dataset_obj = model.Package.get(dataset["id"])
@@ -529,7 +504,6 @@ class TestPackageDictize:
         }
         self.assert_equals_expected(expected_dict, result["tags"][0])
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_extras(self):
         extras_dict = {"key": "latitude", "value": "54.6"}
         dataset = factories.Dataset(extras=[extras_dict])
@@ -546,7 +520,6 @@ class TestPackageDictize:
         }
         self.assert_equals_expected(expected_dict, result["extras"][0])
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_group(self):
         group = factories.Group(
             name="test_group_dictize", title="Test Group Dictize"
@@ -573,7 +546,6 @@ class TestPackageDictize:
         }
         self.assert_equals_expected(expected_dict, result["groups"][0])
 
-    @pytest.mark.usefixtures("clean_db")
     def test_package_dictize_owner_org(self):
         org = factories.Organization(name="test_package_dictize")
         dataset = factories.Dataset(owner_org=org["id"])
@@ -670,8 +642,8 @@ class TestVocabularyDictize(object):
             assert len(tag.get("packages", [])) == 0
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestActivityDictize(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_include_data(self):
         dataset = factories.Dataset()
         user = factories.User()
@@ -692,7 +664,6 @@ class TestActivityDictize(object):
         assert dictized["data"]["package"]["id"] == dataset["id"]
         assert dictized["data"]["actor"] == "Mr Someone"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_dont_include_data(self):
         dataset = factories.Dataset()
         user = factories.User()

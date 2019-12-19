@@ -40,8 +40,8 @@ def mock_open_if_open_fails(*args, **kwargs):
         return fake_open(*args, **kwargs)
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestUserInvite(object):
-    @pytest.mark.usefixtures("clean_db")
     @mock.patch("ckan.lib.mailer.send_invite")
     def test_invited_user_is_created_as_pending(self, _):
         invited_user = self._invite_user_to_group()
@@ -50,7 +50,6 @@ class TestUserInvite(object):
         assert invited_user.is_pending()
 
     @mock.patch("ckan.lib.mailer.send_invite")
-    @pytest.mark.usefixtures("clean_db")
     def test_creates_user_with_valid_username(self, _):
         email = "user$%+abc@email.com"
         invited_user = self._invite_user_to_group(email)
@@ -58,7 +57,6 @@ class TestUserInvite(object):
         assert invited_user.name.startswith("user---abc"), invited_user
 
     @mock.patch("ckan.lib.mailer.send_invite")
-    @pytest.mark.usefixtures("clean_db")
     def test_assigns_user_to_group_in_expected_role(self, _):
         role = "admin"
         invited_user = self._invite_user_to_group(role=role)
@@ -67,7 +65,6 @@ class TestUserInvite(object):
         assert len(group_ids) == 1, group_ids
 
     @mock.patch("ckan.lib.mailer.send_invite")
-    @pytest.mark.usefixtures("clean_db")
     def test_sends_invite(self, send_invite):
         invited_user = self._invite_user_to_group()
 
@@ -76,7 +73,6 @@ class TestUserInvite(object):
 
     @mock.patch("ckan.lib.mailer.send_invite")
     @mock.patch("random.SystemRandom")
-    @pytest.mark.usefixtures("clean_db")
     def test_works_even_if_username_already_exists(self, rand, _):
         # usernames
         rand.return_value.random.side_effect = [1000, 1000, 2000, 3000]
@@ -88,19 +84,16 @@ class TestUserInvite(object):
             assert invited_user is not None, invited_user
 
     @mock.patch("ckan.lib.mailer.send_invite")
-    @pytest.mark.usefixtures("clean_db")
     def test_requires_email(self, _):
         with pytest.raises(logic.ValidationError):
             self._invite_user_to_group(email=None)
 
     @mock.patch("ckan.lib.mailer.send_invite")
-    @pytest.mark.usefixtures("clean_db")
     def test_requires_role(self, _):
         with pytest.raises(logic.ValidationError):
             self._invite_user_to_group(role=None)
 
     @mock.patch("ckan.lib.mailer.send_invite")
-    @pytest.mark.usefixtures("clean_db")
     def test_raises_not_found(self, _):
         user = factories.User()
 
@@ -114,20 +107,17 @@ class TestUserInvite(object):
             helpers.call_action("user_invite", context, **params)
 
     @mock.patch("ckan.lib.mailer.send_invite")
-    @pytest.mark.usefixtures("clean_db")
     def test_requires_group_id(self, _):
         with pytest.raises(logic.ValidationError):
             self._invite_user_to_group(group={"id": None})
 
     @mock.patch("ckan.lib.mailer.send_invite")
-    @pytest.mark.usefixtures("clean_db")
     def test_user_name_lowercase_when_email_is_uppercase(self, _):
         invited_user = self._invite_user_to_group(email="Maria@example.com")
 
         assert invited_user.name.split("-")[0] == "maria"
 
     @pytest.mark.ckan_config("smtp.server", "email.example.com")
-    @pytest.mark.usefixtures("clean_db")
     def test_smtp_error_returns_error_message(self):
 
         sysadmin = factories.Sysadmin()
@@ -166,9 +156,9 @@ class TestUserInvite(object):
         return model.User.get(result["id"])
 
 
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceViewCreate(object):
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_create(self):
         context = {}
         params = self._default_resource_view_attributes()
@@ -180,8 +170,6 @@ class TestResourceViewCreate(object):
 
         assert params == result
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_requires_resource_id(self):
         context = {}
         params = self._default_resource_view_attributes()
@@ -190,8 +178,6 @@ class TestResourceViewCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context, **params)
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_requires_title(self):
         context = {}
         params = self._default_resource_view_attributes()
@@ -201,8 +187,6 @@ class TestResourceViewCreate(object):
             helpers.call_action("resource_view_create", context, **params)
 
     @mock.patch("ckan.lib.datapreview.get_view_plugin")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_requires_view_type(self, get_view_plugin):
         context = {}
         params = self._default_resource_view_attributes()
@@ -213,16 +197,12 @@ class TestResourceViewCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context, **params)
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_raises_if_couldnt_find_resource(self):
         context = {}
         params = self._default_resource_view_attributes(resource_id="unknown")
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context, **params)
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_raises_if_couldnt_find_view_extension(self):
         context = {}
         params = self._default_resource_view_attributes(view_type="unknown")
@@ -230,8 +210,6 @@ class TestResourceViewCreate(object):
             helpers.call_action("resource_view_create", context, **params)
 
     @mock.patch("ckan.lib.datapreview")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_filterable_views_dont_require_any_extra_fields(
         self, datapreview_mock
     ):
@@ -247,8 +225,6 @@ class TestResourceViewCreate(object):
         assert params == result
 
     @mock.patch("ckan.lib.datapreview")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
         self, datapreview_mock
     ):
@@ -267,8 +243,6 @@ class TestResourceViewCreate(object):
         assert result["filters"] == expected_filters
 
     @mock.patch("ckan.lib.datapreview")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_filterable_views_converts_filter_fields_and_values_to_list(
         self, datapreview_mock
     ):
@@ -282,8 +256,6 @@ class TestResourceViewCreate(object):
         assert result["filters"] == {"country": ["Brazil"]}
 
     @mock.patch("ckan.lib.datapreview")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_filterable_views_require_filter_fields_and_values_to_have_same_length(
         self, datapreview_mock
     ):
@@ -297,8 +269,6 @@ class TestResourceViewCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context, **params)
 
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_non_filterable_views_dont_accept_filter_fields_and_values(self):
         context = {}
         filters = {"filter_fields": "country", "filter_values": "Brazil"}
@@ -326,10 +296,10 @@ class TestResourceViewCreate(object):
         datapreview_mock.get_view_plugin.return_value = filterable_view
 
 
+@pytest.mark.ckan_config("ckan.views.default_views", "")
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestCreateDefaultResourceViews(object):
-    @pytest.mark.ckan_config("ckan.views.default_views", "")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_add_default_views_to_dataset_resources(self):
 
         # New resources have no views
@@ -363,9 +333,6 @@ class TestCreateDefaultResourceViews(object):
         assert created_views[0]["view_type"] == "image_view"
         assert created_views[1]["view_type"] == "image_view"
 
-    @pytest.mark.ckan_config("ckan.views.default_views", "")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_add_default_views_to_resource(self):
 
         # New resources have no views
@@ -391,9 +358,6 @@ class TestCreateDefaultResourceViews(object):
 
         assert created_views[0]["view_type"] == "image_view"
 
-    @pytest.mark.ckan_config("ckan.views.default_views", "")
-    @pytest.mark.ckan_config("ckan.plugins", "image_view")
-    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_add_default_views_to_resource_no_dataset_passed(self):
 
         # New resources have no views
@@ -419,8 +383,8 @@ class TestCreateDefaultResourceViews(object):
         assert created_views[0]["view_type"] == "image_view"
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestResourceCreate:
-    @pytest.mark.usefixtures("clean_db")
     def test_resource_create(self):
         context = {}
         params = {
@@ -438,7 +402,6 @@ class TestResourceCreate:
         for key in params.keys():
             assert params[key] == result[key]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_it_requires_package_id(self):
 
         data_dict = {"url": "http://data"}
@@ -446,7 +409,6 @@ class TestResourceCreate:
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_create", **data_dict)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_doesnt_require_url(self):
         dataset = factories.Dataset()
         data_dict = {"package_id": dataset["id"]}
@@ -461,7 +423,6 @@ class TestResourceCreate:
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.usefixtures("clean_db")
     def test_mimetype_by_url(self, mock_open):
         """
         The mimetype is guessed from the url
@@ -482,7 +443,6 @@ class TestResourceCreate:
         assert mimetype
         assert mimetype == "text/csv"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_mimetype_by_user(self):
         """
         The mimetype is supplied by the user
@@ -506,7 +466,6 @@ class TestResourceCreate:
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.usefixtures("clean_db")
     def test_mimetype_by_upload_by_filename(self, mock_open):
         """
         The mimetype is guessed from an uploaded file with a filename
@@ -559,7 +518,6 @@ class TestResourceCreate:
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.usefixtures("clean_db")
     def test_mimetype_by_upload_by_file(self, mock_open):
         """
         The mimetype is guessed from an uploaded file by the contents inside
@@ -600,7 +558,6 @@ class TestResourceCreate:
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.usefixtures("clean_db")
     def test_size_of_resource_by_upload(self, mock_open):
         """
         The size of the resource determined by the uploaded file
@@ -634,7 +591,6 @@ class TestResourceCreate:
         assert size
         assert size > 0
 
-    @pytest.mark.usefixtures("clean_db")
     def test_size_of_resource_by_user(self):
         """
         The size of the resource is provided by the users
@@ -653,7 +609,6 @@ class TestResourceCreate:
         size = int(result.pop("size"))
         assert size == 500
 
-    @pytest.mark.usefixtures("clean_db")
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -678,8 +633,8 @@ class TestResourceCreate:
         assert "someotherkey" not in resource
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestMemberCreate(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_group_member_creation(self):
         user = factories.User()
         group = factories.Group()
@@ -696,7 +651,6 @@ class TestMemberCreate(object):
         assert new_membership["table_id"] == user["id"]
         assert new_membership["capacity"] == "member"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_organization_member_creation(self):
         user = factories.User()
         organization = factories.Organization()
@@ -713,7 +667,6 @@ class TestMemberCreate(object):
         assert new_membership["table_id"] == user["id"]
         assert new_membership["capacity"] == "member"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_member_creation_raises_validation_error_if_id_missing(self):
 
         with pytest.raises(logic.ValidationError):
@@ -721,7 +674,6 @@ class TestMemberCreate(object):
                 "group_member_create", username="someuser", role="member"
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_member_creation_raises_validation_error_if_username_missing(
         self,
     ):
@@ -731,7 +683,6 @@ class TestMemberCreate(object):
                 "group_member_create", id="someid", role="member"
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_group_member_creation_raises_validation_error_if_role_missing(
         self,
     ):
@@ -741,7 +692,6 @@ class TestMemberCreate(object):
                 "group_member_create", id="someid", username="someuser"
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_org_member_creation_raises_validation_error_if_id_missing(self):
 
         with pytest.raises(logic.ValidationError):
@@ -751,7 +701,6 @@ class TestMemberCreate(object):
                 role="member",
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_org_member_creation_raises_validation_error_if_username_missing(
         self,
     ):
@@ -761,7 +710,6 @@ class TestMemberCreate(object):
                 "organization_member_create", id="someid", role="member"
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_org_member_creation_raises_validation_error_if_role_missing(self):
 
         with pytest.raises(logic.ValidationError):
@@ -770,8 +718,8 @@ class TestMemberCreate(object):
             )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestDatasetCreate(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_normal_user_cant_set_id(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": False}
@@ -783,7 +731,6 @@ class TestDatasetCreate(object):
                 name="test-dataset",
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_sysadmin_can_set_id(self):
         user = factories.Sysadmin()
         context = {"user": user["name"], "ignore_auth": False}
@@ -792,7 +739,6 @@ class TestDatasetCreate(object):
         )
         assert dataset["id"] == "1234"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_context_is_not_polluted(self):
         user = factories.Sysadmin()
         context = {"user": user["name"], "ignore_auth": False}
@@ -802,7 +748,6 @@ class TestDatasetCreate(object):
         assert "id" not in context
         assert "package" not in context
 
-    @pytest.mark.usefixtures("clean_db")
     def test_id_cant_already_exist(self):
         dataset = factories.Dataset()
         user = factories.Sysadmin()
@@ -811,14 +756,12 @@ class TestDatasetCreate(object):
                 "package_create", id=dataset["id"], name="test-dataset"
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_name_not_changed_during_deletion(self):
         dataset = factories.Dataset()
         helpers.call_action("package_delete", id=dataset["id"])
         deleted_dataset = helpers.call_action("package_show", id=dataset["id"])
         assert deleted_dataset["name"] == dataset["name"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_name_not_changed_after_restoring(self):
         dataset = factories.Dataset()
         context = {"user": factories.Sysadmin()["name"]}
@@ -830,7 +773,6 @@ class TestDatasetCreate(object):
         assert deleted_dataset["name"] == restored_dataset["name"]
         assert deleted_dataset["id"] == restored_dataset["id"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_creation_of_dataset_with_name_same_as_of_previously_removed(self):
         dataset = factories.Dataset()
         initial_name = dataset["name"]
@@ -842,12 +784,10 @@ class TestDatasetCreate(object):
         assert new_dataset["id"] != deleted_dataset["id"]
         assert deleted_dataset["name"] == deleted_dataset["id"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_missing_id(self):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("package_create")
 
-    @pytest.mark.usefixtures("clean_db")
     def test_name(self):
         dataset = helpers.call_action("package_create", name="some-name")
 
@@ -857,7 +797,6 @@ class TestDatasetCreate(object):
             == "some-name"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_title(self):
         dataset = helpers.call_action(
             "package_create", name="test_title", title="New Title"
@@ -869,7 +808,6 @@ class TestDatasetCreate(object):
             == "New Title"
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_extras(self):
         dataset = helpers.call_action(
             "package_create",
@@ -884,7 +822,6 @@ class TestDatasetCreate(object):
         assert dataset["extras"][0]["key"] == "original media"
         assert dataset["extras"][0]["value"] == '"book"'
 
-    @pytest.mark.usefixtures("clean_db")
     def test_license(self):
         dataset = helpers.call_action(
             "package_create",
@@ -897,7 +834,6 @@ class TestDatasetCreate(object):
         dataset = helpers.call_action("package_show", id=dataset["id"])
         assert dataset["license_id"] == "other-open"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_notes(self):
         dataset = helpers.call_action(
             "package_create",
@@ -910,7 +846,6 @@ class TestDatasetCreate(object):
         dataset = helpers.call_action("package_show", id=dataset["id"])
         assert dataset["notes"] == "some notes"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_resources(self):
         dataset = helpers.call_action(
             "package_create",
@@ -967,7 +902,6 @@ class TestDatasetCreate(object):
         assert resources[1]["url"] == "http://datahub.io/index.json"
         assert resources[1]["position"] == 1
 
-    @pytest.mark.usefixtures("clean_db")
     def test_tags(self):
         dataset = helpers.call_action(
             "package_create",
@@ -982,7 +916,6 @@ class TestDatasetCreate(object):
         tag_names = sorted([tag_dict["name"] for tag_dict in dataset["tags"]])
         assert tag_names == ["russian", "tolstoy"]
 
-    @pytest.mark.usefixtures("clean_db")
     def test_return_id_only(self):
         dataset = helpers.call_action(
             "package_create", name="test-id", context={"return_id_only": True}
@@ -991,8 +924,8 @@ class TestDatasetCreate(object):
         assert isinstance(dataset, string_types)
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestGroupCreate(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_create_group(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": True}
@@ -1007,7 +940,6 @@ class TestGroupCreate(object):
         assert not group["is_organization"]
         assert group["type"] == "group"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_group_validation_fail(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": True}
@@ -1017,7 +949,6 @@ class TestGroupCreate(object):
                 "group_create", context=context, name=""
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_group_return_id(self):
         import re
 
@@ -1035,7 +966,6 @@ class TestGroupCreate(object):
         assert isinstance(group, str)
         assert re.match(r"([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)", group)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_matches_show(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": True}
@@ -1053,8 +983,8 @@ class TestGroupCreate(object):
             assert created[k] == shown[k], k
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationCreate(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_create_organization(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": True}
@@ -1069,7 +999,6 @@ class TestOrganizationCreate(object):
         assert org["is_organization"]
         assert org["type"] == "organization"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_organization_validation_fail(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": True}
@@ -1079,7 +1008,6 @@ class TestOrganizationCreate(object):
                 "organization_create", context=context, name=""
             )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_organization_return_id(self):
         import re
 
@@ -1097,7 +1025,6 @@ class TestOrganizationCreate(object):
         assert isinstance(org, str)
         assert re.match(r"([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)", org)
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_matches_show(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": True}
@@ -1114,7 +1041,6 @@ class TestOrganizationCreate(object):
         for k in created.keys():
             assert created[k] == shown[k], k
 
-    @pytest.mark.usefixtures("clean_db")
     def test_create_organization_custom_type(self):
         custom_org_type = "some-custom-type"
         user = factories.User()
@@ -1134,8 +1060,8 @@ class TestOrganizationCreate(object):
         assert org["type"] == custom_org_type
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestUserCreate(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_user_create_with_password_hash(self):
         sysadmin = factories.Sysadmin()
         context = {"user": sysadmin["name"]}
@@ -1151,7 +1077,6 @@ class TestUserCreate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password == "pretend-this-is-a-valid-hash"
 
-    @pytest.mark.usefixtures("clean_db")
     def test_user_create_password_hash_not_for_normal_users(self):
         normal_user = factories.User()
         context = {"user": normal_user["name"]}
@@ -1177,8 +1102,8 @@ def _clear_activities():
     model.Session.flush()
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestFollowDataset(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_no_activity(self, app):
 
         user = factories.User()
@@ -1194,8 +1119,8 @@ class TestFollowDataset(object):
         # https://github.com/ckan/ckan/pull/317
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestFollowGroup(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_no_activity(self, app):
         user = factories.User()
         group = factories.Group(user=user)
@@ -1210,8 +1135,8 @@ class TestFollowGroup(object):
         # https://github.com/ckan/ckan/pull/317
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestFollowOrganization(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_no_activity(self, app):
         user = factories.User()
         org = factories.Organization(user=user)
@@ -1226,8 +1151,8 @@ class TestFollowOrganization(object):
         # https://github.com/ckan/ckan/pull/317
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestFollowUser(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_no_activity(self, app):
 
         user = factories.User()
