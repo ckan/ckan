@@ -100,12 +100,12 @@ Tests
 
 To run the tests, do::
 
-    nosetests --nologcapture --with-pylons=test.ini
+    pytest --ckan-ini=test.ini
 
 To run the tests and produce a coverage report, first make sure you have
 coverage installed in your virtualenv (``pip install coverage``) then run::
 
-    nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.{{ project_shortname }} --cover-inclusive --cover-erase --cover-tests
+    pytest --ckan-ini=test.ini --cov=ckanext.{{ project_shortname }}
 
 
 ----------------------------------------

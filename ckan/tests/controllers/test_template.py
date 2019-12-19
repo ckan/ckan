@@ -1,20 +1,16 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
-import six
-
-import ckan.tests.helpers as helpers
+import pytest
 
 
-class TestTemplateController(helpers.FunctionalTestBase):
-
-    def test_content_type(self):
-        cases = {
-            u'/robots.txt': u'text/plain; charset=utf-8',
-            u'/page': u'text/html; charset=utf-8',
-            u'/page.html': u'text/html; charset=utf-8',
-        }
-        app = self._get_test_app()
-        for url, expected in six.iteritems(cases):
-            response = app.get(url, status=200)
-            assert_equal(response.headers.get(u'Content-Type'), expected)
+@pytest.mark.parametrize(
+    u"url,expected",
+    [
+        (u"/robots.txt", u"text/plain; charset=utf-8"),
+        (u"/page", u"text/html; charset=utf-8"),
+        (u"/page.html", u"text/html; charset=utf-8"),
+    ],
+)
+def test_content_type(url, expected, app):
+    response = app.get(url, status=200)
+    assert response.headers.get(u"Content-Type") == expected

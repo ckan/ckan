@@ -1,113 +1,102 @@
 # encoding: utf-8
 
 import os
-from nose import tools as nosetools
 
-from ckan.common import config
+import pytest
 
-import ckan.tests.helpers as h
 import ckan.plugins as p
 from ckan.config import environment
 from ckan.exceptions import CkanConfigurationException
 
-from ckan.tests import helpers
+ENV_VAR_LIST = [
+    (u"CKAN_SQLALCHEMY_URL", u"postgresql://mynewsqlurl/"),
+    (u"CKAN_DATASTORE_WRITE_URL", u"http://mynewdbwriteurl/"),
+    (u"CKAN_DATASTORE_READ_URL", u"http://mynewdbreadurl/"),
+    (u"CKAN_SOLR_URL", u"http://mynewsolrurl/solr"),
+    (u"CKAN_SITE_ID", u"my-site"),
+    (u"CKAN_DB", u"postgresql://mydeprectatesqlurl/"),
+    (u"CKAN_SMTP_SERVER", u"mail.example.com"),
+    (u"CKAN_SMTP_STARTTLS", u"True"),
+    (u"CKAN_SMTP_USER", u"my_user"),
+    (u"CKAN_SMTP_PASSWORD", u"password"),
+    (u"CKAN_SMTP_MAIL_FROM", u"server@example.com"),
+    (u"CKAN_MAX_UPLOAD_SIZE_MB", u"50"),
+]
 
 
-class TestUpdateConfig(h.FunctionalTestBase):
+@pytest.fixture
+def reset_env():
+    """Reset all environment variables that were patched during tests.
 
-    '''
-    Tests for config settings from env vars, set in
-    config.environment.update_config().
-    '''
-
-    ENV_VAR_LIST = [
-        ('CKAN_SQLALCHEMY_URL', 'postgresql://mynewsqlurl/'),
-        ('CKAN_DATASTORE_WRITE_URL', 'http://mynewdbwriteurl/'),
-        ('CKAN_DATASTORE_READ_URL', 'http://mynewdbreadurl/'),
-        ('CKAN_SOLR_URL', 'http://mynewsolrurl/solr'),
-        ('CKAN_SITE_ID', 'my-site'),
-        ('CKAN_DB', 'postgresql://mydeprectatesqlurl/'),
-        ('CKAN_SMTP_SERVER', 'mail.example.com'),
-        ('CKAN_SMTP_STARTTLS', 'True'),
-        ('CKAN_SMTP_USER', 'my_user'),
-        ('CKAN_SMTP_PASSWORD', 'password'),
-        ('CKAN_SMTP_MAIL_FROM', 'server@example.com'),
-        ('CKAN_MAX_UPLOAD_SIZE_MB', '50')
-    ]
-
-    def _setup_env_vars(self):
-        for env_var, value in self.ENV_VAR_LIST:
-            os.environ.setdefault(env_var, value)
-        # plugin.load() will force the config to update
-        p.load()
-
-    def setup(self):
-        self._old_config = dict(config)
-
-    def teardown(self):
-        for env_var, _ in self.ENV_VAR_LIST:
-            if os.environ.get(env_var, None):
-                del os.environ[env_var]
-        config.update(self._old_config)
-        # plugin.load() will force the config to update
-        p.load()
-
-    def test_update_config_env_vars(self):
-        '''
-        Setting an env var from the whitelist will set the appropriate option
-        in config object.
-        '''
-        self._setup_env_vars()
-
-        nosetools.assert_equal(config['solr_url'], 'http://mynewsolrurl/solr')
-        nosetools.assert_equal(config['sqlalchemy.url'],
-                               'postgresql://mynewsqlurl/')
-        nosetools.assert_equal(config['ckan.datastore.write_url'],
-                               'http://mynewdbwriteurl/')
-        nosetools.assert_equal(config['ckan.datastore.read_url'],
-                               'http://mynewdbreadurl/')
-        nosetools.assert_equal(config['ckan.site_id'], 'my-site')
-        nosetools.assert_equal(config['smtp.server'], 'mail.example.com')
-        nosetools.assert_equal(config['smtp.starttls'], 'True')
-        nosetools.assert_equal(config['smtp.user'], 'my_user')
-        nosetools.assert_equal(config['smtp.password'], 'password')
-        nosetools.assert_equal(config['smtp.mail_from'], 'server@example.com')
-        nosetools.assert_equal(config['ckan.max_resource_size'], '50')
-
-    def test_update_config_db_url_precedence(self):
-        '''CKAN_SQLALCHEMY_URL in the env takes precedence over CKAN_DB'''
-        os.environ.setdefault('CKAN_DB', 'postgresql://mydeprectatesqlurl/')
-        os.environ.setdefault('CKAN_SQLALCHEMY_URL',
-                              'postgresql://mynewsqlurl/')
-        p.load()
-
-        nosetools.assert_equal(config['sqlalchemy.url'],
-                               'postgresql://mynewsqlurl/')
+    """
+    yield
+    for env_var, _ in ENV_VAR_LIST:
+        if os.environ.get(env_var, None):
+            del os.environ[env_var]
+    p.load()
 
 
-class TestSiteUrlMandatory(object):
+@pytest.mark.usefixtures(u"reset_env")
+def test_update_config_env_vars(ckan_config):
+    """
+    Setting an env var from the whitelist will set the appropriate option
+    in config object.
+    """
+    for env_var, value in ENV_VAR_LIST:
+        os.environ.setdefault(env_var, value)
+    # plugin.load() will force the config to update
+    p.load()
 
-    @helpers.change_config('ckan.site_url', '')
-    def test_missing_siteurl(self):
-        nosetools.assert_raises(RuntimeError, environment.update_config)
+    assert ckan_config[u"solr_url"] == u"http://mynewsolrurl/solr"
+    assert ckan_config[u"sqlalchemy.url"] == u"postgresql://mynewsqlurl/"
+    assert (
+        ckan_config[u"ckan.datastore.write_url"] == u"http://mynewdbwriteurl/"
+    )
+    assert ckan_config[u"ckan.datastore.read_url"] == u"http://mynewdbreadurl/"
+    assert ckan_config[u"ckan.site_id"] == u"my-site"
+    assert ckan_config[u"smtp.server"] == u"mail.example.com"
+    assert ckan_config[u"smtp.starttls"] == u"True"
+    assert ckan_config[u"smtp.user"] == u"my_user"
+    assert ckan_config[u"smtp.password"] == u"password"
+    assert ckan_config[u"smtp.mail_from"] == u"server@example.com"
+    assert ckan_config[u"ckan.max_resource_size"] == u"50"
 
-    @helpers.change_config('ckan.site_url', 'demo.ckan.org')
-    def test_siteurl_missing_schema(self):
-        nosetools.assert_raises(RuntimeError, environment.update_config)
 
-    @helpers.change_config('ckan.site_url', 'ftp://demo.ckan.org')
-    def test_siteurl_wrong_schema(self):
-        nosetools.assert_raises(RuntimeError, environment.update_config)
+@pytest.mark.usefixtures("reset_env")
+def test_update_config_db_url_precedence(ckan_config):
+    """CKAN_SQLALCHEMY_URL in the env takes precedence over CKAN_DB"""
+    os.environ.setdefault("CKAN_DB", "postgresql://mydeprectatesqlurl/")
+    os.environ.setdefault("CKAN_SQLALCHEMY_URL", "postgresql://mynewsqlurl/")
+    p.load()
 
-    @helpers.change_config('ckan.site_url', 'http://demo.ckan.org/')
-    def test_siteurl_removes_backslash(self):
+    assert ckan_config["sqlalchemy.url"] == "postgresql://mynewsqlurl/"
+
+
+@pytest.mark.ckan_config("ckan.site_url", "")
+def test_missing_siteurl():
+    with pytest.raises(RuntimeError):
         environment.update_config()
-        nosetools.assert_equals(config['ckan.site_url'],
-                                'http://demo.ckan.org')
 
 
-class TestDisplayTimezone(object):
+@pytest.mark.ckan_config("ckan.site_url", "demo.ckan.org")
+def test_siteurl_missing_schema():
+    with pytest.raises(RuntimeError):
+        environment.update_config()
 
-    @helpers.change_config('ckan.display_timezone', 'Krypton/Argo City')
-    def test_missing_timezone(self):
-        nosetools.assert_raises(CkanConfigurationException, environment.update_config)
+
+@pytest.mark.ckan_config("ckan.site_url", "ftp://demo.ckan.org")
+def test_siteurl_wrong_schema():
+    with pytest.raises(RuntimeError):
+        environment.update_config()
+
+
+@pytest.mark.ckan_config("ckan.site_url", "http://demo.ckan.org/")
+def test_siteurl_removes_backslash(ckan_config):
+    environment.update_config()
+    assert ckan_config["ckan.site_url"] == "http://demo.ckan.org"
+
+
+@pytest.mark.ckan_config("ckan.display_timezone", "Krypton/Argo City")
+def test_missing_timezone():
+    with pytest.raises(CkanConfigurationException):
+        environment.update_config()
