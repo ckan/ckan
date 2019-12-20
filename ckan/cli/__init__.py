@@ -26,7 +26,7 @@ def load_config(ini_path=None):
     from paste.deploy import appconfig
 
     if ini_path:
-        if ini_path.startswith('~'):
+        if ini_path.startswith(u'~'):
             ini_path = os.path.expanduser(ini_path)
         filename = os.path.abspath(ini_path)
         config_source = u'-c parameter'
