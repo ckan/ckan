@@ -5,7 +5,7 @@ from six import text_type
 
 import ckan.model as model
 from ckan.cli import error_shout
-from ckan.lib.cli import user_add
+#from ckan.lib.cli import user_add
 
 
 @click.group(

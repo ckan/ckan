@@ -361,7 +361,7 @@ def _read(id, limit, group_type):
             u'q': q,
             u'fq': fq,
             u'include_private': True,
-            u'facet.field': facets.keys(),
+            u'facet.field': list(facets.keys()),
             u'rows': limit,
             u'sort': sort_by,
             u'start': (page - 1) * limit,
