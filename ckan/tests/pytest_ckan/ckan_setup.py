@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ckan.lib.cli import load_config
+from ckan.cli import load_config
 
 
 def pytest_addoption(parser):
