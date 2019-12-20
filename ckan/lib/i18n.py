@@ -227,7 +227,8 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        pylons_i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
+        pylons_i18n.set_lang(
+            lang, pylons_config=fake_config, class_=Translations)
     else:
         pylons_i18n.set_lang(lang, class_=Translations)
 
