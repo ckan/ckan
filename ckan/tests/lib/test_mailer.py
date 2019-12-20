@@ -44,8 +44,8 @@ class MailerBase(SmtpServerHarness):
     def setup(self):
         self.clear_smtp_messages()
 
-    def mime_encode(self, msg, recipient_name):
-        text = MIMEText(msg.encode("utf-8"), "plain", "utf-8")
+    def mime_encode(self, msg, recipient_name, subtype='plain'):
+        text = MIMEText(msg.encode("utf-8"), subtype, "utf-8")
         encoded_body = text.get_payload().strip()
         return encoded_body
 
@@ -84,10 +84,49 @@ class TestMailer(MailerBase):
         assert test_email["headers"].keys()[0] in msg[3], msg[3]
         assert test_email["headers"].values()[0] in msg[3], msg[3]
         assert test_email["subject"] in msg[3], msg[3]
+        assert msg[3].startswith('Content-Type: text/plain'), msg[3]
         expected_body = self.mime_encode(
             test_email["body"], test_email["recipient_name"]
         )
         assert expected_body in msg[3]
+
+    def test_mail_recipient_with_html(self):
+        user = factories.User()
+
+        msgs = self.get_smtp_messages()
+        assert msgs == []
+
+        # send email
+        test_email = {
+            "recipient_name": "Bob",
+            "recipient_email": user["email"],
+            "subject": "Meeting",
+            "body": "The meeting is cancelled.",
+            "body_html": "The <a href=\"meeting\">meeting</a> is cancelled.",
+            "headers": {"header1": "value1"},
+        }
+        mailer.mail_recipient(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = self.get_smtp_messages()
+        assert len(msgs) == 1
+        msg = msgs[0]
+        assert msg[1] == config["smtp.mail_from"]
+        assert msg[2] == [test_email["recipient_email"]]
+        assert test_email["headers"].keys()[0] in msg[3], msg[3]
+        assert test_email["headers"].values()[0] in msg[3], msg[3]
+        assert test_email["subject"] in msg[3], msg[3]
+        assert msg[3].startswith('Content-Type: multipart'), msg[3]
+        expected_plain_body = self.mime_encode(
+            test_email["body"], test_email["recipient_name"],
+            subtype='plain'
+        )
+        assert expected_plain_body in msg[3]
+        expected_html_body = self.mime_encode(
+            test_email["body_html"], test_email["recipient_name"],
+            subtype='html'
+        )
+        assert expected_html_body in msg[3]
 
     def test_mail_user(self):
 
