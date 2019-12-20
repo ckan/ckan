@@ -277,6 +277,10 @@ def _get_auto_flask_context():
     if _internal_test_request_context:
         return _internal_test_request_context
 
+    from ckan.tests.pytest_ckan.ckan_setup import _tests_test_request_context
+    if _tests_test_request_context:
+        return _tests_test_request_context
+
     if six.PY2:
 
         from ckan.lib.cli import _cli_test_request_context

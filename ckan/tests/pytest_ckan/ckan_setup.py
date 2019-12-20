@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from ckan.config.middleware import make_app
 from ckan.cli import load_config
+
+# This is a test Flask request context to be used internally.
+# Do not use it!
+_tests_test_request_context = None
 
 
 def pytest_addoption(parser):
@@ -12,7 +17,14 @@ def pytest_addoption(parser):
 def pytest_sessionstart(session):
     """Initialize CKAN environment.
     """
-    load_config(session.config.option.ckan_ini)
+    conf = load_config(session.config.option.ckan_ini)
+    # Set this internal test request context with the configured environment so
+    # it can be used when calling url_for from the cli.
+    global _tests_test_request_context
+
+    app = make_app(conf.global_conf, **conf.local_conf)
+    flask_app = app.apps['flask_app']._wsgi_app
+    _tests_test_request_context = flask_app.test_request_context()
 
 
 def pytest_runtest_setup(item):
