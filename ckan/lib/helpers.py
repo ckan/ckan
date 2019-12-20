@@ -344,7 +344,6 @@ def url_for(*args, **kw):
             raise Exception('API URLs must specify the version (eg ver=3)')
 
     _auto_flask_context = _get_auto_flask_context()
-
     try:
         if _auto_flask_context:
             _auto_flask_context.push()
@@ -356,9 +355,11 @@ def url_for(*args, **kw):
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
-
-        # If it doesn't succeed, fallback to the Pylons router
-        my_url = _url_for_pylons(*args, **kw)
+        if six.PY2:
+            # If it doesn't succeed, fallback to the Pylons router
+            my_url = _url_for_pylons(*args, **kw)
+        else:
+            raise
     finally:
         if _auto_flask_context:
             _auto_flask_context.pop()
