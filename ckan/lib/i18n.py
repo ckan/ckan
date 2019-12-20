@@ -49,7 +49,6 @@ from babel.core import (LOCALE_ALIASES,
                         UnknownLocaleError)
 from babel.support import Translations
 import polib
-import six
 
 from ckan.common import config, is_flask_request, aslist
 import ckan.i18n
@@ -57,7 +56,7 @@ from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 
 if six.PY2:
-    from pylons import i18n
+    from pylons import i18n as pylons_i18n
     import pylons
 
 
@@ -228,9 +227,9 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
+        pylons_i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
     else:
-        i18n.set_lang(lang, class_=Translations)
+        pylons_i18n.set_lang(lang, class_=Translations)
 
 
 def handle_request(request, tmpl_context):
@@ -279,10 +278,6 @@ def get_lang():
     if is_flask_request():
         from ckan.config.middleware.flask_app import get_locale
         return get_locale()
-    else:
-        langs = i18n.get_lang()
-        if langs:
-            return langs[0]
     return 'en'
 
 
