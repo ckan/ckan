@@ -71,10 +71,7 @@ def streaming_response(
 
 
 def ugettext(*args, **kwargs):
-    if is_flask_request():
-        return flask_ugettext(*args, **kwargs)
-    else:
-        return pylons_ugettext(*args, **kwargs)
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext
