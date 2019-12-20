@@ -3,13 +3,10 @@
 import warnings
 import logging
 import re
-from datetime import datetime
 from time import sleep
 from os.path import splitext
 
-from six import text_type
 from sqlalchemy import MetaData, __version__ as sqav, Table
-from sqlalchemy.util import OrderedDict
 from sqlalchemy.exc import ProgrammingError
 
 from alembic.command import (

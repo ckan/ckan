@@ -2,11 +2,11 @@
 
 import logging
 import re
-from six.moves.urllib.parse import urlencode
-
+from collections import OrderedDict
 
 import six
 from six import string_types
+from six.moves.urllib.parse import urlencode
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -17,7 +17,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, g, config, request, _
+from ckan.common import g, config, request, _
 from flask import Blueprint
 from flask.views import MethodView
 

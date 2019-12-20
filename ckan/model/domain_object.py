@@ -1,10 +1,10 @@
 # encoding: utf-8
 
 import datetime
+from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy import orm
-from sqlalchemy.util import OrderedDict
 
 from ckan.model import meta, core
 

@@ -28,11 +28,6 @@ if six.PY2:
 
 current_app = flask.current_app
 
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
-
 
 def is_flask_request():
     u'''
