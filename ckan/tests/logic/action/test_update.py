@@ -1,6 +1,10 @@
 # encoding: utf-8
 """Unit tests for ckan/logic/action/update.py."""
-import __builtin__ as builtins
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
+
 import datetime
 
 import mock

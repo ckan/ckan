@@ -906,7 +906,7 @@ def vocabulary_update(context, data_dict):
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     data_dict['id'] = vocab.id
-    if data_dict.has_key('name'):
+    if 'name' in data_dict:
         if data_dict['name'] == vocab.name:
             del data_dict['name']
 

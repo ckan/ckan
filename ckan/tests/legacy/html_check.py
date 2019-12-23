@@ -1,12 +1,10 @@
 # encoding: utf-8
 
 import re
-import sgmllib
+from html.parser import HTMLParser
 
 from six import string_types, text_type
 
-
-import paste.fixture
 import webtest
 
 
@@ -70,9 +68,7 @@ class HtmlCheckMethods(object):
         self._check_html(self.tag_re, html, html_to_find)
 
     def _get_html_from_res(self, html):
-        if isinstance(html, paste.fixture.TestResponse):
-            html_str = html.body.decode("utf8")
-        elif isinstance(html, text_type):
+        if isinstance(html, text_type):
             html_str = html
         elif isinstance(html, str):
             html_str = html.decode("utf8")
@@ -124,11 +120,8 @@ class HtmlCheckMethods(object):
             )
 
 
-class Stripper(sgmllib.SGMLParser):
+class Stripper(HTMLParser):
     """A simple helper class to cleanly strip HTML from a response."""
-
-    def __init__(self):
-        sgmllib.SGMLParser.__init__(self)
 
     def strip(self, html):
         self.str = u""

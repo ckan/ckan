@@ -6,7 +6,10 @@ controller itself.
 import json
 import re
 
-import __builtin__ as builtins
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
 
 import mock
 import pytest

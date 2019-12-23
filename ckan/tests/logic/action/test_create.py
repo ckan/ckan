@@ -2,7 +2,10 @@
 """Unit tests for ckan/logic/action/create.py.
 
 """
-import __builtin__ as builtins
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
 
 import cgi
 import mock

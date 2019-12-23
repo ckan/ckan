@@ -30,6 +30,7 @@ import webtest
 import nose.tools
 import mock
 import rq
+import six
 
 from ckan.common import config
 import ckan.lib.jobs as jobs
@@ -119,6 +120,14 @@ def call_action(action_name, context=None, **kwargs):
         context = {}
     context.setdefault("user", "127.0.0.1")
     context.setdefault("ignore_auth", True)
+
+    if six.PY3:
+        from ckan.lib.helpers import _get_auto_flask_context
+        _auto_flask_context = _get_auto_flask_context()
+        if _auto_flask_context:
+            _auto_flask_context.push()
+
+
     return logic.get_action(action_name)(context=context, data_dict=kwargs)
 
 
@@ -159,6 +168,11 @@ def call_auth(auth_name, context, **kwargs):
     return logic.check_access(auth_name, context, data_dict=kwargs)
 
 
+def body_contains(res, content):
+    body = res.body if six.PY2 else res.body.decode()
+    return content in body
+
+
 class CKANTestApp(webtest.TestApp):
     """A wrapper around webtest.TestApp
 
@@ -170,7 +184,10 @@ class CKANTestApp(webtest.TestApp):
     @property
     def flask_app(self):
         if not self._flask_app:
-            self._flask_app = self.app.apps["flask_app"]._wsgi_app
+            if six.PY2:
+                self._flask_app = self.app.apps["flask_app"]._wsgi_app
+            else:
+                self._flask_app = self.app._wsgi_app
         return self._flask_app
 
     def post(self, url, *args, **kwargs):
@@ -196,7 +213,10 @@ def _get_test_app():
     """
     config["ckan.legacy_templates"] = False
     config["testing"] = True
-    app = ckan.config.middleware.make_app(config["global_conf"], **config)
+    if six.PY2:
+        app = ckan.config.middleware.make_app(config["global_conf"], **config)
+    else:
+        app = ckan.config.middleware.make_app(config, **config)
     app = CKANTestApp(app)
     return app
 

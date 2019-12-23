@@ -16,12 +16,8 @@ from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
 
 from ckan.common import config
-from pylons.test import pylonsapp
-from paste.script.appinstall import SetupCommand
 from six import text_type
 
-import paste.fixture
-import paste.script.appinstall
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
@@ -54,18 +50,6 @@ __all__ = [
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
-
-# Invoke websetup with the current config file
-# SetupCommand('setup-app').run([config['__file__']])
-
-# monkey patch paste.fixtures.TestRespose
-# webtest (successor library) already has this
-# http://pythonpaste.org/webtest/#parsing-the-body
-def _getjson(self):
-    return json.loads(self.body)
-
-
-paste.fixture.TestResponse.json = property(_getjson)
 
 # Check config is correct for sqlite
 if model.engine_is_sqlite():
@@ -259,12 +243,6 @@ class TestCase(CommonFixtureMethods, CheckMethods, BaseCase):
 
 
 class WsgiAppCase(BaseCase):
-    # wsgiapp = pylonsapp
-    # assert wsgiapp, 'You need to run nose with --with-pylons'
-    # Either that, or this file got imported somehow before the tests started
-    # running, meaning the pylonsapp wasn't setup yet (which is done in
-    # pylons.test.py:begin())
-    # app = paste.fixture.TestApp(wsgiapp)
     app = helpers._get_test_app()
 
 
@@ -422,7 +400,6 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
         assert error_dict['message'] == 'Access Denied'
 
     :param app: the test app to post to
-    :type app: paste.fixture.TestApp
 
     :param action: the action to post to, e.g. 'package_create'
     :type action: string
@@ -438,10 +415,6 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
 
     :param **kwargs: any other keyword arguments passed to this function will
         be posted to the API as params
-
-    :raises paste.fixture.AppError: if the HTTP status code of the response
-        from the CKAN API is different from the status param passed to this
-        function
 
     :returns: the 'result' or 'error' dictionary from the CKAN API response
     :rtype: dictionary

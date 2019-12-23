@@ -1,6 +1,9 @@
 # encoding: utf-8
 
-import __builtin__ as builtins
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
 
 import paste.fileapp
 import flask

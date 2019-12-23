@@ -594,7 +594,7 @@ def tag_delete(context, data_dict):
     '''
     model = context['model']
 
-    if not data_dict.has_key('id') or not data_dict['id']:
+    if 'id' not in data_dict or not data_dict['id']:
         raise ValidationError({'id': _('id not in data')})
     tag_id_or_name = _get_or_bust(data_dict, 'id')
 
@@ -614,7 +614,7 @@ def tag_delete(context, data_dict):
 def _unfollow(context, data_dict, schema, FollowerClass):
     model = context['model']
 
-    if not context.has_key('user'):
+    if 'user' not in context:
         raise ckan.logic.NotAuthorized(
                 _("You must be logged in to unfollow something."))
     userobj = model.User.get(context['user'])

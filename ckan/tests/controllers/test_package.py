@@ -2041,7 +2041,7 @@ class TestActivity(object):
     @mock.patch(
         "ckan.logic.validators.object_id_validators",
         dict(
-            object_id_validators.items()
+            list(object_id_validators.items())
             + [("changed datastore", package_id_exists)]
         ),
     )

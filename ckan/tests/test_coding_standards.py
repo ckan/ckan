@@ -16,6 +16,7 @@ import os.path
 import re
 import subprocess
 import sys
+import six
 
 from six import text_type
 from six.moves import xrange
@@ -24,7 +25,10 @@ FILESYSTEM_ENCODING = text_type(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 
-HERE = os.path.abspath(os.path.dirname(__file__.decode(FILESYSTEM_ENCODING)))
+if six.PY2:
+    HERE = os.path.abspath(os.path.dirname(__file__.decode(FILESYSTEM_ENCODING)))
+else:
+    HERE = os.path.abspath(os.path.dirname(__file__))
 
 PROJECT_ROOT = os.path.normpath(os.path.join(HERE, u"..", u".."))
 

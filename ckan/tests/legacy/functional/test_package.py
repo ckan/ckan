@@ -9,7 +9,6 @@ from difflib import unified_diff
 from ckan.tests.legacy import url_for
 import ckan.tests.legacy as tests
 from ckan.tests.legacy.html_check import HtmlCheckMethods
-from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic.action import get, update
@@ -64,7 +63,7 @@ class TestPackageForm(TestPackageBase):
         assert license.title in main_div, (license.title, main_div_str)
         tag_names = list(params["tags"])
         self.check_named_element(main_div, "ul", *tag_names)
-        if params.has_key("state"):
+        if "state" in params:
             assert "State: %s" % params["state"] in main_div.replace(
                 "</strong>", ""
             ), main_div_str
@@ -117,7 +116,7 @@ class TestPackageForm(TestPackageBase):
         return unescaped_str.replace("<", "&lt;")
 
     def check_form_filled_correctly(self, res, **params):
-        if params.has_key("pkg"):
+        if "pkg" in params:
             for key, value in params["pkg"].as_dict().items():
                 if key == "license":
                     key = "license_id"
@@ -141,7 +140,7 @@ class TestPackageForm(TestPackageBase):
             tags = params["tags"]
         for tag in tags:
             self.check_tag(main_res, prefix + "tag_string", tag)
-        if params.has_key("state"):
+        if "state" in params:
             self.check_tag_and_data(main_res, "selected", str(params["state"]))
         if isinstance(params["extras"], dict):
             extras = []
@@ -336,7 +335,7 @@ class TestEdit(TestPackageForm):
         fv = app.get(
             self.offset, extra_environ=self.extra_environ_admin
         ).forms["dataset-edit"]
-        assert not fv.fields.has_key(prefix + "groups")
+        assert prefix + "groups" not in fv.fields
 
     def test_redirect_after_edit_using_param(self, app):
         return_url = "http://random.site.com/dataset/<NAME>?test=param"
