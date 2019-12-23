@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 import pytest
+import six
 from ckan.lib.helpers import url_for
 
 import ckan.tests.helpers as helpers
@@ -57,7 +58,7 @@ class TestGroupController(object):
 
 def _get_group_new_page(app):
     user = factories.User()
-    env = {"REMOTE_USER": user["name"].encode("ascii")}
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
     response = app.get(url=url_for("group.new"), extra_environ=env)
     return env, response
 
@@ -109,7 +110,7 @@ def _get_group_edit_page(app, group_name=None):
     if group_name is None:
         group = factories.Group(user=user)
         group_name = group["name"]
-    env = {"REMOTE_USER": user["name"].encode("ascii")}
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
     url = url_for("group.edit", id=group_name)
     response = app.get(url=url, extra_environ=env)
     return env, response, group_name
@@ -122,7 +123,7 @@ class TestGroupControllerEdit(object):
 
     def test_group_doesnt_exist(self, app):
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         url = url_for("group.edit", id="doesnt_exist")
         app.get(url=url, extra_environ=env, status=404)
 
@@ -183,7 +184,7 @@ class TestGroupDelete(object):
         user = factories.User()
         return {
             "user": user,
-            "user_env": {"REMOTE_USER": user["name"].encode("ascii")},
+            "user_env": {"REMOTE_USER": six.ensure_str(user["name"])},
             "group": factories.Group(user=user),
         }
 
@@ -205,7 +206,7 @@ class TestGroupDelete(object):
 
     def test_sysadmin_delete(self, app, initial_data):
         sysadmin = factories.Sysadmin()
-        extra_environ = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        extra_environ = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.get(
             url=url_for("group.delete", id=initial_data["group"]["id"]),
             status=200,
@@ -225,7 +226,7 @@ class TestGroupDelete(object):
         self, app, initial_data
     ):
         user = factories.User()
-        extra_environ = {"REMOTE_USER": user["name"].encode("ascii")}
+        extra_environ = {"REMOTE_USER": six.ensure_str(user["name"])}
         app.get(
             url=url_for("group.delete", id=initial_data["group"]["id"]),
             status=403,
@@ -263,7 +264,7 @@ class TestGroupMembership(object):
         return group
 
     def _get_group_add_member_page(self, app, user, group_name):
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         url = url_for("group.member_new", id=group_name)
         response = app.get(url=url, extra_environ=env)
         return env, response
@@ -278,7 +279,7 @@ class TestGroupMembership(object):
         group = self._create_group(user_one["name"], other_users)
 
         member_list_url = url_for("group.members", id=group["id"])
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
 
         member_list_response = app.get(member_list_url, extra_environ=env)
 
@@ -375,7 +376,7 @@ class TestGroupMembership(object):
             "group.member_delete", user=user_two["id"], id=group["id"]
         )
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         remove_response = app.post(remove_url, extra_environ=env, status=302)
         # redirected to member list after removal
         remove_response = remove_response.follow(extra_environ=env)
@@ -405,7 +406,7 @@ class TestGroupMembership(object):
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         with app.flask_app.test_request_context():
             app.get(
@@ -451,7 +452,7 @@ class TestGroupFollow:
         user = factories.User()
         group = factories.Group()
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         follow_url = url_for("group.follow", id=group["id"])
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
@@ -464,7 +465,7 @@ class TestGroupFollow:
         """Pass an id for a group that doesn't exist"""
         user_one = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for("group.follow", id="not-here")
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=404)
@@ -475,7 +476,7 @@ class TestGroupFollow:
         user_one = factories.User()
         group = factories.Group()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for("group.follow", id=group["id"])
         app.post(follow_url, extra_environ=env, status=302)
 
@@ -496,7 +497,7 @@ class TestGroupFollow:
         user_one = factories.User()
         group = factories.Group()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("group.unfollow", id=group["id"])
         unfollow_response = app.post(
             unfollow_url, extra_environ=env, status=302
@@ -514,7 +515,7 @@ class TestGroupFollow:
 
         user_one = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("group.unfollow", id="not-here")
         unfollow_response = app.post(
             unfollow_url, extra_environ=env, status=302
@@ -527,7 +528,7 @@ class TestGroupFollow:
         user_one = factories.Sysadmin()
         group = factories.Group()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for("group.follow", id=group["id"])
         app.post(follow_url, extra_environ=env, status=302)
 
@@ -804,7 +805,7 @@ class TestActivity:
         )
 
         url = url_for("group.activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env, status=404)
         # group_delete causes the Member to state=deleted and then the user
         # doesn't have permission to see their own deleted Group. Therefore you
@@ -822,7 +823,7 @@ class TestActivity:
         )
 
         url = url_for("group.activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response

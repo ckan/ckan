@@ -5,6 +5,8 @@ import mock
 
 from ckan.lib.helpers import url_for
 import pytest
+import six
+
 import ckan.model as model
 import ckan.model.activity as activity_model
 import ckan.plugins as p
@@ -20,7 +22,7 @@ submit_and_follow = helpers.submit_and_follow
 
 def _get_package_new_page(app):
     user = factories.User()
-    env = {"REMOTE_USER": user["name"].encode("ascii")}
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
     response = app.get(url=url_for("dataset.new"), extra_environ=env)
     return env, response
 
@@ -39,7 +41,7 @@ class TestPackageNew(object):
         a new dataset"""
         sysadmin = factories.Sysadmin()
 
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
         assert "dataset-edit" not in response.forms
         assert url_for(controller="organization", action="new") in response
@@ -59,7 +61,7 @@ class TestPackageNew(object):
 
         user = factories.User()
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
         assert "dataset-edit" not in response.forms
@@ -191,7 +193,7 @@ class TestPackageNew(object):
             name="my-org", users=[{"name": user["id"], "capacity": "admin"}]
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
         # organization dropdown available in create page.
@@ -231,7 +233,7 @@ class TestPackageNew(object):
             name="my-org", users=[{"name": user["id"], "capacity": "admin"}]
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
         # create dataset with owner_org
@@ -273,7 +275,7 @@ class TestPackageNew(object):
         # user isn't admin of org.
         org = factories.Organization(name="my-org")
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
         # organization dropdown not in create page.
@@ -317,7 +319,7 @@ class TestPackageNew(object):
         )
 
         # user in env is sysadmin
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
         # organization dropdown available in create page.
@@ -363,7 +365,7 @@ class TestPackageEdit(object):
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]), extra_environ=env
         )
@@ -380,7 +382,7 @@ class TestPackageEdit(object):
             users=[{"name": user["id"], "capacity": "editor"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]), extra_environ=env
         )
@@ -397,7 +399,7 @@ class TestPackageEdit(object):
             users=[{"name": user["id"], "capacity": "member"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]),
             extra_environ=env,
@@ -408,14 +410,14 @@ class TestPackageEdit(object):
         user = factories.User()
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]),
             extra_environ=env,
             status=403,
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for("dataset.edit", id=dataset["name"]),
             {"notes": "edited description"},
@@ -443,7 +445,7 @@ class TestPackageEdit(object):
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.edit", id=dataset["name"]), extra_environ=env
         )
@@ -459,7 +461,7 @@ class TestPackageEdit(object):
 
     def test_edit_a_dataset_that_does_not_exist_404s(self, app):
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.edit", id="does-not-exist"),
             extra_environ=env,
@@ -495,7 +497,7 @@ class TestPackageRead(object):
             response = app.get(
                 url_for("dataset.read", id=dataset["name"]),
                 extra_environ={
-                    "REMOTE_USER": user_dict["name"].encode("ascii")
+                    "REMOTE_USER": six.ensure_str(user_dict["name"])
                 },
             )
             assert "Test Dataset" in response.body
@@ -515,7 +517,7 @@ class TestPackageRead(object):
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         response = app.get(
             url_for("dataset.read", id=dataset["name"]),
-            extra_environ={"REMOTE_USER": user["name"].encode("ascii")},
+            extra_environ={"REMOTE_USER": six.ensure_str(user["name"])},
             status=404,
         )
         assert 404 == response.status_int
@@ -545,7 +547,7 @@ class TestPackageRead(object):
         helpers.call_action("package_update", **dataset)
 
         sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.get(
             url_for(
                 "dataset.read", id=dataset["name"], activity_id=activity.id
@@ -603,7 +605,7 @@ class TestPackageRead(object):
         model.Session.flush()
 
         sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.get(
             url_for(
                 "dataset.read", id=dataset["name"], activity_id=activity.id
@@ -622,7 +624,7 @@ class TestPackageDelete(object):
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]), extra_environ=env
         )
@@ -644,7 +646,7 @@ class TestPackageDelete(object):
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
         user = factories.Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]), extra_environ=env
@@ -678,7 +680,7 @@ class TestPackageDelete(object):
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]),
             extra_environ=env,
@@ -698,7 +700,7 @@ class TestPackageDelete(object):
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.delete", id=dataset["name"]), extra_environ=env
         )
@@ -719,7 +721,7 @@ class TestResourceNew(object):
         organization = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=organization["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.resources", id=dataset["name"]), extra_environ=env
         )
@@ -734,7 +736,7 @@ class TestResourceNew(object):
         organization = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=organization["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.resources", id=dataset["name"]), extra_environ=env
         )
@@ -746,7 +748,7 @@ class TestResourceNew(object):
         self, app
     ):
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.resources", id="does-not-exist"),
             extra_environ=env,
@@ -757,7 +759,7 @@ class TestResourceNew(object):
     def test_add_new_resource_with_link_and_download(self, app):
         user = factories.User()
         dataset = factories.Dataset()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]), extra_environ=env
@@ -786,7 +788,7 @@ class TestResourceNew(object):
             users=[{"name": user["id"], "capacity": "editor"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]), extra_environ=env
@@ -809,7 +811,7 @@ class TestResourceNew(object):
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]), extra_environ=env
@@ -832,7 +834,7 @@ class TestResourceNew(object):
             users=[{"name": user["id"], "capacity": "member"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]),
@@ -852,7 +854,7 @@ class TestResourceNew(object):
         user = factories.User()
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.get(
             url_for("resource.new", id=dataset["id"]),
@@ -912,7 +914,7 @@ class TestResourceNew(object):
 class TestResourceView(object):
     def test_resource_view_create(self, app):
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         owner_org = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
@@ -934,7 +936,7 @@ class TestResourceView(object):
 
     def test_resource_view_edit(self, app):
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         owner_org = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
@@ -957,7 +959,7 @@ class TestResourceView(object):
 
     def test_resource_view_delete(self, app):
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         owner_org = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
@@ -1032,7 +1034,7 @@ class TestResourceRead(object):
         A logged-in user can view resource page.
         """
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1060,7 +1062,7 @@ class TestResourceRead(object):
         A sysadmin can view resource page.
         """
         sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1072,7 +1074,7 @@ class TestResourceRead(object):
 
     def test_user_not_in_organization_cannot_read_private_dataset(self, app):
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         resource = factories.Resource(package_id=dataset["id"])
@@ -1110,7 +1112,7 @@ class TestResourceRead(object):
                     resource_id=resource["id"],
                 ),
                 extra_environ={
-                    "REMOTE_USER": user_dict["name"].encode("ascii")
+                    "REMOTE_USER": six.ensure_str(user_dict["name"])
                 },
             )
             assert "Just another test resource" in response.body
@@ -1133,7 +1135,7 @@ class TestResourceDelete(object):
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for(
                 "resource.delete",
@@ -1155,7 +1157,7 @@ class TestResourceDelete(object):
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for(
                 "resource.delete",
@@ -1198,7 +1200,7 @@ class TestResourceDelete(object):
 
         # access as another user
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for(
                 "resource.delete",
@@ -1217,7 +1219,7 @@ class TestResourceDelete(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.post(
             url_for(
                 "resource.delete",
@@ -1244,7 +1246,7 @@ class TestResourceDelete(object):
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for(
                 "resource.delete",
@@ -1490,7 +1492,7 @@ class TestSearch(object):
         user = factories.User()
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
@@ -1511,7 +1513,7 @@ class TestSearch(object):
             owner_org=organization["id"],
             private=True,
         )
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
@@ -1532,7 +1534,7 @@ class TestSearch(object):
         dataset = factories.Dataset(
             title="A private dataset", owner_org=org2["id"], private=True
         )
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
@@ -1549,7 +1551,7 @@ class TestSearch(object):
             users=[{"name": user["id"], "capacity": "member"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
@@ -1567,7 +1569,7 @@ class TestSearch(object):
             owner_org=organization["id"],
             private=True,
         )
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
@@ -1585,7 +1587,7 @@ class TestPackageFollow(object):
         user = factories.User()
         package = factories.Dataset()
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         follow_url = url_for("dataset.follow", id=package["id"])
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
@@ -1596,7 +1598,7 @@ class TestPackageFollow(object):
 
         user_one = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for("dataset.follow", id="not-here")
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=404)
@@ -1607,7 +1609,7 @@ class TestPackageFollow(object):
         user_one = factories.User()
         package = factories.Dataset()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for("dataset.follow", id=package["id"])
         app.post(follow_url, extra_environ=env, status=302)
 
@@ -1628,7 +1630,7 @@ class TestPackageFollow(object):
         user_one = factories.User()
         package = factories.Dataset()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
         unfollow_response = app.post(
             unfollow_url, extra_environ=env, status=302
@@ -1646,7 +1648,7 @@ class TestPackageFollow(object):
 
         user_one = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("dataset.unfollow", id="not-here")
         unfollow_response = app.post(
             unfollow_url, extra_environ=env, status=302
@@ -1660,7 +1662,7 @@ class TestPackageFollow(object):
         user_one = factories.Sysadmin()
         package = factories.Dataset()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for("dataset.follow", id=package["id"])
         app.post(follow_url, extra_environ=env, status=302)
 
@@ -1701,7 +1703,7 @@ class TestDatasetRead(object):
         )[0]
         # view as an admin because viewing the old versions of a dataset
         sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.get(
             url_for("dataset.read", id=dataset["id"], activity_id=activity.id),
             status=302,
@@ -1938,7 +1940,7 @@ class TestActivity(object):
     def test_admin_can_see_old_versions(self, app):
 
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         dataset = factories.Dataset(user=user)
 
         url = url_for("dataset.activity", id=dataset["id"])
@@ -1957,7 +1959,7 @@ class TestActivity(object):
     def test_admin_can_see_changes(self, app):
 
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
         helpers.call_action("package_update", **dataset)
@@ -2094,7 +2096,7 @@ class TestChanges(object):  # i.e. the diff
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for("dataset.changes", id=activity.id), extra_environ=env
         )

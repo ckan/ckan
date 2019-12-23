@@ -8,6 +8,7 @@ except ImportError:
 import paste.fileapp
 import flask
 import pytest
+import six
 from mock import patch
 from pyfakefs import fake_filesystem
 from ckan.lib.helpers import url_for
@@ -39,7 +40,7 @@ def mock_open_if_open_fails(*args, **kwargs):
 
 def _get_package_new_page(app):
     user = factories.User()
-    env = {"REMOTE_USER": user["name"].encode("ascii")}
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
     response = app.get(url=url_for("dataset.new"), extra_environ=env)
     return env, response
 

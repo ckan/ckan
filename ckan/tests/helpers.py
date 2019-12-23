@@ -127,7 +127,6 @@ def call_action(action_name, context=None, **kwargs):
         if _auto_flask_context:
             _auto_flask_context.push()
 
-
     return logic.get_action(action_name)(context=context, data_dict=kwargs)
 
 
@@ -191,8 +190,12 @@ class CKANTestApp(webtest.TestApp):
         return self._flask_app
 
     def post(self, url, *args, **kwargs):
-        url = url.encode("utf8")  # or maybe it should be url_encoded?
+        url = six.ensure_str(url)
         return super(CKANTestApp, self).post(url, *args, **kwargs)
+
+    def get(self, url, *args, **kwargs):
+        url = six.ensure_str(url)
+        return super(CKANTestApp, self).get(url, *args, **kwargs)
 
 
 def _get_test_app():
@@ -386,7 +389,10 @@ def webtest_submit_fields(form, name=None, index=None, submit_value=None):
     backported version of webtest.Form.submit_fields that actually works
     for submitting with different submit buttons.
     """
-    from webtest.app import File
+    try:
+        from webtest.forms import File
+    except ImportError:
+        from webtest.app import File
 
     submit = []
     # Use another name here so we can keep function param the same for BWC.

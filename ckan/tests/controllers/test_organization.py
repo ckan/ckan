@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import pytest
+import six
 from bs4 import BeautifulSoup
 from mock import patch
 
@@ -15,7 +16,7 @@ class TestOrganizationNew(object):
     @pytest.fixture
     def user_env(self):
         user = factories.User()
-        return {"REMOTE_USER": user["name"].encode("ascii")}
+        return {"REMOTE_USER": six.ensure_str(user["name"])}
 
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -75,7 +76,7 @@ class TestOrganizationList(object):
         self, mock_check_access, app
     ):
         self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization_list_url = url_for("organization.index")
 
         response = app.get(
@@ -117,7 +118,7 @@ class TestOrganizationEdit(object):
         user = factories.User()
         return {
             "user": user,
-            "user_env": {"REMOTE_USER": user["name"].encode("ascii")},
+            "user_env": {"REMOTE_USER": six.ensure_str(user["name"])},
             "organization": factories.Organization(user=user),
         }
 
@@ -176,7 +177,7 @@ class TestOrganizationDelete(object):
         user = factories.User()
         return {
             "user": user,
-            "user_env": {"REMOTE_USER": user["name"].encode("ascii")},
+            "user_env": {"REMOTE_USER": six.ensure_str(user["name"])},
             "organization": factories.Organization(user=user),
         }
 
@@ -200,7 +201,7 @@ class TestOrganizationDelete(object):
 
     def test_sysadmin_delete(self, app, initial_data):
         sysadmin = factories.Sysadmin()
-        extra_environ = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        extra_environ = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.get(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
@@ -222,7 +223,7 @@ class TestOrganizationDelete(object):
         self, app, initial_data
     ):
         user = factories.User()
-        extra_environ = {"REMOTE_USER": user["name"].encode("ascii")}
+        extra_environ = {"REMOTE_USER": six.ensure_str(user["name"])}
         app.get(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
@@ -293,7 +294,7 @@ class TestOrganizationDelete(object):
 class TestOrganizationBulkProcess(object):
     def test_make_private(self, app):
         self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization = factories.Organization(user=self.user)
 
         datasets = [
@@ -325,7 +326,7 @@ class TestOrganizationBulkProcess(object):
 
     def test_make_public(self, app):
         self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization = factories.Organization(user=self.user)
 
         datasets = [
@@ -357,7 +358,7 @@ class TestOrganizationBulkProcess(object):
 
     def test_delete(self, app):
         self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization = factories.Organization(user=self.user)
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
@@ -566,7 +567,7 @@ class TestOrganizationMembership(object):
             users=[{"name": user["name"], "capacity": "editor"}]
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         with app.flask_app.test_request_context():
             app.get(
@@ -593,7 +594,7 @@ class TestOrganizationMembership(object):
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         with app.flask_app.test_request_context():
             app.get(
@@ -698,7 +699,7 @@ class TestActivity(object):
         )
 
         url = url_for("organization.activity", id=org["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
@@ -716,7 +717,7 @@ class TestActivity(object):
         )
 
         url = url_for("organization.activity", id=org["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response

@@ -29,6 +29,7 @@ Deeper expanation can be found in `official documentation
 """
 
 import pytest
+import six
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
 import ckan.lib.search as search
@@ -167,3 +168,13 @@ def with_plugins(ckan_config):
     for plugin in reversed(plugins):
         if ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.unload(plugin)
+
+
+# @pytest.fixture
+# def app_context(app):
+#     if six.PY2:
+#         yield
+#     else:
+#         flask_app = app.app._wsgi_app
+#         with flask_app.app_context():
+#             yield

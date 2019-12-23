@@ -141,13 +141,13 @@ def patched_app(app):
     return app
 
 
-@pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
 def test_flask_core_route_is_served_by_flask(patched_app):
     res = patched_app.get(u"/")
     assert res.environ[u"ckan.app"] == u"flask_app"
 
 
-@pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
 def test_flask_core_and_pylons_core_route_is_served_by_flask(patched_app):
     """
     This should never happen in core, but just in case
@@ -160,7 +160,7 @@ def test_flask_core_and_pylons_core_route_is_served_by_flask(patched_app):
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
 class TestMiddlewareWithRoutingPlugin:
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_ask_around_pylons_extension_route_get_before_map(
         self, patched_app
     ):
@@ -180,7 +180,7 @@ class TestMiddlewareWithRoutingPlugin:
             (True, u"pylons_app", u"extension"),
         ]
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_ask_around_pylons_extension_route_post(self, patched_app):
         environ = {
             u"PATH_INFO": u"/from_pylons_extension_before_map_post_only",
@@ -195,7 +195,7 @@ class TestMiddlewareWithRoutingPlugin:
             (True, u"pylons_app", u"extension"),
         ]
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_ask_around_pylons_extension_route_post_using_get(
         self, patched_app
     ):
@@ -215,7 +215,7 @@ class TestMiddlewareWithRoutingPlugin:
             (False, u"pylons_app"),
         ]
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_ask_around_pylons_extension_route_get_after_map(
         self, patched_app
     ):
@@ -235,12 +235,12 @@ class TestMiddlewareWithRoutingPlugin:
             (True, u"pylons_app", u"extension"),
         ]
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_flask_extension_route_is_served_by_flask(self, patched_app):
         res = patched_app.get(u"/simple_flask")
         assert res.environ[u"ckan.app"] == u"flask_app"
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_pylons_extension_route_is_served_by_pylons(self, patched_app):
 
         res = patched_app.get(u"/from_pylons_extension_before_map")
@@ -300,7 +300,7 @@ class TestMiddlewareWithRoutingPlugin:
             assert flask.g.author == user[u"name"]
             assert flask.g.remote_addr == u"Unknown IP Address"
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_user_objects_in_c_normal_user(self, app):
         """
         A normal logged in user request will have expected user objects added
@@ -320,7 +320,7 @@ class TestMiddlewareWithRoutingPlugin:
         assert resp.tmpl_context.author == username
         assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_user_objects_in_c_anon_user(self, app):
         """An anon user request will have expected user objects added to
         request.
@@ -337,7 +337,7 @@ class TestMiddlewareWithRoutingPlugin:
         assert resp.tmpl_context.author == u"Unknown IP Address"
         assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     @pytest.mark.usefixtures(u"clean_db")
     def test_user_objects_in_c_sysadmin(self, app):
         """A sysadmin user request will have expected user objects added to
@@ -357,7 +357,7 @@ class TestMiddlewareWithRoutingPlugin:
         assert resp.tmpl_context.author == username
         assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
 
-    @pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     @pytest.mark.ckan_config(
         u"ckan.use_pylons_response_cleanup_middleware", True
     )
@@ -395,7 +395,7 @@ def test_no_beaker_secret_crashes(make_app):
         make_app()
 
 
-@pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
 @pytest.mark.parametrize(
     u"rv,app_base",
     [
@@ -417,7 +417,7 @@ def test_can_handle_request_with_environ(monkeypatch, app, rv, app_base):
     assert handler.called_with(environ)
 
 
-@pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
 def test_ask_around_is_called(monkeypatch, app):
     ask = mock.MagicMock()
     monkeypatch.setattr(AskAppDispatcherMiddleware, u"ask_around", ask)
@@ -425,7 +425,7 @@ def test_ask_around_is_called(monkeypatch, app):
     assert ask.called
 
 
-@pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
 def test_ask_around_is_called_with_args(monkeypatch, app):
     ckan_app = app.app
 
@@ -441,7 +441,7 @@ def test_ask_around_is_called_with_args(monkeypatch, app):
     ask.assert_called_with(environ)
 
 
-@pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
 def test_ask_around_flask_core_route_get(app):
     ckan_app = app.app
 
@@ -453,7 +453,7 @@ def test_ask_around_flask_core_route_get(app):
     assert answers == [(True, u"flask_app", u"core"), (False, u"pylons_app")]
 
 
-@pytest.mark.skipif(six.PY3, reason="Do not test AskAppDispatcherMiddleware in Py3")
+@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
 def test_ask_around_flask_core_route_post(app):
     ckan_app = app.app
 

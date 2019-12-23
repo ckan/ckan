@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import pytest
+import six
 from ckan.lib.helpers import url_for
 
 import ckan.plugins as plugins
@@ -13,7 +14,7 @@ submit_and_follow = helpers.submit_and_follow
 
 def _get_package_edit_page(app, package_name):
     user = factories.User()
-    env = {"REMOTE_USER": user["name"].encode("ascii")}
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
     response = app.get(
         url=url_for("dataset.edit", id=package_name), extra_environ=env,
     )

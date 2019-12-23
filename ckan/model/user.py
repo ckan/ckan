@@ -4,6 +4,7 @@ import datetime
 import re
 import os
 from hashlib import sha1, md5
+import six
 
 import passlib.utils
 from passlib.hash import pbkdf2_sha512
@@ -74,7 +75,7 @@ class User(core.StatefulObjectMixin,
         e = ''
         if self.email:
             e = self.email.strip().lower().encode('utf8')
-        return md5(e).hexdigest()
+        return md5(six.ensure_binary(e)).hexdigest()
 
     def get_reference_preferred_for_uri(self):
         '''Returns a reference (e.g. name, id) for this user

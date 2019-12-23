@@ -22,7 +22,7 @@ def _clear_activities():
 
 def _get_user_edit_page(app):
     user = factories.User()
-    env = {"REMOTE_USER": user["name"].encode("ascii")}
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
     response = app.get(url=url_for("user.edit"), extra_environ=env)
     return env, response, user
 
@@ -195,7 +195,7 @@ class TestUser(object):
             user=user, name="my-own-dataset", title=dataset_title
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url=url_for("dashboard.datasets"), extra_environ=env
         )
@@ -210,7 +210,7 @@ class TestUser(object):
             user=user1, name="someone-elses-dataset", title=dataset_title
         )
 
-        env = {"REMOTE_USER": user2["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user2["name"])}
         response = app.get(
             url=url_for("dashboard.datasets"), extra_environ=env
         )
@@ -241,7 +241,7 @@ class TestUser(object):
     def test_edit_user(self, app):
         user = factories.User(password="TestPassword1")
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url=url_for("user.edit"), extra_environ=env)
         # existing values in the form
         form = response.forms["user-edit-form"]
@@ -324,7 +324,7 @@ class TestUser(object):
 
         # new values
         form["name"] = "new-name"
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = webtest_submit(form, "save", status=200, extra_environ=env)
         assert "That login name can not be modified" in response
 
@@ -350,7 +350,7 @@ class TestUser(object):
 
         # new values
         form["name"] = "new-name"
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = webtest_submit(form, "save", status=200, extra_environ=env)
         assert "That login name can not be modified" in response
 
@@ -376,7 +376,7 @@ class TestUser(object):
 
         # new values
         form["name"] = "new-name"
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = webtest_submit(form, "save", status=200, extra_environ=env)
         assert "That login name can not be modified" in response
 
@@ -438,7 +438,7 @@ class TestUser(object):
         user_one = factories.User()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(
             controller="user", action="follow", id=user_two["id"]
         )
@@ -454,7 +454,7 @@ class TestUser(object):
 
         user_one = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(controller="user", action="follow", id="not-here")
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=302)
@@ -465,7 +465,7 @@ class TestUser(object):
         user_one = factories.User()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(
             controller="user", action="follow", id=user_two["id"]
         )
@@ -488,7 +488,7 @@ class TestUser(object):
         user_one = factories.User()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(
             unfollow_url, extra_environ=env, status=302
@@ -505,7 +505,7 @@ class TestUser(object):
 
         user_one = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("user.unfollow", id="not-here")
         unfollow_response = app.post(
             unfollow_url, extra_environ=env, status=302
@@ -519,7 +519,7 @@ class TestUser(object):
         user_one = factories.Sysadmin()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(
             controller="user", action="follow", id=user_two["id"]
         )
@@ -627,7 +627,7 @@ class TestUser(object):
         factories.User(fullname="Person Two")
         factories.User(fullname="Person Three")
 
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         user_url = url_for("user.index")
         user_response = app.get(user_url, status=200, extra_environ=env)
         search_form = user_response.forms["user-search-form"]
@@ -729,7 +729,7 @@ class TestUser(object):
         )
 
         url = url_for("user.activity", id=user["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
@@ -802,7 +802,7 @@ class TestUser(object):
         )
 
         url = url_for("group.activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response

@@ -13,6 +13,7 @@ except ImportError:
 
 import mock
 import pytest
+import six
 
 from pyfakefs import fake_filesystem
 
@@ -50,7 +51,7 @@ class TestApiController(object):
             logic_function="resource_create",
             ver="/3",
         )
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         postparams = {"name": "test-flask-upload", "package_id": pkg["id"]}
         upload_content = "test-content"
         upload_info = ("upload", "test-upload.txt", upload_content)
@@ -215,7 +216,7 @@ class TestApiController(object):
         app.get(
             url=url,
             params={},
-            extra_environ={"REMOTE_USER": user["name"].encode("ascii")},
+            extra_environ={"REMOTE_USER": six.ensure_str(user["name"])},
             status=200,
         )
 
@@ -231,7 +232,7 @@ class TestApiController(object):
         app.get(
             url=url,
             params={"callback": "myfn"},
-            extra_environ={"REMOTE_USER": user["name"].encode("ascii")},
+            extra_environ={"REMOTE_USER": six.ensure_str(user["name"])},
             status=403,
         )
 
