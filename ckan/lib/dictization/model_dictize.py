@@ -35,7 +35,7 @@ def group_list_dictize(obj_list, context,
                        include_tags=False,
                        include_extras=False):
 
-    group_dictize_context = dict(context.items()[:])
+    group_dictize_context = dict(context.items())
     # Set options to avoid any SOLR queries for each group, which would
     # slow things further.
     group_dictize_options = {

@@ -24,7 +24,7 @@ def user():
 @click.argument(u'username')
 @click.argument(u'args', nargs=-1)
 @click.pass_context
-def add_user(ctx, username, args):
+def add_user(username, args):
     u'''Add new user if we use ckan sysadmin add
     or ckan user add
     '''
@@ -69,11 +69,9 @@ def add_user(ctx, username, args):
             u'ignore_auth': True,
             u'user': site_user['name'],
         }
-        flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
-        with flask_app.test_request_context():
-            user_dict = logic.get_action(u'user_create')(context, data_dict)
-            click.secho(u"Successfully created user: %s" % user_dict['name'],
-                        fg=u'green', bold=True)
+        user_dict = logic.get_action(u'user_create')(context, data_dict)
+        click.secho(u"Successfully created user: %s" % user_dict['name'],
+                    fg=u'green', bold=True)
     except logic.ValidationError as e:
         error_shout(e)
 
