@@ -7,15 +7,17 @@ import os.path
 import sys
 import tempfile
 import pytest
-
-from paste.script.command import run
+import six
 
 from six import StringIO
 
-import ckan.lib.cli as cli
-import ckan.lib.jobs as jobs
 import ckan.tests.helpers as helpers
 from ckan.common import config
+
+if six.PY2:
+    import ckan.lib.cli as cli
+    import ckan.lib.jobs as jobs
+    from paste.script.command import run
 
 log = logging.getLogger(__name__)
 
@@ -70,6 +72,7 @@ def paster(*args, **kwargs):
     return code, stdout, stderr
 
 
+@pytest.mark.skipif(six.PY3, reason=u"")
 @pytest.mark.usefixtures("clean_db")
 class TestUserAdd(object):
 
@@ -147,6 +150,7 @@ class TestUserAdd(object):
             assert False, "SystemExit exception shouldn't be raised"
 
 
+@pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsUnknown(helpers.RQTestBase):
     """
     Test unknown sub-command for ``paster jobs``.
@@ -163,6 +167,7 @@ class TestJobsUnknown(helpers.RQTestBase):
         assert u"Unknown command" in stderr
 
 
+@pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsList(helpers.RQTestBase):
     """
     Tests for ``paster jobs list``.
@@ -215,6 +220,7 @@ class TestJobsList(helpers.RQTestBase):
         assert u"q3" not in stdout
 
 
+@pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobShow(helpers.RQTestBase):
     """
     Tests for ``paster jobs show``.
@@ -237,7 +243,7 @@ class TestJobShow(helpers.RQTestBase):
         assert code != 0
         assert stderr
 
-
+@pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsCancel(helpers.RQTestBase):
     """
     Tests for ``paster jobs cancel``.
@@ -273,7 +279,7 @@ class TestJobsCancel(helpers.RQTestBase):
         assert code != 0
         assert stderr
 
-
+@pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsClear(helpers.RQTestBase):
     """
     Tests for ``paster jobs clear``.
@@ -310,7 +316,7 @@ class TestJobsClear(helpers.RQTestBase):
         all_jobs = self.all_jobs()
         assert set(all_jobs) == {job1, job2}
 
-
+@pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsTest(helpers.RQTestBase):
     """
     Tests for ``paster jobs test``.
@@ -340,7 +346,7 @@ class TestJobsTest(helpers.RQTestBase):
             u"q2",
         }
 
-
+@pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsWorker(helpers.RQTestBase):
     """
     Tests for ``paster jobs worker``.

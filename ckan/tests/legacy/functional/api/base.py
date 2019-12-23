@@ -1,7 +1,6 @@
 # encoding: utf-8
 
-from paste.fixture import TestRequest
-
+from webtest import TestRequest
 from six.moves.urllib.parse import quote
 from six import StringIO
 

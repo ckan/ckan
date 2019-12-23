@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import datetime
+import six
 
 import pytz
 import tzlocal
@@ -661,18 +662,19 @@ class TestHelpersPlugin(p.SingletonPlugin):
         return _map
 
 
-class TestHelperController(p.toolkit.BaseController):
-    def broken_helper_as_attribute(self):
-        return base.render("tests/broken_helper_as_attribute.html")
+if six.PY2:
+    class TestHelperController(p.toolkit.BaseController):
+        def broken_helper_as_attribute(self):
+            return base.render("tests/broken_helper_as_attribute.html")
 
-    def broken_helper_as_item(self):
-        return base.render("tests/broken_helper_as_item.html")
+        def broken_helper_as_item(self):
+            return base.render("tests/broken_helper_as_item.html")
 
-    def helper_as_attribute(self):
-        return base.render("tests/helper_as_attribute.html")
+        def helper_as_attribute(self):
+            return base.render("tests/helper_as_attribute.html")
 
-    def helper_as_item(self):
-        return base.render("tests/helper_as_item.html")
+        def helper_as_item(self):
+            return base.render("tests/helper_as_item.html")
 
 
 @pytest.mark.usefixtures("clean_db")
