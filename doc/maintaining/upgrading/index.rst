@@ -37,14 +37,14 @@ Major Releases
  templates.  These releases are very infrequent.
 
 Minor Releases
- Minor releases, such as CKAN 1.8 and CKAN 2.1, increment the minor version
+ Minor releases, such as CKAN 2.0 and CKAN 2.1, increment the minor version
  number. These releases are not as disruptive as major releases, but
  backwards-incompatible changes *may* be introduced in minor releases. The
  :doc:`/changelog` will document any breaking changes. We aim to release a minor
  version of CKAN roughly every three months.
 
 Patch Releases
-  Patch releases, such as CKAN 1.8.1 or CKAN 2.0.1, increment the patch version
+  Patch releases, such as CKAN 2.0.0 or CKAN 2.0.1, increment the patch version
   number. These releases do not break backwards-compatibility, they include
   only bug fixes and security fixes, ensured to be non-breaking.
   Patch releases do not contain:
