@@ -16,6 +16,7 @@ Please do not add new files to the list as any new files should meet the
 current coding standards.  Please add comments by files that fail if there
 are legitimate reasons for the failure.
 """
+from __future__ import print_function
 import inspect
 import itertools
 import os

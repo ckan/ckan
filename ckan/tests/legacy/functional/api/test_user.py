@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 
+from __future__ import print_function
 import ckan.logic as logic
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData

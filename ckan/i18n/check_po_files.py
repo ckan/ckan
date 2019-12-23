@@ -7,6 +7,7 @@
 
 for usage.
 '''
+from __future__ import print_function
 import polib
 import re
 

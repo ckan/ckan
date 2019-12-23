@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 from nose.plugins import Plugin
 from inspect import isclass
 import hashlib

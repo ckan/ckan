@@ -1212,7 +1212,7 @@ class PluginInfo(CkanCommand):
                 print('    %s' % i)
                 if extra:
                     print(extra)
-            print
+            print()
 
     def actions(self, cls):
         ''' Return readable action function info. '''
