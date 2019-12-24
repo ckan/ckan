@@ -315,7 +315,7 @@ class TestUser(object):
         form.fields['old_password'][0].value = 'RandomPassword123'
 
         response = webtest_submit(form, 'save', status=200, extra_environ=env)
-        assert_true('belongs to a registered user' in response)
+        assert 'belongs to a registered user' in response
 
     def test_edit_user_logged_in_username_change(self, app):
 
