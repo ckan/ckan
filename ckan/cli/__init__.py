@@ -5,8 +5,59 @@ import os
 import click
 import logging
 from logging.config import fileConfig as loggingFileConfig
+from configparser import ConfigParser
 
 log = logging.getLogger(__name__)
+
+class CKANConfigLoader(object):
+    def __init__(self, filename):
+        self.filename = filename = filename.strip()
+        self.parser = ConfigParser()
+        self.parser.read(filename)
+
+        defaults = {
+            'here': os.path.dirname(os.path.abspath(filename)),
+            '__file__': os.path.abspath(filename)
+            }
+        self._update_defaults(defaults)
+
+    def _update_defaults(self, new_defaults, overwrite=True):
+        for key, value in new_defaults.iteritems():
+            if not overwrite and key in self.parser._defaults:
+                continue
+            self.parser._defaults[key] = value
+
+    def get_context(self):
+        global_conf = self.parser.defaults().copy()
+        local_conf = {}
+        section = 'app:main'
+        options = self.parser.options(section)
+
+        for option in options:
+            if option in global_conf:
+                    continue
+            local_conf[option] = self.parser.get(section, option)
+
+        return CKANLoaderContext(global_conf, local_conf).config()
+
+class CKANLoaderContext(object):
+    def __init__(self, global_conf, local_conf):
+        self.global_conf = global_conf
+        self.local_conf = local_conf
+
+    def config(self):
+        conf = AttrDict(self.global_conf)
+        conf.update(self.local_conf)
+        conf.local_conf = self.local_conf
+        conf.global_conf = self.global_conf
+        conf.context = self
+        return conf
+
+class AttrDict(dict):
+    """
+    A dictionary that can be assigned to.
+    """
+    pass
 
 
 def error_shout(exception):
@@ -23,7 +74,6 @@ click_config_option = click.option(
 
 
 def load_config(config=None):
-    from paste.deploy import appconfig
     if config:
         filename = os.path.abspath(config)
         config_source = u'-c parameter'
@@ -47,6 +97,7 @@ def load_config(config=None):
         msg += u'\n(Given by: %s)' % config_source
         exit(msg)
 
-    loggingFileConfig(filename)
+    config_loader = CKANConfigLoader(filename)
     log.info(u'Using configuration file {}'.format(filename))
-    return appconfig(u'config:' + filename)
+
+    return config_loader.get_context()
