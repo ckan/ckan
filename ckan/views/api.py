@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import os
-import cgi
 import logging
+import html
 
 from flask import Blueprint, make_response
 import six
@@ -71,7 +71,7 @@ def _finish(status_int, response_data=None,
         if (status_int == 200 and u'callback' in request.args and
                 request.method == u'GET'):
             # escape callback to remove '<', '&', '>' chars
-            callback = cgi.escape(request.args[u'callback'])
+            callback = html.escape(request.args[u'callback'])
             response_msg = _wrap_jsonp(callback, response_msg)
             headers[u'Content-Type'] = CONTENT_TYPES[u'javascript']
     return make_response((response_msg, status_int, headers))

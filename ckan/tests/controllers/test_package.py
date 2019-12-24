@@ -1276,7 +1276,6 @@ class TestSearch(object):
 
         assert helpers.body_contains(page, dataset1["name"])
 
-
     def test_search_language_toggle(self, app):
         dataset1 = factories.Dataset()
 

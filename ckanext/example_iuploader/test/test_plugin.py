@@ -1,10 +1,5 @@
 # encoding: utf-8
 
-try:
-    import builtins
-except ImportError:
-    import __builtin__ as builtins
-
 import paste.fileapp
 import flask
 import pytest
@@ -20,6 +15,11 @@ from ckan.common import config
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckanext.example_iuploader.plugin as plugin
+
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
 
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
@@ -55,15 +55,14 @@ def _get_package_new_page(app):
 @pytest.mark.ckan_config("ckan.webassets.path", "/tmp/webassets")
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 @patch.object(ckan.lib.uploader, "os", fake_os)
-@patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
 @patch.object(flask, "send_file", side_effect=[CONTENT])
 @patch.object(paste.fileapp, "os", fake_os)
 @patch.object(config["pylons.h"], "uploads_enabled", return_value=True)
 @patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
 def test_resource_download_iuploader_called(
-    mock_uploads_enabled, mock_open, send_file, app
+        mock_uploads_enabled, send_file, app, monkeypatch
 ):
-
+    monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
     env, response = _get_package_new_page(app)
     form = response.forms["dataset-edit"]
     dataset_name = u"package_with_resource"

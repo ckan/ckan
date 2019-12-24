@@ -65,7 +65,7 @@ class TestFeeds(object):
 
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset1["title"]))
 
-        assert not helpers.body_contains(u'<title">{0}</title>'.format(dataset2["title"]))
+        assert not helpers.body_contains(res, u'<title">{0}</title>'.format(dataset2["title"]))
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_feed_plugin")

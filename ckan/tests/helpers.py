@@ -172,7 +172,7 @@ def body_contains(res, content):
         body = res.data
     except AttributeError:
         body = res.body
-    body = six.ensure_str(body)
+    body = six.ensure_text(body)
     return content in body
 
 

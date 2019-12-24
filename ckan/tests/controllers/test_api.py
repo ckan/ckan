@@ -6,11 +6,6 @@ controller itself.
 import json
 import re
 
-try:
-    import builtins
-except ImportError:
-    import __builtin__ as builtins
-
 import mock
 import pytest
 import six
@@ -21,6 +16,11 @@ from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
 from ckan.lib import uploader as ckan_uploader
+
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
 
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
@@ -38,10 +38,9 @@ def mock_open_if_open_fails(*args, **kwargs):
 @pytest.mark.usefixtures("clean_db")
 class TestApiController(object):
     @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan_uploader, "os", fake_os)
     @mock.patch.object(ckan_uploader, "_storage_path", new="/doesnt_exist")
-    def test_resource_create_upload_file(self, _, app):
+    def test_resource_create_upload_file(self, app, monkeypatch):
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user["id"])
 
@@ -53,9 +52,10 @@ class TestApiController(object):
         )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         postparams = {"name": "test-flask-upload", "package_id": pkg["id"]}
-        upload_content = "test-content"
+        upload_content = six.ensure_binary("test-content")
         upload_info = ("upload", "test-upload.txt", upload_content)
 
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         resp = app.post(
             url,
             params=postparams,
@@ -76,7 +76,7 @@ class TestApiController(object):
         response = app.post(url=org_url, params=postparams, status=404)
         # The unicode is backslash encoded (because that is the default when
         # you do str(exception) )
-        assert "Delta symbol: \\u0394" in response.body
+        assert helpers.body_contains(response, "Delta symbol: \\u0394")
 
     @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_name(self, app):
@@ -249,7 +249,7 @@ class TestApiController(object):
         )
 
         res = app.get(url=url, params={"callback": "my_callback"})
-        assert re.match(r"my_callback\(.*\);", res.body), res
+        assert re.match(r"my_callback\(.*\);", six.ensure_str(res.body)), res
         # Unwrap JSONP callback (we want to look at the data).
         start = len("my_callback") + 1
         msg = res.body[start:-2]
@@ -285,7 +285,7 @@ class TestApiController(object):
 
         res = app.post(url=url)
         # The callback param is ignored and the normal response is returned
-        assert not res.body.startswith("my_callback")
+        assert not six.ensure_str(res.body).startswith("my_callback")
         res_dict = json.loads(res.body)
         assert res_dict["success"]
         assert sorted(res_dict["result"]) == sorted(

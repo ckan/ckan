@@ -8,6 +8,7 @@ from ckan.tests.legacy.functional.api.base import (
 )
 from ckan.tests.helpers import body_contains
 
+
 class ApiTestCase(ApiTestCase, ControllerTestCase):
     def test_get_api(self, app):
         offset = self.offset("")

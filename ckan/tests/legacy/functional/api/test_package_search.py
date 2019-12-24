@@ -11,6 +11,7 @@ from ckan.tests.legacy import setup_test_search_index, CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.tests.helpers import body_contains
 
+
 class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index):

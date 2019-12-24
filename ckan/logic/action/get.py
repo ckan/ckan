@@ -3372,7 +3372,7 @@ def config_option_list(context, data_dict):
 
     schema = ckan.logic.schema.update_configuration_schema()
 
-    return schema.keys()
+    return list(schema.keys())
 
 
 @logic.validate(logic.schema.job_list_schema)

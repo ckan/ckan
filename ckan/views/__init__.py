@@ -200,7 +200,7 @@ def _get_user_for_apikey():
             apikey = u''
     if not apikey:
         return None
-    apikey = six.ensure_text(apikey, errors="ignore")
+    apikey = six.ensure_text(apikey, errors=u"ignore")
     log.debug(u'Received API Key: %s' % apikey)
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()

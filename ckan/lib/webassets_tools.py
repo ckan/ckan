@@ -15,7 +15,7 @@ from ckan.common import config, g, asbool
 logger = logging.getLogger(__name__)
 env = None
 
-yaml.warnings({'YAMLLoadWarning': False})
+yaml.warnings({u'YAMLLoadWarning': False})
 
 
 def create_library(name, path):
