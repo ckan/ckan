@@ -33,8 +33,8 @@ class Missing(object):
     def __hex__(self):
         raise Invalid(_('Missing value'))
 
-    def __bool__(self):
-        return False
+    def __len__(self):
+        return 0
 
 
 missing = Missing()
