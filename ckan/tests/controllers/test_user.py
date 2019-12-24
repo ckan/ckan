@@ -1,6 +1,7 @@
 # encoding: utf-8
 import mock
 import pytest
+import six
 from bs4 import BeautifulSoup
 
 import ckan.tests.factories as factories
