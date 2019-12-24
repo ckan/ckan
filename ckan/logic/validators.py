@@ -861,6 +861,18 @@ def email_validator(value, context):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
 
+def email_is_unique(key, data, errors, context):
+    '''Validate email is unique'''
+    model = context['model']
+    session = context['session']
+    user = session.query(model.User).filter_by(email=data[key]).first()
+
+    # check if email belongs to updated user
+    if user and user.name != data[('name',)]:
+        raise Invalid(
+            _('The email address \'{email}\' belongs to a registered user.').
+            format(email=data[key]))
+    return
 
 def one_of(list_of_value):
     ''' Checks if the provided value is present in a list '''

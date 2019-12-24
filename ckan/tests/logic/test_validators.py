@@ -10,6 +10,8 @@ import fractions
 import mock
 import pytest
 
+from collections import namedtuple
+
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 import ckan.model as model
@@ -158,6 +160,97 @@ def adds_message_to_errors_dict(error_message):
         return call_and_assert
 
     return decorator
+
+
+def test_email_is_unique_validator_with_existed_value(self):
+    user = namedtuple('User', 'name email')
+    user.name = 'test_user_888'
+    user.email = 'existed@email.com'
+    model = mock.MagicMock()
+    session = model.Session
+    context = {'model': model, 'session': session}
+
+    # mock user object with email
+    session.query(
+        model.User).filter_by.return_value.first.return_value = user
+
+    data = factories.validator_data_dict()
+    key = ('email',)
+    data[key] = 'existed@email.com'
+    data[('name',)] = 'test_user_999'
+    errors = factories.validator_errors_dict()
+    errors[key] = []
+
+    @raises_Invalid
+    def call_validator(*args, **kwargs):
+        return validators.email_is_unique(*args, **kwargs)
+    call_validator(key, data, errors, context)
+
+
+def test_email_is_unique_validator_with_unique_value(self):
+    model = mock.MagicMock()
+    session = model.Session
+    context = {'model': model, 'session': session}
+
+    session.query(model.User).filter_by.return_value.first.return_value = None
+
+    data = factories.validator_data_dict()
+    key = ('email',)
+    data[key] = 'unique@email.com'
+    data[('name',)] = 'test_user_888'
+    errors = factories.validator_errors_dict()
+    errors[key] = []
+
+    @t.returns_None
+    def call_validator(*args, **kwargs):
+        return validators.email_is_unique(*args, **kwargs)
+    call_validator(key, data, errors, context)
+
+
+def test_email_is_unique_validator_user_update_email_unchanged(self):
+    user = namedtuple('User', 'name email')
+    user.name = 'test_user_888'
+    user.email = 'existed@email.com'
+    model = mock.MagicMock()
+    session = model.Session
+    context = {'model': model, 'session': session}
+
+    session.query(model.User).filter_by.return_value.first.return_value = user
+
+    data = factories.validator_data_dict()
+    key = ('email',)
+    data[key] = 'exited@esmail.com'
+    data[('name',)] = 'test_user_888'
+    errors = factories.validator_errors_dict()
+    errors[key] = []
+
+    @t.returns_None
+    def call_validator(*args, **kwargs):
+        return validators.email_is_unique(*args, **kwargs)
+    call_validator(key, data, errors, context)
+
+
+def test_email_is_unique_validator_user_update_email_new(self):
+    user = namedtuple('User', 'name email')
+    user.name = 'test_user_888'
+    user.email = 'existed@email.com'
+    model = mock.MagicMock()
+    session = model.Session
+    context = {'model': model, 'session': session}
+
+    session.query(model.User).filter_by.return_value.first.return_value = user
+
+    data = factories.validator_data_dict()
+    key = ('email',)
+    data[key] = 'new@email.com'
+    data[('name',)] = 'test_user_888'
+    errors = factories.validator_errors_dict()
+    errors[key] = []
+
+    @t.returns_None
+    def call_validator(*args, **kwargs):
+        return validators.email_is_unique(*args, **kwargs)
+    call_validator(key, data, errors, context)
 
 
 def test_name_validator_with_invalid_value():
