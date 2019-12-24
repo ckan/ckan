@@ -545,6 +545,12 @@ def _local_url(url_to_amend, **kw):
     allowed_locales = ['default'] + i18n.get_locales()
     if locale and locale not in allowed_locales:
         locale = None
+
+    _auto_flask_context = _get_auto_flask_context()
+
+    if _auto_flask_context:
+        _auto_flask_context.push()
+
     if locale:
         if locale == 'default':
             default_locale = True
@@ -559,22 +565,18 @@ def _local_url(url_to_amend, **kw):
     if kw.get('qualified', False) or kw.get('_external', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
-        _auto_flask_context = _get_auto_flask_context()
-
-        if _auto_flask_context:
-            _auto_flask_context.push()
 
         parts = urlparse(
             _flask_default_url_for('home.index', _external=True)
         )
 
-        if _auto_flask_context:
-            _auto_flask_context.pop()
-
         path = parts.path.rstrip('/')
         root = urlunparse(
             (protocol, host, path,
                 parts.params, parts.query, parts.fragment))
+
+    if _auto_flask_context:
+        _auto_flask_context.pop()
 
     # ckan.root_path is defined when we have none standard language
     # position in the url

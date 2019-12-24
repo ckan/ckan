@@ -168,7 +168,11 @@ def call_auth(auth_name, context, **kwargs):
 
 
 def body_contains(res, content):
-    body = res.body if six.PY2 else res.body.decode()
+    try:
+        body = res.data
+    except AttributeError:
+        body = res.body
+    body = six.ensure_str(body)
     return content in body
 
 

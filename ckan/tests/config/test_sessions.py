@@ -11,13 +11,17 @@ from ckan.tests.helpers import body_contains
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_flash_plugin")
 class TestWithFlashPlugin:
-    def test_flash_populated_by_flask_redirect_to_flask(self, app):
+    # @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
+    def test_flash_populated_by_flask_redirect_to_flask(self, app, client, ckan_config):
         u"""
         Flash store is populated by Flask view is accessible by another Flask
         view.
         """
-        res = app.get(u"/flask_add_flash_message_redirect_to_flask").follow()
-
+        url = u"/flask_add_flash_message_redirect_to_flask"
+        if client:
+            res = client.get(url, base_url=ckan_config['ckan.site_url'], follow_redirects=True)
+        else:
+            res = app.get(url).follow()
         assert body_contains(res, u"This is a success message populated by Flask")
 
     @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")

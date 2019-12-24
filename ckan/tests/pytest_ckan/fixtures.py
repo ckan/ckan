@@ -30,9 +30,11 @@ Deeper expanation can be found in `official documentation
 
 import pytest
 import six
+
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
 import ckan.lib.search as search
+
 from ckan.common import config
 
 
@@ -170,11 +172,18 @@ def with_plugins(ckan_config):
             ckan.plugins.unload(plugin)
 
 
-# @pytest.fixture
-# def app_context(app):
-#     if six.PY2:
-#         yield
-#     else:
-#         flask_app = app.app._wsgi_app
-#         with flask_app.app_context():
-#             yield
+@pytest.fixture
+def client(app):
+    """Client for making requests to application endpoints(Py3 only).
+
+    Natiive `test client
+    <https://werkzeug.palletsprojects.com/en/0.16.x/test/#werkzeug.test.Client>`_
+    provided by Werkzeug. Py2 still uses WebTest instance for making
+    requests, as it consists of two real applications. For Py3 there
+    is no need in such complications.
+
+    """
+    if six.PY2:
+        return None
+    flask_app = app.app._wsgi_app
+    return flask_app.test_client()

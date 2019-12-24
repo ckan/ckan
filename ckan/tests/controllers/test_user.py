@@ -31,7 +31,8 @@ def _get_user_edit_page(app):
 @pytest.mark.usefixtures("clean_db")
 class TestUser(object):
     def test_register_a_user(self, app):
-        response = app.get(url=url_for("user.register"))
+        url = url_for("user.register")
+        response = app.get(url=url)
 
         form = response.forms["user-register-form"]
         form["name"] = "newuser"
