@@ -29,6 +29,7 @@ import paste.script
 from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
 import click
+from ckan.cli import load_config as _get_config
 
 from ckan.config.middleware import make_app
 import ckan.logic as logic
@@ -181,36 +182,6 @@ class MockTranslator(object):
         if n > 1:
             return plural
         return singular
-
-
-def _get_config(config=None):
-    from paste.deploy import appconfig
-
-    if config:
-        filename = os.path.abspath(config)
-        config_source = '-c parameter'
-    elif os.environ.get('CKAN_INI'):
-        filename = os.environ.get('CKAN_INI')
-        config_source = '$CKAN_INI'
-    else:
-        default_filename = 'development.ini'
-        filename = os.path.join(os.getcwd(), default_filename)
-        if not os.path.exists(filename):
-            # give really clear error message for this common situation
-            msg = 'ERROR: You need to specify the CKAN config (.ini) '\
-                'file path.'\
-                '\nUse the --config parameter or set environment ' \
-                'variable CKAN_INI or have {}\nin the current directory.' \
-                .format(default_filename)
-            exit(msg)
-
-    if not os.path.exists(filename):
-        msg = 'Config file not found: %s' % filename
-        msg += '\n(Given by: %s)' % config_source
-        exit(msg)
-
-    fileConfig(filename)
-    return appconfig('config:' + filename)
 
 
 def load_config(config, load_site_user=True):
