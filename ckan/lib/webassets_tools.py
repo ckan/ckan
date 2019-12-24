@@ -17,6 +17,7 @@ env = None
 
 yaml.warnings({'YAMLLoadWarning': False})
 
+
 def create_library(name, path):
     """Create WebAssets library(set of Bundles).
     """

@@ -173,10 +173,12 @@ def _get_request_data(try_url_params=False):
 
     request_data = {}
     if request.method in [u'POST', u'PUT'] and request.form:
-        if (len(request.form.values()) == 1 and
-                request.form.values()[0] in [u'1', u'']):
+        values = list(request.form.values())
+        if (len(values) == 1 and
+                values[0] in [u'1', u'']):
             try:
-                request_data = json.loads(request.form.keys()[0])
+                keys = list(request.form.keys())
+                request_data = json.loads(keys[0])
             except ValueError as e:
                 raise ValueError(
                     u'Error decoding JSON data. '

@@ -20,6 +20,7 @@ if six.PY2:
 else:
     pylons = None
 
+
 def test_del_works():
     my_conf = CKANConfig()
     my_conf[u"test_key_1"] = u"Test value 1"

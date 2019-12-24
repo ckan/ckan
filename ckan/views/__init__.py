@@ -161,7 +161,7 @@ def _identify_user_default():
     g.user = request.environ.get(u'REMOTE_USER', u'')
     if g.user:
         if six.PY2:
-            g.user = g.user.decode(u'utf8')
+            g.user = six.ensure_text(g.user)
         g.userobj = model.User.by_name(g.user)
 
         if g.userobj is None or not g.userobj.is_active():
@@ -200,7 +200,7 @@ def _get_user_for_apikey():
             apikey = u''
     if not apikey:
         return None
-    apikey = apikey.decode(u'utf8', u'ignore')
+    apikey = six.ensure_text(apikey, errors="ignore")
     log.debug(u'Received API Key: %s' % apikey)
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()

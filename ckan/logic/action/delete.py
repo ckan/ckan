@@ -5,6 +5,7 @@
 import logging
 
 import sqlalchemy as sqla
+import six
 
 import ckan.lib.jobs as jobs
 import ckan.logic
@@ -380,7 +381,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
         activity_type = 'deleted group'
 
     activity_dict = {
-        'user_id': model.User.by_name(user.decode('utf8')).id,
+        'user_id': model.User.by_name(six.ensure_text(user)).id,
         'object_id': group.id,
         'activity_type': activity_type,
         'data': {

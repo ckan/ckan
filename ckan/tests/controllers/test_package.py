@@ -1274,7 +1274,8 @@ class TestSearch(object):
         offset = url_for("dataset.search")
         page = app.get(offset)
 
-        assert dataset1["name"] in page.body.decode("utf8")
+        assert helpers.body_contains(page, dataset1["name"])
+
 
     def test_search_language_toggle(self, app):
         dataset1 = factories.Dataset()
@@ -1283,8 +1284,8 @@ class TestSearch(object):
             offset = url_for("dataset.search", q=dataset1["name"])
         page = app.get(offset)
 
-        assert dataset1["name"] in page.body.decode("utf8")
-        assert ("q=" + dataset1["name"]) in page.body.decode("utf8")
+        assert helpers.body_contains(page, dataset1["name"])
+        assert helpers.body_contains(page, "q=" + dataset1["name"])
 
     def test_search_sort_by_blank(self, app):
         factories.Dataset()

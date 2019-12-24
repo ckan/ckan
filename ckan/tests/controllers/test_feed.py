@@ -30,7 +30,7 @@ class TestFeeds(object):
         offset = url_for(u"feeds.general")
         res = app.get(offset)
 
-        assert u"<title>{0}</title>".format(dataset["title"]) in res.body
+        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
 
     def test_group_atom_feed_works(self, app):
         group = factories.Group()
@@ -38,7 +38,7 @@ class TestFeeds(object):
         offset = url_for(u"feeds.group", id=group["name"])
         res = app.get(offset)
 
-        assert u"<title>{0}</title>".format(dataset["title"]) in res.body
+        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
 
     def test_organization_atom_feed_works(self, app):
         group = factories.Organization()
@@ -46,7 +46,7 @@ class TestFeeds(object):
         offset = url_for(u"feeds.organization", id=group["name"])
         res = app.get(offset)
 
-        assert u"<title>{0}</title>".format(dataset["title"]) in res.body
+        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
 
     def test_custom_atom_feed_works(self, app):
         dataset1 = factories.Dataset(
@@ -63,9 +63,9 @@ class TestFeeds(object):
 
         res = app.get(offset, params=params)
 
-        assert u"<title>{0}</title>".format(dataset1["title"]) in res.body
+        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset1["title"]))
 
-        assert u'<title">{0}</title>'.format(dataset2["title"]) not in res.body
+        assert not helpers.body_contains(u'<title">{0}</title>'.format(dataset2["title"]))
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_feed_plugin")
@@ -75,9 +75,10 @@ class TestCustomFeedPlugin:
         offset = url_for(u"feeds.general")
         res = app.get(offset)
 
-        assert (
-            'xmlns:georss="http://www.georss.org/georss"' in res.body
-        ), res.body
+        assert helpers.body_contains(
+            res,
+            'xmlns:georss="http://www.georss.org/georss"'
+        )
 
     def test_additional_fields_added(self, app):
         metadata = {
@@ -93,10 +94,10 @@ class TestCustomFeedPlugin:
         offset = url_for(u"feeds.general")
         res = app.get(offset)
 
-        assert (
+        assert helpers.body_contains(
+            res,
             "<georss:box>-2373790.000000 2937940.000000 -1681290.000000 3567770.000000</georss:box>"
-            in res.body
-        ), res.body
+        )
 
 
 class MockFeedPlugin(plugins.SingletonPlugin):

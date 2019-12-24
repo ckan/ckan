@@ -375,7 +375,6 @@ class TestPep8(object):
         "ckan/poo.py",
         "ckan/rating.py",
         "ckan/templates_legacy/home/__init__.py",
-        "ckan/tests/legacy/__init__.py",
         "ckan/tests/legacy/ckantestplugin/ckantestplugin/__init__.py",
         "ckan/tests/legacy/ckantestplugin/setup.py",
         "ckan/tests/legacy/functional/api/base.py",

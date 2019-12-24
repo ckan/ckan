@@ -941,7 +941,6 @@ def user_create(context, data_dict):
     session = context['session']
 
     _check_access('user_create', context, data_dict)
-
     data, errors = _validate(data_dict, schema, context)
 
     if errors:

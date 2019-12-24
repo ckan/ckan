@@ -14,6 +14,7 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.logic.action import get, update
 from ckan import plugins
 from ckan.lib.search.common import SolrSettings
+from ckan.tests.helpers import body_contains
 
 existing_extra_html = (
     '<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>',
@@ -489,7 +490,7 @@ class TestNew:
         res = app.get(offset, extra_environ=env_user)
 
         res = app.get("/de/dataset/new", extra_environ=env_user)
-        assert "Datensatz" in res.body, res.body
+        assert body_contains(res, "Datensatz")
 
 
 class TestNonActivePackages:

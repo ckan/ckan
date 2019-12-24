@@ -6,7 +6,7 @@ from ckan.tests.legacy.functional.api.base import (
     ControllerTestCase,
     Api3TestCase,
 )
-
+from ckan.tests.helpers import body_contains
 
 class ApiTestCase(ApiTestCase, ControllerTestCase):
     def test_get_api(self, app):
@@ -44,7 +44,8 @@ class TestApi3(Api3TestCase, ApiTestCase):
         res = app.get(
             offset, params=data_dict, status=[400], expect_errors=True
         )
-        assert (
+        assert body_contains(
+            res,
             "Bad request - JSON Error: Invalid request."
-            " Please use POST method for your request" in res.body
+            " Please use POST method for your request"
         )

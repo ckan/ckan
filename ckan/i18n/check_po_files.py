@@ -76,7 +76,6 @@ def check_po_files(paths):
                     msgid, msgstr.encode('ascii', 'replace')))
 
 
-
 def check_po_file(path):
     errors = []
 

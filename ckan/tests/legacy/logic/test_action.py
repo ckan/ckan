@@ -3,6 +3,7 @@
 import json
 from ckan.common import config
 import pytest
+import six
 import ckan
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
@@ -12,7 +13,7 @@ from ckan.tests.legacy import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
 from ckan.tests.legacy import call_action_api
-
+from ckan.tests.helpers import body_contains
 import ckan.tests.factories as factories
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 
@@ -223,12 +224,12 @@ class TestAction(object):
 
         anna_id = model.Package.by_name(u"annakarenina").id
         resource = {"package_id": anna_id, "url": "http://new_url"}
-        api_key = model.User.get("testsysadmin").apikey.encode("utf8")
+        api_key = six.ensure_text(model.User.get("testsysadmin").apikey)
         postparams = "%s=1" % json.dumps(resource)
         res = app.post(
             "/api/action/resource_create",
             params=postparams,
-            extra_environ={"Authorization": api_key},
+            extra_environ={"Authorization": str(api_key)},
         )
 
         resource = json.loads(res.body)["result"]
@@ -243,13 +244,13 @@ class TestAction(object):
             "url": "new_url",
             "created": "bad_date",
         }
-        api_key = model.User.get("testsysadmin").apikey.encode("utf8")
+        api_key = six.ensure_text(model.User.get("testsysadmin").apikey)
 
         postparams = "%s=1" % json.dumps(resource)
         res = app.post(
             "/api/action/resource_create",
             params=postparams,
-            extra_environ={"Authorization": api_key},
+            extra_environ={"Authorization": str(api_key)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
 
@@ -765,19 +766,21 @@ class TestAction(object):
         res = app.post(
             "/api/action/package_list", params=postparams, status=400
         )
-        assert (
-            "Bad request - JSON Error: Request data JSON decoded to 'not a dict' but it needs to be a dictionary."
-            in res.body
-        ), res.body
+
+        assert body_contains(
+            res,
+            "Bad request - JSON Error: Request data JSON decoded to "
+            "'not a dict' but it needs to be a dictionary."
+        )
 
         # def test_31_bad_request_format_not_json(self):
         postparams = "=1"
         res = app.post(
             "/api/action/package_list", params=postparams, status=400
         )
-        assert (
-            "Bad request - JSON Error: Error decoding JSON data." in res.body
-        ), res.body
+        assert body_contains(
+            res, "Bad request - JSON Error: Error decoding JSON data."
+        )
 
         # def test_32_get_domain_object(self):
         anna = model.Package.by_name(u"annakarenina")
@@ -998,7 +1001,7 @@ class TestActionTermTranslation(object):
         assert json.loads(res.body)["success"]
         # sort the result since the order is not important and is implementation
         # dependent
-        assert sorted(json.loads(res.body)["result"]) == sorted(
+        assert sorted(json.loads(res.body)["result"], key=dict.items) == sorted(
             [
                 {
                     u"lang_code": u"fr",
@@ -1010,7 +1013,7 @@ class TestActionTermTranslation(object):
                     u"term": u"moo",
                     u"term_translation": u"moomoo",
                 },
-            ]
+            ], key=dict.items
         ), json.loads(res.body)
 
     def test_2_update_many(self, app):
@@ -1057,7 +1060,7 @@ class TestActionTermTranslation(object):
 
         # sort the result since the order is not important and is implementation
         # dependent
-        assert sorted(json.loads(res.body)["result"]) == sorted(
+        assert sorted(json.loads(res.body)["result"], key=dict.items) == sorted(
             [
                 {
                     u"lang_code": u"fr",
@@ -1069,7 +1072,7 @@ class TestActionTermTranslation(object):
                     u"term": u"many",
                     u"term_translation": u"manymoomoo",
                 },
-            ]
+            ], key=dict.items
         ), json.loads(res.body)
 
 
@@ -1187,10 +1190,12 @@ class TestSearchPluginInterface(object):
     def test_before_view(self, app):
         res = app.get("/dataset/annakarenina")
 
-        assert "string_not_found_in_rest_of_template" in res.body
+        assert body_contains(res, "string_not_found_in_rest_of_template")
 
         res = app.get("/dataset?q=")
-        assert res.body.count("string_not_found_in_rest_of_template") == 2
+        assert six.ensure_str(res.body).count(
+            "string_not_found_in_rest_of_template"
+        ) == 2
 
 
 class TestBulkActions(object):

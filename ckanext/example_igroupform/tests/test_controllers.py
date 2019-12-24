@@ -152,6 +152,7 @@ class TestGroupControllerNew(object):
 
         assert "My Custom Group Form!" in response
 
+
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform_default_group_type")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestGroupControllerNew_DefaultGroupType(object):

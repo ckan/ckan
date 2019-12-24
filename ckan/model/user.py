@@ -102,7 +102,7 @@ class User(core.StatefulObjectMixin,
         hashed_password = pbkdf2_sha512.encrypt(password)
 
         if not isinstance(hashed_password, text_type):
-            hashed_password = hashed_password.decode('utf-8')
+            hashed_password = six.ensure_text(hashed_password)
         self._password = hashed_password
 
     def _get_password(self):

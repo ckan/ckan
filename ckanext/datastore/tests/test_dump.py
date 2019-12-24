@@ -3,6 +3,7 @@
 import mock
 import json
 import pytest
+import six
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
@@ -60,7 +61,7 @@ class TestDatastoreDump(object):
         helpers.call_action("datastore_create", **data)
 
         response = app.get("/datastore/dump/{0}".format(str(resource["id"])))
-        content = response.body.decode("utf-8")
+        content = six.ensure_text(response.body)
         expected = (
             u"_id,b\xfck,author,published" u",characters,random_letters,nested"
         )
@@ -108,7 +109,7 @@ class TestDatastoreDump(object):
         response = app.get(
             "/datastore/dump/{0}?limit=1".format(str(resource["id"]))
         )
-        content = response.body.decode("utf-8")
+        content = six.ensure_text(response.body)
         expected_content = u"_id,book\r\n" u"1,annakarenina\n"
         assert content == expected_content
 
@@ -150,7 +151,7 @@ class TestDatastoreDump(object):
                 resource["id"]
             )
         )
-        content = response.body.decode("utf-8")
+        content = six.ensure_text(response.body)
 
         expected_content = u"nested,author\r\n" u'"{""a"": ""b""}",tolstoy\n'
         assert content == expected_content
@@ -193,7 +194,7 @@ class TestDatastoreDump(object):
                 str(resource["id"])
             )
         )
-        content = res.body.decode("utf-8")
+        content = six.ensure_text(res.body)
 
         expected_content = (
             u"_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t"
@@ -242,7 +243,7 @@ class TestDatastoreDump(object):
                 str(resource["id"])
             )
         )
-        content = res.body.decode("utf-8")
+        content = six.ensure_text(res.body)
         expected_content = (
             u'{\n  "fields": [{"type":"int","id":"_id"},{"type":"text",'
             u'"id":"b\xfck"},{"type":"text","id":"author"},{"type":"timestamp"'
@@ -293,7 +294,7 @@ class TestDatastoreDump(object):
                 str(resource["id"])
             )
         )
-        content = res.body.decode("utf-8")
+        content = six.ensure_text(res.body)
         expected_content = (
             u"<data>\n"
             r'<row _id="1">'

@@ -163,7 +163,7 @@ def unicode_safe(value):
         # bytes only arrive when core ckan or plugins call
         # actions from Python code
         try:
-            return value.decode(u'utf8')
+            return six.ensure_text(value)
         except UnicodeDecodeError:
             return value.decode(u'cp1252')
     try:

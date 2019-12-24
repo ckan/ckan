@@ -243,6 +243,7 @@ class TestJobShow(helpers.RQTestBase):
         assert code != 0
         assert stderr
 
+
 @pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsCancel(helpers.RQTestBase):
     """
@@ -278,6 +279,7 @@ class TestJobsCancel(helpers.RQTestBase):
         code, stdout, stderr = paster(u"jobs", u"cancel", fail_on_error=False)
         assert code != 0
         assert stderr
+
 
 @pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsClear(helpers.RQTestBase):
@@ -316,6 +318,7 @@ class TestJobsClear(helpers.RQTestBase):
         all_jobs = self.all_jobs()
         assert set(all_jobs) == {job1, job2}
 
+
 @pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsTest(helpers.RQTestBase):
     """
@@ -345,6 +348,7 @@ class TestJobsTest(helpers.RQTestBase):
             u"q1",
             u"q2",
         }
+
 
 @pytest.mark.skipif(six.PY3, reason=u"")
 class TestJobsWorker(helpers.RQTestBase):

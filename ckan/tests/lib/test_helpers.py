@@ -616,7 +616,7 @@ class TestHelperException(object):
 
         res = app.get("/helper_as_attribute")
 
-        assert "My lang is: en" in res.body
+        assert helpers.body_contains(res, "My lang is: en")
 
     def test_helper_existing_helper_as_item(self, app):
         """Calling an existing helper on `h` doesn't raises a
@@ -624,7 +624,7 @@ class TestHelperException(object):
 
         res = app.get("/helper_as_item")
 
-        assert "My lang is: en" in res.body
+        assert helpers.body_contains(res, "My lang is: en")
 
 
 class TestHelpersPlugin(p.SingletonPlugin):

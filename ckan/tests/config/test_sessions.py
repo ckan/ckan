@@ -9,6 +9,7 @@ import ckan.plugins as p
 from ckan.lib.base import render as pylons_render
 from ckan.tests.helpers import body_contains
 
+
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_flash_plugin")
 class TestWithFlashPlugin:
     # @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
@@ -31,7 +32,7 @@ class TestWithFlashPlugin:
         """
         res = app.get(u"/pylons_add_flash_message_redirect_view").follow()
 
-        assert u"This is a success message populated by Pylons" in res.body
+        assert body_contains(res, u"This is a success message populated by Pylons")
 
     @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
     def test_flash_populated_in_flask_view_redirect_to_pylons(self, app):
@@ -40,7 +41,7 @@ class TestWithFlashPlugin:
         """
         res = app.get(u"/flask_add_flash_message_redirect_pylons").follow()
 
-        assert u"This is a success message populated by Flask" in res.body
+        assert body_contains(res, u"This is a success message populated by Flask")
 
 
 class FlashMessagePlugin(p.SingletonPlugin):
