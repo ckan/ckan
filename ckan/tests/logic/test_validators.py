@@ -162,7 +162,7 @@ def adds_message_to_errors_dict(error_message):
     return decorator
 
 
-def test_email_is_unique_validator_with_existed_value(self):
+def test_email_is_unique_validator_with_existed_value():
     user = namedtuple('User', 'name email')
     user.name = 'test_user_888'
     user.email = 'existed@email.com'
@@ -187,7 +187,7 @@ def test_email_is_unique_validator_with_existed_value(self):
     call_validator(key, data, errors, context)
 
 
-def test_email_is_unique_validator_with_unique_value(self):
+def test_email_is_unique_validator_with_unique_value():
     model = mock.MagicMock()
     session = model.Session
     context = {'model': model, 'session': session}
@@ -207,7 +207,7 @@ def test_email_is_unique_validator_with_unique_value(self):
     call_validator(key, data, errors, context)
 
 
-def test_email_is_unique_validator_user_update_email_unchanged(self):
+def test_email_is_unique_validator_user_update_email_unchanged():
     user = namedtuple('User', 'name email')
     user.name = 'test_user_888'
     user.email = 'existed@email.com'
@@ -230,7 +230,7 @@ def test_email_is_unique_validator_user_update_email_unchanged(self):
     call_validator(key, data, errors, context)
 
 
-def test_email_is_unique_validator_user_update_email_new(self):
+def test_email_is_unique_validator_user_update_email_new():
     user = namedtuple('User', 'name email')
     user.name = 'test_user_888'
     user.email = 'existed@email.com'

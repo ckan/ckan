@@ -301,8 +301,7 @@ class TestUser(object):
         response = submit_and_follow(app, form, env, "save")
         assert "Profile updated" in response
 
-    def test_email_change_on_existed_email(self):
-        app = self._get_test_app()
+    def test_email_change_on_existed_email(self, app):
         env, response, user = _get_user_edit_page(app)
         factories.User(email='existed@email.com')
 
