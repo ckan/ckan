@@ -312,6 +312,7 @@ class RQTestBase(object):
             redis_conn.srem(rq.Queue.redis_queues_keys, queue._key)
             redis_conn.delete(queue._key)
 
+
     def all_jobs(self):
         u"""
         Get a list of all RQ jobs.

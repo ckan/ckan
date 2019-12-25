@@ -30,7 +30,8 @@ Deeper expanation can be found in `official documentation
 
 import pytest
 import six
-
+import mock
+import smtplib
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
 import ckan.lib.search as search
@@ -206,3 +207,36 @@ def with_request_context(test_request_context):
     """
     with test_request_context():
         yield
+
+
+class FakeSMTP(smtplib.SMTP):
+    def __init__(self):
+        self._msgs = []
+
+    connect = mock.Mock()
+    ehlo = mock.Mock()
+    starttls = mock.Mock()
+    login = mock.Mock()
+    quit = mock.Mock()
+
+    def __call__(self, *args):
+        return self
+
+    def sendmail(self, from_addr, to_addrs, msg, mail_options=(), rcpt_options=()):
+
+        self._msgs.append(
+            (None, from_addr, to_addrs, msg)
+        )
+
+    def get_smtp_messages(self):
+        return self._msgs
+
+    def clear_smtp_messages(self):
+        self.msgs = []
+
+
+@pytest.fixture
+def mail_server(monkeypatch):
+    bag = FakeSMTP()
+    monkeypatch.setattr(smtplib, 'SMTP', bag)
+    yield bag

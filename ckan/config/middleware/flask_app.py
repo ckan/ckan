@@ -49,6 +49,16 @@ from logging.handlers import SMTPHandler
 log = logging.getLogger(__name__)
 
 
+class I18nMiddleware(object):
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+
+        handle_i18n(environ)
+        return self.app(environ, start_response)
+
+
 class CKANBabel(Babel):
     def __init__(self, *pargs, **kwargs):
         super(CKANBabel, self).__init__(*pargs, **kwargs)
@@ -286,6 +296,9 @@ def make_flask_stack(conf, **app_conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    if six.PY3:
+        app = I18nMiddleware(app)
+
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
@@ -305,9 +318,6 @@ def get_locale():
 
 def ckan_before_request():
     u'''Common handler executed before all Flask requests'''
-
-    # Handle locale in URL
-    handle_i18n()
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()

@@ -221,7 +221,6 @@ def handle_i18n(environ=None):
         * CKAN_LANG_IS_DEFAULT is set to True or False
         * CKAN_CURRENT_URL is set to the current application url
     '''
-
     environ = environ or request.environ
     locale_list = get_locales_from_config()
     default_locale = config.get(u'ckan.locale_default', u'en')
