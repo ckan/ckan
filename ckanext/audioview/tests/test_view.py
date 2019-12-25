@@ -7,6 +7,7 @@ import ckan.plugins as p
 
 import pytest
 
+
 @pytest.mark.ckan_config('ckan.views.default_views', '')
 @pytest.mark.ckan_config("ckan.plugins", "audio_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
@@ -15,7 +16,7 @@ def test_view_shown_on_resource_page_with_audio_url(app):
     dataset = factories.Dataset()
 
     resource = factories.Resource(package_id=dataset['id'],
-                                    format='wav')
+                                  format='wav')
 
     resource_view = factories.ResourceView(
         resource_id=resource['id'],
@@ -23,7 +24,7 @@ def test_view_shown_on_resource_page_with_audio_url(app):
         audio_url='http://example.wav')
 
     url = url_for('resource.read',
-                    id=dataset['name'], resource_id=resource['id'])
+                  id=dataset['name'], resource_id=resource['id'])
 
     response = app.get(url)
 
