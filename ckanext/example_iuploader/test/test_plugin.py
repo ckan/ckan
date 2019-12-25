@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import paste.fileapp
 import flask
 import pytest
 import six
@@ -56,7 +55,6 @@ def _get_package_new_page(app):
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 @patch.object(ckan.lib.uploader, "os", fake_os)
 @patch.object(flask, "send_file", side_effect=[CONTENT])
-@patch.object(paste.fileapp, "os", fake_os)
 @patch.object(config["pylons.h"], "uploads_enabled", return_value=True)
 @patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
 def test_resource_download_iuploader_called(

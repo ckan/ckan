@@ -187,3 +187,14 @@ def client(app):
         return None
     flask_app = app.app._wsgi_app
     return flask_app.test_client()
+
+
+@pytest.fixture
+def test_request_context(app):
+    """Provide function for creating Flask request context.
+    """
+    try:
+        flask_app = app.app._wsgi_app
+    except AttributeError:
+        flask_app = app.app.apps['flask_app']._wsgi_app
+    return flask_app.test_request_context

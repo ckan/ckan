@@ -21,7 +21,7 @@ class TestDatastoreCreate(object):
     normal_user = None
 
     @pytest.fixture(autouse=True)
-    def initial_data(self, clean_db, clean_index):
+    def initial_data(self, clean_db, clean_index, test_request_context):
         if not tests.is_datastore_supported():
             pytest.skip("Datastore not supported")
         ctd.CreateTestData.create()
@@ -29,9 +29,10 @@ class TestDatastoreCreate(object):
         self.normal_user = model.User.get("annafan")
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        set_url_type(
-            model.Package.get("annakarenina").resources, self.sysadmin_user
-        )
+        with test_request_context():
+            set_url_type(
+                model.Package.get("annakarenina").resources, self.sysadmin_user
+            )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
@@ -136,7 +137,7 @@ class TestDatastoreCreate(object):
     @responses.activate
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
-    def test_send_datapusher_creates_task(self):
+    def test_send_datapusher_creates_task(self, test_request_context):
         responses.add(
             responses.POST,
             "http://datapusher.ckan.org/job",
@@ -148,10 +149,10 @@ class TestDatastoreCreate(object):
         resource = package.resources[0]
 
         context = {"ignore_auth": True, "user": self.sysadmin_user.name}
-
-        p.toolkit.get_action("datapusher_submit")(
-            context, {"resource_id": resource.id}
-        )
+        with test_request_context():
+            p.toolkit.get_action("datapusher_submit")(
+                context, {"resource_id": resource.id}
+            )
 
         context.pop("task_status", None)
 
@@ -220,15 +221,15 @@ class TestDatastoreCreate(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
-    def test_datapusher_hook_sysadmin(self, app):
-
-        self._call_datapusher_hook(self.sysadmin_user, app)
+    def test_datapusher_hook_sysadmin(self, app, test_request_context):
+        with test_request_context():
+            self._call_datapusher_hook(self.sysadmin_user, app)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
-    def test_datapusher_hook_normal_user(self, app):
-
-        self._call_datapusher_hook(self.normal_user, app)
+    def test_datapusher_hook_normal_user(self, app, test_request_context):
+        with test_request_context():
+            self._call_datapusher_hook(self.normal_user, app)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
