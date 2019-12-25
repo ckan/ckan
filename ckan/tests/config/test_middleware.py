@@ -137,24 +137,6 @@ def patched_app(app):
     return app
 
 
-def test_ask_around_pylons_core_route_get(patched_app):
-    environ = {u"PATH_INFO": u"/tag", u"REQUEST_METHOD": u"GET"}
-    wsgiref.util.setup_testing_defaults(environ)
-
-    answers = patched_app.app.ask_around(environ)
-
-    assert answers == [(False, u"flask_app"), (True, u"pylons_app", u"core")]
-
-
-def test_ask_around_pylons_core_route_post(patched_app):
-    environ = {u"PATH_INFO": u"/tag", u"REQUEST_METHOD": u"POST"}
-    wsgiref.util.setup_testing_defaults(environ)
-
-    answers = patched_app.app.ask_around(environ)
-
-    assert answers == [(False, u"flask_app"), (True, u"pylons_app", u"core")]
-
-
 def test_flask_core_route_is_served_by_flask(patched_app):
     res = patched_app.get(u"/")
 
@@ -184,8 +166,11 @@ class TestMiddlewareWithRoutingPlugin:
 
         answers = patched_app.app.ask_around(environ)
 
+        # Even though this route is defined in Pylons, there is catch all route
+        # in Flask for all requests to serve static files with the same name,
+        # so we get two positive answers
         assert answers == [
-            (False, u"flask_app"),
+            (True, u"flask_app", u"core"),
             (True, u"pylons_app", u"extension"),
         ]
 
@@ -214,11 +199,12 @@ class TestMiddlewareWithRoutingPlugin:
 
         answers = patched_app.app.ask_around(environ)
 
-        # We are going to get an answer from Pylons, but just because it will
-        # match the catch-all template route, hence the `core` origin.
+        # Even though this route is defined in Pylons, there is catch all route
+        # in Flask for all requests to serve static files with the same name,
+        # so we get two positive answers
         assert answers == [
-            (False, u"flask_app"),
-            (True, u"pylons_app", u"core"),
+            (True, u"flask_app", u"core"),
+            (False, u"pylons_app"),
         ]
 
     def test_ask_around_pylons_extension_route_get_after_map(
@@ -232,8 +218,11 @@ class TestMiddlewareWithRoutingPlugin:
 
         answers = patched_app.app.ask_around(environ)
 
+        # Even though this route is defined in Pylons, there is catch all route
+        # in Flask for all requests to serve static files with the same name,
+        # so we get two positive answers
         assert answers == [
-            (False, u"flask_app"),
+            (True, u"flask_app", u"core"),
             (True, u"pylons_app", u"extension"),
         ]
 
@@ -453,10 +442,7 @@ def test_ask_around_flask_core_route_post(app):
 
     answers = ckan_app.ask_around(environ)
 
-    # Even though this route is defined in Flask, there is catch all route
-    # in Pylons for all requests to point arbitrary urls to templates with
-    # the same name, so we get two positive answers
     assert answers == [
         (True, u"flask_app", u"core"),
-        (True, u"pylons_app", u"core"),
+        (False, u"pylons_app"),
     ]
