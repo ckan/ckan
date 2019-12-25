@@ -50,7 +50,7 @@ class TestMethodLevelConfig:
 
 
 @pytest.mark.ckan_config(u"some.new.config", u"exists")
-class TestMethodLevelConfig:
+class TestClassLevelConfig:
     """Verify that config overrides applied for each method when applied
     per on class level.
     """

@@ -19,6 +19,7 @@ from ckanext.datastore.tests.helpers import (
 )
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreDelete(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -118,6 +119,7 @@ class TestDatastoreDelete(object):
         assert last_analyze is not None
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreDeleteLegacy(object):
     sysadmin_user = None
     normal_user = None
@@ -411,6 +413,7 @@ class TestDatastoreDeleteLegacy(object):
         self._delete()
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreFunctionDelete(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")

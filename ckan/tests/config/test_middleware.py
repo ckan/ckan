@@ -250,7 +250,7 @@ class TestMiddlewareWithRoutingPlugin:
             res.body == u"Hello World, this is served from a Pylons extension"
         )
 
-    @pytest.mark.usefixtures(u"clean_db")
+    @pytest.mark.usefixtures(u"clean_db", u"with_request_context")
     def test_user_objects_in_g_normal_user(self, app):
         """
         A normal logged in user request will have expected user objects added
@@ -258,16 +258,14 @@ class TestMiddlewareWithRoutingPlugin:
         """
         username = factories.User()[u"name"]
         test_user_obj = model.User.by_name(username)
-
-        with app.flask_app.app_context():
-            app.get(
-                u"/simple_flask",
-                extra_environ={u"REMOTE_USER": username.encode(u"ascii") if six.PY2 else username},
-            )
-            assert flask.g.user == username
-            assert flask.g.userobj == test_user_obj
-            assert flask.g.author == username
-            assert flask.g.remote_addr == u"Unknown IP Address"
+        app.get(
+            u"/simple_flask",
+            extra_environ={u"REMOTE_USER": username.encode(u"ascii") if six.PY2 else username},
+        )
+        assert flask.g.user == username
+        assert flask.g.userobj == test_user_obj
+        assert flask.g.author == username
+        assert flask.g.remote_addr == u"Unknown IP Address"
 
     @pytest.mark.usefixtures(u"clean_db")
     def test_user_objects_in_g_anon_user(self, app):
@@ -281,7 +279,7 @@ class TestMiddlewareWithRoutingPlugin:
             assert flask.g.author == u"Unknown IP Address"
             assert flask.g.remote_addr == u"Unknown IP Address"
 
-    @pytest.mark.usefixtures(u"clean_db")
+    @pytest.mark.usefixtures(u"clean_db", u"with_request_context")
     def test_user_objects_in_g_sysadmin(self, app):
         """
         A sysadmin user request will have expected user objects added to
@@ -289,16 +287,14 @@ class TestMiddlewareWithRoutingPlugin:
         """
         user = factories.Sysadmin()
         test_user_obj = model.User.by_name(user[u"name"])
-
-        with app.flask_app.app_context():
-            app.get(
-                u"/simple_flask",
-                extra_environ={u"REMOTE_USER": user[u"name"].encode(u"ascii") if six.PY2 else user[u"name"]},
-            )
-            assert flask.g.user == user[u"name"]
-            assert flask.g.userobj == test_user_obj
-            assert flask.g.author == user[u"name"]
-            assert flask.g.remote_addr == u"Unknown IP Address"
+        app.get(
+            u"/simple_flask",
+            extra_environ={u"REMOTE_USER": user[u"name"].encode(u"ascii") if six.PY2 else user[u"name"]},
+        )
+        assert flask.g.user == user[u"name"]
+        assert flask.g.userobj == test_user_obj
+        assert flask.g.author == user[u"name"]
+        assert flask.g.remote_addr == u"Unknown IP Address"
 
     @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_user_objects_in_c_normal_user(self, app):

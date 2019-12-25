@@ -50,7 +50,7 @@ class TestInterace(object):
         "ckan.plugins", "datastore datapusher test_datapusher_plugin"
     )
     @pytest.mark.usefixtures("with_plugins")
-    def test_send_datapusher_creates_task(self):
+    def test_send_datapusher_creates_task(self, test_request_context):
         responses.add(
             responses.POST,
             "http://datapusher.ckan.org/job",
@@ -61,10 +61,10 @@ class TestInterace(object):
         resource = self.dataset["resources"][0]
 
         context = {"ignore_auth": True, "user": self.sysadmin_user["name"]}
-
-        result = p.toolkit.get_action("datapusher_submit")(
-            context, {"resource_id": resource["id"]}
-        )
+        with test_request_context():
+            result = p.toolkit.get_action("datapusher_submit")(
+                context, {"resource_id": resource["id"]}
+            )
         assert not result
 
         context.pop("task_status", None)

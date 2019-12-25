@@ -19,7 +19,8 @@ from ckanext.datastore.tests.helpers import (
 )
 
 
-class TestDatastoreCreateNewTests:
+@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreCreateNewTests(object):
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
             SELECT
@@ -335,20 +336,22 @@ class TestDatastoreCreateNewTests:
         assert last_analyze is not None
 
 
-class TestDatastoreCreate:
+
+class TestDatastoreCreate(object):
     sysadmin_user = None
     normal_user = None
 
     @pytest.fixture(autouse=True)
-    def create_test_data(self, clean_datastore):
+    def create_test_data(self, clean_datastore, test_request_context):
         ctd.CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
         self.normal_user = model.User.get("annafan")
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        set_url_type(
-            model.Package.get("annakarenina").resources, self.sysadmin_user
-        )
+        with test_request_context():
+            set_url_type(
+                model.Package.get("annakarenina").resources, self.sysadmin_user
+            )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
@@ -1251,7 +1254,8 @@ class TestDatastoreCreate:
         assert res_dict["error"]["message"].startswith("The data was invalid")
 
 
-class TestDatastoreFunctionCreate:
+@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreFunctionCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_nop_trigger(self):
@@ -1317,7 +1321,8 @@ class TestDatastoreFunctionCreate:
         )
 
 
-class TestDatastoreCreateTriggers:
+@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreCreateTriggers(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_with_missing_trigger(self, app):

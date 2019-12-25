@@ -57,7 +57,7 @@ class StatsCount(dict):
 
     def report(self, indent=1):
         lines = []
-        categories = self.keys()
+        categories = list(self.keys())
         categories.sort()
         indent_str = '\t' * indent
         for category in categories:

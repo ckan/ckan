@@ -121,12 +121,6 @@ def call_action(action_name, context=None, **kwargs):
     context.setdefault("user", "127.0.0.1")
     context.setdefault("ignore_auth", True)
 
-    if six.PY3:
-        from ckan.lib.helpers import _get_auto_flask_context
-        _auto_flask_context = _get_auto_flask_context()
-        if _auto_flask_context:
-            _auto_flask_context.push()
-
     return logic.get_action(action_name)(context=context, data_dict=kwargs)
 
 

@@ -198,3 +198,11 @@ def test_request_context(app):
     except AttributeError:
         flask_app = app.app.apps['flask_app']._wsgi_app
     return flask_app.test_request_context
+
+
+@pytest.fixture
+def with_request_context(test_request_context):
+    """Execute test inside requests context
+    """
+    with test_request_context():
+        yield

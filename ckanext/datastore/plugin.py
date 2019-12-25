@@ -155,10 +155,10 @@ class DatastorePlugin(p.SingletonPlugin):
     # IDatastore
 
     def datastore_validate(self, context, data_dict, fields_types):
-        column_names = fields_types.keys()
+        column_names = list(fields_types.keys())
 
         filters = data_dict.get('filters', {})
-        for key in filters.keys():
+        for key in list(filters.keys()):
             if key in fields_types:
                 del filters[key]
 
