@@ -35,7 +35,7 @@ import smtplib
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
 import ckan.lib.search as search
-
+import rq
 from ckan.common import config
 
 
@@ -237,6 +237,18 @@ class FakeSMTP(smtplib.SMTP):
 
 @pytest.fixture
 def mail_server(monkeypatch):
+    """Catch all outcome mails.
+    """
     bag = FakeSMTP()
     monkeypatch.setattr(smtplib, 'SMTP', bag)
     yield bag
+
+
+@pytest.fixture
+def with_test_worker(monkeypatch):
+    """Worker that doesn't create forks.
+    """
+    if six.PY3:
+        monkeypatch.setattr(rq.Worker, 'main_work_horse', rq.SimpleWorker.main_work_horse)
+        monkeypatch.setattr(rq.Worker, 'execute_job', rq.SimpleWorker.execute_job)
+    yield

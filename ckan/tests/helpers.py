@@ -28,6 +28,7 @@ import re
 
 import webtest
 import nose.tools
+import pytest
 import mock
 import rq
 import six
@@ -296,6 +297,7 @@ class FunctionalTestBase(object):
         config.update(cls._original_config)
 
 
+@pytest.mark.usefixtures("with_test_worker")
 class RQTestBase(object):
     """
     Base class for tests of RQ functionality.
