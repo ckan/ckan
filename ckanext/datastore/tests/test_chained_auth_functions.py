@@ -50,7 +50,7 @@ class ExampleDataStoreSearchSQLPlugin(p.SingletonPlugin):
 @pytest.mark.ckan_config(
     u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
 )
-@pytest.mark.usefixtures("with_request_context", u"with_plugins", u"clean_db")
+@pytest.mark.usefixtures(u"with_request_context", u"with_plugins", u"clean_db")
 class TestChainedAuth(object):
     def test_datastore_search_sql_auth(self):
         ctd.CreateTestData.create()

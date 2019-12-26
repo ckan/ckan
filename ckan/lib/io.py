@@ -8,8 +8,9 @@ import sys
 
 import six
 
-_FILESYSTEM_ENCODING = six.text_type(sys.getfilesystemencoding()
-                                 or sys.getdefaultencoding())
+_FILESYSTEM_ENCODING = six.text_type(
+    sys.getfilesystemencoding() or sys.getdefaultencoding()
+)
 
 
 def encode_path(p):

@@ -142,14 +142,14 @@ class TestBuildJSTranslations(object):
 class TestI18nFlaskAndPylons(object):
     def test_translation_works_on_flask_and_pylons(self, app):
         resp = app.get(u"/flask_translated")
-        assert six.ensure_text(resp.body) == six.text_type("Dataset")
+        assert six.ensure_text(resp.body) == six.text_type(u"Dataset")
 
         resp = app.get(u"/es/flask_translated")
-        assert six.ensure_text(resp.body) == six.text_type("Conjunto de datos")
+        assert six.ensure_text(resp.body) == six.text_type(u"Conjunto de datos")
 
         if six.PY2:
             resp = app.get(u"/pylons_translated")
-            assert six.ensure_text(resp.body) == six.text_type("Groups")
+            assert six.ensure_text(resp.body) == six.text_type(u"Groups")
 
             resp = app.get(u"/es/pylons_translated")
-            assert six.ensure_text(resp.body) == six.text_type("Grupos")
+            assert six.ensure_text(resp.body) == six.text_type(u"Grupos")

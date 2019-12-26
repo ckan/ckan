@@ -222,11 +222,13 @@ class FakeSMTP(smtplib.SMTP):
     def __call__(self, *args):
         return self
 
-    def sendmail(self, from_addr, to_addrs, msg, mail_options=(), rcpt_options=()):
-
-        self._msgs.append(
-            (None, from_addr, to_addrs, msg)
-        )
+    def sendmail(self,
+                 from_addr,
+                 to_addrs,
+                 msg,
+                 mail_options=(),
+                 rcpt_options=()):
+        self._msgs.append((None, from_addr, to_addrs, msg))
 
     def get_smtp_messages(self):
         return self._msgs
@@ -240,7 +242,7 @@ def mail_server(monkeypatch):
     """Catch all outcome mails.
     """
     bag = FakeSMTP()
-    monkeypatch.setattr(smtplib, 'SMTP', bag)
+    monkeypatch.setattr(smtplib, u"SMTP", bag)
     yield bag
 
 
@@ -249,6 +251,8 @@ def with_test_worker(monkeypatch):
     """Worker that doesn't create forks.
     """
     if six.PY3:
-        monkeypatch.setattr(rq.Worker, 'main_work_horse', rq.SimpleWorker.main_work_horse)
-        monkeypatch.setattr(rq.Worker, 'execute_job', rq.SimpleWorker.execute_job)
+        monkeypatch.setattr(rq.Worker, u"main_work_horse",
+                            rq.SimpleWorker.main_work_horse)
+        monkeypatch.setattr(rq.Worker, u"execute_job",
+                            rq.SimpleWorker.execute_job)
     yield

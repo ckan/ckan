@@ -17,7 +17,6 @@ from ckan.common import config
 from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
 
 
-
 class MailerBase(object):
     def mime_encode(self, msg, recipient_name):
         text = MIMEText(msg.encode("utf-8"), "plain", "utf-8")

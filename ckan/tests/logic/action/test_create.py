@@ -121,6 +121,7 @@ class TestUserInvite(object):
         assert invited_user.name.split("-")[0] == "maria"
 
     @pytest.mark.ckan_config("smtp.server", "email.example.com")
+    @pytest.mark.usefixtures("with_request_context")
     def test_smtp_error_returns_error_message(self):
 
         sysadmin = factories.Sysadmin()

@@ -106,7 +106,6 @@ class TestChanges(object):
         assert changes[0]["old_value"] == u"science"
         assert changes[0]["new_value"] == u"scientific"
 
-
     def test_change_multiple_extras(self):
         changes = []
         original = Dataset(
