@@ -26,8 +26,8 @@ class CKANConfigLoader(object):
     def read_config_files(self, filename):
         self.parser.read(filename)
 
-        schema, path = self.parser.get(self.section, 'use').split(':')
-        if schema == 'config':
+        schema, path = self.parser.get(self.section, u'use').split(u':')
+        if schema == u'config':
             self.parser.read([path, filename])
 
     def _update_defaults(self, new_defaults, overwrite=True):
