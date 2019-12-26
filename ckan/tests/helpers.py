@@ -27,6 +27,8 @@ import logging
 import re
 import smtplib
 
+from flask.testing import Client as FlaskClient
+
 import webtest
 import nose.tools
 import pytest
@@ -172,7 +174,7 @@ def body_contains(res, content):
     return content in body
 
 
-class CKANTestApp(webtest.TestApp):
+class CKANTestApp(object):
     """A wrapper around webtest.TestApp
 
     It adds some convenience methods for CKAN
@@ -189,13 +191,28 @@ class CKANTestApp(webtest.TestApp):
                 self._flask_app = self.app._wsgi_app
         return self._flask_app
 
+    def __init__(self, app):
+        self.app = app
+
+    def test_client(self, use_cookies=True):
+        return CKANTestClient(self.app, self.flask_app.response_class, use_cookies=use_cookies)
+        self.flask_app.test_client_class = CKANTestClient
+        return self.flask_app.test_client()
+
     def post(self, url, *args, **kwargs):
-        url = six.ensure_str(url)
-        return super(CKANTestApp, self).post(url, *args, **kwargs)
+        return self.test_client().post(url, *args, **kwargs)
 
     def get(self, url, *args, **kwargs):
-        url = six.ensure_str(url)
-        return super(CKANTestApp, self).get(url, *args, **kwargs)
+        return self.test_client().get(url, *args, **kwargs)
+
+
+class CKANTestClient(FlaskClient):
+    def open(self, *args, **kwargs):
+        if args and isinstance(args[0], six.string_types):
+            kwargs.setdefault('follow_redirects', True)
+            kwargs.setdefault('base_url', config['ckan.site_url'])
+        result = super(CKANTestClient, self).open(*args, **kwargs)
+        return result
 
 
 def _get_test_app():
@@ -221,6 +238,7 @@ def _get_test_app():
     else:
         app = ckan.config.middleware.make_app(config, **config)
     app = CKANTestApp(app)
+
     return app
 
 

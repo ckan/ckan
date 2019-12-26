@@ -11,7 +11,7 @@ from ckan.tests.helpers import body_contains
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_flash_plugin")
-@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.usefixtures(u"with_request_context")
 class TestWithFlashPlugin:
     # @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
     def test_flash_populated_by_flask_redirect_to_flask(self, app):
@@ -20,7 +20,7 @@ class TestWithFlashPlugin:
         view.
         """
         url = u"/flask_add_flash_message_redirect_to_flask"
-        res = app.get(url).follow()
+        res = app.get(url)
         assert body_contains(res, u"This is a success message populated by Flask")
 
     @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
@@ -28,7 +28,7 @@ class TestWithFlashPlugin:
         u"""
         Flash store is populated by pylons action is accessible by Flask view.
         """
-        res = app.get(u"/pylons_add_flash_message_redirect_view").follow()
+        res = app.get(u"/pylons_add_flash_message_redirect_view")
 
         assert body_contains(res, u"This is a success message populated by Pylons")
 
@@ -37,7 +37,7 @@ class TestWithFlashPlugin:
         u"""
         Flash store is populated by flask view is accessible by pylons action.
         """
-        res = app.get(u"/flask_add_flash_message_redirect_pylons").follow()
+        res = app.get(u"/flask_add_flash_message_redirect_pylons")
 
         assert body_contains(res, u"This is a success message populated by Flask")
 

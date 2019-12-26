@@ -141,21 +141,12 @@ def patched_app(app):
     return app
 
 
-@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
-def test_flask_core_route_is_served_by_flask(patched_app):
+def test_flask_core_route_is_served(patched_app):
     res = patched_app.get(u"/")
-    assert res.environ[u"ckan.app"] == u"flask_app"
+    assert res.status_code == 200
 
-
-@pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
-def test_flask_core_and_pylons_core_route_is_served_by_flask(patched_app):
-    """
-    This should never happen in core, but just in case
-    """
     res = patched_app.get(u"/flask_core")
-
-    assert res.environ[u"ckan.app"] == u"flask_app"
-    assert res.body == u"This was served from Flask"
+    assert six.ensure_text(res.data) == u"This was served from Flask"
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
@@ -235,19 +226,15 @@ class TestMiddlewareWithRoutingPlugin:
             (True, u"pylons_app", u"extension"),
         ]
 
-    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_flask_extension_route_is_served_by_flask(self, patched_app):
         res = patched_app.get(u"/simple_flask")
-        assert res.environ[u"ckan.app"] == u"flask_app"
+        assert res.status_code == 200
 
     @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     def test_pylons_extension_route_is_served_by_pylons(self, patched_app):
-
         res = patched_app.get(u"/from_pylons_extension_before_map")
-
-        assert res.environ[u"ckan.app"] == u"pylons_app"
         assert (
-            res.body == u"Hello World, this is served from a Pylons extension"
+            res.data == u"Hello World, this is served from a Pylons extension"
         )
 
     @pytest.mark.usefixtures(u"clean_db", u"with_request_context")
@@ -260,7 +247,7 @@ class TestMiddlewareWithRoutingPlugin:
         test_user_obj = model.User.by_name(username)
         app.get(
             u"/simple_flask",
-            extra_environ={u"REMOTE_USER": username.encode(u"ascii") if six.PY2 else username},
+            environ_overrides={u"REMOTE_USER": username.encode(u"ascii") if six.PY2 else username},
         )
         assert flask.g.user == username
         assert flask.g.userobj == test_user_obj
@@ -273,7 +260,7 @@ class TestMiddlewareWithRoutingPlugin:
         An anon user request will have expected user objects added to request.
         """
         with app.flask_app.app_context():
-            app.get(u"/simple_flask", extra_environ={u"REMOTE_USER": str(u"")})
+            app.get(u"/simple_flask", environ_overrides={u"REMOTE_USER": str(u"")})
             assert flask.g.user == u""
             assert flask.g.userobj is None
             assert flask.g.author == u"Unknown IP Address"
@@ -289,69 +276,12 @@ class TestMiddlewareWithRoutingPlugin:
         test_user_obj = model.User.by_name(user[u"name"])
         app.get(
             u"/simple_flask",
-            extra_environ={u"REMOTE_USER": user[u"name"].encode(u"ascii") if six.PY2 else user[u"name"]},
+            environ_overrides={u"REMOTE_USER": user[u"name"].encode(u"ascii") if six.PY2 else user[u"name"]},
         )
         assert flask.g.user == user[u"name"]
         assert flask.g.userobj == test_user_obj
         assert flask.g.author == user[u"name"]
         assert flask.g.remote_addr == u"Unknown IP Address"
-
-    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
-    def test_user_objects_in_c_normal_user(self, app):
-        """
-        A normal logged in user request will have expected user objects added
-        to request.
-        """
-        username = factories.User()[u"name"]
-        test_user_obj = model.User.by_name(username)
-
-        resp = app.get(
-            u"/from_pylons_extension_before_map",
-            extra_environ={u"REMOTE_USER": username.encode(u"ascii") if six.PY2 else username},
-        )
-
-        # tmpl_context available on response
-        assert resp.tmpl_context.user == username
-        assert resp.tmpl_context.userobj == test_user_obj
-        assert resp.tmpl_context.author == username
-        assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
-
-    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
-    def test_user_objects_in_c_anon_user(self, app):
-        """An anon user request will have expected user objects added to
-        request.
-        """
-
-        resp = app.get(
-            u"/from_pylons_extension_before_map",
-            extra_environ={u"REMOTE_USER": str(u"")},
-        )
-
-        # tmpl_context available on response
-        assert resp.tmpl_context.user == u""
-        assert resp.tmpl_context.userobj is None
-        assert resp.tmpl_context.author == u"Unknown IP Address"
-        assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
-
-    @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
-    @pytest.mark.usefixtures(u"clean_db")
-    def test_user_objects_in_c_sysadmin(self, app):
-        """A sysadmin user request will have expected user objects added to
-        request.
-        """
-        username = factories.Sysadmin()[u"name"]
-        test_user_obj = model.User.by_name(username)
-
-        resp = app.get(
-            u"/from_pylons_extension_before_map",
-            extra_environ={u"REMOTE_USER": username.encode(u"ascii") if six.PY2 else username},
-        )
-
-        # tmpl_context available on response
-        assert resp.tmpl_context.user == username
-        assert resp.tmpl_context.userobj == test_user_obj
-        assert resp.tmpl_context.author == username
-        assert resp.tmpl_context.remote_addr == u"Unknown IP Address"
 
     @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
     @pytest.mark.ckan_config(
@@ -365,9 +295,9 @@ class TestMiddlewareWithRoutingPlugin:
 
         response = app.get(url=u"/pylons_translated")
 
-        assert response.status_int == 200
+        assert response.status_code == 200
         # make sure we haven't overwritten the response too early.
-        assert u"cleanup middleware" not in response.body
+        assert u"cleanup middleware" not in response.data
 
 
 @pytest.mark.ckan_config(u"SECRET_KEY", u"super_secret_stuff")
@@ -417,8 +347,9 @@ def test_can_handle_request_with_environ(monkeypatch, app, rv, app_base):
 def test_ask_around_is_called(monkeypatch, app):
     ask = mock.MagicMock()
     monkeypatch.setattr(AskAppDispatcherMiddleware, u"ask_around", ask)
-    app.get(u"/", status=404)
+    res = app.get(u"/")
     assert ask.called
+    assert res.status_code == 404
 
 
 @pytest.mark.skipif(six.PY3, reason=u"Do not test AskAppDispatcherMiddleware in Py3")
