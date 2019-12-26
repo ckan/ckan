@@ -14,7 +14,8 @@ class CKANConfigLoader(object):
     def __init__(self, filename):
         self.filename = filename = filename.strip()
         self.parser = ConfigParser()
-        self.parser.read(filename)
+        self.section = u'app:main'
+        self.read_config_files(filename)
 
         defaults = {
             u'here': os.path.dirname(os.path.abspath(filename)),
@@ -22,22 +23,28 @@ class CKANConfigLoader(object):
         }
         self._update_defaults(defaults)
 
+    def read_config_files(self, filename):
+        self.parser.read(filename)
+
+        schema, path = self.parser.get(self.section, 'use').split(':')
+        if schema == 'config':
+            self.parser.read([filename, path])
+
     def _update_defaults(self, new_defaults, overwrite=True):
         for key, value in new_defaults.iteritems():
             if not overwrite and key in self.parser._defaults:
                 continue
             self.parser._defaults[key] = value
 
-    def get_context(self):
+    def get_config(self):
         global_conf = self.parser.defaults().copy()
         local_conf = {}
-        section = u'app:main'
-        options = self.parser.options(section)
+        options = self.parser.options(self.section)
 
         for option in options:
             if option in global_conf:
                 continue
-            local_conf[option] = self.parser.get(section, option)
+            local_conf[option] = self.parser.get(self.section, option)
 
         return CKANLoaderContext(global_conf, local_conf).config()
 
@@ -106,4 +113,4 @@ def load_config(ini_path=None):
     config_loader = CKANConfigLoader(filename)
     log.info(u'Using configuration file {}'.format(filename))
 
-    return config_loader.get_context()
+    return config_loader.get_config()
