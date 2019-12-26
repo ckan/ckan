@@ -32,7 +32,7 @@ def _reset_config(app):
     app.post(url=url_for("admin.reset_config"), extra_environ=env)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestConfig(object):
     """View tests to go along with 'Customizing look and feel' docs."""
 
@@ -95,16 +95,8 @@ class TestConfig(object):
             "red.css" in new_index_response
             or "red.min.css" in new_index_response
         )
-        assert "main.css" not in new_index_response
-        assert "main.min.css" not in new_index_response
-
-        # reset config value
-        _reset_config(app)
-        reset_index_response = app.get("/")
-        assert (
-            "main.css" in reset_index_response
-            or "main.min.css" in reset_index_response
-        )
+        assert not helpers.body_contains(new_index_response, "main.css")
+        assert not helpers.body_contains(new_index_response, "main.min.css")
 
     def test_tag_line(self, app):
         """Add a tag line (only when no logo)"""
@@ -235,7 +227,7 @@ class TestConfig(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestTrashView(object):
     """View tests for permanently deleting datasets with Admin Trash."""
 
@@ -327,7 +319,7 @@ class TestTrashView(object):
         assert pkgs_after_purge == 1
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestAdminConfigUpdate(object):
     def _update_config_option(self, app):
         sysadmin = factories.Sysadmin()

@@ -14,8 +14,8 @@ defaults:
       createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_DATASTORE_POSTGRES_WRITE_USER} ${CKAN_DATASTORE_POSTGRES_DB}
 
       # Database Initialization
-      paster datastore -c test-core-circle-ci.ini set-permissions | psql --host=ckan-postgres --username=ckan
-      paster db init -c test-core-circle-ci.ini
+      ckan -c test-core-circle-ci.ini datastore set-permissions | psql --host=ckan-postgres --username=ckan
+      ckan -c test-core-circle-ci.ini db init
   install_deps: &install_deps
     run: |
       # OS Dependencies
@@ -48,7 +48,7 @@ defaults:
     run:
       command: |
         case $CIRCLE_NODE_INDEX in
-          $NODE_TESTS_CONTAINER) paster serve test-core-circle-ci.ini
+          $NODE_TESTS_CONTAINER) ckan -c test-core-circle-ci.ini run
           ;;
         esac
       background: true

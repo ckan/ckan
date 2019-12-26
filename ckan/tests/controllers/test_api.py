@@ -35,7 +35,7 @@ def mock_open_if_open_fails(*args, **kwargs):
         return fake_open(*args, **kwargs)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestApiController(object):
     @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan_uploader, "os", fake_os)

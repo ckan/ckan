@@ -12,7 +12,7 @@ if six.PY2:
     from webhelpers.feedgenerator import GeoAtom1Feed
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestFeeds(object):
     @pytest.mark.parametrize("page", [0, -2, "abc"])
     def test_atom_feed_incorrect_page_gives_error(self, page, app):
@@ -69,7 +69,7 @@ class TestFeeds(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_feed_plugin")
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
 class TestCustomFeedPlugin:
     def test_custom_class_used(self, app):
         offset = url_for(u"feeds.general")

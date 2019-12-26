@@ -27,7 +27,7 @@ def _get_package_new_page(app):
     return env, response
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageNew(object):
     def test_form_renders(self, app):
         env, response = _get_package_new_page(app)
@@ -357,7 +357,7 @@ class TestPackageNew(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageEdit(object):
     def test_organization_admin_can_edit(self, app):
         user = factories.User()
@@ -470,7 +470,7 @@ class TestPackageEdit(object):
         assert 404 == response.status_int
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageRead(object):
     def test_read(self, app):
         dataset = factories.Dataset()
@@ -615,7 +615,7 @@ class TestPackageRead(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageDelete(object):
     def test_owner_delete(self, app):
         user = factories.User()
@@ -714,7 +714,7 @@ class TestPackageDelete(object):
         assert 200 == response.status_int
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestResourceNew(object):
     def test_manage_dataset_resource_listing_page(self, app):
         user = factories.User()
@@ -910,7 +910,7 @@ class TestResourceNew(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestResourceView(object):
     def test_resource_view_create(self, app):
         user = factories.User()
@@ -1016,7 +1016,7 @@ class TestResourceView(object):
         response.mustcontain("Some <strong>Markdown</strong>")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestResourceRead(object):
     def test_existing_resource_with_not_associated_dataset(self, app):
 
@@ -1126,7 +1126,7 @@ class TestResourceRead(object):
         assert 404 == response.status_int
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestResourceDelete(object):
     def test_dataset_owners_can_delete_resources(self, app):
         user = factories.User()
@@ -1266,7 +1266,7 @@ class TestResourceDelete(object):
         assert 200 == response.status_int
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestSearch(object):
     def test_search_basic(self, app):
         dataset1 = factories.Dataset()
@@ -1580,7 +1580,7 @@ class TestSearch(object):
         assert [n.string for n in ds_titles] == ["A private dataset"]
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageFollow(object):
     def test_package_follow(self, app):
 
@@ -1675,7 +1675,7 @@ class TestPackageFollow(object):
         assert user_one["display_name"] in followers_response
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDatasetRead(object):
     def test_dataset_read(self, app):
 
@@ -1724,7 +1724,7 @@ class TestDatasetRead(object):
         )  # ie no redirect
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivity(object):
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -2085,7 +2085,7 @@ class TestActivity(object):
         assert "changed datastore" in response
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestChanges(object):  # i.e. the diff
     def test_simple(self, app):
         user = factories.User()

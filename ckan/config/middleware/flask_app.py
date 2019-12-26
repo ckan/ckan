@@ -346,7 +346,7 @@ def ckan_after_request(response):
     response = set_cors_headers_for_response(response)
 
     r_time = time.time() - g.__timer
-    url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+    url = request.environ['PATH_INFO']
 
     log.info(' %s render time %.3f seconds' % (url, r_time))
 

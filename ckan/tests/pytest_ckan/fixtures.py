@@ -208,40 +208,11 @@ def with_request_context(test_request_context):
     with test_request_context():
         yield
 
-
-class FakeSMTP(smtplib.SMTP):
-    def __init__(self):
-        self._msgs = []
-
-    connect = mock.Mock()
-    ehlo = mock.Mock()
-    starttls = mock.Mock()
-    login = mock.Mock()
-    quit = mock.Mock()
-
-    def __call__(self, *args):
-        return self
-
-    def sendmail(self,
-                 from_addr,
-                 to_addrs,
-                 msg,
-                 mail_options=(),
-                 rcpt_options=()):
-        self._msgs.append((None, from_addr, to_addrs, msg))
-
-    def get_smtp_messages(self):
-        return self._msgs
-
-    def clear_smtp_messages(self):
-        self.msgs = []
-
-
 @pytest.fixture
 def mail_server(monkeypatch):
     """Catch all outcome mails.
     """
-    bag = FakeSMTP()
+    bag = test_helpers.FakeSMTP()
     monkeypatch.setattr(smtplib, u"SMTP", bag)
     yield bag
 

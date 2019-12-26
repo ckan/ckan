@@ -13,7 +13,7 @@ webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupController(object):
     def test_bulk_process_throws_404_for_nonexistent_org(self, app):
         bulk_process_url = url_for(
@@ -63,7 +63,7 @@ def _get_group_new_page(app):
     return env, response
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -116,7 +116,7 @@ def _get_group_edit_page(app, group_name=None):
     return env, response, group_name
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -154,7 +154,7 @@ class TestGroupControllerEdit(object):
         assert group.image_url == "http://example.com/image.png"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupRead(object):
     def test_group_read(self, app):
         group = factories.Group()
@@ -178,6 +178,7 @@ class TestGroupRead(object):
         app.get(url_for("group.read", id=group["id"]), status=200)
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestGroupDelete(object):
     @pytest.fixture
     def initial_data(self):
@@ -250,7 +251,7 @@ class TestGroupDelete(object):
         assert group["state"] == "active"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupMembership(object):
     def _create_group(self, owner_username, users=None):
         """Create a group with the owner defined by owner_username and
@@ -445,7 +446,7 @@ class TestGroupMembership(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupFollow:
     def test_group_follow(self, app):
 
@@ -541,7 +542,7 @@ class TestGroupFollow:
         assert user_one["display_name"] in followers_response
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestGroupSearch(object):
     """Test searching for groups."""
 
@@ -607,7 +608,7 @@ class TestGroupSearch(object):
         assert 'No groups found for "No Results Here"' in search_response
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestGroupInnerSearch(object):
     """Test searching within an group."""
 
@@ -693,7 +694,7 @@ class TestGroupInnerSearch(object):
         search_form["q"] = "Nout"
         search_response = webtest_submit(search_form)
 
-        assert 'No datasets found for "Nout"' in search_response.body
+        assert helpers.body_contains(search_response, 'No datasets found for "Nout"')
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -705,7 +706,7 @@ class TestGroupInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupIndex(object):
     def test_group_index(self, app):
 
@@ -743,7 +744,7 @@ class TestGroupIndex(object):
         assert "Test Group 20" not in response
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivity:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""

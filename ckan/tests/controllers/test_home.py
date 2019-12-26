@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from ckan.tests import factories
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestHome(object):
     def test_home_renders(self, app):
         response = app.get(url_for("home.index"))
@@ -75,6 +76,7 @@ class TestHome(object):
         assert "Welcome to CKAN" in response.body
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestI18nURLs(object):
     def test_right_urls_are_rendered_on_language_selector(self, app):
 

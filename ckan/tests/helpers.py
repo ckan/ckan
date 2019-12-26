@@ -25,6 +25,7 @@ import contextlib
 import functools
 import logging
 import re
+import smtplib
 
 import webtest
 import nose.tools
@@ -786,3 +787,30 @@ class RecordingLogHandler(logging.Handler):
         Clear all captured log messages.
         """
         self.messages = collections.defaultdict(list)
+
+
+class FakeSMTP(smtplib.SMTP):
+    """Mock `SMTP` client, catching all the messages.
+    """
+    connect = mock.Mock()
+    ehlo = mock.Mock()
+    starttls = mock.Mock()
+    login = mock.Mock()
+    quit = mock.Mock()
+
+    def __init__(self):
+        self._msgs = []
+
+    def __call__(self, *args):
+        return self
+
+    def get_smtp_messages(self):
+        return self._msgs
+
+    def clear_smtp_messages(self):
+        self.msgs = []
+
+    def sendmail(self, from_addr, to_addrs, msg, mail_options=(), rcpt_options=()):
+        """Just store message inside current instance.
+        """
+        self._msgs.append((None, from_addr, to_addrs, msg))
