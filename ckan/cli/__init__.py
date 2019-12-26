@@ -73,9 +73,11 @@ click_config_option = click.option(
 )
 
 
-def load_config(config=None):
-    if config:
-        filename = os.path.abspath(config)
+def load_config(ini_path=None):
+    if ini_path:
+        if ini_path.startswith(u'~'):
+            ini_path = os.path.expanduser(ini_path)
+        filename = os.path.abspath(ini_path)
         config_source = u'-c parameter'
     elif os.environ.get(u'CKAN_INI'):
         filename = os.environ.get(u'CKAN_INI')
