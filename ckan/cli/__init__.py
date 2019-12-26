@@ -9,6 +9,7 @@ from configparser import ConfigParser
 
 log = logging.getLogger(__name__)
 
+
 class CKANConfigLoader(object):
     def __init__(self, filename):
         self.filename = filename = filename.strip()
@@ -18,7 +19,7 @@ class CKANConfigLoader(object):
         defaults = {
             'here': os.path.dirname(os.path.abspath(filename)),
             '__file__': os.path.abspath(filename)
-            }
+        }
         self._update_defaults(defaults)
 
     def _update_defaults(self, new_defaults, overwrite=True):
@@ -35,10 +36,11 @@ class CKANConfigLoader(object):
 
         for option in options:
             if option in global_conf:
-                    continue
+                continue
             local_conf[option] = self.parser.get(section, option)
 
         return CKANLoaderContext(global_conf, local_conf).config()
+
 
 class CKANLoaderContext(object):
     def __init__(self, global_conf, local_conf):
@@ -52,6 +54,7 @@ class CKANLoaderContext(object):
         conf.global_conf = self.global_conf
         conf.context = self
         return conf
+
 
 class AttrDict(dict):
     """
