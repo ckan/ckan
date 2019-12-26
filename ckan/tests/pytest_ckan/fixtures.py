@@ -174,31 +174,10 @@ def with_plugins(ckan_config):
 
 
 @pytest.fixture
-def client(app):
-    """Client for making requests to application endpoints(Py3 only).
-
-    Natiive `test client
-    <https://werkzeug.palletsprojects.com/en/0.16.x/test/#werkzeug.test.Client>`_
-    provided by Werkzeug. Py2 still uses WebTest instance for making
-    requests, as it consists of two real applications. For Py3 there
-    is no need in such complications.
-
-    """
-    if six.PY2:
-        return None
-    flask_app = app.app._wsgi_app
-    return flask_app.test_client()
-
-
-@pytest.fixture
 def test_request_context(app):
     """Provide function for creating Flask request context.
     """
-    try:
-        flask_app = app.app._wsgi_app
-    except AttributeError:
-        flask_app = app.app.apps['flask_app']._wsgi_app
-    return flask_app.test_request_context
+    return app.flask_app.test_request_context
 
 
 @pytest.fixture

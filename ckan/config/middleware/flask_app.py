@@ -42,6 +42,7 @@ from ckan.views import (identify_user,
                         check_session_cookie,
                         set_controller_and_action,
                         handle_i18n,
+                        set_ckan_current_url,
                         )
 
 import logging
@@ -330,6 +331,7 @@ def ckan_before_request():
     # with extensions
     set_controller_and_action()
 
+    set_ckan_current_url(request.environ)
     g.__timer = time.time()
 
 

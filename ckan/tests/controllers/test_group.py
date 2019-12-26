@@ -382,8 +382,7 @@ class TestGroupMembership(object):
         # redirected to member list after removal
         remove_response = remove_response.follow(extra_environ=env)
 
-        assert "Group member has been deleted." in remove_response
-        assert "1 members" in remove_response
+        assert helpers.body_contains(remove_response, "1 members")
 
         remove_response_html = BeautifulSoup(remove_response.body)
         user_names = [

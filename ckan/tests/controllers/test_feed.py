@@ -68,6 +68,7 @@ class TestFeeds(object):
         assert not helpers.body_contains(res, u'<title">{0}</title>'.format(dataset2["title"]))
 
 
+@pytest.mark.skipif(six.PY3, reason="Relies on webhelpers")
 @pytest.mark.ckan_config("ckan.plugins", "test_feed_plugin")
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
 class TestCustomFeedPlugin:

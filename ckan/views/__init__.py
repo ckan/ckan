@@ -241,17 +241,20 @@ def handle_i18n(environ=None):
             environ[u'CKAN_LANG'] = default_locale
             environ[u'CKAN_LANG_IS_DEFAULT'] = True
 
-        # Current application url
-        path_info = environ[u'PATH_INFO']
+        set_ckan_current_url(environ)
+
+
+def set_ckan_current_url(environ):
+    # Current application url
+    path_info = environ[u'PATH_INFO']
+    # sort out weird encodings
+    path_info = \
+        u'/'.join(quote(pce, u'') for pce in path_info.split(u'/'))
+
+    qs = environ.get(u'QUERY_STRING')
+    if qs:
         # sort out weird encodings
-        path_info = \
-            u'/'.join(quote(pce, u'') for pce in path_info.split(u'/'))
-
-        qs = environ.get(u'QUERY_STRING')
-
-        if qs:
-            # sort out weird encodings
-            qs = quote(qs, u'')
-            environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
-        else:
-            environ[u'CKAN_CURRENT_URL'] = path_info
+        qs = quote(qs, u'')
+        environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
+    else:
+        environ[u'CKAN_CURRENT_URL'] = path_info
