@@ -66,9 +66,8 @@ class TestCreateUserApiDisabled(object):
         }
         res = app.post(
             "/api/3/action/user_create",
-            json.dumps(params),
+            data=json.dumps(params),
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
-            expect_errors=True,
         )
         res_dict = res.json
         assert res_dict["success"] is True
@@ -80,7 +79,7 @@ class TestCreateUserApiDisabled(object):
             "password": "TestPassword1",
         }
         res = app.post(
-            "/api/3/action/user_create", json.dumps(params), expect_errors=True
+            "/api/3/action/user_create", json.dumps(params)
         )
         res_dict = res.json
         assert res_dict["success"] is False
@@ -140,7 +139,7 @@ class TestCreateUserWebDisabled(object):
             "password": "TestPassword1",
         }
         res = app.post(
-            "/api/3/action/user_create", json.dumps(params), expect_errors=True
+            "/api/3/action/user_create", json.dumps(params)
         )
         res_dict = res.json
         assert res_dict["success"] is False
@@ -164,7 +163,7 @@ class TestCreateUserWebEnabled(object):
             "password": "TestPassword1",
         }
         res = app.post(
-            "/api/3/action/user_create", json.dumps(params), expect_errors=True
+            "/api/3/action/user_create", json.dumps(params)
         )
         res_dict = res.json
         assert res_dict["success"] is False

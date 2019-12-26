@@ -741,7 +741,7 @@ def convert(data, type_name):
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
     if type_name == 'tsvector':
-        return text_type(data, 'utf-8')
+        return six.ensure_text(data)
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
@@ -1209,7 +1209,7 @@ def validate(context, data_dict):
         elif isinstance(values, (list, tuple)):
             value = values[0]
         elif isinstance(values, dict):
-            value = values.keys()[0]
+            value = list(values.keys())[0]
         else:
             value = values
 

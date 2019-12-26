@@ -420,10 +420,9 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
     :rtype: dictionary
 
     """
-    params = json.dumps(kwargs)
     response = app.post(
         "/api/action/{0}".format(action),
-        params=params,
+        json=kwargs,
         extra_environ={"Authorization": str(apikey)},
         status=status,
     )

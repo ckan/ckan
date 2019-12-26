@@ -181,8 +181,8 @@ class TestUser(object):
         logout_url = url_for("user.logout")
         # Remove the prefix otherwise the test app won't find the correct route
         logout_url = logout_url.replace("/my/prefix", "")
-        logout_response = app.get(logout_url, status=302)
-        assert logout_response.status_int == 302
+        logout_response = app.get(logout_url)
+        assert logout_response.status_code == 302
         assert "/my/prefix/user/logout" in logout_response.location
 
     def test_not_logged_in_dashboard(self, app):

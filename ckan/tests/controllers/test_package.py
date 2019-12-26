@@ -465,7 +465,7 @@ class TestPackageEdit(object):
         response = app.get(
             url_for("dataset.edit", id="does-not-exist"),
             extra_environ=env,
-            expect_errors=True,
+
         )
         assert 404 == response.status_int
 
@@ -637,7 +637,7 @@ class TestPackageDelete(object):
     def test_delete_on_non_existing_dataset(self, app):
         response = app.post(
             url_for("dataset.delete", id="schrodingersdatset"),
-            expect_errors=True,
+
         )
         assert 404 == response.status_int
 
@@ -684,7 +684,7 @@ class TestPackageDelete(object):
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]),
             extra_environ=env,
-            expect_errors=True,
+
         )
         assert 403 == response.status_int
         response.mustcontain("Unauthorized to delete package")
@@ -752,7 +752,7 @@ class TestResourceNew(object):
         response = app.get(
             url_for("dataset.resources", id="does-not-exist"),
             extra_environ=env,
-            expect_errors=True,
+
         )
         assert 404 == response.status_int
 
@@ -1165,7 +1165,7 @@ class TestResourceDelete(object):
                 resource_id="doesnotexist",
             ),
             extra_environ=env,
-            expect_errors=True,
+
         )
         assert 404 == response.status_int
 
@@ -1208,7 +1208,7 @@ class TestResourceDelete(object):
                 resource_id=resource["id"],
             ),
             extra_environ=env,
-            expect_errors=True,
+
         )
         assert 403 == response.status_int
         response.mustcontain("Unauthorized to delete package")

@@ -183,7 +183,7 @@ def limit_to_configured_maximum(config_option, default_limit):
     '''
     def callable(key, data, errors, context):
 
-        value = data.get(key)
+        value = convert_int(data.get(key), context)
         limit = int(config.get(config_option, default_limit))
         if value > limit:
             data[key] = limit

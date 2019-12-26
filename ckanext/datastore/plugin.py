@@ -168,7 +168,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 del data_dict['q']
                 column_names.append(u'rank')
             elif isinstance(q, dict):
-                for key in q.keys():
+                for key in list(q.keys()):
                     if key in fields_types and isinstance(q[key],
                                                           string_types):
                         column_names.append(u'rank ' + key)

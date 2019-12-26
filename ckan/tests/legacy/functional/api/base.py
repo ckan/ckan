@@ -344,7 +344,7 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
         if extra_environ:
             environ.update(extra_environ)
         self.app._set_headers({}, environ)
-        req = TestRequest(offset, environ, expect_errors=False)
+        req = TestRequest(offset, environ)
         return self.app.do_request(req, status=status)
 
     def set_env(self, extra_environ):

@@ -358,25 +358,26 @@ class TestDatastoreCreate(object):
     def test_create_requires_auth(self, app):
         resource = model.Package.get("annakarenina").resources[0]
         data = {"resource_id": resource.id}
-        postparams = "%s=1" % json.dumps(data)
+
         res = app.post(
-            "/api/action/datastore_create", params=postparams, status=403
+            "/api/action/datastore_create", data=data
         )
-        res_dict = json.loads(res.body)
+        assert res.status_code == 403
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_empty_fails(self, app):
-        postparams = "%s=1" % json.dumps({})
+        data = {}
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            data=data,
             extra_environ=auth,
-            status=409,
         )
-        res_dict = json.loads(res.body)
+        assert res.status_code == 409
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -391,15 +392,14 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        postparams = "%s=1" % json.dumps(data)
+
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
-            status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
         data = {
@@ -410,15 +410,14 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -426,29 +425,28 @@ class TestDatastoreCreate(object):
     def test_create_duplicate_alias_name(self, app):
         resource = model.Package.get("annakarenina").resources[0]
         data = {"resource_id": resource.id, "aliases": u"myalias"}
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            data=data,
             extra_environ=auth,
-            status=200,
         )
-        res_dict = json.loads(res.body)
+        assert res.status_code == 200
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is True
 
         # try to create another table with the same alias
         resource = model.Package.get("annakarenina").resources[1]
         data = {"resource_id": resource.id, "aliases": u"myalias"}
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            data=data,
             extra_environ=auth,
-            status=409,
         )
-        res_dict = json.loads(res.body)
+        assert res.status_code == 409
+
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
         # try to create an alias that is a resource id
@@ -457,15 +455,14 @@ class TestDatastoreCreate(object):
             "resource_id": resource.id,
             "aliases": model.Package.get("annakarenina").resources[0].id,
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            data=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -479,15 +476,14 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "INVALID"},
             ],
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -513,14 +509,13 @@ class TestDatastoreCreate(object):
                     {"id": field_name, "type": "text"},
                 ],
             }
-            postparams = "%s=1" % json.dumps(data)
             res = app.post(
                 "/api/action/datastore_create",
-                params=postparams,
+                json=data,
                 extra_environ=auth,
                 status=409,
             )
-            res_dict = json.loads(res.body)
+            res_dict = json.loads(res.data)
             assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -538,15 +533,14 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace", "published": "1869"},
             ],
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -561,15 +555,14 @@ class TestDatastoreCreate(object):
             ],
             "records": ["bad"],  # treat author as null
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is False
         assert res_dict["error"]["__type"] == "Validation Error"
@@ -587,15 +580,14 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace"},
             ],  # treat author as null
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is False
         assert res_dict["error"]["__type"] == "Validation Error"
@@ -612,15 +604,14 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -635,15 +626,14 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -658,14 +648,13 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is True, res_dict
 
         resource = model.Package.get("annakarenina").resources[0]
@@ -674,15 +663,14 @@ class TestDatastoreCreate(object):
             "aliases": "new_alias",
             "fields": [{"id": "more books", "type": "text"}],
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["success"] is False, res_dict
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -690,6 +678,14 @@ class TestDatastoreCreate(object):
     def test_create_basic(self, app):
         resource = model.Package.get("annakarenina").resources[0]
         aliases = [u"great_list_of_books", u"another_list_of_b\xfcks"]
+        ### Firstly test to see whether resource has no datastore table yet
+        data = {"id": resource.id}
+        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        res = app.post(
+            "/api/action/resource_show", data=data, extra_environ=auth
+        )
+        res_dict = json.loads(res.data)
+        assert res_dict["result"]["datastore_active"] is False
         data = {
             "resource_id": resource.id,
             "aliases": aliases,
@@ -704,23 +700,14 @@ class TestDatastoreCreate(object):
                 {"boo%k": "warandpeace"},
             ],  # treat author as null
         }
-        ### Firstly test to see whether resource has no datastore table yet
-        postparams = "%s=1" % json.dumps({"id": resource.id})
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
-        res = app.post(
-            "/api/action/resource_show", params=postparams, extra_environ=auth
-        )
-        res_dict = json.loads(res.body)
-        assert res_dict["result"]["datastore_active"] is False
 
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True
         res = res_dict["result"]
@@ -781,12 +768,11 @@ class TestDatastoreCreate(object):
         self.Session.remove()
 
         # check to test to see if resource now has a datastore table
-        postparams = "%s=1" % json.dumps({"id": resource.id})
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
-            "/api/action/resource_show", params=postparams, extra_environ=auth
+            "/api/action/resource_show", data={"id": resource.id}, extra_environ=auth
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
         assert res_dict["result"]["datastore_active"]
 
         #######  insert again simple
@@ -795,14 +781,13 @@ class TestDatastoreCreate(object):
             "records": [{"boo%k": "hagji murat", "author": ["tolstoy"]}],
         }
 
-        postparams = "%s=1" % json.dumps(data2)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data2,
             extra_environ=auth,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True
 
@@ -843,14 +828,13 @@ class TestDatastoreCreate(object):
             "indexes": ["rating"],
         }
 
-        postparams = "%s=1" % json.dumps(data3)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data3,
             extra_environ=auth,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True
 
@@ -885,15 +869,14 @@ class TestDatastoreCreate(object):
             "primary_key": "boo%k",
         }
 
-        postparams = "%s=1" % json.dumps(data4)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data4,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is False
         assert "constraints" in res_dict["error"], res_dict
@@ -906,15 +889,13 @@ class TestDatastoreCreate(object):
             "primary_key": "",
         }
 
-        postparams = "%s=1" % json.dumps(data5)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data5,
             extra_environ=auth,
-            expect_errors=True,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True, res_dict
 
@@ -952,15 +933,13 @@ class TestDatastoreCreate(object):
             "indexes": ["characters"],
         }
 
-        postparams = "%s=1" % json.dumps(data6)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data6,
             extra_environ=auth,
-            expect_errors=True,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True, res_dict
 
@@ -984,15 +963,13 @@ class TestDatastoreCreate(object):
             "indexes": ["characters"],
         }
 
-        postparams = "%s=1" % json.dumps(data7)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data7,
             extra_environ=auth,
-            expect_errors=True,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True, res_dict
 
@@ -1003,15 +980,13 @@ class TestDatastoreCreate(object):
             "records": [{"boo%k": "warandpeace", "author": "99% good"}],
         }
 
-        postparams = "%s=1" % json.dumps(data8)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data8,
             extra_environ=auth,
-            expect_errors=True,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True, res_dict
 
@@ -1034,14 +1009,13 @@ class TestDatastoreCreate(object):
             ],  # treat author as null
         }
 
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.normal_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True
         res = res_dict["result"]
@@ -1049,9 +1023,8 @@ class TestDatastoreCreate(object):
 
         # Get resource details
         data = {"id": res["resource_id"]}
-        postparams = "%s=1" % json.dumps(data)
-        res = app.post("/api/action/resource_show", params=postparams)
-        res_dict = json.loads(res.body)
+        res = app.post("/api/action/resource_show", data=data)
+        res_dict = json.loads(res.data)
 
         assert res_dict["result"]["datastore_active"] is True
 
@@ -1061,15 +1034,13 @@ class TestDatastoreCreate(object):
         resource = model.Package.get("annakarenina").resources[1]
 
         data = {"resource_id": resource.id}
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_delete",
-            params=postparams,
+            data=data,
             extra_environ=auth,
-            status="*",
         )  # ignore status
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         data = {
             "resource_id": resource.id,
@@ -1091,14 +1062,13 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace"},
             ],  # treat author as null
         }
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         c = self.Session.connection()
         results = c.execute("""select * from "{0}" """.format(resource.id))
@@ -1151,14 +1121,13 @@ class TestDatastoreCreate(object):
             ],
         }
 
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         c = self.Session.connection()
         results = c.execute("""select * from "{0}" """.format(resource.id))
@@ -1207,15 +1176,14 @@ class TestDatastoreCreate(object):
             ],
         }
 
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is False
 
@@ -1239,15 +1207,14 @@ class TestDatastoreCreate(object):
             ],
             "method": "insert",
         }
-        postparams = "%s=1" % json.dumps(data_dict)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data_dict,
             extra_environ=auth,
             status=409,
         )
-        res_dict = json.loads(res.body)
+        res_dict = json.loads(res.data)
 
         assert res_dict["success"] is False
         assert res_dict["error"]["__type"] == "Validation Error"

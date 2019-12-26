@@ -43,7 +43,7 @@ class TestApi3(Api3TestCase, ApiTestCase):
         offset = self.offset("/action/package_create")
         data_dict = {"type": "dataset", "name": "a-name"}
         res = app.get(
-            offset, params=data_dict, status=[400], expect_errors=True
+            offset, json=data_dict, status=400
         )
         assert body_contains(
             res,

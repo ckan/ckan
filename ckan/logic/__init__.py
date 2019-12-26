@@ -35,7 +35,7 @@ class ActionError(Exception):
         super(ActionError, self).__init__(message)
 
     def __str__(self):
-        return self.message
+        return str(self.message)
 
 
 class NotFound(ActionError):

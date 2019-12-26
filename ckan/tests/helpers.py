@@ -200,19 +200,34 @@ class CKANTestApp(object):
         return self.flask_app.test_client()
 
     def post(self, url, *args, **kwargs):
-        return self.test_client().post(url, *args, **kwargs)
+        res = self.test_client().post(url, *args, **kwargs)
+        return res
 
     def get(self, url, *args, **kwargs):
-        return self.test_client().get(url, *args, **kwargs)
+        res = self.test_client().get(url, *args, **kwargs)
+        return res
 
 
 class CKANTestClient(FlaskClient):
     def open(self, *args, **kwargs):
+        status = kwargs.pop('status', None)
+        extra_environ = kwargs.pop('extra_environ', None)
+        if extra_environ:
+            kwargs['environ_overrides'] = extra_environ
+        # params = kwargs.pop('params', None)
+        # if params:
+            # kwargs['query_string'] = params
+
+
         if args and isinstance(args[0], six.string_types):
             kwargs.setdefault('follow_redirects', True)
             kwargs.setdefault('base_url', config['ckan.site_url'])
-        result = super(CKANTestClient, self).open(*args, **kwargs)
-        return result
+        res = super(CKANTestClient, self).open(*args, **kwargs)
+
+        if status:
+            assert res.status_code == status, (res.status_code, status)
+
+        return res
 
 
 def _get_test_app():
