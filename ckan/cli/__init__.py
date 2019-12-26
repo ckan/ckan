@@ -48,10 +48,20 @@ class CKANLoaderContext(object):
         self.local_conf = local_conf
 
     def config(self):
-        conf = {}
-        conf[u'local_conf'] = self.local_conf
-        conf[u'global_conf'] = self.global_conf
+        conf = AttrDict(self.global_conf)
+        conf.update(self.local_conf)
+        conf.local_conf = self.local_conf
+        conf.global_conf = self.global_conf
+        conf.context = self
         return conf
+
+
+class AttrDict(dict):
+    """
+    A dictionary that can be assigned to.
+
+    """
+    pass
 
 
 def error_shout(exception):

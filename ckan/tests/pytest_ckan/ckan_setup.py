@@ -22,7 +22,7 @@ def pytest_sessionstart(session):
     # it can be used when calling url_for from the cli.
     global _tests_test_request_context
 
-    app = make_app(conf['global_conf'], **conf['local_conf'])
+    app = make_app(conf.global_conf, **conf.local_conf)
     flask_app = app.apps['flask_app']._wsgi_app
     _tests_test_request_context = flask_app.test_request_context()
 

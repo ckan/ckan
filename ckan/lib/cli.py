@@ -190,13 +190,13 @@ def load_config(config, load_site_user=True):
     # We have now loaded the config. Now we can import ckan for the
     # first time.
     from ckan.config.environment import load_environment
-    load_environment(conf['global_conf'], conf['local_conf'])
+    load_environment(conf.global_conf, conf.local_conf)
 
     # Set this internal test request context with the configured environment so
     # it can be used when calling url_for from the CLI.
     global _cli_test_request_context
 
-    app = make_app(conf['global_conf'], **conf['local_conf'])
+    app = make_app(conf.global_conf, **conf.local_conf)
     flask_app = app.apps['flask_app']._wsgi_app
     _cli_test_request_context = flask_app.test_request_context()
 
