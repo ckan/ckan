@@ -277,7 +277,11 @@ def _get_auto_flask_context():
     if _internal_test_request_context:
         return _internal_test_request_context
 
-    if six.Py2:
+    from ckan.tests.pytest_ckan.ckan_setup import _tests_test_request_context
+    if _tests_test_request_context:
+        return _tests_test_request_context
+
+    if six.PY2:
 
         from ckan.lib.cli import _cli_test_request_context
 
@@ -340,7 +344,6 @@ def url_for(*args, **kw):
             raise Exception('API URLs must specify the version (eg ver=3)')
 
     _auto_flask_context = _get_auto_flask_context()
-
     try:
         if _auto_flask_context:
             _auto_flask_context.push()
@@ -352,9 +355,11 @@ def url_for(*args, **kw):
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
-
-        # If it doesn't succeed, fallback to the Pylons router
-        my_url = _url_for_pylons(*args, **kw)
+        if six.PY2:
+            # If it doesn't succeed, fallback to the Pylons router
+            my_url = _url_for_pylons(*args, **kw)
+        else:
+            raise
     finally:
         if _auto_flask_context:
             _auto_flask_context.pop()
@@ -1718,22 +1723,6 @@ class _RFC2282TzInfo(datetime.tzinfo):
 
     def tzname(self, dt):
         return None
-
-
-@core_helper
-@maintain.deprecated('h.time_ago_in_words_from_str is deprecated in 2.2 '
-                     'and will be removed.  Please use '
-                     'h.time_ago_from_timestamp instead')
-def time_ago_in_words_from_str(date_str, granularity='month'):
-    '''Deprecated in 2.2 use time_ago_from_timestamp'''
-    if date_str:
-        try:
-            return formatters.localised_nice_date(
-                date_str_to_datetime(date_str), show_date=False
-            )
-        except ValueError:
-            pass
-    return _('Unknown')
 
 
 @core_helper

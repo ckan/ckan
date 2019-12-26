@@ -7,7 +7,7 @@ import pytest
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_theme_v15_fanstatic")
 @pytest.mark.usefixtures(u"with_plugins")
 def test_resource_url(app):
-    content = app.get(u"/en/base.html")
+    content = app.get(u"/")
     if u"example_theme.css" not in content:
         assert u"example_theme.min.css" in content
     assert u'href="/data/webassets/example_theme' in content

@@ -28,11 +28,6 @@ if six.PY2:
 
 current_app = flask.current_app
 
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
-
 
 def is_flask_request():
     u'''
@@ -71,10 +66,7 @@ def streaming_response(
 
 
 def ugettext(*args, **kwargs):
-    if is_flask_request():
-        return flask_ugettext(*args, **kwargs)
-    else:
-        return pylons_ugettext(*args, **kwargs)
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext

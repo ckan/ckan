@@ -45,7 +45,7 @@ class ErrorController(BaseController):
             cgi.escape(request.GET.get('message', ''))
         prefix = request.environ.get('SCRIPT_NAME', ''),
         code = cgi.escape(request.GET.get('code',
-                          str(original_response.status_int))),
+                          str(original_response.status_int)))
         extra_vars = {'code': code, 'content': content, 'prefix': prefix}
         return render('error_document_template.html', extra_vars=extra_vars)
 

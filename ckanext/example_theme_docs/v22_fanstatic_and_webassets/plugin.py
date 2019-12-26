@@ -10,7 +10,7 @@ def most_popular_groups():
     # Get a list of all the site's groups from CKAN, sorted by number of
     # datasets.
     groups = toolkit.get_action(u'group_list')(
-        data_dict={u'sort': u'packages desc', u'all_fields': True})
+        data_dict={u'sort': u'package_count desc', u'all_fields': True})
 
     # Truncate the list to the 10 most popular groups only.
     groups = groups[:10]

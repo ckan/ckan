@@ -3,7 +3,7 @@
 import functools
 import sys
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from logging import getLogger
 
 import six
@@ -13,7 +13,7 @@ from ckan.common import asbool
 
 import ckan.plugins as p
 import ckan.model as model
-from ckan.common import OrderedDict, _, c
+from ckan.common import _, c
 
 import ckan.lib.maintain as maintain
 
