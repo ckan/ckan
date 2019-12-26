@@ -17,8 +17,8 @@ class CKANConfigLoader(object):
         self.parser.read(filename)
 
         defaults = {
-            'here': os.path.dirname(os.path.abspath(filename)),
-            '__file__': os.path.abspath(filename)
+            u'here': os.path.dirname(os.path.abspath(filename)),
+            u'__file__': os.path.abspath(filename)
         }
         self._update_defaults(defaults)
 
@@ -31,7 +31,7 @@ class CKANConfigLoader(object):
     def get_context(self):
         global_conf = self.parser.defaults().copy()
         local_conf = {}
-        section = 'app:main'
+        section = u'app:main'
         options = self.parser.options(section)
 
         for option in options:
@@ -48,19 +48,10 @@ class CKANLoaderContext(object):
         self.local_conf = local_conf
 
     def config(self):
-        conf = AttrDict(self.global_conf)
-        conf.update(self.local_conf)
-        conf.local_conf = self.local_conf
-        conf.global_conf = self.global_conf
-        conf.context = self
+        conf = {}
+        conf[u'local_conf'] = self.local_conf
+        conf[u'global_conf'] = self.global_conf
         return conf
-
-
-class AttrDict(dict):
-    """
-    A dictionary that can be assigned to.
-    """
-    pass
 
 
 def error_shout(exception):
