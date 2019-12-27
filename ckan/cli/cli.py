@@ -2,7 +2,9 @@
 
 import logging
 import sys
+from collections import defaultdict
 
+import ckan.plugins as p
 import click
 from ckan.cli import config_tool
 from ckan.cli import (
@@ -32,6 +34,33 @@ from ckan.cli import seed
 log = logging.getLogger(__name__)
 
 
+class CustomGroup(click.Group):
+    def get_command(self, ctx, name):
+        cmd = super(CustomGroup, self).get_command(ctx, name)
+        if not cmd:
+            ctx.invoke(self)
+            cmd = super(CustomGroup, self).get_command(ctx, name)
+        return cmd
+
+    def format_commands(self, ctx, formatter):
+        super(CustomGroup, self).format_commands(ctx, formatter)
+        ctx.invoke(self)
+
+        ext_commands = defaultdict(list)
+        for subcommand in self.list_commands(ctx):
+            cmd = self.get_command(ctx, subcommand)
+            if cmd is None or not hasattr(cmd, u'_ckanext'):
+                continue
+
+            help = cmd.short_help or u''
+            ext_commands[cmd._ckanext].append((subcommand, help))
+        if ext_commands:
+            with formatter.section(u'Plugins'):
+                for ext, rows in ext_commands.items():
+                    with formatter.section(ext):
+                        formatter.write_dl(rows)
+
+
 class CkanCommand(object):
 
     def __init__(self, conf=None):
@@ -39,7 +68,7 @@ class CkanCommand(object):
         self.app = make_app(self.config.global_conf, **self.config.local_conf)
 
 
-@click.group()
+@click.group(cls=CustomGroup)
 @click.help_option(u'-h', u'--help')
 @click_config_option
 @click.pass_context
@@ -49,6 +78,10 @@ def ckan(ctx, config, *args, **kwargs):
     if all(arg in sys.argv for arg in ['generate', 'config']):
         return
     ctx.obj = CkanCommand(config)
+    for plugin in p.PluginImplementations(p.IClick):
+        for cmd in plugin.get_commands():
+            cmd._ckanext = plugin.name
+            ckan.add_command(cmd)
 
 
 ckan.add_command(jobs.jobs)

@@ -176,8 +176,10 @@ def augment_data(data, schema):
 
     new_data = copy.copy(data)
 
+    keys_to_remove = []
+    junk = {}
+    extras_keys = {}
     # fill junk and extras
-
     for key, value in new_data.items():
         if key in full_schema:
             continue
@@ -190,16 +192,21 @@ def augment_data(data, schema):
                 raise DataError('Only lists of dicts can be placed against '
                                 'subschema %s, not %s' %
                                 (key, type(data[key])))
-
         if key[:-1] in key_combinations:
             extras_key = key[:-1] + ('__extras',)
-            extras = new_data.get(extras_key, {})
+            extras = extras_keys.get(extras_key, {})
             extras[key[-1]] = value
-            new_data[extras_key] = extras
+            extras_keys[extras_key] = extras
         else:
-            junk = new_data.get(("__junk",), {})
             junk[key] = value
-            new_data[("__junk",)] = junk
+        keys_to_remove.append(key)
+
+    if junk:
+        new_data[("__junk",)] = junk
+    for extra_key in extras_keys:
+        new_data[extra_key] = extras_keys[extra_key]
+
+    for key in keys_to_remove:
         new_data.pop(key)
 
     # add missing
@@ -247,18 +254,6 @@ def convert(converter, key, converted_data, errors, context):
         return
 
 
-def _remove_blank_keys(schema):
-
-    for key, value in schema.items():
-        if isinstance(value[0], dict):
-            for item in value:
-                _remove_blank_keys(item)
-            if not any(value):
-                schema.pop(key)
-
-    return schema
-
-
 def validate(data, schema, context=None):
     '''Validate an unflattened nested dict against a schema.'''
     context = context or {}
@@ -285,20 +280,12 @@ def validate(data, schema, context=None):
             if key not in converted_data:
                 converted_data[key] = []
 
-    errors_unflattened = unflatten(errors)
-
     # remove validators that passed
-    dicts_to_process = [errors_unflattened]
-    while dicts_to_process:
-        dict_to_process = dicts_to_process.pop()
-        for key, value in dict_to_process.items():
-            if not value:
-                dict_to_process.pop(key)
-                continue
-            if isinstance(value[0], dict):
-                dicts_to_process.extend(value)
+    for key in list(errors.keys()):
+        if not errors[key]:
+            del errors[key]
 
-    _remove_blank_keys(errors_unflattened)
+    errors_unflattened = unflatten(errors)
 
     return converted_data, errors_unflattened
 

@@ -1,6 +1,5 @@
 # encoding: utf-8
-
-'''
+"""
 Controller tests probably shouldn't use mocking.
 
 .. todo::
@@ -52,4 +51,4 @@ Controller tests probably shouldn't use mocking.
    this it may be necessary to write a lot of controller tests to get this
    code's behavior into a test harness before it can be safely refactored.
 
-'''
+"""

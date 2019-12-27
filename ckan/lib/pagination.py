@@ -176,7 +176,8 @@ class BasePage(list):
         # Compute the number of the first and last available page
         if self.item_count > 0:
             self.first_page = 1
-            self.page_count = ((self.item_count - 1) / self.items_per_page) + 1
+            self.page_count = int(
+                ((self.item_count - 1) / self.items_per_page) + 1)
             self.last_page = self.first_page + self.page_count - 1
 
             # Make sure that the requested page number is the range of

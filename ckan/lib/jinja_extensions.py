@@ -229,7 +229,7 @@ class BaseExtension(ext.Extension):
 
     def parse(self, parser):
         stream = parser.stream
-        tag = stream.next()
+        tag = next(stream)
         # get arguments
         args = []
         kwargs = []
@@ -237,7 +237,7 @@ class BaseExtension(ext.Extension):
             if args or kwargs:
                 stream.expect('comma')
             if stream.current.test('name') and stream.look().test('assign'):
-                key = nodes.Const(stream.next().value)
+                key = nodes.Const(next(stream).value)
                 stream.skip()
                 value = parser.parse_expression()
                 kwargs.append(nodes.Pair(key, value, lineno=key.lineno))

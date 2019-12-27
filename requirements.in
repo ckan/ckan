@@ -2,13 +2,15 @@
 # Use pip-compile to create a requirements.txt file from this
 alembic==1.0.0
 Babel==2.3.4
+Beaker==1.11.0
 bleach==3.0.2
 click==6.7
 dominate==2.4.0
-fanstatic==0.12
+fanstatic==1.1
 feedgen==0.8.0
 Flask==1.1.1
 Flask-Babel==0.11.2
+flask-multistatic==1.0
 Jinja2==2.10.1
 Markdown==2.6.7
 passlib==1.6.5

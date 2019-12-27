@@ -1,7 +1,7 @@
 Testing extensions
 ==================
 
-CKAN extensions can have their own tests that are run using ``nosetests``
+CKAN extensions can have their own tests that are run using ``pytest``
 in much the same way as running CKAN's own tests (see :doc:`/contributing/test`).
 
 Continuing with our :doc:`example_iauthfunctions extension <tutorial>`,
@@ -40,12 +40,12 @@ with the following contents:
 To run these extension tests, ``cd`` into the ``ckanext-iauthfunctions``
 directory and run this command::
 
-    nosetests --ckan --with-pylons=test.ini ckanext/iauthfunctions/tests
+    pytest --ckan-ini=test.ini ckanext/iauthfunctions/tests
 
 Some notes on how these tests work:
 
-* Nose has lots of useful functions for testing, see the
-  `nose documentation <https://nose.readthedocs.org/en/latest/>`_.
+* Pytest has lots of useful functions for testing, see the
+  `pytest documentation <https://docs.pytest.org/en/latest/>`_.
 
 * We're using a :class:`paste.fixture.TestApp` object to simulate sending HTTP
   requests to the CKAN API or frontend.
@@ -71,4 +71,3 @@ Some notes on how these tests work:
 
    Link to CKAN guidelines for *how* to write tests, once those guidelines have
    been written. Also add any more extension-specific testing details here.
-

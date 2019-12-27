@@ -3,13 +3,10 @@
 import warnings
 import logging
 import re
-from datetime import datetime
 from time import sleep
 from os.path import splitext
 
-from six import text_type
 from sqlalchemy import MetaData, __version__ as sqav, Table
-from sqlalchemy.util import OrderedDict
 from sqlalchemy.exc import ProgrammingError
 
 from alembic.command import (
@@ -127,6 +124,7 @@ from ckan.model.dashboard import (
 )
 
 import ckan.migration
+from ckan.common import config
 
 
 log = logging.getLogger(__name__)
@@ -186,7 +184,8 @@ class Repository():
         self.session.remove()
         # sqlite database needs to be recreated each time as the
         # memory database is lost.
-        if self.metadata.bind.name == 'sqlite':
+
+        if self.metadata.bind.engine.url.drivername == 'sqlite':
             # this creates the tables, which isn't required inbetween tests
             # that have simply called rebuild_db.
             self.create_db()
@@ -335,3 +334,23 @@ def is_id(id_string):
     '''Tells the client if the string looks like a revision id or not'''
     reg_ex = '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
     return bool(re.match(reg_ex, id_string))
+
+
+def parse_db_config(config_key=u'sqlalchemy.url'):
+    u''' Takes a config key for a database connection url and parses it into
+    a dictionary. Expects a url like:
+
+    'postgres://tester:pass@localhost/ckantest3'
+
+    Returns None if the url could not be parsed.
+    '''
+    url = config[config_key]
+    regex = [
+        u'^\\s*(?P<db_type>\\w*)', u'://', u'(?P<db_user>[^:]*)', u':?',
+        u'(?P<db_pass>[^@]*)', u'@', u'(?P<db_host>[^/:]*)', u':?',
+        u'(?P<db_port>[^/]*)', u'/', u'(?P<db_name>[\\w.-]*)'
+    ]
+    db_details_match = re.match(u''.join(regex), url)
+    if not db_details_match:
+        return
+    return db_details_match.groupdict()

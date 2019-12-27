@@ -1,43 +1,27 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
+import pytest
 
 from ckan.lib.helpers import url_for as url_for
 
-import ckan.tests.helpers as helpers
+
+def test_redirect_ok(app):
+    response = app.get(
+        url=url_for("util.internal_redirect"),
+        params={"url": "/dataset"},
+        status=302,
+    )
+    assert response.headers.get("Location") == "http://test.ckan.net/dataset"
 
 
-class TestUtil(helpers.FunctionalTestBase):
-    def test_redirect_ok(self):
-        app = self._get_test_app()
-        response = app.get(
-            url=url_for('util.internal_redirect'),
-            params={'url': '/dataset'},
-            status=302,
-        )
-        assert_equal(response.headers.get('Location'),
-                     'http://test.ckan.net/dataset')
+def test_redirect_external(app):
+    app.get(
+        url=url_for("util.internal_redirect"),
+        params={"url": "http://nastysite.com"},
+        status=403,
+    )
 
-    def test_redirect_external(self):
-        app = self._get_test_app()
-        response = app.get(
-            url=url_for('util.internal_redirect'),
-            params={'url': 'http://nastysite.com'},
-            status=403,
-        )
 
-    def test_redirect_no_params(self):
-        app = self._get_test_app()
-        response = app.get(
-            url=url_for('util.internal_redirect'),
-            params={},
-            status=400,
-        )
-
-    def test_redirect_no_params_2(self):
-        app = self._get_test_app()
-        response = app.get(
-            url=url_for('util.internal_redirect'),
-            params={'url': ''},
-            status=400,
-        )
+@pytest.mark.parametrize("params", [{}, {"url": ""}])
+def test_redirect_no_params(params, app):
+    app.get(url=url_for("util.internal_redirect"), params=params, status=400)

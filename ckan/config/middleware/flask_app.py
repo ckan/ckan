@@ -8,9 +8,10 @@ import inspect
 import itertools
 import pkgutil
 
-from flask import Flask, Blueprint, send_from_directory
+from flask import Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
+from flask_multistatic import MultiStaticFlask
 
 import six
 from werkzeug.exceptions import default_exceptions, HTTPException
@@ -39,7 +40,8 @@ from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
-                        set_controller_and_action
+                        set_controller_and_action,
+                        handle_i18n,
                         )
 
 import logging
@@ -81,7 +83,14 @@ def make_flask_stack(conf, **app_conf):
 
     debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
     testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
-    app = flask_app = CKANFlask(__name__)
+    app = flask_app = CKANFlask(__name__, static_url_path='')
+
+    # Static files folders (core and extensions)
+    public_folder = config.get(u'ckan.base_public_folder')
+    app.static_folder = config.get(
+        'extra_public_paths', ''
+    ).split(',') + [os.path.join(root, public_folder)]
+
     app.jinja_options = jinja_extensions.get_jinja_env_options()
 
     app.debug = debug
@@ -197,6 +206,9 @@ def make_flask_stack(conf, **app_conf):
     lib_plugins.register_group_blueprints(app)
 
     # Set flask routes in named_routes
+    # TODO: refactor whatever helper is using this to not do it
+    if 'routes.named_routes' not in config:
+        config['routes.named_routes'] = {}
     for rule in app.url_map.iter_rules():
         if '.' not in rule.endpoint:
             continue
@@ -294,6 +306,9 @@ def get_locale():
 def ckan_before_request():
     u'''Common handler executed before all Flask requests'''
 
+    # Handle locale in URL
+    handle_i18n()
+
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
@@ -367,7 +382,7 @@ class CKAN_AppCtxGlobals(_AppCtxGlobals):
         return getattr(app_globals.app_globals, name)
 
 
-class CKANFlask(Flask):
+class CKANFlask(MultiStaticFlask):
 
     '''Extend the Flask class with a special method called on incoming
      requests by AskAppDispatcherMiddleware.
@@ -449,9 +464,11 @@ def _register_error_handler(app):
     def error_handler(e):
         log.error(e, exc_info=sys.exc_info)
         if isinstance(e, HTTPException):
-            extra_vars = {u'code': [e.code], u'content': e.description}
-            # TODO: Remove
-            g.code = [e.code]
+            extra_vars = {
+                u'code': e.code,
+                u'content': e.description,
+                u'name': e.name
+            }
 
             return base.render(
                 u'error_document_template.html', extra_vars), e.code
