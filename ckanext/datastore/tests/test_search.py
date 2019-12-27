@@ -922,6 +922,27 @@ class TestDatastoreSQL(DatastoreLegacyTestBase):
         result = res_dict['result']
         assert result['records'] == self.expected_join_results
 
+    def test_read_private(self):
+        context = {
+            'user': self.sysadmin_user.name,
+            'model': model}
+        data_dict = {
+            'resource_id': self.data['resource_id'],
+            'connection_url': config['ckan.datastore.write_url']}
+        p.toolkit.get_action('datastore_make_private')(context, data_dict)
+        query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth, status=403)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error']['__type'] == 'Authorization Error'
+
+        # make it public for the other tests
+        p.toolkit.get_action('datastore_make_public')(context, data_dict)
+
     def test_new_datastore_table_from_private_resource(self):
         # make a private CKAN resource
         group = self.dataset.get_groups()[0]

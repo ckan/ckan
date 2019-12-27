@@ -3,8 +3,27 @@
 {% block subtitle %}{{ _('Activity Stream') }} - {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  <h1 class="hide-heading">{% block page_heading %}{{ _('Activity Stream') }}{% endblock %}</h1>
-  {% block activity_stream %}
-    {{ c.package_activity_stream | safe }}
-  {% endblock %}
+  <h1 class="hide-heading">
+    {% block page_heading %}
+      {{ _('Activity Stream') }}
+    {% endblock %}
+  </h1>
+  {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream %}
+  {% if offset %}
+  <a onclick="window.history.back()" class="btn btn-primary">
+    Previous
+  </a>
+  {% endif %}
+  {% if activity_stream and activity_stream|length == limit %}
+  {% set last_timestamp = ts(h.date_str_to_datetime(
+    activity_stream[-1].timestamp
+  )) %}
+  <a href="{{ h.url_for(
+      controller='package',
+      action='activity',
+      id=pkg.id,
+      offset=last_timestamp) }}" class="btn btn-primary" rel="nofollow">
+    Next
+  </a>
+  {% endif %}
 {% endblock %}

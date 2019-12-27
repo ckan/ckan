@@ -39,7 +39,7 @@
             <small>{{ _("Activity from items that I'm following") }}</small>
           </h2>
           {% block activity_stream %}
-            {{ dashboard_activity_stream|safe }}
+            {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream %}
           {% endblock %}
         </div>
       {% endblock %}

@@ -1,8 +1,8 @@
 # encoding: utf-8
 
+import time
 import logging
 from urllib import urlencode
-import datetime
 import mimetypes
 import cgi
 
@@ -57,7 +57,7 @@ def url_with_params(url, params):
 
 def search_url(params, package_type=None):
     if not package_type or package_type == 'dataset':
-        url = h.url_for(controller='package', action='search')
+        url = h.url_for(controller=c.controller, action='search')
     else:
         url = h.url_for('{0}_search'.format(package_type))
     return url_with_params(url, params)
@@ -208,23 +208,55 @@ class PackageController(base.BaseController):
             # a list of values eg {'tags':['tag1', 'tag2']}
             c.fields_grouped = {}
             search_extras = {}
-            fq = ''
-            for (param, value) in request.params.items():
-                if param not in ['q', 'page', 'sort'] \
-                        and len(value) and not param.startswith('_'):
-                    if not param.startswith('ext_'):
-                        c.fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
-                        if param not in c.fields_grouped:
-                            c.fields_grouped[param] = [value]
-                        else:
-                            c.fields_grouped[param].append(value)
+            fq = []
+            fq_list = []
+            # FIXME: This seems moderately insane - it treats *every* argument
+            # to the URL as a fq filter. We should have more knowledge of what
+            # we expect to see passed in, no need to guess.
+            query_params = request.params.mixed()
+            for param, value in query_params.iteritems():
+                if param in ('q', 'page', 'sort') or not value:
+                    continue
+                elif param.startswith('_'):
+                    continue
+                elif param.startswith('ext_'):
+                    search_extras[param] = value
+                else:
+                    if isinstance(value, (list, tuple)):
+                        c.fields.extend((param, v) for v in value)
+                        # We're filtering on a list of items, each of which
+                        # should be escaped and OR'd instead of Solr's default
+                        # AND.
+                        filter_value = u'({0})'.format(
+                            u' OR '.join(u'"{0}"'.format(
+                                v
+                            ) for v in value)
+                        )
                     else:
-                        search_extras[param] = value
+                        c.fields.append((param, value))
+                        # We're just filtering on a single item, which might be
+                        # a range. We assume it's a range if it starts with a
+                        # [, otherwise we escape it and treat it as a literal.
+                        filter_value = (
+                            value if value.startswith(u'[')
+                            else u'"{0}"'.format(value)
+                        )
 
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'for_view': True,
-                       'auth_user_obj': c.userobj}
+                    # Tag each value with a domain so we can act on it later.
+                    fq_list.append(u'{{!tag={p}}}{p}:{v}'.format(
+                        p=param,
+                        v=filter_value
+                    ))
+
+                    c.fields_grouped.setdefault(param, []).append(value)
+
+            context = {
+                'model': model,
+                'session': model.Session,
+                'user': c.user,
+                'for_view': True,
+                'auth_user_obj': c.userobj
+            }
 
             # Unless changed via config options, don't show other dataset
             # types any search page. Potential alternatives are do show them
@@ -258,7 +290,7 @@ class PackageController(base.BaseController):
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
                 'license_id': _('Licenses'),
-                }
+            }
 
             for facet in h.facets():
                 if facet in default_facet_titles:
@@ -274,8 +306,14 @@ class PackageController(base.BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': fq.strip(),
-                'facet.field': facets.keys(),
+                'fq': ' '.join(fq),
+                'fq_list': fq_list,
+                'facet.field': [
+                    # When faceting, exclude the facet group from the facet
+                    # counts. This lets us always get a count back, rather than
+                    # an intersection (which would always be 0)
+                    '{{!ex={k}}}{k}'.format(k=k) for k in facets.iterkeys()
+                ],
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
@@ -295,6 +333,7 @@ class PackageController(base.BaseController):
                 items_per_page=limit
             )
             c.search_facets = query['search_facets']
+            c.facet_ranges = query['facet_ranges']
             c.page.items = query['results']
         except SearchQueryError as se:
             # User's search parameters are invalid, in such a way that is not
@@ -362,31 +401,38 @@ class PackageController(base.BaseController):
                    'user': c.user, 'for_view': True,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'include_tracking': True}
-
-        # interpret @<revision_id> or @<date> suffix
-        split = id.split('@')
-        if len(split) == 2:
-            data_dict['id'], revision_ref = split
-            if model.is_id(revision_ref):
-                context['revision_id'] = revision_ref
-            else:
-                try:
-                    date = h.date_str_to_datetime(revision_ref)
-                    context['revision_date'] = date
-                except TypeError as e:
-                    abort(400, _('Invalid revision format: %r') % e.args)
-                except ValueError as e:
-                    abort(400, _('Invalid revision format: %r') % e.args)
-        elif len(split) > 2:
-            abort(400, _('Invalid revision format: %r') %
-                  'Too many "@" symbols')
+        activity_id = request.params.get('activity_id')
 
         # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-        except (NotFound, NotAuthorized):
+
+            if activity_id:
+                c.pkg_dict = context['session'].query(model.Activity).get(
+                    activity_id
+                ).data['package']
+                # Don't crash on old activity records, which do not include
+                # resources or extras.
+                c.pkg_dict.setdefault('resources', [])
+                c.is_activity_archive = True
+        except NotFound:
             abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            tmp_context = context.copy()
+            tmp_context['ignore_auth'] = True
+
+            pkg = get_action('package_show')(tmp_context, data_dict)
+            if pkg['state'] == 'deleted':
+                # We're not authorized because this dataset has been deleted
+                # and we're not allowed to see deleted packages. Instead of
+                # 404ing as in core CKAN we display a "Dataset Deleted" page.
+                return render('package/deleted.html', extra_vars={
+                    'created': pkg['metadata_created'],
+                    'modified': pkg['metadata_modified'],
+                    'organization': pkg.get('organization', {}).get('title'),
+                    'site_url': config.get('ckan.site_url')
+                })
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
@@ -422,87 +468,7 @@ class PackageController(base.BaseController):
         assert False, "We should never get here"
 
     def history(self, id):
-
-        if 'diff' in request.params or 'selected1' in request.params:
-            try:
-                params = {'id': request.params.getone('pkg_name'),
-                          'diff': request.params.getone('selected1'),
-                          'oldid': request.params.getone('selected2'),
-                          }
-            except KeyError:
-                if 'pkg_name' in dict(request.params):
-                    id = request.params.getone('pkg_name')
-                c.error = \
-                    _('Select two revisions before doing the comparison.')
-            else:
-                params['diff_entity'] = 'package'
-                h.redirect_to(controller='revision', action='diff', **params)
-
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'auth_user_obj': c.userobj,
-                   'for_view': True}
-        data_dict = {'id': id}
-        try:
-            c.pkg_dict = get_action('package_show')(context, data_dict)
-            c.pkg_revisions = get_action('package_revision_list')(context,
-                                                                  data_dict)
-            # TODO: remove
-            # Still necessary for the authz check in group/layout.html
-            c.pkg = context['package']
-
-        except NotAuthorized:
-            abort(403, _('Unauthorized to read package %s') % '')
-        except NotFound:
-            abort(404, _('Dataset not found'))
-
-        format = request.params.get('format', '')
-        if format == 'atom':
-            # Generate and return Atom 1.0 document.
-            from webhelpers.feedgenerator import Atom1Feed
-            feed = Atom1Feed(
-                title=_(u'CKAN Dataset Revision History'),
-                link=h.url_for(controller='revision', action='read',
-                               id=c.pkg_dict['name']),
-                description=_(u'Recent changes to CKAN Dataset: ') +
-                (c.pkg_dict['title'] or ''),
-                language=text_type(i18n.get_lang()),
-            )
-            for revision_dict in c.pkg_revisions:
-                revision_date = h.date_str_to_datetime(
-                    revision_dict['timestamp'])
-                try:
-                    dayHorizon = int(request.params.get('days'))
-                except:
-                    dayHorizon = 30
-                dayAge = (datetime.datetime.now() - revision_date).days
-                if dayAge >= dayHorizon:
-                    break
-                if revision_dict['message']:
-                    item_title = u'%s' % revision_dict['message'].\
-                        split('\n')[0]
-                else:
-                    item_title = u'%s' % revision_dict['id']
-                item_link = h.url_for(controller='revision', action='read',
-                                      id=revision_dict['id'])
-                item_description = _('Log message: ')
-                item_description += '%s' % (revision_dict['message'] or '')
-                item_author_name = revision_dict['author']
-                item_pubdate = revision_date
-                feed.add_item(
-                    title=item_title,
-                    link=item_link,
-                    description=item_description,
-                    author_name=item_author_name,
-                    pubdate=item_pubdate,
-                )
-            response.headers['Content-Type'] = 'application/atom+xml'
-            return feed.writeString('utf-8')
-
-        package_type = c.pkg_dict['type'] or 'dataset'
-
-        return render(
-            self._history_template(c.pkg_dict.get('type', package_type)),
-            extra_vars={'dataset_type': package_type})
+        h.redirect_to(controller='package', action='activity', id=id)
 
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
@@ -650,8 +616,8 @@ class PackageController(base.BaseController):
             # see if we have any data that we are trying to save
             data_provided = False
             for key, value in data.iteritems():
-                if ((value or isinstance(value, cgi.FieldStorage))
-                        and key != 'resource_type'):
+                if ((value or isinstance(value, cgi.FieldStorage)) and
+                        key != 'resource_type'):
                     data_provided = True
                     break
 
@@ -695,6 +661,10 @@ class PackageController(base.BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
+                    if not data['resource_type']:
+                        h.flash_success(_('A related item has been added'))
+                    else:
+                        h.flash_success(_('A resource has been added'))
             except ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
@@ -716,7 +686,11 @@ class PackageController(base.BaseController):
                 h.redirect_to(controller='package', action='edit', id=id)
             elif save_action == 'go-dataset-complete':
                 # go to first stage of add dataset
-                h.redirect_to(controller='package', action='read', id=id)
+                h.redirect_to(h.url_for(controller='package',
+                                   action='read', id=id))
+            elif save_action == 'go-dataset-search':
+                h.redirect(h.url_for(controller='package',
+                                   action='search'))
             else:
                 # add more resources
                 h.redirect_to(controller='package', action='new_resource',
@@ -1193,8 +1167,7 @@ class PackageController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 package_dict['title']))
         except ValidationError as e:
-            error_message = (e.message or e.error_summary
-                             or e.error_dict)
+            error_message = (e.message or e.error_summary or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
             h.flash_error(e.message)
@@ -1212,8 +1185,7 @@ class PackageController(base.BaseController):
             h.flash_success(_("You are no longer following {0}").format(
                 package_dict['title']))
         except ValidationError as e:
-            error_message = (e.message or e.error_summary
-                             or e.error_dict)
+            error_message = (e.message or e.error_summary or e.error_dict)
             h.flash_error(error_message)
         except (NotFound, NotAuthorized) as e:
             error_message = e.message
@@ -1298,27 +1270,47 @@ class PackageController(base.BaseController):
         return render('package/group_list.html',
                       {'dataset_type': dataset_type})
 
-    def activity(self, id):
+    def activity(self, id, offset=None):
         '''Render this package's public activity stream page.'''
 
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'for_view': True,
-                   'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user,
+            'for_view': True,
+            'auth_user_obj': c.userobj
+        }
+
         try:
-            c.pkg_dict = get_action('package_show')(context, data_dict)
-            c.pkg = context['package']
-            c.package_activity_stream = get_action(
-                'package_activity_list_html')(
-                context, {'id': c.pkg_dict['id']})
+            c.pkg_dict = get_action('package_show')(context, {
+                'id': id
+            })
             dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(403, _('Unauthorized to read dataset %s') % id)
 
-        return render('package/activity.html',
-                      {'dataset_type': dataset_type})
+        # FIXME: Temporary patch until activity refactor.
+        limit = int(config.get('ckan.activity_list_limit', 31))
+
+        return render(
+            'package/activity.html',
+            extra_vars={
+                'dataset_type': dataset_type,
+                'activity_stream': get_action('package_activity_list')(
+                    context,
+                    {
+                        'id': id,
+                        'offset': offset,
+                        'limit': limit
+                    }
+                ),
+                'limit': limit,
+                'ts': lambda t: int(time.mktime(t.timetuple())),
+                'offset': offset
+            }
+        )
 
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):

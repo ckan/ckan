@@ -49,6 +49,7 @@ import ckan.plugins as p
 import ckan
 
 from ckan.common import _, ungettext, c, g, request, session, json
+from ckan.plugins.core import plugin_loaded
 from markupsafe import Markup, escape
 
 
@@ -204,6 +205,29 @@ def url(*args, **kw):
     Deprecated: please use `url_for` instead
     '''
     return url_for(*args, **kw)
+
+
+@core_helper
+def get_site_protocol_and_host():
+    '''Return the protocol and host of the configured `ckan.site_url`.
+    This is needed to generate valid, full-qualified URLs.
+
+    If `ckan.site_url` is set like this::
+
+        ckan.site_url = http://example.com
+    
+    Then this function would return a tuple `('http', 'example.com')`
+    If the setting is missing, `(None, None)` is returned instead.
+
+    '''
+    site_url = config.get('ckan.site_url', None)
+    if site_url is not None:
+        parsed_url = urlparse.urlparse(site_url)
+        return (
+            parsed_url.scheme.encode('utf-8'),
+            parsed_url.netloc.encode('utf-8')
+        )
+    return (None, None)
 
 
 @core_helper
@@ -558,6 +582,9 @@ def full_current_url():
     for sharing etc '''
     return (url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
 
+def current_url():
+    ''' Returns current url unquoted'''
+    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
 
 @core_helper
 def current_url():
@@ -1863,6 +1890,16 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
+def canonical_search_url():
+    ''' Return a url with all parameters removed except for the pagination parameter
+    This is useful for creating canonical urls for search pages, so that search engines do not
+    index many multiples of different search pages due to other search and faceting parameters
+    '''
+    try:
+        page_param = [(k, v) for k, v in request.params.items() if k == 'page']
+        return _search_url(page_param)
+    except ckan.exceptions.CkanUrlException:
+        return _search_url(None)
 
 @core_helper
 def include_resource(resource):
@@ -1997,15 +2034,15 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
 
     if filter_type:
         action_functions = {
-            'dataset': 'package_activity_list_html',
-            'user': 'user_activity_list_html',
-            'group': 'group_activity_list_html',
-            'organization': 'organization_activity_list_html',
+            'dataset': 'package_activity_list',
+            'user': 'user_activity_list',
+            'group': 'group_activity_list',
+            'organization': 'organization_activity_list',
         }
         action_function = logic.get_action(action_functions.get(filter_type))
         return action_function(context, {'id': filter_id, 'offset': offset})
     else:
-        return logic.get_action('dashboard_activity_list_html')(
+        return logic.get_action('dashboard_activity_list')(
             context, {'offset': offset})
 
 
@@ -2624,6 +2661,8 @@ core_helper(whtext.truncate)
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
+core_helper(clean_html, name='clean_html')
+core_helper(plugin_loaded)
 
 
 def load_plugin_helpers():

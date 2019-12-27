@@ -286,20 +286,45 @@ class GroupController(base.BaseController):
 
         try:
             c.fields = []
-            c.fields_grouped = {}
             search_extras = {}
-            for (param, value) in request.params.items():
-                if param not in ['q', 'page', 'sort'] \
-                        and len(value) and not param.startswith('_'):
-                    if not param.startswith('ext_'):
-                        c.fields.append((param, value))
-                        q += ' %s: "%s"' % (param, value)
-                        if param not in c.fields_grouped:
-                            c.fields_grouped[param] = [value]
-                        else:
-                            c.fields_grouped[param].append(value)
+            c.fields_grouped = {}
+            fq_list = []
+            query_params = request.params.mixed()
+            for (param, value) in query_params.iteritems():
+                if param in ('q', 'page', 'sort') or not value:
+                    continue
+                elif param.startswith('_'):
+                    continue
+                elif param.startswith('ext_'):
+                    search_extras[param] = value
+                else:
+                    if isinstance(value, (list, tuple)):
+                        c.fields.extend((param, v) for v in value)
+                        # We're filtering on a list of items, each of which
+                        # should be escaped and OR'd instead of Solr's default
+                        # AND.
+                        filter_value = u'({0})'.format(
+                            u' OR '.join(u'"{0}"'.format(
+                                v
+                            ) for v in value)
+                        )
                     else:
-                        search_extras[param] = value
+                        c.fields.append((param, value))
+                        # We're just filtering on a single item, which might be
+                        # a range. We assume it's a range if it starts with a
+                        # [, otherwise we escape it and treat it as a literal.
+                        filter_value = (
+                            value if value.startswith(u'[')
+                            else u'"{0}"'.format(value)
+                        )
+
+                    # Tag each value with a domain so we can act on it later.
+                    fq_list.append(u'{{!tag={p}}}{p}:{v}'.format(
+                        p=param,
+                        v=filter_value
+                    ))
+
+                    c.fields_grouped.setdefault(param, []).append(value)
 
             facets = OrderedDict()
 
@@ -322,9 +347,15 @@ class GroupController(base.BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': fq,
-                'include_private': True,
-                'facet.field': facets.keys(),
+                'fq': '',
+                'include_private': include_private,
+                'fq_list': fq_list,
+                'facet.field': [
+                    # When faceting, exclude the facet group from the facet
+                    # counts. This lets us always get a count back, rather than
+                    # an intersection (which would always be 0)
+                    '{{!ex={k}}}{k}'.format(k=k) for k in facets.iterkeys()
+                ],
                 'rows': limit,
                 'sort': sort_by,
                 'start': (page - 1) * limit,
@@ -835,18 +866,23 @@ class GroupController(base.BaseController):
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
 
-        try:
-            # Add the group's activity stream (already rendered to HTML) to the
-            # template context for the group/read.html
-            # template to retrieve later.
-            c.group_activity_stream = self._action('group_activity_list_html')(
-                context, {'id': c.group_dict['id'], 'offset': offset})
+        activity_action = 'group_activity_list'
+        if 'organization' in self.group_types:
+            activity_action = 'organization_activity_list'
 
-        except ValidationError as error:
-            base.abort(400)
-
-        return render(self._activity_template(group_type),
-                      extra_vars={'group_type': group_type})
+        return render(
+            self._activity_template(group_type),
+            extra_vars={
+                'group_type': group_type,
+                'activity_stream': get_action(activity_action)(
+                    context,
+                    {
+                        'id': c.group_dict['id'],
+                        'offset': offset
+                    }
+                )
+            }
+        )
 
     def follow(self, id):
         '''Start following this group.'''

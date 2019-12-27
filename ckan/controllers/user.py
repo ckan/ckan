@@ -37,6 +37,10 @@ DataError = dictization_functions.DataError
 unflatten = dictization_functions.unflatten
 
 
+def require_sudo_mode():
+    pass
+
+
 def set_repoze_user(user_id):
     '''Set the repoze.who cookie to match a given user_id'''
     if 'repoze.who.plugins' in request.environ:
@@ -137,20 +141,13 @@ class UserController(base.BaseController):
                      'include_num_followers': True}
 
         self._setup_template_variables(context, data_dict)
-
-        # The legacy templates have the user's activity stream on the user
-        # profile page, new templates do not.
-        if asbool(config.get('ckan.legacy_templates', False)):
-            c.user_activity_stream = get_action('user_activity_list_html')(
-                context, {'id': c.user_dict['id']})
-
         return render('user/read.html')
 
     def me(self, locale=None):
         if not c.user:
             h.redirect_to(locale=locale, controller='user', action='login',
                           id=None)
-        user_ref = c.userobj.get_reference_preferred_for_uri()
+
         h.redirect_to(locale=locale, controller='user', action='dashboard')
 
     def register(self, data=None, errors=None, error_summary=None):
@@ -241,7 +238,7 @@ class UserController(base.BaseController):
                 logic.tuplize_dict(logic.parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             captcha.check_recaptcha(request)
-            user = get_action('user_create')(context, data_dict)
+            get_action('user_create')(context, data_dict)
         except NotAuthorized:
             abort(403, _('Unauthorized to create user %s') % '')
         except NotFound as e:
@@ -276,16 +273,21 @@ class UserController(base.BaseController):
                 return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
-        context = {'save': 'save' in request.params,
-                   'schema': self._edit_form_to_db_schema(),
-                   'model': model, 'session': model.Session,
-                   'user': c.user, 'auth_user_obj': c.userobj
-                   }
+        context = {
+            'save': 'save' in request.params,
+            'schema': self._edit_form_to_db_schema(),
+            'model': model,
+            'session': model.Session,
+            'user': c.user,
+            'auth_user_obj': c.userobj
+        }
+
         if id is None:
             if c.userobj:
                 id = c.userobj.id
             else:
                 abort(400, _('No user specified'))
+
         data_dict = {'id': id}
 
         try:
@@ -322,7 +324,12 @@ class UserController(base.BaseController):
                   (str(c.user), id))
 
         errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {
+            'data': data,
+            'errors': errors,
+            'error_summary': error_summary,
+            'is_sysadmin': authz.is_sysadmin(c.user)
+        }
 
         self._setup_template_variables({'model': model,
                                         'session': model.Session,
@@ -408,7 +415,7 @@ class UserController(base.BaseController):
                 vars = {}
             return render('user/login.html', extra_vars=vars)
         else:
-            return render('user/logout_first.html')
+            return h.redirect_to(controller='user', action='logged_in')
 
     def logged_in(self):
         # redirect if needed
@@ -420,7 +427,7 @@ class UserController(base.BaseController):
             context = None
             data_dict = {'id': c.user}
 
-            user_dict = get_action('user_show')(context, data_dict)
+            get_action('user_show')(context, data_dict)
 
             return self.me()
         else:
@@ -468,7 +475,7 @@ class UserController(base.BaseController):
             data_dict = {'id': id}
             user_obj = None
             try:
-                user_dict = get_action('user_show')(context, data_dict)
+                get_action('user_show')(context, data_dict)
                 user_obj = context['user_obj']
             except NotFound:
                 # Try searching the user
@@ -483,7 +490,7 @@ class UserController(base.BaseController):
                         # and user_list does not return them
                         del data_dict['q']
                         data_dict['id'] = user_list[0]['id']
-                        user_dict = get_action('user_show')(context, data_dict)
+                        get_action('user_show')(context, data_dict)
                         user_obj = context['user_obj']
                     elif len(user_list) > 1:
                         h.flash_error(_('"%s" matched several users') % (id))
@@ -538,7 +545,8 @@ class UserController(base.BaseController):
                     user_dict['name'] = username
                 user_dict['reset_key'] = c.reset_key
                 user_dict['state'] = model.State.ACTIVE
-                user = get_action('user_update')(context, user_dict)
+                user_dict['password'] = new_password
+                get_action('user_update')(context, user_dict)
                 mailer.create_reset_key(user_obj)
 
                 h.flash_success(_("Your password has been reset."))
@@ -550,7 +558,10 @@ class UserController(base.BaseController):
             except DataError:
                 h.flash_error(_(u'Integrity Error'))
             except ValidationError as e:
-                h.flash_error(u'%r' % e.error_dict)
+                if u'password' in e.error_dict:
+                    h.flash_error(u''.join(e.error_dict['password']))
+                else:
+                    h.flash_error(e.error_dict)
             except ValueError as ve:
                 h.flash_error(text_type(ve))
             user_dict['state'] = user_state
@@ -599,13 +610,18 @@ class UserController(base.BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        try:
-            c.user_activity_stream = get_action('user_activity_list_html')(
-                context, {'id': c.user_dict['id'], 'offset': offset})
-        except ValidationError:
-            base.abort(400)
-
-        return render('user/activity_stream.html')
+        return render(
+            'user/activity_stream.html',
+            extra_vars={
+                'activity_stream': get_action('user_activity_list')(
+                    context,
+                    {
+                        'id': id,
+                        'offset': offset
+                    }
+                )
+            }
+        )
 
     def _get_dashboard_context(self, filter_type=None, filter_id=None, q=None):
         '''Return a dict needed by the dashboard view to determine context.'''
@@ -672,10 +688,19 @@ class UserController(base.BaseController):
         filter_id = request.params.get('name', u'')
 
         c.followee_list = get_action('followee_list')(
-            context, {'id': c.userobj.id, 'q': q})
+            context,
+            {
+                'id': c.userobj.id,
+                'q': q
+            }
+        )
+
         c.dashboard_activity_stream_context = self._get_dashboard_context(
-            filter_type, filter_id, q)
-        c.dashboard_activity_stream = h.dashboard_activity_stream(
+            filter_type,
+            filter_id,
+            q
+        )
+        dashboard_activity_stream = h.dashboard_activity_stream(
             c.userobj.id, filter_type, filter_id, offset
         )
 
@@ -683,7 +708,9 @@ class UserController(base.BaseController):
         # dashboard page.
         get_action('dashboard_mark_activities_old')(context, {})
 
-        return render('user/dashboard.html')
+        return render('user/dashboard.html', extra_vars={
+            'activity_stream': dashboard_activity_stream
+        })
 
     def dashboard_datasets(self):
         context = {'for_view': True, 'user': c.user,
@@ -719,8 +746,7 @@ class UserController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 user_dict['display_name']))
         except ValidationError as e:
-            error_message = (e.message or e.error_summary
-                             or e.error_dict)
+            error_message = (e.message or e.error_summary or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
             h.flash_error(e.message)
@@ -742,7 +768,6 @@ class UserController(base.BaseController):
             error_message = e.message
             h.flash_error(error_message)
         except ValidationError as e:
-            error_message = (e.error_summary or e.message
-                             or e.error_dict)
+            error_message = (e.error_summary or e.message or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)

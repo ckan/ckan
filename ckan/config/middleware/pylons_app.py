@@ -64,7 +64,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     # we want to be able to retrieve the routes middleware to be able to update
     # the mapper.  We store it in the pylons config to allow this.
     config['routes.middleware'] = app
-    app = SessionMiddleware(app, config)
+
     app = CacheMiddleware(app, config)
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
@@ -132,6 +132,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
         logging.WARN,  # ignored
         who_parser.remote_user_key
     )
+
+    app = SessionMiddleware(app, config)
 
     # Establish the Registry for this application
     # The RegistryManager includes code to pop

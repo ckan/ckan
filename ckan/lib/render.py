@@ -5,6 +5,7 @@ import re
 import logging
 
 from ckan.common import config
+from jinja2.exceptions import TemplateNotFound
 
 log = logging.getLogger(__name__)
 
@@ -24,9 +25,6 @@ def find_template(template_name):
 
 def template_type(template_path):
     return 'jinja2'
-
-class TemplateNotFound(Exception):
-    pass
 
 def template_info(template_name):
     ''' Returns the path and type for a template '''

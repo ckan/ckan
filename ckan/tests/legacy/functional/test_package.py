@@ -694,47 +694,6 @@ class TestNonActivePackages(TestPackageBase):
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
 
 
-class TestRevisions(TestPackageBase):
-    @classmethod
-    def setup_class(cls):
-        model.Session.remove()
-        model.repo.init_db()
-        cls.name = u'revisiontest1'
-
-        # create pkg
-        cls.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
-        rev = model.repo.new_revision()
-        cls.pkg1 = model.Package(name=cls.name)
-        cls.pkg1.notes = cls.notes[0]
-        model.Session.add(cls.pkg1)
-        model.repo.commit_and_remove()
-
-        # edit pkg
-        for i in range(5)[1:]:
-            rev = model.repo.new_revision()
-            pkg1 = model.Package.by_name(cls.name)
-            pkg1.notes = cls.notes[i]
-            model.repo.commit_and_remove()
-
-        cls.pkg1 = model.Package.by_name(cls.name)
-        cls.revision_ids = [rev[0].id for rev in cls.pkg1.all_related_revisions]
-                           # revision ids are newest first
-        cls.revision_timestamps = [rev[0].timestamp for rev in cls.pkg1.all_related_revisions]
-        cls.offset = url_for(controller='package', action='history', id=cls.pkg1.name)
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-
-    def test_2_atom_feed(self):
-        offset = "%s?format=atom" % self.offset
-        res = self.app.get(offset)
-        assert '<feed' in res, res
-        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
-        assert '</feed>' in res, res
-
-
-
 class TestResourceListing(TestPackageBase):
     @classmethod
     def setup_class(cls):

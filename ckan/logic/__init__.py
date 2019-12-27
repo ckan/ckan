@@ -3,7 +3,6 @@
 import functools
 import logging
 import re
-import sys
 from collections import defaultdict
 
 import formencode.validators
@@ -36,6 +35,7 @@ class ActionError(Exception):
 
     def __str__(self):
         return self.message
+
 
 
 class NotFound(ActionError):
@@ -383,6 +383,7 @@ def get_action(action):
         if action not in _actions:
             raise KeyError("Action '%s' not found" % action)
         return _actions.get(action)
+
     # Otherwise look in all the plugins to resolve all possible
     # First get the default ones in the ckan/logic/action directory
     # Rather than writing them out in full will use __import__
@@ -430,12 +431,16 @@ def get_action(action):
                 auth_function.auth_audit_exempt = True
                 fetched_actions[name] = auth_function
     for name, func_list in chained_actions.iteritems():
-        if name not in fetched_actions:
+        if name not in fetched_actions and name not in _actions:
             raise NotFound('The action %r is not found for chained action' % (
                 name))
         for func in reversed(func_list):
-            prev_func = fetched_actions[name]
+            prev_func = fetched_actions.get(name, _actions.get(name))
             fetched_actions[name] = functools.partial(func, prev_func)
+            if hasattr(func, 'side_effect_free'):
+                fetched_actions[name].side_effect_free = func.side_effect_free
+            if hasattr(func, 'auth_audit_exempt'):
+                fetched_actions[name].auth_audit_exempt = func.auth_audit_exempt
 
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
@@ -598,6 +603,15 @@ def auth_sysadmins_check(action):
     '''
     action.auth_sysadmins_check = True
     return action
+
+
+def auth_read_safe(action):
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+
+    wrapper.auth_read_safe = True
+    return wrapper
 
 
 def auth_audit_exempt(action):

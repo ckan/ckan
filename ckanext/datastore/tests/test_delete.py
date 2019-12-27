@@ -18,7 +18,8 @@ from ckan.logic import NotFound
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
     rebuild_all_dbs, set_url_type,
-    DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
+    DatastoreFunctionalTestBase, DatastoreLegacyTestBase,
+    DatastoreFunctionalTestBase)
 
 assert_raises = nose.tools.assert_raises
 

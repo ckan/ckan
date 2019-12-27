@@ -559,11 +559,10 @@ def user_dictize(user, context, include_password_hash=False):
 
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash
-    result_dict['number_of_edits'] = user.number_of_edits()
-    result_dict['number_created_packages'] = user.number_created_packages(
-        include_private_and_draft=context.get(
-            'count_private_and_draft_datasets', False))
-
+    # FIXME: Extremely poorly performing queries, we've emergency hardcoded
+    # these to 0 as they're completely unused.
+    result_dict['number_of_edits'] = 0
+    result_dict['number_created_packages'] = 0
     requester = context.get('user')
 
     reset_key = result_dict.pop('reset_key', None)

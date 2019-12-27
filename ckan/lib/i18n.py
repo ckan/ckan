@@ -234,8 +234,8 @@ def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
         config.get('ckan.locale_default', 'en')
-    if lang != 'en':
-        set_lang(lang)
+
+    set_lang(lang)
 
     for plugin in PluginImplementations(ITranslation):
         if lang in plugin.i18n_locales():

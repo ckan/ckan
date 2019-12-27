@@ -105,7 +105,18 @@ def package_extras_save(extra_dicts, obj, context):
     session = context["session"]
 
     extras_list = obj.extras_list
-    old_extras = dict((extra.key, extra) for extra in extras_list)
+
+    # XXX: clean up duplicate keys
+    # we've created a mess with our portal_release_date field
+    old_extras = {}
+    for extra in extras_list:
+        if extra.key in old_extras:
+            if extra.state == 'deleted':
+                continue
+            state = 'pending-deleted' if context.get('pending') else 'deleted'
+            extra.state = state
+            continue
+        old_extras[extra.key] = extra
 
     new_extras = {}
     for extra_dict in extra_dicts or []:

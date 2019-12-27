@@ -134,10 +134,6 @@ def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
         globs = extra_vars or {}
         globs.update(pylons_globals())
 
-        # Using pylons.url() directly destroys the localisation stuff so
-        # we remove it so any bad templates crash and burn
-        del globs['url']
-
         try:
             template_path, template_type = render_.template_info(template_name)
         except render_.TemplateNotFound:

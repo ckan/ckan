@@ -157,8 +157,8 @@ class PackageSearchIndex(SearchIndex):
         for tag in tags:
             if tag.get('vocabulary_id'):
                 data = {'id': tag['vocabulary_id']}
-                vocab = logic.get_action('vocabulary_show')(context, data)
-                key = u'vocab_%s' % vocab['name']
+                vocab_name = model.Vocabulary.get(tag['vocabulary_id']).name
+                key = u'vocab_%s' % vocab_name
                 if key in pkg_dict:
                     pkg_dict[key].append(tag['name'])
                 else:
