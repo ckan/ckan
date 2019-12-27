@@ -244,23 +244,23 @@ class TestDatastoreDump(object):
             )
         )
 
-        content = json.loads(res.data)
+        content = json.loads(six.ensure_text(res.data))
         expected_content = {
-            'fields': [
-                {'id': '_id', 'type': 'int'},
-                {'id': 'bük', 'type': 'text'},
-                {'id': 'author', 'type': 'text'},
-                {'id': 'published', 'type': 'timestamp'},
-                {'id': 'characters', 'type': '_text'},
-                {'id': 'random_letters', 'type': '_text'},
-                {'id': 'nested', 'type': 'json'}
+            u'fields': [
+                {u'id': u'_id', u'type': u'int'},
+                {u'id': u'bük', u'type': u'text'},
+                {u'id': u'author', u'type': u'text'},
+                {u'id': u'published', u'type': u'timestamp'},
+                {u'id': u'characters', u'type': u'_text'},
+                {u'id': u'random_letters', u'type': u'_text'},
+                {u'id': u'nested', u'type': u'json'}
             ],
-            'records': [
+            u'records': [
                 [
-                    1, 'annakarenina', 'tolstoy', '2005-03-01T00:00:00',
-                    ['Princess Anna', 'Sergius'],
-                    ['a', 'e', 'x'],
-                    ['b', {'moo': 'moo'}]
+                    1, u'annakarenina', u'tolstoy', u'2005-03-01T00:00:00',
+                    [u'Princess Anna', u'Sergius'],
+                    [u'a', u'e', u'x'],
+                    [u'b', {u'moo': u'moo'}]
                 ]
             ]
         }

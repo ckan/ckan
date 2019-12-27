@@ -3,7 +3,7 @@
 import os.path as path
 
 import pytest
-
+import six
 from webtest.app import TestRequest
 from webtest import lint  # NOQA
 
@@ -23,7 +23,7 @@ class TestFlaskStreaming(object):
         u"""Test streaming of items collection."""
         url = str(u"/stream/string")  # produces list of words
         resp = get_response(url)
-        assert u"Hello World, this is served from an extension".split() == list(
+        assert six.ensure_binary(u"Hello World, this is served from an extension").split() == list(
             resp.app_iter
         )
         resp.app_iter.close()
@@ -34,9 +34,9 @@ class TestFlaskStreaming(object):
         bound = 7
         url = str(u"/stream/template/{}".format(bound))  # produces nums list
         resp = get_response(url)
-        content = u"".join(resp.app_iter)
+        content = six.ensure_binary(u"").join(resp.app_iter)
         for i in range(bound):
-            assert str(i) in content
+            assert six.ensure_binary(str(i)) in content
         resp._app_iter.close()
 
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_streaming")
@@ -48,7 +48,7 @@ class TestFlaskStreaming(object):
             path.dirname(path.abspath(__file__)), u"10lines.txt"
         )
         with open(f_path) as test_file:
-            content = test_file.readlines()
+            content = [six.ensure_binary(line) for line in test_file.readlines()]
             assert content == list(resp.app_iter)
         resp._app_iter.close()
 
@@ -57,7 +57,7 @@ class TestFlaskStreaming(object):
         u"""Test availability of context inside templates."""
         url = str(u"/stream/context?var=10")  # produces `var` value
         resp = get_response(url)
-        assert u"10" == resp.body
+        assert six.ensure_binary(u"10") == resp.body
 
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_streaming")
     def test_render_without_context(self, get_response):

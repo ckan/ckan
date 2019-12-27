@@ -314,7 +314,7 @@ def test_does_not_resubmit_if_a_dataset_field_changes_in_the_meantime(
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 def test_duplicated_tasks(app):
     def submit(res, user):
         return helpers.call_action(

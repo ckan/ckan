@@ -57,6 +57,7 @@ def _get_package_new_page(app):
 @patch.object(flask, "send_file", side_effect=[CONTENT])
 @patch.object(config["pylons.h"], "uploads_enabled", return_value=True)
 @patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
+@pytest.mark.xfail(reason="TODO: implement form submission")
 def test_resource_download_iuploader_called(
         mock_uploads_enabled, send_file, app, monkeypatch
 ):

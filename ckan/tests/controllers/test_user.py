@@ -114,12 +114,12 @@ class TestUser(object):
         final_response = helpers.webtest_maybe_follow(submit_response)
 
         # the response is the user dashboard, right?
-        final_response.mustcontain(
+        assert helpers.body_contains(
             '<a href="/dashboard/">Dashboard</a>',
             '<span class="username">{0}</span>'.format(user["fullname"]),
         )
         # and we're definitely not back on the login page.
-        final_response.mustcontain(no='<h1 class="page-heading">Login</h1>')
+        assert not helpers.body_contains('<h1 class="page-heading">Login</h1>')
 
     def test_registered_user_login_bad_password(self, app):
         """
@@ -145,14 +145,16 @@ class TestUser(object):
         final_response = helpers.webtest_maybe_follow(submit_response)
 
         # the response is the login page again
-        final_response.mustcontain(
-            '<h1 class="page-heading">Login</h1>',
-            "Login failed. Bad username or password.",
+        assert helpers.body_contains(final_response,
+            '<h1 class="page-heading">Login</h1>'
+        )
+        assert helpers.body_contains(final_response,
+            "Login failed. Bad username or password."
         )
         # and we're definitely not on the dashboard.
-        final_response.mustcontain(no='<a href="/dashboard">Dashboard</a>'),
-        final_response.mustcontain(
-            no='<span class="username">{0}</span>'.format(user["fullname"])
+        assert not helpers.body_contains(final_response, '<a href="/dashboard">Dashboard</a>'),
+        assert not helpers.body_contains(final_response,
+            '<span class="username">{0}</span>'.format(user["fullname"])
         )
 
     def test_user_logout_url_redirect(self, app):

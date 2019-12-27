@@ -13,16 +13,9 @@ from ckan.tests import factories
 from ckan import model
 
 
-class TestExampleIPermissionLabels(FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        # Test code should use CKAN's plugins.load() function to load plugins
-        # to be tested.
-        ckan.plugins.load(u"example_ipermissionlabels")
-
-    @classmethod
-    def teardown_class(cls):
-        ckan.plugins.unload(u"example_ipermissionlabels")
+@pytest.mark.ckan_config('ckan.plugins', "example_ipermissionlabels")
+@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+class TestExampleIPermissionLabels(object):
 
     def test_normal_dataset_permissions_are_normal(self):
         user = factories.User()

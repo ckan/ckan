@@ -472,6 +472,8 @@ def _url_for_pylons(*args, **kw):
                 not kw['ver'].startswith('/')):
             kw['ver'] = '/%s' % kw['ver']
 
+    if args:
+        args = (six.ensure_str(args[0]), ) + args[1:]
     # Try to build the URL with routes.url_for
     return _routes_default_url_for(*args, **kw)
 

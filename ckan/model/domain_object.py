@@ -100,7 +100,7 @@ class DomainObject(object):
         return _dict
 
     def __str__(self):
-        return self.__unicode__().encode('utf8')
+        return repr(self)
 
     def __unicode__(self):
         repr = u'<%s' % self.__class__.__name__

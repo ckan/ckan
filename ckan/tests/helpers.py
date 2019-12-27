@@ -28,7 +28,7 @@ import re
 import smtplib
 
 from flask.testing import Client as FlaskClient
-
+from flask.wrappers import Response
 import webtest
 import nose.tools
 import pytest
@@ -174,6 +174,15 @@ def body_contains(res, content):
     return content in body
 
 
+class CKANResponse(Response):
+    @property
+    def body(self):
+        return self.data
+
+    def __contains__(self, segment):
+        return body_contains(self, segment)
+
+
 class CKANTestApp(object):
     """A wrapper around webtest.TestApp
 
@@ -195,11 +204,12 @@ class CKANTestApp(object):
         self.app = app
 
     def test_client(self, use_cookies=True):
-        return CKANTestClient(self.app, self.flask_app.response_class, use_cookies=use_cookies)
+        return CKANTestClient(self.app, CKANResponse, use_cookies=use_cookies)
         self.flask_app.test_client_class = CKANTestClient
         return self.flask_app.test_client()
 
     def post(self, url, *args, **kwargs):
+        print(url)
         res = self.test_client().post(url, *args, **kwargs)
         return res
 

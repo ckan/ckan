@@ -475,8 +475,8 @@ class TestPackageRead(object):
     def test_read(self, app):
         dataset = factories.Dataset()
         response = app.get(url_for("dataset.read", id=dataset["name"]))
-        response.mustcontain("Test Dataset")
-        response.mustcontain("Just another test dataset")
+        assert helpers.body_contains(response, "Test Dataset")
+        assert helpers.body_contains(response, "Just another test dataset")
 
     def test_organization_members_can_read_private_datasets(self, app):
         members = {
@@ -554,7 +554,7 @@ class TestPackageRead(object):
             ),
             extra_environ=env,
         )
-        response.mustcontain("Original title")
+        assert helpers.body_contains(response, "Original title")
 
     def test_read_dataset_as_it_used_to_be_but_is_unmigrated(self, app):
         # Renders the dataset using the activity detail, when that Activity was
@@ -667,7 +667,7 @@ class TestPackageDelete(object):
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]), status=403
         )
-        response.mustcontain("Unauthorized to delete package")
+        assert helpers.body_contains(response, "Unauthorized to delete package")
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
         assert "active" == deleted["state"]
@@ -687,7 +687,7 @@ class TestPackageDelete(object):
 
         )
         assert 403 == response.status_int
-        response.mustcontain("Unauthorized to delete package")
+        assert helpers.body_contains(response, "Unauthorized to delete package")
 
     def test_confirm_cancel_delete(self, app):
         """Test confirmation of deleting datasets
@@ -706,7 +706,7 @@ class TestPackageDelete(object):
         )
         assert 200 == response.status_int
         message = "Are you sure you want to delete dataset - {name}?"
-        response.mustcontain(message.format(name=dataset["title"]))
+        assert helpers.body_contains(response, message.format(name=dataset["title"]))
 
         form = response.forms["confirm-dataset-delete-form"]
         response = form.submit("cancel")
@@ -932,7 +932,7 @@ class TestResourceView(object):
         response = app.post(
             url, {"title": "Test Image View"}, extra_environ=env
         ).follow(extra_environ=env)
-        response.mustcontain("Test Image View")
+        assert helpers.body_contains(response, "Test Image View")
 
     def test_resource_view_edit(self, app):
         user = factories.User()
@@ -955,7 +955,7 @@ class TestResourceView(object):
         response = app.post(
             url, {"title": "Updated RV Title"}, extra_environ=env
         ).follow(extra_environ=env)
-        response.mustcontain("Updated RV Title")
+        assert helpers.body_contains(response, "Updated RV Title")
 
     def test_resource_view_delete(self, app):
         user = factories.User()
@@ -978,7 +978,7 @@ class TestResourceView(object):
         response = app.post(
             url, {"delete": "Delete"}, extra_environ=env
         ).follow(extra_environ=env)
-        response.mustcontain("This resource has no views")
+        assert helpers.body_contains(response, "This resource has no views")
 
     def test_existent_resource_view_page_returns_ok_code(self, app):
         resource_view = factories.ResourceView()
@@ -1013,7 +1013,7 @@ class TestResourceView(object):
             view_id=resource_view["id"],
         )
         response = app.get(url)
-        response.mustcontain("Some <strong>Markdown</strong>")
+        assert helpers.body_contains(response, "Some <strong>Markdown</strong>")
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1146,7 +1146,7 @@ class TestResourceDelete(object):
         )
         response = response.follow()
         assert 200 == response.status_int
-        response.mustcontain("This dataset has no data")
+        assert helpers.body_contains(response, "This dataset has no data")
 
         with pytest.raises(p.toolkit.ObjectNotFound):
             helpers.call_action("resource_show", id=resource["id"])
@@ -1185,7 +1185,7 @@ class TestResourceDelete(object):
             ),
             status=403,
         )
-        response.mustcontain("Unauthorized to delete package")
+        assert helpers.body_contains(response, "Unauthorized to delete package")
 
     def test_logged_in_users_cannot_delete_resources_they_do_not_own(
         self, app
@@ -1211,7 +1211,7 @@ class TestResourceDelete(object):
 
         )
         assert 403 == response.status_int
-        response.mustcontain("Unauthorized to delete package")
+        assert helpers.body_contains(response, "Unauthorized to delete package")
 
     def test_sysadmins_can_delete_any_resource(self, app):
         owner_org = factories.Organization()
@@ -1230,7 +1230,7 @@ class TestResourceDelete(object):
         )
         response = response.follow()
         assert 200 == response.status_int
-        response.mustcontain("This dataset has no data")
+        assert helpers.body_contains(response, "This dataset has no data")
 
         with pytest.raises(p.toolkit.ObjectNotFound):
             helpers.call_action("resource_show", id=resource["id"])
@@ -1257,7 +1257,7 @@ class TestResourceDelete(object):
         )
         assert 200 == response.status_int
         message = "Are you sure you want to delete resource - {name}?"
-        response.mustcontain(message.format(name=resource["name"]))
+        assert helpers.body_contains(response, message.format(name=resource["name"]))
 
         # cancelling sends us back to the resource edit page
         form = response.forms["confirm-resource-delete-form"]
@@ -2100,5 +2100,5 @@ class TestChanges(object):  # i.e. the diff
         response = app.get(
             url_for("dataset.changes", id=activity.id), extra_environ=env
         )
-        response.mustcontain("First")
-        response.mustcontain("Second")
+        assert helpers.body_contains(response, "First")
+        assert helpers.body_contains(response, "Second")
