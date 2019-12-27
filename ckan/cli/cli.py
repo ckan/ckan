@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import logging
+import sys
 
 import click
 from ckan.cli import config_tool
@@ -43,6 +44,10 @@ class CkanCommand(object):
 @click_config_option
 @click.pass_context
 def ckan(ctx, config, *args, **kwargs):
+    # This is necessary to allow the user to create
+    # a config file when one isn't already present
+    if all(arg in sys.argv for arg in ['generate', 'config']):
+        return
     ctx.obj = CkanCommand(config)
 
 

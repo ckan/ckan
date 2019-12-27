@@ -83,12 +83,16 @@ def extension(output_dir):
 
 @generate.command(name=u'config', short_help=u'Create config from template.')
 @click.option(u'-o', u'--output-dir', help=u'Location to put the generated '
-                                           u'template.', default=u'.')
+                                           u'template.')
 def make_config(output_dir):
-    if not any(name in output_dir for name in
-               ['development.ini', 'production.ini']):
+    names = ['development.ini', 'production.ini']
+
+    if not any(name in output_dir for name in names):
         print('\nERROR: File name must be development.ini or production.ini')
         sys.exit(1)
+
+    if output_dir in names:
+        output_dir = os.getcwd() + '/' + output_dir
 
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     os.chdir(cur_loc)
@@ -103,7 +107,6 @@ def make_config(output_dir):
 
     with open(template_loc, 'r') as file_in:
         template = string.Template(file_in.read())
-        print(output_dir)
 
         try:
             with open(output_dir, 'w') as file_out:
