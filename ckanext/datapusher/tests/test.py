@@ -39,11 +39,10 @@ class TestDatastoreCreate(object):
     def test_create_ckan_resource_in_package(self, app):
         package = model.Package.get("annakarenina")
         data = {"resource": {"package_id": package.id}}
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=200,
         )
@@ -122,11 +121,11 @@ class TestDatastoreCreate(object):
             "resource_id": resource.id,
             "resource": {"package_id": package.id},
         }
-        postparams = "%s=1" % json.dumps(data)
+
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
@@ -187,11 +186,11 @@ class TestDatastoreCreate(object):
         )
 
         data = {"status": "success", "metadata": {"resource_id": resource.id}}
-        postparams = "%s=1" % json.dumps(data)
+
         auth = {"Authorization": str(user.apikey)}
         res = app.post(
             "/api/action/datapusher_hook",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=200,
         )
@@ -235,25 +234,22 @@ class TestDatastoreCreate(object):
     @pytest.mark.usefixtures("with_plugins")
     def test_datapusher_hook_no_metadata(self, app):
         data = {"status": "success"}
-        postparams = "%s=1" % json.dumps(data)
 
-        app.post("/api/action/datapusher_hook", params=postparams, status=409)
+        app.post("/api/action/datapusher_hook", json=data, status=409)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
     def test_datapusher_hook_no_status(self, app):
         data = {"metadata": {"resource_id": "res_id"}}
-        postparams = "%s=1" % json.dumps(data)
 
-        app.post("/api/action/datapusher_hook", params=postparams, status=409)
+        app.post("/api/action/datapusher_hook", json=data, status=409)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
     def test_datapusher_hook_no_resource_id_in_metadata(self, app):
         data = {"status": "success", "metadata": {}}
-        postparams = "%s=1" % json.dumps(data)
 
-        app.post("/api/action/datapusher_hook", params=postparams, status=409)
+        app.post("/api/action/datapusher_hook", json=data, status=409)
 
     @responses.activate
     @pytest.mark.ckan_config(

@@ -53,7 +53,7 @@ def test_apikey_contains_unicode(app):
 
 def test_options(app):
     response = app.options(url="/", status=200)
-    assert len(six.ensure_str(response.body)) == 0, "OPTIONS must return no content"
+    assert len(six.ensure_str(response.data)) == 0, "OPTIONS must return no content"
 
 
 def test_cors_config_no_cors(app):
@@ -230,7 +230,7 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
 @pytest.mark.usefixtures("with_plugins")
 def test_options_2(app):
     response = app.options(url="/simple_flask", status=200)
-    assert len(six.ensure_str(response.body)) == 0, "OPTIONS must return no content"
+    assert len(six.ensure_str(response.data)) == 0, "OPTIONS must return no content"
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")

@@ -78,10 +78,7 @@ class TestConfig(object):
         form = {"ckan.main_css": "/base/css/red.css", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
-        assert (
-            "red.css" in resp
-            or "red.min.css" in resp
-        )
+        assert "red.css" in resp or "red.min.css" in resp
         assert not helpers.body_contains(resp, "main.min.css")
 
     def test_tag_line(self, app, sysadmin_env):
@@ -164,7 +161,10 @@ class TestConfig(object):
 
         # set new tagline css
         url = url_for(u"admin.config")
-        form = {"ckan.site_custom_css": "body {background-color:red}", "save": ""}
+        form = {
+            "ckan.site_custom_css": "body {background-color:red}",
+            "save": "",
+        }
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline not visible yet
@@ -284,7 +284,12 @@ class TestTrashView(object):
         assert pkgs_before_purge == 3
 
         trash_url = url_for("admin.trash")
-        resp  = app.post(trash_url, data={"purge-packages": ""}, environ_overrides=sysadmin_env, status=200)
+        resp = app.post(
+            trash_url,
+            data={"purge-packages": ""},
+            environ_overrides=sysadmin_env,
+            status=200,
+        )
 
         # how many datasets after purge
         pkgs_after_purge = model.Session.query(model.Package).count()

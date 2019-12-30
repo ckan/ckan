@@ -12,6 +12,7 @@ import ckan.tests.helpers as helpers
 import ckanext.example_idatasetform as idf
 import ckan.lib.search
 
+
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
 class ExampleIDatasetFormPluginBase(object):
     """Version 1, 2 and 3 of the plugin are basically the same, so this class
@@ -62,21 +63,27 @@ class TestVersion2(ExampleIDatasetFormPluginBase):
 class TestVersion3(ExampleIDatasetFormPluginBase):
     pass
 
+
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
 class TestVersion5(object):
-
     def test_custom_package_type_urls(self, test_request_context):
         with test_request_context():
             assert url_for("fancy_type.search") == "/fancy_type/"
             assert url_for("fancy_type.new") == "/fancy_type/new"
-            assert url_for("fancy_type.read", id="check") == "/fancy_type/check"
             assert (
-                url_for("fancy_type.edit", id="check") == "/fancy_type/edit/check"
+                url_for("fancy_type.read", id="check") == "/fancy_type/check"
+            )
+            assert (
+                url_for("fancy_type.edit", id="check")
+                == "/fancy_type/edit/check"
             )
 
+
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v4")
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures(
+    "clean_db", "clean_index", "with_plugins", "with_request_context"
+)
 class TestIDatasetFormPluginVersion4(object):
     def test_package_create(self, test_request_context):
         with test_request_context():
@@ -214,14 +221,18 @@ class TestCustomSearch(object):
             "package_create", name="test_package_b", custom_text="y"
         )
 
-        response = app.get("/dataset/", query_string={"sort": "custom_text asc"})
+        response = app.get(
+            "/dataset/", query_string={"sort": "custom_text asc"}
+        )
 
         # check that package_b appears before package a (y < z)
         a = six.ensure_text(response.data).index("test_package_a")
         b = six.ensure_text(response.data).index("test_package_b")
         assert b < a
 
-        response = app.get("/dataset/", query_string={"sort": "custom_text desc"})
+        response = app.get(
+            "/dataset/", query_string={"sort": "custom_text desc"}
+        )
         # check that package_a appears before package b (z is first in
         # descending order)
         a = six.ensure_text(response.data).index("test_package_a")

@@ -3,6 +3,7 @@
 import pytest
 from ckan.tests.helpers import body_contains
 
+
 @pytest.mark.ckan_config(u"ckan.root_path", u"/data/{{LANG}}")
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_theme_v15_fanstatic")
 @pytest.mark.usefixtures(u"with_plugins")

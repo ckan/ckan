@@ -32,10 +32,9 @@ def _add_basic_package(app, package_name=u"test_package", **kwargs):
     }
     package.update(kwargs)
 
-    postparams = "%s=1" % json.dumps(package)
     res = app.post(
         "/api/action/package_create",
-        params=postparams,
+        json=package,
         extra_environ={"Authorization": "tester"},
     )
     return json.loads(res.body)["result"]
@@ -67,9 +66,8 @@ class TestAction(object):
         assert "annakarenina" in res["result"]
         assert "/api/3/action/help_show?name=package_list" in res["help"]
 
-        postparams = "%s=1" % json.dumps({"limit": 1})
         res = json.loads(
-            app.post("/api/action/package_list", params=postparams).body
+            app.post("/api/action/package_list", json={"limit": 1}).body
         )
         assert res["success"] is True
         assert len(res["result"]) == 1
@@ -123,8 +121,7 @@ class TestAction(object):
         assert "private_dataset" not in res
 
         # def test_02_package_autocomplete_match_name(self):
-        postparams = "%s=1" % json.dumps({"q": "war", "limit": 5})
-        res = app.post("/api/action/package_autocomplete", params=postparams)
+        res = app.post("/api/action/package_autocomplete", json={"q": "war", "limit": 5})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert res_obj["result"][0]["name"] == "warandpeace"
@@ -133,8 +130,7 @@ class TestAction(object):
         assert res_obj["result"][0]["match_displayed"] == "warandpeace"
 
         # def test_02_package_autocomplete_match_title(self):
-        postparams = "%s=1" % json.dumps({"q": "won", "limit": 5})
-        res = app.post("/api/action/package_autocomplete", params=postparams)
+        res = app.post("/api/action/package_autocomplete", json={"q": "won", "limit": 5})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert res_obj["result"][0]["name"] == "warandpeace"
@@ -225,10 +221,9 @@ class TestAction(object):
         anna_id = model.Package.by_name(u"annakarenina").id
         resource = {"package_id": anna_id, "url": "http://new_url"}
         api_key = six.ensure_text(model.User.get("testsysadmin").apikey)
-        postparams = "%s=1" % json.dumps(resource)
         res = app.post(
             "/api/action/resource_create",
-            params=postparams,
+            json=resource,
             extra_environ={"Authorization": str(api_key)},
         )
 
@@ -246,10 +241,9 @@ class TestAction(object):
         }
         api_key = six.ensure_text(model.User.get("testsysadmin").apikey)
 
-        postparams = "%s=1" % json.dumps(resource)
         res = app.post(
             "/api/action/resource_create",
-            params=postparams,
+            json=resource,
             extra_environ={"Authorization": str(api_key)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
@@ -262,10 +256,9 @@ class TestAction(object):
         # def test_10_user_create_parameters_missing(self):
         user_dict = {}
 
-        postparams = "%s=1" % json.dumps(user_dict)
         res = app.post(
             "/api/action/user_create",
-            params=postparams,
+            json=user_dict,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
@@ -286,10 +279,9 @@ class TestAction(object):
             "password": "tes",
         }  # Too short
 
-        postparams = "%s=1" % json.dumps(user_dict)
         res = app.post(
             "/api/action/user_create",
-            params=postparams,
+            json=user_dict,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
@@ -319,10 +311,9 @@ class TestAction(object):
         }
 
         # Normal users can update themselves
-        postparams = "%s=1" % json.dumps(normal_user_dict)
         res = app.post(
             "/api/action/user_update",
-            params=postparams,
+            json=normal_user_dict,
             extra_environ={"Authorization": str(self.normal_user.apikey)},
         )
 
@@ -341,10 +332,9 @@ class TestAction(object):
         assert not "password" in result
 
         # Sysadmin users can update themselves
-        postparams = "%s=1" % json.dumps(sysadmin_user_dict)
         res = app.post(
             "/api/action/user_update",
-            params=postparams,
+            json=sysadmin_user_dict,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
 
@@ -358,10 +348,9 @@ class TestAction(object):
         assert result["about"] == sysadmin_user_dict["about"]
 
         # Sysadmin users can update all users
-        postparams = "%s=1" % json.dumps(normal_user_dict)
         res = app.post(
             "/api/action/user_update",
-            params=postparams,
+            json=normal_user_dict,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
 
@@ -375,10 +364,9 @@ class TestAction(object):
         assert result["about"] == normal_user_dict["about"]
 
         # Normal users can not update other users
-        postparams = "%s=1" % json.dumps(sysadmin_user_dict)
         res = app.post(
             "/api/action/user_update",
-            params=postparams,
+            json=sysadmin_user_dict,
             extra_environ={"Authorization": str(self.normal_user.apikey)},
             status=StatusCodes.STATUS_403_ACCESS_DENIED,
         )
@@ -430,10 +418,9 @@ class TestAction(object):
         )
 
         for test_call in test_calls:
-            postparams = "%s=1" % json.dumps(test_call["user_dict"])
             res = app.post(
                 "/api/action/user_update",
-                params=postparams,
+                json=test_call["user_dict"],
                 extra_environ={"Authorization": str(self.normal_user.apikey)},
                 status=StatusCodes.STATUS_409_CONFLICT,
             )
@@ -448,11 +435,9 @@ class TestAction(object):
         CreateTestData.create_user(name)
         user = model.User.get(name)
         user_dict = {"id": user.id}
-        postparams = "%s=1" % json.dumps(user_dict)
-
         res = app.post(
             "/api/action/user_delete",
-            params=postparams,
+            json=user_dict,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
 
@@ -463,11 +448,9 @@ class TestAction(object):
 
         # def test_user_delete_requires_data_dict_with_key_id(self):
         user_dict = {"name": "normal_user"}
-        postparams = "%s=1" % json.dumps(user_dict)
-
         res = app.post(
             "/api/action/user_delete",
-            params=postparams,
+            json=user_dict,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
@@ -483,10 +466,9 @@ class TestAction(object):
         model.repo.commit()
 
         # Empty query
-        postparams = "%s=1" % json.dumps({})
         res = app.post(
             "/api/action/user_autocomplete",
-            params=postparams,
+            json={},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
         res_obj = json.loads(res.body)
@@ -496,17 +478,15 @@ class TestAction(object):
         assert res_obj["success"] is False
 
         # Normal query
-        postparams = "%s=1" % json.dumps({"q": "joe"})
-        res = app.post("/api/action/user_autocomplete", params=postparams)
+        res = app.post("/api/action/user_autocomplete", json={"q": "joe"})
         res_obj = json.loads(res.body)
         assert res_obj["result"][0]["name"] == "joeadmin"
         assert "id", "fullname" in res_obj["result"][0]
 
         # def test_17_bad_action(self):
         # Empty query
-        postparams = "%s=1" % json.dumps({})
         res = app.post(
-            "/api/action/bad_action_name", params=postparams, status=400
+            "/api/action/bad_action_name", json={}, status=400
         )
         res_obj = json.loads(res.body)
         assert (
@@ -525,10 +505,9 @@ class TestAction(object):
             "state": u"test_state",
             "error": u"test_error",
         }
-        postparams = "%s=1" % json.dumps(task_status)
         res = app.post(
             "/api/action/task_status_update",
-            params=postparams,
+            json=task_status,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         task_status_updated = json.loads(res.body)["result"]
@@ -539,10 +518,9 @@ class TestAction(object):
 
         task_status_updated["id"] = task_status_id
         task_status_updated["value"] = u"test_value_2"
-        postparams = "%s=1" % json.dumps(task_status_updated)
         res = app.post(
             "/api/action/task_status_update",
-            params=postparams,
+            json=task_status_updated,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         task_status_updated_2 = json.loads(res.body)["result"]
@@ -575,10 +553,9 @@ class TestAction(object):
                 },
             ]
         }
-        postparams = "%s=1" % json.dumps(task_statuses)
         res = app.post(
             "/api/action/task_status_update_many",
-            params=postparams,
+            json=task_statuses,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         task_statuses_updated = json.loads(res.body)["result"]["results"]
@@ -595,10 +572,9 @@ class TestAction(object):
 
         # def test_22_task_status_normal_user_not_authorized(self):
         task_status = {}
-        postparams = "%s=1" % json.dumps(task_status)
         res = app.post(
             "/api/action/task_status_update",
-            params=postparams,
+            json=task_status,
             extra_environ={"Authorization": str(self.normal_user.apikey)},
             status=StatusCodes.STATUS_403_ACCESS_DENIED,
         )
@@ -612,10 +588,9 @@ class TestAction(object):
 
         # def test_23_task_status_validation(self):
         task_status = {}
-        postparams = "%s=1" % json.dumps(task_status)
         res = app.post(
             "/api/action/task_status_update",
-            params=postparams,
+            json=task_status,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
@@ -632,22 +607,20 @@ class TestAction(object):
             "state": u"test_state",
             "error": u"test_error",
         }
-        postparams = "%s=1" % json.dumps(task_status)
         res = app.post(
             "/api/action/task_status_update",
-            params=postparams,
+            json=task_status,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         task_status_updated = json.loads(res.body)["result"]
 
         # make sure show works when giving a task status ID
-        postparams = "%s=1" % json.dumps({"id": task_status_updated["id"]})
         res = app.post(
             "/api/action/task_status_show",
-            params=postparams,
+            json={"id": task_status_updated["id"]},
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
-        task_status_show = json.loads(res.body)["result"]
+        task_status_show = res.json["result"]
 
         task_status_show.pop("last_updated")
         task_status_updated.pop("last_updated")
@@ -657,16 +630,13 @@ class TestAction(object):
         )
 
         # make sure show works when giving a (entity_id, task_type, key) tuple
-        postparams = "%s=1" % json.dumps(
-            {
+        res = app.post(
+            "/api/action/task_status_show",
+            json={
                 "entity_id": task_status["entity_id"],
                 "task_type": task_status["task_type"],
                 "key": task_status["key"],
-            }
-        )
-        res = app.post(
-            "/api/action/task_status_show",
-            params=postparams,
+            },
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         task_status_show = json.loads(res.body)["result"]
@@ -689,18 +659,16 @@ class TestAction(object):
             "state": u"test_state",
             "error": u"test_error",
         }
-        postparams = "%s=1" % json.dumps(task_status)
         res = app.post(
             "/api/action/task_status_update",
-            params=postparams,
+            json=task_status,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         task_status_updated = json.loads(res.body)["result"]
 
-        postparams = "%s=1" % json.dumps({"id": task_status_updated["id"]})
         res = app.post(
             "/api/action/task_status_delete",
-            params=postparams,
+            json={"id": task_status_updated["id"]},
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         task_status_delete = json.loads(res.body)
@@ -709,8 +677,7 @@ class TestAction(object):
         # def test_26_resource_show(self):
         pkg = model.Package.get("annakarenina")
         resource = pkg.resources[0]
-        postparams = "%s=1" % json.dumps({"id": resource.id})
-        res = app.post("/api/action/resource_show", params=postparams)
+        res = app.post("/api/action/resource_show", json={"id": resource.id})
         result = json.loads(res.body)["result"]
 
         resource_dict = resource_dictize(resource, {"model": model})
@@ -754,29 +721,26 @@ class TestAction(object):
         assert group_names == set(["annakarenina", "warandpeace"]), group_names
 
         # def test_30_status_show(self):
-        postparams = "%s=1" % json.dumps({})
-        res = app.post("/api/action/status_show", params=postparams)
+        res = app.post("/api/action/status_show", json={})
         status = json.loads(res.body)["result"]
         assert status["site_title"] == "CKAN"
         assert status["ckan_version"] == ckan.__version__
         assert status["site_url"] == "http://test.ckan.net"
 
         # def test_31_bad_request_format(self):
-        postparams = "%s=1" % json.dumps("not a dict")
         res = app.post(
-            "/api/action/package_list", params=postparams, status=400
+            "/api/action/package_list", json=six.ensure_str("not a dict"), status=400
         )
 
-        assert body_contains(
-            res,
+        assert (
             "Bad request - JSON Error: Request data JSON decoded to "
+        ) in res
+        assert (
             "'not a dict' but it needs to be a dictionary."
-        )
-
+        ) in res
         # def test_31_bad_request_format_not_json(self):
-        postparams = "=1"
         res = app.post(
-            "/api/action/package_list", params=postparams, status=400
+            "/api/action/package_list", data="=1", status=400, content_type="application/json"
         )
         assert body_contains(
             res, "Bad request - JSON Error: Error decoding JSON data."
@@ -799,8 +763,7 @@ class TestAction(object):
 
         # def test_42_resource_search_with_single_field_query(self):
         request_body = {"query": ["description:index"]}
-        postparams = json.dumps(request_body)
-        response = app.post("/api/action/resource_search", params=postparams)
+        response = app.post("/api/action/resource_search", json=request_body)
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
@@ -813,8 +776,7 @@ class TestAction(object):
 
         # def test_42_resource_search_across_multiple_fields(self):
         request_body = {"query": ["description:index", "format:json"]}
-        postparams = json.dumps(request_body)
-        response = app.post("/api/action/resource_search", params=postparams)
+        response = app.post("/api/action/resource_search", json=request_body)
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
@@ -828,8 +790,7 @@ class TestAction(object):
 
         # def test_42_resource_search_test_percentage_is_escaped(self):
         request_body = {"query": ["description:index%"]}
-        postparams = json.dumps(request_body)
-        response = app.post("/api/action/resource_search", params=postparams)
+        response = app.post("/api/action/resource_search", json=request_body)
         count = json.loads(response.body)["result"]["count"]
 
         # There shouldn't be any results.  If the '%' character wasn't
@@ -844,8 +805,7 @@ class TestAction(object):
         """
         request_body = {"fields": {"description": "index"}}
 
-        postparams = json.dumps(request_body)
-        response = app.post("/api/action/resource_search", params=postparams)
+        response = app.post("/api/action/resource_search", json=request_body)
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
@@ -950,50 +910,37 @@ class TestActionTermTranslation(object):
         self.normal_user = model.User.get("annafan")
 
     def test_1_update_single(self, app):
-        postparams = "%s=1" % json.dumps(
-            {"term": "moo", "term_translation": "moo", "lang_code": "fr"}
-        )
 
         res = app.post(
             "/api/action/term_translation_update",
-            params=postparams,
+            json={"term": "moo", "term_translation": "moo", "lang_code": "fr"},
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=200,
         )
 
         assert json.loads(res.body)["success"]
 
-        postparams = "%s=1" % json.dumps(
-            {"term": "moo", "term_translation": "moomoo", "lang_code": "fr"}
-        )
-
         res = app.post(
             "/api/action/term_translation_update",
-            params=postparams,
+            json={"term": "moo", "term_translation": "moomoo", "lang_code": "fr"},
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=200,
         )
 
         assert json.loads(res.body)["success"]
 
-        postparams = "%s=1" % json.dumps(
-            {"term": "moo", "term_translation": "moomoo", "lang_code": "en"}
-        )
-
         res = app.post(
             "/api/action/term_translation_update",
-            params=postparams,
+            json={"term": "moo", "term_translation": "moomoo", "lang_code": "en"},
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=200,
         )
 
         assert json.loads(res.body)["success"]
-
-        postparams = "%s=1" % json.dumps({"terms": ["moo"]})
 
         res = app.post(
             "/api/action/term_translation_show",
-            params=postparams,
+            json={"terms": ["moo"]},
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=200,
         )
@@ -1018,8 +965,7 @@ class TestActionTermTranslation(object):
 
     def test_2_update_many(self, app):
 
-        postparams = "%s=1" % json.dumps(
-            {
+        data  = {
                 "data": [
                     {
                         "term": "many",
@@ -1038,10 +984,9 @@ class TestActionTermTranslation(object):
                     },
                 ]
             }
-        )
         res = app.post(
             "/api/action/term_translation_update_many",
-            params=postparams,
+            json=data,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=200,
         )
@@ -1050,10 +995,9 @@ class TestActionTermTranslation(object):
             json.loads(res.body)["result"]["success"] == "3 rows updated"
         ), json.loads(res.body)
 
-        postparams = "%s=1" % json.dumps({"terms": ["many"]})
         res = app.post(
             "/api/action/term_translation_show",
-            params=postparams,
+            json={"terms": ["many"]},
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=200,
         )
@@ -1143,11 +1087,8 @@ class TestSearchPluginInterface(object):
 
     def test_search_plugin_interface_search(self, app):
         avoid = "Tolstoy"
-        search_params = "%s=1" % json.dumps(
-            {"q": "*:*", "extras": {"ext_avoid": avoid}}
-        )
 
-        res = app.post("/api/action/package_search", params=search_params)
+        res = app.post("/api/action/package_search", json={"q": "*:*", "extras": {"ext_avoid": avoid}})
 
         results_dict = json.loads(res.body)["result"]
         for result in results_dict["results"]:
@@ -1156,12 +1097,7 @@ class TestSearchPluginInterface(object):
         assert results_dict["count"] == 1
 
     def test_search_plugin_interface_abort(self, app):
-
-        search_params = "%s=1" % json.dumps(
-            {"q": "*:*", "extras": {"ext_abort": True}}
-        )
-
-        res = app.post("/api/action/package_search", params=search_params)
+        res = app.post("/api/action/package_search", json={"q": "*:*", "extras": {"ext_abort": True}})
 
         # Check that the query was aborted and no results returned
         res_dict = json.loads(res.body)["result"]
@@ -1171,17 +1107,14 @@ class TestSearchPluginInterface(object):
     def test_before_index(self, app):
 
         # no datasets get aaaaaaaa
-        search_params = "%s=1" % json.dumps({"q": "aaaaaaaa"})
-
-        res = app.post("/api/action/package_search", params=search_params)
+        res = app.post("/api/action/package_search", json={"q": "aaaaaaaa"})
 
         res_dict = json.loads(res.body)["result"]
         assert res_dict["count"] == 0
         assert len(res_dict["results"]) == 0
 
         # all datasets should get abcabcabc
-        search_params = "%s=1" % json.dumps({"q": "abcabcabc"})
-        res = app.post("/api/action/package_search", params=search_params)
+        res = app.post("/api/action/package_search", json={"q": "abcabcabc"})
 
         res_dict = json.loads(res.body)["result"]
         assert res_dict["count"] == 2, res_dict["count"]
@@ -1212,13 +1145,11 @@ class TestBulkActions(object):
         ]
 
     def test_01_make_private_then_public(self, app):
-        data_dict = "%s=1" % json.dumps(
-            {"datasets": self.package_ids, "org_id": self.org_id}
-        )
+        data_dict = {"datasets": self.package_ids, "org_id": self.org_id}
         res = app.post(
             "/api/action/bulk_update_private",
             extra_environ={"Authorization": "sysadmin"},
-            params=data_dict,
+            json=data_dict,
         )
 
         dataset_list = [
@@ -1234,7 +1165,7 @@ class TestBulkActions(object):
         res = app.post(
             "/api/action/bulk_update_public",
             extra_environ={"Authorization": "sysadmin"},
-            params=data_dict,
+            json=data_dict,
         )
 
         dataset_list = [
@@ -1249,13 +1180,10 @@ class TestBulkActions(object):
 
     def test_02_bulk_delete(self, app):
 
-        data_dict = "%s=1" % json.dumps(
-            {"datasets": self.package_ids, "org_id": self.org_id}
-        )
         res = app.post(
             "/api/action/bulk_update_delete",
             extra_environ={"Authorization": "sysadmin"},
-            params=data_dict,
+            json={"datasets": self.package_ids, "org_id": self.org_id},
         )
 
         dataset_list = [
@@ -1290,14 +1218,14 @@ class TestResourceAction(object):
         # Use the sysadmin user because this package doesn't belong to an org
         res = app.post(
             url,
-            params=json.dumps({"id": id}),
+            json={"id": id},
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         res_dict = json.loads(res.body)
         assert res_dict["success"] is True
 
         url = "/api/action/package_show"
-        res = app.get(url, {"id": pkg_id})
+        res = app.get(url, query_string={"id": pkg_id})
         res_dict = json.loads(res.body)
         assert res_dict["success"] is True
         assert len(res_dict["result"]["resources"]) == resource_count - 1
@@ -1345,13 +1273,9 @@ def _assert_we_can_add_user_to_group(app, user_id, group_id):
     group = model.Group.get(group_id)
     url = "/api/action/group_member_create"
     role = "member"
-    postparams = "%s=1" % json.dumps(
-        {"id": group_id, "username": user_id, "role": role}
-    )
-
     res = app.post(
         url,
-        params=postparams,
+        json={"id": group_id, "username": user_id, "role": role},
         extra_environ={"Authorization": str(user.apikey)},
     )
 

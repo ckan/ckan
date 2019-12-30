@@ -139,7 +139,7 @@ class GroupsTestCase(BaseModelApiTestCase):
         res = self.app.post(
             offset,
             params=postparams,
-            status=[409],
+            status=409,
             extra_environ=self.admin_extra_environ,
         )
         self.assert_json_response(res, "Group name already exists")
@@ -164,7 +164,7 @@ class GroupsTestCase(BaseModelApiTestCase):
         # delete it
         offset = self.group_offset(self.testgroupvalues["name"])
         res = self.app.delete(
-            offset, status=[200], extra_environ=self.admin_extra_environ
+            offset, status=200, extra_environ=self.admin_extra_environ
         )
 
         res = self.set_env(self.extra_environ)
@@ -176,10 +176,10 @@ class GroupsTestCase(BaseModelApiTestCase):
         # Anyone can see groups especially sysadmins
         # maybe we want to do something different with
         # deleted groups but that would be a new requirement
-        # res = self.app.get(offset, status=[403])
+        # res = self.app.get(offset, status=403)
         # self.assert_json_response(res, 'Access denied')
         res = self.app.get(
-            offset, status=[200], extra_environ=self.admin_extra_environ
+            offset, status=200, extra_environ=self.admin_extra_environ
         )
         res = self.set_env(self.extra_environ)
 
@@ -203,6 +203,6 @@ class GroupsTestCase(BaseModelApiTestCase):
         )
         offset = self.group_offset(self.testgroupvalues["name"])
         res = self.app.delete(
-            offset, status=[404], extra_environ=self.extra_environ
+            offset, status=404, extra_environ=self.extra_environ
         )
         self.assert_json_response(res, "not found")

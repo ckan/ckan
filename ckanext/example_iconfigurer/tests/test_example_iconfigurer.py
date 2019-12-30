@@ -6,6 +6,7 @@ import pytest
 import ckan.tests.helpers as helpers
 import ckan.plugins as plugins
 
+
 @pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestExampleIConfigurer(object):
@@ -35,7 +36,9 @@ class TestExampleIConfigurer(object):
 class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
     """Tests for helpers.build_extra_admin_nav method."""
 
-    def test_build_extra_admin_nav_config_option_present_but_empty(self, app, ckan_config, monkeypatch):
+    def test_build_extra_admin_nav_config_option_present_but_empty(
+        self, app, ckan_config, monkeypatch
+    ):
         """
         Empty string returned when ckan.admin_tabs option in config but empty.
         """
@@ -44,12 +47,15 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
         response = app.get("/build_extra_admin_nav")
         assert six.ensure_text(response.data) == expected
 
-    def test_build_extra_admin_nav_one_value_in_config(self, app, ckan_config, monkeypatch):
+    def test_build_extra_admin_nav_one_value_in_config(
+        self, app, ckan_config, monkeypatch
+    ):
         """
         Correct string returned when ckan.admin_tabs option has single value in config.
         """
         monkeypatch.setitem(
-            ckan_config, "ckan.admin_tabs",
+            ckan_config,
+            "ckan.admin_tabs",
             {
                 "example_iconfigurer.config_one": {
                     "label": "My Label",
@@ -64,7 +70,9 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
         response = app.get("/build_extra_admin_nav")
         assert six.ensure_text(response.data) == expected
 
-    def test_build_extra_admin_nav_two_values_in_config(self, app, ckan_config, monkeypatch):
+    def test_build_extra_admin_nav_two_values_in_config(
+        self, app, ckan_config, monkeypatch
+    ):
         """
         Correct string returned when ckan.admin_tabs option has two values in config.
         """
@@ -80,7 +88,7 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
                     "label": "My Other Label",
                     "icon": None,
                 },
-            }
+            },
         )
         expected = """<li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li><li><a href="/ckan-admin/myext_config_two">My Other Label</a></li>"""
         response = app.get("/build_extra_admin_nav")

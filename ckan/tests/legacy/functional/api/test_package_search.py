@@ -58,9 +58,8 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     def test_04_post_json(self):
         query = {"q": self.package_fixture_data["name"]}
-        json_query = self.dumps(query)
         offset = self.base_url
-        res = self.app.post(offset, params=json_query, status=200)
+        res = self.app.post(offset, json=query, status=200)
         res_dict = self.data_from_res(res)
         self.assert_results(res_dict, "testpkg")
         assert res_dict["result"]["count"] == 1, res_dict["result"]["count"]

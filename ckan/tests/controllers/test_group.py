@@ -73,7 +73,9 @@ class TestGroupControllerNew(object):
     def test_name_required(self, app):
         user = factories.User()
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.post(url=url_for("group.new"), extra_environ=env, data={"save": ""})
+        response = app.post(
+            url=url_for("group.new"), extra_environ=env, data={"save": ""}
+        )
 
         assert "Name: Missing value" in response
 
@@ -96,7 +98,7 @@ class TestGroupControllerNew(object):
             "title": "Science",
             "description": "Sciencey datasets",
             "image_url": "http://example.com/image.png",
-            "save": ""
+            "save": "",
         }
         app.post(url=url_for("group.new"), extra_environ=env, data=form)
 
@@ -132,10 +134,12 @@ class TestGroupControllerEdit(object):
         group = factories.Group(user=user)
 
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        form = {
-            "save": ""
-        }
-        app.post(url=url_for("group.edit", id=group["name"]), extra_environ=env, data=form)
+        form = {"save": ""}
+        app.post(
+            url=url_for("group.edit", id=group["name"]),
+            extra_environ=env,
+            data=form,
+        )
         group = model.Group.by_name(group["name"])
         assert group.state == "active"
 
@@ -149,9 +153,13 @@ class TestGroupControllerEdit(object):
             "title": "Science",
             "description": "Sciencey datasets",
             "image_url": "http://example.com/image.png",
-            "save": ""
+            "save": "",
         }
-        resp = app.post(url=url_for("group.edit", id=group["name"]), extra_environ=env, data=form)
+        resp = app.post(
+            url=url_for("group.edit", id=group["name"]),
+            extra_environ=env,
+            data=form,
+        )
 
         group = model.Group.by_name(u"all-fields-edited")
         assert group.title == u"Science"
@@ -170,8 +178,12 @@ class TestGroupRead(object):
     def test_redirect_when_given_id(self, app):
         group = factories.Group()
 
-        response = app.get(url_for("group.read", id=group["id"]), status=302, follow_redirects=False)
-        location = response.headers['location']
+        response = app.get(
+            url_for("group.read", id=group["id"]),
+            status=302,
+            follow_redirects=False,
+        )
+        location = response.headers["location"]
         expected_url = url_for("group.read", id=group["name"], _external=True)
         assert location == expected_url
 
@@ -304,7 +316,11 @@ class TestGroupMembership(object):
 
         env = {"REMOTE_USER": six.ensure_str(owner["name"])}
         url = url_for("group.member_new", id=group["name"])
-        add_response = app.post(url, environ_overrides=env, data={"save":"", "username": "my-user"})
+        add_response = app.post(
+            url,
+            environ_overrides=env,
+            data={"save": "", "username": "my-user"},
+        )
 
         assert "2 members" in add_response
 
@@ -331,7 +347,11 @@ class TestGroupMembership(object):
 
         env = {"REMOTE_USER": six.ensure_str(owner["name"])}
         url = url_for("group.member_new", id=group["name"])
-        add_response = app.post(url, environ_overrides=env, data={"save":"", "username": "my-user", "role": "admin"})
+        add_response = app.post(
+            url,
+            environ_overrides=env,
+            data={"save": "", "username": "my-user", "role": "admin"},
+        )
 
         assert "2 members" in add_response
 
@@ -464,9 +484,7 @@ class TestGroupFollow:
         app.post(follow_url, extra_environ=env)
 
         unfollow_url = url_for("group.unfollow", id=group["id"])
-        unfollow_response = app.post(
-            unfollow_url, extra_environ=env
-        )
+        unfollow_response = app.post(unfollow_url, extra_environ=env)
 
         assert (
             "You are no longer following {0}".format(group["display_name"])
@@ -481,9 +499,7 @@ class TestGroupFollow:
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("group.unfollow", id=group["id"])
-        unfollow_response = app.post(
-            unfollow_url, extra_environ=env
-        )
+        unfollow_response = app.post(unfollow_url, extra_environ=env)
 
         assert (
             "You are not following {0}".format(group["id"])
@@ -550,8 +566,7 @@ class TestGroupSearch(object):
         factories.Group(name="grp-three", title="Grp Three")
 
         search_response = app.get(
-            url_for("group.index"),
-            query_string={"q": "AGrp"}
+            url_for("group.index"), query_string={"q": "AGrp"}
         )
         search_response_html = BeautifulSoup(search_response.body)
         grp_names = search_response_html.select(
@@ -572,8 +587,7 @@ class TestGroupSearch(object):
         factories.Group(name="grp-three", title="Grp Three")
 
         search_response = app.get(
-            url_for("group.index"),
-            query_string={"q": "No Results Here"}
+            url_for("group.index"), query_string={"q": "No Results Here"}
         )
 
         search_response_html = BeautifulSoup(search_response.body)
@@ -634,10 +648,7 @@ class TestGroupInnerSearch(object):
 
         grp_url = url_for("group.read", id=grp["name"])
 
-        search_response = app.get(
-            grp_url,
-            query_string={"q": "One"}
-        )
+        search_response = app.get(grp_url, query_string={"q": "One"})
         assert "1 dataset found for &#34;One&#34;" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
@@ -668,12 +679,11 @@ class TestGroupInnerSearch(object):
         )
 
         grp_url = url_for("group.read", id=grp["name"])
-        search_response = app.get(
-            grp_url,
-            query_string={"q": "Nout"}
-        )
+        search_response = app.get(grp_url, query_string={"q": "Nout"})
 
-        assert helpers.body_contains(search_response, 'No datasets found for "Nout"')
+        assert helpers.body_contains(
+            search_response, 'No datasets found for "Nout"'
+        )
 
         search_response_html = BeautifulSoup(search_response.body)
 

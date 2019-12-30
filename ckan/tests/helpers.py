@@ -25,6 +25,7 @@ import contextlib
 import functools
 import logging
 import re
+import json
 import smtplib
 
 from flask.testing import Client as FlaskClient
@@ -208,30 +209,43 @@ class CKANTestApp(object):
         self.flask_app.test_client_class = CKANTestClient
         return self.flask_app.test_client()
 
+    def options(self, url, *args, **kwargs):
+        res = self.test_client().options(url, *args, **kwargs)
+        return res
+
     def post(self, url, *args, **kwargs):
-        print(url)
+        params = kwargs.pop("params", None)
+        if params:
+            kwargs["data"] = params
         res = self.test_client().post(url, *args, **kwargs)
         return res
 
     def get(self, url, *args, **kwargs):
+        params = kwargs.pop("params", None)
+        if params:
+            kwargs["query_string"] = params
+
         res = self.test_client().get(url, *args, **kwargs)
         return res
+
+    @property
+    def json(self):
+        return json.loads(self.data)
 
 
 class CKANTestClient(FlaskClient):
     def open(self, *args, **kwargs):
-        status = kwargs.pop('status', None)
-        extra_environ = kwargs.pop('extra_environ', None)
+        status = kwargs.pop("status", None)
+        extra_environ = kwargs.pop("extra_environ", None)
         if extra_environ:
-            kwargs['environ_overrides'] = extra_environ
+            kwargs["environ_overrides"] = extra_environ
         # params = kwargs.pop('params', None)
         # if params:
-            # kwargs['query_string'] = params
-
+        # kwargs['query_string'] = params
 
         if args and isinstance(args[0], six.string_types):
-            kwargs.setdefault('follow_redirects', True)
-            kwargs.setdefault('base_url', config['ckan.site_url'])
+            kwargs.setdefault("follow_redirects", True)
+            kwargs.setdefault("base_url", config["ckan.site_url"])
         res = super(CKANTestClient, self).open(*args, **kwargs)
 
         if status:
@@ -377,13 +391,13 @@ class RQTestBase(object):
         return jobs.enqueue(job, *args, **kwargs)
 
 
-class FunctionalRQTestBase(FunctionalTestBase, RQTestBase):
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class FunctionalRQTestBase(RQTestBase):
     """
     Base class for functional tests of RQ functionality.
     """
 
     def setup(self):
-        FunctionalTestBase.setup(self)
         RQTestBase.setup(self)
 
 
@@ -835,6 +849,7 @@ class RecordingLogHandler(logging.Handler):
 class FakeSMTP(smtplib.SMTP):
     """Mock `SMTP` client, catching all the messages.
     """
+
     connect = mock.Mock()
     ehlo = mock.Mock()
     starttls = mock.Mock()
@@ -853,7 +868,9 @@ class FakeSMTP(smtplib.SMTP):
     def clear_smtp_messages(self):
         self.msgs = []
 
-    def sendmail(self, from_addr, to_addrs, msg, mail_options=(), rcpt_options=()):
+    def sendmail(
+        self, from_addr, to_addrs, msg, mail_options=(), rcpt_options=()
+    ):
         """Just store message inside current instance.
         """
         self._msgs.append((None, from_addr, to_addrs, msg))

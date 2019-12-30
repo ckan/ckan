@@ -29,7 +29,7 @@ class FakeDataPusherPlugin(p.SingletonPlugin):
 
 
 @pytest.mark.ckan_config(
-"ckan.plugins", "datastore datapusher test_datapusher_plugin"
+    "ckan.plugins", "datastore datapusher test_datapusher_plugin"
 )
 @pytest.mark.usefixtures("with_plugins")
 class TestInterace(object):
@@ -44,7 +44,9 @@ class TestInterace(object):
         resource = factories.Resource(url_type="datastore")
         self.dataset = factories.Dataset(resources=[resource])
         with test_request_context():
-            self.sysadmin_user = factories.User(name="testsysadmin", sysadmin=True)
+            self.sysadmin_user = factories.User(
+                name="testsysadmin", sysadmin=True
+            )
             self.normal_user = factories.User(name="annafan")
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))

@@ -26,7 +26,6 @@ def _get_group_new_page(app, group_type):
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestGroupController(object):
-
     def test_about(self, app):
         user = factories.User()
         group = factories.Group(user=user, type=custom_group_type)
@@ -60,20 +59,22 @@ class TestGroupController(object):
     def test_custom_group_form_slug(self, app):
         env, response = _get_group_new_page(app, custom_group_type)
 
-        assert helpers.body_contains(response,
+        assert helpers.body_contains(
+            response,
             '<span class="input-group-addon">/{}/</span>'.format(
                 custom_group_type
-            )
+            ),
         )
-        assert helpers.body_contains(response, 'placeholder="my-{}"'.format(custom_group_type))
         assert helpers.body_contains(
-            response,
-            'data-module-prefix="test.ckan.net/{}/"'.format(custom_group_type)
-
+            response, 'placeholder="my-{}"'.format(custom_group_type)
         )
         assert helpers.body_contains(
             response,
-            'data-module-placeholder="&lt;{}&gt;"'.format(custom_group_type)
+            'data-module-prefix="test.ckan.net/{}/"'.format(custom_group_type),
+        )
+        assert helpers.body_contains(
+            response,
+            'data-module-placeholder="&lt;{}&gt;"'.format(custom_group_type),
         )
 
 
@@ -108,29 +109,35 @@ class TestOrganizationController(object):
     def test_custom_org_form_slug(self, app):
         env, response = _get_group_new_page(app, custom_group_type)
 
-        assert helpers.body_contains(response,
+        assert helpers.body_contains(
+            response,
             '<span class="input-group-addon">/{}/</span>'.format(
                 custom_group_type
-            )
+            ),
         )
-        assert helpers.body_contains(response, 'placeholder="my-{}"'.format(custom_group_type))
-        assert helpers.body_contains(response,
-            'data-module-prefix="test.ckan.net/{}/"'.format(custom_group_type)
+        assert helpers.body_contains(
+            response, 'placeholder="my-{}"'.format(custom_group_type)
         )
-        assert helpers.body_contains(response,
-            'data-module-placeholder="&lt;{}&gt;"'.format(custom_group_type)
+        assert helpers.body_contains(
+            response,
+            'data-module-prefix="test.ckan.net/{}/"'.format(custom_group_type),
+        )
+        assert helpers.body_contains(
+            response,
+            'data-module-placeholder="&lt;{}&gt;"'.format(custom_group_type),
         )
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestGroupControllerNew(object):
-
     def test_save(self, app):
         url = url_for("%s.new" % custom_group_type)
         user = factories.User()
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        app.post(url, data={'name': 'saved', 'title': ''}, environ_overrides=env)
+        app.post(
+            url, data={"name": "saved", "title": ""}, environ_overrides=env
+        )
 
         # check saved ok
         group = model.Group.by_name(u"saved")
@@ -145,14 +152,18 @@ class TestGroupControllerNew(object):
         assert helpers.body_contains(response, "My Custom Group Form!")
 
 
-@pytest.mark.ckan_config("ckan.plugins", "example_igroupform_default_group_type")
+@pytest.mark.ckan_config(
+    "ckan.plugins", "example_igroupform_default_group_type"
+)
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestGroupControllerNew_DefaultGroupType(object):
     def test_save(self, app):
         url = url_for("%s.new" % group_type)
         user = factories.User()
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        app.post(url, data={'name': 'saved', 'title': ''}, environ_overrides=env)
+        app.post(
+            url, data={"name": "saved", "title": ""}, environ_overrides=env
+        )
 
         # check saved ok
         group = model.Group.by_name(u"saved")
@@ -196,7 +207,9 @@ class TestGroupControllerEdit(object):
         assert helpers.body_contains(response, "My Custom Group Form!")
 
 
-@pytest.mark.ckan_config("ckan.plugins", "example_igroupform_default_group_type")
+@pytest.mark.ckan_config(
+    "ckan.plugins", "example_igroupform_default_group_type"
+)
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestGroupControllerEdit_DefaultGroupType(object):
     def test_group_doesnt_exist(self, app):

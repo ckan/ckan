@@ -34,7 +34,7 @@ class HtmlCheckMethods(object):
     def strip_tags(self, res):
         """Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace."""
         if not isinstance(res, string_types):
-            res = six.ensure_text(res.body)
+            res = six.ensure_text(res.data)
         return Stripper().strip(res)
 
     def check_named_element(self, html, tag_name, *html_to_find):
@@ -73,7 +73,7 @@ class HtmlCheckMethods(object):
         elif isinstance(html, str):
             html_str = six.ensure_text(html)
         elif isinstance(html, webtest.app.TestResponse):
-            html_str = six.ensure_text(html.body)
+            html_str = six.ensure_text(html.data)
         else:
             raise TypeError
         return html_str  # always unicode

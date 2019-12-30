@@ -12,7 +12,7 @@ from ckan.tests.helpers import body_contains
 class ApiTestCase(ApiTestCase, ControllerTestCase):
     def test_get_api(self, app):
         offset = self.offset("")
-        res = app.get(offset, status=[200])
+        res = app.get(offset, status=200)
         self.assert_version_data(res)
 
     def assert_version_data(self, res):
@@ -32,7 +32,7 @@ class TestApi3(Api3TestCase, ApiTestCase):
         """
         offset = self.offset("/action/package_search")
         params = {"q": "russian"}
-        res = app.get(offset, params=params, status=[200])
+        res = app.get(offset, params=params, status=200)
 
     def test_sideeffect_action_is_not_get_able(self, app):
         """Test that a non-readonly action is not GET-able.
