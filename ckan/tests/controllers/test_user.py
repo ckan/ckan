@@ -850,7 +850,8 @@ class TestUser(object):
         emailed_users = [
             call[0][0].name for call in send_reset_link.call_args_list
         ]
-        assert emailed_users == [user_a["name"], user_b["name"]]
+        assert user_a["name"] in emailed_users
+        assert user_b["name"] in emailed_users
 
     def test_request_reset_without_param(self, app):
 
