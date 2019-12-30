@@ -244,7 +244,7 @@ class MultilingualDataset(SingletonPlugin):
 
         text_field_items['text_' + default_lang].extend(all_terms)
 
-        for translation in field_translations:
+        for translation in sorted(field_translations, key=lambda tr: all_terms.index(tr['term'])):
             lang_field = 'text_' + translation['lang_code']
             text_field_items[lang_field].append(translation['term_translation'])
 

@@ -61,7 +61,7 @@ class TestFeeds(object):
         offset = url_for(u"feeds.custom")
         params = {"q": "frequency:weekly"}
 
-        res = app.get(offset, params=params)
+        res = app.get(offset, query_string=params)
 
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset1["title"]))
 

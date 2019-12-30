@@ -7,8 +7,8 @@ import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_flask_iblueprint")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_iblueprint")
+@pytest.mark.usefixtures(u"clean_db", u"with_plugins")
 class TestFlaskIBlueprint(object):
 
     def test_plugin_route(self, app):

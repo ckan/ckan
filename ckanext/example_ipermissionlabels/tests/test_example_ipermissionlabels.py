@@ -13,8 +13,8 @@ from ckan.tests import factories
 from ckan import model
 
 
-@pytest.mark.ckan_config('ckan.plugins', "example_ipermissionlabels")
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.ckan_config(u'ckan.plugins', u"example_ipermissionlabels")
+@pytest.mark.usefixtures(u'clean_db', u'with_plugins', u'with_request_context')
 class TestExampleIPermissionLabels(object):
 
     def test_normal_dataset_permissions_are_normal(self):

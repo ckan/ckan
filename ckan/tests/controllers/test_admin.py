@@ -15,14 +15,11 @@ submit_and_follow = helpers.submit_and_follow
 webtest_submit = helpers.webtest_submit
 
 
-def _get_admin_config_page(app):
+@pytest.fixture
+def sysadmin_env():
     user = factories.Sysadmin()
-    url = url_for(controller="admin", action="config")
-    env = {"REMOTE_USER": six.ensure_str(user["name"]), "PATH_INFO": six.ensure_str(url)}
-    response = app.get(
-        url=url, extra_environ=env
-    )
-    return env, response
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    return env
 
 
 def _reset_config(app):
@@ -36,24 +33,16 @@ def _reset_config(app):
 class TestConfig(object):
     """View tests to go along with 'Customizing look and feel' docs."""
 
-    def test_form_renders(self, app):
-        """admin-config-form in the response"""
-
-        env, response = _get_admin_config_page(app)
-        assert "admin-config-form" in response.forms
-
-    def test_site_title(self, app):
+    def test_site_title(self, app, sysadmin_env):
         """Configure the site title"""
         # current site title
         index_response = app.get("/")
         assert "Welcome - CKAN" in index_response
 
+        url = url_for(u"admin.config")
         # change site title
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms["admin-config-form"]
-        config_form["ckan.site_title"] = "Test Site Title"
-        config_form.submit("save", status=302, extra_environ=env)
-
+        form = {"ckan.site_title": "Test Site Title", "save": ""}
+        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
         # new site title
         new_index_response = app.get("/")
         assert "Welcome - Test Site Title" in new_index_response
@@ -63,12 +52,13 @@ class TestConfig(object):
         reset_index_response = app.get("/")
         assert "Welcome - CKAN" in reset_index_response
 
-    def test_main_css_list(self, app):
+    def test_main_css_list(self, app, sysadmin_env):
         """Style list contains pre-configured styles"""
 
         STYLE_NAMES = ["Default", "Red", "Green", "Maroon", "Fuchsia"]
 
-        env, config_response = _get_admin_config_page(app)
+        url = url_for(u"admin.config")
+        config_response = app.get(url, environ_overrides=sysadmin_env)
         config_response_html = BeautifulSoup(config_response.body)
         style_select_options = config_response_html.select(
             "#field-ckan-main-css option"
@@ -76,49 +66,43 @@ class TestConfig(object):
         for option in style_select_options:
             assert option.string in STYLE_NAMES
 
-    def test_main_css(self, app):
+    def test_main_css(self, app, sysadmin_env):
         """Select a colour style"""
 
         # current style
         index_response = app.get("/")
         assert "main.css" in index_response or "main.min.css" in index_response
 
+        url = url_for(u"admin.config")
         # set new style css
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms["admin-config-form"]
-        config_form["ckan.main_css"] = "/base/css/red.css"
-        webtest_submit(config_form, "save", status=302, extra_environ=env)
+        form = {"ckan.main_css": "/base/css/red.css", "save": ""}
+        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
-        # new style
-        new_index_response = app.get("/")
         assert (
-            "red.css" in new_index_response
-            or "red.min.css" in new_index_response
+            "red.css" in resp
+            or "red.min.css" in resp
         )
-        assert not helpers.body_contains(new_index_response, "main.css")
-        assert not helpers.body_contains(new_index_response, "main.min.css")
+        assert not helpers.body_contains(resp, "main.min.css")
 
-    def test_tag_line(self, app):
+    def test_tag_line(self, app, sysadmin_env):
         """Add a tag line (only when no logo)"""
         # current tagline
         index_response = app.get("/")
         assert "Special Tagline" not in index_response
 
+        url = url_for(u"admin.config")
         # set new tagline css
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms["admin-config-form"]
-        config_form["ckan.site_description"] = "Special Tagline"
-        webtest_submit(config_form, "save", status=302, extra_environ=env)
+        form = {"ckan.site_description": "Special Tagline", "save": ""}
+        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline not visible yet
         new_index_response = app.get("/")
         assert "Special Tagline" not in new_index_response
 
+        url = url_for(u"admin.config")
         # remove logo
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms["admin-config-form"]
-        config_form["ckan.site_logo"] = ""
-        webtest_submit(config_form, "save", status=302, extra_environ=env)
+        form = {"ckan.site_logo": "", "save": ""}
+        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline
         new_index_response = app.get("/")
@@ -129,7 +113,7 @@ class TestConfig(object):
         reset_index_response = app.get("/")
         assert "Special Tagline" not in reset_index_response
 
-    def test_about(self, app):
+    def test_about(self, app, sysadmin_env):
         """Add some About tag text"""
 
         # current about
@@ -137,10 +121,9 @@ class TestConfig(object):
         assert "My special about text" not in about_response
 
         # set new about
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms["admin-config-form"]
-        config_form["ckan.site_about"] = "My special about text"
-        webtest_submit(config_form, "save", status=302, extra_environ=env)
+        url = url_for(u"admin.config")
+        form = {"ckan.site_about": "My special about text", "save": ""}
+        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new about
         new_about_response = app.get("/about")
@@ -151,7 +134,7 @@ class TestConfig(object):
         reset_about_response = app.get("/about")
         assert "My special about text" not in reset_about_response
 
-    def test_intro(self, app):
+    def test_intro(self, app, sysadmin_env):
         """Add some Intro tag text"""
 
         # current intro
@@ -159,10 +142,9 @@ class TestConfig(object):
         assert "My special intro text" not in intro_response
 
         # set new intro
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms["admin-config-form"]
-        config_form["ckan.site_intro_text"] = "My special intro text"
-        webtest_submit(config_form, "save", status=302, extra_environ=env)
+        url = url_for(u"admin.config")
+        form = {"ckan.site_intro_text": "My special intro text", "save": ""}
+        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new intro
         new_intro_response = app.get("/")
@@ -173,7 +155,7 @@ class TestConfig(object):
         reset_intro_response = app.get("/")
         assert "My special intro text" not in reset_intro_response
 
-    def test_custom_css(self, app):
+    def test_custom_css(self, app, sysadmin_env):
         """Add some custom css to the head element"""
         # current tagline
         intro_response_html = BeautifulSoup(app.get("/").body)
@@ -181,10 +163,9 @@ class TestConfig(object):
         assert len(style_tag) == 0
 
         # set new tagline css
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms["admin-config-form"]
-        config_form["ckan.site_custom_css"] = "body {background-color:red}"
-        webtest_submit(config_form, "save", status=302, extra_environ=env)
+        url = url_for(u"admin.config")
+        form = {"ckan.site_custom_css": "body {background-color:red}", "save": ""}
+        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline not visible yet
         new_intro_response_html = BeautifulSoup(app.get("/").body)
@@ -199,17 +180,16 @@ class TestConfig(object):
         assert len(style_tag) == 0
 
     @pytest.mark.ckan_config("debug", True)
-    def test_homepage_style(self, app):
+    def test_homepage_style(self, app, sysadmin_env):
         """Select a homepage style"""
         # current style
         index_response = app.get("/")
         assert "<!-- Snippet home/layout1.html start -->" in index_response
 
         # set new style css
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms["admin-config-form"]
-        config_form["ckan.homepage_style"] = "2"
-        webtest_submit(config_form, "save", status=302, extra_environ=env)
+        url = url_for(u"admin.config")
+        form = {"ckan.homepage_style": "2", "save": ""}
+        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new style
         new_index_response = app.get("/")
@@ -233,8 +213,9 @@ class TestTrashView(object):
 
     def test_trash_view_anon_user(self, app):
         """An anon user shouldn't be able to access trash view."""
-        trash_url = url_for(controller="admin", action="trash")
-        trash_response = app.get(trash_url, status=403)
+        trash_url = url_for("admin.trash")
+        trash_response = app.get(trash_url)
+        assert trash_response.status_code == 403
 
     def test_trash_view_normal_user(self, app):
         """A normal logged in user shouldn't be able to access trash view."""
@@ -291,10 +272,9 @@ class TestTrashView(object):
         # Two packages in the list to purge
         assert len(trash_pkg_list) == 2
 
-    def test_trash_purge_deleted_datasets(self, app):
+    def test_trash_purge_deleted_datasets(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
-        user = factories.Sysadmin()
         factories.Dataset(state="deleted")
         factories.Dataset(state="deleted")
         factories.Dataset()
@@ -303,16 +283,8 @@ class TestTrashView(object):
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        trash_url = url_for(controller="admin", action="trash")
-        trash_response = app.get(trash_url, extra_environ=env, status=200)
-
-        # submit the purge form
-        purge_form = trash_response.forms["form-purge-packages"]
-        purge_response = webtest_submit(
-            purge_form, "purge-packages", status=302, extra_environ=env
-        )
-        purge_response = purge_response.follow(extra_environ=env)
+        trash_url = url_for("admin.trash")
+        resp  = app.post(trash_url, data={"purge-packages": ""}, environ_overrides=sysadmin_env, status=200)
 
         # how many datasets after purge
         pkgs_after_purge = model.Session.query(model.Package).count()
@@ -325,13 +297,9 @@ class TestAdminConfigUpdate(object):
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
 
-        url = url_for(controller="admin", action="config")
-
-        response = app.get(url=url, extra_environ=env)
-        form = response.forms[1]
-        form["ckan.site_title"] = "My Updated Site Title"
-
-        webtest_submit(form, "save", status=302, extra_environ=env)
+        url = url_for(u"admin.config")
+        form = {"ckan.site_title": "My Updated Site Title", "save": ""}
+        return app.post(url, data=form, environ_overrides=env)
 
     def test_admin_config_update(self, app):
         """Changing a config option using the admin interface appropriately

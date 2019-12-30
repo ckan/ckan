@@ -135,13 +135,10 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
             assert not body_contains(response, 'this should not be rendered')
 
 
-class TestDatasetSearchIndex():
-
-    @classmethod
-    def setup_class(cls):
-        ckan.plugins.load('multilingual_dataset')
-        ckan.plugins.load('multilingual_group')
-
+@pytest.mark.ckan_config('multilingual_dataset', 'multilingual_group')
+@pytest.mark.usefixtures('with_plugins')
+class TestDatasetSearchIndex(object):
+    def test_translate_terms(self):
         data_dicts = [
             {'term': 'moo',
              'term_translation': 'french_moo',
@@ -179,13 +176,6 @@ class TestDatasetSearchIndex():
             ckan.logic.action.update.term_translation_update(
                 context, data_dict)
 
-    @classmethod
-    def teardown(cls):
-        ckan.plugins.unload('multilingual_dataset')
-        ckan.plugins.unload('multilingual_group')
-
-    def test_translate_terms(self):
-
         sample_index_data = {
             'download_url': u'moo',
             'notes': u'an interesting note',
@@ -200,7 +190,7 @@ class TestDatasetSearchIndex():
                           'text_de': '',
                           'text_pt_BR': '',
                           u'title_fr': u'french david',
-                          'text_fr': u'french note french boon french_moo french moon',
+                          'text_fr': u'french note french moon french boon french_moo',
                           'text_ja': '',
                           'text_sr': '',
                           'title': u'david',
