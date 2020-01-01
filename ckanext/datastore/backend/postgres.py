@@ -10,6 +10,7 @@ import sqlalchemy.engine.url as sa_url
 import datetime
 import hashlib
 import json
+from collections import OrderedDict
 
 import six
 from six.moves.urllib.parse import (
@@ -31,7 +32,7 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
 
 import ckan.model as model
 import ckan.plugins as plugins
-from ckan.common import config, OrderedDict
+from ckan.common import config
 
 from ckanext.datastore.backend import (
     DatastoreBackend,

@@ -2,7 +2,7 @@
 
 import logging
 
-from ckan.controllers.home import CACHE_PARAMETERS
+from ckan.views.home import CACHE_PARAMETERS
 from flask import Blueprint
 from flask.views import MethodView
 

@@ -345,7 +345,8 @@ content type, cookies, etc.
             relative_path,
             'extra_public_paths'
         )
-        add_public_path(path, h.url_for_static('/'))
+        url = h._local_url('/', locale='default')
+        add_public_path(path, url)
 
     @classmethod
     def _add_served_directory(cls, config, relative_path, config_var):
@@ -506,7 +507,9 @@ content type, cookies, etc.
                 return common.c.controller, common.c.action
             except AttributeError:
                 return (None, None)
-
+        # service routes, like `static`
+        if len(endpoint) == 1:
+            return endpoint + ('index', )
         return endpoint
 
     def __getattr__(self, name):

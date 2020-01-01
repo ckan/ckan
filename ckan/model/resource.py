@@ -3,7 +3,7 @@
 import datetime
 
 from six import text_type
-from sqlalchemy.util import OrderedDict
+from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config

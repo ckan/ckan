@@ -3,13 +3,10 @@
 import warnings
 import logging
 import re
-from datetime import datetime
 from time import sleep
 from os.path import splitext
 
-from six import text_type
 from sqlalchemy import MetaData, __version__ as sqav, Table
-from sqlalchemy.util import OrderedDict
 from sqlalchemy.exc import ProgrammingError
 
 from alembic.command import (
@@ -187,7 +184,8 @@ class Repository():
         self.session.remove()
         # sqlite database needs to be recreated each time as the
         # memory database is lost.
-        if self.metadata.bind.name == 'sqlite':
+
+        if self.metadata.bind.engine.url.drivername == 'sqlite':
             # this creates the tables, which isn't required inbetween tests
             # that have simply called rebuild_db.
             self.create_db()

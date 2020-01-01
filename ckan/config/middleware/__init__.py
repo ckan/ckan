@@ -5,12 +5,13 @@
 import logging
 
 import six
-from six.moves.urllib.parse import urlparse, quote
+from six.moves.urllib.parse import urlparse
 
 from ckan.lib.i18n import get_locales_from_config
 from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.common import config
+from ckan.views import handle_i18n
 
 
 log = logging.getLogger(__name__)
@@ -117,57 +118,13 @@ class AskAppDispatcherMiddleware(object):
 
         return answers
 
-    def handle_i18n(self, environ):
-        '''
-        Note: This function used to be the I18nMiddleware.
-
-        Strips the locale code from the requested url
-        (eg '/sk/about' -> '/about') and sets environ variables for the
-        language selected:
-
-            * CKAN_LANG is the language code eg en, fr
-            * CKAN_LANG_IS_DEFAULT is set to True or False
-            * CKAN_CURRENT_URL is set to the current application url
-        '''
-
-        # We only update once for a request so we can keep
-        # the language and original url which helps with 404 pages etc
-        if 'CKAN_LANG' not in environ:
-            path_parts = environ['PATH_INFO'].split('/')
-            if len(path_parts) > 1 and path_parts[1] in self.locale_list:
-                environ['CKAN_LANG'] = path_parts[1]
-                environ['CKAN_LANG_IS_DEFAULT'] = False
-                # rewrite url
-                if len(path_parts) > 2:
-                    environ['PATH_INFO'] = '/'.join([''] + path_parts[2:])
-                else:
-                    environ['PATH_INFO'] = '/'
-            else:
-                environ['CKAN_LANG'] = self.default_locale
-                environ['CKAN_LANG_IS_DEFAULT'] = True
-
-            # Current application url
-            path_info = environ['PATH_INFO']
-            # sort out weird encodings
-            path_info = \
-                '/'.join(quote(pce, '') for pce in path_info.split('/'))
-
-            qs = environ.get('QUERY_STRING')
-
-            if qs:
-                # sort out weird encodings
-                qs = quote(qs, '')
-                environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
-            else:
-                environ['CKAN_CURRENT_URL'] = path_info
-
     def __call__(self, environ, start_response):
         '''Determine which app to call by asking each app if it can handle the
         url and method defined on the eviron'''
 
         # Process locale part on the incoming request URL so it doesn't affect
         # the mapper queries
-        self.handle_i18n(environ)
+        handle_i18n(environ)
 
         app_name = 'pylons_app'  # currently defaulting to pylons app
         answers = self.ask_around(environ)

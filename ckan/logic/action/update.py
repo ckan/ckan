@@ -747,7 +747,7 @@ def task_status_update(context, data_dict):
 
     '''
     model = context['model']
-    session = model.meta.create_local_session()
+    session = model.Session
     context['session'] = session
 
     user = context['user']
