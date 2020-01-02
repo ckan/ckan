@@ -5,6 +5,7 @@
 import cgi
 import mock
 import pytest
+import six
 
 import ckan
 import ckan.logic as logic
@@ -14,7 +15,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
 
-from six import string_types, StringIO
+from six import string_types, StringIO, BytesIO
 
 from pyfakefs import fake_filesystem
 
@@ -43,7 +44,7 @@ def mock_open_if_open_fails(*args, **kwargs):
         return fake_open(*args, **kwargs)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUserInvite(object):
     @mock.patch("ckan.lib.mailer.send_invite")
     def test_invited_user_is_created_as_pending(self, _):
@@ -477,8 +478,8 @@ class TestResourceCreate:
         If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
         """
 
-        test_file = StringIO()
-        test_file.write(
+        test_file = BytesIO()
+        test_file.write(six.ensure_binary(
             """
         "info": {
             "title": "BC Data Catalogue API",
@@ -496,7 +497,7 @@ class TestResourceCreate:
             "version": "3.0.0"
         }
         """
-        )
+        ))
         test_resource = FakeFileStorage(test_file, "test.json")
 
         context = {}
@@ -530,15 +531,15 @@ class TestResourceCreate:
         If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
         """
 
-        test_file = StringIO()
-        test_file.write(
+        test_file = BytesIO()
+        test_file.write(six.ensure_binary(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        )
+        ))
         test_resource = FakeFileStorage(test_file, "")
 
         context = {}
@@ -566,15 +567,15 @@ class TestResourceCreate:
         The size of the resource determined by the uploaded file
         """
 
-        test_file = StringIO()
-        test_file.write(
+        test_file = BytesIO()
+        test_file.write(six.ensure_binary(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        )
+        ))
         test_resource = FakeFileStorage(test_file, "test.csv")
 
         context = {}
@@ -612,6 +613,7 @@ class TestResourceCreate:
         size = int(result.pop("size"))
         assert size == 500
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -636,7 +638,7 @@ class TestResourceCreate:
         assert "someotherkey" not in resource
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestMemberCreate(object):
     def test_group_member_creation(self):
         user = factories.User()
@@ -721,7 +723,7 @@ class TestMemberCreate(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDatasetCreate(object):
     def test_normal_user_cant_set_id(self):
         user = factories.User()
@@ -927,7 +929,7 @@ class TestDatasetCreate(object):
         assert isinstance(dataset, string_types)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupCreate(object):
     def test_create_group(self):
         user = factories.User()
@@ -986,7 +988,7 @@ class TestGroupCreate(object):
             assert created[k] == shown[k], k
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationCreate(object):
     def test_create_organization(self):
         user = factories.User()
@@ -1063,7 +1065,7 @@ class TestOrganizationCreate(object):
         assert org["type"] == custom_org_type
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUserCreate(object):
     def test_user_create_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1082,7 +1084,7 @@ class TestUserCreate(object):
 
     def test_user_create_password_hash_not_for_normal_users(self):
         normal_user = factories.User()
-        context = {"user": normal_user["name"]}
+        context = {"user": normal_user["name"], "ignore_auth": False}
 
         user = helpers.call_action(
             "user_create",
@@ -1105,7 +1107,7 @@ def _clear_activities():
     model.Session.flush()
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestFollowDataset(object):
     def test_no_activity(self, app):
 
@@ -1122,7 +1124,7 @@ class TestFollowDataset(object):
         # https://github.com/ckan/ckan/pull/317
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestFollowGroup(object):
     def test_no_activity(self, app):
         user = factories.User()
@@ -1138,7 +1140,7 @@ class TestFollowGroup(object):
         # https://github.com/ckan/ckan/pull/317
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestFollowOrganization(object):
     def test_no_activity(self, app):
         user = factories.User()
@@ -1154,7 +1156,7 @@ class TestFollowOrganization(object):
         # https://github.com/ckan/ckan/pull/317
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestFollowUser(object):
     def test_no_activity(self, app):
 
