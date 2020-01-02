@@ -386,7 +386,7 @@ class TestPackageEdit(object):
             data={
                 "notes": u"edited description",
                 "save": ""
-            }
+            }, follow_redirects=False
         )
         result = helpers.call_action("package_show", id=dataset["id"])
         assert u"edited description" == result["notes"]
@@ -403,7 +403,7 @@ class TestPackageEdit(object):
             data={
                 "notes": u"edited description",
                 "save": ""
-            }
+            }, follow_redirects=False
 
         )
         result = helpers.call_action("package_show", id=dataset["id"])

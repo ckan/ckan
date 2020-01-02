@@ -375,7 +375,7 @@ class TestEdit(TestPackageForm):
         res = app.post(self.offset, extra_environ=self.extra_environ_admin, data={
             "save": "",
             "title": "New Title"
-        })
+        }, follow_redirects=False)
 
         # check relationship still exists
         rels = model.Package.by_name(self.editpkg_name).get_relationships()
@@ -433,7 +433,7 @@ class TestNew:
         res = app.post(offset, extra_environ=env_user, data={
             "name": new_name,
             "save": ""
-        })
+        }, follow_redirects=False)
         assert plugin.calls["edit"] == 0, plugin.calls
         assert plugin.calls["create"] == 1, plugin.calls
 
@@ -446,7 +446,7 @@ class TestNew:
         res = app.post(offset, extra_environ=env_user, data={
             "name": new_name,
             "save": ""
-        })
+        }, follow_redirects=False)
         assert plugin.calls["after_update"] == 0, plugin.calls
         assert plugin.calls["after_create"] == 1, plugin.calls
 
