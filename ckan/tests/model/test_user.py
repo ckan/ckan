@@ -18,13 +18,13 @@ def _set_password(password):
 
     This is needed to create old password hashes in the tests
     """
-    if isinstance(password, text_type):
-        password_8bit = password.encode("ascii", "ignore")
-    else:
-        password_8bit = password
+    # if isinstance(password, text_type):
+        # password_8bit = password.encode("ascii", "ignore")
+    # else:
+        # password_8bit = password
 
     salt = hashlib.sha1(os.urandom(60))
-    hash = hashlib.sha1(password_8bit + salt.hexdigest())
+    hash = hashlib.sha1(six.ensure_binary(password + salt.hexdigest()))
     hashed_password = salt.hexdigest() + hash.hexdigest()
 
     if not isinstance(hashed_password, text_type):
@@ -32,7 +32,7 @@ def _set_password(password):
     return hashed_password
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", u"with_request_context")
 class TestUser:
     def test_upgrade_from_sha(self):
         user = factories.User()
