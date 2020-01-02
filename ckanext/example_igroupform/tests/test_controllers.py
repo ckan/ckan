@@ -9,9 +9,6 @@ import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
 
-webtest_submit = helpers.webtest_submit
-submit_and_follow = helpers.submit_and_follow
-
 custom_group_type = u"grup"
 group_type = u"group"
 

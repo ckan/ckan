@@ -9,9 +9,6 @@ import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
 
-webtest_submit = helpers.webtest_submit
-submit_and_follow = helpers.submit_and_follow
-
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupController(object):

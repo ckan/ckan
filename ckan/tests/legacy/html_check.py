@@ -5,7 +5,7 @@ from html.parser import HTMLParser
 import six
 from six import string_types, text_type
 
-import webtest
+from flask.testing import Response
 
 
 class HtmlCheckMethods(object):
@@ -72,7 +72,7 @@ class HtmlCheckMethods(object):
             html_str = html
         elif isinstance(html, str):
             html_str = six.ensure_text(html)
-        elif isinstance(html, webtest.app.TestResponse):
+        elif isinstance(html, Response):
             html_str = six.ensure_text(html.data)
         else:
             raise TypeError

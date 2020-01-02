@@ -7,6 +7,7 @@ from mock import patch
 from pyfakefs import fake_filesystem
 from ckan.lib.helpers import url_for
 
+from six.moves.urllib.parse import urlparse
 import ckan.lib.uploader
 import ckan.model as model
 import ckan.plugins as plugins
@@ -19,9 +20,6 @@ try:
     import __builtin__ as builtins
 except ImportError:
     import builtins
-
-webtest_submit = helpers.webtest_submit
-submit_and_follow = helpers.submit_and_follow
 
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
@@ -37,13 +35,6 @@ def mock_open_if_open_fails(*args, **kwargs):
         return fake_open(*args, **kwargs)
 
 
-def _get_package_new_page(app):
-    user = factories.User()
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
-    response = app.get(url=url_for("dataset.new"), extra_environ=env)
-    return env, response
-
-
 # Uses a fake filesystem for the uploads to be stored.
 # Set up a mock open which tries the real filesystem first then falls
 # back to the mock filesystem.
@@ -57,18 +48,23 @@ def _get_package_new_page(app):
 @patch.object(flask, "send_file", side_effect=[CONTENT])
 @patch.object(config["pylons.h"], "uploads_enabled", return_value=True)
 @patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-@pytest.mark.xfail(reason="TODO: implement form submission")
 def test_resource_download_iuploader_called(
         mock_uploads_enabled, send_file, app, monkeypatch
 ):
     monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
-    env, response = _get_package_new_page(app)
-    form = response.forms["dataset-edit"]
+    user = factories.User()
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    url = url_for("dataset.new")
+
     dataset_name = u"package_with_resource"
-    form["name"] = dataset_name
-    response = submit_and_follow(app, form, env, "save")
-    form = response.forms["resource-edit"]
-    form["upload"] = ("README.rst", CONTENT)
+    form = {
+        "name": dataset_name,
+        "save": "",
+        "_ckan_phase": 1
+    }
+    response = app.post(url, data=form, environ_overrides=env, follow_redirects=False)
+    location = response.headers['location']
+    location = urlparse(location)._replace(scheme='', netloc='').geturl()
 
     # Mock the plugin's ResourceUploader, returning the same value, but
     # tracking it's calls to make sure IUpload is being called.
@@ -78,7 +74,12 @@ def test_resource_download_iuploader_called(
         side_effect=plugin.ResourceUpload.get_path,
         autospec=True,
     ) as mock_get_path:
-        response = submit_and_follow(app, form, env, "save", "go-metadata")
+        response = app.post(location, environ_overrides=env, data={
+            "id": "",
+            "url": "http://example.com/resource",
+            "save": "go-metadata",
+            "upload": ("README.rst", CONTENT)
+        })
     assert mock_get_path.call_count == 1
     assert isinstance(mock_get_path.call_args[0][0], plugin.ResourceUpload)
     pkg = model.Package.by_name(dataset_name)

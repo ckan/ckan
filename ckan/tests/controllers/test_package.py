@@ -16,9 +16,6 @@ from ckan.logic.validators import object_id_validators, package_id_exists
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-webtest_submit = helpers.webtest_submit
-submit_and_follow = helpers.submit_and_follow
-
 
 @pytest.fixture
 def user_env():

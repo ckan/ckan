@@ -1,15 +1,9 @@
 # encoding: utf-8
 
 import pytest
-import six
-from ckan.lib.helpers import url_for
 
-import ckan.plugins as plugins
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-import ckan.model as model
-
-submit_and_follow = helpers.submit_and_follow
+import ckan.tests.helpers as helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform")

@@ -8,7 +8,6 @@ from mock import patch
 from ckan import model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
-from ckan.tests.helpers import webtest_submit, submit_and_follow
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")

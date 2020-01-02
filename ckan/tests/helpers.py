@@ -30,7 +30,6 @@ import smtplib
 
 from flask.testing import Client as FlaskClient
 from flask.wrappers import Response
-import webtest
 import nose.tools
 import pytest
 import mock
@@ -185,7 +184,7 @@ class CKANResponse(Response):
 
 
 class CKANTestApp(object):
-    """A wrapper around webtest.TestApp
+    """A wrapper around flask.testing.Client
 
     It adds some convenience methods for CKAN
     """
@@ -255,7 +254,7 @@ class CKANTestClient(FlaskClient):
 
 
 def _get_test_app():
-    """Return a webtest.TestApp for CKAN, with legacy templates disabled.
+    """Return a CKANTestApp.
 
     Don't use this function directly, use the ``app`` fixture::
 
@@ -300,7 +299,7 @@ class FunctionalTestBase(object):
 
     Allows configuration changes by overriding _apply_config_changes and
     resetting the CKAN config after your test class has run. It creates a
-    webtest.TestApp at self.app for your class to use to make HTTP requests
+    CKANTestApp at self.app for your class to use to make HTTP requests
     to the CKAN web UI or API. Also loads plugins defined by
     _load_plugins in the class definition.
 
@@ -399,113 +398,6 @@ class FunctionalRQTestBase(RQTestBase):
 
     def setup(self):
         RQTestBase.setup(self)
-
-
-def submit_and_follow(
-    app, form, extra_environ=None, name=None, value=None, **args
-):
-    """
-    Call webtest_submit with name/value passed expecting a redirect
-    and return the response from following that redirect.
-    """
-    response = webtest_submit(
-        form,
-        name,
-        value=value,
-        status=302,
-        extra_environ=extra_environ,
-        **args
-    )
-    return app.get(
-        url=response.headers["Location"], extra_environ=extra_environ
-    )
-
-
-# FIXME: remove webtest_* functions below when we upgrade webtest
-
-
-def webtest_submit(form, name=None, index=None, value=None, **args):
-    """
-    backported version of webtest.Form.submit that actually works
-    for submitting with different submit buttons.
-
-    We're stuck on an old version of webtest because we're stuck
-    on an old version of webob because we're stuck on an old version
-    of Pylons. This prolongs our suffering, but on the bright side
-    it lets us have functional tests that work.
-    """
-    fields = webtest_submit_fields(form, name, index=index, submit_value=value)
-    if form.method.upper() != "GET":
-        args.setdefault("content_type", form.enctype)
-    return form.response.goto(
-        form.action, method=form.method, params=fields, **args
-    )
-
-
-def webtest_submit_fields(form, name=None, index=None, submit_value=None):
-    """
-    backported version of webtest.Form.submit_fields that actually works
-    for submitting with different submit buttons.
-    """
-    try:
-        from webtest.forms import File
-    except ImportError:
-        from webtest.app import File
-
-    submit = []
-    # Use another name here so we can keep function param the same for BWC.
-    submit_name = name
-    if index is not None and submit_value is not None:
-        raise ValueError("Can't specify both submit_value and index.")
-
-    # If no particular button was selected, use the first one
-    if index is None and submit_value is None:
-        index = 0
-
-    # This counts all fields with the submit name not just submit fields.
-    current_index = 0
-    for name, field in form.field_order:
-        if name is None:  # pragma: no cover
-            continue
-        if submit_name is not None and name == submit_name:
-            if index is not None and current_index == index:
-                submit.append((name, field.value_if_submitted()))
-            if (
-                submit_value is not None
-                and field.value_if_submitted() == submit_value
-            ):
-                submit.append((name, field.value_if_submitted()))
-            current_index += 1
-        else:
-            value = field.value
-            if value is None:
-                continue
-            if isinstance(field, File):
-                submit.append((name, field))
-                continue
-            if isinstance(value, list):
-                for item in value:
-                    submit.append((name, item))
-            else:
-                submit.append((name, value))
-    return submit
-
-
-def webtest_maybe_follow(response, **kw):
-    """
-    Follow all redirects. If this response is not a redirect, do nothing.
-    Returns another response object.
-
-    (backported from WebTest 2.0.1)
-    """
-    remaining_redirects = 100  # infinite loops protection
-
-    while 300 <= response.status_int < 400 and remaining_redirects:
-        response = response.follow(**kw)
-        remaining_redirects -= 1
-
-    assert remaining_redirects > 0, "redirects chain looks infinite"
-    return response
 
 
 def change_config(key, value):

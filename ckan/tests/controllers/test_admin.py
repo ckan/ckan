@@ -11,9 +11,6 @@ from ckan.common import config
 from ckan.lib.helpers import url_for
 from ckan.model.system_info import get_system_info
 
-submit_and_follow = helpers.submit_and_follow
-webtest_submit = helpers.webtest_submit
-
 
 @pytest.fixture
 def sysadmin_env():

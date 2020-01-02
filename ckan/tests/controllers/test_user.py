@@ -11,10 +11,6 @@ from ckan.lib.helpers import url_for
 from ckan.lib.mailer import create_reset_key, MailerException
 
 
-webtest_submit = helpers.webtest_submit
-submit_and_follow = helpers.submit_and_follow
-
-
 def _clear_activities():
     model.Session.query(model.ActivityDetail).delete()
     model.Session.query(model.Activity).delete()
