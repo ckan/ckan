@@ -17,10 +17,9 @@ class TestSolrConfig(object):
     """
 
     def test_solr_url_exists(self):
-        if not is_search_supported():
-            from nose import SkipTest
 
-            raise SkipTest("Search not supported")
+        if not is_search_supported():
+            pytest.skip("Search not supported")
 
         conn = search.make_connection()
         try:

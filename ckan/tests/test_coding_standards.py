@@ -247,7 +247,6 @@ _STRING_LITERALS_WHITELIST = [
     u"bin/running_stats.py",
     u"ckan/__init__.py",
     u"ckan/authz.py",
-    u"ckan/ckan_nose_plugin.py",
     u"ckan/config/environment.py",
     u"ckan/config/install.py",
     u"ckan/config/middleware/__init__.py",
@@ -691,7 +690,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckanext/webpageview/plugin.py",
     u"ckanext/webpageview/tests/test_view.py",
     u"doc/conf.py",
-    u"profile_tests.py",
     u"setup.py",
 ]
 

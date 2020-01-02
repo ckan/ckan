@@ -12,8 +12,9 @@ setup-app) with the project's test.ini configuration file.
 """
 import os
 from unittest import TestCase
-from nose.tools import assert_equal, assert_not_equal, make_decorator
-from nose.plugins.skip import SkipTest
+
+from functools import wraps
+import pytest
 
 from ckan.common import config
 from six import text_type
@@ -23,7 +24,6 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 import ckan.lib.helpers as h
 import ckan.model as model
-from ckan import ckan_nose_plugin
 from ckan.common import json
 import ckan.tests.helpers as helpers
 
@@ -39,7 +39,6 @@ __all__ = [
     "CheckMethods",
     "CommonFixtureMethods",
     "TestCase",
-    "SkipTest",
     "CkanServerCase",
     "call_action_api",
     "BaseCase",
@@ -50,12 +49,6 @@ __all__ = [
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
-
-# Check config is correct for sqlite
-if model.engine_is_sqlite():
-    assert (
-        ckan_nose_plugin.CkanNose.settings.is_ckan
-    ), 'You forgot the "--ckan" nosetest setting - see doc/test.rst'
 
 
 class BaseCase(object):
@@ -283,11 +276,11 @@ class CkanServerCase(BaseCase):
 class TestController(
     CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase
 ):
-    def assert_equal(self, *args, **kwds):
-        assert_equal(*args, **kwds)
+    def assert_equal(self, left, right):
+        assert left == right
 
-    def assert_not_equal(self, *args, **kwds):
-        assert_not_equal(*args, **kwds)
+    def assert_not_equal(self, left, right):
+        assert left != right
 
     def clear_language_setting(self):
         self.app.cookies = {}
@@ -307,7 +300,7 @@ class TestSearchIndexer:
         from ckan import plugins
 
         if not is_search_supported():
-            raise SkipTest("Search not supported")
+            pytest.skip("Search not supported")
         plugins.load("synchronous_search")
 
     @classmethod
@@ -325,7 +318,7 @@ class TestSearchIndexer:
 def setup_test_search_index():
     # from ckan import plugins
     if not is_search_supported():
-        raise SkipTest("Search not supported")
+        pytest.skip("Search not supported")
     search.clear_all()
     # plugins.load('synchronous_search')
 
@@ -339,29 +332,10 @@ def are_foreign_keys_supported():
     return not model.engine_is_sqlite()
 
 
-def is_regex_supported():
-    is_supported_db = not model.engine_is_sqlite()
-    return is_supported_db
-
-
-def is_migration_supported():
-    is_supported_db = not model.engine_is_sqlite()
-    return is_supported_db
-
-
 def is_datastore_supported():
     # we assume that the datastore uses the same db engine that ckan uses
     is_supported_db = model.engine_is_pg()
     return is_supported_db
-
-
-def regex_related(test):
-    def skip_test(*args):
-        raise SkipTest("Regex not supported")
-
-    if not is_regex_supported():
-        return make_decorator(test)(skip_test)
-    return test
 
 
 def clear_flash(res=None):

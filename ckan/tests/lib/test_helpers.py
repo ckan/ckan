@@ -2,6 +2,7 @@
 
 import datetime
 import six
+import os
 
 import pytz
 import tzlocal
@@ -65,10 +66,10 @@ class TestHelpersUrlForStatic(BaseUrlFor):
         generated_url = h.url_for_static("/my-asset/file.txt", qualified=True)
         assert generated_url == url
 
-    @helpers.set_extra_environ("SCRIPT_NAME", "/my/custom/path")
-    @helpers.change_config("ckan.site_url", "http://example.com")
-    @helpers.change_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
-    def test_url_for_static_with_root_path_and_script_name_env(self):
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_static_with_root_path_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
         url = "http://example.com/my/custom/path/foo/my-asset/file.txt"
         generated_url = h.url_for_static("/my-asset/file.txt", qualified=True)
         assert generated_url == url
@@ -108,13 +109,13 @@ class TestHelpersUrlFor(BaseUrlFor):
         generated_url = h.url_for("dataset.read", id="my_dataset", **extra)
         assert generated_url == exp
 
-    @helpers.change_config("ckan.root_path", "/foo/{{LANG}}")
+    @pytest.mark.ckan_config("ckan.root_path", "/foo/{{LANG}}")
     def test_url_for_with_locale_object(self):
         url = "/foo/de/dataset/my_dataset"
         generated_url = h.url_for("/dataset/my_dataset", locale=Locale("de"))
         assert generated_url == url
 
-    @helpers.change_config("ckan.root_path", "/my/prefix")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/prefix")
     def test_url_for_qualified_with_root_path(self):
         url = "http://example.com/my/prefix/dataset/my_dataset"
         generated_url = h.url_for(
@@ -122,7 +123,7 @@ class TestHelpersUrlFor(BaseUrlFor):
         )
         assert generated_url == url
 
-    @helpers.change_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
     def test_url_for_qualified_with_root_path_and_locale(self):
         url = "http://example.com/my/custom/path/de/foo/dataset/my_dataset"
         generated_url = h.url_for(
@@ -130,20 +131,22 @@ class TestHelpersUrlFor(BaseUrlFor):
         )
         assert generated_url == url
 
-    @helpers.set_extra_environ("SCRIPT_NAME", "/my/custom/path")
-    @helpers.change_config("ckan.site_url", "http://example.com")
-    @helpers.change_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
-    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self):
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
         url = "http://example.com/my/custom/path/de/foo/dataset/my_dataset"
         generated_url = h.url_for(
             "dataset.read", id="my_dataset", qualified=True, locale="de"
         )
         assert generated_url == url
 
-    @helpers.set_extra_environ("SCRIPT_NAME", "/my/custom/path")
-    @helpers.change_config("ckan.site_url", "http://example.com")
-    @helpers.change_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
-    def test_url_for_with_root_path_locale_and_script_name_env(self):
+
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_with_root_path_locale_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
+
         url = "/my/custom/path/de/foo/dataset/my_dataset"
         generated_url = h.url_for("dataset.read", id="my_dataset", locale="de")
         assert generated_url == url

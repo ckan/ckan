@@ -30,7 +30,6 @@ import smtplib
 
 from flask.testing import Client as FlaskClient
 from flask.wrappers import Response
-import nose.tools
 import pytest
 import mock
 import rq
@@ -124,7 +123,6 @@ def call_action(action_name, context=None, **kwargs):
         context = {}
     context.setdefault("user", "127.0.0.1")
     context.setdefault("ignore_auth", True)
-
     return logic.get_action(action_name)(context=context, data_dict=kwargs)
 
 
@@ -310,7 +308,7 @@ class FunctionalTestBase(object):
     """
 
     @classmethod
-    def _get_test_app(cls):  # leading _ because nose is terrible
+    def _get_test_app(cls):
         # FIXME: remove this method and switch to using helpers.get_test_app
         # in each test once the old functional tests are fixed or removed
         if not hasattr(cls, "_test_app"):
@@ -456,152 +454,6 @@ def changed_config(key, value):
     finally:
         config.clear()
         config.update(_original_config)
-
-
-def mock_auth(auth_function_path):
-    """
-    Decorator to easily mock a CKAN auth method in the context of a test
-     function
-
-    It adds a mock object for the provided auth_function_path as a parameter to
-     the test function.
-
-    Essentially it makes sure that `ckan.authz.clear_auth_functions_cache` is
-     called before and after to make sure that the auth functions pick up
-     the newly changed values.
-
-    Usage::
-
-        @helpers.mock_auth('ckan.logic.auth.create.package_create')
-        def test_mock_package_create(self, mock_package_create):
-            from ckan import logic
-            mock_package_create.return_value = {'success': True}
-
-            # package_create is mocked
-            eq_(logic.check_access('package_create', {}), True)
-
-            assert mock_package_create.called
-
-    :param action_name: the full path to the auth function to be mocked,
-        e.g. ``ckan.logic.auth.create.package_create``
-    :type action_name: string
-
-    """
-    from ckan.authz import clear_auth_functions_cache
-
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-
-            try:
-                with mock.patch(auth_function_path) as mocked_auth:
-                    clear_auth_functions_cache()
-                    new_args = args + (mocked_auth,)
-                    return_value = func(*new_args, **kwargs)
-            finally:
-                clear_auth_functions_cache()
-            return return_value
-
-        return nose.tools.make_decorator(func)(wrapper)
-
-    return decorator
-
-
-def mock_action(action_name):
-    """
-    Decorator to easily mock a CKAN action in the context of a test function
-
-    It adds a mock object for the provided action as a parameter to the test
-    function. The mock is discarded at the end of the function, even if there
-    is an exception raised.
-
-    Note that this mocks the action both when it's called directly via
-    ``ckan.logic.get_action`` and via ``ckan.plugins.toolkit.get_action``.
-
-    Usage::
-
-        @mock_action('user_list')
-        def test_mock_user_list(self, mock_user_list):
-
-            mock_user_list.return_value = 'hi'
-
-            # user_list is mocked
-            eq_(helpers.call_action('user_list', {}), 'hi')
-
-            assert mock_user_list.called
-
-    :param action_name: the name of the action to be mocked,
-        e.g. ``package_create``
-    :type action_name: string
-
-    """
-
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            mock_action = mock.MagicMock()
-
-            from ckan.logic import get_action as original_get_action
-
-            def side_effect(called_action_name):
-                if called_action_name == action_name:
-                    return mock_action
-                else:
-                    return original_get_action(called_action_name)
-
-            try:
-                with mock.patch(
-                    "ckan.logic.get_action"
-                ) as mock_get_action, mock.patch(
-                    "ckan.plugins.toolkit.get_action"
-                ) as mock_get_action_toolkit:
-                    mock_get_action.side_effect = side_effect
-                    mock_get_action_toolkit.side_effect = side_effect
-
-                    new_args = args + (mock_action,)
-                    return_value = func(*new_args, **kwargs)
-            finally:
-                # Make sure to stop the mock, even with an exception
-                mock_action.stop()
-            return return_value
-
-        return nose.tools.make_decorator(func)(wrapper)
-
-    return decorator
-
-
-def set_extra_environ(key, value):
-    """Decorator to temporarily changes a single request environemnt value
-
-    Create a new test app and use the a side effect of making a request
-    to set an extra_environ value. Reset the value to '' after the test.
-
-    Usage::
-
-        @helpers.extra_environ('SCRIPT_NAME', '/myscript')
-        def test_ckan_thing_affected_by_script_name(self):
-            # ...
-
-    :param key: the extra_environ key to be changed, e.g. ``'SCRIPT_NAME'``
-    :type key: string
-
-    :param value: the new extra_environ key's value, e.g. ``'/myscript'``
-    :type value: string
-    """
-
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            app = _get_test_app()
-            app.get("/", extra_environ={key: value})
-
-            try:
-                return_value = func(*args, **kwargs)
-            finally:
-                app.get("/", extra_environ={key: ""})
-
-            return return_value
-
-        return nose.tools.make_decorator(func)(wrapper)
-
-    return decorator
 
 
 @contextlib.contextmanager

@@ -301,7 +301,6 @@ class TestPep8(object):
     PEP8_BLACKLIST_FILES = [
         "bin/running_stats.py",
         "ckan/__init__.py",
-        "ckan/ckan_nose_plugin.py",
         "ckan/config/middleware.py",
         "ckan/config/routing.py",
         "ckan/config/sp_config.py",
@@ -432,7 +431,6 @@ class TestPep8(object):
         "ckanext/tests/plugin.py",
         "doc/conf.py",
         "fabfile.py",
-        "profile_tests.py",
         "setup.py",
         "ckan/tests/legacy/models/test_resource.py",
         "contrib/cookiecutter/ckan_extension/"

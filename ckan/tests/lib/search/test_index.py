@@ -3,7 +3,6 @@
 import datetime
 import hashlib
 import json
-import nose
 import pytest
 import six
 from ckan.common import config

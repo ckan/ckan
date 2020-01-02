@@ -17,7 +17,6 @@ import ckan
 import pytest
 from ckan.tests.legacy import (
     are_foreign_keys_supported,
-    SkipTest,
     CreateTestData,
     call_action_api,
 )
@@ -1950,7 +1949,7 @@ class TestFollowerCascade(object):
 
     def test_02_on_delete_cascade_db(self):
         if not are_foreign_keys_supported():
-            raise SkipTest("Search not supported")
+            pytest.skip("Search not supported")
 
         # After the previous test above there should be no rows with joeadmin's
         # id in the UserFollowingUser or UserFollowingDataset tables.
