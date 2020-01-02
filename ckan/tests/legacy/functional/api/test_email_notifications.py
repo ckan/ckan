@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import time
+import pytest
 
 import ckan.model as model
 import ckan.tests.legacy as tests
@@ -419,11 +420,10 @@ class TestEmailNotificationsUserPreference(ControllerTestCase):
         assert len(mail_server.get_smtp_messages()) == 0
 
 
-class TestEmailNotificationsIniSetting(ControllerTestCase):
+class TestEmailNotificationsIniSetting(object):
     """Tests for the ckan.activity_streams_email_notifications config setting.
 
     """
-
     @classmethod
     def setup_class(cls):
 
@@ -441,7 +441,7 @@ class TestEmailNotificationsIniSetting(ControllerTestCase):
             "apikey": testsysadmin.apikey,
         }
 
-    @helpers.change_config("ckan.activity_streams_email_notifications", False)
+    @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", False)
     def test_00_send_email_notifications_feature_disabled(self, mail_server):
         """Send_email_notifications API should error when feature disabled."""
 
@@ -506,7 +506,7 @@ class TestEmailNotificationsIniSetting(ControllerTestCase):
             status=409,
         )
 
-    @helpers.change_config("ckan.activity_streams_email_notifications", False)
+    @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", False)
     def test_01_no_emails_sent_if_turned_off(self, mail_server):
         """No emails should be sent if the feature is disabled site-wide."""
 
@@ -534,7 +534,7 @@ class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
 
     # Don't send email notifications for activities older than 1
     # microsecond
-    @helpers.change_config("ckan.email_notifications_since", ".000001")
+    @pytest.mark.ckan_config("ckan.email_notifications_since", ".000001")
     def test_00_email_notifications_since(self, mail_server):
         """No emails should be sent for activities older than
         email_notifications_since.

@@ -226,7 +226,7 @@ class MultilingualDataset(SingletonPlugin):
 
         ## translate rest
         all_terms = []
-        for key, value in six.iteritems(search_data):
+        for key, value in sorted(six.iteritems(search_data)):
             if key in KEYS_TO_IGNORE or key.startswith('title'):
                 continue
             if not isinstance(value, list):

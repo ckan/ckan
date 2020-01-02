@@ -19,9 +19,9 @@ def _set_password(password):
     This is needed to create old password hashes in the tests
     """
     # if isinstance(password, text_type):
-        # password_8bit = password.encode("ascii", "ignore")
+    #     password_8bit = password.encode("ascii", "ignore")
     # else:
-        # password_8bit = password
+    #     password_8bit = password
 
     salt = hashlib.sha1(os.urandom(60))
     hash = hashlib.sha1(six.ensure_binary(password + salt.hexdigest()))
