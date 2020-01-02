@@ -2,6 +2,8 @@
 
 import datetime
 import pytest
+import six
+
 from ckan.common import config
 
 import ckan.lib.helpers as h
@@ -63,7 +65,7 @@ class TestHelpers(object):
         # Hash the email address
         import hashlib
 
-        email_hash = hashlib.md5(email).hexdigest()
+        email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
         res = h.linked_gravatar(email_hash, 200, default="mm")
         for e in expected:
             assert e in res, (e, res)
@@ -81,7 +83,7 @@ class TestHelpers(object):
         # Hash the email address
         import hashlib
 
-        email_hash = hashlib.md5(email).hexdigest()
+        email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
         res = h.linked_gravatar(email_hash, 200)
         for e in expected:
             assert e in res, (e, res)
@@ -98,7 +100,7 @@ class TestHelpers(object):
         # Hash the email address
         import hashlib
 
-        email_hash = hashlib.md5(email).hexdigest()
+        email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
         res = h.linked_gravatar(email_hash, 200, default=default)
         for e in expected:
             assert e in res, (e, res)
@@ -112,6 +114,7 @@ class TestHelpers(object):
         dt = h.parse_rfc_2822_date("Tue, 15 Nov 1994 12:45:26")
         assert dt.isoformat() == "1994-11-15T12:45:26+00:00"
 
+    @pytest.mark.skipif(six.PY3, reason="`email.utils` always assumes UTC")
     def test_parse_rfc_2822_no_timezone_specified_assuming_local(self):
         """
         Parse "Tue, 15 Nov 1994 12:45:26" successfully.
@@ -150,7 +153,7 @@ class TestHelpers(object):
 
         assert output_str == expected_str
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("clean_db", "with_request_context")
     def test_get_pkg_dict_extra(self):
 
         from ckan.lib.create_test_data import CreateTestData

@@ -175,7 +175,7 @@ def body_contains(res, content):
 class CKANResponse(Response):
     @property
     def body(self):
-        return self.data
+        return six.ensure_str(self.data)
 
     def __contains__(self, segment):
         return body_contains(self, segment)
@@ -610,7 +610,7 @@ class FakeSMTP(smtplib.SMTP):
         return self._msgs
 
     def clear_smtp_messages(self):
-        self.msgs = []
+        self._msgs = []
 
     def sendmail(
         self, from_addr, to_addrs, msg, mail_options=(), rcpt_options=()

@@ -72,7 +72,7 @@ def create_user(apikeys, call_api):
     return create
 
 
-@pytest.mark.usefixtures("auth_config")
+@pytest.mark.usefixtures("clean_db", "auth_config", "with_request_context")
 def test_only_sysadmins_can_delete_users():
     user = factories.User()
     sysadmin = factories.Sysadmin()
@@ -85,7 +85,7 @@ def test_only_sysadmins_can_delete_users():
     assert call_auth("user_delete", context=context, id=user["id"])
 
 
-@pytest.mark.usefixtures("auth_config")
+@pytest.mark.usefixtures("clean_db", "auth_config", "with_request_context")
 def test_auth_deleted_users_are_always_unauthorized():
     always_success = lambda x, y: {"success": True}
     authz._AuthFunctions._build()

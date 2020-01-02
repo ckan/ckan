@@ -158,10 +158,8 @@ def _identify_user_default():
     # with an userid_checker, but that would mean another db access.
     # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
     # .plugins.sql )
-    g.user = request.environ.get(u'REMOTE_USER', u'')
+    g.user = six.ensure_text(request.environ.get(u'REMOTE_USER', u''))
     if g.user:
-        if six.PY2:
-            g.user = six.ensure_text(g.user)
         g.userobj = model.User.by_name(g.user)
 
         if g.userobj is None or not g.userobj.is_active():

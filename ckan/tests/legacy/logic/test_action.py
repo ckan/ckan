@@ -1133,7 +1133,7 @@ class TestSearchPluginInterface(object):
 
 class TestBulkActions(object):
     @pytest.fixture(autouse=True)
-    def initial_data(self, clean_db, clean_index, app):
+    def initial_data(self, clean_db, clean_index, app, with_request_context):
         factories.Sysadmin(apikey=u"sysadmin")
 
         data_dict = "%s=1" % json.dumps({"name": "org"})

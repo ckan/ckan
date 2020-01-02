@@ -30,6 +30,7 @@ from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
+from ckan.config.middleware.common_middleware import TrackingMiddleware
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins.toolkit as toolkit
@@ -299,6 +300,9 @@ def make_flask_stack(conf, **app_conf):
 
     if six.PY3:
         app = I18nMiddleware(app)
+
+        if asbool(config.get('ckan.tracking_enabled', 'false')):
+            app = TrackingMiddleware(app, config)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app

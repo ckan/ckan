@@ -14,7 +14,6 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
-from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
 
 
 class MailerBase(object):
