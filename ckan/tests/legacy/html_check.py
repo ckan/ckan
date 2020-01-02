@@ -5,7 +5,7 @@ from html.parser import HTMLParser
 import six
 from six import string_types, text_type
 
-from flask.testing import Response
+from flask.wrappers import Response
 
 
 class HtmlCheckMethods(object):

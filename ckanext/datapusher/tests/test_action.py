@@ -157,6 +157,7 @@ def test_resubmits_if_url_changes_in_the_meantime(monkeypatch):
     # datapusher_submit was called again
     func.assert_called()
 
+
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 def test_resubmits_if_upload_changes_in_the_meantime(monkeypatch):

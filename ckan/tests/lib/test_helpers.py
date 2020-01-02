@@ -141,7 +141,6 @@ class TestHelpersUrlFor(BaseUrlFor):
         )
         assert generated_url == url
 
-
     @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
     @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
     def test_url_for_with_root_path_locale_and_script_name_env(self, monkeypatch):
