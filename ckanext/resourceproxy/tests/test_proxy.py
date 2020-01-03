@@ -67,18 +67,18 @@ class TestProxyPrettyfied(object):
         self.mock_out_urls(
             self.url,
             content_type='application/json',
-            body=JSON_STRING)
+            body=six.ensure_binary(JSON_STRING))
 
         url = self.data_dict['resource']['url']
         result = requests.get(url)
         assert result.status_code == 200, result.status_code
-        assert "yes, I'm proxied" in result.content, result.content
+        assert "yes, I'm proxied" in six.ensure_str(result.content)
 
     @responses.activate
     def test_resource_proxy_on_404(self, app):
         self.mock_out_urls(
             self.url,
-            body="I'm not here",
+            body=six.ensure_binary("I'm not here"),
             content_type='application/json',
             status=404)
 
@@ -91,7 +91,7 @@ class TestProxyPrettyfied(object):
         # we expect a 409 because the resourceproxy got an error (404)
         # from the server
         assert result.status_code == 409
-        assert '404' in result.data
+        assert '404' in result.body
 
     @responses.activate
     def test_large_file(self, app):
