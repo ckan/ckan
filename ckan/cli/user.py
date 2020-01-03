@@ -4,6 +4,7 @@ import logging
 import sys
 from pprint import pprint
 
+import six
 import click
 from six import text_type
 
@@ -102,10 +103,9 @@ def remove_user(ctx, username):
         error_shout(u'Please specify the username to be removed')
         return
 
-    flask_app = ctx.obj.app.apps['flask_app']._wsgi_app
     site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     context = {u'user': site_user[u'name']}
-    with flask_app.test_request_context():
+    with ctx.meta['flask_app'].test_request_context():
         plugin.toolkit.get_action(u'user_delete')(context, {u'id': username})
         click.secho(u'Deleted user: %s' % username, fg=u'green', bold=True)
 

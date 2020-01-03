@@ -587,25 +587,13 @@ class TestDatastoreSearchLegacyTests(object):
                 "package_id": package["id"],
             },
         )
-
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
-        res = app.post(
-            "/api/action/datastore_create",
-            json={"resource_id": resource["id"], "force": True},
-            extra_environ=auth,
-        )
-        res_dict = json.loads(res.data)
-        assert res_dict["success"] is True
-
+        helpers.call_action("datastore_create", resource_id=resource["id"], force=True)
         data = {"resource_id": resource["id"]}
         auth = {"Authorization": str(self.normal_user.apikey)}
 
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
-        # TODO: on Py3 action called with sysadmin's api-key
-        if res.status_code != 403:
-            pytest.xfail("TODO: Fix this test")
         res_dict = json.loads(res.data)
         assert res_dict["success"] is False
 

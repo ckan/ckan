@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from sqlalchemy import inspect
 from ckan.common import asbool
 import six
 from six import text_type
@@ -116,6 +117,7 @@ def identify_user():
 
     # Authentication plugins get a chance to run here break as soon as a user
     # is identified.
+
     authenticators = p.PluginImplementations(p.IAuthenticator)
     if authenticators:
         for item in authenticators:
@@ -133,8 +135,9 @@ def identify_user():
     # If we have a user but not the userobj let's get the userobj. This means
     # that IAuthenticator extensions do not need to access the user model
     # directly.
-    if g.user and not getattr(g, u'userobj', None):
-        g.userobj = model.User.by_name(g.user)
+    if g.user:
+        if not getattr(g, u'userobj', None) or inspect(g.userobj).expired:
+            g.userobj = model.User.by_name(g.user)
 
     # general settings
     if g.user:

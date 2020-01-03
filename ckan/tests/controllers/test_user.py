@@ -397,7 +397,6 @@ class TestUser(object):
             in response
         )
 
-    @pytest.mark.xfail(reason="DetachedInstance error.")
     def test_user_follow_not_exist(self, app):
         """Pass an id for a user that doesn't exist"""
 
@@ -406,7 +405,8 @@ class TestUser(object):
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(controller="user", action="follow", id="not-here")
         response = app.post(follow_url, extra_environ=env)
-        assert "user/login" in response.headers["location"]
+
+        assert "You're already logged in" in response.body
 
     def test_user_unfollow(self, app):
 

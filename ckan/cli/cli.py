@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import logging
+import six
 from collections import defaultdict
 
 import ckan.plugins as p
@@ -73,6 +74,11 @@ class CkanCommand(object):
 @click.pass_context
 def ckan(ctx, config, *args, **kwargs):
     ctx.obj = CkanCommand(config)
+    if six.PY2:
+        ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
+    else:
+        ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
+
     for plugin in p.PluginImplementations(p.IClick):
         for cmd in plugin.get_commands():
             cmd._ckanext = plugin.name
