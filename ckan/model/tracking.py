@@ -31,8 +31,8 @@ class TrackingSummary(domain_object.DomainObject):
     def get_for_package(cls, package_id):
         obj = meta.Session.query(cls).autoflush(False)
         obj = obj.filter_by(package_id=package_id)
-        data = obj.order_by(text('tracking_date desc')).first()
-        if data:
+        if meta.Session.query(obj.exists()).scalar():
+            data = obj.order_by(text('tracking_date desc')).first()
             return {'total' : data.running_total,
                     'recent': data.recent_views}
 
