@@ -50,6 +50,9 @@ DEFAULT_OPTIONS = {
     'all_fields': False,
     'search_tags': True,
     'callback': None,  # simply passed through
+
+    "df": "text",
+    "q.op": "AND",
 }
 
 _INDICES = {

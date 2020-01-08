@@ -44,6 +44,7 @@ __all__ = [
     u'IForkObserver',
     u'IApiToken',
     u'IClick',
+    u'ISearchSchema',
     u'ISignal',
 ]
 
@@ -2165,3 +2166,31 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class ISearchSchema(Interface):
+    u'''
+    Extend managed search schema
+    '''
+    def update_search_schema_definitions(self, definitions):
+        u'''Modify a dict with field definitions for search schema.
+
+        Structure:
+
+        key - kebab-cased type of definition(e.g., `copy-field`,
+        `field`, `dynamic-field`, `field-type`)
+
+        value - list of engine-specific definitions (Solr is the only
+        supported engine at the moment)
+
+        Example::
+
+            p.implements(p.ISearchSchema)
+            # IClick
+            def update_search_schema_definitions(self, definitions):
+                definitions["field"].append(
+                    {"name":"fetched_at", "type":"pdate", "stored":true}
+                )
+
+        '''
+        pass
