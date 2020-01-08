@@ -8,10 +8,10 @@ import json
 import datetime
 import socket
 
-from ckan.common import config
+from itertools import chain
+from ckan.common import config, request, asbool
 import sqlalchemy
 from sqlalchemy import text
-from ckan.common import asbool
 from six import string_types, text_type
 
 import ckan.lib.dictization
@@ -28,6 +28,8 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
+
+from ckan.lib.authenticator import UsernamePasswordAuthenticator
 
 from ckan.common import _
 
@@ -3416,3 +3418,29 @@ def job_show(context, data_dict):
         return jobs.dictize_job(jobs.job_from_id(id))
     except KeyError:
         raise NotFound
+
+
+def apikey_show(context, data_dict):
+    '''Return an apikey for user account after authentication attempt.
+
+    Parameters may vary depending on used authenticators. For example,
+    `ckan.lib.authenticator:UsernamePasswordAuthenticator` uses
+    `login` and `passwords` parameters.
+
+    :returns: API Key of the user.
+    :rtype: string
+
+    '''
+    _check_access(u'apikey_show', context, data_dict)
+    auth_plugins = chain(
+        [UsernamePasswordAuthenticator()],
+        plugins.PluginImplementations(plugins.IAuthenticator)
+    )
+    for plugin in auth_plugins:
+        username = plugin.authenticate(request.environ, data_dict)
+        if username:
+            break
+    user = model.User.by_name(username)
+    if user is None:
+        raise NotFound()
+    return user.apikey

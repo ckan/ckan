@@ -406,6 +406,11 @@ def user_reset(context, data_dict):
     return {'success': True}
 
 
+def apikey_show(context, data_dict):
+    allow = asbool(config.get('ckan.auth.get_apikey_via_api', False))
+    return {'success': allow}
+
+
 def request_reset(context, data_dict):
     return {'success': True}
 

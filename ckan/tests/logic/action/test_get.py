@@ -4257,3 +4257,20 @@ class TestDashboardNewActivities(object):
             )
             == 15
         )
+
+
+class TestApiKeyShow(object):
+    def test_incorrect_credentials(self, app):
+        with pytest.raises(logic.NotFound):
+            with app.flask_app.test_request_context():
+                helpers.call_action("apikey_show", login=u"not-a-user", password="not-a-password")
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_correct_credentials(self, app):
+        password = u"valid-password"
+        user = factories.User(password=password)
+        with app.flask_app.test_request_context():
+            apikey = helpers.call_action(
+                "apikey_show", login=user["name"], password=password
+            )
+        assert apikey == user["apikey"]

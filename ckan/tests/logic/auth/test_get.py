@@ -32,6 +32,16 @@ def test_user_list_email_parameter():
 
 @pytest.mark.usefixtures(u"clean_db")
 class TestGetAuth(object):
+    def test_apikey_show_default(self):
+        context = {"user": None, "model": model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("apikey_show", context=context)
+
+    @pytest.mark.ckan_config(u"ckan.auth.get_apikey_via_api", u"true")
+    def test_apikey_show_allowed(self):
+        context = {"user": None, "model": model}
+        helpers.call_auth("apikey_show", context=context)
+
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
     def test_auth_user_show(self):
         fred = factories.User(name="fred")
