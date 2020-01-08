@@ -4,723 +4,723 @@ import ckan.plugins as p
 import ckanext.managed_search_schema.cli as cli
 
 field_types = [{
-    "name": "string",
-    "class": "solr.StrField",
-    "sortMissingLast": "true",
-    "omitNorms": "true"
+    u"name": u"string",
+    u"class": u"solr.StrField",
+    u"sortMissingLast": u"true",
+    u"omitNorms": u"true"
 }, {
-    "name": "boolean",
-    "class": "solr.BoolField",
-    "sortMissingLast": "true",
-    "omitNorms": "true"
+    u"name": u"boolean",
+    u"class": u"solr.BoolField",
+    u"sortMissingLast": u"true",
+    u"omitNorms": u"true"
 }, {
-    "name": "binary",
-    "class": "solr.BinaryField"
+    u"name": u"binary",
+    u"class": u"solr.BinaryField"
 }, {
-    "name": "int",
-    "class": "solr.IntPointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"int",
+    u"class": u"solr.IntPointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "float",
-    "class": "solr.FloatPointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"float",
+    u"class": u"solr.FloatPointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "long",
-    "class": "solr.LongPointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"long",
+    u"class": u"solr.LongPointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "double",
-    "class": "solr.DoublePointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"double",
+    u"class": u"solr.DoublePointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "pint",
-    "class": "solr.IntPointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"pint",
+    u"class": u"solr.IntPointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "pfloat",
-    "class": "solr.FloatPointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"pfloat",
+    u"class": u"solr.FloatPointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "plong",
-    "class": "solr.LongPointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"plong",
+    u"class": u"solr.LongPointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "pdouble",
-    "class": "solr.DoublePointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"pdouble",
+    u"class": u"solr.DoublePointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "date",
-    "class": "solr.DatePointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"date",
+    u"class": u"solr.DatePointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "pdate",
-    "class": "solr.DatePointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
+    u"name": u"pdate",
+    u"class": u"solr.DatePointField",
+    u"omitNorms": u"true",
+    u"positionIncrementGap": u"0"
 }, {
-    "name": "pdates",
-    "class": "solr.DatePointField",
-    "positionIncrementGap": "0",
-    "multiValued": "true"
+    u"name": u"pdates",
+    u"class": u"solr.DatePointField",
+    u"positionIncrementGap": u"0",
+    u"multiValued": u"true"
 }, {
-    "name": "booleans",
-    "class": "solr.BoolField",
-    "sortMissingLast": "true",
-    "multiValued": "true"
+    u"name": u"booleans",
+    u"class": u"solr.BoolField",
+    u"sortMissingLast": u"true",
+    u"multiValued": u"true"
 }, {
-    "name": "pints",
-    "class": "solr.IntPointField",
-    "positionIncrementGap": "0",
-    "multiValued": "true"
+    u"name": u"pints",
+    u"class": u"solr.IntPointField",
+    u"positionIncrementGap": u"0",
+    u"multiValued": u"true"
 }, {
-    "name": "pfloats",
-    "class": "solr.FloatPointField",
-    "positionIncrementGap": "0",
-    "multiValued": "true"
+    u"name": u"pfloats",
+    u"class": u"solr.FloatPointField",
+    u"positionIncrementGap": u"0",
+    u"multiValued": u"true"
 }, {
-    "name": "plongs",
-    "class": "solr.LongPointField",
-    "positionIncrementGap": "0",
-    "multiValued": "true"
+    u"name": u"plongs",
+    u"class": u"solr.LongPointField",
+    u"positionIncrementGap": u"0",
+    u"multiValued": u"true"
 }, {
-    "name": "pdoubles",
-    "class": "solr.DoublePointField",
-    "positionIncrementGap": "0",
-    "multiValued": "true"
+    u"name": u"pdoubles",
+    u"class": u"solr.DoublePointField",
+    u"positionIncrementGap": u"0",
+    u"multiValued": u"true"
 }, {
-    "name": "text",
-    "class": "solr.TextField",
-    "positionIncrementGap": "100",
-    "indexAnalyzer": {
-        "tokenizer": {
-            "class": "solr.WhitespaceTokenizerFactory",
+    u"name": u"text",
+    u"class": u"solr.TextField",
+    u"positionIncrementGap": u"100",
+    u"indexAnalyzer": {
+        u"tokenizer": {
+            u"class": u"solr.WhitespaceTokenizerFactory",
         },
-        "filters": [
+        u"filters": [
             {
-                "class": "solr.WordDelimiterFilterFactory",
-                "generateWordParts": "1",
-                "generateNumberParts": "1",
-                "catenateWords": "1",
-                "catenateNumbers": "1",
-                "catenateAll": "0",
-                "splitOnCaseChange": "1"
+                u"class": u"solr.WordDelimiterFilterFactory",
+                u"generateWordParts": u"1",
+                u"generateNumberParts": u"1",
+                u"catenateWords": u"1",
+                u"catenateNumbers": u"1",
+                u"catenateAll": u"0",
+                u"splitOnCaseChange": u"1"
             },
             {
-                "class": "solr.LowerCaseFilterFactory"
+                u"class": u"solr.LowerCaseFilterFactory"
             },
             {
-                "class": "solr.SnowballPorterFilterFactory",
-                "language": "English",
-                "protected": "protwords.txt"
+                u"class": u"solr.SnowballPorterFilterFactory",
+                u"language": u"English",
+                u"protected": u"protwords.txt"
             },
             {
-                "class": "solr.ASCIIFoldingFilterFactory"
+                u"class": u"solr.ASCIIFoldingFilterFactory"
             },
         ]
     },
-    "queryAnalyzer": {
-        "tokenizer": {
-            "class": "solr.WhitespaceTokenizerFactory"
+    u"queryAnalyzer": {
+        u"tokenizer": {
+            u"class": u"solr.WhitespaceTokenizerFactory"
         },
-        "filters": [
+        u"filters": [
             {
-                "class": "solr.SynonymFilterFactory",
-                "synonyms": "synonyms.txt",
-                "ignoreCase": "true",
-                "expand": "true",
+                u"class": u"solr.SynonymFilterFactory",
+                u"synonyms": u"synonyms.txt",
+                u"ignoreCase": u"true",
+                u"expand": u"true",
             },
             {
-                "class": "solr.WordDelimiterFilterFactory",
-                "generateWordParts": "1",
-                "generateNumberParts": "1",
-                "catenateWords": "0",
-                "catenateNumbers": "0",
-                "catenateAll": "0",
-                "splitOnCaseChange": "1"
+                u"class": u"solr.WordDelimiterFilterFactory",
+                u"generateWordParts": u"1",
+                u"generateNumberParts": u"1",
+                u"catenateWords": u"0",
+                u"catenateNumbers": u"0",
+                u"catenateAll": u"0",
+                u"splitOnCaseChange": u"1"
             },
             {
-                "class": "solr.LowerCaseFilterFactory",
+                u"class": u"solr.LowerCaseFilterFactory",
             },
             {
-                "class": "solr.SnowballPorterFilterFactory",
-                "language": "English",
-                "protected": "protwords.txt",
+                u"class": u"solr.SnowballPorterFilterFactory",
+                u"language": u"English",
+                u"protected": u"protwords.txt",
             },
             {
-                "class": "solr.ASCIIFoldingFilterFactory",
+                u"class": u"solr.ASCIIFoldingFilterFactory",
             },
         ]
     },
 }, {
-    "name": "text_general",
-    "class": "solr.TextField",
-    "positionIncrementGap": "100",
-    "indexAnalyzer": {
-        "tokenizer": {
-            "class": "solr.WhitespaceTokenizerFactory",
+    u"name": u"text_general",
+    u"class": u"solr.TextField",
+    u"positionIncrementGap": u"100",
+    u"indexAnalyzer": {
+        u"tokenizer": {
+            u"class": u"solr.WhitespaceTokenizerFactory",
         },
-        "filters": [{
-            "class": "solr.WordDelimiterFilterFactory",
-            "generateWordParts": "1",
-            "generateNumberParts": "1",
-            "catenateWords": "1",
-            "catenateNumbers": "1",
-            "catenateAll": "0",
-            "splitOnCaseChange": "0",
+        u"filters": [{
+            u"class": u"solr.WordDelimiterFilterFactory",
+            u"generateWordParts": u"1",
+            u"generateNumberParts": u"1",
+            u"catenateWords": u"1",
+            u"catenateNumbers": u"1",
+            u"catenateAll": u"0",
+            u"splitOnCaseChange": u"0",
         }, {
-            "class": "solr.LowerCaseFilterFactory",
+            u"class": u"solr.LowerCaseFilterFactory",
         }]
     },
-    "queryAnalyzer": {
-        "tokenizer": {
-            "class": "solr.WhitespaceTokenizerFactory"
+    u"queryAnalyzer": {
+        u"tokenizer": {
+            u"class": u"solr.WhitespaceTokenizerFactory"
         },
-        "filters": [
+        u"filters": [
             {
-                "class": "solr.SynonymFilterFactory",
-                "synonyms": "synonyms.txt",
-                "ignoreCase": "true",
-                "expand": "true",
+                u"class": u"solr.SynonymFilterFactory",
+                u"synonyms": u"synonyms.txt",
+                u"ignoreCase": u"true",
+                u"expand": u"true",
             },
             {
-                "class": "solr.WordDelimiterFilterFactory",
-                "generateWordParts": "1",
-                "generateNumberParts": "1",
-                "catenateWords": "0",
-                "catenateNumbers": "0",
-                "catenateAll": "0",
-                "splitOnCaseChange": "0",
+                u"class": u"solr.WordDelimiterFilterFactory",
+                u"generateWordParts": u"1",
+                u"generateNumberParts": u"1",
+                u"catenateWords": u"0",
+                u"catenateNumbers": u"0",
+                u"catenateAll": u"0",
+                u"splitOnCaseChange": u"0",
             },
             {
-                "class": "solr.LowerCaseFilterFactory",
+                u"class": u"solr.LowerCaseFilterFactory",
             },
         ]
     },
 }, {
-    "name": "text_ngram",
-    "class": "solr.TextField",
-    "positionIncrementGap": "100",
-    "indexAnalyzer": {
-        "tokenizer": {
-            "class": "solr.NGramTokenizerFactory",
-            "minGramSize": "2",
-            "maxGramSize": "10",
+    u"name": u"text_ngram",
+    u"class": u"solr.TextField",
+    u"positionIncrementGap": u"100",
+    u"indexAnalyzer": {
+        u"tokenizer": {
+            u"class": u"solr.NGramTokenizerFactory",
+            u"minGramSize": u"2",
+            u"maxGramSize": u"10",
         },
-        "filters": [{
-            "class": "solr.LowerCaseFilterFactory",
+        u"filters": [{
+            u"class": u"solr.LowerCaseFilterFactory",
         }]
     },
-    "queryAnalyzer": {
-        "tokenizer": {
-            "class": "solr.WhitespaceTokenizerFactory"
+    u"queryAnalyzer": {
+        u"tokenizer": {
+            u"class": u"solr.WhitespaceTokenizerFactory"
         },
-        "filters": [{
-            "class": "solr.LowerCaseFilterFactory",
+        u"filters": [{
+            u"class": u"solr.LowerCaseFilterFactory",
         }]
     },
 }]
 
 fields = [
     {
-        "name": "index_id",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "required": "true",
+        u"name": u"index_id",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"required": u"true",
     },
     {
-        "name": "id",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "required": "true",
+        u"name": u"id",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"required": u"true",
     },
     {
-        "name": "site_id",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "required": "true",
+        u"name": u"site_id",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"required": u"true",
     },
     {
-        "name": "title",
-        "type": "text",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"title",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "title_ngram",
-        "type": "text_ngram",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"title_ngram",
+        u"type": u"text_ngram",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "entity_type",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "omitNorms": "true",
+        u"name": u"entity_type",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"omitNorms": u"true",
     },
     {
-        "name": "dataset_type",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"dataset_type",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "state",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "omitNorms": "true",
+        u"name": u"state",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"omitNorms": u"true",
     },
     {
-        "name": "name",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "omitNorms": "true",
+        u"name": u"name",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"omitNorms": u"true",
     },
     {
-        "name": "name_ngram",
-        "type": "text_ngram",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"name_ngram",
+        u"type": u"text_ngram",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "revision_id",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "omitNorms": "true",
+        u"name": u"revision_id",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"omitNorms": u"true",
     },
     {
-        "name": "version",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"version",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "url",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "omitNorms": "true",
+        u"name": u"url",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"omitNorms": u"true",
     },
     {
-        "name": "ckan_url",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "omitNorms": "true",
+        u"name": u"ckan_url",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"omitNorms": u"true",
     },
     {
-        "name": "download_url",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "omitNorms": "true",
+        u"name": u"download_url",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"omitNorms": u"true",
     },
     {
-        "name": "notes",
-        "type": "text",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"notes",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "author",
-        "type": "text_general",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"author",
+        u"type": u"text_general",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "author_email",
-        "type": "text_general",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"author_email",
+        u"type": u"text_general",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "maintainer",
-        "type": "text_general",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"maintainer",
+        u"type": u"text_general",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "maintainer_email",
-        "type": "text_general",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"maintainer_email",
+        u"type": u"text_general",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "license",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"license",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "license_id",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"license_id",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
     {
-        "name": "ratings_count",
-        "type": "int",
-        "indexed": "true",
-        "stored": "false"
+        u"name": u"ratings_count",
+        u"type": u"int",
+        u"indexed": u"true",
+        u"stored": u"false"
     },
     {
-        "name": "ratings_average",
-        "type": "float",
-        "indexed": "true",
-        "stored": "false"
+        u"name": u"ratings_average",
+        u"type": u"float",
+        u"indexed": u"true",
+        u"stored": u"false"
     },
     {
-        "name": "tags",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true",
+        u"name": u"tags",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true",
     },
     {
-        "name": "groups",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true",
+        u"name": u"groups",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true",
     },
     {
-        "name": "organization",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "false",
+        u"name": u"organization",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"false",
     },
     {
-        "name": "capacity",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "false",
+        u"name": u"capacity",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"false",
     },
     {
-        "name": "permission_labels",
-        "type": "string",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"permission_labels",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "res_name",
-        "type": "text_general",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true",
+        u"name": u"res_name",
+        u"type": u"text_general",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true",
     },
     {
-        "name": "res_description",
-        "type": "text_general",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true",
+        u"name": u"res_description",
+        u"type": u"text_general",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true",
     },
     {
-        "name": "res_format",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true",
+        u"name": u"res_format",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true",
     },
     {
-        "name": "res_url",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true",
+        u"name": u"res_url",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true",
     },
     {
-        "name": "res_type",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true",
+        u"name": u"res_type",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true",
     },
     {
-        "name": "text",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"text",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "urls",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"urls",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "depends_on",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"depends_on",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "dependency_of",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"dependency_of",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "derives_from",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"derives_from",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "has_derivation",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"has_derivation",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "links_to",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"links_to",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "linked_from",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"linked_from",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "child_of",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"child_of",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "parent_of",
-        "type": "text",
-        "indexed": "true",
-        "stored": "false",
-        "multiValued": "true",
+        u"name": u"parent_of",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"false",
+        u"multiValued": u"true",
     },
     {
-        "name": "views_total",
-        "type": "int",
-        "indexed": "true",
-        "stored": "false"
+        u"name": u"views_total",
+        u"type": u"int",
+        u"indexed": u"true",
+        u"stored": u"false"
     },
     {
-        "name": "views_recent",
-        "type": "int",
-        "indexed": "true",
-        "stored": "false"
+        u"name": u"views_recent",
+        u"type": u"int",
+        u"indexed": u"true",
+        u"stored": u"false"
     },
     {
-        "name": "resources_accessed_total",
-        "type": "int",
-        "indexed": "true",
-        "stored": "false"
+        u"name": u"resources_accessed_total",
+        u"type": u"int",
+        u"indexed": u"true",
+        u"stored": u"false"
     },
     {
-        "name": "resources_accessed_recent",
-        "type": "int",
-        "indexed": "true",
-        "stored": "false"
+        u"name": u"resources_accessed_recent",
+        u"type": u"int",
+        u"indexed": u"true",
+        u"stored": u"false"
     },
     {
-        "name": "metadata_created",
-        "type": "date",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "false",
+        u"name": u"metadata_created",
+        u"type": u"date",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"false",
     },
     {
-        "name": "metadata_modified",
-        "type": "date",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "false",
+        u"name": u"metadata_modified",
+        u"type": u"date",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"false",
     },
     {
-        "name": "indexed_ts",
-        "type": "date",
-        "indexed": "true",
-        "stored": "true",
-        "default": "NOW",
-        "multiValued": "false",
+        u"name": u"indexed_ts",
+        u"type": u"date",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"default": u"NOW",
+        u"multiValued": u"false",
     },
     {
-        "name": "title_string",
-        "type": "string",
-        "indexed": "true",
-        "stored": "false"
+        u"name": u"title_string",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"false"
     },
     {
-        "name": "data_dict",
-        "type": "string",
-        "indexed": "false",
-        "stored": "true"
+        u"name": u"data_dict",
+        u"type": u"string",
+        u"indexed": u"false",
+        u"stored": u"true"
     },
     {
-        "name": "validated_data_dict",
-        "type": "string",
-        "indexed": "false",
-        "stored": "true"
+        u"name": u"validated_data_dict",
+        u"type": u"string",
+        u"indexed": u"false",
+        u"stored": u"true"
     },
     {
-        "name": "_version_",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true"
+        u"name": u"_versionu",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true"
     },
 ]
 
 dynamic_fields = [
     {
-        "name": "*_date",
-        "type": "date",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "false"
+        u"name": u"*_date",
+        u"type": u"date",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"false"
     },
     {
-        "name": "extras_*",
-        "type": "text",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "false"
+        u"name": u"extras_u",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"false"
     },
     {
-        "name": "res_extras_*",
-        "type": "text",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true"
+        u"name": u"res_extras_u",
+        u"type": u"text",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true"
     },
     {
-        "name": "vocab_*",
-        "type": "string",
-        "indexed": "true",
-        "stored": "true",
-        "multiValued": "true"
+        u"name": u"vocab_u",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"true",
+        u"multiValued": u"true"
     },
     {
-        "name": "*",
-        "type": "string",
-        "indexed": "true",
-        "stored": "false",
+        u"name": u"u",
+        u"type": u"string",
+        u"indexed": u"true",
+        u"stored": u"false",
     },
 ]
 
 copy_fields = [
     {
-        "source": "url",
-        "dest": "urls"
+        u"source": u"url",
+        u"dest": u"urls"
     },
     {
-        "source": "title",
-        "dest": "title_ngram"
+        u"source": u"title",
+        u"dest": u"title_ngram"
     },
     {
-        "source": "name",
-        "dest": "name_ngram"
+        u"source": u"name",
+        u"dest": u"name_ngram"
     },
     {
-        "source": "ckan_url",
-        "dest": "urls"
+        u"source": u"ckan_url",
+        u"dest": u"urls"
     },
     {
-        "source": "download_url",
-        "dest": "urls"
+        u"source": u"download_url",
+        u"dest": u"urls"
     },
     {
-        "source": "res_url",
-        "dest": "urls"
+        u"source": u"res_url",
+        u"dest": u"urls"
     },
     {
-        "source": "extras_*",
-        "dest": "text"
+        u"source": u"extras_u",
+        u"dest": u"text"
     },
     {
-        "source": "res_extras_*",
-        "dest": "text"
+        u"source": u"res_extras_u",
+        u"dest": u"text"
     },
     {
-        "source": "vocab_*",
-        "dest": "text"
+        u"source": u"vocab_u",
+        u"dest": u"text"
     },
     {
-        "source": "urls",
-        "dest": "text"
+        u"source": u"urls",
+        u"dest": u"text"
     },
     {
-        "source": "name",
-        "dest": "text"
+        u"source": u"name",
+        u"dest": u"text"
     },
     {
-        "source": "title",
-        "dest": "text"
+        u"source": u"title",
+        u"dest": u"text"
     },
     {
-        "source": "text",
-        "dest": "text"
+        u"source": u"text",
+        u"dest": u"text"
     },
     {
-        "source": "license",
-        "dest": "text"
+        u"source": u"license",
+        u"dest": u"text"
     },
     {
-        "source": "notes",
-        "dest": "text"
+        u"source": u"notes",
+        u"dest": u"text"
     },
     {
-        "source": "tags",
-        "dest": "text"
+        u"source": u"tags",
+        u"dest": u"text"
     },
     {
-        "source": "groups",
-        "dest": "text"
+        u"source": u"groups",
+        u"dest": u"text"
     },
     {
-        "source": "organization",
-        "dest": "text"
+        u"source": u"organization",
+        u"dest": u"text"
     },
     {
-        "source": "res_name",
-        "dest": "text"
+        u"source": u"res_name",
+        u"dest": u"text"
     },
     {
-        "source": "res_description",
-        "dest": "text"
+        u"source": u"res_description",
+        u"dest": u"text"
     },
     {
-        "source": "maintainer",
-        "dest": "text"
+        u"source": u"maintainer",
+        u"dest": u"text"
     },
     {
-        "source": "author",
-        "dest": "text"
+        u"source": u"author",
+        u"dest": u"text"
     },
 ]
 
@@ -732,10 +732,10 @@ class ManagedSearchSchemaPlugin(p.SingletonPlugin):
     # ISearchSchema
 
     def update_search_schema_definitions(self, definitions):
-        definitions['field-type'].extend(field_types)
-        definitions['field'].extend(fields)
-        definitions['dynamic-field'].extend(dynamic_fields)
-        definitions['copy-field'].extend(copy_fields)
+        definitions[u'field-type'].extend(field_types)
+        definitions[u'field'].extend(fields)
+        definitions[u'dynamic-field'].extend(dynamic_fields)
+        definitions[u'copy-field'].extend(copy_fields)
 
     # IClick
 
