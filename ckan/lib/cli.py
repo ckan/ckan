@@ -1333,19 +1333,12 @@ class Profile(CkanCommand):
     min_args = 1
 
     def _load_config_into_test_app(self):
-        from paste.deploy import loadapp
         import paste.fixture
-        if not self.options.config:
-            msg = 'No config file supplied'
-            raise self.BadCommand(msg)
-        self.filename = os.path.abspath(self.options.config)
-        if not os.path.exists(self.filename):
-            raise AssertionError('Config filename %r does not exist.' % self.filename)
-        fileConfig(self.filename)
 
-        print(CkanCommand)
+        conf = _get_config(self.options.config)
 
-        wsgiapp = loadapp('config:' + self.filename)
+        wsgiapp = make_app(conf.global_conf, **conf.local_conf)
+
         self.app = paste.fixture.TestApp(wsgiapp)
 
     def command(self):
