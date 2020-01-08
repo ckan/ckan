@@ -25,7 +25,7 @@ def user():
 @click.argument(u'username')
 @click.argument(u'args', nargs=-1)
 @click.pass_context
-def add_user(username, args):
+def add_user(ctx, username, args):
     u'''Add new user if we use ckan sysadmin add
     or ckan user add
     '''
@@ -70,11 +70,16 @@ def add_user(username, args):
             u'ignore_auth': True,
             u'user': site_user['name'],
         }
-        user_dict = logic.get_action(u'user_create')(context, data_dict)
+        flask_app = ctx.meta['flask_app']
+        # Current user is tested agains sysadmin role during model
+        # dictization, thus we need request context
+        with flask_app.test_request_context():
+            user_dict = logic.get_action(u'user_create')(context, data_dict)
         click.secho(u"Successfully created user: %s" % user_dict['name'],
                     fg=u'green', bold=True)
     except logic.ValidationError as e:
         error_shout(e)
+        raise click.Abort()
 
 
 def get_user_str(user):
