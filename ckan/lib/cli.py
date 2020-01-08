@@ -26,6 +26,7 @@ import sqlalchemy as sa
 
 import routes
 import paste.script
+from paste.script import command
 from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
 import click
@@ -299,7 +300,7 @@ click_config_option = click.option(
     help=u'Config file to use (default: development.ini)')
 
 
-class CkanCommand(paste.script.command.Command):
+class CkanCommand(command.Command):
     '''Base class for classes that implement CKAN paster commands to inherit.'''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
@@ -1341,6 +1342,8 @@ class Profile(CkanCommand):
         if not os.path.exists(self.filename):
             raise AssertionError('Config filename %r does not exist.' % self.filename)
         fileConfig(self.filename)
+
+        print(CkanCommand)
 
         wsgiapp = loadapp('config:' + self.filename)
         self.app = paste.fixture.TestApp(wsgiapp)
