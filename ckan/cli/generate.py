@@ -2,16 +2,40 @@
 
 import os
 import sys
+import inspect
+
 import click
-from ckan.cli import error_shout
+
+import alembic.command
+from alembic.config import Config as AlembicConfig
+
+import ckan
+import ckan.plugins as p
+import ckan.plugins.toolkit as tk
 
 
-@click.group(
-    name=u'generate',
-    short_help=u"Generate empty extension files to expand CKAN.",
-    invoke_without_command=True,
-)
+class CKANAlembicConfig(AlembicConfig):
+    def get_template_directory(self):
+        return os.path.join(os.path.dirname(ckan.__file__),
+                            u"../contrib/alembic")
+
+
+@click.group()
 def generate():
+    """Scaffolding for regular development tasks.
+    """
+    pass
+
+
+@generate.command(name=u'extension', short_help=u"Create empty extension.")
+@click.option(u'-o',
+              u'--output-dir',
+              help=u"Location to put the generated "
+              u"template.",
+              default=u'.')
+def extension(output_dir):
+    """Generate empty extension files to expand CKAN.
+    """
     try:
         from cookiecutter.main import cookiecutter
     except ImportError:
@@ -20,21 +44,18 @@ def generate():
         error_shout(u"\tpip install -r dev-requirements.txt")
         raise click.Abort()
 
-
-@generate.command(name=u'extension', short_help=u"Create empty extension.")
-@click.option(u'-o', u'--output-dir', help=u"Location to put the generated "
-                                           u"template.",
-              default=u'.')
-def extension(output_dir):
-    from cookiecutter.main import cookiecutter
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     os.chdir(cur_loc)
     os.chdir(u'../../contrib/cookiecutter/ckan_extension/')
     template_loc = os.getcwd()
 
     # Prompt user for information
-    click.echo(u"\n")
-    name = click.prompt(u"Extenion's name", default=u"must begin 'ckanext-'")
+    name = click.prompt(
+        u"Extenion's name (`ckanext-` prefix added automatically if not provided)"
+    )
+    if not name.startswith(u"ckanext-"):
+        name = u"ckanext-" + name
+
     author = click.prompt(u"Author's name", default=u"")
     email = click.prompt(u"Author's email", default=u"")
     github = click.prompt(u"Your Github user or organization name",
@@ -45,34 +66,75 @@ def extension(output_dir):
                             default=u"CKAN")
 
     # Ensure one instance of 'CKAN' in keywords
-    keywords = keywords.strip().split()
-    keywords = [keyword for keyword in keywords
-                if keyword not in (u'ckan', u'CKAN')]
-    keywords.insert(0, u'CKAN')
+    keywords = [u"CKAN"] + [
+        k for k in keywords.strip().split() if k.lower() != u"ckan"
+    ]
     keywords = u' '.join(keywords)
 
     # Set short name and plugin class name
     project_short = name[8:].lower().replace(u'-', u'_')
     plugin_class_name = project_short.title().replace(u'_', u'') + u'Plugin'
 
-    context = {u"project": name,
-               u"description": description,
-               u"author": author,
-               u"author_email": email,
-               u"keywords": keywords,
-               u"github_user_name": github,
-               u"project_shortname": project_short,
-               u"plugin_class_name": plugin_class_name,
-               u"_source": u"cli"}
+    context = {
+        u"project": name,
+        u"description": description,
+        u"author": author,
+        u"author_email": email,
+        u"keywords": keywords,
+        u"github_user_name": github,
+        u"project_shortname": project_short,
+        u"plugin_class_name": plugin_class_name,
+        u"_source": u"cli"
+    }
 
     if output_dir == u'.':
         os.chdir(u'../../../..')
         output_dir = os.getcwd()
 
-    if not name.startswith(u"ckanext-"):
-        print(u"\nERROR: Project name must start with 'ckanext-' > {}"
-              .format(name))
-        sys.exit(1)
-
-    cookiecutter(template_loc, no_input=True, extra_context=context,
+    cookiecutter(template_loc,
+                 no_input=True,
+                 extra_context=context,
                  output_dir=output_dir)
+
+
+@generate.command()
+@click.option(
+    u"-p",
+    u"--plugin",
+    help=
+    u"Plugin's that requires migration(name, used in `ckan.plugins` config section). If not provided, core CKAN migration created instead."
+)
+@click.option(u"-m",
+              u"--message",
+              help=u"Message string to use with `revision`.")
+def migration(plugin, message):
+    """Create new alembic revision for DB migration.
+    """
+    if plugin:
+        plugin_obj = p.get_plugin(plugin)
+        if plugin_obj is None:
+            tk.error_shout(u"Plugin '{}' cannot be loaded.".format(plugin))
+            raise click.Abort()
+        plugin_dir = os.path.dirname(inspect.getsourcefile(type(plugin_obj)))
+
+        # if there is `plugin` folder instead of single_file, find
+        # plugin's parent dir
+        ckanext_idx = plugin_dir.rfind(u"/ckanext/") + 9
+        idx = plugin_dir.find(u"/", ckanext_idx)
+        if ~idx:
+            plugin_dir = plugin_dir[:idx]
+        migration_dir = os.path.join(plugin_dir, u"migration", plugin)
+    else:
+        import ckan.migration as _cm
+        migration_dir = os.path.dirname(_cm.__file__)
+    config = CKANAlembicConfig(os.path.join(migration_dir, u"alembic.ini"))
+    if not os.path.isdir(migration_dir):
+        alembic.command.init(config, migration_dir)
+    cwd = os.getcwd()
+    os.chdir(migration_dir)
+    rev = alembic.command.revision(config, message)
+    os.chdir(cwd)
+    click.secho(
+        u"Revision file created. Now, you need to update it: \n\t{}".format(
+            rev.path),
+        fg=u"green")
