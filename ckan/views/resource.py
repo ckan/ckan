@@ -246,7 +246,7 @@ class CreateView(MethodView):
             if data.get(u'url_type') == u'upload' and data.get(u'url'):
                 data[u'url'] = u''
                 data[u'url_type'] = u''
-                errors[u'previous_upload'] = True
+                data[u'previous_upload'] = True
             return self.get(package_type, id, data, errors, error_summary)
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to create a resource'))
