@@ -865,14 +865,22 @@ def email_is_unique(key, data, errors, context):
     '''Validate email is unique'''
     model = context['model']
     session = context['session']
-    user = session.query(model.User).filter_by(email=data[key]).first()
 
-    # check if email belongs to updated user
-    if user and user.name != data[('name',)]:
-        raise Invalid(
-            _('The email address \'{email}\' belongs to a registered user.').
-            format(email=data[key]))
-    return
+    users = session.query(model.User) \
+            .filter(model.User.email == data[key]).all()
+
+    if not users:
+        return
+    else:
+        # allow user to update his own email
+        for user in users:
+            if user.id == data[("id",)]:
+                return
+    
+    raise Invalid(
+                _('The email address \'{email}\' \
+                    belongs to a registered user.').
+                        format(email=data[key]))
 
 def one_of(list_of_value):
     ''' Checks if the provided value is present in a list '''
