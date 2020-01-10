@@ -144,7 +144,6 @@ class TestUpdate(object):
         user = factories.User()
         user["name"] = name
         with pytest.raises(logic.ValidationError):
-
             helpers.call_action("user_update", **user)
 
     def test_user_update_to_name_that_already_exists(self):
@@ -166,7 +165,8 @@ class TestUpdate(object):
         # we're not updating it, otherwise validation fails.
         helpers.call_action(
             "user_update",
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password="new password",
         )
@@ -254,7 +254,8 @@ class TestUpdate(object):
         # fails.
         helpers.call_action(
             "user_update",
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password=factories.User.attributes()["password"],
             fullname="updated full name",
@@ -301,16 +302,12 @@ class TestUpdate(object):
         helpers.call_action(
             "user_update",
             context={"schema": schema},
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password=factories.User.attributes()["password"],
             fullname="updated full name",
         )
-
-        # Since we passed user['name'] to user_update as the 'id' param,
-        # our mock validator method should have been called once with
-        # user['name'] as arg.
-        mock_validator.assert_called_once_with(user["name"])
 
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
