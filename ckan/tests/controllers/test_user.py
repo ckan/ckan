@@ -851,22 +851,6 @@ class TestUser(object):
         assert "A reset link has been emailed to you" in response
         assert send_reset_link.call_args[0][0].id == user["id"]
 
-    @mock.patch("ckan.lib.mailer.send_reset_link")
-    def test_request_reset_when_duplicate_emails(self, send_reset_link, app):
-        user_a = factories.User(email="me@example.com")
-        user_b = factories.User(email="me@example.com")
-
-        offset = url_for("user.request_reset")
-        response = app.post(
-            offset, params=dict(user="me@example.com"), status=302
-        ).follow()
-
-        assert "A reset link has been emailed to you" in response
-        emailed_users = [
-            call[0][0].name for call in send_reset_link.call_args_list
-        ]
-        assert emailed_users == [user_a["name"], user_b["name"]]
-
     def test_request_reset_without_param(self, app):
 
         offset = url_for("user.request_reset")
