@@ -18,6 +18,7 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckan.tests.lib.navl.test_validators as t
+import ckan.logic as logic
 
 
 def returns_arg(function):
@@ -162,95 +163,51 @@ def adds_message_to_errors_dict(error_message):
     return decorator
 
 
+@pytest.mark.usefixtures("clean_db")
 def test_email_is_unique_validator_with_existed_value():
-    user = namedtuple('User', 'name email')
-    user.name = 'test_user_888'
-    user.email = 'existed@email.com'
-    model = mock.MagicMock()
-    session = model.Session
-    context = {'model': model, 'session': session}
+    user1 = factories.User(username="user01", email="user01@email.com")
 
-    # mock user object with email
-    session.query(
-        model.User).filter_by.return_value.first.return_value = user
-
-    data = factories.validator_data_dict()
-    key = ('email',)
-    data[key] = 'existed@email.com'
-    data[('name',)] = 'test_user_999'
-    errors = factories.validator_errors_dict()
-    errors[key] = []
-
-    @raises_Invalid
-    def call_validator(*args, **kwargs):
-        return validators.email_is_unique(*args, **kwargs)
-    call_validator(key, data, errors, context)
+    # try to create new user with occupied email
+    with pytest.raises(logic.ValidationError):
+        factories.User(username="new_user", email="user01@email.com")
 
 
-def test_email_is_unique_validator_with_unique_value():
-    model = mock.MagicMock()
-    session = model.Session
-    context = {'model': model, 'session': session}
-
-    session.query(model.User).filter_by.return_value.first.return_value = None
-
-    data = factories.validator_data_dict()
-    key = ('email',)
-    data[key] = 'unique@email.com'
-    data[('name',)] = 'test_user_888'
-    errors = factories.validator_errors_dict()
-    errors[key] = []
-
-    @t.returns_None
-    def call_validator(*args, **kwargs):
-        return validators.email_is_unique(*args, **kwargs)
-    call_validator(key, data, errors, context)
-
-
+@pytest.mark.usefixtures("clean_db")
 def test_email_is_unique_validator_user_update_email_unchanged():
-    user = namedtuple('User', 'name email')
-    user.name = 'test_user_888'
-    user.email = 'existed@email.com'
-    model = mock.MagicMock()
-    session = model.Session
-    context = {'model': model, 'session': session}
+    user = factories.User(username="user01", email="user01@email.com")
 
-    session.query(model.User).filter_by.return_value.first.return_value = user
+    # try to update user1 and leave email unchanged
+    old_email = "user01@email.com"
 
-    data = factories.validator_data_dict()
-    key = ('email',)
-    data[key] = 'exited@esmail.com'
-    data[('name',)] = 'test_user_888'
-    errors = factories.validator_errors_dict()
-    errors[key] = []
+    helpers.call_action("user_update", **user)
+    updated_user = model.User.get(user["id"])
 
-    @t.returns_None
-    def call_validator(*args, **kwargs):
-        return validators.email_is_unique(*args, **kwargs)
-    call_validator(key, data, errors, context)
+    assert updated_user.email == old_email
 
 
+@pytest.mark.usefixtures("clean_db")
 def test_email_is_unique_validator_user_update_email_new():
-    user = namedtuple('User', 'name email')
-    user.name = 'test_user_888'
-    user.email = 'existed@email.com'
-    model = mock.MagicMock()
-    session = model.Session
-    context = {'model': model, 'session': session}
+    user = factories.User(username="user01", email="user01@email.com")
 
-    session.query(model.User).filter_by.return_value.first.return_value = user
+    # try to update user1 email to unoccupied one
+    new_email = "user_new@email.com"
+    user["email"] = new_email
 
-    data = factories.validator_data_dict()
-    key = ('email',)
-    data[key] = 'new@email.com'
-    data[('name',)] = 'test_user_888'
-    errors = factories.validator_errors_dict()
-    errors[key] = []
+    helpers.call_action("user_update", **user)
+    updated_user = model.User.get(user["id"])
 
-    @t.returns_None
-    def call_validator(*args, **kwargs):
-        return validators.email_is_unique(*args, **kwargs)
-    call_validator(key, data, errors, context)
+    assert updated_user.email == new_email
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_to_existed_email():
+    user1 = factories.User(username="user01", email="user01@email.com")
+    user2 = factories.User(username="user02", email="user02@email.com")
+
+    # try to update user1 email to existed one
+    user1["email"] = user2["email"]
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action("user_update", **user1)
 
 
 def test_name_validator_with_invalid_value():
