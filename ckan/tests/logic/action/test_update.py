@@ -1123,7 +1123,7 @@ class TestResourceUpdate(object):
         }
         """
         )
-        test_resource = TestResourceUpdate.FakeFileStorage(
+        test_resource = FakeFileStorage(
             test_file, "test.json"
         )
         dataset = factories.Dataset()
@@ -1146,7 +1146,7 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test.csv"
         )
 
@@ -1218,7 +1218,7 @@ class TestResourceUpdate(object):
         }
         """
         )
-        test_resource = TestResourceUpdate.FakeFileStorage(
+        test_resource = FakeFileStorage(
             test_file, "test.json"
         )
         dataset = factories.Dataset()
@@ -1241,7 +1241,7 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test.csv"
         )
 
