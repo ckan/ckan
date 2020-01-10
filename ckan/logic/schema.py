@@ -410,9 +410,11 @@ def default_user_schema(
 @validator_args
 def user_new_form_schema(
         unicode_safe, user_both_passwords_entered,
-        user_password_validator, user_passwords_match):
+        user_password_validator, user_passwords_match,
+        email_is_unique):
     schema = default_user_schema()
 
+    schema['email'] = [email_is_unique]
     schema['password1'] = [text_type, user_both_passwords_entered,
                            user_password_validator, user_passwords_match]
     schema['password2'] = [text_type]
@@ -423,9 +425,10 @@ def user_new_form_schema(
 @validator_args
 def user_edit_form_schema(
         ignore_missing, unicode_safe, user_both_passwords_entered,
-        user_password_validator, user_passwords_match):
+        user_password_validator, user_passwords_match, email_is_unique):
     schema = default_user_schema()
 
+    schema['email'] = [email_is_unique]
     schema['password'] = [ignore_missing]
     schema['password1'] = [ignore_missing, unicode_safe,
                            user_password_validator, user_passwords_match]
