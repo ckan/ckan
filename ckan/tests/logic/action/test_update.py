@@ -6,6 +6,8 @@ import datetime
 import mock
 import pytest
 
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
+
 import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
@@ -810,18 +812,14 @@ class TestResourceViewUpdate(object):
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceUpdate(object):
-    import cgi
 
-    class FakeFileStorage(cgi.FieldStorage):
-        def __init__(self, fp, filename):
-            self.file = fp
+    class FakeFileStorage(FlaskFileStorage):
+        content_type = None
+
+        def __init__(self, stream, filename):
+            self.stream = stream
             self.filename = filename
             self.name = "upload"
-
-        def setup(self):
-            import ckan.model as model
-
-            model.repo.rebuild_db()
 
     def test_url_only(self):
         dataset = factories.Dataset()
