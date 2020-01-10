@@ -26,6 +26,15 @@ fake_os = fake_filesystem.FakeOsModule(fs)
 fake_open = fake_filesystem.FakeFileOpen(fs)
 
 
+class FakeFileStorage(FlaskFileStorage):
+    content_type = None
+
+    def __init__(self, stream, filename):
+        self.stream = stream
+        self.filename = filename
+        self.name = "upload"
+
+
 def mock_open_if_open_fails(*args, **kwargs):
     try:
         return real_open(*args, **kwargs)
@@ -813,14 +822,6 @@ class TestResourceViewUpdate(object):
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceUpdate(object):
 
-    class FakeFileStorage(FlaskFileStorage):
-        content_type = None
-
-        def __init__(self, stream, filename):
-            self.stream = stream
-            self.filename = filename
-            self.name = "upload"
-
     def test_url_only(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset, url="http://first")
@@ -1072,7 +1073,7 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test"
         )
 

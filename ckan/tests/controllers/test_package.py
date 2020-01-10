@@ -140,8 +140,7 @@ class TestPackageNew(object):
 
     # resource upload is tested in TestExampleIUploaderPlugin
 
-    def test_previous_button_works(self):
-        app = self._get_test_app()
+    def test_previous_button_works(self, app):
         env, response = _get_package_new_page(app)
         form = response.forms["dataset-edit"]
         form["name"] = u"previous-button-works"
