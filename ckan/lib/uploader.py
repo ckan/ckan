@@ -214,7 +214,7 @@ class ResourceUpload(object):
         if url and config_mimetype_guess == 'file_ext':
             self.mimetype = mimetypes.guess_type(url)[0]
 
-        if upload_field_storage and \
+        if bool(upload_field_storage) and \
                 isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
             self.filesize = 0  # bytes
 
