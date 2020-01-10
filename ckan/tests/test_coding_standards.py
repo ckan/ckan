@@ -574,7 +574,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/tests/plugins/test_toolkit.py",
     u"ckan/tests/test_authz.py",
     u"ckan/tests/test_factories.py",
-    u"ckan/websetup.py",
     u"ckanext/datapusher/cli.py",
     u"ckanext/datapusher/helpers.py",
     u"ckanext/datapusher/interfaces.py",

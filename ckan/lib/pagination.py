@@ -650,7 +650,7 @@ class Page(BasePage):
         # Convert ..
         dotdot = u'<span class="pager_dotdot">..</span>'
         dotdot_link = tags.li(tags.a(u"...", href=u"#"), cls=u"disabled")
-        html = re.sub(dotdot, dotdot_link, html)
+        html = re.sub(dotdot, text_type(dotdot_link), html)
 
         # Convert current page
         text = u"%s" % self.page
