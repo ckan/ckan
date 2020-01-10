@@ -868,7 +868,7 @@ def email_is_unique(key, data, errors, context):
 
     users = session.query(model.User) \
             .filter(model.User.email == data[key]).all()
-
+    # is there is no users with this email it's free
     if not users:
         return
     else:
@@ -876,7 +876,7 @@ def email_is_unique(key, data, errors, context):
         for user in users:
             if user.id == data[("id",)]:
                 return
-    
+
     raise Invalid(
                 _('The email address \'{email}\' \
                     belongs to a registered user.').
