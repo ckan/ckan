@@ -1,12 +1,12 @@
 # encoding: utf-8
 
-import datetime
 import logging
 import re
-from six.moves.urllib.parse import urlencode
+from collections import OrderedDict
 
-from pylons.i18n import get_lang
-from six import string_types, text_type
+import six
+from six import string_types
+from six.moves.urllib.parse import urlencode
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -17,7 +17,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, c, g, config, request, _
+from ckan.common import g, config, request, _
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -361,7 +361,7 @@ def _read(id, limit, group_type):
             u'q': q,
             u'fq': fq,
             u'include_private': True,
-            u'facet.field': facets.keys(),
+            u'facet.field': list(facets.keys()),
             u'rows': limit,
             u'sort': sort_by,
             u'start': (page - 1) * limit,
@@ -811,7 +811,7 @@ class BulkProcessView(MethodView):
         actions = form_names.intersection(actions_in_form)
         # ie7 puts all buttons in form params but puts submitted one twice
 
-        for key, value in request.form.to_dict().iteritems():
+        for key, value in six.iteritems(request.form.to_dict()):
             if value in [u'private', u'public']:
                 action = key.split(u'.')[-1]
                 break
@@ -1122,6 +1122,7 @@ class MembersGroupView(MethodView):
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
             h.flash_error(e.error_summary)
+            return h.redirect_to(u'{}.member_new'.format(group_type), id=id)
 
         # TODO: Remove
         g.group_dict = group_dict

@@ -10,13 +10,12 @@ For more details, check :doc:`maintaining/configuration`.
 from sqlalchemy import types, Column, Table
 from six import text_type
 
-import vdm.sqlalchemy
-import meta
-import core
-import domain_object
+from ckan.model import meta
+from ckan.model import core
+from ckan.model import domain_object
 
-__all__ = ['system_info_revision_table', 'system_info_table', 'SystemInfo',
-           'SystemInfoRevision', 'get_system_info', 'set_system_info']
+__all__ = ['system_info_table', 'SystemInfo',
+           'get_system_info', 'set_system_info']
 
 system_info_table = Table(
     'system_info', meta.metadata,
@@ -26,11 +25,8 @@ system_info_table = Table(
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-system_info_revision_table = core.make_revisioned_table(system_info_table)
 
-
-class SystemInfo(vdm.sqlalchemy.RevisionedObjectMixin,
-                 core.StatefulObjectMixin,
+class SystemInfo(core.StatefulObjectMixin,
                  domain_object.DomainObject):
 
     def __init__(self, key, value):
@@ -41,15 +37,7 @@ class SystemInfo(vdm.sqlalchemy.RevisionedObjectMixin,
         self.value = text_type(value)
 
 
-meta.mapper(SystemInfo, system_info_table,
-            extension=[
-                vdm.sqlalchemy.Revisioner(system_info_revision_table),
-                ])
-
-vdm.sqlalchemy.modify_base_object_mapper(SystemInfo, core.Revision, core.State)
-SystemInfoRevision = vdm.sqlalchemy.create_object_version(meta.mapper,
-                                                          SystemInfo,
-                                                          system_info_revision_table)
+meta.mapper(SystemInfo, system_info_table)
 
 
 def get_system_info(key, default=None):
@@ -84,10 +72,6 @@ def set_system_info(key, value):
     else:
         obj.value = text_type(value)
 
-    from ckan.model import repo
-    rev = repo.new_revision()
-    rev.message = 'Set {0} setting in system_info table'.format(key)
     meta.Session.add(obj)
     meta.Session.commit()
-
     return True

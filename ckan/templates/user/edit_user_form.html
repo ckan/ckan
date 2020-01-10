@@ -27,7 +27,7 @@
     {{ form.input('old_password',
                   type='password',
                   label=_('Sysadmin Password') if is_sysadmin else _('Old Password'),
-                  id='field-password',
+                  id='field-password-old',
                   value=data.oldpassword,
                   error=errors.oldpassword,
                   classes=['control-medium'],

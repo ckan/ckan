@@ -1,15 +1,16 @@
 # encoding: utf-8
 
 import datetime
+from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy import orm
-from sqlalchemy.util import OrderedDict
 
-import meta
-import core
+from ckan.model import meta, core
+
 
 __all__ = ['DomainObject', 'DomainObjectOperation']
+
 
 class Enum(set):
     '''Simple enumeration
@@ -26,7 +27,6 @@ class Enum(set):
 
 DomainObjectOperation = Enum('new', 'changed', 'deleted')
 
-# TODO: replace this (or at least inherit from) standard SqlalchemyMixin in vdm
 class DomainObject(object):
 
     text_search_fields = []

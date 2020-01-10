@@ -53,12 +53,12 @@ Fast
     ``setup_class()`` methods, saved against the ``self`` attribute of test
     classes, or in test helper modules).
 
-    Instead write helper functions that create test objects and return them,
-    and have each test method call just the helpers it needs to do the setup
-    that it needs.
+    Instead use fixtures that create test objects and pass them as parameters, and
+    inject into every method only the required fixtures.
 
-  * Where appropriate, use the ``mock`` library to avoid pulling in other parts
-    of CKAN (especially the database), see :ref:`mock`.
+  * Where appropriate, use the ``monkeypatch`` `fixture
+    <https://docs.pytest.org/en/latest/monkeypatch.html>`_ to avoid
+    pulling in other parts of CKAN (especially the database).
 
 Independent
   * Each test module, class and method should be able to be run on its own.
@@ -75,7 +75,7 @@ Clear
   You shouldn't have to figure out what a complex test method does, or go and
   look up a lot of code in other files to understand a test method.
 
-  * Tests should follow the canonical form for a unit test, see
+  * Tests should follow the canonical form for a pytest, see
     :ref:`test recipe`.
 
   * Write lots of small, simple test methods not a few big, complex tests.
@@ -217,24 +217,6 @@ function test demonstrating the recipe:
    :start-after: # START-AFTER
    :end-before: # END-BEFORE
 
-One common exception is when you want to use a ``for`` loop to call the
-function being tested multiple times, passing it lots of different arguments
-that should all produce the same return value and/or side effects. For example,
-this test from :py:mod:`ckan.tests.logic.action.test_update`:
-
-.. literalinclude:: /../ckan/tests/logic/action/test_update.py
-   :start-after: # START-FOR-LOOP-EXAMPLE
-   :end-before: # END-FOR-LOOP-EXAMPLE
-
-The behavior of :py:func:`~ckan.logic.action.update.user_update` is the same
-for every invalid value.
-We do want to test :py:func:`~ckan.logic.action.update.user_update` with lots
-of different invalid names, but we obviously don't want to write a dozen
-separate test methods that are all the same apart from the value used for the
-invalid user name. We don't really want to define a helper method and a dozen
-test methods that call it either. So we use a simple loop. Technically this
-test calls the function being tested more than once, but there's only one line
-of code that calls it.
 
 
 How detailed should tests be?
@@ -283,6 +265,14 @@ Test helper functions: :mod:`ckan.tests.helpers`
 .. automodule:: ckan.tests.helpers
    :members:
 
+
+.. _fixtures:
+
+Pytest fixtures
+---------------
+
+.. automodule:: ckan.tests.pytest_ckan.fixtures
+   :members:
 
 .. _mock:
 
@@ -452,12 +442,6 @@ Writing :mod:`ckan.plugins` tests
 ---------------------------------
 
 .. automodule:: ckan.tests.plugins
-
-
-Writing :mod:`ckan.migration` tests
------------------------------------
-
-.. automodule:: ckan.tests.migration
 
 
 Writing :mod:`ckan.ckanext` tests

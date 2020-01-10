@@ -1341,7 +1341,7 @@ Example::
 
 Default value: ``//jsonpdataproxy.appspot.com``
 
-Custom URL to a self-hosted DataProxy instance. The DataProxy is an external service currently used to stream data in 
+Custom URL to a self-hosted DataProxy instance. The DataProxy is an external service currently used to stream data in
 JSON format to the Recline-based views when data is not on the DataStore. The main instance is deprecated and will
 be eventually shut down, so users that require it can host an instance themselves and use this configuration option
 to point Recline to it.
@@ -1925,6 +1925,10 @@ This setting is used to construct URLs inside CKAN. It specifies two things:
 
     The host of your CKAN installation can be set via :ref:`ckan.site_url`.
 
+The CKAN repoze config file ``who.ini`` file will also need to be edited
+by adding the path prefix to the options in the ``[plugin:friendlyform]``
+section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
+Do not change the login/logout_handler_path options.
 
 .. _ckan.resource_formats:
 
@@ -2086,6 +2090,21 @@ Default value: ``None``
 
 The email address that emails sent by CKAN will come from. Note that, if left blank, the
 SMTP server may insert its own.
+
+.. _smtp.reply_to:
+
+smtp.reply_to
+^^^^^^^^^^^^^
+
+Example::
+
+  smtp.mail_from = noreply.example.com
+
+Default value: ``None``
+
+The email address that will be used if someone attempts to reply to a system email.
+If left blank, no ``Reply-to`` will be added to the email and the value of
+``smtp.mail_from`` will be used.
 
 .. _email_to:
 

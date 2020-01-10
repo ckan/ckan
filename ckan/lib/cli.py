@@ -70,32 +70,13 @@ def error(msg):
     sys.exit(1)
 
 
-def parse_db_config(config_key='sqlalchemy.url'):
-    ''' Takes a config key for a database connection url and parses it into
-    a dictionary. Expects a url like:
-
-    'postgres://tester:pass@localhost/ckantest3'
-    '''
-    from ckan.common import config
-    url = config[config_key]
-    regex = [
-        '^\s*(?P<db_type>\w*)',
-        '://',
-        '(?P<db_user>[^:]*)',
-        ':?',
-        '(?P<db_pass>[^@]*)',
-        '@',
-        '(?P<db_host>[^/:]*)',
-        ':?',
-        '(?P<db_port>[^/]*)',
-        '/',
-        '(?P<db_name>[\w.-]*)'
-    ]
-    db_details_match = re.match(''.join(regex), url)
-    if not db_details_match:
-        raise Exception('Could not extract db details from url: %r' % url)
-    db_details = db_details_match.groupdict()
-    return db_details
+def _parse_db_config(config_key=u'sqlalchemy.url'):
+    db_config = model.parse_db_config(config_key)
+    if not db_config:
+        raise Exception(
+            u'Could not extract db details from url: %r' % config[config_key]
+        )
+    return db_config
 
 
 def user_add(args):
@@ -388,50 +369,8 @@ class ManageDb(CkanCommand):
             model.repo.create_db()
             if self.verbose:
                 print('Creating DB: SUCCESS')
-        elif cmd == 'migrate-filestore':
-            self.migrate_filestore()
         else:
             error('Command %s not recognized' % cmd)
-
-    def migrate_filestore(self):
-        from ckan.model import Session
-        import requests
-        from ckan.lib.uploader import ResourceUpload
-        results = Session.execute("select id, revision_id, url from resource "
-                                  "where resource_type = 'file.upload' "
-                                  "and (url_type <> 'upload' or url_type is null)"
-                                  "and url like '%storage%'")
-        for id, revision_id, url in results:
-            response = requests.get(url, stream=True)
-            if response.status_code != 200:
-                print("failed to fetch %s (code %s)" % (url,
-                                                        response.status_code))
-                continue
-            resource_upload = ResourceUpload({'id': id})
-            assert resource_upload.storage_path, "no storage configured aborting"
-
-            directory = resource_upload.get_directory(id)
-            filepath = resource_upload.get_path(id)
-            try:
-                os.makedirs(directory)
-            except OSError as e:
-                ## errno 17 is file already exists
-                if e.errno != 17:
-                    raise
-
-            with open(filepath, 'wb+') as out:
-                for chunk in response.iter_content(1024):
-                    if chunk:
-                        out.write(chunk)
-
-            Session.execute("update resource set url_type = 'upload'"
-                            "where id = :id", {'id': id})
-            Session.execute("update resource_revision set url_type = 'upload'"
-                            "where id = :id and "
-                            "revision_id = :revision_id",
-                            {'id': id, 'revision_id': revision_id})
-            Session.commit()
-            print("Saved url %s" % url)
 
     def version(self):
         from ckan.model import Session
@@ -946,7 +885,6 @@ class DatasetCmd(CkanCommand):
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
 
-        rev = model.repo.new_revision()
         dataset.delete()
         model.repo.commit_and_remove()
         dataset = self._get_dataset(dataset_ref)
@@ -1338,8 +1276,7 @@ class CreateTestDataCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan import plugins
-        from create_test_data import CreateTestData
+        from ckan.lib.create_test_data import CreateTestData
 
         if self.args:
             cmd = self.args[0]
@@ -2315,8 +2252,8 @@ Not used when using the `-d` option.''')
                         view_types=loaded_view_plugins)
 
                     if views:
-                        view_types = list(set([view['view_type']
-                                               for view in views]))
+                        view_types = list({view['view_type']
+                                           for view in views})
                         msg = ('Added {0} view(s) of type(s) {1} to ' +
                                'resources from dataset {2}')
                         log.debug(msg.format(len(views),
@@ -2407,7 +2344,7 @@ class ConfigToolCommand(paste.script.command.Command):
         help='Supply an options file to merge in')
 
     def command(self):
-        import config_tool
+        from ckan.lib import config_tool
         if len(self.args) < 1:
             self.parser.error('Not enough arguments (got %i, need at least 1)'
                               % len(self.args))

@@ -7,25 +7,25 @@ from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm
 from sqlalchemy import types, Column, Table
 from ckan.common import config
-import vdm.sqlalchemy
 
-import meta
-import core
-import license as _license
-import types as _types
-import domain_object
-import activity
-import extension
+from ckan.model import (
+    meta,
+    core,
+    license as _license,
+    types as _types,
+    domain_object,
+    activity,
+    extension,
+)
 
 import ckan.lib.maintain as maintain
-import ckan.lib.dictization as dictization
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['Package', 'package_table', 'package_revision_table',
+__all__ = ['Package', 'package_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision',
-           'PackageRevision']
+           'PACKAGE_VERSION_MAX_LENGTH',
+           ]
 
 
 PACKAGE_NAME_MAX_LENGTH = 100
@@ -56,13 +56,10 @@ package_table = Table('package', meta.metadata,
 )
 
 
-package_revision_table = core.make_revisioned_table(package_table)
-
 ## -------------------
 ## Mapped classes
 
-class Package(vdm.sqlalchemy.RevisionedObjectMixin,
-              core.StatefulObjectMixin,
+class Package(core.StatefulObjectMixin,
               domain_object.DomainObject):
 
     text_search_fields = ['name', 'title']
@@ -98,7 +95,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return [self]
 
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
-        import resource
+        from ckan.model import resource
         self.resources_all.append(resource.Resource(
             package_id=self.id,
             url=url,
@@ -135,7 +132,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         to the vocabulary.
 
         """
-        from tag import Tag
+        from ckan.model.tag import Tag
         if not tag_name:
             return
         # Get the named tag.
@@ -228,7 +225,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         Raises KeyError if the type_ is invalid.
         '''
-        import package_relationship
+        from ckan.model import package_relationship
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self
             object_ = related_package
@@ -266,7 +263,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         assert direction in ('both', 'forward', 'reverse')
         if with_package:
             assert isinstance(with_package, Package)
-        from package_relationship import PackageRelationship
+        from ckan.model.package_relationship import PackageRelationship
         forward_filters = [PackageRelationship.subject==self]
         reverse_filters = [PackageRelationship.object==self]
         if with_package:
@@ -301,7 +298,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         non-direct relationships (such as siblings).
         @return: e.g. [(annakarenina, u"is a parent"), ...]
         '''
-        from package_relationship import PackageRelationship
+        from ckan.model.package_relationship import PackageRelationship
         rel_list = []
         for rel in self.get_relationships():
             if rel.subject == self:
@@ -369,40 +366,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     license = property(get_license, set_license)
 
     @property
-    def all_related_revisions(self):
-        '''Returns chronological list of all object revisions related to
-        this package. Includes PackageRevisions, PackageTagRevisions
-        and ResourceRevisions.
-        @return List of tuples (revision, [list of object revisions of this
-                                           revision])
-                Ordered by most recent first.
-        '''
-        from tag import PackageTag
-        from resource import Resource
-
-        results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
-        for pkg_rev in self.all_revisions:
-            if not results.has_key(pkg_rev.revision):
-                results[pkg_rev.revision] = []
-            results[pkg_rev.revision].append(pkg_rev)
-        for class_ in [Resource, PackageTag]:
-            rev_class = class_.__revision_class__
-            obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
-            for obj_rev in obj_revisions:
-                if not results.has_key(obj_rev.revision):
-                    results[obj_rev.revision] = []
-                results[obj_rev.revision].append(obj_rev)
-
-        result_list = results.items()
-        return sorted(result_list, key=lambda x: x[0].timestamp, reverse=True)
-
-    @property
-    def latest_related_revision(self):
-        '''Returns the latest revision for the package and its related
-        objects.'''
-        return self.all_related_revisions[0][0]
-
-    @property
     @maintain.deprecated('`is_private` attriute of model.Package is ' +
                          'deprecated and should not be used.  Use `private`')
     def is_private(self):
@@ -455,7 +418,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
-    def activity_stream_item(self, activity_type, revision, user_id):
+    def activity_stream_item(self, activity_type, user_id):
         import ckan.model
         import ckan.logic
 
@@ -501,7 +464,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return activity.Activity(
             user_id,
             self.id,
-            revision.id,
             "%s package" % activity_type,
             {
                 'package': dictized_package,
@@ -522,8 +484,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         @param user_or_ip - user object or an IP address string
         '''
         user = None
-        from user import User
-        from rating import Rating, MAX_RATING, MIN_RATING
+        from ckan.model.user import User
+        from ckan.model.rating import Rating, MAX_RATING, MIN_RATING
         if isinstance(user_or_ip, User):
             user = user_or_ip
             rating_query = meta.Session.query(Rating)\
@@ -564,7 +526,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         Returns a list of the dataset's extras, as PackageExtra object
         NB includes deleted ones too (state='deleted')
         '''
-        from package_extra import PackageExtra
+        from ckan.model.package_extra import PackageExtra
         return meta.Session.query(PackageExtra) \
             .filter_by(package_id=self.id) \
             .all()
@@ -574,7 +536,7 @@ class RatingValueException(Exception):
     pass
 
 # import here to prevent circular import
-import tag
+from ckan.model import tag
 
 meta.mapper(Package, package_table, properties={
     # delete-orphan on cascade does NOT work!
@@ -589,23 +551,14 @@ meta.mapper(Package, package_table, properties={
         ),
     },
     order_by=package_table.c.name,
-    extension=[vdm.sqlalchemy.Revisioner(package_revision_table),
-               extension.PluginMapperExtension(),
-               ],
+    extension=[extension.PluginMapperExtension()],
     )
 
-vdm.sqlalchemy.modify_base_object_mapper(Package, core.Revision, core.State)
-PackageRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Package,
-        package_revision_table)
-
-def related_packages(self):
-    return [self.continuity]
-
-PackageRevision.related_packages = related_packages
-
-
-vdm.sqlalchemy.modify_base_object_mapper(tag.PackageTag, core.Revision, core.State)
-PackageTagRevision = vdm.sqlalchemy.create_object_version(meta.mapper, tag.PackageTag,
-        tag.package_tag_revision_table)
-
-PackageTagRevision.related_packages = lambda self: [self.continuity.package]
+meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
+    'pkg':orm.relation(Package, backref='package_tag_all',
+        cascade='none',
+        )
+    },
+    order_by=tag.package_tag_table.c.id,
+    extension=[extension.PluginMapperExtension()],
+    )

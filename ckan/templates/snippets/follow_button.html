@@ -1,15 +1,10 @@
-{% set controller = obj_type %}
-{% if controller == 'dataset' %}
-  {% set controller = 'package' %}
-{% endif %}
-
 {% if following %}
-  <a href="{{ h.url_for(controller=controller, action='unfollow', id=obj_id) }}" class="{% block following_class %}btn btn-danger{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="unfollow">
+  <a href="{{ h.url_for(obj_type + '.unfollow', id=obj_id) }}" class="{% block following_class %}btn btn-danger{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="unfollow">
     <i class="fa fa-times-circle"></i>
     {{ _('Unfollow') }}
   </a>
 {% else %}
-  <a href="{{ h.url_for(controller=controller, action='follow', id=obj_id) }}" class="{% block unfollowing_class %}btn btn-success{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="follow">
+  <a href="{{ h.url_for(obj_type + '.follow', id=obj_id) }}" class="{% block unfollowing_class %}btn btn-success{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="follow">
     <i class="fa fa-plus-circle"></i>
     {{ _('Follow') }}
   </a>

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-'''The plugin interfaces in :mod:`ckan.plugins.interfaces` are not directly
+"""The plugin interfaces in :mod:`ckan.plugins.interfaces` are not directly
 testable because they don't contain any code, *but*:
 
 * Each plugin interface should have an example plugin in :mod:`ckan.ckanext`
@@ -24,4 +24,4 @@ modules where the functions are defined.
 Other than the plugin interfaces and plugins toolkit, any other code in
 :mod:`ckan.plugins` should have tests.
 
-'''
+"""

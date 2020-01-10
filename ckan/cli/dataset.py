@@ -53,7 +53,6 @@ def delete(package):
     dataset = _get_dataset(package)
     old_state = dataset.state
 
-    model.repo.new_revision()
     dataset.delete()
     model.repo.commit_and_remove()
     dataset = _get_dataset(package)

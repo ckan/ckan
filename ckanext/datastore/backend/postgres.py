@@ -10,14 +10,14 @@ import sqlalchemy.engine.url as sa_url
 import datetime
 import hashlib
 import json
-from cStringIO import StringIO
+from collections import OrderedDict
 
+import six
 from six.moves.urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
-from six import string_types, text_type
+from six import string_types, text_type, StringIO
 
-import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.lazyjson import LazyJSONObject
@@ -32,7 +32,7 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
 
 import ckan.model as model
 import ckan.plugins as plugins
-from ckan.common import config, OrderedDict
+from ckan.common import config
 
 from ckanext.datastore.backend import (
     DatastoreBackend,
@@ -331,7 +331,7 @@ def _pg_version_is_at_least(connection, version):
 
 
 def _get_read_only_user(data_dict):
-    parsed = cli.parse_db_config('ckan.datastore.read_url')
+    parsed = model.parse_db_config('ckan.datastore.read_url')
     return parsed['db_user']
 
 
@@ -361,10 +361,14 @@ def _where_clauses(data_dict, fields_types):
     filters = data_dict.get('filters', {})
     clauses = []
 
-    for field, value in filters.iteritems():
+    for field, value in six.iteritems(filters):
         if field not in fields_types:
             continue
         field_array_type = _is_array_type(fields_types[field])
+        # "%" needs to be escaped as "%%" in any query going to
+        # connection.execute, otherwise it will think the "%" is for
+        # substituting a bind parameter
+        field = field.replace('%', '%%')
         if isinstance(value, list) and not field_array_type:
             clause_str = (u'"{0}" in ({1})'.format(field,
                           ','.join(['%s'] * len(value))))
@@ -382,7 +386,7 @@ def _where_clauses(data_dict, fields_types):
             clauses.append((clause_str,))
         elif isinstance(q, dict):
             lang = _fts_lang(data_dict.get('lang'))
-            for field, value in q.iteritems():
+            for field, value in six.iteritems(q):
                 if field not in fields_types:
                     continue
                 query_field = _ts_query_alias(field)
@@ -423,7 +427,7 @@ def _textsearch_query(lang, q, plain):
         statements.append(query)
         rank_columns[u'rank'] = rank
     elif isinstance(q, dict):
-        for field, value in q.iteritems():
+        for field, value in six.iteritems(q):
             query, rank = _build_query_and_rank_statements(
                 lang, value, plain, field)
             statements.append(query)
@@ -816,7 +820,7 @@ def create_indexes(context, data_dict):
             name=_generate_index_name(data_dict['resource_id'], fields_string),
             fields=fields_string))
 
-    sql_index_strings = map(lambda x: x.replace('%', '%%'), sql_index_strings)
+    sql_index_strings = [x.replace('%', '%%') for x in sql_index_strings]
     current_indexes = _get_index_names(context['connection'],
                                        data_dict['resource_id'])
     for sql_index_string in sql_index_strings:
@@ -878,7 +882,7 @@ def create_table(context, data_dict):
             field['type'] = _guess_type(records[0][field['id']])
 
     # Check for duplicate fields
-    unique_fields = set([f['id'] for f in supplied_fields])
+    unique_fields = {f['id'] for f in supplied_fields}
     if not len(unique_fields) == len(supplied_fields):
         raise ValidationError({
             'field': ['Duplicate column names are not supported']
@@ -1148,8 +1152,9 @@ def upsert_data(context, data_dict):
                                     WHERE ({primary_key}) = ({primary_value}));
                 '''.format(
                     res_id=data_dict['resource_id'],
-                    columns=u', '.join([u'"{0}"'.format(field)
-                                        for field in used_field_names]),
+                    columns=u', '.join([
+                        u'"{0}"'.format(field.replace('%', '%%'))
+                        for field in used_field_names]),
                     values=u', '.join(['%s::nested'
                                        if field['type'] == 'nested' else '%s'
                                        for field in used_fields]),
@@ -1196,7 +1201,7 @@ def validate(context, data_dict):
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('calculate_record_count', None)
 
-    for key, values in data_dict_copy.iteritems():
+    for key, values in six.iteritems(data_dict_copy):
         if not values:
             continue
         if isinstance(values, string_types):

@@ -6,6 +6,7 @@ import logging
 import flask
 from flask.views import MethodView
 
+import six
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
 import ckan.lib.helpers as h
@@ -15,7 +16,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import _, g, request
-from ckan.controllers.home import CACHE_PARAMETERS
+from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
@@ -194,7 +195,7 @@ class CreateView(MethodView):
 
         # see if we have any data that we are trying to save
         data_provided = False
-        for key, value in data.iteritems():
+        for key, value in six.iteritems(data):
             if (
                     (value or isinstance(value, cgi.FieldStorage))
                     and key != u'resource_type'):

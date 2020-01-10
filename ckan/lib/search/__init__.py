@@ -8,17 +8,20 @@ import xml.dom.minidom
 
 import requests
 
-from ckan.common import asbool
-
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
 
-from common import (SearchIndexError, SearchError, SearchQueryError,
-                    make_connection, is_available, SolrSettings)
-from index import PackageSearchIndex, NoopSearchIndex
-from query import (TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
-                   QueryOptions, convert_legacy_parameters_to_solr)
+from ckan.lib.search.common import (
+    SearchIndexError, SearchError, SearchQueryError,
+    make_connection, is_available, SolrSettings
+)
+from ckan.lib.search.index import PackageSearchIndex, NoopSearchIndex
+from ckan.lib.search.query import (
+    TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
+    QueryOptions, convert_legacy_parameters_to_solr
+)
+
 
 log = logging.getLogger(__name__)
 
@@ -220,7 +223,7 @@ def check():
     log.debug("Checking packages search index...")
     pkgs_q = model.Session.query(model.Package).filter_by(
         state=model.State.ACTIVE)
-    pkgs = set([pkg.id for pkg in pkgs_q])
+    pkgs = {pkg.id for pkg in pkgs_q}
     indexed_pkgs = set(package_query.get_all_entity_ids(max_results=len(pkgs)))
     pkgs_not_indexed = pkgs - indexed_pkgs
     print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),

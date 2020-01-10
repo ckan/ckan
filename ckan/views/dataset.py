@@ -3,15 +3,15 @@ import logging
 from collections import OrderedDict
 from functools import partial
 from six.moves.urllib.parse import urlencode
-import datetime
 from datetime import datetime
 
-from flask import Blueprint, make_response
+from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
+
+import six
 from six import string_types, text_type
 
-import ckan.lib.i18n as i18n
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
@@ -19,12 +19,11 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import _, config, g, request
-from ckan.controllers.home import CACHE_PARAMETERS
+from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
 from ckan.views import LazyView
-from ckan.views.api import CONTENT_TYPES
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -277,7 +276,7 @@ def search(package_type):
         data_dict = {
             u'q': q,
             u'fq': fq.strip(),
-            u'facet.field': facets.keys(),
+            u'facet.field': list(facets.keys()),
             u'rows': limit,
             u'start': (page - 1) * limit,
             u'sort': sort_by,
@@ -343,7 +342,7 @@ def search(package_type):
     extra_vars[u'dataset_type'] = package_type
 
     # TODO: remove
-    for key, value in extra_vars.iteritems():
+    for key, value in six.iteritems(extra_vars):
         setattr(g, key, value)
 
     return base.render(

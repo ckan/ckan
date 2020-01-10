@@ -2,17 +2,18 @@
 
 import functools
 import sys
-import re
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from logging import getLogger
+
+import six
 
 from ckan.common import config
 from ckan.common import asbool
 
 import ckan.plugins as p
 import ckan.model as model
-from ckan.common import OrderedDict, _, c
+from ckan.common import _, c
 
 import ckan.lib.maintain as maintain
 
@@ -101,7 +102,7 @@ class AuthFunctions:
                     resolved_auth_function_plugins[name] = plugin.name
                     fetched_auth_functions[name] = auth_function
 
-        for name, func_list in chained_auth_functions.iteritems():
+        for name, func_list in six.iteritems(chained_auth_functions):
             if (name not in fetched_auth_functions and
                     name not in self._functions):
                 raise Exception('The auth %r is not found for chained auth' % (

@@ -4,12 +4,12 @@ import os
 
 from ckan.lib.cli import (
     load_config,
-    parse_db_config,
+    _parse_db_config,
     paster_click_group,
     click_config_option,
 )
 from ckanext.datastore.backend.postgres import identifier
-from ckanext.datastore.view import DUMP_FORMATS, dump_to
+from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 
 import click
 
@@ -28,9 +28,9 @@ datastore_group = paster_click_group(
 def set_permissions(ctx, config):
     load_config(config or ctx.obj['config'])
 
-    write_url = parse_db_config(u'ckan.datastore.write_url')
-    read_url = parse_db_config(u'ckan.datastore.read_url')
-    db_url = parse_db_config(u'sqlalchemy.url')
+    write_url = _parse_db_config(u'ckan.datastore.write_url')
+    read_url = _parse_db_config(u'ckan.datastore.read_url')
+    db_url = _parse_db_config(u'sqlalchemy.url')
 
     # Basic validation that read and write URLs reference the same database.
     # This obviously doesn't check they're the same database (the hosts/ports

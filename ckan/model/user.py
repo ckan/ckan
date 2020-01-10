@@ -12,10 +12,10 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from six import text_type
 
-import meta
-import core
-import types as _types
-import domain_object
+from ckan.model import meta
+from ckan.model import core
+from ckan.model import types as _types
+from ckan.model import domain_object
 
 
 user_table = Table('user', meta.metadata,
@@ -175,24 +175,6 @@ class User(core.StatefulObjectMixin,
         _dict = domain_object.DomainObject.as_dict(self)
         del _dict['password']
         return _dict
-
-    def number_of_edits(self):
-        # have to import here to avoid circular imports
-        import ckan.model as model
-
-        # Get count efficiently without spawning the SQLAlchemy subquery
-        # wrapper. Reset the VDM-forced order_by on timestamp.
-        return meta.Session.execute(
-            meta.Session.query(
-                model.Revision
-            ).filter_by(
-                author=self.name
-            ).statement.with_only_columns(
-                [func.count()]
-            ).order_by(
-                None
-            )
-        ).scalar()
 
     def number_created_packages(self, include_private_and_draft=False):
         # have to import here to avoid circular imports

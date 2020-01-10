@@ -3,6 +3,8 @@
 from copy import deepcopy
 import re
 
+import six
+
 from ckan.logic import NotFound
 from ckan.common import _
 
@@ -55,7 +57,7 @@ def error_summary(error_dict):
         return _(field_name.replace('_', ' '))
 
     summary = {}
-    for key, error in error_dict.iteritems():
+    for key, error in six.iteritems(error_dict):
         if key == 'resources':
             summary[_('Resources')] = _('Package resource(s) invalid')
         elif key == 'extras':
