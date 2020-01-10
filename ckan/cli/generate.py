@@ -1,17 +1,13 @@
 # encoding: utf-8
 
 import os
-import sys
-import inspect
-
-import click
 
 import alembic.command
-from alembic.config import Config as AlembicConfig
+import click
 
 import ckan
-import ckan.plugins as p
-import ckan.plugins.toolkit as tk
+from ckan.cli.db import _resolve_alembic_config
+from alembic.config import Config as AlembicConfig
 
 
 class CKANAlembicConfig(AlembicConfig):
@@ -110,31 +106,16 @@ def extension(output_dir):
 def migration(plugin, message):
     """Create new alembic revision for DB migration.
     """
-    if plugin:
-        plugin_obj = p.get_plugin(plugin)
-        if plugin_obj is None:
-            tk.error_shout(u"Plugin '{}' cannot be loaded.".format(plugin))
-            raise click.Abort()
-        plugin_dir = os.path.dirname(inspect.getsourcefile(type(plugin_obj)))
 
-        # if there is `plugin` folder instead of single_file, find
-        # plugin's parent dir
-        ckanext_idx = plugin_dir.rfind(u"/ckanext/") + 9
-        idx = plugin_dir.find(u"/", ckanext_idx)
-        if ~idx:
-            plugin_dir = plugin_dir[:idx]
-        migration_dir = os.path.join(plugin_dir, u"migration", plugin)
-    else:
-        import ckan.migration as _cm
-        migration_dir = os.path.dirname(_cm.__file__)
-    config = CKANAlembicConfig(os.path.join(migration_dir, u"alembic.ini"))
+    config = CKANAlembicConfig(_resolve_alembic_config(plugin))
+    migration_dir = os.path.dirname(config.config_file_name)
     if not os.path.isdir(migration_dir):
         alembic.command.init(config, migration_dir)
-    cwd = os.getcwd()
-    os.chdir(migration_dir)
     rev = alembic.command.revision(config, message)
-    os.chdir(cwd)
     click.secho(
         u"Revision file created. Now, you need to update it: \n\t{}".format(
             rev.path),
         fg=u"green")
+        # alembic_config.set_main_option(
+            # "script_location", self.migrate_repository
+        # )

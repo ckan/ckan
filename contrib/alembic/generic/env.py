@@ -24,6 +24,8 @@ target_metadata = None
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+name = os.path.basename(os.path.dirname(__file__))
+
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -37,7 +39,6 @@ def run_migrations_offline():
     script output.
 
     """
-    name = os.path.basename(os.path.dirname(__file__))
 
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -64,7 +65,8 @@ def run_migrations_online():
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=target_metadata
+            target_metadata=target_metadata,
+            version_table='{}_alembic_version'.format(name)
         )
 
         with context.begin_transaction():
