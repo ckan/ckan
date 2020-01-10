@@ -8,7 +8,7 @@ from alembic.config import Config as AlembicConfig
 
 import ckan
 from ckan.cli.db import _resolve_alembic_config
-
+import ckan.plugins.toolkit as tk
 
 class CKANAlembicConfig(AlembicConfig):
     def get_template_directory(self):
@@ -35,9 +35,9 @@ def extension(output_dir):
     try:
         from cookiecutter.main import cookiecutter
     except ImportError:
-        error_shout(u"`cookiecutter` library is missing from import path.")
-        error_shout(u"Make sure you have dev-dependencies installed:")
-        error_shout(u"\tpip install -r dev-requirements.txt")
+        tk.error_shout(u"`cookiecutter` library is missing from import path.")
+        tk.error_shout(u"Make sure you have dev-dependencies installed:")
+        tk.error_shout(u"\tpip install -r dev-requirements.txt")
         raise click.Abort()
 
     cur_loc = os.path.dirname(os.path.abspath(__file__))
