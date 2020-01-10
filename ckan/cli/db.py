@@ -87,7 +87,7 @@ def version(hash):
     )
 
 
-@db.command(u'duplicate_emails', short_help=u'Check users email for duplicate')
+@db.command(u"duplicate_emails", short_help=u"Check users email for duplicate")
 def duplicate_emails():
     u'''Check users email for duplicate'''
     log.info(u"Searching for accounts with duplicate emails.")
@@ -96,23 +96,20 @@ def duplicate_emails():
                             model.User.name) \
         .filter(model.User.state == u"active") \
         .filter(model.User.email != u"") \
-        .order_by(model.User.email)
+        .order_by(model.User.email).all()
 
-    if q.all():
-        try:
-            for k, grp in groupby(q.all(), lambda x: x[0]):
-                users = [user[1] for user in grp]
-                if len(users) > 1:
-                    s = u'{} appears {} time(s). Users: {}'
-                    click.secho(s.format(k, len(users), u', '.join(users)))
-        except Exception as e:
-            error_shout(e)
-        else:
-            click.secho(u'Duplicate email search: SUCCESS',
-                        fg=u'green', bold=True)
-    else:
-        click.secho(u'Duplicate email search: NOT FOUND',
-                    fg=u'green', bold=True)
+    if not q:
+        log.info(u"No duplicate emails found")
+    try:
+        for k, grp in groupby(q, lambda x: x[0]):
+            users = [user[1] for user in grp]
+            if len(users) > 1:
+                s = u"{} appears {} time(s). Users: {}"
+                click.secho(
+                    s.format(k, len(users), u", ".join(users)),
+                    fg=u"green", bold=True)
+    except Exception as e:
+        error_shout(e)
 
 
 def _version_hash_to_ordinal(version):
