@@ -80,7 +80,8 @@ class TestUserInvite(object):
         rand.return_value.choice.side_effect = "TestPassword1" * 3
 
         for _ in range(3):
-            invited_user = self._invite_user_to_group(email="same@email.com")
+            invited_user = self._invite_user_to_group(
+                email="same{}@email.com".format(_))
             assert invited_user is not None, invited_user
 
     @mock.patch("ckan.lib.mailer.send_invite")
