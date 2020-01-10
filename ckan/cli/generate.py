@@ -10,6 +10,7 @@ import ckan
 from ckan.cli.db import _resolve_alembic_config
 import ckan.plugins.toolkit as tk
 
+
 class CKANAlembicConfig(AlembicConfig):
     def get_template_directory(self):
         return os.path.join(os.path.dirname(ckan.__file__),
@@ -47,8 +48,8 @@ def extension(output_dir):
 
     # Prompt user for information
     name = click.prompt(
-        u"Extenion's name (`ckanext-` prefix added automatically if not provided)"
-    )
+        u"Extenion's name "
+        u"(`ckanext-` prefix added automatically if not provided)")
     if not name.startswith(u"ckanext-"):
         name = u"ckanext-" + name
 
@@ -94,12 +95,11 @@ def extension(output_dir):
 
 
 @generate.command()
-@click.option(
-    u"-p",
-    u"--plugin",
-    help=
-    u"Plugin's that requires migration(name, used in `ckan.plugins` config section). If not provided, core CKAN migration created instead."
-)
+@click.option(u"-p",
+              u"--plugin",
+              help=(u"Plugin's that requires migration"
+                    u"(name, used in `ckan.plugins` config section). "
+                    u"If not provided, core CKAN migration created instead."))
 @click.option(u"-m",
               u"--message",
               help=u"Message string to use with `revision`.")
@@ -108,7 +108,7 @@ def migration(plugin, message):
     """
     import ckan.model
     config = CKANAlembicConfig(_resolve_alembic_config(plugin))
-    config.set_main_option("sqlalchemy.url",
+    config.set_main_option(u"sqlalchemy.url",
                            str(ckan.model.repo.metadata.bind.url))
 
     migration_dir = os.path.dirname(config.config_file_name)
