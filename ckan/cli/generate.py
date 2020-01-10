@@ -4,10 +4,10 @@ import os
 
 import alembic.command
 import click
+from alembic.config import Config as AlembicConfig
 
 import ckan
 from ckan.cli.db import _resolve_alembic_config
-from alembic.config import Config as AlembicConfig
 
 
 class CKANAlembicConfig(AlembicConfig):
@@ -106,8 +106,11 @@ def extension(output_dir):
 def migration(plugin, message):
     """Create new alembic revision for DB migration.
     """
-
+    import ckan.model
     config = CKANAlembicConfig(_resolve_alembic_config(plugin))
+    config.set_main_option("sqlalchemy.url",
+                           str(ckan.model.repo.metadata.bind.url))
+
     migration_dir = os.path.dirname(config.config_file_name)
     if not os.path.isdir(migration_dir):
         alembic.command.init(config, migration_dir)
@@ -116,6 +119,3 @@ def migration(plugin, message):
         u"Revision file created. Now, you need to update it: \n\t{}".format(
             rev.path),
         fg=u"green")
-        # alembic_config.set_main_option(
-            # "script_location", self.migrate_repository
-        # )

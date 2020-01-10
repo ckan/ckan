@@ -10,7 +10,6 @@ import ckan.migration as migration_repo
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
-
 log = logging.getLogger(__name__)
 
 applies_to_plugin = click.option(u"-p", u"--plugin", help=u"Affected plugin.")
