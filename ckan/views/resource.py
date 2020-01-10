@@ -243,7 +243,7 @@ class CreateView(MethodView):
         except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
-            if data.get(u'url_type') == u'upload' and data.get('url'):
+            if data.get(u'url_type') == u'upload' and data.get(u'url'):
                 data[u'url'] = u''
                 data[u'url_type'] = u''
                 errors[u'previous_upload'] = True
