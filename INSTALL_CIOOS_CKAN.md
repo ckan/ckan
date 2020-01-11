@@ -335,10 +335,11 @@ The settings for harvesters are fairly straightforward. The one exception is the
   "force_package_type": "dataset",
   "groups_filter_include": ["cioos"],
   "spatial_crs": "4326",
+  "spatial_filter_file": "./cioos-siooc-schema/pacific_RA.wkt",
   "spatial_filter": "POLYGON((-128.17701209 51.62096599, -127.92157996 51.62096599, -127.92157996 51.73507366, -128.17701209 51.73507366, -128.17701209 51.62096599))"
 }
 ```
-Note that `use_default_schema` and `force_package_type` are not needed and will cause validation errors if harvesting between two ckans using the same custom schema (the CIOOS setup)
+Note that `use_default_schema` and `force_package_type` are not needed and will cause validation errors if harvesting between two ckans using the same custom schema (the CIOOS setup). `spatial_filter_file`, if set, will take presidents over `spatial_filter`. Thus in the above example the `spatial_filter` paramiter will be ignored in favour of loading the spatial filter from an external file
 
 ### reindex Harvesters
 it may become nesisary to reindex harvesters, especially if they no longer report the correct number of harveted datasets. If modifying the harvester config you will also need to reindex to make the new config take affect
@@ -449,6 +450,9 @@ add the following to your sites configs
 		<location /ckan>
   	    ProxyPass http://localhost:5000/
   	    ProxyPassReverse http://localhost:5000/
+        # enable deflate
+        SetOutputFilter DEFLATE
+        SetEnvIfNoCase Request_URI "\.(?:gif|jpe?g|png)$" no-gzip
    	</location>
 
     # pycsw
@@ -495,6 +499,19 @@ Restart apache
   sudo apachectl restart
 ```
 
+# Enable Compression in Apache
+ubuntu https://rietta.com/blog/moddeflate-dramatic-website-speed/
+centos7 https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-mod_deflate-on-centos-7
+Enable mod_deflate in your Apache2 installation
+
+```bash
+sudo a2enmod deflate
+```
+
+Restart apache
+```bash
+  sudo apachectl restart
+```
 
 # Customize interface
 Now that you have ckan running you can customize the interface via the admin config page. Go to http://localhost:5000/ckan-admin/config and configure some of the site options.
@@ -567,6 +584,11 @@ update ckan/contrib/docker/production.ini
 ```bash
   export VOL_CKAN_CONFIG=`sudo docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
   sudo nano $VOL_CKAN_CONFIG/production.ini
+```
+
+on windows edit the production.ini file and copy it to the volume
+```bash
+  docker cp production.ini ckan:/etc/ckan/
 ```
 
 Is ckan running? Check container is running and view logs
@@ -753,6 +775,10 @@ update permissions (optional)
 
 ```bash
 sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/
+```
+
+```bash
+docker exec -u root -it ckan chown 900:900 -R /usr/lib/ckan
 ```
 
 restart the container affected by the change. If changing html files you may not need to restart anything
