@@ -418,10 +418,11 @@ options     - A list/tuple of fields to be used as <options>.
   #}
 {% macro image_upload(data, errors, field_url='image_url', field_upload='image_upload', field_clear='clear_upload',
                       is_url=false, is_upload=false, is_upload_enabled=false, placeholder=false,
-                      url_label='', upload_label='', field_name='image_url', previous_upload=false)  %}
+                      url_label='', upload_label='', field_name='image_url')  %}
   {% set placeholder = placeholder if placeholder else _('http://example.com/my-image.jpg') %}
   {% set url_label = url_label or _('Image URL')  %}
   {% set upload_label = upload_label or _('Image')  %}
+  {% set previous_upload = data['previous_upload'] %}
 
   {% if is_upload_enabled %}
 
