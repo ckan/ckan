@@ -7,8 +7,7 @@ this file will be loaded to setup the test environment.
 
 It registers the root directory of the project in sys.path and
 pkg_resources, in case the project hasn't been installed with
-setuptools. It also initializes the application via websetup (paster
-setup-app) with the project's test.ini configuration file.
+setuptools.
 """
 import os
 from unittest import TestCase
@@ -54,9 +53,6 @@ __all__ = [
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
-
-# Invoke websetup with the current config file
-# SetupCommand('setup-app').run([config['__file__']])
 
 # monkey patch paste.fixtures.TestRespose
 # webtest (successor library) already has this
