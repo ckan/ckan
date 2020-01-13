@@ -94,6 +94,7 @@ def make_flask_stack(conf, **app_conf):
     app.jinja_options = jinja_extensions.get_jinja_env_options()
 
     app.debug = debug
+
     app.testing = testing
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals

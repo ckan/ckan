@@ -258,4 +258,5 @@ def member_create(context, data_dict):
 def api_token_create(context, data_dict):
     """Create new token for current user.
     """
-    return {'success': not authz.auth_is_anon_user(context)}
+    user = context['model'].User.get(data_dict['user'])
+    return {'success': user.name == context['user']}

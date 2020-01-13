@@ -1,0 +1,44 @@
+{#
+  Template variables:
+
+  user - currently viewed user
+  tokens - list of ApiToken entities
+
+  #}
+
+<table class="table table-stripped table-condensed table-header table-hover table-bordered">
+  <thead>
+    <tr>
+      <th scope="col" colspan="1">{{ _('Token') }}</th>
+      <th scope="col">{{ _('Last access') }}</th>
+      <th scope="col">{{ _('Revoke') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for token in tokens%}
+      <tr>
+        <td colspan="1">
+          <code>
+            {{ token.id | truncate(25) }}
+          </code>
+        </td>
+        <td>
+          {{ h.render_datetime(token.last_access, with_hours=True) or _('Never') }}
+        </td>
+        <td>
+          {% set action = h.url_for("user.api_token_revoke", id=user['name'], token=token['id']) %}
+          <form action="{{ action }}" method="POST">
+            <div class="btn-group">
+              <button type="button" class="btn btn-default btn-sm" title="{{ _('Copy') }}" data-module="copy-into-buffer" data-module-value="{{ token['id'] }}">
+                <i class="fa fa-copy"></i>
+              </button>
+              <button type="submit" href="{{ action }}" class="btn btn-danger btn-sm" title="{{ _('Revoke') }}" data-module="confirm-action">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

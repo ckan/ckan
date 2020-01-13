@@ -1486,9 +1486,9 @@ def api_token_create(context, data_dict):
     .. versionadded:: 2.9
     """
     model = context['model']
-    user = context['user']
+    user = _get_or_bust(data_dict, 'user')
 
     _check_access('api_token_create', context, data_dict)
-    api_token = model_save.api_token_save({}, context)
+    api_token = model_save.api_token_save({'user': user}, context)
     model.Session.commit()
     return model_dictize.api_token_dictize(api_token, context)

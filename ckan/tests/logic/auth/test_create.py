@@ -378,4 +378,4 @@ class TestApiToken(object):
         helpers.call_auth(u"api_token_create", {
             u"model": core_model,
             u"user": user[u"name"]
-        })
+        }, user=user[u"name"])

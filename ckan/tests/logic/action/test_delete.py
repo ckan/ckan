@@ -579,11 +579,11 @@ class TestApiToken(object):
         token = helpers.call_action(u"api_token_create", context={
             u"model": model,
             u"user": user[u"name"]
-        })
+        }, user=user[u"name"])
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,
             u"user": user[u"name"]
-        })
+        }, user=user[u"name"])
         assert len(tokens) == 1
 
         helpers.call_action(u"api_token_revoke", context={
@@ -595,7 +595,7 @@ class TestApiToken(object):
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,
             u"user": user[u"name"]
-        })
+        }, user=user[u"name"])
         assert len(tokens) == 0
 
         with pytest.raises(logic.NotFound):

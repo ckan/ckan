@@ -158,7 +158,6 @@ def api_token_revoke(context, data_dict):
     model = context['model']
     token = model.Session.query(model.ApiToken).get(data_dict['token'])
 
-
     # Do not make distinction between absent keys and keys not owned
     # by user in order to prevent accidential key discovery.
     if token is None or token.owner.name != context['user']:

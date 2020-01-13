@@ -4270,11 +4270,11 @@ class TestApiToken(object):
             token = helpers.call_action(u"api_token_create", context={
                 u"model": model,
                 u"user": user[u"name"]
-            })
+            }, user=user[u"name"])
             ids.append(token[u"id"])
 
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,
             u"user": user[u"name"]
-        })
+        }, user=user[u"name"])
         assert sorted([t[u"id"] for t in tokens]) == sorted(ids)

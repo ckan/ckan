@@ -154,6 +154,57 @@ def read(id):
     return base.render(u'user/read.html', extra_vars)
 
 
+class ApiTokenView(MethodView):
+    def get(self, id):
+        context = {
+            u'model': model,
+            u'session': model.Session,
+            u'user': g.user,
+            u'auth_user_obj': g.userobj,
+            u'for_view': True
+        }
+        try:
+            tokens = logic.get_action(u'api_token_list')(context, {u'user': id})
+        except logic.NotAuthorized:
+            base.abort(403, _(u'Unauthorized to view API tokens.'))
+
+        data_dict = {
+            u'id': id,
+            u'user_obj': g.userobj,
+            u'include_datasets': True,
+            u'include_num_followers': True
+        }
+
+        extra_vars = _extra_template_variables(context, data_dict)
+        if extra_vars is None:
+            return h.redirect_to(u'user.login')
+        extra_vars[u'tokens'] = tokens
+        return base.render(u'user/api_tokens.html', extra_vars)
+
+    def post(self, id):
+        context = {u'model': model}
+        try:
+            token = logic.get_action(u'api_token_create')(context, {u'user': id})
+        except logic.NotAuthorized:
+            base.abort(403, _(u'Unauthorized to create API tokens.'))
+
+        h.flash_success(
+            _(u'API Token created: <code>{token}</code>').format(token=token[u'id']),
+            True
+        )
+        return h.redirect_to(u'user.api_tokens', id=id)
+
+
+def api_token_revoke(id, token):
+    context = {u'model': model}
+    try:
+        token = logic.get_action(u'api_token_revoke')(context, {u'token': token})
+    except logic.NotAuthorized:
+        base.abort(403, _(u'Unauthorized to revoke API tokens.'))
+
+    return h.redirect_to(u'user.api_tokens', id=id)
+
+
 class EditView(MethodView):
     def _prepare(self, id):
         context = {
@@ -766,3 +817,5 @@ user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)
+user.add_url_rule(u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens')))
+user.add_url_rule(u'/<id>/api-tokens/<token>/revoke', view_func=api_token_revoke, methods=(u'POST',))

@@ -3428,9 +3428,10 @@ def api_token_list(context, data_dict):
 
     .. versionadded:: 2.9
     '''
+    user = _get_or_bust(data_dict, u'user')
     _check_access(u'api_token_list', context, data_dict)
 
     tokens = model.Session.query(model.ApiToken).filter_by(
-        user_id=model.User.by_name(context[u"user"]).id
+        user_id=model.User.get(user).id
     )
     return model_dictize.api_token_list_dictize(tokens, context)

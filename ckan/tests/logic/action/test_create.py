@@ -1176,7 +1176,7 @@ class TestApiToken(object):
         res = helpers.call_action(u"api_token_create", context={
             u"model": model,
             u"user": user[u"name"]
-        })
+        }, user=user[u"name"])
         assert res[u"user_id"] == user[u"id"]
         assert res[u"last_access"] is None
         assert res[u"id"] is not None

@@ -198,18 +198,20 @@ class TestGetAuth(object):
         )
 
 
+@pytest.mark.usefixtures(u"clean_db")
 class TestApiToken(object):
     def test_anon_is_not_allowed_to_get_tokens(self):
+        user = factories.User()
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 u"api_token_list",
-                {u"user": None, u"model": model}
+                {u"user": None, u"model": model},
+                user=user['name']
             )
 
-    @pytest.mark.usefixtures(u"clean_db")
     def test_auth_user_is_allowed_to_list_tokens(self):
         user = factories.User()
         helpers.call_auth(u"api_token_list", {
             u"model": model,
             u"user": user[u"name"]
-        })
+        }, user=user[u"name"])
