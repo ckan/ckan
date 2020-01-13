@@ -438,6 +438,7 @@ def api_token_list(context, data_dict):
     """List all available tokens for current user.
     """
     user = context['model'].User.get(data_dict['user'])
+
     if user is None:
         raise logic.NotFound(_('User not found, cannot check auth.'))
     return {'success': user.name == context['user']}

@@ -204,6 +204,12 @@ def _get_user_for_apikey():
     log.debug(u'Received API Key: %s' % apikey)
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()
+    if user is None:
+        api_token = model.Session.query(model.ApiToken).get(apikey)
+        if api_token is None:
+            return None
+        api_token.touch(True)
+        user = api_token.owner
     return user
 
 
