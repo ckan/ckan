@@ -206,7 +206,7 @@ def _get_user_for_apikey():
     user = query.filter_by(apikey=apikey).first()
     if user is None:
         api_token = apikey
-        for plugin in p.PluginImplementations(p.IApiToken):
+        for plugin in reversed(list(p.PluginImplementations(p.IApiToken))):
             api_token = plugin.preprocess_api_token(api_token, apikey)
 
         api_token = model.Session.query(model.ApiToken).get(api_token)

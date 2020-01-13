@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Create ApiToken table
 
 Revision ID: ca0d08e1c046
@@ -19,7 +21,9 @@ depends_on = None
 def upgrade():
     op.create_table(
         u'api_token',
-        sa.Column(u'id', sa.UnicodeText, primary_key=True, default=_make_token),
+        sa.Column(
+            u'id', sa.UnicodeText, primary_key=True, default=_make_token
+        ),
         sa.Column(u'name', sa.UnicodeText),
         sa.Column(u'user_id', sa.UnicodeText, sa.ForeignKey(u'user.id')),
         sa.Column(u'last_access', sa.DateTime, nullable=True),
