@@ -1166,3 +1166,17 @@ class TestFollowUser(object):
         assert [activity["activity_type"] for activity in activities] == []
         # A follow creates no Activity, since:
         # https://github.com/ckan/ckan/pull/317
+
+
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
+
+    def test_token_created(self):
+        user = factories.User()
+        res = helpers.call_action(u"api_token_create", context={
+            u"model": model,
+            u"user": user[u"name"]
+        })
+        assert res[u"user_id"] == user[u"id"]
+        assert res[u"last_access"] is None
+        assert res[u"id"] is not None

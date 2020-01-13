@@ -767,3 +767,21 @@ def job_cancel(context, data_dict):
         log.info(u'Cancelled background job {}'.format(id))
     except KeyError:
         raise NotFound
+
+
+def api_token_revoke(context, data_dict):
+    """Delete API Token.
+
+    :param string token: Token to remove.
+    .. versionadded:: 2.9
+    """
+    token = _get_or_bust(data_dict, u'token')
+    _check_access(u'api_token_revoke', context, data_dict)
+
+    model = context['model']
+    token = model.Session.query(model.ApiToken).get(token)
+    if token is None:
+        raise NotFound
+
+    model.Session.delete(token)
+    model.Session.commit()

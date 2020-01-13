@@ -1473,3 +1473,22 @@ def follow_group(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_group_dictize(follower, context)
+
+
+def api_token_create(context, data_dict):
+    """Create new API Token for current user.
+
+    You must provide your API key in the Authorization header.
+
+    :returns: a representation of the 'api_token'
+    :rtype: dictionary
+
+    .. versionadded:: 2.9
+    """
+    model = context['model']
+    user = context['user']
+
+    _check_access('api_token_create', context, data_dict)
+    api_token = model_save.api_token_save({}, context)
+    model.Session.commit()
+    return model_dictize.api_token_dictize(api_token, context)

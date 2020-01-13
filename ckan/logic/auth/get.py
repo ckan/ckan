@@ -406,11 +406,6 @@ def user_reset(context, data_dict):
     return {'success': True}
 
 
-def apikey_show(context, data_dict):
-    allow = asbool(config.get('ckan.auth.get_apikey_via_api', False))
-    return {'success': allow}
-
-
 def request_reset(context, data_dict):
     return {'success': True}
 
@@ -437,3 +432,9 @@ def job_list(context, data_dict):
 def job_show(context, data_dict):
     '''Show background job. Only sysadmins.'''
     return {'success': False}
+
+
+def api_token_list(context, data_dict):
+    """List all available tokens for current user.
+    """
+    return {'success': not authz.auth_is_anon_user(context)}

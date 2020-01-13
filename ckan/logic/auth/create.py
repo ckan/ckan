@@ -253,3 +253,9 @@ def member_create(context, data_dict):
                         (str(user), group.id)}
     else:
         return {'success': True}
+
+
+def api_token_create(context, data_dict):
+    """Create new token for current user.
+    """
+    return {'success': not authz.auth_is_anon_user(context)}

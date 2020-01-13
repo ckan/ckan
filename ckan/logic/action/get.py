@@ -3420,27 +3420,17 @@ def job_show(context, data_dict):
         raise NotFound
 
 
-def apikey_show(context, data_dict):
-    '''Return an apikey for user account after authentication attempt.
+def api_token_list(context, data_dict):
+    '''Return list of all available API Tokens for current user.
 
-    Parameters may vary depending on used authenticators. For example,
-    `ckan.lib.authenticator:UsernamePasswordAuthenticator` uses
-    `login` and `passwords` parameters.
+    :returns: collection of all API Tokens
+    :rtype: list
 
-    :returns: API Key of the user.
-    :rtype: string
-
+    .. versionadded:: 2.9
     '''
-    _check_access(u'apikey_show', context, data_dict)
-    auth_plugins = chain(
-        [UsernamePasswordAuthenticator()],
-        plugins.PluginImplementations(plugins.IAuthenticator)
+    _check_access(u'api_token_list', context, data_dict)
+
+    tokens = model.Session.query(model.ApiToken).filter_by(
+        user_id=model.User.by_name(context[u"user"]).id
     )
-    for plugin in auth_plugins:
-        username = plugin.authenticate(request.environ, data_dict)
-        if username:
-            break
-    user = model.User.by_name(username)
-    if user is None:
-        raise NotFound()
-    return user.apikey
+    return model_dictize.api_token_list_dictize(tokens, context)

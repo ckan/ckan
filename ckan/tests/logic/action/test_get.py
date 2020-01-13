@@ -8,6 +8,7 @@ import pytest
 from six import text_type
 from six.moves import xrange
 
+from ckan import model
 import ckan.logic as logic
 import ckan.logic.schema as schema
 import ckan.plugins as p
@@ -316,7 +317,6 @@ class TestGroupList(object):
         assert "datasets" not in group_list[0]
 
     def _create_bulk_groups(self, name, count):
-        from ckan import model
 
         groups = [
             model.Group(name="{}_{}".format(name, i)) for i in range(count)
@@ -4259,18 +4259,22 @@ class TestDashboardNewActivities(object):
         )
 
 
-class TestApiKeyShow(object):
-    def test_incorrect_credentials(self, app):
-        with pytest.raises(logic.NotFound):
-            with app.flask_app.test_request_context():
-                helpers.call_action("apikey_show", login=u"not-a-user", password="not-a-password")
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
 
-    @pytest.mark.usefixtures("clean_db")
-    def test_correct_credentials(self, app):
-        password = u"valid-password"
-        user = factories.User(password=password)
-        with app.flask_app.test_request_context():
-            apikey = helpers.call_action(
-                "apikey_show", login=user["name"], password=password
-            )
-        assert apikey == user["apikey"]
+    @pytest.mark.parametrize('num_tokens', [0, 1, 2, 5])
+    def test_token_list(self, num_tokens):
+        user = factories.User()
+        ids = []
+        for _ in range(num_tokens):
+            token = helpers.call_action(u"api_token_create", context={
+                u"model": model,
+                u"user": user[u"name"]
+            })
+            ids.append(token[u"id"])
+
+        tokens = helpers.call_action(u"api_token_list", context={
+            u"model": model,
+            u"user": user[u"name"]
+        })
+        assert sorted([t[u"id"] for t in tokens]) == sorted(ids)

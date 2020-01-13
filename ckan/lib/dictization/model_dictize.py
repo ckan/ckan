@@ -705,3 +705,14 @@ def resource_view_list_dictize(resource_views, context):
     for view in resource_views:
         resource_view_dicts.append(resource_view_dictize(view, context))
     return resource_view_dicts
+
+
+def api_token_dictize(api_token, context):
+    return d.table_dictize(api_token, context)
+
+
+def api_token_list_dictize(tokens, context):
+    token_dicts = []
+    for token in tokens:
+        token_dicts.append(api_token_dictize(token, context))
+    return token_dicts

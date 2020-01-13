@@ -126,3 +126,48 @@ def test_sysadmin_user_can_clear():
     response = helpers.call_auth("resource_view_clear", context=context)
 
     assert response
+
+
+class TestApiToken(object):
+    def test_anon_is_not_allowed_to_revoke_tokens(self):
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                u"api_token_revoke",
+                {u"user": None, u"model": model}
+            )
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_auth_user_is_allowed_to_revoke_tokens(self):
+        user = factories.User()
+        token = model.ApiToken(user[u"id"])
+        model.Session.add(token)
+        model.Session.commit()
+
+        helpers.call_auth(u"api_token_revoke", {
+            u"model": model,
+            u"user": user[u"name"]
+        }, token=token.id)
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_auth_user_is_allowed_to_revoke_unowned_tokens(self):
+        owner = factories.User()
+        not_owner = factories.User()
+        token = model.ApiToken(owner[u"id"])
+        model.Session.add(token)
+        model.Session.commit()
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(u"api_token_revoke", {
+                u"model": model,
+                u"user": not_owner[u"name"]
+            }, token=token.id)
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_auth_user_is_allowed_to_revoke_unexisting_tokens(self):
+        user = factories.User()
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(u"api_token_revoke", {
+                u"model": model,
+                u"user": user[u"name"]
+            }, token='not-exists')

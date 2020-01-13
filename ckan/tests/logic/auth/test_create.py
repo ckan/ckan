@@ -362,3 +362,20 @@ class TestRealUsersAuth(object):
 
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("activity_create", context=context)
+
+
+class TestApiToken(object):
+    def test_anon_is_not_allowed_to_create_tokens(self):
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                u"api_token_create",
+                {u"user": None, u"model": core_model}
+            )
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_auth_user_is_allowed_to_create_tokens(self):
+        user = factories.User()
+        helpers.call_auth(u"api_token_create", {
+            u"model": core_model,
+            u"user": user[u"name"]
+        })

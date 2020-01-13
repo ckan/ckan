@@ -25,7 +25,7 @@ api_token_table = Table(
 
 
 class ApiToken(object):
-    def __init__(self, user_id):
+    def __init__(self, user_id=None):
         self.id = _make_token()
         self.user_id = user_id
 

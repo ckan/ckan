@@ -32,15 +32,6 @@ def test_user_list_email_parameter():
 
 @pytest.mark.usefixtures(u"clean_db")
 class TestGetAuth(object):
-    def test_apikey_show_default(self):
-        context = {"user": None, "model": model}
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth("apikey_show", context=context)
-
-    @pytest.mark.ckan_config(u"ckan.auth.get_apikey_via_api", u"true")
-    def test_apikey_show_allowed(self):
-        context = {"user": None, "model": model}
-        helpers.call_auth("apikey_show", context=context)
 
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
     def test_auth_user_show(self):
@@ -205,3 +196,20 @@ class TestGetAuth(object):
             id=dataset["id"],
             include_data=True,
         )
+
+
+class TestApiToken(object):
+    def test_anon_is_not_allowed_to_get_tokens(self):
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                u"api_token_list",
+                {u"user": None, u"model": model}
+            )
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_auth_user_is_allowed_to_list_tokens(self):
+        user = factories.User()
+        helpers.call_auth(u"api_token_list", {
+            u"model": model,
+            u"user": user[u"name"]
+        })

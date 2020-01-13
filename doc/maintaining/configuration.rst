@@ -595,18 +595,6 @@ Default value: ``True``
 
 Allow new user accounts to be created via the Web.
 
-ckan.auth.get_apikey_via_api
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.auth.get_apikey_via_api = True
-
-Default value: ``False``
-
-
-Allow authentication via API action in order to obtain API Key.
-
 .. _ckan.auth.roles_that_cascade_to_sub_groups:
 
 ckan.auth.roles_that_cascade_to_sub_groups
