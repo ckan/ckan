@@ -269,13 +269,13 @@ Like ``_``, ``ngettext`` can take additional placeholders:
     translation files are regenerated automatically if necessary when CKAN
     starts.
 
-    You can also regenerate the translation files manually using ``paster trans
+    You can also regenerate the translation files manually using ``ckan -c |/path/to/ckan.ini| trans
     js``::
 
         python setup.py extract_messages  # Extract translatable strings
         # Update .po files as desired
         python setup.py compile_catalog   # Compile .mo files for Python/Jinja
-        paster trans js                   # Compile JavaScript catalogs
+        ckan -c |/path/to/ckan.ini| trans js                   # Compile JavaScript catalogs
 
 
 .. note::

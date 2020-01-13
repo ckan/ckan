@@ -2,7 +2,7 @@
 Maintainer's guide
 ==================
 
-The sections below document how to setup and maintain a CKAN site, including
+The sections below documents how to setup and maintain a CKAN site, including
 installing, upgrading and configuring CKAN and its features and extensions.
 
 .. toctree::
@@ -12,7 +12,7 @@ installing, upgrading and configuring CKAN and its features and extensions.
    upgrading/index
    getting-started
    database-management
-   paster
+   cli
    authorization
    data-viewer
    filestore
