@@ -205,7 +205,11 @@ def _get_user_for_apikey():
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()
     if user is None:
-        api_token = model.Session.query(model.ApiToken).get(apikey)
+        api_token = apikey
+        for plugin in p.PluginImplementations(p.IApiToken):
+            api_token = plugin.preprocess_api_token(api_token, apikey)
+
+        api_token = model.Session.query(model.ApiToken).get(api_token)
         if api_token is None:
             return None
         api_token.touch(True)

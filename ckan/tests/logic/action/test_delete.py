@@ -579,7 +579,7 @@ class TestApiToken(object):
         token = helpers.call_action(u"api_token_create", context={
             u"model": model,
             u"user": user[u"name"]
-        }, user=user[u"name"])
+        }, user=user[u"name"], name="token-name")
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,
             u"user": user[u"name"]
@@ -589,8 +589,7 @@ class TestApiToken(object):
         helpers.call_action(u"api_token_revoke", context={
             u"model": model,
             u"user": user[u"name"]
-        }, token=token[u"id"])
-
+        }, token=token)
 
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,
@@ -602,4 +601,4 @@ class TestApiToken(object):
             helpers.call_action(u"api_token_revoke", context={
                 u"model": model,
                 u"user": user[u"name"]
-            }, token=token[u"id"])
+            }, token=token)

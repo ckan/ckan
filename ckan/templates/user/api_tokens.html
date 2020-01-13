@@ -1,8 +1,15 @@
 {% extends "user/read_base.html" %}
 
+{% import 'macros/form.html' as form %}
+
 {% block page_primary_action %}
   {% if h.check_access('api_token_create', {'user': user['name']}) %}
-    <form method="POST">
+    <form method="POST" class="form form-inline">
+      <div class="form-group ">
+        <div class="controls ">
+          <input required type="text" name="name" placeholder="{{ _('Token name') }}" class="form-control">
+        </div>
+      </div>
       <button class="btn btn-primary" type="submit" value="create">
         {{ _('Create API Token') }}
       </button>

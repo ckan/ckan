@@ -39,6 +39,7 @@ __all__ = [
     u'IBlueprint',
     u'IPermissionLabels',
     u'IForkObserver',
+    u'IApiToken',
     u'IClick',
 ]
 
@@ -1780,6 +1781,50 @@ class IForkObserver(Interface):
         u'''
         Called shortly before the CKAN process is forked.
         '''
+
+
+class IApiToken(Interface):
+    """Extend functionality of API Tokens.
+    """
+    def preprocess_api_token(self, token, original, user):
+        """Parse or convert API Token into correct form.
+
+        Allows decoding or extracting any kind of additional
+        information from API Token, before it used for fetching
+        current user from database.
+
+        :param token: current form of token(may be already modified by
+        some plugin.)
+        :type token: str
+
+        :param original: original form of token, before any modification.
+        :type original: str
+
+        :returns: final form of token that will be passed into other
+        plugins and, finally, used for fetching User instance
+        :rtype: str
+
+        """
+        return token
+
+    def postprocess_api_token(self, token, original):
+        """Encode additional information into API Token.
+
+        Allows passing any kind of additional information into API
+        Token or performing side effects, before it shown to user.
+
+        :param token: current form of token(may be already modified by
+        some plugin.)
+        :type token: str
+
+        :param original: original form of token, before any modification.
+        :type original: str
+
+        :returns: final form of token that will be used as API Token
+        :rtype: str
+
+        """
+        return token
 
 
 class IClick(Interface):

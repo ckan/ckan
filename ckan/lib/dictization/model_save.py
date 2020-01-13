@@ -612,6 +612,9 @@ def resource_view_dict_save(data_dict, context):
 def api_token_save(data_dict, context):
     model = context[u"model"]
     return d.table_dict_save(
-        {u"user_id": model.User.get(data_dict['user']).id},
+        {
+            u"user_id": model.User.get(data_dict['user']).id,
+            u"name": data_dict[u"name"]
+        },
         model.ApiToken, context
     )

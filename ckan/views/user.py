@@ -5,6 +5,7 @@ from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
 from six import text_type
+import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
@@ -164,7 +165,9 @@ class ApiTokenView(MethodView):
             u'for_view': True
         }
         try:
-            tokens = logic.get_action(u'api_token_list')(context, {u'user': id})
+            tokens = logic.get_action(u'api_token_list')(
+                context, {u'user': id}
+            )
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to view API tokens.'))
 
@@ -183,13 +186,29 @@ class ApiTokenView(MethodView):
 
     def post(self, id):
         context = {u'model': model}
+
         try:
-            token = logic.get_action(u'api_token_create')(context, {u'user': id})
+            token = logic.get_action(u'api_token_create')(
+                context,
+                {u'user': id, u'name': request.form.get(u'name')}
+            )
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to create API tokens.'))
 
+        copy_btn = dom_tags.button(dom_tags.i(u'', {
+            u'class': u'fa fa-copy'
+        }), {
+            u'type': u'button',
+            u'class': u'btn btn-default btn-xs',
+            u'data-module': u'copy-into-buffer',
+            u'data-module-value': token
+        })
         h.flash_success(
-            _(u'API Token created: <code>{token}</code>').format(token=token[u'id']),
+            _(
+                u'API Token created: <code>{token}</code> {copy}<br>'
+                u'Make sure to copy it now. '
+                u'It can be impossible to see it again!'
+            ).format(token=token, copy=copy_btn),
             True
         )
         return h.redirect_to(u'user.api_tokens', id=id)
@@ -198,7 +217,9 @@ class ApiTokenView(MethodView):
 def api_token_revoke(id, token):
     context = {u'model': model}
     try:
-        token = logic.get_action(u'api_token_revoke')(context, {u'token': token})
+        token = logic.get_action(u'api_token_revoke')(
+            context, {u'token': token}
+        )
     except logic.NotAuthorized:
         base.abort(403, _(u'Unauthorized to revoke API tokens.'))
 
@@ -817,5 +838,10 @@ user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)
-user.add_url_rule(u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens')))
-user.add_url_rule(u'/<id>/api-tokens/<token>/revoke', view_func=api_token_revoke, methods=(u'POST',))
+user.add_url_rule(
+    u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
+)
+user.add_url_rule(
+    u'/<id>/api-tokens/<token>/revoke', view_func=api_token_revoke,
+    methods=(u'POST',)
+)

@@ -1486,9 +1486,15 @@ def api_token_create(context, data_dict):
     .. versionadded:: 2.9
     """
     model = context['model']
-    user = _get_or_bust(data_dict, 'user')
+    user, name = _get_or_bust(data_dict, ['user', 'name'])
 
     _check_access('api_token_create', context, data_dict)
-    api_token = model_save.api_token_save({'user': user}, context)
+
+    api_token = model_save.api_token_save(
+        {'user': user, 'name': name}, context
+    )
     model.Session.commit()
-    return model_dictize.api_token_dictize(api_token, context)
+    token = api_token.id
+    for plugin in plugins.PluginImplementations(plugins.IApiToken):
+        token = plugin.postprocess_api_token(token, api_token.id)
+    return token

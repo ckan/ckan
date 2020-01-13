@@ -1173,10 +1173,11 @@ class TestApiToken(object):
 
     def test_token_created(self):
         user = factories.User()
-        res = helpers.call_action(u"api_token_create", context={
+        token = helpers.call_action(u"api_token_create", context={
             u"model": model,
             u"user": user[u"name"]
-        }, user=user[u"name"])
-        assert res[u"user_id"] == user[u"id"]
-        assert res[u"last_access"] is None
-        assert res[u"id"] is not None
+        }, user=user[u"name"], name=u"token-name")
+        res = model.ApiToken.get(token)
+        assert res.user_id == user[u"id"]
+        assert res.last_access is None
+        assert res.id == token
