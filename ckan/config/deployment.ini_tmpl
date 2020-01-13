@@ -77,6 +77,9 @@ ckan.auth.public_user_details = true
 ckan.auth.public_activity_stream_detail = true
 ckan.auth.get_apikey_via_api = false
 
+## API Token Settings
+ckan.api_token.nbytes = 60
+
 ## Search Settings
 
 ckan.site_id = default
