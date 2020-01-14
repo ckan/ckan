@@ -7,7 +7,7 @@ Command Line Interface
 Most common CKAN administration tasks can be carried out from the command line
 on the server that CKAN is installed on, using the ``ckan`` command.
 
-If you have trouble running paster commands, see
+If you have trouble running ckan commands, see
 `Troubleshooting ckan Commands`_ below.
 
 .. note::
@@ -21,7 +21,7 @@ If you have trouble running paster commands, see
       cd |virtualenv|/src/ckan
 
    To run a ckan command without activating the virtualenv first, you have
-   to give the full path the paster script within the virtualenv, for example:
+   to give the full path the ckan script within the virtualenv, for example:
 
    .. parsed-literal::
 
@@ -55,7 +55,7 @@ to print out a list of all of your CKAN site's users do:
 
   You may also specify the location of your config file using the CKAN_INI
   environment variable. You will no longer need to use --config= or -c= to
-  tell paster where the config file is:
+  tell ckan where the config file is:
 
   .. parsed-literal::
 
@@ -70,7 +70,7 @@ to print out a list of all of your CKAN site's users do:
 a subcommand of ``user``.)
 
 For a list of all available commands, simply run ``ckan`` on its own with no
-command, or see `Paster Commands Reference`_. In this case we don't need the
+command, or see `CKAN Commands Reference`_. In this case we don't need the
 ``-c`` option, since we're only asking CKAN to print out information about
 commands, not to actually do anything with our CKAN site::
 
@@ -84,22 +84,22 @@ with the ``--help`` option::
 
 
 -------------------------------
-Troubleshooting Paster Commands
+Troubleshooting ckan Commands
 -------------------------------
 
 Permission Error
 ================
 
-If you receive 'Permission Denied' error, try running paster with sudo.
+If you receive 'Permission Denied' error, try running ckan with sudo.
 
 .. parsed-literal::
 
-  sudo |virtualenv|/bin/paster db clean -c |production.ini|
+  sudo |virtualenv|/bin/ckan db clean -c |production.ini|
 
 Virtualenv not activated, or not in ckan dir
 ============================================
 
-Most errors with paster commands can be solved by remembering to **activate
+Most errors with ckan commands can be solved by remembering to **activate
 your virtual environment** and **change to the ckan directory** before running
 the command:
 
@@ -113,17 +113,17 @@ this:
 
 * **Command 'foo' not known** (where *foo* is the name of the command you
   tried to run)
-* **The program 'paster' is currently not installed**
-* **Command not found: paster**
+* **The program 'ckan' is currently not installed**
+* **Command not found: ckan**
 * **ImportError: No module named fanstatic** (or other ``ImportError``\ s)
 
-Running paster commands provided by extensions
+Running ckan commands provided by extensions
 ==============================================
 
 **If you're trying to run a CKAN command provided by an extension** that you've
 installed and you're getting an error like **Command 'foo' not known** even
 though you've activated your virtualenv and changed to the ckan directory, this
-is because you need to run the extension's paster commands from the extension's
+is because you need to run the extension's ckan commands from the extension's
 source directory not CKAN's source directory. For example:
 
 .. parsed-literal::
@@ -463,7 +463,7 @@ For example::
 This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
 one dataset, you can provide a dataset name::
 
-    paster --plugin=ckan search-index rebuild test-dataset-name --config=/etc/ckan/std/std.ini
+    ckan --plugin=ckan search-index rebuild test-dataset-name --config=/etc/ckan/std/std.ini
 
 Alternatively, you can use the `-o` or `--only-missing` option to only reindex datasets which are not
 already indexed::
@@ -536,7 +536,7 @@ Usage::
 
     Since version 2.7 the JavaScript translation files are automatically
     regenerated if necessary when CKAN is started. Hence you usually do not
-    need to run ``paster trans js`` manually.
+    need to run ``ckan trans js`` manually.
 
 
 .. _paster-user:
