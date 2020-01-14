@@ -171,40 +171,59 @@ ckan Commands Reference
 The following ckan commands are supported by CKAN:
 
 ================= ============================================================
-check-po-files    Check po files for common mistakes
-create-test-data  Create test data in the database.
+asset             WebAssets commands.
+config-tool       Tool for editing options in a CKAN config file
+datapusher        Perform commands in the datapusher.
 dataset           Manage datasets.
 datastore         Perform commands to set up the datastore.
 db                Perform various tasks on the database.
 front-end-build   Creates and minifies css and JavaScript files
+generate          Generate empty extension files to expand CKAN
 jobs              Manage background jobs
 less              Compile all root less documents into their CSS counterparts
 minify            Create minified versions of the given Javascript and CSS files.
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
 profile           Code speed profiler
-ratings           Manage the ratings stored in the db
-rdf-export        Export active datasets as RDF.
 search-index      Creates a search index for all datasets
+seed              Create test data in the database.
+server            Start Development server.
 sysadmin          Gives sysadmin rights to a named user.
 tracking          Update tracking statistics.
-trans             Translation helper functions
+translation       Translation helper functions
 user              Manage users.
+views             Create views on relevant resources
 ================= ============================================================
 
 
-check-po-files: Check po files for common mistakes
-==================================================
+asset: WebAssets commands
+==================================
 
 Usage::
 
-    check-po-files [options] [FILE] ...
+    asset build            - Builds bundles, regardless of whether they are changed or not
+    asset watch            - Start a daemon which monitors source files, and rebuilds bundles
+    asset clean            - Will clear out the cache, which after a while can grow quite large
 
 
-create-test-data: Create test data
+config-tool: Tool for editing options in a CKAN config file
 ==================================
 
-As the name suggests, this command lets you load test data when first setting up CKAN. See :ref:`create-test-data` for details.
+Usage::
+
+    config-tool --section (-s)  - Section of the config file
+    config-tool --edit (-e)     - Checks the option already exists in the config file
+    config-tool --file (-f)     - Supply an options file to merge in
+
+Examples::
+
+      ckan config-tool default.ini sqlalchemy.url=123 'ckan.site_title=ABC'
+      ckan config-tool default.ini -s server:main -e port=8080
+      ckan config-tool default.ini -f custom_options.ini
+
+
+datapusher: Perform commands in the datapusher
+==================================
 
 
 dataset: Manage datasets
@@ -241,6 +260,14 @@ front-end-build: Creates and minifies css and JavaScript files
 Usage::
 
     front-end-build
+    
+    
+generate: Generate empty extension files to expand CKANs
+==============================================================
+
+Usage::
+
+    generate --output-dir (-o)   -   Location to put the generated template  
 
 
 .. _cli jobs:
@@ -409,23 +436,18 @@ The result is saved in profile.data.search. To view the profile in runsnakerun::
 You may need to install the cProfile python module.
 
 
-ratings: Manage dataset ratings
+search-index: Search index commands
 ===============================
 
-Manages the ratings stored in the database, and can be used to count ratings, remove all ratings, or remove only anonymous ratings.
+Usage::
 
-For example, to remove anonymous ratings from the database::
-
- ckan --plugin=ckan ratings clean-anonymous --config=/etc/ckan/std/std.ini
-
-
-rdf-export: Export datasets as RDF
-==================================
-
-This command dumps out all currently active datasets as RDF into the specified folder::
-
-    ckan rdf-export /path/to/store/output
-
+    search-index --verbose (-v)  - Verbose
+    search-index --force (-i)  - Ignore exceptions when rebuilding the index
+    search-index --refresh (-r)  - Ignore exceptions when rebuilding the index
+    search-index --only-missing (-o)  - Index non indexed datasets only
+    search-index --quiet (-q)  - Do not output index rebuild progress
+    search-index --commit-each (-e)  - Perform a commit after indexing each dataset
+    
 
 .. _rebuild search index:
 
@@ -465,6 +487,24 @@ There are other search related commands, mostly useful for debugging purposes::
     search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
 
 
+seed: Create test data in the database
+==================================
+
+Examples::
+
+      ckan seed -c /etc/ckan/default/production.ini
+      
+      
+server: Start Development server
+==================================
+
+Usage::
+
+    server --host (-h)  - Set Host
+    server --port (-p)  - Set Port
+    server --reloader (-r)  - Use reloader
+    
+
 sysadmin: Give sysadmin rights
 ==============================
 
@@ -484,7 +524,7 @@ Usage::
     tracking export FILE [start_date]  - export tracking stats to a csv file
 
 
-trans: Translation helper functions
+translation: Translation helper functions
 ===================================
 
 Usage::
@@ -513,3 +553,14 @@ For example, to create a new user called 'admin'::
 To delete the 'admin' user::
 
  ckan --plugin=ckan user remove admin --config=/etc/ckan/std/std.ini
+ 
+
+views: Create views on relevant resources
+=============================
+
+Usage::
+
+    views --dataset (-d)  - Set Dataset
+    views --no-default-filters
+    views --search (-s)  - Set Search
+    views --yes (-y)
