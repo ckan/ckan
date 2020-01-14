@@ -99,6 +99,8 @@ services:
   db:
     container_name: db
     image: docker_db
+    ports:
+       - "5432:5432"
     build:
       context: ../../
       dockerfile: contrib/docker/postgresql/Dockerfile
