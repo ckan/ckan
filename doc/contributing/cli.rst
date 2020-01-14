@@ -441,12 +441,12 @@ search-index: Search index commands
 
 Usage::
 
-    search-index --verbose (-v)  - Verbose
-    search-index --force (-i)  - Ignore exceptions when rebuilding the index
-    search-index --refresh (-r)  - Ignore exceptions when rebuilding the index
-    search-index --only-missing (-o)  - Index non indexed datasets only
-    search-index --quiet (-q)  - Do not output index rebuild progress
-    search-index --commit-each (-e)  - Perform a commit after indexing each dataset
+    search-index --verbose (-v)           - Verbose
+    search-index --force (-i)             - Ignore exceptions when rebuilding the index
+    search-index --refresh (-r)           - Ignore exceptions when rebuilding the index
+    search-index --only-missing (-o)      - Index non indexed datasets only
+    search-index --quiet (-q)             - Do not output index rebuild progress
+    search-index --commit-each (-e)       - Perform a commit after indexing each dataset
     
 
 .. _rebuild search index:
@@ -500,9 +500,9 @@ server: Start Development server
 
 Usage::
 
-    server --host (-h)  - Set Host
-    server --port (-p)  - Set Port
-    server --reloader (-r)  - Use reloader
+    server --host (-h)          - Set Host
+    server --port (-p)          - Set Port
+    server --reloader (-r)      - Use reloader
     
 
 sysadmin: Give sysadmin rights
@@ -529,8 +529,8 @@ translation: Translation helper functions
 
 Usage::
 
-    trans js      - generate the JavaScript translations
-    trans mangle  - mangle the zh_TW translations for testing
+    trans js        - generate the JavaScript translations
+    trans mangle    - mangle the zh_TW translations for testing
 
 .. note::
 
@@ -560,7 +560,7 @@ views: Create views on relevant resources
 
 Usage::
 
-    views --dataset (-d)  - Set Dataset
+    views --dataset (-d)        - Set Dataset
     views --no-default-filters
-    views --search (-s)  - Set Search
+    views --search (-s)         - Set Search
     views --yes (-y)
