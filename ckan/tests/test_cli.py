@@ -231,7 +231,7 @@ class TestJobShow(helpers.RQTestBase):
 
 class TestJobsCancel(helpers.RQTestBase):
     """
-    Tests for ``paster jobs cancel``.
+    Tests for ``ckan jobs cancel``.
     """
 
     def test_cancel_existing(self):
@@ -250,19 +250,19 @@ class TestJobsCancel(helpers.RQTestBase):
         """
         Test ``jobs cancel`` for a not existing job.
         """
-        code, stdout, stderr = click(
+        code, output = click(
             u"jobs", u"cancel", u"does-not-exist", fail_on_error=False
         )
         assert code != 0
-        assert u"does-not-exist" in stderr
+        assert u"does-not-exist" in output
 
     def test_cancel_missing_id(self):
         """
         Test ``jobs cancel`` with a missing ID.
         """
-        code, stdout, stderr = click(u"jobs", u"cancel", fail_on_error=False)
+        code, output = click(u"jobs", u"cancel", fail_on_error=False)
         assert code != 0
-        assert stderr
+        assert u'Error: Missing argument "id".' in output
 
 
 class TestJobsClear(helpers.RQTestBase):
