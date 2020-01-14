@@ -1794,14 +1794,14 @@ class IApiToken(Interface):
         current user from database.
 
         :param token: current form of token(may be already modified by
-        some plugin.)
+            some plugin.)
         :type token: str
 
         :param original: original form of token, before any modification.
         :type original: str
 
         :returns: final form of token that will be passed into other
-        plugins and, finally, used for fetching User instance
+            plugins and, finally, used for fetching User instance
         :rtype: str
 
         """
@@ -1814,7 +1814,7 @@ class IApiToken(Interface):
         Token or performing side effects, before it shown to user.
 
         :param token: current form of token(may be already modified by
-        some plugin.)
+            some plugin.)
         :type token: str
 
         :param original: original form of token, before any modification.

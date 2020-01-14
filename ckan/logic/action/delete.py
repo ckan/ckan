@@ -773,6 +773,7 @@ def api_token_revoke(context, data_dict):
     """Delete API Token.
 
     :param string token: Token to remove.
+
     .. versionadded:: 2.9
     """
     token = _get_or_bust(data_dict, u'token')
