@@ -61,7 +61,12 @@ to print out a list of all of your CKAN site's users do:
 
      export CKAN_INI=\ |/path/to/ckan.ini|
      
-  You may also run the ckan command in the same directory as a file named 'development.ini' (which will be used as the CKAN config file). You will not be required to use --config or -c in this case also  
+  You may also run the ckan command in the same directory as a file named 'development.ini' (which will be used as the CKAN config file). You will not be required to use --config or -c in this case also
+  
+  .. parsed-literal::
+
+     cd /path/to/ckandir; ckan command
+
 
 .. parsed-literal::
 
