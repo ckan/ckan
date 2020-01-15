@@ -72,7 +72,7 @@ to print out a list of all of your CKAN site's users do:
 
 
 Commands and Subcommands:
-
+=========================
    ckan -c |/path/to/ckan.ini| user list
 
 (Here ``user`` is the name of the CKAN command you're running, and ``list`` is
