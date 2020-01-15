@@ -65,7 +65,7 @@ to print out a list of all of your CKAN site's users do:
   
   .. parsed-literal::
 
-     cd /path/to/ckandir; ckan command
+     |cd /path/to/ckandir;| ckan command
 
 
 .. parsed-literal::
