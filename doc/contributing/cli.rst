@@ -25,7 +25,7 @@ If you have trouble running ckan commands, see
 
    .. parsed-literal::
 
-      |virtualenv|/bin/ckan --plugin=ckan user list -c |development.ini|
+      |virtualenv|/bin/ckan -c |development.ini| --plugin=ckan user list 
 
    To run a ckan command without changing to the ckan directory first, add
    the ``--plugin=ckan`` option to the command. For example:
@@ -453,27 +453,27 @@ Rebuilds the search index. This is useful to prevent search indexes from getting
 
 For example::
 
- ckan --plugin=ckan search-index rebuild --config=/etc/ckan/std/std.ini
+ ckan --config=/etc/ckan/std/std.ini --plugin=ckan search-index rebuild 
 
 This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
 one dataset, you can provide a dataset name::
 
-    ckan --plugin=ckan search-index rebuild test-dataset-name --config=/etc/ckan/std/std.ini
+    ckan --config=/etc/ckan/std/std.ini --plugin=ckan search-index rebuild test-dataset-name 
 
 Alternatively, you can use the `-o` or `--only-missing` option to only reindex datasets which are not
 already indexed::
 
-    ckan --plugin=ckan search-index rebuild -o --config=/etc/ckan/std/std.ini
+    ckan --config=/etc/ckan/std/std.ini --plugin=ckan search-index rebuild -o 
 
 If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
 won't clear the index before starting rebuilding it::
 
-    ckan --plugin=ckan search-index rebuild -r --config=/etc/ckan/std/std.ini
+    ckan --config=/etc/ckan/std/std.ini --plugin=ckan search-index rebuild -r 
 
 There is also an option available which works like the refresh option but tries to use all processes on the
 computer to reindex faster::
 
-    ckan --plugin=ckan search-index rebuild_fast --config=/etc/ckan/std/std.ini
+    ckan --config=/etc/ckan/std/std.ini --plugin=ckan search-index rebuild_fast 
 
 There are other search related commands, mostly useful for debugging purposes::
 
@@ -487,7 +487,7 @@ seed: Create test data in the database
 
 Examples::
 
-      ckan seed -c /etc/ckan/default/production.ini
+      ckan -c /etc/ckan/default/production.ini seed 
       
       
 server: Start Development server
@@ -507,7 +507,7 @@ Gives sysadmin rights to a named user. This means the user can perform any actio
 
 For example, to make a user called 'admin' into a sysadmin::
 
- ckan --plugin=ckan sysadmin add admin --config=/etc/ckan/std/std.ini
+ ckan --config=/etc/ckan/std/std.ini --plugin=ckan sysadmin add admin 
 
 
 tracking: Update tracking statistics
@@ -543,11 +543,11 @@ Lets you create, remove, list and manage users.
 
 For example, to create a new user called 'admin'::
 
- ckan --plugin=ckan user add admin --config=/etc/ckan/std/std.ini
+ ckan --config=/etc/ckan/std/std.ini --plugin=ckan user add admin 
 
 To delete the 'admin' user::
 
- ckan --plugin=ckan user remove admin --config=/etc/ckan/std/std.ini
+ ckan --config=/etc/ckan/std/std.ini --plugin=ckan user remove admin 
  
 
 views: Create views on relevant resources
