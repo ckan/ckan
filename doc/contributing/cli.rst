@@ -32,7 +32,7 @@ If you have trouble running ckan commands, see
 
    .. parsed-literal::
 
-      ckan --plugin=ckan user list -c |development.ini|
+      ckan -c |development.ini| --plugin=ckan user list 
 
    In the example commands below, we assume you're running the commands with
    your virtualenv activated and from your ckan directory.
@@ -41,7 +41,7 @@ The general form of a CKAN ``ckan`` command is:
 
 .. parsed-literal::
 
-   ckan **command** --config=\ |development.ini|
+   ckan --config=\ |development.ini| **command** 
 
 The ``--config`` option tells CKAN where to find your config file, which it
 reads for example to know which database it should use. As you'll see in the
@@ -64,23 +64,18 @@ to print out a list of all of your CKAN site's users do:
 
 .. parsed-literal::
 
-   ckan user list -c |development.ini|
+   ckan -c |development.ini| user list
 
 (Here ``user`` is the name of the CKAN command you're running, and ``list`` is
 a subcommand of ``user``.)
 
-For a list of all available commands, simply run ``ckan`` on its own with no
-command, or see `CKAN Commands Reference`_. In this case we don't need the
-``-c`` option, since we're only asking CKAN to print out information about
-commands, not to actually do anything with our CKAN site::
-
- ckan
+For a list of all available commands, you will need to access `CKAN Commands Reference`_. 
 
 Each command has its own help text, which tells you what subcommands and
 options it has (if any). To print out a command's help text, run the command
 with the ``--help`` option::
 
-   ckan user --help
+   ckan --config /path/to/ckan.ini user --help
 
 
 -------------------------------
@@ -94,7 +89,7 @@ If you receive 'Permission Denied' error, try running ckan with sudo.
 
 .. parsed-literal::
 
-  sudo |virtualenv|/bin/ckan db clean -c |production.ini|
+  sudo |virtualenv|/bin/ckan -c |production.ini| db clean 
 
 Virtualenv not activated, or not in ckan dir
 ============================================
@@ -130,7 +125,7 @@ source directory not CKAN's source directory. For example:
 
    |activate|
    cd |virtualenv|/src/ckanext-spatial
-   ckan foo -c |development.ini|
+   ckan -c |development.ini| foo 
 
 This should not be necessary when using the pre-installed extensions that come
 with CKAN.
@@ -140,11 +135,11 @@ for example
 
 .. parsed-literal::
 
-   ckan --plugin=ckanext-foo foo -c |development.ini|
+   ckan -c |development.ini| --plugin=ckanext-foo foo 
 
 .. todo::
 
-   Running a ckan shell with ``ckan --plugin=pylons shell -c ...``.
+   Running a ckan shell with ``ckan -c |development.ini|  --plugin=pylons shell``.
    Useful for development?
 
 Wrong config file path
