@@ -78,6 +78,7 @@ entry_points = {
     ],
     'console_scripts': [
         'ckan = ckan.cli.cli:ckan',
+        'datapusher = ckanext.datapusher.commands:datapusher'
     ],
     'paste.paster_create_template': [
         'ckanext = ckan.pastertemplates:CkanextTemplate',
