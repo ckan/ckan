@@ -558,6 +558,40 @@ class TestDatasetUpdate(object):
         assert dataset_["extras"][0]["key"] == "original media"
         assert dataset_["extras"][0]["value"] == '"book"'
 
+    def test_extra_can_be_restored_after_deletion(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"old attribute", "value": u'value'},
+                {"key": u"original media", "value": u'"book"'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[],
+        )
+
+        assert dataset_["extras"] == []
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"original media", "value": u'"book"'},
+                {"key": u"new attribute", "value": u'value'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
+
     def test_license(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
