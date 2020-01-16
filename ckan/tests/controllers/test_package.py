@@ -121,22 +121,24 @@ class TestPackageNew(object):
 
     def test_complete_package_with_two_resources(self, app):
         env, response = _get_package_new_page(app)
-        form = response.forms["dataset-edit"]
-        form["name"] = u"complete-package-with-two-resources"
+        form = response.forms['dataset-edit']
+        form['name'] = u'complete-package-with-two-resources'
 
-        response = submit_and_follow(app, form, env, "save")
-        form = response.forms["resource-edit"]
-        form["url"] = u"http://example.com/resource0"
+        response = submit_and_follow(app, form, env, 'save')
+        form = response.forms['resource-edit']
+        form['url'] = u'http://example.com/resource0'
 
-        response = submit_and_follow(app, form, env, "save", "again")
-        form = response.forms["resource-edit"]
-        form["url"] = u"http://example.com/resource1"
+        response = submit_and_follow(app, form, env, 'save', 'again')
+        form = response.forms['resource-edit']
+        form['url'] = u'http://example.com/resource1'
 
-        submit_and_follow(app, form, env, "save", "go-metadata")
-        pkg = model.Package.by_name(u"complete-package-with-two-resources")
-        assert pkg.resources[0].url == u"http://example.com/resource0"
-        assert pkg.resources[1].url == u"http://example.com/resource1"
-        assert pkg.state == "active"
+        submit_and_follow(app, form, env, 'save', 'go-metadata')
+        pkg = model.Package.by_name(u'complete-package-with-two-resources')
+        assert pkg.resources[0].url == u'http://example.com/resource0'
+        assert pkg.resources[1].url == u'http://example.com/resource1'
+        assert pkg.state == 'active'
+
+    # resource upload is tested in TestExampleIUploaderPlugin
 
     def test_previous_button_works(self, app):
         env, response = _get_package_new_page(app)
