@@ -5,6 +5,8 @@ import datetime
 import mock
 import pytest
 
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
+
 import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
@@ -26,6 +28,15 @@ real_open = open
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
 fake_open = fake_filesystem.FakeFileOpen(fs)
+
+
+class FakeFileStorage(FlaskFileStorage):
+    content_type = None
+
+    def __init__(self, stream, filename):
+        self.stream = stream
+        self.filename = filename
+        self.name = "upload"
 
 
 def mock_open_if_open_fails(*args, **kwargs):
@@ -814,18 +825,6 @@ class TestResourceViewUpdate(object):
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceUpdate(object):
-    import cgi
-
-    class FakeFileStorage(cgi.FieldStorage):
-        def __init__(self, fp, filename):
-            self.file = fp
-            self.filename = filename
-            self.name = "upload"
-
-        def setup(self):
-            import ckan.model as model
-
-            model.repo.rebuild_db()
 
     def test_url_only(self):
         dataset = factories.Dataset()
@@ -1076,7 +1075,7 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test"
         )
         monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
@@ -1125,7 +1124,7 @@ class TestResourceUpdate(object):
         }
         """
         )
-        test_resource = TestResourceUpdate.FakeFileStorage(
+        test_resource = FakeFileStorage(
             test_file, "test.json"
         )
         dataset = factories.Dataset()
@@ -1149,7 +1148,7 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test.csv"
         )
         with mock.patch("ckan.lib.helpers.url_for"):
@@ -1219,7 +1218,7 @@ class TestResourceUpdate(object):
         }
         """
         )
-        test_resource = TestResourceUpdate.FakeFileStorage(
+        test_resource = FakeFileStorage(
             test_file, "test.json"
         )
         dataset = factories.Dataset()
@@ -1243,7 +1242,7 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test.csv"
         )
         with mock.patch("ckan.lib.helpers.url_for"):

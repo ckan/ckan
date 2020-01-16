@@ -144,6 +144,8 @@ class TestPackageNew(object):
         assert pkg.resources[1].url == u"http://example.com/resource1"
         assert pkg.state == "active"
 
+    # resource upload is tested in TestExampleIUploaderPlugin
+
     def test_previous_button_works(self, app, user_env):
         url = url_for("dataset.new")
         response = app.post(url, environ_overrides=user_env, data={
