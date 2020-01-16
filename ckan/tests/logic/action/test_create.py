@@ -7,6 +7,8 @@ import mock
 import pytest
 import six
 
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
+
 import ckan
 import ckan.logic as logic
 import ckan.model as model
@@ -30,9 +32,11 @@ fake_os = fake_filesystem.FakeOsModule(fs)
 fake_open = fake_filesystem.FakeFileOpen(fs)
 
 
-class FakeFileStorage(cgi.FieldStorage):
-    def __init__(self, fp, filename):
-        self.file = fp
+class FakeFileStorage(FlaskFileStorage):
+    content_type = None
+
+    def __init__(self, stream, filename):
+        self.stream = stream
         self.filename = filename
         self.name = "upload"
 
@@ -540,7 +544,7 @@ class TestResourceCreate:
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         ))
-        test_resource = FakeFileStorage(test_file, "")
+        test_resource = FakeFileStorage(test_file, "test.csv")
 
         context = {}
         params = {
