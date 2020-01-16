@@ -61,7 +61,6 @@ class CustomGroup(click.Group):
 @click.group(cls=CustomGroup)
 @click.help_option(u'-h', u'--help')
 @click_config_option
-# @click.pass_context
 def ckan(config, *args, **kwargs):
     pass
 

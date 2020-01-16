@@ -29,6 +29,8 @@ Deeper expanation can be found in `official documentation
 """
 
 import pytest
+
+from click.testing import CliRunner
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
 import ckan.lib.search as search
@@ -98,6 +100,19 @@ def app(make_app):
 
     """
     return make_app()
+
+
+@pytest.fixture(scope=u"session")
+def cli():
+    """Provides object for invoking CLI commands from tests.
+
+    This is pure `click.testing.CliRunner`, so all examples from
+    `Click docs
+    <https://click.palletsprojects.com/en/master/testing/>`_ are valid
+    for it.
+
+    """
+    return CliRunner()
 
 
 @pytest.fixture(scope=u"session")
