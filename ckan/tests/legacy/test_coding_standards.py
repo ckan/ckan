@@ -417,7 +417,6 @@ class TestPep8(object):
         "ckan/tests/legacy/models/test_package_relationships.py",
         "ckan/tests/legacy/monkey.py",
         "ckan/tests/legacy/test_versions.py",
-        "ckan/websetup.py",
         "ckanext/datastore/bin/datastore_setup.py",
         "ckanext/datastore/logic/action.py",
         "ckanext/datastore/tests/test_create.py",
