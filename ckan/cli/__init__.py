@@ -6,6 +6,10 @@ import click
 import logging
 from logging.config import fileConfig as loggingFileConfig
 
+import ckan.plugins as p
+from ckan.config.middleware import make_app
+
+
 log = logging.getLogger(__name__)
 
 
@@ -13,12 +17,29 @@ def error_shout(exception):
     click.secho(str(exception), fg=u'red', err=True)
 
 
+class CkanCommand(object):
+
+    def __init__(self, conf=None):
+        self.config = load_config(conf)
+        self.app = make_app(self.config.global_conf, **self.config.local_conf)
+
+
+def _init_ckan_config(ctx, param, value):
+    ctx.obj = CkanCommand(value)
+    for plugin in p.PluginImplementations(p.IClick):
+        for cmd in plugin.get_commands():
+            cmd._ckanext = plugin.name
+            ctx.command.add_command(cmd)
+
+
 click_config_option = click.option(
     u'-c',
     u'--config',
     default=None,
     metavar=u'CONFIG',
-    help=u'Config file to use (default: development.ini)'
+    help=u'Config file to use (default: development.ini)',
+    is_eager=True,
+    callback=_init_ckan_config
 )
 
 
