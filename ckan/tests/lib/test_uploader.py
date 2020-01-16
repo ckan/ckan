@@ -1,7 +1,10 @@
 # encoding: utf-8
 import mock
 import tempfile
-import __builtin__ as builtins
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
 import flask
 import paste.fileapp
 import cStringIO
