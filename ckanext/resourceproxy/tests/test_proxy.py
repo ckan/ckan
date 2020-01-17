@@ -99,11 +99,11 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_code == 404, result.status_code
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
+        result = self.app.get(proxied_url)
         # we expect a 409 because the resourceproxy got an error (404)
         # from the server
-        assert result.status_int == 409, result.status
-        assert '404' in result.body
+        assert result.status_code == 409
+        assert '404' in result.data
 
     @responses.activate
     def test_large_file(self):
@@ -114,9 +114,9 @@ class TestProxyPrettyfied(unittest.TestCase):
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status
-        assert 'too large' in result.body, result.body
+        result = self.app.get(proxied_url)
+        assert result.status_code == 409
+        assert six.b('too large') in result.data
 
     @responses.activate
     def test_large_file_streaming(self):
@@ -127,9 +127,9 @@ class TestProxyPrettyfied(unittest.TestCase):
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status
-        assert 'too large' in result.body, result.body
+        result = self.app.get(proxied_url)
+        assert result.status_code == 409
+        assert six.b('too large') in result.data
 
     @responses.activate
     def test_invalid_url(self):
@@ -137,9 +137,9 @@ class TestProxyPrettyfied(unittest.TestCase):
         self.data_dict = set_resource_url('http:invalid_url')
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status
-        assert 'Invalid URL' in result.body, result.body
+        result = self.app.get(proxied_url)
+        assert result.status_code == 409
+        assert six.b('Invalid URL') in result.data
 
     def test_non_existent_url(self):
         self.data_dict = set_resource_url('http://nonexistent.example.com')
@@ -151,9 +151,9 @@ class TestProxyPrettyfied(unittest.TestCase):
         self.assertRaises(requests.ConnectionError, f1)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 502, result.status
-        assert 'connection error' in result.body, result.body
+        result = self.app.get(proxied_url)
+        assert result.status_code == 502
+        assert six.b('connection error') in result.data
 
     def test_proxied_resource_url_proxies_http_and_https_by_default(self):
         http_url = 'http://ckan.org'

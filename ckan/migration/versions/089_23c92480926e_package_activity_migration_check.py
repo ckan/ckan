@@ -6,6 +6,7 @@ Revises: 3537d5420e0e
 Create Date: 2019-05-09 13:39:17.486611
 
 """
+from __future__ import print_function
 import sys
 
 from alembic import op

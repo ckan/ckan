@@ -61,7 +61,7 @@
           <span class="facet">{{ facets.titles.get(field) }}:</span>
           {% for value in facets.fields[field] %}
             <span class="filtered pill">
-              {%- if facets.translated_fields and facets.translated_fields.has_key((field,value)) -%}
+              {%- if facets.translated_fields and (field,value) in facets.translated_fields -%}
                 {{ facets.translated_fields[(field,value)] }}
               {%- else -%}
                 {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}

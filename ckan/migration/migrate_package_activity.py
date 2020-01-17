@@ -28,6 +28,7 @@ package_revision table.)
 # whereas the main CLI is a list of tools for more frequent use.
 
 from __future__ import print_function
+from __future__ import absolute_import
 import argparse
 import sys
 from collections import defaultdict
@@ -104,7 +105,7 @@ class PackageDictizeMonkeyPatch(object):
         except ImportError:
             # convenient to look for it in the current directory if you just
             # download these files because you are upgrading an older ckan
-            import revision_legacy_code
+            from . import revision_legacy_code
         self.existing_function = model_dictize.package_dictize
         model_dictize.package_dictize = \
             revision_legacy_code.package_dictize_with_revisions

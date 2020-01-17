@@ -28,29 +28,31 @@ class FakeDataPusherPlugin(p.SingletonPlugin):
         self.after_upload_calls += 1
 
 
+@pytest.mark.ckan_config(
+    "ckan.plugins", "datastore datapusher test_datapusher_plugin"
+)
+@pytest.mark.usefixtures("with_plugins")
 class TestInterace(object):
     sysadmin_user = None
     normal_user = None
 
     @pytest.fixture(autouse=True)
-    def setup_class(self, clean_db):
+    def setup_class(self, clean_db, test_request_context):
         if not tests.is_datastore_supported():
             pytest.skip("Datastore not supported")
 
         resource = factories.Resource(url_type="datastore")
         self.dataset = factories.Dataset(resources=[resource])
-
-        self.sysadmin_user = factories.User(name="testsysadmin", sysadmin=True)
-        self.normal_user = factories.User(name="annafan")
+        with test_request_context():
+            self.sysadmin_user = factories.User(
+                name="testsysadmin", sysadmin=True
+            )
+            self.normal_user = factories.User(name="annafan")
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @responses.activate
-    @pytest.mark.ckan_config(
-        "ckan.plugins", "datastore datapusher test_datapusher_plugin"
-    )
-    @pytest.mark.usefixtures("with_plugins")
-    def test_send_datapusher_creates_task(self):
+    def test_send_datapusher_creates_task(self, test_request_context):
         responses.add(
             responses.POST,
             "http://datapusher.ckan.org/job",
@@ -61,10 +63,10 @@ class TestInterace(object):
         resource = self.dataset["resources"][0]
 
         context = {"ignore_auth": True, "user": self.sysadmin_user["name"]}
-
-        result = p.toolkit.get_action("datapusher_submit")(
-            context, {"resource_id": resource["id"]}
-        )
+        with test_request_context():
+            result = p.toolkit.get_action("datapusher_submit")(
+                context, {"resource_id": resource["id"]}
+            )
         assert not result
 
         context.pop("task_status", None)
@@ -79,10 +81,6 @@ class TestInterace(object):
                 },
             )
 
-    @pytest.mark.ckan_config(
-        "ckan.plugins", "datastore datapusher test_datapusher_plugin"
-    )
-    @pytest.mark.usefixtures("with_plugins")
     def test_after_upload_called(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset["id"])

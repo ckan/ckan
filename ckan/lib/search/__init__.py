@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import logging
 import sys
 import cgitb
@@ -230,7 +231,7 @@ def check():
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
         pkg = model.Session.query(model.Package).get(pkg_id)
-        print(pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name)
+        print((pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name))
 
 
 def show(package_reference):

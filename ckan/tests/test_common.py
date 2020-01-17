@@ -1,9 +1,7 @@
 # encoding: utf-8
 
 import flask
-import pylons
 import pytest
-from nose.tools import eq_, assert_not_equal as neq_, assert_raises
 
 import six
 from six import text_type
@@ -16,6 +14,11 @@ from ckan.common import (
     c as ckan_c,
 )
 from ckan.tests import helpers
+
+if six.PY2:
+    import pylons
+else:
+    pylons = None
 
 
 def test_del_works():
@@ -34,7 +37,10 @@ def test_get_item_works():
 def test_repr_works():
     my_conf = CKANConfig()
     my_conf[u"test_key_1"] = u"Test value 1"
-    assert repr(my_conf) == u"{u'test_key_1': u'Test value 1'}"
+    if six.PY3:
+        assert repr(my_conf) == u"{'test_key_1': 'Test value 1'}"
+    else:
+        assert repr(my_conf) == u"{u'test_key_1': u'Test value 1'}"
 
 
 def test_len_works():
@@ -51,9 +57,8 @@ def test_keys_works():
     assert sorted(my_conf.keys()) == [u"test_key_1", u"test_key_2"]
 
 
+# @pytest.mark.usefixtures("ckan_config")
 def test_clear_works():
-    # Keep a copy of the original Pylons config
-    _original_pylons_config = pylons.config.copy()
     my_conf = CKANConfig()
     my_conf[u"test_key_1"] = u"Test value 1"
     my_conf[u"test_key_2"] = u"Test value 2"
@@ -61,9 +66,6 @@ def test_clear_works():
 
     my_conf.clear()
     assert len(my_conf.keys()) == 0
-
-    # Restore Pylons config
-    pylons.config.update(_original_pylons_config)
 
 
 def test_for_in_works():
@@ -102,6 +104,7 @@ def test_true_if_not_empty():
     assert my_conf
 
 
+@pytest.mark.skipif(six.PY3, reason=u"Do not test pylons in Py3")
 @pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
 def test_setting_a_key_sets_it_on_pylons_config():
     assert pylons.config[u"ckan.site_title"] == u"Example title"
@@ -124,7 +127,7 @@ def test_setting_a_key_does_not_set_it_on_flask_config_if_outside_app_context(
 
 
 @pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
-def test_deleting_a_key_deletes_it_on_pylons_config():
+def test_deleting_a_key_deletes_it_on_ckan_config():
     del ckan_config[u"ckan.site_title"]
     assert u"ckan.site_title" not in ckan_config
 
@@ -142,6 +145,7 @@ def test_deleting_a_key_delets_it_on_flask_config(
 # END-CONFIG-OVERRIDE
 
 
+@pytest.mark.skipif(six.PY3, reason=u"Do not test pylons in Py3")
 @pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
 def test_update_works_on_pylons_config():
     ckan_config.update(
@@ -164,6 +168,7 @@ def test_update_works_on_flask_config(app):
         assert flask.current_app.config[u"ckan.new_key"] == u"test"
 
 
+@pytest.mark.skipif(six.PY3, reason=u"Do not test pylons in Py3")
 def test_config_option_update_action_works_on_pylons(reset_db):
     params = {u"ckan.site_title": u"Example title action"}
     helpers.call_action(u"config_option_update", {}, **params)
@@ -171,12 +176,11 @@ def test_config_option_update_action_works_on_pylons(reset_db):
     reset_db()
 
 
-def test_config_option_update_action_works_on_flask(app, reset_db):
-    with app.flask_app.app_context():
-        params = {u"ckan.site_title": u"Example title action"}
-        helpers.call_action(u"config_option_update", {}, **params)
-        assert pylons.config[u"ckan.site_title"] == u"Example title action"
-        reset_db()
+def test_config_option_update_action_works_on_flask(app, reset_db, ckan_config):
+    params = {u"ckan.site_title": u"Example title action"}
+    helpers.call_action(u"config_option_update", {}, **params)
+    assert ckan_config[u"ckan.site_title"] == u"Example title action"
+    reset_db()
 
 
 def test_params_also_works_on_flask_request(app):

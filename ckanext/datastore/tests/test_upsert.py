@@ -12,6 +12,7 @@ def _search(resource_id):
     return helpers.call_action(u"datastore_search", resource_id=resource_id)
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreUpsert(object):
     # Test action 'datastore_upsert' with 'method': 'upsert'
 
@@ -551,6 +552,7 @@ class TestDatastoreUpsert(object):
         assert last_analyze is not None
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreInsert(object):
     # Test action 'datastore_upsert' with 'method': 'insert'
 
@@ -656,6 +658,7 @@ class TestDatastoreInsert(object):
         )
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreUpdate(object):
     # Test action 'datastore_upsert' with 'method': 'update'
 

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import pytest
 from ckan.lib.helpers import url_for
 
 import ckan.plugins as p
@@ -7,28 +8,12 @@ import ckan.plugins as p
 from ckan.tests import helpers, factories
 
 
-class TestWebPageView(helpers.FunctionalTestBase):
-    @classmethod
-    def _apply_config_changes(cls, cfg):
-        cfg["ckan.plugins"] = "webpage_view"
+@pytest.mark.ckan_config("ckan.plugins", "webpage_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestWebPageView(object):
 
-    @classmethod
-    def setup_class(cls):
-
-        super(TestWebPageView, cls).setup_class()
-
-    @classmethod
-    def teardown_class(cls):
-        if p.plugin_loaded("webpage_view"):
-            p.unload("webpage_view")
-
-        super(TestWebPageView, cls).teardown_class()
-
-        helpers.reset_db()
-
-    @helpers.change_config("ckan.views.default_views", "")
-    def test_view_shown_on_resource_page(self):
-        app = self._get_test_app()
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
+    def test_view_shown_on_resource_page(self, app):
 
         dataset = factories.Dataset()
 

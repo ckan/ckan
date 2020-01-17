@@ -104,8 +104,7 @@ class TestPluginDatastoreSearch(object):
         data_dict = {"q": {"country": "Brazil"}, "lang": "french"}
 
         result = self._datastore_search(data_dict=data_dict)
-
-        assert expected_select_content in result["select"][0], result["select"]
+        assert expected_select_content in result["select"][0]
 
     def test_adds_fts_on_full_text_field_when_q_is_a_string(self):
         expected_where = [(u'_full_text @@ "query"',)]

@@ -1,10 +1,11 @@
 # encoding: utf-8
 """Unit tests for ckan/logic/action/update.py."""
-import __builtin__ as builtins
 import datetime
 
 import mock
 import pytest
+
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan
 import ckan.lib.app_globals as app_globals
@@ -18,10 +19,24 @@ from ckan.common import config
 from six import StringIO
 from pyfakefs import fake_filesystem
 
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
+
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
 fake_open = fake_filesystem.FakeFileOpen(fs)
+
+
+class FakeFileStorage(FlaskFileStorage):
+    content_type = None
+
+    def __init__(self, stream, filename):
+        self.stream = stream
+        self.filename = filename
+        self.name = "upload"
 
 
 def mock_open_if_open_fails(*args, **kwargs):
@@ -810,18 +825,6 @@ class TestResourceViewUpdate(object):
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceUpdate(object):
-    import cgi
-
-    class FakeFileStorage(cgi.FieldStorage):
-        def __init__(self, fp, filename):
-            self.file = fp
-            self.filename = filename
-            self.name = "upload"
-
-        def setup(self):
-            import ckan.model as model
-
-            model.repo.rebuild_db()
 
     def test_url_only(self):
         dataset = factories.Dataset()
@@ -997,9 +1000,8 @@ class TestResourceUpdate(object):
 
     @helpers.change_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_url(self, mock_open):
+    def test_mimetype_by_url(self, monkeypatch):
         """
         The mimetype is guessed from the url
 
@@ -1010,7 +1012,7 @@ class TestResourceUpdate(object):
         resource = factories.Resource(
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
-
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         res_update = helpers.call_action(
             "resource_update",
             id=resource["id"],
@@ -1051,9 +1053,8 @@ class TestResourceUpdate(object):
     @helpers.change_config("ckan.mimetype_guess", "file_contents")
     @helpers.change_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_file(self, mock_open):
+    def test_mimetype_by_upload_by_file(self, monkeypatch):
         """
         The mimetype is guessed from an uploaded file by the contents inside
 
@@ -1074,10 +1075,10 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test"
         )
-
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
             res_update = helpers.call_action(
@@ -1095,9 +1096,8 @@ class TestResourceUpdate(object):
 
     @helpers.change_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_filename(self, mock_open):
+    def test_mimetype_by_upload_by_filename(self, monkeypatch):
         """
         The mimetype is guessed from an uploaded file with a filename
 
@@ -1124,10 +1124,11 @@ class TestResourceUpdate(object):
         }
         """
         )
-        test_resource = TestResourceUpdate.FakeFileStorage(
+        test_resource = FakeFileStorage(
             test_file, "test.json"
         )
         dataset = factories.Dataset()
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
 
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
@@ -1147,10 +1148,9 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test.csv"
         )
-
         with mock.patch("ckan.lib.helpers.url_for"):
             res_update = helpers.call_action(
                 "resource_update",
@@ -1193,9 +1193,8 @@ class TestResourceUpdate(object):
 
     @helpers.change_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_size_of_resource_by_upload(self, mock_open):
+    def test_size_of_resource_by_upload(self, monkeypatch):
         """
         The size of the resource determined by the uploaded file
         """
@@ -1219,10 +1218,11 @@ class TestResourceUpdate(object):
         }
         """
         )
-        test_resource = TestResourceUpdate.FakeFileStorage(
+        test_resource = FakeFileStorage(
             test_file, "test.json"
         )
         dataset = factories.Dataset()
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
 
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
@@ -1242,10 +1242,9 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        update_resource = FakeFileStorage(
             update_file, "update_test.csv"
         )
-
         with mock.patch("ckan.lib.helpers.url_for"):
             res_update = helpers.call_action(
                 "resource_update",

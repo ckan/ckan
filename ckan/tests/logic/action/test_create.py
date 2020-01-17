@@ -2,11 +2,11 @@
 """Unit tests for ckan/logic/action/create.py.
 
 """
-import __builtin__ as builtins
-
 import cgi
 import mock
 import pytest
+
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan
 import ckan.logic as logic
@@ -20,15 +20,22 @@ from six import string_types, StringIO
 
 from pyfakefs import fake_filesystem
 
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
+
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
 fake_open = fake_filesystem.FakeFileOpen(fs)
 
 
-class FakeFileStorage(cgi.FieldStorage):
-    def __init__(self, fp, filename):
-        self.file = fp
+class FakeFileStorage(FlaskFileStorage):
+    content_type = None
+
+    def __init__(self, stream, filename):
+        self.stream = stream
         self.filename = filename
         self.name = "upload"
 
@@ -118,6 +125,7 @@ class TestUserInvite(object):
         assert invited_user.name.split("-")[0] == "maria"
 
     @pytest.mark.ckan_config("smtp.server", "email.example.com")
+    @pytest.mark.usefixtures("with_request_context")
     def test_smtp_error_returns_error_message(self):
 
         sysadmin = factories.Sysadmin()
@@ -421,9 +429,8 @@ class TestResourceCreate:
 
     @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_url(self, mock_open):
+    def test_mimetype_by_url(self, monkeypatch):
         """
         The mimetype is guessed from the url
 
@@ -436,6 +443,7 @@ class TestResourceCreate:
             "url": "http://localhost/data.csv",
             "name": "A nice resource",
         }
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         result = helpers.call_action("resource_create", context, **params)
 
         mimetype = result.pop("mimetype")
@@ -464,9 +472,8 @@ class TestResourceCreate:
 
     @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_filename(self, mock_open):
+    def test_mimetype_by_upload_by_filename(self, monkeypatch):
         """
         The mimetype is guessed from an uploaded file with a filename
 
@@ -504,7 +511,9 @@ class TestResourceCreate:
             "upload": test_resource,
         }
 
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         # Mock url_for as using a test request context interferes with the FS mocking
+
         with mock.patch("ckan.lib.helpers.url_for"):
             result = helpers.call_action("resource_create", context, **params)
 
@@ -516,9 +525,8 @@ class TestResourceCreate:
     @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
     @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_file(self, mock_open):
+    def test_mimetype_by_upload_by_file(self, monkeypatch):
         """
         The mimetype is guessed from an uploaded file by the contents inside
 
@@ -535,7 +543,7 @@ class TestResourceCreate:
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         )
-        test_resource = FakeFileStorage(test_file, "")
+        test_resource = FakeFileStorage(test_file, "test.csv")
 
         context = {}
         params = {
@@ -544,7 +552,7 @@ class TestResourceCreate:
             "name": "A nice resource",
             "upload": test_resource,
         }
-
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
             result = helpers.call_action("resource_create", context, **params)
@@ -556,9 +564,8 @@ class TestResourceCreate:
 
     @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_size_of_resource_by_upload(self, mock_open):
+    def test_size_of_resource_by_upload(self, monkeypatch):
         """
         The size of the resource determined by the uploaded file
         """
@@ -581,7 +588,7 @@ class TestResourceCreate:
             "name": "A nice resource",
             "upload": test_resource,
         }
-
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
             result = helpers.call_action("resource_create", context, **params)

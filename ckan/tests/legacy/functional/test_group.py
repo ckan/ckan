@@ -98,7 +98,7 @@ def test_member_new_invites_user_if_received_email(_mail_user, app):
     role = "member"
 
     params = {"email": email, "role": role}
-    app.post(url, params, extra_environ={"REMOTE_USER": str(user.name)})
+    app.post(url, data=params, extra_environ={"REMOTE_USER": str(user.name)})
 
     users = model.User.by_email(email)
     assert len(users) == 1, users

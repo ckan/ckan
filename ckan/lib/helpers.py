@@ -472,6 +472,8 @@ def _url_for_pylons(*args, **kw):
                 not kw['ver'].startswith('/')):
             kw['ver'] = '/%s' % kw['ver']
 
+    if args:
+        args = (six.ensure_str(args[0]), ) + args[1:]
     # Try to build the URL with routes.url_for
     return _routes_default_url_for(*args, **kw)
 
@@ -503,11 +505,15 @@ def url_for_static_or_external(*args, **kw):
         url_is_relative = (url.scheme == '' and url.netloc == '' and
                            not url.path.startswith('/'))
         if url_is_relative:
-            return '/' + url.geturl()
-        return url.geturl()
+            return False, '/' + url.geturl()
+
+        return bool(url.scheme), url.geturl()
 
     if args:
-        args = (fix_arg(args[0]), ) + args[1:]
+        is_external, fixed_url = fix_arg(args[0])
+        if is_external:
+            return fixed_url
+        args = (fixed_url, ) + args[1:]
     if kw.get('qualified', False):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
     kw['locale'] = 'default'
@@ -545,6 +551,12 @@ def _local_url(url_to_amend, **kw):
     allowed_locales = ['default'] + i18n.get_locales()
     if locale and locale not in allowed_locales:
         locale = None
+
+    _auto_flask_context = _get_auto_flask_context()
+
+    if _auto_flask_context:
+        _auto_flask_context.push()
+
     if locale:
         if locale == 'default':
             default_locale = True
@@ -559,22 +571,18 @@ def _local_url(url_to_amend, **kw):
     if kw.get('qualified', False) or kw.get('_external', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
-        _auto_flask_context = _get_auto_flask_context()
-
-        if _auto_flask_context:
-            _auto_flask_context.push()
 
         parts = urlparse(
             _flask_default_url_for('home.index', _external=True)
         )
 
-        if _auto_flask_context:
-            _auto_flask_context.pop()
-
         path = parts.path.rstrip('/')
         root = urlunparse(
             (protocol, host, path,
                 parts.params, parts.query, parts.fragment))
+
+    if _auto_flask_context:
+        _auto_flask_context.pop()
 
     # ckan.root_path is defined when we have none standard language
     # position in the url

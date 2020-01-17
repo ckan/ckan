@@ -15,11 +15,11 @@ for package in packages:
         package.delete()
         package_stats.increment('deleted')
     else:
-        package_stats.increment('not deleted')    
+        package_stats.increment('not deleted')
 print package_stats.report()
 > deleted: 30
 > not deleted: 70
-    
+
 from running_stats import StatsList
 package_stats = StatsList()
 for package in packages:
@@ -30,7 +30,7 @@ for package in packages:
         package_stats.add('not deleted' package.name)
 print package_stats.report()
 > deleted: 30 pollution-uk, flood-regions, river-quality, ...
-> not deleted: 70 spending-bristol, ... 
+> not deleted: 70 spending-bristol, ...
 
 '''
 
@@ -40,11 +40,11 @@ class StatsCount(dict):
     # {category:count}
     _init_value = 0
     report_value_limit = 150
-    
+
     def _init_category(self, category):
-        if not self.has_key(category):
+        if category not in self:
             self[category] = copy.deepcopy(self._init_value)
-        
+
     def increment(self, category):
         self._init_category(category)
         self[category] += 1
@@ -57,7 +57,7 @@ class StatsCount(dict):
 
     def report(self, indent=1):
         lines = []
-        categories = self.keys()
+        categories = list(self.keys())
         categories.sort()
         indent_str = '\t' * indent
         for category in categories:

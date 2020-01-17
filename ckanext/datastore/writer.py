@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 from email.utils import encode_rfc2231
 from simplejson import dumps
+import six
 from six import text_type
 from xml.etree.cElementTree import Element, SubElement, ElementTree
 
@@ -93,8 +94,8 @@ def json_writer(response, fields, name=None, bom=False):
     if bom:
         response.write(BOM_UTF8)
     response.write(
-        b'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(u',', u':')))
+        six.ensure_binary(u'{\n  "fields": %s,\n  "records": [' % dumps(
+            fields, ensure_ascii=False, separators=(u',', u':'))))
     yield JSONWriter(response)
     response.write(b'\n]}\n')
 

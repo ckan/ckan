@@ -42,11 +42,22 @@ from ckan.views import (identify_user,
                         check_session_cookie,
                         set_controller_and_action,
                         handle_i18n,
+                        set_ckan_current_url,
                         )
 
 import logging
 from logging.handlers import SMTPHandler
 log = logging.getLogger(__name__)
+
+
+class I18nMiddleware(object):
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+
+        handle_i18n(environ)
+        return self.app(environ, start_response)
 
 
 class CKANBabel(Babel):
@@ -286,6 +297,9 @@ def make_flask_stack(conf, **app_conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    if six.PY3:
+        app = I18nMiddleware(app)
+
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
@@ -306,9 +320,6 @@ def get_locale():
 def ckan_before_request():
     u'''Common handler executed before all Flask requests'''
 
-    # Handle locale in URL
-    handle_i18n()
-
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
@@ -320,6 +331,7 @@ def ckan_before_request():
     # with extensions
     set_controller_and_action()
 
+    set_ckan_current_url(request.environ)
     g.__timer = time.time()
 
 
@@ -336,7 +348,7 @@ def ckan_after_request(response):
     response = set_cors_headers_for_response(response)
 
     r_time = time.time() - g.__timer
-    url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+    url = request.environ['PATH_INFO']
 
     log.info(' %s render time %.3f seconds' % (url, r_time))
 
