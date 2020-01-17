@@ -102,8 +102,8 @@ def app(make_app):
     return make_app()
 
 
-@pytest.fixture(scope=u"session")
-def cli():
+@pytest.fixture
+def cli(ckan_config):
     """Provides object for invoking CLI commands from tests.
 
     This is pure `click.testing.CliRunner`, so all examples from
@@ -112,7 +112,10 @@ def cli():
     for it.
 
     """
-    return CliRunner()
+    env = {
+        u'CKAN_INI': ckan_config[u'__file__']
+    }
+    return CliRunner(env=env)
 
 
 @pytest.fixture(scope=u"session")
