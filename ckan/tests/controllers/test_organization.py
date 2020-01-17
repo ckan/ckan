@@ -297,7 +297,7 @@ class TestOrganizationBulkProcess(object):
         self.organization = factories.Organization(user=self.user)
 
         datasets = [
-            factories.Dataset(owner_org=self.organization["id"])
+            factories.Dataset(owner_org=self.organization["id"], private=False)
             for i in range(0, 5)
         ]
         response = app.get(
@@ -306,7 +306,7 @@ class TestOrganizationBulkProcess(object):
             ),
             extra_environ=self.user_env,
         )
-        form = response.forms[1]
+        form = response.forms[2]
         for v in form.fields.values():
             try:
                 v[0].checked = True
@@ -338,7 +338,7 @@ class TestOrganizationBulkProcess(object):
             ),
             extra_environ=self.user_env,
         )
-        form = response.forms[1]
+        form = response.forms[2]
         for v in form.fields.values():
             try:
                 v[0].checked = True
@@ -369,7 +369,7 @@ class TestOrganizationBulkProcess(object):
             ),
             extra_environ=self.user_env,
         )
-        form = response.forms[1]
+        form = response.forms[2]
         for v in form.fields.values():
             try:
                 v[0].checked = True
