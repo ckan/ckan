@@ -1,0 +1,9 @@
+{% set res_url = resource_view.get('audio_url') or resource.get('url') %}
+
+<audio style="margin:auto; max-height:100%; display:block; min-width: 100%;"
+controls src="{{ resource_view.audio_url or resource.get('url') }}">
+  {% trans %}
+    Your browser does not support the <code>audio</code> element.
+    But don't worry, you can <a href="{{ res_url }}" alt="video url">download it</a>.
+  {% endtrans %}
+</audio>

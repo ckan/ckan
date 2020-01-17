@@ -1,0 +1,12 @@
+{% set res_url = resource_view.get('video_url') or resource.get('url') %}
+
+<video style="margin:auto; max-height:100%; width: 250px; min-width: 100%; display:block"
+src="{{ resource_view.video_url or resource.get('url') }}"
+type="{{ resource.get('format') }}" controls
+poster="{{ resource_view.poster_url }}">
+  {% trans %}
+    Sorry, your browser doesn't support embedded videos,
+    but don't worry, you can <a href="{{ res_url }}" alt="video url">download it</a>
+    and watch it with your favorite video player!
+  {% endtrans %}
+</video>
