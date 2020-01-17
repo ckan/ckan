@@ -238,7 +238,7 @@ class TestOrganizationDelete(object):
             data={"delete": ""}
         )
 
-        assert text in response.body
+        assert helpers.body_contains(response, text)
 
     def test_delete_organization_with_unknown_dataset_true(self, initial_data):
         """ Test deletion of organization that has datasets and unknown
@@ -266,7 +266,7 @@ class TestOrganizationBulkProcess(object):
         self.organization = factories.Organization(user=self.user)
 
         datasets = [
-            factories.Dataset(owner_org=self.organization["id"])
+            factories.Dataset(owner_org=self.organization["id"], private=False)
             for i in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
@@ -322,6 +322,7 @@ class TestOrganizationBulkProcess(object):
                 "organization.bulk_process", id=self.organization["id"]
             ),
             extra_environ=self.user_env,
+
             data=form
         )
 
@@ -395,9 +396,9 @@ class TestOrganizationSearch(object):
         org_names = [n.string for n in org_names]
 
         assert len(org_names) == 0
-        assert (
+        assert helpers.body_contains(
+            search_response,
             'No organizations found for "No Results Here"'
-            in search_response.body
         )
 
 
@@ -488,7 +489,7 @@ class TestOrganizationInnerSearch(object):
             query_string={"q": "Nout"}
         )
 
-        assert 'No datasets found for "Nout"' in search_response.body
+        assert helpers.body_contains(search_response, 'No datasets found for "Nout"')
 
         search_response_html = BeautifulSoup(search_response.body)
 
