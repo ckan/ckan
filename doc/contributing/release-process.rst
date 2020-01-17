@@ -96,7 +96,7 @@ Turn this file into a github issue with a checklist using this command::
    cherry-picked from master, the less compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
-        ./bin/less --production
+        npm run build
         git commit -am "Rebuild CSS"
         git push
 
