@@ -5,6 +5,7 @@ import os.path
 import shutil
 import tempfile
 import pytest
+import six
 from six import text_type
 
 import ckan.lib.io as ckan_io
@@ -25,11 +26,11 @@ def test_decode_path_returns_unicode():
 
 
 def test_encode_path_returns_str():
-    assert isinstance(ckan_io.encode_path(u"just_a_unicode"), str)
+    assert isinstance(ckan_io.encode_path(u"just_a_unicode"), six.binary_type)
 
 
 def test_decode_encode_path():
-    temp_dir = ckan_io.decode_path(tempfile.mkdtemp())
+    temp_dir = ckan_io.decode_path(six.b(tempfile.mkdtemp()))
     try:
         filename = u"\xf6\xe4\xfc.txt"
         path = os.path.join(temp_dir, filename)

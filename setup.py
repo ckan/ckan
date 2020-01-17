@@ -44,9 +44,6 @@ if parse_version(setuptools_version) < min_setuptools_version:
 
 
 entry_points = {
-    'nose.plugins.0.10': [
-        'main = ckan.ckan_nose_plugin:CkanNose',
-    ],
     'paste.app_factory': [
         'main = ckan.config.middleware:make_app',
     ],
@@ -246,7 +243,6 @@ setup(
     },
     entry_points=entry_points,
     # setup.py test command needs a TestSuite so does not work with py.test
-    # test_suite = 'nose.collector',
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers

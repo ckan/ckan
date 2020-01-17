@@ -1,6 +1,5 @@
 # encoding: utf-8
-"""
-Controller tests probably shouldn't use mocking.
+"""Controller tests probably shouldn't use mocking.
 
 .. todo::
 
@@ -17,7 +16,7 @@ Controller tests probably shouldn't use mocking.
      tests are also testing CKAN's templates and rendering - these are CKAN's
      front-end tests.
 
-     For example, maybe we use a webtests testapp and then use beautiful soup
+     For example, maybe we use a testapp and then use beautiful soup
      to parse the HTML?
 
    * In general the tests for a controller shouldn't need to be too detailed,

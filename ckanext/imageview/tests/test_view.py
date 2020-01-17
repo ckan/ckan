@@ -3,6 +3,7 @@
 import pytest
 from ckan.lib.helpers import url_for
 from ckan.tests import factories
+import ckan.tests.helpers as helpers
 
 
 @pytest.mark.ckan_config('ckan.views.default_views', '')
@@ -24,4 +25,4 @@ def test_view_shown_on_resource_page_with_image_url(app):
 
     response = app.get(url)
 
-    assert(resource_view['image_url'] in response)
+    assert helpers.body_contains(response, resource_view['image_url'])

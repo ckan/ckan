@@ -23,6 +23,7 @@ of the revision history, rather than a feed of datasets.
 # TODO fix imports
 import logging
 
+import six
 from six import text_type
 from six.moves.urllib.parse import urlparse
 
@@ -550,11 +551,11 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 
         if(item['updated']):
             handler.addQuickElement(u'updated',
-                                    dfunc(item['updated']).decode('utf-8'))
+                                    six.ensure_text(dfunc(item['updated'])))
 
         if(item['published']):
             handler.addQuickElement(u'published',
-                                    dfunc(item['published']).decode('utf-8'))
+                                    six.ensure_text(dfunc(item['published'])))
 
     def add_root_elements(self, handler):
         """

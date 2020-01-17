@@ -10,7 +10,6 @@ def datastore_auth(context, data_dict, privilege='resource_update'):
     user = context.get('user')
 
     authorized = p.toolkit.check_access(privilege, context, data_dict)
-
     if not authorized:
         return {
             'success': False,

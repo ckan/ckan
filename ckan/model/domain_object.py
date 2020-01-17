@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import datetime
+import six
 from collections import OrderedDict
 
 import sqlalchemy as sa
@@ -99,7 +100,7 @@ class DomainObject(object):
         return _dict
 
     def __str__(self):
-        return self.__unicode__().encode('utf8')
+        return repr(self)
 
     def __unicode__(self):
         repr = u'<%s' % self.__class__.__name__
@@ -114,4 +115,4 @@ class DomainObject(object):
         return repr
 
     def __repr__(self):
-        return self.__unicode__().encode('utf-8')
+        return six.ensure_str(self.__unicode__())

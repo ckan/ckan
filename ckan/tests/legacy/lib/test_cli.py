@@ -1,10 +1,13 @@
 # encoding: utf-8
 
+import six
 from ckan import model
-from ckan.lib.cli import SearchIndexCommand
 from ckan.lib.create_test_data import CreateTestData
 import pytest
 from ckan.lib.search import index_for, query_for
+
+if six.PY2:
+    from ckan.lib.cli import SearchIndexCommand
 
 
 class FakeOptions:
@@ -13,6 +16,7 @@ class FakeOptions:
             setattr(self, key, kwargs[key])
 
 
+@pytest.mark.skipif(six.PY3, reason=u"There is no pylons.command in Py3")
 class TestSearch:
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db):

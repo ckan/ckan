@@ -4,6 +4,8 @@ import os
 
 import hashlib
 import pytest
+import six
+
 from passlib.hash import pbkdf2_sha512
 from six import text_type
 
@@ -26,7 +28,7 @@ def _set_password(password):
     hashed_password = salt.hexdigest() + hash.hexdigest()
 
     if not isinstance(hashed_password, text_type):
-        hashed_password = hashed_password.decode("utf-8")
+        hashed_password = six.ensure_text(hashed_password)
     return hashed_password
 
 

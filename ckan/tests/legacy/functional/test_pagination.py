@@ -82,7 +82,8 @@ def fake_packages():
 def test_package_search_p1(app):
     res = app.get(url_for("dataset.search", q="groups:group_00"))
     assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=2"' in res
-    pkg_numbers = scrape_search_results(res, "dataset")
+    pkg_numbers = scrape_search_results(res.data, "dataset")
+
     assert [
         "50",
         "49",
@@ -108,7 +109,7 @@ def test_package_search_p1(app):
 
     res = app.get(url_for("dataset.search", q="groups:group_00", page=2))
     assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=1"' in res
-    pkg_numbers = scrape_search_results(res, "dataset")
+    pkg_numbers = scrape_search_results(res.data, "dataset")
     assert [
         "30",
         "29",
@@ -137,7 +138,7 @@ def test_package_search_p1(app):
 def test_group_datasets_read_p1(app):
     res = app.get(url_for(controller="group", action="read", id="group_00"))
     assert 'href="/group/group_00?page=2' in res, res
-    pkg_numbers = scrape_search_results(res, "group_dataset")
+    pkg_numbers = scrape_search_results(res.data, "group_dataset")
     assert [
         "50",
         "49",
@@ -165,7 +166,7 @@ def test_group_datasets_read_p1(app):
         url_for(controller="group", action="read", id="group_00", page=2)
     )
     assert 'href="/group/group_00?page=1' in res, res
-    pkg_numbers = scrape_search_results(res, "group_dataset")
+    pkg_numbers = scrape_search_results(res.data, "group_dataset")
     assert [
         "30",
         "29",
@@ -194,7 +195,7 @@ def test_group_datasets_read_p1(app):
 def test_group_index(app):
     res = app.get(url_for("group.index"))
     assert 'href="/group/?q=&amp;sort=&amp;page=2"' in res, res
-    grp_numbers = scrape_search_results(res, "group")
+    grp_numbers = scrape_search_results(res.data, "group")
     assert [
         "00",
         "01",
@@ -220,7 +221,7 @@ def test_group_index(app):
 
     res = app.get(url_for("group.index", page=2))
     assert 'href="/group/?q=&amp;sort=&amp;page=1"' in res
-    grp_numbers = scrape_search_results(res, "group")
+    grp_numbers = scrape_search_results(res.data, "group")
     assert ["20", "21"] == grp_numbers
 
 
@@ -228,7 +229,7 @@ def test_group_index(app):
 def test_users_index(app):
     res = app.get(url_for("user.index"))
     assert 'href="/user/?q=&amp;order_by=name&amp;page=2"' in res
-    user_numbers = scrape_search_results(res, "user")
+    user_numbers = scrape_search_results(res.data, "user")
 
     # this page will list default user, created after db reset,
     # that is skipped by our scraper. So, actually there 20 items,
@@ -257,5 +258,5 @@ def test_users_index(app):
 
     res = app.get(url_for("user.index", page=2))
     assert 'href="/user/?q=&amp;order_by=name&amp;page=1"' in res
-    user_numbers = scrape_search_results(res, "user")
+    user_numbers = scrape_search_results(res.data, "user")
     assert ["19", "20"] == user_numbers

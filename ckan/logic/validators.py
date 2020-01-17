@@ -308,7 +308,7 @@ def object_id_validator(key, activity_dict, errors, context):
 
     '''
     activity_type = activity_dict[('activity_type',)]
-    if object_id_validators.has_key(activity_type):
+    if activity_type in object_id_validators:
         object_id = activity_dict[('object_id',)]
         return object_id_validators[activity_type](object_id, context)
     else:
@@ -607,7 +607,6 @@ def user_passwords_match(key, data, errors, context):
 def user_password_not_empty(key, data, errors, context):
     '''Only check if password is present if the user is created via action API.
        If not, user_both_passwords_entered will handle the validation'''
-
     # sysadmin may provide password_hash directly for importing users
     if (data.get(('password_hash',), missing) is not missing and
             authz.is_sysadmin(context.get('user'))):
@@ -672,7 +671,7 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
     tag_name = tag_dict[('name',)]
     if not tag_name:
         raise Invalid(_('No tag name'))
-    if tag_dict.has_key(('vocabulary_id',)):
+    if ('vocabulary_id',) in tag_dict:
         vocabulary_id = tag_dict[('vocabulary_id',)]
     else:
         vocabulary_id = None

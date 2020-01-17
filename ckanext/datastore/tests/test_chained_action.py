@@ -45,6 +45,7 @@ class ExampleDataStoreDeletedWithCountPlugin(p.SingletonPlugin):
         }
 
 
+@pytest.mark.usefixtures(u"with_request_context")
 class TestChainedAction(object):
     @pytest.mark.ckan_config(
         u"ckan.plugins",
@@ -94,4 +95,4 @@ class TestChainedAction(object):
     def test_chain_core_action(self):
         with pytest.raises(TestActionException) as raise_context:
             helpers.call_action(u"package_list", {})
-        assert raise_context.value.message == package_list_message
+        assert raise_context.value.args == (package_list_message, )
