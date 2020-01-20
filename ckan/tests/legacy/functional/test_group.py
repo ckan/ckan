@@ -11,7 +11,7 @@ from ckan.lib.helpers import url_for
 import ckan.tests.factories as factories
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 def test_sorting():
     testsysadmin = factories.Sysadmin(name=u"testsysadmin")
 
@@ -86,7 +86,7 @@ def test_read_non_existent(app):
     app.get(offset, status=404)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 @mock.patch("ckan.lib.mailer.mail_user")
 def test_member_new_invites_user_if_received_email(_mail_user, app):
     user = CreateTestData.create_user("a_user", sysadmin=True)

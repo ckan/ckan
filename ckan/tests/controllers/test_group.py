@@ -304,7 +304,6 @@ class TestGroupMembership(object):
         assert user_roles["User One"] == "Admin"
         assert user_roles["User Two"] == "Member"
 
-    @pytest.mark.xfail(reason="DetachedInstance error.")
     def test_membership_add(self, app):
         """Member can be added via add member page"""
         owner = factories.User(fullname="My Owner")
@@ -316,10 +315,10 @@ class TestGroupMembership(object):
         add_response = app.post(
             url,
             environ_overrides=env,
-            data={"save": "", "username": "my-user"},
+            data={"save": "", "username": "my-user", "role": "member"},
         )
 
-        assert "2 members" in add_response
+        assert "2 members" in add_response.body
 
         add_response_html = BeautifulSoup(add_response.body)
         user_names = [
@@ -461,7 +460,6 @@ class TestGroupFollow:
             in response
         )
 
-    @pytest.mark.xfail(reason="DetachedInstance error.")
     def test_group_follow_not_exist(self, app):
         """Pass an id for a group that doesn't exist"""
         user_one = factories.User()

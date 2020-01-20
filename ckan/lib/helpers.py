@@ -1666,8 +1666,7 @@ def date_str_to_datetime(date_str):
 
 @core_helper
 def parse_rfc_2822_date(date_str, assume_utc=True):
-    '''
-    Parse a date string of the form specified in RFC 2822, and return a
+    '''Parse a date string of the form specified in RFC 2822, and return a
     datetime.
 
     RFC 2822 is the date format used in HTTP headers.  It should contain
@@ -1684,6 +1683,10 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
     datetime is 'aware', ie - it has an associated tz_info object.
 
     Returns None if the string cannot be parsed as a valid datetime.
+
+    Note: in Python3, `email.utils` always assume UTC if there is no
+    timezone, so `assume_utc` has no sense in this version.
+
     '''
     time_tuple = email.utils.parsedate_tz(date_str)
 

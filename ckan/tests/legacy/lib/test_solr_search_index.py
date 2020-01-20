@@ -60,6 +60,5 @@ class TestSolrSearch(object):
         results = self.solr.search(q="sweden", fq=self.fq)
         result_names = sorted([r["name"] for r in results])
         if not result_names:
-
             pytest.xfail("No datasets found")
         assert [u"se-opengov", u"se-publications"] == result_names

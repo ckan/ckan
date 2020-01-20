@@ -169,6 +169,7 @@ class TestCreateUserWebEnabled(object):
         assert res_dict["success"] is False
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestUserActions(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db):

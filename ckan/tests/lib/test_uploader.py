@@ -1,10 +1,11 @@
 # encoding: utf-8
 import mock
 import tempfile
-import __builtin__ as builtins
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
 import flask
-import paste.fileapp
-import cStringIO
 
 from werkzeug.datastructures import FileStorage
 from pyfakefs import fake_filesystem
@@ -24,7 +25,6 @@ class TestInitResourceUpload(object):
     @mock.patch.object(ckan.lib.uploader, u'os', fake_os)
     @mock.patch.object(builtins, u'open', side_effect=mock_open_if_open_fails)
     @mock.patch.object(flask, u'send_file', side_effect=[b'DATA'])
-    @mock.patch.object(paste.fileapp, u'os', fake_os)
     @mock.patch.object(config[u'pylons.h'], u'uploads_enabled',
                        return_value=True)
     @mock.patch.object(ckan.lib.uploader, u'_storage_path', new=u'/doesnt_exist')
@@ -47,7 +47,6 @@ class TestInitResourceUpload(object):
     @mock.patch.object(ckan.lib.uploader, u'os', fake_os)
     @mock.patch.object(builtins, u'open', side_effect=mock_open_if_open_fails)
     @mock.patch.object(flask, u'send_file', side_effect=[b'DATA'])
-    @mock.patch.object(paste.fileapp, u'os', fake_os)
     @mock.patch.object(config[u'pylons.h'], u'uploads_enabled',
                        return_value=True)
     @mock.patch.object(ckan.lib.uploader, u'_storage_path', new=u'/doesnt_exist')
@@ -69,7 +68,6 @@ class TestInitResourceUpload(object):
     @mock.patch.object(ckan.lib.uploader, u'os', fake_os)
     @mock.patch.object(builtins, u'open', side_effect=mock_open_if_open_fails)
     @mock.patch.object(flask, u'send_file', side_effect=[b'DATA'])
-    @mock.patch.object(paste.fileapp, u'os', fake_os)
     @mock.patch.object(config[u'pylons.h'], u'uploads_enabled',
                        return_value=True)
     @mock.patch.object(ckan.lib.uploader, u'_storage_path', new=u'/doesnt_exist')

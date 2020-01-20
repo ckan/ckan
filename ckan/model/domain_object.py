@@ -99,6 +99,9 @@ class DomainObject(object):
             _dict[col.name] = val
         return _dict
 
+    def __lt__(self, other):
+        return self.name < other.name
+
     def __str__(self):
         return repr(self)
 

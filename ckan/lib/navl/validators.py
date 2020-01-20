@@ -65,7 +65,7 @@ def empty(key, data, errors, context):
         key_name = key[-1]
         if key_name == '__junk':
             # for junked fields, the field name is contained in the value
-            key_name = value.keys()
+            key_name = list(value.keys())
         errors[key].append(_(
             'The input field %(name)s was not expected.') % {"name": key_name})
 

@@ -86,7 +86,7 @@ def int_validator(value, context):
     except TypeError:
         try:
             return int(value)
-        except ValueError:
+        except (TypeError, ValueError):
             pass
     else:
         if not part:
@@ -503,7 +503,6 @@ def ignore_not_sysadmin(key, data, errors, context):
 
     user = context.get('user')
     ignore_auth = context.get('ignore_auth')
-
     if ignore_auth or (user and authz.is_sysadmin(user)):
         return
 
@@ -698,7 +697,7 @@ def url_validator(key, data, errors, context):
     try:
         pieces = urlparse(url)
         if all([pieces.scheme, pieces.netloc]) and \
-           set(pieces.netloc) <= set(string.letters + string.digits + '-.') and \
+           set(pieces.netloc) <= set(string.ascii_letters + string.digits + '-.') and \
            pieces.scheme in ['http', 'https']:
            return
     except ValueError:
