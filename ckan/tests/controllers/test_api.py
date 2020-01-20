@@ -53,7 +53,7 @@ class TestApiController(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         content = six.ensure_binary('upload-content')
-        upload_content = six.StringIO(content)
+        upload_content = six.BytesIO(content)
         postparams = {"name": "test-flask-upload", "package_id": pkg["id"], "upload": (upload_content, "test-upload.txt")}
         monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
 

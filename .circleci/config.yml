@@ -143,4 +143,4 @@ workflows:
   build_and_test:
     jobs:
       - test-python-2
-      # - test-python-3
+      - test-python-3

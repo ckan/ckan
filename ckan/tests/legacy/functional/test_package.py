@@ -255,8 +255,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
                 "%s:%s" % (controller, id.replace('"', "&#34;")),
             )
 
-        check_link(res.data, "dataset", "pkg-1")
-        check_link(res.data, "group", "test-group-1")
+        check_link(res.body, "dataset", "pkg-1")
+        check_link(res.body, "group", "test-group-1")
         assert "decoy</a>" not in res, res
         assert 'decoy"' not in res, res
 
@@ -271,6 +271,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         assert plugin.calls["read"] == 1, plugin.calls
         assert plugin.calls["after_show"] == 1, plugin.calls
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_resource_list(self, app):
         # TODO restore this test. It doesn't make much sense with the
         # present resource list design.

@@ -134,7 +134,7 @@ def test_mapper_plugin_fired_on_insert():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
 def test_mapper_plugin_fired_on_delete():
     plugin = plugins.get_plugin("mapper_plugin")
     CreateTestData.create_arbitrary([{"name": u"testpkg"}])

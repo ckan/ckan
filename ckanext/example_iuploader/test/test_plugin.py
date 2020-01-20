@@ -25,7 +25,7 @@ real_open = open
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
 fake_open = fake_filesystem.FakeFileOpen(fs)
-CONTENT = b"data"
+CONTENT = "data"
 
 
 def mock_open_if_open_fails(*args, **kwargs):
@@ -43,7 +43,7 @@ def mock_open_if_open_fails(*args, **kwargs):
 # open)
 @pytest.mark.ckan_config("ckan.plugins", "example_iuploader")
 @pytest.mark.ckan_config("ckan.webassets.path", "/tmp/webassets")
-@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
 @patch.object(ckan.lib.uploader, "os", fake_os)
 @patch.object(flask, "send_file", side_effect=[CONTENT])
 @patch.object(config["pylons.h"], "uploads_enabled", return_value=True)

@@ -1603,7 +1603,6 @@ class TestPackageFollow(object):
         response = app.post(follow_url, extra_environ=env)
         assert "You are now following {0}".format(package["title"]) in response
 
-    @pytest.mark.xfail(reason="DetachedInstance error.")
     def test_package_follow_not_exist(self, app):
         """Pass an id for a package that doesn't exist"""
 

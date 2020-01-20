@@ -43,16 +43,15 @@ def list_sysadmins():
 @sysadmin.command(help=u"Convert user into a sysadmin.")
 @click.argument(u"username")
 @click.argument(u"args", nargs=-1)
-def add(username, args):
-
+@click.pass_context
+def add(ctx, username, args):
     user = model.User.by_name(text_type(username))
     if not user:
         click.secho(u'User "%s" not found' % username, fg=u"red")
         if click.confirm(
             u"Create new user: %s?" % username, default=True, abort=True
         ):
-            # TODO: once, cli.user is merged, invoke `user.add_user` instead
-            add_user([username] + list(args))
+            ctx.forward(add_user)
             user = model.User.by_name(text_type(username))
 
     user.sysadmin = True

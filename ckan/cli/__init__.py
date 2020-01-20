@@ -2,6 +2,7 @@
 
 import os
 
+import six
 import click
 import logging
 from logging.config import fileConfig as loggingFileConfig
@@ -26,6 +27,11 @@ class CkanCommand(object):
 
 def _init_ckan_config(ctx, param, value):
     ctx.obj = CkanCommand(value)
+    if six.PY2:
+        ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
+    else:
+        ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
+
     for plugin in p.PluginImplementations(p.IClick):
         for cmd in plugin.get_commands():
             cmd._ckanext = plugin.name

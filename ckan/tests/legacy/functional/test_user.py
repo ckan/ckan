@@ -11,7 +11,6 @@ from ckan.tests.legacy import CreateTestData
 @pytest.fixture(autouse=True)
 def initial_data(clean_db):
 
-    # SmtpServerHarness.setup_class()
     CreateTestData.create()
 
     # make 3 changes, authored by annafan

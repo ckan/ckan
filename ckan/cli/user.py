@@ -4,6 +4,7 @@ import logging
 import sys
 from pprint import pprint
 
+import six
 import click
 from six import text_type
 
@@ -24,7 +25,7 @@ def user():
 @click.argument(u'username')
 @click.argument(u'args', nargs=-1)
 @click.pass_context
-def add_user(username, args):
+def add_user(ctx, username, args):
     u'''Add new user if we use ckan sysadmin add
     or ckan user add
     '''
@@ -69,11 +70,16 @@ def add_user(username, args):
             u'ignore_auth': True,
             u'user': site_user['name'],
         }
-        user_dict = logic.get_action(u'user_create')(context, data_dict)
+        flask_app = ctx.meta['flask_app']
+        # Current user is tested agains sysadmin role during model
+        # dictization, thus we need request context
+        with flask_app.test_request_context():
+            user_dict = logic.get_action(u'user_create')(context, data_dict)
         click.secho(u"Successfully created user: %s" % user_dict['name'],
                     fg=u'green', bold=True)
     except logic.ValidationError as e:
         error_shout(e)
+        raise click.Abort()
 
 
 def get_user_str(user):
@@ -102,10 +108,9 @@ def remove_user(ctx, username):
         error_shout(u'Please specify the username to be removed')
         return
 
-    flask_app = ctx.obj.app.apps['flask_app']._wsgi_app
     site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     context = {u'user': site_user[u'name']}
-    with flask_app.test_request_context():
+    with ctx.meta['flask_app'].test_request_context():
         plugin.toolkit.get_action(u'user_delete')(context, {u'id': username})
         click.secho(u'Deleted user: %s' % username, fg=u'green', bold=True)
 

@@ -109,12 +109,12 @@ class User(core.StatefulObjectMixin,
         return self._password
 
     def _verify_and_upgrade_from_sha1(self, password):
-        if isinstance(password, text_type):
-            password_8bit = password.encode('ascii', 'ignore')
-        else:
-            password_8bit = password
+        # if isinstance(password, text_type):
+        #     password_8bit = password.encode('ascii', 'ignore')
+        # else:
+        #     password_8bit = password
 
-        hashed_pass = sha1(password_8bit + self.password[:40])
+        hashed_pass = sha1(six.ensure_binary(password + self.password[:40]))
         current_hash = passlib.utils.to_native_str(self.password[40:])
 
         if passlib.utils.consteq(hashed_pass.hexdigest(), current_hash):
