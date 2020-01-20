@@ -4,6 +4,11 @@
 Command Line Interface
 ======================
 
+.. note::
+
+    NB: For the CKAN configuration file I have used 'ckan.ini' as the name of this file as current naming 
+    conventions will move to this in the very near future
+
 Most common CKAN administration tasks can be carried out from the command line
 on the server that CKAN is installed on, using the ``ckan`` command.
 
