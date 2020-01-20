@@ -73,10 +73,12 @@ class CkanCommand(object):
 @click_config_option
 @click.pass_context
 def ckan(ctx, config, *args, **kwargs):
+
     # This is necessary to allow the user to create
     # a config file when one isn't already present
-    if all(arg in sys.argv for arg in ['generate', 'config']):
+    if len(sys.argv) > 1 and sys.argv[1] == 'generate' and not config:
         return
+
     ctx.obj = CkanCommand(config)
     for plugin in p.PluginImplementations(p.IClick):
         for cmd in plugin.get_commands():

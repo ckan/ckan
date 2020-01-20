@@ -85,6 +85,10 @@ def extension(output_dir):
 @click.option(u'-o', u'--output-dir', help=u'Location to put the generated '
                                            u'template.')
 def make_config(output_dir):
+    if output_dir is None:
+        print('\nERROR: Try again with \'-o path/to/file.ini\'')
+        sys.exit(1)
+
     names = ['development.ini', 'production.ini']
 
     if not any(name in output_dir for name in names):
