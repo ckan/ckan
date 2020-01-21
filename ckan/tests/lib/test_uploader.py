@@ -88,6 +88,7 @@ class TestInitResourceUpload(object):
         eq_(res_upload.filesize, 0)
         eq_(res_upload.filename, u'data.csv')
 
+
 class TestUpload(object):
     def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config):
         """Reproduce group's logo upload and check that file available through
