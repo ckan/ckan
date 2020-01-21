@@ -6,6 +6,7 @@ try:
 except ImportError:
     import builtins
 import flask
+import six
 
 from werkzeug.datastructures import FileStorage
 from pyfakefs import fake_filesystem
@@ -13,7 +14,7 @@ from nose.tools import assert_equal as eq_
 
 from ckan.common import config
 import ckan.lib.uploader
-from ckan.lib.uploader import ResourceUpload
+from ckan.lib.uploader import ResourceUpload, Upload
 from ckanext.example_iuploader.test.test_plugin import mock_open_if_open_fails
 
 
@@ -86,3 +87,29 @@ class TestInitResourceUpload(object):
 
         eq_(res_upload.filesize, 0)
         eq_(res_upload.filename, u'data.csv')
+
+class TestUpload(object):
+    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config):
+        """Reproduce group's logo upload and check that file available through
+        public url.
+
+        """
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
+        group = {u'clear_upload': u'',
+                 u'upload': FileStorage(
+                     six.BytesIO(six.ensure_binary('hello')),
+                     filename=u'logo.png',
+                     content_type=u'PNG'
+                 ),
+                 u'name': u'test-group-upload'}
+        group_upload = Upload('group')
+        group_upload.update_data_dict(group, u'url', u'upload', u'clear_upload')
+        group_upload.upload()
+        uploads_dir = tmpdir / u'storage' / u'uploads' / u'group'
+        logo = uploads_dir.listdir()[0]
+        assert logo.basename == group[u'url']
+        app = make_app()
+        resp = app.get(u'/uploads/group/' + group[u'url'])
+        assert resp.status_code == 200
+        assert resp.body == 'hello'
