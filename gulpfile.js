@@ -1,5 +1,5 @@
 const path = require("path");
-const { src, watch, dest } = require("gulp");
+const { src, watch, dest, parallel } = require("gulp");
 const less = require("gulp-less");
 const if_ = require("gulp-if");
 const sourcemaps = require("gulp-sourcemaps");
@@ -29,5 +29,20 @@ const watchSource = () =>
     build
   );
 
+
+const jquery = () =>
+  src(__dirname + '/node_modules/jquery/dist/jquery.js')
+    .pipe(dest(__dirname + '/ckan/public/base/vendor'));
+
+const bootstrap = () =>
+  src(__dirname + '/node_modules/bootstrap/dist/**/*')
+    .pipe(dest(__dirname + '/ckan/public/base/vendor/bootstrap'));
+
+const bootstrapLess = () =>
+  src(__dirname + '/node_modules/bootstrap/less/**/*')
+    .pipe(dest(__dirname + '/ckan/public/base/vendor/bootstrap/less'));
+
+
 exports.build = build;
 exports.watch = watchSource;
+exports.updateVendorLibs = parallel(jquery, bootstrap, bootstrapLess);
