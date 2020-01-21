@@ -110,7 +110,6 @@ def make_flask_stack(conf, **app_conf):
         'extra_public_paths', ''
     ).split(',') + [os.path.join(root, public_folder)] + storage_folder
 
-
     app.jinja_options = jinja_extensions.get_jinja_env_options()
 
     app.debug = debug
