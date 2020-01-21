@@ -315,7 +315,6 @@ class TestPep8(object):
         "ckan/lib/dictization/model_dictize.py",
         "ckan/lib/dictization/model_save.py",
         "ckan/lib/email_notifications.py",
-        "ckan/lib/extract.py",
         "ckan/lib/fanstatic_extensions.py",
         "ckan/lib/fanstatic_resources.py",
         "ckan/lib/formatters.py",
