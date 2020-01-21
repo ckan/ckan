@@ -180,7 +180,6 @@ class CKANCliRunner(CliRunner):
         return super(CKANCliRunner, self).invoke(*args, **kwargs)
 
 
-
 class CKANResponse(Response):
     @property
     def body(self):
