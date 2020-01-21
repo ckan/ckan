@@ -42,7 +42,11 @@ const bootstrapLess = () =>
   src(__dirname + '/node_modules/bootstrap/less/**/*')
     .pipe(dest(__dirname + '/ckan/public/base/vendor/bootstrap/less'));
 
+const moment = () =>
+  src(__dirname + '/node_modules/moment/min/moment-with-locales.js')
+    .pipe(dest(__dirname + '/ckan/public/base/vendor'));
+
 
 exports.build = build;
 exports.watch = watchSource;
-exports.updateVendorLibs = parallel(jquery, bootstrap, bootstrapLess);
+exports.updateVendorLibs = parallel(jquery, bootstrap, bootstrapLess, moment);
