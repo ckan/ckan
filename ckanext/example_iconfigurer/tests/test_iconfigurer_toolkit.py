@@ -5,7 +5,8 @@ import ckan.tests.helpers as helpers
 import ckan.plugins.toolkit as toolkit
 
 
-class TestIConfigurerToolkitAddCkanAdminTab(helpers.FunctionalTestBase):
+@pytest.mark.usefixtures("clean_db")
+class TestIConfigurerToolkitAddCkanAdminTab(object):
 
     """
     Tests for toolkit.add_ckan_admin_tab used by the IConfigurer interface.

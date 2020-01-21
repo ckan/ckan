@@ -65,7 +65,7 @@ def empty(key, data, errors, context):
         key_name = key[-1]
         if key_name == '__junk':
             # for junked fields, the field name is contained in the value
-            key_name = value.keys()
+            key_name = list(value.keys())
         errors[key].append(_(
             'The input field %(name)s was not expected.') % {"name": key_name})
 
@@ -163,7 +163,7 @@ def unicode_safe(value):
         # bytes only arrive when core ckan or plugins call
         # actions from Python code
         try:
-            return value.decode(u'utf8')
+            return six.ensure_text(value)
         except UnicodeDecodeError:
             return value.decode(u'cp1252')
     try:
@@ -183,7 +183,7 @@ def limit_to_configured_maximum(config_option, default_limit):
     '''
     def callable(key, data, errors, context):
 
-        value = data.get(key)
+        value = convert_int(data.get(key), context)
         limit = int(config.get(config_option, default_limit))
         if value > limit:
             data[key] = limit

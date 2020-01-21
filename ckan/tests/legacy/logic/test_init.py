@@ -14,7 +14,7 @@ class TestMemberLogic(object):
             logic.model_name_to_class(model, "inexistent_model_name")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestCheckAccess(object):
     def test_check_access_auth_user_obj_is_set(self):
 

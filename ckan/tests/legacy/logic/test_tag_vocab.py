@@ -82,7 +82,7 @@ class TestVocabFacets(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index):
         if not tests.is_search_supported():
-            raise tests.SkipTest("Search not supported")
+            pytest.skip("Search not supported")
 
         ctd.CreateTestData.create()
 

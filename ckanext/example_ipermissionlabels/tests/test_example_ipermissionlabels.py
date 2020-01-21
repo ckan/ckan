@@ -6,24 +6,15 @@ Tests for the ckanext.example_ipermissionlabels extension
 
 import pytest
 
-import ckan.plugins
-from ckan.plugins.toolkit import get_action, NotAuthorized
-from ckan.tests.helpers import FunctionalTestBase, call_auth
-from ckan.tests import factories
 from ckan import model
+from ckan.plugins.toolkit import get_action, NotAuthorized
+from ckan.tests import factories
+from ckan.tests.helpers import call_auth
 
 
-class TestExampleIPermissionLabels(FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        # Test code should use CKAN's plugins.load() function to load plugins
-        # to be tested.
-        ckan.plugins.load(u"example_ipermissionlabels")
-
-    @classmethod
-    def teardown_class(cls):
-        ckan.plugins.unload(u"example_ipermissionlabels")
-
+@pytest.mark.ckan_config(u'ckan.plugins', u"example_ipermissionlabels")
+@pytest.mark.usefixtures(u'clean_db', u'clean_index', u'with_plugins', u'with_request_context')
+class TestExampleIPermissionLabels(object):
     def test_normal_dataset_permissions_are_normal(self):
         user = factories.User()
         user2 = factories.User()

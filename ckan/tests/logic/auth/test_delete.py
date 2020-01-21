@@ -13,7 +13,7 @@ from ckan import model
 logic = helpers.logic
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDeleteAuth:
     def test_anon_cant_delete(self):
         context = {"user": None, "model": model}
@@ -110,6 +110,7 @@ def test_anon_cant_clear():
         helpers.call_auth("resource_view_clear", context=context, **params)
 
 
+@pytest.mark.usefixtures("with_request_context")
 def test_normal_user_cant_clear():
     user = factories.User()
 
@@ -119,6 +120,7 @@ def test_normal_user_cant_clear():
         helpers.call_auth("resource_view_clear", context=context)
 
 
+@pytest.mark.usefixtures("with_request_context")
 def test_sysadmin_user_can_clear():
     user = factories.User(sysadmin=True)
 

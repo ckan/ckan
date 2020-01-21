@@ -16,6 +16,8 @@ import os.path
 import re
 import subprocess
 import sys
+import six
+import pytest
 
 from six import text_type
 from six.moves import xrange
@@ -24,7 +26,10 @@ FILESYSTEM_ENCODING = text_type(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 
-HERE = os.path.abspath(os.path.dirname(__file__.decode(FILESYSTEM_ENCODING)))
+if six.PY2:
+    HERE = os.path.abspath(os.path.dirname(__file__.decode(FILESYSTEM_ENCODING)))
+else:
+    HERE = os.path.abspath(os.path.dirname(__file__))
 
 PROJECT_ROOT = os.path.normpath(os.path.join(HERE, u"..", u".."))
 
@@ -74,16 +79,16 @@ def test_building_the_docs():
         ), u"Building the docs failed with return code: {code}".format(
             code=err.returncode
         )
-    output_lines = output.split(u"\n")
+    output_lines = output.split(six.b(u"\n"))
 
-    errors = [line for line in output_lines if u"ERROR" in line]
+    errors = [line for line in output_lines if six.b(u"ERROR") in line]
     if errors:
         assert False, (
             u"Don't add any errors to the Sphinx build: "
             u"{errors}".format(errors=errors)
         )
 
-    warnings = [line for line in output_lines if u"WARNING" in line]
+    warnings = [line for line in output_lines if six.b(u"WARNING") in line]
 
     # Some warnings have been around for a long time and aren't easy to fix.
     # These are allowed, but no more should be added.
@@ -107,7 +112,7 @@ def test_building_the_docs():
     warnings_to_remove = []
     for allowed_warning in allowed_warnings:
         for warning in warnings:
-            if allowed_warning in warning:
+            if six.b(allowed_warning) in warning:
                 warnings_to_remove.append(warning)
                 break
     new_warnings = [
@@ -242,7 +247,6 @@ _STRING_LITERALS_WHITELIST = [
     u"bin/running_stats.py",
     u"ckan/__init__.py",
     u"ckan/authz.py",
-    u"ckan/ckan_nose_plugin.py",
     u"ckan/config/environment.py",
     u"ckan/config/install.py",
     u"ckan/config/middleware/__init__.py",
@@ -513,9 +517,7 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/tests/legacy/logic/test_tag_vocab.py",
     u"ckan/tests/legacy/logic/test_validators.py",
     u"ckan/tests/legacy/misc/test_format_text.py",
-    u"ckan/tests/legacy/misc/test_mock_mail_server.py",
     u"ckan/tests/legacy/misc/test_sync.py",
-    u"ckan/tests/legacy/mock_mail_server.py",
     u"ckan/tests/legacy/mock_plugin.py",
     u"ckan/tests/legacy/models/test_activity.py",
     u"ckan/tests/legacy/models/test_extras.py",
@@ -574,7 +576,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/tests/plugins/test_toolkit.py",
     u"ckan/tests/test_authz.py",
     u"ckan/tests/test_factories.py",
-    u"ckan/websetup.py",
     u"ckanext/datapusher/cli.py",
     u"ckanext/datapusher/helpers.py",
     u"ckanext/datapusher/interfaces.py",
@@ -586,6 +587,7 @@ _STRING_LITERALS_WHITELIST = [
     u"ckanext/datapusher/tests/test_default_views.py",
     u"ckanext/datapusher/tests/test_interfaces.py",
     u"ckanext/datastore/helpers.py",
+    u"ckanext/datastore/backend/__init__.py",
     u"ckanext/datastore/backend/postgres.py",
     u"ckanext/datastore/interfaces.py",
     u"ckanext/datastore/logic/action.py",
@@ -665,6 +667,10 @@ _STRING_LITERALS_WHITELIST = [
     u"ckanext/example_theme_docs/v21_custom_jquery_plugin/plugin.py",
     u"ckanext/imageview/plugin.py",
     u"ckanext/imageview/tests/test_view.py",
+    u'ckanext/audioview/plugin.py',
+    u'ckanext/audioview/tests/test_view.py',
+    u'ckanext/videoview/plugin.py',
+    u'ckanext/videoview/tests/test_view.py',
     u"ckanext/multilingual/plugin.py",
     u"ckanext/multilingual/tests/test_multilingual_plugin.py",
     u"ckanext/reclineview/plugin.py",
@@ -685,11 +691,11 @@ _STRING_LITERALS_WHITELIST = [
     u"ckanext/webpageview/plugin.py",
     u"ckanext/webpageview/tests/test_view.py",
     u"doc/conf.py",
-    u"profile_tests.py",
     u"setup.py",
 ]
 
 
+@pytest.mark.skipif(six.PY3, reason=u"")
 def test_string_literals_are_prefixed():
     u"""
     Test that string literals are prefixed by ``u``, ``b`` or ``ur``.

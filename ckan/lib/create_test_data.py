@@ -157,7 +157,7 @@ class CreateTestData(object):
             for item in package_dicts:
                 pkg_dict = {}
                 for field in cls.pkg_core_fields:
-                    if item.has_key(field):
+                    if field in item:
                         pkg_dict[field] = text_type(item[field])
                 if model.Package.by_name(pkg_dict['name']):
                     log.warning('Cannot create package "%s" as it already exists.' % \

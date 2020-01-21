@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import six
+
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
 
@@ -23,7 +25,10 @@ def pytest_sessionstart(session):
     global _tests_test_request_context
 
     app = make_app(conf.global_conf, **conf.local_conf)
-    flask_app = app.apps['flask_app']._wsgi_app
+    try:
+        flask_app = app.apps['flask_app']._wsgi_app
+    except AttributeError:
+        flask_app = app._wsgi_app
     _tests_test_request_context = flask_app.test_request_context()
 
 

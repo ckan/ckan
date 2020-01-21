@@ -243,6 +243,10 @@ class CreateView(MethodView):
         except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
+            if data.get(u'url_type') == u'upload' and data.get(u'url'):
+                data[u'url'] = u''
+                data[u'url_type'] = u''
+                data[u'previous_upload'] = True
             return self.get(package_type, id, data, errors, error_summary)
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to create a resource'))

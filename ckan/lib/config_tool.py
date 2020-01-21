@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import re
 
 INSERT_NEW_SECTIONS_BEFORE_SECTION = 'app:main'

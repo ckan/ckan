@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import six
 from six import text_type
 
 from ckan.plugins.toolkit import Invalid
@@ -28,9 +29,9 @@ def negate(value):
 
 
 def unicode_please(value):
-    if isinstance(value, bytes):
+    if isinstance(value, six.binary_type):
         try:
-            return value.decode(u'utf8')
+            return six.ensure_text(value)
         except UnicodeDecodeError:
             return value.decode(u'cp1252')
     return text_type(value)

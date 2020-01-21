@@ -1,45 +1,35 @@
 # encoding: utf-8
 
 import pytest
+import six
 from bs4 import BeautifulSoup
 from mock import patch
 
 from ckan import model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
-from ckan.tests.helpers import webtest_submit, submit_and_follow
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationNew(object):
     @pytest.fixture
     def user_env(self):
         user = factories.User()
-        return {"REMOTE_USER": user["name"].encode("ascii")}
+        return {"REMOTE_USER": six.ensure_str(user["name"])}
 
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
 
     def test_name_required(self, app, user_env):
-        response = app.get(
-            url=url_for("organization.new"), extra_environ=user_env
+        response = app.post(
+            url=url_for("organization.new"), extra_environ=user_env, data={"save": ""}
         )
-        form = response.forms["organization-edit-form"]
-        response = webtest_submit(form, name="save", extra_environ=user_env)
-
-        assert "organization-edit-form" in response.forms
         assert "Name: Missing value" in response
 
     def test_saved(self, app, user_env):
-        response = app.get(
-            url=url_for("organization.new"), extra_environ=user_env
-        )
-
-        form = response.forms["organization-edit-form"]
-        form["name"] = u"saved"
-
-        response = submit_and_follow(
-            app, form, name="save", extra_environ=user_env
+        response = app.post(
+            url=url_for("organization.new"), extra_environ=user_env,
+            data={"save": "", "name": "saved"}
         )
         group = helpers.call_action("organization_show", id="saved")
         assert group["title"] == u""
@@ -47,24 +37,22 @@ class TestOrganizationNew(object):
         assert group["state"] == "active"
 
     def test_all_fields_saved(self, app, user_env):
-        response = app.get(
-            url=url_for("organization.new"), extra_environ=user_env
-        )
-
-        form = response.forms["organization-edit-form"]
-        form["name"] = u"all-fields-saved"
-        form["title"] = "Science"
-        form["description"] = "Sciencey datasets"
-        form["image_url"] = "http://example.com/image.png"
-
-        response = submit_and_follow(
-            app, form, name="save", extra_environ=user_env
+        response = app.post(
+            url=url_for("organization.new"), extra_environ=user_env,
+            data={
+                "name": u"all-fields-saved",
+                "title": "Science",
+                "description": "Sciencey datasets",
+                "image_url": "http://example.com/image.png",
+                "save": ""
+            }
         )
         group = helpers.call_action("organization_show", id="all-fields-saved")
         assert group["title"] == u"Science"
         assert group["description"] == "Sciencey datasets"
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestOrganizationList(object):
     @patch(
         "ckan.logic.auth.get.organization_list",
@@ -75,7 +63,7 @@ class TestOrganizationList(object):
         self, mock_check_access, app
     ):
         self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization_list_url = url_for("organization.index")
 
         response = app.get(
@@ -85,7 +73,7 @@ class TestOrganizationList(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationRead(object):
     def test_group_read(self, app):
         org = factories.Organization()
@@ -96,12 +84,11 @@ class TestOrganizationRead(object):
     def test_read_redirect_when_given_id(self, app):
         org = factories.Organization()
         response = app.get(
-            url_for("organization.read", id=org["id"]), status=302
+            url_for("organization.read", id=org["id"]), follow_redirects=False
         )
         # redirect replaces the ID with the name in the URL
-        redirected_response = response.follow()
-        expected_url = url_for("organization.read", id=org["name"])
-        assert redirected_response.request.path == expected_url
+        expected_url = url_for("organization.read", id=org["name"], _external=True)
+        assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         org = factories.Organization(id="abc", name="abc")
@@ -110,14 +97,14 @@ class TestOrganizationRead(object):
         )  # ie no redirect
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationEdit(object):
     @pytest.fixture
     def initial_data(self):
         user = factories.User()
         return {
             "user": user,
-            "user_env": {"REMOTE_USER": user["name"].encode("ascii")},
+            "user_env": {"REMOTE_USER": six.ensure_str(user["name"])},
             "organization": factories.Organization(user=user),
         }
 
@@ -126,17 +113,14 @@ class TestOrganizationEdit(object):
         app.get(url=url, extra_environ=initial_data["user_env"], status=404)
 
     def test_saved(self, app, initial_data):
-        response = app.get(
+        response = app.post(
             url=url_for(
                 "organization.edit", id=initial_data["organization"]["id"]
             ),
             extra_environ=initial_data["user_env"],
+            data={"save": ""}
         )
 
-        form = response.forms["organization-edit-form"]
-        response = webtest_submit(
-            form, name="save", extra_environ=initial_data["user_env"]
-        )
         group = helpers.call_action(
             "organization_show", id=initial_data["organization"]["id"]
         )
@@ -145,22 +129,19 @@ class TestOrganizationEdit(object):
         assert group["state"] == "active"
 
     def test_all_fields_saved(self, app, initial_data):
-        response = app.get(
+        response = app.post(
             url=url_for(
                 "organization.edit", id=initial_data["organization"]["id"]
             ),
             extra_environ=initial_data["user_env"],
+            data={
+                "name": u"all-fields-edited",
+                "title": "Science",
+                "description": "Sciencey datasets",
+                "image_url": "http://example.com/image.png",
+                "save": ""
+            }
         )
-
-        form = response.forms["organization-edit-form"]
-        form["name"] = u"all-fields-edited"
-        form["title"] = "Science"
-        form["description"] = "Sciencey datasets"
-        form["image_url"] = "http://example.com/image.png"
-        response = webtest_submit(
-            form, name="save", extra_environ=initial_data["user_env"]
-        )
-
         group = helpers.call_action(
             "organization_show", id=initial_data["organization"]["id"]
         )
@@ -169,29 +150,24 @@ class TestOrganizationEdit(object):
         assert group["image_url"] == "http://example.com/image.png"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationDelete(object):
     @pytest.fixture
     def initial_data(self):
         user = factories.User()
         return {
             "user": user,
-            "user_env": {"REMOTE_USER": user["name"].encode("ascii")},
+            "user_env": {"REMOTE_USER": six.ensure_str(user["name"])},
             "organization": factories.Organization(user=user),
         }
 
     def test_owner_delete(self, app, initial_data):
-        response = app.get(
+        response = app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
-            status=200,
             extra_environ=initial_data["user_env"],
-        )
-
-        form = response.forms["organization-confirm-delete-form"]
-        response = submit_and_follow(
-            app, form, name="delete", extra_environ=initial_data["user_env"]
+            data={"delete": ""}
         )
         organization = helpers.call_action(
             "organization_show", id=initial_data["organization"]["id"]
@@ -200,18 +176,14 @@ class TestOrganizationDelete(object):
 
     def test_sysadmin_delete(self, app, initial_data):
         sysadmin = factories.Sysadmin()
-        extra_environ = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
-        response = app.get(
+        extra_environ = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
+        response = app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
             status=200,
             extra_environ=extra_environ,
-        )
-
-        form = response.forms["organization-confirm-delete-form"]
-        response = submit_and_follow(
-            app, form, name="delete", extra_environ=initial_data["user_env"]
+            data={"delete": ""}
         )
         organization = helpers.call_action(
             "organization_show", id=initial_data["organization"]["id"]
@@ -222,13 +194,14 @@ class TestOrganizationDelete(object):
         self, app, initial_data
     ):
         user = factories.User()
-        extra_environ = {"REMOTE_USER": user["name"].encode("ascii")}
-        app.get(
+        extra_environ = {"REMOTE_USER": six.ensure_str(user["name"])}
+        app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
             status=403,
             extra_environ=extra_environ,
+            data={"delete": ""}
         )
 
         organization = helpers.call_action(
@@ -257,19 +230,15 @@ class TestOrganizationDelete(object):
             factories.Dataset(owner_org=initial_data["organization"]["id"])
             for i in range(0, 5)
         ]
-        response = app.get(
+        response = app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
-            status=200,
             extra_environ=initial_data["user_env"],
+            data={"delete": ""}
         )
 
-        form = response.forms["organization-confirm-delete-form"]
-        response = submit_and_follow(
-            app, form, name="delete", extra_environ=initial_data["user_env"]
-        )
-        assert text in response.body
+        assert helpers.body_contains(response, text)
 
     def test_delete_organization_with_unknown_dataset_true(self, initial_data):
         """ Test deletion of organization that has datasets and unknown
@@ -289,34 +258,26 @@ class TestOrganizationDelete(object):
         assert dataset["owner_org"] is None
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationBulkProcess(object):
     def test_make_private(self, app):
         self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization = factories.Organization(user=self.user)
 
         datasets = [
-            factories.Dataset(owner_org=self.organization["id"])
+            factories.Dataset(owner_org=self.organization["id"], private=False)
             for i in range(0, 5)
         ]
-        response = app.get(
+        form = {'dataset_' + d["id"]: "on" for d in datasets}
+        form["bulk_action.private"] = "private"
+
+        response = app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
             extra_environ=self.user_env,
-        )
-        form = response.forms[1]
-        for v in form.fields.values():
-            try:
-                v[0].checked = True
-            except AttributeError:
-                pass
-        response = webtest_submit(
-            form,
-            name="bulk_action.private",
-            value="private",
-            extra_environ=self.user_env,
+            data=form
         )
 
         for dataset in datasets:
@@ -325,61 +286,44 @@ class TestOrganizationBulkProcess(object):
 
     def test_make_public(self, app):
         self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization = factories.Organization(user=self.user)
 
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
             for i in range(0, 5)
         ]
-        response = app.get(
+        form = {'dataset_' + d["id"]: "on" for d in datasets}
+        form["bulk_action.public"] = "public"
+        response = app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
             extra_environ=self.user_env,
+            data=form
         )
-        form = response.forms[1]
-        for v in form.fields.values():
-            try:
-                v[0].checked = True
-            except AttributeError:
-                pass
-        response = webtest_submit(
-            form,
-            name="bulk_action.public",
-            value="public",
-            extra_environ=self.user_env,
-        )
-
         for dataset in datasets:
             d = helpers.call_action("package_show", id=dataset["id"])
             assert not (d["private"])
 
     def test_delete(self, app):
         self.user = factories.User()
-        self.user_env = {"REMOTE_USER": self.user["name"].encode("ascii")}
+        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization = factories.Organization(user=self.user)
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
             for i in range(0, 5)
         ]
-        response = app.get(
+        form = {'dataset_' + d["id"]: "on" for d in datasets}
+        form["bulk_action.delete"] = "delete"
+
+        response = app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
             extra_environ=self.user_env,
-        )
-        form = response.forms[1]
-        for v in form.fields.values():
-            try:
-                v[0].checked = True
-            except AttributeError:
-                pass
-        response = webtest_submit(
-            form,
-            name="bulk_action.delete",
-            value="delete",
-            extra_environ=self.user_env,
+
+            data=form
         )
 
         for dataset in datasets:
@@ -387,7 +331,7 @@ class TestOrganizationBulkProcess(object):
             assert d["state"] == "deleted"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationSearch(object):
     """Test searching for organizations."""
 
@@ -418,10 +362,10 @@ class TestOrganizationSearch(object):
         factories.Organization(name="org-two", title="AOrg Two")
         factories.Organization(name="org-three", title="Org Three")
 
-        index_response = app.get(url_for("organization.index"))
-        search_form = index_response.forms["organization-search-form"]
-        search_form["q"] = "AOrg"
-        search_response = webtest_submit(search_form)
+        search_response = app.get(
+            url_for("organization.index"),
+            query_string={"q": "AOrg"}
+        )
 
         search_response_html = BeautifulSoup(search_response.body)
         org_names = search_response_html.select(
@@ -440,10 +384,10 @@ class TestOrganizationSearch(object):
         factories.Organization(name="org-two", title="AOrg Two")
         factories.Organization(name="org-three", title="Org Three")
 
-        index_response = app.get(url_for("organization.index"))
-        search_form = index_response.forms["organization-search-form"]
-        search_form["q"] = "No Results Here"
-        search_response = webtest_submit(search_form)
+        search_response = app.get(
+            url_for("organization.index"),
+            query_string={"q": "No Results Here"}
+        )
 
         search_response_html = BeautifulSoup(search_response.body)
         org_names = search_response_html.select(
@@ -452,13 +396,13 @@ class TestOrganizationSearch(object):
         org_names = [n.string for n in org_names]
 
         assert len(org_names) == 0
-        assert (
+        assert helpers.body_contains(
+            search_response,
             'No organizations found for "No Results Here"'
-            in search_response.body
         )
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestOrganizationInnerSearch(object):
     """Test searching within an organization."""
 
@@ -506,10 +450,10 @@ class TestOrganizationInnerSearch(object):
         )
 
         org_url = url_for("organization.read", id=org["name"])
-        org_response = app.get(org_url)
-        search_form = org_response.forms["organization-datasets-search-form"]
-        search_form["q"] = "One"
-        search_response = webtest_submit(search_form)
+        search_response = app.get(
+            org_url,
+            query_string={"q": "One"}
+        )
         assert "1 dataset found for &#34;One&#34;" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
@@ -540,12 +484,12 @@ class TestOrganizationInnerSearch(object):
         )
 
         org_url = url_for("organization.read", id=org["name"])
-        org_response = app.get(org_url)
-        search_form = org_response.forms["organization-datasets-search-form"]
-        search_form["q"] = "Nout"
-        search_response = webtest_submit(search_form)
+        search_response = app.get(
+            org_url,
+            query_string={"q": "Nout"}
+        )
 
-        assert 'No datasets found for "Nout"' in search_response.body
+        assert helpers.body_contains(search_response, 'No datasets found for "Nout"')
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -557,7 +501,7 @@ class TestOrganizationInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationMembership(object):
     def test_editor_users_cannot_add_members(self, app):
 
@@ -566,7 +510,7 @@ class TestOrganizationMembership(object):
             users=[{"name": user["name"], "capacity": "editor"}]
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         with app.flask_app.test_request_context():
             app.get(
@@ -577,7 +521,7 @@ class TestOrganizationMembership(object):
 
             app.post(
                 url_for("organization.member_new", id=organization["id"]),
-                {
+                data={
                     "id": "test",
                     "username": "test",
                     "save": "save",
@@ -593,7 +537,7 @@ class TestOrganizationMembership(object):
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         with app.flask_app.test_request_context():
             app.get(
@@ -604,7 +548,7 @@ class TestOrganizationMembership(object):
 
             app.post(
                 url_for("organization.member_new", id=organization["id"]),
-                {
+                data={
                     "id": "test",
                     "username": "test",
                     "save": "save",
@@ -625,7 +569,7 @@ class TestOrganizationMembership(object):
 
             app.post(
                 url_for("organization.member_new", id=organization["id"]),
-                {
+                data={
                     "id": "test",
                     "username": "test",
                     "save": "save",
@@ -635,7 +579,7 @@ class TestOrganizationMembership(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivity(object):
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -698,7 +642,7 @@ class TestActivity(object):
         )
 
         url = url_for("organization.activity", id=org["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
@@ -716,7 +660,7 @@ class TestActivity(object):
         )
 
         url = url_for("organization.activity", id=org["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response

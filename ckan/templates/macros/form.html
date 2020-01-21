@@ -422,10 +422,21 @@ options     - A list/tuple of fields to be used as <options>.
   {% set placeholder = placeholder if placeholder else _('http://example.com/my-image.jpg') %}
   {% set url_label = url_label or _('Image URL')  %}
   {% set upload_label = upload_label or _('Image')  %}
+  {% set previous_upload = data['previous_upload'] %}
 
   {% if is_upload_enabled %}
-  <div class="image-upload" data-module="image-upload" data-module-is_url="{{ 'true' if is_url else 'false' }}" data-module-is_upload="{{ 'true' if is_upload else 'false' }}"
-       data-module-field_url="{{ field_url }}" data-module-field_upload="{{ field_upload }}" data-module-field_clear="{{ field_clear }}" data-module-upload_label="{{ upload_label }}" data-module-field_name="{{ field_name }}">
+
+
+  <div class="image-upload"
+       data-module="image-upload"
+       data-module-is_url="{{ 'true' if is_url else 'false' }}"
+       data-module-is_upload="{{ 'true' if is_upload else 'false' }}"
+       data-module-field_url="{{ field_url }}"
+       data-module-field_upload="{{ field_upload }}"
+       data-module-field_clear="{{ field_clear }}"
+       data-module-upload_label="{{ upload_label }}"
+       data-module-field_name="{{ field_name }}"
+       data-module-previous_upload="{{ 'true' if previous_upload else 'false' }}">
   {% endif %}
 
 

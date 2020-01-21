@@ -29,9 +29,13 @@ Deeper expanation can be found in `official documentation
 """
 
 import pytest
+import six
+import mock
+import smtplib
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
 import ckan.lib.search as search
+import rq
 from ckan.common import config
 
 
@@ -167,3 +171,41 @@ def with_plugins(ckan_config):
     for plugin in reversed(plugins):
         if ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.unload(plugin)
+
+
+@pytest.fixture
+def test_request_context(app):
+    """Provide function for creating Flask request context.
+    """
+    return app.flask_app.test_request_context
+
+
+@pytest.fixture
+def with_request_context(test_request_context):
+    """Execute test inside requests context
+    """
+    with test_request_context():
+        yield
+
+
+@pytest.fixture
+def mail_server(monkeypatch):
+    """Catch all outcome mails.
+    """
+    bag = test_helpers.FakeSMTP()
+    monkeypatch.setattr(smtplib, u"SMTP", bag)
+    yield bag
+
+
+@pytest.fixture
+def with_test_worker(monkeypatch):
+    """Worker that doesn't create forks.
+    """
+    if six.PY3:
+        monkeypatch.setattr(
+            rq.Worker, u"main_work_horse", rq.SimpleWorker.main_work_horse
+        )
+        monkeypatch.setattr(
+            rq.Worker, u"execute_job", rq.SimpleWorker.execute_job
+        )
+    yield

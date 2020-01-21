@@ -35,7 +35,7 @@ def rename(old, new):
         index = max([int(k[1]) for k in data.keys()
                      if len(k) == 3 and k[0] == new] + [-1])
 
-        for field_name in data.keys():
+        for field_name in list(data.keys()):
             if field_name[0] == old and data.get(field_name):
                 new_field_name = list(field_name)
                 new_field_name[0] = new

@@ -4,6 +4,7 @@
 import hashlib
 import cgi
 
+import six
 from six.moves.urllib.parse import unquote
 
 import sqlalchemy as sa
@@ -69,12 +70,12 @@ class TrackingMiddleware(object):
         if path == '/_tracking' and method == 'POST':
             # do the tracking
             # get the post data
-            payload = environ['wsgi.input'].read()
+            payload = six.ensure_str(environ['wsgi.input'].read())
             parts = payload.split('&')
             data = {}
             for part in parts:
                 k, v = part.split('=')
-                data[k] = unquote(v).decode("utf8")
+                data[k] = unquote(v)
             start_response('200 OK', [('Content-Type', 'text/html')])
             # we want a unique anonomized key for each user so that we do
             # not count multiple clicks from the same user.
@@ -84,7 +85,7 @@ class TrackingMiddleware(object):
                 environ.get('HTTP_ACCEPT_LANGUAGE', ''),
                 environ.get('HTTP_ACCEPT_ENCODING', ''),
             ])
-            key = hashlib.md5(key).hexdigest()
+            key = hashlib.md5(six.ensure_binary(key)).hexdigest()
             # store key/data here
             sql = '''INSERT INTO tracking_raw
                      (user_key, url, tracking_type)

@@ -3,6 +3,7 @@
 import logging
 import os
 import tempfile
+import yaml
 
 from markupsafe import Markup
 from webassets import Environment
@@ -13,6 +14,8 @@ from ckan.common import config, g, asbool
 
 logger = logging.getLogger(__name__)
 env = None
+
+yaml.warnings({u'YAMLLoadWarning': False})
 
 
 def create_library(name, path):

@@ -1,13 +1,11 @@
 # encoding: utf-8
 
 import re
-import sgmllib
-
+from html.parser import HTMLParser
+import six
 from six import string_types, text_type
 
-
-import paste.fixture
-import webtest
+from flask.wrappers import Response
 
 
 class HtmlCheckMethods(object):
@@ -36,7 +34,7 @@ class HtmlCheckMethods(object):
     def strip_tags(self, res):
         """Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace."""
         if not isinstance(res, string_types):
-            res = res.body.decode("utf-8")
+            res = six.ensure_text(res.data)
         return Stripper().strip(res)
 
     def check_named_element(self, html, tag_name, *html_to_find):
@@ -70,14 +68,12 @@ class HtmlCheckMethods(object):
         self._check_html(self.tag_re, html, html_to_find)
 
     def _get_html_from_res(self, html):
-        if isinstance(html, paste.fixture.TestResponse):
-            html_str = html.body.decode("utf8")
-        elif isinstance(html, text_type):
+        if isinstance(html, text_type):
             html_str = html
         elif isinstance(html, str):
-            html_str = html.decode("utf8")
-        elif isinstance(html, webtest.app.TestResponse):
-            html_str = html.body.decode("utf-8")
+            html_str = six.ensure_text(html)
+        elif isinstance(html, Response):
+            html_str = six.ensure_text(html.data)
         else:
             raise TypeError
         return html_str  # always unicode
@@ -124,11 +120,8 @@ class HtmlCheckMethods(object):
             )
 
 
-class Stripper(sgmllib.SGMLParser):
+class Stripper(HTMLParser):
     """A simple helper class to cleanly strip HTML from a response."""
-
-    def __init__(self):
-        sgmllib.SGMLParser.__init__(self)
 
     def strip(self, html):
         self.str = u""
