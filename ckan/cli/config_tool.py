@@ -68,10 +68,12 @@ def config_tool(config_filepath, options, section, edit, merge_filepath):
             config_filepath, merge_filepath
         )
     if not (options or merge_filepath):
-        return error_shout(u'No options provided')
+        error_shout(u'No options provided')
+        raise click.Abort()
     try:
         ct.config_edit_using_option_strings(
             config_filepath, options, section, edit=edit
         )
     except ct.ConfigToolError as e:
         error_shout(e)
+        raise click.Abort()

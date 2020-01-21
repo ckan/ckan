@@ -231,12 +231,11 @@ def check():
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
         pkg = model.Session.query(model.Package).get(pkg_id)
-        print((pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name))
+        print((pkg.metadata_modified.strftime('%Y-%m-%d'), pkg.name))
 
 
 def show(package_reference):
     package_query = query_for(model.Package)
-
     return package_query.get_index(package_reference)
 
 
