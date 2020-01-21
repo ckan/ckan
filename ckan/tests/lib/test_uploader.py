@@ -99,12 +99,12 @@ class TestUpload(object):
         monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
-                     six.BytesIO(six.ensure_binary('hello')),
+                     six.BytesIO(six.ensure_binary(u'hello')),
                      filename=u'logo.png',
                      content_type=u'PNG'
                  ),
                  u'name': u'test-group-upload'}
-        group_upload = Upload('group')
+        group_upload = Upload(u'group')
         group_upload.update_data_dict(group, u'url', u'upload', u'clear_upload')
         group_upload.upload()
         uploads_dir = tmpdir / u'storage' / u'uploads' / u'group'
@@ -113,4 +113,4 @@ class TestUpload(object):
         app = make_app()
         resp = app.get(u'/uploads/group/' + group[u'url'])
         assert resp.status_code == 200
-        assert resp.body == 'hello'
+        assert resp.body == u'hello'
