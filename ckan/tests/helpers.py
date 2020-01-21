@@ -30,6 +30,7 @@ import smtplib
 
 from flask.testing import Client as FlaskClient
 from flask.wrappers import Response
+from click.testing import CliRunner
 import pytest
 import mock
 import rq
@@ -170,6 +171,14 @@ def body_contains(res, content):
         body = res.body
     body = six.ensure_text(body)
     return content in body
+
+
+class CKANCliRunner(CliRunner):
+    def invoke(self, *args, **kwargs):
+        # prevent cli runner from str/bytes exceptions
+        kwargs.setdefault(u'complete_var', u'_CKAN_COMPLETE')
+        return super(CKANCliRunner, self).invoke(*args, **kwargs)
+
 
 
 class CKANResponse(Response):

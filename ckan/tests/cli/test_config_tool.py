@@ -34,7 +34,9 @@ def test_config_unset_debug(cli, config_file):
     assert _parse(config_file).get(u'app:main', u'debug') == u'true'
     result = cli.invoke(
         ckan,
-        [u'config-tool', str(config_file), u'debug=false'])
+        [u'config-tool', str(config_file), u'debug=false']
+
+    )
     assert not result.exit_code
     assert _parse(config_file).get(u'app:main', u'debug') == u'false'
 
