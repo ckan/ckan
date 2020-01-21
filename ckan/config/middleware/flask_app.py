@@ -29,6 +29,7 @@ import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
+from ckan.lib import uploader
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import TrackingMiddleware
 import ckan.lib.app_globals as app_globals
@@ -97,11 +98,18 @@ def make_flask_stack(conf, **app_conf):
     testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
     app = flask_app = CKANFlask(__name__, static_url_path='')
 
+    # Register storage for accessing group images, site logo, etc.
+    storage_folder = []
+    storage = uploader.get_storage_path()
+    if storage:
+        storage_folder = [os.path.join(storage, 'storage')]
+
     # Static files folders (core and extensions)
     public_folder = config.get(u'ckan.base_public_folder')
     app.static_folder = config.get(
         'extra_public_paths', ''
-    ).split(',') + [os.path.join(root, public_folder)]
+    ).split(',') + [os.path.join(root, public_folder)] + storage_folder
+
 
     app.jinja_options = jinja_extensions.get_jinja_env_options()
 
