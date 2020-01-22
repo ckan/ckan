@@ -284,14 +284,14 @@ will only appear when creating or updating datasets or resources, but not on
 existing ones.
 
 The migration process involves creating the necessary view objects in the
-database, which can be done using the ``paster views create`` command.
+database, which can be done using the ``ckan views create`` command.
 
-.. note:: The ``paster views create`` command uses the search API to get all
+.. note:: The ``ckan views create`` command uses the search API to get all
     necessary datasets and resources, so make sure your search
     index :ref:`is up to date  <rebuild search index>` before starting the
     migration process.
 
-The way the ``paster views create`` commands works is getting all or a subset
+The way the ``ckan views create`` commands works is getting all or a subset
 of the instance datasets from the search index, and for each of them checking
 against a list of view plugins if it is necessary to create a view object. This
 gets determined by each of the individual view plugins depending on the dataset's
@@ -312,11 +312,11 @@ asked if you want to continue (unless you pass the ``-y`` option)::
 If no view types are provided, the default ones are used
 (check `Defining views to appear by default`_ to see how these are defined)::
 
-    paster views create
+    ckan --config /path/to/ckan.ini views create
 
 Specific view types can be also provided::
 
-    paster views create image_view recline_view pdf_view
+    ckan --config /path/to/ckan.ini views create image_view recline_view pdf_view
 
 For certain view types (the ones with plugins included in the main CKAN core),
 default filters are applied to the search to only get relevant resources. For
