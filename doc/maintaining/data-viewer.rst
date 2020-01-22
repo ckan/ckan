@@ -327,16 +327,16 @@ You can also provide arbitrary search parameters like the ones supported by
 :py:func:`~ckan.logic.action.get.package_search`. This can be useful for
 instance to only include datasets with resources of a certain format::
 
-    paster views create geojson_view -s '{"fq": "res_format:GEOJSON"}'
+    ckan --config /path/to/ckan.ini views create geojson_view -s '{"fq": "res_format:GEOJSON"}'
 
 To instead avoid certain formats you can do::
 
-    paster views create -s '{"fq": "-res_format:HTML"}'
+    ckan --config /path/to/ckan.ini views create -s '{"fq": "-res_format:HTML"}'
 
 Of course this is not limited to resource formats, you can filter out or in
 using any field, as in a normal dataset search::
 
-    paster views create -s '{"q": "groups:visualization-examples"}'
+    ckan --config /path/to/ckan.ini views create -s '{"q": "groups:visualization-examples"}'
 
 .. tip:: If you set the ``ckan_logger`` level to ``DEBUG`` on your
     configuration file you can see the full search parameters being sent
@@ -345,20 +345,20 @@ using any field, as in a normal dataset search::
 For convenience, there is also an option to create views on a particular
 dataset or datasets::
 
-    paster views create -d dataset_id
+    ckan --config /path/to/ckan.ini views create -d dataset_id
 
-    paster views create -d dataset_name -d dataset_name
+    ckan --config /path/to/ckan.ini views create -d dataset_name -d dataset_name
 
 
 Command line interface
 ----------------------
 
-The ``paster views`` command allows to create and remove resource views objects
+The ``ckan views`` command allows to create and remove resource views objects
 from the database in bulk.
 
 Check the command help for the full options::
 
-    paster views create -h
+    ckan --config /path/to/ckan.ini views create -h
 
 
 .. todo:: Tutorial for writing custom view types.
