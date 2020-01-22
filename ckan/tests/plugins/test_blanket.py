@@ -21,7 +21,7 @@ class TestBlanketImplementation(object):
         class MockConfig(object):
             global_conf = ckan_config
             local_conf = ckan_config
-        monkeypatch.setattr(ckan.cli, 'load_config', lambda _: MockConfig())
+        monkeypatch.setattr(ckan.cli, u'load_config', lambda _: MockConfig())
 
     def _helpers_registered(self):
         try:
