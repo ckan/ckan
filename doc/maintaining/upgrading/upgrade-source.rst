@@ -72,7 +72,7 @@ CKAN release you're upgrading to:
 
    .. parsed-literal::
 
-    paster search-index rebuild -r --config=\ |development.ini|
+    ckan -c /path/to/ckan.ini search-index rebuild -r --config=\ |development.ini|
 
    See :ref:`rebuild search index` for details of the
    ``ckan search-index rebuild`` command.
