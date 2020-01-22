@@ -1,7 +1,7 @@
 .. _cli:
 
 ======================
-Command Line Interface
+Command Line Interface (CLI)
 ======================
 
 NB: From CKAN 2.9 onwards the CKAN configuration file is named 'ckan.ini'. Previous names: 'production.ini', 'development.ini' plus others may also still appear in documentation and the software. These legacy names will eventually be phased out
