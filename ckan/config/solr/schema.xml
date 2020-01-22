@@ -97,6 +97,8 @@ schema. In this case the version should be set to the next CKAN version number.
 
 
 <fields>
+
+    <field name="responsible_organizations" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="temporal-extent-range" type="date_range" indexed="true" stored="true" multiValued="false" />
     <field name="temporal-extent-begin" type="date" indexed="true" stored="true" multiValued="false" />
     <field name="temporal-extent-end" type="date" indexed="true" stored="true" multiValued="false" />
