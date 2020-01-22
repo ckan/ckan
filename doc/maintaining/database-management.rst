@@ -20,7 +20,7 @@ initialize your database:
 
 .. parsed-literal::
 
-    ckan --config /path/to/ckan.ini db init -c |production.ini|
+    ckan -c /path/to/ckan.ini db init -c |production.ini|
 
 If you forget to do this you'll see this error message in your web browser:
 
@@ -42,7 +42,7 @@ from scratch:
 
 .. parsed-literal::
 
-    ckan --config /path/to/ckan.ini db clean -c |production.ini|
+    ckan -c /path/to/ckan.ini db clean -c |production.ini|
 
 After cleaning the database you must do either `initialize it`_ or `import
 a previously created dump`_.
@@ -81,7 +81,7 @@ Then restore it again:
 
 .. parsed-literal::
 
-    ckan --config /path/to/ckan.ini db clean
+    ckan -c /path/to/ckan.ini db clean
     sudo -u postgres pg_restore --clean --if-exists -d ckan_default < ckan.dump
 
 If you're importing a dump from an older version of CKAN you must :ref:`upgrade
@@ -160,5 +160,5 @@ CKAN database's schema using the ``paster db upgrade`` command:
 
 .. parsed-literal::
 
-    ckan --config /path/to/ckan.ini db upgrade
+    ckan -c /path/to/ckan.ini db upgrade
 
