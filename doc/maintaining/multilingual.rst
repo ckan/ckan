@@ -25,7 +25,7 @@ If you want to quickly test the term translation feature without having to provi
 
   ckan -c /path/to/ckan.ini --plugin=ckan create-test-data translations
 
-See :doc:`/maintaining/paster` for more details.
+See :doc:`/maintaining/cli` for more details.
 
 Testing The Multilingual Extension
 ----------------------------------
