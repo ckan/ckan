@@ -23,7 +23,7 @@ If you want to quickly test the term translation feature without having to provi
 
 ::
 
-  paster --plugin=ckan create-test-data translations
+  ckan -c /path/to/ckan.ini --plugin=ckan create-test-data translations
 
 See :doc:`/maintaining/paster` for more details.
 
