@@ -107,7 +107,7 @@ Install |postgres|, running this command in a terminal::
 
 .. include:: postgres.rst
 
-Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|production.ini|) file and
+Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|ckan.ini|) file and
 set the correct password, database and database user.
 
 
@@ -119,7 +119,7 @@ set the correct password, database and database user.
 
    You can install |solr| and CKAN on different servers. Just
    change the :ref:`solr_url` setting in your
-   |production.ini| file to reference your |solr| server.
+   |ckan.ini| file to reference your |solr| server.
 
 Install |solr|, running this command in a terminal::
 
