@@ -147,7 +147,7 @@ Afterwards the worker waits again for the next job to be enqueued.
 
 Workers can be started using the :ref:`paster jobs worker` command::
 
-    ckan --config=/etc/ckan/default/ckan.ini --plugin=ckan jobs worker 
+    ckan -c /etc/ckan/default/ckan.ini --plugin=ckan jobs worker 
 
 The worker process will run indefinitely (you can stop it using ``CTRL+C``).
 
@@ -201,7 +201,7 @@ via
 
 ::
 
-    ckan -c /etc/ckan/default/ckan.ini --plugin=ckan jobs test 
+    ckan -c /path/to/ckan.ini --plugin=ckan jobs test 
 
 The worker's log (``/var/log/ckan-worker.log``) should then show how the job
 was processed by the worker.
@@ -270,7 +270,7 @@ enqueue a job at a non-default queue::
 Similarly, to start a worker that only listens to the queue you just posted a
 job to::
 
-    ckan --config=/etc/ckan/default/ckan.ini --plugin=ckan jobs worker my-own-queue 
+    ckan -c /path/to/ckan.ini --plugin=ckan jobs worker my-own-queue 
 
 See the documentation of the various functions and commands for details on how
 to use non-standard queues.
