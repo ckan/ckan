@@ -168,7 +168,7 @@ against the database and import / export files from ``$VOL_CKAN_HOME``.
 ---------------------------
 3. Datastore and datapusher
 ---------------------------
-The datastore database and user are created when the `db` container is first started, however we need to do some additional configuration before enabling the datastore and datapusher settings in the ``production.ini``.
+The datastore database and user are created when the `db` container is first started, however we need to do some additional configuration before enabling the datastore and datapusher settings in the ``ckan.ini``.
 
 a. Configure datastore database
 
@@ -208,7 +208,7 @@ The remaining settings required for datastore and datapusher are already taken c
   ``ckan.datastore.read_url = postgresql://datastore:DATASTORE_READONLY_PASSWORD@db/datastore``
   are provided by ``docker-compose.yml``.
 
-Restart the ``ckan`` container to apply changes to the ``production.ini``::
+Restart the ``ckan`` container to apply changes to the ``ckan.ini``::
 
     docker-compose restart ckan
 
