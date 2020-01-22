@@ -133,7 +133,7 @@ There should be four named Docker volumes (``docker volume ls | grep docker``). 
 prefixed with the Docker Compose project name (default: ``docker`` or value of host environment
 variable ``COMPOSE_PROJECT_NAME``.)
 
-* ``docker_ckan_config``: home of production.ini
+* ``docker_ckan_config``: home of ckan.ini
 * ``docker_ckan_home``: home of ckan venv and source, later also additional CKAN extensions
 * ``docker_ckan_storage``: home of CKAN's filestore (resource files)
 * ``docker_pg_data``: home of the database files for CKAN's default and datastore databases
@@ -353,7 +353,7 @@ E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
     docker exec -it db psql -U ckan -f 20_postgis_permissions.sql
     docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial spatial initdb -c /etc/ckan/ckan.ini
 
-    sudo vim $VOL_CKAN_CONFIG/production.ini
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
 
     # Inside ckan.ini, add to [plugins]:
     spatial_metadata spatial_query
