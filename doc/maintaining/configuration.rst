@@ -58,8 +58,8 @@ details on how to do this check :doc:`/extensions/remote-config-update`.
 CKAN configuration file
 ***********************
 
-By default, the
-configuration file is located at ``/etc/ckan/default/development.ini`` or
+From CKAN 2.9, by default, the
+configuration file is located at ``/etc/ckan/default/ckan.ini``. Previous releases the configuration file(s) were:  ``/etc/ckan/default/development.ini`` or
 ``/etc/ckan/default/production.ini``. This section documents all of the config file
 settings, for reference.
 
