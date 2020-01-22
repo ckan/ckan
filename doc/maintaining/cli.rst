@@ -292,7 +292,7 @@ Run a background job worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ::
 
-    ckan jobs worker [--burst] [QUEUES]
+    ckan -c /path/to/ckan.ini jobs worker [--burst] [QUEUES]
 
 Starts a worker that fetches job from the :ref:`job queues <background jobs
 queues>` and executes them. If no queue names are given then it listens to
@@ -300,7 +300,7 @@ the default queue. This is equivalent to
 
 ::
 
-    ckan jobs worker default
+    ckan -c /path/to/ckan.ini jobs worker default
 
 If queue names are given then the worker listens to those queues and only
 those::
