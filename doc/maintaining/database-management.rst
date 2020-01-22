@@ -160,5 +160,5 @@ CKAN database's schema using the ``paster db upgrade`` command:
 
 .. parsed-literal::
 
-    ckan --config /path/to/ckan.ini db upgrade -c |production.ini|
+    ckan --config /path/to/ckan.ini db upgrade
 
