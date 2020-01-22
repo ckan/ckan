@@ -16,8 +16,9 @@ abort () {
   exit 1
 }
 
-#copy crontab contents into ckan users crontab
+# copy crontab contents into root users crontab
 cp ./ckan/contrib/docker/crontab /etc/cron.d/crontab
+chown root:root /etc/cron.d/crontab
 chmod 0644 /etc/cron.d/crontab
 /usr/bin/crontab /etc/cron.d/crontab
 

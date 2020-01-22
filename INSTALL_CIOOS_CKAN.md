@@ -789,6 +789,30 @@ sudo docker-compose restart ckan
 sudo docker-compose restart ckan_run_harvester ckan_fetch_harvester ckan_gather_harvester
 ```
 
+### update a system file in a running container
+The easiest way is with the docker copy command. For example to update the crontab of the ckan_run_harvester containers you first copy the file to the container:
+
+```base
+cd ~/ckan/contrib/docker
+sudo docker cp ./crontab ckan_run_harvester:/etc/cron.d/crontab
+```
+
+Then update the crintab in the container by connecting to its bash shell and running the crontab commands
+
+```base
+sudo docker exec -u root -it ckan_run_harvester /bin/bash -c "export TERM=xterm; exec bash"
+chown root:root /etc/cron.d/crontab
+chmod 0644 /etc/cron.d/crontab
+/usr/bin/crontab /etc/cron.d/crontab
+exit
+```
+
+In this example the entrypoint file for this container also copies the file over from the volume so you should update the file in the volume as well so that when the container is restarted the correct file contents is used.
+```base
+cd ~/ckan/contrib/docker
+sudo cp -r ./crontab $VOL_CKAN_HOME/venv/src/ckan/contrib/docker/crontab
+```
+
 ### Set timezone
 
 timedatectl
