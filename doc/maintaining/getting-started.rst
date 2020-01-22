@@ -17,7 +17,7 @@ Creating a sysadmin user
 You have to use CKAN's command line interface to create your first sysadmin
 user, and it can also be useful to create some test data from the command line.
 For full documentation of CKAN's command line interface (including
-troubleshooting) see :doc:`paster`.
+troubleshooting) see :doc:`cli`.
 
 .. note::
 
