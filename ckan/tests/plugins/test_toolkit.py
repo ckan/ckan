@@ -2,7 +2,7 @@
 
 import pytest
 
-from ckan.plugins import toolkit as tk
+import ckan.plugins.toolkit as tk
 
 
 @pytest.mark.parametrize(

@@ -109,6 +109,10 @@ class _Toolkit(object):
         # Enqueue background job
         'enqueue_job',
 
+        # fast interface implementations
+        'blanket_implementation',
+        'Blanket',
+
         # Fully defined in this file ##
         'add_template_directory',
         'add_resource',
@@ -132,6 +136,8 @@ class _Toolkit(object):
     def _initialize(self):
         ''' get the required functions/objects, store them for later
         access and check that they match the contents dict. '''
+        import enum
+
         import six
         import ckan
         import ckan.logic as logic
@@ -141,6 +147,7 @@ class _Toolkit(object):
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
         import ckan.cli as cli
+        import ckan.plugins.blanket as blanket
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
         from ckan.exceptions import (
@@ -282,6 +289,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
+        t['blanket_implementation'] = blanket.blanket_implementation
+        t['Blanket'] = blanket.Blanket
 
         if six.PY2:
             t['response'] = pylons.response

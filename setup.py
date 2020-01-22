@@ -177,6 +177,12 @@ entry_points = {
         'example_idatastorebackend = ckanext.example_idatastorebackend.plugin:ExampleIDatastoreBackendPlugin',
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
+        'example_blanket = ckanext.example_blanket_implementation.plugin:ExampleBlanketPlugin',
+        'example_blanket_helper = ckanext.example_blanket_implementation.plugin:ExampleBlanketHelperPlugin',
+        'example_blanket_auth = ckanext.example_blanket_implementation.plugin:ExampleBlanketAuthPlugin',
+        'example_blanket_action = ckanext.example_blanket_implementation.plugin:ExampleBlanketActionPlugin',
+        'example_blanket_blueprint = ckanext.example_blanket_implementation.plugin:ExampleBlanketBlueprintPlugin',
+        'example_blanket_cli = ckanext.example_blanket_implementation.plugin:ExampleBlanketCliPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
