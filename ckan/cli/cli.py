@@ -5,6 +5,7 @@ from collections import defaultdict
 
 import six
 import click
+import sys
 
 import ckan.plugins as p
 from ckan.config.middleware import make_app
@@ -44,6 +45,12 @@ class CkanCommand(object):
 
 
 def _init_ckan_config(ctx, param, value):
+
+    # This is necessary to allow the user to create
+    # a config file when one isn't already present
+    if len(sys.argv) > 1 and sys.argv[1] == 'generate' and not value:
+        return
+
     ctx.obj = CkanCommand(value)
     if six.PY2:
         ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app

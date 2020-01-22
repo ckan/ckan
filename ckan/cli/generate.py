@@ -87,16 +87,17 @@ def extension(output_dir):
                                            u'template.')
 def make_config(output_dir):
     if output_dir is None:
-        print('\nERROR: Try again with \'-o path/to/file.ini\'')
+        print('\nERROR: Try again with \'-o path/to/ckan.ini\'')
         sys.exit(1)
 
-    names = ['development.ini', 'production.ini']
+    name = 'ckan.ini'
 
-    if not any(name in output_dir for name in names):
-        print('\nERROR: File name must be development.ini or production.ini')
+    if name not in output_dir:
+        print('\nERROR: Config file must be named "ckan.ini"')
         sys.exit(1)
 
-    if output_dir in names:
+    # Output to current directory if no path is specified
+    if output_dir == name:
         output_dir = os.getcwd() + '/' + output_dir
 
     cur_loc = os.path.dirname(os.path.abspath(__file__))
