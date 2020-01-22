@@ -4,7 +4,7 @@
 Command Line Interface
 ======================
 
-NB: From CKAN 2.9 onwards the CKAN configuration file is named 'ckan.ini'. Previous names 'production.ini', 'development.ini' plus others may also still appear in documentation and the software. These will eventually be phased out
+NB: From CKAN 2.9 onwards the CKAN configuration file is named 'ckan.ini'. Previous names: 'production.ini', 'development.ini' plus others may also still appear in documentation and the software. These legacy names will eventually be phased out
 
 Most common CKAN administration tasks can be carried out from the command line
 on the server that CKAN is installed on, using the ``ckan`` command.
