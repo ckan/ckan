@@ -28,14 +28,19 @@ Deeper expanation can be found in `official documentation
 
 """
 
+import functools
+import smtplib
+
+
 import pytest
 import six
 import mock
-import smtplib
+import rq
+
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
 import ckan.lib.search as search
-import rq
+
 from ckan.common import config
 
 
@@ -102,6 +107,22 @@ def app(make_app):
 
     """
     return make_app()
+
+
+@pytest.fixture
+def cli(ckan_config):
+    """Provides object for invoking CLI commands from tests.
+
+    This is subclass of `click.testing.CliRunner`, so all examples
+    from `Click docs
+    <https://click.palletsprojects.com/en/master/testing/>`_ are valid
+    for it.
+
+    """
+    env = {
+        u'CKAN_INI': ckan_config[u'__file__']
+    }
+    return test_helpers.CKANCliRunner(env=env)
 
 
 @pytest.fixture(scope=u"session")

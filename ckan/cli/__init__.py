@@ -6,20 +6,12 @@ import click
 import logging
 from logging.config import fileConfig as loggingFileConfig
 
+
 log = logging.getLogger(__name__)
 
 
 def error_shout(exception):
     click.secho(str(exception), fg=u'red', err=True)
-
-
-click_config_option = click.option(
-    u'-c',
-    u'--config',
-    default=None,
-    metavar=u'CONFIG',
-    help=u'Config file to use (default: development.ini)'
-)
 
 
 def load_config(ini_path=None):
