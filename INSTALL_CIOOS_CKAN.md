@@ -797,7 +797,7 @@ cd ~/ckan/contrib/docker
 sudo docker cp ./crontab ckan_run_harvester:/etc/cron.d/crontab
 ```
 
-Then update the crintab in the container by connecting to its bash shell and running the crontab commands
+Then update the crontab in the container by connecting to it's bash shell and running the crontab commands
 
 ```base
 sudo docker exec -u root -it ckan_run_harvester /bin/bash -c "export TERM=xterm; exec bash"
