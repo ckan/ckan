@@ -194,7 +194,7 @@ start up without any problems:
 
 .. parsed-literal::
 
-    $ paster serve |development.ini|
+    $ ckan -c /path/to/ckan.ini server
     Starting server in PID 13961.
     serving on 0.0.0.0:5000 view at http://127.0.0.1:5000
 
