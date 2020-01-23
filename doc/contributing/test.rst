@@ -56,7 +56,7 @@ Create test databases:
 
 Set the permissions::
 
-    paster datastore set-permissions -c test-core.ini | sudo -u postgres psql
+    ckan -c /path/to/ckan.ini datastore set-permissions | sudo -u postgres psql
 
 This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
