@@ -107,7 +107,7 @@ def render_snippet(*template_names, **kw):
             # a nested template doesn't exist - don't fallback
             raise exc
     else:
-        raise exc or TemplateNotFound
+        raise last_exc or TemplateNotFound
 
 
 def render_jinja2(template_name, extra_vars):
