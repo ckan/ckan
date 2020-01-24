@@ -870,7 +870,7 @@ def email_is_unique(key, data, errors, context):
     if not users:
         return
     else:
-        # allow user to update his own email
+        # allow users to update their own email
         for user in users:
             if user.id == data[("id",)]:
                 return
