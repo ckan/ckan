@@ -259,6 +259,21 @@ class TestUser(object):
         })
         assert "Profile updated" in response
 
+    def test_email_change_on_existed_email(self, app):
+        env, response, user = _get_user_edit_page(app)
+        factories.User(email='existed@email.com')
+
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['email'] = 'existed@email.com'
+
+        # factory returns user with password 'pass'
+        form.fields['old_password'][0].value = 'RandomPassword123'
+
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert 'belongs to a registered user' in response
+
     def test_edit_user_logged_in_username_change(self, app):
 
         user_pass = "TestPassword1"
