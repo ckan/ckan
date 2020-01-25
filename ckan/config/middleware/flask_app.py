@@ -134,8 +134,7 @@ def make_flask_stack(conf, **app_conf):
         DebugToolbarExtension(app)
 
         from werkzeug.debug import DebuggedApplication
-        app = DebuggedApplication(app, True)
-        app = app.app
+        app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.DEBUG)
