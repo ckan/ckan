@@ -1,8 +1,10 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
 describe('ckan.Client()', function () {
+  before(() => {
+    cy.visit('/');
+  });
 
   beforeEach(function () {
-    cy.visit('/');
     cy.window().then(win => {
       Cypress.env('Client', win.ckan.Client);
       win.client = new win.ckan.Client();

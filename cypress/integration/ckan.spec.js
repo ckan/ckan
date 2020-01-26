@@ -1,7 +1,10 @@
 
 describe('ckan.initialize()', function () {
-  beforeEach(function () {
+  before(() => {
     cy.visit('/');
+  });
+
+  beforeEach(function () {
     cy.window().then(win => {
       win.promise = win.jQuery.Deferred();
       win.target = cy.stub(win.ckan.Client.prototype, 'getLocaleData').returns(win.promise);
