@@ -164,50 +164,54 @@ def adds_message_to_errors_dict(error_message):
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_with_existed_value():
-    user1 = factories.User(username="user01", email="user01@email.com")
+def test_email_is_unique_validator_with_existed_value(app):
+    with app.flask_app.test_request_context():
+        user1 = factories.User(username="user01", email="user01@email.com")
 
-    # try to create new user with occupied email
-    with pytest.raises(logic.ValidationError):
-        factories.User(username="new_user", email="user01@email.com")
+        # try to create new user with occupied email
+        with pytest.raises(logic.ValidationError):
+            factories.User(username="new_user", email="user01@email.com")
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_email_unchanged():
+def test_email_is_unique_validator_user_update_email_unchanged(app):
     user = factories.User(username="user01", email="user01@email.com")
 
     # try to update user1 and leave email unchanged
     old_email = "user01@email.com"
 
-    helpers.call_action("user_update", **user)
-    updated_user = model.User.get(user["id"])
+    with app.flask_app.test_request_context():
+        helpers.call_action("user_update", **user)
+        updated_user = model.User.get(user["id"])
 
-    assert updated_user.email == old_email
+        assert updated_user.email == old_email
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_email_new():
+def test_email_is_unique_validator_user_update_email_new(app):
     user = factories.User(username="user01", email="user01@email.com")
 
     # try to update user1 email to unoccupied one
     new_email = "user_new@email.com"
     user["email"] = new_email
 
-    helpers.call_action("user_update", **user)
-    updated_user = model.User.get(user["id"])
+    with app.flask_app.test_request_context():
+        helpers.call_action("user_update", **user)
+        updated_user = model.User.get(user["id"])
 
-    assert updated_user.email == new_email
+        assert updated_user.email == new_email
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_to_existed_email():
+def test_email_is_unique_validator_user_update_to_existed_email(app):
     user1 = factories.User(username="user01", email="user01@email.com")
     user2 = factories.User(username="user02", email="user02@email.com")
 
     # try to update user1 email to existed one
     user1["email"] = user2["email"]
-    with pytest.raises(logic.ValidationError):
-        helpers.call_action("user_update", **user1)
+    with app.flask_app.test_request_context():
+        with pytest.raises(logic.ValidationError):
+                helpers.call_action("user_update", **user1)
 
 
 def test_name_validator_with_invalid_value():
