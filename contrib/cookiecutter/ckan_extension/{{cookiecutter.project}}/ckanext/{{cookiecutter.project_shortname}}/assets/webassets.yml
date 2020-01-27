@@ -1,0 +1,11 @@
+style:
+  output: ckanext-{{cookiecutter.project_shortname}}/%(version)s-style.css
+  filters: cssrewrite
+  contents:
+    - style.css
+
+script:
+  filters: rjsmin
+  output: ckanext-{{cookiecutter.project_shortname}}/%(version)s-script.js
+  contents:
+    - script.js

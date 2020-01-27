@@ -51,7 +51,7 @@ sudo service jetty restart
 
 echo "Initialising the database..."
 cd ckan
-paster db init -c test-core.ini
+ckan db init -c test-core.ini
 cd -
 
 echo "Installing {{ cookiecutter.project }} and its requirements..."
