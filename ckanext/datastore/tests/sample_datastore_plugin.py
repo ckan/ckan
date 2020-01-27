@@ -11,7 +11,7 @@ class SampleDataStorePlugin(p.SingletonPlugin):
     def datastore_validate(self, context, data_dict, column_names):
         valid_filters = ("age_between", "age_not_between", "insecure_filter")
         filters = data_dict.get("filters", {})
-        for key in filters.keys():
+        for key in list(filters.keys()):
             if key in valid_filters:
                 del filters[key]
 

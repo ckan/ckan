@@ -1,14 +1,10 @@
 # encoding: utf-8
 
-from paste.fixture import TestRequest
-
 from six.moves.urllib.parse import quote
-from six import StringIO
 
-import ckan.model as model
-from ckan.tests.legacy import CreateTestData
-from ckan.tests.legacy import TestController as ControllerTestCase
+from ckan.tests.legacy import TestController as ControllerTestCase, CreateTestData
 from ckan.common import json
+
 
 ACCESS_DENIED = [403]
 
@@ -30,13 +26,13 @@ class ApiTestCase(object):
     ref_package_by = ""
     ref_group_by = ""
 
-    def get(self, offset, status=[200]):
+    def get(self, offset, status=200):
         response = self.app.get(
             offset, status=status, extra_environ=self.get_extra_environ()
         )
         return response
 
-    def post(self, offset, data, status=[200, 201], *args, **kwds):
+    def post(self, offset, data, status=200, *args, **kwds):
         params = "%s=1" % quote(self.dumps(data))
         if "extra_environ" in kwds:
             self.extra_environ = kwds["extra_environ"]
@@ -48,7 +44,7 @@ class ApiTestCase(object):
         )
         return response
 
-    def app_delete(self, offset, status=[200, 201], *args, **kwds):
+    def app_delete(self, offset, status=200, *args, **kwds):
         response = self.app.delete(
             offset, status=status, extra_environ=self.get_extra_environ()
         )
@@ -228,127 +224,3 @@ class Api3TestCase(ApiTestCase):
     def assert_msg_represents_anna(self, msg):
         super(ApiTestCase, self).assert_msg_represents_anna(msg)
         assert "download_url" not in msg, msg
-
-
-class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
-
-    testpackage_license_id = u"gpl-3.0"
-    package_fixture_data = {
-        "name": u"testpkg",
-        "title": u"Some Title",
-        "url": u"http://blahblahblah.mydomain",
-        "resources": [
-            {
-                u"url": u"http://blah.com/file.xml",
-                u"format": u"XML",
-                u"description": u"Main file",
-                u"hash": u"abc123",
-                u"alt_url": u"alt_url",
-                u"size_extra": u"200",
-            },
-            {
-                u"url": u"http://blah.com/file2.xml",
-                u"format": u"XML",
-                u"description": u"Second file",
-                u"hash": u"def123",
-                u"alt_url": u"alt_url",
-                u"size_extra": u"200",
-            },
-        ],
-        "tags": [u"russion", u"novel"],
-        "license_id": testpackage_license_id,
-        "extras": {"genre": u"horror", "media": u"dvd"},
-    }
-    testgroupvalues = {
-        "name": u"testgroup",
-        "title": u"Some Group Title",
-        "description": u"Great group!",
-        "packages": [u"annakarenina", u"warandpeace"],
-    }
-    user_name = u"myrandom"
-
-    def setup(self):
-        super(BaseModelApiTestCase, self).setup()
-
-    #        self.conditional_create_common_fixtures()
-    #        self.init_extra_environ()
-
-    def teardown(self):
-        model.Session.remove()
-        #        model.repo.rebuild_db()
-        super(BaseModelApiTestCase, self).teardown()
-
-    @classmethod
-    def init_extra_environ(cls, user_name):
-        # essentially 'logs you in', so the http_request methods
-        # called elsewhere in this class are run with the specified
-        # user logged in.
-        cls.user = model.User.by_name(user_name)
-        cls.extra_environ = {"Authorization": str(cls.user.apikey)}
-        cls.adminuser = model.User.by_name("testsysadmin")
-        cls.admin_extra_environ = {"Authorization": str(cls.adminuser.apikey)}
-
-    def post_json(self, offset, data, status=None, extra_environ=None):
-        """ Posts data in the body in application/json format, used by
-        javascript libraries.
-        (rather than Paste Fixture\'s default format of
-        application/x-www-form-urlencoded)
-
-        """
-        return self.http_request(
-            offset,
-            data,
-            content_type="application/json",
-            request_method="POST",
-            content_length=len(data),
-            status=status,
-            extra_environ=extra_environ,
-        )
-
-    def delete_request(self, offset, status=None, extra_environ=None):
-        """ Sends a delete request. Similar to the paste.delete but it
-        does not send the content type or content length.
-        """
-        return self.http_request(
-            offset,
-            data="",
-            content_type=None,
-            request_method="DELETE",
-            content_length=None,
-            status=status,
-            extra_environ=extra_environ,
-        )
-
-    def http_request(
-        self,
-        offset,
-        data,
-        content_type="application/json",
-        request_method="POST",
-        content_length=None,
-        status=None,
-        extra_environ=None,
-    ):
-        """ Posts data in the body in a user-specified format.
-        (rather than Paste Fixture\'s default Content-Type of
-        application/x-www-form-urlencoded)
-
-        """
-        environ = self.app._make_environ()
-        if content_type:
-            environ["CONTENT_TYPE"] = content_type
-        if content_length is not None:
-            environ["CONTENT_LENGTH"] = str(content_length)
-        environ["REQUEST_METHOD"] = request_method
-        environ["QUERY_STRING"] = ""  # avoids a warning
-        environ["wsgi.input"] = StringIO(data)
-        if extra_environ:
-            environ.update(extra_environ)
-        self.app._set_headers({}, environ)
-        req = TestRequest(offset, environ, expect_errors=False)
-        return self.app.do_request(req, status=status)
-
-    def set_env(self, extra_environ):
-        """ used to reset env when admin has been forced etc """
-        environ = self.app._make_environ()
-        environ.update(extra_environ)

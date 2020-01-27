@@ -404,9 +404,11 @@ content type, cookies, etc.
         absolute_path = os.path.join(this_dir, path)
         create_library(name, absolute_path)
 
-        # TODO: remove next two lines after dropping Fanstatic support
-        import ckan.lib.fanstatic_resources
-        ckan.lib.fanstatic_resources.create_library(name, absolute_path)
+        import six
+        if six.PY2:
+            # TODO: remove next two lines after dropping Fanstatic support
+            import ckan.lib.fanstatic_resources
+            ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
     def _add_ckan_admin_tabs(cls, config, route_name, tab_label,
@@ -514,7 +516,9 @@ content type, cookies, etc.
                 return common.c.controller, common.c.action
             except AttributeError:
                 return (None, None)
-
+        # service routes, like `static`
+        if len(endpoint) == 1:
+            return endpoint + ('index', )
         return endpoint
 
     def __getattr__(self, name):

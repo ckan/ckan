@@ -4,6 +4,7 @@ import datetime
 
 import mock
 import pytest
+from ckan.logic import _actions
 
 from ckan.tests import helpers, factories
 
@@ -23,11 +24,11 @@ def _pending_task(resource_id):
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-@helpers.mock_action("datapusher_submit")
-def test_submit(mock_datapusher_submit):
+def test_submit(monkeypatch):
     dataset = factories.Dataset()
-
-    assert not mock_datapusher_submit.called
+    func = mock.Mock()
+    monkeypatch.setitem(_actions, 'datapusher_submit', func)
+    func.assert_not_called()
 
     helpers.call_action(
         "resource_create",
@@ -37,14 +38,15 @@ def test_submit(mock_datapusher_submit):
         format="CSV",
     )
 
-    assert mock_datapusher_submit.called
+    func.assert_called()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-@helpers.mock_action("datapusher_submit")
-def test_submit_when_url_changes(mock_datapusher_submit):
+def test_submit_when_url_changes(monkeypatch):
     dataset = factories.Dataset()
+    func = mock.Mock()
+    monkeypatch.setitem(_actions, 'datapusher_submit', func)
 
     resource = helpers.call_action(
         "resource_create",
@@ -53,7 +55,7 @@ def test_submit_when_url_changes(mock_datapusher_submit):
         url="http://example.com/file.pdf",
     )
 
-    assert not mock_datapusher_submit.called
+    func.assert_not_called()
 
     helpers.call_action(
         "resource_update",
@@ -64,14 +66,15 @@ def test_submit_when_url_changes(mock_datapusher_submit):
         format="CSV",
     )
 
-    assert mock_datapusher_submit.called
+    func.assert_called()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-@helpers.mock_action("datapusher_submit")
-def test_does_not_submit_while_ongoing_job(mock_datapusher_submit):
+def test_does_not_submit_while_ongoing_job(monkeypatch):
     dataset = factories.Dataset()
+    func = mock.Mock()
+    monkeypatch.setitem(_actions, 'datapusher_submit', func)
 
     resource = helpers.call_action(
         "resource_create",
@@ -81,9 +84,8 @@ def test_does_not_submit_while_ongoing_job(mock_datapusher_submit):
         format="CSV",
     )
 
-    assert mock_datapusher_submit.called
-    assert len(mock_datapusher_submit.mock_calls) == 1
-
+    func.assert_called()
+    func.reset_mock()
     # Create a task with a state pending to mimic an ongoing job
     # on the DataPusher
     helpers.call_action(
@@ -101,14 +103,15 @@ def test_does_not_submit_while_ongoing_job(mock_datapusher_submit):
         description="Test",
     )
     # Not called
-    assert len(mock_datapusher_submit.mock_calls) == 1
+    func.assert_not_called()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-@helpers.mock_action("datapusher_submit")
-def test_resubmits_if_url_changes_in_the_meantime(mock_datapusher_submit):
+def test_resubmits_if_url_changes_in_the_meantime(monkeypatch):
     dataset = factories.Dataset()
+    func = mock.Mock()
+    monkeypatch.setitem(_actions, 'datapusher_submit', func)
 
     resource = helpers.call_action(
         "resource_create",
@@ -118,9 +121,8 @@ def test_resubmits_if_url_changes_in_the_meantime(mock_datapusher_submit):
         format="CSV",
     )
 
-    assert mock_datapusher_submit.called
-    assert len(mock_datapusher_submit.mock_calls) == 1
-
+    func.assert_called()
+    func.reset_mock()
     # Create a task with a state pending to mimic an ongoing job
     # on the DataPusher
     task = helpers.call_action(
@@ -137,7 +139,7 @@ def test_resubmits_if_url_changes_in_the_meantime(mock_datapusher_submit):
         format="CSV",
     )
     # Not called
-    assert len(mock_datapusher_submit.mock_calls) == 1
+    func.assert_not_called()
 
     # Call datapusher_hook with state complete, to mock the DataPusher
     # finishing the job and telling CKAN
@@ -149,17 +151,19 @@ def test_resubmits_if_url_changes_in_the_meantime(mock_datapusher_submit):
         },
         "status": "complete",
     }
+
     helpers.call_action("datapusher_hook", {}, **data_dict)
 
     # datapusher_submit was called again
-    assert len(mock_datapusher_submit.mock_calls) == 2
+    func.assert_called()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-@helpers.mock_action("datapusher_submit")
-def test_resubmits_if_upload_changes_in_the_meantime(mock_datapusher_submit):
+def test_resubmits_if_upload_changes_in_the_meantime(monkeypatch):
     dataset = factories.Dataset()
+    func = mock.Mock()
+    monkeypatch.setitem(_actions, 'datapusher_submit', func)
 
     resource = helpers.call_action(
         "resource_create",
@@ -169,9 +173,8 @@ def test_resubmits_if_upload_changes_in_the_meantime(mock_datapusher_submit):
         format="CSV",
     )
 
-    assert mock_datapusher_submit.called
-    assert len(mock_datapusher_submit.mock_calls) == 1
-
+    func.assert_called()
+    func.reset_mock()
     # Create a task with a state pending to mimic an ongoing job
     # on the DataPusher
     task = helpers.call_action(
@@ -189,7 +192,7 @@ def test_resubmits_if_upload_changes_in_the_meantime(mock_datapusher_submit):
         last_modified=datetime.datetime.utcnow().isoformat(),
     )
     # Not called
-    assert len(mock_datapusher_submit.mock_calls) == 1
+    func.assert_not_called()
 
     # Call datapusher_hook with state complete, to mock the DataPusher
     # finishing the job and telling CKAN
@@ -204,16 +207,17 @@ def test_resubmits_if_upload_changes_in_the_meantime(mock_datapusher_submit):
     helpers.call_action("datapusher_hook", {}, **data_dict)
 
     # datapusher_submit was called again
-    assert len(mock_datapusher_submit.mock_calls) == 2
+    func.assert_called()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-@helpers.mock_action("datapusher_submit")
 def test_does_not_resubmit_if_a_resource_field_changes_in_the_meantime(
-    mock_datapusher_submit
+    monkeypatch
 ):
     dataset = factories.Dataset()
+    func = mock.Mock()
+    monkeypatch.setitem(_actions, 'datapusher_submit', func)
 
     resource = helpers.call_action(
         "resource_create",
@@ -223,8 +227,8 @@ def test_does_not_resubmit_if_a_resource_field_changes_in_the_meantime(
         format="CSV",
     )
 
-    assert mock_datapusher_submit.called
-    assert len(mock_datapusher_submit.mock_calls) == 1
+    func.assert_called()
+    func.reset_mock()
 
     # Create a task with a state pending to mimic an ongoing job
     # on the DataPusher
@@ -243,7 +247,7 @@ def test_does_not_resubmit_if_a_resource_field_changes_in_the_meantime(
         description="Test",
     )
     # Not called
-    assert len(mock_datapusher_submit.mock_calls) == 1
+    func.assert_not_called()
 
     # Call datapusher_hook with state complete, to mock the DataPusher
     # finishing the job and telling CKAN
@@ -258,16 +262,17 @@ def test_does_not_resubmit_if_a_resource_field_changes_in_the_meantime(
     helpers.call_action("datapusher_hook", {}, **data_dict)
 
     # Not called
-    assert len(mock_datapusher_submit.mock_calls) == 1
+    func.assert_not_called()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-@helpers.mock_action("datapusher_submit")
 def test_does_not_resubmit_if_a_dataset_field_changes_in_the_meantime(
-    mock_datapusher_submit
+        monkeypatch
 ):
     dataset = factories.Dataset()
+    func = mock.Mock()
+    monkeypatch.setitem(_actions, 'datapusher_submit', func)
 
     resource = helpers.call_action(
         "resource_create",
@@ -277,9 +282,8 @@ def test_does_not_resubmit_if_a_dataset_field_changes_in_the_meantime(
         format="CSV",
     )
 
-    assert mock_datapusher_submit.called
-    assert len(mock_datapusher_submit.mock_calls) == 1
-
+    func.assert_called()
+    func.reset_mock()
     # Create a task with a state pending to mimic an ongoing job
     # on the DataPusher
     task = helpers.call_action(
@@ -295,8 +299,7 @@ def test_does_not_resubmit_if_a_dataset_field_changes_in_the_meantime(
         resources=[resource],
     )
     # Not called
-    assert len(mock_datapusher_submit.mock_calls) == 1
-
+    func.assert_not_called()
     # Call datapusher_hook with state complete, to mock the DataPusher
     # finishing the job and telling CKAN
     data_dict = {
@@ -310,11 +313,11 @@ def test_does_not_resubmit_if_a_dataset_field_changes_in_the_meantime(
     helpers.call_action("datapusher_hook", {}, **data_dict)
 
     # Not called
-    assert len(mock_datapusher_submit.mock_calls) == 1
+    func.assert_not_called()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 def test_duplicated_tasks(app):
     def submit(res, user):
         return helpers.call_action(

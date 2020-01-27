@@ -141,7 +141,7 @@ class PackageSearchIndex(SearchIndex):
         if (not pkg_dict.get('state') or 'deleted' in pkg_dict.get('state')):
             return self.delete_package(pkg_dict)
 
-        index_fields = RESERVED_FIELDS + pkg_dict.keys()
+        index_fields = RESERVED_FIELDS + list(pkg_dict.keys())
 
         # include the extras in the main namespace
         extras = pkg_dict.get('extras', [])
@@ -239,7 +239,7 @@ class PackageSearchIndex(SearchIndex):
         new_dict = {}
         bogus_date = datetime.datetime(1, 1, 1)
         for key, value in pkg_dict.items():
-            key = key.encode('ascii', 'ignore')
+            key = six.ensure_str(key)
             if key.endswith('_date'):
                 try:
                     date = parse(value, default=bogus_date)
@@ -280,7 +280,7 @@ class PackageSearchIndex(SearchIndex):
 
         # add a unique index_id to avoid conflicts
         import hashlib
-        pkg_dict['index_id'] = hashlib.md5('%s%s' % (pkg_dict['id'],config.get('ckan.site_id'))).hexdigest()
+        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.get('ckan.site_id')))).hexdigest()
 
         for item in PluginImplementations(IPackageController):
             pkg_dict = item.before_index(pkg_dict)
@@ -303,7 +303,7 @@ class PackageSearchIndex(SearchIndex):
             conn.add(docs=[pkg_dict], commit=commit)
         except pysolr.SolrError as e:
             msg = 'Solr returned an error: {0}'.format(
-                e[:1000] # limit huge responses
+                e.args[0][:1000] # limit huge responses
             )
             raise SearchIndexError(msg)
         except socket.error as e:

@@ -12,33 +12,45 @@ from ckan.cli import error_shout
 log = logging.getLogger(__name__)
 
 
-@click.group(name=u'asset', short_help=u'WebAssets commands')
+@click.group()
 def asset():
+    """WebAssets commands.
+
+    """
     pass
 
 
-@asset.command(u'build', short_help=u'Builds all bundles.')
+@asset.command()
 def build():
-    u'''Builds bundles, regardless of whether they are changed or not.'''
+    """Builds all bundles.
+
+    Builds bundles, regardless of whether they are changed or not.
+    """
     script.main(['build'], webassets_tools.env)
     click.secho(u'Compile assets: SUCCESS', fg=u'green', bold=True)
 
 
-@asset.command(u'watch', short_help=u'Watch changes in source files.')
+@asset.command()
 def watch():
-    u'''Start a daemon which monitors source files, and rebuilds bundles.
+    """Watch changes in source files.
+
+    Start a daemon which monitors source files, and rebuilds bundles.
 
     This can be useful during development, if building is not
     instantaneous, and you are losing valuable time waiting for the
     build to finish while trying to access your site.
 
-    '''
+    """
     script.main(['watch'], webassets_tools.env)
 
 
-@asset.command(u'clean', short_help=u'Clear cache.')
+@asset.command()
 def clean():
-    u'''Will clear out the cache, which after a while can grow quite large.'''
+    """Clear cache.
+
+    Will clear out the cache, which after a while can grow quite large.
+
+    """
     try:
         script.main(['clean'], webassets_tools.env)
     except BundleError as e:

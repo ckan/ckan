@@ -243,6 +243,10 @@ class CreateView(MethodView):
         except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
+            if data.get(u'url_type') == u'upload' and data.get(u'url'):
+                data[u'url'] = u''
+                data[u'url_type'] = u''
+                data[u'previous_upload'] = True
             return self.get(package_type, id, data, errors, error_summary)
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to create a resource'))
@@ -692,26 +696,33 @@ class EditResourceViewView(MethodView):
             extra_vars.update(post_extra)
 
         package_type = _get_package_type(id)
-        data = extra_vars[u'data']
-        view_type = None
+        data = extra_vars[u'data'] if u'data' in extra_vars else None
+        if data and u'view_type' in data:
+            view_type = data.get(u'view_type')
+        else:
+            view_type = request.args.get(u'view_type')
+
         # view_id exists only when updating
         if view_id:
-            if not data:
+            if not data or not view_type:
                 try:
-                    data = get_action(u'resource_view_show')(
+                    view_data = get_action(u'resource_view_show')(
                         context, {
                             u'id': view_id
                         }
                     )
+                    view_type = view_data[u'view_type']
+                    if data:
+                        data.update(view_data)
+                    else:
+                        data = view_data
                 except (NotFound, NotAuthorized):
                     return base.abort(404, _(u'View not found'))
 
-            view_type = data.get(u'view_type')
             # might as well preview when loading good existing view
             if not extra_vars[u'errors']:
                 to_preview = True
 
-        view_type = view_type or request.args.get(u'view_type')
         data[u'view_type'] = view_type
         view_plugin = lib_datapreview.get_view_plugin(view_type)
         if not view_plugin:

@@ -30,9 +30,9 @@ from six.moves.urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
 from webob import Request
 try:
-    from webob import UnicodeMultiDict as multidict
+    from webob.multidict import MultiDict
 except ImportError:
-    from webob import multidict
+    from webob import UnicodeMultiDict as MultiDict
 
 from webob.exc import HTTPFound, HTTPUnauthorized
 from zope.interface import implementer
@@ -187,7 +187,7 @@ class FriendlyFormPlugin(object):
             #    We are on the URL where repoze.who logs the user out.    #
             r = Request(environ)
             params = dict(list(r.GET.items()) + list(r.POST.items()))
-            form = multidict(params)
+            form = MultiDict(params)
             form.update(query)
             referer = environ.get(u'HTTP_REFERER', script_name)
             came_from = form.get(u'came_from', referer)

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import logging
 import sys
 import cgitb
@@ -157,7 +158,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
         log.info('Indexing just package %r...', pkg_dict['name'])
         package_index.remove_dict(pkg_dict)
         package_index.insert_dict(pkg_dict)
-    elif package_ids:
+    elif package_ids is not None:
         for package_id in package_ids:
             pkg_dict = logic.get_action('package_show')(context,
                 {'id': package_id})
@@ -230,12 +231,11 @@ def check():
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
         pkg = model.Session.query(model.Package).get(pkg_id)
-        print(pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name)
+        print((pkg.metadata_modified.strftime('%Y-%m-%d'), pkg.name))
 
 
 def show(package_reference):
     package_query = query_for(model.Package)
-
     return package_query.get_index(package_reference)
 
 

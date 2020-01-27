@@ -33,8 +33,8 @@ class Missing(object):
     def __hex__(self):
         raise Invalid(_('Missing value'))
 
-    def __nonzero__(self):
-        return False
+    def __len__(self):
+        return 0
 
 
 missing = Missing()
@@ -46,7 +46,7 @@ class State(object):
 
 class DictizationError(Exception):
     def __str__(self):
-        return text_type(self).encode('utf8')
+        return six.ensure_str(self.__unicode__())
 
     def __unicode__(self):
         if hasattr(self, 'error') and self.error:
@@ -176,8 +176,10 @@ def augment_data(data, schema):
 
     new_data = copy.copy(data)
 
+    keys_to_remove = []
+    junk = {}
+    extras_keys = {}
     # fill junk and extras
-
     for key, value in new_data.items():
         if key in full_schema:
             continue
@@ -190,16 +192,21 @@ def augment_data(data, schema):
                 raise DataError('Only lists of dicts can be placed against '
                                 'subschema %s, not %s' %
                                 (key, type(data[key])))
-
         if key[:-1] in key_combinations:
             extras_key = key[:-1] + ('__extras',)
-            extras = new_data.get(extras_key, {})
+            extras = extras_keys.get(extras_key, {})
             extras[key[-1]] = value
-            new_data[extras_key] = extras
+            extras_keys[extras_key] = extras
         else:
-            junk = new_data.get(("__junk",), {})
             junk[key] = value
-            new_data[("__junk",)] = junk
+        keys_to_remove.append(key)
+
+    if junk:
+        new_data[("__junk",)] = junk
+    for extra_key in extras_keys:
+        new_data[extra_key] = extras_keys[extra_key]
+
+    for key in keys_to_remove:
         new_data.pop(key)
 
     # add missing
@@ -260,7 +267,7 @@ def validate(data, schema, context=None):
 
     # create a copy of the context which also includes the schema keys so
     # they can be used by the validators
-    validators_context = dict(context, schema_keys=schema.keys())
+    validators_context = dict(context, schema_keys=list(schema.keys()))
 
     flattened = flatten_dict(data)
     converted_data, errors = _validate(flattened, schema, validators_context)

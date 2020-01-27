@@ -8,9 +8,10 @@ import inspect
 import itertools
 import pkgutil
 
-from flask import Flask, Blueprint, send_from_directory
+from flask import Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
+from flask_multistatic import MultiStaticFlask
 
 import six
 from werkzeug.exceptions import default_exceptions, HTTPException
@@ -29,6 +30,7 @@ from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
+from ckan.config.middleware.common_middleware import TrackingMiddleware
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins.toolkit as toolkit
@@ -41,11 +43,22 @@ from ckan.views import (identify_user,
                         check_session_cookie,
                         set_controller_and_action,
                         handle_i18n,
+                        set_ckan_current_url,
                         )
 
 import logging
 from logging.handlers import SMTPHandler
 log = logging.getLogger(__name__)
+
+
+class I18nMiddleware(object):
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+
+        handle_i18n(environ)
+        return self.app(environ, start_response)
 
 
 class CKANBabel(Babel):
@@ -82,7 +95,14 @@ def make_flask_stack(conf, **app_conf):
 
     debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
     testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
-    app = flask_app = CKANFlask(__name__)
+    app = flask_app = CKANFlask(__name__, static_url_path='')
+
+    # Static files folders (core and extensions)
+    public_folder = config.get(u'ckan.base_public_folder')
+    app.static_folder = config.get(
+        'extra_public_paths', ''
+    ).split(',') + [os.path.join(root, public_folder)]
+
     app.jinja_options = jinja_extensions.get_jinja_env_options()
 
     app.debug = debug
@@ -278,6 +298,12 @@ def make_flask_stack(conf, **app_conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    if six.PY3:
+        app = I18nMiddleware(app)
+
+        if asbool(config.get('ckan.tracking_enabled', 'false')):
+            app = TrackingMiddleware(app, config)
+
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
@@ -298,9 +324,6 @@ def get_locale():
 def ckan_before_request():
     u'''Common handler executed before all Flask requests'''
 
-    # Handle locale in URL
-    handle_i18n()
-
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
@@ -312,6 +335,7 @@ def ckan_before_request():
     # with extensions
     set_controller_and_action()
 
+    set_ckan_current_url(request.environ)
     g.__timer = time.time()
 
 
@@ -328,7 +352,7 @@ def ckan_after_request(response):
     response = set_cors_headers_for_response(response)
 
     r_time = time.time() - g.__timer
-    url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+    url = request.environ['PATH_INFO']
 
     log.info(' %s render time %.3f seconds' % (url, r_time))
 
@@ -374,7 +398,7 @@ class CKAN_AppCtxGlobals(_AppCtxGlobals):
         return getattr(app_globals.app_globals, name)
 
 
-class CKANFlask(Flask):
+class CKANFlask(MultiStaticFlask):
 
     '''Extend the Flask class with a special method called on incoming
      requests by AskAppDispatcherMiddleware.
@@ -456,9 +480,11 @@ def _register_error_handler(app):
     def error_handler(e):
         log.error(e, exc_info=sys.exc_info)
         if isinstance(e, HTTPException):
-            extra_vars = {u'code': [e.code], u'content': e.description}
-            # TODO: Remove
-            g.code = [e.code]
+            extra_vars = {
+                u'code': e.code,
+                u'content': e.description,
+                u'name': e.name
+            }
 
             return base.render(
                 u'error_document_template.html', extra_vars), e.code

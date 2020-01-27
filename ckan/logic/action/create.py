@@ -8,6 +8,8 @@ import re
 from socket import error as socket_error
 import string
 
+import six
+
 import ckan.common
 from sqlalchemy import func
 
@@ -178,7 +180,8 @@ def package_create(context, data_dict):
         raise ValidationError(errors)
 
     if user:
-        user_obj = model.User.by_name(user.decode('utf8'))
+
+        user_obj = model.User.by_name(six.ensure_text(user))
         if user_obj:
             data['creator_user_id'] = user_obj.id
 
@@ -671,7 +674,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     else:
         activity_type = 'new group'
 
-    user_id = model.User.by_name(user.decode('utf8')).id
+    user_id = model.User.by_name(six.ensure_text(user)).id
 
     activity_dict = {
         'user_id': user_id,
@@ -938,7 +941,6 @@ def user_create(context, data_dict):
     session = context['session']
 
     _check_access('user_create', context, data_dict)
-
     data, errors = _validate(data_dict, schema, context)
 
     if errors:

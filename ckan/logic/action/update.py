@@ -537,7 +537,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
         activity_type = 'changed group'
 
     activity_dict = {
-            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'user_id': model.User.by_name(six.ensure_text(user)).id,
             'object_id': group.id,
             'activity_type': activity_type,
             }
@@ -906,7 +906,7 @@ def vocabulary_update(context, data_dict):
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     data_dict['id'] = vocab.id
-    if data_dict.has_key('name'):
+    if 'name' in data_dict:
         if data_dict['name'] == vocab.name:
             del data_dict['name']
 

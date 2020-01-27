@@ -1741,9 +1741,8 @@ def package_search(context, data_dict):
             for package in query.results:
                 if isinstance(package, text_type):
                     package = {result_fl[0]: package}
-                if package.get('extras'):
-                    package.update(package['extras'] )
-                    package.pop('extras')
+                extras = package.pop('extras', {})
+                package.update(extras)
                 results.append(package)
         else:
             for package in query.results:
@@ -3372,7 +3371,7 @@ def config_option_list(context, data_dict):
 
     schema = ckan.logic.schema.update_configuration_schema()
 
-    return schema.keys()
+    return list(schema.keys())
 
 
 @logic.validate(logic.schema.job_list_schema)

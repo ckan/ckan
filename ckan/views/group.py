@@ -2,11 +2,11 @@
 
 import logging
 import re
-from six.moves.urllib.parse import urlencode
-
+from collections import OrderedDict
 
 import six
 from six import string_types
+from six.moves.urllib.parse import urlencode
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -17,7 +17,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, g, config, request, _
+from ckan.common import g, config, request, _
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -322,7 +322,7 @@ def _read(id, limit, group_type):
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
                     fields.append((param, value))
-                    q += u' %s: "%s"' % (param, value)
+                    fq += u' %s: "%s"' % (param, value)
                     if param not in fields_grouped:
                         fields_grouped[param] = [value]
                     else:
@@ -361,7 +361,7 @@ def _read(id, limit, group_type):
             u'q': q,
             u'fq': fq,
             u'include_private': True,
-            u'facet.field': facets.keys(),
+            u'facet.field': list(facets.keys()),
             u'rows': limit,
             u'sort': sort_by,
             u'start': (page - 1) * limit,

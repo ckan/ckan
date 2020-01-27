@@ -18,7 +18,7 @@ from six import text_type
 import ckan
 import ckan.model as model
 import ckan.lib.helpers as h
-from ckan.lib.base import render_jinja2
+from ckan.lib.base import render
 
 from ckan.common import _
 
@@ -142,7 +142,7 @@ def get_reset_link_body(user):
         'user_name': user.name,
     }
     # NOTE: This template is translated
-    return render_jinja2('emails/reset_password.txt', extra_vars)
+    return render('emails/reset_password.txt', extra_vars)
 
 
 def get_invite_body(user, group_dict=None, role=None):
@@ -163,7 +163,7 @@ def get_invite_body(user, group_dict=None, role=None):
         extra_vars['group_title'] = group_dict.get('title')
 
     # NOTE: This template is translated
-    return render_jinja2('emails/invite_user.txt', extra_vars)
+    return render('emails/invite_user.txt', extra_vars)
 
 
 def get_reset_link(user):
@@ -180,7 +180,7 @@ def send_reset_link(user):
     extra_vars = {
         'site_title': config.get('ckan.site_title')
     }
-    subject = render_jinja2('emails/reset_password_subject.txt', extra_vars)
+    subject = render('emails/reset_password_subject.txt', extra_vars)
 
     # Make sure we only use the first line
     subject = subject.split('\n')[0]
@@ -194,7 +194,7 @@ def send_invite(user, group_dict=None, role=None):
     extra_vars = {
         'site_title': config.get('ckan.site_title')
     }
-    subject = render_jinja2('emails/invite_user_subject.txt', extra_vars)
+    subject = render('emails/invite_user_subject.txt', extra_vars)
 
     # Make sure we only use the first line
     subject = subject.split('\n')[0]

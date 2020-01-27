@@ -132,7 +132,7 @@ class TestChanges(object):
             if change["key"] == u"subject":
                 assert change["new_value"] == u"scientific"
             else:
-                assert changes[0]["key"] == u"topic"
+                assert change["key"] == u"topic"
                 assert change["new_value"] == u"rain"
 
     # TODO how to test change2?
@@ -259,6 +259,7 @@ class TestChanges(object):
         assert changes[0]["method"] == u"remove"
 
     @pytest.mark.ckan_config(u"ckan.auth.create_unowned_dataset", True)
+    @pytest.mark.usefixtures(u"with_request_context")
     def test_add_org(self):
         changes = []
         original = Dataset(owner_org=None)
@@ -273,6 +274,7 @@ class TestChanges(object):
         assert changes[0]["method"] == u"add"
         assert changes[0]["new_org_id"] == new_org["id"]
 
+    @pytest.mark.usefixtures(u"with_request_context")
     def test_change_org(self):
         changes = []
         old_org = Organization()
@@ -290,6 +292,7 @@ class TestChanges(object):
         assert changes[0]["new_org_id"] == new_org["id"]
 
     @pytest.mark.ckan_config(u"ckan.auth.create_unowned_dataset", True)
+    @pytest.mark.usefixtures(u"with_request_context")
     def test_remove_org(self):
         changes = []
         old_org = Organization()
@@ -308,6 +311,7 @@ class TestChanges(object):
         assert changes[0]["type"] == u"org"
         assert changes[0]["method"] == u"remove"
 
+    @pytest.mark.usefixtures(u"with_request_context")
     def test_make_private(self):
         changes = []
         old_org = Organization()
@@ -322,6 +326,7 @@ class TestChanges(object):
         assert changes[0]["type"] == u"private"
         assert changes[0]["new"] == u"Private"
 
+    @pytest.mark.usefixtures(u"with_request_context")
     def test_make_public(self):
         changes = []
         old_org = Organization()

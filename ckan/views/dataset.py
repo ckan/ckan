@@ -276,7 +276,7 @@ def search(package_type):
         data_dict = {
             u'q': q,
             u'fq': fq.strip(),
-            u'facet.field': facets.keys(),
+            u'facet.field': list(facets.keys()),
             u'rows': limit,
             u'start': (page - 1) * limit,
             u'sort': sort_by,
@@ -518,7 +518,6 @@ class CreateView(MethodView):
         context = self._prepare()
         is_an_update = False
         ckan_phase = request.form.get(u'_ckan_phase')
-
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form)))

@@ -45,7 +45,7 @@ class TestBasicDictize:
         if not remove_package_id:
             ids_to_keep.append("package_id")
 
-        for key, value in dict.items():
+        for key, value in list(dict.items()):
             if key.endswith("id") and key not in ids_to_keep:
                 dict.pop(key)
             if key == "created":
@@ -92,15 +92,14 @@ class TestBasicDictize:
         create.create_family_test_data()
         pkg = model.Session.query(model.Package).filter_by(name="homer").one()
 
-        as_dict = pkg.as_dict()
+        as_dict = dict(pkg.as_dict())
         as_dict["license_title"] = None
         as_dict["num_tags"] = 0
         as_dict["num_resources"] = 0
         dictize = package_to_api1(pkg, context)
 
-        as_dict["relationships"].sort(key=lambda x: x.items())
-        dictize["relationships"].sort(key=lambda x: x.items())
-
+        as_dict["relationships"].sort(key=lambda x: list(x.items()))
+        dictize["relationships"].sort(key=lambda x: list(x.items()))
         # the is_dict method doesn't care about organizations
         del dictize["organization"]
         as_dict_string = pformat(as_dict)
@@ -149,8 +148,8 @@ class TestBasicDictize:
         as_dict["num_resources"] = 0
         dictize = package_to_api2(pkg, context)
 
-        as_dict["relationships"].sort(key=lambda x: x.items())
-        dictize["relationships"].sort(key=lambda x: x.items())
+        as_dict["relationships"].sort(key=lambda x: list(x.items()))
+        dictize["relationships"].sort(key=lambda x: list(x.items()))
 
         # the is_dict method doesn't care about organizations
         del dictize["organization"]
@@ -193,6 +192,7 @@ class TestBasicDictize:
             == anna_dictized
         ), self.remove_changable_columns(table_dictize(pkg, context))
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_08_package_save(self):
 
         context = {
@@ -478,6 +478,7 @@ class TestBasicDictize:
         assert "test-group-2" not in [g["name"] for g in result["groups"]]
         assert "test-group-1" in [g["name"] for g in result["groups"]]
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_22_user_dictize_as_sysadmin(self):
         """Sysadmins should be allowed to see certain sensitive data."""
         context = {
@@ -502,6 +503,7 @@ class TestBasicDictize:
         assert "password" not in user_dict
         assert "reset_key" not in user_dict
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_23_user_dictize_as_same_user(self):
         """User should be able to see their own sensitive data."""
         context = {"model": model, "session": model.Session, "user": "tester"}
@@ -522,6 +524,7 @@ class TestBasicDictize:
         assert "password" not in user_dict
         assert "reset_key" not in user_dict
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_24_user_dictize_as_other_user(self):
         """User should not be able to see other's sensitive data."""
         context = {"model": model, "session": model.Session, "user": "annafan"}
