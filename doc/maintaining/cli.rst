@@ -545,7 +545,7 @@ Usage::
     need to run ``ckan trans js`` manually.
 
 
-.. _paster-user:
+.. _cli-user:
 
 user: Create and manage users
 =============================
