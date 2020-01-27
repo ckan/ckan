@@ -24,6 +24,7 @@ defaults:
         $NODE_TESTS_CONTAINER)
         curl -sL https://deb.nodesource.com/setup_10.x | bash -
         apt install -y nodejs
+        apt install -y libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
         npm install
         npm install mocha-phantomjs@3.5.0 phantomjs@~1.9.1
         ;;
