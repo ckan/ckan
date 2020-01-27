@@ -64,7 +64,7 @@ def create_user(apikeys, call_api):
         user = {
             "name": name,
             "password": "TestPassword1",
-            "email": "moo@moo.com",
+            "email": "{}@moo.com".format(name),
         }
         res = call_api("user_create", user, "sysadmin", 200)
         apikeys[name] = str(json.loads(res.body)["result"]["apikey"])
