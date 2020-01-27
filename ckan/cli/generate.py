@@ -5,8 +5,8 @@ import os
 import sys
 import click
 import uuid
-import random
 import string
+import secrets
 from ckan.cli import error_shout
 
 
@@ -82,40 +82,28 @@ def extension(output_dir):
                  output_dir=output_dir)
 
 
-@generate.command(name=u'config', short_help=u'Create config from template.')
-@click.option(u'-o', u'--output-dir', help=u'Location to put the generated '
-                                           u'template.')
-def make_config(output_dir):
-    if output_dir is None:
-        print('\nERROR: Try again with \'-o path/to/ckan.ini\'')
-        sys.exit(1)
-
-    name = 'ckan.ini'
-
-    if name not in output_dir:
-        print('\nERROR: Config file must be named "ckan.ini"')
-        sys.exit(1)
+@generate.command(name=u'config',
+                  short_help=u'Path to the generated configuration ini file.')
+@click.argument('output_path', nargs=1)
+def make_config(output_path):
+    """Generate a new CKAN configuration ini file."""
 
     # Output to current directory if no path is specified
-    if output_dir == name:
-        output_dir = os.getcwd() + '/' + output_dir
+    if '/' not in output_path:
+        output_path = os.getcwd() + '/' + output_path
 
     cur_loc = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(cur_loc)
-    os.chdir('../config')
-    template_loc = os.getcwd() + '/deployment.ini_tmpl'
+    template_loc = os.path.join(cur_loc, '..', 'config', 'deployment.ini_tmpl')
     template_variables = {
         'app_instance_uuid': uuid.uuid4(),
-        'app_instance_secret': ''.join(
-            random.SystemRandom().choice(string.ascii_letters + string.digits)
-            for _ in range(25))
+        'app_instance_secret': secrets.token_urlsafe(20)[:25]
     }
 
     with open(template_loc, 'r') as file_in:
         template = string.Template(file_in.read())
 
         try:
-            with open(output_dir, 'w') as file_out:
+            with open(output_path, 'w') as file_out:
                 file_out.writelines(template.substitute(template_variables))
 
         except IOError as e:
