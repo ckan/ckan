@@ -6,6 +6,7 @@ import smtplib
 import socket
 import logging
 from time import time
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
 from email import utils
@@ -30,14 +31,23 @@ class MailerException(Exception):
 
 def _mail_recipient(recipient_name, recipient_email,
                     sender_name, sender_url, subject,
-                    body, headers=None):
+                    body, body_html=None, headers=None):
 
     if not headers:
         headers = {}
 
     mail_from = config.get('smtp.mail_from')
     reply_to = config.get('smtp.reply_to')
-    msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
+    if body_html:
+        # multipart
+        msg = MIMEMultipart('alternative')
+        part1 = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
+        part2 = MIMEText(body_html.encode('utf-8'), 'html', 'utf-8')
+        msg.attach(part1)
+        msg.attach(part2)
+    else:
+        # just plain text
+        msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items():
         if k in msg.keys():
             msg.replace_header(k, v)
@@ -107,19 +117,21 @@ def _mail_recipient(recipient_name, recipient_email,
 
 
 def mail_recipient(recipient_name, recipient_email, subject,
-                   body, headers={}):
+                   body, body_html=None, headers={}):
+    '''Sends an email'''
     site_title = config.get('ckan.site_title')
     site_url = config.get('ckan.site_url')
     return _mail_recipient(recipient_name, recipient_email,
                            site_title, site_url, subject, body,
-                           headers=headers)
+                           body_html=body_html, headers=headers)
 
 
-def mail_user(recipient, subject, body, headers={}):
+def mail_user(recipient, subject, body, body_html=None, headers={}):
+    '''Sends an email to a CKAN user'''
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
     mail_recipient(recipient.display_name, recipient.email, subject,
-                   body, headers=headers)
+                   body, body_html=body_html, headers=headers)
 
 
 def get_reset_link_body(user):
