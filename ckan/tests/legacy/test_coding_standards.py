@@ -439,14 +439,23 @@ class TestPep8(object):
         "/tests/test_plugin.py",
         "contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}"
         "/ckanext/{{cookiecutter.project_shortname}}/plugin.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/cli.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/helpers.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/logic/action.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/logic/auth.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/validators.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/views.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/tests/test_helpers.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/tests/test_validators.py",
+        "contrib/cookiecutter/ckan_extension"
         "/ckanext/{{cookiecutter.project_shortname}}/tests/test_views.py",
         "ckan/tests/legacy/models/test_purge_revision.py",
         "ckan/tests/legacy/models/test_revision.py",
