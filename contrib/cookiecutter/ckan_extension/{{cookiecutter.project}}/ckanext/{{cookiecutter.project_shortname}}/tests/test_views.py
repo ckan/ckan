@@ -13,4 +13,4 @@ import ckan.plugins.toolkit as tk
 def test_{{cookiecutter.project_shortname}}_blueprint(app, reset_db):
     resp = app.get(tk.h.url_for('{{cookiecutter.project_shortname}}.page'))
     assert resp.status_code == 200
-    assert resp.content == 'Hello, {{cookiecutter.project_shortname}}!'
+    assert resp.body == 'Hello, {{cookiecutter.project_shortname}}!'
