@@ -7,9 +7,9 @@ import six
 import click
 
 import ckan.plugins as p
+import ckan.cli as ckan_cli
 from ckan.config.middleware import make_app
 from ckan.cli import (
-    load_config,
     config_tool,
     jobs,
     datapusher,
@@ -39,7 +39,9 @@ log = logging.getLogger(__name__)
 class CkanCommand(object):
 
     def __init__(self, conf=None):
-        self.config = load_config(conf)
+        # Don't import `load_config` by itself, rather call it using
+        # module so that it can be patched during tests
+        self.config = ckan_cli.load_config(conf)
         self.app = make_app(self.config.global_conf, **self.config.local_conf)
 
 
