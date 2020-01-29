@@ -98,7 +98,7 @@ This asset should be added via ``{% asset 'my_webassets_library/select2-css' %}`
 
 **jquery**
 
-This asset should be added via ``{% asset 'my_webassets_library/select2-css' %}``.
+This asset should be added via ``{% asset 'my_webassets_library/jquery' %}``.
 
 **vendor**
 
@@ -125,7 +125,7 @@ issues for static files.
 ~~~~~~~~~~~~~~~~~~~~
 
 Preprocessors that are applied to file before producing final
-asset. Out of the box ``cssrewrite`` for CSS and ``jrsmin`` for JS are
+asset. Out of the box ``cssrewrite`` for CSS and ``rjsmin`` for JS are
 supported. Details and other options can be found in `Webassets
 documentation
 <https://webassets.readthedocs.io/en/latest/builtin_filters.html>`_
