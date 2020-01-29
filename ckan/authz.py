@@ -385,7 +385,7 @@ def get_user_id_for_username(user_name, allow_none=False):
     try:
         if c.userobj and c.userobj.name == user_name:
             return c.userobj.id
-    except TypeError:
+    except (TypeError, AttributeError):
         # c is not available
         pass
     user = model.User.get(user_name)

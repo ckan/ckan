@@ -1,6 +1,7 @@
 # encoding: utf-8
 
-import nose
+import pytest
+import six
 from six import text_type
 from ckan.lib.navl.dictization_functions import validate, Invalid
 
@@ -44,6 +45,7 @@ class TestDictizationError(object):
         err_obj = Invalid("Some ascii error")
         assert str(err_obj) == "Invalid: 'Some ascii error'"
 
+    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
     def test_unicode_error(self):
         err_obj = Invalid("Some ascii error")
         assert text_type(err_obj) == u"Invalid: 'Some ascii error'"
@@ -54,14 +56,17 @@ class TestDictizationError(object):
 
     # Error msgs should be ascii, but let's just see what happens for unicode
 
+    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
     def test_str_unicode_error(self):
         err_obj = Invalid(u"Some unicode \xa3 error")
         assert str(err_obj) == "Invalid: u'Some unicode \\xa3 error'"
 
+    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
     def test_unicode_unicode_error(self):
         err_obj = Invalid(u"Some unicode \xa3 error")
         assert text_type(err_obj) == "Invalid: u'Some unicode \\xa3 error'"
 
+    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
     def test_repr_unicode_error(self):
         err_obj = Invalid(u"Some unicode \xa3 error")
         assert repr(err_obj) == "<Invalid u'Some unicode \\xa3 error'>"
@@ -70,6 +75,7 @@ class TestDictizationError(object):
         err_obj = Invalid("")
         assert str(err_obj) == "Invalid"
 
+    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
     def test_unicode_blank(self):
         err_obj = Invalid("")
         assert text_type(err_obj) == u"Invalid"

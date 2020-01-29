@@ -6,12 +6,13 @@ from ckan.tests.legacy.functional.api.base import (
     ControllerTestCase,
     Api3TestCase,
 )
+from ckan.tests.helpers import body_contains
 
 
 class ApiTestCase(ApiTestCase, ControllerTestCase):
     def test_get_api(self, app):
         offset = self.offset("")
-        res = app.get(offset, status=[200])
+        res = app.get(offset, status=200)
         self.assert_version_data(res)
 
     def assert_version_data(self, res):
@@ -31,7 +32,7 @@ class TestApi3(Api3TestCase, ApiTestCase):
         """
         offset = self.offset("/action/package_search")
         params = {"q": "russian"}
-        res = app.get(offset, params=params, status=[200])
+        res = app.get(offset, params=params, status=200)
 
     def test_sideeffect_action_is_not_get_able(self, app):
         """Test that a non-readonly action is not GET-able.
@@ -42,9 +43,10 @@ class TestApi3(Api3TestCase, ApiTestCase):
         offset = self.offset("/action/package_create")
         data_dict = {"type": "dataset", "name": "a-name"}
         res = app.get(
-            offset, params=data_dict, status=[400], expect_errors=True
+            offset, json=data_dict, status=400
         )
-        assert (
+        assert body_contains(
+            res,
             "Bad request - JSON Error: Invalid request."
-            " Please use POST method for your request" in res.body
+            " Please use POST method for your request"
         )

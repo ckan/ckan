@@ -61,15 +61,9 @@ class TestPluginLoadingOrder(object):
         )
 
 
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_index", "with_plugins", "with_request_context")
 class TestPluginDatastoreSearch(object):
-    @classmethod
-    def setup_class(cls):
-        p.load("datastore")
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload("datastore")
-
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", None)
     def test_english_is_default_fts_language(self):
         expected_ts_query = ", plainto_tsquery('english', 'foo') \"query\""
@@ -102,10 +96,8 @@ class TestPluginDatastoreSearch(object):
             u"to_tsvector('french', cast(\"country\" as text))"
         )
         data_dict = {"q": {"country": "Brazil"}, "lang": "french"}
-
-        result = self._datastore_search(data_dict=data_dict)
-
-        assert expected_select_content in result["select"][0], result["select"]
+        result = self._datastore_search(data_dict=data_dict, fields_types={})
+        assert expected_select_content in result["select"][0]
 
     def test_adds_fts_on_full_text_field_when_q_is_a_string(self):
         expected_where = [(u'_full_text @@ "query"',)]

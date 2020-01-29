@@ -5,6 +5,7 @@
 import logging
 
 import sqlalchemy as sqla
+import six
 
 import ckan.lib.jobs as jobs
 import ckan.logic
@@ -380,7 +381,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
         activity_type = 'deleted group'
 
     activity_dict = {
-        'user_id': model.User.by_name(user.decode('utf8')).id,
+        'user_id': model.User.by_name(six.ensure_text(user)).id,
         'object_id': group.id,
         'activity_type': activity_type,
         'data': {
@@ -594,7 +595,7 @@ def tag_delete(context, data_dict):
     '''
     model = context['model']
 
-    if not data_dict.has_key('id') or not data_dict['id']:
+    if 'id' not in data_dict or not data_dict['id']:
         raise ValidationError({'id': _('id not in data')})
     tag_id_or_name = _get_or_bust(data_dict, 'id')
 
@@ -614,7 +615,7 @@ def tag_delete(context, data_dict):
 def _unfollow(context, data_dict, schema, FollowerClass):
     model = context['model']
 
-    if not context.has_key('user'):
+    if 'user' not in context:
         raise ckan.logic.NotAuthorized(
                 _("You must be logged in to unfollow something."))
     userobj = model.User.get(context['user'])

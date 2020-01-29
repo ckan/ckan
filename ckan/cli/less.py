@@ -51,18 +51,7 @@ _custom_css = {
     name=u'less',
     short_help=u'Compile all root less documents into their CSS counterparts')
 def less():
-    command = (u'npm', u'bin')
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True)
-    output = process.communicate()
-    directory = output[0].strip()
-    if not directory:
-        error_shout(u'Command "{}" returned nothing. Check that npm is '
-                    u'installed.'.format(u' '.join(command)))
-    less_bin = os.path.join(directory, u'lessc')
+    command = (u'npm', u'run', u'build')
 
     public = config.get(u'ckan.base_public_folder')
 
@@ -73,23 +62,21 @@ def less():
         f = open(custom_less, u'w')
         f.write(_custom_css[color])
         f.close()
-        _compile_less(root, less_bin, color)
+        _compile_less(root, command, color)
     f = open(custom_less, u'w')
-    f.write(u'// This file is needed in order for ./bin/less to '
+    f.write(u'// This file is needed in order for `gulp build` to '
             u'compile in less 1.3.1+\n')
     f.close()
-    _compile_less(root, less_bin, u'main')
+    _compile_less(root, command, u'main')
 
 
-def _compile_less(root, less_bin, color):
+def _compile_less(root, command, color):
     click.echo(u'compile {}.css'.format(color))
-    main_less = os.path.join(root, u'less', u'main.less')
-    main_css = os.path.join(root, u'css', u'{}.css'.format(color))
-    command = (less_bin, main_less, main_css)
+    command = command + (u'--', u'-' + color)
+
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True)
+        stderr=subprocess.PIPE)
     output = process.communicate()
     click.echo(output)

@@ -25,6 +25,7 @@ def cleanup(reset_db):
         factories.MockUser,
     ],
 )
+@pytest.mark.usefixtures(u"with_request_context")
 def test_id_uniqueness(entity):
     first, second = entity(), entity()
     assert first[u"id"] != second[u"id"]

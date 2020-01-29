@@ -139,7 +139,6 @@ def check_translation(validator, msgid, msgstr):
 
 def check_po_file(path):
     errors = []
-
     po = polib.pofile(path)
     for entry in po.translated_entries():
         if entry.msgid_plural and entry.msgstr_plural:
@@ -163,5 +162,7 @@ def check_po_file(path):
             for function in (
                 simple_conv_specs, mapping_keys, replacement_fields
             ):
-                check_translation(function, entry.msgid, entry.msgstr)
+                error = check_translation(function, entry.msgid, entry.msgstr)
+                if error:
+                    errors.append(error)
     return errors

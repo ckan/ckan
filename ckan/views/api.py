@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import os
-import cgi
 import logging
+import html
 
 from flask import Blueprint, make_response
 import six
@@ -71,7 +71,7 @@ def _finish(status_int, response_data=None,
         if (status_int == 200 and u'callback' in request.args and
                 request.method == u'GET'):
             # escape callback to remove '<', '&', '>' chars
-            callback = cgi.escape(request.args[u'callback'])
+            callback = html.escape(request.args[u'callback'])
             response_msg = _wrap_jsonp(callback, response_msg)
             headers[u'Content-Type'] = CONTENT_TYPES[u'javascript']
     return make_response((response_msg, status_int, headers))
@@ -173,10 +173,12 @@ def _get_request_data(try_url_params=False):
 
     request_data = {}
     if request.method in [u'POST', u'PUT'] and request.form:
-        if (len(request.form.values()) == 1 and
-                request.form.values()[0] in [u'1', u'']):
+        values = list(request.form.values())
+        if (len(values) == 1 and
+                values[0] in [u'1', u'']):
             try:
-                request_data = json.loads(request.form.keys()[0])
+                keys = list(request.form.keys())
+                request_data = json.loads(keys[0])
             except ValueError as e:
                 raise ValueError(
                     u'Error decoding JSON data. '

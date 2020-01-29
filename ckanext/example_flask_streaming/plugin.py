@@ -50,18 +50,6 @@ def stream_context():
     return streaming_response(gen(), with_context=True)
 
 
-def stream_without_context():
-    u'''You'll definitely get error attempting to get request info.'''
-    html = u'''{{ request.args.var }}'''
-
-    def gen():
-        yield flask.render_template_string(html)
-
-    # `with_context` set to False by default. Thus, you cannot use
-    # request context in this case.
-    return streaming_response(gen())
-
-
 class ExampleFlaskStreamingPlugin(p.SingletonPlugin):
     u'''
     An example plugin to demonstrate Flask streaming responses.
@@ -89,8 +77,6 @@ class ExampleFlaskStreamingPlugin(p.SingletonPlugin):
             (u'/stream/template/', u'stream_template', stream_template),
             (u'/stream/file', u'stream_file', stream_file),
             (u'/stream/context', u'stream_context', stream_context),
-            (u'/stream/without_context', u'stream_without_context',
-             stream_without_context),
         ]
         for rule in rules:
             blueprint.add_url_rule(*rule)

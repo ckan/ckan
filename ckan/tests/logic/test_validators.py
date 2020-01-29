@@ -10,12 +10,15 @@ import fractions
 import mock
 import pytest
 
+from collections import namedtuple
+
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckan.tests.lib.navl.test_validators as t
+import ckan.logic as logic
 
 
 def returns_arg(function):
@@ -158,6 +161,58 @@ def adds_message_to_errors_dict(error_message):
         return call_and_assert
 
     return decorator
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_with_existed_value(app):
+    with app.flask_app.test_request_context():
+        user1 = factories.User(username="user01", email="user01@email.com")
+
+        # try to create new user with occupied email
+        with pytest.raises(logic.ValidationError):
+            factories.User(username="new_user", email="user01@email.com")
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_email_unchanged(app):
+    with app.flask_app.test_request_context():
+        user = factories.User(username="user01", email="user01@email.com")
+
+        # try to update user1 and leave email unchanged
+        old_email = "user01@email.com"
+
+        helpers.call_action("user_update", **user)
+        updated_user = model.User.get(user["id"])
+
+        assert updated_user.email == old_email
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_email_new(app):
+    with app.flask_app.test_request_context():
+        user = factories.User(username="user01", email="user01@email.com")
+
+        # try to update user1 email to unoccupied one
+        new_email = "user_new@email.com"
+        user["email"] = new_email
+
+        helpers.call_action("user_update", **user)
+        updated_user = model.User.get(user["id"])
+
+        assert updated_user.email == new_email
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_to_existed_email(app):
+    with app.flask_app.test_request_context():
+        user1 = factories.User(username="user01", email="user01@email.com")
+        user2 = factories.User(username="user02", email="user02@email.com")
+
+        # try to update user1 email to existed one
+        user1["email"] = user2["email"]
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("user_update", **user1)
 
 
 def test_name_validator_with_invalid_value():
@@ -656,7 +711,7 @@ def test_user_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_user_id_or_name_exists():
     user = factories.User(name="username")
     v = validators.user_id_or_name_exists(user["id"], _make_context())
@@ -670,7 +725,7 @@ def test_group_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_group_id_or_name_exists():
     group = factories.Group()
     v = validators.group_id_or_name_exists(group["id"], _make_context())

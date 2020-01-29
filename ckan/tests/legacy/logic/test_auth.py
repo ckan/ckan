@@ -41,18 +41,17 @@ def apikeys(clean_db):
 @pytest.fixture
 def call_api(app, apikeys):
     def call(action, data, user, status=None):
-        params = "%s=1" % json.dumps(data)
+
         res = app.post(
             "/api/action/%s" % action,
-            params=params,
+            json=data,
             extra_environ={"Authorization": apikeys[user]},
-            status=[200, 403, 409],
         )
-        if res.status_int != (status or 200):
-            error = json.loads(res.body)["error"]
+        if res.status_code != (status or 200):
+            error = res.json["error"]
             raise AssertionError(
                 "Status was %s but should be %s. Error: %s"
-                % (res.status, status, error)
+                % (res.status_code, status, error)
             )
         return res
 
@@ -65,7 +64,7 @@ def create_user(apikeys, call_api):
         user = {
             "name": name,
             "password": "TestPassword1",
-            "email": "moo@moo.com",
+            "email": "{}@moo.com".format(name),
         }
         res = call_api("user_create", user, "sysadmin", 200)
         apikeys[name] = str(json.loads(res.body)["result"]["apikey"])
@@ -73,7 +72,7 @@ def create_user(apikeys, call_api):
     return create
 
 
-@pytest.mark.usefixtures("auth_config")
+@pytest.mark.usefixtures("clean_db", "auth_config", "with_request_context")
 def test_only_sysadmins_can_delete_users():
     user = factories.User()
     sysadmin = factories.Sysadmin()
@@ -86,7 +85,7 @@ def test_only_sysadmins_can_delete_users():
     assert call_auth("user_delete", context=context, id=user["id"])
 
 
-@pytest.mark.usefixtures("auth_config")
+@pytest.mark.usefixtures("clean_db", "auth_config", "with_request_context")
 def test_auth_deleted_users_are_always_unauthorized():
     always_success = lambda x, y: {"success": True}
     authz._AuthFunctions._build()
