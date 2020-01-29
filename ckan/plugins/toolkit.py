@@ -76,6 +76,8 @@ class _Toolkit(object):
         'CkanCommand',
         # function for initializing CLI interfaces
         'load_config',
+        # function to promt the exception in CLI command
+        'error_shout',
         # base class for IDatasetForm plugins
         'DefaultDatasetForm',
         # base class for IGroupForm plugins
@@ -106,6 +108,10 @@ class _Toolkit(object):
         'HelperError',
         # Enqueue background job
         'enqueue_job',
+        # Email a recipient
+        'mail_recipient',
+        # Email a user
+        'mail_user',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -130,14 +136,15 @@ class _Toolkit(object):
     def _initialize(self):
         ''' get the required functions/objects, store them for later
         access and check that they match the contents dict. '''
-
+        import six
         import ckan
-        import ckan.lib.base as base
         import ckan.logic as logic
+
+        import ckan.lib.base as base
         import ckan.logic.validators as logic_validators
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
-        import ckan.lib.cli as cli
+        import ckan.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
         from ckan.exceptions import (
@@ -145,10 +152,12 @@ class _Toolkit(object):
             HelperError
         )
         from ckan.lib.jobs import enqueue as enqueue_job
+        from ckan.lib import mailer
 
-        from paste.deploy import converters
-        import pylons
-        import webhelpers.html.tags
+        import ckan.common as converters
+        if six.PY2:
+            import ckan.lib.cli as old_cli
+            import pylons
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -213,6 +222,7 @@ request body variables, cookies, the request URL, etc.
 
 '''
         t['render'] = base.render
+        t['abort'] = base.abort
         t['asbool'] = converters.asbool
         self.docstring_overrides['asbool'] = '''Convert a string (e.g. 1,
 true, True) from the config file into a boolean.
@@ -234,8 +244,7 @@ string from the config file into a list.
 For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
 '''
-        t['literal'] = webhelpers.html.tags.literal
-
+        t['literal'] = h.literal
         t['get_action'] = logic.get_action
         t['chained_action'] = logic.chained_action
         t['get_converter'] = logic.get_validator  # For backwards compatibility
@@ -250,23 +259,12 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['StopOnError'] = dictization_functions.StopOnError
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
-
-        t['CkanCommand'] = cli.CkanCommand
-        t['load_config'] = cli.load_config
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
         t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
         t['DefaultOrganizationForm'] = lib_plugins.DefaultOrganizationForm
 
-        t['response'] = pylons.response
-        self.docstring_overrides['response'] = '''The Pylons response object.
+        t['error_shout'] = cli.error_shout
 
-Pylons uses this object to generate the HTTP response it returns to the web
-browser. It has attributes like the HTTP status code, the response headers,
-content type, cookies, etc.
-
-'''
-        t['BaseController'] = base.BaseController
-        t['abort'] = base.abort
         t['redirect_to'] = h.redirect_to
         t['url_for'] = h.url_for
         t['get_or_bust'] = logic.get_or_bust
@@ -276,6 +274,8 @@ content type, cookies, etc.
         t['auth_disallow_anonymous_access'] = (
             logic.auth_disallow_anonymous_access
         )
+        t['mail_recipient'] = mailer.mail_recipient
+        t['mail_user'] = mailer.mail_user
 
         # class functions
         t['render_snippet'] = self._render_snippet
@@ -289,6 +289,21 @@ content type, cookies, etc.
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
+
+        if six.PY2:
+            t['response'] = pylons.response
+            self.docstring_overrides['response'] = '''
+The Pylons response object.
+
+Pylons uses this object to generate the HTTP response it returns to the web
+browser. It has attributes like the HTTP status code, the response headers,
+content type, cookies, etc.
+
+'''
+            t['BaseController'] = base.BaseController
+            # TODO: Sort these out
+            t['CkanCommand'] = old_cli.CkanCommand
+            t['load_config'] = old_cli.load_config
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
@@ -337,7 +352,8 @@ content type, cookies, etc.
             relative_path,
             'extra_public_paths'
         )
-        add_public_path(path, h.url_for_static('/'))
+        url = h._local_url('/', locale='default')
+        add_public_path(path, url)
 
     @classmethod
     def _add_served_directory(cls, config, relative_path, config_var):
@@ -388,9 +404,11 @@ content type, cookies, etc.
         absolute_path = os.path.join(this_dir, path)
         create_library(name, absolute_path)
 
-        # TODO: remove next two lines after dropping Fanstatic support
-        import ckan.lib.fanstatic_resources
-        ckan.lib.fanstatic_resources.create_library(name, absolute_path)
+        import six
+        if six.PY2:
+            # TODO: remove next two lines after dropping Fanstatic support
+            import ckan.lib.fanstatic_resources
+            ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
     def _add_ckan_admin_tabs(cls, config, route_name, tab_label,
@@ -498,7 +516,9 @@ content type, cookies, etc.
                 return common.c.controller, common.c.action
             except AttributeError:
                 return (None, None)
-
+        # service routes, like `static`
+        if len(endpoint) == 1:
+            return endpoint + ('index', )
         return endpoint
 
     def __getattr__(self, name):

@@ -3,18 +3,17 @@
 import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
-import vdm.sqlalchemy
 
-import meta
-import core
-import package as _package
-import types as _types
-import domain_object
-import user as _user
+from ckan.model import meta
+from ckan.model import core
+from ckan.model import package as _package
+from ckan.model import types as _types
+from ckan.model import domain_object
+from ckan.model import user as _user
 
 __all__ = ['group_table', 'Group',
-           'Member', 'GroupRevision', 'MemberRevision',
-           'member_revision_table', 'member_table']
+           'Member',
+           'member_table']
 
 member_table = Table('member', meta.metadata,
                      Column('id', types.UnicodeText,
@@ -32,7 +31,6 @@ member_table = Table('member', meta.metadata,
                             default=core.State.ACTIVE),
                      )
 
-member_revision_table = core.make_revisioned_table(member_table)
 
 group_table = Table('group', meta.metadata,
                     Column('id', types.UnicodeText,
@@ -55,11 +53,7 @@ group_table = Table('group', meta.metadata,
                     )
 
 
-group_revision_table = core.make_revisioned_table(group_table)
-
-
-class Member(vdm.sqlalchemy.RevisionedObjectMixin,
-             core.StatefulObjectMixin,
+class Member(core.StatefulObjectMixin,
              domain_object.DomainObject):
     '''A Member object represents any other object being a 'member' of a
     particular Group.
@@ -116,8 +110,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
                 table_info, self.capacity, self.state)
 
 
-class Group(vdm.sqlalchemy.RevisionedObjectMixin,
-            core.StatefulObjectMixin,
+class Group(core.StatefulObjectMixin,
             domain_object.DomainObject):
 
     def __init__(self, name=u'', title=u'', description=u'', image_url=u'',
@@ -267,7 +260,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return_query=False, context=None):
         '''Return this group's active packages.
 
-        Returns all packages in this group with VDM revision state ACTIVE
+        Returns all packages in this group with VDM state ACTIVE
 
         :param with_private: if True, include the group's private packages
         :type with_private: bool
@@ -351,52 +344,17 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                             table_name='package')
             meta.Session.add(member)
 
-    @property
-    def all_related_revisions(self):
-        '''Returns chronological list of all object revisions related to
-        this group. Ordered by most recent first.
-        '''
-        results = {}
-        for grp_rev in self.all_revisions:
-            if not grp_rev.revision in results:
-                results[grp_rev.revision] = []
-            results[grp_rev.revision].append(grp_rev)
-        for class_ in [Member]:  # GroupExtra is not revisioned any more
-            rev_class = class_.__revision_class__
-            obj_revisions = meta.Session.query(rev_class).\
-                filter_by(group_id=self.id).all()
-            for obj_rev in obj_revisions:
-                if not obj_rev.revision in results:
-                    results[obj_rev.revision] = []
-                results[obj_rev.revision].append(obj_rev)
-        result_list = results.items()
-        return sorted(result_list, key=lambda x: x[0].timestamp, reverse=True)
-
     def __repr__(self):
         return '<Group %s>' % self.name
 
-meta.mapper(Group, group_table,
-            extension=[vdm.sqlalchemy.Revisioner(group_revision_table), ], )
-
-vdm.sqlalchemy.modify_base_object_mapper(Group, core.Revision, core.State)
-GroupRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Group,
-                                                     group_revision_table)
+meta.mapper(Group, group_table)
 
 meta.mapper(Member, member_table, properties={
     'group': orm.relation(Group,
                           backref=orm.backref('member_all',
                                               cascade='all, delete-orphan')),
-},
-    extension=[vdm.sqlalchemy.Revisioner(member_revision_table), ],
-)
+})
 
-
-vdm.sqlalchemy.modify_base_object_mapper(Member, core.Revision, core.State)
-MemberRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Member,
-                                                      member_revision_table)
-
-#TODO
-MemberRevision.related_packages = lambda self: [self.continuity.package]
 
 # Should there arise a bug that allows loops in the group hierarchy, then it
 # will lead to infinite recursion, tieing up postgres processes at 100%, and

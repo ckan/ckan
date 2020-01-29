@@ -1,10 +1,11 @@
 # encoding: utf-8
 
 import os
-import cgi
 import logging
+import html
 
 from flask import Blueprint, make_response
+import six
 from six import text_type
 from werkzeug.exceptions import BadRequest
 
@@ -70,7 +71,7 @@ def _finish(status_int, response_data=None,
         if (status_int == 200 and u'callback' in request.args and
                 request.method == u'GET'):
             # escape callback to remove '<', '&', '>' chars
-            callback = cgi.escape(request.args[u'callback'])
+            callback = html.escape(request.args[u'callback'])
             response_msg = _wrap_jsonp(callback, response_msg)
             headers[u'Content-Type'] = CONTENT_TYPES[u'javascript']
     return make_response((response_msg, status_int, headers))
@@ -162,7 +163,7 @@ def _get_request_data(try_url_params=False):
            item or a string otherwise
         '''
         out = {}
-        for key, value in multi_dict.to_dict(flat=False).iteritems():
+        for key, value in six.iteritems(multi_dict.to_dict(flat=False)):
             out[key] = value[0] if len(value) == 1 else value
         return out
 
@@ -172,10 +173,12 @@ def _get_request_data(try_url_params=False):
 
     request_data = {}
     if request.method in [u'POST', u'PUT'] and request.form:
-        if (len(request.form.values()) == 1 and
-                request.form.values()[0] in [u'1', u'']):
+        values = list(request.form.values())
+        if (len(values) == 1 and
+                values[0] in [u'1', u'']):
             try:
-                request_data = json.loads(request.form.keys()[0])
+                keys = list(request.form.keys())
+                request_data = json.loads(keys[0])
             except ValueError as e:
                 raise ValueError(
                     u'Error decoding JSON data. '
@@ -202,7 +205,7 @@ def _get_request_data(try_url_params=False):
     if request.method == u'PUT' and not request_data:
         raise ValueError(u'Invalid request. Please use the POST method for '
                          'your request')
-    for field_name, file_ in request.files.iteritems():
+    for field_name, file_ in six.iteritems(request.files):
         request_data[field_name] = file_
     log.debug(u'Request data extracted: %r', request_data)
 
@@ -378,12 +381,15 @@ def dataset_autocomplete(ver=API_REST_DEFAULT_VERSION):
 def tag_autocomplete(ver=API_REST_DEFAULT_VERSION):
     q = request.args.get(u'incomplete', u'')
     limit = request.args.get(u'limit', 10)
+    vocab = request.args.get(u'vocabulary_id', u'')
     tag_names = []
     if q:
         context = {u'model': model, u'session': model.Session,
                    u'user': g.user, u'auth_user_obj': g.userobj}
 
         data_dict = {u'q': q, u'limit': limit}
+        if vocab != u'':
+            data_dict[u'vocabulary_id'] = vocab
 
         tag_names = get_action(u'tag_autocomplete')(context, data_dict)
 

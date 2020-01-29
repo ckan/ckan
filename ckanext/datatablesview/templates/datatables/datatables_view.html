@@ -9,8 +9,7 @@
       data-processing="true"
       data-ajax='{
           "url": "{{ h.url_for(
-            controller='ckanext.datatablesview.controller:DataTablesController',
-            action='ajax',
+            'datatablesview.ajax',
             resource_view_id=resource_view.id) }}",
           "type": "POST",
           "data": { "filters": "{{ request.args.get('filters', '')|e }}" }
@@ -47,14 +46,18 @@
     </tbody>
   </table>
   <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
-      controller='ckanext.datatablesview.controller:DataTablesController',
-      action='filtered_download',
-      resource_view_id=resource_view.id) }}">
+                                                                  'datatablesview.filtered_download',
+                                                                  resource_view_id=resource_view.id) }}">
     <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e }}" />
   </form>
 
-  {% asset 'ckanext-datatablesview/main' %}
+
 {% endblock %}
 
-{% block styles %}{% endblock %}
+{% block styles %}
+  {{ super() }}
+  {% asset 'ckanext-datatablesview/main-css' %}
+  {% asset 'ckanext-datatablesview/main-js' %}
+{% endblock %}
+
 {% block custom_styles %}{% endblock %}

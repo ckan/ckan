@@ -11,7 +11,7 @@ import socket
 from ckan.common import config
 import sqlalchemy
 from sqlalchemy import text
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import string_types, text_type
 
 import ckan.lib.dictization
@@ -85,14 +85,6 @@ def _activity_stream_get_filtered_users():
         users_list = [site_user.get('name')]
 
     return model.User.user_ids_for_name_or_id(users_list)
-
-
-def _package_list_with_resources(context, package_revision_list):
-    package_list = []
-    for package in package_revision_list:
-        result_dict = model_dictize.package_dictize(package,context)
-        package_list.append(result_dict)
-    return package_list
 
 
 def site_read(context, data_dict=None):
@@ -186,84 +178,6 @@ def current_package_list_with_resources(context, data_dict):
         'q': '', 'rows': limit, 'start': offset,
         'include_private': authz.is_sysadmin(user) })
     return search.get('results', [])
-
-
-def revision_list(context, data_dict):
-    '''Return a list of the IDs of the site's revisions. They are sorted with
-    the newest first.
-
-    Since the results are limited to 50 IDs, you can page through them using
-    parameter ``since_id``.
-
-    :param since_id: the revision ID after which you want the revisions
-    :type since_id: string
-    :param since_time: the timestamp after which you want the revisions
-    :type since_time: string
-    :param sort: the order to sort the related items in, possible values are
-      'time_asc', 'time_desc' (default). (optional)
-    :type sort: string
-    :rtype: list of revision IDs, limited to 50
-
-    '''
-    model = context['model']
-    since_id = data_dict.get('since_id')
-    since_time_str = data_dict.get('since_time')
-    sort_str = data_dict.get('sort')
-    PAGE_LIMIT = 50
-
-    _check_access('revision_list', context, data_dict)
-
-    since_time = None
-    if since_id:
-        rev = model.Session.query(model.Revision).get(since_id)
-        if rev is None:
-            raise NotFound
-        since_time = rev.timestamp
-    elif since_time_str:
-        try:
-            from ckan.lib import helpers as h
-            since_time = h.date_str_to_datetime(since_time_str)
-        except ValueError:
-            raise logic.ValidationError('Timestamp did not parse')
-    revs = model.Session.query(model.Revision)
-    if since_time:
-        revs = revs.filter(model.Revision.timestamp > since_time)
-
-    sortables = {
-        'time_asc': model.Revision.timestamp.asc,
-        'time_desc': model.Revision.timestamp.desc,
-    }
-    if sort_str and sort_str not in sortables:
-        raise logic.ValidationError(
-            'Invalid sort value. Allowable values: %r' % sortables.keys())
-    sort_func = sortables.get(sort_str or 'time_desc')
-    revs = revs.order_by(sort_func())
-
-    revs = revs.limit(PAGE_LIMIT)
-    return [rev_.id for rev_ in revs]
-
-
-def package_revision_list(context, data_dict):
-    '''Return a dataset (package)'s revisions as a list of dictionaries.
-
-    :param id: the id or name of the dataset
-    :type id: string
-
-    '''
-    model = context["model"]
-    id = _get_or_bust(data_dict, "id")
-    pkg = model.Package.get(id)
-    if pkg is None:
-        raise NotFound
-
-    _check_access('package_revision_list', context, data_dict)
-
-    revision_dicts = []
-    for revision, object_revisions in pkg.all_related_revisions:
-        revision_dicts.append(model.revision_as_dict(revision,
-                                                     include_packages=False,
-                                                     include_groups=False))
-    return revision_dicts
 
 
 def member_list(context, data_dict=None):
@@ -718,57 +632,6 @@ def organization_list_for_user(context, data_dict):
     return orgs_list
 
 
-def _group_or_org_revision_list(context, data_dict):
-    '''Return a group's revisions.
-
-    :param id: the name or id of the group
-    :type id: string
-
-    :rtype: list of dictionaries
-
-    '''
-    model = context['model']
-    id = _get_or_bust(data_dict, 'id')
-    group = model.Group.get(id)
-    if group is None:
-        raise NotFound
-
-    revision_dicts = []
-    for revision, object_revisions in group.all_related_revisions:
-        revision_dicts.append(model.revision_as_dict(revision,
-                                                     include_packages=False,
-                                                     include_groups=False))
-    return revision_dicts
-
-
-def group_revision_list(context, data_dict):
-    '''Return a group's revisions.
-
-    :param id: the name or id of the group
-    :type id: string
-
-    :rtype: list of dictionaries
-
-    '''
-
-    _check_access('group_revision_list', context, data_dict)
-    return _group_or_org_revision_list(context, data_dict)
-
-
-def organization_revision_list(context, data_dict):
-    '''Return an organization's revisions.
-
-    :param id: the name or id of the organization
-    :type id: string
-
-    :rtype: list of dictionaries
-
-    '''
-
-    _check_access('organization_revision_list', context, data_dict)
-    return _group_or_org_revision_list(context, data_dict)
-
-
 def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
 
@@ -841,14 +704,13 @@ def user_list(context, data_dict):
       string (optional) (you must be a sysadmin to use this filter)
     :type email: string
     :param order_by: which field to sort the list by (optional, default:
-      ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
+      ``'name'``). Can be any user field.
     :type order_by: string
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
     :type all_fields: bool
 
     :rtype: list of user dictionaries. User properties include:
-      ``number_of_edits`` which counts the revisions by the user and
       ``number_created_packages`` which excludes datasets which are private
       or draft state.
 
@@ -870,10 +732,6 @@ def user_list(context, data_dict):
             model.User.about.label('about'),
             model.User.about.label('email'),
             model.User.created.label('created'),
-            _select(
-                [_func.count(model.Revision.id)],
-                model.Revision.author == model.User.name
-            ).label('number_of_edits'),
             _select([_func.count(model.Package.id)],
                     _and_(
                         model.Package.creator_user_id == model.User.id,
@@ -890,16 +748,13 @@ def user_list(context, data_dict):
         query = query.filter_by(email=email)
 
     if order_by == 'edits':
-        query = query.order_by(_desc(
-            _select([_func.count(model.Revision.id)],
-                    model.Revision.author == model.User.name)))
-    else:
-        query = query.order_by(
-            _case([(
-                _or_(model.User.fullname == None,
-                     model.User.fullname == ''),
-                model.User.name)],
-                else_=model.User.fullname))
+        raise ValidationError('order_by=edits is no longer supported')
+    query = query.order_by(
+        _case([(
+            _or_(model.User.fullname == None,
+                    model.User.fullname == ''),
+            model.User.name)],
+            else_=model.User.fullname))
 
     # Filter deleted users
     query = query.filter(model.User.state != model.State.DELETED)
@@ -1166,28 +1021,6 @@ def resource_view_list(context, data_dict):
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
 
-@logic.auth_audit_exempt
-def revision_show(context, data_dict):
-    '''Return the details of a revision.
-
-    :param id: the id of the revision
-    :type id: string
-
-    :rtype: dictionary
-    '''
-    model = context['model']
-    api = context.get('api_version')
-    id = _get_or_bust(data_dict, 'id')
-    ref_package_by = 'id' if api == 2 else 'name'
-
-    rev = model.Session.query(model.Revision).get(id)
-    if rev is None:
-        raise NotFound
-    rev_dict = model.revision_as_dict(rev, include_packages=True,
-                                      ref_package_by=ref_package_by)
-    return rev_dict
-
-
 def _group_or_org_show(context, data_dict, is_org=False):
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
@@ -1430,7 +1263,7 @@ def user_show(context, data_dict):
         (sysadmin only, optional, default:``False``)
     :type include_password_hash: bool
 
-    :returns: the details of the user. Includes email_hash, number_of_edits and
+    :returns: the details of the user. Includes email_hash and
         number_created_packages (which excludes draft or private datasets
         unless it is the same user or sysadmin making the request). Excludes
         the password (hash) and reset_key. If it is the same user or a
@@ -1910,9 +1743,8 @@ def package_search(context, data_dict):
             for package in query.results:
                 if isinstance(package, text_type):
                     package = {result_fl[0]: package}
-                if package.get('extras'):
-                    package.update(package['extras'] )
-                    package.pop('extras')
+                extras = package.pop('extras', {})
+                package.update(extras)
                 results.append(package)
         else:
             for package in query.results:
@@ -3541,7 +3373,7 @@ def config_option_list(context, data_dict):
 
     schema = ckan.logic.schema.update_configuration_schema()
 
-    return schema.keys()
+    return list(schema.keys())
 
 
 @logic.validate(logic.schema.job_list_schema)

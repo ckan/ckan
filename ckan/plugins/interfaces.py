@@ -39,6 +39,7 @@ __all__ = [
     u'IBlueprint',
     u'IPermissionLabels',
     u'IForkObserver',
+    u'IClick',
 ]
 
 
@@ -89,7 +90,7 @@ class IMiddleware(Interface):
 
             class MyPlugin(p.SingletonPlugin):
 
-                p.implements(p.I18nMiddleware)
+                p.implements(p.Middleware)
 
                 def make_middleware(app, config):
 
@@ -1779,3 +1780,30 @@ class IForkObserver(Interface):
         u'''
         Called shortly before the CKAN process is forked.
         '''
+
+
+class IClick(Interface):
+    u'''
+    Allow extensions to define click commands.
+    '''
+    def get_commands(self):
+        u'''
+        Return a list of command functions objects
+        to be registered by the click.add_command.
+
+        Example::
+
+            p.implements(p.IClick)
+            # IClick
+            def get_commands(self):
+                """Call me via: `ckan hello`"""
+                import click
+                @click.command()
+                def hello():
+                    click.echo('Hello, World!')
+                return [hello]
+
+        :returns: command functions objects
+        :rtype: list of function objects
+        '''
+        return []

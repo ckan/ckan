@@ -31,7 +31,7 @@ and the release is tagged in the form ``ckan-M.m.p``. All backports are cherry-p
         |                                         |
         +-----+-------------+------>  dev-v2.6    +------->  dev-v2.7
               |             |
-          ckan-2.6.0    ckan-2.6.1       
+          ckan-2.6.0    ckan-2.6.1
 
 
 Additionally, the ``release-vM.m-latest`` branches always contain the latest
@@ -41,7 +41,7 @@ published release for that version (eg ``2.6.1`` on the example above).
 .. note::
 
     Prior to CKAN 2.6, release branches were named ``release-vM.m.p``, after the
-    :ref:`major, minor and patch versions <releases>` they included, and patch releases 
+    :ref:`major, minor and patch versions <releases>` they included, and patch releases
     were always branched from the most recent tip of the previous patch release branch
     (tags were created with the same convention).
     Starting from CKAN 2.6, the convention is the one described above.
@@ -96,7 +96,7 @@ Turn this file into a github issue with a checklist using this command::
    cherry-picked from master, the less compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
-        ./bin/less --production
+        npm run build
         git commit -am "Rebuild CSS"
         git push
 
@@ -115,7 +115,7 @@ Turn this file into a github issue with a checklist using this command::
 
 #. Create the documentation branch from the release branch. This branch should be named
    just with the minor version and nothing else (eg ``2.7``, ``2.8``, etc). We will use
-   this branch to build the documentation in Read the Docs on all patch releases for 
+   this branch to build the documentation in Read the Docs on all patch releases for
    this version.
 
 #. Make latest translation strings available on Transifex.
@@ -334,7 +334,7 @@ a release.
 
 #. Run the most thorough tests::
 
-        nosetests ckan/tests --ckan --ckan-migration --with-pylons=test-core.ini
+        pytest --ckan-ini=test-core.ini ckan/tests
 
 #. Do a final build of the front-end, add the generated files to the repo and
    commit the changes::
@@ -413,7 +413,7 @@ a release.
 
    (You will need an admin account.)
 
-   a. Make sure the documentation branch is up to date with the latest changes in the 
+   a. Make sure the documentation branch is up to date with the latest changes in the
       corresponding ``dev-vX.Y`` branch.
 
    b. If this is the first time a minor version is released, go to the
@@ -473,7 +473,7 @@ Preparing patch releases
 
    These are usually marked on Github using the ``Backport Pending`` `labels`_ and the
    relevant labels for the versions they should be cherry-picked to (eg ``Backport 2.5.3``).
-   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the 
+   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the
    cherry-picking has been done (but leave the version ones).
 
 #. Ask the tech team if there are security fixes or other fixes to include.
@@ -522,7 +522,7 @@ Doing the patch releases
 
         python setup.py sdist upload
 
-#. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the 
+#. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the
    corresponding ``dev-vX.Y`` branch.
 
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.

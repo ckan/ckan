@@ -16,9 +16,8 @@ from sqlalchemy import (
 )
 
 import ckan.model
-import meta
-import types as _types
-import domain_object
+from ckan.model import meta
+from ckan.model import domain_object, types as _types
 
 __all__ = ['Activity', 'activity_table',
            'ActivityDetail', 'activity_detail_table',
@@ -30,6 +29,7 @@ activity_table = Table(
     Column('timestamp', types.DateTime),
     Column('user_id', types.UnicodeText),
     Column('object_id', types.UnicodeText),
+    # legacy revision_id values are used by migrate_package_activity.py
     Column('revision_id', types.UnicodeText),
     Column('activity_type', types.UnicodeText),
     Column('data', _types.JsonDictType),
@@ -49,12 +49,11 @@ activity_detail_table = Table(
 class Activity(domain_object.DomainObject):
 
     def __init__(
-            self, user_id, object_id, revision_id, activity_type, data=None):
+            self, user_id, object_id, activity_type, data=None):
         self.id = _types.make_uuid()
         self.timestamp = datetime.datetime.utcnow()
         self.user_id = user_id
         self.object_id = object_id
-        self.revision_id = revision_id
         self.activity_type = activity_type
         if data is None:
             self.data = {}

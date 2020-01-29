@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-import nose
+
+import pytest
 
 import ckan.plugins as p
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
 from ckan.logic.action.get import package_list as core_package_list
 
-from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
 
-assert_equals = nose.tools.assert_equals
-assert_raises = nose.tools.assert_raises
-
-package_list_message = u'The content of this message is largely irrelevant'
+package_list_message = u"The content of this message is largely irrelevant"
 
 
 class TestActionException(Exception):
@@ -20,19 +17,21 @@ class TestActionException(Exception):
 
 @p.toolkit.chained_action
 def datastore_delete(up_func, context, data_dict):
-    res = helpers.call_action(u"datastore_search",
-                              resource_id=data_dict[u'resource_id'],
-                              filters=data_dict[u'filters'],
-                              limit=10,)
+    res = helpers.call_action(
+        u"datastore_search",
+        resource_id=data_dict[u"resource_id"],
+        filters=data_dict[u"filters"],
+        limit=10,
+    )
     result = up_func(context, data_dict)
-    result['deleted_count'] = res.get(u'total', 0)
+    result["deleted_count"] = res.get(u"total", 0)
     return result
 
 
 @p.toolkit.chained_action
 def package_list(next_func, context, data_dict):
     # check it's received the core function as the first arg
-    assert_equals(next_func, core_package_list)
+    assert next_func == core_package_list
     raise TestActionException(package_list_message)
 
 
@@ -40,50 +39,60 @@ class ExampleDataStoreDeletedWithCountPlugin(p.SingletonPlugin):
     p.implements(p.IActions)
 
     def get_actions(self):
-        return ({u'datastore_delete': datastore_delete,
-                 u'package_list': package_list})
+        return {
+            u"datastore_delete": datastore_delete,
+            u"package_list": package_list,
+        }
 
 
-class TestChainedAction(DatastoreFunctionalTestBase):
-    _load_plugins = (
-        u'datastore',
-        u'example_datastore_deleted_with_count_plugin')
-
+@pytest.mark.usefixtures(u"with_request_context")
+class TestChainedAction(object):
+    @pytest.mark.ckan_config(
+        u"ckan.plugins",
+        u"datastore example_datastore_deleted_with_count_plugin",
+    )
+    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_datastore_delete_filters(self):
-        records = [
-            {u'age': 20}, {u'age': 30}, {u'age': 40}
-        ]
+        records = [{u"age": 20}, {u"age": 30}, {u"age": 40}]
         resource = self._create_datastore_resource(records)
-        filters = {u'age': 30}
+        filters = {u"age": 30}
 
-        response = helpers.call_action(u'datastore_delete',
-                                       resource_id=resource[u'id'],
-                                       force=True,
-                                       filters=filters)
+        response = helpers.call_action(
+            u"datastore_delete",
+            resource_id=resource[u"id"],
+            force=True,
+            filters=filters,
+        )
 
-        result = helpers.call_action(u'datastore_search',
-                                     resource_id=resource[u'id'])
+        result = helpers.call_action(
+            u"datastore_search", resource_id=resource[u"id"]
+        )
 
-        new_records_ages = [r[u'age'] for r in result[u'records']]
+        new_records_ages = [r[u"age"] for r in result[u"records"]]
         new_records_ages.sort()
-        assert_equals(new_records_ages, [20, 40])
-        assert_equals(response['deleted_count'], 1)
+        assert new_records_ages == [20, 40]
+        assert response["deleted_count"] == 1
 
     def _create_datastore_resource(self, records):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset)
 
         data = {
-            u'resource_id': resource[u'id'],
-            u'force': True,
-            u'records': records
+            u"resource_id": resource[u"id"],
+            u"force": True,
+            u"records": records,
         }
 
-        helpers.call_action(u'datastore_create', **data)
+        helpers.call_action(u"datastore_create", **data)
 
         return resource
 
+    @pytest.mark.ckan_config(
+        u"ckan.plugins",
+        u"datastore example_datastore_deleted_with_count_plugin",
+    )
+    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_chain_core_action(self):
-        with assert_raises(TestActionException) as raise_context:
-            helpers.call_action(u'package_list', {})
-        assert_equals(raise_context.exception.message, package_list_message)
+        with pytest.raises(TestActionException) as raise_context:
+            helpers.call_action(u"package_list", {})
+        assert raise_context.value.args == (package_list_message, )

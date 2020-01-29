@@ -1,68 +1,49 @@
 # encoding: utf-8
 
-import nose
+import pytest
 
 from ckan import authz as auth
 
-from ckan.tests import helpers
+_check = auth.check_config_permission
 
 
-assert_equals = nose.tools.assert_equals
+@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", None)
+@pytest.mark.parametrize(
+    "perm", ["anon_create_dataset", "ckan.auth.anon_create_dataset"]
+)
+def test_get_default_value_if_not_set_in_config(perm):
+    assert (
+        _check(perm) == auth.CONFIG_PERMISSIONS_DEFAULTS["anon_create_dataset"]
+    )
 
 
-class TestCheckConfigPermission(object):
+@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
+def test_config_overrides_default():
+    assert _check("anon_create_dataset") is True
 
-    @helpers.change_config('ckan.auth.anon_create_dataset', None)
-    def test_get_default_value_if_not_set_in_config(self):
 
-        assert_equals(auth.check_config_permission(
-            'anon_create_dataset'),
-            auth.CONFIG_PERMISSIONS_DEFAULTS['anon_create_dataset'])
+@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
+def test_config_override_also_works_with_prefix():
+    assert _check("ckan.auth.anon_create_dataset") is True
 
-    @helpers.change_config('ckan.auth.anon_create_dataset', None)
-    def test_get_default_value_also_works_with_prefix(self):
 
-        assert_equals(auth.check_config_permission(
-            'ckan.auth.anon_create_dataset'),
-            auth.CONFIG_PERMISSIONS_DEFAULTS['anon_create_dataset'])
+@pytest.mark.ckan_config("ckan.auth.unknown_permission", True)
+def test_unknown_permission_returns_false():
+    assert _check("unknown_permission") is False
 
-    @helpers.change_config('ckan.auth.anon_create_dataset', True)
-    def test_config_overrides_default(self):
 
-        assert_equals(auth.check_config_permission(
-            'anon_create_dataset'),
-            True)
+def test_unknown_permission_not_in_config_returns_false():
+    assert _check("unknown_permission") is False
 
-    @helpers.change_config('ckan.auth.anon_create_dataset', True)
-    def test_config_override_also_works_with_prefix(self):
 
-        assert_equals(auth.check_config_permission(
-            'ckan.auth.anon_create_dataset'),
-            True)
+def test_default_roles_that_cascade_to_sub_groups_is_a_list():
+    assert isinstance(_check("roles_that_cascade_to_sub_groups"), list)
 
-    @helpers.change_config('ckan.auth.unknown_permission', True)
-    def test_unknown_permission_returns_false(self):
 
-        assert_equals(auth.check_config_permission(
-            'unknown_permission'),
-            False)
-
-    def test_unknown_permission_not_in_config_returns_false(self):
-
-        assert_equals(auth.check_config_permission(
-            'unknown_permission'),
-            False)
-
-    def test_default_roles_that_cascade_to_sub_groups_is_a_list(self):
-
-        assert isinstance(auth.check_config_permission(
-            'roles_that_cascade_to_sub_groups'),
-            list)
-
-    @helpers.change_config('ckan.auth.roles_that_cascade_to_sub_groups',
-                           'admin editor')
-    def test_roles_that_cascade_to_sub_groups_is_a_list(self):
-
-        assert_equals(sorted(auth.check_config_permission(
-            'roles_that_cascade_to_sub_groups')),
-            sorted(['admin', 'editor']))
+@pytest.mark.ckan_config(
+    "ckan.auth.roles_that_cascade_to_sub_groups", "admin editor"
+)
+def test_roles_that_cascade_to_sub_groups_is_a_list():
+    assert sorted(_check("roles_that_cascade_to_sub_groups")) == sorted(
+        ["admin", "editor"]
+    )

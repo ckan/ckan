@@ -5,10 +5,8 @@ Redis utilities.
 
 .. versionadded:: 2.7
 '''
-
 from __future__ import absolute_import
 
-import datetime
 import logging
 
 from redis import ConnectionPool, Redis

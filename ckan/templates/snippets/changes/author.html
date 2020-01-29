@@ -1,0 +1,42 @@
+<li>
+  <p>
+    {% if change.method == "change" %}
+
+      {{ _('Set author of {pkg_link} to {new_author} (previously {old_author})').format(
+          pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
+            pkg_url = h.url_for(controller='dataset',
+                                action='read', id=change.pkg_id),
+            pkg_name = change.title
+          )|safe,
+          new_author = change.new_author,
+          old_author = change.old_author
+      ) }}
+
+    {% elif change.method == "add" %}
+
+      {{ _('Set author of {pkg_link} to {new_author}').format(
+          pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
+            pkg_url = h.url_for(controller='dataset',
+                                action='read', id=change.pkg_id),
+            pkg_name = change.title
+          )|safe,
+          new_author = change.new_author
+      ) }}
+
+    {% elif change.method == "remove" %}
+
+      {{ _('Removed author from {pkg_link}').format(
+          pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
+            pkg_url = h.url_for(controller='dataset',
+                                action='read', id=change.pkg_id),
+            pkg_name = change.title
+          )|safe
+      ) }}
+
+    {% else %}
+
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
+
+    {% endif %}
+  </p>
+</li>

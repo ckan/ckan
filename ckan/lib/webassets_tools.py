@@ -3,16 +3,19 @@
 import logging
 import os
 import tempfile
+import yaml
 
 from markupsafe import Markup
 from webassets import Environment
 from webassets.loaders import YAMLLoader
 
-from ckan.common import config, g
+from ckan.common import config, g, asbool
 
 
 logger = logging.getLogger(__name__)
 env = None
+
+yaml.warnings({u'YAMLLoadWarning': False})
 
 
 def create_library(name, path):
@@ -55,7 +58,7 @@ def webassets_init():
 
     env = Environment()
     env.directory = static_path
-    env.debug = config.get(u'debug', False)
+    env.debug = asbool(config.get(u'debug', False))
     env.url = u'/webassets/'
 
     add_public_path(base_path, u'/base/')

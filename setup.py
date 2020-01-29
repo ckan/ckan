@@ -25,7 +25,9 @@ from ckan import (__version__, __description__, __long_description__,
 #
 
 def parse_version(s):
-    return map(int, s.split('.'))
+    return [int(part) for part in s.split('.')]
+
+
 
 HERE = os.path.dirname(__file__)
 with open(os.path.join(HERE, 'requirement-setuptools.txt')) as f:
@@ -42,9 +44,6 @@ if parse_version(setuptools_version) < min_setuptools_version:
 
 
 entry_points = {
-    'nose.plugins.0.10': [
-        'main = ckan.ckan_nose_plugin:CkanNose',
-    ],
     'paste.app_factory': [
         'main = ckan.config.middleware:make_app',
     ],
@@ -114,6 +113,8 @@ entry_points = {
         'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
         'datatables_view = ckanext.datatablesview.plugin:DataTablesView',
         'image_view = ckanext.imageview.plugin:ImageView',
+        'audio_view = ckanext.audioview.plugin:AudioView',
+        'video_view = ckanext.videoview.plugin:VideoView',
         'webpage_view = ckanext.webpageview.plugin:WebPageView',
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
@@ -175,6 +176,7 @@ entry_points = {
         'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
         'example_idatastorebackend = ckanext.example_idatastorebackend.plugin:ExampleIDatastoreBackendPlugin',
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
+        'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
@@ -203,6 +205,7 @@ entry_points = {
         'test_helpers_plugin = ckan.tests.lib.test_helpers:TestHelpersPlugin',
         'test_feed_plugin = ckan.tests.controllers.test_feed:MockFeedPlugin',
         'test_js_translations_plugin = ckan.tests.lib.test_i18n:TestJSTranslationsPlugin',
+        'legacy_mock_search_plugin = ckan.tests.legacy.logic.test_action:MockPackageSearchPlugin',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
@@ -242,7 +245,6 @@ setup(
     },
     entry_points=entry_points,
     # setup.py test command needs a TestSuite so does not work with py.test
-    # test_suite = 'nose.collector',
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers

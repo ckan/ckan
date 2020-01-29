@@ -3,27 +3,24 @@
 import datetime
 
 from six import text_type
-from sqlalchemy.util import OrderedDict
+from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-import vdm.sqlalchemy
-from sqlalchemy import types, func, Column, Table, ForeignKey, and_
+from sqlalchemy import types, func, Column, Table, ForeignKey
 
-import meta
-import core
-import package as _package
-import types as _types
-import extension
-import activity
-import domain_object
+from ckan.model import (
+    meta,
+    core,
+    types as _types,
+    extension,
+    domain_object,
+)
 import ckan.lib.dictization
 from .package import Package
 import ckan.model
 
-__all__ = ['Resource', 'resource_table',
-           'ResourceRevision', 'resource_revision_table',
-           ]
+__all__ = ['Resource', 'resource_table']
 
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
@@ -58,11 +55,7 @@ resource_table = Table(
 )
 
 
-resource_revision_table = core.make_revisioned_table(resource_table)
-
-
-class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
-               core.StatefulObjectMixin,
+class Resource(core.StatefulObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
 
@@ -173,21 +166,8 @@ meta.mapper(Resource, resource_table, properties={
                             ),
     )
 },
-extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
-           extension.PluginMapperExtension(),
-           ],
+extension=[extension.PluginMapperExtension()],
 )
-
-
-## VDM
-
-vdm.sqlalchemy.modify_base_object_mapper(Resource, core.Revision, core.State)
-ResourceRevision = vdm.sqlalchemy.create_object_version(
-    meta.mapper, Resource, resource_revision_table)
-
-ResourceRevision.related_packages = lambda self: [
-    self.continuity.resouce_group.package
-]
 
 
 def resource_identifier(obj):

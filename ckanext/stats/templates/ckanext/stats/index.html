@@ -6,53 +6,6 @@
 
 {% block primary_content %}
   <article class="module">
-    <section id="stats-total-datasets" class="module-content tab-content active">
-      <h2>{{ _('Total number of Datasets') }}</h2>
-
-      {% set xaxis = {'mode': 'time', 'timeformat': '%y-%b'} %}
-      {% set yaxis = {'min': 0} %}
-      <table class="table table-chunky table-bordered table-striped" data-module="plot" data-module-xaxis="{{ h.dump_json(xaxis) }}" data-module-yaxis="{{ h.dump_json(yaxis) }}">
-        <thead>
-          <tr>
-            <th>{{ _("Date") }}</th>
-            <th>{{ _("Total datasets") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in c.raw_packages_by_week %}
-            <tr>
-              <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
-              <td>{{ row.total_packages }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </section>
-
-    <section id="stats-dataset-revisions" class="module-content tab-content">
-      <h2>{{ _('Dataset Revisions per Week') }}</h2>
-
-      {% set xaxis = {'mode': 'time', 'timeformat': '%y-%b'} %}
-      {% set lines = {'fill': 1} %}
-      <table class="table table-chunky table-bordered table-striped" data-module="plot" data-module-xaxis="{{ h.dump_json(xaxis) }}" data-module-lines="{{ h.dump_json(lines) }}">
-        <thead>
-          <tr>
-            <th>{{ _("Date") }}</th>
-            <th>{{ _("All dataset revisions") }}</th>
-            <th>{{ _("New datasets") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in c.raw_all_package_revisions %}
-            <tr>
-              <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
-              <td>{{ row.total_revisions }}</td>
-              <td>{{ c.raw_new_datasets[loop.index0].new_packages }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </section>
 
     <section id="stats-top-rated" class="module-content tab-content">
       <h2>{{ _('Top Rated Datasets') }}</h2>
@@ -77,30 +30,6 @@
         </table>
       {% else %}
         <p class="empty">{{ _('No ratings') }}</p>
-      {% endif %}
-    </section>
-
-    <section id="stats-most-edited" class="module-content tab-content">
-      <h2>{{ _('Most Edited Datasets') }}</h2>
-      {% if c.most_edited_packages %}
-        <table class="table table-chunky table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>{{ _('Dataset') }}</th>
-              <th class="metric">{{ _('Number of edits') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for package, edits in c.most_edited_packages %}
-              <tr py:for="package, edits in c.most_edited_packages">
-                <td>{{ h.link_to(package.title or package.name, h.url_for('dataset.read', id=package.name)) }}</td>
-                <td class="metric">{{ edits }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="empty">{{ _('No edited datasets') }}</p>
       {% endif %}
     </section>
 
@@ -175,9 +104,7 @@
     <h2 class="module-heading"><i class="fa fa-bar-chart-o fa-medium"></i> {{ _('Statistics Menu') }}</h2>
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
-        <li class="nav-item active"><a href="#stats-total-datasets" data-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
-        <li class="nav-item"><a href="#stats-dataset-revisions" data-toggle="tab">{{ _('Dataset Revisions per Week') }}</a></li>
-        <li class="nav-item"><a href="#stats-top-rated" data-toggle="tab">{{ _('Top Rated Datasets') }}</a></li>
+        <li class="nav-item active"><a href="#stats-top-rated" data-toggle="tab">{{ _('Top Rated Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-most-edited" data-toggle="tab">{{ _('Most Edited Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-largest-groups" data-toggle="tab">{{ _('Largest Groups') }}</a></li>
         <li class="nav-item"><a href="#stats-top-tags" data-toggle="tab">{{ _('Top Tags') }}</a></li>

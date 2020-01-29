@@ -5,11 +5,11 @@ import cgi
 from paste.urlparser import PkgResourcesParser
 from pylons import request
 from pylons.controllers.util import forward
-from webhelpers.html.builder import literal
 
 from ckan.common import c
 from ckan.lib.base import BaseController
 from ckan.lib.base import render
+from ckan.lib.helpers import literal
 
 
 class ErrorController(BaseController):
@@ -45,7 +45,7 @@ class ErrorController(BaseController):
             cgi.escape(request.GET.get('message', ''))
         prefix = request.environ.get('SCRIPT_NAME', ''),
         code = cgi.escape(request.GET.get('code',
-                          str(original_response.status_int))),
+                          str(original_response.status_int)))
         extra_vars = {'code': code, 'content': content, 'prefix': prefix}
         return render('error_document_template.html', extra_vars=extra_vars)
 

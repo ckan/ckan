@@ -12,30 +12,29 @@ import re
 import os
 import pytz
 import tzlocal
-import urllib
 import pprint
 import copy
-import urlparse
-from urllib import urlencode
 import uuid
 
 from paste.deploy import converters
-from webhelpers.html import HTML, literal, tags, tools
-from webhelpers import paginate
-import webhelpers.text as whtext
-import webhelpers.date as date
+
+import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
-from flask import _request_ctx_stack, current_app
-from routes import redirect_to as _routes_redirect_to
-from routes import url_for as _routes_default_url_for
+from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
-import i18n
+from ckan.lib import i18n
+
+import six
 from six import string_types, text_type
+from six.moves.urllib.parse import (
+    urlencode, quote, unquote, urlparse, urlunparse
+)
+from six.moves import map
+import jinja2
 
 import ckan.exceptions
 import ckan.model as model
@@ -48,9 +47,15 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
+from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
+
+if six.PY2:
+    from pylons import url as _pylons_default_url
+    from routes import redirect_to as _routes_redirect_to
+    from routes import url_for as _routes_default_url_for
 
 
 log = logging.getLogger(__name__)
@@ -104,6 +109,19 @@ class HelperAttributeDict(dict):
 # Builtin helper functions.
 _builtin_functions = {}
 helper_functions = HelperAttributeDict()
+
+
+class literal(Markup):
+    """Represents an HTML literal.
+
+    """
+    __slots__ = ()
+
+    @classmethod
+    def escape(cls, s):
+        if s is None:
+            return Markup(u"")
+        return super(literal, cls).escape(s)
 
 
 def core_helper(f, name=None):
@@ -184,8 +202,7 @@ def redirect_to(*args, **kw):
         kw['__no_cache__'] = True
 
     # Routes router doesn't like unicode args
-    uargs = map(lambda arg: str(arg) if isinstance(arg, text_type) else arg,
-                args)
+    uargs = [str(arg) if isinstance(arg, text_type) else arg for arg in args]
 
     _url = ''
     skip_url_parsing = False
@@ -232,11 +249,14 @@ def get_site_protocol_and_host():
     '''
     site_url = config.get('ckan.site_url', None)
     if site_url is not None:
-        parsed_url = urlparse.urlparse(site_url)
-        return (
-            parsed_url.scheme.encode('utf-8'),
-            parsed_url.netloc.encode('utf-8')
-        )
+        parsed_url = urlparse(site_url)
+        if six.PY2:
+            return (
+                parsed_url.scheme.encode('utf-8'),
+                parsed_url.netloc.encode('utf-8')
+            )
+        else:
+            return (parsed_url.scheme, parsed_url.netloc)
     return (None, None)
 
 
@@ -247,7 +267,6 @@ def _get_auto_flask_context():
     '''
 
     from ckan.config.middleware import _internal_test_request_context
-    from ckan.lib.cli import _cli_test_request_context
 
     # This is a normal web request, there is a request context present
     if _request_ctx_stack.top:
@@ -258,10 +277,18 @@ def _get_auto_flask_context():
     if _internal_test_request_context:
         return _internal_test_request_context
 
-    # We are outside a web request. This is a CLI command. A test request
-    # context was created when setting it up
-    if _cli_test_request_context:
-        return _cli_test_request_context
+    from ckan.tests.pytest_ckan.ckan_setup import _tests_test_request_context
+    if _tests_test_request_context:
+        return _tests_test_request_context
+
+    if six.PY2:
+
+        from ckan.lib.cli import _cli_test_request_context
+
+        # We are outside a web request. This is a CLI command. A test request
+        # context was created when setting it up
+        if _cli_test_request_context:
+            return _cli_test_request_context
 
 
 @core_helper
@@ -317,7 +344,6 @@ def url_for(*args, **kw):
             raise Exception('API URLs must specify the version (eg ver=3)')
 
     _auto_flask_context = _get_auto_flask_context()
-
     try:
         if _auto_flask_context:
             _auto_flask_context.push()
@@ -329,9 +355,11 @@ def url_for(*args, **kw):
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
-
-        # If it doesn't succeed, fallback to the Pylons router
-        my_url = _url_for_pylons(*args, **kw)
+        if six.PY2:
+            # If it doesn't succeed, fallback to the Pylons router
+            my_url = _url_for_pylons(*args, **kw)
+        else:
+            raise
     finally:
         if _auto_flask_context:
             _auto_flask_context.pop()
@@ -385,7 +413,30 @@ def _url_for_flask(*args, **kw):
         kw['ver'] = kw['ver'].replace('/', '')
 
     # Try to build the URL with flask.url_for
-    my_url = _flask_default_url_for(*args, **kw)
+    try:
+        my_url = _flask_default_url_for(*args, **kw)
+    except FlaskRouteBuildError:
+        # Check if this a relative path
+        if len(args) and args[0].startswith('/'):
+            my_url = args[0]
+            if request.environ.get('SCRIPT_NAME'):
+                my_url = request.environ['SCRIPT_NAME'] + my_url
+            kw.pop('host', None)
+            kw.pop('protocol', None)
+            if kw:
+                my_url += '?'
+                query_args = []
+                for key, val in kw.items():
+                    if isinstance(val, (list, tuple)):
+                        for value in val:
+                            query_args.append(
+                                u'{}={}'.format(quote(key), quote(value)))
+                    else:
+                        query_args.append(
+                            u'{}={}'.format(quote(key), quote(val)))
+                my_url += '&'.join(query_args)
+        else:
+            raise
 
     if external:
         # Don't rely on the host generated by Flask, as SERVER_NAME might not
@@ -394,9 +445,9 @@ def _url_for_flask(*args, **kw):
         # Flask to pass the host explicitly, so we rebuild the URL manually
         # based on `ckan.site_url`, which is essentially what we did on Pylons
         protocol, host = get_site_protocol_and_host()
-        parts = urlparse.urlparse(my_url)
-        my_url = urlparse.urlunparse((protocol, host, parts.path, parts.params,
-                                      parts.query, parts.fragment))
+        parts = urlparse(my_url)
+        my_url = urlunparse((protocol, host, parts.path, parts.params,
+                             parts.query, parts.fragment))
 
     return my_url
 
@@ -421,6 +472,8 @@ def _url_for_pylons(*args, **kw):
                 not kw['ver'].startswith('/')):
             kw['ver'] = '/%s' % kw['ver']
 
+    if args:
+        args = (six.ensure_str(args[0]), ) + args[1:]
     # Try to build the URL with routes.url_for
     return _routes_default_url_for(*args, **kw)
 
@@ -434,7 +487,7 @@ def url_for_static(*args, **kw):
     This is a wrapper for :py:func:`routes.url_for`
     '''
     if args:
-        url = urlparse.urlparse(args[0])
+        url = urlparse(args[0])
         url_is_external = (url.scheme != '' or url.netloc != '')
         if url_is_external:
             CkanUrlException = ckan.exceptions.CkanUrlException
@@ -446,23 +499,25 @@ def url_for_static(*args, **kw):
 def url_for_static_or_external(*args, **kw):
     '''Returns the URL for static content that doesn't get translated (eg CSS),
     or external URLs
-
-    This is a wrapper for :py:func:`routes.url_for`
     '''
     def fix_arg(arg):
-        url = urlparse.urlparse(str(arg))
+        url = urlparse(str(arg))
         url_is_relative = (url.scheme == '' and url.netloc == '' and
                            not url.path.startswith('/'))
         if url_is_relative:
-            return '/' + url.geturl()
-        return url.geturl()
+            return False, '/' + url.geturl()
+
+        return bool(url.scheme), url.geturl()
 
     if args:
-        args = (fix_arg(args[0]), ) + args[1:]
+        is_external, fixed_url = fix_arg(args[0])
+        if is_external:
+            return fixed_url
+        args = (fixed_url, ) + args[1:]
     if kw.get('qualified', False):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
-    my_url = _routes_default_url_for(*args, **kw)
-    return _local_url(my_url, locale='default', **kw)
+    kw['locale'] = 'default'
+    return url_for(*args, **kw)
 
 
 @core_helper
@@ -473,7 +528,7 @@ def is_url(*args, **kw):
     if not args:
         return False
     try:
-        url = urlparse.urlparse(args[0])
+        url = urlparse(args[0])
     except ValueError:
         return False
 
@@ -496,6 +551,12 @@ def _local_url(url_to_amend, **kw):
     allowed_locales = ['default'] + i18n.get_locales()
     if locale and locale not in allowed_locales:
         locale = None
+
+    _auto_flask_context = _get_auto_flask_context()
+
+    if _auto_flask_context:
+        _auto_flask_context.push()
+
     if locale:
         if locale == 'default':
             default_locale = True
@@ -510,10 +571,19 @@ def _local_url(url_to_amend, **kw):
     if kw.get('qualified', False) or kw.get('_external', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
-        root = _routes_default_url_for('/',
-                                       qualified=True,
-                                       host=host,
-                                       protocol=protocol)[:-1]
+
+        parts = urlparse(
+            _flask_default_url_for('home.index', _external=True)
+        )
+
+        path = parts.path.rstrip('/')
+        root = urlunparse(
+            (protocol, host, path,
+                parts.params, parts.query, parts.fragment))
+
+    if _auto_flask_context:
+        _auto_flask_context.pop()
+
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
@@ -555,9 +625,9 @@ def url_is_local(url):
     '''Returns True if url is local'''
     if not url or url.startswith('//'):
         return False
-    parsed = urlparse.urlparse(url)
+    parsed = urlparse(url)
     if parsed.scheme:
-        domain = urlparse.urlparse(url_for('/', qualified=True)).netloc
+        domain = urlparse(url_for('/', qualified=True)).netloc
         if domain != parsed.netloc:
             return False
     return True
@@ -573,7 +643,7 @@ def full_current_url():
 @core_helper
 def current_url():
     ''' Returns current url unquoted'''
-    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
+    return unquote(request.environ['CKAN_CURRENT_URL'])
 
 
 @core_helper
@@ -763,12 +833,89 @@ def _link_to(text, *args, **kwargs):
         return text
 
     icon = kwargs.pop('icon', None)
-    class_ = _link_class(kwargs)
-    return tags.link_to(
+    cls = _link_class(kwargs)
+    return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
-        class_=class_
+        cls=cls
     )
+
+
+def _preprocess_dom_attrs(attrs):
+    """Strip leading underscore from keys of dict.
+
+    This hack was used in `webhelpers` library for some attributes,
+    like `class` that cannot be used because it special meaning in
+    Python.
+    """
+    return {
+        key.rstrip('_'): value
+        for key, value in attrs.items()
+        if value is not None
+    }
+
+
+def _make_safe_id_component(idstring):
+    """Make a string safe for including in an id attribute.
+
+    The HTML spec says that id attributes 'must begin with
+    a letter ([A-Za-z]) and may be followed by any number
+    of letters, digits ([0-9]), hyphens ("-"), underscores
+    ("_"), colons (":"), and periods (".")'. These regexps
+    are slightly over-zealous, in that they remove colons
+    and periods unnecessarily.
+
+    Whitespace is transformed into underscores, and then
+    anything which is not a hyphen or a character that
+    matches \\w (alphanumerics and underscore) is removed.
+
+    """
+    # Transform all whitespace to underscore
+    idstring = re.sub(r'\s', "_", '%s' % idstring)
+    # Remove everything that is not a hyphen or a member of \w
+    idstring = re.sub(r'(?!-)\W', "", idstring).lower()
+    return idstring
+
+
+def _input_tag(type, name, value=None, id=None, **attrs):
+    attrs = _preprocess_dom_attrs(attrs)
+    attrs.update(type=type, name=name, value=value)
+    if u"id" not in attrs:
+        attrs[u"id"] = id if id else _make_safe_id_component(name)
+
+    return dom_tags.input(**attrs)
+
+
+@core_helper
+def link_to(label, url, **attrs):
+    attrs = _preprocess_dom_attrs(attrs)
+    attrs['href'] = url
+    if label == '' or label is None:
+        label = url
+    return literal(dom_tags.a(label, **attrs))
+
+
+@core_helper
+def file(name, value=None, id=None, **attrs):
+    """Create a file upload field.
+
+    If you are using file uploads then you will also need to set the
+    multipart option for the form.
+
+    Example::
+
+        >>> file('myfile')
+        literal(u'<input id="myfile" name="myfile" type="file" />')
+
+    """
+    return literal(_input_tag(u"file", name, value, id, **attrs))
+
+
+@core_helper
+def submit(name, value=None, id=None, **attrs):
+    """Create a submit field.
+    """
+    return literal(_input_tag(u"submit", name, value, id, **attrs))
 
 
 @core_helper
@@ -936,7 +1083,7 @@ def build_extra_admin_nav():
     admin_tabs_dict = config.get('ckan.admin_tabs')
     output = ''
     if admin_tabs_dict:
-        for k, v in admin_tabs_dict.iteritems():
+        for k, v in six.iteritems(admin_tabs_dict):
             if v['icon']:
                 output += build_nav_icon(k, v['label'], icon=v['icon'])
             else:
@@ -1205,12 +1352,12 @@ def linked_user(user, maxlength=0, avatar=20):
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return tags.literal(u'{icon} {link}'.format(
+        return literal(u'{icon} {link}'.format(
             icon=gravatar(
                 email_hash=user.email_hash,
                 size=avatar
             ),
-            link=tags.link_to(
+            link=link_to(
                 displayname,
                 url_for('user.read', id=name)
             )
@@ -1226,6 +1373,49 @@ def group_name_to_title(name):
 
 
 @core_helper
+def truncate(text, length=30, indicator='...', whole_word=False):
+    """Truncate ``text`` with replacement characters.
+
+    ``length``
+        The maximum length of ``text`` before replacement
+    ``indicator``
+        If ``text`` exceeds the ``length``, this string will replace
+        the end of the string
+    ``whole_word``
+        If true, shorten the string further to avoid breaking a word in the
+        middle.  A word is defined as any string not containing whitespace.
+        If the entire text before the break is a single word, it will have to
+        be broken.
+
+    Example::
+
+        >>> truncate('Once upon a time in a world far far away', 14)
+        'Once upon a...'
+
+    TODO: try to replace it with built-in `textwrap.shorten`
+    (available starting from Python 3.4) when support for Python 2
+    completely dropped.
+    """
+    if not text:
+        return ""
+    if len(text) <= length:
+        return text
+    short_length = length - len(indicator)
+    if not whole_word:
+        return text[:short_length] + indicator
+    # Go back to end of previous word.
+    i = short_length
+    while i >= 0 and not text[i].isspace():
+        i -= 1
+    while i >= 0 and text[i].isspace():
+        i -= 1
+    if i <= 0:
+        # Entire text before break is one word, or we miscalculated.
+        return text[:short_length] + indicator
+    return text[:i + 1] + indicator
+
+
+@core_helper
 def markdown_extract(text, extract_length=190):
     ''' return the plain text representation of markdown encoded text.  That
     is the texted without any html tags.  If extract_length is 0 then it
@@ -1238,7 +1428,7 @@ def markdown_extract(text, extract_length=190):
 
     return literal(
         text_type(
-            whtext.truncate(
+            truncate(
                 plain,
                 length=extract_length,
                 indicator='...',
@@ -1332,7 +1522,7 @@ def gravatar(email_hash, size=100, default=None):
 
     if default not in _VALID_GRAVATAR_DEFAULTS:
         # treat the default as a url
-        default = urllib.quote(default, safe='')
+        default = quote(default, safe='')
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" width="%s" height="%s" alt="Gravatar" />'''
@@ -1354,45 +1544,6 @@ def pager_url(page, partial=None, **kwargs):
             kwargs['id'] = routes_dict['id']
     kwargs['page'] = page
     return url_for(*pargs, **kwargs)
-
-
-class Page(paginate.Page):
-    # Curry the pager method of the webhelpers.paginate.Page class, so we have
-    # our custom layout set as default.
-
-    def pager(self, *args, **kwargs):
-        kwargs.update(
-            format=u"<div class='pagination-wrapper'><ul class='pagination'>"
-            "$link_previous ~2~ $link_next</ul></div>",
-            symbol_previous=u'«', symbol_next=u'»',
-            curpage_attr={'class': 'active'}, link_attr={}
-        )
-        return super(Page, self).pager(*args, **kwargs)
-
-    # Put each page link into a <li> (for Bootstrap to style it)
-
-    def _pagerlink(self, page, text, extra_attributes=None):
-        anchor = super(Page, self)._pagerlink(page, text)
-        extra_attributes = extra_attributes or {}
-        return HTML.li(anchor, **extra_attributes)
-
-    # Change 'current page' link from <span> to <li><a>
-    # and '..' into '<li><a>..'
-    # (for Bootstrap to style them properly)
-
-    def _range(self, regexp_match):
-        html = super(Page, self)._range(regexp_match)
-        # Convert ..
-        dotdot = '<span class="pager_dotdot">..</span>'
-        dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
-        html = re.sub(dotdot, dotdot_link, html)
-
-        # Convert current page
-        text = '%s' % self.page
-        current_page_span = str(HTML.span(c=text, **self.curpage_attr))
-        current_page_link = self._pagerlink(self.page, text,
-                                            extra_attributes=self.curpage_attr)
-        return re.sub(current_page_span, current_page_link, html)
 
 
 @core_helper
@@ -1510,13 +1661,12 @@ def date_str_to_datetime(date_str):
         microseconds = int(m.groupdict(0).get('microseconds'))
         time_tuple = time_tuple[:5] + [seconds, microseconds]
 
-    return datetime.datetime(*map(int, time_tuple))
+    return datetime.datetime(*list(int(item) for item in time_tuple))
 
 
 @core_helper
 def parse_rfc_2822_date(date_str, assume_utc=True):
-    '''
-    Parse a date string of the form specified in RFC 2822, and return a
+    '''Parse a date string of the form specified in RFC 2822, and return a
     datetime.
 
     RFC 2822 is the date format used in HTTP headers.  It should contain
@@ -1533,6 +1683,10 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
     datetime is 'aware', ie - it has an associated tz_info object.
 
     Returns None if the string cannot be parsed as a valid datetime.
+
+    Note: in Python3, `email.utils` always assume UTC if there is no
+    timezone, so `assume_utc` has no sense in this version.
+
     '''
     time_tuple = email.utils.parsedate_tz(date_str)
 
@@ -1583,19 +1737,6 @@ class _RFC2282TzInfo(datetime.tzinfo):
 
 
 @core_helper
-@maintain.deprecated('h.time_ago_in_words_from_str is deprecated in 2.2 '
-                     'and will be removed.  Please use '
-                     'h.time_ago_from_timestamp instead')
-def time_ago_in_words_from_str(date_str, granularity='month'):
-    '''Deprecated in 2.2 use time_ago_from_timestamp'''
-    if date_str:
-        return date.time_ago_in_words(date_str_to_datetime(date_str),
-                                      granularity=granularity)
-    else:
-        return _('Unknown')
-
-
-@core_helper
 def time_ago_from_timestamp(timestamp):
     ''' Returns a string like `5 months ago` for a datetime relative to now
     :param timestamp: the timestamp or datetime
@@ -1636,7 +1777,7 @@ def dataset_link(package_or_package_dict):
     else:
         name = package_or_package_dict.name
     text = dataset_display_name(package_or_package_dict)
-    return tags.link_to(
+    return link_to(
         text,
         url_for('dataset.read', id=name)
     )
@@ -1665,26 +1806,26 @@ def resource_link(resource_dict, package_id):
     url = url_for('resource.read',
                   id=package_id,
                   resource_id=resource_dict['id'])
-    return tags.link_to(text, url)
+    return link_to(text, url)
 
 
 @core_helper
 def tag_link(tag):
     url = url_for('dataset.search', tags=tag['name'])
-    return tags.link_to(tag.get('title', tag['name']), url)
+    return link_to(tag.get('title', tag['name']), url)
 
 
 @core_helper
 def group_link(group):
     url = url_for('group.read', id=group['name'])
-    return tags.link_to(group['title'], url)
+    return link_to(group['title'], url)
 
 
 @core_helper
 def organization_link(organization):
     url = url_for(controller='organization', action='read',
                   id=organization['name'])
-    return tags.link_to(organization['title'], url)
+    return link_to(organization['title'], url)
 
 
 @core_helper
@@ -1731,26 +1872,8 @@ def convert_to_dict(object_type, objs):
     ''' This is a helper function for converting lists of objects into
     lists of dicts. It is for backwards compatability only. '''
 
-    def dictize_revision_list(revision, context):
-        # conversionof revision lists
-
-        def process_names(items):
-            array = []
-            for item in items:
-                array.append(item.name)
-            return array
-
-        rev = {'id': revision.id,
-               'state': revision.state,
-               'timestamp': revision.timestamp,
-               'author': revision.author,
-               'packages': process_names(revision.packages),
-               'groups': process_names(revision.groups),
-               'message': revision.message, }
-        return rev
     import ckan.lib.dictization.model_dictize as md
-    converters = {'package': md.package_dictize,
-                  'revisions': dictize_revision_list}
+    converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
     context = {'model': model}
@@ -2655,12 +2778,7 @@ core_helper(localised_filesize)
 # Useful additionsfrom the i18n library.
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
-# Useful additions from the webhelpers library.
-core_helper(tags.literal)
-core_helper(tags.link_to)
-core_helper(tags.file)
-core_helper(tags.submit)
-core_helper(whtext.truncate)
+core_helper(literal)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
@@ -2688,3 +2806,60 @@ def sanitize_id(id_):
     ValueError.
     '''
     return str(uuid.UUID(id_))
+
+
+@core_helper
+def compare_pkg_dicts(old, new, old_activity_id):
+    '''
+    Takes two package dictionaries that represent consecutive versions of
+    the same dataset and returns a list of detailed & formatted summaries of
+    the changes between the two versions. old and new are the two package
+    dictionaries. The function assumes that both dictionaries will have
+    all of the default package dictionary keys, and also checks for fields
+    added by extensions and extra fields added by the user in the web
+    interface.
+
+    Returns a list of dictionaries, each of which corresponds to a change
+    to the dataset made in this revision. The dictionaries each contain a
+    string indicating the type of change made as well as other data necessary
+    to form a detailed summary of the change.
+    '''
+    from ckan.lib.changes import check_metadata_changes, check_resource_changes
+    change_list = []
+
+    check_metadata_changes(change_list, old, new)
+
+    check_resource_changes(change_list, old, new, old_activity_id)
+
+    # if the dataset was updated but none of the fields we check were changed,
+    # display a message stating that
+    if len(change_list) == 0:
+        change_list.append({u'type': 'no_change'})
+
+    return change_list
+
+
+@core_helper
+def activity_list_select(pkg_activity_list, current_activity_id):
+    '''
+    Builds an HTML formatted list of options for the select lists
+    on the "Changes" summary page.
+    '''
+    select_list = []
+    template = jinja2.Template(
+        u'<option value="{{activity_id}}" {{selected}}>'
+        '{{timestamp}}</option>',
+        autoescape=True)
+    for activity in pkg_activity_list:
+        entry = render_datetime(activity['timestamp'],
+                                with_hours=True,
+                                with_seconds=True)
+        select_list.append(Markup(
+            template
+            .render(activity_id=activity['id'], timestamp=entry,
+                    selected='selected'
+                    if activity['id'] == current_activity_id
+                    else '')
+        ))
+
+    return select_list

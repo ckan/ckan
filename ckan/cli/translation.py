@@ -6,6 +6,7 @@ import logging
 import os
 
 import click
+import six
 
 from ckan.cli import error_shout
 from ckan.common import config
@@ -138,14 +139,13 @@ def check_translation(validator, msgid, msgstr):
 
 def check_po_file(path):
     errors = []
-
     po = polib.pofile(path)
     for entry in po.translated_entries():
         if entry.msgid_plural and entry.msgstr_plural:
             for function in (
                 simple_conv_specs, mapping_keys, replacement_fields
             ):
-                for key, msgstr in entry.msgstr_plural.iteritems():
+                for key, msgstr in six.iteritems(entry.msgstr_plural):
                     if key == u'0':
                         error = check_translation(
                             function, entry.msgid, entry.msgstr_plural[key]
@@ -162,5 +162,7 @@ def check_po_file(path):
             for function in (
                 simple_conv_specs, mapping_keys, replacement_fields
             ):
-                check_translation(function, entry.msgid, entry.msgstr)
+                error = check_translation(function, entry.msgid, entry.msgstr)
+                if error:
+                    errors.append(error)
     return errors

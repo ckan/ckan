@@ -16,87 +16,32 @@ changes it is related to. Before pushing the changes, ensure the tests pass
 when running against the migrated model, which requires the
 ``--ckan-migration`` setting.
 
-To create a new migration script, create a python file in
-``ckan/migration/versions/`` and name it with a prefix numbered one higher than
-the previous one and some words describing the change.
+To create a new migration script, use Alembic's automatic generator::
 
-You need to use the special engine provided by the SqlAlchemy Migrate. Here is
-the standard header for your migrate script: ::
+     cd ckan/migration
+     alembic revision --autogenerate -m "Add account table"
 
-  from sqlalchemy import *
-  from migrate import *
+Review the generated file, because it doesn't detect all changes, and things
+like name changes are interpreted as a drop and add, so you'll lose data unless
+you change that to an 'alter'. For more details see: https://alembic.sqlalchemy.org/en/latest/autogenerate.html#what-does-autogenerate-detect-and-what-does-it-not-detect
 
-The migration operations go in the upgrade function: ::
+Rename the file to include a prefix numbered one higher than the previous one,
+like the others in ``ckan/migration/versions/``.
 
-  def upgrade(migrate_engine):
-    metadata = MetaData()
-    metadata.bind = migrate_engine
+Manual checking
+---------------
 
-The following process should be followed when doing a migration.  This process
-is here to make the process easier and to validate if any mistakes have been
-made:
+As a diagnostic tool, you can manually compare the database as created by the
+model code and the migrations code::
 
-1. Get a dump of the database schema before you add your new migrate scripts. ::
+     # Database created by model
+     paster db clean -c test.ini
+     paster db create-from-model -c test.ini
+     sudo -u postgres pg_dump -s -f /tmp/model.sql ckan_default
 
-     paster --plugin=ckan db clean --config={.ini file}
-     paster --plugin=ckan db upgrade --config={.ini file}
-     pg_dump -h host -s -f old.sql dbname
+     # Database created by migrations
+     paster db clean -c test.ini
+     paster db init -c test.ini
+     sudo -u postgres pg_dump -s -f /tmp/migrations.sql ckan_default
 
-2. Get a dump of the database as you have specified it in the model. ::
-
-     paster --plugin=ckan db clean --config={.ini file}
-
-     #this makes the database as defined in the model
-     paster --plugin=ckan db create-from-model -config={.ini file}
-     pg_dump -h host -s -f new.sql dbname
-
-3. Get agpdiff (apt-get it). It produces sql it thinks that you need to run on
-   the database in order to get it to the updated schema. ::
-
-     apgdiff old.sql new.sql > upgrade.diff
-
-(or if you don't want to install java use http://apgdiff.startnet.biz/diff_online.php)
-
-4. The upgrade.diff file created will have all the changes needed in sql.
-   Delete the drop index lines as they are not created in the model.
-
-5. Put the resulting sql in your migrate script, e.g. ::
-
-     migrate_engine.execute('''update table .........; update table ....''')
-
-6. Do a dump again, then a diff again to see if the the only thing left are drop index statements.
-
-7. run nosetests with ``--ckan-migration`` flag.
-
-It's that simple.  Well almost.
-
-*  If you are doing any table/field renaming adding that to your new migrate
-   script first and use this as a base for your diff (i.e add a migrate script
-   with these renaming before 1). This way the resulting sql won't try to drop and
-   recreate the field/table!
-
-*  It sometimes drops the foreign key constraints in the wrong order causing an
-   error so you may need to rearrange the order in the resulting upgrade.diff.
-
-*  If you need to do any data transfer in the migrations then do it between the
-   dropping of the constraints and adding of new ones.
-
-*  May need to add some tests if you are doing data migrations.
-
-An example of a script doing it this way is ``034_resource_group_table.py``.
-This script copies the definitions of the original tables in order to do the
-renaming the tables/fields.
-
-In order to do some basic data migration testing extra assertions should be
-added to the migration script.  Examples of this can also be found in
-``034_resource_group_table.py`` for example.
-
-This statement is run at the top of the migration script to get the count of
-rows: ::
-
-  package_count = migrate_engine.execute('''select count(*) from package''').first()[0]
-
-And the following is run after to make sure that row count is the same: ::
-
-  resource_group_after = migrate_engine.execute('''select count(*) from resource_group''').first()[0]
-  assert resource_group_after == package_count
+     sudo -u postgres diff /tmp/migrations.sql /tmp/model.sql

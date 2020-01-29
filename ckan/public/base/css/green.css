@@ -8150,6 +8150,11 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
 .js .image-upload .btn-remove-url .icon-remove {
   margin-right: 0;
 }
+.js .image-upload .error-inline {
+  margin-top: 5px;
+  margin-left: 2px;
+  font-weight: bold;
+}
 .add-member-form .control-label {
   display: block;
 }
@@ -8480,6 +8485,29 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
 }
 #activity-archive-notice {
   clear: both;
+}
+/* diff styles */
+table.diff {
+  font-family: Courier;
+  border: medium;
+}
+.diff_header {
+  background-color: #e0e0e0;
+}
+td.diff_header {
+  text-align: right;
+}
+.diff_next {
+  background-color: #c0c0c0;
+}
+.diff_add {
+  background-color: #aaffaa;
+}
+.diff_chg {
+  background-color: #ffff77;
+}
+.diff_sub {
+  background-color: #ffaaaa;
 }
 .search-form {
   margin-bottom: 20px;
@@ -10365,6 +10393,13 @@ h4 small {
 }
 .activity .item.follow-group .icon {
   background-color: #8ba669;
+}
+.select-time {
+  width: 250px;
+  display: inline;
+}
+br.line-height2 {
+  line-height: 2;
 }
 .dropdown:hover .dropdown-menu {
   display: block;

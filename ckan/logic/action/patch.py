@@ -38,6 +38,7 @@ def package_patch(context, data_dict):
         'session': context['session'],
         'user': context['user'],
         'auth_user_obj': context['auth_user_obj'],
+        'ignore_auth': context.get('ignore_auth', False),
     }
 
     package_dict = _get_action('package_show')(

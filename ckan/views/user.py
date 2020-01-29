@@ -3,7 +3,7 @@ import logging
 
 from flask import Blueprint
 from flask.views import MethodView
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import text_type
 
 import ckan.lib.authenticator as authenticator
@@ -78,7 +78,7 @@ def before_request():
         context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
-        _, action = plugins.toolkit.get_endpoint()
+        blueprint, action = plugins.toolkit.get_endpoint()
         if action not in (
                 u'login',
                 u'request_reset',

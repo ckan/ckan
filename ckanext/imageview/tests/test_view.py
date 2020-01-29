@@ -1,32 +1,28 @@
 # encoding: utf-8
 
+import pytest
 from ckan.lib.helpers import url_for
-
-import ckan.plugins as p
-
-from nose.tools import assert_true
-from ckan.tests import helpers, factories
+from ckan.tests import factories
+import ckan.tests.helpers as helpers
 
 
-class TestImageView(helpers.FunctionalTestBase):
-    _load_plugins = ['image_view']
+@pytest.mark.ckan_config('ckan.views.default_views', '')
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+def test_view_shown_on_resource_page_with_image_url(app):
 
-    @helpers.change_config('ckan.views.default_views', '')
-    def test_view_shown_on_resource_page_with_image_url(self):
-        app = self._get_test_app()
+    dataset = factories.Dataset()
 
-        dataset = factories.Dataset()
+    resource = factories.Resource(package_id=dataset['id'],
+                                  format='png')
 
-        resource = factories.Resource(package_id=dataset['id'],
-                                      format='png')
+    resource_view = factories.ResourceView(
+        resource_id=resource['id'],
+        image_url='http://some.image.png')
 
-        resource_view = factories.ResourceView(
-            resource_id=resource['id'],
-            image_url='http://some.image.png')
+    url = url_for('resource.read',
+                  id=dataset['name'], resource_id=resource['id'])
 
-        url = url_for('resource.read',
-                      id=dataset['name'], resource_id=resource['id'])
+    response = app.get(url)
 
-        response = app.get(url)
-
-        assert_true(resource_view['image_url'] in response)
+    assert helpers.body_contains(response, resource_view['image_url'])

@@ -3,27 +3,25 @@
 from logging import getLogger
 
 import ckan.plugins as p
+from ckanext.stats import blueprint
 
 log = getLogger(__name__)
 
+
 class StatsPlugin(p.SingletonPlugin):
-    '''Stats plugin.'''
+    u'''Stats plugin.'''
 
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IConfigurer, inherit=True)
+    p.implements(p.IBlueprint)
 
-    def after_map(self, map):
-        map.connect('stats', '/stats',
-            controller='ckanext.stats.controller:StatsController',
-            action='index')
-        map.connect('stats_action', '/stats/{action}',
-            controller='ckanext.stats.controller:StatsController')
-        return map
+    def get_blueprint(self):
+        return blueprint.stats
 
     def update_config(self, config):
-        templates = 'templates'
-        if p.toolkit.asbool(config.get('ckan.legacy_templates', False)):
-                templates = 'templates_legacy'
+        templates = u'templates'
+        if p.toolkit.asbool(config.get(u'ckan.legacy_templates', False)):
+            templates = u'templates_legacy'
         p.toolkit.add_template_directory(config, templates)
-        p.toolkit.add_public_directory(config, 'public')
-        p.toolkit.add_resource('public/ckanext/stats', 'ckanext_stats')
+        p.toolkit.add_public_directory(config, u'public')
+        p.toolkit.add_resource(u'public/ckanext/stats', u'ckanext_stats')

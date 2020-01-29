@@ -11,8 +11,9 @@ The basic recipe is to call:
 
 which builds the dictionary by iterating over the table columns.
 '''
-import datetime
-import urlparse
+
+import six
+from six.moves.urllib.parse import urlsplit
 
 from ckan.common import config
 from sqlalchemy.sql import select
@@ -34,7 +35,7 @@ def group_list_dictize(obj_list, context,
                        include_tags=False,
                        include_extras=False):
 
-    group_dictize_context = dict(context.items()[:])
+    group_dictize_context = dict(context.items())
     # Set options to avoid any SOLR queries for each group, which would
     # slow things further.
     group_dictize_options = {
@@ -75,7 +76,7 @@ def resource_list_dictize(res_list, context):
 
 def extras_dict_dictize(extras_dict, context):
     result_list = []
-    for name, extra in extras_dict.iteritems():
+    for name, extra in six.iteritems(extras_dict):
         dictized = d.table_dictize(extra, context)
         if not extra.state == 'active':
             continue
@@ -115,7 +116,7 @@ def resource_dictize(res, context):
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
-    elif resource['url'] and not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
+    elif resource['url'] and not urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
     return resource
 
@@ -140,8 +141,6 @@ def package_dictize(pkg, context):
     model = context['model']
     assert not (context.get('revision_id') or
                 context.get('revision_date')), \
-        'Revision functionality is moved to migrate_package_activity'
-    assert not isinstance(pkg, model.PackageRevision), \
         'Revision functionality is moved to migrate_package_activity'
     execute = _execute
     # package
@@ -180,7 +179,7 @@ def package_dictize(pkg, context):
     # extras - no longer revisioned, so always provide latest
     extra = model.package_extra_table
     q = select([extra]).where(extra.c.package_id == pkg.id)
-    result = _execute(q, extra, context)
+    result = execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
 
     # groups
@@ -268,7 +267,7 @@ def _get_members(context, group, member_type):
 def get_group_dataset_counts():
     '''For all public groups, return their dataset counts, as a SOLR facet'''
     query = search.PackageSearchQuery()
-    q = {'q': '+capacity:public',
+    q = {'q': '',
          'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
          'facet.limit': -1, 'rows': 1}
     query.run(q)
@@ -313,9 +312,9 @@ def group_dictize(group, context,
             }
 
             if group_.is_organization:
-                q['fq'] = 'owner_org:"{0}"'.format(group_.id)
+                q['fq'] = '+owner_org:"{0}"'.format(group_.id)
             else:
-                q['fq'] = 'groups:"{0}"'.format(group_.name)
+                q['fq'] = '+groups:"{0}"'.format(group_.name)
 
             # Allow members of organizations to see private datasets.
             if group_.is_organization:
@@ -412,7 +411,7 @@ def tag_list_dictize(tag_list, context):
         # the same as its name, but the display_name might get changed later
         # (e.g.  translated into another language by the multilingual
         # extension).
-        assert not dictized.has_key('display_name')
+        assert 'display_name' not in dictized
         dictized['display_name'] = dictized['name']
 
         if context.get('for_view'):
@@ -496,7 +495,6 @@ def user_dictize(user, context, include_password_hash=False):
 
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash
-    result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_created_packages'] = user.number_created_packages(
         include_private_and_draft=context.get(
             'count_private_and_draft_datasets', False))
@@ -541,9 +539,11 @@ def group_to_api(group, context):
     dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     if api_version == 1:
-        dictized["packages"] = sorted([pkg["name"] for pkg in dictized["packages"]])
+        dictized["packages"] = sorted(pkg["name"]
+                                      for pkg in dictized["packages"])
     else:
-        dictized["packages"] = sorted([pkg["id"] for pkg in dictized["packages"]])
+        dictized["packages"] = sorted(pkg["id"]
+                                      for pkg in dictized["packages"])
     return dictized
 
 def tag_to_api(tag, context):
@@ -551,13 +551,12 @@ def tag_to_api(tag, context):
     assert api_version, 'No api_version supplied in context'
     dictized = tag_dictize(tag, context)
     if api_version == 1:
-        return sorted([package["name"] for package in dictized["packages"]])
+        return sorted(package["name"] for package in dictized["packages"])
     else:
-        return sorted([package["id"] for package in dictized["packages"]])
+        return sorted(package["id"] for package in dictized["packages"])
 
 
 def resource_dict_to_api(res_dict, package_id, context):
-    res_dict.pop("revision_id")
     res_dict.pop("state")
     res_dict["package_id"] = package_id
 
@@ -623,7 +622,7 @@ def package_to_api(pkg, context):
 
 def vocabulary_dictize(vocabulary, context, include_datasets=False):
     vocabulary_dict = d.table_dictize(vocabulary, context)
-    assert not vocabulary_dict.has_key('tags')
+    assert 'tags' not in vocabulary_dict
 
     vocabulary_dict['tags'] = [tag_dictize(tag, context, include_datasets)
                                for tag in vocabulary.tags]

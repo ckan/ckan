@@ -4,6 +4,7 @@ import logging
 import json
 
 import sqlalchemy
+import six
 from six import text_type
 
 import ckan.lib.search as search
@@ -201,7 +202,7 @@ def datastore_run_triggers(context, data_dict):
     try:
         results = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:
-        message = err.args[0].split('\n')[0].decode('utf8')
+        message = six.ensure_text(err.args[0].split('\n')[0])
         raise p.toolkit.ValidationError({
                 u'records': [message.split(u') ', 1)[-1]]})
     return results.rowcount
@@ -603,13 +604,9 @@ def set_datastore_active_flag(model, data_dict, flag):
     )
     extras, package_id = res_query.one()
 
-    # update extras in database for record and its revision
+    # update extras in database for record
     extras.update(update_dict)
     res_query.update({'extras': extras}, synchronize_session=False)
-    model.Session.query(model.resource_revision_table).filter(
-        model.ResourceRevision.id == data_dict['resource_id'],
-        model.ResourceRevision.current is True
-    ).update({'extras': extras}, synchronize_session=False)
 
     model.Session.commit()
 

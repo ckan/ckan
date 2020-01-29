@@ -42,20 +42,22 @@ import logging
 import os
 import os.path
 
+import six
 from babel import Locale
 from babel.core import (LOCALE_ALIASES,
                         get_locale_identifier,
                         UnknownLocaleError)
 from babel.support import Translations
-from paste.deploy.converters import aslist
-from pylons import i18n
-import pylons
 import polib
 
-from ckan.common import config, is_flask_request
+from ckan.common import config, is_flask_request, aslist
 import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
+
+if six.PY2:
+    from pylons import i18n as pylons_i18n
+    import pylons
 
 
 log = logging.getLogger(__name__)
@@ -225,9 +227,10 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
+        pylons_i18n.set_lang(
+            lang, pylons_config=fake_config, class_=Translations)
     else:
-        i18n.set_lang(lang, class_=Translations)
+        pylons_i18n.set_lang(lang, class_=Translations)
 
 
 def handle_request(request, tmpl_context):
@@ -276,10 +279,6 @@ def get_lang():
     if is_flask_request():
         from ckan.config.middleware.flask_app import get_locale
         return get_locale()
-    else:
-        langs = i18n.get_lang()
-        if langs:
-            return langs[0]
     return 'en'
 
 
@@ -347,7 +346,7 @@ def _build_js_translation(lang, source_filenames, entries, dest_filename):
                     plural.append(msgstr)
     with open(dest_filename, u'w') as f:
         s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
-        f.write(s.encode(u'utf-8'))
+        f.write(six.ensure_str(s))
 
 
 def build_js_translations():
@@ -378,7 +377,7 @@ def build_js_translations():
     # the POT files for that, since they contain all translation entries
     # (even those for which no translation exists, yet).
     js_entries = set()
-    for i18n_dir, domain in i18n_dirs.iteritems():
+    for i18n_dir, domain in six.iteritems(i18n_dirs):
         pot_file = os.path.join(i18n_dir, domain + u'.pot')
         if os.path.isfile(pot_file):
             js_entries.update(_get_js_translation_entries(pot_file))
@@ -393,7 +392,7 @@ def build_js_translations():
                     u'LC_MESSAGES',
                     domain + u'.po'
                 )
-                for i18n_dir, domain in i18n_dirs.iteritems()
+                for i18n_dir, domain in six.iteritems(i18n_dirs)
             ) if os.path.isfile(fn)
         ]
         if not po_files:

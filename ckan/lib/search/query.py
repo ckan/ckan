@@ -5,7 +5,7 @@ import logging
 import six
 import pysolr
 
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from werkzeug.datastructures import MultiDict
 
 import ckan.logic as logic
@@ -399,7 +399,7 @@ class PackageSearchQuery(SearchQuery):
         for result in self.results:
             extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
             extras = {}
-            for extra_key in extra_keys:
+            for extra_key in list(extra_keys):
                 value = result.pop(extra_key)
                 extras[extra_key[len('extras_'):]] = value
             if extra_keys:

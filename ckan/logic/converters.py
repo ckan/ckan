@@ -2,6 +2,7 @@
 
 import json
 
+import six
 from six import string_types, text_type
 
 import ckan.model as model
@@ -27,14 +28,14 @@ def convert_from_extras(key, data, errors, context):
 
     def remove_from_extras(data, key):
         to_remove = []
-        for data_key, data_value in data.iteritems():
+        for data_key, data_value in six.iteritems(data):
             if (data_key[0] == 'extras'
                 and data_key[1] == key):
                 to_remove.append(data_key)
         for item in to_remove:
             del data[item]
 
-    for data_key, data_value in data.iteritems():
+    for data_key, data_value in six.iteritems(data):
         if (data_key[0] == 'extras'
             and data_key[-1] == 'key'
             and data_value == key[-1]):
@@ -53,7 +54,7 @@ def free_tags_only(key, data, errors, context):
     tag_number = key[1]
     if not data.get(('tags', tag_number, 'vocabulary_id')):
         return
-    for k in data.keys():
+    for k in list(data.keys()):
         if k[0] == 'tags' and k[1] == tag_number:
             del data[k]
 

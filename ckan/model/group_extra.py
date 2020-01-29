@@ -1,15 +1,16 @@
 # encoding: utf-8
 
-import vdm.sqlalchemy
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 from six import text_type
 
-import group
-import meta
-import core
-import types as _types
-import domain_object
+from ckan.model import (
+    group,
+    meta,
+    core,
+    types as _types,
+    domain_object
+)
 
 
 __all__ = ['GroupExtra', 'group_extra_table']
@@ -21,11 +22,6 @@ group_extra_table = Table('group_extra', meta.metadata,
     Column('value', types.UnicodeText),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
-
-# Define the group_extra_revision table, but no need to map it, as it is only
-# used by migrate_package_activity.py
-group_extra_revision_table = \
-    core.make_revisioned_table(group_extra_table, frozen=True)
 
 
 class GroupExtra(core.StatefulObjectMixin,

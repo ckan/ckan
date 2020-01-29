@@ -3,8 +3,9 @@
 import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
+
+import six
 from six import text_type
-from ckan.common import config
 from ckan.model.core import State
 
 try:
@@ -23,6 +24,7 @@ except NameError:
 # and saving dictized objects. If a specialised use is needed please do NOT extend
 # these functions.  Copy code from here as needed.
 
+legacy_dict_sort = lambda x: (len(x), dict.items(x))
 
 def table_dictize(obj, context, **kw):
     '''Get any model object and represent it as a dict'''
@@ -43,7 +45,7 @@ def table_dictize(obj, context, **kw):
         name = field
         if name in ('current', 'expired_timestamp', 'expired_id'):
             continue
-        if name == 'continuity_id':
+        if name in ('continuity_id', 'revision_id'):
             continue
         value = getattr(obj, name)
         if value is None:
@@ -71,7 +73,7 @@ def table_dictize(obj, context, **kw):
     return result_dict
 
 
-def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
+def obj_list_dictize(obj_list, context, sort_key=legacy_dict_sort):
     '''Get a list of model object and represent it as a list of dicts'''
 
     result_list = []
@@ -146,7 +148,7 @@ def table_dict_save(table_dict, ModelClass, context):
     if not obj:
         obj = ModelClass()
 
-    for key, value in table_dict.iteritems():
+    for key, value in six.iteritems(table_dict):
         if isinstance(value, list):
             continue
         setattr(obj, key, value)
