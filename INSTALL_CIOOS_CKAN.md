@@ -354,7 +354,7 @@ sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-harvest ha
 create pycsw database in existing pg container and install postgis
 
 ```bash
-sudo docker exec -i db psql -U ckan
+sudo docker exec -it db psql -U ckan
 CREATE DATABASE pycsw OWNER ckan ENCODING 'utf-8';
 \c pycsw
 CREATE EXTENSION postgis;
@@ -824,3 +824,8 @@ sudo timedatectl set-timezone America/Vancouver
 
 
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan post -c /etc/ckan/production.ini /api/action/send_email_notifications
+
+### get public ip of server
+```bash
+curl ifconfig.me
+```
