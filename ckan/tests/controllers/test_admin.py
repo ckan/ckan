@@ -246,8 +246,8 @@ class TestTrashView(object):
             status=200
         )
 
-        trash_response_html = BeautifulSoup(trash_response.body)
-        trash_pkg_list = trash_response_html.select("ul.package-list li")
+        response_html = BeautifulSoup(trash_response.body)
+        trash_pkg_list = response_html.select("ul.package-list li")
         # no packages available to purge
         assert len(trash_pkg_list) == 0
 
@@ -263,8 +263,8 @@ class TestTrashView(object):
             status=200
         )
 
-        trash_response_html = BeautifulSoup(trash_response.body)
-        trash_grp_list = trash_response_html.select("ul.group-list li")
+        response_html = BeautifulSoup(trash_response.body)
+        trash_grp_list = response_html.select("ul.group-list li")
         # no packages available to purge
         assert len(trash_grp_list) == 0
 
@@ -276,8 +276,8 @@ class TestTrashView(object):
         trash_url = url_for("admin.trash")
         trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
-        trash_response_html = BeautifulSoup(trash_response.body)
-        trash_org_list = trash_response_html.select("ul.organization-list li")
+        response_html = BeautifulSoup(trash_response.body)
+        trash_org_list = response_html.select("ul.organization-list li")
         # no packages available to purge
         assert len(trash_org_list) == 0
 
