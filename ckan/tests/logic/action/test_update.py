@@ -1637,3 +1637,51 @@ class TestDashboardMarkActivitiesOld(object):
             ("new package", False),
             ("changed package", False),
         ]
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestDatasetRevise(object):
+    def test_revise_description(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        response = helpers.call_action(
+            'package_revise',
+            match={'notes': 'old notes', 'name': 'xyz'},
+            update={'notes': 'new notes'},
+        )
+        assert response['package']['notes'] == 'new notes'
+
+    def test_revise_failed_match(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_revise',
+                match={'notes': 'wrong notes', 'name': 'xyz'},
+                update={'notes': 'new notes'},
+            )
+
+    def test_revise_description_flattened(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        response = helpers.call_action(
+            'package_revise',
+            match__notes='old notes',
+            match__name='xyz',
+            update__notes='new notes',
+        )
+        assert response['package']['notes'] == 'new notes'
+
+    def test_revise_dataset_fields_only(self):
+        dataset = factories.Dataset(
+            name='xyz',
+            notes='old notes',
+            resources=[{'url':'http://example.com'}])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id':dataset['id']},
+            filter=[
+                '+resources__*',  # keep everything under resources
+                '-*',  # remove everything else
+            ],
+            update={'name': 'fresh-start', 'title': 'Fresh Start'},
+        )
+        assert response['package']['notes'] == ''
+        assert response['package']['resources'][0]['url'] == 'http://example.com'

@@ -436,7 +436,9 @@ def package_revise(context, data_dict):
         ]}])
 
     if 'filter' in data:
+        orig_id = orig['id']
         dfunc.filter_glob_match(orig, data['filter'])
+        orig['id'] = orig_id
 
     if 'update' in data:
         try:
