@@ -90,7 +90,7 @@ def make_config(output_path):
 
     # Output to current directory if no path is specified
     if '/' not in output_path:
-        output_path = os.getcwd() + '/' + output_path
+        output_path = os.path.join(os.getcwd(), output_path)
 
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     template_loc = os.path.join(cur_loc, '..', 'config', 'deployment.ini_tmpl')
