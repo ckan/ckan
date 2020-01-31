@@ -101,6 +101,19 @@ class DomainObject(object):
             _dict[col.name] = val
         return _dict
 
+    def from_dict(self, _dict):
+        table = orm.class_mapper(self.__class__).mapped_table
+        for col in table.c:
+            if col.name.startswith('_'):
+                continue
+            if col.name in _dict:
+                if isinstance(_dict[col.name], list):
+                    continue
+                setattr(self, col.name, _dict[col.name])
+            elif col.doc == 'update':
+                # these are expected when updating, clear when missing
+                setattr(self, col.name, None)
+
     def __lt__(self, other):
         return self.name < other.name
 

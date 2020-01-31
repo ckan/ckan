@@ -148,10 +148,7 @@ def table_dict_save(table_dict, ModelClass, context):
     if not obj:
         obj = ModelClass()
 
-    for key, value in six.iteritems(table_dict):
-        if isinstance(value, list):
-            continue
-        setattr(obj, key, value)
+    obj.from_dict(table_dict)
 
     session.add(obj)
 
