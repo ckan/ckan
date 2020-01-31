@@ -83,7 +83,7 @@ def extension(output_dir):
 
 
 @generate.command(name=u'config',
-                  short_help=u'Path to the generated configuration ini file.')
+                  short_help=u'Create a ckan.ini file.')
 @click.argument('output_path', nargs=1)
 def make_config(output_path):
     """Generate a new CKAN configuration ini file."""

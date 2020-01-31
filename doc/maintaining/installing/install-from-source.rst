@@ -181,7 +181,7 @@ Create the CKAN config file:
 
 .. parsed-literal::
 
-    paster make-config ckan |development.ini|
+    ckan generate config |development.ini|
 
 Edit the ``development.ini`` file in a text editor, changing the following
 options:
