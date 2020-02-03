@@ -22,14 +22,7 @@ If you have trouble running ckan commands, see
 
    .. parsed-literal::
 
-      |virtualenv|/bin/ckan -c |/path/to/ckan.ini| --plugin=ckan user list 
-
-   To run a ckan command without changing to the ckan directory first, add
-   the ``--plugin=ckan`` option to the command. For example:
-
-   .. parsed-literal::
-
-      ckan -c |/path/to/ckan.ini| --plugin=ckan user list 
+      |virtualenv|/bin/ckan -c |/path/to/ckan.ini| user list 
 
    In the example commands below, we assume you're running the commands with
    your virtualenv activated and from your ckan directory.
