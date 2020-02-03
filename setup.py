@@ -183,6 +183,7 @@ entry_points = {
         'example_blanket_action = ckanext.example_blanket_implementation.plugin:ExampleBlanketActionPlugin',
         'example_blanket_blueprint = ckanext.example_blanket_implementation.plugin:ExampleBlanketBlueprintPlugin',
         'example_blanket_cli = ckanext.example_blanket_implementation.plugin:ExampleBlanketCliPlugin',
+        'example_blanket_validator = ckanext.example_blanket_implementation.plugin:ExampleBlanketValidatorPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

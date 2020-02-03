@@ -4,35 +4,51 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 import ckanext.example_blanket_implementation as current
 from ckanext.example_blanket_implementation.logic import auth, action
+from ckanext.example_blanket_implementation.validators import is_blanket
+
+_validators = {u'is_blanket': is_blanket}
 
 
-@tk.blanket_implementation()
+# As an alternative, `@tk.blanket._everything` may be used, though
+# it's not recommended, because in future new blanket groups will be
+# added and existing functionality can become broken. It's generally
+# can be used for testing and prototyping, and replaced with explicit
+# blankets before going to production
+@tk.blanket.helper
+@tk.blanket.auth
+@tk.blanket.action
+@tk.blanket.blueprint
+@tk.blanket.cli
+@tk.blanket.validator
 class ExampleBlanketPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket_implementation(tk.Blanket.helper)
+@tk.blanket.helper
 class ExampleBlanketHelperPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket_implementation(tk.Blanket.auth, auth)
+@tk.blanket.auth(auth)
 class ExampleBlanketAuthPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket_implementation(tk.Blanket.action, action.get_actions)
+@tk.blanket.action(action.get_actions)
 class ExampleBlanketActionPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket_implementation(
-    tk.Blanket.blueprint, lambda: current.views.get_blueprints()
-)
+@tk.blanket.blueprint(lambda: current.views.get_blueprints())
 class ExampleBlanketBlueprintPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket_implementation(tk.Blanket.cli)
+@tk.blanket.cli
 class ExampleBlanketCliPlugin(p.SingletonPlugin):
+    pass
+
+
+@tk.blanket.validator(_validators)
+class ExampleBlanketValidatorPlugin(p.SingletonPlugin):
     pass

@@ -2,7 +2,7 @@
 
 import click
 
-__all__ = [u'blanket']
+__all__ = [u"blanket"]
 
 
 def blanket_helper():

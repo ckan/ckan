@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all__ = [u'bed', u'pillow']
+__all__ = [u"bed", u"pillow"]
 
 
 def blanket_helper():

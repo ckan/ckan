@@ -50,6 +50,13 @@ class TestBlanketImplementation(object):
         result = cli.invoke(ckan_command, [u'blanket'])
         return not result.exit_code
 
+    def _validators_registered(self):
+        try:
+            tk.get_validator(u'is_blanket')
+        except tk.UnknownValidator:
+            return False
+        return True
+
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_blanket")
     def test_empty_blanket_implements_all_available_interfaces(self, app, cli):
         """When applied with no arguments, search through default files and
@@ -61,6 +68,7 @@ class TestBlanketImplementation(object):
         assert self._actions_registered()
         assert self._blueprints_registered(app)
         assert self._commands_registered(cli)
+        assert self._validators_registered()
 
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_blanket_helper")
     def test_blanket_default(self, app, cli):
@@ -71,6 +79,7 @@ class TestBlanketImplementation(object):
         assert not self._actions_registered()
         assert not self._blueprints_registered(app)
         assert not self._commands_registered(cli)
+        assert not self._validators_registered()
 
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_blanket_auth")
     def test_blanket_module(self, app, cli):
@@ -81,6 +90,7 @@ class TestBlanketImplementation(object):
         assert not self._actions_registered()
         assert not self._blueprints_registered(app)
         assert not self._commands_registered(cli)
+        assert not self._validators_registered()
 
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_blanket_action")
     def test_blanket_function(self, app, cli):
@@ -91,6 +101,7 @@ class TestBlanketImplementation(object):
         assert self._actions_registered()
         assert not self._blueprints_registered(app)
         assert not self._commands_registered(cli)
+        assert not self._validators_registered()
 
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_blanket_blueprint")
     def test_blanket_lambda(self, app, cli):
@@ -101,6 +112,7 @@ class TestBlanketImplementation(object):
         assert not self._actions_registered()
         assert self._blueprints_registered(app)
         assert not self._commands_registered(cli)
+        assert not self._validators_registered()
 
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_blanket_cli")
     def test_blanket_as_list(self, app, cli):
@@ -111,6 +123,18 @@ class TestBlanketImplementation(object):
         assert not self._actions_registered()
         assert not self._blueprints_registered(app)
         assert self._commands_registered(cli)
+        assert not self._validators_registered()
+
+    @pytest.mark.ckan_config(u"ckan.plugins", u"example_blanket_validator")
+    def test_blanket_validators(self, app, cli):
+        """It possible to register list of items instead of dict.
+        """
+        assert not self._helpers_registered()
+        assert not self._auth_registered()
+        assert not self._actions_registered()
+        assert not self._blueprints_registered(app)
+        assert not self._commands_registered(cli)
+        assert self._validators_registered()
 
     def test_blanket_must_be_used(self, app, cli):
         """There is no accidential use of blanket implementation if module not
@@ -122,3 +146,4 @@ class TestBlanketImplementation(object):
         assert not self._actions_registered()
         assert not self._blueprints_registered(app)
         assert not self._commands_registered(cli)
+        assert not self._validators_registered()

@@ -1,40 +1,147 @@
 # -*- coding: utf-8 -*-
 
+"""Quick implementations for simplest interfaces.
+
+Decorate plugin with ``@tk.blanket.<GROUP>`` and it will automatically
+receive common implementation of interface corresponding to the chosen
+group. Common implementation is the one, that satisfies following
+requirements:
+
+ - implementation of interface must provide just a single method
+ - method, required by interface, returns either list or dictionary
+ - all the items, that are returned from method are defined in separate module
+ - all the items(and only those items) are listed inside ``module.__all__``
+ - module is available under common import path. Those paths are:
+
+   - ``ckanext.ext.helpers`` for ``ITemplateHelpers``
+   - ``ckanext.ext.logic.auth`` for ``IAuthFunctions``
+   - ``ckanext.ext.logic.action`` for ``IActions``
+   - ``ckanext.ext.views`` for ``IBlueprint``
+   - ``ckanext.ext.cli`` for ``IClick``
+   - ``ckanext.ext.validators`` for ``IValidators``
+
+Available groups are:
+  - ``tk.blanket.helpers``: implemets ``ITemplateHelpers``
+  - ``tk.blanket.auth``: implemets ``IAuthFunctions``
+  - ``tk.blanket.action``: implemets ``IActions``
+  - ``tk.blanket.blueprint``: implemets ``IBlueprint``
+  - ``tk.blanket.cli``: implemets ``IClick``
+  - ``tk.blanket.validator``: implemets ``IValidators``
+
+Example::
+
+    @tk.blanket.action
+    class MyPlugin(plugins.SingletonPlugin):
+        pass
+
+Is roughly equal to::
+
+    class MyPlugin(plugins.SingletonPlugin):
+        plugins.implements(plugins.IActions)
+
+        def get_actions(self):
+            import ckanext.ext.logic.action as actions
+            extra_actions = {
+                name: getattr(actions, name)
+                for name in actions.__all__
+            }
+            return extra_actions
+
+In addition, if plugin follows custom naming conventions, it's
+possible to customize implementation, by providing argument to
+decorator.
+
+If extension uses different names for modules::
+
+    import ckanext.ext.custom_actions as custom_module
+
+    @tk.blanket.action(custom_module)
+    class MyPlugin(plugins.SingletonPlugin):
+        pass
+
+If extension already defines function that returns items required by
+interface::
+
+    def all_actions():
+        return {'ext_action': ext_action}
+
+    @tk.blanket.action(all_actions)
+    class MyPlugin(plugins.SingletonPlugin):
+        pass
+
+If extension statically defines collection of items required by
+interface::
+
+    all_actions = {'ext_action': ext_action}
+
+    @tk.blanket.action(all_actions)
+    class MyPlugin(plugins.SingletonPlugin):
+        pass
+
+"""
 import logging
 import enum
 import types
 
+from collections import namedtuple
 from functools import update_wrapper
 from importlib import import_module
 
 import ckan.plugins as p
 
+__all__ = [u"helper", u"auth", u"action", u"blueprint", u"cli", u"validator"]
+
 log = logging.getLogger(__name__)
 
 
-class Blanket(enum.IntEnum):
-    helper = 1 << 0
-    auth = 1 << 1
-    action = 1 << 2
-    blueprint = 1 << 3
-    cli = 1 << 4
-    all = helper | auth | action | blueprint | cli
+class Blanket(enum.Flag):
+    """Enumeration of all available blanket types.
+
+    In addition, contains hidden `_all` option, that contains all
+    other types. This option is experimental and shouldn't be used
+    outside current module, as it can be removed in future.
+
+    """
+
+    helper = enum.auto()
+    auth = enum.auto()
+    action = enum.auto()
+    blueprint = enum.auto()
+    cli = enum.auto()
+    validator = enum.auto()
+    _all = helper | auth | action | blueprint | cli | validator
 
     def path(self):
-        return self._paths[self]
+        """Return relative(start from `ckanext.ext`) import path for
+        implementation.
+
+        """
+        return _mapping[self].path
 
     def method(self):
-        return self._methods[self]
+        """Return the name of the method, required for implementation.
+
+        """
+        return _mapping[self].method
 
     def interface(self):
-        return self._interfaces[self]
+        """Return interface provided by blanket.
+        """
+        return _mapping[self].interface
 
     def returns_list(self):
+        """Check, whether implementation returns list instead of dict.
+
+        """
         return self & (Blanket.cli | Blanket.blueprint)
 
     def implement(self, locals, plugin, subject):
+        """Provide implementation for interface.
+
+        """
         if subject is None:
-            root = plugin.__module__[: plugin.__module__.rindex(u".")]
+            _last_dot = plugin.__module__.rindex(u".")
+            root = plugin.__module__[:_last_dot]
             import_path = u".".join([root, self.path()])
             try:
                 subject = import_module(import_path)
@@ -47,38 +154,41 @@ class Blanket(enum.IntEnum):
                     plugin.__name__,
                 )
                 return
-
         locals[self.method()] = _as_implementation(
             subject, self.returns_list()
         )
 
 
-Blanket._paths = {
-    Blanket.helper: u"helpers",
-    Blanket.auth: u"logic.auth",
-    Blanket.action: u"logic.action",
-    Blanket.blueprint: u"views",
-    Blanket.cli: u"cli",
-}
-
-Blanket._methods = {
-    Blanket.helper: u"get_helpers",
-    Blanket.auth: u"get_auth_functions",
-    Blanket.action: u"get_actions",
-    Blanket.blueprint: u"get_blueprint",
-    Blanket.cli: u"get_commands",
-}
-
-Blanket._interfaces = {
-    Blanket.helper: p.ITemplateHelpers,
-    Blanket.auth: p.IAuthFunctions,
-    Blanket.action: p.IActions,
-    Blanket.blueprint: p.IBlueprint,
-    Blanket.cli: p.IClick,
+BlanketMapping = namedtuple("BlanketMapping", ["path", "method", "interface"])
+_mapping = {
+    Blanket.helper: BlanketMapping(
+        u"helpers", u"get_helpers", p.ITemplateHelpers
+    ),
+    Blanket.auth: BlanketMapping(
+        u"logic.auth", u"get_auth_functions", p.IAuthFunctions
+    ),
+    Blanket.action: BlanketMapping(
+        u"logic.action", u"get_actions", p.IActions
+    ),
+    Blanket.blueprint: BlanketMapping(
+        u"views", u"get_blueprint", p.IBlueprint
+    ),
+    Blanket.cli: BlanketMapping(u"cli", u"get_commands", p.IClick),
+    Blanket.validator: BlanketMapping(
+        u"validators", u"get_validators", p.IValidators
+    ),
 }
 
 
 def _as_implementation(subject, as_list):
+    """Convert subject into acceptable interface implementation.
+
+    Subject is one of:
+    * function - used as implementation;
+    * module - implementation will provide all exportable items from it;
+    * dict/list - implementation will return subject as is;
+    """
+
     def func(self, *args, **kwargs):
         if isinstance(subject, types.FunctionType):
             return subject(*args, **kwargs)
@@ -96,16 +206,42 @@ def _as_implementation(subject, as_list):
     return func
 
 
-def blanket_implementation(group=Blanket.all, subject=None):
-    def wrapper(plugin):
-        class wrapped_plugin(plugin):
-            for key in Blanket:
-                if key is Blanket.all:
-                    continue
-                if key & group:
-                    p.implements(key.interface())
-                    key.implement(locals(), plugin, subject)
+def _blanket_implementation(group):
+    """Generator of blanket types.
 
-        return update_wrapper(wrapped_plugin, plugin, updated=[])
+    Unless blanket requires something fancy, this function should be
+    used in order to obtain new blanket type. Provide simple version:
+    `oneInterface-oneMethod-oneImportPath`.
 
-    return wrapper
+    """
+
+    def decorator(subject=None):
+        def wrapper(plugin):
+            class wrapped_plugin(plugin):
+                for key in Blanket:
+                    if key is Blanket._all:
+                        continue
+                    if key & group:
+                        p.implements(key.interface())
+                        key.implement(locals(), plugin, subject)
+
+            return update_wrapper(wrapped_plugin, plugin, updated=[])
+
+        if isinstance(subject, type) and issubclass(
+            subject, p.SingletonPlugin
+        ):
+            plugin = subject
+            subject = None
+            return wrapper(plugin)
+        return wrapper
+
+    return decorator
+
+
+_everything = _blanket_implementation(Blanket._all)
+helper = _blanket_implementation(Blanket.helper)
+auth = _blanket_implementation(Blanket.auth)
+action = _blanket_implementation(Blanket.action)
+blueprint = _blanket_implementation(Blanket.blueprint)
+cli = _blanket_implementation(Blanket.cli)
+validator = _blanket_implementation(Blanket.validator)

@@ -114,8 +114,7 @@ class _Toolkit(object):
         'mail_user',
 
         # fast interface implementations
-        'blanket_implementation',
-        'Blanket',
+        'blanket',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -296,8 +295,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
-        t['blanket_implementation'] = blanket.blanket_implementation
-        t['Blanket'] = blanket.Blanket
+        t['blanket'] = blanket
 
         if six.PY2:
             t['response'] = pylons.response

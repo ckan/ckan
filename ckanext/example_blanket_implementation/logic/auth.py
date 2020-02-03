@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all__ = [u'sleep', u'wake_up']
+__all__ = [u"sleep", u"wake_up"]
 
 
 def sleep(context, data_dict):
