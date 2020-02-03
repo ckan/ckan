@@ -147,7 +147,7 @@ Afterwards the worker waits again for the next job to be enqueued.
 
 Workers can be started using the :ref:`paster jobs worker` command::
 
-    ckan -c /etc/ckan/default/ckan.ini --plugin=ckan jobs worker 
+    ckan -c /etc/ckan/default/ckan.ini jobs worker 
 
 The worker process will run indefinitely (you can stop it using ``CTRL+C``).
 
