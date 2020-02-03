@@ -108,6 +108,10 @@ class _Toolkit(object):
         'HelperError',
         # Enqueue background job
         'enqueue_job',
+        # Email a recipient
+        'mail_recipient',
+        # Email a user
+        'mail_user',
 
         # fast interface implementations
         'blanket_implementation',
@@ -155,6 +159,7 @@ class _Toolkit(object):
             HelperError
         )
         from ckan.lib.jobs import enqueue as enqueue_job
+        from ckan.lib import mailer
 
         import ckan.common as converters
         if six.PY2:
@@ -276,6 +281,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['auth_disallow_anonymous_access'] = (
             logic.auth_disallow_anonymous_access
         )
+        t['mail_recipient'] = mailer.mail_recipient
+        t['mail_user'] = mailer.mail_user
 
         # class functions
         t['render_snippet'] = self._render_snippet

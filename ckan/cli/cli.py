@@ -39,8 +39,8 @@ log = logging.getLogger(__name__)
 class CkanCommand(object):
 
     def __init__(self, conf=None):
-        # Don't import `load_config` by itself and access it using
-        # module instead so that it can be patched during tests
+        # Don't import `load_config` by itself, rather call it using
+        # module so that it can be patched during tests
         self.config = ckan_cli.load_config(conf)
         self.app = make_app(self.config.global_conf, **self.config.local_conf)
 
