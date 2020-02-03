@@ -870,6 +870,14 @@ def collect_prefix_validate(prefix, *validator_names):
     def prefix_validator(key, data, errors, context):
         out = {}
         extras = data.get(('__extras',), {})
+
+        # values passed as lists of dicts will have been flattened into __junk
+        junk = df.unflatten(data.get(('__junk',), {}))
+        for field_name in junk:
+            if not field_name.startswith(prefix):
+                continue
+            extras[field_name] = junk[field_name]
+
         for field_name in extras.keys():
             if not field_name.startswith(prefix):
                 continue
@@ -880,6 +888,7 @@ def collect_prefix_validate(prefix, *validator_names):
                 except df.StopOnError:
                     break
             out[field_name[len(prefix):]] = data.pop((field_name,))
+
         data[(prefix,)] = out
 
     return prefix_validator

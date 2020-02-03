@@ -1686,3 +1686,50 @@ class TestDatasetRevise(object):
         assert response['package']['notes'] is None
         assert response['package']['name'] == 'fresh-start'
         assert response['package']['resources'][0]['url'] == 'http://example.com'
+
+    def test_revise_add_resource(self):
+        dataset = factories.Dataset()
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__extend=[{'name': 'new resource', 'url': 'http://example.com'}],
+        )
+        assert response['package']['resources'][0]['name'] == 'new resource'
+
+    def test_revise_resource_by_index(self):
+        dataset = factories.Dataset(resources=[{'url': 'http://example.com'}])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__0={'name': 'new name'},
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+
+    def test_revise_resource_by_id(self):
+        dataset = factories.Dataset(resources=[{
+            'id': '34a12bc-1420-cbad-1922',
+            'url': 'http://example.com',
+            'name': 'old name',
+        }])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__34a12={'name': 'new name'},  # prefixes allowed >4 chars
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+
+    @pytest.mark.skip(reason='need to add from_dict to resource model')
+    def test_revise_resource_replace_all(self):
+        dataset = factories.Dataset(resources=[{
+            'id': '34a12bc-1420-cbad-1922',
+            'url': 'http://example.com',
+            'name': 'old name',
+        }])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            filter=['+resources__34a12__id', '-resources__34a12__*'],
+            update__resources__34a12={'name': 'new name'},
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+        assert response['package']['resources'][0]['url'] == None
