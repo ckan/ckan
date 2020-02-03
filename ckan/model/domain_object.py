@@ -90,6 +90,10 @@ class DomainObject(object):
         self.Session.delete(self)
 
     def as_dict(self):
+        """
+        returns: ordered dict with fields from table. Date/time values
+        are converted to strings for json compatibilty
+        """
         _dict = OrderedDict()
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
@@ -102,6 +106,14 @@ class DomainObject(object):
         return _dict
 
     def from_dict(self, _dict):
+        """
+        Loads data from dict into table, ignoring list values and
+        _dict keys not found in columns.
+
+        When key for a column is not present in _dict, columns marked
+        with doc='from_dict' will have their field set to None,
+        otherwise existing field value won't be changed.
+        """
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
             if col.name.startswith('_'):

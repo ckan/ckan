@@ -115,7 +115,7 @@ def get_unique_constraints(table, context):
 
     return list_of_constraints
 
-def table_dict_save(table_dict, ModelClass, context):
+def table_dict_save(table_dict, ModelClass, context, extra_attrs=()):
     '''Given a dict and a model class, update or create a sqlalchemy object.
     This will use an existing object if "id" is supplied OR if any unique
     constraints are met. e.g supplying just a tag name will get out that tag obj.
@@ -149,6 +149,9 @@ def table_dict_save(table_dict, ModelClass, context):
         obj = ModelClass()
 
     obj.from_dict(table_dict)
+    for a in extra_attrs:
+        if a in table_dict:
+            setattr(obj, a, table_dict[a])
 
     session.add(obj)
 

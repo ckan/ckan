@@ -437,7 +437,12 @@ def user_dict_save(user_dict, context):
     if 'password' in user_dict and not len(user_dict['password']):
         del user_dict['password']
 
-    user = d.table_dict_save(user_dict, User, context)
+    user = d.table_dict_save(
+        user_dict,
+        User,
+        context,
+        extra_attrs=['_password'],  # for setting password_hash directly
+    )
 
     return user
 

@@ -1673,16 +1673,16 @@ class TestDatasetRevise(object):
         dataset = factories.Dataset(
             name='xyz',
             notes='old notes',
-            resources=[{'url':'http://example.com'}])
+            resources=[{'url': 'http://example.com'}])
         response = helpers.call_action(
             'package_revise',
-            match={'id':dataset['id']},
+            match={'id': dataset['id']},
             filter=[
                 '+resources',  # keep everything under resources
                 '-*',  # remove everything else
             ],
             update={'name': 'fresh-start', 'title': 'Fresh Start'},
         )
-        assert response['package']['notes'] == None
+        assert response['package']['notes'] is None
         assert response['package']['name'] == 'fresh-start'
         assert response['package']['resources'][0]['url'] == 'http://example.com'
