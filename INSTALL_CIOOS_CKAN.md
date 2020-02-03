@@ -195,7 +195,7 @@ sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /
 
 #### Configure admin settings
 
-in the admin page of ckan set style to default and homepage to CIOOS to get the full affect of the cioos_theme extention
+in the admin page of ckan set style to default and homepage to CIOOS to get the full affect of the cioos_theme extension
 
 ---
 
@@ -342,7 +342,7 @@ The settings for harvesters are fairly straightforward. The one exception is the
 Note that `use_default_schema` and `force_package_type` are not needed and will cause validation errors if harvesting between two ckans using the same custom schema (the CIOOS setup). `spatial_filter_file`, if set, will take presidents over `spatial_filter`. Thus in the above example the `spatial_filter` paramiter will be ignored in favour of loading the spatial filter from an external file
 
 ### reindex Harvesters
-it may become nesisary to reindex harvesters, especially if they no longer report the correct number of harveted datasets. If modifying the harvester config you will also need to reindex to make the new config take affect
+it may become necessary to reindex harvesters, especially if they no longer report the correct number of harvested datasets. If modifying the harvester config you will also need to reindex to make the new config take affect
 
 ```bash
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester reindex --config=/etc/ckan/production.ini
@@ -634,7 +634,7 @@ or remove only the images you want with
 
 This can be caused by ckan not having permissions to write to the internal storage of the ckan container. This should be setup during the build process. You can debug this by setting debug = true in the production.ini file. No error messages will be reported in the ckan logs for this issue without turning on debug.
 
-To fix chage the owner of the ckan storage folder and its children
+To fix change the owner of the ckan storage folder and its children
 
 ```bash
   sudo docker exec -u root -it ckan /bin/bash -c "export TERM=xterm; exec bash"
@@ -673,7 +673,7 @@ sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index 
 ```
 
 # Update CKAN
-If you need to update CKAN to a new version you can either remove the docker_ckan_home volume or update the volume with the new ckan core files. After which you need to rebuild the CKAN image and any docker containers based on that image. If you are working with a live / production system the prefered method is to update the volume and rebuild which will result in the least amount of down time.
+If you need to update CKAN to a new version you can either remove the docker_ckan_home volume or update the volume with the new ckan core files. After which you need to rebuild the CKAN image and any docker containers based on that image. If you are working with a live / production system the preferred method is to update the volume and rebuild which will result in the least amount of down time.
 
 update local repo
 ```bash
