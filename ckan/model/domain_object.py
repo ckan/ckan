@@ -110,7 +110,7 @@ class DomainObject(object):
                 if isinstance(_dict[col.name], list):
                     continue
                 setattr(self, col.name, _dict[col.name])
-            elif col.doc == 'update':
+            elif col.doc == 'from_dict':
                 # these are expected when updating, clear when missing
                 setattr(self, col.name, None)
 
