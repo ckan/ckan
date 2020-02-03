@@ -38,8 +38,7 @@ reads for example to know which database it should use. As you'll see in the
 examples below, this option can be given as ``-c`` for short.
 
 ``command`` should be replaced with the name of the CKAN command that you wish
-to execute. Most commands have their own subcommands and options. For example,
-to print out a list of all of your CKAN site's users do:
+to execute. Most commands have their own subcommands and options. 
 
 .. note::
 
