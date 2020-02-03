@@ -14,13 +14,8 @@ If you have trouble running ckan commands, see
 
 .. note::
 
-   Before running a CKAN ``ckan`` command, you have to activate your CKAN
-   virtualenv and change to the ``ckan``  directory, for example:
-
-   .. parsed-literal::
-
-      |activate|
-      cd |virtualenv|/src/ckan
+   Once you activate your CKAN virtualenv the "ckan" command is available within any 
+   location within the host environment - even from "/"
 
    To run a ckan command without activating the virtualenv first, you have
    to give the full path the ckan script within the virtualenv, for example:
