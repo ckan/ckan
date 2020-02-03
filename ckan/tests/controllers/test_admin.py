@@ -359,11 +359,16 @@ class TestTrashView(object):
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
-        trash_url = url_for("admin.trash", name="purge-package")
-        response = app.post(trash_url, extra_environ=sysadmin_env, status=200)
+        trash_url = url_for("admin.trash")
+        response = app.post(
+            trash_url,
+            data={"action": "package"},
+            extra_environ=sysadmin_env,
+            status=200
+        )
 
         # check for flash success msg
-        assert "Packages have been purged" in response.body
+        assert "package(s) have been purged" in response.body
 
         # how many datasets after purge
         pkgs_after_purge = model.Session.query(model.Package).count()
@@ -380,11 +385,16 @@ class TestTrashView(object):
         grps_before_purge = model.Session.query(model.Group).count()
         assert grps_before_purge == 3
 
-        trash_url = url_for("admin.trash", name="purge-group")
-        response = app.post(trash_url, extra_environ=sysadmin_env, status=200)
+        trash_url = url_for("admin.trash")
+        response = app.post(
+            trash_url,
+            data={"action": "group"},
+            extra_environ=sysadmin_env,
+            status=200
+        )
 
         # check for flash success msg
-        assert "Groups have been purged" in response
+        assert "group(s) have been purged" in response
 
         # how many groups after purge
         grps_after_purge = model.Session.query(model.Group).count()
@@ -402,11 +412,16 @@ class TestTrashView(object):
             is_organization=True).count()
         assert orgs_before_purge == 3
 
-        trash_url = url_for("admin.trash", name="purge-organization")
-        response = app.post(trash_url, extra_environ=sysadmin_env, status=200)
+        trash_url = url_for("admin.trash")
+        response = app.post(
+            trash_url,
+            data={"action": "organization"},
+            extra_environ=sysadmin_env,
+            status=200
+        )
 
         # check for flash success msg
-        assert "Organizations have been purged" in response
+        assert "organization(s) have been purged" in response
 
         # how many organizations after purge
         orgs_after_purge = model.Session.query(model.Group).filter_by(
@@ -426,9 +441,13 @@ class TestTrashView(object):
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
         assert pkgs_before_purge + orgs_and_grps_before_purge == 4
 
-        trash_url = url_for("admin.trash", name="purge-all")
-        response = app.post(trash_url, extra_environ=sysadmin_env, status=200)
-
+        trash_url = url_for("admin.trash")
+        response = app.post(
+            trash_url,
+            data={"action": "all"},
+            extra_environ=sysadmin_env,
+            status=200
+        )
         # check for flash success msg
         assert "Massive purge complete" in response
 

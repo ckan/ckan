@@ -17,20 +17,23 @@
         </li>
       {% else %}
       <p>
-        {% trans %}There is no {{ent_type}}s to purge{% endtrans %}
+        {% set message = 'There is no {ent_type}s to purge'.format(ent_type=ent_type) %}
+        {{ _(message) }}
       </p>
     {% endfor %}
   </ul>
 
 <!-- show button only if there is entity to purge -->
   {% if entities.first() %}
-    <form method="POST" id="form-purge-{{ ent_type }}">
-        <a href="{{ h.url_for('admin.trash', name='purge-' + ent_type) }}" 
-        class="btn btn-danger purge-all"
-        name="purge-{{ent_type}}"
-        data-module="confirm-action" 
-        data-module-content="{{ _('Are you sure you want to purge {}s?').format(ent_type) }}">
-        {{ _('Purge') }}</a>
+    <form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-{{ ent_type }}">
+      <input type="hidden" name="action" value="{{ent_type}}">
+      <a href="{{ h.url_for('admin.trash', name=ent_type) }}" 
+         class="btn btn-danger purge-all"
+         data-module="confirm-action"
+         data-module-with-data=true
+         data-module-content="{{ _('Are you sure you want to purge {ent_type}s?'.format(ent_type=ent_type)) }}">
+        {{ _('Purge') }}
+      </a>
     </form>
   {% endif %}
 </div>

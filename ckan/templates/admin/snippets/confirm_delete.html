@@ -12,13 +12,14 @@
         {% if ent_type == 'all' %}
           {{ _('Are you sure you want to purge everything?') }}
         {% else %}
-          {{ _('Are you sure you want to purge {}s?').format(ent_type) }}
+          {% set message = 'Are you sure you want to purge {ent_type}s?'.format(ent_type=ent_type) %}
+          {{ _(message) }}
         {% endif %}
       </p>
         <p class="form-actions">
-          <form id="{{ ent_type }}-confirm-delete-form" action="{% url_for 'admin.trash', name='purge-' + ent_type %}" method="POST">
+          <form id="{{ ent_type }}-confirm-delete-form" action="{{ h.url_for('admin.trash') }}" method="POST">
             <button class="btn btn-danger" type="submit" name="cancel">Cancel</button>
-            <button class="btn btn-primary" type="submit" name="delete">{{ _('Confirm Delete') }}</button>
+            <button class="btn btn-primary" type="submit" name="action" value="{{ ent_type }}">{{ _('Confirm Delete') }}</button>
           </form>
         </p>
       {% endblock %}

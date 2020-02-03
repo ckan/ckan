@@ -44,13 +44,11 @@ def _get_config_options():
     }]
 
     homepages = [{
-        u'value':
-        u'1',
+        u'value': u'1',
         u'text': (u'Introductory area, search, featured'
                   u' group and featured organization')
     }, {
-        u'value':
-        u'2',
+        u'value': u'2',
         u'text': (u'Search, stats, introductory area, '
                   u'featured organization and featured group')
     }, {
@@ -149,51 +147,50 @@ class TrashView(MethodView):
         self.deleted_groups = model.Session.query(model.Group).filter_by(
             state=model.State.DELETED, is_organization=False)
 
-        self.data_type = {
+        self.deleted_entities = {
             u'package': self.deleted_packages,
             u'organization': self.deleted_orgs,
             u'group': self.deleted_groups
         }
 
     def get(self):
-        if request.params.get(u'name'):
-            ent_type = request.params.get(u'name').split(u'-')[-1]
+        ent_type = request.args.get(u'name')
+
+        if ent_type:
             return base.render(u'admin/snippets/confirm_delete.html',
                                extra_vars={u'ent_type': ent_type})
 
-        vars = dict(data=self.data_type)
-        return base.render(u'admin/trash.html', extra_vars=vars)
+        data = dict(data=self.deleted_entities)
+        return base.render(u'admin/trash.html', extra_vars=data)
 
     def post(self):
-        req_action = request.form.get(u'name', request.params.get(u'name'))
-
         if u'cancel' in request.form:
             return h.redirect_to(u'admin.trash')
 
-        if req_action and (u'purge-all' in request.form.get(u'name',
-                           request.params.get(u'name'))):
-            ent_types = (self.deleted_packages, self.deleted_groups,
-                         self.deleted_orgs)
-            func_names = (u'dataset_purge', u'group_purge',
-                          u'organization_purge')
-            for ent_type, func_name in zip(ent_types, func_names):
-                for ent in ent_type:
-                    logic.get_action(func_name)({u'user': g.user},
-                                                {u'id': ent.id})
+        req_action = request.form.get(u'action')
+        if req_action == u'all':
+            d = {
+                u'dataset_purge': self.deleted_packages,
+                u'group_purge': self.deleted_groups,
+                u'organization_purge': self.deleted_orgs
+            }
+            for action, deleted_entities in d.items():
+                for ent in deleted_entities:
+                    logic.get_action(action)({u'user': g.user},
+                                             {u'id': ent.id})
                 model.Session.remove()
             h.flash_success(_(u'Massive purge complete'))
 
-        elif req_action and u'purge-' in req_action:
-            entities = self.data_type[req_action.split(u'-')[-1]]
+        elif req_action in (u'package', u'organization', u'group'):
+            entities = self.deleted_entities[req_action]
             counter = entities.count()
             for ent in entities:
                 logic.get_action(ent.type + u'_purge')({u'user': g.user},
                                                        {u'id': ent.id})
             model.Session.remove()
             h.flash_success(
-                _(u'{}s have been purged: {}'.format(
-                    req_action.split(u'-')[-1].title(),
-                    counter)))
+                _(u'{counter} {entity_type}(s) have been purged'.format(
+                    counter=counter, entity_type=req_action)))
         else:
             h.flash_error(_(u'Action not implemented.'))
         return h.redirect_to(u'admin.trash')
