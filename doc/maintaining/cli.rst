@@ -4,7 +4,7 @@
 Command Line Interface (CLI)
 ======================
 
-NB: From CKAN 2.9 onwards the CKAN configuration file is named 'ckan.ini'. Previous names: 'production.ini', 'development.ini' plus others may also still appear in documentation and the software. These legacy names will eventually be phased out
+NB: From CKAN 2.9 onwards the CKAN configuration file is named 'ckan.ini'. Previous names: 'production.ini' and 'development.ini' (plus others) may also still appear in documentation and the software. These legacy names will eventually be phased out
 
 Most common CKAN administration tasks can be carried out from the command line
 on the server that CKAN is installed on, using the ``ckan`` command.
@@ -50,7 +50,7 @@ to execute. Most commands have their own subcommands and options.
 
      export CKAN_INI=\ |/path/to/ckan.ini|
      
-  You may also run the ckan command in the same directory as a file named 'development.ini' (which will be used as the CKAN config file). You will not be required to use --config or -c in this case also
+  You can still run the ckan command in the same directory as the CKAN config file when the config file is named 'development.ini'. You will not be required to use --config or -c in this case. This will eventually be phased out in further releases of CKAN
   
   .. parsed-literal::
 
