@@ -15,7 +15,7 @@ If you have trouble running ckan commands, see
 .. note::
 
    Once you activate your CKAN virtualenv the "ckan" command is available within any 
-   location within the host environment - even from "/"
+   location within the host environment - even from directly under "/"
 
    To run a ckan command without activating the virtualenv first, you have
    to give the full path the ckan script within the virtualenv, for example:
