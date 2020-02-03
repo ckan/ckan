@@ -48,7 +48,7 @@ def _init_ckan_config(ctx, param, value):
 
     # This is necessary to allow the user to create
     # a config file when one isn't already present
-    if len(sys.argv) > 1 and sys.argv[1] == 'generate' and not value:
+    if len(sys.argv) > 1 and sys.argv[1] == u'generate' and not value:
         return
 
     ctx.obj = CkanCommand(value)
