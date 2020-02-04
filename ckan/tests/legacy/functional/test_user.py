@@ -11,7 +11,6 @@ from ckan.tests.legacy import CreateTestData
 @pytest.fixture(autouse=True)
 def initial_data(clean_db):
 
-    # SmtpServerHarness.setup_class()
     CreateTestData.create()
 
     # make 3 changes, authored by annafan
@@ -42,12 +41,12 @@ def test_user_delete_redirects_to_user_index(app):
     extra_environ = {"REMOTE_USER": "testsysadmin"}
 
     redirect_url = url_for("user.index", qualified=True)
-    res = app.post(url, status=302, extra_environ=extra_environ)
+    res = app.post(url, extra_environ=extra_environ, follow_redirects=False)
 
     assert user.is_deleted(), user
-    assert res.headers.get("Location").startswith(
+    assert res.headers["Location"].startswith(
         redirect_url
-    ), res.headers.get("Location")
+    )
 
 
 def test_user_delete_by_unauthorized_user(app):
@@ -65,7 +64,7 @@ def test_user_read_without_id(app):
 
 def test_user_read_me_without_id(app):
     offset = "/user/me"
-    app.get(offset, status=302)
+    app.get(offset, status=302, follow_redirects=False)
 
 
 def test_apikey(app):
@@ -134,7 +133,7 @@ def test_perform_reset_activates_pending_user(app):
         id=user.id,
         key=user.reset_key,
     )
-    res = app.post(offset, params=params, status=302)
+    res = app.post(offset, params=params)
 
     user = model.User.get(user.id)
     assert user.is_active(), user

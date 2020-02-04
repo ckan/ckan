@@ -23,9 +23,6 @@ class LazyJSONObject(RawJSON):
             self._json_string = None
         return self._json_dict
 
-    def __nonzero__(self):
-        return True
-
     def __repr__(self):
         if self._json_string:
             return u'<LazyJSONObject %r>' % self._json_string
@@ -50,7 +47,7 @@ def _loads_method(name):
 for fn in [u'__contains__', u'__delitem__', u'__eq__', u'__ge__',
            u'__getitem__', u'__gt__', u'__iter__', u'__le__', u'__len__',
            u'__lt__', u'__ne__', u'__setitem__', u'clear', u'copy',
-           u'fromkeys', u'get', u'has_key', u'items', u'iteritems',
+           u'fromkeys', u'get', u'items', u'iteritems',
            u'iterkeys', u'itervalues', u'keys', u'pop', u'popitem',
            u'setdefault', u'update', u'values']:
     setattr(LazyJSONObject, fn, _loads_method(fn))

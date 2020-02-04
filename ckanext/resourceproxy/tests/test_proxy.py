@@ -1,7 +1,7 @@
 # encoding: utf-8
 
+import pytest
 import requests
-import unittest
 import json
 import responses
 import six
@@ -46,27 +46,15 @@ def set_resource_url(url):
     return {'resource': resource, 'package': package}
 
 
-class TestProxyPrettyfied(unittest.TestCase):
+@pytest.mark.ckan_config('ckan.plugins', 'resource_proxy')
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+class TestProxyPrettyfied(object):
 
     serving = False
 
-    @classmethod
-    def setup_class(cls):
-        cls._original_config = config.copy()
-        if not p.plugin_loaded('resource_proxy'):
-            p.load('resource_proxy')
-        config['ckan.plugins'] = 'resource_proxy'
-        cls.app = _get_test_app()
-
+    @pytest.fixture(autouse=True)
+    def initial_data(self, clean_db, with_request_context):
         create_test_data.CreateTestData.create()
-
-    @classmethod
-    def teardown_class(cls):
-        config.clear()
-        config.update(cls._original_config)
-        model.repo.rebuild_db()
-
-    def setUp(self):
         self.url = 'http://www.ckan.org/static/example.json'
         self.data_dict = set_resource_url(self.url)
 
@@ -79,18 +67,18 @@ class TestProxyPrettyfied(unittest.TestCase):
         self.mock_out_urls(
             self.url,
             content_type='application/json',
-            body=JSON_STRING)
+            body=six.ensure_binary(JSON_STRING))
 
         url = self.data_dict['resource']['url']
         result = requests.get(url)
         assert result.status_code == 200, result.status_code
-        assert "yes, I'm proxied" in result.content, result.content
+        assert "yes, I'm proxied" in six.ensure_str(result.content)
 
     @responses.activate
-    def test_resource_proxy_on_404(self):
+    def test_resource_proxy_on_404(self, app):
         self.mock_out_urls(
             self.url,
-            body="I'm not here",
+            body=six.ensure_binary("I'm not here"),
             content_type='application/json',
             status=404)
 
@@ -99,14 +87,14 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_code == 404, result.status_code
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
+        result = app.get(proxied_url)
         # we expect a 409 because the resourceproxy got an error (404)
         # from the server
-        assert result.status_int == 409, result.status
+        assert result.status_code == 409
         assert '404' in result.body
 
     @responses.activate
-    def test_large_file(self):
+    def test_large_file(self, app):
         cl = blueprint.MAX_FILE_SIZE + 1
         self.mock_out_urls(
             self.url,
@@ -114,12 +102,12 @@ class TestProxyPrettyfied(unittest.TestCase):
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status
-        assert 'too large' in result.body, result.body
+        result = app.get(proxied_url)
+        assert result.status_code == 409
+        assert six.b('too large') in result.data
 
     @responses.activate
-    def test_large_file_streaming(self):
+    def test_large_file_streaming(self, app):
         cl = blueprint.MAX_FILE_SIZE + 1
         self.mock_out_urls(
             self.url,
@@ -127,33 +115,34 @@ class TestProxyPrettyfied(unittest.TestCase):
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status
-        assert 'too large' in result.body, result.body
+        result = app.get(proxied_url)
+        assert result.status_code == 409
+        assert six.b('too large') in result.data
 
     @responses.activate
-    def test_invalid_url(self):
+    def test_invalid_url(self, app):
         responses.add_passthru(config['solr_url'])
         self.data_dict = set_resource_url('http:invalid_url')
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status
-        assert 'Invalid URL' in result.body, result.body
+        result = app.get(proxied_url)
+        assert result.status_code == 409
+        assert six.b('Invalid URL') in result.data
 
-    def test_non_existent_url(self):
+    def test_non_existent_url(self, app):
         self.data_dict = set_resource_url('http://nonexistent.example.com')
 
         def f1():
             url = self.data_dict['resource']['url']
             requests.get(url)
 
-        self.assertRaises(requests.ConnectionError, f1)
+        with pytest.raises(requests.ConnectionError):
+            f1()
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 502, result.status
-        assert 'connection error' in result.body, result.body
+        result = app.get(proxied_url)
+        assert result.status_code == 502
+        assert six.b('connection error') in result.data
 
     def test_proxied_resource_url_proxies_http_and_https_by_default(self):
         http_url = 'http://ckan.org'

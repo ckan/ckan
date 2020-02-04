@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import pytest
 import ckan.lib.helpers as h
 import ckan.logic as l
 import ckan.model as model
@@ -9,32 +10,27 @@ import ckan.plugins as plugins
 import ckan.lib.dictization.model_dictize as model_dictize
 
 
+@pytest.mark.ckan_config("ckan.plugins", "test_resource_preview test_json_resource_preview")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
 class TestPluggablePreviews(base.FunctionalTestCase):
-    @classmethod
-    def setup_class(cls):
+    def setup_method(self):
         model.repo.rebuild_db()
-        plugins.load("test_resource_preview", "test_json_resource_preview")
-        cls.plugin = plugins.get_plugin("test_resource_preview")
 
         create_test_data.CreateTestData.create()
 
-        cls.package = model.Package.get("annakarenina")
-        cls.resource = cls.package.resources[0]
-        cls.url = h.url_for(
-            "resource.read", id=cls.package.name, resource_id=cls.resource.id
+        self.package = model.Package.get("annakarenina")
+        self.resource = self.package.resources[0]
+        self.url = h.url_for(
+            "resource.read", id=self.package.name, resource_id=self.resource.id
         )
-        cls.preview_url = h.url_for(
+        self.preview_url = h.url_for(
             "resource.datapreview",
-            id=cls.package.id,
-            resource_id=cls.resource.id,
+            id=self.package.id,
+            resource_id=self.resource.id,
         )
-
-    @classmethod
-    def teardown_class(cls):
-
-        plugins.unload("test_resource_preview", "test_json_resource_preview")
 
     def test_hook(self):
+        self.plugin = plugins.get_plugin("test_resource_preview")
         testpackage = self.package
         resource_dict = model_dictize.resource_dictize(
             self.resource, {"model": model}

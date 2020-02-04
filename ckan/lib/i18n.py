@@ -346,7 +346,7 @@ def _build_js_translation(lang, source_filenames, entries, dest_filename):
                     plural.append(msgstr)
     with open(dest_filename, u'w') as f:
         s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
-        f.write(s.encode(u'utf-8'))
+        f.write(six.ensure_str(s))
 
 
 def build_js_translations():

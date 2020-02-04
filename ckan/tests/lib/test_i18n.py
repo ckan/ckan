@@ -10,6 +10,7 @@ import os.path
 import shutil
 import tempfile
 
+import six
 import pytest
 from ckan.lib import i18n
 from ckan import plugins
@@ -141,13 +142,14 @@ class TestBuildJSTranslations(object):
 class TestI18nFlaskAndPylons(object):
     def test_translation_works_on_flask_and_pylons(self, app):
         resp = app.get(u"/flask_translated")
-        assert resp.body == u"Dataset"
+        assert six.ensure_text(resp.data) == six.text_type(u"Dataset")
 
         resp = app.get(u"/es/flask_translated")
-        assert resp.body == u"Conjunto de datos"
+        assert six.ensure_text(resp.data) == six.text_type(u"Conjunto de datos")
 
-        resp = app.get(u"/pylons_translated")
-        assert resp.body == u"Groups"
+        if six.PY2:
+            resp = app.get(u"/pylons_translated")
+            assert six.ensure_text(resp.data) == six.text_type(u"Groups")
 
-        resp = app.get(u"/es/pylons_translated")
-        assert resp.body == u"Grupos"
+            resp = app.get(u"/es/pylons_translated")
+            assert six.ensure_text(resp.data) == six.text_type(u"Grupos")

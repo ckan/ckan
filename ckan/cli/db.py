@@ -5,10 +5,12 @@ import logging
 import os
 
 import click
+from itertools import groupby
 
 import ckan.migration as migration_repo
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
+import ckan.model as model
 
 log = logging.getLogger(__name__)
 
@@ -102,6 +104,31 @@ def version(plugin):
     click.secho(u'Current DB version: {}'.format(current),
                 fg=u'green',
                 bold=True)
+
+
+@db.command(u"duplicate_emails", short_help=u"Check users email for duplicate")
+def duplicate_emails():
+    u'''Check users email for duplicate'''
+    log.info(u"Searching for accounts with duplicate emails.")
+
+    q = model.Session.query(model.User.email,
+                            model.User.name) \
+        .filter(model.User.state == u"active") \
+        .filter(model.User.email != u"") \
+        .order_by(model.User.email).all()
+
+    if not q:
+        log.info(u"No duplicate emails found")
+    try:
+        for k, grp in groupby(q, lambda x: x[0]):
+            users = [user[1] for user in grp]
+            if len(users) > 1:
+                s = u"{} appears {} time(s). Users: {}"
+                click.secho(
+                    s.format(k, len(users), u", ".join(users)),
+                    fg=u"green", bold=True)
+    except Exception as e:
+        tk.error_shout(e)
 
 
 def _version_hash_to_ordinal(version):

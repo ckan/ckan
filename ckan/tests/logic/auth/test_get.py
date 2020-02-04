@@ -30,7 +30,7 @@ def test_user_list_email_parameter():
         helpers.call_auth("user_list", email="a@example.com", context=context)
 
 
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures(u"clean_db", "with_request_context")
 class TestGetAuth(object):
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
     def test_auth_user_show(self):
