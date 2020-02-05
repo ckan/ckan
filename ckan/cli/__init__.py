@@ -25,10 +25,16 @@ class CKANConfigLoader(object):
         self._update_defaults(defaults)
 
     def read_config_files(self, filename):
+        '''
+        Read and parses a config file. If the config file has
+        'use=config:<filename>' then it parses both files. Automatically
+        applies interpolation if needed.
+        '''
         self.parser.read(filename)
 
         schema, path = self.parser.get(self.section, u'use').split(u':')
         if schema == u'config':
+            path = os.path.dirname(os.path.abspath(filename)) + '/' + path
             self.parser.read([path, filename])
 
     def _update_defaults(self, new_defaults):

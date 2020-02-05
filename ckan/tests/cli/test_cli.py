@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+import os
 
 from ckan.cli.cli import ckan
+from ckan.cli import CKANConfigLoader
 
 
 def test_without_args(cli):
@@ -70,3 +72,16 @@ def test_command_from_extension_is_available_when_all_requirements_satisfied(cli
     """
     result = cli.invoke(ckan, [u'example-iclick-hello'])
     assert not result.exit_code
+
+
+def test_ckan_config_loader_parse_files():
+    filename = os.path.join(os.path.dirname(__file__), u'data/test.ini.tpl')
+    conf = CKANConfigLoader(filename).get_config()
+
+    assert conf.global_conf['debug'] == 'true'
+    assert conf.global_conf['smtp_server'] == 'localhost'
+    assert conf.local_conf['ckan.site_id'] == 'default'
+    assert conf.local_conf['faster_db_test_hacks'] == 'True'
+    assert conf.local_conf['cache_dir'] == '/tmp/default/'
+    assert (conf.local_conf['sqlalchemy.url'] ==
+            'postgresql://ckan_default:pass@localhost/ckan_test')
