@@ -220,7 +220,7 @@ def load_config(config, load_site_user=True):
         pylons.c.userobj = model.User.get(site_user['name'])
 
     ## give routes enough information to run url_for
-    parsed = urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
+    parsed = urlparse(conf.local_conf.get('ckan.site_url', 'http://0.0.0.0'))
     request_config = routes.request_config()
     request_config.host = parsed.netloc + parsed.path
     request_config.protocol = parsed.scheme

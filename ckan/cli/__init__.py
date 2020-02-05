@@ -31,10 +31,8 @@ class CKANConfigLoader(object):
         if schema == u'config':
             self.parser.read([path, filename])
 
-    def _update_defaults(self, new_defaults, overwrite=True):
-        for key, value in new_defaults.iteritems():
-            if not overwrite and key in self.parser._defaults:
-                continue
+    def _update_defaults(self, new_defaults):
+        for key, value in new_defaults.items():
             self.parser._defaults[key] = value
 
     def get_config(self):
@@ -47,29 +45,13 @@ class CKANConfigLoader(object):
                 continue
             local_conf[option] = self.parser.get(self.section, option)
 
-        return CKANLoaderContext(global_conf, local_conf).config()
+        return CKANLoaderContext(global_conf, local_conf)
 
 
 class CKANLoaderContext(object):
     def __init__(self, global_conf, local_conf):
         self.global_conf = global_conf
         self.local_conf = local_conf
-
-    def config(self):
-        conf = AttrDict(self.global_conf)
-        conf.update(self.local_conf)
-        conf.local_conf = self.local_conf
-        conf.global_conf = self.global_conf
-        conf.context = self
-        return conf
-
-
-class AttrDict(dict):
-    """
-    A dictionary that can be assigned to.
-
-    """
-    pass
 
 
 def error_shout(exception):
