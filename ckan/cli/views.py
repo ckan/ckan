@@ -47,7 +47,7 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
         u"datastore" in p.toolkit.config[u"ckan.plugins"].split()
     )
 
-    flask_app = ctx.obj.app.apps[u"flask_app"]._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         loaded_view_plugins = _get_view_plugins(types, datastore_enabled)
     if loaded_view_plugins is None:
@@ -148,7 +148,7 @@ def clean(ctx, yes):
 
     """
     names = []
-    flask_app = ctx.obj.app.apps[u"flask_app"]._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         for plugin in p.PluginImplementations(p.IResourceView):
             names.append(str(plugin.info()[u"name"]))

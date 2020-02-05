@@ -6,6 +6,7 @@ import smtplib
 import socket
 import logging
 from time import time
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
 from email import utils
@@ -17,7 +18,7 @@ from six import text_type
 import ckan
 import ckan.model as model
 import ckan.lib.helpers as h
-from ckan.lib.base import render_jinja2
+from ckan.lib.base import render
 
 from ckan.common import _
 
@@ -30,14 +31,23 @@ class MailerException(Exception):
 
 def _mail_recipient(recipient_name, recipient_email,
                     sender_name, sender_url, subject,
-                    body, headers=None):
+                    body, body_html=None, headers=None):
 
     if not headers:
         headers = {}
 
     mail_from = config.get('smtp.mail_from')
     reply_to = config.get('smtp.reply_to')
-    msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
+    if body_html:
+        # multipart
+        msg = MIMEMultipart('alternative')
+        part1 = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
+        part2 = MIMEText(body_html.encode('utf-8'), 'html', 'utf-8')
+        msg.attach(part1)
+        msg.attach(part2)
+    else:
+        # just plain text
+        msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items():
         if k in msg.keys():
             msg.replace_header(k, v)
@@ -107,19 +117,21 @@ def _mail_recipient(recipient_name, recipient_email,
 
 
 def mail_recipient(recipient_name, recipient_email, subject,
-                   body, headers={}):
+                   body, body_html=None, headers={}):
+    '''Sends an email'''
     site_title = config.get('ckan.site_title')
     site_url = config.get('ckan.site_url')
     return _mail_recipient(recipient_name, recipient_email,
                            site_title, site_url, subject, body,
-                           headers=headers)
+                           body_html=body_html, headers=headers)
 
 
-def mail_user(recipient, subject, body, headers={}):
+def mail_user(recipient, subject, body, body_html=None, headers={}):
+    '''Sends an email to a CKAN user'''
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
     mail_recipient(recipient.display_name, recipient.email, subject,
-                   body, headers=headers)
+                   body, body_html=body_html, headers=headers)
 
 
 def get_reset_link_body(user):
@@ -130,7 +142,7 @@ def get_reset_link_body(user):
         'user_name': user.name,
     }
     # NOTE: This template is translated
-    return render_jinja2('emails/reset_password.txt', extra_vars)
+    return render('emails/reset_password.txt', extra_vars)
 
 
 def get_invite_body(user, group_dict=None, role=None):
@@ -151,7 +163,7 @@ def get_invite_body(user, group_dict=None, role=None):
         extra_vars['group_title'] = group_dict.get('title')
 
     # NOTE: This template is translated
-    return render_jinja2('emails/invite_user.txt', extra_vars)
+    return render('emails/invite_user.txt', extra_vars)
 
 
 def get_reset_link(user):
@@ -168,7 +180,7 @@ def send_reset_link(user):
     extra_vars = {
         'site_title': config.get('ckan.site_title')
     }
-    subject = render_jinja2('emails/reset_password_subject.txt', extra_vars)
+    subject = render('emails/reset_password_subject.txt', extra_vars)
 
     # Make sure we only use the first line
     subject = subject.split('\n')[0]
@@ -182,7 +194,7 @@ def send_invite(user, group_dict=None, role=None):
     extra_vars = {
         'site_title': config.get('ckan.site_title')
     }
-    subject = render_jinja2('emails/invite_user_subject.txt', extra_vars)
+    subject = render('emails/invite_user_subject.txt', extra_vars)
 
     # Make sure we only use the first line
     subject = subject.split('\n')[0]

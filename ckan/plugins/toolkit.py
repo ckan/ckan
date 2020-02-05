@@ -108,6 +108,10 @@ class _Toolkit(object):
         'HelperError',
         # Enqueue background job
         'enqueue_job',
+        # Email a recipient
+        'mail_recipient',
+        # Email a user
+        'mail_user',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -148,6 +152,7 @@ class _Toolkit(object):
             HelperError
         )
         from ckan.lib.jobs import enqueue as enqueue_job
+        from ckan.lib import mailer
 
         import ckan.common as converters
         if six.PY2:
@@ -269,6 +274,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['auth_disallow_anonymous_access'] = (
             logic.auth_disallow_anonymous_access
         )
+        t['mail_recipient'] = mailer.mail_recipient
+        t['mail_user'] = mailer.mail_user
 
         # class functions
         t['render_snippet'] = self._render_snippet
@@ -397,9 +404,11 @@ content type, cookies, etc.
         absolute_path = os.path.join(this_dir, path)
         create_library(name, absolute_path)
 
-        # TODO: remove next two lines after dropping Fanstatic support
-        import ckan.lib.fanstatic_resources
-        ckan.lib.fanstatic_resources.create_library(name, absolute_path)
+        import six
+        if six.PY2:
+            # TODO: remove next two lines after dropping Fanstatic support
+            import ckan.lib.fanstatic_resources
+            ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
     def _add_ckan_admin_tabs(cls, config, route_name, tab_label,

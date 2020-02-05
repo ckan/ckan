@@ -7,27 +7,22 @@ this file will be loaded to setup the test environment.
 
 It registers the root directory of the project in sys.path and
 pkg_resources, in case the project hasn't been installed with
-setuptools. It also initializes the application via websetup (paster
-setup-app) with the project's test.ini configuration file.
+setuptools.
 """
 import os
 from unittest import TestCase
-from nose.tools import assert_equal, assert_not_equal, make_decorator
-from nose.plugins.skip import SkipTest
+
+from functools import wraps
+import pytest
 
 from ckan.common import config
-from pylons.test import pylonsapp
-from paste.script.appinstall import SetupCommand
 from six import text_type
 
-import paste.fixture
-import paste.script.appinstall
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 import ckan.lib.helpers as h
 import ckan.model as model
-from ckan import ckan_nose_plugin
 from ckan.common import json
 import ckan.tests.helpers as helpers
 
@@ -43,7 +38,6 @@ __all__ = [
     "CheckMethods",
     "CommonFixtureMethods",
     "TestCase",
-    "SkipTest",
     "CkanServerCase",
     "call_action_api",
     "BaseCase",
@@ -54,24 +48,6 @@ __all__ = [
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
-
-# Invoke websetup with the current config file
-# SetupCommand('setup-app').run([config['__file__']])
-
-# monkey patch paste.fixtures.TestRespose
-# webtest (successor library) already has this
-# http://pythonpaste.org/webtest/#parsing-the-body
-def _getjson(self):
-    return json.loads(self.body)
-
-
-paste.fixture.TestResponse.json = property(_getjson)
-
-# Check config is correct for sqlite
-if model.engine_is_sqlite():
-    assert (
-        ckan_nose_plugin.CkanNose.settings.is_ckan
-    ), 'You forgot the "--ckan" nosetest setting - see doc/test.rst'
 
 
 class BaseCase(object):
@@ -259,12 +235,6 @@ class TestCase(CommonFixtureMethods, CheckMethods, BaseCase):
 
 
 class WsgiAppCase(BaseCase):
-    # wsgiapp = pylonsapp
-    # assert wsgiapp, 'You need to run nose with --with-pylons'
-    # Either that, or this file got imported somehow before the tests started
-    # running, meaning the pylonsapp wasn't setup yet (which is done in
-    # pylons.test.py:begin())
-    # app = paste.fixture.TestApp(wsgiapp)
     app = helpers._get_test_app()
 
 
@@ -305,11 +275,11 @@ class CkanServerCase(BaseCase):
 class TestController(
     CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase
 ):
-    def assert_equal(self, *args, **kwds):
-        assert_equal(*args, **kwds)
+    def assert_equal(self, left, right):
+        assert left == right
 
-    def assert_not_equal(self, *args, **kwds):
-        assert_not_equal(*args, **kwds)
+    def assert_not_equal(self, left, right):
+        assert left != right
 
     def clear_language_setting(self):
         self.app.cookies = {}
@@ -329,7 +299,7 @@ class TestSearchIndexer:
         from ckan import plugins
 
         if not is_search_supported():
-            raise SkipTest("Search not supported")
+            pytest.skip("Search not supported")
         plugins.load("synchronous_search")
 
     @classmethod
@@ -347,7 +317,7 @@ class TestSearchIndexer:
 def setup_test_search_index():
     # from ckan import plugins
     if not is_search_supported():
-        raise SkipTest("Search not supported")
+        pytest.skip("Search not supported")
     search.clear_all()
     # plugins.load('synchronous_search')
 
@@ -361,29 +331,10 @@ def are_foreign_keys_supported():
     return not model.engine_is_sqlite()
 
 
-def is_regex_supported():
-    is_supported_db = not model.engine_is_sqlite()
-    return is_supported_db
-
-
-def is_migration_supported():
-    is_supported_db = not model.engine_is_sqlite()
-    return is_supported_db
-
-
 def is_datastore_supported():
     # we assume that the datastore uses the same db engine that ckan uses
     is_supported_db = model.engine_is_pg()
     return is_supported_db
-
-
-def regex_related(test):
-    def skip_test(*args):
-        raise SkipTest("Regex not supported")
-
-    if not is_regex_supported():
-        return make_decorator(test)(skip_test)
-    return test
 
 
 def clear_flash(res=None):
@@ -422,7 +373,6 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
         assert error_dict['message'] == 'Access Denied'
 
     :param app: the test app to post to
-    :type app: paste.fixture.TestApp
 
     :param action: the action to post to, e.g. 'package_create'
     :type action: string
@@ -439,18 +389,13 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
     :param **kwargs: any other keyword arguments passed to this function will
         be posted to the API as params
 
-    :raises paste.fixture.AppError: if the HTTP status code of the response
-        from the CKAN API is different from the status param passed to this
-        function
-
     :returns: the 'result' or 'error' dictionary from the CKAN API response
     :rtype: dictionary
 
     """
-    params = json.dumps(kwargs)
     response = app.post(
         "/api/action/{0}".format(action),
-        params=params,
+        json=kwargs,
         extra_environ={"Authorization": str(apikey)},
         status=status,
     )

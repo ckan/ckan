@@ -16,6 +16,7 @@ Please do not add new files to the list as any new files should meet the
 current coding standards.  Please add comments by files that fail if there
 are legitimate reasons for the failure.
 """
+from __future__ import print_function
 import inspect
 import itertools
 import os
@@ -300,7 +301,6 @@ class TestPep8(object):
     PEP8_BLACKLIST_FILES = [
         "bin/running_stats.py",
         "ckan/__init__.py",
-        "ckan/ckan_nose_plugin.py",
         "ckan/config/middleware.py",
         "ckan/config/routing.py",
         "ckan/config/sp_config.py",
@@ -315,7 +315,6 @@ class TestPep8(object):
         "ckan/lib/dictization/model_dictize.py",
         "ckan/lib/dictization/model_save.py",
         "ckan/lib/email_notifications.py",
-        "ckan/lib/extract.py",
         "ckan/lib/fanstatic_extensions.py",
         "ckan/lib/fanstatic_resources.py",
         "ckan/lib/formatters.py",
@@ -374,7 +373,6 @@ class TestPep8(object):
         "ckan/poo.py",
         "ckan/rating.py",
         "ckan/templates_legacy/home/__init__.py",
-        "ckan/tests/legacy/__init__.py",
         "ckan/tests/legacy/ckantestplugin/ckantestplugin/__init__.py",
         "ckan/tests/legacy/ckantestplugin/setup.py",
         "ckan/tests/legacy/functional/api/base.py",
@@ -418,7 +416,6 @@ class TestPep8(object):
         "ckan/tests/legacy/models/test_package_relationships.py",
         "ckan/tests/legacy/monkey.py",
         "ckan/tests/legacy/test_versions.py",
-        "ckan/websetup.py",
         "ckanext/datastore/bin/datastore_setup.py",
         "ckanext/datastore/logic/action.py",
         "ckanext/datastore/tests/test_create.py",
@@ -432,7 +429,6 @@ class TestPep8(object):
         "ckanext/tests/plugin.py",
         "doc/conf.py",
         "fabfile.py",
-        "profile_tests.py",
         "setup.py",
         "ckan/tests/legacy/models/test_resource.py",
         "contrib/cookiecutter/ckan_extension/"

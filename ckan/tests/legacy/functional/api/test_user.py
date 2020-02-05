@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 
+from __future__ import print_function
 import ckan.logic as logic
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
@@ -65,9 +66,8 @@ class TestCreateUserApiDisabled(object):
         }
         res = app.post(
             "/api/3/action/user_create",
-            json.dumps(params),
+            json=params,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
-            expect_errors=True,
         )
         res_dict = res.json
         assert res_dict["success"] is True
@@ -79,7 +79,7 @@ class TestCreateUserApiDisabled(object):
             "password": "TestPassword1",
         }
         res = app.post(
-            "/api/3/action/user_create", json.dumps(params), expect_errors=True
+            "/api/3/action/user_create", json=params
         )
         res_dict = res.json
         assert res_dict["success"] is False
@@ -103,7 +103,7 @@ class TestCreateUserApiEnabled(object):
         }
         res = app.post(
             "/api/3/action/user_create",
-            json.dumps(params),
+            json=params,
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         res_dict = res.json
@@ -116,7 +116,7 @@ class TestCreateUserApiEnabled(object):
             "email": "testinganewuser@ckan.org",
             "password": "TestPassword1",
         }
-        res = app.post("/api/3/action/user_create", json.dumps(params))
+        res = app.post("/api/3/action/user_create", json=params)
         res_dict = res.json
         assert res_dict["success"] is True
 
@@ -139,7 +139,7 @@ class TestCreateUserWebDisabled(object):
             "password": "TestPassword1",
         }
         res = app.post(
-            "/api/3/action/user_create", json.dumps(params), expect_errors=True
+            "/api/3/action/user_create", json=params
         )
         res_dict = res.json
         assert res_dict["success"] is False
@@ -163,12 +163,13 @@ class TestCreateUserWebEnabled(object):
             "password": "TestPassword1",
         }
         res = app.post(
-            "/api/3/action/user_create", json.dumps(params), expect_errors=True
+            "/api/3/action/user_create", json=params
         )
         res_dict = res.json
         assert res_dict["success"] is False
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestUserActions(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db):

@@ -21,7 +21,7 @@ def seed():
 @seed.command(short_help=u'Annakarenina and warandpeace.')
 @click.pass_context
 def basic(ctx):
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         CreateTestData.create_basic_test_data()
 
@@ -29,7 +29,7 @@ def basic(ctx):
 @seed.command(short_help=u'Realistic data to test search.')
 @click.pass_context
 def search(ctx):
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         CreateTestData.create_search_test_data()
 
@@ -37,7 +37,7 @@ def search(ctx):
 @seed.command(short_help=u'Government style data.')
 @click.pass_context
 def gov(ctx):
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         CreateTestData.create_gov_test_data()
 
@@ -45,7 +45,7 @@ def gov(ctx):
 @seed.command(short_help=u'Package relationships data.')
 @click.pass_context
 def family(ctx):
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         CreateTestData.create_family_test_data()
 
@@ -53,7 +53,7 @@ def family(ctx):
 @seed.command(short_help=u'Create a user "tester" with api key "tester".')
 @click.pass_context
 def user(ctx):
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         CreateTestData.create_test_user()
     click.echo(
@@ -64,7 +64,7 @@ def user(ctx):
 @seed.command(short_help=u'Test translations of terms.')
 @click.pass_context
 def translations(ctx):
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         CreateTestData.create_translations_test_data()
 
@@ -72,7 +72,7 @@ def translations(ctx):
 @seed.command(short_help=u'Some test vocabularies.')
 @click.pass_context
 def vocabs(ctx):
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         CreateTestData.create_vocabs_test_data()
 
@@ -80,6 +80,6 @@ def vocabs(ctx):
 @seed.command(short_help=u'Hierarchy of groups.')
 @click.pass_context
 def hierarchy(ctx):
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         CreateTestData.create_group_hierarchy_test_data()

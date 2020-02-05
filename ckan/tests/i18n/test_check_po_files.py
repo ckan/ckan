@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from ckan.i18n.check_po_files import (
+from ckan.cli.translation import (
     check_po_file,
     simple_conv_specs,
     mapping_keys,

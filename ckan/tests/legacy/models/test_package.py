@@ -27,6 +27,7 @@ class TestPackage:
         model.Session.commit()
         model.Session.remove()
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_as_dict(self):
         pkg = model.Package.by_name(self.name)
         out = pkg.as_dict()

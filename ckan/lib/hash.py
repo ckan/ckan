@@ -13,9 +13,8 @@ def get_message_hash(value):
     if not secret:
         # avoid getting config value at module scope since config may
         # not be read in yet
-        secret = config['beaker.session.secret']
-
-    return hmac.new(six.ensure_str(secret), value.encode('utf8'), hashlib.sha1).hexdigest()
+        secret = six.ensure_binary(config['beaker.session.secret'])
+    return hmac.new(secret, value.encode('utf8'), hashlib.sha1).hexdigest()
 
 def get_redirect():
     '''Checks the return_to value against the hash, and if it

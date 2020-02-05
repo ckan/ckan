@@ -35,7 +35,7 @@ def group_list_dictize(obj_list, context,
                        include_tags=False,
                        include_extras=False):
 
-    group_dictize_context = dict(context.items()[:])
+    group_dictize_context = dict(context.items())
     # Set options to avoid any SOLR queries for each group, which would
     # slow things further.
     group_dictize_options = {
@@ -267,7 +267,7 @@ def _get_members(context, group, member_type):
 def get_group_dataset_counts():
     '''For all public groups, return their dataset counts, as a SOLR facet'''
     query = search.PackageSearchQuery()
-    q = {'q': '+capacity:public',
+    q = {'q': '',
          'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
          'facet.limit': -1, 'rows': 1}
     query.run(q)
@@ -411,7 +411,7 @@ def tag_list_dictize(tag_list, context):
         # the same as its name, but the display_name might get changed later
         # (e.g.  translated into another language by the multilingual
         # extension).
-        assert not dictized.has_key('display_name')
+        assert 'display_name' not in dictized
         dictized['display_name'] = dictized['name']
 
         if context.get('for_view'):
@@ -622,7 +622,7 @@ def package_to_api(pkg, context):
 
 def vocabulary_dictize(vocabulary, context, include_datasets=False):
     vocabulary_dict = d.table_dictize(vocabulary, context)
-    assert not vocabulary_dict.has_key('tags')
+    assert 'tags' not in vocabulary_dict
 
     vocabulary_dict['tags'] = [tag_dictize(tag, context, include_datasets)
                                for tag in vocabulary.tags]

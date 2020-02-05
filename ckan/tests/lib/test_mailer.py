@@ -3,6 +3,7 @@
 import base64
 import hashlib
 import pytest
+import six
 from email.header import decode_header
 from email.mime.text import MIMEText
 from email.parser import Parser
@@ -13,39 +14,11 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
-from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
 
 
-class MailerBase(SmtpServerHarness):
-    @classmethod
-    def setup_class(cls):
-
-        helpers.reset_db()
-
-        smtp_server = config.get("smtp.test_server")
-        if smtp_server:
-            host, port = smtp_server.split(":")
-            port = int(port) + int(
-                str(hashlib.md5(cls.__name__).hexdigest())[0], 16
-            )
-            config["smtp.test_server"] = "%s:%s" % (host, port)
-
-        # Created directly to avoid email validation
-        user_without_email = model.User(name="mary", email=None)
-        model.Session.add(user_without_email)
-        model.Session.commit()
-        SmtpServerHarness.setup_class()
-
-    @classmethod
-    def teardown_class(cls):
-        SmtpServerHarness.teardown_class()
-        helpers.reset_db()
-
-    def setup(self):
-        self.clear_smtp_messages()
-
-    def mime_encode(self, msg, recipient_name):
-        text = MIMEText(msg.encode("utf-8"), "plain", "utf-8")
+class MailerBase(object):
+    def mime_encode(self, msg, recipient_name, subtype='plain'):
+        text = MIMEText(msg.encode("utf-8"), subtype, "utf-8")
         encoded_body = text.get_payload().strip()
         return encoded_body
 
@@ -58,11 +31,11 @@ class MailerBase(SmtpServerHarness):
         return decode_header(header)[0][0]
 
 
+@pytest.mark.usefixtures("with_request_context", "clean_db")
 class TestMailer(MailerBase):
-    def test_mail_recipient(self):
+    def test_mail_recipient(self, mail_server):
         user = factories.User()
-
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         assert msgs == []
 
         # send email
@@ -76,25 +49,64 @@ class TestMailer(MailerBase):
         mailer.mail_recipient(**test_email)
 
         # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         assert len(msgs) == 1
         msg = msgs[0]
         assert msg[1] == config["smtp.mail_from"]
         assert msg[2] == [test_email["recipient_email"]]
-        assert test_email["headers"].keys()[0] in msg[3], msg[3]
-        assert test_email["headers"].values()[0] in msg[3], msg[3]
+        assert list(test_email["headers"].keys())[0] in msg[3], msg[3]
+        assert list(test_email["headers"].values())[0] in msg[3], msg[3]
         assert test_email["subject"] in msg[3], msg[3]
+        assert msg[3].startswith('Content-Type: text/plain'), msg[3]
         expected_body = self.mime_encode(
             test_email["body"], test_email["recipient_name"]
         )
         assert expected_body in msg[3]
 
-    def test_mail_user(self):
+    def test_mail_recipient_with_html(self, mail_server):
+        user = factories.User()
+
+        msgs = mail_server.get_smtp_messages()
+        assert msgs == []
+
+        # send email
+        test_email = {
+            "recipient_name": "Bob",
+            "recipient_email": user["email"],
+            "subject": "Meeting",
+            "body": "The meeting is cancelled.",
+            "body_html": "The <a href=\"meeting\">meeting</a> is cancelled.",
+            "headers": {"header1": "value1"},
+        }
+        mailer.mail_recipient(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == 1
+        msg = msgs[0]
+        assert msg[1] == config["smtp.mail_from"]
+        assert msg[2] == [test_email["recipient_email"]]
+        assert list(test_email["headers"].keys())[0] in msg[3], msg[3]
+        assert list(test_email["headers"].values())[0] in msg[3], msg[3]
+        assert test_email["subject"] in msg[3], msg[3]
+        assert msg[3].startswith('Content-Type: multipart'), msg[3]
+        expected_plain_body = self.mime_encode(
+            test_email["body"], test_email["recipient_name"],
+            subtype='plain'
+        )
+        assert expected_plain_body in msg[3]
+        expected_html_body = self.mime_encode(
+            test_email["body_html"], test_email["recipient_name"],
+            subtype='html'
+        )
+        assert expected_html_body in msg[3]
+
+    def test_mail_user(self, mail_server):
 
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
 
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         assert msgs == []
 
         # send email
@@ -107,13 +119,13 @@ class TestMailer(MailerBase):
         mailer.mail_user(**test_email)
 
         # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         assert len(msgs) == 1
         msg = msgs[0]
         assert msg[1] == config["smtp.mail_from"]
         assert msg[2] == [user["email"]]
-        assert test_email["headers"].keys()[0] in msg[3], msg[3]
-        assert test_email["headers"].values()[0] in msg[3], msg[3]
+        assert list(test_email["headers"].keys())[0] in msg[3], msg[3]
+        assert list(test_email["headers"].values())[0] in msg[3], msg[3]
         assert test_email["subject"] in msg[3], msg[3]
         expected_body = self.mime_encode(test_email["body"], user["name"])
 
@@ -121,8 +133,12 @@ class TestMailer(MailerBase):
 
     def test_mail_user_without_email(self):
         # send email
+        mary = model.User(name="mary", email=None)
+        # model.Session.add(mary)
+        # model.Session.commit()
+
         test_email = {
-            "recipient": model.User.by_name(u"mary"),
+            "recipient": mary,
             "subject": "Meeting",
             "body": "The meeting is cancelled.",
             "headers": {"header1": "value1"},
@@ -130,10 +146,10 @@ class TestMailer(MailerBase):
         with pytest.raises(mailer.MailerException):
             mailer.mail_user(**test_email)
 
-    @helpers.change_config("ckan.site_title", "My CKAN instance")
-    def test_from_field_format(self):
+    @pytest.mark.ckan_config("ckan.site_title", "My CKAN instance")
+    def test_from_field_format(self, mail_server):
 
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         assert msgs == []
 
         # send email
@@ -147,7 +163,7 @@ class TestMailer(MailerBase):
         mailer.mail_recipient(**test_email)
 
         # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
 
         expected_from_header = "{0} <{1}>".format(
@@ -156,14 +172,14 @@ class TestMailer(MailerBase):
 
         assert expected_from_header in msg[3]
 
-    def test_send_reset_email(self):
+    def test_send_reset_email(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
 
         mailer.send_reset_link(user_obj)
 
         # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         assert len(msgs) == 1
         msg = msgs[0]
         assert msg[1] == config["smtp.mail_from"]
@@ -174,7 +190,7 @@ class TestMailer(MailerBase):
 
         assert expected_body in msg[3]
 
-    def test_send_invite_email(self):
+    def test_send_invite_email(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
         assert user_obj.reset_key is None, user_obj
@@ -183,7 +199,7 @@ class TestMailer(MailerBase):
         mailer.send_invite(user_obj)
 
         # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         assert len(msgs) == 1
         msg = msgs[0]
         assert msg[1] == config["smtp.mail_from"]
@@ -194,7 +210,7 @@ class TestMailer(MailerBase):
         assert expected_body in msg[3]
         assert user_obj.reset_key is not None, user
 
-    def test_send_invite_email_with_group(self):
+    def test_send_invite_email_with_group(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
 
@@ -205,13 +221,13 @@ class TestMailer(MailerBase):
         mailer.send_invite(user_obj, group_dict=group, role=role)
 
         # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
         body = self.get_email_body(msg[3])
-        assert group["title"] in body
-        assert h.roles_translated()[role] in body
+        assert group["title"] in six.ensure_text(body)
+        assert h.roles_translated()[role] in six.ensure_text(body)
 
-    def test_send_invite_email_with_org(self):
+    def test_send_invite_email_with_org(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
 
@@ -222,13 +238,13 @@ class TestMailer(MailerBase):
         mailer.send_invite(user_obj, group_dict=org, role=role)
 
         # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
         body = self.get_email_body(msg[3])
-        assert org["title"] in body
-        assert h.roles_translated()[role] in body
+        assert org["title"] in six.ensure_text(body)
+        assert h.roles_translated()[role] in six.ensure_text(body)
 
-    @helpers.change_config("smtp.test_server", "999.999.999.999")
+    @pytest.mark.ckan_config("smtp.test_server", "999.999.999.999")
     def test_bad_smtp_host(self):
         test_email = {
             "recipient_name": "Bob",
@@ -240,10 +256,10 @@ class TestMailer(MailerBase):
         with pytest.raises(mailer.MailerException):
             mailer.mail_recipient(**test_email)
 
-    @helpers.change_config("smtp.reply_to", "norply@ckan.org")
-    def test_reply_to(self):
+    @pytest.mark.ckan_config("smtp.reply_to", "norply@ckan.org")
+    def test_reply_to(self, mail_server):
 
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         assert msgs == []
 
         # send email
@@ -257,7 +273,7 @@ class TestMailer(MailerBase):
         mailer.mail_recipient(**test_email)
 
         # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
+        msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
 
         expected_from_header = "Reply-to: {}".format(

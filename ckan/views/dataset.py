@@ -518,7 +518,6 @@ class CreateView(MethodView):
         context = self._prepare()
         is_an_update = False
         ckan_phase = request.form.get(u'_ckan_phase')
-
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
@@ -591,7 +590,11 @@ class CreateView(MethodView):
                 pkg_dict = get_action(u'package_show')(context, data_dict)
                 data_dict[u'state'] = pkg_dict[u'state']
                 return EditView().get(
-                    data_dict[u'id'], data_dict, errors, error_summary
+                    package_type,
+                    data_dict[u'id'],
+                    data_dict,
+                    errors,
+                    error_summary
                 )
             data_dict[u'state'] = u'none'
             return self.get(package_type, data_dict, errors, error_summary)

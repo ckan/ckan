@@ -3,8 +3,8 @@
 import datetime
 import hashlib
 import json
-import nose
 import pytest
+import six
 from ckan.common import config
 import ckan.lib.search as search
 
@@ -46,9 +46,9 @@ class TestSearchIndex(object):
         assert response.docs[0]["title"] == "Monkey"
 
         index_id = hashlib.md5(
-            "{0}{1}".format(
+            six.b("{0}{1}".format(
                 self.base_package_dict["id"], config["ckan.site_id"]
-            )
+            ))
         ).hexdigest()
 
         assert response.docs[0]["index_id"] == index_id

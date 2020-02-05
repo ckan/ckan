@@ -1183,7 +1183,7 @@ class PluginInfo(CkanCommand):
                 print('    %s' % i)
                 if extra:
                     print(extra)
-            print
+            print()
 
     def actions(self, cls):
         ''' Return readable action function info. '''
@@ -1860,7 +1860,7 @@ class LessCommand(CkanCommand):
             f.close()
             self.compile_less(root, less_bin, color)
         f = open(custom_less, 'w')
-        f.write('// This file is needed in order for ./bin/less to compile in less 1.3.1+\n')
+        f.write('// This file is needed in order for `gulp build` to compile in less 1.3.1+\n')
         f.close()
         self.compile_less(root, less_bin, 'main')
 

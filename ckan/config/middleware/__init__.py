@@ -99,7 +99,6 @@ class AskAppDispatcherMiddleware(object):
     def __init__(self, apps=None):
         # Dict of apps managed by this middleware {<app_name>: <app_obj>, ...}
         self.apps = apps or {}
-
         self.default_locale = config.get('ckan.locale_default', 'en')
         self.locale_list = get_locales_from_config()
 
