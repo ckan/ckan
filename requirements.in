@@ -7,7 +7,7 @@ bleach==3.0.2
 click==6.7
 dominate==2.4.0
 fanstatic==1.1
-feedgen==0.8.0
+feedgen==0.9.0
 Flask==1.1.1
 Flask-Babel==0.11.2
 flask-multistatic==1.0
