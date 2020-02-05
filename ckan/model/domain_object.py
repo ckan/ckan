@@ -6,6 +6,7 @@ from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy import orm
+from six import string_types
 
 from ckan.model import meta, core
 
@@ -107,24 +108,40 @@ class DomainObject(object):
 
     def from_dict(self, _dict):
         """
-        Loads data from dict into table, ignoring list values and
-        _dict keys not found in columns.
+        Loads data from dict into table.
+
+        Returns (changed, skipped) tuple. changed is a set of keys
+        that were different than the original values, i.e. changed
+        is an empty list when no values were changed by this call.
+        skipped is a dict containing any items from _dict whose keys
+        were not found in columns.
 
         When key for a column is not present in _dict, columns marked
         with doc='from_dict' will have their field set to None,
         otherwise existing field value won't be changed.
         """
+        changed = set()
+        skipped = dict(_dict)
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
             if col.name.startswith('_'):
                 continue
             if col.name in _dict:
-                if isinstance(_dict[col.name], list):
-                    continue
-                setattr(self, col.name, _dict[col.name])
+                value = _dict[col.name]
+                db_value = getattr(self, col.name)
+                if isinstance(db_value, datetime.datetime) and isinstance(value, string_types):
+                    db_value = db_value.isoformat()
+                if db_value != value:
+                    changed.add(col.name)
+                    setattr(self, col.name, value)
+                del skipped[col.name]
             elif col.doc == 'from_dict':
+                blank = None if col.nullable else ''
                 # these are expected when updating, clear when missing
-                setattr(self, col.name, None)
+                if getattr(self, col.name) != blank:
+                    changed.add(col.name)
+                    setattr(self, col.name, blank)
+        return changed, skipped
 
     def __lt__(self, other):
         return self.name < other.name

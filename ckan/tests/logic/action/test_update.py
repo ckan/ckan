@@ -1718,7 +1718,6 @@ class TestDatasetRevise(object):
         )
         assert response['package']['resources'][0]['name'] == 'new name'
 
-    @pytest.mark.skip(reason='need to add from_dict to resource model')
     def test_revise_resource_replace_all(self):
         dataset = factories.Dataset(resources=[{
             'id': '34a12bc-1420-cbad-1922',
@@ -1732,4 +1731,4 @@ class TestDatasetRevise(object):
             update__resources__34a12={'name': 'new name'},
         )
         assert response['package']['resources'][0]['name'] == 'new name'
-        assert response['package']['resources'][0]['url'] == None
+        assert response['package']['resources'][0]['url'] == ''
