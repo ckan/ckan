@@ -47,7 +47,7 @@ to execute. Most commands have their own subcommands and options.
 
      export CKAN_INI=\ |/path/to/ckan.ini|
      
-  You can still run the ckan command in the same directory as the CKAN config file when the config file is named 'development.ini'. You will not be required to use --config or -c in this case. This will eventually be phased out in further releases of CKAN
+  You can still run the ckan command in the same directory as the CKAN config file when the config file is named 'development.ini'. You will not be required to use --config or -c in this case. However this usage is deprecated and will be phased out in a future CKAN release.
   
   .. parsed-literal::
 
