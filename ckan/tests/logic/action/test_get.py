@@ -134,7 +134,7 @@ class TestPackageShow(object):
                     u"cache_last_updated": None,
                     u"cache_url": None,
                     u"created": u"2019-05-24T15:52:30.123456",
-                    u"description": u"",
+                    u"description": None,
                     u"format": u"PNG",
                     u"hash": u"",
                     u"id": u"<SOME-UUID>",
