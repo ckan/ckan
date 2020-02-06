@@ -197,6 +197,7 @@ def default_show_package_schema(
         'mimetype': [],
         'cache_url': [],
         'name': [],
+        'description': [],
         'mimetype_inner': [],
         'resource_type': [],
         'url_type': [],
