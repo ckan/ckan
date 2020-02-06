@@ -75,13 +75,17 @@ def test_command_from_extension_is_available_when_all_requirements_satisfied(cli
 
 
 def test_ckan_config_loader_parse_files():
+    """
+    CKANConfigLoader should parse both 'test.ini.tpl' and 'test-core.ini.tpl'
+    files since test.ini.ptl has a use = config:test-core.ini.tpl config.
+    """
     filename = os.path.join(os.path.dirname(__file__), u'data/test.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
-    assert conf.global_conf['debug'] == 'true'
-    assert conf.global_conf['smtp_server'] == 'localhost'
-    assert conf.local_conf['ckan.site_id'] == 'default'
-    assert conf.local_conf['faster_db_test_hacks'] == 'True'
-    assert conf.local_conf['cache_dir'] == '/tmp/default/'
-    assert (conf.local_conf['sqlalchemy.url'] ==
-            'postgresql://ckan_default:pass@localhost/ckan_test')
+    assert conf.global_conf[u'debug'] == u'true'
+    assert conf.global_conf[u'smtp_server'] == u'localhost'
+    assert conf.local_conf[u'ckan.site_id'] == u'default'
+    assert conf.local_conf[u'faster_db_test_hacks'] == u'True'
+    assert conf.local_conf[u'cache_dir'] == u'/tmp/default/'
+    assert (conf.local_conf[u'sqlalchemy.url'] ==
+            u'postgresql://ckan_default:pass@localhost/ckan_test')
