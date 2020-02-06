@@ -34,6 +34,8 @@ The `` --config`` option tells CKAN where to find your config file, which it
 reads for example to know which database it should use. As you'll see in the
 examples below, this option can be given as ``-c`` for short.
 
+The config file (ckan.ini) will generally be located in the /etc/ckan/default/ directory however it can be located in any directory on the host machine
+
 ``command`` should be replaced with the name of the CKAN command that you wish
 to execute. Most commands have their own subcommands and options. 
 
