@@ -35,6 +35,12 @@ flatten_to_string_key = logic.flatten_to_string_key
 log = logging.getLogger(__name__)
 
 resource = Blueprint(
+    u'dataset_resource',
+    __name__,
+    url_prefix=u'/dataset/<id>/resource',
+    url_defaults={u'package_type': u'dataset'}
+)
+prefixed_resource = Blueprint(
     u'resource',
     __name__,
     url_prefix=u'/dataset/<id>/resource',
@@ -949,3 +955,4 @@ def register_dataset_plugin_rules(blueprint):
 
 
 register_dataset_plugin_rules(resource)
+register_dataset_plugin_rules(prefixed_resource)

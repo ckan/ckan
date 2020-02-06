@@ -110,7 +110,6 @@ def register_package_plugins():
                 raise ValueError("An existing IDatasetForm is "
                                  "already associated with the package type "
                                  "'%s'" % package_type)
-
             _package_plugins[package_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.

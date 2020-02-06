@@ -20,7 +20,7 @@ def test_view_shown_on_resource_page_with_image_url(app):
         resource_id=resource['id'],
         image_url='http://some.image.png')
 
-    url = url_for('resource.read',
+    url = url_for('{}_resource.read'.format(dataset['type']),
                   id=dataset['name'], resource_id=resource['id'])
 
     response = app.get(url)

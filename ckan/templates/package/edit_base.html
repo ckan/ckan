@@ -5,12 +5,12 @@
 {% block breadcrumb_content %}
     {{ super() }}
     {% if pkg %}
-	<li class="active">{% link_for _('Edit'), named_route='dataset.edit', id=pkg.name %}</li>
+	<li class="active">{% link_for _('Edit'), named_route=pkg.type ~ '.edit', id=pkg.name %}</li>
     {% endif %}
 {% endblock %}
 
 {% block content_action %}
-    {% link_for _('View dataset'), named_route='dataset.read', id=pkg.name, class_='btn btn-default', icon='eye' %}
+    {% link_for _('View dataset'), named_route=pkg.type ~ '.read', id=pkg.name, class_='btn btn-default', icon='eye' %}
 {% endblock %}
 
 {% block content_primary_nav %}

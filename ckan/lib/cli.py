@@ -599,7 +599,7 @@ class RDFExport(CkanCommand):
             if not dd['state'] == 'active':
                 continue
 
-            url = h.url_for('dataset.read', id=dd['name'])
+            url = h.url_for(dd['type'] + '.read', id=dd['name'])
 
             url = urljoin(fetch_url, url[1:]) + '.rdf'
             try:

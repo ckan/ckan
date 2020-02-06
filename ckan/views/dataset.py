@@ -67,10 +67,9 @@ def url_with_params(url, params):
 
 
 def search_url(params, package_type=None):
-    if not package_type or package_type == u'dataset':
-        url = h.url_for(u'dataset.search')
-    else:
-        url = h.url_for(u'{0}_search'.format(package_type))
+    if not package_type:
+        package_type = u'dataset'
+    url = h.url_for(u'{0}.search'.format(package_type))
     return url_with_params(url, params)
 
 
@@ -84,10 +83,9 @@ def drill_down_url(alternative_url=None, **by):
 
 
 def remove_field(package_type, key, value=None, replace=None):
-    if not package_type or package_type == u'dataset':
-        url = h.url_for(u'dataset.search')
-    else:
-        url = h.url_for(u'{0}_search'.format(package_type))
+    if not package_type:
+        package_type = u'dataset'
+    url = h.url_for(u'{0}.search'.format(package_type))
     return h.remove_url_param(
         key,
         value=value,
@@ -142,10 +140,9 @@ def _form_save_redirect(pkg_name, action, package_type=None):
     if url:
         url = url.replace(u'<NAME>', pkg_name)
     else:
-        if package_type is None or package_type == u'dataset':
-            url = h.url_for(u'dataset.read', id=pkg_name)
-        else:
-            url = h.url_for(u'{0}_read'.format(package_type), id=pkg_name)
+        if not package_type:
+            package_type = u'dataset'
+        url = h.url_for(u'{0}.read'.format(package_type), id=pkg_name)
     return h.redirect_to(url)
 
 
@@ -546,7 +543,10 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    url = h.url_for(u'resource.new', id=pkg_dict[u'name'])
+                    url = h.url_for(
+                        u'{}_resource.new'.format(package_type),
+                        id=pkg_dict[u'name']
+                    )
                     return h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.form[u'save'] not in [
@@ -562,7 +562,10 @@ class CreateView(MethodView):
 
             if ckan_phase:
                 # redirect to add dataset resources
-                url = h.url_for(u'resource.new', id=pkg_dict[u'name'])
+                url = h.url_for(
+                    u'{}_resource.new'.format(package_type),
+                    id=pkg_dict[u'name']
+                )
                 return h.redirect_to(url)
 
             return _form_save_redirect(
@@ -744,7 +747,7 @@ class EditView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         # are we doing a multiphase add?
         if data.get(u'state', u'').startswith(u'draft'):
-            g.form_action = h.url_for(u'dataset.new')
+            g.form_action = h.url_for(u'{}.new'.format(package_type))
             g.form_style = u'new'
 
             return CreateView().get(
