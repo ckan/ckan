@@ -2,6 +2,7 @@
 
 import logging
 from collections import defaultdict
+import sys
 
 import six
 import click
@@ -46,6 +47,11 @@ class CkanCommand(object):
 
 
 def _init_ckan_config(ctx, param, value):
+    # Some commands don't need to init the config
+    command = sys.argv[1] if len(sys.argv) > 1 else None
+    if command == u'translation':
+        return
+
     ctx.obj = CkanCommand(value)
     if six.PY2:
         ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
