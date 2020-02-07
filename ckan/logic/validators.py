@@ -878,7 +878,7 @@ def collect_prefix_validate(prefix, *validator_names):
                 continue
             extras[field_name] = junk[field_name]
 
-        for field_name in extras.keys():
+        for field_name in list(extras):
             if not field_name.startswith(prefix):
                 continue
             data[(field_name,)] = extras.pop(field_name)
