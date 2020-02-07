@@ -4,7 +4,6 @@ import os
 
 import click
 import logging
-from logging.config import fileConfig as loggingFileConfig
 from configparser import ConfigParser
 
 
