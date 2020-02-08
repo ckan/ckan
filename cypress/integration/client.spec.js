@@ -6,7 +6,7 @@ describe('ckan.Client()', function () {
 
   beforeEach(function () {
     cy.window().then(win => {
-      Cypress.env('Client', win.ckan.Client);
+      cy.wrap(win.ckan.Client).as('Client');
       win.client = new win.ckan.Client();
     })
 
@@ -16,7 +16,7 @@ describe('ckan.Client()', function () {
     cy.window().then(win => {
       let target = win.ckan.sandbox().client;
 
-      expect(target).to.be.instanceOf(Cypress.env('Client'));
+      expect(target).to.be.instanceOf(this.Client);
     })
 
 
@@ -24,7 +24,7 @@ describe('ckan.Client()', function () {
 
   it('should set the .endpoint property to options.endpoint', function () {
     cy.window().then(win => {
-      let client = new (Cypress.env('Client'))({endpoint: 'http://example.com'});
+      let client = new this.Client({endpoint: 'http://example.com'});
       expect(client.endpoint).to.be.equal('http://example.com');
     })
   });
@@ -392,7 +392,7 @@ describe('ckan.Client()', function () {
 
   describe('.convertStorageMetadataToResource(meta)', function () {
     beforeEach(function () {
-        Cypress.env('meta', {
+        cy.wrap({
           "_checksum": "md5:527c97d2aa3ed1b40aea4b7ddf98692e",
           "_content_length": 122632,
           "_creation_date": "2012-07-17T14:35:35",
@@ -402,12 +402,12 @@ describe('ckan.Client()', function () {
           "filename-original": "cat.jpg",
           "key": "2012-07-17T13:35:35.540Z/cat.jpg",
           "uploaded-by": "user"
-        });
+        }).as('meta');
     });
 
     it('should return a representation for a resource', function () {
       cy.window().then(win => {
-        let target = win.client.convertStorageMetadataToResource(Cypress.env('meta'));
+        let target = win.client.convertStorageMetadataToResource(this.meta);
 
         expect(target).to.be.deep.equal( {
           url: 'http://example.com/storage/f/2012-07-17T13%3A35%3A35.540Z/cat.jpg',
@@ -431,8 +431,8 @@ describe('ckan.Client()', function () {
       cy.window().then(win => {
         win.ckan.SITE_ROOT = 'http://example.com';
 
-        (Cypress.env('meta'))._location = "/storage/f/2012-07-17T13%3A35%3A35.540Z/cat.jpg";
-        let target = win.client.convertStorageMetadataToResource(Cypress.env('meta'));
+        this.meta._location = "/storage/f/2012-07-17T13%3A35%3A35.540Z/cat.jpg";
+        let target = win.client.convertStorageMetadataToResource(this.meta);
         expect(target.url).to.be.equal( 'http://example.com/storage/f/2012-07-17T13%3A35%3A35.540Z/cat.jpg');
       })
     });
@@ -441,16 +441,16 @@ describe('ckan.Client()', function () {
       cy.window().then(win => {
         win.ckan.SITE_ROOT = 'http://example.com';
 
-        let target = win.client.convertStorageMetadataToResource(Cypress.env('meta'));
+        let target = win.client.convertStorageMetadataToResource(this.meta);
         assert.ok(!(/\.\d\d\d/).test(target.last_modified), 'no microseconds');
         assert.ok(!(/((\+|\-)\d{4}|Z)$/).test(target.last_modified), 'no timezone');
       })
     });
 
     it('should use the mime type for the format if found', function () {
-      (Cypress.env('meta'))._format = 'image/jpeg';
+      this.meta._format = 'image/jpeg';
       cy.window().then(win => {
-        let target = win.client.convertStorageMetadataToResource(Cypress.env('meta'));
+        let target = win.client.convertStorageMetadataToResource(this.meta);
 
         expect(target.format).to.be.equal( 'image/jpeg', 'format');
         expect(target.mimetype).to.be.equal( 'image/jpeg', 'mimetype');
