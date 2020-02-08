@@ -278,14 +278,13 @@ in your CKAN config file.
 9. You're done!
 ---------------
 
-You can now use the Paste development server to serve CKAN from the
-command-line.  This is a simple and lightweight way to serve CKAN that is
+You can now run CKAN from the command-line.  This is a simple and lightweight way to serve CKAN that is
 useful for development and testing:
 
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    ckan serve |ckan.ini|
+    ckan -c |ckan.ini| run 
 
 Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
 page.
