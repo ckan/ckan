@@ -201,7 +201,7 @@ ckan.jobs.timeout = 180
 
 ## Logging configuration
 [loggers]
-keys = root, ckan, ckanext
+keys = root, ckan, ckanext, werkzeug
 
 [handlers]
 keys = console
@@ -212,6 +212,12 @@ keys = generic
 [logger_root]
 level = WARNING
 handlers = console
+
+[logger_werkzeug]
+level = WARNING
+handlers = console
+qualname = werkzeug
+propagate = 0
 
 [logger_ckan]
 level = INFO
