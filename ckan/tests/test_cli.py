@@ -268,7 +268,7 @@ class TestJobsCancel(helpers.RQTestBase):
 
 class TestJobsClear(helpers.RQTestBase):
     """
-    Tests for ``paster jobs clear``.
+    Tests for ``ckan jobs clear``.
     """
 
     def test_clear_all_queues(self):
@@ -305,7 +305,7 @@ class TestJobsClear(helpers.RQTestBase):
 
 class TestJobsTest(helpers.RQTestBase):
     """
-    Tests for ``paster jobs test``.
+    Tests for ``ckan jobs test``.
     """
 
     def test_test_default_queue(self):
@@ -335,7 +335,7 @@ class TestJobsTest(helpers.RQTestBase):
 
 class TestJobsWorker(helpers.RQTestBase):
     """
-    Tests for ``paster jobs worker``.
+    Tests for ``ckan jobs worker``.
     """
 
     # All tests of ``jobs worker`` must use the ``--burst`` option to
