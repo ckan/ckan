@@ -13,7 +13,7 @@ Internationalizing strings in extensions
 We will create a simple extension to demonstrate the translation of strings
 inside extensions. After running::
 
-    paster --plugin=ckan create -t ckanext ckanext-itranslation
+    ckan -c /path/to/ckan.ini create -t ckanext ckanext-itranslation
 
 Change the ``plugin.py`` file to:
 
