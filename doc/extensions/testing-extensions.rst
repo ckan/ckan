@@ -47,11 +47,6 @@ Some notes on how these tests work:
 * Pytest has lots of useful functions for testing, see the
   `pytest documentation <https://docs.pytest.org/en/latest/>`_.
 
-* We're using a :class:`paste.fixture.TestApp` object to simulate sending HTTP
-  requests to the CKAN API or frontend.
-  See `Testing Applications with Paste <http://pythonpaste.org/testing-applications.html>`_
-  for some documentation of this.
-
 * We're calling :func:`ckan.tests.call_action_api` to post (simulated) HTTP
   requests to the CKAN API. This is a convenience function that CKAN provides
   for its own tests.

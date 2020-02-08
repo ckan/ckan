@@ -37,7 +37,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IResourceUrlChange)
-    p.implements(p.IDomainObjectModification, inherit=True)
+    p.implements(p.IResourceController, inherit=True)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IBlueprint)
 
@@ -65,60 +65,80 @@ class DatapusherPlugin(p.SingletonPlugin):
                     format(config_option)
                 )
 
-    def notify(self, entity, operation=None):
-        if isinstance(entity, model.Resource):
-            if (
-                operation == model.domain_object.DomainObjectOperation.new
-                or not operation
-            ):
-                # if operation is None, resource URL has been changed, as
-                # the notify function in IResourceUrlChange only takes
-                # 1 parameter
-                context = {
-                    u'model': model,
-                    u'ignore_auth': True,
-                    u'defer_commit': True
+    # IResourceUrlChange
+
+    def notify(self, resource):
+        context = {
+            u'model': model,
+            u'ignore_auth': True,
+        }
+        resource_dict = toolkit.get_action(u'resource_show')(
+            context, {
+                u'id': resource.id,
+            }
+        )
+        self._submit_to_datapusher(resource_dict)
+
+    # IResourceController
+
+    def after_create(self, context, resource_dict):
+
+        self._submit_to_datapusher(resource_dict)
+
+    def _submit_to_datapusher(self, resource_dict):
+
+        context = {
+            u'model': model,
+            u'ignore_auth': True,
+            u'defer_commit': True
+        }
+
+        resource_format = resource_dict.get('format')
+
+        submit = (
+            resource_format
+            and resource_format.lower() in self.datapusher_formats
+            and resource_dict.get('url_type') != u'datapusher'
+        )
+
+        if not submit:
+            return
+
+        try:
+            task = toolkit.get_action(u'task_status_show')(
+                context, {
+                    u'entity_id': resource_dict['id'],
+                    u'task_type': u'datapusher',
+                    u'key': u'datapusher'
                 }
-                if (
-                    entity.format
-                    and entity.format.lower() in self.datapusher_formats
-                    and entity.url_type != u'datapusher'
-                ):
+            )
 
-                    try:
-                        task = toolkit.get_action(u'task_status_show')(
-                            context, {
-                                u'entity_id': entity.id,
-                                u'task_type': u'datapusher',
-                                u'key': u'datapusher'
-                            }
-                        )
-                        if task.get(u'state') == u'pending':
-                            # There already is a pending DataPusher submission,
-                            # skip this one ...
-                            log.debug(
-                                u'Skipping DataPusher submission for '
-                                u'resource {0}'.format(entity.id)
-                            )
-                            return
-                    except toolkit.ObjectNotFound:
-                        pass
+            if task.get(u'state') in (u'pending', u'submitting'):
+                # There already is a pending DataPusher submission,
+                # skip this one ...
+                log.debug(
+                    u'Skipping DataPusher submission for '
+                    u'resource {0}'.format(resource_dict['id'])
+                )
+                return
+        except toolkit.ObjectNotFound:
+            pass
 
-                    try:
-                        log.debug(
-                            u'Submitting resource {0}'.format(entity.id) +
-                            u' to DataPusher'
-                        )
-                        toolkit.get_action(u'datapusher_submit')(
-                            context, {
-                                u'resource_id': entity.id
-                            }
-                        )
-                    except toolkit.ValidationError as e:
-                        # If datapusher is offline want to catch error instead
-                        # of raising otherwise resource save will fail with 500
-                        log.critical(e)
-                        pass
+        try:
+            log.debug(
+                u'Submitting resource {0}'.format(resource_dict['id']) +
+                u' to DataPusher'
+            )
+            toolkit.get_action(u'datapusher_submit')(
+                context, {
+                    u'resource_id': resource_dict['id']
+                }
+            )
+        except toolkit.ValidationError as e:
+            # If datapusher is offline want to catch error instead
+            # of raising otherwise resource save will fail with 500
+            log.critical(e)
+            pass
 
     def get_actions(self):
         return {

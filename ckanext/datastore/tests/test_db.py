@@ -202,9 +202,8 @@ class TestBackgroundJobs(helpers.RQTestBase):
     """
     Test correct interaction with the background jobs system.
     """
-
     @pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
+    @pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
     def test_worker_datastore_access(self, app):
         """
         Test DataStore access from within a worker.
@@ -215,8 +214,7 @@ class TestBackgroundJobs(helpers.RQTestBase):
             "fields": [{"id": "value", "type": "int"}],
         }
 
-        with app.flask_app.test_request_context():
-            table = helpers.call_action("datastore_create", **data)
+        table = helpers.call_action("datastore_create", **data)
         res_id = table["resource_id"]
         for i in range(3):
             self.enqueue(datastore_job, args=[res_id, i])

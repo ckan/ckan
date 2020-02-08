@@ -9,12 +9,12 @@ from difflib import unified_diff
 from ckan.tests.legacy import url_for
 import ckan.tests.legacy as tests
 from ckan.tests.legacy.html_check import HtmlCheckMethods
-from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic.action import get, update
 from ckan import plugins
 from ckan.lib.search.common import SolrSettings
+from ckan.tests.helpers import body_contains
 
 existing_extra_html = (
     '<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>',
@@ -64,7 +64,7 @@ class TestPackageForm(TestPackageBase):
         assert license.title in main_div, (license.title, main_div_str)
         tag_names = list(params["tags"])
         self.check_named_element(main_div, "ul", *tag_names)
-        if params.has_key("state"):
+        if "state" in params:
             assert "State: %s" % params["state"] in main_div.replace(
                 "</strong>", ""
             ), main_div_str
@@ -117,7 +117,7 @@ class TestPackageForm(TestPackageBase):
         return unescaped_str.replace("<", "&lt;")
 
     def check_form_filled_correctly(self, res, **params):
-        if params.has_key("pkg"):
+        if "pkg" in params:
             for key, value in params["pkg"].as_dict().items():
                 if key == "license":
                     key = "license_id"
@@ -141,7 +141,7 @@ class TestPackageForm(TestPackageBase):
             tags = params["tags"]
         for tag in tags:
             self.check_tag(main_res, prefix + "tag_string", tag)
-        if params.has_key("state"):
+        if "state" in params:
             self.check_tag_and_data(main_res, "selected", str(params["state"]))
         if isinstance(params["extras"], dict):
             extras = []
@@ -194,17 +194,14 @@ class TestPackageForm(TestPackageBase):
             if return_url_param:
                 offset_params["return_to"] = return_url_param
             offset = url_for(named_route, **offset_params)
-            res = app.get(offset, extra_environ=extra_environ)
-            assert "Datasets -" in res
-            fv = res.forms["dataset-edit"]
-            prefix = ""
-            fv[prefix + "name"] = new_name
-            res = fv.submit("save", status=302, extra_environ=extra_environ)
+            res = app.post(offset, extra_environ=extra_environ, data={
+                "name": new_name,
+                "save": ""
+            }, follow_redirects=False)
+
             assert not "Error" in res, res
-            redirected_to = (
-                dict(res.headers).get("Location")
-                or dict(res.headers)["location"]
-            )
+            redirected_to = res.headers['location']
+
             expected_redirect_url = expected_redirect.replace(
                 "<NAME>", new_name
             )
@@ -258,8 +255,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
                 "%s:%s" % (controller, id.replace('"', "&#34;")),
             )
 
-        check_link(res, "dataset", "pkg-1")
-        check_link(res, "group", "test-group-1")
+        check_link(res.body, "dataset", "pkg-1")
+        check_link(res.body, "group", "test-group-1")
         assert "decoy</a>" not in res, res
         assert 'decoy"' not in res, res
 
@@ -274,6 +271,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         assert plugin.calls["read"] == 1, plugin.calls
         assert plugin.calls["after_show"] == 1, plugin.calls
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_resource_list(self, app):
         # TODO restore this test. It doesn't make much sense with the
         # present resource list design.
@@ -330,14 +328,6 @@ class TestEdit(TestPackageForm):
         }
         self.extra_environ_russianfan = {"REMOTE_USER": "russianfan"}
 
-    def test_edit_2_not_groups(self, app):
-        # not allowed to edit groups for now
-        prefix = "Dataset-%s-" % self.pkgid
-        fv = app.get(
-            self.offset, extra_environ=self.extra_environ_admin
-        ).forms["dataset-edit"]
-        assert not fv.fields.has_key(prefix + "groups")
-
     def test_redirect_after_edit_using_param(self, app):
         return_url = "http://random.site.com/dataset/<NAME>?test=param"
         # It's useful to know that this url encodes to:
@@ -383,10 +373,10 @@ class TestEdit(TestPackageForm):
 
         # edit the package
         self.offset = url_for("dataset.edit", id=self.editpkg_name)
-        res = app.get(self.offset, extra_environ=self.extra_environ_admin)
-        fv = res.forms["dataset-edit"]
-        fv["title"] = u"New Title"
-        fv.submit("save", extra_environ=self.extra_environ_admin)
+        res = app.post(self.offset, extra_environ=self.extra_environ_admin, data={
+            "save": "",
+            "title": "New Title"
+        }, follow_redirects=False)
 
         # check relationship still exists
         rels = model.Package.by_name(self.editpkg_name).get_relationships()
@@ -440,13 +430,11 @@ class TestNew:
     def test_new_plugin_hook(self, env_user, app):
         plugin = plugins.get_plugin("test_package_controller_plugin")
         offset = url_for("dataset.new")
-        res = app.get(offset, extra_environ=env_user)
         new_name = u"plugged"
-        fv = res.forms["dataset-edit"]
-        prefix = ""
-        fv[prefix + "name"] = new_name
-        res = fv.submit("save", extra_environ=env_user)
-        # get redirected ...
+        res = app.post(offset, extra_environ=env_user, data={
+            "name": new_name,
+            "save": ""
+        }, follow_redirects=False)
         assert plugin.calls["edit"] == 0, plugin.calls
         assert plugin.calls["create"] == 1, plugin.calls
 
@@ -455,19 +443,18 @@ class TestNew:
     def test_after_create_plugin_hook(self, env_user, app):
         plugin = plugins.get_plugin("test_package_controller_plugin")
         offset = url_for("dataset.new")
-        res = app.get(offset, extra_environ=env_user)
         new_name = u"plugged2"
-        fv = res.forms["dataset-edit"]
-        prefix = ""
-        fv[prefix + "name"] = new_name
-        res = fv.submit("save", extra_environ=env_user)
-        # get redirected ...
+        res = app.post(offset, extra_environ=env_user, data={
+            "name": new_name,
+            "save": ""
+        }, follow_redirects=False)
         assert plugin.calls["after_update"] == 0, plugin.calls
         assert plugin.calls["after_create"] == 1, plugin.calls
 
         assert plugin.id_in_dict
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
+    @pytest.mark.xfail(reason="DetachedInstance error.")
     def test_new_indexerror(self, env_user, app):
         bad_solr_url = "http://example.com/badsolrurl"
         solr_url = SolrSettings.get()[0]
@@ -476,11 +463,10 @@ class TestNew:
             new_package_name = u"new-package-missing-solr"
 
             offset = url_for("dataset.new")
-            res = app.get(offset, extra_environ=env_user)
-            fv = res.forms["dataset-edit"]
-            fv["name"] = new_package_name
-
-            res = fv.submit("save", status=500, extra_environ=env_user)
+            res = app.post(offset, extra_environ=env_user,  data={
+                "save": "",
+                "name": new_package_name,
+            })
             assert "Unable to add package to search index" in res, res
         finally:
             SolrSettings.init(solr_url)
@@ -490,7 +476,7 @@ class TestNew:
         res = app.get(offset, extra_environ=env_user)
 
         res = app.get("/de/dataset/new", extra_environ=env_user)
-        assert "Datensatz" in res.body, res.body
+        assert body_contains(res, "Datensatz")
 
 
 class TestNonActivePackages:
@@ -521,7 +507,7 @@ class TestNonActivePackages:
 
     def test_read(self, app):
         offset = url_for("dataset.read", id=self.non_active_name)
-        res = app.get(offset, status=[404])
+        res = app.get(offset, status=404)
 
     def test_read_as_admin(self, app):
         offset = url_for("dataset.read", id=self.non_active_name)
@@ -577,9 +563,9 @@ class TestResourceListing:
         app.get(
             "/dataset/resources/crimeandpunishment",
             extra_environ=users["someone_else"],
-            status=[403],
+            status=403,
         )
 
     def test_resource_listing_premissions_not_logged_in(self, app):
         # not logged in 403
-        app.get("/dataset/resources/crimeandpunishment", status=[403])
+        app.get("/dataset/resources/crimeandpunishment", status=403)

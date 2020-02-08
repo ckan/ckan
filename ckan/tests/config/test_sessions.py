@@ -1,39 +1,45 @@
 # encoding: utf-8
 
 import pytest
+import six
 from flask import Blueprint, render_template
 
 import ckan.lib.helpers as h
 import ckan.plugins as p
 from ckan.lib.base import render as pylons_render
+from ckan.tests.helpers import body_contains
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_flash_plugin")
+@pytest.mark.usefixtures(u"with_request_context")
 class TestWithFlashPlugin:
+    # @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
     def test_flash_populated_by_flask_redirect_to_flask(self, app):
         u"""
         Flash store is populated by Flask view is accessible by another Flask
         view.
         """
-        res = app.get(u"/flask_add_flash_message_redirect_to_flask").follow()
+        url = u"/flask_add_flash_message_redirect_to_flask"
+        res = app.get(url)
+        assert body_contains(res, u"This is a success message populated by Flask")
 
-        assert u"This is a success message populated by Flask" in res.body
-
+    @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
     def test_flash_populated_in_pylons_action_redirect_to_flask(self, app):
         u"""
         Flash store is populated by pylons action is accessible by Flask view.
         """
-        res = app.get(u"/pylons_add_flash_message_redirect_view").follow()
+        res = app.get(u"/pylons_add_flash_message_redirect_view")
 
-        assert u"This is a success message populated by Pylons" in res.body
+        assert body_contains(res, u"This is a success message populated by Pylons")
 
+    @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
     def test_flash_populated_in_flask_view_redirect_to_pylons(self, app):
         u"""
         Flash store is populated by flask view is accessible by pylons action.
         """
-        res = app.get(u"/flask_add_flash_message_redirect_pylons").follow()
+        res = app.get(u"/flask_add_flash_message_redirect_pylons")
 
-        assert u"This is a success message populated by Flask" in res.body
+        assert body_contains(res, u"This is a success message populated by Flask")
 
 
 class FlashMessagePlugin(p.SingletonPlugin):
@@ -109,12 +115,13 @@ class FlashMessagePlugin(p.SingletonPlugin):
         return _map
 
 
-class PylonsAddFlashMessageController(p.toolkit.BaseController):
-    def flash_message_action(self):
-        u"""Pylons view to render flash messages in a template."""
-        return pylons_render(u"tests/flash_messages.html")
+if six.PY2:
+    class PylonsAddFlashMessageController(p.toolkit.BaseController):
+        def flash_message_action(self):
+            u"""Pylons view to render flash messages in a template."""
+            return pylons_render(u"tests/flash_messages.html")
 
-    def add_flash_message_redirect(self):
-        # Adds a flash message and redirects to flask view
-        h.flash_success(u"This is a success message populated by Pylons")
-        return h.redirect_to(u"/flask_view_flash_message")
+        def add_flash_message_redirect(self):
+            # Adds a flash message and redirects to flask view
+            h.flash_success(u"This is a success message populated by Pylons")
+            return h.redirect_to(u"/flask_view_flash_message")

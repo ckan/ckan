@@ -17,7 +17,7 @@
 import re
 import os
 import subprocess
-
+import six
 
 import ckan
 
@@ -126,8 +126,7 @@ SUPPORTED_CKAN_VERSIONS = 3
 def get_release_tags():
     git_tags = subprocess.check_output(
         ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
-
-    release_tags_ = [tag for tag in git_tags if tag.startswith('ckan-')]
+    release_tags_ = [tag for tag in git_tags if tag.startswith(six.b('ckan-'))]
 
     # git tag -l prints out the tags in the right order anyway, but don't rely
     # on that, sort them again here for good measure.
@@ -144,6 +143,8 @@ def parse_version(version_):
     global version_re
     if version_re is None:
         version_re = re.compile('(?:ckan-)?(\d+)\.(\d+)(?:\.(\d+))?[a-z]?')
+    if isinstance(version_, six.binary_type):
+        version_ = version_.decode()
     return version_re.match(version_).groups()
 
 

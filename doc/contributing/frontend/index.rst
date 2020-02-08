@@ -25,7 +25,7 @@ Instructions for installing |nodejs| can be found on the |nodejs| `website
 On Ubuntu, run the following to install |nodejs| official repository and the node
 package::
 
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
     sudo apt-get install -y nodejs
 
 .. note:: If you use the package on the default Ubuntu repositories (eg ``sudo apt-get install nodejs``),
@@ -34,22 +34,18 @@ package::
 
         ln -s /usr/bin/nodejs /usr/bin/node
 
-    Also npm (the |nodejs| package manager) needs to be installed separately::
-
-        sudo apt-get install npm
-
     For more information, refer to the |nodejs| `instructions
     <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_.
 
-Less can then be installed via the node package manager (npm).
-We also use ``nodewatch`` to make our Less compiler a watcher
+Dependencies can then be installed via the node package manager (npm).
+We use ``gulp`` to make our Less compiler a watcher
 style script.
 
 ``cd`` into the CKAN source folder (eg |virtualenv|/src/ckan ) and run:
 
 ::
 
-    $ npm install less@3.7.1 nodewatch
+    $ npm install
 
 
 You may need to use ``sudo`` depending on your CKAN install type.
@@ -127,11 +123,13 @@ before beginning development by running:
 
 ::
 
-    $ ./bin/less
+    $ npm run watch
 
 This will watch for changes to all of the less files and automatically
-rebuild the CSS for you. To quit the script press ``ctrl-c``. There is also
-``--production`` flag for compiling the production ``main.css``.
+rebuild the CSS for you. To quit the script press ``ctrl-c``. If you
+need sourcemaps for debugging, set `DEBUG` environment variable. I.e::
+
+  $ DEBUG=1 npm run watch
 
 There are many Less files which attempt to group the styles in useful
 groups. The main two are:
@@ -146,7 +144,7 @@ ckan.less:
 
 .. Note::
     Whenever a CSS change effects ``main.less`` it's important than after
-    the merge into master that a ``$ ./bin/less --production`` should be
+    the merge into master that a ``$ npm run build`` should be
     run and commited.
 
 There is a basic pattern primer available at:

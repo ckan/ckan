@@ -1,0 +1,3 @@
+{% import 'macros/form.html' as form %}
+
+{{ form.input('audio_url', id='field-audio_url', label=_('Audio url'), placeholder=_('eg. http://example.com/audio.mp3  (if blank uses resource url)'), value=data.audio_url, error=errors.audio_url, classes=['control-full', 'control-large']) }}

@@ -21,9 +21,9 @@ def rename_keys(dict_, key_map, reverse=False, destructive=False):
     for key, mapping in key_map.items():
         if reverse:
             key, mapping = (mapping, key)
-        if (not destructive) and new_dict.has_key(mapping):
+        if (not destructive) and mapping in new_dict:
             continue
-        if dict_.has_key(key):
+        if key in dict_:
             value = dict_[key]
             new_dict[mapping] = value
             del new_dict[key]

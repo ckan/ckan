@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-
+import six
 import pytest
 import ckan.tests.helpers as helpers
 
@@ -26,7 +26,7 @@ def test_apikey_missing(app):
     app.get("/dataset/new", headers=request_headers, status=403)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_apikey_in_authorization_header(app):
     user = factories.Sysadmin()
     request_headers = {"Authorization": str(user["apikey"])}
@@ -34,7 +34,7 @@ def test_apikey_in_authorization_header(app):
     app.get("/dataset/new", headers=request_headers)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_apikey_in_x_ckan_header(app):
     user = factories.Sysadmin()
     # non-standard header name is defined in test-core.ini
@@ -53,7 +53,7 @@ def test_apikey_contains_unicode(app):
 
 def test_options(app):
     response = app.options(url="/", status=200)
-    assert len(str(response.body)) == 0, "OPTIONS must return no content"
+    assert len(six.ensure_str(response.data)) == 0, "OPTIONS must return no content"
 
 
 def test_cors_config_no_cors(app):
@@ -230,7 +230,7 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
 @pytest.mark.usefixtures("with_plugins")
 def test_options_2(app):
     response = app.options(url="/simple_flask", status=200)
-    assert len(str(response.body)) == 0, "OPTIONS must return no content"
+    assert len(six.ensure_str(response.data)) == 0, "OPTIONS must return no content"
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")

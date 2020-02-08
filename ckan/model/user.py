@@ -4,6 +4,7 @@ import datetime
 import re
 import os
 from hashlib import sha1, md5
+import six
 
 import passlib.utils
 from passlib.hash import pbkdf2_sha512
@@ -74,7 +75,7 @@ class User(core.StatefulObjectMixin,
         e = ''
         if self.email:
             e = self.email.strip().lower().encode('utf8')
-        return md5(e).hexdigest()
+        return md5(six.ensure_binary(e)).hexdigest()
 
     def get_reference_preferred_for_uri(self):
         '''Returns a reference (e.g. name, id) for this user
@@ -101,19 +102,19 @@ class User(core.StatefulObjectMixin,
         hashed_password = pbkdf2_sha512.encrypt(password)
 
         if not isinstance(hashed_password, text_type):
-            hashed_password = hashed_password.decode('utf-8')
+            hashed_password = six.ensure_text(hashed_password)
         self._password = hashed_password
 
     def _get_password(self):
         return self._password
 
     def _verify_and_upgrade_from_sha1(self, password):
-        if isinstance(password, text_type):
-            password_8bit = password.encode('ascii', 'ignore')
-        else:
-            password_8bit = password
+        # if isinstance(password, text_type):
+        #     password_8bit = password.encode('ascii', 'ignore')
+        # else:
+        #     password_8bit = password
 
-        hashed_pass = sha1(password_8bit + self.password[:40])
+        hashed_pass = sha1(six.ensure_binary(password + self.password[:40]))
         current_hash = passlib.utils.to_native_str(self.password[40:])
 
         if passlib.utils.consteq(hashed_pass.hexdigest(), current_hash):

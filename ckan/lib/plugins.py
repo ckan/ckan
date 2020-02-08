@@ -8,7 +8,6 @@ from flask import Blueprint
 
 from ckan.common import c, g
 from ckan import logic
-import logic.schema
 from ckan import plugins
 import ckan.authz
 import ckan.plugins.toolkit as toolkit
@@ -326,13 +325,13 @@ class DefaultDatasetForm(object):
 
     '''
     def create_package_schema(self):
-        return ckan.logic.schema.default_create_package_schema()
+        return logic.schema.default_create_package_schema()
 
     def update_package_schema(self):
-        return ckan.logic.schema.default_update_package_schema()
+        return logic.schema.default_update_package_schema()
 
     def show_package_schema(self):
-        return ckan.logic.schema.default_show_package_schema()
+        return logic.schema.default_show_package_schema()
 
     def setup_template_variables(self, context, data_dict):
         data_dict.update({'available_only': True})

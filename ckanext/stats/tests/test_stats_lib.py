@@ -10,14 +10,11 @@ from ckanext.stats.stats import Stats
 from ckanext.stats.tests import StatsFixture
 
 
-class TestStatsPlugin(StatsFixture):
-    @classmethod
-    def setup_class(cls):
-
-        super(TestStatsPlugin, cls).setup_class()
-
-        model.repo.rebuild_db()
-
+@pytest.mark.ckan_config('ckan.plugins', 'stats')
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+class TestStatsPlugin(object):
+    @pytest.fixture(autouse=True)
+    def initial_data(self, clean_db, with_request_context):
         user = factories.User(name="bob")
         org_users = [{"name": user["name"], "capacity": "editor"}]
         org1 = factories.Organization(name="org1", users=org_users)
@@ -57,13 +54,6 @@ class TestStatsPlugin(StatsFixture):
         # week 4
         model.Package.by_name(u"test3").notes = "Test 3 notes"
         model.repo.commit_and_remove()
-
-    @classmethod
-    def teardown_class(cls):
-
-        model.repo.rebuild_db()
-
-        model.Session.remove()
 
     def test_top_rated_packages(self):
         pkgs = Stats.top_rated_packages()

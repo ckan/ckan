@@ -6,10 +6,9 @@ controller itself.
 import json
 import re
 
-import __builtin__ as builtins
-
 import mock
 import pytest
+import six
 
 from pyfakefs import fake_filesystem
 
@@ -17,6 +16,11 @@ from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
 from ckan.lib import uploader as ckan_uploader
+
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
 
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
@@ -31,13 +35,12 @@ def mock_open_if_open_fails(*args, **kwargs):
         return fake_open(*args, **kwargs)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestApiController(object):
     @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan_uploader, "os", fake_os)
     @mock.patch.object(ckan_uploader, "_storage_path", new="/doesnt_exist")
-    def test_resource_create_upload_file(self, _, app):
+    def test_resource_create_upload_file(self, app, monkeypatch):
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user["id"])
 
@@ -47,32 +50,32 @@ class TestApiController(object):
             logic_function="resource_create",
             ver="/3",
         )
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        postparams = {"name": "test-flask-upload", "package_id": pkg["id"]}
-        upload_content = "test-content"
-        upload_info = ("upload", "test-upload.txt", upload_content)
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+
+        content = six.ensure_binary('upload-content')
+        upload_content = six.BytesIO(content)
+        postparams = {"name": "test-flask-upload", "package_id": pkg["id"], "upload": (upload_content, "test-upload.txt")}
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
 
         resp = app.post(
             url,
-            params=postparams,
-            upload_files=[upload_info],
-            extra_environ=env
-            # content_type= 'application/json'
+            data=postparams,
+            environ_overrides=env,
+            content_type='multipart/form-data'
         )
         result = resp.json["result"]
         assert "upload" == result["url_type"]
-        assert len(upload_content) == result["size"]
+        assert len(content) == result["size"]
 
     def test_unicode_in_error_message_works_ok(self, app):
         # Use tag_delete to echo back some unicode
 
         org_url = "/api/action/tag_delete"
         data_dict = {"id": u"Delta symbol: \u0394"}  # unicode gets rec'd ok
-        postparams = "%s=1" % json.dumps(data_dict)
-        response = app.post(url=org_url, params=postparams, status=404)
+        response = app.post(url=org_url, data=data_dict, status=404)
         # The unicode is backslash encoded (because that is the default when
         # you do str(exception) )
-        assert "Delta symbol: \\u0394" in response.body
+        assert helpers.body_contains(response, "Delta symbol: \\u0394")
 
     @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_name(self, app):
@@ -82,7 +85,7 @@ class TestApiController(object):
         )
         assert url == "/api/2/util/dataset/autocomplete"
 
-        response = app.get(url=url, params={"incomplete": u"rive"}, status=200)
+        response = app.get(url=url, query_string={"incomplete": u"rive"}, status=200)
 
         results = json.loads(response.body)
         assert results == {
@@ -110,7 +113,7 @@ class TestApiController(object):
         )
         assert url == "/api/2/util/dataset/autocomplete"
 
-        response = app.get(url=url, params={"incomplete": u"riv"}, status=200)
+        response = app.get(url=url, query_string={"incomplete": u"riv"}, status=200)
 
         results = json.loads(response.body)
         assert results == {
@@ -135,7 +138,7 @@ class TestApiController(object):
         url = url_for(controller="api", action="tag_autocomplete", ver="/2")
         assert url == "/api/2/util/tag/autocomplete"
 
-        response = app.get(url=url, params={"incomplete": u"rive"}, status=200)
+        response = app.get(url=url, query_string={"incomplete": u"rive"}, status=200)
 
         results = json.loads(response.body)
         assert results == {"ResultSet": {"Result": [{"Name": "rivers"}]}}
@@ -149,7 +152,7 @@ class TestApiController(object):
         url = url_for(controller="api", action="group_autocomplete", ver="/2")
         assert url == "/api/2/util/group/autocomplete"
 
-        response = app.get(url=url, params={"q": u"rive"}, status=200)
+        response = app.get(url=url, query_string={"q": u"rive"}, status=200)
 
         results = json.loads(response.body)
         assert len(results) == 1
@@ -164,7 +167,7 @@ class TestApiController(object):
         org = factories.Group(name="frogs", title="Bugs")
         url = url_for(controller="api", action="group_autocomplete", ver="/2")
 
-        response = app.get(url=url, params={"q": u"bug"}, status=200)
+        response = app.get(url=url, query_string={"q": u"bug"}, status=200)
 
         results = json.loads(response.body)
         assert len(results) == 1
@@ -177,7 +180,7 @@ class TestApiController(object):
         )
         assert url == "/api/2/util/organization/autocomplete"
 
-        response = app.get(url=url, params={"q": u"simple"}, status=200)
+        response = app.get(url=url, query_string={"q": u"simple"}, status=200)
 
         results = json.loads(response.body)
         assert len(results) == 1
@@ -194,7 +197,7 @@ class TestApiController(object):
             controller="api", action="organization_autocomplete", ver="/2"
         )
 
-        response = app.get(url=url, params={"q": u"simple dum"}, status=200)
+        response = app.get(url=url, query_string={"q": u"simple dum"}, status=200)
 
         results = json.loads(response.body)
         assert len(results) == 1
@@ -211,8 +214,8 @@ class TestApiController(object):
 
         app.get(
             url=url,
-            params={},
-            extra_environ={"REMOTE_USER": user["name"].encode("ascii")},
+            query_string={},
+            environ_overrides={"REMOTE_USER": six.ensure_str(user["name"])},
             status=200,
         )
 
@@ -227,8 +230,8 @@ class TestApiController(object):
 
         app.get(
             url=url,
-            params={"callback": "myfn"},
-            extra_environ={"REMOTE_USER": user["name"].encode("ascii")},
+            query_string={"callback": "myfn"},
+            environ_overrides={"REMOTE_USER": six.ensure_str(user["name"])},
             status=403,
         )
 
@@ -244,8 +247,8 @@ class TestApiController(object):
             ver="/3",
         )
 
-        res = app.get(url=url, params={"callback": "my_callback"})
-        assert re.match(r"my_callback\(.*\);", res.body), res
+        res = app.get(url=url, query_string={"callback": "my_callback"})
+        assert re.match(r"my_callback\(.*\);", six.ensure_str(res.body)), res
         # Unwrap JSONP callback (we want to look at the data).
         start = len("my_callback") + 1
         msg = res.body[start:-2]
@@ -263,7 +266,7 @@ class TestApiController(object):
             ver="/3",
         )
 
-        res = app.get(url=url, params={"callback": "my_callback"})
+        res = app.get(url=url, query_string={"callback": "my_callback"})
         assert "application/javascript" in res.headers.get("Content-Type")
 
     def test_jsonp_does_not_work_on_post_requests(self, app):
@@ -281,7 +284,7 @@ class TestApiController(object):
 
         res = app.post(url=url)
         # The callback param is ignored and the normal response is returned
-        assert not res.body.startswith("my_callback")
+        assert not six.ensure_str(res.body).startswith("my_callback")
         res_dict = json.loads(res.body)
         assert res_dict["success"]
         assert sorted(res_dict["result"]) == sorted(

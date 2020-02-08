@@ -88,7 +88,7 @@ def permissions_sql(maindb, datastoredb, mainuser, writeuser, readuser):
 def dump(ctx, resource_id, output_file, format, offset, limit, bom):
     u'''Dump a datastore resource.
     '''
-    flask_app = ctx.obj.app.apps[u'flask_app']._wsgi_app
+    flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         dump_to(
             resource_id,

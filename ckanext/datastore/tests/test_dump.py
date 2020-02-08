@@ -3,6 +3,7 @@
 import mock
 import json
 import pytest
+import six
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
@@ -23,7 +24,7 @@ class TestDatastoreDump(object):
         assert (
             "_id,book\r\n"
             "1,annakarenina\n"
-            "2,warandpeace\n" == response.body
+            "2,warandpeace\n" == six.ensure_text(response.data)
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -60,7 +61,7 @@ class TestDatastoreDump(object):
         helpers.call_action("datastore_create", **data)
 
         response = app.get("/datastore/dump/{0}".format(str(resource["id"])))
-        content = response.body.decode("utf-8")
+        content = six.ensure_text(response.data)
         expected = (
             u"_id,b\xfck,author,published" u",characters,random_letters,nested"
         )
@@ -85,7 +86,7 @@ class TestDatastoreDump(object):
         assert (
             "_id,book\r\n"
             "1,annakarenina\n"
-            "2,warandpeace\n" == response.body
+            "2,warandpeace\n" == six.ensure_text(response.data)
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -108,7 +109,7 @@ class TestDatastoreDump(object):
         response = app.get(
             "/datastore/dump/{0}?limit=1".format(str(resource["id"]))
         )
-        content = response.body.decode("utf-8")
+        content = six.ensure_text(response.data)
         expected_content = u"_id,book\r\n" u"1,annakarenina\n"
         assert content == expected_content
 
@@ -150,7 +151,7 @@ class TestDatastoreDump(object):
                 resource["id"]
             )
         )
-        content = response.body.decode("utf-8")
+        content = six.ensure_text(response.data)
 
         expected_content = u"nested,author\r\n" u'"{""a"": ""b""}",tolstoy\n'
         assert content == expected_content
@@ -193,7 +194,7 @@ class TestDatastoreDump(object):
                 str(resource["id"])
             )
         )
-        content = res.body.decode("utf-8")
+        content = six.ensure_text(res.data)
 
         expected_content = (
             u"_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t"
@@ -239,20 +240,30 @@ class TestDatastoreDump(object):
 
         res = app.get(
             "/datastore/dump/{0}?limit=1&format=json".format(
-                str(resource["id"])
+                resource["id"]
             )
         )
-        content = res.body.decode("utf-8")
-        expected_content = (
-            u'{\n  "fields": [{"type":"int","id":"_id"},{"type":"text",'
-            u'"id":"b\xfck"},{"type":"text","id":"author"},{"type":"timestamp"'
-            u',"id":"published"},{"type":"_text","id":"characters"},'
-            u'{"type":"_text","id":"random_letters"},{"type":"json",'
-            u'"id":"nested"}],\n  "records": [\n    '
-            u'[1,"annakarenina","tolstoy","2005-03-01T00:00:00",'
-            u'["Princess Anna","Sergius"],["a","e","x"],["b",'
-            u'{"moo":"moo"}]]\n]}\n'
-        )
+
+        content = json.loads(six.ensure_text(res.data))
+        expected_content = {
+            u'fields': [
+                {u'id': u'_id', u'type': u'int'},
+                {u'id': u'bük', u'type': u'text'},
+                {u'id': u'author', u'type': u'text'},
+                {u'id': u'published', u'type': u'timestamp'},
+                {u'id': u'characters', u'type': u'_text'},
+                {u'id': u'random_letters', u'type': u'_text'},
+                {u'id': u'nested', u'type': u'json'}
+            ],
+            u'records': [
+                [
+                    1, u'annakarenina', u'tolstoy', u'2005-03-01T00:00:00',
+                    [u'Princess Anna', u'Sergius'],
+                    [u'a', u'e', u'x'],
+                    [u'b', {u'moo': u'moo'}]
+                ]
+            ]
+        }
         assert content == expected_content
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -293,7 +304,7 @@ class TestDatastoreDump(object):
                 str(resource["id"])
             )
         )
-        content = res.body.decode("utf-8")
+        content = six.ensure_text(res.data)
         expected_content = (
             u"<data>\n"
             r'<row _id="1">'
@@ -328,12 +339,12 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in range(12)],
+            "records": [{u"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
         response = app.get("/datastore/dump/{0}".format(str(resource["id"])))
-        assert get_csv_record_values(response.body) == range(12)
+        assert get_csv_record_values(response.data) == list(range(12))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -343,12 +354,12 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in range(12)],
+            "records": [{u"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
         response = app.get("/datastore/dump/{0}".format(str(resource["id"])))
-        assert get_csv_record_values(response.body) == range(12)
+        assert get_csv_record_values(response.data) == list(range(12))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -359,14 +370,14 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in range(12)],
+            "records": [{u"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
         response = app.get(
             "/datastore/dump/{0}?limit=11".format(str(resource["id"]))
         )
-        assert get_csv_record_values(response.body) == range(11)
+        assert get_csv_record_values(response.data) == list(range(11))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -377,14 +388,14 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in range(12)],
+            "records": [{u"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
         response = app.get(
             "/datastore/dump/{0}?limit=6".format(str(resource["id"]))
         )
-        assert get_csv_record_values(response.body) == range(6)
+        assert get_csv_record_values(response.data) == list(range(6))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -395,14 +406,14 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in range(12)],
+            "records": [{u"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
         response = app.get(
             "/datastore/dump/{0}?limit=7".format(str(resource["id"]))
         )
-        assert get_csv_record_values(response.body) == range(7)
+        assert get_csv_record_values(response.data) == list(range(7))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -413,14 +424,14 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in range(12)],
+            "records": [{u"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
         response = app.get(
             "/datastore/dump/{0}?limit=7".format(str(resource["id"]))
         )
-        assert get_csv_record_values(response.body) == range(7)
+        assert get_csv_record_values(response.data) == list(range(7))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -431,7 +442,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in range(12)],
+            "records": [{u"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -440,7 +451,7 @@ class TestDatastoreDump(object):
                 str(resource["id"])
             )
         )
-        assert get_json_record_values(response.body) == range(6)
+        assert get_json_record_values(response.data) == list(range(6))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -451,7 +462,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in range(12)],
+            "records": [{u"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -460,11 +471,11 @@ class TestDatastoreDump(object):
                 str(resource["id"])
             )
         )
-        assert get_json_record_values(response.body) == range(7)
+        assert get_json_record_values(response.data) == list(range(7))
 
 
 def get_csv_record_values(response_body):
-    return [int(record.split(",")[1]) for record in response_body.split()[1:]]
+    return [int(record.split(",")[1]) for record in six.ensure_text(response_body).split()[1:]]
 
 
 def get_json_record_values(response_body):

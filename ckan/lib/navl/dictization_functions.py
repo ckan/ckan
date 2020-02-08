@@ -33,8 +33,8 @@ class Missing(object):
     def __hex__(self):
         raise Invalid(_('Missing value'))
 
-    def __nonzero__(self):
-        return False
+    def __len__(self):
+        return 0
 
 
 missing = Missing()
@@ -46,7 +46,7 @@ class State(object):
 
 class DictizationError(Exception):
     def __str__(self):
-        return text_type(self).encode('utf8')
+        return six.ensure_str(self.__unicode__())
 
     def __unicode__(self):
         if hasattr(self, 'error') and self.error:
@@ -267,7 +267,7 @@ def validate(data, schema, context=None):
 
     # create a copy of the context which also includes the schema keys so
     # they can be used by the validators
-    validators_context = dict(context, schema_keys=schema.keys())
+    validators_context = dict(context, schema_keys=list(schema.keys()))
 
     flattened = flatten_dict(data)
     converted_data, errors = _validate(flattened, schema, validators_context)

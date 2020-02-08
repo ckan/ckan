@@ -181,7 +181,7 @@ Create the CKAN config file:
 
 .. parsed-literal::
 
-    paster make-config ckan |development.ini|
+    ckan generate config |development.ini|
 
 Edit the ``development.ini`` file in a text editor, changing the following
 options:
@@ -357,7 +357,7 @@ AttributeError: 'module' object has no attribute 'css/main.debug.css'
 This error is likely to show up when `debug` is set to `True`. To fix this
 error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
-After installing the dependencies, run ``bin/less`` and then start paster server
+After installing the dependencies, run ``npm run build`` and then start paster server
 again.
 
 If you do not want to compile CSS, you can also copy the main.css to

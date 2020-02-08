@@ -224,14 +224,14 @@ ckan.site_title = CKAN
             "\n"
         )
 
-        out = config_tool.parse_config(input_lines)
+        out = sorted(config_tool.parse_config(input_lines).items())
 
         assert (
-            str(out) == "{"
-            "'logger-keys': <Option [logger] keys = root, ckan, ckanext>, "
-            "'app:main-ckan.site_title': <Option [app:main] ckan.site_title = CKAN>, "
-            "'logger-level': <Option [logger] level = WARNING>"
-            "}"
+            str(out) == "["
+            "('app:main-ckan.site_title', <Option [app:main] ckan.site_title = CKAN>), "
+            "('logger-keys', <Option [logger] keys = root, ckan, ckanext>), "
+            "('logger-level', <Option [logger] level = WARNING>)"
+            "]"
         )
 
     def test_parse_comment(self):
