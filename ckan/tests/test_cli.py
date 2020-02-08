@@ -140,18 +140,18 @@ class TestUserAdd(object):
 
 class TestJobsUnknown(helpers.RQTestBase):
     """
-    Test unknown sub-command for ``paster jobs``.
+    Test unknown sub-command for ``ckan jobs``.
     """
 
     def test_unknown_command(self):
         """
-        Test error handling for unknown ``paster jobs`` sub-command.
+        Test error handling for unknown ``ckan jobs`` sub-command.
         """
-        code, stdout, stderr = click(
+        code, stdout = click(
             u"jobs", u"does-not-exist", fail_on_error=False
         )
         assert code != 0
-        assert u"Unknown command" in stderr
+        assert u"No such command" in stdout
 
 
 class TestJobsList(helpers.RQTestBase):
