@@ -193,9 +193,9 @@ asset: WebAssets commands
 
 Usage::
 
-    asset build            - Builds bundles, regardless of whether they are changed or not
-    asset watch            - Start a daemon which monitors source files, and rebuilds bundles
-    asset clean            - Will clear out the cache, which after a while can grow quite large
+    ckan asset build            - Builds bundles, regardless of whether they are changed or not
+    ckan asset watch            - Start a daemon which monitors source files, and rebuilds bundles
+    ckan asset clean            - Will clear out the cache, which after a while can grow quite large
 
 
 config-tool: Tool for editing options in a CKAN config file
@@ -203,9 +203,9 @@ config-tool: Tool for editing options in a CKAN config file
 
 Usage::
 
-    config-tool --section (-s)  - Section of the config file
-    config-tool --edit (-e)     - Checks the option already exists in the config file
-    config-tool --file (-f)     - Supply an options file to merge in
+    ckan config-tool --section (-s)  - Section of the config file
+    ckan config-tool --edit (-e)     - Checks the option already exists in the config file
+    ckan config-tool --file (-f)     - Supply an options file to merge in
 
 Examples::
 
@@ -223,11 +223,11 @@ dataset: Manage datasets
 
 Usage::
 
-    dataset DATASET_NAME|ID            - shows dataset properties
-    dataset show DATASET_NAME|ID       - shows dataset properties
-    dataset list                       - lists datasets
-    dataset delete [DATASET_NAME|ID]   - changes dataset state to 'deleted'
-    dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
+    ckan dataset DATASET_NAME|ID            - shows dataset properties
+    ckan dataset show DATASET_NAME|ID       - shows dataset properties
+    ckan dataset list                       - lists datasets
+    ckan dataset delete [DATASET_NAME|ID]   - changes dataset state to 'deleted'
+    ckan dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
 
 
 datastore: Perform commands to set up the datastore
@@ -237,7 +237,7 @@ Make sure that the datastore URLs are set properly before you run these commands
 
 Usage::
 
-    datastore set-permissions  - shows a SQL script to execute
+    ckan datastore set-permissions  - shows a SQL script to execute
 
 
 db: Manage databases
@@ -251,7 +251,7 @@ front-end-build: Creates and minifies css and JavaScript files
 
 Usage::
 
-    front-end-build
+    ckan front-end-build
     
     
 generate: Generate empty extension files to expand CKANs
@@ -259,7 +259,7 @@ generate: Generate empty extension files to expand CKANs
 
 Usage::
 
-    generate --output-dir (-o)   -   Location to put the generated template  
+    ckan generate --output-dir (-o)   -   Location to put the generated template  
 
 
 .. _cli jobs:
@@ -401,7 +401,7 @@ notify: Send out modification notifications
 
 Usage::
 
-    notify replay    - send out modification signals. In "replay" mode,
+    ckan notify replay    - send out modification signals. In "replay" mode,
                        an update signal is sent for each dataset in the database.
 
 
@@ -419,7 +419,7 @@ by runsnakerun.
 
 Usage::
 
-   profile URL
+   ckan profile URL
 
 The result is saved in profile.data.search. To view the profile in runsnakerun::
 
@@ -433,12 +433,12 @@ search-index: Search index commands
 
 Usage::
 
-    search-index --verbose (-v)           - Verbose
-    search-index --force (-i)             - Ignore exceptions when rebuilding the index
-    search-index --refresh (-r)           - Ignore exceptions when rebuilding the index
-    search-index --only-missing (-o)      - Index non indexed datasets only
-    search-index --quiet (-q)             - Do not output index rebuild progress
-    search-index --commit-each (-e)       - Perform a commit after indexing each dataset
+    ckan search-index --verbose (-v)           - Verbose
+    ckan search-index --force (-i)             - Ignore exceptions when rebuilding the index
+    ckan search-index --refresh (-r)           - Ignore exceptions when rebuilding the index
+    ckan search-index --only-missing (-o)      - Index non indexed datasets only
+    ckan search-index --quiet (-q)             - Do not output index rebuild progress
+    ckan search-index --commit-each (-e)       - Perform a commit after indexing each dataset
     
 
 .. _rebuild search index:
@@ -474,9 +474,9 @@ computer to reindex faster::
 
 There are other search related commands, mostly useful for debugging purposes::
 
-    search-index check                  - checks for datasets not indexed
-    search-index show DATASET_NAME      - shows index of a dataset
-    search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
+    ckan search-index check                  - checks for datasets not indexed
+    ckan search-index show DATASET_NAME      - shows index of a dataset
+    ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
 
 
 seed: Create test data in the database
@@ -492,9 +492,9 @@ server: Start Development server
 
 Usage::
 
-    server --host (-h)          - Set Host
-    server --port (-p)          - Set Port
-    server --reloader (-r)      - Use reloader
+    ckan server --host (-h)          - Set Host
+    ckan server --port (-p)          - Set Port
+    ckan server --reloader (-r)      - Use reloader
     
 
 sysadmin: Give sysadmin rights
@@ -512,8 +512,8 @@ tracking: Update tracking statistics
 
 Usage::
 
-    tracking update [start_date]       - update tracking stats
-    tracking export FILE [start_date]  - export tracking stats to a csv file
+    ckan tracking update [start_date]       - update tracking stats
+    ckan tracking export FILE [start_date]  - export tracking stats to a csv file
 
 
 translation: Translation helper functions
@@ -521,8 +521,9 @@ translation: Translation helper functions
 
 Usage::
 
-    trans js        - generate the JavaScript translations
-    trans mangle    - mangle the zh_TW translations for testing
+    ckan translation js          - generate the JavaScript translations
+    ckan translation mangle      - mangle the zh_TW translations for testing
+    ckan translation check-po    - check po files for common mistakes
 
 .. note::
 
@@ -552,7 +553,7 @@ views: Create views on relevant resources
 
 Usage::
 
-    views --dataset (-d)        - Set Dataset
-    views --no-default-filters
-    views --search (-s)         - Set Search
-    views --yes (-y)
+    ckan views --dataset (-d)        - Set Dataset
+    ckan views --no-default-filters
+    ckan views --search (-s)         - Set Search
+    ckan views --yes (-y)
