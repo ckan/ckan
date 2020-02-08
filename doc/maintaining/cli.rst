@@ -4,7 +4,7 @@
 Command Line Interface (CLI)
 ======================
 
-NB: From CKAN 2.9 onwards the CKAN configuration file is named 'ckan.ini'. Previous names: 'production.ini' and 'development.ini' (plus others) may also still appear in documentation and the software. These legacy names will eventually be phased out. Also from CKAN 2.9 onwards, the `paster`` command used for common CKAN administration tasks has been replaced with the  ``ckan`` command.
+NB: From CKAN 2.9 onwards the CKAN configuration file is named 'ckan.ini'. Previous names: 'production.ini' and 'development.ini' (plus others) may also still appear in documentation and the software. These legacy names will eventually be phased out. Also from CKAN 2.9 onwards, the ``paster`` command used for common CKAN administration tasks has been replaced with the  ``ckan`` command.
 
 If you have trouble running ckan commands, see
 `Troubleshooting ckan Commands`_ below.
