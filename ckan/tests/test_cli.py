@@ -46,7 +46,7 @@ def click(*args, **kwargs):
     fail_on_error = kwargs.pop(u"fail_on_error", True)
     args = [u"--config=" + config[u"__file__"]] + list(args)
     runner = CliRunner()
-    result = ''
+    result = u''
     try:
         result = runner.invoke(cli.ckan, args)
         code = result.exit_code
@@ -61,7 +61,7 @@ def click(*args, **kwargs):
     return code, result.output
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 class TestUserAdd(object):
 
     """Tests for UserCmd.add"""
@@ -74,34 +74,34 @@ class TestUserAdd(object):
     def test_cli_user_add_valid_args(self):
         """Command shouldn't raise SystemExit when valid args are provided."""
         args = [
-            "berty",
-            "password=password123",
-            "fullname=Berty Guffball",
-            "email=berty@example.com",
+            u"berty",
+            u"password=password123",
+            u"fullname=Berty Guffball",
+            u"email=berty@example.com",
         ]
         try:
             self.runner.invoke(self.user_cmd.add_user, args)
         except SystemExit:
-            assert False, "SystemExit exception shouldn't be raised"
+            assert False, u"SystemExit exception shouldn't be raised"
 
     def test_cli_user_add_no_args(self):
         """Command with no args raises SystemExit."""
-        self.user_cmd.args = ["add"]
+        self.user_cmd.args = [u"add"]
         result = self.runner.invoke(self.user_cmd.add_user)
         assert result.exception
-        assert "Missing argument" in result.output
+        assert u"Missing argument" in result.output
 
     def test_cli_user_add_no_fullname(self):
         """Command shouldn't raise SystemExit when fullname arg not present."""
         args = [
-            "berty",
-            "password=password123",
-            "email=berty@example.com",
+            u"berty",
+            u"password=password123",
+            u"email=berty@example.com",
         ]
         try:
             self.runner.invoke(self.user_cmd.add_user, args)
         except SystemExit:
-            assert False, "SystemExit exception shouldn't be raised"
+            assert False, u"SystemExit exception shouldn't be raised"
 
     def test_cli_user_add_unicode_fullname_unicode_decode_error(self):
         """
@@ -109,15 +109,15 @@ class TestUserAdd(object):
         characters outside of the ascii characterset.
         """
         args = [
-            "berty",
-            "password=password123",
-            "fullname=Harold Müffintøp",
-            "email=berty@example.com",
+            u"berty",
+            u"password=password123",
+            u"fullname=Harold Müffintøp",
+            u"email=berty@example.com",
         ]
         try:
             self.runner.invoke(self.user_cmd.add_user, args)
         except UnicodeDecodeError:
-            assert False, "UnicodeDecodeError exception shouldn't be raised"
+            assert False, u"UnicodeDecodeError exception shouldn't be raised"
 
     def test_cli_user_add_unicode_fullname_system_exit(self):
         """
@@ -125,15 +125,15 @@ class TestUserAdd(object):
         characters outside of the ascii characterset.
         """
         args = [
-            "berty",
-            "password=password123",
-            "fullname=Harold Müffintøp",
-            "email=berty@example.com",
+            u"berty",
+            u"password=password123",
+            u"fullname=Harold Müffintøp",
+            u"email=berty@example.com",
         ]
         try:
             self.runner.invoke(self.user_cmd.add_user, args)
         except SystemExit:
-            assert False, "SystemExit exception shouldn't be raised"
+            assert False, u"SystemExit exception shouldn't be raised"
 
 
 class TestJobsUnknown(helpers.RQTestBase):
