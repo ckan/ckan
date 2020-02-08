@@ -68,38 +68,38 @@ class TestUserAdd(object):
 
     @classmethod
     def setup_class(cls):
-        cls.user_cmd = cli.UserCmd("user-command")
+        cls.user_cmd = cli.user
+        cls.runner = CliRunner()
 
     def test_cli_user_add_valid_args(self):
         """Command shouldn't raise SystemExit when valid args are provided."""
-        self.user_cmd.args = [
-            "add",
+        args = [
             "berty",
             "password=password123",
             "fullname=Berty Guffball",
             "email=berty@example.com",
         ]
         try:
-            self.user_cmd.add()
+            self.runner.invoke(self.user_cmd.add_user, args)
         except SystemExit:
             assert False, "SystemExit exception shouldn't be raised"
 
     def test_cli_user_add_no_args(self):
         """Command with no args raises SystemExit."""
         self.user_cmd.args = ["add"]
-        with pytest.raises(SystemExit):
-            self.user_cmd.add()
+        result = self.runner.invoke(self.user_cmd.add_user)
+        assert result.exception
+        assert "Missing argument" in result.output
 
     def test_cli_user_add_no_fullname(self):
         """Command shouldn't raise SystemExit when fullname arg not present."""
-        self.user_cmd.args = [
-            "add",
+        args = [
             "berty",
             "password=password123",
             "email=berty@example.com",
         ]
         try:
-            self.user_cmd.add()
+            self.runner.invoke(self.user_cmd.add_user, args)
         except SystemExit:
             assert False, "SystemExit exception shouldn't be raised"
 
@@ -108,15 +108,14 @@ class TestUserAdd(object):
         Command shouldn't raise UnicodeDecodeError when fullname contains
         characters outside of the ascii characterset.
         """
-        self.user_cmd.args = [
-            "add",
+        args = [
             "berty",
             "password=password123",
             "fullname=Harold Müffintøp",
             "email=berty@example.com",
         ]
         try:
-            self.user_cmd.add()
+            self.runner.invoke(self.user_cmd.add_user, args)
         except UnicodeDecodeError:
             assert False, "UnicodeDecodeError exception shouldn't be raised"
 
@@ -125,15 +124,14 @@ class TestUserAdd(object):
         Command shouldn't raise SystemExit when fullname contains
         characters outside of the ascii characterset.
         """
-        self.user_cmd.args = [
-            "add",
+        args = [
             "berty",
             "password=password123",
             "fullname=Harold Müffintøp",
             "email=berty@example.com",
         ]
         try:
-            self.user_cmd.add()
+            self.runner.invoke(self.user_cmd.add_user, args)
         except SystemExit:
             assert False, "SystemExit exception shouldn't be raised"
 
