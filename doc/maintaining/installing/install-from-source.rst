@@ -251,7 +251,7 @@ database, you can :ref:`create the database tables <db init>`:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    ckan db init -c |ckan.ini|
+    ckan -c |ckan.ini| db init
 
 You should see ``Initialising DB: SUCCESS``.
 
