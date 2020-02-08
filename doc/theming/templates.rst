@@ -29,7 +29,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
       |activate|
       cd |virtualenv|/src
-      paster --plugin=ckan create -t ckanext |extension_dir|
+      ckan -c /path/to/ckan.ini create -t ckanext |extension_dir|
 
 2. Create the file |plugin.py| with the following contents:
 
@@ -58,7 +58,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
    .. parsed-literal::
 
-    $ paster serve --reload |development.ini|
+    $ ckan -c |/path/to/ckan.ini| run --reload
     Starting server in PID 13961.
     serving on 0.0.0.0:5000 view at http://127.0.0.1:5000
 
