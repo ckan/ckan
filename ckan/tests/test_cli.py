@@ -156,7 +156,7 @@ class TestJobsUnknown(helpers.RQTestBase):
 
 class TestJobsList(helpers.RQTestBase):
     """
-    Tests for ``paster jobs list``.
+    Tests for ``ckan jobs list``.
     """
 
     def test_list_default_queue(self):
@@ -165,7 +165,7 @@ class TestJobsList(helpers.RQTestBase):
         """
         job = self.enqueue()
         stdout = click(u"jobs", u"list")[1]
-        fields = stdout.split()
+        fields = stdout.split(u"\n")[-2].split()
         assert len(fields) == 3
         dt = datetime.datetime.strptime(fields[0], u"%Y-%m-%dT%H:%M:%S")
         now = datetime.datetime.utcnow()
@@ -179,7 +179,7 @@ class TestJobsList(helpers.RQTestBase):
         """
         job = self.enqueue(queue=u"my_queue")
         stdout = click(u"jobs", u"list")[1]
-        fields = stdout.split()
+        fields = stdout.split(u"\n")[-2].split()
         assert len(fields) == 3
         assert fields[2] == u"my_queue"
 
@@ -189,7 +189,7 @@ class TestJobsList(helpers.RQTestBase):
         """
         job = self.enqueue(title=u"My_Title")
         stdout = click(u"jobs", u"list")[1]
-        fields = stdout.split()
+        fields = stdout.split(u"\n")[-2].split()
         assert len(fields) == 4
         assert fields[3] == u'"My_Title"'
 
