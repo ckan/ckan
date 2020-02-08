@@ -26,9 +26,9 @@ describe('ckan.i18n', function () {
     it('should work while being deprecated', function () {
       cy.window().then(win => {
         let x = win.ckan.i18n.translate('foo');
-        assert.deepProperty(x, 'fetch');
+        expect(x).to.have.deep.property( 'fetch');
         assert.equal(x.fetch(), 'FOO');
-        assert.deepProperty(x, 'ifPlural');
+        expect(x).to.have.deep.property( 'ifPlural');
       })
     });
   });
