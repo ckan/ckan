@@ -45,10 +45,10 @@ To enable page view tracking:
    information run ``man crontab`` in a shell. For example, here is a crontab
    line to update the tracking data and rebuild the search index hourly::
 
-    @hourly /usr/lib/ckan/bin/paster --plugin=ckan tracking update -c /etc/ckan/production.ini && /usr/lib/ckan/bin/paster --plugin=ckan search-index rebuild -r -c /etc/ckan/production.ini
+    @hourly ckan -c /path/to/ckan.ini tracking update  && ckan -c /path/to/ckan.ini search-index rebuild -r 
 
    Replace ``/usr/lib/ckan/bin/`` with the path to the ``bin`` directory of the
-   virtualenv that you've installed CKAN into, and replace ``/etc/ckan/production.ini``
+   virtualenv that you've installed CKAN into, and replace ``/path/to/ckan.ini``
    with the path to your CKAN configuration file.
 
    The ``@hourly`` can be replaced with ``@daily``, ``@weekly`` or
