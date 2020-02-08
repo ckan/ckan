@@ -127,17 +127,6 @@ source directory not CKAN's source directory. For example:
 This should not be necessary when using the pre-installed extensions that come
 with CKAN.
 
-Alternatively, you can give the extension's name using the ``--plugin`` option,
-for example
-
-.. parsed-literal::
-
-   ckan -c |/path/to/ckan.ini| --plugin=ckanext-foo foo 
-
-.. todo::
-
-   Running a ckan shell with ``ckan -c |/path/to/ckan.ini|  --plugin=pylons shell``.
-   Useful for development?
 
 Wrong config file path
 ======================
@@ -450,27 +439,27 @@ Rebuilds the search index. This is useful to prevent search indexes from getting
 
 For example::
 
- ckan -c /path/to/ckan.ini --plugin=ckan search-index rebuild 
+ ckan -c /path/to/ckan.ini search-index rebuild 
 
 This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
 one dataset, you can provide a dataset name::
 
-    ckan -c /path/to/ckan.ini --plugin=ckan search-index rebuild test-dataset-name 
+    ckan -c /path/to/ckan.ini search-index rebuild test-dataset-name 
 
 Alternatively, you can use the `-o` or `--only-missing` option to only reindex datasets which are not
 already indexed::
 
-    ckan -c /path/to/ckan.ini --plugin=ckan search-index rebuild -o 
+    ckan -c /path/to/ckan.ini search-index rebuild -o 
 
 If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
 won't clear the index before starting rebuilding it::
 
-    ckan -c /path/to/ckan.ini --plugin=ckan search-index rebuild -r 
+    ckan -c /path/to/ckan.ini search-index rebuild -r 
 
 There is also an option available which works like the refresh option but tries to use all processes on the
 computer to reindex faster::
 
-    ckan -c /path/to/ckan.ini --plugin=ckan search-index rebuild_fast 
+    ckan -c /path/to/ckan.ini search-index rebuild_fast 
 
 There are other search related commands, mostly useful for debugging purposes::
 
@@ -504,7 +493,7 @@ Gives sysadmin rights to a named user. This means the user can perform any actio
 
 For example, to make a user called 'admin' into a sysadmin::
 
- ckan -c /path/to/ckan.ini --plugin=ckan sysadmin add admin 
+ ckan -c /path/to/ckan.ini sysadmin add admin 
 
 
 tracking: Update tracking statistics
@@ -541,11 +530,11 @@ Lets you create, remove, list and manage users.
 
 For example, to create a new user called 'admin'::
 
- ckan -c /path/to/ckan.ini --plugin=ckan user add admin 
+ ckan -c /path/to/ckan.ini user add admin 
 
 To delete the 'admin' user::
 
- ckan -c /path/to/ckan.ini --plugin=ckan user remove admin 
+ ckan -c /path/to/ckan.ini user remove admin 
  
 
 views: Create views on relevant resources
