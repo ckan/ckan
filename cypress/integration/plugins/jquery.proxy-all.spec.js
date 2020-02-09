@@ -33,12 +33,10 @@ describe('jQuery.proxyAll(obj, args...)', function () {
     });
   });
 
+  // Can be re-enabled when cypress-io/cypress#6382 is resolved
   it.skip('should allow regular expressions to be provided', function () {
     cy.window().then(win => {
-      debugger
-      let pattern = /method[1-2]/;
-
-      win.jQuery.proxyAll(this.target, pattern);
+      win.jQuery.proxyAll(this.target, /method[1-2]/);
 
       expect(this.proxy).to.be.called;
 
