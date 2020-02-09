@@ -181,7 +181,7 @@ Create the CKAN config file:
 
 .. parsed-literal::
 
-    ckan make-config ckan |ckan.ini|
+    ckan make-config ckan |/path/to/ckan.ini|
 
 Edit the ``ckan.ini`` file in a text editor, changing the following
 options:
@@ -251,7 +251,7 @@ database, you can :ref:`create the database tables <db init>`:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    ckan -c |ckan.ini| db init
+    ckan -c |/path/to/ckan.ini| db init
 
 You should see ``Initialising DB: SUCCESS``.
 
@@ -284,7 +284,7 @@ useful for development and testing:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    ckan -c |ckan.ini| run 
+    ckan -c |/path/to/ckan.ini| run 
 
 Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
 page.
