@@ -27,7 +27,7 @@ Install additional dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some additional dependencies are needed to run the tests. Make sure you've
-created a config file at |development.ini|, then activate your
+created a config file at |/path/to/ckan.ini|, then activate your
 virtual environment:
 
 .. parsed-literal::
@@ -56,7 +56,7 @@ Create test databases:
 
 Set the permissions::
 
-    ckan -c /path/to/ckan.ini datastore set-permissions | sudo -u postgres psql
+    ckan -c |/path/to/ckan.ini| datastore set-permissions | sudo -u postgres psql
 
 This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
@@ -80,7 +80,7 @@ Each core will be within a child from the ``<lst name="status"`` element, and co
 
 You can also tell from your ckan config (assuming ckan is working)::
 
-    grep solr_url /etc/ckan/default/production.ini
+    grep solr_url |/path/to/ckan.ini|
     # single-core: solr_url = http://127.0.0.1:8983/solr
     # multi-core:  solr_url = http://127.0.0.1:8983/solr/ckan
 
@@ -109,7 +109,7 @@ To enable multi-core:
 
        sudo service jetty restart
 
-6. Edit your main ckan config (e.g. |development.ini|) and adjust the solr_url to match::
+6. Edit your main ckan config (e.g. |/path/to/ckan.ini|) and adjust the solr_url to match::
 
        solr_url = http://127.0.0.1:8983/solr/ckan
 
@@ -172,7 +172,7 @@ PhantomJS_. First you need to install the necessary packages::
 To run the tests, make sure that a test server is running::
 
     . /usr/lib/ckan/default/bin/activate
-    paster serve test-core.ini
+    ckan -c |/path/to/ckan.ini| run
 
 Once the test server is running switch to another terminal and execute the
 tests::
