@@ -72,7 +72,7 @@ Each command has its own help text, which tells you what subcommands and
 options it has (if any). To print out a command's help text, run the command
 with the ``--help`` option::
 
-   ckan -c /path/to/ckan.ini user --help
+   ckan -c |/path/to/ckan.ini| user --help
 
 
 -------------------------------
@@ -198,9 +198,9 @@ Usage::
 
 Examples::
 
-      ckan config-tool /path/to/ckan.ini sqlalchemy.url=123 'ckan.site_title=ABC'
-      ckan config-tool /path/to/ckan.ini -s server:main -e port=8080
-      ckan config-tool /path/to/ckan.ini -f custom_options.ini
+      ckan config-tool |/path/to/ckan.ini| sqlalchemy.url=123 'ckan.site_title=ABC'
+      ckan config-tool |/path/to/ckan.ini| -s server:main -e port=8080
+      ckan config-tool |/path/to/ckan.ini| -f custom_options.ini
 
 
 datapusher: Perform commands in the datapusher
@@ -267,7 +267,7 @@ Run a background job worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ::
 
-    ckan -c /path/to/ckan.ini jobs worker [--burst] [QUEUES]
+    ckan -c |/path/to/ckan.ini| jobs worker [--burst] [QUEUES]
 
 Starts a worker that fetches job from the :ref:`job queues <background jobs
 queues>` and executes them. If no queue names are given then it listens to
@@ -275,17 +275,17 @@ the default queue. This is equivalent to
 
 ::
 
-    ckan -c /path/to/ckan.ini jobs worker default
+    ckan -c |/path/to/ckan.ini| jobs worker default
 
 If queue names are given then the worker listens to those queues and only
 those::
 
-    ckan -c /path/to/ckan.ini jobs worker my-custom-queue another-special-queue
+    ckan -c |/path/to/ckan.ini| jobs worker my-custom-queue another-special-queue
 
 Hence, if you want the worker to listen to the default queue and some others
 then you must list the default queue explicitly::
 
-    ckan -c /path/to/ckan.ini jobs worker default my-custom-queue
+    ckan -c |/path/to/ckan.ini| jobs worker default my-custom-queue
 
 If the ``--burst`` option is given then the worker will exit as soon as all its
 queues are empty. Otherwise it will wait indefinitely until a new job is
@@ -303,7 +303,7 @@ List enqueued jobs
 ^^^^^^^^^^^^^^^^^^
 ::
 
-    ckan -c /path/to/ckan.ini jobs list [QUEUES]
+    ckan -c |/path/to/ckan.ini| jobs list [QUEUES]
 
 Lists the currently enqueued jobs from the given :ref:`job queues <background
 jobs queues>`. If no queue names are given then the jobs from all queues are
@@ -316,7 +316,7 @@ Show details about a job
 ^^^^^^^^^^^^^^^^^^^^^^^^
 ::
 
-    ckan -c /path/to/ckan.ini jobs show ID
+    ckan -c |/path/to/ckan.ini| jobs show ID
 
 Shows details about the enqueued job with the given ID.
 
@@ -327,7 +327,7 @@ Cancel a job
 ^^^^^^^^^^^^
 ::
 
-    ckan -c /path/to/ckan.ini jobs cancel ID
+    ckan -c |/path/to/ckan.ini| jobs cancel ID
 
 Cancels the enqueued job with the given ID. Jobs can only be canceled while
 they are enqueued. Once a worker has started executing a job it cannot be
@@ -340,7 +340,7 @@ Clear job queues
 ^^^^^^^^^^^^^^^^
 ::
 
-    ckan -c /path/to/ckan.ini jobs clear [QUEUES]
+    ckan -c |/path/to/ckan.ini| jobs clear [QUEUES]
 
 Cancels all jobs on the given :ref:`job queues <background jobs queues>`. If no
 queues are given then *all* queues are cleared.
@@ -352,7 +352,7 @@ Enqueue a test job
 ^^^^^^^^^^^^^^^^^^
 ::
 
-    ckan -c /path/to/ckan.ini jobs test [QUEUES]
+    ckan -c |/path/to/ckan.ini| jobs test [QUEUES]
 
 Enqueues a test job. If no :ref:`job queues <background jobs queues>` are given
 then the job is added to the default queue. If queue names are given then a
@@ -374,13 +374,13 @@ minify: Create minified versions of the given Javascript and CSS files
 
 Usage::
 
-    ckan -c /path/to/ckan.ini minify [--clean] PATH
+    ckan minify [--clean] PATH
 
     For example:
 
-    ckan -c /path/to/ckan.ini minify ckan/public/base
-    ckan -c /path/to/ckan.ini minify ckan/public/base/css/*.css
-    ckan -c /path/to/ckan.ini minify ckan/public/base/css/red.css
+    ckan -c |/path/to/ckan.ini| minify ckan/public/base
+    ckan -c |/path/to/ckan.ini| minify ckan/public/base/css/*.css
+    ckan -c |/path/to/ckan.ini| minify ckan/public/base/css/red.css
 
 If the --clean option is provided any minified files will be removed.
 
@@ -439,27 +439,27 @@ Rebuilds the search index. This is useful to prevent search indexes from getting
 
 For example::
 
- ckan -c /path/to/ckan.ini search-index rebuild 
+ ckan -c |/path/to/ckan.ini| search-index rebuild 
 
 This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
 one dataset, you can provide a dataset name::
 
-    ckan -c /path/to/ckan.ini search-index rebuild test-dataset-name 
+    ckan -c |/path/to/ckan.ini| search-index rebuild test-dataset-name 
 
 Alternatively, you can use the `-o` or `--only-missing` option to only reindex datasets which are not
 already indexed::
 
-    ckan -c /path/to/ckan.ini search-index rebuild -o 
+    ckan -c |/path/to/ckan.ini| search-index rebuild -o 
 
 If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
 won't clear the index before starting rebuilding it::
 
-    ckan -c /path/to/ckan.ini search-index rebuild -r 
+    ckan -c |/path/to/ckan.ini| search-index rebuild -r 
 
 There is also an option available which works like the refresh option but tries to use all processes on the
 computer to reindex faster::
 
-    ckan -c /path/to/ckan.ini search-index rebuild_fast 
+    ckan -c |/path/to/ckan.ini| search-index rebuild_fast 
 
 There are other search related commands, mostly useful for debugging purposes::
 
@@ -473,7 +473,7 @@ seed: Create test data in the database
 
 Examples::
 
-      ckan -c /path/to/ckan.ini seed 
+      ckan -c |/path/to/ckan.ini| seed 
       
       
 server: Start Development server
@@ -493,7 +493,7 @@ Gives sysadmin rights to a named user. This means the user can perform any actio
 
 For example, to make a user called 'admin' into a sysadmin::
 
- ckan -c /path/to/ckan.ini sysadmin add admin 
+ ckan -c |/path/to/ckan.ini| sysadmin add admin 
 
 
 tracking: Update tracking statistics
@@ -530,11 +530,11 @@ Lets you create, remove, list and manage users.
 
 For example, to create a new user called 'admin'::
 
- ckan -c /path/to/ckan.ini user add admin 
+ ckan -c |/path/to/ckan.ini| user add admin 
 
 To delete the 'admin' user::
 
- ckan -c /path/to/ckan.ini user remove admin 
+ ckan -c |/path/to/ckan.ini| user remove admin 
  
 
 views: Create views on relevant resources
