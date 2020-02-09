@@ -9,9 +9,9 @@ sudo service jetty restart
 # We need ckan to be running for some tests
 paster serve test-core.ini &
 sleep 5 # Make sure the server has fully started
-mocha-phantomjs http://localhost:5000/base/test/index.html
+npx cypress run
 # Did an error occur?
-MOCHA_ERROR=$?
+CYPRESS_ERROR=$?
 # We are done so kill ckan
 killall paster
 
@@ -25,4 +25,4 @@ PYTEST_ERROR=$?
 [ "0" -ne "$PYTEST_ERROR" ] && echo PYTEST tests have failed
 
 # If an error occurred in our tests make sure travis knows
-exit `expr $MOCHA_ERROR + $PYTEST_ERROR`
+exit `expr $CYPRESS_ERROR + $PYTEST_ERROR`
