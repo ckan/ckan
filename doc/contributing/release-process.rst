@@ -188,7 +188,7 @@ Turn this file into a github issue with a checklist using this command::
 
    g. Run our script that checks for mistakes in the ckan.po files::
 
-        ckan -c /path/to/ckan.ini translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
+        ckan -c |/path/to/ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
 
       If the script finds any mistakes then at some point before release you
       will need to correct them, but it doesn't need to be done now, since the priority
@@ -301,7 +301,7 @@ Leading up to the release
 
    Check and compile them as before::
 
-        ckan -c /path/to/ckan.ini translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
+        ckan -c |/path/to/ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
         python setup.py compile_catalog
 
     The compilation shows the translation percentage. Compare this with the new
@@ -339,7 +339,7 @@ a release.
 #. Do a final build of the front-end, add the generated files to the repo and
    commit the changes::
 
-        ckan -c /path/to/ckan.ini front-end-build
+        ckan -c |/path/to/ckan.ini| front-end-build
         git add ckan ckanext
         git commit -am "Rebuild front-end"
 
@@ -488,7 +488,7 @@ Doing the patch releases
 
    Rebuild the front-end, add new files and commit with::
 
-        ckan -c /path/to/ckan.ini front-end-build
+        ckan -c |/path/to/ckan.ini| front-end-build
         git add ckan ckanext
         git commit -am "Rebuild front-end"
 
