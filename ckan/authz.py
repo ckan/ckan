@@ -224,6 +224,9 @@ ROLE_PERMISSIONS = OrderedDict([
 ])
 
 
+PACKAGE_MEMBER_ALLOWED_CAPACITIES = ('editor', 'member')
+
+
 def _trans_role_admin():
     return _('Admin')
 

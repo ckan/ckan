@@ -253,3 +253,28 @@ def member_create(context, data_dict):
                         (str(user), group.id)}
     else:
         return {'success': True}
+
+
+def package_member_create(context, data_dict):
+    '''Checks if a user is allowed to add collaborators to a dataset
+
+    The current implementation restricts this ability to Administrators of the
+    organization the dataset belongs to.
+    '''
+    user = context['user']
+    model = context['model']
+
+    pkg = model.Package.get(data_dict['id'])
+
+    owner_org = pkg.owner_org
+
+    if not owner_org:
+        return {'success': False}
+
+    if not authz.has_user_permission_for_group_or_org(
+            owner_org, user, 'membership'):
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to add members to this dataset') % user}
+
+    return {'success': True}

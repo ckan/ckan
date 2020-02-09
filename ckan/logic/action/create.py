@@ -6,7 +6,7 @@ import logging
 import random
 import re
 from socket import error as socket_error
-import string
+import datetime
 
 import six
 
@@ -23,9 +23,9 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
-import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
+from ckan.authz import PACKAGE_MEMBER_ALLOWED_CAPACITIES
 
 from ckan.common import _, config
 
@@ -615,6 +615,71 @@ def member_create(context, data_dict=None):
 
     model.Session.add(member)
     model.repo.commit()
+
+    return model_dictize.member_dictize(member, context)
+
+
+
+
+def package_member_create(context, data_dict):
+    '''Make a user a collaborator in a dataset.
+
+    If the user is already a collaborator in the dataset then their
+    capacity will be updated.
+
+    Currently you must be an Admin on the dataset owner organization to
+    manage collaborators.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :param user_id: the id or name of the user to add or edit
+    :type user_id: string
+    :param capacity: the capacity of the membership. Must be one of {}
+    :type capacity: string
+
+    :returns: the newly created (or updated) collaborator
+    :rtype: dictionary
+
+    '''.format(', '.join(PACKAGE_MEMBER_ALLOWED_CAPACITIES))
+
+    model = context['model']
+
+    package_id, user_id, capacity = _get_or_bust(
+        data_dict,
+        ['id', 'user_id', 'capacity']
+    )
+
+    if capacity not in PACKAGE_MEMBER_ALLOWED_CAPACITIES:
+        raise ValidationError(
+            'Capacity must be one of "{}"'.format(', '.join(
+                PACKAGE_MEMBER_ALLOWED_CAPACITIES)))
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise NotFound(_('Dataset not found'))
+
+    user = model.User.get(user_id)
+    if not user:
+        raise NotFound(_('User not found'))
+
+    _check_access('package_member_create', context, data_dict)
+
+    # Check if member already exists
+    member = model.Session.query(model.PackageMember). \
+        filter(model.PackageMember.package_id == package.id). \
+        filter(model.PackageMember.user_id == user.id).one_or_none()
+    if not member:
+        member = model.PackageMember(
+            package_id=package.id,
+            user_id=user.id)
+    member.capacity = capacity
+    member.modified = datetime.datetime.utcnow()
+
+    model.Session.add(member)
+    model.repo.commit()
+
+    log.info('User {} added as collaborator in package {} ({})'.format(
+        user.name, package.id, capacity))
 
     return model_dictize.member_dictize(member, context)
 

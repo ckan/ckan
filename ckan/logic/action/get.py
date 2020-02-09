@@ -233,6 +233,98 @@ def member_list(context, data_dict=None):
             for m in q.all()]
 
 
+def package_member_list(context, data_dict):
+    '''Return the list of all collaborators for a given package.
+
+    Currently you must be an Admin on the package owner organization to
+    manage collaborators.
+
+    :param id: the id or name of the package
+    :type id: string
+    :param capacity: (optional) If provided, only users with this capacity are
+        returned
+    :type capacity: string
+
+    :returns: a list of collaborators, each a dict including the package and
+        user id, the capacity and the last modified date
+    :rtype: list of dictionaries
+
+    '''
+    model = context['model']
+
+    package_id = _get_or_bust(data_dict, 'id')
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise NotFound('Package not found')
+
+    _check_access('package_member_list', context, data_dict)
+
+    capacity = data_dict.get('capacity')
+    if capacity and capacity not in authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES:
+        raise ValidationError(
+            'Capacity must be one of "{}"'.format(', '.join(
+                authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES)))
+    q = model.Session.query(model.PackageMember).\
+        filter(model.PackageMember.package_id == package.id)
+
+    if capacity:
+        q = q.filter(model.PackageMember.capacity == capacity)
+
+    members = q.all()
+
+    return [member.as_dict() for member in members]
+
+
+def package_member_list_for_user(context, data_dict):
+    '''Return a list of all package the user is a collaborator in
+
+    :param id: the id or name of the user
+    :type id: string
+    :param capacity: (optional) If provided, only packages where the user
+        has this capacity are returned
+    :type capacity: string
+
+    :returns: a list of packages, each a dict including the package id, the
+        capacity and the last modified date
+    :rtype: list of dictionaries
+
+    '''
+
+    model = context['model']
+
+    user_id = _get_or_bust(data_dict, 'id')
+
+    user = model.User.get(user_id)
+    if not user:
+        raise NotFound('User not found')
+
+    _check_access('package_member_list_for_user', context, data_dict)
+
+    capacity = data_dict.get('capacity')
+    if capacity and capacity not in authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES:
+        raise ValidationError(
+            'Capacity must be one of "{}"'.format(', '.join(
+                authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES)))
+    q = model.Session.query(model.PackageMember).\
+        filter(model.PackageMember.user_id == user.id)
+
+    if capacity:
+        q = q.filter(model.PackageMember.capacity == capacity)
+
+    members = q.all()
+
+    out = []
+    for member in members:
+        out.append({
+            'package_id': member.package_id,
+            'capacity': member.capacity,
+            'modified': member.modified.isoformat(),
+        })
+
+    return out
+
+
 def _group_or_org_list(context, data_dict, is_org=False):
     model = context['model']
     api = context.get('api_version')

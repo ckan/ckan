@@ -317,6 +317,51 @@ def member_delete(context, data_dict=None):
         member.delete()
         model.repo.commit()
 
+
+def package_member_delete(context, data_dict):
+    '''Remove a collaborator from a dataset.
+
+    Currently you must be an Admin on the dataset owner organization to
+    manage collaborators.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :param user_id: the id or name of the user to remove
+    :type user_id: string
+
+    '''
+
+    model = context['model']
+
+    package_id, user_id = _get_or_bust(
+        data_dict,
+        ['id', 'user_id']
+    )
+
+    _check_access('package_member_delete', context, data_dict)
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise NotFound(_('Package not found'))
+
+    user = model.User.get(user_id)
+    if not user:
+        raise NotFound(_('User not found'))
+
+    member = model.Session.query(model.PackageMember).\
+        filter(model.PackageMember.package_id == package.id).\
+        filter(model.PackageMember.user_id == user.id).one_or_none()
+    if not member:
+        raise NotFound(
+            'User {} is not a collaborator on this package'.format(user_id))
+
+    model.Session.delete(member)
+    model.repo.commit()
+
+    log.info('User {} removed as collaborator from package {}'.format(
+        user_id, package.id))
+
+
 def _group_or_org_delete(context, data_dict, is_org=False):
     '''Delete a group.
 

@@ -139,6 +139,31 @@ def member_delete(context, data_dict):
     return authz.is_authorized('member_create', context, data_dict)
 
 
+def package_member_delete(context, data_dict):
+    '''Checks if a user is allowed to remove collaborators from a dataset
+
+    The current implementation restricts this ability to Administrators of the
+    organization the dataset belongs to.
+    '''
+    user = context['user']
+    model = context['model']
+
+    pkg = model.Package.get(data_dict['id'])
+
+    owner_org = pkg.owner_org
+
+    if not owner_org:
+        return {'success': False}
+
+    if not authz.has_user_permission_for_group_or_org(
+            owner_org, user, 'membership'):
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to remove members from this dataset') % user}
+
+    return {'success': True}
+
+
 def job_clear(context, data_dict):
     '''Clear background jobs. Only sysadmins.'''
     return {'success': False}
