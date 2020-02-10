@@ -36,19 +36,19 @@ example, to create a new user called ``seanh`` and make him a sysadmin:
 
 .. parsed-literal::
 
-   ckan -c |/path/to/ckan.ini| sysadmin add seanh email=seanh@localhost name=seanh
-   
+   ckan -c |ckan.ini| sysadmin add seanh email=seanh@localhost name=seanh
+
 You'll be prompted to enter a password during account creation.
 
 Or, if you already have an existing user, you could promote him to a sysadmin:
 
 .. parsed-literal::
 
-   ckan -c |/path/to/ckan.ini| sysadmin add seanh
-   
+   ckan -c |ckan.ini| sysadmin add seanh
+
 For a list of other command line commands for managing sysadmins, run::
 
- ckan -c |/path/to/ckan.ini| sysadmin --help
+ ckan -c |ckan.ini| sysadmin --help
 
 Read the :doc:`/sysadmin-guide` to learn what you can do as a
 CKAN sysadmin.
@@ -65,21 +65,21 @@ command line with the ``create-test-data`` command:
 
 .. parsed-literal::
 
-   ckan -c |/path/to/ckan.ini| create-test-data
+   ckan -c |ckan.ini| create-test-data
 
 If you later want to delete this test data and start again with an empty
 database, you can use the :ref:`db clean <db clean>` command.
 
 For a list of other command line commands for creating tests data, run::
 
- ckan -c |/path/to/ckan.ini| create-test-data --help
+ ckan -c |ckan.ini| create-test-data --help
 
 -----------
 Config file
 -----------
 
 All of the options that can be set in the admin page and many more can be set
-by editing CKAN's config file. By default, from CKAN 2.9  the config file is located at |/path/to/ckan.ini|. For older versions, the config file is located at |development.ini| for development sites or |production.ini| for production
+by editing CKAN's config file. By default, from CKAN 2.9  the config file is located at |ckan.ini|. For older versions, the config file is located at |development.ini| for development sites or |production.ini| for production
 sites. The config file can be edited in any text editor. For example, to change
 the title of your site you would find the ``ckan.site_title`` line in your
 config file and edit it::

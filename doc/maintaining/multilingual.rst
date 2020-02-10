@@ -23,7 +23,7 @@ If you want to quickly test the term translation feature without having to provi
 
 ::
 
-  ckan -c |/path/to/ckan.ini| create-test-data translations
+  ckan -c |ckan.ini| create-test-data translations
 
 See :doc:`/maintaining/cli` for more details.
 

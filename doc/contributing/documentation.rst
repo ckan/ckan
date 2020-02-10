@@ -383,13 +383,13 @@ of a file, etc.) in one place and then reuse it many times.
 
 You define the value once like this::
 
-    .. ckan.ini replace:: /etc/ckan/default/ckan.ini
+    .. |ckan.ini| replace:: /etc/ckan/default/ckan.ini
 
 and then reuse it like this::
 
    Now open your |ckan.ini| file.
 
-``ckan.ini`` will be replaced with the full value
+``|ckan.ini|`` will be replaced with the full value
 ``/etc/ckan/default/ckan.ini``.
 
 Substitutions can also be useful for achieving consistent spelling and
@@ -420,7 +420,7 @@ Also see :ref:`parsed-literals` below for using substitutions in code blocks.
 Parsed literals
 ===============
 
-For Pre CKAN 2.9, normally things like links and substitutions don't work within a literal code
+Normally things like links and substitutions don't work within a literal code
 block. You can make them work by using a ``parsed-literal`` block, for
 example::
 

@@ -2,7 +2,7 @@
 Maintainer's guide
 ==================
 
-The sections below documents how to setup and maintain a CKAN site, including
+The sections below document how to setup and maintain a CKAN site, including
 installing, upgrading and configuring CKAN and its features and extensions.
 
 .. toctree::

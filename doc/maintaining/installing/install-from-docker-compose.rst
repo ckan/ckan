@@ -174,7 +174,7 @@ a. Configure datastore database
 
 With running CKAN containers, execute the built-in setup script against the ``db`` container::
 
-    docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c |/path/to/ckan.ini| | docker exec -i db psql -U ckan
+    docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/ckan.ini | docker exec -i db psql -U ckan
 
 The script pipes in the output of ``paster ckan set-permissions`` - however,
 as this output can change in future versions of CKAN, we set the permissions directly.
@@ -221,7 +221,7 @@ Now the datastore API should return content when visiting::
 -------------------------
 With all images up and running, create the CKAN admin user (johndoe in this example)::
 
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c |/path/to/ckan.ini| add johndoe
+    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/ckan.ini add johndoe
 
 Now you should be able to login to the new, empty CKAN.
 The admin user's API key will be instrumental in tranferring data from other instances.
@@ -278,7 +278,7 @@ d. Rebuild search index
 
 Trigger a Solr index rebuild::
 
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild -c |/path/to/ckan.ini|
+    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild -c /etc/ckan/ckan.ini
 
 -----------------
 6. Add extensions
@@ -351,7 +351,7 @@ E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
 
     # On the host
     docker exec -it db psql -U ckan -f 20_postgis_permissions.sql
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial spatial initdb -c |/path/to/ckan.ini|
+    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial spatial initdb -c /etc/ckan/ckan.ini
 
     sudo vim $VOL_CKAN_CONFIG/ckan.ini
 

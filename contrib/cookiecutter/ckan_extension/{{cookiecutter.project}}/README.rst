@@ -61,7 +61,7 @@ To install {{ cookiecutter.project }}:
 
 3. Add ``{{ cookiecutter.project[8:] }}`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at
-   ``/etc/ckan/default/production.ini``).
+   ``/etc/ckan/default/ckan.ini``).
 
 4. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu::
 

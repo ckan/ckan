@@ -141,9 +141,14 @@ Then you can use this connection to set the permissions::
     sudo ckan datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
 
 .. note::
+
    If you performed a source install, you will need to replace all references to
-   ``sudo ckan ...`` with ``ckan -c |/path/to/ckan.ini| ...`` and provide the path to
-   the config file, e.g. ``ckan -c |/path/to/ckan.ini| datastore set-permissions -c |/path/to/ckan.ini| | sudo -u postgres psql --set ON_ERROR_STOP=1``
+   ``sudo ckan ...`` with 'ckan -c |ckan.ini| ...' and provide the path to
+   the config file, e.g.:
+
+   .. parsed-literal::
+
+    ckan -c |ckan.ini| datastore set-permissions -c |ckan.ini| | sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If your database server is not local, but you can access it over SSH, you can
 pipe the permissions script over SSH::
