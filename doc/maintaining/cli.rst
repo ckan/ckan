@@ -253,7 +253,7 @@ front-end-build: Creates and minifies css and JavaScript files
 
 Usage::
 
-    ckan front-end-build
+    ckan front-end-build      - compile css and js
     
     
 generate: Generate empty extension files to expand CKANs
@@ -261,13 +261,21 @@ generate: Generate empty extension files to expand CKANs
 
 Usage::
 
-    ckan generate --output-dir (-o)   -   Location to put the generated template  
+    ckan generate extension           - Create empty extension
+    ckan generate --output-dir (-o)   - Location to put the generated template  
 
 
 .. _cli jobs:
 
 jobs: Manage background jobs
 ============================
+
+ckan jobs cancel      - cancel a specific job.
+ckan jobs clear       - cancel all jobs.
+ckan jobs list        - list jobs.
+ckan jobs show        - show details about a specific job.
+ckan jobs test        - enqueue a test job.
+ckan jobs worker      - start a worker
 
 The ``jobs`` command can be used to manage :ref:`background jobs`.
 
@@ -387,7 +395,7 @@ minify: Create minified versions of the given Javascript and CSS files
 
 Usage::
 
-    ckan minify [--clean] PATH
+    ckan minify [--clean] PATH    - remove any minified files in the path
 
     For example:
 
@@ -410,7 +418,7 @@ Usage::
 plugin-info: Provide info on installed plugins
 ==============================================
 
-As the name suggests, this commands shows you the installed plugins, their description, and which interfaces they implement
+As the name suggests, this commands shows you the installed plugins (based on the .ini file) , their description, and which interfaces they implement
 
 
 profile: Code speed profiler
@@ -435,12 +443,11 @@ search-index: Search index commands
 
 Usage::
 
-    ckan search-index --verbose (-v)           - Verbose
-    ckan search-index --force (-i)             - Ignore exceptions when rebuilding the index
-    ckan search-index --refresh (-r)           - Ignore exceptions when rebuilding the index
-    ckan search-index --only-missing (-o)      - Index non indexed datasets only
-    ckan search-index --quiet (-q)             - Do not output index rebuild progress
-    ckan search-index --commit-each (-e)       - Perform a commit after indexing each dataset
+    ckan search-index check                    - Check search index
+    ckan search-index clear                    - Clear the search index
+    ckan search-index rebuild                  - Rebuild search index
+    ckan search-index rebuild-fast             - Reindex with multiprocessing
+    ckan search-index show                     - Show index of a dataset
     
 
 .. _rebuild search index:
@@ -484,6 +491,17 @@ There are other search related commands, mostly useful for debugging purposes::
 seed: Create test data in the database
 ==================================
 
+Usage::
+
+    basic           - annakarenina and warandpeace.
+    family          - package relationships data.
+    gov             - government style data.
+    hierarchy       - hierarchy of groups.
+    search          - realistic data to test search.
+    translations    - test translations of terms.
+    user            - create a user "tester" with api key "tester".
+    vocabs          - some test vocabularies.
+    
 Examples::
 
       ckan -c |/path/to/ckan.ini| seed 
@@ -502,7 +520,11 @@ Usage::
 sysadmin: Give sysadmin rights
 ==============================
 
-Gives sysadmin rights to a named user. This means the user can perform any action on any object.
+Usage::
+
+    ckan sysadmin add       - convert user into a sysadmin
+    ckan sysadmin list      - list sysadmins
+    ckan sysadmin remove    - removes user from sysadmins
 
 For example, to make a user called 'admin' into a sysadmin::
 
@@ -541,6 +563,14 @@ user: Create and manage users
 
 Lets you create, remove, list and manage users.
 
+Usage::
+
+    ckan user add         - add new user
+    ckan user list        - list all users
+    ckan user remove      - remove user
+    ckan user setpass     - set password for the user
+    ckan user show        - show user
+
 For example, to create a new user called 'admin'::
 
  ckan -c |/path/to/ckan.ini| user add admin 
@@ -555,6 +585,10 @@ views: Create views on relevant resources
 
 Usage::
 
+    ckan views clean      - permanently delete views for all types no...
+    ckan views clear      - permanently delete all views or the ones with...
+    ckan views create     - create views on relevant resources.
+    
     ckan views --dataset (-d)        - Set Dataset
     ckan views --no-default-filters
     ckan views --search (-s)         - Set Search
