@@ -238,6 +238,13 @@ Usage::
 db: Manage databases
 ====================
 
+ckan db clean               - Clean the database
+ckan db downgrade           - Downgrade the database
+ckan db duplicate_emails    - Check users email for duplicate
+ckan db init                - Initialize the database
+ckan db upgrade             - Upgrade the database
+ckan db version             - Returns current version of data schema
+
 See :doc:`database-management`.
 
 
