@@ -504,7 +504,7 @@ Usage::
     
 Examples::
 
-      ckan -c |/path/to/ckan.ini| seed 
+      ckan -c |/path/to/ckan.ini| seed basic
       
       
 server: Start Development server
