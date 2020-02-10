@@ -79,10 +79,11 @@ Config file
 -----------
 
 All of the options that can be set in the admin page and many more can be set
-by editing CKAN's config file. By default, from CKAN 2.9  the config file is located at |ckan.ini|. For older versions, the config file is located at |development.ini| for development sites or |production.ini| for production
-sites. The config file can be edited in any text editor. For example, to change
-the title of your site you would find the ``ckan.site_title`` line in your
-config file and edit it::
+by editing CKAN's config file. By default, from CKAN 2.9 the config file is
+located at |ckan.ini|. (For older versions, the config file is located at
+|development.ini| or |production.ini|). The config file can be edited in any
+text editor. For example, to change the title of your site you would find the
+``ckan.site_title`` line in your config file and edit it::
 
     ckan.site_title = Masaq Data Hub
 

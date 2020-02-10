@@ -24,7 +24,7 @@ Enabling Page View Tracking
 To enable page view tracking:
 
 1. Set :ref:`ckan.tracking_enabled` to true in the ``[app:main]`` section of your
-   CKAN configuration file (e.g. ``development.ini`` or ``production.ini``)::
+   CKAN configuration file (e.g. |ckan.ini|)::
 
     [app:main]
     ckan.tracking_enabled = true

@@ -74,6 +74,7 @@ def load_config(ini_path=None):
         filename = os.environ.get(u'CKAN_INI')
         config_source = u'$CKAN_INI'
     else:
+        # deprecated method since CKAN 2.9
         default_filename = u'development.ini'
         filename = os.path.join(os.getcwd(), default_filename)
         if not os.path.exists(filename):
