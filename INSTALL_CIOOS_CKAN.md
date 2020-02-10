@@ -329,8 +329,6 @@ The settings for harvesters are fairly straightforward. The one exception is the
     "h_object_id": "{harvest_object_id}"
   },
   "clean_tags": true,
-  "remote_groups": "create",
-  "remote_orgs": "create",
   "use_default_schema": true,
   "force_package_type": "dataset",
   "groups_filter_include": ["cioos"],
