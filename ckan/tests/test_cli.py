@@ -92,7 +92,9 @@ class TestUserAdd(object):
         assert u"Missing argument" in result.output
 
     def test_cli_user_add_no_fullname(self):
-        """Command shouldn't raise SystemExit when fullname arg not present."""
+        '''
+        Command shouldn't raise SystemExit when fullname arg not present.
+        '''
         args = [
             u"berty",
             u"password=password123",
