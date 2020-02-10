@@ -231,7 +231,8 @@ Make sure that the datastore URLs are set properly before you run these commands
 
 Usage::
 
-    ckan datastore set-permissions  - shows a SQL script to execute
+    ckan datastore set-permissions  - generate SQL for permission configuration
+    ckan datastore dump             - dump a datastore resource
 
 
 db: Manage databases
