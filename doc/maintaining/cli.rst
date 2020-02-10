@@ -567,7 +567,7 @@ Usage::
 
     Since version 2.7 the JavaScript translation files are automatically
     regenerated if necessary when CKAN is started. Hence you usually do not
-    need to run ``ckan trans js`` manually.
+    need to run ``ckan translation js`` manually.
 
 
 .. _cli-user:
