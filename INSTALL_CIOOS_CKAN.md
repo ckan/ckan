@@ -789,6 +789,8 @@ sudo docker-compose restart ckan
 sudo docker-compose restart ckan_run_harvester ckan_fetch_harvester ckan_gather_harvester
 ```
 
+# Other helpfull commands
+
 ### update a system file in a running container
 The easiest way is with the docker copy command. For example to update the crontab of the ckan_run_harvester containers you first copy the file to the container:
 
@@ -822,10 +824,24 @@ sudo timedatectl set-timezone UTC
 sudo timedatectl set-timezone America/Vancouver
 
 
-
+### flush email notifications
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan post -c /etc/ckan/production.ini /api/action/send_email_notifications
 
 ### get public ip of server
 ```bash
 curl ifconfig.me
+```
+
+### update language translation files
+
+Build translation file
+```bash
+cd ~/ckan/contrib/docker/src/ckanext-cioos_theme
+python setup.py compile_catalog --locale fr
+```
+
+Copy to volume
+```bash
+cd ~/ckan/contrib/docker
+sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
 ```
