@@ -206,6 +206,11 @@ Examples::
 datapusher: Perform commands in the datapusher
 ==================================
 
+Usage::
+
+    ckan datapusher resubmit    - Resubmit udated datastore resources
+    ckan datapusher submit      - Submits resources from package
+    
 
 dataset: Manage datasets
 ========================
