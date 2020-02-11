@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+
 from ckan.cli.cli import ckan
 
 
@@ -19,7 +20,8 @@ class TestUserAdd(object):
             u"email=berty@example.com",
         ]
         result = cli.invoke(ckan, args)
-        assert not result.exit_code
+
+        assert result.exit_code == 0
 
     def test_cli_user_add_no_args(self, cli):
         """Command with no args raises SystemExit.
