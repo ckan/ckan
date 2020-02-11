@@ -43,7 +43,7 @@ class CkanCommand(object):
         # Don't import `load_config` by itself, rather call it using
         # module so that it can be patched during tests
         self.config = ckan_cli.load_config(conf)
-        self.app = make_app(self.config.global_conf, **self.config.local_conf)
+        self.app = make_app(self.config)
 
 
 def _init_ckan_config(ctx, param, value):

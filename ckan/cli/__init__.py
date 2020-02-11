@@ -42,22 +42,15 @@ class CKANConfigLoader(object):
             self.parser._defaults[key] = value
 
     def get_config(self):
-        global_conf = self.parser.defaults().copy()
-        local_conf = {}
+        config = {}
+        # to keep compatibility with the Pylons stack
+        config['global_conf'] = self.parser.defaults().copy()
+
         options = self.parser.options(self.section)
-
         for option in options:
-            if option in global_conf:
-                continue
-            local_conf[option] = self.parser.get(self.section, option)
+            config[option] = self.parser.get(self.section, option)
 
-        return CKANLoaderContext(global_conf, local_conf)
-
-
-class CKANLoaderContext(object):
-    def __init__(self, global_conf, local_conf):
-        self.global_conf = global_conf
-        self.local_conf = local_conf
+        return config
 
 
 def error_shout(exception):

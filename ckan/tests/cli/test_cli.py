@@ -82,10 +82,11 @@ def test_ckan_config_loader_parse_files():
     filename = os.path.join(os.path.dirname(__file__), u'data/test.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
-    assert conf.global_conf[u'debug'] == u'true'
-    assert conf.global_conf[u'smtp_server'] == u'localhost'
-    assert conf.local_conf[u'ckan.site_id'] == u'default'
-    assert conf.local_conf[u'faster_db_test_hacks'] == u'True'
-    assert conf.local_conf[u'cache_dir'] == u'/tmp/default/'
-    assert (conf.local_conf[u'sqlalchemy.url'] ==
+    #debug is overriden in test-core.ini.tpl
+    assert conf[u'debug'] == u'false'
+    assert conf[u'smtp_server'] == u'localhost'
+    assert conf[u'ckan.site_id'] == u'default'
+    assert conf[u'faster_db_test_hacks'] == u'True'
+    assert conf[u'cache_dir'] == u'/tmp/default/'
+    assert (conf[u'sqlalchemy.url'] ==
             u'postgresql://ckan_default:pass@localhost/ckan_test')

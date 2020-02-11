@@ -288,7 +288,7 @@ class Worker(rq.Worker):
     def main_work_horse(self, job, queue):
         # This method is called in a worker's work horse process right
         # after forking.
-        load_environment(config[u'global_conf'], config)
+        load_environment(config)
         return super(Worker, self).main_work_horse(job, queue)
 
     def perform_job(self, *args, **kwargs):
