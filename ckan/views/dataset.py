@@ -182,7 +182,8 @@ def search(package_type):
     limit = int(config.get(u'ckan.datasets_per_page', 20))
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.args.items() if k != u'page']
+    params_nopage = [(key, v) for key, value in request.args.lists()
+                     for v in value if key != u'page']
 
     extra_vars[u'drill_down_url'] = drill_down_url
     extra_vars[u'remove_field'] = partial(remove_field, package_type)
@@ -590,11 +591,7 @@ class CreateView(MethodView):
                 pkg_dict = get_action(u'package_show')(context, data_dict)
                 data_dict[u'state'] = pkg_dict[u'state']
                 return EditView().get(
-                    package_type,
-                    data_dict[u'id'],
-                    data_dict,
-                    errors,
-                    error_summary
+                    data_dict[u'id'], data_dict, errors, error_summary
                 )
             data_dict[u'state'] = u'none'
             return self.get(package_type, data_dict, errors, error_summary)
