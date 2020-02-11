@@ -82,7 +82,6 @@ def test_ckan_config_loader_parse_files():
     filename = os.path.join(os.path.dirname(__file__), u'data/test.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
-    #debug is overriden in test-core.ini.tpl
     assert conf[u'debug'] == u'false'
     assert conf[u'smtp_server'] == u'localhost'
     assert conf[u'ckan.site_id'] == u'default'
