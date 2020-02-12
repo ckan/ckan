@@ -158,8 +158,8 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
         kwargs = {}
     if rq_kwargs is None:
         rq_kwargs = {}
-    if not rq_kwargs.get('timeout'):
-        rq_kwargs['timeout'] = timeout
+    if not rq_kwargs.get(u'timeout'):
+        rq_kwargs[u'timeout'] = timeout
 
     job = get_queue(queue).enqueue_call(
         func=fn, args=args, kwargs=kwargs, **rq_kwargs)
