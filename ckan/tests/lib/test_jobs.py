@@ -76,9 +76,9 @@ class TestEnqueue(RQTestBase):
 
     def test_enqueue_timeout(self):
         self.enqueue()
-        self.enqueue(rq_kwargs={'timeout': 0})
-        self.enqueue(rq_kwargs={'timeout': -1})
-        self.enqueue(rq_kwargs={'timeout': 3600})
+        self.enqueue(rq_kwargs={u'timeout': 0})
+        self.enqueue(rq_kwargs={u'timeout': -1})
+        self.enqueue(rq_kwargs={u'timeout': 3600})
         all_jobs = self.all_jobs()
         assert_equal(len(all_jobs), 2)
         assert_equal(all_jobs[0].origin,
