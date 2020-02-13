@@ -48,9 +48,9 @@ class CKANConfigLoader(object):
     def get_config(self):
         '''Returns a dictionary with all the configurations.
 
-        The dictionay will include configs from DEFAULT and app:main sections.
-        If two files were parsed the configs of the second file one will
-        override all the values of the first file regardless the section.
+        The dictionay will include configs from [DEFAULT] and [app:main]
+        sections. If two files were parsed the configs of the second file one
+        will override all the values of the first file regardless the section.
         '''
         config = {}
         # The global_config key is to keep compatibility with Pylons. It can be
