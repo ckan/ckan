@@ -126,7 +126,7 @@ def get_queue(name=DEFAULT_QUEUE_NAME):
 
 
 def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
-            timeout=DEFAULT_JOB_TIMEOUT, rq_kwargs=None):
+            rq_kwargs=None):
     u'''
     Enqueue a job to be run in the background.
 
@@ -144,12 +144,9 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
     :param string queue: Name of the queue. If not given then the
         default queue is used.
 
-    :param integer timeout: The timeout, in seconds, to be passed
-        to the background job via rq. DEPRECATED, use
-        ```rq_kwargs={'timeout': 123}``` instead.
-
     :param dict rq_kwargs: Dict of keyword arguments that will get passed
-        to the RQ ``enqueue_call`` invocation (eg ``depends_on``, ``ttl`` etc).
+        to the RQ ``enqueue_call`` invocation (eg ``timeout``, ``depends_on``,
+        ``ttl`` etc).
 
     :returns: The enqueued job.
     :rtype: ``rq.job.Job``
@@ -160,8 +157,7 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
         kwargs = {}
     if rq_kwargs is None:
         rq_kwargs = {}
-    if not rq_kwargs.get(u'timeout'):
-        rq_kwargs[u'timeout'] = timeout
+    rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', DEFAULT_JOB_TIMEOUT)
 
     job = get_queue(queue).enqueue_call(
         func=fn, args=args, kwargs=kwargs, **rq_kwargs)
