@@ -1,7 +1,6 @@
 [DEFAULT]
 debug = true
 smtp_server = localhost
-error_email_from = ckan-errors@example.com
 
 [server:main]
 use = egg:Paste#http
@@ -10,4 +9,7 @@ port = 5000
 
 [app:main]
 use = config:test-core.ini.tpl
-faster_db_test_hacks = True
+
+extension.custom_config = true
+
+ckan.site_logo = /should_override_test_core_value.png

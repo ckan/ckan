@@ -74,18 +74,41 @@ def test_command_from_extension_is_available_when_all_requirements_satisfied(cli
     assert not result.exit_code
 
 
-def test_ckan_config_loader_parse_files():
+def test_ckan_config_loader_parse_file():
     """
-    CKANConfigLoader should parse both 'test.ini.tpl' and 'test-core.ini.tpl'
-    files since test.ini.ptl has a use = config:test-core.ini.tpl config.
+    CKANConfigLoader should parse and interpolate variables in
+    test-core.ini.tpl file both in DEFAULT and app:main section.
     """
-    filename = os.path.join(os.path.dirname(__file__), u'data/test.ini.tpl')
+    filename = os.path.join(os.path.dirname(__file__), u'data/test-core.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
     assert conf[u'debug'] == u'false'
-    assert conf[u'smtp_server'] == u'localhost'
-    assert conf[u'ckan.site_id'] == u'default'
-    assert conf[u'faster_db_test_hacks'] == u'True'
+
+    assert conf[u'full_stack'] == u'true'
     assert conf[u'cache_dir'] == u'/tmp/default/'
+    assert conf[u'ckan.site_id'] == u'default'
+    assert conf[u'ckan.site_logo'] == u'/path_to_logo.png'
     assert (conf[u'sqlalchemy.url'] ==
             u'postgresql://ckan_default:pass@localhost/ckan_test')
+
+    with pytest.raises(KeyError):
+        conf[u'host']
+
+
+def test_ckan_config_loader_parse_two_files():
+    """
+    CKANConfigLoader should parse both 'test-extension.ini.tpl' and
+    'test-core.ini.tpl' and override the values of 'test-core.ini.tpl' with
+    the values of test-extension.ini.tpl.
+    """
+    filename = os.path.join(os.path.dirname(__file__), u'data/test-extension.ini.tpl')
+    conf = CKANConfigLoader(filename).get_config()
+
+    assert conf[u'debug'] == u'true'
+    assert conf[u'extension.custom_config'] == u'true'
+    assert conf[u'ckan.site_logo'] == u'/should_override_test_core_value.png'
+    assert conf[u'ckan.site_id'] == u'default'
+
+    with pytest.raises(KeyError):
+        conf[u'host']
+
