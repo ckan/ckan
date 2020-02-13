@@ -24,10 +24,10 @@ class CKANConfigLoader(object):
         self._update_defaults(defaults)
 
     def read_config_files(self, filename):
-        '''
-        Read and parses a config file. If the config file has
-        'use=config:<filename>' then it parses both files. Automatically
-        applies interpolation if needed.
+        '''Read and parses a config file.
+
+        If the config file has 'use=config:<filename>' then it parses both
+        files. Automatically applies interpolation if needed.
         '''
         self.parser.read(filename)
 
@@ -42,13 +42,23 @@ class CKANConfigLoader(object):
             self.parser._defaults[key] = value
 
     def get_config(self):
+        '''Returns a dictionary with all the configurations.
+
+        The dictionay will include configs from DEFAULT and app:main sections.
+        If two files were parsed the configs of the second file one will
+        override all the values of the first file regardless the section.
+        '''
         config = {}
-        # to keep compatibility with the Pylons stack
+        # The global_config key is to keep compatibility with Pylons. It can be
+        # safely removed when the Flask migration is completed.
         config['global_conf'] = self.parser.defaults().copy()
 
         options = self.parser.options(self.section)
         for option in options:
-            config[option] = self.parser.get(self.section, option)
+            value = self.parser.get(self.section, option)
+            config[option] = value
+            if option in config['global_conf']:
+                config['global_conf'][option] = value
 
         return config
 
