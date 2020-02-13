@@ -111,4 +111,3 @@ def test_ckan_config_loader_parse_two_files():
 
     with pytest.raises(KeyError):
         conf[u'host']
-
