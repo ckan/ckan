@@ -28,6 +28,10 @@ class CKANConfigLoader(object):
 
         If the config file has 'use=config:<filename>' then it parses both
         files. Automatically applies interpolation if needed.
+
+        Extensions uses test-core.ini file so the expected behaviour is that
+        configs in extension's test.ini files will override the configs of
+        test-core.ini.
         '''
         self.parser.read(filename)
 
