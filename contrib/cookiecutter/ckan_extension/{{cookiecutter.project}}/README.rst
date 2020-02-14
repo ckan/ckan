@@ -136,6 +136,7 @@ To publish a new version to PyPI follow these steps:
 5. Commit any outstanding changes::
 
        git commit -a
+       git push
 
 6. Tag the new release of the project on GitHub with the version number from
    the ``setup.py`` file. For example if the version number in ``setup.py`` is
