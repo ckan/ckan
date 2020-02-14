@@ -9,12 +9,7 @@
     <div class="module-content">
       {% block form %}
       <p>
-        {% if ent_type == 'all' %}
-          {{ _('Are you sure you want to purge everything?') }}
-        {% else %}
-          {% set message = 'Are you sure you want to purge {ent_type}s?'.format(ent_type=ent_type) %}
-          {{ _(message) }}
-        {% endif %}
+        {{ _(messages.confirm[ent_type]) }}
       </p>
         <p class="form-actions">
           <form id="{{ ent_type }}-confirm-delete-form" action="{{ h.url_for('admin.trash') }}" method="POST">

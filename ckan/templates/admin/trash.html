@@ -16,7 +16,7 @@
 </form>
 
 {% for ent_type, entities in data.items() %}
-  {% snippet "admin/snippets/data_type.html", ent_type=ent_type, entities=entities %}
+  {% snippet "admin/snippets/data_type.html", ent_type=ent_type, entities=entities, messages=messages %}
 {% endfor %}
 {% endblock %}
 

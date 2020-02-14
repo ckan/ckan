@@ -3,7 +3,14 @@
 	{% elif ent_type == 'group' %} <i class='fa fa-group'></i>
 	{% else %} <i class="fa fa-building-o"></i>
 	{% endif %}
-	{{ ent_type | title }}s </button>
+  {% if ent_type == 'package' %}
+    {{ _('Deleted datasets') }}
+  {% elif ent_type == 'organization' %}
+    {{ _('Deleted organizations') }}
+  {% elif ent_type == 'group' %}
+    {{ _('Deleted groups') }}
+  {% endif %}
+</button>
 
 <!-- expanded by default to prevent problems with disabled js -->
 <div id="{{ ent_type }}" class="entities collapse in">
@@ -17,8 +24,7 @@
         </li>
       {% else %}
       <p>
-        {% set message = 'There is no {ent_type}s to purge'.format(ent_type=ent_type) %}
-        {{ _(message) }}
+        {{ _(messages.empty[ent_type]) }}
       </p>
     {% endfor %}
   </ul>
@@ -31,7 +37,7 @@
          class="btn btn-danger purge-all"
          data-module="confirm-action"
          data-module-with-data=true
-         data-module-content="{{ _('Are you sure you want to purge {ent_type}s?'.format(ent_type=ent_type)) }}">
+         data-module-content="{{ _(messages.confirm[ent_type]) }}">
         {{ _('Purge') }}
       </a>
     </form>

@@ -97,7 +97,7 @@ this.ckan.module('confirm-action', function (jQuery) {
 
       // use parent to el form if data-module-with-data == true
       if (this.options.withData) {
-        var form = $(this.el).closest('form');
+        var form = this.el.closest('form');
       }
 
       form.appendTo('body').submit();

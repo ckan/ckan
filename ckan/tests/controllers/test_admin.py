@@ -368,7 +368,7 @@ class TestTrashView(object):
         )
 
         # check for flash success msg
-        assert "package(s) have been purged" in response.body
+        assert "datasets have been purged" in response.body
 
         # how many datasets after purge
         pkgs_after_purge = model.Session.query(model.Package).count()
@@ -394,7 +394,7 @@ class TestTrashView(object):
         )
 
         # check for flash success msg
-        assert "group(s) have been purged" in response
+        assert "groups have been purged" in response
 
         # how many groups after purge
         grps_after_purge = model.Session.query(model.Group).count()
@@ -421,7 +421,7 @@ class TestTrashView(object):
         )
 
         # check for flash success msg
-        assert "organization(s) have been purged" in response
+        assert "organizations have been purged" in response
 
         # how many organizations after purge
         orgs_after_purge = model.Session.query(model.Group).filter_by(

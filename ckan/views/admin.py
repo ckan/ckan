@@ -152,15 +152,36 @@ class TrashView(MethodView):
             u'organization': self.deleted_orgs,
             u'group': self.deleted_groups
         }
+        self.messages = {
+            u'confirm': {
+                u'all': u'Are you sure you want to purge everything?',
+                u'package': u'Are you sure you want to purge datasets?',
+                u'organization':
+                    u'Are you sure you want to purge organizations?',
+                u'group': u'Are you sure you want to purge groups?'
+            },
+            u'success': {
+                u'package': u'{number} datasets have been purged',
+                u'organization': u'{number} organizations have been purged',
+                u'group': u'{number} groups have been purged'
+            },
+            u'empty': {
+                u'package': u'There are no datasets to purge',
+                u'organization': u'There are no organizations to purge',
+                u'group': u'There are no groups to purge'
+            }
+        }
 
     def get(self):
         ent_type = request.args.get(u'name')
 
         if ent_type:
             return base.render(u'admin/snippets/confirm_delete.html',
-                               extra_vars={u'ent_type': ent_type})
+                               extra_vars={
+                                   u'ent_type': ent_type,
+                                   u'messages': self.messages})
 
-        data = dict(data=self.deleted_entities)
+        data = dict(data=self.deleted_entities, messages=self.messages)
         return base.render(u'admin/trash.html', extra_vars=data)
 
     def post(self):
@@ -183,14 +204,14 @@ class TrashView(MethodView):
 
         elif req_action in (u'package', u'organization', u'group'):
             entities = self.deleted_entities[req_action]
-            counter = entities.count()
+            number = entities.count()
             for ent in entities:
                 logic.get_action(ent.type + u'_purge')({u'user': g.user},
                                                        {u'id': ent.id})
             model.Session.remove()
-            h.flash_success(
-                _(u'{counter} {entity_type}(s) have been purged'.format(
-                    counter=counter, entity_type=req_action)))
+            h.flash_success(_(self.messages[u'success'][req_action].format(
+                number=number))
+            )
         else:
             h.flash_error(_(u'Action not implemented.'))
         return h.redirect_to(u'admin.trash')
