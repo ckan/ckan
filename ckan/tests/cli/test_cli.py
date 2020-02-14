@@ -101,7 +101,8 @@ def test_ckan_config_loader_parse_two_files():
     'test-core.ini.tpl' and override the values of 'test-core.ini.tpl' with
     the values of test-extension.ini.tpl.
     """
-    filename = os.path.join(os.path.dirname(__file__), u'data/test-extension.ini.tpl')
+    file = u'data/extension/test-extension.ini.tpl'
+    filename = os.path.join(os.path.dirname(__file__), file)
     conf = CKANConfigLoader(filename).get_config()
 
     assert conf[u'debug'] == u'true'
@@ -111,3 +112,11 @@ def test_ckan_config_loader_parse_two_files():
 
     with pytest.raises(KeyError):
         conf[u'host']
+
+def test_here_config_is_evaluated_on_each_inherit_file():
+    file = u'data/extension/test-extension.ini.tpl'
+    filename = os.path.join(os.path.dirname(__file__), file)
+    conf = CKANConfigLoader(filename).get_config()
+
+    data_folder = os.path.join(os.path.dirname(__file__), 'data')
+    assert conf[u'here'] == data_folder

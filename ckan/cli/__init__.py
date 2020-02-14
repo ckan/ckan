@@ -17,12 +17,6 @@ class CKANConfigLoader(object):
         self.section = u'app:main'
         self.read_config_files(filename)
 
-        defaults = {
-            u'here': os.path.dirname(os.path.abspath(filename)),
-            u'__file__': os.path.abspath(filename)
-        }
-        self._update_defaults(defaults)
-
     def read_config_files(self, filename):
         '''Read and parses a config file.
 
@@ -33,12 +27,21 @@ class CKANConfigLoader(object):
         configs in extension's test.ini files will override the configs of
         test-core.ini.
         '''
+        defaults = {
+            u'here': os.path.dirname(os.path.abspath(filename)),
+            u'__file__': os.path.abspath(filename)
+        }
+        self._update_defaults(defaults)
         self.parser.read(filename)
 
         schema, path = self.parser.get(self.section, u'use').split(u':')
         if schema == u'config':
             path = os.path.join(
                 os.path.dirname(os.path.abspath(filename)), path)
+
+            defaults = {u'here': os.path.dirname(os.path.abspath(path))}
+            self._update_defaults(defaults)
+
             self.parser.read([path, filename])
 
     def _update_defaults(self, new_defaults):
