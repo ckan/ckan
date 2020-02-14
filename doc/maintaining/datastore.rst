@@ -148,7 +148,7 @@ Then you can use this connection to set the permissions::
 
    .. parsed-literal::
 
-    ckan -c |ckan.ini| datastore set-permissions -c |ckan.ini| | sudo -u postgres psql --set ON_ERROR_STOP=1
+    ckan -c |ckan.ini| datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If your database server is not local, but you can access it over SSH, you can
 pipe the permissions script over SSH::
