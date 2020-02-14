@@ -121,3 +121,10 @@ def test_here_config_is_evaluated_on_each_inherit_file():
 
     data_folder = os.path.join(os.path.dirname(__file__), 'data')
     assert conf[u'here'] == data_folder
+
+def test_file_config_is_not_evaluated_on_each_inherit_file():
+    file = u'data/ckanext-extension/test-extension.ini.tpl'
+    filename = os.path.join(os.path.dirname(__file__), file)
+    conf = CKANConfigLoader(filename).get_config()
+
+    assert conf[u'__file__'] == filename
