@@ -102,7 +102,6 @@ def test_ckan_config_loader_parse_two_files():
     data_dir = os.path.dirname(__file__) + u'/data/'
     extension_data_dir = data_dir + u'ckanext-extension/'
     filename = os.path.join(extension_data_dir, u'test-extension.ini.tpl')
-    import ipdb; ipdb.set_trace()
     conf = CKANConfigLoader(filename).get_config()
 
     assert conf[u'debug'] == u'true'
