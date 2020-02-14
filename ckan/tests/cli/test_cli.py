@@ -79,17 +79,15 @@ def test_ckan_config_loader_parse_file():
     CKANConfigLoader should parse and interpolate variables in
     test-core.ini.tpl file both in DEFAULT and app:main section.
     """
-    filename = os.path.join(os.path.dirname(__file__), u'data/test-core.ini.tpl')
+    data_dir = os.path.dirname(__file__) + u'/data/'
+    filename = os.path.join(data_dir, u'test-core.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
     assert conf[u'debug'] == u'false'
 
-    assert conf[u'full_stack'] == u'true'
-    assert conf[u'cache_dir'] == u'/tmp/default/'
-    assert conf[u'ckan.site_id'] == u'default'
-    assert conf[u'ckan.site_logo'] == u'/path_to_logo.png'
-    assert (conf[u'sqlalchemy.url'] ==
-            u'postgresql://ckan_default:pass@localhost/ckan_test')
+    assert conf[u'key1'] == data_dir + u'core'
+    assert conf[u'key2'] == data_dir + u'core'
+    assert conf[u'key4'] == u'core'
 
     with pytest.raises(KeyError):
         conf[u'host']
@@ -101,20 +99,24 @@ def test_ckan_config_loader_parse_two_files():
     'test-core.ini.tpl' and override the values of 'test-core.ini.tpl' with
     the values of test-extension.ini.tpl.
     """
-    file = u'data/extension/test-extension.ini.tpl'
-    filename = os.path.join(os.path.dirname(__file__), file)
+    data_dir = os.path.dirname(__file__) + u'/data/'
+    extension_data_dir = data_dir + u'ckanext-extension/'
+    filename = os.path.join(extension_data_dir, u'test-extension.ini.tpl')
+    import ipdb; ipdb.set_trace()
     conf = CKANConfigLoader(filename).get_config()
 
     assert conf[u'debug'] == u'true'
-    assert conf[u'extension.custom_config'] == u'true'
-    assert conf[u'ckan.site_logo'] == u'/should_override_test_core_value.png'
-    assert conf[u'ckan.site_id'] == u'default'
+
+    assert conf[u'key1'] == extension_data_dir + u'extension'
+    assert conf[u'key2'] == data_dir + u'core'
+    assert conf[u'key3'] == extension_data_dir + u'extension'
+    assert conf[u'key4'] == u'extension'
 
     with pytest.raises(KeyError):
         conf[u'host']
 
 def test_here_config_is_evaluated_on_each_inherit_file():
-    file = u'data/extension/test-extension.ini.tpl'
+    file = u'data/ckanext-extension/test-extension.ini.tpl'
     filename = os.path.join(os.path.dirname(__file__), file)
     conf = CKANConfigLoader(filename).get_config()
 

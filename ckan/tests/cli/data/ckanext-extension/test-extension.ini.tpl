@@ -9,6 +9,6 @@ port = 5000
 
 [app:main]
 use = config:../test-core.ini.tpl
-key1=%(here)s/harvest
-key3=%(here)s/harvest
-key4=harvest
+key1=%(here)s/extension
+key3=%(here)s/extension
+key4=extension
