@@ -105,7 +105,7 @@ def test_ckan_config_loader_parse_two_files():
     filename = os.path.join(extension_data_dir, u'test-extension.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
-    assert conf[u'debug'] == u'true'
+    assert conf[u'debug'] == u'false'
 
     assert conf[u'key1'] == extension_data_dir + u'extension'
     assert conf[u'key2'] == data_dir + u'core'
@@ -142,7 +142,7 @@ def test_global_conf_key_is_set_properly_reading_one_file():
 
     assert conf[u'global_conf'][u'__file__'] == filename
     assert conf[u'global_conf'][u'here'] == data_dir
-    assert conf[u'global_conf'][u'debug'] == u'true'
+    assert conf[u'global_conf'][u'debug'] == u'false'
 
 def test_global_conf_key_is_set_properly_reading_two_files():
     """
@@ -157,5 +157,18 @@ def test_global_conf_key_is_set_properly_reading_two_files():
 
     assert conf[u'global_conf'][u'__file__'] == filename
     assert conf[u'global_conf'][u'here'] == data_dir
-    assert conf[u'global_conf'][u'debug'] == u'true'
+    assert conf[u'global_conf'][u'debug'] == u'false'
+
+def test_default_confs_are_evaluated_on_each_inherit_file():
+    """
+    This test is for compatibility with Pylons stack. Can be safely removed
+    when the migration to Flask is completed.
+    """
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    file = u'data/ckanext-extension/test-extension.ini.tpl'
+    filename = os.path.join(os.path.dirname(__file__), file)
+    conf = CKANConfigLoader(filename).get_config()
+
+    assert conf[u'debug'] == u'false'
 

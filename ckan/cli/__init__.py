@@ -12,62 +12,50 @@ log = logging.getLogger(__name__)
 
 class CKANConfigLoader(object):
     def __init__(self, filename):
-        self.filename = filename = filename.strip()
+        self.config_file = filename.strip()
+        self.config = dict()
         self.parser = ConfigParser()
         self.section = u'app:main'
-        self.read_config_files(filename)
-
-    def read_config_files(self, filename):
-        '''Read and parses a config file.
-
-        If the config file has 'use=config:<filename>' then it parses both
-        files. Automatically applies interpolation if needed.
-
-        Extensions uses test-core.ini file so the expected behaviour is that
-        configs in extension's test.ini files will override the configs of
-        test-core.ini.
-        '''
-        defaults = {
-            u'here': os.path.dirname(os.path.abspath(filename)),
-            u'__file__': os.path.abspath(filename)
-        }
+        defaults = {u'__file__': os.path.abspath(self.config_file)}
         self._update_defaults(defaults)
-        self.parser.read(filename)
-
-        schema, path = self.parser.get(self.section, u'use').split(u':')
-        if schema == u'config':
-            path = os.path.join(
-                os.path.dirname(os.path.abspath(filename)), path)
-
-            defaults = {u'here': os.path.dirname(os.path.abspath(path))}
-            self._update_defaults(defaults)
-
-            self.parser.read([path, filename])
+        self._create_config_object()
 
     def _update_defaults(self, new_defaults):
         for key, value in new_defaults.items():
             self.parser._defaults[key] = value
 
-    def get_config(self):
-        '''Returns a dictionary with all the configurations.
+    def _read_config_file(self, filename):
+        defaults = {u'here': os.path.dirname(os.path.abspath(filename))}
+        self._update_defaults(defaults)
+        self.parser.read(filename)
 
-        The dictionay will include configs from [DEFAULT] and [app:main]
-        sections. If two files were parsed the configs of the second file one
-        will override all the values of the first file regardless the section.
-        '''
-        config = {}
-        # The global_config key is to keep compatibility with Pylons. It can be
-        # safely removed when the Flask migration is completed.
-        config['global_conf'] = self.parser.defaults().copy()
-
+    def _update_config(self):
         options = self.parser.options(self.section)
         for option in options:
-            value = self.parser.get(self.section, option)
-            config[option] = value
-            if option in config['global_conf']:
-                config['global_conf'][option] = value
+            if option not in self.config or option in self.parser.defaults():
+                value = self.parser.get(self.section, option)
+                self.config[option] = value
+                if option in self.parser.defaults():
+                    self.config['global_conf'][option] = value
 
-        return config
+    def _create_config_object(self):
+        self._read_config_file(self.config_file)
+
+        # # The global_config key is to keep compatibility with Pylons.
+        # # It can be safely removed when the Flask migration is completed.
+        self.config[u'global_conf'] = self.parser.defaults().copy()
+
+        self._update_config()
+
+        schema, path = self.parser.get(self.section, u'use').split(u':')
+        if schema == u'config':
+            use_config_path = os.path.join(
+                os.path.dirname(os.path.abspath(self.config_file)), path)
+            self._read_config_file(use_config_path)
+            self._update_config()
+
+    def get_config(self):
+        return self.config.copy()
 
 
 def error_shout(exception):
