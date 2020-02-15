@@ -1,15 +1,16 @@
 {% macro actor(activity) %}
-<span class="actor">
-  {{ h.linked_user(activity.user_id, 0, 30) }}
-</span>
+  <span class="actor">
+    {{ h.linked_user(activity.user_id, 0, 30) }}
+  </span>
 {% endmacro %}
 
 {% macro dataset(activity) %}
-<span class="dataset">
-  {{ h.link_to(activity.data.package.title if activity.data.package else _('unknown'),
-               h.url_for(activity.data.package.type ~ '.read', id=activity.object_id)) }}
-               {# object_id because the object_name may be out of date) #}
-</span>
+  {% set dataset_type = activity.data.package.type or 'dataset' %}
+  <span class="dataset">
+    {{ h.link_to(activity.data.package.title if activity.data.package else _('unknown'),
+      h.url_for(dataset_type ~ '.read', id=activity.object_id)) }}
+    {# object_id because the object_name may be out of date) #}
+  </span>
 {% endmacro %}
 
 {% macro organization(activity) %}
