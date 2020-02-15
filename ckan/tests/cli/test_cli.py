@@ -101,6 +101,7 @@ def test_ckan_config_loader_parse_two_files():
     """
     data_dir = os.path.dirname(__file__) + u'/data/'
     extension_data_dir = data_dir + u'ckanext-extension/'
+
     filename = os.path.join(extension_data_dir, u'test-extension.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
@@ -119,8 +120,8 @@ def test_here_config_is_evaluated_on_each_inherit_file():
     filename = os.path.join(os.path.dirname(__file__), file)
     conf = CKANConfigLoader(filename).get_config()
 
-    data_folder = os.path.join(os.path.dirname(__file__), 'data')
-    assert conf[u'here'] == data_folder
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    assert conf[u'here'] == data_dir
 
 def test_file_config_is_not_evaluated_on_each_inherit_file():
     file = u'data/ckanext-extension/test-extension.ini.tpl'
@@ -128,3 +129,33 @@ def test_file_config_is_not_evaluated_on_each_inherit_file():
     conf = CKANConfigLoader(filename).get_config()
 
     assert conf[u'__file__'] == filename
+
+def test_global_conf_key_is_set_properly_reading_one_file():
+    """
+    This test is for compatibility with Pylons stack. Can be safely removed
+    when the migration to Flask is completed.
+    """
+    file = u'data/test-core.ini.tpl'
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    filename = os.path.join(os.path.dirname(__file__), file)
+    conf = CKANConfigLoader(filename).get_config()
+
+    assert conf[u'global_conf'][u'__file__'] == filename
+    assert conf[u'global_conf'][u'here'] == data_dir
+    assert conf[u'global_conf'][u'debug'] == u'true'
+
+def test_global_conf_key_is_set_properly_reading_two_files():
+    """
+    This test is for compatibility with Pylons stack. Can be safely removed
+    when the migration to Flask is completed.
+    """
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    file = u'data/ckanext-extension/test-extension.ini.tpl'
+    filename = os.path.join(os.path.dirname(__file__), file)
+    conf = CKANConfigLoader(filename).get_config()
+
+    assert conf[u'global_conf'][u'__file__'] == filename
+    assert conf[u'global_conf'][u'here'] == data_dir
+    assert conf[u'global_conf'][u'debug'] == u'true'
+
