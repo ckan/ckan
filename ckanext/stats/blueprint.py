@@ -9,6 +9,7 @@ import ckan.lib.helpers as h
 stats = Blueprint(u'stats', __name__)
 
 
+@stats.route(u'/stats')
 def index():
     stats = stats_lib.Stats()
     extra_vars = {
@@ -18,6 +19,3 @@ def index():
         u'top_package_creators': stats.top_package_creators(),
     }
     return render(u'ckanext/stats/index.html', extra_vars)
-
-
-stats.add_url_rule(u'/stats', view_func=index)
