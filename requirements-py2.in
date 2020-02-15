@@ -22,6 +22,7 @@ python-magic==0.4.15
 pysolr==3.6.0
 Pylons==0.9.7
 python-dateutil>=1.5.0
+python2-secrets==1.0.5
 pytz==2016.7
 PyUtilib==5.7.1
 pyyaml  # needed by webassets. latest should be fine.
@@ -39,5 +40,5 @@ unicodecsv>=0.9
 webassets==0.12.1
 WebHelpers==1.3
 WebOb==1.0.8
-werkzeug==0.15.5
+Werkzeug[watchdog]==0.16.1
 zope.interface==4.3.2
