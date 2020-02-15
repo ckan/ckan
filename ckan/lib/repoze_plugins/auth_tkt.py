@@ -16,8 +16,8 @@ log = logging.getLogger(__name__)
 # With `unicode` decoder users that were logged in on CKAN+py2 will
 # get 500 on CKAN+py3 error because of to utf8_decode attempts applied
 # to str, while bytes-like object expected.
-_ckan_userid_type_decoders = (
-    repoze_auth_tkt.AuthTktCookiePlugin.userid_type_decoders.copy()
+_ckan_userid_type_decoders = dict(
+    repoze_auth_tkt.AuthTktCookiePlugin.userid_type_decoders
 )
 if six.PY3:
     _ckan_userid_type_decoders.pop('unicode')
