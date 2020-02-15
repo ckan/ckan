@@ -504,6 +504,57 @@ class TestGetDisplayTimezone(object):
 def test_render_datetime(date, extra, exp):
     assert h.render_datetime(date, **extra) == exp
 
+@pytest.mark.parametrize(
+    "date, exp",
+    [
+        (
+            datetime.datetime.now() - datetime.timedelta(seconds=50),
+            "Just now",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(minutes=1),
+            "1 minute ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(minutes=5),
+            "5 minutes ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(hours=1),
+            "1 hour ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(hours=5),
+            "5 hours ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(days=1),
+            "1 day ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(days=5),
+            "5 days ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(days=31),
+            "1 month ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(days=5*31),
+            "5 months ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(days=365 + 31),
+            "over 1 year ago",
+        ),
+        (
+            datetime.datetime.now() - datetime.timedelta(days=365*5 + 31),
+            "over 5 years ago",
+        ),
+    ]
+)
+def test_time_ago_from_timestamp(date, exp):
+    assert h.time_ago_from_timestamp(date) == exp
 
 def test_clean_html_disallowed_tag():
     assert h.clean_html("<b><bad-tag>Hello") == u"<b>&lt;bad-tag&gt;Hello</b>"
