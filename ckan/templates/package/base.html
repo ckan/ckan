@@ -1,6 +1,7 @@
 {% extends "page.html" %}
 
 {% set pkg = pkg_dict %}
+{% set dataset_type = pkg.type or 'dataset' %}
 
 {% block breadcrumb_content_selected %} class="active"{% endblock %}
 
