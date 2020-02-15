@@ -1769,7 +1769,7 @@ def dataset_display_name(package_or_package_dict):
 def dataset_link(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         name = package_or_package_dict['name']
-        type_ = package_or_package_dict['type']
+        type_ = package_or_package_dict.get('type', 'dataset')
     else:
         name = package_or_package_dict.name
         type_ = package_or_package_dict.type
