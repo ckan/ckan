@@ -120,7 +120,7 @@ def test_here_config_is_evaluated_on_each_inherit_file():
     filename = os.path.join(os.path.dirname(__file__), file)
     conf = CKANConfigLoader(filename).get_config()
 
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    data_dir = os.path.join(os.path.dirname(__file__), u'data')
     assert conf[u'here'] == data_dir
 
 def test_file_config_is_not_evaluated_on_each_inherit_file():
@@ -136,7 +136,7 @@ def test_global_conf_key_is_set_properly_reading_one_file():
     when the migration to Flask is completed.
     """
     file = u'data/test-core.ini.tpl'
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    data_dir = os.path.join(os.path.dirname(__file__), u'data')
     filename = os.path.join(os.path.dirname(__file__), file)
     conf = CKANConfigLoader(filename).get_config()
 
@@ -149,7 +149,7 @@ def test_global_conf_key_is_set_properly_reading_two_files():
     This test is for compatibility with Pylons stack. Can be safely removed
     when the migration to Flask is completed.
     """
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    data_dir = os.path.join(os.path.dirname(__file__), u'data')
 
     file = u'data/ckanext-extension/test-extension.ini.tpl'
     filename = os.path.join(os.path.dirname(__file__), file)
@@ -164,7 +164,7 @@ def test_default_confs_are_evaluated_on_each_inherit_file():
     This test is for compatibility with Pylons stack. Can be safely removed
     when the migration to Flask is completed.
     """
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    data_dir = os.path.join(os.path.dirname(__file__), u'data')
 
     file = u'data/ckanext-extension/test-extension.ini.tpl'
     filename = os.path.join(os.path.dirname(__file__), file)
