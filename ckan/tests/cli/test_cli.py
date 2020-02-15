@@ -115,6 +115,7 @@ def test_ckan_config_loader_parse_two_files():
     with pytest.raises(KeyError):
         conf[u'host']
 
+
 def test_here_config_is_evaluated_on_each_inherit_file():
     file = u'data/ckanext-extension/test-extension.ini.tpl'
     filename = os.path.join(os.path.dirname(__file__), file)
@@ -123,12 +124,14 @@ def test_here_config_is_evaluated_on_each_inherit_file():
     data_dir = os.path.join(os.path.dirname(__file__), u'data')
     assert conf[u'here'] == data_dir
 
+
 def test_file_config_is_not_evaluated_on_each_inherit_file():
     file = u'data/ckanext-extension/test-extension.ini.tpl'
     filename = os.path.join(os.path.dirname(__file__), file)
     conf = CKANConfigLoader(filename).get_config()
 
     assert conf[u'__file__'] == filename
+
 
 def test_global_conf_key_is_set_properly_reading_one_file():
     """
@@ -143,6 +146,7 @@ def test_global_conf_key_is_set_properly_reading_one_file():
     assert conf[u'global_conf'][u'__file__'] == filename
     assert conf[u'global_conf'][u'here'] == data_dir
     assert conf[u'global_conf'][u'debug'] == u'false'
+
 
 def test_global_conf_key_is_set_properly_reading_two_files():
     """
@@ -159,6 +163,7 @@ def test_global_conf_key_is_set_properly_reading_two_files():
     assert conf[u'global_conf'][u'here'] == data_dir
     assert conf[u'global_conf'][u'debug'] == u'false'
 
+
 def test_default_confs_are_evaluated_on_each_inherit_file():
     """
     This test is for compatibility with Pylons stack. Can be safely removed
@@ -171,4 +176,3 @@ def test_default_confs_are_evaluated_on_each_inherit_file():
     conf = CKANConfigLoader(filename).get_config()
 
     assert conf[u'debug'] == u'false'
-
