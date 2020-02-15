@@ -36,7 +36,7 @@ class CKANConfigLoader(object):
                 value = self.parser.get(self.section, option)
                 self.config[option] = value
                 if option in self.parser.defaults():
-                    self.config['global_conf'][option] = value
+                    self.config[u'global_conf'][option] = value
 
     def _create_config_object(self):
         self._read_config_file(self.config_file)
