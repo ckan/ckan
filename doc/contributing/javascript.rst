@@ -276,19 +276,12 @@ For example::
 Testing
 -------
 
-For unit testing we use the following libraries.
+For testing we use `Cypress`_.
 
--  `Mocha`_: As a BDD unit testing framework.
--  `Sinon`_: Provides spies, stubs and mocks for methods and functions.
--  `Chai`_: Provides common assertions.
+.. _Cypress: https://www.cypress.io/
 
-.. _Mocha: https://mochajs.org/
-.. _Sinon: http://chaijs.com/
-.. _Chai: http://sinonjs.org/docs/
-
-Tests are run from the test/index.html directory. We use the BDD interface
-(``describe()``, ``it()`` etc.) provided by mocha and the assert interface
-provided by chai.
+Tests are run from the cypress directory. We use the BDD interface
+(``describe()``, ``it()`` etc.).
 
 Generally we try and have the core functionality of all libraries and modules
 unit tested.

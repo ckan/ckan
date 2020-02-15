@@ -160,14 +160,12 @@ JavaScript).
 Automated JavaScript tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The JS tests are written using the Mocha_ test framework and run via
-PhantomJS_. First you need to install the necessary packages::
+The JS tests are written using the Cypress_ test framework. First you need to install the necessary packages::
 
     sudo apt-get install npm nodejs-legacy
-    sudo npm install -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1
+    sudo npm install
 
-.. _Mocha: https://mochajs.org/
-.. _PhantomJS: http://phantomjs.org//ckan
+.. _Cypress: https://www.cypress.io/
 
 To run the tests, make sure that a test server is running::
 
@@ -177,7 +175,7 @@ To run the tests, make sure that a test server is running::
 Once the test server is running switch to another terminal and execute the
 tests::
 
-    mocha-phantomjs http://localhost:5000/base/test/index.html
+    npx cypress run
 
 ~~~~~~~~~~~~
 Manual tests
