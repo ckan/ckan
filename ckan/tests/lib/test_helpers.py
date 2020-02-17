@@ -504,39 +504,40 @@ class TestGetDisplayTimezone(object):
 def test_render_datetime(date, extra, exp):
     assert h.render_datetime(date, **extra) == exp
 
+@pytest.mark.freeze_time("2020-02-17 12:00:00")
 @pytest.mark.parametrize(
     "date, exp",
     [
         (
-            datetime.datetime.now() - datetime.timedelta(seconds=50),
+            datetime.datetime(2020, 2, 17, 11, 59, 30),
             "Just now",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(minutes=1),
+            datetime.datetime(2020, 2, 17, 11, 59 ,0),
             "1 minute ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(minutes=5),
+            datetime.datetime(2020, 2, 17, 11, 55 ,0),
             "5 minutes ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(hours=1),
+            datetime.datetime(2020, 2, 17, 11, 0 ,0),
             "1 hour ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(hours=5),
+            datetime.datetime(2020, 2, 17, 7, 0 ,0),
             "5 hours ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(days=1),
+            datetime.datetime(2020, 2, 16, 12, 0 ,0),
             "1 day ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(days=5),
+            datetime.datetime(2020, 2, 12, 12, 0 ,0),
             "5 days ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(days=31),
+            datetime.datetime(2020, 1, 17, 12, 0 ,0),
             "1 month ago",
         ),
         (
@@ -544,7 +545,7 @@ def test_render_datetime(date, extra, exp):
             "5 months ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(days=365 + 31),
+            datetime.datetime(2019, 1, 17, 12, 0 ,0),
             "over 1 year ago",
         ),
         (
