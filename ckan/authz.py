@@ -455,7 +455,7 @@ def auth_is_registered_user():
 def auth_is_loggedin_user():
     ''' Do we have a logged in user '''
     try:
-        context_user = c.user
+        context_user = g.user
     except TypeError:
         context_user = None
     return bool(context_user)
