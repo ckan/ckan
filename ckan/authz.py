@@ -159,6 +159,10 @@ def _get_user(username):
     except TypeError:
         # c is not available (py2)
         pass
+    except RuntimeError:
+        # g is not available (py3)
+        pass
+
     # Get user from the DB
     return model.User.get(username)
 
