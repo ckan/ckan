@@ -541,7 +541,7 @@ def test_render_datetime(date, extra, exp):
             "1 month ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(days=5*31),
+            datetime.datetime(2019, 9, 17, 12, 0 ,0),
             "5 months ago",
         ),
         (
@@ -549,7 +549,7 @@ def test_render_datetime(date, extra, exp):
             "over 1 year ago",
         ),
         (
-            datetime.datetime.now() - datetime.timedelta(days=365*5 + 31),
+            datetime.datetime(2015, 1, 17, 12, 0 ,0),
             "over 5 years ago",
         ),
     ]
