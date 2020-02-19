@@ -99,7 +99,6 @@ def test_ckan_config_loader_parse_file():
     assert conf[u'global_conf'][u'debug'] == u'false'
 
 
-
 def test_ckan_config_loader_parse_two_files():
     """
     CKANConfigLoader should parse both 'test-extension.ini.tpl' and
