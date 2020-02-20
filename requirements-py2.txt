@@ -45,7 +45,7 @@ python-magic==0.4.15
 python2-secrets==1.0.5
 pytz==2016.7
 PyUtilib==5.7.1
-pyyaml==5.1
+pyyaml==5.2
 redis==3.2.1              # via rq
 repoze.lru==0.7           # via routes
 repoze.who-friendlyform==1.0.8
