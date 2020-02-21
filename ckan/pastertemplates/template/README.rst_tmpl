@@ -37,8 +37,23 @@
 Requirements
 ------------
 
-For example, you might want to mention here which versions of CKAN this
-extension works with.
+.. Say what versions of CKAN this is compatible with.
+   Suggested values:
+   "yes"
+   "not tested" - I can't think of a reason why it wouldn't work
+   "not yet" - there is an intention to get it working
+   "no"
+
+Compatibility with core CKAN versions:
+
+================ =============
+CKAN version     Compatible?
+================ =============
+2.6 and earlier  not tested
+2.7              not tested
+2.8              not tested
+2.9              not tested
+================ =============
 
 
 ------------
