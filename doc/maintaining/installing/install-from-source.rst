@@ -356,12 +356,8 @@ AttributeError: 'module' object has no attribute 'css/main.debug.css'
 This error is likely to show up when `debug` is set to `True`. To fix this
 error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
-<<<<<<< HEAD
-After installing the dependencies, run ``npm run build`` and then start paster server
-=======
-After installing the dependencies, run ``bin/less`` and then start ckan server
->>>>>>> Update install-from-source.rst
-again.
+After installing the dependencies, run ``npm run build`` and then start ckan
+server again.
 
 If you do not want to compile CSS, you can also copy the main.css to
 main.debug.css to get CKAN running::
