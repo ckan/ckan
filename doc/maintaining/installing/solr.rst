@@ -113,6 +113,12 @@ installed, we need to install and configure Solr.
 
    Check that Solr is running by opening http://localhost:8983/solr/.
 
+   .. note::
+
+    If you're installing on Ubuntu 18.04 (Bionic) you'll find you get a 404
+    error due to a bad solr-jetty package (3.6.2+dfsg-18~18.04). This can be
+    solved by following these extra instructions:
+    https://stackoverflow.com/a/56007895
 
 #. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|production.ini|) to
    point to your Solr server, for example::
