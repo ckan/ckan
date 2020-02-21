@@ -20,15 +20,10 @@ class_to_patch = (
 )
 
 
-class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
-    def setup(self):
-        super(ExampleIDatastoreBackendPlugin, self).setup()
-        plugins.load(u"datastore")
-        plugins.load(u"example_idatastorebackend")
-
-    def teardown(self):
-        plugins.unload(u"example_idatastorebackend")
-        plugins.unload(u"datastore")
+@pytest.mark.ckan_config(u"ckan.plugins",
+                         u"datastore example_idatastorebackend")
+@pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"app")
+class TestExampleIDatastoreBackendPlugin():
 
     def test_backends_correctly_registered(self):
         DatastoreBackend.register_backends()
