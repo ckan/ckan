@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Add metadata_modified filed to Resource
 
 Revision ID: 588d7cfb9a41
