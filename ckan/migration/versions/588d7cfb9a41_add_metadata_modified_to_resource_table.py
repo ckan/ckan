@@ -10,17 +10,18 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '588d7cfb9a41'
-down_revision = 'd4d9be9189fe'
+revision = u'588d7cfb9a41'
+down_revision = u'd4d9be9189fe'
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.add_column('resource',
-        sa.Column('metadata_modified', sa.DateTime(), nullable=True)
-        )
+    op.add_column(
+        u'resource',
+        sa.Column(u'metadata_modified', sa.DateTime(), nullable=True)
+    )
 
 
 def downgrade():
-    op.drop_column('resource', 'metadata_modified')
+    op.drop_column(u'resource', u'metadata_modified')
