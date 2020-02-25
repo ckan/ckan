@@ -2324,7 +2324,7 @@ def render_markdown(data, auto_link=True, allow_html=False):
 @core_helper
 def format_resource_items(items):
     ''' Take a resource item list and format nicely with blacklisting etc. '''
-    blacklist = ['name', 'description', 'url', 'tracking_summary']
+    blacklist = ['name', 'description', 'url', 'tracking_summary', 'format']
     output = []
     # regular expressions for detecting types in strings
     reg_ex_datetime = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
