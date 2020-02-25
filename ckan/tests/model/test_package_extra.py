@@ -57,6 +57,8 @@ class TestPackageExtra(object):
 
         pkg = model.Package.by_name(dataset[u"name"])
         assert isinstance(pkg.extras_list[0], model.PackageExtra)
+
+        # Extras are removed from database, not just marked as deleted
         assert set(
             [
                 (pe.package_id, pe.key, pe.value, pe.state)
@@ -64,7 +66,6 @@ class TestPackageExtra(object):
             ]
         ) == set(
             [
-                (dataset["id"], u"subject", u"science", u"deleted"),
                 (dataset["id"], u"accuracy", u"metre", u"active"),
                 (dataset["id"], u"sample_years", u"2012-2013", u"active"),
             ]

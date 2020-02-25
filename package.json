@@ -12,7 +12,9 @@
     "jquery": "^3.4.1",
     "moment": "^2.24.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "cypress": "^4.0.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "gulp watch",

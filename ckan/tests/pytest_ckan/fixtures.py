@@ -39,6 +39,7 @@ import rq
 
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
+import ckan.cli
 import ckan.lib.search as search
 
 from ckan.common import config
@@ -230,3 +231,20 @@ def with_test_worker(monkeypatch):
             rq.Worker, u"execute_job", rq.SimpleWorker.execute_job
         )
     yield
+
+
+@pytest.fixture
+def with_extended_cli(ckan_config, monkeypatch):
+    """Enables effects of IClick.
+
+    Without this fixture, only CLI command that came from plugins
+    specified in real config file are available. When this fixture
+    enabled, changing `ckan.plugins` on test level allows to update
+    list of available CLI command.
+
+    """
+    # Main `ckan` command is initialized from config file instead of
+    # using global config object.  With this patch it becomes possible
+    # to apply per-test config changes to it without creating real
+    # config file.
+    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)

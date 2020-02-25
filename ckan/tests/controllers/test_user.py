@@ -259,6 +259,21 @@ class TestUser(object):
         })
         assert "Profile updated" in response
 
+    def test_email_change_on_existed_email(self, app):
+        user1 = factories.User(email='existed@email.com')
+        user2 = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user2["name"])}
+
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "email": "existed@email.com",
+            "save": "",
+            "old_password": "RandomPassword123",
+            "password1": "",
+            "password2": "",
+            "name": user2['name'],
+        })
+        assert 'belongs to a registered user' in response
+
     def test_edit_user_logged_in_username_change(self, app):
 
         user_pass = "TestPassword1"
@@ -768,22 +783,6 @@ class TestUser(object):
 
         assert "A reset link has been emailed to you" in response
         assert send_reset_link.call_args[0][0].id == user["id"]
-
-    @mock.patch("ckan.lib.mailer.send_reset_link")
-    def test_request_reset_when_duplicate_emails(self, send_reset_link, app):
-        user_a = factories.User(email="me@example.com")
-        user_b = factories.User(email="me@example.com")
-
-        offset = url_for("user.request_reset")
-        response = app.post(
-            offset, data=dict(user="me@example.com")
-        )
-
-        assert "A reset link has been emailed to you" in response
-        emailed_users = [
-            call[0][0].name for call in send_reset_link.call_args_list
-        ]
-        assert sorted(emailed_users) == sorted([user_a["name"], user_b["name"]])
 
     def test_request_reset_without_param(self, app):
 

@@ -132,7 +132,7 @@ def package_extras_save(extra_dicts, pkg, context):
     #deleted
     for key in set(old_extras.keys()) - set(new_extras.keys()):
         extra = old_extras[key]
-        extra.delete()
+        session.delete(extra)
 
 
 def package_tag_list_save(tag_dicts, package, context):

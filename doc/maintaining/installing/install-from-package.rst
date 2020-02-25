@@ -95,7 +95,7 @@ CKAN:
 
    You can install |postgres| and CKAN on different servers. Just
    change the :ref:`sqlalchemy.url` setting in your
-   |production.ini| file to reference your |postgres| server.
+   |ckan.ini| file to reference your |postgres| server.
 
 .. note::
 
@@ -107,7 +107,7 @@ Install |postgres|, running this command in a terminal::
 
 .. include:: postgres.rst
 
-Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|production.ini|) file and
+Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|ckan.ini|) file and
 set the correct password, database and database user.
 
 
@@ -119,7 +119,7 @@ set the correct password, database and database user.
 
    You can install |solr| and CKAN on different servers. Just
    change the :ref:`solr_url` setting in your
-   |production.ini| file to reference your |solr| server.
+   |ckan.ini| |production.ini| file to reference your |solr| server.
 
 Install |solr|, running this command in a terminal::
 
@@ -135,7 +135,7 @@ The install will whirr away, then towards the end you'll see this::
 4. Update the configuration and initialize the database
 -------------------------------------------------------
 
-#. Edit the :ref:`config_file` (|production.ini|) to set up the following options:
+#. Edit the :ref:`config_file` (|ckan.ini|) to set up the following options:
 
     site_id
       Each CKAN site should have a unique ``site_id``, for example::

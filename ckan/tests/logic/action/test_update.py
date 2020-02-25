@@ -160,7 +160,6 @@ class TestUpdate(object):
         user = factories.User()
         user["name"] = name
         with pytest.raises(logic.ValidationError):
-
             helpers.call_action("user_update", **user)
 
     def test_user_update_to_name_that_already_exists(self):
@@ -182,7 +181,8 @@ class TestUpdate(object):
         # we're not updating it, otherwise validation fails.
         helpers.call_action(
             "user_update",
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password="new password",
         )
@@ -270,7 +270,8 @@ class TestUpdate(object):
         # fails.
         helpers.call_action(
             "user_update",
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password=factories.User.attributes()["password"],
             fullname="updated full name",
@@ -317,16 +318,12 @@ class TestUpdate(object):
         helpers.call_action(
             "user_update",
             context={"schema": schema},
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password=factories.User.attributes()["password"],
             fullname="updated full name",
         )
-
-        # Since we passed user['name'] to user_update as the 'id' param,
-        # our mock validator method should have been called once with
-        # user['name'] as arg.
-        mock_validator.assert_called_once_with(user["name"])
 
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
@@ -573,6 +570,40 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
         assert dataset_["extras"][0]["key"] == "original media"
         assert dataset_["extras"][0]["value"] == '"book"'
+
+    def test_extra_can_be_restored_after_deletion(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"old attribute", "value": u'value'},
+                {"key": u"original media", "value": u'"book"'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[],
+        )
+
+        assert dataset_["extras"] == []
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"original media", "value": u'"book"'},
+                {"key": u"new attribute", "value": u'value'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
 
     def test_license(self):
         user = factories.User()

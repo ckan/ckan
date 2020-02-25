@@ -125,7 +125,7 @@ Replace ``pass`` with the passwords you created for your |database_user| and
 Set permissions
 ---------------
 
-Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a paster command to help you correctly set these permissions.
+Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a ckan command to help you correctly set these permissions.
 
 If you are able to use the ``psql`` command to connect to your database as a
 superuser, you can use the ``datastore set-permissions`` command to emit the
@@ -141,9 +141,14 @@ Then you can use this connection to set the permissions::
     sudo ckan datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
 
 .. note::
+
    If you performed a source install, you will need to replace all references to
-   ``sudo ckan ...`` with ``paster --plugin=ckan ...`` and provide the path to
-   the config file, e.g. ``paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini | sudo -u postgres psql --set ON_ERROR_STOP=1``
+   ``sudo ckan ...`` with 'ckan -c |ckan.ini| ...' and provide the path to
+   the config file, e.g.:
+
+   .. parsed-literal::
+
+    ckan -c |ckan.ini| datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If your database server is not local, but you can access it over SSH, you can
 pipe the permissions script over SSH::

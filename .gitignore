@@ -48,3 +48,4 @@ package-lock.json
 
 # docker
 contrib/docker/.env
+cypress.env.json

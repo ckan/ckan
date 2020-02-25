@@ -29,6 +29,7 @@ import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
+from ckan.lib import uploader
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import TrackingMiddleware
 import ckan.lib.app_globals as app_globals
@@ -86,7 +87,7 @@ class CKANBabel(Babel):
             self._i18n_path_idx += 1
 
 
-def make_flask_stack(conf, **app_conf):
+def make_flask_stack(conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
@@ -94,14 +95,20 @@ def make_flask_stack(conf, **app_conf):
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
-    testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
+    testing = asbool(conf.get('testing', conf.get('TESTING', False)))
     app = flask_app = CKANFlask(__name__, static_url_path='')
+
+    # Register storage for accessing group images, site logo, etc.
+    storage_folder = []
+    storage = uploader.get_storage_path()
+    if storage:
+        storage_folder = [os.path.join(storage, 'storage')]
 
     # Static files folders (core and extensions)
     public_folder = config.get(u'ckan.base_public_folder')
     app.static_folder = config.get(
         'extra_public_paths', ''
-    ).split(',') + [os.path.join(root, public_folder)]
+    ).split(',') + [os.path.join(root, public_folder)] + storage_folder
 
     app.jinja_options = jinja_extensions.get_jinja_env_options()
 
@@ -117,7 +124,6 @@ def make_flask_stack(conf, **app_conf):
         app.config.update(config)
     else:
         app.config.update(conf)
-        app.config.update(app_conf)
 
     # Do all the Flask-specific stuff before adding other middlewares
 
@@ -134,8 +140,7 @@ def make_flask_stack(conf, **app_conf):
         DebugToolbarExtension(app)
 
         from werkzeug.debug import DebuggedApplication
-        app = DebuggedApplication(app, True)
-        app = app.app
+        app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.DEBUG)
@@ -155,7 +160,7 @@ def make_flask_stack(conf, **app_conf):
                     if k.startswith(namespace)}
     if (not session_opts.get('session.data_dir') and
             session_opts.get('session.type', 'file') == 'file'):
-        cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
+        cache_dir = conf.get('cache_dir') or conf.get('cache.dir')
         session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
             data_dir=cache_dir)
 
@@ -241,8 +246,8 @@ def make_flask_stack(conf, **app_conf):
         app = plugin.make_middleware(app, config)
 
     # Fanstatic
-    fanstatic_enable_rollup = asbool(app_conf.get('fanstatic_enable_rollup',
-                                                  False))
+    fanstatic_enable_rollup = asbool(
+        conf.get('fanstatic_enable_rollup', False))
     if debug:
         fanstatic_config = {
             'versioning': True,
@@ -277,7 +282,7 @@ def make_flask_stack(conf, **app_conf):
 
     # Initialize repoze.who
     who_parser = WhoConfig(conf['here'])
-    who_parser.parse(open(app_conf['who.config_file']))
+    who_parser.parse(open(conf['who.config_file']))
 
     app = PluggableAuthenticationMiddleware(
         app,
