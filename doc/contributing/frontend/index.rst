@@ -6,7 +6,7 @@ Frontend development guidelines
    :maxdepth: 1
 
    templating
-   resources
+   assets
    template-tutorial
    template-blocks
    javascript-module-tutorial
