@@ -4,6 +4,7 @@ import os
 
 import click
 import logging
+from logging.config import fileConfig as loggingFileConfig
 from configparser import ConfigParser
 
 
@@ -90,6 +91,7 @@ def load_config(ini_path=None):
         exit(msg)
 
     config_loader = CKANConfigLoader(filename)
+    loggingFileConfig(filename)
     log.info(u'Using configuration file {}'.format(filename))
 
     return config_loader.get_config()
