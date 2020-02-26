@@ -1438,8 +1438,10 @@ class TestResourceUpdate(object):
                 description='Test',
                 url='http://link.to.some.data' # Default Value from Factory
             )
-            assert (resource['metadata_modified'] ==
+            assert (resource['metadata_modified'] !=
                     datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '1987-03-04T23:30:00')
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestConfigOptionUpdate(object):
