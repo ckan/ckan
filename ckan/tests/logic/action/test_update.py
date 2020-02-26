@@ -1410,7 +1410,6 @@ class TestResourceUpdate(object):
         # View is created
         assert len(res_views) == 1
 
-
     def test_edit_metadata_updates_metadata_modified_field(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset)
@@ -1436,12 +1435,13 @@ class TestResourceUpdate(object):
                 "resource_update",
                 id=resource["id"],
                 description='Test',
-                url='http://link.to.some.data' # Default Value from Factory
+                url='http://link.to.some.data'  # Default Value from Factory
             )
             assert (resource['metadata_modified'] !=
                     datetime.datetime.utcnow().isoformat())
             assert (resource['metadata_modified'] ==
                     '1987-03-04T23:30:00')
+
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestConfigOptionUpdate(object):
