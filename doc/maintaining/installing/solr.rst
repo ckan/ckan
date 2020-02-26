@@ -114,7 +114,7 @@ installed, we need to install and configure Solr.
    Check that Solr is running by opening http://localhost:8983/solr/.
 
 
-#. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|production.ini|) to
+#. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to
    point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr

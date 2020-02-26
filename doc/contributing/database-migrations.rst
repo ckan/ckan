@@ -35,13 +35,13 @@ As a diagnostic tool, you can manually compare the database as created by the
 model code and the migrations code::
 
      # Database created by model
-     paster db clean -c test.ini
-     paster db create-from-model -c test.ini
+     ckan -c |ckan.ini| db clean
+     ckan -c |ckan.ini| db create-from-model
      sudo -u postgres pg_dump -s -f /tmp/model.sql ckan_default
 
      # Database created by migrations
-     paster db clean -c test.ini
-     paster db init -c test.ini
+     ckan -c |ckan.ini| db clean
+     ckan -c |ckan.ini| db init
      sudo -u postgres pg_dump -s -f /tmp/migrations.sql ckan_default
 
      sudo -u postgres diff /tmp/migrations.sql /tmp/model.sql
