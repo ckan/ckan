@@ -24,7 +24,7 @@ Adding a custom |javascript| or CSS file to CKAN using Webassets is simple.
 We'll demonstrate by changing our previous custom CSS example (see :doc:`css`)
 to serve the CSS file with Webassets.
 
-1. First, create a ``assets`` directory in your extension and move the CSS
+1. First, create an ``assets`` directory in your extension and move the CSS
    file from ``public`` into ``assets``::
 
     ckanext-example_theme/
