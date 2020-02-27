@@ -22,7 +22,8 @@ class TestUserAdd(object):
         assert not result.exit_code
 
     def test_cli_user_add_no_args(self, cli):
-        """Command with no args raises SystemExit."""
+        """Command with no args raises SystemExit.
+        """
         result = cli.invoke(ckan, [u'user', u'add'])
         assert result.exit_code
 
