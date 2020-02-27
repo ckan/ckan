@@ -58,10 +58,11 @@ details on how to do this check :doc:`/extensions/remote-config-update`.
 CKAN configuration file
 ***********************
 
-By default, the
-configuration file is located at ``/etc/ckan/default/development.ini`` or
-``/etc/ckan/default/production.ini``. This section documents all of the config file
-settings, for reference.
+From CKAN 2.9, by default, the configuration file is located at
+``/etc/ckan/default/ckan.ini``. Previous releases the configuration file(s)
+were:  ``/etc/ckan/default/development.ini`` or
+``/etc/ckan/default/production.ini``. This section documents all of the config
+file settings, for reference.
 
 .. note:: After editing your config file, you need to restart your webserver
    for the changes to take effect.
@@ -103,8 +104,9 @@ Example::
 
 Default value: ``False``
 
-This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
-files, and enables CKAN templates' debugging features.
+This enables Pylons' interactive debugging tool, makes Webassets serve
+unminified JS and CSS files, and enables CKAN templates' debugging
+features.
 
 .. warning:: This option should be set to ``False`` for a public site.
    With debug mode enabled, a visitor to your site could execute malicious
