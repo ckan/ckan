@@ -104,8 +104,9 @@ Example::
 
 Default value: ``False``
 
-This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
-files, and enables CKAN templates' debugging features.
+This enables Pylons' interactive debugging tool, makes Webassets serve
+unminified JS and CSS files, and enables CKAN templates' debugging
+features.
 
 .. warning:: This option should be set to ``False`` for a public site.
    With debug mode enabled, a visitor to your site could execute malicious
