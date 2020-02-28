@@ -217,7 +217,7 @@ class TestUrlsForCustomDatasetType(object):
                 id=pkg["name"],
                 resource_id=res["id"],
             ),
-            data={"id": res["id"], "url": res["url"], "save": "go-metadata",},
+            data={"id": res["id"], "url": res["url"], "save": "go-metadata"},
             follow_redirects=False,
         )
         assert resp.location == url_for(
