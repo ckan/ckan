@@ -446,7 +446,8 @@ Major changes:
  * Common session object for Flask and Pylons (#3208)
  * Rename deleted datasets when they conflict with new ones (#3370)
  * DataStore dump more formats: CSV, TSV, XML, JSON; BOM option (#3390)
- * Common requests code for Flask and Pylons (#3212)
+ * Common requests code for Flask and Pylons so you can use Flask views via the
+   new IBlueprint interface (#3212)
  * Generate complete datastore dump files (#3344)
  * A new system for asynchronous background jobs (#3165)
  * Chaining of action functions (#3494)
