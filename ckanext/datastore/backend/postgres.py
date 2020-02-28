@@ -107,8 +107,8 @@ def identifier(s):
 
 
 def get_read_engine():
-    return _get_engine_from_url(config['ckan.datastore.read_url'], isolation_level= 'READ_UNCOMMITTED')
-
+    return _get_engine_from_url(config['ckan.datastore.read_url'], 
+        isolation_level= 'READ_UNCOMMITTED')
 
 def get_write_engine():
     return _get_engine_from_url(config['ckan.datastore.write_url'])
