@@ -872,7 +872,7 @@ def email_is_unique(key, data, errors, context):
     else:
         # allow user to update their own email
         for user in users:
-            if user.id == data[("id",)]:
+            if user.name == data[("name",)]:
                 return
 
     raise Invalid(
