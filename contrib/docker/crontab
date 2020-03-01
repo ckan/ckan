@@ -1,5 +1,6 @@
 */5 * * * *  /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester run --config=/etc/ckan/production.ini > /proc/1/fd/1 2>/proc/1/fd/2
-0  5 * * *  /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester clean_harvest_log --config=/etc/ckan/production.ini > /proc/1/fd/1 2>/proc/1/fd/2
+0  5 * * *   /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester clean_harvest_log --config=/etc/ckan/production.ini > /proc/1/fd/1 2>/proc/1/fd/2
 10 * * * *   /usr/local/bin/ckan-paster --plugin=ckan tracking update --config=/etc/ckan/production.ini > /proc/1/fd/1 2>/proc/1/fd/2
 30 * * * *   /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild -r --config=/etc/ckan/production.ini > /proc/1/fd/1 2>/proc/1/fd/2
 50 * * * *   /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester reindex --config=/etc/ckan/production.ini > /proc/1/fd/1 2>/proc/1/fd/2
+0  1 * * *   /usr/local/bin/ckan-paster --plugin=ckan post -c /etc/ckan/production.ini /api/action/send_email_notifications  > /proc/1/fd/1 2>/proc/1/fd/2
