@@ -542,7 +542,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/tests/lib/test_app_globals.py",
     u"ckan/tests/lib/test_auth_tkt.py",
     u"ckan/tests/lib/test_base.py",
-    u"ckan/tests/lib/test_cli.py",
     u"ckan/tests/lib/test_config_tool.py",
     u"ckan/tests/lib/test_datapreview.py",
     u"ckan/tests/lib/test_helpers.py",
