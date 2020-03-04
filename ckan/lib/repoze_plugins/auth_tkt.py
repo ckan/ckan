@@ -47,12 +47,13 @@ class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
         cookies = []
         for k, v in super_cookies:
             cookie = SimpleCookie(str(v))
-            morsel = cookie.values()[0]
+            morsel = list(cookie.values())[0]
             # SameSite was only added on Python 3.8
             morsel._reserved['samesite'] = 'SameSite'
             # Keep old case as it's the one used in tests, it should make no
             # difference in the browser
             morsel._reserved['httponly'] = 'HttpOnly'
+            morsel._reserved['secure'] = 'Secure'
 
             if self.httponly:
                 cookie[self.cookie_name]['HttpOnly'] = True

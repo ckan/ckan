@@ -115,9 +115,9 @@ def test_samesite_expected_cookies_with_config_samesite_none():
         environ={"SERVER_NAME": "0.0.0.0"}, value="HELLO"
     )
     expected_cookies = [
-        ("Set-Cookie", 'auth_tkt="HELLO"; Path=/; HttpOnly; secure; SameSite=None'),
-        ("Set-Cookie", 'auth_tkt="HELLO"; Path=/; Domain=0.0.0.0; secure; HttpOnly; SameSite=None'),
-        ("Set-Cookie", 'auth_tkt="HELLO"; Path=/; Domain=.0.0.0.0; HttpOnly; secure; SameSite=None'),
+        ("Set-Cookie", 'auth_tkt="HELLO"; Path=/; HttpOnly; Secure; SameSite=None'),
+        ("Set-Cookie", 'auth_tkt="HELLO"; Path=/; Domain=0.0.0.0; Secure; HttpOnly; SameSite=None'),
+        ("Set-Cookie", 'auth_tkt="HELLO"; Path=/; Domain=.0.0.0.0; HttpOnly; Secure; SameSite=None'),
     ]
     assert _sorted_cookie_values(cookies) == _sorted_cookie_values(expected_cookies)
 
@@ -157,14 +157,14 @@ def test_secure_expected_cookies_with_config_secure_true():
         environ={"SERVER_NAME": "0.0.0.0"}, value="HELLO"
     )
     expected_cookies = [
-        ("Set-Cookie", 'auth_tkt="HELLO"; Path=/; secure; HttpOnly; SameSite=Lax'),
+        ("Set-Cookie", 'auth_tkt="HELLO"; Path=/; Secure; HttpOnly; SameSite=Lax'),
         (
             "Set-Cookie",
-            'auth_tkt="HELLO"; Path=/; Domain=0.0.0.0; secure; HttpOnly; SameSite=Lax',
+            'auth_tkt="HELLO"; Path=/; Domain=0.0.0.0; Secure; HttpOnly; SameSite=Lax',
         ),
         (
             "Set-Cookie",
-            'auth_tkt="HELLO"; Path=/; Domain=.0.0.0.0; secure; HttpOnly; SameSite=Lax',
+            'auth_tkt="HELLO"; Path=/; Domain=.0.0.0.0; Secure; HttpOnly; SameSite=Lax',
         ),
     ]
     assert _sorted_cookie_values(cookies) == _sorted_cookie_values(expected_cookies)
