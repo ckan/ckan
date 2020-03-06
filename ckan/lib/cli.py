@@ -17,8 +17,8 @@ from ckan.cli import load_config as _get_config
 import ckan.logic as logic
 import ckan.model as model
 from ckan.common import config
-from ckan.config.middleware import make_app
-
+from ckan.common import asbool
+import ckan.lib.maintain as maintain
 # This is a test Flask request context to be used internally.
 # Do not use it!
 _cli_test_request_context = None
@@ -29,8 +29,26 @@ _cli_test_request_context = None
 #    Otherwise loggers get disabled.
 
 
+@maintain.deprecated('Use @maintain.deprecated instead')
+def deprecation_warning(message=None):
+    '''
+    DEPRECATED
+
+    Print a deprecation warning to STDERR.
+
+    If ``message`` is given it is also printed to STDERR.
+    '''
+    sys.stderr.write(u'WARNING: This function is deprecated.')
+    if message:
+        sys.stderr.write(u' ' + message.strip())
+    sys.stderr.write(u'\n')
+
+
+@maintain.deprecated()
 def error(msg):
     '''
+    DEPRECATED
+
     Print an error message to STDOUT and exit with return code 1.
     '''
     sys.stderr.write(msg)
@@ -39,7 +57,9 @@ def error(msg):
     sys.exit(1)
 
 
+@maintain.deprecated('Use model.parse_db_config directly instead')
 def _parse_db_config(config_key=u'sqlalchemy.url'):
+    '''Deprecated'''
     db_config = model.parse_db_config(config_key)
     if not db_config:
         raise Exception(
@@ -49,8 +69,11 @@ def _parse_db_config(config_key=u'sqlalchemy.url'):
 
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
 ## Written by Trent Mick
+@maintain.deprecated('Instead you can probably use click.confirm()')
 def query_yes_no(question, default="yes"):
-    """Ask a yes/no question via input() and return their answer.
+    """DEPRECATED
+
+    Ask a yes/no question via input() and return their answer.
 
     "question" is a string that is presented to the user.
     "default" is the presumed answer if the user just hits <Enter>.
@@ -139,8 +162,12 @@ def load_config(config, load_site_user=True):
     return site_user
 
 
+@maintain.deprecated('Instead use ckan.cli.cli.CkanCommand or extensions '
+                     'should use IClick')
 def paster_click_group(summary):
-    '''Return a paster command click.Group for paster subcommands
+    '''DEPRECATED
+
+    Return a paster command click.Group for paster subcommands
 
     :param command: the paster command linked to this function from
         setup.py, used in help text (e.g. "datastore")
@@ -182,7 +209,11 @@ click_config_option = click.option(
 
 
 class CkanCommand(paste.script.command.Command):
-    '''Base class for classes that implement CKAN paster commands to inherit.'''
+    '''DEPRECATED - Instead use ckan.cli.cli.CkanCommand or extensions
+    should use IClick.
+
+    Base class for classes that implement CKAN paster commands to
+    inherit.'''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
                       help='Config file to use.')
