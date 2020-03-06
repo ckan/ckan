@@ -13,6 +13,7 @@ from paste.script.util.logging_config import fileConfig
 from six.moves import input
 from six.moves.urllib.parse import urlparse
 
+from ckan.config.middleware import make_app
 from ckan.cli import load_config as _get_config
 import ckan.logic as logic
 import ckan.model as model
