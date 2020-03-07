@@ -6,7 +6,7 @@ Frontend development guidelines
    :maxdepth: 1
 
    templating
-   resources
+   assets
    template-tutorial
    template-blocks
    javascript-module-tutorial
@@ -77,16 +77,6 @@ All front-end files to be served via a web server are located in the
       underscore.js
       bootstrap.css
       ...
-    test/
-      index.html
-      spec/
-        main.spec.js
-        utils.spec.js
-      vendor/
-        mocha.js
-        mocha.css
-        chai.js
-      ...
 
 All files and directories should be lowercase with hyphens used to
 separate words.
@@ -109,10 +99,6 @@ vendor
     be prefixed with the library name. If a dependency has many files
     (such as bootstrap) then the entire directory should be included as
     distributed by the maintainer.
-test
-    Contains the test runner *index.html*. *vendor* contains all test
-    dependencies and libraries. *spec* contains the actual test files.
-    Each test file should be the filename with *.spec* appended.
 
 -----------
 Stylesheets
@@ -305,21 +291,9 @@ and ``jQuery.proxyAll()``.
 Unit tests
 ==========
 
-There is currently a test suite available at:
-http://localhost:5000/base/test/index.html
-
 Every core component, module and plugin should have a set of unit tests.
 Tests can be filtered using the ``grep={regexp}`` query string
 parameter.
-
-The libraries used for the tests are as follows.
-
--  `Mocha <http://visionmedia.github.com/mocha/>`_: A test runner using
-   a BDD style syntax.
--  `Chai <http://chaijs.com>`_: An assertion library (we use the assert
-   style).
--  `Sinon <http://sinonjs.org>`_: A stubbing library, can stub objects,
-   timers and ajax requests.
 
 Each file has a description block for it's top level object and then within
 that a nested description for each method that is to be tested::
@@ -340,18 +314,30 @@ objects for testing (all blocks share the same scope so test variables can
 be attached)::
 
     describe('ckan.module.MyModule()', function () {
-      // Pull the class out of the registry.
-      var MyModule = ckan.module.registry['my-module'];
+      before(() => {
+          // Open CKAN front page
+          cy.visit('/');
+
+          // Pull the class out of the registry.
+          cy.window().then(win => {
+            // make module available as this.MyModule
+            cy.wrap(win.ckan.module.registry['my-module']).as('MyModule');
+            win.jQuery('<div id="fixture">').appendTo(win.document.body)
+          })
+        });
 
       beforeEach(function () {
-        // Create a test element.
-        this.el = jQuery('<div />');
+        // window object is needed to access the javascript objects
+        cy.window().then(win => {
+          // Create a test element.
+          this.el = win.jQuery('<div />');
 
-        // Create a test sandbox.
-        this.sandbox = ckan.sandbox();
+          // Create a test sandbox.
+          this.sandbox = win.ckan.sandbox();
 
-        // Create a test module.
-        this.module = new MyModule(this.el, {}, this.sandbox);
+          // Create a test module.
+          this.module = new this.MyModule(this.el, {}, this.sandbox);
+        });
       });
 
       afterEach(function () {
@@ -360,21 +346,29 @@ be attached)::
       });
     });
 
-Templates can also be loaded using the ``.loadFixtures()`` method that is
-available in all test contexts. Tests can be made asynchronous by setting a
-``done`` argument in the callback (Mocha checks the arity of the functions)::
+Templates can also be loaded using the ``.loadFixture()`` method that is
+available in all test contexts. Tests can be made asynchronous by using promises
+(Cypress returns a promise in almost all functions)::
 
     describe('ckan.module.MyModule()', function () {
 
       before(function (done) {
+        cy.visit('/');
+
+        // Add a fixture element to page
+        cy.window().then(win => {
+            win.jQuery('<div id="fixture">').appendTo(win.document.body)
+        })
+
         // Load the template once.
-        this.loadFixture('my-template.html', function (html) {
-          this.template = html;
-          done();
+        cy.loadFixture('my-template.html').then((template) => {
+            cy.wrap(template).as('template');
         });
       });
 
       beforeEach(function () {
         // Assign the template to the module each time.
-        this.el = this.fixture.html(this.template).children();
+        cy.window().then(win => {
+            win.jQuery('#fixture').html(this.template).children();
+        });
       });

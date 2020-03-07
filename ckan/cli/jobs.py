@@ -67,7 +67,9 @@ def show(id):
             {u"ignore_auth": True}, {u"id": id}
         )
     except logic.NotFound:
-        return error_shout(u'There is no job with ID "{}"'.format(id))
+        error_shout(u'There is no job with ID "{}"'.format(id))
+        raise click.Abort()
+
     click.secho(u"ID:      {}".format(job[u"id"]))
     if job[u"title"] is None:
         title = u"None"
@@ -91,7 +93,8 @@ def cancel(id):
             {u"ignore_auth": True}, {u"id": id}
         )
     except logic.NotFound:
-        return error_shout(u'There is no job with ID "{}"'.format(id))
+        error_shout(u'There is no job with ID "{}"'.format(id))
+        raise click.Abort()
 
     click.secho(u"Cancelled job {}".format(id), fg=u"green")
 

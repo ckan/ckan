@@ -38,14 +38,22 @@ def extension(output_dir):
 
     # Prompt user for information
     click.echo(u"\n")
-    name = click.prompt(u"Extenion's name", default=u"must begin 'ckanext-'")
+    while True:
+        name = click.prompt(u"Extension's name",
+                            default=u"must begin 'ckanext-'")
+        if not name.startswith(u"ckanext-"):
+            print(u"ERROR: Project name must start with 'ckanext-' > {}\n"
+                  .format(name))
+        else:
+            break
+
     author = click.prompt(u"Author's name", default=u"")
     email = click.prompt(u"Author's email", default=u"")
     github = click.prompt(u"Your Github user or organization name",
                           default=u"")
     description = click.prompt(u"Brief description of the project",
                                default=u"")
-    keywords = click.prompt(u"List of keywords (seperated by spaces)",
+    keywords = click.prompt(u"List of keywords (separated by spaces)",
                             default=u"CKAN")
 
     # Ensure one instance of 'CKAN' in keywords
@@ -73,13 +81,10 @@ def extension(output_dir):
         os.chdir(u'../../../..')
         output_dir = os.getcwd()
 
-    if not name.startswith(u"ckanext-"):
-        print(u"\nERROR: Project name must start with 'ckanext-' > {}"
-              .format(name))
-        sys.exit(1)
-
     cookiecutter(template_loc, no_input=True, extra_context=context,
                  output_dir=output_dir)
+
+    print(u"\nWritten: {}/{}".format(output_dir, name))
 
 
 @generate.command(name=u'config',

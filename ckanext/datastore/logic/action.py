@@ -193,7 +193,7 @@ def datastore_run_triggers(context, data_dict):
 
     '''
     res_id = data_dict['resource_id']
-    p.toolkit.check_access('datastore_trigger_each_row', context, data_dict)
+    p.toolkit.check_access('datastore_run_triggers', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
     connection = backend._get_write_engine().connect()
 

@@ -50,9 +50,7 @@ def add_user(ctx, username, args):
 
     # Optional
     if u'fullname' in data_dict:
-        data_dict['fullname'] = data_dict['fullname'].decode(
-            sys.getfilesystemencoding()
-        )
+        data_dict['fullname'] = six.ensure_text(data_dict['fullname'])
 
     # pprint(u'Creating user: %r' % username)
 

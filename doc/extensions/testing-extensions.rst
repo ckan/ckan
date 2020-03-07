@@ -16,8 +16,8 @@ The ``use`` line declares that this config file inherits the settings from the
 config file used to run CKAN's own tests (``../ckan`` should be the path to
 your CKAN source directory, relative to your ``test.ini`` file).
 
-The ``test.ini`` file is a CKAN config file just like your |development.ini|
-and |production.ini| files, and it can contain any
+The ``test.ini`` file is a CKAN config file just like your |ckan.ini|
+file, and it can contain any
 :doc:`CKAN config file settings </maintaining/configuration>` that you want
 CKAN to use when running your tests, for example::
 

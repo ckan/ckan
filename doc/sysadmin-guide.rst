@@ -11,7 +11,7 @@ Certain administration tasks are not available through the web UI but need
 access to the server where CKAN is installed. These include the range of
 configuration options using the site's "config" file, documented in
 :doc:`/maintaining/configuration`, and those available via
-:doc:`/maintaining/paster`.
+:doc:`/maintaining/cli`.
 
 .. warning::
 
