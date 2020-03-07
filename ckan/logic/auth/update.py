@@ -34,10 +34,18 @@ def package_update(context, data_dict):
                 'create_unowned_dataset',
                 )) or authz.has_user_permission_for_some_org(
                 user, 'create_dataset')
+
     if not check1:
-        return {'success': False,
-                'msg': _('User %s not authorized to edit package %s') %
-                        (str(user), package.id)}
+
+        # if org-level auth failed, check dataset-level auth
+        # (ie if user is a collaborator)
+        user_packages = logic.get_action(
+            'package_member_list_for_user')(
+                context, {'id': user, 'capacity': 'editor'})
+        if package.id not in [p['package_id'] for p in user_packages]:
+            return {'success': False,
+                    'msg': _('User %s not authorized to edit package %s') %
+                            (str(user), package.id)}
     else:
         check2 = _check_group_auth(context, data_dict)
         if not check2:
@@ -46,6 +54,7 @@ def package_update(context, data_dict):
                             (str(user))}
 
     return {'success': True}
+
 
 def package_resource_reorder(context, data_dict):
     ## the action function runs package update so no need to run it twice
