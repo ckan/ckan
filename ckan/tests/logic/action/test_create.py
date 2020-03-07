@@ -1176,3 +1176,71 @@ class TestFollowUser(object):
         assert [activity["activity_type"] for activity in activities] == []
         # A follow creates no Activity, since:
         # https://github.com/ckan/ckan/pull/317
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackageMemberCreate(object):
+
+    def test_create(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        member = helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        assert member['package_id'] == dataset['id']
+        assert member['user_id'] == user['id']
+        assert member['capacity'] == capacity
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+    def test_update(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+        assert model.Session.query(model.PackageMember).one().capacity == 'member'
+
+    def test_create_wrong_capacity(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_member_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_create_dataset_not_found(self):
+        dataset = {'id': 'xxx'}
+        user = factories.User()
+        capacity = 'editor'
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_member_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_create_user_not_found(self):
+        dataset = factories.Dataset()
+        user = {'id': 'yyy'}
+        capacity = 'editor'
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_member_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)

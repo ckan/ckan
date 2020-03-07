@@ -569,3 +569,43 @@ class TestJobCancel(helpers.FunctionalRQTestBase):
     def test_not_existing_job(self):
         with pytest.raises(logic.NotFound):
             helpers.call_action(u"job_cancel", id=u"does-not-exist")
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackageMemberDelete(object):
+
+    def test_delete(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+        helpers.call_action(
+            'package_member_delete',
+            id=dataset['id'], user_id=user['id'])
+
+        assert model.Session.query(model.PackageMember).count() == 0
+
+    def test_delete_dataset_not_found(self):
+        dataset = {'id': 'xxx'}
+        user = factories.User()
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_member_delete',
+                id=dataset['id'], user_id=user['id'])
+
+    def test_delete_user_not_found(self):
+        dataset = factories.Dataset()
+        user = {'id': 'yyy'}
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_member_delete',
+                id=dataset['id'], user_id=user['id'])

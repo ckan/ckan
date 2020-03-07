@@ -4261,3 +4261,149 @@ class TestDashboardNewActivities(object):
             )
             == 15
         )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackageMemberList(object):
+
+    def test_list(self):
+
+        dataset = factories.Dataset()
+        user1 = factories.User()
+        capacity1 = 'editor'
+        user2 = factories.User()
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user1['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user2['id'], capacity=capacity2)
+
+        members = helpers.call_action(
+            'package_member_list',
+            id=dataset['id'])
+
+        assert len(members) == 2
+
+        assert members[0]['package_id'] == dataset['id']
+        assert members[0]['user_id'] == user1['id']
+        assert members[0]['capacity'] == capacity1
+
+        assert members[1]['package_id'] == dataset['id']
+        assert members[1]['user_id'] == user2['id']
+        assert members[1]['capacity'] == capacity2
+
+    def test_list_with_capacity(self):
+
+        dataset = factories.Dataset()
+        user1 = factories.User()
+        capacity1 = 'editor'
+        user2 = factories.User()
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user1['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user2['id'], capacity=capacity2)
+
+        members = helpers.call_action(
+            'package_member_list',
+            id=dataset['id'], capacity='member')
+
+        assert len(members) == 1
+
+        assert members[0]['package_id'] == dataset['id']
+        assert members[0]['user_id'] == user2['id']
+        assert members[0]['capacity'] == capacity2
+
+    def test_list_dataset_not_found(self):
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_member_list',
+                id='xxx')
+
+    def test_list_wrong_capacity(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_member_list',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_list_for_user(self):
+
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+        user = factories.User()
+        capacity1 = 'editor'
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset1['id'], user_id=user['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset2['id'], user_id=user['id'], capacity=capacity2)
+
+        datasets = helpers.call_action(
+            'package_member_list_for_user',
+            id=user['id'])
+
+        assert len(datasets) == 2
+
+        assert datasets[0]['package_id'] == dataset1['id']
+        assert datasets[0]['capacity'] == capacity1
+
+        assert datasets[1]['package_id'] == dataset2['id']
+        assert datasets[1]['capacity'] == capacity2
+
+    def test_list_for_user_with_capacity(self):
+
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+        user = factories.User()
+        capacity1 = 'editor'
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset1['id'], user_id=user['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset2['id'], user_id=user['id'], capacity=capacity2)
+
+        datasets = helpers.call_action(
+            'package_member_list_for_user',
+            id=user['id'], capacity='editor')
+
+        assert len(datasets) == 1
+
+        assert datasets[0]['package_id'] == dataset1['id']
+        assert datasets[0]['capacity'] == capacity1
+
+    def test_list_for_user_user_not_found(self):
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_member_list_for_user',
+                id='xxx')
+
+    def test_list_for_user_wrong_capacity(self):
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_member_list_for_user',
+                id=user['id'], capacity=capacity)

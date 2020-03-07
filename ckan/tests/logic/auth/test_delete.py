@@ -128,3 +128,94 @@ def test_sysadmin_user_can_clear():
     response = helpers.call_auth("resource_view_clear", context=context)
 
     assert response
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackageMemberDeleteAuth(object):
+
+    def _get_context(self, user):
+
+        return {
+            'model': model,
+            'user': user if isinstance(user, basestring) else user.get('name')
+        }
+
+    def setup(self):
+
+        self.org_admin = factories.User()
+        self.org_editor = factories.User()
+        self.org_member = factories.User()
+
+        self.normal_user = factories.User()
+
+        self.org = factories.Organization(
+            users=[
+                {'name': self.org_admin['name'], 'capacity': 'admin'},
+                {'name': self.org_editor['name'], 'capacity': 'editor'},
+                {'name': self.org_member['name'], 'capacity': 'member'},
+            ]
+        )
+
+        self.dataset = factories.Dataset(owner_org=self.org['id'])
+
+    def test_delete_org_admin_is_authorized(self):
+
+        context = self._get_context(self.org_admin)
+        assert helpers.call_auth(
+            'package_member_delete',
+            context=context, id=self.dataset['id'])
+
+    def test_delete_org_editor_is_not_authorized(self):
+
+        context = self._get_context(self.org_editor)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_member_delete',
+                context=context, id=self.dataset['id'])
+
+    def test_delete_org_member_is_not_authorized(self):
+
+        context = self._get_context(self.org_member)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_member_delete',
+                context=context, id=self.dataset['id'])
+
+    def test_delete_org_admin_from_other_org_is_not_authorized(self):
+        org_admin2 = factories.User()
+        factories.Organization(
+            users=[
+                {'name': org_admin2['name'], 'capacity': 'admin'},
+            ]
+        )
+
+        context = self._get_context(org_admin2)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_member_delete',
+                context=context, id=self.dataset['id'])
+
+    def test_delete_missing_org_is_not_authorized(self):
+
+        dataset = factories.Dataset(owner_org=None)
+
+        context = self._get_context(self.org_admin)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_member_delete',
+                context=context, id=dataset['id'])
+
+    def test_list_org_admin_is_authorized(self):
+
+        context = self._get_context(self.org_admin)
+        assert helpers.call_auth(
+            'package_member_list',
+            context=context, id=self.dataset['id'])
+
+    def test_list_org_editor_is_not_authorized(self):
+
+        context = self._get_context(self.org_editor)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_member_list',
+                context=context, id=self.dataset['id'])
