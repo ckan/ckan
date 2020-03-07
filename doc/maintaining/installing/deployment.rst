@@ -40,11 +40,14 @@ Install Apache_ (a web server), modwsgi_ (an Apache module that adds WSGI
 support to Apache), and modrpaf_ (an Apache module that sets the right IP
 address when there is a proxy forwarding to Apache)::
 
-  sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf
+  sudo apt-get install apache2 libapache2-mod-wsgi-py3 libapache2-mod-rpaf
 
 .. _modwsgi: https://code.google.com/p/modwsgi/
 .. _modrpaf: https://github.com/gnif/mod_rpaf
 
+.. Note: For python 2 change this to:
+
+   sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf
 
 ----------------
 2. Install Nginx
@@ -70,6 +73,7 @@ email server, do::
 When asked to choose a Postfix configuration, choose *Internet Site* and press
 return.
 
+.. _create-wsgi-script-file:
 
 ------------------------------
 4. Create the WSGI script file
@@ -81,14 +85,11 @@ contents:
 .. parsed-literal::
 
     import os
-    activate_this = os.path.join('|virtualenv|/bin/activate_this.py')
-    execfile(activate_this, dict(__file__=activate_this))
-
-    from paste.deploy import loadapp
+    from ckan.config.middleware import make_app
+    from ckan.cli import CKANConfigLoader
     config_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ckan.ini')
-    from paste.script.util.logging_config import fileConfig
-    fileConfig(config_filepath)
-    application = loadapp('config:%s' % config_filepath)
+    config = CKANConfigLoader(config_filepath).get_config()
+    application = make_app(config)
 
 The modwsgi Apache module will redirect requests to your web server to this
 WSGI script file. The script file then handles those requests by directing them
@@ -114,7 +115,8 @@ following contents:
         WSGIPassAuthorization On
 
         # Deploy as a daemon (avoids conflicts between CKAN instances).
-        WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
+        # Also activates the venv
+        WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15 python-home=/usr/lib/ckan/default
 
         WSGIProcessGroup ckan_default
 

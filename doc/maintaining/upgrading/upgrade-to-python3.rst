@@ -33,3 +33,22 @@ do these sections:
 * 1. Install the required packages
 * 2. Install CKAN into a Python virtual environment
 * 6. Link to who.ini
+
+Deployment
+----------
+
+For full details of the recommended deployment (Apache, mod_wsgi, nginx) see:
+:doc:`deployment`. Here we detail the changes from the previous instructions.
+
+1. Now we should activate your Python virtual environment in your Apache mod_wsgi
+config. Edit |apache_config_file| and change the WSGIDaemonProcess to include
+the ``python-home``::
+
+    WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15 python-home=/usr/lib/ckan/default
+
+(The virtual environment was previously activated in the WSGI script file,
+however it used the activate_this.py script provided by virtualenv, however now
+we use 'venv' which is bundled with python3.)
+
+2. The WSGI script file needs replacing. Copy the new |apache.wsgi| defined in
+the deployment doc: :ref:`create-wsgi-script-file`
