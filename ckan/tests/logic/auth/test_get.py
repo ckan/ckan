@@ -197,6 +197,190 @@ class TestGetAuth(object):
         )
 
 
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
+@pytest.mark.ckan_config('ckan.plugins', 'image_view')
+class TestGetAuthWithCollaborators(object):
+
+    def _get_context(self, user):
+
+        return {
+            'model': model,
+            'user': user if isinstance(user, basestring) else user.get('name')
+        }
+
+    def test_dataset_show_private_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_show',
+                context=context, id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'package_show',
+            context=context, id=dataset['id'])
+
+    def test_dataset_show_private_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_show',
+                context=context, id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        assert helpers.call_auth(
+            'package_show',
+            context=context, id=dataset['id'])
+
+    def test_resource_show_private_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_show',
+                context=context, id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'resource_show',
+            context=context, id=resource['id'])
+
+    def test_resource_show_private_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_show',
+                context=context, id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        assert helpers.call_auth(
+            'resource_show',
+            context=context, id=resource['id'])
+
+    def test_resource_view_list_private_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_view_list',
+                context=context, id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'resource_view_list',
+            context=context, id=resource['id'])
+
+    def test_resource_view_list_private_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_view_list',
+                context=context, id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        assert helpers.call_auth(
+            'resource_view_list',
+            context=context, id=resource['id'])
+
+    def test_resource_view_show_private_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        # Needed until ckan/ckan#4828 is backported
+        context['resource'] = model.Resource.get(resource['id'])
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_view_show',
+                context=context, id=resource_view['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'resource_view_show',
+            context=context, id=resource_view['id'])
+
+    def test_resource_view_show_private_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        # Needed until ckan/ckan#4828 is backported
+        context['resource'] = model.Resource.get(resource['id'])
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_view_show',
+                context=context, id=resource_view['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        assert helpers.call_auth(
+            'resource_view_show',
+            context=context, id=resource_view['id'])
+
+
 @pytest.mark.usefixtures("clean_db")
 class TestPackageMemberList(object):
 

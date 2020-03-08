@@ -4407,3 +4407,86 @@ class TestPackageMemberList(object):
             helpers.call_action(
                 'package_member_list_for_user',
                 id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures('clean_db', 'clean_index')
+class TestCollaboratorsSearch(object):
+
+    def test_search_results_editor(self):
+
+        org = factories.Organization()
+        dataset1 = factories.Dataset(
+            name='test1', private=True, owner_org=org['id'])
+        dataset2 = factories.Dataset(name='test2')
+
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False
+        }
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*', include_private=True
+        )
+
+        assert results['count'] == 1
+        assert results['results'][0]['id'] == dataset2['id']
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset1['id'], user_id=user['id'], capacity='editor')
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True,
+            sort='name asc'
+        )
+
+        assert results['count'] == 2
+
+        assert results['results'][0]['id'] == dataset1['id']
+        assert results['results'][1]['id'] == dataset2['id']
+
+    def test_search_results_member(self):
+
+        org = factories.Organization()
+        dataset1 = factories.Dataset(
+            name='test1', private=True, owner_org=org['id'])
+        dataset2 = factories.Dataset(name='test2')
+
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False
+        }
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True
+        )
+
+        assert results['count'] == 1
+        assert results['results'][0]['id'] == dataset2['id']
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset1['id'], user_id=user['id'], capacity='member')
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True,
+            sort='name asc'
+        )
+
+        assert results['count'] == 2
+
+        assert results['results'][0]['id'] == dataset1['id']
+        assert results['results'][1]['id'] == dataset2['id']

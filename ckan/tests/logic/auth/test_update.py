@@ -273,3 +273,311 @@ class TestUpdate(object):
         factories.Sysadmin(name="fred")
         context = {"user": "fred", "model": None}
         assert helpers.call_auth("config_option_update", context=context)
+
+
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
+@pytest.mark.ckan_config('ckan.plugins', 'image_view')
+class TestUpdateAuthWithCollaborators(object):
+
+    def _get_context(self, user):
+
+        return {
+            'model': model,
+            'user': user if isinstance(user, basestring) else user.get('name')
+        }
+
+    def test_dataset_update_public_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_update',
+                context=context, id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'package_update',
+            context=context, id=dataset['id'])
+
+    def test_dataset_update_public_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_update',
+                context=context, id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_update',
+                context=context, id=dataset['id'])
+
+    def test_dataset_update_private_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_update',
+                context=context, id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'package_update',
+            context=context, id=dataset['id'])
+
+    def test_dataset_update_private_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_update',
+                context=context, id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_update',
+                context=context, id=dataset['id'])
+
+    def test_dataset_delete_private_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_delete',
+                context=context, id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'package_delete',
+            context=context, id=dataset['id'])
+
+    def test_dataset_delete_private_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_delete',
+                context=context, id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_delete',
+                context=context, id=dataset['id'])
+
+    def test_resource_create_public_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_create',
+                context=context, package_id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'resource_create',
+            context=context, package_id=dataset['id'])
+
+    def test_resource_create_public_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_create',
+                context=context, package_id=dataset['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_create',
+                context=context, package_id=dataset['id'])
+
+    def test_resource_update_public_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_update',
+                context=context, id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'resource_update',
+            context=context, id=resource['id'])
+
+    def test_resource_update_public_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_update',
+                context=context, id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_update',
+                context=context, id=resource['id'])
+
+    def test_resource_delete_public_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_delete',
+                context=context, id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'resource_delete',
+            context=context, id=resource['id'])
+
+    def test_resource_delete_public_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_delete',
+                context=context, id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_delete',
+                context=context, id=resource['id'])
+
+    def test_resource_view_create_public_editor(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_view_create',
+                context=context, resource_id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert helpers.call_auth(
+            'resource_view_create',
+            context=context, resource_id=resource['id'])
+
+    def test_resource_view_create_public_member(self):
+
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_view_create',
+                context=context, resource_id=resource['id'])
+
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'resource_view_create',
+                context=context, resource_id=resource['id'])
