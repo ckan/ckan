@@ -2863,3 +2863,25 @@ def activity_list_select(pkg_activity_list, current_activity_id):
         ))
 
     return select_list
+
+
+@core_helper
+def get_collaborators(package_id):
+    '''Return the collaborators list for a dataset
+
+    Returns a list of dicts with the user id and the capacity
+    '''
+    context = {'ignore_auth': True, 'user': g.user}
+    data_dict = {'id': package_id}
+    _collaborators = logic.get_action('package_member_list')(
+        context, data_dict)
+
+    collaborators = []
+
+    for collaborator in _collaborators:
+        collaborators.append([
+            collaborator['user_id'],
+            collaborator['capacity']
+        ])
+
+    return collaborators

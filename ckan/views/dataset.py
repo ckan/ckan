@@ -1203,6 +1203,120 @@ def changes_multiple(package_type=None):
     )
 
 
+def collaborators_read(package_type, id):
+    context = {u'model': model, u'user': g.user}
+    data_dict = {u'id': id}
+
+    try:
+        check_access(u'package_member_list', context, data_dict)
+        # needed to ckan_extend package/edit_base.html
+        pkg_dict = get_action(u'package_show')(context, data_dict)
+    except NotAuthorized:
+        message = _(u'Unauthorized to read collaborators {}').format(id)
+        return base.abort(401, message)
+    except NotFound:
+        return base.abort(404, _(u'Dataset not found'))
+
+    return base.render(u'package/collaborators/collaborators.html', {
+        u'pkg_dict': pkg_dict})
+
+
+def collaborator_delete(package_type, id, user_id):
+    context = {u'model': model, u'user': g.user}
+
+    try:
+        get_action(u'package_member_delete')(context, {
+            u'id': id,
+            u'user_id': user_id
+        })
+    except NotAuthorized:
+        message = _(u'Unauthorized to delete collaborators {}').format(id)
+        return base.abort(401, _(message))
+    except NotFound as e:
+        return base.abort(404, _(e.message))
+
+    h.flash_success(_(u'User removed from collaborators'))
+
+    return h.redirect_to(u'dataset.collaborators_read', id=id)
+
+
+class CollaboratorEditView(MethodView):
+
+    def post(self, package_type, id):
+        context = {u'model': model, u'user': g.user}
+
+        try:
+            form_dict = logic.clean_dict(
+                dict_fns.unflatten(
+                    logic.tuplize_dict(
+                        logic.parse_params(request.form))))
+
+            user = get_action(u'user_show')(
+                context, {u'id': form_dict[u'username']}
+            )
+
+            data_dict = {
+                u'id': id,
+                u'user_id': user[u'id'],
+                u'capacity': form_dict[u'capacity']
+            }
+
+            get_action(u'package_member_create')(
+                context, data_dict)
+
+        except dict_fns.DataError:
+            return base.abort(400, _(u'Integrity Error'))
+        except NotAuthorized:
+            message = _(u'Unauthorized to edit collaborators {}').format(id)
+            return base.abort(401, _(message))
+        except NotFound:
+            return base.abort(404, _(u'Resource not found'))
+        except ValidationError as e:
+            h.flash_error(e.error_summary)
+        else:
+            h.flash_success(_(u'User added to collaborators'))
+
+        return h.redirect_to(u'dataset.collaborators_read', id=id)
+
+    def get(self, package_type, id):
+        context = {u'model': model, u'user': g.user}
+        data_dict = {u'id': id}
+
+        try:
+            check_access(u'package_member_list', context, data_dict)
+            # needed to ckan_extend package/edit_base.html
+            pkg_dict = get_action(u'package_show')(context, data_dict)
+        except NotAuthorized:
+            message = u'Unauthorized to read collaborators {}'.format(id)
+            return base.abort(401, _(message))
+        except NotFound:
+            return base.abort(404, _(u'Resource not found'))
+
+        user = request.params.get(u'user_id')
+        user_capacity = u'member'
+
+        if user:
+            collaborators = get_action(u'package_member_list')(
+                context, data_dict)
+            for c in collaborators:
+                if c[u'user_id'] == user:
+                    user_capacity = c[u'capacity']
+            user = get_action(u'user_show')(context, {u'id': user})
+
+        extra_vars = {
+            u'capacities': [
+                {u'name': u'editor', u'value': u'editor'},
+                {u'name': u'member', u'value': u'member'}
+            ],
+            u'user_capacity': user_capacity,
+            u'user': user,
+            u'pkg_dict': pkg_dict,
+        }
+
+        return base.render(
+            u'package/collaborators/collaborator_new.html', extra_vars)
+
+
 # deprecated
 def history(package_type, id):
     return h.redirect_to(u'dataset.activity', id=id)
@@ -1251,6 +1365,22 @@ def register_dataset_plugin_rules(blueprint):
             u'ckan.views.resource.EditView', str(u'edit_resource')
         )
 
+    )
+    blueprint.add_url_rule(
+        rule=u'/collaborators/<id>',
+        view_func=collaborators_read,
+        methods=['GET', ]
+    )
+
+    blueprint.add_url_rule(
+        rule=u'/collaborators/<id>/new',
+        view_func=CollaboratorEditView.as_view('new_collaborator'),
+        methods=['GET', 'POST', ]
+    )
+
+    blueprint.add_url_rule(
+        rule=u'/collaborators/<id>/delete/<user_id>',
+        view_func=collaborator_delete, methods=['POST', ]
     )
 
 
