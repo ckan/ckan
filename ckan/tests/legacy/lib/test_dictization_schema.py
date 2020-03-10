@@ -25,7 +25,7 @@ class TestBasicDictize(object):
         for key, value in list(dict.items()):
             if key.endswith("id") and key != "license_id":
                 dict.pop(key)
-            if key == "created":
+            if key in ("created", "metadata_modified"):
                 dict.pop(key)
 
             if isinstance(value, list):
@@ -73,7 +73,6 @@ class TestBasicDictize(object):
                     "description": u'Full text. Needs escaping: " Umlaut: \xfc',
                     "format": u"plain text",
                     "hash": u"abc123",
-                    'metadata_modified': u'None',
                     "size_extra": u"123",
                     "url": u"http://datahub.io/download/x=1&y=2",
                 },
@@ -82,7 +81,6 @@ class TestBasicDictize(object):
                     "description": u"Index of the novel",
                     "format": u"JSON",
                     "hash": u"def456",
-                    'metadata_modified': u'None',
                     "size_extra": u"345",
                     "url": u"http://datahub.io/index.json",
                 },
