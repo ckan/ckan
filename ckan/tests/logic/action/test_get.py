@@ -72,6 +72,7 @@ class TestPackageShow(object):
         replace_number_suffix(dataset2, "name")
         replace_datetime(dataset2, "metadata_created")
         replace_datetime(dataset2, "metadata_modified")
+        replace_datetime(dataset2['resources'][0], "metadata_modified")
         replace_uuid(dataset2["groups"][0], "id")
         replace_number_suffix(dataset2["groups"][0], "name")
         replace_number_suffix(dataset2["groups"][0], "title")
@@ -139,6 +140,7 @@ class TestPackageShow(object):
                     u"hash": u"",
                     u"id": u"<SOME-UUID>",
                     u"last_modified": None,
+                    u"metadata_modified": u"2019-05-24T15:52:30.123456",
                     u"mimetype": None,
                     u"mimetype_inner": None,
                     u"name": u"Image num",
