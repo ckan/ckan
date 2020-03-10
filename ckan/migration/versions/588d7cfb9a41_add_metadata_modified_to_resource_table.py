@@ -23,6 +23,7 @@ def upgrade():
         u'resource',
         sa.Column(u'metadata_modified', sa.TIMESTAMP, nullable=True)
     )
+    op.execute(u'UPDATE resource SET metadata_modified = created')
 
 
 def downgrade():
