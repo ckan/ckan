@@ -94,7 +94,7 @@
               {{ h.render_markdown(res.description) }}
             {% endif %}
             {% if not res.description and package.notes %}
-              <h3>{{ _('From the dataset abstract') }}</h3>
+              <h3>{{ _('Dataset description:') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
               <p>{% trans dataset=package.title, url=h.url_for('dataset.read', id=package.id if is_activity_archive else package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
             {% endif %}
