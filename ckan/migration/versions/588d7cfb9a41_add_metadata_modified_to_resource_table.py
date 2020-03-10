@@ -21,7 +21,7 @@ depends_on = None
 def upgrade():
     op.add_column(
         u'resource',
-        sa.Column(u'metadata_modified', sa.DateTime(), nullable=True)
+        sa.Column(u'metadata_modified', sa.TIMESTAMP, nullable=True)
     )
 
 
