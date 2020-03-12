@@ -519,30 +519,81 @@ Now that you have ckan running you can customize the interface via the admin con
 - Custom CSS can be used to change the colour pallet of the site as well as any of the other css items. An example css that sets the colour pallet is:
 
 ```CSS
-.box, .wrapper {
-    border: 1px solid #006e90;
-    border-width: 0 0 0 4px;
+#header-container #header .header-links>ul>li a:hover {
+  color: #ffc857;
+  background: #FFF
+}
+#header-container #header .header-links>ul>li.current-menu-item>a span {
+  color: #ffc857;
+}
+
+#header-container #header .menu>li>a::after {
+  background: #006e90;
+}
+
+#header-container #header #header-links .sub-menu {
+  box-shadow: #115172 0 -4px 0 0px, rgba(0, 0, 0, 0.15) 1px 1px 2px 0;
+}
+
+#main-nav-check:checked~.mobile-nav ul.menu ul.subshow li a {
+    line-height: 2.5em;
+    border-width: 1px 0 0 0;
+    transition: all .2s ease;
+    height: auto;
+    width: 100%
+  }
+
+#header-container #header .header-links>ul>li a {
+    color: #58595b;
+}
+
+.homepage .box,
+.homepage .wrapper {
+  border: 1px solid #006e90;
+  border-width: 0 0 0 4px;
 }
 
 #topmenu {
-    background: #006e90;
+  background: #006e90;
 }
 
-.account-masthead{
+.account-masthead {
   background-image: none;
   background: #006e90;
 }
 
-#footer{
+#footer {
   background: #006e90;
 }
 
-
-#footer a {
-  color: rgb(255,255,255,.5);
-}
 .account-masthead .account ul li a {
-  color: rgb(255,255,255,.5);
+  color: rgb(255, 255, 255, .5);
+}
+
+.search-form .search-input-group button:hover i {
+  color: #000000;
+}
+
+.toggle-menu label,
+.mobile-nav {
+  background: #006e90;
+}
+
+.mobile-nav ul.menu ul.sub-menu li {
+  background: #00648c;
+}
+
+.mobile-nav ul.menu ul.shareicons {
+  background: #006e90;
+}
+
+.mobile-nav ul.menu li a,
+#main-nav-check:checked~.mobile-nav ul.menu li a {
+  border-color: #187794;
+}
+
+#header-container #header .menu>li>a::after {
+background:rgb(185, 214, 242);
 }
 ```
 
@@ -739,6 +790,7 @@ copy updated extension code to the volumes
 ```bash
 cd ~/ckan/contrib/docker
 sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
+sudo cp -R src/ckanext-googleanalyticsbasic $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-cioos_harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
