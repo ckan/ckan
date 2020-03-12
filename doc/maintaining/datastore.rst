@@ -125,7 +125,7 @@ Replace ``pass`` with the passwords you created for your |database_user| and
 Set permissions
 ---------------
 
-Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a paster command to help you correctly set these permissions.
+Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a ckan command to help you correctly set these permissions.
 
 If you are able to use the ``psql`` command to connect to your database as a
 superuser, you can use the ``datastore set-permissions`` command to emit the
@@ -136,25 +136,33 @@ superuser using::
 
     sudo -u postgres psql
 
-Then you can use this connection to set the permissions::
+Then you can use this connection to set the permissions:
+
+   .. parsed-literal::
+
+    ckan -c |ckan.ini| datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
+
+.. note::
+
+   If you performed a package install, you will need to replace all references to
+   'ckan -c |ckan.ini| ...' with 'sudo ckan ...' and provide the path to
+   the config file, e.g.::
 
     sudo ckan datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
 
-.. note::
-   If you performed a source install, you will need to replace all references to
-   ``sudo ckan ...`` with ``paster --plugin=ckan ...`` and provide the path to
-   the config file, e.g. ``paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini | sudo -u postgres psql --set ON_ERROR_STOP=1``
-
 If your database server is not local, but you can access it over SSH, you can
-pipe the permissions script over SSH::
+pipe the permissions script over SSH:
 
-    sudo ckan datastore set-permissions |
-    ssh dbserver sudo -u postgres psql --set ON_ERROR_STOP=1
+    .. parsed-literal::
+
+     ckan -c |ckan.ini| datastore set-permissions | ssh dbserver sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If you can't use the ``psql`` command in this way, you can simply copy and paste
-the output of::
+the output of:
 
-    sudo ckan datastore set-permissions
+    .. parsed-literal::
+
+     ckan -c |ckan.ini| datastore set-permissions
 
 into a |postgres| superuser console.
 

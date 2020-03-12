@@ -29,13 +29,13 @@ cache_dir = /tmp/%(ckan.site_id)s/
 beaker.session.key = ckan
 
 # This is the secret token that the beaker library uses to hash the cookie sent
-# to the client. `paster make-config` generates a unique value for this each
+# to the client. `ckan generate config` generates a unique value for this each
 # time it generates a config file.
-beaker.session.secret = ${app_instance_secret}
+beaker.session.secret = $app_instance_secret
 
-# `paster make-config` generates a unique value for this each time it generates
+# `ckan generate config` generates a unique value for this each time it generates
 # a config file.
-app_instance_uuid = ${app_instance_uuid}
+app_instance_uuid = $app_instance_uuid
 
 # repoze.who config
 who.config_file = %(here)s/who.ini
@@ -201,7 +201,7 @@ ckan.jobs.timeout = 180
 
 ## Logging configuration
 [loggers]
-keys = root, ckan, ckanext
+keys = root, ckan, ckanext, werkzeug
 
 [handlers]
 keys = console
@@ -212,6 +212,12 @@ keys = generic
 [logger_root]
 level = WARNING
 handlers = console
+
+[logger_werkzeug]
+level = WARNING
+handlers = console
+qualname = werkzeug
+propagate = 0
 
 [logger_ckan]
 level = INFO

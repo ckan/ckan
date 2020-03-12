@@ -29,6 +29,7 @@ import paste.script
 from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
 import click
+from ckan.cli import load_config as _get_config
 
 from ckan.config.middleware import make_app
 import ckan.logic as logic
@@ -183,49 +184,19 @@ class MockTranslator(object):
         return singular
 
 
-def _get_config(config=None):
-    from paste.deploy import appconfig
-
-    if config:
-        filename = os.path.abspath(config)
-        config_source = '-c parameter'
-    elif os.environ.get('CKAN_INI'):
-        filename = os.environ.get('CKAN_INI')
-        config_source = '$CKAN_INI'
-    else:
-        default_filename = 'development.ini'
-        filename = os.path.join(os.getcwd(), default_filename)
-        if not os.path.exists(filename):
-            # give really clear error message for this common situation
-            msg = 'ERROR: You need to specify the CKAN config (.ini) '\
-                'file path.'\
-                '\nUse the --config parameter or set environment ' \
-                'variable CKAN_INI or have {}\nin the current directory.' \
-                .format(default_filename)
-            exit(msg)
-
-    if not os.path.exists(filename):
-        msg = 'Config file not found: %s' % filename
-        msg += '\n(Given by: %s)' % config_source
-        exit(msg)
-
-    fileConfig(filename)
-    return appconfig('config:' + filename)
-
-
 def load_config(config, load_site_user=True):
     conf = _get_config(config)
     assert 'ckan' not in dir()  # otherwise loggers would be disabled
     # We have now loaded the config. Now we can import ckan for the
     # first time.
     from ckan.config.environment import load_environment
-    load_environment(conf.global_conf, conf.local_conf)
+    load_environment(conf)
 
     # Set this internal test request context with the configured environment so
     # it can be used when calling url_for from the CLI.
     global _cli_test_request_context
 
-    app = make_app(conf.global_conf, **conf.local_conf)
+    app = make_app(conf)
     flask_app = app.apps['flask_app']._wsgi_app
     _cli_test_request_context = flask_app.test_request_context()
 

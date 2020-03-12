@@ -13,7 +13,7 @@ Internationalizing strings in extensions
 We will create a simple extension to demonstrate the translation of strings
 inside extensions. After running::
 
-    paster --plugin=ckan create -t ckanext ckanext-itranslation
+    ckan -c |ckan.ini| create -t ckanext ckanext-itranslation
 
 Change the ``plugin.py`` file to:
 
@@ -146,7 +146,7 @@ your extension. Edit your ``plugin.py`` to contain the following.
     :emphasize-lines: 3, 6-7
 
 You're done! To test your translated extension, make sure you add the extension to
-your |development.ini|, run a ``paster serve`` command and browse to
+your |ckan.ini|, run a ``paster serve`` command and browse to
 http://localhost:5000. You should find that switching to the ``fr`` locale in
 the web interface will change the home page string to ``this is an itranslated
 string``.

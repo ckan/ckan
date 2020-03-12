@@ -9,7 +9,9 @@ from six.moves.configparser import ConfigParser, NoOptionError
 @pytest.fixture
 def config_file(tmp_path):
     dest = tmp_path / u'config.ini'
-    tpl = os.path.join(os.path.dirname(__file__), u'data/config_tool.ini.tpl')
+    tpl = os.path.join(
+        os.path.dirname(__file__),
+        u'templates/config_tool.ini.tpl')
     with open(tpl, u'rb') as data:
         dest.write_bytes(data.read())
     return dest
