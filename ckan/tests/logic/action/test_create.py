@@ -3,6 +3,7 @@
 
 """
 import cgi
+import datetime
 import mock
 import pytest
 import six
@@ -20,6 +21,7 @@ from ckan.common import config
 from six import string_types, StringIO, BytesIO
 
 from pyfakefs import fake_filesystem
+from freezegun import freeze_time
 
 try:
     import __builtin__ as builtins
@@ -641,6 +643,19 @@ class TestResourceCreate:
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
+
+    @freeze_time('2020-02-25 12:00:00')
+    def test_metadata_modified_is_set_to_utcnow_when_created(self):
+        context = {}
+        params = {
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+        result = helpers.call_action("resource_create", context, **params)
+
+        assert (result['metadata_modified'] ==
+                datetime.datetime.utcnow().isoformat())
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
