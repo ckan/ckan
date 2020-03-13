@@ -505,6 +505,60 @@ def test_render_datetime(date, extra, exp):
     assert h.render_datetime(date, **extra) == exp
 
 
+@pytest.mark.freeze_time("2020-02-17 12:00:00")
+@pytest.mark.parametrize(
+    "date, exp",
+    [
+        (
+            datetime.datetime(2020, 2, 17, 11, 59, 30),
+            "Just now",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 59, 0),
+            "1 minute ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 55, 0),
+            "5 minutes ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 0, 0),
+            "1 hour ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 7, 0, 0),
+            "5 hours ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 16, 12, 0, 0),
+            "1 day ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 12, 12, 0, 0),
+            "5 days ago",
+        ),
+        (
+            datetime.datetime(2020, 1, 17, 12, 0, 0),
+            "1 month ago",
+        ),
+        (
+            datetime.datetime(2019, 9, 17, 12, 0, 0),
+            "5 months ago",
+        ),
+        (
+            datetime.datetime(2019, 1, 17, 12, 0, 0),
+            "over 1 year ago",
+        ),
+        (
+            datetime.datetime(2015, 1, 17, 12, 0, 0),
+            "over 5 years ago",
+        ),
+    ]
+)
+def test_time_ago_from_timestamp(date, exp):
+    assert h.time_ago_from_timestamp(date) == exp
+
+
 def test_clean_html_disallowed_tag():
     assert h.clean_html("<b><bad-tag>Hello") == u"<b>&lt;bad-tag&gt;Hello</b>"
 
