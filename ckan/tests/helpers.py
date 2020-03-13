@@ -278,9 +278,9 @@ def _get_test_app():
     config["ckan.legacy_templates"] = False
     config["testing"] = True
     if six.PY2:
-        app = ckan.config.middleware.make_app(config["global_conf"], **config)
+        app = ckan.config.middleware.make_app(config)
     else:
-        app = ckan.config.middleware.make_app(config, **config)
+        app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
 
     return app

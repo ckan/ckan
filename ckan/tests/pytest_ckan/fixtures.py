@@ -243,11 +243,8 @@ def with_extended_cli(ckan_config, monkeypatch):
     list of available CLI command.
 
     """
-    class MockConfig(object):
-        global_conf = ckan_config
-        local_conf = ckan_config
     # Main `ckan` command is initialized from config file instead of
     # using global config object.  With this patch it becomes possible
     # to apply per-test config changes to it without creating real
     # config file.
-    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: MockConfig())
+    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)

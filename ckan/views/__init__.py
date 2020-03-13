@@ -5,7 +5,7 @@ from ckan.common import asbool
 import six
 from six import text_type
 from six.moves.urllib.parse import quote
-from werkzeug import import_string, cached_property
+from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
 from ckan.common import g, request, config, session

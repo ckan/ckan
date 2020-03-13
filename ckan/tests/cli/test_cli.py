@@ -74,18 +74,57 @@ def test_command_from_extension_is_available_when_all_requirements_satisfied(cli
     assert not result.exit_code
 
 
-def test_ckan_config_loader_parse_files():
+def test_ckan_config_loader_parse_file():
     """
-    CKANConfigLoader should parse both 'test.ini.tpl' and 'test-core.ini.tpl'
-    files since test.ini.ptl has a use = config:test-core.ini.tpl config.
+    CKANConfigLoader should parse and interpolate variables in
+    test-core.ini.tpl file both in DEFAULT and app:main section.
     """
-    filename = os.path.join(os.path.dirname(__file__), u'data/test.ini.tpl')
+    tpl_dir = os.path.dirname(__file__) + u'/templates'
+    filename = os.path.join(tpl_dir, u'test-core.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
-    assert conf.global_conf[u'debug'] == u'true'
-    assert conf.global_conf[u'smtp_server'] == u'localhost'
-    assert conf.local_conf[u'ckan.site_id'] == u'default'
-    assert conf.local_conf[u'faster_db_test_hacks'] == u'True'
-    assert conf.local_conf[u'cache_dir'] == u'/tmp/default/'
-    assert (conf.local_conf[u'sqlalchemy.url'] ==
-            u'postgresql://ckan_default:pass@localhost/ckan_test')
+    assert conf[u'debug'] == u'false'
+
+    assert conf[u'key1'] == tpl_dir + u'/core'
+    assert conf[u'key2'] == tpl_dir + u'/core'
+    assert conf[u'key4'] == u'core'
+
+    assert conf[u'__file__'] == filename
+
+    with pytest.raises(KeyError):
+        conf[u'host']
+
+    assert conf[u'global_conf'][u'__file__'] == filename
+    assert conf[u'global_conf'][u'here'] == tpl_dir
+    assert conf[u'global_conf'][u'debug'] == u'false'
+
+
+def test_ckan_config_loader_parse_two_files():
+    """
+    CKANConfigLoader should parse both 'test-extension.ini.tpl' and
+    'test-core.ini.tpl' and override the values of 'test-core.ini.tpl' with
+    the values of test-extension.ini.tpl.
+
+    Values in [DEFAULT] section are always override.
+    """
+    tpl_dir = os.path.dirname(__file__) + u'/templates'
+    extension_tpl_dir = tpl_dir + u'/ckanext-extension'
+    filename = os.path.join(extension_tpl_dir, u'test-extension.ini.tpl')
+    conf = CKANConfigLoader(filename).get_config()
+
+    # Debug should be override by test-core.ini.tpl since is in DEFAULT section
+    assert conf[u'debug'] == u'false'
+    # __file__ should never be override if parsing two files
+    assert conf[u'__file__'] == filename
+
+    assert conf[u'key1'] == extension_tpl_dir + u'/extension'
+    assert conf[u'key2'] == tpl_dir + u'/core'
+    assert conf[u'key3'] == extension_tpl_dir + u'/extension'
+    assert conf[u'key4'] == u'extension'
+
+    with pytest.raises(KeyError):
+        conf[u'host']
+
+    assert conf[u'global_conf'][u'__file__'] == filename
+    assert conf[u'global_conf'][u'here'] == tpl_dir
+    assert conf[u'global_conf'][u'debug'] == u'false'

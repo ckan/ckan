@@ -43,14 +43,15 @@ class CkanCommand(object):
         # Don't import `load_config` by itself, rather call it using
         # module so that it can be patched during tests
         self.config = ckan_cli.load_config(conf)
-        self.app = make_app(self.config.global_conf, **self.config.local_conf)
+        self.app = make_app(self.config)
 
 
 def _init_ckan_config(ctx, param, value):
 
-    # This is necessary to allow the user to create
-    # a config file when one isn't already present
-    if len(sys.argv) > 1 and sys.argv[1] == u'generate' and not value:
+    # Some commands don't require the config loaded
+    if (len(sys.argv) > 1 and not value
+            and sys.argv[1] in (u'generate', u'config-tool')) \
+            or u'--help' in sys.argv:
         return
 
     ctx.obj = CkanCommand(value)

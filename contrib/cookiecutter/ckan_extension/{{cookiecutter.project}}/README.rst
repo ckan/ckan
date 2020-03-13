@@ -61,7 +61,7 @@ To install {{ cookiecutter.project }}:
 
 3. Add ``{{ cookiecutter.project[8:] }}`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at
-   ``/etc/ckan/default/production.ini``).
+   ``/etc/ckan/default/ckan.ini``).
 
 4. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu::
 
@@ -136,6 +136,7 @@ To publish a new version to PyPI follow these steps:
 5. Commit any outstanding changes::
 
        git commit -a
+       git push
 
 6. Tag the new release of the project on GitHub with the version number from
    the ``setup.py`` file. For example if the version number in ``setup.py`` is

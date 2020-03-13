@@ -27,7 +27,7 @@ Install additional dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some additional dependencies are needed to run the tests. Make sure you've
-created a config file at |development.ini|, then activate your
+created a config file at |ckan.ini|, then activate your
 virtual environment:
 
 .. parsed-literal::
@@ -56,10 +56,11 @@ Create test databases:
 
 Set the permissions::
 
-    paster datastore set-permissions -c test-core.ini | sudo -u postgres psql
+    ckan -c test-core.ini datastore set-permissions | sudo -u postgres psql
 
-This database connection is specified in the ``test-core.ini`` file by the
-``sqlalchemy.url`` parameter.
+When the tests run they will use these databases, because in ``test-core.ini``
+they are specified in the ``sqlalchemy.url`` and ``ckan.datastore.write_url``
+connection strings.
 
 You should also make sure that the :ref:`Redis database <ckan_redis_url>`
 configured in ``test-core.ini`` is different from your production database.
@@ -80,7 +81,7 @@ Each core will be within a child from the ``<lst name="status"`` element, and co
 
 You can also tell from your ckan config (assuming ckan is working)::
 
-    grep solr_url /etc/ckan/default/production.ini
+    grep solr_url |ckan.ini|
     # single-core: solr_url = http://127.0.0.1:8983/solr
     # multi-core:  solr_url = http://127.0.0.1:8983/solr/ckan
 
@@ -109,7 +110,7 @@ To enable multi-core:
 
        sudo service jetty restart
 
-6. Edit your main ckan config (e.g. |development.ini|) and adjust the solr_url to match::
+6. Edit your main ckan config (e.g. |ckan.ini|) and adjust the solr_url to match::
 
        solr_url = http://127.0.0.1:8983/solr/ckan
 
@@ -170,7 +171,7 @@ The JS tests are written using the Cypress_ test framework. First you need to in
 To run the tests, make sure that a test server is running::
 
     . /usr/lib/ckan/default/bin/activate
-    paster serve test-core.ini
+    ckan -c |ckan.ini| run
 
 Once the test server is running switch to another terminal and execute the
 tests::
