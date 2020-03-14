@@ -3,6 +3,8 @@
 import os
 import os.path
 
+from pkg_resources import parse_version
+
 # Avoid problem releasing to pypi from vagrant
 if os.environ.get('USER', '') == 'vagrant':
     del os.link
@@ -23,11 +25,6 @@ from ckan import (__version__, __description__, __long_description__,
 #
 # Check setuptools version
 #
-
-def parse_version(s):
-    return [int(part) for part in s.split('.')]
-
-
 
 HERE = os.path.dirname(__file__)
 with open(os.path.join(HERE, 'requirement-setuptools.txt')) as f:
