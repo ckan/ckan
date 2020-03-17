@@ -130,7 +130,7 @@ def make_config(output_path):
 
         except IOError as e:
             error_shout(e)
-            sys.exit(1)
+            raise click.Abort()
 
 
 @generate.command()
