@@ -19,4 +19,5 @@ cookiecutter==1.6.0
 pytest==4.6.5
 pytest-split-tests==1.0.9
 pytest-cov==2.7.1
+pytest-freezegun==0.4.1
 pytest-rerunfailures==8.0
