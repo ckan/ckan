@@ -504,6 +504,7 @@ class TestGetDisplayTimezone(object):
 def test_render_datetime(date, extra, exp):
     assert h.render_datetime(date, **extra) == exp
 
+
 @pytest.mark.usefixtures("with_request_context")
 @pytest.mark.freeze_time("2020-02-17 12:00:00")
 @pytest.mark.parametrize(
