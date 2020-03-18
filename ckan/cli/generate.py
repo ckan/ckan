@@ -16,6 +16,7 @@ import string
 import secrets
 from ckan.cli import error_shout
 
+
 class CKANAlembicConfig(AlembicConfig):
     def get_template_directory(self):
         return os.path.join(os.path.dirname(ckan.__file__),
