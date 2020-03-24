@@ -7,6 +7,28 @@
 Changelog
 ---------
 
+v.2.8.4 TBA
+===========
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+* Fix for number of datasets that displayes on My orgs tab (`#3580 <https://github.com/ckan/ckan/pull/3580>`_)
+* Allow chaining of core actions (`#4509 <https://github.com/ckan/ckan/pull/4509>`_)
+* Password reset request - generally tighten it up (`#4636 <https://github.com/ckan/ckan/pull/4636>`_)
+* Fix start option in data_dict (`#4920 <https://github.com/ckan/ckan/pull/4920>`_)
+* Add missing get_action calls (`#4967 <https://github.com/ckan/ckan/pull/4967>`_)
+* Fix datetime comparison in resource_dict_save (`#5033 <https://github.com/ckan/ckan/pull/5033>`_)
+* Fix wrong _ function reference in user blueprint (`#5046 <https://github.com/ckan/ckan/pull/5046>`_)
+* Allow vocabulary_id in /api/2/util/tag/autocomplete (`#5071 <https://github.com/ckan/ckan/pull/5071>`_)
+* Fetch less data for `get_all_entity_ids` (`#5201 <https://github.com/ckan/ckan/pull/5201>`_)
+* Show error in text view if xhr failed (`#5271 <https://github.com/ckan/ckan/pull/5271>`_)
+* Fix code injection in autocomplete module (`#5064 <https://github.com/ckan/ckan/pull/5064>`_)
+
 v.2.8.3 2019-07-03
 ==================
 
