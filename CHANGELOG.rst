@@ -52,6 +52,10 @@ v.2.9.0 TBA
    history open to the public, by setting this in production.ini:
    ``ckan.auth.public_activity_stream_detail = true`` (#3972)
 
+ * Server deployments need changes to their config, because the WSGI Entrypoint
+   has changed. See the upgrade doc for details of updating your
+   mod_wsgi configuration: :ref:`deployment-changes-for-ckan-2.9` (#4802)
+
 Minor changes:
 
  * For navl schemas, the 'default' validator no longer applies the default when

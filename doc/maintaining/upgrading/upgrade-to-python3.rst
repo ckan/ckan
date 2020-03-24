@@ -37,18 +37,15 @@ do these sections:
 Deployment
 ----------
 
-For full details of the recommended deployment (Apache, mod_wsgi, nginx) see:
-:doc:`deployment`. Here we detail the changes from the previous instructions.
+For web server deployments, to change from running CKAN under Python 2 to
+Python 3 you need to switch the mod_wsgi module:
 
-1. Now we should activate your Python virtual environment in your Apache mod_wsgi
-config. Edit |apache_config_file| and change the WSGIDaemonProcess to include
-the ``python-home``::
+.. parsed-literal::
 
-    WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15 python-home=/usr/lib/ckan/default
+    sudo apt-get remove libapache2-mod-wsgi
+    sudo apt-get install libapache2-mod-wsgi-py3
+    |reload_apache|
 
-(The virtual environment was previously activated in the WSGI script file,
-however it used the activate_this.py script provided by virtualenv, however now
-we use 'venv' which is bundled with python3.)
-
-2. The WSGI script file needs replacing. Copy the new |apache.wsgi| defined in
-the deployment doc: :ref:`create-wsgi-script-file`
+.. note:: For more about deployment see:
+ :doc:`/maintaining/installing/install-from-source` and specifically the changes
+ with CKAN 2.9: :ref:`deployment-changes-for-ckan-2.9`.

@@ -290,3 +290,42 @@ Some pages on the modwsgi wiki have some useful information for troubleshooting 
 * http://code.google.com/p/modwsgi/wiki/ConfigurationGuidelines
 * http://code.google.com/p/modwsgi/wiki/FrequentlyAskedQuestions
 * http://code.google.com/p/modwsgi/wiki/ConfigurationIssues
+
+.. _deployment-changes-for-ckan-2.9:
+
+-------------------------------
+Deployment changes for CKAN 2.9
+-------------------------------
+
+This section describes how to update your deployment for CKAN 2.9 or later, if
+you have an existing deployment of CKAN 2.8 or earlier. This is necessary,
+whether you continue running CKAN on Python 2 or Python 3, because the WSGI
+entry point for running CKAN has changed. If your existing deployment is
+different to that described in the `official CKAN 2.8 deployment instructions
+<https://docs.ckan.org/en/2.8/maintaining/installing/deployment.html>`_
+(apache2 + mod_wsgi + nginx) then you'll need to adapt these instructions to
+your setup.
+
+1. We now recommend you activate the Python virtual environment in a different
+place, compared to earlier CKAN versions. Activation is now done in the Apache
+mod_wsgi config. To achieve this, edit |apache_config_file| and change the
+WSGIDaemonProcess to include the ``python-home`` parameter::
+
+    WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15 python-home=/usr/lib/ckan/default
+
+(In CKAN 2.8.x and earlier, the virtual environment was activated in the WSGI
+script file.)
+
+2. The WSGI script file needs replacing because the WSGI entrypoint for CKAN
+has `changed <https://github.com/ckan/ckan/issues/4802>`_. Back-up your
+existing |apache.wsgi| file and then replace it with the new version defined
+above - see: :ref:`create-wsgi-script-file`
+
+3. If/when you are switching from running CKAN with Python 2 to Python 3,
+you'll need to switch to the Python 3 version of the Apache WSGI module:
+
+.. parsed-literal::
+
+    sudo apt-get remove libapache2-mod-wsgi
+    sudo apt-get install libapache2-mod-wsgi-py3
+    |reload_apache|
