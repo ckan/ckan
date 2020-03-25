@@ -2603,7 +2603,7 @@ msgstr "Cacher"
 #: ckan/public/base/test/spec/i18n.spec.js:13
 #: ckan/public/base/test/spec/module.spec.js:385
 msgid "foo"
-msgstr ""
+msgstr "toto"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:17
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:46
@@ -2622,7 +2622,7 @@ msgstr[1] "pas de traduction"
 #: ckan/public/base/test/spec/i18n.spec.js:22
 #, python-format
 msgid "hello %(name)s!"
-msgstr ""
+msgstr "bonjour %(name)s !"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:29
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:76
@@ -2635,8 +2635,8 @@ msgstr ""
 #, python-format
 msgid "no %(attr)s translation"
 msgid_plural "no %(attr)s translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "no %(attr)s translation"
+msgstr[1] "no %(attr)s translations"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:39
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:40
@@ -2652,8 +2652,8 @@ msgstr[1] ""
 #: ckan/public/base/test/spec/module.spec.js:397
 msgid "bar"
 msgid_plural "bars"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "tata"
+msgstr[1] "tatas"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:61
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:65
@@ -2676,8 +2676,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(num)d item"
 msgid_plural "%(num)d items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d élément"
+msgstr[1] "%(num)d éléments"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:100
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:105

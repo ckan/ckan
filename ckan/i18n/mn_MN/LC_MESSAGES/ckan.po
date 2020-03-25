@@ -2549,7 +2549,7 @@ msgstr "Нуух"
 #: ckan/public/base/test/spec/i18n.spec.js:13
 #: ckan/public/base/test/spec/module.spec.js:385
 msgid "foo"
-msgstr ""
+msgstr "Фүү"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:17
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:46

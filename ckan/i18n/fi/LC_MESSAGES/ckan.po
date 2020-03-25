@@ -2580,7 +2580,7 @@ msgstr "Piilota"
 #: ckan/public/base/test/spec/i18n.spec.js:13
 #: ckan/public/base/test/spec/module.spec.js:385
 msgid "foo"
-msgstr ""
+msgstr "foo"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:17
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:46
@@ -2592,14 +2592,14 @@ msgstr ""
 #: ckan/public/base/test/spec/i18n.spec.js:54
 msgid "no translation"
 msgid_plural "no translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ei käännöstä"
+msgstr[1] "ei käännöksiä"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:22
 #: ckan/public/base/test/spec/i18n.spec.js:22
 #, python-format
 msgid "hello %(name)s!"
-msgstr ""
+msgstr "hei %(name)s!"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:29
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:76
@@ -2612,8 +2612,8 @@ msgstr ""
 #, python-format
 msgid "no %(attr)s translation"
 msgid_plural "no %(attr)s translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ei %(attr)s käännöstä"
+msgstr[1] "ei %(attr)s käännöksiä"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:39
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:40
@@ -2629,8 +2629,8 @@ msgstr[1] ""
 #: ckan/public/base/test/spec/module.spec.js:397
 msgid "bar"
 msgid_plural "bars"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "bar"
+msgstr[1] "barit"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:61
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:65
@@ -2641,8 +2641,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(color)s shirt"
 msgid_plural "%(color)s shirts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(color)s paita"
+msgstr[1] "%(color)s paitaa"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:93
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:94
@@ -2653,8 +2653,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(num)d item"
 msgid_plural "%(num)d items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d kohde"
+msgstr[1] "%(num)d kohdetta"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:100
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:105
@@ -2665,8 +2665,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(num)d missing translation"
 msgid_plural "%(num)d missing translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d puuttuva käännös"
+msgstr[1] "%(num)d puuttuvaa käännöstä"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
