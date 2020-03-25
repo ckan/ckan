@@ -755,7 +755,7 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
     def test_request_reset_but_mailer_not_configured(self, send_reset_link):
         user = factories.User()
         app = self._get_test_app()
-        offset = url_for('user.request_reset')
+        offset = url_for(controller='user', action='request_reset')
         # This is the exception when the mailer is not configured:
         send_reset_link.side_effect = MailerException(
             'SMTP server could not be connected to: "localhost" '

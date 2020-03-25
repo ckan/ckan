@@ -199,9 +199,10 @@ def tag_show(context, data_dict):
     return {'success': True}
 
 def user_show(context, data_dict):
-    # By default, user details can be read by anyone, but some properties like
-    # the API key are stripped at the action level if not not logged in.
-    return {'success': True}
+    if not asbool(config.get('ckan.auth.public_user_details', True)):
+        return restrict_anon(context)
+    else:
+        return {'success': True}
 
 
 def package_autocomplete(context, data_dict):

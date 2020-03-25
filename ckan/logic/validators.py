@@ -578,8 +578,8 @@ def user_password_validator(key, data, errors, context):
         errors[('password',)].append(_('Passwords must be strings'))
     elif value == '':
         pass
-    elif len(value) < 4:
-        errors[('password',)].append(_('Your password must be 4 characters or longer'))
+    elif len(value) < 8:
+        errors[('password',)].append(_('Your password must be 8 characters or longer'))
 
 def user_passwords_match(key, data, errors, context):
 
