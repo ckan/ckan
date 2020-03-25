@@ -691,7 +691,7 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
     def test_request_reset_by_email(self, send_reset_link):
         user = factories.User()
         app = self._get_test_app()
-        offset = url_for(controller'user', action='request_reset')
+        offset = url_for(controller='user', action='request_reset')
         response = app.post(offset, params=dict(user=user['email']),
                             status=302).follow()
 
@@ -702,7 +702,7 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
     def test_request_reset_by_name(self, send_reset_link):
         user = factories.User()
         app = self._get_test_app()
-        offset = url_for(controller'user', action='request_reset')
+        offset = url_for(controller='user', action='request_reset')
         response = app.post(offset, params=dict(user=user['name']),
                             status=302).follow()
 
@@ -714,7 +714,7 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
         user_a = factories.User(email='me@example.com')
         user_b = factories.User(email='me@example.com')
         app = self._get_test_app()
-        offset = url_for(controller'user', action='request_reset')
+        offset = url_for(controller='user', action='request_reset')
         response = app.post(offset, params=dict(user='me@example.com'),
                             status=302).follow()
 
@@ -725,14 +725,14 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
 
     def test_request_reset_without_param(self):
         app = self._get_test_app()
-        offset = url_for(controller'user', action='request_reset')
+        offset = url_for(controller='user', action='request_reset')
         response = app.post(offset).follow()
         assert_in('Email is required', response)
 
     @mock.patch('ckan.lib.mailer.send_reset_link')
     def test_request_reset_for_unknown_username(self, send_reset_link):
         app = self._get_test_app()
-        offset = url_for(controller'user', action='request_reset')
+        offset = url_for(controller='user', action='request_reset')
         response = app.post(offset, params=dict(user='unknown'),
                             status=302).follow()
 
@@ -743,7 +743,7 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
     @mock.patch('ckan.lib.mailer.send_reset_link')
     def test_request_reset_for_unknown_email(self, send_reset_link):
         app = self._get_test_app()
-        offset = url_for(controller'user', action='request_reset')
+        offset = url_for(controller='user', action='request_reset')
         response = app.post(offset, params=dict(user='unknown@example.com'),
                             status=302).follow()
 
