@@ -820,42 +820,6 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/group/{}">Group with changed title'
                   .format(group['name']), response)
 
-    def test_delete_group_using_group_delete(self):
-        app = self._get_test_app()
-        user = factories.User()
-        group = factories.Group(user=user)
-        self._clear_activities()
-        helpers.call_action(
-            'group_delete', context={'user': user['name']}, **group)
-
-        url = url_for('user.activity',
-                      id=user['id'])
-        response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
-                  response)
-        assert_in('deleted the group', response)
-        assert_in('<a href="/group/{}">Test Group'
-                  .format(group['name']), response)
-
-    def test_delete_group_by_updating_state(self):
-        app = self._get_test_app()
-        user = factories.User()
-        group = factories.Group(user=user)
-        self._clear_activities()
-        group['state'] = 'deleted'
-        helpers.call_action(
-            'group_update', context={'user': user['name']}, **group)
-
-        url = url_for('group.activity',
-                      id=group['id'])
-        env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(url, extra_environ=env)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
-                  response)
-        assert_in('deleted the group', response)
-        assert_in('<a href="/group/{}">Test Group'
-                  .format(group['name']), response)
-
 
 class TestUserResetRequest(helpers.FunctionalTestBase):
     @mock.patch('ckan.lib.mailer.send_reset_link')
