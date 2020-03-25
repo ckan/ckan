@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from sqlalchemy import types, Column, Table
+from sqlalchemy import types, Column, Table, text
 
 import meta
 import domain_object
