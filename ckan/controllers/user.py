@@ -484,7 +484,6 @@ class UserController(base.BaseController):
                     # user, as that would reveal the existence of accounts with
                     # this email address)
                     for user_dict in user_list:
-                        # This is ugly, but we need the user object for the mailer,
                         logic.get_action(u'user_show')(
                             context, {u'id': user_dict[u'id']})
                         user_objs.append(context[u'user_obj'])
@@ -499,8 +498,10 @@ class UserController(base.BaseController):
                 try:
                     mailer.send_reset_link(user_obj)
                 except mailer.MailerException, e:
-                    h.flash_error(_(u'Error sending the email. Try again later '
-                                'or contact an administrator for help'))
+                    h.flash_error(
+                        _(u'Error sending the email. Try again later '
+                          'or contact an administrator for help')
+                    )
                     log.exception(e)
                     return h.redirect_to(u'/')
             # always tell the user it succeeded, because otherwise we reveal
