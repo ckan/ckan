@@ -5,7 +5,8 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
-# Zoljargal Munkhjargal <zoljargal.m@gmail.com>, 2018
+# Tsolmon Zundui <tsolmon.z@gmail.com>, 2019
+# Zoljargal Munkhjargal <zoljargal.m@gmail.com>, 2019
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-03-27 16:10+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
-"Last-Translator: Zoljargal Munkhjargal <zoljargal.m@gmail.com>, 2018\n"
+"Last-Translator: Zoljargal Munkhjargal <zoljargal.m@gmail.com>, 2019\n"
 "Language-Team: Mongolian (Mongolia) (https://www.transifex.com/okfn/teams/11162/mn_MN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -29,7 +30,7 @@ msgstr "Бүрэн дуусах"
 
 #: ckanext/datapusher/helpers.py:22
 msgid "Pending"
-msgstr "Хүлээгдэж байна"
+msgstr "Хүлээгдэж буй"
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Submitting"
@@ -109,7 +110,7 @@ msgstr "Өгөгдлийн агуулах"
 #: ckanext/datastore/controller.py:46
 #, python-format
 msgid "format: must be one of %s"
-msgstr ""
+msgstr "формат: %s нэг байх ёстой"
 
 #: ckanext/datastore/controller.py:58
 msgid "DataStore resource not found"
@@ -120,6 +121,8 @@ msgid ""
 "Data Dictionary saved. Any type overrides will take effect when the resource"
 " is next uploaded to DataStore"
 msgstr ""
+"Өгөгдлийн толь хадгалагдсан. Нөөцийг дараагийн удаа өгөгдлийн зах дээр "
+"байршуулах үед аливаа төрлийн шинэ тодорхойлолтууд үйлчилнэ."
 
 #: ckanext/datastore/backend/postgres.py:1032
 msgid ""
@@ -153,6 +156,10 @@ msgid ""
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
+" Бусад мэдээллүүд нь <a             "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\"> CKAN Өгөгдлийг API болон Өгөгдлийн захын баримт "
+"бичигт</a>.</p> "
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
@@ -210,7 +217,11 @@ msgstr "Жишээ нь: Python"
 
 #: ckanext/datastore/templates/datastore/dictionary.html:16
 msgid "Field {num}."
-msgstr ""
+msgstr "Талбар {num}."
+
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
+msgid "Type Override"
+msgstr "шинэ тодорхойлолт"
 
 #: ckanext/datastore/templates/datastore/dictionary.html:18
 #: ckanext/datastore/templates/package/resource_read.html:20
@@ -392,19 +403,18 @@ msgstr "Бүлэг танилцуулгагүй байна"
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
 msgstr[0] "{num} Өгөгдлийн бүрдэл"
-msgstr[1] "{num} Өгөгдлийн бүрдлүүд"
+msgstr[1] "{num} Өгөгдлийн бүрдэл"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
 msgid "0 Datasets"
-msgstr "0 Өгөгдлийн бүрдлүүд"
+msgstr "0 Өгөгдлийн бүрдэл"
 
 #: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
-msgstr ""
-"CKAN-ны өгөгдөл урьдчилан харах хэрэгсэл нь олон хүчирхэг боломжуудтай"
+msgstr "CKAN-ы өгөгдөл урьдчилан харах хэрэгсэл нь олон хүчирхэг боломжуудтай"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
 #: ckan/templates/group/snippets/info.html:32
@@ -990,7 +1000,12 @@ msgstr "%s утслаа."
 #: ckan/controllers/group.py:653
 #, python-format
 msgid "User %r not authorized to edit members of %s"
-msgstr ""
+msgstr "%r хэрэглэгч %s гишүүдийг засах зөвшөөрөлгүй байна"
+
+#: ckan/controllers/group.py:670
+#, python-format
+msgid "Unauthorized to create group %s members"
+msgstr " %s бүлгийн гишүүд үүсгэх эрх байхгүй"
 
 #: ckan/controllers/group.py:705
 #, python-format
@@ -1205,7 +1220,7 @@ msgstr "CKAN дахь засварын түүх"
 
 #: ckan/controllers/revision.py:46
 msgid "Recent changes to the CKAN repository."
-msgstr "CKAN-н сүүлийн өөрчлөлтүүд"
+msgstr "CKAN-ы сүүлийн өөрчлөлтүүд"
 
 #: ckan/controllers/revision.py:110
 #, python-format
@@ -1841,7 +1856,11 @@ msgstr "Хэрэглэгчийн нэр тэмдэгт байх ёстой"
 msgid "That login name is not available."
 msgstr "Тус хэрэглэгчийн холбогдох нэр боломжгүй байна."
 
-#: ckan/logic/validators.py:570
+#: ckan/logic/validators.py:566
+msgid "That login name can not be modified."
+msgstr "Энэхүү нэвтрэх нэр өөрчлөгдөх боломжгүй"
+
+#: ckan/logic/validators.py:577
 msgid "Please enter both passwords"
 msgstr "Нууц үгийн 2 талбарыг бөглөнө үү"
 
@@ -1849,9 +1868,9 @@ msgstr "Нууц үгийн 2 талбарыг бөглөнө үү"
 msgid "Passwords must be strings"
 msgstr "Нууц үг тэмдэгтээс бүрдсэн байх ёстой."
 
-#: ckan/logic/validators.py:582
-msgid "Your password must be 4 characters or longer"
-msgstr "Таны нууц үг 4-н тэмдэгтээс илүү байх ёстой"
+#: ckan/logic/validators.py:589
+msgid "Your password must be 8 characters or longer"
+msgstr "Таны нууц үгийн урт 8 эсвэл түүнээс их байна ёстой "
 
 #: ckan/logic/validators.py:590
 msgid "The passwords you entered do not match"
@@ -2026,8 +2045,12 @@ msgstr "REST API: %s - г устгах"
 msgid "REST API: Delete Member: %s"
 msgstr "REST API: Гишүүн устгах: %s"
 
-#: ckan/logic/action/delete.py:544 ckan/logic/action/delete.py:570
-#: ckan/logic/action/get.py:2482 ckan/logic/action/update.py:953
+#: ckan/logic/action/delete.py:358
+msgid "Organization cannot be deleted while it still has datasets"
+msgstr "Байгууллага нь өгөгдлийн бүрдлүүд агуулж байгаа бол устахгүй"
+
+#: ckan/logic/action/delete.py:560 ckan/logic/action/delete.py:586
+#: ckan/logic/action/get.py:2432 ckan/logic/action/update.py:906
 msgid "id not in data"
 msgstr "өгөгдөлд дугаар байхгүй байна"
 
@@ -2577,6 +2600,99 @@ msgstr "Дэлгэрэнгүй"
 #: ckan/public/base/javascript/modules/table-toggle-more.js:26
 msgid "Hide"
 msgstr "Нуух"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:13
+#: ckan/public-bs2/base/test/spec/module.spec.js:385
+#: ckan/public/base/test/spec/i18n.spec.js:13
+#: ckan/public/base/test/spec/module.spec.js:385
+msgid "foo"
+msgstr "Фүү"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:17
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:46
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:50
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:54
+#: ckan/public/base/test/spec/i18n.spec.js:17
+#: ckan/public/base/test/spec/i18n.spec.js:46
+#: ckan/public/base/test/spec/i18n.spec.js:50
+#: ckan/public/base/test/spec/i18n.spec.js:54
+msgid "no translation"
+msgid_plural "no translations"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:22
+#: ckan/public/base/test/spec/i18n.spec.js:22
+#, python-format
+msgid "hello %(name)s!"
+msgstr ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:29
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:76
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:81
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:86
+#: ckan/public/base/test/spec/i18n.spec.js:29
+#: ckan/public/base/test/spec/i18n.spec.js:76
+#: ckan/public/base/test/spec/i18n.spec.js:81
+#: ckan/public/base/test/spec/i18n.spec.js:86
+#, python-format
+msgid "no %(attr)s translation"
+msgid_plural "no %(attr)s translations"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:39
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:40
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:41
+#: ckan/public-bs2/base/test/spec/module.spec.js:395
+#: ckan/public-bs2/base/test/spec/module.spec.js:396
+#: ckan/public-bs2/base/test/spec/module.spec.js:397
+#: ckan/public/base/test/spec/i18n.spec.js:39
+#: ckan/public/base/test/spec/i18n.spec.js:40
+#: ckan/public/base/test/spec/i18n.spec.js:41
+#: ckan/public/base/test/spec/module.spec.js:395
+#: ckan/public/base/test/spec/module.spec.js:396
+#: ckan/public/base/test/spec/module.spec.js:397
+msgid "bar"
+msgid_plural "bars"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:61
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:65
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:69
+#: ckan/public/base/test/spec/i18n.spec.js:61
+#: ckan/public/base/test/spec/i18n.spec.js:65
+#: ckan/public/base/test/spec/i18n.spec.js:69
+#, python-format
+msgid "%(color)s shirt"
+msgid_plural "%(color)s shirts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:93
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:94
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:95
+#: ckan/public/base/test/spec/i18n.spec.js:93
+#: ckan/public/base/test/spec/i18n.spec.js:94
+#: ckan/public/base/test/spec/i18n.spec.js:95
+#, python-format
+msgid "%(num)d item"
+msgid_plural "%(num)d items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:100
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:105
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:110
+#: ckan/public/base/test/spec/i18n.spec.js:100
+#: ckan/public/base/test/spec/i18n.spec.js:105
+#: ckan/public/base/test/spec/i18n.spec.js:110
+#, python-format
+msgid "%(num)d missing translation"
+msgid_plural "%(num)d missing translations"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
@@ -3139,7 +3255,7 @@ msgid ""
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets. "
 msgstr ""
-"Өгөгдлийн бүрдлийн цуглуулгыг үүсгэх болон зохион байгуулахад CKAN-н Бүлгийг"
+"Өгөгдлийн бүрдлийн цуглуулгыг үүсгэх болон зохион байгуулахад CKAN-ы Бүлгийг"
 " ашиглах боломжтой. Ангилсан өгөгдлийн бүрдлийг ашиглах хэрэгцээтэй төслийн "
 "баг, хэлэлцүүлгийн сэдэв, хувь хүн болон та өөрөө нээлттэй өгөгдлийн "
 "бүрдлээс хялбараар хайх боломж олгоно."
@@ -3261,7 +3377,11 @@ msgstr ""
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "Өгөгдөл хайх"
+
+#: ckan/templates/home/snippets/search.html:8
+msgid "Search datasets"
+msgstr "Өгөгдлийн бүрдлүүд хайх"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
@@ -4067,7 +4187,11 @@ msgstr "Шинжих"
 msgid "More information"
 msgstr "Дэлгэрэнгүй мэдээлэл"
 
-#: ckan/templates/package/snippets/resource_view.html:11
+#: ckan/templates/package/snippets/resource_view.html:10
+msgid "Fullscreen"
+msgstr "Бүтэн дэлгэцээр харуулах"
+
+#: ckan/templates/package/snippets/resource_view.html:18
 msgid "Embed"
 msgstr "Шигтгэх"
 
@@ -4294,17 +4418,17 @@ msgstr ""
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "\"{query}\" - ийн үр дүнд {number} ширхэг өгөгдлийн багц олдлоо."
-msgstr[1] "\"{query}\" - ийн үр дүнд {number} ширхэг өгөгдлийн багц олдлоо."
+msgstr[1] "\"{query}\" - н үр дүнд {number} ширхэг өгөгдлийн бүрдэл олдлоо."
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
-msgstr "\"{query}\" - д тохирох өгөгдлийн багц олдсонгүй."
+msgstr "\"{query}\" - д тохирох өгөгдлийн бүрдэл олдсонгүй."
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
 msgstr[0] "{number} өгөгдлийн бүрдэл олдлоо"
-msgstr[1] "{number}-н өгөгдлийн бүрдэл олдлоо"
+msgstr[1] "{number} өгөгдлийн бүрдэл олдлоо"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4604,7 +4728,12 @@ msgstr "Өөрийн нууц үг сэргээх"
 msgid "Password Reset"
 msgstr "Нууц үг сэргээх"
 
-#: ckan/templates/user/perform_reset.html:24
+#: ckan/templates/user/perform_reset.html:21
+msgid "You can also change username. It can not be modified later."
+msgstr ""
+"Та хэрэглэгчийн нэрийг өөрчилж чадна. Харин дараа нь өөрчилөх боломжгүй юм."
+
+#: ckan/templates/user/perform_reset.html:29
 msgid "Update Password"
 msgstr "Нууц үг шинэчлэх"
 
@@ -4689,4 +4818,4 @@ msgstr "Хэрэглэгчид хайх"
 
 #: ckan/views/user.py:588
 msgid "Your password must be 8 characters or longer."
-msgstr ""
+msgstr "Таны нууц үг 8 эсвэл түүнээс олон тэмдэгттэй байна"
