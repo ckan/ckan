@@ -108,6 +108,15 @@ This enables Pylons' interactive debugging tool, makes Webassets serve
 unminified JS and CSS files, and enables CKAN templates' debugging
 features.
 
+If you are running CKAN on Apache, you must change the WSGI
+configuration to run on single process environment. otherwise
+the execution will fail to AssertionError: The EvalException
+middleware is not usable in a multi-process environment. Eg. change::
+
+  WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
+  to
+  WSGIDaemonProcess ckan_default display-name=ckan_default threads=15
+
 .. warning:: This option should be set to ``False`` for a public site.
    With debug mode enabled, a visitor to your site could execute malicious
    commands.

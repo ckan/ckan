@@ -20,15 +20,10 @@ class_to_patch = (
 )
 
 
-class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
-    def setup(self):
-        super(ExampleIDatastoreBackendPlugin, self).setup()
-        plugins.load(u"datastore")
-        plugins.load(u"example_idatastorebackend")
-
-    def teardown(self):
-        plugins.unload(u"example_idatastorebackend")
-        plugins.unload(u"datastore")
+@pytest.mark.ckan_config(u"ckan.plugins",
+                         u"datastore example_idatastorebackend")
+@pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"app")
+class TestExampleIDatastoreBackendPlugin():
 
     def test_backends_correctly_registered(self):
         DatastoreBackend.register_backends()
@@ -85,7 +80,7 @@ class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
             records=records,
         )
         # check, create and 3 inserts
-        assert 5 == execute.call_count
+        assert 4 == execute.call_count
         insert_query = u'INSERT INTO "{0}"(a) VALUES(?)'.format(res["id"])
         execute.assert_has_calls(
             [
@@ -104,7 +99,7 @@ class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
         fetchall.return_value = records
         helpers.call_action(u"datastore_search", resource_id=res["id"])
         execute.assert_called_with(
-            u'SELECT * FROM "{0}" LIMIT 10'.format(res["id"])
+            u'SELECT * FROM "{0}" LIMIT 100'.format(res["id"])
         )
 
         execute.reset_mock()
