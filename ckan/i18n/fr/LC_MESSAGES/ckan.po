@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 # 
 # Translators:
-# keronos <aka.keronos@gmail.com>, 2016
+# Pascal Romain <aka.keronos@gmail.com>, 2016
 # Adrià Mercader <adria.mercader@okfn.org>, 2016
 # 
 #, fuzzy
