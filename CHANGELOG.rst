@@ -7,6 +7,21 @@
 Changelog
 ---------
 
+v.2.6.9 TBA
+===========
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+* Fix for number of datasets that displayes on My orgs tab (`#3580 <https://github.com/ckan/ckan/pull/3580>`_)
+* Fix datetime comparison in resource_dict_save (`#5033 <https://github.com/ckan/ckan/pull/5033>`_)
+* Fetch less data for `get_all_entity_ids` (`#5201 <https://github.com/ckan/ckan/pull/5201>`_)
+* Show error in text view if xhr failed (`#5271 <https://github.com/ckan/ckan/pull/5271>`_)
+
 v.2.6.8 2019-07-03
 ==================
 
