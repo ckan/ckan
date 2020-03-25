@@ -134,10 +134,28 @@ def make_flask_stack(conf):
         raise RuntimeError(u'You must provide a value for the secret key'
                            ' with the SECRET_KEY config option')
 
+    root_path = config.get('ckan.root_path', None)
     if debug:
         from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-        DebugToolbarExtension(app)
+        debug_ext = DebugToolbarExtension()
+
+        # register path that includes `ckan.site_root` before
+        # initializing debug app. In such a way, our route receives
+        # higher precedence.
+
+        # TODO: After removal of Pylons code, switch to
+        # `APPLICATION_ROOT` config value for flask application. Right
+        # now it's a bad option because we are handling both pylons
+        # and flask urls inside helpers and splitting this logic will
+        # bring us tons of headache.
+        if root_path:
+            app.add_url_rule(
+                root_path.replace('{{LANG}}', '').rstrip('/') +
+                '/_debug_toolbar/static/<path:filename>',
+                '_debug_toolbar.static', debug_ext.send_static_file
+            )
+        debug_ext.init_app(app)
 
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
@@ -266,7 +284,7 @@ def make_flask_stack(conf):
             'bundle': True,
             'rollup': fanstatic_enable_rollup,
         }
-    root_path = config.get('ckan.root_path', None)
+
     if root_path:
         root_path = re.sub('/{{LANG}}', '', root_path)
         fanstatic_config['base_url'] = root_path
