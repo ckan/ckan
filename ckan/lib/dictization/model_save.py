@@ -4,6 +4,7 @@ import datetime
 import uuid
 import logging
 
+from six import string_types
 from sqlalchemy.orm import class_mapper
 
 import ckan.lib.dictization as d
