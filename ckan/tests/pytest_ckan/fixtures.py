@@ -28,10 +28,20 @@ Deeper expanation can be found in `official documentation
 
 """
 
+import functools
+import smtplib
+
+
 import pytest
+import six
+import mock
+import rq
+
 import ckan.tests.helpers as test_helpers
 import ckan.plugins
+import ckan.cli
 import ckan.lib.search as search
+
 from ckan.common import config
 
 
@@ -98,6 +108,22 @@ def app(make_app):
 
     """
     return make_app()
+
+
+@pytest.fixture
+def cli(ckan_config):
+    """Provides object for invoking CLI commands from tests.
+
+    This is subclass of `click.testing.CliRunner`, so all examples
+    from `Click docs
+    <https://click.palletsprojects.com/en/master/testing/>`_ are valid
+    for it.
+
+    """
+    env = {
+        u'CKAN_INI': ckan_config[u'__file__']
+    }
+    return test_helpers.CKANCliRunner(env=env)
 
 
 @pytest.fixture(scope=u"session")
@@ -167,3 +193,58 @@ def with_plugins(ckan_config):
     for plugin in reversed(plugins):
         if ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.unload(plugin)
+
+
+@pytest.fixture
+def test_request_context(app):
+    """Provide function for creating Flask request context.
+    """
+    return app.flask_app.test_request_context
+
+
+@pytest.fixture
+def with_request_context(test_request_context):
+    """Execute test inside requests context
+    """
+    with test_request_context():
+        yield
+
+
+@pytest.fixture
+def mail_server(monkeypatch):
+    """Catch all outcome mails.
+    """
+    bag = test_helpers.FakeSMTP()
+    monkeypatch.setattr(smtplib, u"SMTP", bag)
+    yield bag
+
+
+@pytest.fixture
+def with_test_worker(monkeypatch):
+    """Worker that doesn't create forks.
+    """
+    if six.PY3:
+        monkeypatch.setattr(
+            rq.Worker, u"main_work_horse", rq.SimpleWorker.main_work_horse
+        )
+        monkeypatch.setattr(
+            rq.Worker, u"execute_job", rq.SimpleWorker.execute_job
+        )
+    yield
+
+
+@pytest.fixture
+def with_extended_cli(ckan_config, monkeypatch):
+    """Enables effects of IClick.
+
+    Without this fixture, only CLI command that came from plugins
+    specified in real config file are available. When this fixture
+    enabled, changing `ckan.plugins` on test level allows to update
+    list of available CLI command.
+
+    """
+    # Main `ckan` command is initialized from config file instead of
+    # using global config object.  With this patch it becomes possible
+    # to apply per-test config changes to it without creating real
+    # config file.
+    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)

@@ -150,7 +150,7 @@ d. Install the Python modules that CKAN requires into your virtualenv:
     For Python 2 adjust the filename to: `requirements-py2.txt`
 
 e. Deactivate and reactivate your virtualenv, to make sure you're using the
-   virtualenv's copies of commands like ``paster`` rather than any system-wide
+   virtualenv's copies of commands like ``ckan`` rather than any system-wide
    installed copies:
 
    .. parsed-literal::
@@ -181,9 +181,9 @@ Create the CKAN config file:
 
 .. parsed-literal::
 
-    paster make-config ckan |development.ini|
+    ckan generate config |ckan.ini|
 
-Edit the ``development.ini`` file in a text editor, changing the following
+Edit the ``ckan.ini`` file in a text editor, changing the following
 options:
 
 sqlalchemy.url
@@ -251,7 +251,7 @@ database, you can :ref:`create the database tables <db init>`:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    paster db init -c |development.ini|
+    ckan -c |ckan.ini| db init
 
 You should see ``Initialising DB: SUCCESS``.
 
@@ -278,14 +278,13 @@ in your CKAN config file.
 9. You're done!
 ---------------
 
-You can now use the Paste development server to serve CKAN from the
-command-line.  This is a simple and lightweight way to serve CKAN that is
+You can now run CKAN from the command-line.  This is a simple and lightweight way to serve CKAN that is
 useful for development and testing:
 
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    paster serve |development.ini|
+    ckan -c |ckan.ini| run
 
 Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
 page.
@@ -357,8 +356,8 @@ AttributeError: 'module' object has no attribute 'css/main.debug.css'
 This error is likely to show up when `debug` is set to `True`. To fix this
 error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
-After installing the dependencies, run ``bin/less`` and then start paster server
-again.
+After installing the dependencies, run ``npm run build`` and then start ckan
+server again.
 
 If you do not want to compile CSS, you can also copy the main.css to
 main.debug.css to get CKAN running::

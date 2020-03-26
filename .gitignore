@@ -7,6 +7,7 @@ syntax: glob
 ckan.egg-info/*
 sandbox/*
 dist
+.mypy_cache
 
 # pylons
 development.ini*
@@ -43,6 +44,8 @@ ckan_deb/DEBIAN/prerm
 
 # node.js
 node_modules/
+package-lock.json
 
 # docker
 contrib/docker/.env
+cypress.env.json

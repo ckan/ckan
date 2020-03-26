@@ -51,14 +51,14 @@ def _package_search(data_dict):
 
 
 def _enclosure(pkg):
-    enc = Enclosure(
-        h.url_for(
-            u'api.action',
-            logic_function=u'package_show',
-            id=pkg['name'],
-            ver=3,
-            _external=True),
+    url = h.url_for(
+        u'api.action',
+        logic_function=u'package_show',
+        id=pkg['name'],
+        ver=3,
+        _external=True
     )
+    enc = Enclosure(url)
     enc.type = u'application/json'
     enc.length = text_type(len(json.dumps(pkg)))
     return enc
@@ -73,7 +73,6 @@ def _set_extras(**kw):
 
 class Enclosure(text_type):
     def __init__(self, url):
-        super(Enclosure, self).__init__(url)
         self.url = url
         self.length = u'0'
         self.mime_type = u'application/json'
@@ -277,11 +276,11 @@ def group_or_organization(obj_dict, is_org):
         params,
         item_count=item_count,
         limit=data_dict['rows'],
-        controller=u'feed',
+        controller=u'feeds',
         action=group_type,
         id=obj_dict['name'])
     feed_url = _feed_url(
-        params, controller=u'feed', action=group_type, id=obj_dict['name'])
+        params, controller=u'feeds', action=group_type, id=obj_dict['name'])
     # site_title = SITE_TITLE
     if is_org:
         guid = _create_atom_id(

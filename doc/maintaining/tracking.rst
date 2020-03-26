@@ -24,7 +24,7 @@ Enabling Page View Tracking
 To enable page view tracking:
 
 1. Set :ref:`ckan.tracking_enabled` to true in the ``[app:main]`` section of your
-   CKAN configuration file (e.g. ``development.ini`` or ``production.ini``)::
+   CKAN configuration file (e.g. |ckan.ini|)::
 
     [app:main]
     ckan.tracking_enabled = true
@@ -43,12 +43,14 @@ To enable page view tracking:
    setup a cron job by running ``crontab -e`` in a shell to edit your crontab
    file, and adding a line to the file to specify the new job. For more
    information run ``man crontab`` in a shell. For example, here is a crontab
-   line to update the tracking data and rebuild the search index hourly::
+   line to update the tracking data and rebuild the search index hourly:
 
-    @hourly /usr/lib/ckan/bin/paster --plugin=ckan tracking update -c /etc/ckan/production.ini && /usr/lib/ckan/bin/paster --plugin=ckan search-index rebuild -r -c /etc/ckan/production.ini
+   .. parsed-literal::
+
+    @hourly ckan -c |ckan.ini| tracking update  && ckan -c |ckan.ini| search-index rebuild -r
 
    Replace ``/usr/lib/ckan/bin/`` with the path to the ``bin`` directory of the
-   virtualenv that you've installed CKAN into, and replace ``/etc/ckan/production.ini``
+   virtualenv that you've installed CKAN into, and replace '|ckan.ini|'
    with the path to your CKAN configuration file.
 
    The ``@hourly`` can be replaced with ``@daily``, ``@weekly`` or

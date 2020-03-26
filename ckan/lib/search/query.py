@@ -260,7 +260,7 @@ class PackageSearchQuery(SearchQuery):
         fq += "+state:active "
 
         conn = make_connection()
-        data = conn.search(query, fq=fq, rows=max_results, fields='id')
+        data = conn.search(query, fq=fq, rows=max_results, fl='id')
         return [r.get('id') for r in data.docs]
 
     def get_index(self,reference):
@@ -399,7 +399,7 @@ class PackageSearchQuery(SearchQuery):
         for result in self.results:
             extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
             extras = {}
-            for extra_key in extra_keys:
+            for extra_key in list(extra_keys):
                 value = result.pop(extra_key)
                 extras[extra_key[len('extras_'):]] = value
             if extra_keys:

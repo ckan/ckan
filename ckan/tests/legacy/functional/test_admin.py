@@ -9,10 +9,10 @@ from ckan.tests.legacy import url_for, CreateTestData
 def test_index(app):
     CreateTestData.create()
     url = url_for("admin.index")
-    response = app.get(url, status=[403])
+    response = app.get(url, status=403)
     # random username
     response = app.get(
-        url, status=[403], extra_environ={"REMOTE_USER": "my-random-user-name"}
+        url, status=403, extra_environ={"REMOTE_USER": "my-random-user-name"}
     )
     # now test real access
     username = u"testsysadmin".encode("utf8")

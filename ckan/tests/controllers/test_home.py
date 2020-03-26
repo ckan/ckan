@@ -1,12 +1,14 @@
 # encoding: utf-8
 
 import pytest
+import six
 from ckan.lib.helpers import url_for
 from bs4 import BeautifulSoup
 
 from ckan.tests import factories
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestHome(object):
     def test_home_renders(self, app):
         response = app.get(url_for("home.index"))
@@ -36,7 +38,7 @@ class TestHome(object):
         user = model.user.User(name="has-no-email")
         model.Session.add(user)
         model.Session.commit()
-        env = {"REMOTE_USER": user.name.encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user.name)}
 
         response = app.get(url=url_for("home.index"), extra_environ=env)
 
@@ -47,7 +49,7 @@ class TestHome(object):
     @pytest.mark.usefixtures("clean_db")
     def test_email_address_no_nag(self, app):
         user = factories.User(email="filled_in@nicely.com")
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.get(url=url_for("home.index"), extra_environ=env)
 
@@ -74,6 +76,7 @@ class TestHome(object):
         assert "Welcome to CKAN" in response.body
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestI18nURLs(object):
     def test_right_urls_are_rendered_on_language_selector(self, app):
 

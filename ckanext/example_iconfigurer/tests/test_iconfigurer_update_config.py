@@ -33,37 +33,16 @@ class TestConfigOptionUpdatePluginNotEnabled(object):
             helpers.call_action("config_option_update", **params)
 
 
-class TestConfigOptionUpdatePluginEnabled(helpers.FunctionalTestBase):
-    _load_plugins = ("example_iconfigurer",)
+@pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "ckan_config")
+class TestConfigOptionUpdatePluginEnabled(object):
 
-    @classmethod
-    def setup_class(cls):
-        super(TestConfigOptionUpdatePluginEnabled, cls).setup_class()
-        cls._datasets_per_page_original_value = config.get(
-            "ckan.datasets_per_page"
-        )
-
-    @classmethod
-    def teardown_class(cls):
-        super(TestConfigOptionUpdatePluginEnabled, cls).teardown_class()
-        config[
-            "ckan.datasets_per_page"
-        ] = cls._datasets_per_page_original_value
-        helpers.reset_db()
-
-    def setup(self):
-        super(TestConfigOptionUpdatePluginEnabled, self).setup()
-
-        helpers.reset_db()
-
-    def test_update_registered_core_value(self):
+    def test_update_registered_core_value(self, ckan_config):
 
         key = "ckan.datasets_per_page"
         value = 5
 
         params = {key: value}
-
-        assert config[key] == self._datasets_per_page_original_value
 
         new_config = helpers.call_action("config_option_update", **params)
 
@@ -71,7 +50,7 @@ class TestConfigOptionUpdatePluginEnabled(helpers.FunctionalTestBase):
         assert new_config[key] == value
 
         # config
-        assert config[key] == value
+        assert ckan_config[key] == value
 
         # app_globals
         globals_key = app_globals.get_globals_key(key)

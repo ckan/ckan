@@ -6,8 +6,9 @@ from ckan.lib.cli import (
     load_config,
     _parse_db_config,
     paster_click_group,
-    click_config_option,
 )
+from ckan.cli.cli import click_config_option
+
 from ckanext.datastore.backend.postgres import identifier
 from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 

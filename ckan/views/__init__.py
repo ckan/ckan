@@ -1,10 +1,11 @@
 # encoding: utf-8
 
+from sqlalchemy import inspect
 from ckan.common import asbool
 import six
 from six import text_type
 from six.moves.urllib.parse import quote
-from werkzeug import import_string, cached_property
+from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
 from ckan.common import g, request, config, session
@@ -116,6 +117,7 @@ def identify_user():
 
     # Authentication plugins get a chance to run here break as soon as a user
     # is identified.
+
     authenticators = p.PluginImplementations(p.IAuthenticator)
     if authenticators:
         for item in authenticators:
@@ -133,8 +135,9 @@ def identify_user():
     # If we have a user but not the userobj let's get the userobj. This means
     # that IAuthenticator extensions do not need to access the user model
     # directly.
-    if g.user and not getattr(g, u'userobj', None):
-        g.userobj = model.User.by_name(g.user)
+    if g.user:
+        if not getattr(g, u'userobj', None) or inspect(g.userobj).expired:
+            g.userobj = model.User.by_name(g.user)
 
     # general settings
     if g.user:
@@ -158,10 +161,8 @@ def _identify_user_default():
     # with an userid_checker, but that would mean another db access.
     # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
     # .plugins.sql )
-    g.user = request.environ.get(u'REMOTE_USER', u'')
+    g.user = six.ensure_text(request.environ.get(u'REMOTE_USER', u''))
     if g.user:
-        if six.PY2:
-            g.user = g.user.decode(u'utf8')
         g.userobj = model.User.by_name(g.user)
 
         if g.userobj is None or not g.userobj.is_active():
@@ -200,7 +201,7 @@ def _get_user_for_apikey():
             apikey = u''
     if not apikey:
         return None
-    apikey = apikey.decode(u'utf8', u'ignore')
+    apikey = six.ensure_text(apikey, errors=u"ignore")
     log.debug(u'Received API Key: %s' % apikey)
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()
@@ -231,7 +232,6 @@ def handle_i18n(environ=None):
         * CKAN_LANG_IS_DEFAULT is set to True or False
         * CKAN_CURRENT_URL is set to the current application url
     '''
-
     environ = environ or request.environ
     locale_list = get_locales_from_config()
     default_locale = config.get(u'ckan.locale_default', u'en')
@@ -252,17 +252,20 @@ def handle_i18n(environ=None):
             environ[u'CKAN_LANG'] = default_locale
             environ[u'CKAN_LANG_IS_DEFAULT'] = True
 
-        # Current application url
-        path_info = environ[u'PATH_INFO']
+        set_ckan_current_url(environ)
+
+
+def set_ckan_current_url(environ):
+    # Current application url
+    path_info = environ[u'PATH_INFO']
+    # sort out weird encodings
+    path_info = \
+        u'/'.join(quote(pce, u'') for pce in path_info.split(u'/'))
+
+    qs = environ.get(u'QUERY_STRING')
+    if qs:
         # sort out weird encodings
-        path_info = \
-            u'/'.join(quote(pce, u'') for pce in path_info.split(u'/'))
-
-        qs = environ.get(u'QUERY_STRING')
-
-        if qs:
-            # sort out weird encodings
-            qs = quote(qs, u'')
-            environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
-        else:
-            environ[u'CKAN_CURRENT_URL'] = path_info
+        qs = quote(qs, u'')
+        environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
+    else:
+        environ[u'CKAN_CURRENT_URL'] = path_info

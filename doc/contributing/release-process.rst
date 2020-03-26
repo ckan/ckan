@@ -96,7 +96,7 @@ Turn this file into a github issue with a checklist using this command::
    cherry-picked from master, the less compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
-        ./bin/less --production
+        npm run build
         git commit -am "Rebuild CSS"
         git push
 
@@ -188,7 +188,7 @@ Turn this file into a github issue with a checklist using this command::
 
    g. Run our script that checks for mistakes in the ckan.po files::
 
-        paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
+        ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
 
       If the script finds any mistakes then at some point before release you
       will need to correct them, but it doesn't need to be done now, since the priority
@@ -301,7 +301,7 @@ Leading up to the release
 
    Check and compile them as before::
 
-        paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
+        ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
         python setup.py compile_catalog
 
     The compilation shows the translation percentage. Compare this with the new
@@ -339,7 +339,7 @@ a release.
 #. Do a final build of the front-end, add the generated files to the repo and
    commit the changes::
 
-        paster front-end-build
+        ckan -c |ckan.ini| front-end-build
         git add ckan ckanext
         git commit -am "Rebuild front-end"
 
@@ -450,7 +450,7 @@ a release.
    to make sure you have the latest commits on master and no local changes.
    Then use ``git cherry-pick`` when on the master branch to cherry-pick these
    commits onto master. You should not get any merge conflicts. Run the
-   ``check-po-files`` command again just to be safe, it should not report any
+   ``check-po`` command again just to be safe, it should not report any
    problems. Run CKAN's tests, again just to be safe.  Then do ``git push
    origin master``.
 
@@ -488,7 +488,7 @@ Doing the patch releases
 
    Rebuild the front-end, add new files and commit with::
 
-        paster front-end-build
+        ckan -c |ckan.ini| front-end-build
         git add ckan ckanext
         git commit -am "Rebuild front-end"
 

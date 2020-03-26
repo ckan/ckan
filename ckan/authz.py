@@ -13,7 +13,7 @@ from ckan.common import asbool
 
 import ckan.plugins as p
 import ckan.model as model
-from ckan.common import _, c
+from ckan.common import _, g
 
 import ckan.lib.maintain as maintain
 
@@ -143,19 +143,26 @@ def is_sysadmin(username):
 
 
 def _get_user(username):
-    ''' Try to get the user from c, if possible, and fallback to using the DB '''
+    '''
+    Try to get the user from g, if possible.
+    If not fallback to using the DB
+    '''
     if not username:
         return None
     # See if we can get the user without touching the DB
     try:
-        if c.userobj and c.userobj.name == username:
-            return c.userobj
+        if g.userobj and g.userobj.name == username:
+            return g.userobj
     except AttributeError:
-        # c.userobj not set
+        # g.userobj not set
         pass
     except TypeError:
-        # c is not available
+        # c is not available (py2)
         pass
+    except RuntimeError:
+        # g is not available (py3)
+        pass
+
     # Get user from the DB
     return model.User.get(username)
 
@@ -382,13 +389,7 @@ def has_user_permission_for_some_org(user_name, permission):
 def get_user_id_for_username(user_name, allow_none=False):
     ''' Helper function to get user id '''
     # first check if we have the user object already and get from there
-    try:
-        if c.userobj and c.userobj.name == user_name:
-            return c.userobj.id
-    except TypeError:
-        # c is not available
-        pass
-    user = model.User.get(user_name)
+    user = _get_user(user_name)
     if user:
         return user.id
     if allow_none:
@@ -458,7 +459,7 @@ def auth_is_registered_user():
 def auth_is_loggedin_user():
     ''' Do we have a logged in user '''
     try:
-        context_user = c.user
+        context_user = g.user
     except TypeError:
         context_user = None
     return bool(context_user)

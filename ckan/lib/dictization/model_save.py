@@ -39,6 +39,7 @@ def resource_dict_save(res_dict, context):
     # Resource extras not submitted will be removed from the existing extras
     # dict
     new_extras = {}
+    has_changed = False
     for key, value in six.iteritems(res_dict):
         if isinstance(value, list):
             continue
@@ -56,17 +57,31 @@ def resource_dict_save(res_dict, context):
                     obj.url_changed = True
             if key == 'url' and not new and obj.url != value:
                 obj.url_changed = True
+            if getattr(obj, key) != value:
+                has_changed = True
             setattr(obj, key, value)
         else:
             # resources save extras directly onto the object, instead
             # of in a separate extras field like packages and groups
             new_extras[key] = value
 
+    # Check changes in extra fields
+    if set(new_extras.keys()) != set(obj.extras.keys()):
+        has_changed = True
+    else:
+        for key, value in six.iteritems(new_extras):
+            if obj.extras.get(key) != value:
+                has_changed = True
+                break
+
+    if has_changed:
+        obj.metadata_modified = datetime.datetime.utcnow()
     obj.state = u'active'
     obj.extras = new_extras
 
     session.add(obj)
     return obj
+
 
 def package_resource_list_save(res_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
@@ -132,7 +147,7 @@ def package_extras_save(extra_dicts, pkg, context):
     #deleted
     for key in set(old_extras.keys()) - set(new_extras.keys()):
         extra = old_extras[key]
-        extra.delete()
+        session.delete(extra)
 
 
 def package_tag_list_save(tag_dicts, package, context):
@@ -517,7 +532,7 @@ def activity_dict_save(activity_dict, context):
     user_id = activity_dict['user_id']
     object_id = activity_dict['object_id']
     activity_type = activity_dict['activity_type']
-    if activity_dict.has_key('data'):
+    if 'data' in activity_dict:
         data = activity_dict['data']
     else:
         data = None
@@ -554,7 +569,7 @@ def vocabulary_dict_save(vocabulary_dict, context):
     vocabulary_obj = model.Vocabulary(vocabulary_name)
     session.add(vocabulary_obj)
 
-    if vocabulary_dict.has_key('tags'):
+    if 'tags' in vocabulary_dict:
         vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
             context)
 
@@ -567,10 +582,10 @@ def vocabulary_dict_update(vocabulary_dict, context):
 
     vocabulary_obj = model.vocabulary.Vocabulary.get(vocabulary_dict['id'])
 
-    if vocabulary_dict.has_key('name'):
+    if 'name' in vocabulary_dict:
         vocabulary_obj.name = vocabulary_dict['name']
 
-    if vocabulary_dict.has_key('tags'):
+    if 'tags' in vocabulary_dict:
         vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
             context)
 

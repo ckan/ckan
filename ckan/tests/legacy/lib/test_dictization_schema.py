@@ -22,10 +22,10 @@ class TestBasicDictize(object):
         self.context = {"model": model, "session": model.Session}
 
     def remove_changable_columns(self, dict):
-        for key, value in dict.items():
+        for key, value in list(dict.items()):
             if key.endswith("id") and key != "license_id":
                 dict.pop(key)
-            if key == "created":
+            if key in ("created", "metadata_modified"):
                 dict.pop(key)
 
             if isinstance(value, list):

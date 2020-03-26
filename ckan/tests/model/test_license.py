@@ -56,7 +56,7 @@ def test_import_v2_style_register():
     assert license.title == "Creative Commons Attribution 4.0"
 
 
-@pytest.mark.usefixtures("reset")
+@pytest.mark.usefixtures("reset", "with_request_context")
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v1" % this_dir
 )
@@ -69,7 +69,7 @@ def test_import_v1_style_register_i18n(app):
     assert "Altres (Oberta)" in resp.body
 
 
-@pytest.mark.usefixtures("reset")
+@pytest.mark.usefixtures("reset", "with_request_context")
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v2" % this_dir
 )

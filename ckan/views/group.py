@@ -322,7 +322,7 @@ def _read(id, limit, group_type):
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
                     fields.append((param, value))
-                    q += u' %s: "%s"' % (param, value)
+                    fq += u' %s: "%s"' % (param, value)
                     if param not in fields_grouped:
                         fields_grouped[param] = [value]
                     else:
@@ -985,13 +985,10 @@ class EditGroupView(MethodView):
         context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
         try:
-            old_data = _action(u'group_show')(context, data_dict)
-            grouptitle = old_data.get(u'title')
-            groupname = old_data.get(u'name')
-            data = data or old_data
+            group_dict = _action(u'group_show')(context, data_dict)
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
-        group_dict = data
+        data = data or group_dict
         errors = errors or {}
         extra_vars = {
             u'data': data,
@@ -1008,8 +1005,8 @@ class EditGroupView(MethodView):
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
-        g.grouptitle = grouptitle
-        g.groupname = groupname
+        g.grouptitle = group_dict.get(u'title')
+        g.groupname = group_dict.get(u'name')
         g.data = data
         g.group_dict = group_dict
 

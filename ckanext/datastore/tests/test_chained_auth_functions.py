@@ -47,11 +47,11 @@ class ExampleDataStoreSearchSQLPlugin(p.SingletonPlugin):
         }
 
 
+@pytest.mark.ckan_config(
+    u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
+)
+@pytest.mark.usefixtures(u"with_request_context", u"with_plugins", u"clean_db")
 class TestChainedAuth(object):
-    @pytest.mark.ckan_config(
-        u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
-    )
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_datastore_search_sql_auth(self):
         ctd.CreateTestData.create()
         with pytest.raises(TestAuthException) as raise_context:
@@ -63,18 +63,14 @@ class TestChainedAuth(object):
                 {},
             )
         # check that exception returned has the message from our auth function
-        assert raise_context.value.message == auth_message
+        assert raise_context.value.args == (auth_message, )
 
-    @pytest.mark.ckan_config(
-        u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
-    )
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_chain_core_auth_functions(self):
         user = factories.User()
         context = {u"user": user[u"name"]}
         with pytest.raises(TestAuthException) as raise_context:
             check_access(u"user_list", context, {})
-        assert raise_context.value.message == user_list_message
+        assert raise_context.value.args == (user_list_message, )
         # check that the 'auth failed' msg doesn't fail because it's a partial
         with pytest.raises(NotAuthorized):
             check_access(
@@ -91,11 +87,11 @@ class ExampleExternalProviderPlugin(p.SingletonPlugin):
         return {u"user_create": user_create}
 
 
+@pytest.mark.ckan_config(
+    u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
+)
+@pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
 class TestChainedAuthBuiltInFallback(object):
-    @pytest.mark.ckan_config(
-        u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
-    )
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_user_create_chained_auth(self):
         ctd.CreateTestData.create()
         # check if chained auth fallbacks to built-in user_create

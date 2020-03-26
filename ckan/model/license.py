@@ -41,7 +41,7 @@ class License(object):
                 if six.PY2:
                     # Convert str to unicode
                     # (keeps Pylons and SQLAlchemy happy).
-                    value = value.decode('utf8')
+                    value = six.ensure_text(value)
                 self._data[key] = value
 
     def __getattr__(self, name):
@@ -53,7 +53,12 @@ class License(object):
             log.warn('license.is_osi_compliant is deprecated - use '
                      'osd_conformance instead.')
             return self._data['osd_conformance'] == 'approved'
-        return self._data[name]
+        try:
+            return self._data[name]
+        except KeyError as e:
+            # Python3 strictly requires `AttributeError` for correct
+            # behavior of `hasattr`
+            raise AttributeError(*e.args)
 
     @maintain.deprecated("License.__getitem__() is deprecated and will be "
                          "removed in a future version of CKAN. Instead, "
@@ -217,7 +222,7 @@ class DefaultLicense(dict):
             else:
                 return value
         else:
-            raise KeyError()
+            raise KeyError(key)
 
     def copy(self):
         ''' create a dict of the license used by the licenses api '''

@@ -36,7 +36,7 @@ def test_with_plugins_is_able_to_run_with_stats():
     assert plugins.plugin_loaded(u"stats")
 
 
-class TestMethodLevelConfig:
+class TestMethodLevelConfig(object):
     """Verify that config overrides work for individual methods.
     """
 
@@ -50,7 +50,8 @@ class TestMethodLevelConfig:
 
 
 @pytest.mark.ckan_config(u"some.new.config", u"exists")
-class TestMethodLevelConfig:
+class TestClassLevelConfig(object):
+
     """Verify that config overrides applied for each method when applied
     per on class level.
     """

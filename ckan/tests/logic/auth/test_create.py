@@ -41,7 +41,7 @@ def test_cud_overrides_acd():
     assert not response["success"]
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestRealUsersAuth(object):
     def test_no_org_user_can_create(self):
         user = factories.User()

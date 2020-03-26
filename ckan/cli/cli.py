@@ -3,14 +3,19 @@
 import logging
 from collections import defaultdict
 
-import ckan.plugins as p
+import six
 import click
-from ckan.cli import config_tool
+import sys
+
+import ckan.plugins as p
+import ckan.cli as ckan_cli
+from ckan.config.middleware import make_app
 from ckan.cli import (
+    config_tool,
     jobs,
     datapusher,
     front_end_build,
-    click_config_option, db, load_config, search_index, server,
+    db, search_index, server,
     profile,
     asset,
     datastore,
@@ -27,17 +32,56 @@ from ckan.cli import (
     user
 )
 
-from ckan.config.middleware import make_app
 from ckan.cli import seed
 
 log = logging.getLogger(__name__)
+
+
+class CkanCommand(object):
+
+    def __init__(self, conf=None):
+        # Don't import `load_config` by itself, rather call it using
+        # module so that it can be patched during tests
+        self.config = ckan_cli.load_config(conf)
+        self.app = make_app(self.config)
+
+
+def _init_ckan_config(ctx, param, value):
+
+    # Some commands don't require the config loaded
+    if (len(sys.argv) > 1 and not value
+            and sys.argv[1] in (u'generate', u'config-tool')) \
+            or u'--help' in sys.argv:
+        return
+
+    ctx.obj = CkanCommand(value)
+    if six.PY2:
+        ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
+    else:
+        ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
+
+    for plugin in p.PluginImplementations(p.IClick):
+        for cmd in plugin.get_commands():
+            cmd._ckanext = plugin.name
+            ctx.command.add_command(cmd)
+
+
+click_config_option = click.option(
+    u'-c',
+    u'--config',
+    default=None,
+    metavar=u'CONFIG',
+    help=u'Config file to use (default: development.ini)',
+    is_eager=True,
+    callback=_init_ckan_config
+)
 
 
 class CustomGroup(click.Group):
     def get_command(self, ctx, name):
         cmd = super(CustomGroup, self).get_command(ctx, name)
         if not cmd:
-            ctx.invoke(self)
+            ctx.forward(self)
             cmd = super(CustomGroup, self).get_command(ctx, name)
         return cmd
 
@@ -60,23 +104,11 @@ class CustomGroup(click.Group):
                         formatter.write_dl(rows)
 
 
-class CkanCommand(object):
-
-    def __init__(self, conf=None):
-        self.config = load_config(conf)
-        self.app = make_app(self.config.global_conf, **self.config.local_conf)
-
-
 @click.group(cls=CustomGroup)
 @click.help_option(u'-h', u'--help')
 @click_config_option
-@click.pass_context
-def ckan(ctx, config, *args, **kwargs):
-    ctx.obj = CkanCommand(config)
-    for plugin in p.PluginImplementations(p.IClick):
-        for cmd in plugin.get_commands():
-            cmd._ckanext = plugin.name
-            ckan.add_command(cmd)
+def ckan(config, *args, **kwargs):
+    pass
 
 
 ckan.add_command(jobs.jobs)

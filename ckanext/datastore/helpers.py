@@ -5,6 +5,7 @@ import logging
 
 import ckan.common as converters
 import sqlparse
+import six
 
 from six import string_types
 
@@ -93,7 +94,7 @@ def get_table_names_from_sql(context, sql):
         sql = queries.pop()
         result = context['connection'].execute(
             'EXPLAIN (VERBOSE, FORMAT JSON) {0}'.format(
-                sql.encode('utf-8'))).fetchone()
+                six.ensure_str(sql))).fetchone()
 
         try:
             query_plan = json.loads(result['QUERY PLAN'])

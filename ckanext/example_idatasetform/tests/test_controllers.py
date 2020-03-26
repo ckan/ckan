@@ -1,58 +1,17 @@
 # encoding: utf-8
 
 import pytest
-from ckan.lib.helpers import url_for
 
-import ckan.plugins as plugins
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-import ckan.model as model
-
-submit_and_follow = helpers.submit_and_follow
+import ckan.tests.helpers as helpers
 
 
-def _get_package_edit_page(app, package_name):
-    user = factories.User()
-    env = {"REMOTE_USER": user["name"].encode("ascii")}
-    response = app.get(
-        url=url_for("dataset.edit", id=package_name), extra_environ=env,
-    )
-    return env, response
+@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestPackageController(object):
 
-
-class TestPackageController(helpers.FunctionalTestBase):
-    _load_plugins = ["example_idatasetform"]
-
-    def test_edit_converted_extra_field(self):
+    def test_edit_converted_extra_field(self, app, ckan_config):
         dataset = factories.Dataset(custom_text="foo")
-        app = self._get_test_app()
-        env, response = _get_package_edit_page(app, dataset["name"])
-        form = response.forms["dataset-edit"]
-        form["custom_text"] = u"bar"
-
-        response = submit_and_follow(app, form, env, "save")
-        # just check it has finished the edit, rather than being sent on to the
-        # resource create/edit form.
-        assert response.request.path == "/dataset/%s" % dataset["name"]
-
-        pkg = model.Package.by_name(dataset["name"])
-        assert pkg.extras["custom_text"] == u"bar"
-
-    def test_edit_custom_extra_field(self):
-        # i.e. an extra field that is not mentioned in the schema, filled in on
-        # the form in the 'custom-fields' section
-        dataset = factories.Dataset(
-            extras=[{"key": "testkey", "value": "foo"}]
-        )
-        app = self._get_test_app()
-        env, response = _get_package_edit_page(app, dataset["name"])
-        form = response.forms["dataset-edit"]
-        form["extras__0__value"] = u"bar"
-
-        response = submit_and_follow(app, form, env, "save")
-        # just check it has finished the edit, rather than being sent on to the
-        # resource create/edit form.
-        assert response.request.path == "/dataset/%s" % dataset["name"]
-
-        pkg = model.Package.by_name(dataset["name"])
-        assert pkg.extras["testkey"] == u"bar"
+        dataset.update(custom_text='bar')
+        resp = helpers.call_action('package_update', **dataset)
+        assert resp["custom_text"] == u"bar"

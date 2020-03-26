@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 import datetime
+import six
+import os
 
 import pytz
 import tzlocal
@@ -64,10 +66,10 @@ class TestHelpersUrlForStatic(BaseUrlFor):
         generated_url = h.url_for_static("/my-asset/file.txt", qualified=True)
         assert generated_url == url
 
-    @helpers.set_extra_environ("SCRIPT_NAME", "/my/custom/path")
-    @helpers.change_config("ckan.site_url", "http://example.com")
-    @helpers.change_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
-    def test_url_for_static_with_root_path_and_script_name_env(self):
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_static_with_root_path_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
         url = "http://example.com/my/custom/path/foo/my-asset/file.txt"
         generated_url = h.url_for_static("/my-asset/file.txt", qualified=True)
         assert generated_url == url
@@ -84,8 +86,9 @@ class TestHelpersUrlForStatic(BaseUrlFor):
     ],
 )
 def test_url_for_static_or_external(url):
-    assert h.url_for_static_or_external(url) == url
-    assert isinstance(h.url_for_static_or_external(url), str)
+    generated = h.url_for_static_or_external(url)
+    assert generated == url
+    assert isinstance(generated, str)
 
 
 class TestHelpersUrlFor(BaseUrlFor):
@@ -106,13 +109,13 @@ class TestHelpersUrlFor(BaseUrlFor):
         generated_url = h.url_for("dataset.read", id="my_dataset", **extra)
         assert generated_url == exp
 
-    @helpers.change_config("ckan.root_path", "/foo/{{LANG}}")
+    @pytest.mark.ckan_config("ckan.root_path", "/foo/{{LANG}}")
     def test_url_for_with_locale_object(self):
         url = "/foo/de/dataset/my_dataset"
         generated_url = h.url_for("/dataset/my_dataset", locale=Locale("de"))
         assert generated_url == url
 
-    @helpers.change_config("ckan.root_path", "/my/prefix")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/prefix")
     def test_url_for_qualified_with_root_path(self):
         url = "http://example.com/my/prefix/dataset/my_dataset"
         generated_url = h.url_for(
@@ -120,7 +123,7 @@ class TestHelpersUrlFor(BaseUrlFor):
         )
         assert generated_url == url
 
-    @helpers.change_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
     def test_url_for_qualified_with_root_path_and_locale(self):
         url = "http://example.com/my/custom/path/de/foo/dataset/my_dataset"
         generated_url = h.url_for(
@@ -128,23 +131,34 @@ class TestHelpersUrlFor(BaseUrlFor):
         )
         assert generated_url == url
 
-    @helpers.set_extra_environ("SCRIPT_NAME", "/my/custom/path")
-    @helpers.change_config("ckan.site_url", "http://example.com")
-    @helpers.change_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
-    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self):
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
         url = "http://example.com/my/custom/path/de/foo/dataset/my_dataset"
         generated_url = h.url_for(
             "dataset.read", id="my_dataset", qualified=True, locale="de"
         )
         assert generated_url == url
 
-    @helpers.set_extra_environ("SCRIPT_NAME", "/my/custom/path")
-    @helpers.change_config("ckan.site_url", "http://example.com")
-    @helpers.change_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
-    def test_url_for_with_root_path_locale_and_script_name_env(self):
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_with_root_path_locale_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
+
         url = "/my/custom/path/de/foo/dataset/my_dataset"
         generated_url = h.url_for("dataset.read", id="my_dataset", locale="de")
         assert generated_url == url
+
+    @pytest.mark.ckan_config("debug", True)
+    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
+    def test_debugtoolbar_url(self, ckan_config):
+        # test against built-in `url_for`, that is used by debugtoolbar ext.
+        from flask import url_for
+        expected = "/my/custom/path/_debug_toolbar/static/test.js"
+        url = url_for('_debug_toolbar.static', filename='test.js')
+        assert url == expected
 
 
 class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
@@ -215,24 +229,27 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
             generated_url = h.url_for("api.get_api", ver=3)
             assert generated_url == url
 
+    @pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
     @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
     @pytest.mark.usefixtures("with_plugins")
     def test_url_for_flask_request_using_pylons_url_for(self, app):
 
         res = app.get("/flask_route_pylons_url_for")
 
-        assert u"This URL was generated by Pylons" in res.ubody
-        assert u"/from_pylons_extension_before_map" in res.ubody
+        assert u"This URL was generated by Pylons" in res.body
+        assert u"/from_pylons_extension_before_map" in res.body
 
+    @pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
     @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
     @pytest.mark.usefixtures("with_plugins")
     def test_url_for_pylons_request_using_flask_url_for(self, app):
 
         res = app.get("/pylons_route_flask_url_for")
 
-        assert u"This URL was generated by Flask" in res.ubody
-        assert u"/api/3" in res.ubody
+        assert u"This URL was generated by Flask" in res.body
+        assert u"/api/3" in res.body
 
+    @pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
     @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
     @pytest.mark.usefixtures("with_plugins")
     def test_url_for_pylons_request_external(self):
@@ -498,6 +515,61 @@ def test_render_datetime(date, extra, exp):
     assert h.render_datetime(date, **extra) == exp
 
 
+@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.freeze_time("2020-02-17 12:00:00")
+@pytest.mark.parametrize(
+    "date, exp",
+    [
+        (
+            datetime.datetime(2020, 2, 17, 11, 59, 30),
+            "Just now",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 59, 0),
+            "1 minute ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 55, 0),
+            "5 minutes ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 0, 0),
+            "1 hour ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 7, 0, 0),
+            "5 hours ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 16, 12, 0, 0),
+            "1 day ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 12, 12, 0, 0),
+            "5 days ago",
+        ),
+        (
+            datetime.datetime(2020, 1, 17, 12, 0, 0),
+            "1 month ago",
+        ),
+        (
+            datetime.datetime(2019, 9, 17, 12, 0, 0),
+            "5 months ago",
+        ),
+        (
+            datetime.datetime(2019, 1, 17, 12, 0, 0),
+            "over 1 year ago",
+        ),
+        (
+            datetime.datetime(2015, 1, 17, 12, 0, 0),
+            "over 5 years ago",
+        ),
+    ]
+)
+def test_time_ago_from_timestamp(date, exp):
+    assert h.time_ago_from_timestamp(date) == exp
+
+
 def test_clean_html_disallowed_tag():
     assert h.clean_html("<b><bad-tag>Hello") == u"<b>&lt;bad-tag&gt;Hello</b>"
 
@@ -510,6 +582,7 @@ def test_clean_html_non_string():
     )
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestBuildNavMain(object):
     def test_flask_routes(self):
         menu = (
@@ -520,7 +593,7 @@ class TestBuildNavMain(object):
             ("home.about", "About"),
         )
         assert h.build_nav_main(*menu) == (
-            '<li><a href="/">Home</a></li>'
+            '<li class="active"><a href="/">Home</a></li>'
             '<li><a href="/dataset/">Datasets</a></li>'
             '<li><a href="/organization/">Organizations</a></li>'
             '<li><a href="/group/">Groups</a></li>'
@@ -536,7 +609,7 @@ class TestBuildNavMain(object):
             ("about", "About"),
         )
         assert h.build_nav_main(*menu) == (
-            '<li><a href="/">Home</a></li>'
+            '<li class="active"><a href="/">Home</a></li>'
             '<li><a href="/dataset/">Datasets</a></li>'
             '<li><a href="/organization/">Organizations</a></li>'
             '<li><a href="/group/">Groups</a></li>'
@@ -595,19 +668,19 @@ class TestBuildNavMain(object):
         )
 
 
+@pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
 @pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
 @pytest.mark.usefixtures("with_plugins")
 class TestHelperException(object):
+
     def test_helper_exception_non_existing_helper_as_attribute(self, app):
         """Calling a non-existing helper on `h` raises a HelperException."""
-        with pytest.raises(ckan.exceptions.HelperError):
-            app.get("/broken_helper_as_attribute")
+        app.get("/broken_helper_as_attribute", status=500)
 
     def test_helper_exception_non_existing_helper_as_item(self, app):
         """Calling a non-existing helper on `h` raises a HelperException."""
 
-        with pytest.raises(ckan.exceptions.HelperError):
-            app.get("/broken_helper_as_item")
+        app.get("/broken_helper_as_item", status=500)
 
     def test_helper_existing_helper_as_attribute(self, app):
         """Calling an existing helper on `h` doesn't raises a
@@ -615,7 +688,7 @@ class TestHelperException(object):
 
         res = app.get("/helper_as_attribute")
 
-        assert "My lang is: en" in res.body
+        assert helpers.body_contains(res, "My lang is: en")
 
     def test_helper_existing_helper_as_item(self, app):
         """Calling an existing helper on `h` doesn't raises a
@@ -623,7 +696,7 @@ class TestHelperException(object):
 
         res = app.get("/helper_as_item")
 
-        assert "My lang is: en" in res.body
+        assert helpers.body_contains(res, "My lang is: en")
 
 
 class TestHelpersPlugin(p.SingletonPlugin):
@@ -661,18 +734,19 @@ class TestHelpersPlugin(p.SingletonPlugin):
         return _map
 
 
-class TestHelperController(p.toolkit.BaseController):
-    def broken_helper_as_attribute(self):
-        return base.render("tests/broken_helper_as_attribute.html")
+if six.PY2:
+    class TestHelperController(p.toolkit.BaseController):
+        def broken_helper_as_attribute(self):
+            return base.render("tests/broken_helper_as_attribute.html")
 
-    def broken_helper_as_item(self):
-        return base.render("tests/broken_helper_as_item.html")
+        def broken_helper_as_item(self):
+            return base.render("tests/broken_helper_as_item.html")
 
-    def helper_as_attribute(self):
-        return base.render("tests/helper_as_attribute.html")
+        def helper_as_attribute(self):
+            return base.render("tests/helper_as_attribute.html")
 
-    def helper_as_item(self):
-        return base.render("tests/helper_as_item.html")
+        def helper_as_item(self):
+            return base.render("tests/helper_as_item.html")
 
 
 @pytest.mark.usefixtures("clean_db")

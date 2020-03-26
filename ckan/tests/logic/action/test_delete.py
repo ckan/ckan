@@ -14,7 +14,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDelete:
     def test_resource_delete(self):
         user = factories.User()
@@ -36,7 +36,7 @@ class TestDelete:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestDeleteResourceViews(object):
     def test_resource_view_delete(self):
         resource_view = factories.ResourceView()
@@ -122,7 +122,7 @@ class TestDeleteTags(object):
             assert 0, "Should have raised NotFound"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupPurge(object):
     def test_a_non_sysadmin_cant_purge_group(self):
         user = factories.User()
@@ -216,7 +216,7 @@ class TestGroupPurge(object):
             helpers.call_action("group_purge", id="123")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestOrganizationPurge(object):
     def test_a_non_sysadmin_cant_purge_org(self):
         user = factories.User()
@@ -313,7 +313,7 @@ class TestOrganizationPurge(object):
             helpers.call_action("organization_purge", id="123")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDatasetPurge(object):
     def test_a_non_sysadmin_cant_purge_dataset(self):
         user = factories.User()
@@ -439,7 +439,7 @@ class TestDatasetPurge(object):
             helpers.call_action("dataset_purge", id="123")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUserDelete(object):
     def test_user_delete(self):
         user = factories.User()

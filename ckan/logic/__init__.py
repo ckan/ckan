@@ -35,7 +35,10 @@ class ActionError(Exception):
         super(ActionError, self).__init__(message)
 
     def __str__(self):
-        return self.message
+        msg = self.message
+        if not isinstance(msg, six.string_types):
+            msg = str(msg)
+        return six.ensure_text(msg)
 
 
 class NotFound(ActionError):

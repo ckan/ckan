@@ -12,6 +12,7 @@ def _search(resource_id):
     return helpers.call_action(u"datastore_search", resource_id=resource_id)
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreUpsert(object):
     # Test action 'datastore_upsert' with 'method': 'upsert'
 
@@ -525,6 +526,7 @@ class TestDatastoreUpsert(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         resource = factories.Resource()
         data = {
@@ -551,6 +553,7 @@ class TestDatastoreUpsert(object):
         assert last_analyze is not None
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreInsert(object):
     # Test action 'datastore_upsert' with 'method': 'insert'
 
@@ -656,6 +659,7 @@ class TestDatastoreInsert(object):
         )
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreUpdate(object):
     # Test action 'datastore_upsert' with 'method': 'update'
 

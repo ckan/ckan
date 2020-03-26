@@ -11,6 +11,7 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
+from ckan.tests import factories
 import ckanext.datastore.backend.postgres as db
 from ckan.common import config
 from ckanext.datastore.tests.helpers import set_url_type
@@ -21,7 +22,7 @@ class TestDatastoreCreate(object):
     normal_user = None
 
     @pytest.fixture(autouse=True)
-    def initial_data(self, clean_db, clean_index):
+    def initial_data(self, clean_db, clean_index, test_request_context):
         if not tests.is_datastore_supported():
             pytest.skip("Datastore not supported")
         ctd.CreateTestData.create()
@@ -29,20 +30,20 @@ class TestDatastoreCreate(object):
         self.normal_user = model.User.get("annafan")
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        set_url_type(
-            model.Package.get("annakarenina").resources, self.sysadmin_user
-        )
+        with test_request_context():
+            set_url_type(
+                model.Package.get("annakarenina").resources, self.sysadmin_user
+            )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_ckan_resource_in_package(self, app):
         package = model.Package.get("annakarenina")
         data = {"resource": {"package_id": package.id}}
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=200,
         )
@@ -121,11 +122,11 @@ class TestDatastoreCreate(object):
             "resource_id": resource.id,
             "resource": {"package_id": package.id},
         }
-        postparams = "%s=1" % json.dumps(data)
+
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=409,
         )
@@ -136,7 +137,7 @@ class TestDatastoreCreate(object):
     @responses.activate
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
-    def test_send_datapusher_creates_task(self):
+    def test_send_datapusher_creates_task(self, test_request_context):
         responses.add(
             responses.POST,
             "http://datapusher.ckan.org/job",
@@ -148,10 +149,10 @@ class TestDatastoreCreate(object):
         resource = package.resources[0]
 
         context = {"ignore_auth": True, "user": self.sysadmin_user.name}
-
-        p.toolkit.get_action("datapusher_submit")(
-            context, {"resource_id": resource.id}
-        )
+        with test_request_context():
+            p.toolkit.get_action("datapusher_submit")(
+                context, {"resource_id": resource.id}
+            )
 
         context.pop("task_status", None)
 
@@ -186,11 +187,11 @@ class TestDatastoreCreate(object):
         )
 
         data = {"status": "success", "metadata": {"resource_id": resource.id}}
-        postparams = "%s=1" % json.dumps(data)
+
         auth = {"Authorization": str(user.apikey)}
         res = app.post(
             "/api/action/datapusher_hook",
-            params=postparams,
+            json=data,
             extra_environ=auth,
             status=200,
         )
@@ -220,39 +221,36 @@ class TestDatastoreCreate(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
-    def test_datapusher_hook_sysadmin(self, app):
-
-        self._call_datapusher_hook(self.sysadmin_user, app)
+    def test_datapusher_hook_sysadmin(self, app, test_request_context):
+        with test_request_context():
+            self._call_datapusher_hook(self.sysadmin_user, app)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
-    def test_datapusher_hook_normal_user(self, app):
-
-        self._call_datapusher_hook(self.normal_user, app)
+    def test_datapusher_hook_normal_user(self, app, test_request_context):
+        with test_request_context():
+            self._call_datapusher_hook(self.normal_user, app)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
     def test_datapusher_hook_no_metadata(self, app):
         data = {"status": "success"}
-        postparams = "%s=1" % json.dumps(data)
 
-        app.post("/api/action/datapusher_hook", params=postparams, status=409)
+        app.post("/api/action/datapusher_hook", json=data, status=409)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
     def test_datapusher_hook_no_status(self, app):
         data = {"metadata": {"resource_id": "res_id"}}
-        postparams = "%s=1" % json.dumps(data)
 
-        app.post("/api/action/datapusher_hook", params=postparams, status=409)
+        app.post("/api/action/datapusher_hook", json=data, status=409)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
     @pytest.mark.usefixtures("with_plugins")
     def test_datapusher_hook_no_resource_id_in_metadata(self, app):
         data = {"status": "success", "metadata": {}}
-        postparams = "%s=1" % json.dumps(data)
 
-        app.post("/api/action/datapusher_hook", params=postparams, status=409)
+        app.post("/api/action/datapusher_hook", json=data, status=409)
 
     @responses.activate
     @pytest.mark.ckan_config(
@@ -289,3 +287,70 @@ class TestDatastoreCreate(object):
             data["result_url"]
             == "https://ckan.example.com/api/3/action/datapusher_hook"
         )
+
+    @responses.activate
+    @pytest.mark.ckan_config(
+        "ckan.datapusher.callback_url_base", "https://ckan.example.com"
+    )
+    @pytest.mark.ckan_config(
+        "ckan.datapusher.url", "http://datapusher.ckan.org"
+    )
+    @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_create_resource_hooks(self, app):
+
+        responses.add(
+            responses.POST,
+            "http://datapusher.ckan.org/job",
+            content_type="application/json",
+            body=json.dumps({"job_id": "foo", "job_key": "barloco"}),
+        )
+        responses.add_passthru(config["solr_url"])
+
+        dataset = factories.Dataset()
+        resource = tests.call_action_api(
+            app,
+            "resource_create",
+            apikey=self.sysadmin_user.apikey,
+            package_id=dataset['id'],
+            format='CSV',
+        )
+
+    @responses.activate
+    @pytest.mark.ckan_config(
+        "ckan.datapusher.callback_url_base", "https://ckan.example.com"
+    )
+    @pytest.mark.ckan_config(
+        "ckan.datapusher.url", "http://datapusher.ckan.org"
+    )
+    @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_update_resource_url_hooks(self, app):
+
+        responses.add(
+            responses.POST,
+            "http://datapusher.ckan.org/job",
+            content_type="application/json",
+            body=json.dumps({"job_id": "foo", "job_key": "barloco"}),
+        )
+        responses.add_passthru(config["solr_url"])
+
+        dataset = factories.Dataset()
+        resource = tests.call_action_api(
+            app,
+            "resource_create",
+            apikey=self.sysadmin_user.apikey,
+            package_id=dataset['id'],
+            url='http://example.com/old.csv',
+            format='CSV',
+        )
+
+        resource = tests.call_action_api(
+            app,
+            "resource_update",
+            apikey=self.sysadmin_user.apikey,
+            id=resource['id'],
+            url='http://example.com/new.csv',
+            format='CSV',
+        )
+        assert resource

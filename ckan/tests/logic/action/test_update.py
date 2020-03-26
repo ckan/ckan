@@ -1,10 +1,12 @@
 # encoding: utf-8
 """Unit tests for ckan/logic/action/update.py."""
-import __builtin__ as builtins
 import datetime
 
 import mock
 import pytest
+import six
+
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan
 import ckan.lib.app_globals as app_globals
@@ -15,13 +17,28 @@ import ckan.tests.helpers as helpers
 from ckan import model
 from ckan.common import config
 
-from six import StringIO
+from six import BytesIO
 from pyfakefs import fake_filesystem
+from freezegun import freeze_time
+
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
 
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
 fake_open = fake_filesystem.FakeFileOpen(fs)
+
+
+class FakeFileStorage(FlaskFileStorage):
+    content_type = None
+
+    def __init__(self, stream, filename):
+        self.stream = stream
+        self.filename = filename
+        self.name = "upload"
 
 
 def mock_open_if_open_fails(*args, **kwargs):
@@ -40,7 +57,7 @@ def datetime_from_string(s):
     return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUpdate(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -144,7 +161,6 @@ class TestUpdate(object):
         user = factories.User()
         user["name"] = name
         with pytest.raises(logic.ValidationError):
-
             helpers.call_action("user_update", **user)
 
     def test_user_update_to_name_that_already_exists(self):
@@ -166,7 +182,8 @@ class TestUpdate(object):
         # we're not updating it, otherwise validation fails.
         helpers.call_action(
             "user_update",
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password="new password",
         )
@@ -254,7 +271,8 @@ class TestUpdate(object):
         # fails.
         helpers.call_action(
             "user_update",
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password=factories.User.attributes()["password"],
             fullname="updated full name",
@@ -301,16 +319,12 @@ class TestUpdate(object):
         helpers.call_action(
             "user_update",
             context={"schema": schema},
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password=factories.User.attributes()["password"],
             fullname="updated full name",
         )
-
-        # Since we passed user['name'] to user_update as the 'id' param,
-        # our mock validator method should have been called once with
-        # user['name'] as arg.
-        mock_validator.assert_called_once_with(user["name"])
 
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
@@ -505,7 +519,7 @@ class TestUpdate(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDatasetUpdate(object):
     def test_missing_id(self):
         user = factories.User()
@@ -557,6 +571,40 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
         assert dataset_["extras"][0]["key"] == "original media"
         assert dataset_["extras"][0]["value"] == '"book"'
+
+    def test_extra_can_be_restored_after_deletion(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"old attribute", "value": u'value'},
+                {"key": u"original media", "value": u'"book"'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[],
+        )
+
+        assert dataset_["extras"] == []
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"original media", "value": u'"book"'},
+                {"key": u"new attribute", "value": u'value'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
 
     def test_license(self):
         user = factories.User()
@@ -670,6 +718,7 @@ class TestDatasetUpdate(object):
         assert updated_dataset == dataset["id"]
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestUpdateSendEmailNotifications(object):
     @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", True)
     @mock.patch("ckan.logic.action.update.request")
@@ -688,7 +737,7 @@ class TestUpdateSendEmailNotifications(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestResourceViewUpdate(object):
     def test_resource_view_update(self):
         resource_view = factories.ResourceView()
@@ -808,20 +857,8 @@ class TestResourceViewUpdate(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestResourceUpdate(object):
-    import cgi
-
-    class FakeFileStorage(cgi.FieldStorage):
-        def __init__(self, fp, filename):
-            self.file = fp
-            self.filename = filename
-            self.name = "upload"
-
-        def setup(self):
-            import ckan.model as model
-
-            model.repo.rebuild_db()
 
     def test_url_only(self):
         dataset = factories.Dataset()
@@ -997,9 +1034,8 @@ class TestResourceUpdate(object):
 
     @helpers.change_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_url(self, mock_open):
+    def test_mimetype_by_url(self, monkeypatch):
         """
         The mimetype is guessed from the url
 
@@ -1010,7 +1046,7 @@ class TestResourceUpdate(object):
         resource = factories.Resource(
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
-
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         res_update = helpers.call_action(
             "resource_update",
             id=resource["id"],
@@ -1051,9 +1087,8 @@ class TestResourceUpdate(object):
     @helpers.change_config("ckan.mimetype_guess", "file_contents")
     @helpers.change_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_file(self, mock_open):
+    def test_mimetype_by_upload_by_file(self, monkeypatch):
         """
         The mimetype is guessed from an uploaded file by the contents inside
 
@@ -1065,19 +1100,19 @@ class TestResourceUpdate(object):
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
 
-        update_file = StringIO()
-        update_file.write(
+        update_file = BytesIO()
+        update_file.write(six.ensure_binary(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        ))
+        update_resource = FakeFileStorage(
             update_file, "update_test"
         )
-
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
             res_update = helpers.call_action(
@@ -1095,17 +1130,16 @@ class TestResourceUpdate(object):
 
     @helpers.change_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_filename(self, mock_open):
+    def test_mimetype_by_upload_by_filename(self, monkeypatch):
         """
         The mimetype is guessed from an uploaded file with a filename
 
         Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
         If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
         """
-        test_file = StringIO()
-        test_file.write(
+        test_file = BytesIO()
+        test_file.write(six.ensure_binary(
             """
         "info": {
             "title": "BC Data Catalogue API",
@@ -1123,11 +1157,12 @@ class TestResourceUpdate(object):
             "version": "3.0.0"
         }
         """
-        )
-        test_resource = TestResourceUpdate.FakeFileStorage(
+        ))
+        test_resource = FakeFileStorage(
             test_file, "test.json"
         )
         dataset = factories.Dataset()
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
 
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
@@ -1138,19 +1173,18 @@ class TestResourceUpdate(object):
                 upload=test_resource,
             )
 
-        update_file = StringIO()
-        update_file.write(
+        update_file = BytesIO()
+        update_file.write(six.ensure_binary(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        ))
+        update_resource = FakeFileStorage(
             update_file, "update_test.csv"
         )
-
         with mock.patch("ckan.lib.helpers.url_for"):
             res_update = helpers.call_action(
                 "resource_update",
@@ -1193,14 +1227,13 @@ class TestResourceUpdate(object):
 
     @helpers.change_config("ckan.storage_path", "/doesnt_exist")
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_size_of_resource_by_upload(self, mock_open):
+    def test_size_of_resource_by_upload(self, monkeypatch):
         """
         The size of the resource determined by the uploaded file
         """
-        test_file = StringIO()
-        test_file.write(
+        test_file = BytesIO()
+        test_file.write(six.ensure_binary(
             """
         "info": {
             "title": "BC Data Catalogue API",
@@ -1218,11 +1251,12 @@ class TestResourceUpdate(object):
             "version": "3.0.0"
         }
         """
-        )
-        test_resource = TestResourceUpdate.FakeFileStorage(
+        ))
+        test_resource = FakeFileStorage(
             test_file, "test.json"
         )
         dataset = factories.Dataset()
+        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
 
         # Mock url_for as using a test request context interferes with the FS mocking
         with mock.patch("ckan.lib.helpers.url_for"):
@@ -1233,19 +1267,18 @@ class TestResourceUpdate(object):
                 upload=test_resource,
             )
 
-        update_file = StringIO()
-        update_file.write(
+        update_file = BytesIO()
+        update_file.write(six.ensure_binary(
             """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        )
-        update_resource = TestResourceUpdate.FakeFileStorage(
+        ))
+        update_resource = FakeFileStorage(
             update_file, "update_test.csv"
         )
-
         with mock.patch("ckan.lib.helpers.url_for"):
             res_update = helpers.call_action(
                 "resource_update",
@@ -1377,8 +1410,115 @@ class TestResourceUpdate(object):
         # View is created
         assert len(res_views) == 1
 
+    def test_edit_metadata_updates_metadata_modified_field(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
 
-@pytest.mark.usefixtures("clean_db")
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='New Description',
+            )
+            assert resource['metadata_modified'] == '2020-02-25T12:00:00'
+
+    def test_same_values_dont_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='Test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='Test',
+                some_custom_field='test',
+                url='http://link.to.some.data'  # Default Value from Factory
+            )
+            assert (resource['metadata_modified'] !=
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '1987-03-04T23:30:00')
+
+    def test_new_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(package_id=dataset['id'], description='test')
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                some_custom_field='test',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
+
+    def test_remove_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
+
+    def test_update_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                some_custom_field='test2',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestConfigOptionUpdate(object):
 
     # NOTE: the opposite is tested in
@@ -1399,7 +1539,7 @@ class TestConfigOptionUpdate(object):
         assert getattr(app_globals.app_globals, globals_key) == value
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUserUpdate(object):
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1418,7 +1558,7 @@ class TestUserUpdate(object):
 
     def test_user_create_password_hash_not_for_normal_users(self):
         normal_user = factories.User()
-        context = {"user": normal_user["name"]}
+        context = {"user": normal_user["name"], "ignore_auth": False}
 
         user = helpers.call_action(
             "user_update",
@@ -1433,7 +1573,7 @@ class TestUserUpdate(object):
         assert user_obj.password != "pretend-this-is-a-valid-hash"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageOwnerOrgUpdate(object):
     def test_package_owner_org_added(self):
         """A package without an owner_org can have one added."""
@@ -1486,7 +1626,7 @@ class TestPackageOwnerOrgUpdate(object):
         assert dataset_obj.owner_org is None
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestBulkOperations(object):
     def test_bulk_make_private(self):
 
@@ -1581,7 +1721,7 @@ class TestBulkOperations(object):
             assert dataset.state == "deleted"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDashboardMarkActivitiesOld(object):
     def test_mark_as_old_some_activities_by_a_followed_user(self):
         # do some activity that will show up on user's dashboard

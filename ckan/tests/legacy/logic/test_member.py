@@ -6,6 +6,7 @@ import ckan.lib.create_test_data as create_test_data
 import pytest
 
 
+@pytest.mark.usefixtures("with_request_context")
 class TestMemberLogic(object):
     @pytest.fixture(autouse=True)
     def setup_method(self, clean_db):

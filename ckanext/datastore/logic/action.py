@@ -4,6 +4,7 @@ import logging
 import json
 
 import sqlalchemy
+import six
 from six import text_type
 
 import ckan.lib.search as search
@@ -192,7 +193,7 @@ def datastore_run_triggers(context, data_dict):
 
     '''
     res_id = data_dict['resource_id']
-    p.toolkit.check_access('datastore_trigger_each_row', context, data_dict)
+    p.toolkit.check_access('datastore_run_triggers', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
     connection = backend._get_write_engine().connect()
 
@@ -201,7 +202,7 @@ def datastore_run_triggers(context, data_dict):
     try:
         results = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:
-        message = err.args[0].split('\n')[0].decode('utf8')
+        message = six.ensure_text(err.args[0].split('\n')[0])
         raise p.toolkit.ValidationError({
                 u'records': [message.split(u') ', 1)[-1]]})
     return results.rowcount

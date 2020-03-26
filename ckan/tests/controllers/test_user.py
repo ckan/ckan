@@ -1,6 +1,7 @@
 # encoding: utf-8
 import mock
 import pytest
+import six
 from bs4 import BeautifulSoup
 
 import ckan.tests.factories as factories
@@ -8,10 +9,6 @@ import ckan.tests.helpers as helpers
 from ckan import model
 from ckan.lib.helpers import url_for
 from ckan.lib.mailer import create_reset_key, MailerException
-
-
-webtest_submit = helpers.webtest_submit
-submit_and_follow = helpers.submit_and_follow
 
 
 def _clear_activities():
@@ -22,25 +19,25 @@ def _clear_activities():
 
 def _get_user_edit_page(app):
     user = factories.User()
-    env = {"REMOTE_USER": user["name"].encode("ascii")}
+    env = {"REMOTE_USER": six.ensure_str(user["name"])}
     response = app.get(url=url_for("user.edit"), extra_environ=env)
     return env, response, user
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUser(object):
     def test_register_a_user(self, app):
-        response = app.get(url=url_for("user.register"))
+        url = url_for("user.register")
+        response = app.post(url=url, data={
+            "save": "",
+            "name": "newuser",
+            "fullname": "New User",
+            "email": "test@test.com",
+            "password1": "TestPassword1",
+            "password2": "TestPassword1",
+        })
 
-        form = response.forms["user-register-form"]
-        form["name"] = "newuser"
-        form["fullname"] = "New User"
-        form["email"] = "test@test.com"
-        form["password1"] = "TestPassword1"
-        form["password2"] = "TestPassword1"
-        response = submit_and_follow(app, form, name="save")
-        response = response.follow()
-        assert 200 == response.status_int
+        assert 200 == response.status_code
 
         user = helpers.call_action("user_show", id="newuser")
         assert user["name"] == "newuser"
@@ -48,16 +45,15 @@ class TestUser(object):
         assert not (user["sysadmin"])
 
     def test_register_user_bad_password(self, app):
-        response = app.get(url=url_for("user.register"))
+        response = app.post(url_for("user.register"), data={
+            "save": "",
+            "name": "newuser",
+            "fullname": "New User",
+            "email": "test@test.com",
+            "password1": "TestPassword1",
+            "password2": "",
 
-        form = response.forms["user-register-form"]
-        form["name"] = "newuser"
-        form["fullname"] = "New User"
-        form["email"] = "test@test.com"
-        form["password1"] = "TestPassword1"
-        form["password2"] = ""
-
-        response = form.submit("save")
+        })
         assert "The passwords you entered do not match" in response
 
     def test_create_user_as_sysadmin(self, app):
@@ -68,56 +64,43 @@ class TestUser(object):
         #  cookie handling.
 
         # get the form
-        response = app.get("/user/login")
-        # ...it's the second one
-        login_form = response.forms[1]
-        # fill it in
-        login_form["login"] = sysadmin["name"]
-        login_form["password"] = admin_pass
-        # submit it
-        login_form.submit("save")
+        response = app.post("/login_generic?came_from=/user/logged_in", data={
+            "save": "",
+            "login": sysadmin["name"],
+            "password": admin_pass,
 
-        response = app.get(url=url_for("user.register"))
-        assert "user-register-form" in response.forms
-        form = response.forms["user-register-form"]
-        form["name"] = "newestuser"
-        form["fullname"] = "Newest User"
-        form["email"] = "test@test.com"
-        form["password1"] = "NewPassword1"
-        form["password2"] = "NewPassword1"
-        response2 = form.submit("save")
-        assert "/user/activity" in response2.location
+        })
+
+        response = app.post(url_for("user.register"), data={
+            "name": "newestuser",
+            "fullname": "Newest User",
+            "email": "test@test.com",
+            "password1": "NewPassword1",
+            "password2": "NewPassword1",
+            "save": ""
+        }, follow_redirects=False)
+
+        assert "/user/activity" in response.headers['location']
 
     def test_registered_user_login(self, app):
         """
     Registered user can submit valid login details at /user/login and
     be returned to appropriate place.
     """
-
         # make a user
         user = factories.User()
 
         # get the form
-        response = app.get("/user/login")
-        # ...it's the second one
-        login_form = response.forms[1]
-
-        # fill it in
-        login_form["login"] = user["name"]
-        login_form["password"] = "RandomPassword123"
-
-        # submit it
-        submit_response = login_form.submit()
-        # let's go to the last redirect in the chain
-        final_response = helpers.webtest_maybe_follow(submit_response)
-
+        response = app.post("/login_generic?came_from=/user/logged_in", data={
+            "login": user["name"],
+            "password": "RandomPassword123",
+        })
         # the response is the user dashboard, right?
-        final_response.mustcontain(
-            '<a href="/dashboard/">Dashboard</a>',
-            '<span class="username">{0}</span>'.format(user["fullname"]),
-        )
+        assert '<a href="/dashboard/">Dashboard</a>' in response
+        assert '<span class="username">{0}</span>'.format(user["fullname"]) in response
+
         # and we're definitely not back on the login page.
-        final_response.mustcontain(no='<h1 class="page-heading">Login</h1>')
+        assert '<h1 class="page-heading">Login</h1>' not in response
 
     def test_registered_user_login_bad_password(self, app):
         """
@@ -129,29 +112,18 @@ class TestUser(object):
         user = factories.User()
 
         # get the form
-        response = app.get("/user/login")
-        # ...it's the second one
-        login_form = response.forms[1]
-
-        # fill it in
-        login_form["login"] = user["name"]
-        login_form["password"] = "BadPass1"
-
-        # submit it
-        submit_response = login_form.submit()
-        # let's go to the last redirect in the chain
-        final_response = helpers.webtest_maybe_follow(submit_response)
+        response = app.post("/login_generic?came_from=/user/logged_in", data={
+            "login": user["name"],
+            "password": "BadPass1",
+            "save": ""
+        })
 
         # the response is the login page again
-        final_response.mustcontain(
-            '<h1 class="page-heading">Login</h1>',
-            "Login failed. Bad username or password.",
-        )
+        assert '<h1 class="page-heading">Login</h1>' in response
+        assert "Login failed. Bad username or password." in response
         # and we're definitely not on the dashboard.
-        final_response.mustcontain(no='<a href="/dashboard">Dashboard</a>'),
-        final_response.mustcontain(
-            no='<span class="username">{0}</span>'.format(user["fullname"])
-        )
+        assert '<a href="/dashboard">Dashboard</a>' not in response
+        assert '<span class="username">{0}</span>'.format(user["fullname"]) not in response
 
     def test_user_logout_url_redirect(self, app):
         """_logout url redirects to logged out page.
@@ -161,8 +133,7 @@ class TestUser(object):
     """
 
         logout_url = url_for("user.logout")
-        logout_response = app.get(logout_url, status=302)
-        final_response = helpers.webtest_maybe_follow(logout_response)
+        final_response = app.get(logout_url)
 
         assert "You are now logged out." in final_response
 
@@ -179,9 +150,9 @@ class TestUser(object):
         logout_url = url_for("user.logout")
         # Remove the prefix otherwise the test app won't find the correct route
         logout_url = logout_url.replace("/my/prefix", "")
-        logout_response = app.get(logout_url, status=302)
-        assert logout_response.status_int == 302
-        assert "/my/prefix/user/logout" in logout_response.location
+        logout_response = app.get(logout_url, follow_redirects=False)
+        assert logout_response.status_code == 302
+        assert "/my/prefix/user/logout" in logout_response.headers['location']
 
     def test_not_logged_in_dashboard(self, app):
 
@@ -195,7 +166,7 @@ class TestUser(object):
             user=user, name="my-own-dataset", title=dataset_title
         )
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url=url_for("dashboard.datasets"), extra_environ=env
         )
@@ -210,7 +181,7 @@ class TestUser(object):
             user=user1, name="someone-elses-dataset", title=dataset_title
         )
 
-        env = {"REMOTE_USER": user2["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user2["name"])}
         response = app.get(
             url=url_for("dashboard.datasets"), extra_environ=env
         )
@@ -241,28 +212,18 @@ class TestUser(object):
     def test_edit_user(self, app):
         user = factories.User(password="TestPassword1")
 
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = app.get(url=url_for("user.edit"), extra_environ=env)
-        # existing values in the form
-        form = response.forms["user-edit-form"]
-        assert form["name"].value == user["name"]
-        assert form["fullname"].value == user["fullname"]
-        assert form["email"].value == user["email"]
-        assert form["about"].value == user["about"]
-        assert form["activity_streams_email_notifications"].value is None
-        assert form["password1"].value == ""
-        assert form["password2"].value == ""
-
-        # new values
-        # form['name'] = 'new-name'
-        form["fullname"] = "new full name"
-        form["email"] = "new@example.com"
-        form["about"] = "new about"
-        form["activity_streams_email_notifications"] = True
-        form["old_password"] = "TestPassword1"
-        form["password1"] = "NewPass1"
-        form["password2"] = "NewPass1"
-        response = submit_and_follow(app, form, env, "save")
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "save": "",
+            "name": user['name'],
+            "fullname": "new full name",
+            "email": "new@example.com",
+            "about": "new about",
+            "activity_streams_email_notifications": True,
+            "old_password": "TestPassword1",
+            "password1": "NewPass1",
+            "password2": "NewPass1",
+        })
 
         user = model.Session.query(model.User).get(user["id"])
         # assert(user.name== 'new-name')
@@ -273,33 +234,45 @@ class TestUser(object):
 
     def test_email_change_without_password(self, app):
 
-        env, response, user = _get_user_edit_page(app)
-
-        form = response.forms["user-edit-form"]
-
-        # new values
-        form["email"] = "new@example.com"
-
-        # factory returns user with password 'pass'
-        form.fields["old_password"][0].value = "Wrong-pass1"
-
-        response = webtest_submit(form, "save", status=200, extra_environ=env)
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "email": "new@example.com",
+            "save": "",
+            "old_password": "Wrong-pass1",
+            "password1": "",
+            "password2": "",
+        })
         assert "Old Password: incorrect password" in response
 
     def test_email_change_with_password(self, app):
 
-        env, response, user = _get_user_edit_page(app)
-
-        form = response.forms["user-edit-form"]
-
-        # new values
-        form["email"] = "new@example.com"
-
-        # factory returns user with password 'pass'
-        form.fields["old_password"][0].value = "RandomPassword123"
-
-        response = submit_and_follow(app, form, env, "save")
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "email": "new@example.com",
+            "save": "",
+            "old_password": "RandomPassword123",
+            "password1": "",
+            "password2": "",
+            "name": user['name'],
+        })
         assert "Profile updated" in response
+
+    def test_email_change_on_existed_email(self, app):
+        user1 = factories.User(email='existed@email.com')
+        user2 = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user2["name"])}
+
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "email": "existed@email.com",
+            "save": "",
+            "old_password": "RandomPassword123",
+            "password1": "",
+            "password2": "",
+            "name": user2['name'],
+        })
+        assert 'belongs to a registered user' in response
 
     def test_edit_user_logged_in_username_change(self, app):
 
@@ -308,24 +281,21 @@ class TestUser(object):
 
         # Have to do an actual login as this test relys on repoze cookie handling.
         # get the form
-        response = app.get("/user/login")
-        # ...it's the second one
-        login_form = response.forms[1]
-        # fill it in
-        login_form["login"] = user["name"]
-        login_form["password"] = user_pass
-        # submit it
-        login_form.submit()
+        response = app.post("/login_generic?came_from=/user/logged_in", data={
+            "login": user["name"],
+            "password": user_pass,
+            "save": ""
+        })
 
-        # Now the cookie is set, run the test
-        response = app.get(url=url_for("user.edit"))
-        # existing values in the form
-        form = response.forms["user-edit-form"]
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "email": user["email"],
+            "save": "",
+            "password1": "",
+            "password2": "",
+            "name": "new-name",
+        })
 
-        # new values
-        form["name"] = "new-name"
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = webtest_submit(form, "save", status=200, extra_environ=env)
         assert "That login name can not be modified" in response
 
     def test_edit_user_logged_in_username_change_by_name(self, app):
@@ -334,24 +304,21 @@ class TestUser(object):
 
         # Have to do an actual login as this test relys on repoze cookie handling.
         # get the form
-        response = app.get("/user/login")
-        # ...it's the second one
-        login_form = response.forms[1]
-        # fill it in
-        login_form["login"] = user["name"]
-        login_form["password"] = user_pass
-        # submit it
-        login_form.submit()
+        response = app.post("/login_generic?came_from=/user/logged_in", data={
+            "login": user["name"],
+            "password": user_pass,
+            "save": ""
+        })
 
-        # Now the cookie is set, run the test
-        response = app.get(url=url_for("user.edit", id=user["name"]))
-        # existing values in the form
-        form = response.forms["user-edit-form"]
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.post(url=url_for("user.edit", id=user["name"]), extra_environ=env, data={
+            "email": user["email"],
+            "save": "",
+            "password1": "",
+            "password2": "",
+            "name": "new-name",
+        })
 
-        # new values
-        form["name"] = "new-name"
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = webtest_submit(form, "save", status=200, extra_environ=env)
         assert "That login name can not be modified" in response
 
     def test_edit_user_logged_in_username_change_by_id(self, app):
@@ -360,24 +327,21 @@ class TestUser(object):
 
         # Have to do an actual login as this test relys on repoze cookie handling.
         # get the form
-        response = app.get("/user/login")
-        # ...it's the second one
-        login_form = response.forms[1]
-        # fill it in
-        login_form["login"] = user["name"]
-        login_form["password"] = user_pass
-        # submit it
-        login_form.submit()
+        response = app.post("/login_generic?came_from=/user/logged_in", data={
+            "login": user["name"],
+            "password": user_pass,
+            "save": ""
+        })
 
-        # Now the cookie is set, run the test
-        response = app.get(url=url_for("user.edit", id=user["id"]))
-        # existing values in the form
-        form = response.forms["user-edit-form"]
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.post(url=url_for("user.edit", id=user["id"]), extra_environ=env, data={
+            "email": user["email"],
+            "save": "",
+            "password1": "",
+            "password2": "",
+            "name": "new-name",
+        })
 
-        # new values
-        form["name"] = "new-name"
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        response = webtest_submit(form, "save", status=200, extra_environ=env)
         assert "That login name can not be modified" in response
 
     def test_perform_reset_for_key_change(self, app):
@@ -394,7 +358,7 @@ class TestUser(object):
             id=user_obj.id,
             key=user_obj.reset_key,
         )
-        response = app.post(offset, params=params, status=302)
+        response = app.post(offset, data=params)
         user_obj = helpers.model.User.by_name(user["name"])  # Update user_obj
 
         assert key != user_obj.reset_key
@@ -404,33 +368,33 @@ class TestUser(object):
     user password reset attempted with correct old password
     """
 
-        env, response, user = _get_user_edit_page(app)
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "save": "",
+            "old_password": "RandomPassword123",
+            "password1": "NewPassword1",
+            "password2": "NewPassword1",
+            "name": user['name'],
+            "email": user['email'],
+        })
 
-        form = response.forms["user-edit-form"]
-
-        # factory returns user with password 'RandomPassword123'
-        form.fields["old_password"][0].value = "RandomPassword123"
-        form.fields["password1"][0].value = "NewPassword1"
-        form.fields["password2"][0].value = "NewPassword1"
-
-        response = submit_and_follow(app, form, env, "save")
         assert "Profile updated" in response
 
     def test_password_reset_incorrect_password(self, app):
         """
     user password reset attempted with invalid old password
     """
-
-        env, response, user = _get_user_edit_page(app)
-
-        form = response.forms["user-edit-form"]
-
-        # factory returns user with password 'RandomPassword123'
-        form.fields["old_password"][0].value = "Wrong-Pass1"
-        form.fields["password1"][0].value = "NewPassword1"
-        form.fields["password2"][0].value = "NewPassword1"
-
-        response = webtest_submit(form, "save", status=200, extra_environ=env)
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "save": "",
+            "old_password": "Wrong-Pass1",
+            "password1": "NewPassword1",
+            "password2": "NewPassword1",
+            "name": user['name'],
+            "email": user['email'],
+        })
         assert "Old Password: incorrect password" in response
 
     def test_user_follow(self, app):
@@ -438,12 +402,11 @@ class TestUser(object):
         user_one = factories.User()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(
             controller="user", action="follow", id=user_two["id"]
         )
-        response = app.post(follow_url, extra_environ=env, status=302)
-        response = response.follow()
+        response = app.post(follow_url, extra_environ=env)
         assert (
             "You are now following {0}".format(user_two["display_name"])
             in response
@@ -454,28 +417,27 @@ class TestUser(object):
 
         user_one = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(controller="user", action="follow", id="not-here")
-        response = app.post(follow_url, extra_environ=env, status=302)
-        response = response.follow(status=302)
-        assert "user/login" in response.headers["location"]
+        response = app.post(follow_url, extra_environ=env)
+
+        assert "You're already logged in" in response.body
 
     def test_user_unfollow(self, app):
 
         user_one = factories.User()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(
             controller="user", action="follow", id=user_two["id"]
         )
-        app.post(follow_url, extra_environ=env, status=302)
+        app.post(follow_url, extra_environ=env)
 
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(
-            unfollow_url, extra_environ=env, status=302
+            unfollow_url, extra_environ=env
         )
-        unfollow_response = unfollow_response.follow()
 
         assert (
             "You are no longer following {0}".format(user_two["display_name"])
@@ -488,12 +450,11 @@ class TestUser(object):
         user_one = factories.User()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(
-            unfollow_url, extra_environ=env, status=302
+            unfollow_url, extra_environ=env
         )
-        unfollow_response = unfollow_response.follow()
 
         assert (
             "You are not following {0}".format(user_two["id"])
@@ -505,13 +466,11 @@ class TestUser(object):
 
         user_one = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("user.unfollow", id="not-here")
         unfollow_response = app.post(
-            unfollow_url, extra_environ=env, status=302
+            unfollow_url, extra_environ=env, follow_redirects=False, status=302
         )
-        unfollow_response = unfollow_response.follow(status=302)
-        assert "user/login" in unfollow_response.headers["location"]
 
     def test_user_follower_list(self, app):
         """Following users appear on followers list page."""
@@ -519,11 +478,11 @@ class TestUser(object):
         user_one = factories.Sysadmin()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": user_one["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for(
             controller="user", action="follow", id=user_two["id"]
         )
-        app.post(follow_url, extra_environ=env, status=302)
+        app.post(follow_url, extra_environ=env)
 
         followers_url = url_for("user.followers", id=user_two["id"])
 
@@ -550,7 +509,7 @@ class TestUser(object):
         user_url = url_for("user.index")
         user_response = app.get(user_url, status=200)
 
-        user_response_html = BeautifulSoup(user_response.body)
+        user_response_html = BeautifulSoup(user_response.data)
         user_list = user_response_html.select("ul.user-list li")
         assert len(user_list) == 3 + initial_user_count
 
@@ -570,7 +529,7 @@ class TestUser(object):
         user_url = url_for("user.index")
         user_response = app.get(user_url, status=200)
 
-        user_response_html = BeautifulSoup(user_response.body)
+        user_response_html = BeautifulSoup(user_response.data)
         user_list = user_response_html.select("ul.user-list li")
         assert len(user_list) == 2 + initial_user_count
 
@@ -587,12 +546,9 @@ class TestUser(object):
         factories.User(fullname="Person Three")
 
         user_url = url_for("user.index")
-        user_response = app.get(user_url, status=200)
-        search_form = user_response.forms["user-search-form"]
-        search_form["q"] = "Person"
-        search_response = webtest_submit(search_form, status=200)
+        search_response = app.get(user_url, query_string={'q': "Person"})
 
-        search_response_html = BeautifulSoup(search_response.body)
+        search_response_html = BeautifulSoup(search_response.data)
         user_list = search_response_html.select("ul.user-list li")
         assert len(user_list) == 2
 
@@ -609,12 +565,9 @@ class TestUser(object):
         factories.User(fullname="Person Three")
 
         user_url = url_for("user.index")
-        user_response = app.get(user_url, status=200)
-        search_form = user_response.forms["user-search-form"]
-        search_form["q"] = "useroneemail@example.com"
-        search_response = webtest_submit(search_form, status=200)
+        search_response = app.get(user_url, query_string={'q': "useroneemail@example.com"})
 
-        search_response_html = BeautifulSoup(search_response.body)
+        search_response_html = BeautifulSoup(search_response.data)
         user_list = search_response_html.select("ul.user-list li")
         assert len(user_list) == 0
 
@@ -627,16 +580,11 @@ class TestUser(object):
         factories.User(fullname="Person Two")
         factories.User(fullname="Person Three")
 
-        env = {"REMOTE_USER": sysadmin["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         user_url = url_for("user.index")
-        user_response = app.get(user_url, status=200, extra_environ=env)
-        search_form = user_response.forms["user-search-form"]
-        search_form["q"] = "useroneemail@example.com"
-        search_response = webtest_submit(
-            search_form, status=200, extra_environ=env
-        )
+        search_response = app.get(user_url, query_string={'q': "useroneemail@example.com"}, extra_environ=env)
 
-        search_response_html = BeautifulSoup(search_response.body)
+        search_response_html = BeautifulSoup(search_response.data)
         user_list = search_response_html.select("ul.user-list li")
         assert len(user_list) == 1
         assert user_list[0].text.strip() == "User One"
@@ -729,7 +677,7 @@ class TestUser(object):
         )
 
         url = url_for("user.activity", id=user["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
@@ -802,7 +750,7 @@ class TestUser(object):
         )
 
         url = url_for("group.activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
@@ -818,8 +766,8 @@ class TestUser(object):
 
         offset = url_for("user.request_reset")
         response = app.post(
-            offset, params=dict(user=user["email"]), status=302
-        ).follow()
+            offset, data=dict(user=user["email"])
+        )
 
         assert "A reset link has been emailed to you" in response
         assert send_reset_link.call_args[0][0].id == user["id"]
@@ -830,32 +778,16 @@ class TestUser(object):
 
         offset = url_for("user.request_reset")
         response = app.post(
-            offset, params=dict(user=user["name"]), status=302
-        ).follow()
+            offset, data=dict(user=user["name"])
+        )
 
         assert "A reset link has been emailed to you" in response
         assert send_reset_link.call_args[0][0].id == user["id"]
 
-    @mock.patch("ckan.lib.mailer.send_reset_link")
-    def test_request_reset_when_duplicate_emails(self, send_reset_link, app):
-        user_a = factories.User(email="me@example.com")
-        user_b = factories.User(email="me@example.com")
-
-        offset = url_for("user.request_reset")
-        response = app.post(
-            offset, params=dict(user="me@example.com"), status=302
-        ).follow()
-
-        assert "A reset link has been emailed to you" in response
-        emailed_users = [
-            call[0][0].name for call in send_reset_link.call_args_list
-        ]
-        assert emailed_users == [user_a["name"], user_b["name"]]
-
     def test_request_reset_without_param(self, app):
 
         offset = url_for("user.request_reset")
-        response = app.post(offset).follow()
+        response = app.post(offset)
 
         assert "Email is required" in response
 
@@ -864,8 +796,8 @@ class TestUser(object):
 
         offset = url_for("user.request_reset")
         response = app.post(
-            offset, params=dict(user="unknown"), status=302
-        ).follow()
+            offset, data=dict(user="unknown")
+        )
 
         # doesn't reveal account does or doesn't exist
         assert "A reset link has been emailed to you" in response
@@ -876,8 +808,8 @@ class TestUser(object):
 
         offset = url_for("user.request_reset")
         response = app.post(
-            offset, params=dict(user="unknown@example.com"), status=302
-        ).follow()
+            offset, data=dict(user="unknown@example.com")
+        )
 
         # doesn't reveal account does or doesn't exist
         assert "A reset link has been emailed to you" in response
@@ -896,7 +828,7 @@ class TestUser(object):
             "[Errno 111] Connection refused"
         )
         response = app.post(
-            offset, params=dict(user=user["name"]), status=302
-        ).follow()
+            offset, data=dict(user=user["name"])
+        )
 
         assert "Error sending the email" in response

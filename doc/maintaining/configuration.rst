@@ -58,10 +58,11 @@ details on how to do this check :doc:`/extensions/remote-config-update`.
 CKAN configuration file
 ***********************
 
-By default, the
-configuration file is located at ``/etc/ckan/default/development.ini`` or
-``/etc/ckan/default/production.ini``. This section documents all of the config file
-settings, for reference.
+From CKAN 2.9, by default, the configuration file is located at
+``/etc/ckan/default/ckan.ini``. Previous releases the configuration file(s)
+were:  ``/etc/ckan/default/development.ini`` or
+``/etc/ckan/default/production.ini``. This section documents all of the config
+file settings, for reference.
 
 .. note:: After editing your config file, you need to restart your webserver
    for the changes to take effect.
@@ -103,8 +104,18 @@ Example::
 
 Default value: ``False``
 
-This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
-files, and enables CKAN templates' debugging features.
+This enables Pylons' interactive debugging tool, makes Webassets serve
+unminified JS and CSS files, and enables CKAN templates' debugging
+features.
+
+If you are running CKAN on Apache, you must change the WSGI
+configuration to run on single process environment. otherwise
+the execution will fail to AssertionError: The EvalException
+middleware is not usable in a multi-process environment. Eg. change::
+
+  WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
+  to
+  WSGIDaemonProcess ckan_default display-name=ckan_default threads=15
 
 .. warning:: This option should be set to ``False`` for a public site.
    With debug mode enabled, a visitor to your site could execute malicious
@@ -170,6 +181,21 @@ Default value: False
 This determines whether the secure flag will be set for the repoze.who
 authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
 default in the absence of the setting is ``False``.
+
+.. _who.samesite:
+
+who.samesite
+^^^^^^^^^^^^
+
+Example::
+
+ who.samesite = Strict
+
+Default value: Lax
+
+This determines whether the SameSite flag will be set for the repoze.who
+authorization cookie. Allowed values are ``Lax`` (the default one), ``Strict`` or ``None``.
+If set to ``None``,  ``who.secure`` must be set to ``True``.
 
 
 Database Settings
@@ -607,7 +633,7 @@ Example::
 Default value: ``admin``
 
 
-Makes role permissions apply to all the groups down the hierarchy from the groups that the role is applied to.
+Makes role permissions apply to all the groups or organizations down the hierarchy from the groups or organizations that the role is applied to.
 
 e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
 

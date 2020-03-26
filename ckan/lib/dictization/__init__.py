@@ -24,6 +24,7 @@ except NameError:
 # and saving dictized objects. If a specialised use is needed please do NOT extend
 # these functions.  Copy code from here as needed.
 
+legacy_dict_sort = lambda x: (len(x), dict.items(x))
 
 def table_dictize(obj, context, **kw):
     '''Get any model object and represent it as a dict'''
@@ -72,7 +73,7 @@ def table_dictize(obj, context, **kw):
     return result_dict
 
 
-def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
+def obj_list_dictize(obj_list, context, sort_key=legacy_dict_sort):
     '''Get a list of model object and represent it as a list of dicts'''
 
     result_list = []

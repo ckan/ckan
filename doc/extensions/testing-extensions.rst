@@ -16,8 +16,8 @@ The ``use`` line declares that this config file inherits the settings from the
 config file used to run CKAN's own tests (``../ckan`` should be the path to
 your CKAN source directory, relative to your ``test.ini`` file).
 
-The ``test.ini`` file is a CKAN config file just like your |development.ini|
-and |production.ini| files, and it can contain any
+The ``test.ini`` file is a CKAN config file just like your |ckan.ini|
+file, and it can contain any
 :doc:`CKAN config file settings </maintaining/configuration>` that you want
 CKAN to use when running your tests, for example::
 
@@ -46,11 +46,6 @@ Some notes on how these tests work:
 
 * Pytest has lots of useful functions for testing, see the
   `pytest documentation <https://docs.pytest.org/en/latest/>`_.
-
-* We're using a :class:`paste.fixture.TestApp` object to simulate sending HTTP
-  requests to the CKAN API or frontend.
-  See `Testing Applications with Paste <http://pythonpaste.org/testing-applications.html>`_
-  for some documentation of this.
 
 * We're calling :func:`ckan.tests.call_action_api` to post (simulated) HTTP
   requests to the CKAN API. This is a convenience function that CKAN provides

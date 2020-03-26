@@ -9,6 +9,7 @@ import ckan.lib.search as search
 from ckan.tests.legacy.functional.api.base import ApiTestCase, Api3TestCase
 from ckan.tests.legacy import setup_test_search_index, CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
+from ckan.tests.helpers import body_contains
 
 
 class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
@@ -57,9 +58,8 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     def test_04_post_json(self):
         query = {"q": self.package_fixture_data["name"]}
-        json_query = self.dumps(query)
         offset = self.base_url
-        res = self.app.post(offset, params=json_query, status=200)
+        res = self.app.post(offset, json=query, status=200)
         res_dict = self.data_from_res(res)
         self.assert_results(res_dict, "testpkg")
         assert res_dict["result"]["count"] == 1, res_dict["result"]["count"]
@@ -99,12 +99,12 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def test_12_filter_by_openness(self):
         offset = self.base_url + "?filter_by_openness=1"
         res = self.app.get(offset, status=400)  # feature dropped in #1360
-        assert "'filter_by_openness'" in res.body, res.body
+        assert body_contains(res, "'filter_by_openness'")
 
     def test_12_filter_by_downloadable(self):
         offset = self.base_url + "?filter_by_downloadable=1"
         res = self.app.get(offset, status=400)  # feature dropped in #1360
-        assert "'filter_by_downloadable'" in res.body, res.body
+        assert body_contains(res, "'filter_by_downloadable'")
 
 
 class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
@@ -140,8 +140,8 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
             self.base_url + "?all_fields=should_be_boolean"
         )  # invalid all_fields value
         res = self.app.get(offset, status=400)
-        assert "boolean" in res.body
-        assert "all_fields" in res.body
+        assert body_contains(res, "boolean")
+        assert body_contains(res, "all_fields")
         self.assert_json_response(res, "boolean")
 
     def test_09_just_tags(self):
@@ -222,14 +222,15 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
             + "?fl=*&q=tags:russian&start=should_be_integer&rows=1&sort=name asc"
         )  # invalid offset value
         res = self.app.get(offset, status=409)
-        assert "Validation Error" in res.body
+        assert body_contains(res, "Validation Error")
 
     def test_12_v1_or_v2_syntax(self):
         offset = self.base_url + "?all_fields=1"
         res = self.app.get(offset, status=400)
-        assert (
-            "Invalid search parameters: ['all_fields']" in res.body
-        ), res.body
+        assert body_contains(
+            res,
+            "Invalid search parameters: ['all_fields']"
+        )
 
     def test_13_just_groups(self):
         offset = self.base_url + "?q=groups:roger"
