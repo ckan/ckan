@@ -1202,6 +1202,8 @@ class TestApiToken(object):
             u"model": model,
             u"user": user[u"name"]
         }, user=user[u"name"], name=u"token-name")
+
+        token = p.toolkit.jwt_decode(token)['token']
         res = model.ApiToken.get(token)
         assert res.user_id == user[u"id"]
         assert res.last_access is None

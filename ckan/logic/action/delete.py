@@ -778,10 +778,18 @@ def api_token_revoke(context, data_dict):
     .. versionadded:: 2.9
     """
     token = _get_or_bust(data_dict, u'token')
-    _check_access(u'api_token_revoke', context, data_dict)
+    decoders = plugins.PluginImplementations(plugins.IApiToken)
+    for plugin in decoders:
+        data = plugin.decode_api_token(token)
+        if data:
+            break
+    else:
+        data = plugins.toolkit.jwt_decode(token)
+
+    _check_access(u'api_token_revoke', context, data)
 
     model = context['model']
-    token = model.Session.query(model.ApiToken).get(token)
+    token = model.Session.query(model.ApiToken).get(data['token'])
     if token is None:
         raise NotFound
 

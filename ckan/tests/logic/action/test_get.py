@@ -14,6 +14,7 @@ import ckan.logic.schema as schema
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+import ckan.plugins.toolkit as tk
 from ckan import __version__
 from ckan.lib.search.common import SearchError
 
@@ -4281,7 +4282,7 @@ class TestApiToken(object):
                 u"model": model,
                 u"user": user[u"name"]
             }, user=user[u"name"], name=u"token-name")
-            ids.append(token)
+            ids.append(tk.jwt_decode(token)['token'])
 
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,
