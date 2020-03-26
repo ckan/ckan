@@ -790,6 +790,7 @@ def job_clear_schema(ignore_missing, list_of_strings):
         u'queues': [ignore_missing, list_of_strings],
     }
 
+
 @validator_args
 def default_create_api_token_schema(not_empty, unicode_safe):
     return {

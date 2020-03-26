@@ -22,7 +22,8 @@ def upgrade():
         sa.Column(u"name", sa.UnicodeText),
         sa.Column(u"user_id", sa.UnicodeText, sa.ForeignKey(u"user.id")),
         sa.Column(
-            u"created_at", sa.DateTime, server_default=sa.func.current_timestamp()
+            u"created_at", sa.DateTime,
+            server_default=sa.func.current_timestamp()
         ),
         sa.Column(u"last_access", sa.DateTime, nullable=True),
     )

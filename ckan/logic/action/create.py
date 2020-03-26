@@ -1504,13 +1504,11 @@ def api_token_create(context, data_dict):
     if errors:
         raise ValidationError(errors)
 
-
     api_token = model_save.api_token_save(
         {'user': user, 'name': name}, context
     )
     model.Session.commit()
     data = {'token': api_token.id}
-
 
     for plugin in encoders:
         data = plugin.postprocess_api_token(data, api_token.id, data_dict)
