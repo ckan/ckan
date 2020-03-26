@@ -35,7 +35,5 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
         token = data["token"]
         obj = model.ApiToken.get(token)
         if obj and expires_at < datetime.now():
-            get_action(u"api_token_revoke")(
-                {u"model": model, u"user": obj.owner.name}, {u"token": token}
-            )
+            model.ApiToken.revoke(token)
         return data

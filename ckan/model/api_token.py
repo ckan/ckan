@@ -40,6 +40,13 @@ class ApiToken(object):
 
         return meta.Session.query(cls).get(id)
 
+    @classmethod
+    def revoke(cls, id):
+        token = meta.Session.query(cls).get(id)
+        if token:
+            meta.Session.delete(token)
+            meta.Session.commit()
+
     def touch(self, commit=False):
         self.last_access = datetime.datetime.utcnow()
         if commit:
