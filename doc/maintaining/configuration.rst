@@ -141,14 +141,42 @@ maintain compatibility.
 Development Settings
 --------------------
 
-.. _ckan.dev.server.watcher.extra_files:
+.. _ckan.devserver.threaded:
 
-ckan.dev.server.watcher.extra_files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ckan.devserver.threaded
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.dev.server.watcher.extra_files = /var/run/xxx.sock %(here)s/schemas/*.json
+  ckan.devserver.threaded = true
+
+Default value: False
+
+Controls, whether development server handle each request in a separate
+thread.
+
+.. _ckan.devserver.multiprocess:
+
+ckan.devserver.multiprocess
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.multiprocess = 8
+
+Default value: 1
+
+If greater than 1 then handle each request in a new process up to this
+maximum number of concurrent processes.
+
+.. _ckan.devserver.watch_patterns:
+
+ckan.devserver.watch_patterns
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.watch_patterns = mytheme/**/*.yaml mytheme/**/*.json
 
 Default value: None
 
