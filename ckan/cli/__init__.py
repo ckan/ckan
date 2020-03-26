@@ -63,7 +63,7 @@ def error_shout(exception):
     click.secho(str(exception), fg=u'red', err=True)
 
 
-def load_config(ini_path=None):
+def load_config(ini_path=None, setup_logging=True):
     if ini_path:
         if ini_path.startswith(u'~'):
             ini_path = os.path.expanduser(ini_path)
@@ -91,7 +91,13 @@ def load_config(ini_path=None):
         exit(msg)
 
     config_loader = CKANConfigLoader(filename)
-    loggingFileConfig(filename)
+    if setup_logging:
+        loggingFileConfig(filename)
+    else:
+        # Some CLI comands don't want any logging polluting our stdout or
+        # stderr. Use NullHandler to avoid "No handler found" warnings.
+        root_logger = logging.getLogger()
+        root_logger.addHandler(logging.NullHandler())
     log.info(u'Using configuration file {}'.format(filename))
 
     return config_loader.get_config()

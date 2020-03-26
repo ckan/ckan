@@ -39,22 +39,29 @@ log = logging.getLogger(__name__)
 
 class CkanCommand(object):
 
-    def __init__(self, conf=None):
+    def __init__(self, conf=None, setup_logging=True):
         # Don't import `load_config` by itself, rather call it using
         # module so that it can be patched during tests
-        self.config = ckan_cli.load_config(conf)
+        self.config = ckan_cli.load_config(conf, setup_logging=setup_logging)
         self.app = make_app(self.config)
 
 
 def _init_ckan_config(ctx, param, value):
+    setup_logging = True
+    if len(sys.argv) > 1 and \
+            sys.argv[-2:] == [u'datastore', u'set-permissions']:
+        # Turn off logging when doing:
+        #   ckan datastore set-permissions
+        # otherwise the output gets in the way when we pipe it to psql
+        setup_logging = False
 
     # Some commands don't require the config loaded
-    if (len(sys.argv) > 1 and not value
+    if (len(sys.argv) > 1 and not config_filepath
             and sys.argv[1] in (u'generate', u'config-tool')) \
             or u'--help' in sys.argv:
         return
 
-    ctx.obj = CkanCommand(value)
+    ctx.obj = CkanCommand(value, setup_logging)
     if six.PY2:
         ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
     else:
