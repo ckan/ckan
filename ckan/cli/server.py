@@ -6,6 +6,7 @@ import click
 from werkzeug.serving import run_simple
 
 from ckan.common import config
+import ckan.plugins.toolkit as tk
 
 log = logging.getLogger(__name__)
 
@@ -19,14 +20,24 @@ log = logging.getLogger(__name__)
     help=u'Handle each request in a separate thread'
 )
 @click.option(u'-e', u'--extra-files', multiple=True)
+@click.option(
+    u'--processes', type=int,
+    default=1,
+    help=u'Maximum number of concurrent processes'
+)
 @click.pass_context
-def run(ctx, host, port, reloader, threaded, extra_files):
+def run(ctx, host, port, reloader, threaded, extra_files, processes):
     u'''Runs the Werkzeug development server'''
+    if threaded and processes > 1:
+        tk.error_shout(
+            u'Cannot have a multithreaded and multi process server'
+        )
+        raise click.Abort()
 
     log.info(u"Running server {0} on port {1}".format(host, port))
-
     extra_files = list(extra_files) + [
-        config['__file__'],
+        config[u'__file__'],
+        tk.aslist(config.get(u'ckan.dev.server.watcher.extra_files'))
     ]
     run_simple(
         host,
@@ -35,4 +46,5 @@ def run(ctx, host, port, reloader, threaded, extra_files):
         use_reloader=reloader,
         use_evalex=True,
         threaded=threaded,
+        processes=processes,
         extra_files=extra_files)

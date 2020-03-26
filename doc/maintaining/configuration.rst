@@ -137,6 +137,24 @@ maintain compatibility.
   .. warning:: This configuration will be removed when migration to Flask is completed. Please
     update the extension code to use the new Flask-based route names.
 
+
+Development Settings
+--------------------
+
+.. _ckan.dev.server.watcher.extra_files:
+
+ckan.dev.server.watcher.extra_files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.dev.server.watcher.extra_files = /var/run/xxx.sock %(here)s/schemas/*.json
+
+Default value: None
+
+A list of files the reloader should watch additionally to the
+modules. For example configuration files.
+
 Repoze.who Settings
 -------------------
 
