@@ -22,6 +22,7 @@ api_token_table = Table(
     Column(u'id', types.UnicodeText, primary_key=True, default=_make_token),
     Column(u'name', types.UnicodeText),
     Column(u'user_id', types.UnicodeText, ForeignKey(u'user.id')),
+    Column(u'created_at', types.DateTime, default=datetime.datetime.utcnow),
     Column(u'last_access', types.DateTime, nullable=True),
 )
 

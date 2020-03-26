@@ -1496,7 +1496,16 @@ def api_token_create(context, data_dict):
         {'user': user, 'name': name}, context
     )
     model.Session.commit()
-    token = api_token.id
-    for plugin in plugins.PluginImplementations(plugins.IApiToken):
-        token = plugin.postprocess_api_token(token, api_token.id)
+    data = {'token': api_token.id}
+
+    encoders = plugins.PluginImplementations(plugins.IApiToken)
+    for plugin in encoders:
+        data = plugin.postprocess_api_token(data, api_token.id, data_dict)
+    for plugin in encoders:
+        token = plugin.encode_api_token(data)
+        if token:
+            break
+    else:
+        token = plugins.toolkit.jwt_encode(data)
+
     return token

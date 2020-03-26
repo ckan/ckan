@@ -1,0 +1,9 @@
+{% ckan_extends %}
+
+{% import 'macros/form.html' as form %}
+
+{% block additional_fields %}
+  <div class="form-group ">
+    {{ form.input('expires_at', label='Expires at', is_required=true, type='date') }}
+  </div>
+{% endblock additional_fields %}

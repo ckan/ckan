@@ -3,6 +3,8 @@
 level.
 
 """
+import json
+
 import ckan.plugins as p
 import ckan.model as model
 from ckan.logic import get_action
@@ -13,14 +15,20 @@ class ExampleIApiTokenPlugin(p.SingletonPlugin):
     p.implements(p.IApiToken)
 
     # IApiToken
+    def encode_api_token(self, data):
+        return json.dumps(data)
 
-    def postprocess_api_token(self, token, original):
-        return u"!" + token + u"!"
+    def decode_api_token(self, token):
+        return json.loads(token)
 
-    def preprocess_api_token(self, token, original):
+    def postprocess_api_token(self, data, token, data_dict):
+        data[u'token'] = u"!" + token + u"!"
+        return data
+
+    def preprocess_api_token(self, data):
         """Decode token. If it has `last_access` remove it.
         """
-        token = token[1:-1]
+        token = data['token'][1:-1]
         obj = model.ApiToken.get(token)
         if obj.last_access:
             get_action(u'api_token_revoke')({
@@ -29,5 +37,5 @@ class ExampleIApiTokenPlugin(p.SingletonPlugin):
             }, {
                 u'token': token
             })
-
-        return token
+        data['token'] = token
+        return data

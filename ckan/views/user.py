@@ -187,10 +187,15 @@ class ApiTokenView(MethodView):
     def post(self, id):
         context = {u'model': model}
 
+        data_dict = logic.clean_dict(
+            dictization_functions.unflatten(
+                logic.tuplize_dict(logic.parse_params(request.form))))
+
+        data_dict['user'] = id
         try:
             token = logic.get_action(u'api_token_create')(
                 context,
-                {u'user': id, u'name': request.form.get(u'name')}
+                data_dict
             )
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to create API tokens.'))

@@ -1786,42 +1786,76 @@ class IForkObserver(Interface):
 class IApiToken(Interface):
     """Extend functionality of API Tokens.
     """
-    def preprocess_api_token(self, token, original, user):
-        """Parse or convert API Token into correct form.
+    def decode_api_token(self, encoded):
+        """Make an attempt to decode API Token provided in request.
+
+        Decode token if it possible and return dictionary with
+        mandatory `token` key and optional additional items, that will
+        be used further in `preprocess_api_token`.
+
+        :param encoded: API Token provided in request
+        :type encoded: str
+
+        :returns: dictionary with all the decoded fields or None
+        :rtype: dict | None
+
+        """
+        return None
+
+    def encode_api_token(self, data):
+        """Make an attempt to encode API Token.
+
+        Encode token if it possible and return string, that will be
+        shown to user.
+
+        :param data: dictionary, containing all postprocessed data
+        :type data: dict
+
+        :returns: token as encodes string or None
+        :rtype: str | None
+
+        """
+        return None
+
+    def preprocess_api_token(self, data):
+        """Handle additional info from API Token.
 
         Allows decoding or extracting any kind of additional
         information from API Token, before it used for fetching
         current user from database.
 
-        :param token: current form of token(may be already modified by
-            some plugin.)
-        :type token: str
+        :param data: dictionary with all fields that were previously
+            created in `postprocess_api_token` (may be already
+            modified by some plugin.)
+        :type data: dict
 
-        :param original: original form of token, before any modification.
-        :type original: str
-
-        :returns: final form of token that will be passed into other
+        :returns: dictionary that will be passed into other
             plugins and, finally, used for fetching User instance
-        :rtype: str
+        :rtype: dict
 
         """
         return token
 
-    def postprocess_api_token(self, token, original):
+    def postprocess_api_token(self, data, token, data_dict):
         """Encode additional information into API Token.
 
         Allows passing any kind of additional information into API
         Token or performing side effects, before it shown to user.
 
-        :param token: current form of token(may be already modified by
-            some plugin.)
+        :param data: dictionary with `token` item, representing newly
+            generated API Token(may be already modified by some
+            plugin.)
+        :type data: dict
+
+        :param token: token itself
         :type token: str
 
-        :param original: original form of token, before any modification.
-        :type original: str
+        :param data_dict: data used for token creation.
+        :type data_dict: dict
 
-        :returns: final form of token that will be used as API Token
-        :rtype: str
+        :returns: dictionary with fields that will be encoded into
+            final API Token
+        :rtype: dict
 
         """
         return token

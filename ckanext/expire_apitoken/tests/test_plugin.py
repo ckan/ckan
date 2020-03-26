@@ -11,7 +11,7 @@ import ckan.tests.helpers as helpers
 from ckan.lib.helpers import url_for
 
 
-@pytest.mark.ckan_config(u'ckan.plugins', u'example_iapitoken')
+@pytest.mark.ckan_config(u'ckan.plugins', u'expire_apitoken')
 @pytest.mark.usefixtures(u'clean_db', u'with_plugins')
 class TestIApiTokenPlugin(object):
     def test_token_is_encoded(self):

@@ -205,16 +205,9 @@ def _get_user_for_apikey():
     log.debug(u'Received API Key: %s' % apikey)
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()
-    if user is None:
-        api_token = apikey
-        for plugin in reversed(list(p.PluginImplementations(p.IApiToken))):
-            api_token = plugin.preprocess_api_token(api_token, apikey)
 
-        api_token = model.Session.query(model.ApiToken).get(api_token)
-        if api_token is None:
-            return None
-        api_token.touch(True)
-        user = api_token.owner
+    if not user:
+        user = _get_user_from_apitoken(apikey)
     return user
 
 
@@ -269,3 +262,29 @@ def set_ckan_current_url(environ):
         environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
     else:
         environ[u'CKAN_CURRENT_URL'] = path_info
+
+
+def _get_user_from_apitoken(token, update_access_time=True):
+    decoders = list(p.PluginImplementations(p.IApiToken))
+    for plugin in decoders:
+        data = plugin.decode_api_token(token)
+        if data:
+            break
+    else:
+        data = p.toolkit.jwt_decode(token)
+
+    if not data:
+        return
+    # do preprocessing in reverse order, allowing onion-like
+    # "unwrapping" of the data, added during postprocessing, when
+    # token was created
+    for plugin in reversed(decoders):
+        data = plugin.preprocess_api_token(data)
+    if 'token' not in data:
+        return
+    api_token = model.Session.query(model.ApiToken).get(data['token'])
+    if not api_token:
+        return
+    if update_access_time:
+        api_token.touch(True)
+    return api_token.owner
