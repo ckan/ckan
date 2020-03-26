@@ -1851,7 +1851,7 @@ class IApiToken(Interface):
         :rtype: dict
 
         """
-        return token
+        return data
 
     def postprocess_api_token(self, data, token, data_dict):
         """Encode additional information into API Token.
@@ -1875,7 +1875,7 @@ class IApiToken(Interface):
         :rtype: dict
 
         """
-        return token
+        return data
 
 
 class IClick(Interface):
