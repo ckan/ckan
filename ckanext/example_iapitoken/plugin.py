@@ -15,6 +15,10 @@ class ExampleIApiTokenPlugin(p.SingletonPlugin):
     p.implements(p.IApiToken)
 
     # IApiToken
+
+    def create_api_token_schema(self, schema):
+        return schema
+
     def encode_api_token(self, data):
         return json.dumps(data)
 

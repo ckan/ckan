@@ -1786,6 +1786,23 @@ class IForkObserver(Interface):
 class IApiToken(Interface):
     """Extend functionality of API Tokens.
     """
+
+    def create_api_token_schema(self, schema):
+        u'''Return the schema for validating new API tokens.
+
+        :param schema: a dictionary mapping api_token dict keys to lists of
+          validator and converter functions to be applied to those
+          keys
+        :type schema: dict
+
+        :returns: a dictionary mapping api_token dict keys to lists of
+          validator and converter functions to be applied to those
+          keys
+        :rtype: dict
+
+        '''
+        return schema
+
     def decode_api_token(self, encoded):
         """Make an attempt to decode API Token provided in request.
 

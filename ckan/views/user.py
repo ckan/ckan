@@ -156,7 +156,7 @@ def read(id):
 
 
 class ApiTokenView(MethodView):
-    def get(self, id):
+    def get(self, id, data=None, errors=None, error_summary=None):
         context = {
             u'model': model,
             u'session': model.Session,
@@ -182,6 +182,11 @@ class ApiTokenView(MethodView):
         if extra_vars is None:
             return h.redirect_to(u'user.login')
         extra_vars[u'tokens'] = tokens
+        extra_vars.update({
+            u'data': data,
+            u'errors': errors,
+            u'error_summary': error_summary
+        })
         return base.render(u'user/api_tokens.html', extra_vars)
 
     def post(self, id):
@@ -199,6 +204,10 @@ class ApiTokenView(MethodView):
             )
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to create API tokens.'))
+        except logic.ValidationError as e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.get(id, data_dict, errors, error_summary)
 
         copy_btn = dom_tags.button(dom_tags.i(u'', {
             u'class': u'fa fa-copy'

@@ -1492,13 +1492,26 @@ def api_token_create(context, data_dict):
 
     _check_access('api_token_create', context, data_dict)
 
+    encoders = plugins.PluginImplementations(plugins.IApiToken)
+    schema = context.get('schema')
+    if not schema:
+        schema = ckan.logic.schema.default_create_api_token_schema()
+        for plugin in encoders:
+            schema = plugin.create_api_token_schema(schema)
+
+    validated_data_dict, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        raise ValidationError(errors)
+
+
     api_token = model_save.api_token_save(
         {'user': user, 'name': name}, context
     )
     model.Session.commit()
     data = {'token': api_token.id}
 
-    encoders = plugins.PluginImplementations(plugins.IApiToken)
+
     for plugin in encoders:
         data = plugin.postprocess_api_token(data, api_token.id, data_dict)
     for plugin in encoders:

@@ -4,6 +4,6 @@
 
 {% block additional_fields %}
   <div class="form-group ">
-    {{ form.input('expires_at', label='Expires at', is_required=true, type='date') }}
+    {{ form.input('expires_at', label='Expires at', is_required=true, type='date', value=data.expires_at, error=errors.expires_at) }}
   </div>
 {% endblock additional_fields %}

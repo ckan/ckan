@@ -5,9 +5,11 @@
 {% block page_primary_action %}
   {% if h.check_access('api_token_create', {'user': user['name']}) %}
     <form method="POST" class="form">
+      {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
+
       {% block base_fields %}
         <div class="form-group ">
-            {{ form.input('name', label='Name', is_required=True) }}
+            {{ form.input('name', label='Name', is_required=True, value=data.name, error=errors.name) }}
         </div>
       {% endblock base_fields %}
       {% block additional_fields %}
