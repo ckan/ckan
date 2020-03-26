@@ -786,9 +786,9 @@ def api_token_revoke(context, data_dict):
     else:
         data = plugins.toolkit.jwt_decode(token)
 
-    if not data or 'token' not in data:
+    if not data or u'token' not in data:
         return
 
     _check_access(u'api_token_revoke', context, data)
-
-    model.ApiToken.revoke(data['token'])
+    model = context[u'model']
+    model.ApiToken.revoke(data[u'token'])
