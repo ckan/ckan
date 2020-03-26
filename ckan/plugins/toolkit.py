@@ -526,14 +526,18 @@ content type, cookies, etc.
         return endpoint
 
     @classmethod
-    def _jwt_decode(self, encoded):
-        import json
-        return json.loads(encoded)
+    def _jwt_decode(cls, encoded):
+        import jwt
+        from ckan.common import config
+        secret = config.get('beaker.session.secret')
+        return jwt.decode(encoded, secret)
 
     @classmethod
-    def _jwt_encode(self, data):
-        import json
-        return json.dumps(data)
+    def _jwt_encode(cls, data):
+        import jwt
+        from ckan.common import config
+        secret = config.get('beaker.session.secret')
+        return jwt.encode(data, secret)
 
     def __getattr__(self, name):
         ''' return the function/object requested '''

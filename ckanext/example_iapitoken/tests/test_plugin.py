@@ -7,7 +7,7 @@ import six
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-
+import ckan.plugins.toolkit as tk
 from ckan.lib.helpers import url_for
 
 

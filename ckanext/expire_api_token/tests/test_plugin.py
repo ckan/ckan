@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 from datetime import datetime, timedelta
 
 import pytest
@@ -28,7 +27,7 @@ class TestExpireApiTokenPlugin(object):
             expires_at=(now + timedelta(days=1)).strftime("%Y-%m-%d"),
         )
 
-        data = json.loads(token)
+        data = tk.jwt_decode(token)
         id = data["token"]
         assert model.ApiToken.get(id)
 

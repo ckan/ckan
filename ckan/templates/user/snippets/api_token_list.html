@@ -29,9 +29,6 @@
           {% set action = h.url_for("user.api_token_revoke", id=user['name'], token=token['id']) %}
           <form action="{{ action }}" method="POST">
             <div class="btn-group">
-              <button type="button" class="btn btn-default btn-sm" title="{{ _('Copy') }}" data-module="copy-into-buffer" data-module-value="{{ token['id'] }}">
-                <i class="fa fa-copy"></i>
-              </button>
               <button type="submit" href="{{ action }}" class="btn btn-danger btn-sm" title="{{ _('Revoke') }}" data-module="confirm-action">
                 <i class="fa fa-times"></i>
               </button>

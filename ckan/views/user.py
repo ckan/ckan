@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
-from six import text_type
+from six import text_type, ensure_str
 import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
@@ -215,14 +215,15 @@ class ApiTokenView(MethodView):
             u'type': u'button',
             u'class': u'btn btn-default btn-xs',
             u'data-module': u'copy-into-buffer',
-            u'data-module-value': token
+            u'data-module-value': ensure_str(token)
         })
         h.flash_success(
             _(
-                u'API Token created: <code>{token}</code> {copy}<br>'
+                u'API Token created: <code style="word-break:break-all;">'
+                u'{token}</code> {copy}<br>'
                 u'Make sure to copy it now. '
                 u'It can be impossible to see it again!'
-            ).format(token=token, copy=copy_btn),
+            ).format(token=ensure_str(token), copy=copy_btn),
             True
         )
         return h.redirect_to(u'user.api_tokens', id=id)

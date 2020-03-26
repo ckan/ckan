@@ -21,6 +21,7 @@ flask==1.1.1
 idna==2.8                 # via requests
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.1
+PyJWT==1.7.1
 lxml==4.4.2               # via feedgen
 mako==1.1.0               # via alembic
 markdown==2.6.7
