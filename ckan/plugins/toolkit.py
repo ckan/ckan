@@ -1,9 +1,6 @@
 # encoding: utf-8
 
 import sys
-import logging
-
-log = logging.getLogger(__name__)
 
 
 class _Toolkit(object):
@@ -532,6 +529,9 @@ content type, cookies, etc.
     def _jwt_decode(cls, encoded):
         import jwt
         from ckan.common import config
+        import logging
+
+        log = logging.getLogger(__name__)
         secret = config.get('beaker.session.secret')
         try:
             return jwt.decode(encoded, secret)
