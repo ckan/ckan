@@ -1,0 +1,255 @@
+[
+  {
+    "name": "string",
+    "class": "solr.StrField",
+    "sortMissingLast": "true",
+    "omitNorms": "true"
+  },
+  {
+    "name": "boolean",
+    "class": "solr.BoolField",
+    "sortMissingLast": "true",
+    "omitNorms": "true"
+  },
+  {
+    "name": "binary",
+    "class": "solr.BinaryField"
+  },
+  {
+    "name": "int",
+    "class": "solr.IntPointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "float",
+    "class": "solr.FloatPointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "long",
+    "class": "solr.LongPointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "double",
+    "class": "solr.DoublePointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "pint",
+    "class": "solr.IntPointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "pfloat",
+    "class": "solr.FloatPointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "plong",
+    "class": "solr.LongPointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "pdouble",
+    "class": "solr.DoublePointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "date",
+    "class": "solr.DatePointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "pdate",
+    "class": "solr.DatePointField",
+    "omitNorms": "true",
+    "positionIncrementGap": "0"
+  },
+  {
+    "name": "pdates",
+    "class": "solr.DatePointField",
+    "positionIncrementGap": "0",
+    "multiValued": "true"
+  },
+  {
+    "name": "booleans",
+    "class": "solr.BoolField",
+    "sortMissingLast": "true",
+    "multiValued": "true"
+  },
+  {
+    "name": "pints",
+    "class": "solr.IntPointField",
+    "positionIncrementGap": "0",
+    "multiValued": "true"
+  },
+  {
+    "name": "pfloats",
+    "class": "solr.FloatPointField",
+    "positionIncrementGap": "0",
+    "multiValued": "true"
+  },
+  {
+    "name": "plongs",
+    "class": "solr.LongPointField",
+    "positionIncrementGap": "0",
+    "multiValued": "true"
+  },
+  {
+    "name": "pdoubles",
+    "class": "solr.DoublePointField",
+    "positionIncrementGap": "0",
+    "multiValued": "true"
+  },
+  {
+    "name": "text",
+    "class": "solr.TextField",
+    "positionIncrementGap": "100",
+    "indexAnalyzer": {
+      "tokenizer": {
+        "class": "solr.WhitespaceTokenizerFactory"
+      },
+      "filters": [
+        {
+          "class": "solr.WordDelimiterFilterFactory",
+          "generateWordParts": "1",
+          "generateNumberParts": "1",
+          "catenateWords": "1",
+          "catenateNumbers": "1",
+          "catenateAll": "0",
+          "splitOnCaseChange": "1"
+        },
+        {
+          "class": "solr.LowerCaseFilterFactory"
+        },
+        {
+          "class": "solr.SnowballPorterFilterFactory",
+          "language": "English",
+          "protected": "protwords.txt"
+        },
+        {
+          "class": "solr.ASCIIFoldingFilterFactory"
+        }
+      ]
+    },
+    "queryAnalyzer": {
+      "tokenizer": {
+        "class": "solr.WhitespaceTokenizerFactory"
+      },
+      "filters": [
+        {
+          "class": "solr.SynonymFilterFactory",
+          "synonyms": "synonyms.txt",
+          "ignoreCase": "true",
+          "expand": "true"
+        },
+        {
+          "class": "solr.WordDelimiterFilterFactory",
+          "generateWordParts": "1",
+          "generateNumberParts": "1",
+          "catenateWords": "0",
+          "catenateNumbers": "0",
+          "catenateAll": "0",
+          "splitOnCaseChange": "1"
+        },
+        {
+          "class": "solr.LowerCaseFilterFactory"
+        },
+        {
+          "class": "solr.SnowballPorterFilterFactory",
+          "language": "English",
+          "protected": "protwords.txt"
+        },
+        {
+          "class": "solr.ASCIIFoldingFilterFactory"
+        }
+      ]
+    }
+  },
+  {
+    "name": "text_general",
+    "class": "solr.TextField",
+    "positionIncrementGap": "100",
+    "indexAnalyzer": {
+      "tokenizer": {
+        "class": "solr.WhitespaceTokenizerFactory"
+      },
+      "filters": [
+        {
+          "class": "solr.WordDelimiterFilterFactory",
+          "generateWordParts": "1",
+          "generateNumberParts": "1",
+          "catenateWords": "1",
+          "catenateNumbers": "1",
+          "catenateAll": "0",
+          "splitOnCaseChange": "0"
+        },
+        {
+          "class": "solr.LowerCaseFilterFactory"
+        }
+      ]
+    },
+    "queryAnalyzer": {
+      "tokenizer": {
+        "class": "solr.WhitespaceTokenizerFactory"
+      },
+      "filters": [
+        {
+          "class": "solr.SynonymFilterFactory",
+          "synonyms": "synonyms.txt",
+          "ignoreCase": "true",
+          "expand": "true"
+        },
+        {
+          "class": "solr.WordDelimiterFilterFactory",
+          "generateWordParts": "1",
+          "generateNumberParts": "1",
+          "catenateWords": "0",
+          "catenateNumbers": "0",
+          "catenateAll": "0",
+          "splitOnCaseChange": "0"
+        },
+        {
+          "class": "solr.LowerCaseFilterFactory"
+        }
+      ]
+    }
+  },
+  {
+    "name": "text_ngram",
+    "class": "solr.TextField",
+    "positionIncrementGap": "100",
+    "indexAnalyzer": {
+      "tokenizer": {
+        "class": "solr.NGramTokenizerFactory",
+        "minGramSize": "2",
+        "maxGramSize": "10"
+      },
+      "filters": [
+        {
+          "class": "solr.LowerCaseFilterFactory"
+        }
+      ]
+    },
+    "queryAnalyzer": {
+      "tokenizer": {
+        "class": "solr.WhitespaceTokenizerFactory"
+      },
+      "filters": [
+        {
+          "class": "solr.LowerCaseFilterFactory"
+        }
+      ]
+    }
+  }
+]

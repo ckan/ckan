@@ -1,0 +1,36 @@
+[
+  {
+    "name": "*_date",
+    "type": "date",
+    "indexed": "true",
+    "stored": "true",
+    "multiValued": "false"
+  },
+  {
+    "name": "extras_*",
+    "type": "text",
+    "indexed": "true",
+    "stored": "true",
+    "multiValued": "false"
+  },
+  {
+    "name": "res_extras_*",
+    "type": "text",
+    "indexed": "true",
+    "stored": "true",
+    "multiValued": "true"
+  },
+  {
+    "name": "vocab_*",
+    "type": "string",
+    "indexed": "true",
+    "stored": "true",
+    "multiValued": "true"
+  },
+  {
+    "name": "*",
+    "type": "string",
+    "indexed": "true",
+    "stored": "false"
+  }
+]

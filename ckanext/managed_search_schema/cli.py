@@ -15,8 +15,8 @@ log = logging.getLogger(__name__)
 
 field_groups = [
     u"copy-field",
-    u"field",
     u"dynamic-field",
+    u"field",
     u"field-type",
 ]
 
@@ -49,7 +49,7 @@ class Solr(object):
                     [dict(name=field[u"name"]) for field in schema[key]]
                 }
             resp = self._post(data)
-            log.debug(u"Solr schema API. Delete %s: %s", group, resp)
+            log.info(u"Solr schema API. Delete %s: %s", group, pformat(resp))
 
     def create_schema(self, groups):
         self.clear_schema(groups)
@@ -60,7 +60,7 @@ class Solr(object):
         for group in reversed(groups):
             data = {u"add-" + group: definitions[group]}
             resp = self._post(data)
-            log.debug(u"Solr schema API. add %s: %s", group, pformat(resp))
+            log.info(u"Solr schema API. add %s: %s", group, pformat(resp))
 
     def _post(self, data):
 

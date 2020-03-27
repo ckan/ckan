@@ -1,0 +1,90 @@
+[
+  {
+    "source": "url",
+    "dest": "urls"
+  },
+  {
+    "source": "title",
+    "dest": "title_ngram"
+  },
+  {
+    "source": "name",
+    "dest": "name_ngram"
+  },
+  {
+    "source": "ckan_url",
+    "dest": "urls"
+  },
+  {
+    "source": "download_url",
+    "dest": "urls"
+  },
+  {
+    "source": "res_url",
+    "dest": "urls"
+  },
+  {
+    "source": "extras_*",
+    "dest": "text"
+  },
+  {
+    "source": "res_extras_*",
+    "dest": "text"
+  },
+  {
+    "source": "vocab_*",
+    "dest": "text"
+  },
+  {
+    "source": "urls",
+    "dest": "text"
+  },
+  {
+    "source": "name",
+    "dest": "text"
+  },
+  {
+    "source": "title",
+    "dest": "text"
+  },
+  {
+    "source": "text",
+    "dest": "text"
+  },
+  {
+    "source": "license",
+    "dest": "text"
+  },
+  {
+    "source": "notes",
+    "dest": "text"
+  },
+  {
+    "source": "tags",
+    "dest": "text"
+  },
+  {
+    "source": "groups",
+    "dest": "text"
+  },
+  {
+    "source": "organization",
+    "dest": "text"
+  },
+  {
+    "source": "res_name",
+    "dest": "text"
+  },
+  {
+    "source": "res_description",
+    "dest": "text"
+  },
+  {
+    "source": "maintainer",
+    "dest": "text"
+  },
+  {
+    "source": "author",
+    "dest": "text"
+  }
+]
