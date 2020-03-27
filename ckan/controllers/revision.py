@@ -123,8 +123,19 @@ class RevisionController(base.BaseController):
             return feed.writeString('utf-8')
         else:
             query = model.Session.query(model.Revision)
+            revs = query.limit(20).all()
+            filtered_revs = []
+            for rev in list(revs):
+                private_rev = False
+                for pkg in rev.packages:
+                    if pkg.private:
+                        private_rev = True
+                        break
+                if not private_rev:
+                    filtered_revs.append(rev)
+
             c.page = h.Page(
-                collection=query,
+                collection=filtered_revs,
                 page=h.get_page_number(request.params),
                 url=h.pager_url,
                 items_per_page=20
@@ -140,6 +151,14 @@ class RevisionController(base.BaseController):
 
         pkgs = model.Session.query(model.PackageRevision).\
             filter_by(revision=c.revision)
+
+        context = {'model': model, 'user': c.user}
+        for pkg in c.revision.packages:
+            try:
+                logic.check_access('package_show', context, {'id': pkg.id})
+            except logic.NotAuthorized:
+                base.abort(403, _('Not authorized to see this page'))
+
         c.packages = [pkg.continuity for pkg in pkgs if not pkg.private]
         pkgtags = model.Session.query(model.PackageTagRevision).\
             filter_by(revision=c.revision)
@@ -151,6 +170,7 @@ class RevisionController(base.BaseController):
         return base.render('revision/read.html')
 
     def diff(self, id=None):
+
         if 'diff' not in request.params or 'oldid' not in request.params:
             base.abort(400)
         c.revision_from = model.Session.query(model.Revision).get(
@@ -161,6 +181,13 @@ class RevisionController(base.BaseController):
         c.diff_entity = request.params.get('diff_entity')
         if c.diff_entity == 'package':
             c.pkg = model.Package.by_name(id)
+
+            context = {'model': model, 'user': c.user}
+            try:
+                logic.check_access('package_show', context, {'id': c.pkg.id})
+            except logic.NotAuthorized:
+                base.abort(403, _('Not authorized to see this page'))
+
             diff = c.pkg.diff(c.revision_to, c.revision_from)
         elif c.diff_entity == 'group':
             c.group = model.Group.by_name(id)
