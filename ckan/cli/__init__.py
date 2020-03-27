@@ -12,11 +12,12 @@ log = logging.getLogger(__name__)
 
 
 class CKANConfigLoader(object):
+    u'''For parsing a CKAN config (ini) file'''
     def __init__(self, filename):
         self.config_file = filename.strip()
-        self.config = dict()
+        self.config = dict()  # the parsed config
         self.parser = ConfigParser()
-        self.section = u'app:main'
+        self.section = u'app:main'  # it only parses this section of the ini
         defaults = {u'__file__': os.path.abspath(self.config_file)}
         self._update_defaults(defaults)
         self._create_config_object()
@@ -64,6 +65,9 @@ def error_shout(exception):
 
 
 def load_config(ini_path=None, setup_logging=True):
+    '''Uses the CKAN config to configure python logging and return the parsed
+    config. (It doesn't store the config anywhere.)
+    '''
     if ini_path:
         if ini_path.startswith(u'~'):
             ini_path = os.path.expanduser(ini_path)
@@ -90,7 +94,6 @@ def load_config(ini_path=None, setup_logging=True):
         msg += u'\n(Given by: %s)' % config_source
         exit(msg)
 
-    config_loader = CKANConfigLoader(filename)
     if setup_logging:
         loggingFileConfig(filename)
     else:
@@ -100,4 +103,5 @@ def load_config(ini_path=None, setup_logging=True):
         root_logger.addHandler(logging.NullHandler())
     log.info(u'Using configuration file {}'.format(filename))
 
+    config_loader = CKANConfigLoader(filename)
     return config_loader.get_config()

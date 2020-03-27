@@ -46,7 +46,7 @@ class CkanCommand(object):
         self.app = make_app(self.config)
 
 
-def _init_ckan_config(ctx, param, value):
+def _init_ckan_config(ctx, param, config_filepath):
     setup_logging = True
     if len(sys.argv) > 1 and \
             sys.argv[-2:] == [u'datastore', u'set-permissions']:
@@ -61,7 +61,7 @@ def _init_ckan_config(ctx, param, value):
             or u'--help' in sys.argv:
         return
 
-    ctx.obj = CkanCommand(value, setup_logging)
+    ctx.obj = CkanCommand(config_filepath, setup_logging)
     if six.PY2:
         ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
     else:
