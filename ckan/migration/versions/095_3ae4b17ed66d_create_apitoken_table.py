@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Create ApiToken table
 
 Revision ID: 3ae4b17ed66d

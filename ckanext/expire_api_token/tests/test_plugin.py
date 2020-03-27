@@ -24,7 +24,7 @@ class TestExpireApiTokenPlugin(object):
             context={u"model": model, u"user": user[u"name"]},
             user=user[u"name"],
             name=u"token-name",
-            expires_at=(now + timedelta(days=1)).strftime("%Y-%m-%d"),
+            expires_at=(now + timedelta(days=1)).strftime(u"%Y-%m-%d"),
         )
 
         data = tk.jwt_decode(token)

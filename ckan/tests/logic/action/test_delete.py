@@ -596,9 +596,3 @@ class TestApiToken(object):
             u"user": user[u"name"]
         }, user=user[u"name"])
         assert len(tokens) == 0
-
-        with pytest.raises(logic.NotFound):
-            helpers.call_action(u"api_token_revoke", context={
-                u"model": model,
-                u"user": user[u"name"]
-            }, token=token)
