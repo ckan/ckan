@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import os
 import re
 import logging
+
+from six.moves.urllib.parse import urlparse, urlunparse
 
 from pprint import pformat
 
@@ -20,6 +23,19 @@ field_groups = [
     u"field-type",
 ]
 
+fixed_fields = {
+    u"field-type": [
+        u"text_general",
+        u"string",
+        u"booleans",
+        u"pdates",
+        u"plong",
+        u"plongs",
+        u"pdoubles",
+    ],
+    u"field": [u"id", u"_version_"],
+}
+
 
 class Solr(object):
     @property
@@ -29,7 +45,11 @@ class Solr(object):
 
     @property
     def schema_url(self):
-        return self.url.rstrip(u"/") + u"/schema"
+        url = urlparse(self.url)
+        url = url._replace(
+            path=os.path.join("api/cores", os.path.basename(url.path), "schema")
+        )
+        return urlunparse(url)
 
     def get_schema(self):
         return requests.get(self.schema_url).json()[u"schema"]
@@ -37,17 +57,20 @@ class Solr(object):
     def clear_schema(self, groups):
         schema = self.get_schema()
         for group in groups:
-            key = re.sub(u"-\\w", lambda m: m.group()[1:].title(),
-                         group) + u"s"
+            key = re.sub(u"-\\w", lambda m: m.group()[1:].title(), group) + u"s"
             if not schema[key]:
                 continue
             if group == u"copy-field":
                 data = {u"delete-" + group: schema[key]}
             else:
-                data = {
-                    u"delete-" + group:
-                    [dict(name=field[u"name"]) for field in schema[key]]
-                }
+                ignored_fields = fixed_fields.get(group, [])
+                fields = [
+                    dict(name=field[u"name"])
+                    for field in schema[key]
+                    if field[u"name"] not in ignored_fields
+                ]
+
+                data = {u"delete-" + group: fields}
             resp = self._post(data)
             log.info(u"Solr schema API. Delete %s: %s", group, pformat(resp))
 
@@ -63,7 +86,6 @@ class Solr(object):
             log.info(u"Solr schema API. add %s: %s", group, pformat(resp))
 
     def _post(self, data):
-
         return requests.post(self.schema_url, json=data).json()
 
 

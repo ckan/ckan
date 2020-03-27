@@ -7,13 +7,6 @@
     "required": "true"
   },
   {
-    "name": "id",
-    "type": "string",
-    "indexed": "true",
-    "stored": "true",
-    "required": "true"
-  },
-  {
     "name": "site_id",
     "type": "string",
     "indexed": "true",
@@ -107,25 +100,25 @@
   },
   {
     "name": "author",
-    "type": "text_general",
+    "type": "text_gen",
     "indexed": "true",
     "stored": "true"
   },
   {
     "name": "author_email",
-    "type": "text_general",
+    "type": "text_gen",
     "indexed": "true",
     "stored": "true"
   },
   {
     "name": "maintainer",
-    "type": "text_general",
+    "type": "text_gen",
     "indexed": "true",
     "stored": "true"
   },
   {
     "name": "maintainer_email",
-    "type": "text_general",
+    "type": "text_gen",
     "indexed": "true",
     "stored": "true"
   },
@@ -190,14 +183,14 @@
   },
   {
     "name": "res_name",
-    "type": "text_general",
+    "type": "text_gen",
     "indexed": "true",
     "stored": "true",
     "multiValued": "true"
   },
   {
     "name": "res_description",
-    "type": "text_general",
+    "type": "text_gen",
     "indexed": "true",
     "stored": "true",
     "multiValued": "true"
@@ -355,12 +348,6 @@
     "name": "validated_data_dict",
     "type": "string",
     "indexed": "false",
-    "stored": "true"
-  },
-  {
-    "name": "_version_",
-    "type": "string",
-    "indexed": "true",
     "stored": "true"
   }
 ]

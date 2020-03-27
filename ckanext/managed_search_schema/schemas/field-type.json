@@ -1,11 +1,5 @@
 [
   {
-    "name": "string",
-    "class": "solr.StrField",
-    "sortMissingLast": "true",
-    "omitNorms": "true"
-  },
-  {
     "name": "boolean",
     "class": "solr.BoolField",
     "sortMissingLast": "true",
@@ -52,12 +46,6 @@
     "positionIncrementGap": "0"
   },
   {
-    "name": "plong",
-    "class": "solr.LongPointField",
-    "omitNorms": "true",
-    "positionIncrementGap": "0"
-  },
-  {
     "name": "pdouble",
     "class": "solr.DoublePointField",
     "omitNorms": "true",
@@ -76,18 +64,6 @@
     "positionIncrementGap": "0"
   },
   {
-    "name": "pdates",
-    "class": "solr.DatePointField",
-    "positionIncrementGap": "0",
-    "multiValued": "true"
-  },
-  {
-    "name": "booleans",
-    "class": "solr.BoolField",
-    "sortMissingLast": "true",
-    "multiValued": "true"
-  },
-  {
     "name": "pints",
     "class": "solr.IntPointField",
     "positionIncrementGap": "0",
@@ -96,18 +72,6 @@
   {
     "name": "pfloats",
     "class": "solr.FloatPointField",
-    "positionIncrementGap": "0",
-    "multiValued": "true"
-  },
-  {
-    "name": "plongs",
-    "class": "solr.LongPointField",
-    "positionIncrementGap": "0",
-    "multiValued": "true"
-  },
-  {
-    "name": "pdoubles",
-    "class": "solr.DoublePointField",
     "positionIncrementGap": "0",
     "multiValued": "true"
   },
@@ -121,7 +85,7 @@
       },
       "filters": [
         {
-          "class": "solr.WordDelimiterFilterFactory",
+          "class": "solr.WordDelimiterGraphFilterFactory",
           "generateWordParts": "1",
           "generateNumberParts": "1",
           "catenateWords": "1",
@@ -148,13 +112,13 @@
       },
       "filters": [
         {
-          "class": "solr.SynonymFilterFactory",
+          "class": "solr.SynonymGraphFilterFactory",
           "synonyms": "synonyms.txt",
           "ignoreCase": "true",
           "expand": "true"
         },
         {
-          "class": "solr.WordDelimiterFilterFactory",
+          "class": "solr.WordDelimiterGraphFilterFactory",
           "generateWordParts": "1",
           "generateNumberParts": "1",
           "catenateWords": "0",
@@ -177,7 +141,7 @@
     }
   },
   {
-    "name": "text_general",
+    "name": "text_gen",
     "class": "solr.TextField",
     "positionIncrementGap": "100",
     "indexAnalyzer": {
@@ -186,7 +150,7 @@
       },
       "filters": [
         {
-          "class": "solr.WordDelimiterFilterFactory",
+          "class": "solr.WordDelimiterGraphFilterFactory",
           "generateWordParts": "1",
           "generateNumberParts": "1",
           "catenateWords": "1",
@@ -205,13 +169,13 @@
       },
       "filters": [
         {
-          "class": "solr.SynonymFilterFactory",
+          "class": "solr.SynonymGraphFilterFactory",
           "synonyms": "synonyms.txt",
           "ignoreCase": "true",
           "expand": "true"
         },
         {
-          "class": "solr.WordDelimiterFilterFactory",
+          "class": "solr.WordDelimiterGraphFilterFactory",
           "generateWordParts": "1",
           "generateNumberParts": "1",
           "catenateWords": "0",
