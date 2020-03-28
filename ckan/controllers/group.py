@@ -4,6 +4,7 @@ import logging
 import datetime
 from six.moves.urllib.parse import urlencode
 
+from collections import OrderedDict
 from pylons.i18n import get_lang
 from six import string_types, text_type
 
@@ -16,7 +17,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, c, config, request, _
+from ckan.common import c, config, request, _
 
 log = logging.getLogger(__name__)
 

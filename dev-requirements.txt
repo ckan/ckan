@@ -5,6 +5,7 @@ coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.12
 factory-boy==2.1.1
 Flask-DebugToolbar==0.10.1
+freezegun==0.3.15
 responses==0.10.6
 mock==2.0.0
 pycodestyle==2.5.0
@@ -18,4 +19,5 @@ cookiecutter==1.6.0
 pytest==4.6.5
 pytest-split-tests==1.0.9
 pytest-cov==2.7.1
+pytest-freezegun==0.4.1
 pytest-rerunfailures==8.0

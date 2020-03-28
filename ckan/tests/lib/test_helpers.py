@@ -150,6 +150,16 @@ class TestHelpersUrlFor(BaseUrlFor):
         generated_url = h.url_for("dataset.read", id="my_dataset", locale="de")
         assert generated_url == url
 
+    @pytest.mark.ckan_config("debug", True)
+    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
+    def test_debugtoolbar_url(self, ckan_config):
+        # test against built-in `url_for`, that is used by debugtoolbar ext.
+        from flask import url_for
+        expected = "/my/custom/path/_debug_toolbar/static/test.js"
+        url = url_for('_debug_toolbar.static', filename='test.js')
+        assert url == expected
+
 
 class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
     def test_url_for_flask_route_new_syntax(self):
@@ -503,6 +513,61 @@ class TestGetDisplayTimezone(object):
 )
 def test_render_datetime(date, extra, exp):
     assert h.render_datetime(date, **extra) == exp
+
+
+@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.freeze_time("2020-02-17 12:00:00")
+@pytest.mark.parametrize(
+    "date, exp",
+    [
+        (
+            datetime.datetime(2020, 2, 17, 11, 59, 30),
+            "Just now",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 59, 0),
+            "1 minute ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 55, 0),
+            "5 minutes ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 0, 0),
+            "1 hour ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 7, 0, 0),
+            "5 hours ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 16, 12, 0, 0),
+            "1 day ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 12, 12, 0, 0),
+            "5 days ago",
+        ),
+        (
+            datetime.datetime(2020, 1, 17, 12, 0, 0),
+            "1 month ago",
+        ),
+        (
+            datetime.datetime(2019, 9, 17, 12, 0, 0),
+            "5 months ago",
+        ),
+        (
+            datetime.datetime(2019, 1, 17, 12, 0, 0),
+            "over 1 year ago",
+        ),
+        (
+            datetime.datetime(2015, 1, 17, 12, 0, 0),
+            "over 5 years ago",
+        ),
+    ]
+)
+def test_time_ago_from_timestamp(date, exp):
+    assert h.time_ago_from_timestamp(date) == exp
 
 
 def test_clean_html_disallowed_tag():

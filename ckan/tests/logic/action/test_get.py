@@ -72,6 +72,7 @@ class TestPackageShow(object):
         replace_number_suffix(dataset2, "name")
         replace_datetime(dataset2, "metadata_created")
         replace_datetime(dataset2, "metadata_modified")
+        replace_datetime(dataset2['resources'][0], "metadata_modified")
         replace_uuid(dataset2["groups"][0], "id")
         replace_number_suffix(dataset2["groups"][0], "name")
         replace_number_suffix(dataset2["groups"][0], "title")
@@ -139,6 +140,7 @@ class TestPackageShow(object):
                     u"hash": u"",
                     u"id": u"<SOME-UUID>",
                     u"last_modified": None,
+                    u"metadata_modified": u"2019-05-24T15:52:30.123456",
                     u"mimetype": None,
                     u"mimetype_inner": None,
                     u"name": u"Image num",
@@ -402,22 +404,26 @@ class TestGroupList(object):
         group1 = factories.Group()
         group2 = factories.Group()
         group3 = factories.Group()
+        group_names = [g["name"] for g in [group1, group2, group3]]
 
         group_list = helpers.call_action("group_list", limit=1)
 
         assert len(group_list) == 1
-        assert group_list[0] == group1["name"]
+        assert group_list[0] == sorted(group_names)[0]
 
     def test_group_list_offset(self):
 
         group1 = factories.Group()
         group2 = factories.Group()
         group3 = factories.Group()
+        group_names = [g["name"] for g in [group1, group2, group3]]
 
         group_list = helpers.call_action("group_list", offset=2)
 
         assert len(group_list) == 1
-        assert group_list[0] == group3["name"]
+        # group list returns sorted result. This is not necessarily
+        # order of creation
+        assert group_list[0] == sorted(group_names)[2]
 
     def test_group_list_limit_and_offset(self):
 
