@@ -1256,7 +1256,7 @@ Defines a list of organization names or ids. This setting is used to display
 an organization and datasets on the home page in the default templates (1
 group and 2 datasets are displayed).
 
-.. _ckan.default_group_sort
+.. _ckan.default_group_sort:
 
 ckan.default_group_sort
 ^^^^^^^^^^^^^^^^^^^^^^^
