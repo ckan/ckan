@@ -773,7 +773,7 @@ visible to everyone.
 .. _ckan.search.default_package_sort:
 
 ckan.search.default_package_sort
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
@@ -1259,7 +1259,7 @@ group and 2 datasets are displayed).
 .. _ckan.default_group_sort
 
 ckan.default_group_sort
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
