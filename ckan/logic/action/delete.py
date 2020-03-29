@@ -325,7 +325,7 @@ def package_member_delete(context, data_dict):
     manage collaborators.
 
     Note: This action requires the collaborators feature to be enabled with
-    the :ref:`ckan.allow_dataset_collaborators` configuration option.
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
 
     :param id: the id or name of the dataset
     :type id: string

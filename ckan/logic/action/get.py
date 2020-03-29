@@ -240,7 +240,7 @@ def package_member_list(context, data_dict):
     manage collaborators.
 
     Note: This action requires the collaborators feature to be enabled with
-    the :ref:`ckan.allow_dataset_collaborators` configuration option.
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
 
     :param id: the id or name of the package
     :type id: string
@@ -287,7 +287,7 @@ def package_member_list_for_user(context, data_dict):
     '''Return a list of all package the user is a collaborator in
 
     Note: This action requires the collaborators feature to be enabled with
-    the :ref:`ckan.allow_dataset_collaborators` configuration option.
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
 
     :param id: the id or name of the user
     :type id: string

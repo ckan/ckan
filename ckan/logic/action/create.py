@@ -630,19 +630,19 @@ def package_member_create(context, data_dict):
     manage collaborators.
 
     Note: This action requires the collaborators feature to be enabled with
-    the :ref:`ckan.allow_dataset_collaborators` configuration option.
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
 
     :param id: the id or name of the dataset
     :type id: string
     :param user_id: the id or name of the user to add or edit
     :type user_id: string
-    :param capacity: the capacity of the membership. Must be one of {}
+    :param capacity: the capacity of the membership. Must be one of "editor"
+        or "member"
     :type capacity: string
 
     :returns: the newly created (or updated) collaborator
     :rtype: dictionary
-
-    '''.format(', '.join(PACKAGE_MEMBER_ALLOWED_CAPACITIES))
+    '''
 
     model = context['model']
 

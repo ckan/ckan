@@ -1374,8 +1374,8 @@ def register_dataset_plugin_rules(blueprint):
 
     blueprint.add_url_rule(
         rule=u'/collaborators/<id>/new',
-        view_func=CollaboratorEditView.as_view('new_collaborator'),
-        methods=['GET', 'POST', ]
+        view_func=CollaboratorEditView.as_view(str(u'new_collaborator')),
+        methods=[u'GET', u'POST', ]
     )
 
     blueprint.add_url_rule(
