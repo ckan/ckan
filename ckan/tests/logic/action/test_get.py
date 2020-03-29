@@ -289,7 +289,6 @@ class TestGroupList(object):
 
         assert group_list == ["bb", "aa"]
 
-
     def test_group_list_sort_default(self):
 
         factories.Group(name="zz", title="aa")
@@ -299,7 +298,7 @@ class TestGroupList(object):
             "group_list"
         )
 
-        assert group_list == [ 'zz', 'yy']
+        assert group_list == ['zz', 'yy']
 
     @pytest.mark.ckan_config("ckan.default_group_sort", "name")
     def test_group_list_sort_from_config(self):
@@ -311,8 +310,7 @@ class TestGroupList(object):
             "group_list"
         )
 
-        assert group_list == [ 'yy', 'zz']
-
+        assert group_list == ['yy', 'zz']
 
     def eq_expected(self, expected_dict, result_dict):
         superfluous_keys = set(result_dict) - set(expected_dict)
