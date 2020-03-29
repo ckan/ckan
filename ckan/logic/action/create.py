@@ -25,6 +25,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
+import ckan.authz as authz
 from ckan.authz import PACKAGE_MEMBER_ALLOWED_CAPACITIES
 
 from ckan.common import _, config
@@ -619,8 +620,6 @@ def member_create(context, data_dict=None):
     return model_dictize.member_dictize(member, context)
 
 
-
-
 def package_member_create(context, data_dict):
     '''Make a user a collaborator in a dataset.
 
@@ -629,6 +628,9 @@ def package_member_create(context, data_dict):
 
     Currently you must be an Admin on the dataset owner organization to
     manage collaborators.
+
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.allow_dataset_collaborators` configuration option.
 
     :param id: the id or name of the dataset
     :type id: string
@@ -663,6 +665,9 @@ def package_member_create(context, data_dict):
         raise NotFound(_('User not found'))
 
     _check_access('package_member_create', context, data_dict)
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
 
     # Check if member already exists
     member = model.Session.query(model.PackageMember). \

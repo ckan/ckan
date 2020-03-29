@@ -277,6 +277,7 @@ class TestUpdate(object):
 
 @pytest.mark.usefixtures('clean_db', 'with_plugins')
 @pytest.mark.ckan_config('ckan.plugins', 'image_view')
+@pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
 class TestUpdateAuthWithCollaborators(object):
 
     def _get_context(self, user):

@@ -131,6 +131,7 @@ def test_sysadmin_user_can_clear():
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDeleteAuth(object):
 
     def _get_context(self, user):

@@ -572,6 +572,20 @@ class TestJobCancel(helpers.FunctionalRQTestBase):
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+def test_delete_package_member_when_config_disabled():
+
+    dataset = factories.Dataset()
+    user = factories.User()
+
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action(
+            'package_member_delete',
+            id=dataset['id'], user_id=user['id'])
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDelete(object):
 
     def test_delete(self):

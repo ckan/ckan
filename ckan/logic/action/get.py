@@ -239,6 +239,9 @@ def package_member_list(context, data_dict):
     Currently you must be an Admin on the package owner organization to
     manage collaborators.
 
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.allow_dataset_collaborators` configuration option.
+
     :param id: the id or name of the package
     :type id: string
     :param capacity: (optional) If provided, only users with this capacity are
@@ -250,20 +253,24 @@ def package_member_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+
     model = context['model']
 
     package_id = _get_or_bust(data_dict, 'id')
 
     package = model.Package.get(package_id)
     if not package:
-        raise NotFound('Package not found')
+        raise NotFound(_('Package not found'))
 
     _check_access('package_member_list', context, data_dict)
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
 
     capacity = data_dict.get('capacity')
     if capacity and capacity not in authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES:
         raise ValidationError(
-            'Capacity must be one of "{}"'.format(', '.join(
+            _('Capacity must be one of "{}"').format(', '.join(
                 authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES)))
     q = model.Session.query(model.PackageMember).\
         filter(model.PackageMember.package_id == package.id)
@@ -278,6 +285,9 @@ def package_member_list(context, data_dict):
 
 def package_member_list_for_user(context, data_dict):
     '''Return a list of all package the user is a collaborator in
+
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.allow_dataset_collaborators` configuration option.
 
     :param id: the id or name of the user
     :type id: string
@@ -298,6 +308,9 @@ def package_member_list_for_user(context, data_dict):
     user = model.User.get(user_id)
     if not user:
         raise NotFound('User not found')
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
 
     _check_access('package_member_list_for_user', context, data_dict)
 

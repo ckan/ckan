@@ -662,11 +662,27 @@ ckan.auth.public_activity_stream_detail
 
 Example::
 
-  ckan.auth.public_activity_stream_detail = true
+  ckan.auth.public_activity_stream_detail = True
 
 Default value: ``False`` (however the default config file template sets it to ``True``)
 
 Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
+
+
+.. _ckan.auth.allow_dataset_collaborators:
+
+ckan.auth.allow_dataset_collaborators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_dataset_collaborators = True
+
+Default value: ``False``
+
+Enables or disable collaborators in individual datasets. If ``True``, in addition to the standard organization based permissions, users can be added as collaborators to individual datasets with different roles, regardless of the organization they belong to. TODO: link to docs
+
+**Important**: If this setting is turned off in a site where there already were collaborators created, you must reindex all datasets to update the permission labels, in order to prevent access to private datasets to the previous collaborators.
 
 
 .. end_config-authorization

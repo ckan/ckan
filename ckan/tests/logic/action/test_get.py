@@ -4270,6 +4270,19 @@ class TestDashboardNewActivities(object):
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+def test_package_member_list_when_config_disabled():
+
+    dataset = factories.Dataset()
+
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action(
+            'package_member_list',
+            id=dataset['id'])
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberList(object):
 
     def test_list(self):
@@ -4416,6 +4429,7 @@ class TestPackageMemberList(object):
 
 
 @pytest.mark.usefixtures('clean_db', 'clean_index')
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestCollaboratorsSearch(object):
 
     def test_search_results_editor(self):

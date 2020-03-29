@@ -365,6 +365,7 @@ class TestRealUsersAuth(object):
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreateAuth(object):
 
     def _get_context(self, user):

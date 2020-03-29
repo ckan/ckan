@@ -6,6 +6,7 @@ from ckan.tests import helpers, factories
 
 @pytest.mark.ckan_config('ckan.plugins', 'datastore')
 @pytest.mark.usefixtures('clean_db', 'with_plugins')
+@pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
 class TestCollaboratorsDataStore():
 
     def _get_context(self, user):

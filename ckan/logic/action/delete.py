@@ -324,6 +324,9 @@ def package_member_delete(context, data_dict):
     Currently you must be an Admin on the dataset owner organization to
     manage collaborators.
 
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.allow_dataset_collaborators` configuration option.
+
     :param id: the id or name of the dataset
     :type id: string
     :param user_id: the id or name of the user to remove
@@ -339,6 +342,9 @@ def package_member_delete(context, data_dict):
     )
 
     _check_access('package_member_delete', context, data_dict)
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
 
     package = model.Package.get(package_id)
     if not package:

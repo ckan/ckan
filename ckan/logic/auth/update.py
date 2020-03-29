@@ -35,8 +35,7 @@ def package_update(context, data_dict):
                 )) or authz.has_user_permission_for_some_org(
                 user, 'create_dataset')
 
-    if not check1:
-
+    if not check1 and authz.check_config_permission('allow_dataset_collaborators'):
         # if org-level auth failed, check dataset-level auth
         # (ie if user is a collaborator)
         user_packages = logic.get_action(

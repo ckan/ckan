@@ -1194,6 +1194,21 @@ class TestFollowUser(object):
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+def test_create_package_member_when_config_disabled():
+
+    dataset = factories.Dataset()
+    user = factories.User()
+    capacity = 'editor'
+
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreate(object):
 
     def test_create(self):
