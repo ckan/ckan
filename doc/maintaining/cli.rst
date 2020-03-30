@@ -1,22 +1,5 @@
 .. _cli:
 
-============================
-Command Line Interface (CLI)
-============================
-
-.. note::
-
-    From CKAN 2.9 onwards the CKAN configuration file is named 'ckan.ini'.
-    Previous names: 'production.ini' and 'development.ini' (plus others) may
-    also still appear in documentation and the software. These legacy names
-    will eventually be phased out.
-
-.. note::
-
-    From CKAN 2.9 onwards, the ``paster`` command used for common CKAN
-    administration tasks has been replaced with the  ``ckan`` command.
-
-If you have trouble running 'ckan' CLI commands, see
 `Troubleshooting ckan Commands`_ below.
 
 .. note::
@@ -202,7 +185,6 @@ Usage::
 
 
 config-tool: Tool for editing options in a CKAN config file
-===========================================================
 
 Usage::
 
@@ -218,13 +200,11 @@ Examples::
 
 
 datapusher: Perform commands in the datapusher
-==============================================
 
 Usage::
 
     ckan datapusher resubmit    - Resubmit udated datastore resources
     ckan datapusher submit      - Submits resources from package
-
 
 dataset: Manage datasets
 ========================
@@ -271,7 +251,6 @@ Usage::
 
 
 generate: Generate empty extension files to expand CKANs
-========================================================
 
 Usage::
 
@@ -453,7 +432,6 @@ You may need to install the cProfile python module.
 
 
 search-index: Search index commands
-===================================
 
 Usage::
 
@@ -462,7 +440,6 @@ Usage::
     ckan search-index rebuild                  - Rebuild search index
     ckan search-index rebuild-fast             - Reindex with multiprocessing
     ckan search-index show                     - Show index of a dataset
-
 
 .. _rebuild search index:
 
@@ -503,7 +480,6 @@ There are other search related commands, mostly useful for debugging purposes::
 
 
 seed: Create test data in the database
-======================================
 
 Usage::
 
@@ -530,7 +506,6 @@ Usage::
     ckan server --port (-p)          - Set Port
     ckan server --reloader (-r)      - Use reloader
 
-
 sysadmin: Give sysadmin rights
 ==============================
 
@@ -555,7 +530,6 @@ Usage::
 
 
 translation: Translation helper functions
-=========================================
 
 Usage::
 
@@ -595,14 +569,12 @@ To delete the 'admin' user::
 
 
 views: Create views on relevant resources
-=========================================
 
 Usage::
 
     ckan views clean      - permanently delete views for all types no...
     ckan views clear      - permanently delete all views or the ones with...
     ckan views create     - create views on relevant resources.
-
     ckan views --dataset (-d)        - Set Dataset
     ckan views --no-default-filters
     ckan views --search (-s)         - Set Search

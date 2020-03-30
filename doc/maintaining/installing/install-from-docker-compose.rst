@@ -133,7 +133,7 @@ There should be four named Docker volumes (``docker volume ls | grep docker``). 
 prefixed with the Docker Compose project name (default: ``docker`` or value of host environment
 variable ``COMPOSE_PROJECT_NAME``.)
 
-* ``docker_ckan_config``: home of production.ini
+* ``docker_ckan_config``: home of ckan.ini
 * ``docker_ckan_home``: home of ckan venv and source, later also additional CKAN extensions
 * ``docker_ckan_storage``: home of CKAN's filestore (resource files)
 * ``docker_pg_data``: home of the database files for CKAN's default and datastore databases
@@ -168,13 +168,13 @@ against the database and import / export files from ``$VOL_CKAN_HOME``.
 ---------------------------
 3. Datastore and datapusher
 ---------------------------
-The datastore database and user are created when the `db` container is first started, however we need to do some additional configuration before enabling the datastore and datapusher settings in the ``production.ini``.
+The datastore database and user are created when the `db` container is first started, however we need to do some additional configuration before enabling the datastore and datapusher settings in the ``ckan.ini``.
 
 a. Configure datastore database
 
 With running CKAN containers, execute the built-in setup script against the ``db`` container::
 
-    docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/production.ini | docker exec -i db psql -U ckan
+    docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c |/path/to/ckan.ini| | docker exec -i db psql -U ckan
 
 The script pipes in the output of ``paster ckan set-permissions`` - however,
 as this output can change in future versions of CKAN, we set the permissions directly.
@@ -188,13 +188,13 @@ The effect of this script is persisted in the named volume ``docker_pg_data``.
     Hard-coding the database table and usernames allows to prepare the set-permissions SQL script,
     while not exposing sensitive information to the world outside the Docker host environment.
 
-After this step, the datastore database is ready to be enabled in the ``production.ini``.
+After this step, the datastore database is ready to be enabled in the ``ckan.ini``.
 
-b. Enable datastore and datapusher in ``production.ini``
+b. Enable datastore and datapusher in ``ckan.ini``
 
-Edit the ``production.ini`` (note: requires sudo)::
+Edit the ``ckan.ini`` (note: requires sudo)::
 
-    sudo vim $VOL_CKAN_CONFIG/production.ini
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
 
 Add ``datastore datapusher`` to ``ckan.plugins`` and enable the datapusher option
 ``ckan.datapusher.formats``.
@@ -208,7 +208,7 @@ The remaining settings required for datastore and datapusher are already taken c
   ``ckan.datastore.read_url = postgresql://datastore:DATASTORE_READONLY_PASSWORD@db/datastore``
   are provided by ``docker-compose.yml``.
 
-Restart the ``ckan`` container to apply changes to the ``production.ini``::
+Restart the ``ckan`` container to apply changes to the ``ckan.ini``::
 
     docker-compose restart ckan
 
@@ -221,7 +221,7 @@ Now the datastore API should return content when visiting::
 -------------------------
 With all images up and running, create the CKAN admin user (johndoe in this example)::
 
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add johndoe
+    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c |/path/to/ckan.ini| add johndoe
 
 Now you should be able to login to the new, empty CKAN.
 The admin user's API key will be instrumental in tranferring data from other instances.
@@ -278,7 +278,7 @@ d. Rebuild search index
 
 Trigger a Solr index rebuild::
 
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild -c /etc/ckan/production.ini
+    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild -c |/path/to/ckan.ini|
 
 -----------------
 6. Add extensions
@@ -286,9 +286,9 @@ Trigger a Solr index rebuild::
 There are two scenarios to add extensions:
 
 * Maintainers of production instances need extensions to be part of the ``ckan`` image and an
-  easy way to enable them in the ``production.ini``.
+  easy way to enable them in the ``ckan.ini``.
   Automating the installation of existing extensions (without needing to change their source)
-  requires customizing CKAN's ``Dockerfile`` and scripted post-processing of the ``production.ini``.
+  requires customizing CKAN's ``Dockerfile`` and scripted post-processing of the ``ckan.ini``.
 * Developers need to read, modify and use version control on the extensions' source. This adds
   additional steps to the maintainers' workflow.
 
@@ -351,11 +351,11 @@ E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
 
     # On the host
     docker exec -it db psql -U ckan -f 20_postgis_permissions.sql
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial spatial initdb -c /etc/ckan/production.ini
+    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial spatial initdb -c |/path/to/ckan.ini|
 
-    sudo vim $VOL_CKAN_CONFIG/production.ini
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
 
-    # Inside production.ini, add to [plugins]:
+    # Inside ckan.ini, add to [plugins]:
     spatial_metadata spatial_query
 
     ckanext.spatial.search_backend = solr
@@ -364,9 +364,9 @@ b. Modify CKAN config
 
 Follow the respective extension's instructions to set CKAN config variables::
 
-    sudo vim $VOL_CKAN_CONFIG/production.ini
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
 
-.. todo:: Demonstrate how to set ``production.ini`` settings from environment variables using
+.. todo:: Demonstrate how to set ``ckan.ini`` settings from environment variables using
    ``ckanext-envvars``.
 
 c. Reload and debug
@@ -407,13 +407,13 @@ Option 1: Accessing the source from inside the container::
     # in extension folder:
     python setup.py install
     exit
-    # ... edit extension settings in production.ini and restart ckan container
-    sudo vim $VOL_CKAN_CONFIG/production.ini
+    # ... edit extension settings in ckan.ini and restart ckan container
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
     docker-compose restart ckan
 
 Option 2: Accessing the source from outside the container using ``sudo``::
 
-    sudo vim $VOL_CKAN_CONFIG/production.ini
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
     sudo vim $VOL_CKAN_HOME/venv/src/ckanext-datawagovautheme/ckanext/datawagovautheme/templates/package/search.html
 
 Option 3: The Ubuntu package ``bindfs`` makes the write-protected volumes accessible to a system
@@ -435,7 +435,7 @@ user::
 Changes in HTML templates and CSS will be visible right away.
 For changes in code, we'll need to unmount the directory, change ownership back to the ``ckan``
 user, and follow the previous steps to ``python setup.py install`` and
-``pip install -r requirements.txt`` from within the running container, modify the ``production.ini``
+``pip install -r requirements.txt`` from within the running container, modify the ``ckan.ini``
 and restart the container::
 
     sudo umount ~/VOL_CKAN_HOME
@@ -466,10 +466,10 @@ Variable substitution propagates as follows:
   (when building the images) and / or as run time variables (when running the containers).
 * ``ckan-entrypoint.sh`` has access to all run time variables of the ``ckan`` service.
 * ``ckan-entrypoint.sh`` injects environment variables (e.g. ``CKAN_SQLALCHEMY_URL``) into the
-  running ``ckan`` container, overriding the CKAN config variables from ``production.ini``.
+  running ``ckan`` container, overriding the CKAN config variables from ``ckan.ini``.
 
 See :doc:`/maintaining/configuration` for a list of environment variables
-(e.g. ``CKAN_SQLALCHEMY_URL``) which CKAN will accept to override ``production.ini``.
+(e.g. ``CKAN_SQLALCHEMY_URL``) which CKAN will accept to override ``ckan.ini``.
 
 After adding new or changing existing ``.env`` variables, locally built images and volumes may
 need to be dropped and rebuilt. Otherwise, docker will re-use cached images with old or missing

@@ -420,7 +420,7 @@ Also see :ref:`parsed-literals` below for using substitutions in code blocks.
 Parsed literals
 ===============
 
-Normally things like links and substitutions don't work within a literal code
+For Pre CKAN 2.9, normally things like links and substitutions don't work within a literal code
 block. You can make them work by using a ``parsed-literal`` block, for
 example::
 
