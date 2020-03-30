@@ -10,9 +10,9 @@ There are three ways to install CKAN:
 #. Install from Docker Compose
 
 From package is the quickest and easiest way to install CKAN, but it requires
-Ubuntu 16.04 64-bit 64-bit. **You should install CKAN from package if**:
+Ubuntu 14.04, 16.04 or 18.04 64-bit. **You should install CKAN from package if**:
 
-* You want to install CKAN on an Ubuntu 16.04, 64-bit server, *and*
+* You want to install CKAN on an Ubuntu 14.04, 16.04 or 18.04, 64-bit server, *and*
 * You only want to run one CKAN website per server
 
 See :doc:`install-from-package`.
