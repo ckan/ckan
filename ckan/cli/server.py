@@ -16,11 +16,13 @@ log = logging.getLogger(__name__)
 @click.option(u"-p", u"--port", default=5000, help=u"Set port")
 @click.option(u"-r", u"--reloader", default=True, help=u"Use reloader")
 @click.option(
-    u"-t", u"--threaded", is_flag=True, help=u"Handle each request in a separate thread"
+    u"-t", u"--threaded", is_flag=True,
+    help=u"Handle each request in a separate thread"
 )
 @click.option(u"-e", u"--extra-files", multiple=True)
 @click.option(
-    u"--processes", type=int, default=0, help=u"Maximum number of concurrent processes"
+    u"--processes", type=int, default=0,
+    help=u"Maximum number of concurrent processes"
 )
 @click.pass_context
 def run(ctx, host, port, reloader, threaded, extra_files, processes):
@@ -35,8 +37,12 @@ def run(ctx, host, port, reloader, threaded, extra_files, processes):
 
     log.info(u"Running server {0} on port {1}".format(host, port))
 
-    config_extra_files = tk.aslist(config.get(u"ckan.devserver.watch_patterns"))
-    extra_files = list(extra_files) + [config[u"__file__"]] + config_extra_files
+    config_extra_files = tk.aslist(
+        config.get(u"ckan.devserver.watch_patterns")
+    )
+    extra_files = list(extra_files) + [
+        config[u"__file__"]
+    ] + config_extra_files
 
     run_simple(
         host,
