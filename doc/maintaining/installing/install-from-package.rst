@@ -5,7 +5,7 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 14.04, 16.04 or 18.04 64-bit**. If
+and easiest way to install CKAN, but it requires **Ubuntu 16.04 or 18.04 64-bit**. If
 you're not using any of these Ubuntu versions, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
@@ -33,9 +33,9 @@ Host ports requirements:
 
 .. _run-package-installer:
 
------------------------------------
-1. Install the CKAN package (18.04)
------------------------------------
+---------------------------
+1. Install the CKAN package
+---------------------------
 
 On your Ubuntu system, open a terminal and run these commands to install
 CKAN:
@@ -57,20 +57,32 @@ CKAN:
 
 #. Download the CKAN package:
 
-    - On Ubuntu 18.04:
+    - On Ubuntu 16.04:
 
        .. parsed-literal::
 
            wget \http://packaging.ckan.org/|latest_package_name_xenial|
+           
+     - On Ubuntu 18.04:
+
+       .. parsed-literal::
+
+           wget \http://packaging.ckan.org/|latest_package_name_bionic|
 
 
 #. Install the CKAN package:
 
-   - On Ubuntu 18.04:
+   - On Ubuntu 16.04:
 
        .. parsed-literal::
 
            sudo dpkg -i |latest_package_name_xenial|
+           
+   - On Ubuntu 18.04:
+
+       .. parsed-literal::
+
+           sudo dpkg -i |latest_package_name_bionic|
 
     .. note:: If you get the following error it means that for some reason the
      Apache WSGI module was not enabled::
