@@ -3,6 +3,8 @@
 import os
 import os.path
 
+from pkg_resources import parse_version
+
 # Avoid problem releasing to pypi from vagrant
 if os.environ.get('USER', '') == 'vagrant':
     del os.link
@@ -23,11 +25,6 @@ from ckan import (__version__, __description__, __long_description__,
 #
 # Check setuptools version
 #
-
-def parse_version(s):
-    return [int(part) for part in s.split('.')]
-
-
 
 HERE = os.path.dirname(__file__)
 with open(os.path.join(HERE, 'requirement-setuptools.txt')) as f:
@@ -51,29 +48,8 @@ entry_points = {
         'main = ckan.config.install:CKANInstaller',
     ],
     'paste.paster_command': [
-        'db = ckan.lib.cli:ManageDb',
-        'create-test-data = ckan.lib.cli:CreateTestDataCommand',
-        'sysadmin = ckan.lib.cli:Sysadmin',
-        'user = ckan.lib.cli:UserCmd',
-        'dataset = ckan.lib.cli:DatasetCmd',
-        'search-index = ckan.lib.cli:SearchIndexCommand',
-        'ratings = ckan.lib.cli:Ratings',
-        'notify = ckan.lib.cli:Notification',
-        'rdf-export = ckan.lib.cli:RDFExport',
-        'tracking = ckan.lib.cli:Tracking',
-        'plugin-info = ckan.lib.cli:PluginInfo',
-        'profile = ckan.lib.cli:Profile',
-        'color = ckan.lib.cli:CreateColorSchemeCommand',
-        'check-po-files = ckan.i18n.check_po_files:CheckPoFiles',
-        'trans = ckan.lib.cli:TranslationsCommand',
-        'minify = ckan.lib.cli:MinifyCommand',
-        'less = ckan.lib.cli:LessCommand',
         'datastore = ckanext.datastore.commands:datastore_group',
         'datapusher = ckanext.datapusher.cli:DatapusherCommand',
-        'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
-        'views = ckan.lib.cli:ViewsCommand',
-        'config-tool = ckan.lib.cli:ConfigToolCommand',
-        'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
         'ckan = ckan.cli.cli:ckan',

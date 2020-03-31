@@ -108,6 +108,15 @@ This enables Pylons' interactive debugging tool, makes Webassets serve
 unminified JS and CSS files, and enables CKAN templates' debugging
 features.
 
+If you are running CKAN on Apache, you must change the WSGI
+configuration to run on single process environment. otherwise
+the execution will fail to AssertionError: The EvalException
+middleware is not usable in a multi-process environment. Eg. change::
+
+  WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
+  to
+  WSGIDaemonProcess ckan_default display-name=ckan_default threads=15
+
 .. warning:: This option should be set to ``False`` for a public site.
    With debug mode enabled, a visitor to your site could execute malicious
    commands.
@@ -172,6 +181,21 @@ Default value: False
 This determines whether the secure flag will be set for the repoze.who
 authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
 default in the absence of the setting is ``False``.
+
+.. _who.samesite:
+
+who.samesite
+^^^^^^^^^^^^
+
+Example::
+
+ who.samesite = Strict
+
+Default value: Lax
+
+This determines whether the SameSite flag will be set for the repoze.who
+authorization cookie. Allowed values are ``Lax`` (the default one), ``Strict`` or ``None``.
+If set to ``None``,  ``who.secure`` must be set to ``True``.
 
 
 Database Settings

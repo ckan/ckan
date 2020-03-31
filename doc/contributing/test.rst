@@ -56,10 +56,11 @@ Create test databases:
 
 Set the permissions::
 
-    ckan -c |ckan.ini| datastore set-permissions | sudo -u postgres psql
+    ckan -c test-core.ini datastore set-permissions | sudo -u postgres psql
 
-This database connection is specified in the ``test-core.ini`` file by the
-``sqlalchemy.url`` parameter.
+When the tests run they will use these databases, because in ``test-core.ini``
+they are specified in the ``sqlalchemy.url`` and ``ckan.datastore.write_url``
+connection strings.
 
 You should also make sure that the :ref:`Redis database <ckan_redis_url>`
 configured in ``test-core.ini`` is different from your production database.

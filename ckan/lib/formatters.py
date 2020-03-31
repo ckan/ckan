@@ -120,10 +120,10 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
                     return _('Just now')
                 else:
                     return ungettext('{mins} minute ago', '{mins} minutes ago',
-                                     seconds / 60).format(mins=seconds / 60)
+                                     seconds // 60).format(mins=seconds // 60)
             else:
                 return ungettext('{hours} hour ago', '{hours} hours ago',
-                                 seconds / 3600).format(hours=seconds / 3600)
+                                 seconds // 3600).format(hours=seconds // 3600)
         # more than one day
         months = months_between(datetime_, now)
 
@@ -134,7 +134,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
             return ungettext('{months} month ago', '{months} months ago',
                              months).format(months=months)
         return ungettext('over {years} year ago', 'over {years} years ago',
-                         months / 12).format(years=months / 12)
+                         months // 12).format(years=months // 12)
 
     # actual date
     details = {

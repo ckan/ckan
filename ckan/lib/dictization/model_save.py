@@ -39,6 +39,7 @@ def resource_dict_save(res_dict, context):
     # Resource extras not submitted will be removed from the existing extras
     # dict
     new_extras = {}
+    has_changed = False
     for key, value in six.iteritems(res_dict):
         if isinstance(value, list):
             continue
@@ -56,17 +57,31 @@ def resource_dict_save(res_dict, context):
                     obj.url_changed = True
             if key == 'url' and not new and obj.url != value:
                 obj.url_changed = True
+            if getattr(obj, key) != value:
+                has_changed = True
             setattr(obj, key, value)
         else:
             # resources save extras directly onto the object, instead
             # of in a separate extras field like packages and groups
             new_extras[key] = value
 
+    # Check changes in extra fields
+    if set(new_extras.keys()) != set(obj.extras.keys()):
+        has_changed = True
+    else:
+        for key, value in six.iteritems(new_extras):
+            if obj.extras.get(key) != value:
+                has_changed = True
+                break
+
+    if has_changed:
+        obj.metadata_modified = datetime.datetime.utcnow()
     obj.state = u'active'
     obj.extras = new_extras
 
     session.add(obj)
     return obj
+
 
 def package_resource_list_save(res_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
