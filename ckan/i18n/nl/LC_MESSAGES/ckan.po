@@ -3311,7 +3311,7 @@ msgid ""
 "target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
-"U kan hiet <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"U kan hier <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
 "target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> gebruiken"
 
