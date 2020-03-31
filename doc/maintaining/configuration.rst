@@ -779,7 +779,7 @@ Example::
 
  ckan.search.default_package_sort = "name asc"
 
-Default value:  ``None``
+Default value:  ``score desc, metadata_modified desc``
 
 Controls whether the default search page (``/dataset``) should different
 sorting parameter by default when the request does not specify sort.
@@ -1265,7 +1265,7 @@ Example::
 
  ckan.default_group_sort = name
 
-Default Value: None
+Default Value: 'title'
 
 Defines if some other sorting is used in group_list and organization_list
 by default when the request does not specify sort.
