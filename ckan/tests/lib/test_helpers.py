@@ -150,6 +150,16 @@ class TestHelpersUrlFor(BaseUrlFor):
         generated_url = h.url_for("dataset.read", id="my_dataset", locale="de")
         assert generated_url == url
 
+    @pytest.mark.ckan_config("debug", True)
+    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
+    def test_debugtoolbar_url(self, ckan_config):
+        # test against built-in `url_for`, that is used by debugtoolbar ext.
+        from flask import url_for
+        expected = "/my/custom/path/_debug_toolbar/static/test.js"
+        url = url_for('_debug_toolbar.static', filename='test.js')
+        assert url == expected
+
 
 class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
     def test_url_for_flask_route_new_syntax(self):
