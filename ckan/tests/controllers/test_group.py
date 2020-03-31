@@ -163,6 +163,43 @@ class TestGroupControllerEdit(object):
         assert group.description == "Sciencey datasets"
         assert group.image_url == "http://example.com/image.png"
 
+    def test_display_name_shown(self, app):
+        user = factories.User()
+        group = factories.Group(
+            name="display-name",
+            title="Display name",
+            user=user,
+        )
+
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+
+        form = {
+            "name": "",
+            "save": "",
+        }
+        resp = app.get(
+            url=url_for("group.edit", id=group["name"]),
+            extra_environ=env,
+        )
+        page = BeautifulSoup(resp.body)
+        breadcrumbs = page.select('.breadcrumb a')
+        # Home -> Groups -> NAME -> Manage
+        assert len(breadcrumbs) == 4
+        # Verify that `NAME` is not empty, as well as other parts
+        assert all([part.text for part in breadcrumbs])
+
+        resp = app.post(
+            url=url_for("group.edit", id=group["name"]),
+            extra_environ=env,
+            data=form,
+        )
+        page = BeautifulSoup(resp.body)
+        breadcrumbs = page.select('.breadcrumb a')
+        # Home -> Groups -> NAME -> Manage
+        assert len(breadcrumbs) == 4
+        # Verify that `NAME` is not empty, as well as other parts
+        assert all([part.text for part in breadcrumbs])
+
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupRead(object):

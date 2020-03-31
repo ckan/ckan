@@ -1,4 +1,4 @@
-this.ckan.module('basic-form', function (jQuery) {
+this.ckan.module('basic-form', function ($) {
   return {
     initialize: function () {
       var message = this._('There are unsaved modifications to this form');
