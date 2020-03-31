@@ -353,7 +353,7 @@ def _read(id, limit, group_type):
                 facets[facet] = facet
 
         # Facet titles
-        _update_facet_titles(facets, group_type)
+        facets = _update_facet_titles(facets, group_type)
 
         extra_vars["facet_titles"] = facets
 
@@ -413,6 +413,7 @@ def _read(id, limit, group_type):
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
         facets = plugin.group_facets(facets, group_type, None)
+    return facets
 
 
 def _get_group_dict(id, group_type):
