@@ -1313,6 +1313,39 @@ class IDatasetForm(Interface):
         :rtype: (dictionary, dictionary)
         '''
 
+    def prepare_dataset_blueprint(self, package_type, blueprint):
+        u'''Update or replace dataset blueprint for given package type.
+
+        Internally CKAN registers blueprint for every custom dataset
+        type. Before default routes added to this blueprint and it
+        registered inside application this method is called. It can be
+        used either for registration of the view function under new
+        path or under existing path(like `/new`), in which case this
+        new function will be used instead of default one.
+
+        Note, this blueprint has prefix `/{package_type}`.
+
+        :rtype: flask.Blueprint
+
+        '''
+
+    def prepare_resource_blueprint(self, package_type, blueprint):
+        u'''Update or replace resource blueprint for given package type.
+
+        Internally CKAN registers separate resource blueprint for
+        every custom dataset type. Before default routes added to this
+        blueprint and it registered inside application this method is
+        called. It can be used either for registration of the view
+        function under new path or under existing path(like `/new`),
+        in which case this new function will be used instead of
+        default one.
+
+        Note, this blueprint has prefix `/{package_type}/<id>/resource`.
+
+        :rtype: flask.Blueprint
+
+        '''
+
 
 class IGroupForm(Interface):
     u'''
@@ -1475,6 +1508,23 @@ class IGroupForm(Interface):
           group and errors is a dictionary with keys matching data_dict
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
+        '''
+
+    def prepare_group_blueprint(self, group_type, blueprint):
+        u'''Update or replace group blueprint for given group type.
+
+        Internally CKAN registers separate blueprint for
+        every custom group type. Before default routes added to this
+        blueprint and it registered inside application this method is
+        called. It can be used either for registration of the view
+        function under new path or under existing path(like `/new`),
+        in which case this new function will be used instead of
+        default one.
+
+        Note, this blueprint has prefix `/{group_type}`.
+
+        :rtype: flask.Blueprint
+
         '''
 
     # End of hooks ############################################################
