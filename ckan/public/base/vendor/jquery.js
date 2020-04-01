@@ -88,6 +88,7 @@ var isWindow = function isWindow( obj ) {
 		return obj != null && obj === obj.window;
 	};
 
+var fnToString = hasOwn.toString;
 
 var document = window.document;
 
@@ -466,6 +467,7 @@ jQuery.extend( {
 					ret.push( value );
 				}
 			}
+		}
 
 		// Go through every key on the object,
 		} else {
@@ -1342,6 +1344,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 			if ( !el.querySelectorAll( "[selected]" ).length ) {
 				rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
 			}
+			return false;
+		};
 
 			// Support: Chrome<29, Android<4.4, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.8+
 			if ( !el.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
@@ -1479,6 +1483,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 			hasDuplicate = true;
 			return 0;
 		}
+	}
 
 		// Sort on method existence if only one input has compareDocumentPosition
 		var compare = !a.compareDocumentPosition - !b.compareDocumentPosition;
@@ -1525,6 +1530,10 @@ setDocument = Sizzle.setDocument = function( node ) {
 				( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
 				0;
 		}
+		while ( j-- ) {
+			results.splice( duplicates[ j ], 1 );
+		}
+	}
 
 		return compare & 4 ? -1 : 1;
 	} :
@@ -2597,6 +2606,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 			} else {
 				push.apply( results, matcherOut );
 			}
+			matchers.push( matcher );
 		}
 	} );
 }
@@ -2857,6 +2867,7 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 			} else if ( compiled ) {
 				context = context.parentNode;
 			}
+		}
 
 			selector = selector.slice( tokens.shift().value.length );
 		}
@@ -4033,6 +4044,12 @@ jQuery.extend( {
 	}
 } );
 
+	// Support: IE 8 - 9 only
+	// Console exists when dev tools are open, which can happen at any time
+	if ( window.console && window.console.warn && error && rerrorNames.test( error.name ) ) {
+		window.console.warn( "jQuery.Deferred exception: " + error.message, error.stack, stack );
+	}
+};
 
 // These usually indicate a programmer mistake during development,
 // warn about them ASAP rather than swallowing them by default.
@@ -4048,6 +4065,11 @@ jQuery.Deferred.exceptionHook = function( error, stack ) {
 };
 
 
+jQuery.readyException = function( error ) {
+	window.setTimeout( function() {
+		throw error;
+	} );
+};
 
 
 jQuery.readyException = function( error ) {
@@ -4733,7 +4755,15 @@ var isHiddenWithinTree = function( elem, el ) {
 			jQuery.css( elem, "display" ) === "none";
 	};
 
+var swap = function( elem, options, callback, args ) {
+	var ret, name,
+		old = {};
 
+	// Remember the old values, and insert the new ones
+	for ( name in options ) {
+		old[ name ] = elem.style[ name ];
+		elem.style[ name ] = options[ name ];
+	}
 
 function adjustCSS( elem, prop, valueParts, tween ) {
 	var adjusted, scale,
@@ -4800,6 +4830,8 @@ function adjustCSS( elem, prop, valueParts, tween ) {
 	return adjusted;
 }
 
+		initialInUnit = initialInUnit * 2;
+		jQuery.style( elem, prop, initialInUnit + unit );
 
 var defaultDisplayMap = {};
 
@@ -4902,6 +4934,7 @@ var rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]*)/i );
 var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
 
+var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
 ( function() {
 	var fragment = document.createDocumentFragment(),
@@ -4973,6 +5006,7 @@ function getAll( context, tag ) {
 	} else {
 		ret = [];
 	}
+}
 
 	if ( tag === undefined || tag && nodeName( context, tag ) ) {
 		return jQuery.merge( [ context ], ret );
@@ -5201,6 +5235,12 @@ jQuery.event = {
 		if ( !acceptData( elem ) ) {
 			return;
 		}
+	}
+	if ( fn === false ) {
+		fn = returnFalse;
+	} else if ( !fn ) {
+		return elem;
+	}
 
 		// Caller can pass in an object of custom data in lieu of the handler
 		if ( handler.handler ) {
@@ -5600,6 +5640,25 @@ jQuery.event = {
 				if ( event.result !== undefined && event.originalEvent ) {
 					event.originalEvent.returnValue = event.result;
 				}
+
+			// If this is a native event triggered above, everything is now in order
+			// Fire an inner synthetic event with the original arguments
+			} else if ( saved.length ) {
+
+				// ...and capture the result
+				dataPriv.set( this, type, {
+					value: jQuery.event.trigger(
+
+						// Support: IE <=9 - 11+
+						// Extend with the prototype to reset the above stopImmediatePropagation()
+						jQuery.extend( saved[ 0 ], jQuery.Event.prototype ),
+						saved.slice( 1 ),
+						this
+					)
+				} );
+
+				// Abort handling of the native event
+				event.stopImmediatePropagation();
 			}
 		}
 	}
@@ -10835,8 +10894,24 @@ if ( typeof define === "function" && define.amd ) {
 	} );
 }
 
+// Register as a named AMD module, since jQuery can be concatenated with other
+// files that may use define, but not via a proper concatenation script that
+// understands anonymous AMD modules. A named AMD is safest and most robust
+// way to register. Lowercase jquery is used because AMD module names are
+// derived from file names, and jQuery is normally delivered in a lowercase
+// file name. Do this after creating the global so that if an AMD module wants
+// to call noConflict to hide this version of jQuery, it will work.
 
+// Note that for maximum portability, libraries that are not jQuery should
+// declare themselves as anonymous modules, and avoid setting a global if an
+// AMD loader is present. jQuery is a special case. For more information, see
+// https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#wiki-anon
 
+if ( typeof define === "function" && define.amd ) {
+	define( "jquery", [], function() {
+		return jQuery;
+	} );
+}
 
 var
 
@@ -10865,8 +10940,19 @@ if ( typeof noGlobal === "undefined" ) {
 	window.jQuery = window.$ = jQuery;
 }
 
+	if ( deep && window.jQuery === jQuery ) {
+		window.jQuery = _jQuery;
+	}
 
+	return jQuery;
+};
 
+// Expose jQuery and $ identifiers, even in AMD
+// (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
+// and CommonJS for browser emulators (#13566)
+if ( !noGlobal ) {
+	window.jQuery = window.$ = jQuery;
+}
 
 return jQuery;
 } );
