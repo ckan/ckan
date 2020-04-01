@@ -53,7 +53,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
   });
 
   describe('.newField(element)', function () {
-    it('should append a new field to the element', function () {
+    it.skip('should append a new field to the element', function () {
       var element = document.createElement('div');
       sinon.stub(this.module, 'cloneField').returns(element);
 
