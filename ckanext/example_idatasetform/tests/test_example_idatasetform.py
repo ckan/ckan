@@ -454,7 +454,7 @@ class TestDatasetBlueprintPreparations(object):
 
     def test_existing_routes_are_replaced(self, app):
         resp = app.get("/fancy_type/new", status=200)
-        assert resp.body == u'Hello, fancy_type'
+        assert resp.body == u'Hello, new fancy_type'
 
         resp = app.get("/fancy_type/random/resource/new", status=200)
         assert resp.body == u'Hello, fancy_type:random'

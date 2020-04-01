@@ -8,6 +8,10 @@ def fancy_route(group_type, is_organization):
     return u'Hello, {}'.format(group_type)
 
 
+def fancy_new_route(group_type, is_organization):
+    return u'Hello, new {}'.format(group_type)
+
+
 class ExampleIGroupFormPlugin(plugins.SingletonPlugin, tk.DefaultGroupForm):
     plugins.implements(plugins.IGroupForm, inherit=False)
 
@@ -19,5 +23,5 @@ class ExampleIGroupFormPlugin(plugins.SingletonPlugin, tk.DefaultGroupForm):
 
     def prepare_group_blueprint(self, package_type, bp):
         bp.add_url_rule(u'/fancy-route', view_func=fancy_route)
-        bp.add_url_rule(u'/new', view_func=fancy_route)
+        bp.add_url_rule(u'/new', view_func=fancy_new_route)
         return bp
