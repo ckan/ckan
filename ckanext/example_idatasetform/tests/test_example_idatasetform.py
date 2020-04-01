@@ -446,10 +446,8 @@ class TestCustomSearch(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v6")
-@pytest.mark.usefixtures(
-    "with_plugins", "with_request_context"
-)
-class TestBlueprintPreparations(object):
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+class TestDatasetBlueprintPreparations(object):
     def test_additional_routes_are_registered(self, app):
         resp = app.get("/fancy_type/fancy-route", status=200)
         assert resp.body == u'Hello, fancy_type'

@@ -227,7 +227,7 @@ class TestGroupControllerEdit_DefaultGroupType(object):
 @pytest.mark.usefixtures(
     "with_plugins", "with_request_context"
 )
-class TestBlueprintPreparations(object):
+class TestGroupBlueprintPreparations(object):
     def test_additional_routes_are_registered(self, app):
         resp = app.get("/fancy_type/fancy-route", status=200)
         assert resp.body == u'Hello, fancy_type'
@@ -236,7 +236,7 @@ class TestBlueprintPreparations(object):
         resp = app.get("/fancy_type/new", status=200)
         assert resp.body == u'Hello, fancy_type'
 
-    # @pytest.mark.usefixtures(u'clean_db', u'clean_index')
+    @pytest.mark.usefixtures(u'clean_db', u'clean_index')
     def test_existing_routes_are_untouched(self, app):
         resp = app.get("/fancy_type", status=200)
         page = bs4.BeautifulSoup(resp.body)
