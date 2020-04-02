@@ -1328,6 +1328,7 @@ class IDatasetForm(Interface):
         :rtype: flask.Blueprint
 
         '''
+        return blueprint
 
     def prepare_resource_blueprint(self, package_type, blueprint):
         u'''Update or replace resource blueprint for given package type.
@@ -1345,6 +1346,7 @@ class IDatasetForm(Interface):
         :rtype: flask.Blueprint
 
         '''
+        return blueprint
 
 
 class IGroupForm(Interface):
@@ -1526,6 +1528,7 @@ class IGroupForm(Interface):
         :rtype: flask.Blueprint
 
         '''
+        return blueprint
 
     # End of hooks ############################################################
 
