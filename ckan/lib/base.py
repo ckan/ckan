@@ -64,10 +64,6 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     if is_flask_request():
         flask_abort(status_code, detail)
 
-    # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
-    # with Lucid) causes an exception when unicode is received.
-    detail = detail.encode('utf8')
-
     return _abort(status_code=status_code,
                   detail=detail,
                   headers=headers,
