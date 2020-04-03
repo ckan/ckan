@@ -2061,10 +2061,9 @@ def resource_view_get_fields(resource):
         'limit': 0,
         'include_total': False,
     }
-    import ckan.plugins as p
     try:
         result = logic.get_action('datastore_search')({}, data)
-    except p.toolkit.ObjectNotFound:
+    except logic.NotFound:
         return []
 
     fields = [field['id'] for field in result.get('fields', [])]
