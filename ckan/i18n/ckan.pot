@@ -224,8 +224,8 @@ msgstr ""
 #: ckan/controllers/group.py:632 ckan/controllers/group.py:658
 #: ckan/controllers/group.py:714 ckan/controllers/group.py:746
 #: ckan/controllers/group.py:779 ckan/controllers/group.py:836
-#: ckan/controllers/group.py:933 ckan/controllers/package.py:1265
-#: ckan/controllers/package.py:1280 ckan/logic/action/create.py:1373
+#: ckan/controllers/group.py:933 ckan/controllers/package.py:1270
+#: ckan/controllers/package.py:1285 ckan/logic/action/create.py:1373
 #: ckan/views/feed.py:143
 msgid "Group not found"
 msgstr ""
@@ -297,7 +297,7 @@ msgid "Unauthorized to create a group"
 msgstr ""
 
 #: ckan/controllers/group.py:539 ckan/controllers/group.py:569
-#: ckan/controllers/package.py:944 ckan/controllers/package.py:992
+#: ckan/controllers/package.py:949 ckan/controllers/package.py:997
 #: ckan/controllers/user.py:250 ckan/controllers/user.py:380
 #: ckan/controllers/user.py:551 ckan/views/user.py:193 ckan/views/user.py:300
 #: ckan/views/user.py:643
@@ -401,12 +401,12 @@ msgstr ""
 msgid "Log message: "
 msgstr ""
 
-#: ckan/controllers/group.py:861 ckan/controllers/package.py:1193
+#: ckan/controllers/group.py:861 ckan/controllers/package.py:1198
 #: ckan/controllers/user.py:719 ckan/views/user.py:673
 msgid "You are now following {0}"
 msgstr ""
 
-#: ckan/controllers/group.py:881 ckan/controllers/package.py:1212
+#: ckan/controllers/group.py:881 ckan/controllers/package.py:1217
 #: ckan/controllers/user.py:739 ckan/views/user.py:695
 msgid "You are no longer following {0}"
 msgstr ""
@@ -441,13 +441,13 @@ msgstr ""
 
 #: ckan/controllers/package.py:343 ckan/controllers/package.py:351
 #: ckan/controllers/package.py:389 ckan/controllers/package.py:456
-#: ckan/controllers/package.py:775 ckan/controllers/package.py:823
-#: ckan/controllers/package.py:841 ckan/controllers/package.py:942
-#: ckan/controllers/package.py:990 ckan/controllers/package.py:1042
-#: ckan/controllers/package.py:1089 ckan/controllers/package.py:1237
-#: ckan/controllers/package.py:1253 ckan/controllers/package.py:1316
-#: ckan/controllers/package.py:1415 ckan/controllers/package.py:1450
-#: ckan/controllers/package.py:1557
+#: ckan/controllers/package.py:780 ckan/controllers/package.py:828
+#: ckan/controllers/package.py:846 ckan/controllers/package.py:947
+#: ckan/controllers/package.py:995 ckan/controllers/package.py:1047
+#: ckan/controllers/package.py:1094 ckan/controllers/package.py:1242
+#: ckan/controllers/package.py:1258 ckan/controllers/package.py:1321
+#: ckan/controllers/package.py:1420 ckan/controllers/package.py:1455
+#: ckan/controllers/package.py:1562
 msgid "Dataset not found"
 msgstr ""
 
@@ -572,59 +572,59 @@ msgstr ""
 msgid "Filters"
 msgstr ""
 
-#: ckan/controllers/package.py:1035
+#: ckan/controllers/package.py:1040
 msgid "Dataset has been deleted."
 msgstr ""
 
-#: ckan/controllers/package.py:1040 ckan/controllers/package.py:1058
+#: ckan/controllers/package.py:1045 ckan/controllers/package.py:1063
 #, python-format
 msgid "Unauthorized to delete package %s"
 msgstr ""
 
-#: ckan/controllers/package.py:1063
+#: ckan/controllers/package.py:1068
 msgid "Resource has been deleted."
 msgstr ""
 
-#: ckan/controllers/package.py:1074
+#: ckan/controllers/package.py:1079
 #, python-format
 msgid "Unauthorized to delete resource %s"
 msgstr ""
 
-#: ckan/controllers/package.py:1133 ckan/controllers/package.py:1576
+#: ckan/controllers/package.py:1138 ckan/controllers/package.py:1581
 msgid "Resource view not found"
 msgstr ""
 
-#: ckan/controllers/package.py:1172
+#: ckan/controllers/package.py:1177
 msgid "Resource data not found"
 msgstr ""
 
-#: ckan/controllers/package.py:1181
+#: ckan/controllers/package.py:1186
 msgid "No download is available"
 msgstr ""
 
-#: ckan/controllers/package.py:1318
+#: ckan/controllers/package.py:1323
 #, python-format
 msgid "Unauthorized to read dataset %s"
 msgstr ""
 
-#: ckan/controllers/package.py:1426
+#: ckan/controllers/package.py:1431
 #, python-format
 msgid "Unauthorized to read resource %s"
 msgstr ""
 
-#: ckan/controllers/package.py:1490
+#: ckan/controllers/package.py:1495
 msgid "Unauthorized to edit resource"
 msgstr ""
 
-#: ckan/controllers/package.py:1508
+#: ckan/controllers/package.py:1513
 msgid "View not found"
 msgstr ""
 
-#: ckan/controllers/package.py:1514
+#: ckan/controllers/package.py:1519
 msgid "View Type Not found"
 msgstr ""
 
-#: ckan/controllers/package.py:1570
+#: ckan/controllers/package.py:1575
 msgid "Bad resource view data"
 msgstr ""
 
