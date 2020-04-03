@@ -23,7 +23,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
     after each test.
     '''
     @helpers.change_config("who.httponly", True)
-    def test_httponly_expected_cookies_with_config_httponly_true():
+    def test_httponly_expected_cookies_with_config_httponly_true(self):
         """
         The returned cookies are in the format we expect, with HttpOnly flag.
         """
@@ -39,7 +39,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
     @helpers.change_config("who.httponly", False)
-    def test_httponly_expected_cookies_with_config_httponly_false():
+    def test_httponly_expected_cookies_with_config_httponly_false(self):
         """
         The returned cookies are in the format we expect, without HttpOnly
         flag.
@@ -55,7 +55,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         ]
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
-    def test_httponly_expected_cookies_without_config_httponly():
+    def test_httponly_expected_cookies_without_config_httponly(self):
         """
         The returned cookies are in the format we expect, with HttpOnly flag.
         """
@@ -71,7 +71,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
     @helpers.change_config("who.samesite", "lax")
-    def test_samesite_expected_cookies_with_config_samesite_lax():
+    def test_samesite_expected_cookies_with_config_samesite_lax(self):
         """
         The returned cookies are in the format we expect, with SameSite flag set to lax.
         """
@@ -87,7 +87,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
     @helpers.change_config("who.samesite", "strict")
-    def test_samesite_expected_cookies_with_config_samesite_strict():
+    def test_samesite_expected_cookies_with_config_samesite_strict(self):
         """
         The returned cookies are in the format we expect, with SameSite flag set to strict.
         """
@@ -104,7 +104,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
 
     @helpers.change_config("who.secure", "true")
     @helpers.change_config("who.samesite", "none")
-    def test_samesite_expected_cookies_with_config_samesite_none():
+    def test_samesite_expected_cookies_with_config_samesite_none(self):
         """
         The returned cookies are in the format we expect, with SameSite flag set to none.
         """
@@ -120,13 +120,13 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
     @helpers.change_config("who.samesite", "none")
-    def test_config_samesite_none_without_secure_raises_exception():
+    def test_config_samesite_none_without_secure_raises_exception(self):
         """
         If setting the SameSite flag to none without Secure being true, an exception is raised.
         """
         nose_tools.assert_raises(ValueError, make_plugin, secret="sosecret")
 
-    def test_samesite_expected_cookies_without_config_samesite():
+    def test_samesite_expected_cookies_without_config_samesite(self):
         """
         The returned cookies are in the format we expect, with SameSite flag set to lax.
         """
@@ -142,7 +142,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
     @helpers.change_config("who.secure", True)
-    def test_secure_expected_cookies_with_config_secure_true():
+    def test_secure_expected_cookies_with_config_secure_true(self):
         """
         The returned cookies are in the format we expect, with secure flag.
         """
@@ -164,7 +164,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
     @helpers.change_config("who.secure", False)
-    def test_secure_expected_cookies_with_config_secure_false():
+    def test_secure_expected_cookies_with_config_secure_false(self):
         """
         The returned cookies are in the format we expect, without secure
         flag.
@@ -180,7 +180,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         ]
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
-    def test_secure_expected_cookies_without_config_secure():
+    def test_secure_expected_cookies_without_config_secure(self):
         """
         The returned cookies are in the format we expect, without secure flag.
         """
@@ -195,7 +195,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         ]
         nose_tools.assert_equals(_sorted_cookie_values(cookies), _sorted_cookie_values(expected_cookies))
 
-    def test_timeout_not_set_in_config():
+    def test_timeout_not_set_in_config(self):
         """
         Creating a CkanAuthTktCookiePlugin instance without setting timeout in
         config sets correct values in CkanAuthTktCookiePlugin instance.
@@ -206,7 +206,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
         nose_tools.assert_equals(plugin.reissue_time, None)
 
     @helpers.change_config("who.timeout", 9000)
-    def test_timeout_set_in_config():
+    def test_timeout_set_in_config(self):
         """
         Setting who.timeout in config sets correct values in
         CkanAuthTktCookiePlugin instance.
@@ -218,7 +218,7 @@ class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
 
     @helpers.change_config("who.timeout", 9000)
     @helpers.change_config("who.reissue_time", 200)
-    def test_reissue_set_in_config():
+    def test_reissue_set_in_config(self):
         """
         Setting who.reissue in config sets correct values in
         CkanAuthTktCookiePlugin instance.
