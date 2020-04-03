@@ -698,7 +698,7 @@ class PackageController(base.BaseController):
             except ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
-	        if data.get('url_type') == 'upload' and data.get('url'):
+                if data.get('url_type') == 'upload' and data.get('url'):
                     data['url'] = ''
                     data['url_type'] = ''
                     data['previous_upload'] = True
