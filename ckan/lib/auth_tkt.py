@@ -4,6 +4,11 @@ import logging
 import math
 import os
 
+try:
+    from http.cookies import SimpleCookie
+except ImportError:
+    from Cookie import SimpleCookie
+
 from ckan.common import config
 from repoze.who.plugins import auth_tkt as repoze_auth_tkt
 
@@ -14,9 +19,10 @@ log = logging.getLogger(__name__)
 
 class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
 
-    def __init__(self, httponly, *args, **kwargs):
+    def __init__(self, httponly, samesite, *args, **kwargs):
         super(CkanAuthTktCookiePlugin, self).__init__(*args, **kwargs)
         self.httponly = httponly
+        self.samesite = samesite
 
     def _get_cookies(self, *args, **kwargs):
         '''
@@ -27,9 +33,26 @@ class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
 
         cookies = []
         for k, v in super_cookies:
-            replace_with = '; HttpOnly' if self.httponly else ''
-            v = v.replace('; HttpOnly', '') + replace_with
-            cookies.append((k, v))
+            cookie = SimpleCookie(str(v))
+            morsel = list(cookie.values())[0]
+            # SameSite was only added on Python 3.8
+            morsel._reserved['samesite'] = 'SameSite'
+            # Keep old case as it's the one used in tests, it should make no
+            # difference in the browser
+            morsel._reserved['httponly'] = 'HttpOnly'
+            morsel._reserved['secure'] = 'Secure'
+
+            if self.httponly:
+                cookie[self.cookie_name]['HttpOnly'] = True
+
+            if self.samesite == 'none':
+                cookie[self.cookie_name]['SameSite'] = 'None'
+            elif self.samesite == 'strict':
+                cookie[self.cookie_name]['SameSite'] = 'Strict'
+            else:
+                cookie[self.cookie_name]['SameSite'] = 'Lax'
+
+            cookies.append((k, cookie.output().replace('Set-Cookie: ', '')))
 
         return cookies
 
@@ -56,9 +79,15 @@ def make_plugin(secret=None,
     if timeout is not None and reissue_time is None:
         reissue_time = int(math.ceil(int(timeout) * 0.1))
     # Set httponly based on config value. Default is True
-    httponly = config.get('who.httponly', True)
+    httponly = _bool(config.get(u'who.httponly', True))
     # Set secure based on config value. Default is False
-    secure = config.get('who.secure', False)
+    secure = _bool(config.get(u'who.secure', False))
+    # Set samesite based on config value. Default is lax
+    samesite = config.get(u'who.samesite', 'lax').lower()
+    if samesite == 'none' and not secure:
+        raise ValueError(
+            'SameSite=None requires the Secure attribute,'
+            'please set who.secure=True')
 
     # back to repoze boilerplate
     if (secret is None and secretfile is None):
@@ -76,10 +105,11 @@ def make_plugin(secret=None,
         reissue_time = int(reissue_time)
     if userid_checker is not None:
         userid_checker = resolveDotted(userid_checker)
-    plugin = CkanAuthTktCookiePlugin(_bool(httponly),
+    plugin = CkanAuthTktCookiePlugin(httponly,
+                                     samesite,
                                      secret,
                                      cookie_name,
-                                     _bool(secure),
+                                     secure,
                                      _bool(include_ip),
                                      timeout,
                                      reissue_time,
