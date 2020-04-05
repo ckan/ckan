@@ -47,24 +47,6 @@ def test_config_via_env_var(cli, ckan_config):
     assert not result.exit_code
 
 
-def test_command_from_extension_is_not_available_without_extension(cli):
-    """Extension must be enabled in order to make its commands available.
-    """
-    result = cli.invoke(ckan, [u'example-iclick-hello'])
-    assert result.exit_code
-
-
-@pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')
-@pytest.mark.usefixtures(u'with_plugins')
-def test_command_from_extension_is_not_available_without_additional_fixture(cli):
-    """Without `with_extended_cli` extension still unable to register
-    command durint tests.
-
-    """
-    result = cli.invoke(ckan, [u'example-iclick-hello'])
-    assert result.exit_code
-
-
 @pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')
 @pytest.mark.usefixtures(u'with_plugins', u'with_extended_cli')
 def test_command_from_extension_is_available_when_all_requirements_satisfied(cli):
@@ -74,16 +56,9 @@ def test_command_from_extension_is_available_when_all_requirements_satisfied(cli
     assert not result.exit_code
 
 
-def test_plugins_not_shown_in_help(cli):
-    """Extra commands not shown in help message without plugin.
-    """
-    result = cli.invoke(ckan, [])
-    assert u'example-iclick-hello' not in result.output
-
-
 @pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')
 @pytest.mark.usefixtures(u'with_plugins', u'with_extended_cli')
-def test_plugins_shown_in_help_when_enabled(cli):
+def test_command_from_extension_shown_in_help_when_enabled(cli):
     """Extra commands shown in help when plugin enabled.
     """
     result = cli.invoke(ckan, [])

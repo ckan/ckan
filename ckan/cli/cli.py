@@ -62,11 +62,17 @@ def _init_ckan_config(ctx, param, value):
 
     for plugin in p.PluginImplementations(p.IClick):
         for cmd in plugin.get_commands():
-            cmd._ckanext = plugin.name
+            cmd._ckan_meta = {
+                u'name': plugin.name,
+                u'type': u'plugin'
+            }
             ctx.command.add_command(cmd)
-    for entry in iter_entry_points('ckan.click_command'):
+    for entry in iter_entry_points(u'ckan.click_command'):
         cmd = entry.load()
-        cmd._ckanext = entry.name
+        cmd._ckan_meta = {
+            u'name': entry.name,
+            u'type': u'entry_point'
+        }
         ctx.command.add_command(cmd)
 
 
@@ -82,25 +88,40 @@ click_config_option = click.option(
 
 
 class CustomGroup(click.Group):
+    _section_titles = {
+        u'plugin': u'Plugins',
+        u'entry_point': u'Entry points',
+    }
+
     def format_commands(self, ctx, formatter):
-        super(CustomGroup, self).format_commands(ctx, formatter)
-
         # Without any arguments click skips option callbacks.
-        self.parse_args(ctx, ['help'])
+        self.parse_args(ctx, [u'help'])
 
-        ext_commands = defaultdict(list)
+        commands = []
+        ext_commands = defaultdict(lambda: defaultdict(list))
+
         for subcommand in self.list_commands(ctx):
             cmd = self.get_command(ctx, subcommand)
-            if cmd is None or not hasattr(cmd, u'_ckanext'):
+            # What is this, the tool lied about a command.  Ignore it
+            if cmd is None:
                 continue
-
             help = cmd.short_help or u''
-            ext_commands[cmd._ckanext].append((subcommand, help))
-        if ext_commands:
-            with formatter.section(u'Plugins'):
-                for ext, rows in ext_commands.items():
-                    with formatter.section(ext):
-                        formatter.write_dl(rows)
+
+            meta = getattr(cmd, u'_ckan_meta', None)
+            if meta:
+                ext_commands[meta[u'type']][meta[u'name']].append(
+                    (subcommand, help))
+            else:
+                commands.append((subcommand, help))
+
+        if commands:
+            with formatter.section('Commands'):
+                formatter.write_dl(commands)
+
+        for section, group in ext_commands.items():
+            with formatter.section(self._section_titles.get(section, section)):
+                for _ext, rows in group.items():
+                    formatter.write_dl(rows)
 
 
 @click.group(cls=CustomGroup)
