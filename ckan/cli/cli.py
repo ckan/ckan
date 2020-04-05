@@ -47,7 +47,6 @@ class CkanCommand(object):
 
 
 def _init_ckan_config(ctx, param, value):
-
     # Some commands don't require the config loaded
     if (len(sys.argv) > 1 and not value
             and sys.argv[1] in (u'generate', u'config-tool')) \
@@ -78,16 +77,11 @@ click_config_option = click.option(
 
 
 class CustomGroup(click.Group):
-    def get_command(self, ctx, name):
-        cmd = super(CustomGroup, self).get_command(ctx, name)
-        if not cmd:
-            ctx.forward(self)
-            cmd = super(CustomGroup, self).get_command(ctx, name)
-        return cmd
-
     def format_commands(self, ctx, formatter):
         super(CustomGroup, self).format_commands(ctx, formatter)
-        ctx.invoke(self)
+
+        # Without any arguments click skips option callbacks.
+        self.parse_args(ctx, ['help'])
 
         ext_commands = defaultdict(list)
         for subcommand in self.list_commands(ctx):

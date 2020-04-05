@@ -74,6 +74,22 @@ def test_command_from_extension_is_available_when_all_requirements_satisfied(cli
     assert not result.exit_code
 
 
+def test_plugins_not_shown_in_help(cli):
+    """Extra commands not shown in help message without plugin.
+    """
+    result = cli.invoke(ckan, [])
+    assert u'example-iclick-hello' not in result.output
+
+
+@pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')
+@pytest.mark.usefixtures(u'with_plugins', u'with_extended_cli')
+def test_plugins_shown_in_help_when_enabled(cli):
+    """Extra commands shown in help when plugin enabled.
+    """
+    result = cli.invoke(ckan, [])
+    assert u'example-iclick-hello' in result.output
+
+
 def test_ckan_config_loader_parse_file():
     """
     CKANConfigLoader should parse and interpolate variables in
