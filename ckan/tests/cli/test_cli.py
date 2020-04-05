@@ -11,7 +11,7 @@ def test_without_args(cli):
     """Show help by default.
     """
     result = cli.invoke(ckan)
-    assert result.output.startswith(u'Usage: ckan')
+    assert u'Usage: ckan' in result.output
     assert not result.exit_code
 
 
@@ -19,7 +19,7 @@ def test_incorrect_config(cli):
     """Config file must exist.
     """
     result = cli.invoke(ckan, [u'-c', u'/a/b/c/d/e/f/g/h.ini'])
-    assert result.output.startswith(u'Config file not found')
+    assert u'Config file not found' in result.output
 
 
 def test_correct_config(cli, ckan_config):
