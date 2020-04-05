@@ -2,6 +2,7 @@
 
 import logging
 from collections import defaultdict
+from pkg_resources import iter_entry_points
 
 import six
 import click
@@ -63,6 +64,10 @@ def _init_ckan_config(ctx, param, value):
         for cmd in plugin.get_commands():
             cmd._ckanext = plugin.name
             ctx.command.add_command(cmd)
+    for entry in iter_entry_points('ckan.click_command'):
+        cmd = entry.load()
+        cmd._ckanext = entry.name
+        ctx.command.add_command(cmd)
 
 
 click_config_option = click.option(
