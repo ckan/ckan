@@ -102,7 +102,6 @@ class CustomGroup(click.Group):
 
         for subcommand in self.list_commands(ctx):
             cmd = self.get_command(ctx, subcommand)
-            # What is this, the tool lied about a command.  Ignore it
             if cmd is None:
                 continue
             help = cmd.short_help or u''
@@ -115,7 +114,7 @@ class CustomGroup(click.Group):
                 commands.append((subcommand, help))
 
         if commands:
-            with formatter.section('Commands'):
+            with formatter.section(u'Commands'):
                 formatter.write_dl(commands)
 
         for section, group in ext_commands.items():
