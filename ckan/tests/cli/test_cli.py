@@ -58,7 +58,7 @@ def test_command_from_extension_is_not_available_without_extension(cli):
 @pytest.mark.usefixtures(u'with_plugins')
 def test_command_from_extension_is_not_available_without_additional_fixture(cli):
     """Without `with_extended_cli` extension still unable to register
-    command durint tests.
+    command during tests.
 
     """
     result = cli.invoke(ckan, [u'example-iclick-hello'])
@@ -68,7 +68,7 @@ def test_command_from_extension_is_not_available_without_additional_fixture(cli)
 @pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')
 @pytest.mark.usefixtures(u'with_plugins', u'with_extended_cli')
 def test_command_from_extension_is_available_when_all_requirements_satisfied(cli):
-    """When enabled, extension register its CLI commands.
+    """When enabled, extension registers its CLI commands.
     """
     result = cli.invoke(ckan, [u'example-iclick-hello'])
     assert not result.exit_code

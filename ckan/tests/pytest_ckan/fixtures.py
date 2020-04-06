@@ -247,4 +247,6 @@ def with_extended_cli(ckan_config, monkeypatch):
     # using global config object.  With this patch it becomes possible
     # to apply per-test config changes to it without creating real
     # config file.
-    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)
+    def fake_load_config(ini_path=None, setup_logging=True):
+        return ckan_config
+    monkeypatch.setattr(ckan.cli, u'load_config', fake_load_config)
