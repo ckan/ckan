@@ -368,7 +368,7 @@ main.debug.css to get CKAN running::
 ImportError: No module named 'flask_debugtoolbar'
 -------------------------------------------------
 
-This may show up if you are creating the database tables and you have enabled debug
-mode in the config file. Simply install the development requirements::
+This may show up if you have enabled debug mode in the config file. Simply
+install the development requirements::
 
     pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt
