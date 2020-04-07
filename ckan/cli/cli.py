@@ -47,6 +47,41 @@ class CkanCommand(object):
         self.app = make_app(self.config)
 
 
+def _get_commands_from_plugins(plugins):
+    for plugin in plugins:
+        for cmd in plugin.get_commands():
+            cmd._ckan_meta = {
+                u'name': plugin.name,
+                u'type': u'plugin'
+            }
+            yield cmd
+
+
+def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
+    registered_entries = {}
+    for entry in iter_entry_points(entry_point):
+        if entry.name in registered_entries:
+            p.toolkit.error_shout((
+                u'Attempt to override entry_point `{name}`.\n'
+                u'First encounter:\n\t{first!r}\n'
+                u'Second encounter:\n\t{second!r}\n'
+                u'Either uninstall one of mentioned extensions or update'
+                u' corresponding `setup.py` and re-install the extension.'
+            ).format(
+                name=entry.name,
+                first=registered_entries[entry.name].dist,
+                second=entry.dist))
+            raise click.Abort()
+        registered_entries[entry.name] = entry
+
+        cmd = entry.load()
+        cmd._ckan_meta = {
+            u'name': entry.name,
+            u'type': u'entry_point'
+        }
+        yield cmd
+
+
 def _init_ckan_config(ctx, param, value):
     # Some commands don't require the config loaded
     if (len(sys.argv) > 1 and not value
@@ -60,19 +95,11 @@ def _init_ckan_config(ctx, param, value):
     else:
         ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
 
-    for plugin in p.PluginImplementations(p.IClick):
-        for cmd in plugin.get_commands():
-            cmd._ckan_meta = {
-                u'name': plugin.name,
-                u'type': u'plugin'
-            }
-            ctx.command.add_command(cmd)
-    for entry in iter_entry_points(u'ckan.click_command'):
-        cmd = entry.load()
-        cmd._ckan_meta = {
-            u'name': entry.name,
-            u'type': u'entry_point'
-        }
+    for cmd in _get_commands_from_entry_point():
+        ctx.command.add_command(cmd)
+
+    plugins = p.PluginImplementations(p.IClick)
+    for cmd in _get_commands_from_plugins(plugins):
         ctx.command.add_command(cmd)
 
 
