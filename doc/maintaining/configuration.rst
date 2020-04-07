@@ -104,14 +104,20 @@ Example::
 
 Default value: ``False``
 
-This enables Pylons' interactive debugging tool, makes Webassets serve
-unminified JS and CSS files, and enables CKAN templates' debugging
-features.
+This enables the `Flask-DebugToolbar
+<https://flask-debugtoolbar.readthedocs.io/>`_ in the web interface, makes
+Webassets serve unminified JS and CSS files, and enables CKAN templates'
+debugging features.
+
+You will need to ensure the ``Flask-DebugToolbar`` python package is installed,
+by activating your ckan virtual environment and then running::
+
+    pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt
 
 If you are running CKAN on Apache, you must change the WSGI
-configuration to run on single process environment. otherwise
-the execution will fail to AssertionError: The EvalException
-middleware is not usable in a multi-process environment. Eg. change::
+configuration to run a single process of CKAN. Otherwise
+the execution will fail with: ``AssertionError: The EvalException
+middleware is not usable in a multi-process environment``. Eg. change::
 
   WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
   to
