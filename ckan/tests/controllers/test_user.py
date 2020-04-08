@@ -259,6 +259,21 @@ class TestUser(object):
         })
         assert "Profile updated" in response
 
+    def test_email_change_on_existed_email(self, app):
+        user1 = factories.User(email='existed@email.com')
+        user2 = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user2["name"])}
+
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "email": "existed@email.com",
+            "save": "",
+            "old_password": "RandomPassword123",
+            "password1": "",
+            "password2": "",
+            "name": user2['name'],
+        })
+        assert 'belongs to a registered user' in response
+
     def test_edit_user_logged_in_username_change(self, app):
 
         user_pass = "TestPassword1"

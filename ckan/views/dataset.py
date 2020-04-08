@@ -67,10 +67,9 @@ def url_with_params(url, params):
 
 
 def search_url(params, package_type=None):
-    if not package_type or package_type == u'dataset':
-        url = h.url_for(u'dataset.search')
-    else:
-        url = h.url_for(u'{0}_search'.format(package_type))
+    if not package_type:
+        package_type = u'dataset'
+    url = h.url_for(u'{0}.search'.format(package_type))
     return url_with_params(url, params)
 
 
@@ -84,10 +83,9 @@ def drill_down_url(alternative_url=None, **by):
 
 
 def remove_field(package_type, key, value=None, replace=None):
-    if not package_type or package_type == u'dataset':
-        url = h.url_for(u'dataset.search')
-    else:
-        url = h.url_for(u'{0}_search'.format(package_type))
+    if not package_type:
+        package_type = u'dataset'
+    url = h.url_for(u'{0}.search'.format(package_type))
     return h.remove_url_param(
         key,
         value=value,
@@ -142,10 +140,9 @@ def _form_save_redirect(pkg_name, action, package_type=None):
     if url:
         url = url.replace(u'<NAME>', pkg_name)
     else:
-        if package_type is None or package_type == u'dataset':
-            url = h.url_for(u'dataset.read', id=pkg_name)
-        else:
-            url = h.url_for(u'{0}_read'.format(package_type), id=pkg_name)
+        if not package_type:
+            package_type = u'dataset'
+        url = h.url_for(u'{0}.read'.format(package_type), id=pkg_name)
     return h.redirect_to(url)
 
 
@@ -453,7 +450,7 @@ def read(package_type, id):
     # if the user specified a package id, redirect to the package name
     if data_dict['id'] == pkg_dict['id'] and \
             data_dict['id'] != pkg_dict['name']:
-        return h.redirect_to(u'dataset.read',
+        return h.redirect_to(u'{}.read'.format(package_type),
                              id=pkg_dict['name'],
                              activity_id=activity_id)
 
@@ -546,7 +543,10 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    url = h.url_for(u'resource.new', id=pkg_dict[u'name'])
+                    url = h.url_for(
+                        u'{}_resource.new'.format(package_type),
+                        id=pkg_dict[u'name']
+                    )
                     return h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.form[u'save'] not in [
@@ -562,7 +562,10 @@ class CreateView(MethodView):
 
             if ckan_phase:
                 # redirect to add dataset resources
-                url = h.url_for(u'resource.new', id=pkg_dict[u'name'])
+                url = h.url_for(
+                    u'{}_resource.new'.format(package_type),
+                    id=pkg_dict[u'name']
+                )
                 return h.redirect_to(url)
 
             return _form_save_redirect(
@@ -590,7 +593,11 @@ class CreateView(MethodView):
                 pkg_dict = get_action(u'package_show')(context, data_dict)
                 data_dict[u'state'] = pkg_dict[u'state']
                 return EditView().get(
-                    data_dict[u'id'], data_dict, errors, error_summary
+                    package_type,
+                    data_dict[u'id'],
+                    data_dict,
+                    errors,
+                    error_summary
                 )
             data_dict[u'state'] = u'none'
             return self.get(package_type, data_dict, errors, error_summary)
@@ -740,7 +747,7 @@ class EditView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         # are we doing a multiphase add?
         if data.get(u'state', u'').startswith(u'draft'):
-            g.form_action = h.url_for(u'dataset.new')
+            g.form_action = h.url_for(u'{}.new'.format(package_type))
             g.form_style = u'new'
 
             return CreateView().get(
@@ -821,7 +828,7 @@ class DeleteView(MethodView):
 
     def post(self, package_type, id):
         if u'cancel' in request.form:
-            return h.redirect_to(u'dataset.edit', id=id)
+            return h.redirect_to(u'{}.edit'.format(package_type), id=id)
         context = self._prepare()
         try:
             get_action(u'package_delete')(context, {u'id': id})
@@ -885,7 +892,7 @@ def follow(package_type, id):
             _(u"You are now following {0}").format(package_dict[u'title'])
         )
 
-    return h.redirect_to(u'dataset.read', id=id)
+    return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
 
 def unfollow(package_type, id):
@@ -915,7 +922,7 @@ def unfollow(package_type, id):
             )
         )
 
-    return h.redirect_to(u'dataset.read', id=id)
+    return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
 
 def followers(package_type, id=None):
@@ -1006,7 +1013,7 @@ class GroupView(MethodView):
                 get_action(u'member_delete')(context, data_dict)
             except NotFound:
                 return base.abort(404, _(u'Group not found'))
-        return h.redirect_to(u'dataset.groups', id=id)
+        return h.redirect_to(u'{}.groups'.format(package_type), id=id)
 
     def get(self, package_type, id):
         context, pkg_dict = self._prepare(id)
@@ -1114,6 +1121,7 @@ def changes(id, package_type=None):
             u'activity_diffs': [activity_diff],
             u'pkg_dict': current_pkg_dict,
             u'pkg_activity_list': pkg_activity_list,
+            u'dataset_type': current_pkg_dict[u'type'],
         }
     )
 
@@ -1195,13 +1203,14 @@ def changes_multiple(package_type=None):
             u'activity_diffs': diff_list,
             u'pkg_dict': current_pkg_dict,
             u'pkg_activity_list': pkg_activity_list,
+            u'dataset_type': current_pkg_dict[u'type'],
         }
     )
 
 
 # deprecated
 def history(package_type, id):
-    return h.redirect_to(u'dataset.activity', id=id)
+    return h.redirect_to(u'{}.activity'.format(package_type), id=id)
 
 
 def register_dataset_plugin_rules(blueprint):

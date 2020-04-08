@@ -24,7 +24,8 @@ __all__ = ['Resource', 'resource_table']
 
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
-                         'size', 'created', 'last_modified', 'cache_url',
+                         'size', 'created', 'last_modified',
+                         'metadata_modified', 'cache_url',
                          'cache_last_updated', 'url_type']
 
 ##formally package_resource
@@ -47,6 +48,7 @@ resource_table = Table(
     Column('size', types.BigInteger),
     Column('created', types.DateTime, default=datetime.datetime.utcnow),
     Column('last_modified', types.DateTime),
+    Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
     Column('cache_url', types.UnicodeText),
     Column('cache_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),

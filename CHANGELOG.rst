@@ -96,6 +96,9 @@ Removals and deprecations:
    In this code snippet, will be called if current request is handled via Flask's
    dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
    Pylons package controller in CKAN<2.9
+ * Extensions that add CLI commands should note the deprecation of
+   ``ckan.lib.cli.CkanCommand`` and all other helpers in ckan.lib.cli.
+   Extensions should instead implement CLIs using the new IClick interface.
 
 v.2.8.3 2019-07-03
 ==================
@@ -446,7 +449,8 @@ Major changes:
  * Common session object for Flask and Pylons (#3208)
  * Rename deleted datasets when they conflict with new ones (#3370)
  * DataStore dump more formats: CSV, TSV, XML, JSON; BOM option (#3390)
- * Common requests code for Flask and Pylons (#3212)
+ * Common requests code for Flask and Pylons so you can use Flask views via the
+   new IBlueprint interface (#3212)
  * Generate complete datastore dump files (#3344)
  * A new system for asynchronous background jobs (#3165)
  * Chaining of action functions (#3494)

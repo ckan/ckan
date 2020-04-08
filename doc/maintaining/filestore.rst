@@ -131,7 +131,7 @@ In order to migrate make sure your CKAN instance is running as the script will
 request the data from the instance using APIs.  You need to run the following
 on the command line to do the migration::
 
-    paster db migrate-filestore
+    ckan -c |ckan.ini| db migrate-filestore
 
 This may take a long time especially if you have a lot of files remotely.
 If the remote hosting goes down or the job is interrupted it is saved to run it again

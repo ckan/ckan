@@ -5,11 +5,12 @@ from collections import defaultdict
 
 import six
 import click
+import sys
 
 import ckan.plugins as p
+import ckan.cli as ckan_cli
 from ckan.config.middleware import make_app
 from ckan.cli import (
-    load_config,
     config_tool,
     jobs,
     datapusher,
@@ -39,11 +40,20 @@ log = logging.getLogger(__name__)
 class CkanCommand(object):
 
     def __init__(self, conf=None):
-        self.config = load_config(conf)
-        self.app = make_app(self.config.global_conf, **self.config.local_conf)
+        # Don't import `load_config` by itself, rather call it using
+        # module so that it can be patched during tests
+        self.config = ckan_cli.load_config(conf)
+        self.app = make_app(self.config)
 
 
 def _init_ckan_config(ctx, param, value):
+
+    # Some commands don't require the config loaded
+    if (len(sys.argv) > 1 and not value
+            and sys.argv[1] in (u'generate', u'config-tool')) \
+            or u'--help' in sys.argv:
+        return
+
     ctx.obj = CkanCommand(value)
     if six.PY2:
         ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app

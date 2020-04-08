@@ -3,6 +3,8 @@
 import os
 import os.path
 
+from pkg_resources import parse_version
+
 # Avoid problem releasing to pypi from vagrant
 if os.environ.get('USER', '') == 'vagrant':
     del os.link
@@ -23,11 +25,6 @@ from ckan import (__version__, __description__, __long_description__,
 #
 # Check setuptools version
 #
-
-def parse_version(s):
-    return [int(part) for part in s.split('.')]
-
-
 
 HERE = os.path.dirname(__file__)
 with open(os.path.join(HERE, 'requirement-setuptools.txt')) as f:
@@ -51,29 +48,8 @@ entry_points = {
         'main = ckan.config.install:CKANInstaller',
     ],
     'paste.paster_command': [
-        'db = ckan.lib.cli:ManageDb',
-        'create-test-data = ckan.lib.cli:CreateTestDataCommand',
-        'sysadmin = ckan.lib.cli:Sysadmin',
-        'user = ckan.lib.cli:UserCmd',
-        'dataset = ckan.lib.cli:DatasetCmd',
-        'search-index = ckan.lib.cli:SearchIndexCommand',
-        'ratings = ckan.lib.cli:Ratings',
-        'notify = ckan.lib.cli:Notification',
-        'rdf-export = ckan.lib.cli:RDFExport',
-        'tracking = ckan.lib.cli:Tracking',
-        'plugin-info = ckan.lib.cli:PluginInfo',
-        'profile = ckan.lib.cli:Profile',
-        'color = ckan.lib.cli:CreateColorSchemeCommand',
-        'check-po-files = ckan.i18n.check_po_files:CheckPoFiles',
-        'trans = ckan.lib.cli:TranslationsCommand',
-        'minify = ckan.lib.cli:MinifyCommand',
-        'less = ckan.lib.cli:LessCommand',
         'datastore = ckanext.datastore.commands:datastore_group',
         'datapusher = ckanext.datapusher.cli:DatapusherCommand',
-        'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
-        'views = ckan.lib.cli:ViewsCommand',
-        'config-tool = ckan.lib.cli:ConfigToolCommand',
-        'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
         'ckan = ckan.cli.cli:ckan',
@@ -131,7 +107,9 @@ entry_points = {
         'example_idatasetform_v3 = ckanext.example_idatasetform.plugin_v3:ExampleIDatasetFormPlugin',
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
         'example_idatasetform_v5 = ckanext.example_idatasetform.plugin_v5:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v6 = ckanext.example_idatasetform.plugin_v6:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
+        'example_igroupform_v2 = ckanext.example_igroupform.plugin_v2:ExampleIGroupFormPlugin',
         'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
         'example_igroupform_organization = ckanext.example_igroupform.plugin:ExampleIGroupFormOrganizationPlugin',
         'example_iauthfunctions_v1 = ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin',

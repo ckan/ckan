@@ -19,6 +19,7 @@ from ckan.common import config
 
 from six import BytesIO
 from pyfakefs import fake_filesystem
+from freezegun import freeze_time
 
 try:
     import __builtin__ as builtins
@@ -160,7 +161,6 @@ class TestUpdate(object):
         user = factories.User()
         user["name"] = name
         with pytest.raises(logic.ValidationError):
-
             helpers.call_action("user_update", **user)
 
     def test_user_update_to_name_that_already_exists(self):
@@ -182,7 +182,8 @@ class TestUpdate(object):
         # we're not updating it, otherwise validation fails.
         helpers.call_action(
             "user_update",
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password="new password",
         )
@@ -270,7 +271,8 @@ class TestUpdate(object):
         # fails.
         helpers.call_action(
             "user_update",
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password=factories.User.attributes()["password"],
             fullname="updated full name",
@@ -317,16 +319,12 @@ class TestUpdate(object):
         helpers.call_action(
             "user_update",
             context={"schema": schema},
-            id=user["name"],
+            id=user["id"],
+            name=user["name"],
             email=user["email"],
             password=factories.User.attributes()["password"],
             fullname="updated full name",
         )
-
-        # Since we passed user['name'] to user_update as the 'id' param,
-        # our mock validator method should have been called once with
-        # user['name'] as arg.
-        mock_validator.assert_called_once_with(user["name"])
 
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
@@ -573,6 +571,40 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
         assert dataset_["extras"][0]["key"] == "original media"
         assert dataset_["extras"][0]["value"] == '"book"'
+
+    def test_extra_can_be_restored_after_deletion(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"old attribute", "value": u'value'},
+                {"key": u"original media", "value": u'"book"'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[],
+        )
+
+        assert dataset_["extras"] == []
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"original media", "value": u'"book"'},
+                {"key": u"new attribute", "value": u'value'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
 
     def test_license(self):
         user = factories.User()
@@ -1377,6 +1409,113 @@ class TestResourceUpdate(object):
 
         # View is created
         assert len(res_views) == 1
+
+    def test_edit_metadata_updates_metadata_modified_field(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='New Description',
+            )
+            assert resource['metadata_modified'] == '2020-02-25T12:00:00'
+
+    def test_same_values_dont_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='Test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='Test',
+                some_custom_field='test',
+                url='http://link.to.some.data'  # Default Value from Factory
+            )
+            assert (resource['metadata_modified'] !=
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '1987-03-04T23:30:00')
+
+    def test_new_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(package_id=dataset['id'], description='test')
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                some_custom_field='test',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
+
+    def test_remove_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
+
+    def test_update_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                some_custom_field='test2',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
