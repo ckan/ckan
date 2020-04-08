@@ -289,6 +289,29 @@ class TestGroupList(object):
 
         assert group_list == ["bb", "aa"]
 
+    def test_group_list_sort_default(self):
+
+        factories.Group(name="zz", title="aa")
+        factories.Group(name="yy", title="bb")
+
+        group_list = helpers.call_action(
+            "group_list"
+        )
+
+        assert group_list == ['zz', 'yy']
+
+    @pytest.mark.ckan_config("ckan.default_group_sort", "name")
+    def test_group_list_sort_from_config(self):
+
+        factories.Group(name="zz", title="aa")
+        factories.Group(name="yy", title="bb")
+
+        group_list = helpers.call_action(
+            "group_list"
+        )
+
+        assert group_list == ['yy', 'zz']
+
     def eq_expected(self, expected_dict, result_dict):
         superfluous_keys = set(result_dict) - set(expected_dict)
         assert not superfluous_keys, "Did not expect key: %s" % " ".join(
@@ -1341,6 +1364,19 @@ class TestPackageSearch(object):
 
         result_names = [result["name"] for result in search_result["results"]]
         assert result_names == [u"test2", u"test1", u"test0"]
+
+    @pytest.mark.ckan_config("ckan.search.default_package_sort", "metadata_created asc")
+    def test_sort_default_from_config(self):
+        factories.Dataset(name="test0")
+        factories.Dataset(name="test1")
+        factories.Dataset(name="test2")
+
+        search_result = helpers.call_action(
+            "package_search"
+        )
+
+        result_names = [result["name"] for result in search_result["results"]]
+        assert result_names == [u"test0", u"test1", u"test2"]
 
     def test_package_search_on_resource_name(self):
         """
