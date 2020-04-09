@@ -14,6 +14,7 @@ import pytz
 import tzlocal
 import pprint
 import copy
+import sys
 import uuid
 
 from paste.deploy import converters
@@ -60,13 +61,15 @@ if six.PY2:
 
 log = logging.getLogger(__name__)
 
-DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
-
 MARKDOWN_TAGS = set([
     'del', 'dd', 'dl', 'dt', 'h1', 'h2',
     'h3', 'img', 'kbd', 'p', 'pre', 's',
     'sup', 'sub', 'strike', 'br', 'hr'
 ]).union(ALLOWED_TAGS)
+
+# @deprecated
+# Use `_default_facet_names` instead.
+DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
 
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
 MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
@@ -1126,8 +1129,8 @@ def _make_menu_item(menu_item, title, **kw):
 
 
 @core_helper
-def default_group_type():
-    return str(config.get('ckan.default.group_type', 'group'))
+def default_group_type(type_='group'):
+    return str(config.get('ckan.default.{}_type'.format(type_), type_))
 
 
 @core_helper
@@ -1246,8 +1249,11 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'organization': _('Organizations'),
-                    'groups': _('Groups'),
+    org_type = default_group_type(u'organization')
+    group_type = default_group_type(u'group') + u's'
+
+    facet_titles = {org_type: _(org_type.title() + u's'),
+                    group_type: _(group_type.title()),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
                     'license': _('Licenses'), }
@@ -2742,10 +2748,18 @@ def get_translated(data_dict, field):
         return _(val) if val and isinstance(val, string_types) else val
 
 
+def _default_facet_names():
+    return (
+        u'{organization} {groups} tags res_format license_id'.format(
+            organization=default_group_type(u'organization'),
+            groups=default_group_type(u'group') + u's',
+        ))
+
+
 @core_helper
 def facets():
     u'''Returns a list of the current facet names'''
-    return config.get(u'search.facets', DEFAULT_FACET_NAMES).split()
+    return config.get(u'search.facets', _default_facet_names()).split()
 
 
 @core_helper

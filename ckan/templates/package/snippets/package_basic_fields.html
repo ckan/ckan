@@ -73,11 +73,11 @@
     {% if show_organizations_selector %}
     {% set existing_org = data.owner_org or data.group_id %}
     <div class="form-group control-medium">
-      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+      <label for="field-organizations" class="control-label">{{ _(h.default_group_type('organization').title()) }}</label>
       <div class="controls">
         <select id="field-organizations" name="owner_org" data-module="autocomplete">
           {% if h.check_config_permission('create_unowned_dataset') %}
-          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
+          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No ' ~ h.default_group_type('organization')) }}</option>
           {% endif %}
           {% for organization in organizations_available %}
           {# get out first org from users list only if there is not an existing org #}

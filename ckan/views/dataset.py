@@ -251,9 +251,12 @@ def search(package_type):
 
         facets = OrderedDict()
 
+        org_type = h.default_group_type(u'organization')
+        group_type = h.default_group_type(u'group') + u's'
+
         default_facet_titles = {
-            u'organization': _(u'Organizations'),
-            u'groups': _(u'Groups'),
+            org_type: _(org_type.title() + u's'),
+            group_type: _(group_type.title()),
             u'tags': _(u'Tags'),
             u'res_format': _(u'Formats'),
             u'license_id': _(u'Licenses'),

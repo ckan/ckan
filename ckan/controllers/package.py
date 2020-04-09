@@ -252,9 +252,12 @@ class PackageController(base.BaseController):
 
             facets = OrderedDict()
 
+            org_type = h.default_group_type(u'organization')
+            group_type = h.default_group_type(u'group') + u's'
+
             default_facet_titles = {
-                'organization': _('Organizations'),
-                'groups': _('Groups'),
+                org_type: _(org_type.title() + u's'),
+                group_type: _(group_type.title()),
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
                 'license_id': _('Licenses'),

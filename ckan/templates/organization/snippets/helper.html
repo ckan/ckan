@@ -1,13 +1,26 @@
+{#
+  Displays a sidebard module with information about organizations.
+
+  group_type    - The type of organization.
+
+  Example:
+
+  {% snippet "organization/snippets/helper.html", group_type=group_type %}
+
+  #}
+
+{% set label = group_type.title() %}
+
 <div class="module module-narrow module-shallow">
   <h2 class="module-heading">
     <i class="fa fa-info-circle"></i>
-    {{ _('What are Organizations?') }}
+    {{ _('What are {}?'.format(label)) }}
   </h2>
   <div class="module-content">
     <p>
       {% trans %}
-        CKAN Organizations are used to create, manage and publish collections
-        of datasets. Users can have different roles within an Organization,
+        CKAN {{ label }}s are used to create, manage and publish collections
+        of datasets. Users can have different roles within an {{ label }},
         depending on their level of authorisation to create, edit and publish.
       {% endtrans %}
     </p>
