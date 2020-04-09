@@ -94,7 +94,7 @@ __all__ = [u"helper", u"auth", u"action", u"blueprint", u"cli", u"validator"]
 log = logging.getLogger(__name__)
 
 
-class Blanket(enum.Flag):
+class Blanket(enum.IntEnum):
     """Enumeration of all available blanket types.
 
     In addition, contains hidden `_all` option, that contains all
@@ -103,12 +103,12 @@ class Blanket(enum.Flag):
 
     """
 
-    helper = enum.auto()
-    auth = enum.auto()
-    action = enum.auto()
-    blueprint = enum.auto()
-    cli = enum.auto()
-    validator = enum.auto()
+    helper = 1 << 0
+    auth = 1 << 1
+    action = 1 << 2
+    blueprint = 1 << 3
+    cli = 1 << 4
+    validator = 1 << 5
     _all = helper | auth | action | blueprint | cli | validator
 
     def path(self):
