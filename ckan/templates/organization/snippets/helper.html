@@ -9,18 +9,17 @@
 
   #}
 
-{% set label = group_type.title() %}
 
 <div class="module module-narrow module-shallow">
   <h2 class="module-heading">
     <i class="fa fa-info-circle"></i>
-    {{ _('What are {}?'.format(label)) }}
+    {{ _('What are Organizations?') }}
   </h2>
   <div class="module-content">
     <p>
       {% trans %}
-        CKAN {{ label }}s are used to create, manage and publish collections
-        of datasets. Users can have different roles within an {{ label }},
+        CKAN Organizations are used to create, manage and publish collections
+        of datasets. Users can have different roles within an Organization,
         depending on their level of authorisation to create, edit and publish.
       {% endtrans %}
     </p>
