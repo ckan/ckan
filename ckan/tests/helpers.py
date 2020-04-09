@@ -254,7 +254,9 @@ class CKANTestClient(FlaskClient):
         res = super(CKANTestClient, self).open(*args, **kwargs)
 
         if status:
-            assert res.status_code == status, (res.status_code, status)
+            assert (
+                res.status_code == status
+            ), "Actual: {}. Expected: {}".format(res.status_code, status)
 
         return res
 
@@ -278,9 +280,9 @@ def _get_test_app():
     config["ckan.legacy_templates"] = False
     config["testing"] = True
     if six.PY2:
-        app = ckan.config.middleware.make_app(config["global_conf"], **config)
+        app = ckan.config.middleware.make_app(config)
     else:
-        app = ckan.config.middleware.make_app(config, **config)
+        app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
 
     return app

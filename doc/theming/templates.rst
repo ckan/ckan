@@ -29,7 +29,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
       |activate|
       cd |virtualenv|/src
-      paster --plugin=ckan create -t ckanext |extension_dir|
+      ckan -c |ckan.ini| create -t ckanext |extension_dir|
 
 2. Create the file |plugin.py| with the following contents:
 
@@ -49,7 +49,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
     cd |extension_dir|
     python setup.py develop
 
-5. Add the plugin to the ``ckan.plugins`` setting in your |development.ini|
+5. Add the plugin to the ``ckan.plugins`` setting in your |ckan.ini|
    file::
 
     ckan.plugins = stats text_view recline_view example_theme
@@ -58,7 +58,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
    .. parsed-literal::
 
-    $ paster serve --reload |development.ini|
+    $ ckan -c |ckan.ini| run --reload
     Starting server in PID 13961.
     serving on 0.0.0.0:5000 view at http://127.0.0.1:5000
 
@@ -139,7 +139,7 @@ This new code does a few things:
 
 Now, let's customize the CKAN front page. We first need to discover which
 template file CKAN uses to render the front page, so we can replace it.
-Set :ref:`debug` to ``true`` in your |development.ini| file::
+Set :ref:`debug` to ``true`` in your |ckan.ini| file::
 
     [DEFAULT]
 

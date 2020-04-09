@@ -56,7 +56,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         u'package_id', u'url', u'revision_id', u'description',
         u'format', u'hash', u'name', u'resource_type',
         u'mimetype', u'mimetype_inner', u'cache_url',
-        u'size', u'created', u'last_modified',
+        u'size', u'created', u'last_modified', u'metadata_modified',
         u'cache_last_updated', u'upload', u'position'
     ]
     default_fields_set = set(fields)

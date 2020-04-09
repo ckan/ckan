@@ -251,7 +251,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or 'title'
+    sort = data_dict.get('sort') or config.get('ckan.default_group_sort') or 'title'
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -358,7 +358,7 @@ def group_list(context, data_dict):
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
-        "name asc" string of field name and sort-order. The allowed fields are
+        "title asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
     :param limit: the maximum number of groups returned (optional)
@@ -409,7 +409,7 @@ def organization_list(context, data_dict):
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
-        "name asc" string of field name and sort-order. The allowed fields are
+        "title asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
     :param limit: the maximum number of organizations returned (optional)
@@ -1545,8 +1545,9 @@ def package_search(context, data_dict):
 
     **Solr Parameters:**
 
-    For more in depth treatment of each paramter, please read the `Solr
-    Documentation <http://wiki.apache.org/solr/CommonQueryParameters>`_.
+    For more in depth treatment of each paramter, please read the
+    `Solr Documentation
+    <https://lucene.apache.org/solr/guide/6_6/common-query-parameters.html>`_.
 
     This action accepts a *subset* of solr's search query parameters:
 
@@ -1559,7 +1560,7 @@ def package_search(context, data_dict):
     :param fq_list: additional filter queries to apply.
     :type fq_list: list of strings
     :param sort: sorting of the search results.  Optional.  Default:
-        ``'relevance asc, metadata_modified desc'``.  As per the solr
+        ``'score desc, metadata_modified desc'``.  As per the solr
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
@@ -1696,7 +1697,7 @@ def package_search(context, data_dict):
     abort = data_dict.get('abort_search', False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = 'score desc, metadata_modified desc'
+        data_dict['sort'] = config.get('ckan.search.default_package_sort') or 'score desc, metadata_modified desc'
 
     results = []
     if not abort:

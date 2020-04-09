@@ -315,6 +315,7 @@ class TestDatastoreCreateNewTests(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         # how datapusher loads data (send_resource_to_datastore)
         resource = factories.Resource()

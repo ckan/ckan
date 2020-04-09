@@ -28,7 +28,7 @@
           <ul>
             {% block resource_actions_inner %}
             {% if h.check_access('package_update', {'id':pkg.id }) and not is_activity_archive %}
-              <li>{% link_for _('Manage'), named_route='resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
+              <li>{% link_for _('Manage'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
             {% endif %}
             {% if res.url and h.is_url(res.url) %}
               <li>
@@ -74,7 +74,7 @@
           {% block package_archive_notice %}
             {% if is_activity_archive %}
               <div id="activity-archive-notice" class="alert alert-danger">
-                {% trans url=h.url_for('dataset.read', id=pkg.id) %}
+                {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
                 You're currently viewing an old version of this dataset. To see the
                 current version, click <a href="{{ url }}">here</a>.
                 {% endtrans %}
@@ -94,9 +94,9 @@
               {{ h.render_markdown(res.description) }}
             {% endif %}
             {% if not res.description and package.notes %}
-              <h3>{{ _('From the dataset abstract') }}</h3>
+              <h3>{{ _('Dataset description:') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-              <p>{% trans dataset=package.title, url=h.url_for('dataset.read', id=package.id if is_activity_archive else package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+              <p>{% trans dataset=package.title, url=h.url_for(package.type ~ '.read', id=package.id if is_activity_archive else package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
             {% endif %}
           </div>
         {% endblock %}
@@ -187,7 +187,7 @@
               </tr>
               <tr>
                 <th scope="row">{{ _('Metadata last updated') }}</th>
-                <td>{{ h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
+                <td>{{ h.render_datetime(res.metadata_modified) or h.render_datetime(res.created) or _('unknown') }}</td>
               </tr>
               <tr>
                 <th scope="row">{{ _('Created') }}</th>
