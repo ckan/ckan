@@ -117,7 +117,7 @@ def resource_update(context, data_dict):
         context.pop('defer_commit')
     except ValidationError as e:
         try:
-            raise ValidationError(e.error_dict['resources'][-1])
+            raise ValidationError(e.error_dict['resources'][n])
         except (KeyError, IndexError):
             raise ValidationError(e.error_dict)
 
