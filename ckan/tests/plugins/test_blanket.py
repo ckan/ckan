@@ -8,7 +8,7 @@ from ckan.cli.cli import ckan as ckan_command
 from ckan.plugins import toolkit as tk
 
 
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.usefixtures(u"with_plugins", u"with_extended_cli")
 class TestBlanketImplementation(object):
     @pytest.fixture(autouse=True)
     def _patch_cli(self, monkeypatch, ckan_config):
