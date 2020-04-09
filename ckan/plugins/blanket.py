@@ -159,7 +159,11 @@ class Blanket(enum.IntEnum):
         )
 
 
-BlanketMapping = namedtuple("BlanketMapping", ["path", "method", "interface"])
+BlanketMapping = namedtuple(
+    u"BlanketMapping",
+    [u"path", u"method", u"interface"]
+)
+
 _mapping = {
     Blanket.helper: BlanketMapping(
         u"helpers", u"get_helpers", p.ITemplateHelpers
