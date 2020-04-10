@@ -112,7 +112,7 @@ def sync_po_msgids(files):
 
 
 def normalize_string(s):
-    return re.sub(ur'\s\s+', ' ', s).strip()
+    return re.sub(r'\s\s+', ' ', s).strip()
 
 
 def sync_po_file_msgids(entries_to_change, path):
