@@ -1,7 +1,6 @@
 {% extends "organization/base_form_page.html" %}
 
-{# TRANSLATORS: expected value: "organization" #}
-{% set title = _('Create an {organization_type}').format(organization_type=group_type) %}
+{% set title = _('Create an {organization_type}').format(organization_type=h.humanize_entity_type(group_type).capitalize()) %}
 
 {% block subtitle %}{{ title }}{% endblock %}
 

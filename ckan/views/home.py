@@ -46,11 +46,14 @@ def index():
         g.datasets = query['results']
 
         org_type = h.default_group_type(u'organization')
+        org_label = h.humanize_entity_type(org_type + u's').capitalize()
+
         group_type = h.default_group_type(u'group') + u's'
+        group_label = h.humanize_entity_type(group_type).capitalize()
 
         g.facet_titles = {
-            org_type: _(org_type.title() + u's'),
-            group_type: _(group_type.title()),
+            u'organization': _(org_label),
+            u'groups': _(group_label),
             u'tags': _(u'Tags'),
             u'res_format': _(u'Formats'),
             u'license': _(u'Licenses'),

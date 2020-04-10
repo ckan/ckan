@@ -339,11 +339,14 @@ def _read(id, limit, group_type):
         facets = OrderedDict()
 
         org_type = h.default_group_type(u'organization')
+        org_label = h.humanize_entity_type(org_type + u's').capitalize()
+
         group_type = h.default_group_type(u'group') + u's'
+        group_label = h.humanize_entity_type(group_type).capitalize()
 
         default_facet_titles = {
-            org_type: _(org_type.title() + u's'),
-            group_type: _(group_type.title()),
+            u'organization': _(org_label),
+            u'group': _(group_label),
             u'tags': _(u'Tags'),
             u'res_format': _(u'Formats'),
             u'license_id': _(u'Licenses')
@@ -790,7 +793,8 @@ class BulkProcessView(MethodView):
             group_dict = _action(u'group_show')(context, data_dict)
             group = context['group']
         except NotFound:
-            base.abort(404, _(u'{} not found'.format(group_type)))
+            group_label = h.humanize_entity_type(group_type)
+            base.abort(404, _(u'{} not found'.format(group_label)))
         except NotAuthorized:
             base.abort(403,
                        _(u'User %r not authorized to edit %s') % (g.user, id))
@@ -1039,8 +1043,9 @@ class DeleteGroupView(MethodView):
         context = self._prepare(id)
         try:
             _action(u'group_delete')(context, {u'id': id})
+            group_label = h.humanize_entity_type(group_type)
             h.flash_notice(
-                _(u'%s has been deleted.') % _(group_type.capitalize()))
+                _(u'%s has been deleted.') % _(group_label.capitalize()))
             group_dict = _action(u'group_show')(context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')

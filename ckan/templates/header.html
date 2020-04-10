@@ -84,14 +84,18 @@
       {% block header_site_navigation %}
       <nav class="section navigation">
         <ul class="nav nav-pills">
-            {% block header_site_navigation_tabs %}
-		{{ h.build_nav_main(
-		    ('dataset.search', _('Datasets')),
-		    (h.default_group_type('organization') ~ '.index',
-          _(h.default_group_type('organization').title() ~ 's')),
-		    ('group.index', _('Groups')),
-		    ('home.about', _('About')) ) }}
-	    {% endblock %}
+          {% block header_site_navigation_tabs %}
+            {% set org_type = h.default_group_type('organization') %}
+            {% set group_type = h.default_group_type('group') %}
+
+		        {{ h.build_nav_main(
+		          ('dataset.search', _('Datasets')),
+		          (org_type ~ '.index',
+                _(h.humanize_entity_type(org_type).capitalize() ~ 's')),
+		          (group_type ~ '.index',
+                _(h.humanize_entity_type(group_type).capitalize() ~ 's')),
+		          ('home.about', _('About')) ) }}
+	        {% endblock header_site_navigation_tabs %}
         </ul>
       </nav>
       {% endblock %} {% block header_site_search %}

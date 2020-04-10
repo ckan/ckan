@@ -314,11 +314,14 @@ class GroupController(base.BaseController):
 
             facets = OrderedDict()
 
-            org_type = h.default_group_type(u'organization')
-            group_type = h.default_group_type(u'group') + u's'
+            org_type = h.default_group_type(u'organization') + u's'
+            org_label = h.humanize_entity_type(org_type).capitalize()
 
-            default_facet_titles = {org_type: _(org_type.title() + u's'),
-                                    group_type: _(group_type.title()),
+            group_type = h.default_group_type(u'group') + u's'
+            group_label = h.humanize_entity_type(group_type).capitalize()
+
+            default_facet_titles = {'organization': _(org_label),
+                                    'groups': _(group_label),
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
                                     'license_id': _('Licenses')}
@@ -632,8 +635,9 @@ class GroupController(base.BaseController):
         try:
             if request.method == 'POST':
                 self._action('group_delete')(context, {'id': id})
+                entity_label = h.humanize_entity_type(group_type).capitalize()
                 h.flash_notice(_('%s has been deleted.')
-                               % _(group_type.capitalize()))
+                               % _(entity_label))
                 h.redirect_to(group_type + '_index')
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:

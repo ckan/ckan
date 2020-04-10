@@ -67,8 +67,6 @@ MARKDOWN_TAGS = set([
     'sup', 'sub', 'strike', 'br', 'hr'
 ]).union(ALLOWED_TAGS)
 
-# @deprecated
-# Use `_default_facet_names` instead.
 DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
 
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
@@ -899,7 +897,7 @@ def link_to(label, url, **attrs):
 
 
 @core_helper
-def file(name, value=None, id=None, **attrs):
+def file(name, value='', id=None, **attrs):
     """Create a file upload field.
 
     If you are using file uploads then you will also need to set the
@@ -908,7 +906,7 @@ def file(name, value=None, id=None, **attrs):
     Example::
 
         >>> file('myfile')
-        literal(u'<input id="myfile" name="myfile" type="file" />')
+        literal('<input id="myfile" name="myfile" type="file" value="">')
 
     """
     return literal(_input_tag(u"file", name, value, id, **attrs))
@@ -1130,7 +1128,24 @@ def _make_menu_item(menu_item, title, **kw):
 
 @core_helper
 def default_group_type(type_='group'):
+    """Get default group/organization type for using site-wide.
+    """
     return str(config.get('ckan.default.{}_type'.format(type_), type_))
+
+
+@core_helper
+def humanize_entity_type(type_):
+    """Convert machine-readable representation of package/group type into
+    human-readable form.
+
+    Example::
+
+        >>> humanize_entity_type('group')
+        'group'
+        >>> humanize_entity_type('custom_group')
+        'custom group'
+    """
+    return type_.replace('_', ' ')
 
 
 @core_helper
@@ -1249,11 +1264,14 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    org_type = default_group_type(u'organization')
-    group_type = default_group_type(u'group') + u's'
+    org_type = default_group_type(u'organization') + u's'
+    org_label = humanize_entity_type(org_type).capitalize()
 
-    facet_titles = {org_type: _(org_type.title() + u's'),
-                    group_type: _(group_type.title()),
+    group_type = default_group_type(u'group') + u's'
+    group_label = humanize_entity_type(group_type).capitalize()
+
+    facet_titles = {'organization': _(org_label),
+                    'groups': _(group_label),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
                     'license': _('Licenses'), }
@@ -2748,18 +2766,10 @@ def get_translated(data_dict, field):
         return _(val) if val and isinstance(val, string_types) else val
 
 
-def _default_facet_names():
-    return (
-        u'{organization} {groups} tags res_format license_id'.format(
-            organization=default_group_type(u'organization'),
-            groups=default_group_type(u'group') + u's',
-        ))
-
-
 @core_helper
 def facets():
     u'''Returns a list of the current facet names'''
-    return config.get(u'search.facets', _default_facet_names()).split()
+    return config.get(u'search.facets', DEFAULT_FACET_NAMES).split()
 
 
 @core_helper
