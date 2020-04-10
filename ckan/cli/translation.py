@@ -95,6 +95,44 @@ def check_po(files):
             )
 
 
+@translation.command(
+    u'sync-msgids', short_help=u'Update the msgids on the po files '
+    'with the ones on the pot file'
+)
+@click.argument(u'files', nargs=-1, type=click.Path(exists=True))
+def sync_po_msgids(files):
+    i18n_path = get_i18n_path()
+    pot_path = os.path.join(i18n_path, u'ckan.pot')
+    po = polib.pofile(pot_path)
+    entries_to_change = {}
+    for entry in po.untranslated_entries():
+        entries_to_change[normalize_string(entry.msgid)] = entry.msgid
+
+    for path in files:
+        sync_po_file_msgids(entries_to_change, path)
+
+
+def normalize_string(s):
+    return re.sub(r'\s\s+', ' ', s).strip()
+
+
+def sync_po_file_msgids(entries_to_change, path):
+
+    po = polib.pofile(path)
+    cnt = 0
+
+    for entry in po.translated_entries() + po.untranslated_entries():
+        normalized = normalize_string(entry.msgid)
+
+        if (normalized in entries_to_change
+                and entry.msgid != entries_to_change[normalized]):
+            entry.msgid = entries_to_change[normalized]
+            cnt += 1
+
+    po.save()
+    click.echo('Entries updated in {} file: {}'.format(po.metadata['Language'], cnt))
+
+
 def get_i18n_path():
     return config.get(u'ckan.i18n_directory', os.path.join(ckan_path, u'i18n'))
 
