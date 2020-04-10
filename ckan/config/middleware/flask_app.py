@@ -111,6 +111,7 @@ def make_flask_stack(conf):
     ).split(',') + [os.path.join(root, public_folder)] + storage_folder
 
     app.jinja_options = jinja_extensions.get_jinja_env_options()
+    app.jinja_env.policies['ext.i18n.trimmed'] = True
 
     app.debug = debug
     app.testing = testing
