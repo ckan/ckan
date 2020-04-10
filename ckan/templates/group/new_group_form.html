@@ -1,9 +1,11 @@
 {% extends "group/snippets/group_form.html" %}
 
+{% set group_type_label = h.humanize_entity_type(group_type).capitalize() %}
+
 {#
-As the form is rendered as a seperate page we take advantage of this by
-overriding the form blocks depending on the current context
-#}
+  As the form is rendered as a seperate page we take advantage of this by
+  overriding the form blocks depending on the current context
+  #}
 {% block dataset_fields %}
   {% if action == "edit" %}{{ super() }}{% endif %}
 {% endblock %}
@@ -14,9 +16,9 @@ overriding the form blocks depending on the current context
 
 {% block save_text %}
   {%- if action == "edit" -%}
-    {{ _('Update Group') }}
+    {{ _('Update ' ~ group_type_label) }}
   {%- else -%}
-    {{ _('Create Group') }}
+    {{ _('Create ' ~ group_type_label) }}
   {%- endif -%}
 {% endblock %}
 

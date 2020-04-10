@@ -289,7 +289,7 @@ def _read(id, limit, group_type):
     def drill_down_url(**by):
         return h.add_url_param(
             alternative_url=None,
-            controller=u'group',
+            controller=group_type,
             action=u'read',
             extras=dict(id=g.group_dict.get(u'name')),
             new_params=by)
@@ -346,7 +346,7 @@ def _read(id, limit, group_type):
 
         default_facet_titles = {
             u'organization': _(org_label),
-            u'group': _(group_label),
+            u'groups': _(group_label),
             u'tags': _(u'Tags'),
             u'res_format': _(u'Formats'),
             u'license_id': _(u'Licenses')
