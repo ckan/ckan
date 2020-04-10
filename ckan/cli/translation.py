@@ -113,7 +113,7 @@ def sync_po_msgids(files):
 
 
 def normalize_string(s):
-    return re.sub(r'\s\s+', ' ', s).strip()
+    return re.sub(ur'\s\s+', ' ', s).strip()
 
 
 def sync_po_file_msgids(entries_to_change, path):
@@ -130,7 +130,8 @@ def sync_po_file_msgids(entries_to_change, path):
             cnt += 1
 
     po.save()
-    click.echo('Entries updated in {} file: {}'.format(po.metadata['Language'], cnt))
+    click.echo(
+        u'Entries updated in {} file: {}'.format(po.metadata[u'Language'], cnt))
 
 
 def get_i18n_path():
