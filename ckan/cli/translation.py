@@ -8,7 +8,6 @@ import os
 import click
 import six
 
-from ckan.cli import error_shout
 from ckan.common import config
 from ckan.lib.i18n import build_js_translations
 
@@ -131,7 +130,8 @@ def sync_po_file_msgids(entries_to_change, path):
 
     po.save()
     click.echo(
-        u'Entries updated in {} file: {}'.format(po.metadata[u'Language'], cnt))
+        u'Entries updated in {} file: {}'.format(po.metadata[u'Language'], cnt)
+    )
 
 
 def get_i18n_path():
