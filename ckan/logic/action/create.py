@@ -636,8 +636,8 @@ def package_member_create(context, data_dict):
     :type id: string
     :param user_id: the id or name of the user to add or edit
     :type user_id: string
-    :param capacity: the capacity of the membership. Must be one of "editor"
-        or "member"
+    :param capacity: the capacity or role of the membership. Must be one of
+        "editor" or "member"
     :type capacity: string
 
     :returns: the newly created (or updated) collaborator
@@ -653,7 +653,7 @@ def package_member_create(context, data_dict):
 
     if capacity not in PACKAGE_MEMBER_ALLOWED_CAPACITIES:
         raise ValidationError(
-            'Capacity must be one of "{}"'.format(', '.join(
+            _('Role must be one of "{}"').format(', '.join(
                 PACKAGE_MEMBER_ALLOWED_CAPACITIES)))
 
     package = model.Package.get(package_id)
