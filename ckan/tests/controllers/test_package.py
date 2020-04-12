@@ -781,7 +781,10 @@ class TestResourceNew(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.post(
-            url_for("resource.new", id=dataset["id"]), extra_environ=env,
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
             data={
                 "id": "",
                 "url": "http://test.com/",
@@ -793,7 +796,7 @@ class TestResourceNew(object):
 
         response = app.get(
             url_for(
-                "resource.download",
+                "{}_resource.download".format(dataset["type"]),
                 id=dataset["id"],
                 resource_id=result["resources"][0]["id"],
             ),
@@ -811,7 +814,10 @@ class TestResourceNew(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.post(
-            url_for("resource.new", id=dataset["id"]), extra_environ=env,
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
             data={
                 "id": "",
                 "name": "test resource",
@@ -832,7 +838,10 @@ class TestResourceNew(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.post(
-            url_for("resource.new", id=dataset["id"]), extra_environ=env,
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
             data={
                 "id": "",
                 "name": "test resource",
@@ -853,13 +862,17 @@ class TestResourceNew(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.get(
-            url_for("resource.new", id=dataset["id"]),
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
             extra_environ=env,
             status=403,
         )
 
         response = app.post(
-            url_for("resource.new", id=dataset["id"]),
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
             data={"name": "test", "url": "test", "save": "save", "id": ""},
             extra_environ=env,
             status=403,
@@ -873,13 +886,17 @@ class TestResourceNew(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         response = app.get(
-            url_for("resource.new", id=dataset["id"]),
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
             extra_environ=env,
             status=403,
         )
 
         response = app.post(
-            url_for("resource.new", id=dataset["id"]),
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
             data={"name": "test", "url": "test", "save": "save", "id": ""},
             extra_environ=env,
             status=403,
@@ -890,11 +907,15 @@ class TestResourceNew(object):
         dataset = factories.Dataset(owner_org=organization["id"])
 
         response = app.get(
-            url_for("resource.new", id=dataset["id"]), status=403
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ), status=403
         )
 
         response = app.post(
-            url_for("resource.new", id=dataset["id"]),
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
             data={"name": "test", "url": "test", "save": "save", "id": ""},
             status=403,
         )
@@ -907,7 +928,7 @@ class TestResourceNew(object):
         with app.flask_app.test_request_context():
             response = app.get(
                 url_for(
-                    "resource.edit",
+                    "{}_resource.edit".format(dataset["type"]),
                     id=dataset["id"],
                     resource_id=resource["id"],
                 ),
@@ -916,7 +937,7 @@ class TestResourceNew(object):
 
             response = app.post(
                 url_for(
-                    "resource.edit",
+                    "{}_resource.edit".format(dataset["type"]),
                     id=dataset["id"],
                     resource_id=resource["id"],
                 ),
@@ -1040,7 +1061,8 @@ class TestResourceRead(object):
         resource = factories.Resource()
 
         url = url_for(
-            "resource.read", id=dataset["id"], resource_id=resource["id"]
+            "{}_resource.read".format(dataset["type"]),
+            id=dataset["id"], resource_id=resource["id"]
         )
 
         app.get(url, status=404)
@@ -1055,7 +1077,8 @@ class TestResourceRead(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         url = url_for(
-            "resource.read", id=dataset["id"], resource_id=resource["id"]
+            "{}_resource.read".format(dataset["type"]),
+            id=dataset["id"], resource_id=resource["id"]
         )
 
         app.get(url, status=200, extra_environ=env)
@@ -1068,7 +1091,8 @@ class TestResourceRead(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         url = url_for(
-            "resource.read", id=dataset["id"], resource_id=resource["id"]
+            "{}_resource.read".format(dataset["type"]),
+            id=dataset["id"], resource_id=resource["id"]
         )
 
         app.get(url, status=200)
@@ -1083,7 +1107,8 @@ class TestResourceRead(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         url = url_for(
-            "resource.read", id=dataset["id"], resource_id=resource["id"]
+            "{}_resource.read".format(dataset["type"]),
+            id=dataset["id"], resource_id=resource["id"]
         )
 
         app.get(url, status=200, extra_environ=env)
@@ -1096,7 +1121,8 @@ class TestResourceRead(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         url = url_for(
-            "resource.read", id=dataset["id"], resource_id=resource["id"]
+            "{}_resource.read".format(dataset["type"]),
+            id=dataset["id"], resource_id=resource["id"]
         )
 
         response = app.get(url, status=404, extra_environ=env)
@@ -1123,7 +1149,7 @@ class TestResourceRead(object):
         for user, user_dict in members.items():
             response = app.get(
                 url_for(
-                    "resource.read",
+                    "{}_resource.read".format(dataset["type"]),
                     id=dataset["name"],
                     resource_id=resource["id"],
                 ),
@@ -1154,7 +1180,7 @@ class TestResourceDelete(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for(
-                "resource.delete",
+                "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
@@ -1175,7 +1201,7 @@ class TestResourceDelete(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for(
-                "resource.delete",
+                "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id="doesnotexist",
             ),
@@ -1194,7 +1220,7 @@ class TestResourceDelete(object):
 
         response = app.post(
             url_for(
-                "resource.delete",
+                "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
@@ -1218,7 +1244,7 @@ class TestResourceDelete(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for(
-                "resource.delete",
+                "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
@@ -1237,7 +1263,7 @@ class TestResourceDelete(object):
         env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.post(
             url_for(
-                "resource.delete",
+                "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
@@ -1263,7 +1289,7 @@ class TestResourceDelete(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for(
-                "resource.delete",
+                "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
@@ -1275,7 +1301,7 @@ class TestResourceDelete(object):
 
         response = app.post(
             url_for(
-                "resource.delete",
+                "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),

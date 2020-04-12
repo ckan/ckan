@@ -22,7 +22,7 @@ def test_view_shown_on_resource_page_with_video_url(app):
         view_type='video_view',
         video_url='https://example/video.mp4')
 
-    url = url_for('resource.read',
+    url = url_for('{}_resource.read'.format(dataset['type']),
                   id=dataset['name'], resource_id=resource['id'])
 
     response = app.get(url)
