@@ -2156,3 +2156,30 @@ class TestCollaborators(object):
         env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
         response = app.get(url=url_for('dataset.edit', id=dataset['name']), extra_environ=env)
         assert 'Collaborators' in response
+
+        # Route registered
+        url = url_for('dataset.collaborators_read', id=dataset['name'])
+        app.get(url, extra_environ=env)
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', 'true')
+    def test_collaborators_no_admins_by_default(self, app):
+        dataset = factories.Dataset()
+        sysadmin = factories.Sysadmin()
+
+        env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
+        url = url_for('dataset.new_collaborator', id=dataset['name'])
+        response = app.get(url, extra_environ=env)
+
+        assert '<option value="admin">' not in response
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', 'true')
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', 'true')
+    def test_collaborators_admins_enabled(self, app):
+        dataset = factories.Dataset()
+        sysadmin = factories.Sysadmin()
+
+        env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
+        url = url_for('dataset.new_collaborator', id=dataset['name'])
+        response = app.get(url, extra_environ=env)
+
+        assert '<option value="admin">' in response
