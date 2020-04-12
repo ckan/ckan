@@ -13,7 +13,6 @@ from ckan.logic.auth.create import _check_group_auth
 def package_update(context, data_dict):
     user = context.get('user')
     package = logic_auth.get_package_object(context, data_dict)
-
     if package.owner_org:
         # if there is an owner org then we must have update_dataset
         # permission for that organization
@@ -35,13 +34,16 @@ def package_update(context, data_dict):
                 )) or authz.has_user_permission_for_some_org(
                 user, 'create_dataset')
 
-    if not check1 and authz.check_config_permission('allow_dataset_collaborators'):
-        # if org-level auth failed, check dataset-level auth
-        # (ie if user is a collaborator)
-        user_packages = logic.get_action(
-            'package_member_list_for_user')(
-                context, {'id': user, 'capacity': 'editor'})
-        if package.id not in [p['package_id'] for p in user_packages]:
+    if not check1:
+        success = False
+        if authz.check_config_permission('allow_dataset_collaborators'):
+            # if org-level auth failed, check dataset-level auth
+            # (ie if user is a collaborator)
+            user_packages = logic.get_action(
+                'package_member_list_for_user')(
+                    context, {'id': user, 'capacity': 'editor'})
+            success = package.id in [p['package_id'] for p in user_packages]
+        if not success:
             return {'success': False,
                     'msg': _('User %s not authorized to edit package %s') %
                             (str(user), package.id)}
