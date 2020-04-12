@@ -18,6 +18,7 @@ import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
+import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
@@ -1371,22 +1372,24 @@ def register_dataset_plugin_rules(blueprint):
         )
 
     )
-    blueprint.add_url_rule(
-        rule=u'/collaborators/<id>',
-        view_func=collaborators_read,
-        methods=['GET', ]
-    )
 
-    blueprint.add_url_rule(
-        rule=u'/collaborators/<id>/new',
-        view_func=CollaboratorEditView.as_view(str(u'new_collaborator')),
-        methods=[u'GET', u'POST', ]
-    )
+    if authz.check_config_permission('allow_dataset_collaborators'):
+        blueprint.add_url_rule(
+            rule=u'/collaborators/<id>',
+            view_func=collaborators_read,
+            methods=['GET', ]
+        )
 
-    blueprint.add_url_rule(
-        rule=u'/collaborators/<id>/delete/<user_id>',
-        view_func=collaborator_delete, methods=['POST', ]
-    )
+        blueprint.add_url_rule(
+            rule=u'/collaborators/<id>/new',
+            view_func=CollaboratorEditView.as_view(str(u'new_collaborator')),
+            methods=[u'GET', u'POST', ]
+        )
+
+        blueprint.add_url_rule(
+            rule=u'/collaborators/<id>/delete/<user_id>',
+            view_func=collaborator_delete, methods=['POST', ]
+        )
 
 
 register_dataset_plugin_rules(dataset)

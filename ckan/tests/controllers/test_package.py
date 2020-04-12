@@ -2128,3 +2128,32 @@ class TestChanges(object):  # i.e. the diff
         )
         assert helpers.body_contains(response, "First")
         assert helpers.body_contains(response, "Second")
+
+
+@pytest.mark.usefixtures('clean_db', 'with_request_context')
+class TestCollaborators(object):
+
+    def test_collaborators_tab_not_shown(self, app):
+        dataset = factories.Dataset()
+        sysadmin = factories.Sysadmin()
+
+        env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
+        response = app.get(url=url_for('dataset.edit', id=dataset['name']), extra_environ=env)
+        assert 'Collaborators' not in response
+
+        # Route not registered
+        url = url_for('dataset.collaborators_read', id=dataset['name'])
+        assert url == 'dataset.collaborators_read?id=test_dataset_00'
+
+        app.get(
+            '/dataset/collaborators/{}'.format(dataset['name']), extra_environ=env, status=404)
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', 'true')
+    def test_collaborators_tab_shown(self, app):
+        dataset = factories.Dataset()
+        sysadmin = factories.Sysadmin()
+
+        env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
+        response = app.get(url=url_for('dataset.edit', id=dataset['name']), extra_environ=env)
+        assert 'Collaborators' in response
+
