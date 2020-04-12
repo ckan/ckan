@@ -1309,11 +1309,16 @@ class CollaboratorEditView(MethodView):
                     user_capacity = c[u'capacity']
             user = get_action(u'user_show')(context, {u'id': user})
 
+        capacities = []
+        if authz.check_config_permission(u'allow_admin_collaborators'):
+            capacities.append({u'name': u'admin', u'value': u'admin'})
+        capacities.extend([
+            {u'name': u'editor', u'value': u'editor'},
+            {u'name': u'member', u'value': u'member'}
+        ])
+
         extra_vars = {
-            u'capacities': [
-                {u'name': u'editor', u'value': u'editor'},
-                {u'name': u'member', u'value': u'member'}
-            ],
+            u'capacities': capacities,
             u'user_capacity': user_capacity,
             u'user': user,
             u'pkg_dict': pkg_dict,
@@ -1373,7 +1378,7 @@ def register_dataset_plugin_rules(blueprint):
 
     )
 
-    if authz.check_config_permission('allow_dataset_collaborators'):
+    if authz.check_config_permission(u'allow_dataset_collaborators'):
         blueprint.add_url_rule(
             rule=u'/collaborators/<id>',
             view_func=collaborators_read,

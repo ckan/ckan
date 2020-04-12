@@ -268,10 +268,12 @@ def package_member_list(context, data_dict):
         raise ValidationError(_('Dataset collaborators not enabled'))
 
     capacity = data_dict.get('capacity')
-    if capacity and capacity not in authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES:
+
+    allowed_capacities = authz.get_collaborator_capacities()
+    if capacity and capacity not in allowed_capacities:
         raise ValidationError(
             _('Capacity must be one of "{}"').format(', '.join(
-                authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES)))
+                allowed_capacities)))
     q = model.Session.query(model.PackageMember).\
         filter(model.PackageMember.package_id == package.id)
 
@@ -315,10 +317,12 @@ def package_member_list_for_user(context, data_dict):
     _check_access('package_member_list_for_user', context, data_dict)
 
     capacity = data_dict.get('capacity')
-    if capacity and capacity not in authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES:
+    allowed_capacities = authz.get_collaborator_capacities()
+    if capacity and capacity not in allowed_capacities:
         raise ValidationError(
-            'Capacity must be one of "{}"'.format(', '.join(
-                authz.PACKAGE_MEMBER_ALLOWED_CAPACITIES)))
+            _('Capacity must be one of "{}"').format(', '.join(
+                allowed_capacities)))
+
     q = model.Session.query(model.PackageMember).\
         filter(model.PackageMember.user_id == user.id)
 

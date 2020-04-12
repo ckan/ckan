@@ -41,8 +41,12 @@ def package_update(context, data_dict):
             # (ie if user is a collaborator)
             user_packages = logic.get_action(
                 'package_member_list_for_user')(
-                    context, {'id': user, 'capacity': 'editor'})
-            success = package.id in [p['package_id'] for p in user_packages]
+                    context, {'id': user})
+            for user_package in user_packages:
+                if (user_package['package_id'] == package.id
+                        and user_package['capacity'] in ('admin', 'editor')):
+                    success = True
+                    break
         if not success:
             return {'success': False,
                     'msg': _('User %s not authorized to edit package %s') %

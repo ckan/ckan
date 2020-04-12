@@ -26,7 +26,6 @@ import ckan.lib.uploader as uploader
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 import ckan.authz as authz
-from ckan.authz import PACKAGE_MEMBER_ALLOWED_CAPACITIES
 
 from ckan.common import _, config
 
@@ -637,7 +636,9 @@ def package_member_create(context, data_dict):
     :param user_id: the id or name of the user to add or edit
     :type user_id: string
     :param capacity: the capacity or role of the membership. Must be one of
-        "editor" or "member"
+        "editor" or "member". Additionally
+        if :ref:`ckan.auth.allow_admin_collaborators` is set to True, "admin"
+        is also allowed.
     :type capacity: string
 
     :returns: the newly created (or updated) collaborator
@@ -651,10 +652,11 @@ def package_member_create(context, data_dict):
         ['id', 'user_id', 'capacity']
     )
 
-    if capacity not in PACKAGE_MEMBER_ALLOWED_CAPACITIES:
+    allowed_capacities = authz.get_collaborator_capacities()
+    if capacity not in allowed_capacities:
         raise ValidationError(
             _('Role must be one of "{}"').format(', '.join(
-                PACKAGE_MEMBER_ALLOWED_CAPACITIES)))
+                allowed_capacities)))
 
     package = model.Package.get(package_id)
     if not package:
@@ -679,7 +681,6 @@ def package_member_create(context, data_dict):
             user_id=user.id)
     member.capacity = capacity
     member.modified = datetime.datetime.utcnow()
-
     model.Session.add(member)
     model.repo.commit()
 

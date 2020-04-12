@@ -143,7 +143,9 @@ def package_member_delete(context, data_dict):
     '''Checks if a user is allowed to remove collaborators from a dataset
 
     The current implementation restricts this ability to Administrators of the
-    organization the dataset belongs to.
+    organization the dataset belongs to, or members with "admin" role if
+    :ref:`ckan.auth.allow_admin_collaborators` is set to True.
+
     '''
     user = context['user']
     model = context['model']
@@ -157,9 +159,16 @@ def package_member_delete(context, data_dict):
 
     if not authz.has_user_permission_for_group_or_org(
             owner_org, user, 'membership'):
-        return {
-            'success': False,
-            'msg': _('User %s not authorized to remove members from this dataset') % user}
+        if authz.check_config_permission('allow_admin_collaborators'):
+            # Is this user a collaborator with admin role?
+            user_obj = model.User.get(user)
+            collaborators = logic.get_action('package_member_list')(
+                {'ignore_auth': True}, {'id': pkg.id, 'capacity': 'admin'})
+            success = user_obj.id in [c['user_id'] for c in collaborators]
+        if not success:
+            return {
+                'success': False,
+                'msg': _('User %s not authorized to remove members from this dataset') % user}
 
     return {'success': True}
 

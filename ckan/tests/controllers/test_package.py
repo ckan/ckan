@@ -2156,4 +2156,3 @@ class TestCollaborators(object):
         env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
         response = app.get(url=url_for('dataset.edit', id=dataset['name']), extra_environ=env)
         assert 'Collaborators' in response
-

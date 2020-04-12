@@ -231,7 +231,11 @@ ROLE_PERMISSIONS = OrderedDict([
 ])
 
 
-PACKAGE_MEMBER_ALLOWED_CAPACITIES = ('editor', 'member')
+def get_collaborator_capacities():
+    if check_config_permission('allow_admin_collaborators'):
+        return ('admin', 'editor', 'member')
+    else:
+        return ('editor', 'member')
 
 
 def _trans_role_admin():
@@ -415,6 +419,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'roles_that_cascade_to_sub_groups': 'admin',
     'public_activity_stream_detail': False,
     'allow_dataset_collaborators': False,
+    'allow_admin_collaborators': False,
 }
 
 

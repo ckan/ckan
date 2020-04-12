@@ -690,6 +690,22 @@ Enables or disable collaborators in individual datasets. If ``True``, in additio
 
 **Important**: If this setting is turned off in a site where there already were collaborators created, you must reindex all datasets to update the permission labels, in order to prevent access to private datasets to the previous collaborators.
 
+.. _ckan.auth.allow_admin_collaborators:
+
+ckan.auth.allow_admin_collaborators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_admin_collaborators = True
+
+Default value: ``False``
+
+
+Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default collaborators can only be managed by administrators of the organization the dataset belongs to. TODO: link to docs
+
+
+**Important**: If this setting is turned off in a site where there already were admin collaborators created, existing collaborators with role "Admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assinged to..
 
 .. end_config-authorization
 
