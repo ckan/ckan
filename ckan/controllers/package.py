@@ -698,6 +698,11 @@ class PackageController(base.BaseController):
             except ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
+                if data.get('url_type') == 'upload' and data.get('url'):
+                    data['url'] = ''
+                    data['url_type'] = ''
+                    data['previous_upload'] = True
+
                 return self.new_resource(id, data, errors, error_summary)
             except NotAuthorized:
                 abort(403, _('Unauthorized to create a resource'))

@@ -2,7 +2,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: python:2
+      - image: python:2-stretch
         environment:
           CKAN_DATASTORE_POSTGRES_DB: datastore_test
           CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
@@ -29,7 +29,7 @@ jobs:
       - checkout
 
       - run: |
-          # SO Dependencies
+          # OS Dependencies
           apt update
           case $CIRCLE_NODE_INDEX in
             $NODE_TESTS_CONTAINER)

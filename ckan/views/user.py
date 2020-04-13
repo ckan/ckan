@@ -78,7 +78,7 @@ def before_request():
         context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
-        _, action = request.url_rule.endpoint.split(u'.')
+        blueprint, action = plugins.toolkit.get_endpoint()
         if action not in (
                 u'login',
                 u'request_reset',
@@ -497,58 +497,81 @@ class RequestResetView(MethodView):
             u'user': g.user,
             u'auth_user_obj': g.userobj
         }
-        data_dict = {u'id': request.form.get(u'user')}
         try:
             logic.check_access(u'request_reset', context)
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to request reset password.'))
-        return context, data_dict
 
     def post(self):
-        context, data_dict = self._prepare()
-        id = data_dict[u'id']
+        self._prepare()
+        id = request.form.get(u'user')
+        if id in (None, u''):
+            h.flash_error(_(u'Email is required'))
+            return h.redirect_to(u'/user/reset')
+        log.info(u'Password reset requested for user "{}"'.format(id))
 
-        context = {u'model': model, u'user': g.user}
-        user_obj = None
-        try:
-            logic.get_action(u'user_show')(context, data_dict)
-            user_obj = context[u'user_obj']
-        except logic.NotFound:
-            # Try searching the user
-            if id and len(id) > 2:
-                user_list = logic.get_action(u'user_list')(context, {
-                    u'id': id
-                })
-                if len(user_list) == 1:
-                    # This is ugly, but we need the user object for the
-                    # mailer,
+        context = {u'model': model, u'user': g.user, u'ignore_auth': True}
+        user_objs = []
+
+        # Usernames cannot contain '@' symbols
+        if u'@' in id:
+            # Search by email address
+            # (You can forget a user id, but you don't tend to forget your
+            # email)
+            user_list = logic.get_action(u'user_list')(context, {
+                u'email': id
+            })
+            if user_list:
+                # send reset emails for *all* user accounts with this email
+                # (otherwise we'd have to silently fail - we can't tell the
+                # user, as that would reveal the existence of accounts with
+                # this email address)
+                for user_dict in user_list:
+                    # This is ugly, but we need the user object for the mailer,
                     # and user_list does not return them
-                    data_dict[u'id'] = user_list[0][u'id']
-                    logic.get_action(u'user_show')(context, data_dict)
-                    user_obj = context[u'user_obj']
-                elif len(user_list) > 1:
-                    h.flash_error(_(u'"%s" matched several users') % (id))
-                else:
-                    h.flash_error(_(u'No such user: %s') % id)
-            else:
-                h.flash_error(_(u'No such user: %s') % id)
+                    logic.get_action(u'user_show')(
+                        context, {u'id': user_dict[u'id']})
+                    user_objs.append(context[u'user_obj'])
 
-        if user_obj:
+        else:
+            # Search by user name
+            # (this is helpful as an option for a user who has multiple
+            # accounts with the same email address and they want to be
+            # specific)
+            try:
+                logic.get_action(u'user_show')(context, {u'id': id})
+                user_objs.append(context[u'user_obj'])
+            except logic.NotFound:
+                pass
+
+        if not user_objs:
+            log.info(u'User requested reset link for unknown user: {}'
+                     .format(id))
+
+        for user_obj in user_objs:
+            log.info(u'Emailing reset link to user: {}'
+                     .format(user_obj.name))
             try:
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above
                 mailer.send_reset_link(user_obj)
-                h.flash_success(
-                    _(u'Please check your inbox for '
-                      u'a reset code.'))
-                return h.redirect_to(u'home.index')
             except mailer.MailerException as e:
-                h.flash_error(_(u'Could not send reset link: %s') %
-                              text_type(e))
-        return self.get()
+                # SMTP is not configured correctly or the server is
+                # temporarily unavailable
+                h.flash_error(_(u'Error sending the email. Try again later '
+                                'or contact an administrator for help'))
+                log.exception(e)
+                return h.redirect_to(u'/')
+
+        # always tell the user it succeeded, because otherwise we reveal
+        # which accounts exist or not
+        h.flash_success(
+            _(u'A reset link has been emailed to you '
+              '(unless the account specified does not exist)'))
+        return h.redirect_to(u'/')
 
     def get(self):
-        context, data_dict = self._prepare()
+        self._prepare()
         return base.render(u'user/request_reset.html', {})
 
 

@@ -6,6 +6,8 @@
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
 # Omar Isbaitan <oisbaitan@yahoo.com>, 2018
+# Shatha M <shathamubaideen@bi-amman.org.uk>, 2020
+# Abed khooli <abedkhooli@gmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-03-27 16:10+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
-"Last-Translator: Omar Isbaitan <oisbaitan@yahoo.com>, 2018\n"
+"Last-Translator: Abed khooli <abedkhooli@gmail.com>, 2020\n"
 "Language-Team: Arabic (https://www.transifex.com/okfn/teams/11162/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -33,7 +35,7 @@ msgstr "قيد الاجراء"
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Submitting"
-msgstr "أرسال"
+msgstr "إرسال"
 
 #: ckan/controllers/package.py:681 ckanext/datapusher/helpers.py:24
 msgid "Error"
@@ -50,7 +52,7 @@ msgstr "لم يتم التحميل"
 #: ckan/controllers/package.py:1614 ckanext/datapusher/plugin.py:59
 #: ckanext/datastore/controller.py:80 ckanext/resourceproxy/controller.py:33
 msgid "Resource not found"
-msgstr "لم يتم العثور على الموارد"
+msgstr "لم يتم العثور على المورد"
 
 #: ckan/controllers/api.py:66 ckan/controllers/group.py:156
 #: ckan/controllers/home.py:27 ckan/controllers/package.py:144
@@ -72,7 +74,7 @@ msgstr "تحميل الى مخزن البيانات"
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:19
 #: ckanext/datapusher/templates/datapusher/resource_data.html:19
 msgid "Upload error:"
-msgstr "خطأ بالتحميل"
+msgstr "خطأ في التحميل"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:25
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:27
@@ -94,7 +96,7 @@ msgstr "الحالة"
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:52
 #: ckanext/datapusher/templates/datapusher/resource_data.html:52
 msgid "Last updated"
-msgstr "أخر تحديث"
+msgstr "آخر تحديث"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:56
 #: ckanext/datapusher/templates/datapusher/resource_data.html:56
@@ -344,7 +346,7 @@ msgstr "أخفاء/أظهار الاعمدة"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
-msgstr "مجموعات البيانات لكل صفحة"
+msgstr "قواعد البيانات في كل صفحة"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:13
 msgid "Test conf"
@@ -603,7 +605,7 @@ msgstr "علامات التجمع"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 msgid "Total number of Datasets"
-msgstr "عدد مجموع جدولة البيانات "
+msgstr "عدد مجموع قواعد البيانات "
 
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
@@ -612,25 +614,25 @@ msgstr "تاريخ"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr "مجموع جدولة البيانات "
+msgstr "مجموع قواعد البيانات "
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr "مراجعة جدولة البيانات كل اسبوع"
+msgstr "مراجعة قاعدة البيانات كل أسبوع"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr "مراجعة جدولة البيانات"
+msgstr "مراجعات قاعدة البيانات"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr "انشاء جدولة البيانات  "
+msgstr "إنشاء قواعد البيانات  "
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
 msgid "Top Rated Datasets"
-msgstr "جدولة البيانات الأعلى تقيم "
+msgstr "قاعدة البيانات الأعلى تقييماً "
 
 #: ckanext/stats/templates/ckanext/stats/index.html:64
 msgid "Average rating"
@@ -647,14 +649,14 @@ msgstr "بدون تقييم"
 #: ckanext/stats/templates/ckanext/stats/index.html:84
 #: ckanext/stats/templates/ckanext/stats/index.html:181
 msgid "Most Edited Datasets"
-msgstr "جدولة البيانات الأكثر تعديل"
+msgstr "قاعدة البيانات الأكثر تعديلاً"
 
 #: ckan/logic/converters.py:148 ckan/logic/validators.py:151
 #: ckan/logic/validators.py:193 ckan/templates/package/read_base.html:19
 #: ckan/tests/config/test_middleware.py:619
 #: ckanext/stats/templates/ckanext/stats/index.html:89
 msgid "Dataset"
-msgstr "جدولة البيانات"
+msgstr "قاعدة البيانات"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:90
 msgid "Number of edits"
@@ -662,7 +664,7 @@ msgstr "عدد التعديلات"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr "لم يتم التعديل على جدولة البيانات"
+msgstr "لم يتم التعديل على قاعدة البيانات"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
@@ -676,7 +678,7 @@ msgstr "مجموعة"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:114
 msgid "Number of datasets"
-msgstr "عدد جدولة البيانات"
+msgstr "عدد قواعد البيانات"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
@@ -694,7 +696,7 @@ msgstr "علامة الاسم"
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr "عدد جدولة البيانات"
+msgstr "عدد قواعد البيانات"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184

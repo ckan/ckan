@@ -34,7 +34,7 @@ def index():
         data_dict = {u'q': u'*:*',
                      u'facet.field': h.facets(),
                      u'rows': 4,
-                     u'start': 4,
+                     u'start': 0,
                      u'sort': u'view_recent desc',
                      u'fq': u'capacity:"public"'}
         query = logic.get_action(u'package_search')(context, data_dict)
