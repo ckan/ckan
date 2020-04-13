@@ -172,14 +172,14 @@ into a |postgres| superuser console.
 The DataStore is now set-up. To test the set-up, (re)start CKAN and run the
 following command to list all DataStore resources::
 
- curl -X GET "http://127.0.0.1:5000/api/3/action/datastore_search?resource_id=_table_metadata"
+ curl -X GET "http://127.0.0.1/api/3/action/datastore_search?resource_id=_table_metadata"
 
 This should return a JSON page without errors.
 
 To test the whether the set-up allows writing, you can create a new DataStore resource.
 To do so, run the following command::
 
- curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource": {"package_id": "{PACKAGE-ID}"}, "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
+ curl -X POST http://127.0.0.1/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource": {"package_id": "{PACKAGE-ID}"}, "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
 Replace ``{YOUR-API-KEY}`` with a valid API key and ``{PACKAGE-ID}`` with the
 id of an existing CKAN dataset.
@@ -188,14 +188,14 @@ A table named after the resource id should have been created on your DataStore
 database. Visiting this URL should return a response from the DataStore with
 the records inserted above::
 
- http://127.0.0.1:5000/api/3/action/datastore_search?resource_id={RESOURCE_ID}
+ http://127.0.0.1/api/3/action/datastore_search?resource_id={RESOURCE_ID}
 
 Replace ``{RESOURCE-ID}`` with the resource id that was returned as part of the
 response of the previous API call.
 
 You can now delete the DataStore table with::
 
-    curl -X POST http://127.0.0.1:5000/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}'
+    curl -X POST http://127.0.0.1/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}'
 
 To find out more about the DataStore API, see `The DataStore API`_.
 
