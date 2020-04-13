@@ -17,10 +17,19 @@ General notes:
 
 Fixes:
 
-* Fix for number of datasets that displayes on My orgs tab (`#3580 <https://github.com/ckan/ckan/pull/3580>`_)
+* Fix for number of datasets displayed on the My organizations tab (`#3580 <https://github.com/ckan/ckan/pull/3580>`_)
 * Fix datetime comparison in resource_dict_save (`#5033 <https://github.com/ckan/ckan/pull/5033>`_)
 * Fetch less data for `get_all_entity_ids` (`#5201 <https://github.com/ckan/ckan/pull/5201>`_)
 * Show error in text view if xhr failed (`#5271 <https://github.com/ckan/ckan/pull/5271>`_)
+* Allow vocabulary_id in /api/2/util/tag/autocomplete (`#5071 <https://github.com/ckan/ckan/pull/5071>`_)
+* Fix code injection in autocomplete module (`#5064 <https://github.com/ckan/ckan/pull/5064>`_)
+* Fix broken translation in image view placeholder (`#5099 <https://github.com/ckan/ckan/pull/5116>`_)
+* Filter revisions shown according to dataset permissions
+* Update JS vendor libraries
+* Use returned facets in group controller (`#2713 <https://github.com/ckan/ckan/pull/5167>`_)
+* Samesite support in auth cookie (`#5255 <https://github.com/ckan/ckan/pull/5255>`_)
+* Handle missing resources in case we have a race condition with the DataPusher (`#3980 <https://github.com/ckan/ckan/pull/4918>`_)
+* Add the g object to toolkit
 
 v.2.6.8 2019-07-03
 ==================
