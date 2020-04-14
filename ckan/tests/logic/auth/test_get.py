@@ -12,6 +12,50 @@ import ckan.logic as logic
 from ckan import model
 
 
+class TestUserListAuth(object):
+
+    @helpers.change_config(u'ckan.auth.public_user_details', u'false')
+    def test_auth_user_list(self):
+        context = {'user': None,
+                   'model': model}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'user_list', context=context)
+
+    def test_authed_user_list(self):
+        context = {'user': None,
+                   'model': model}
+        assert helpers.call_auth('user_list', context=context)
+
+    def test_user_list_email_parameter(self):
+        context = {'user': None,
+                   'model': model}
+        # using the 'email' parameter is not allowed (unless sysadmin)
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'user_list', email='a@example.com', context=context)
+
+
+class TestUserShowAuth(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+    @helpers.change_config(u'ckan.auth.public_user_details', u'false')
+    def test_auth_user_show(self):
+        fred = factories.User(name='fred')
+        fred['capacity'] = 'editor'
+        context = {'user': None,
+                   'model': model}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'user_show', context=context, id=fred['id'])
+
+    def test_authed_user_show(self):
+        fred = factories.User(name='fred')
+        fred['capacity'] = 'editor'
+        context = {'user': None,
+                   'model': model}
+        assert helpers.call_auth('user_show', context=context, id=fred['id'])
+
+
 class TestPackageShowAuth(object):
 
     def setup(self):

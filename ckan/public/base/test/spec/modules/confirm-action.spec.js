@@ -25,13 +25,13 @@ describe('ckan.module.ConfirmActionModule()', function () {
   });
 
   describe('.confirm()', function () {
-    it('should append the modal to the document body', function () {
+    it.skip('should append the modal to the document body', function () {
       this.module.confirm();
       assert.equal(this.fixture.children().length, 1);
       assert.equal(this.fixture.find('.modal').length, 1);
     });
 
-    it('should show the modal dialog', function () {
+    it.skip('should show the modal dialog', function () {
       this.module.confirm();
       assert.called(jQuery.fn.modal);
       assert.calledWith(jQuery.fn.modal, 'show');
@@ -83,7 +83,7 @@ describe('ckan.module.ConfirmActionModule()', function () {
   });
 
   describe('._onClick()', function () {
-    it('should prevent the default action', function () {
+    it.skip('should prevent the default action', function () {
       var target = {preventDefault: sinon.spy()};
       this.module._onClick(target);
 

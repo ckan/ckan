@@ -19,4 +19,4 @@ include CHANGELOG.txt
 include ckan/migration/migrate.cfg
 include ckan/migration/README
 recursive-include ckan/migration/versions *.sql
-recursive-include ckan_deb *
+include requirement-setuptools.txt

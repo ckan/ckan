@@ -156,6 +156,21 @@ This determines whether the secure flag will be set for the repoze.who
 authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
 default in the absence of the setting is ``False``.
 
+.. _who.samesite:
+
+who.samesite
+^^^^^^^^^^^^
+
+Example::
+
+ who.samesite = Strict
+
+Default value: Lax
+
+This determines whether the SameSite flag will be set for the repoze.who
+authorization cookie. Allowed values are ``Lax`` (the default one), ``Strict`` or ``None``.
+If set to ``None``,  ``who.secure`` must be set to ``True``.
+
 
 Database Settings
 -----------------

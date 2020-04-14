@@ -7,6 +7,37 @@
 Changelog
 ---------
 
+v.2.7.7 TBA
+===========
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+ * Note: This version includes changes in the way the ``SameSite`` flag is set on the ``auth_tkt`` authorization cookie.
+   The new default setting for it is ``SameSite=Lax``, which aligns with the behaviour of all major browsers. If for some
+   reason you need a different value, you can set it via the :ref:`who.samesite` configuration option. You can find more
+   information on the ``SameSite`` attribute `here <https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#SameSite_cookies>`_.
+
+
+Fixes:
+
+* Fix for number of datasets displayed on the My organizations tab (`#3580 <https://github.com/ckan/ckan/pull/3580>`_)
+* Password reset request - generally tighten it up (`#4636 <https://github.com/ckan/ckan/pull/4636>`_)
+* Add missing get_action calls in activity actions (`#4967 <https://github.com/ckan/ckan/pull/4967>`_)
+* Fix datetime comparison in resource_dict_save (`#5033 <https://github.com/ckan/ckan/pull/5033>`_)
+* Allow vocabulary_id in /api/2/util/tag/autocomplete (`#5071 <https://github.com/ckan/ckan/pull/5071>`_)
+* Fetch less data for `get_all_entity_ids` (`#5201 <https://github.com/ckan/ckan/pull/5201>`_)
+* Show error in text view if xhr failed (`#5271 <https://github.com/ckan/ckan/pull/5271>`_)
+* Fix code injection in autocomplete module (`#5064 <https://github.com/ckan/ckan/pull/5064>`_)
+* Check for the existence of tracking summary data before attempting to load it (`#5030 <https://github.com/ckan/ckan/pull/5139>`_)
+* Fix broken translation in image view placeholder (`#5099 <https://github.com/ckan/ckan/pull/5116>`_)
+* Filter revisions shown according to dataset permissions
+* Update JS vendor libraries
+* Use returned facets in group controller (`#2713 <https://github.com/ckan/ckan/pull/5167>`_)
+* Samesite support in auth cookie (`#5255 <https://github.com/ckan/ckan/pull/5255>`_)
+* Handle missing resources in case we have a race condition with the DataPusher (`#3980 <https://github.com/ckan/ckan/pull/4918>`_)
+* Add the g object to toolkit
 
 v.2.7.6 2019-07-03
 ==================

@@ -1547,7 +1547,7 @@ class TestActivity:
         assert new_tag_name not in [tag['name'] for tag in pkg_dict['tags']]
 
         pkg_dict['tags'].append({'name': new_tag_name})
-        package_update(self.app, pkg_dict, user)
+        package_update(self.app, pkg_dict, user['apikey'])
         after = self.record_details(
             user['id'], pkg_dict['id'],
             apikey=user['apikey'], group_ids=group_ids
