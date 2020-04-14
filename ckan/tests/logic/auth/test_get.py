@@ -4,6 +4,7 @@
 """
 
 import pytest
+from six import string_types
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -206,7 +207,7 @@ class TestGetAuthWithCollaborators(object):
 
         return {
             'model': model,
-            'user': user if isinstance(user, basestring) else user.get('name')
+            'user': user if isinstance(user, string_types) else user.get('name')
         }
 
     def test_dataset_show_private_editor(self):
@@ -390,7 +391,7 @@ class TestPackageMemberList(object):
 
         return {
             'model': model,
-            'user': user if isinstance(user, basestring) else user.get('name')
+            'user': user if isinstance(user, string_types) else user.get('name')
         }
 
     def setup(self):

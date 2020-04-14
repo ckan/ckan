@@ -4,6 +4,7 @@
 """
 import mock
 import pytest
+from six import string_types
 
 import ckan.logic as logic
 import ckan.model as model
@@ -284,7 +285,7 @@ class TestUpdateAuthWithCollaborators(object):
 
         return {
             'model': model,
-            'user': user if isinstance(user, basestring) else user.get('name')
+            'user': user if isinstance(user, string_types) else user.get('name')
         }
 
     def test_dataset_update_public_editor(self):

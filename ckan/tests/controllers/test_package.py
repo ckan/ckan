@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
+from werkzeug.routing import BuildError
 import mock
 
 from ckan.lib.helpers import url_for
@@ -2142,9 +2143,12 @@ class TestCollaborators(object):
         assert 'Collaborators' not in response
 
         # Route not registered
-        url = url_for('dataset.collaborators_read', id=dataset['name'])
-        assert url == 'dataset.collaborators_read?id=test_dataset_00'
-
+        if six.PY2:
+            url = url_for('dataset.collaborators_read', id=dataset['name'])
+            assert url.startswith('dataset.collaborators_read')
+        else:
+            with pytest.raises(BuildError):
+                url = url_for('dataset.collaborators_read', id=dataset['name'])
         app.get(
             '/dataset/collaborators/{}'.format(dataset['name']), extra_environ=env, status=404)
 

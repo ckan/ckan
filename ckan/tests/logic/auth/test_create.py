@@ -5,6 +5,7 @@
 
 import mock
 import pytest
+from six import string_types
 
 import ckan.logic.auth.create as auth_create
 import ckan.model as core_model
@@ -372,7 +373,7 @@ class TestPackageMemberCreateAuth(object):
 
         return {
             'model': core_model,
-            'user': user if isinstance(user, basestring) else user.get('name')
+            'user': user if isinstance(user, string_types) else user.get('name')
         }
 
     def setup(self):
