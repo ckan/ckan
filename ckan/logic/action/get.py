@@ -747,14 +747,31 @@ def user_list(context, data_dict):
     if email:
         query = query.filter_by(email=email)
 
+    order_by_field = None
     if order_by == 'edits':
         raise ValidationError('order_by=edits is no longer supported')
-    query = query.order_by(
-        _case([(
-            _or_(model.User.fullname == None,
-                    model.User.fullname == ''),
-            model.User.name)],
-            else_=model.User.fullname))
+    elif order_by == 'number_created_packages':
+        order_by_field = order_by
+    elif order_by != 'name':
+        try:
+            order_by_field = getattr(model.User, order_by)
+        except AttributeError:
+            pass
+    if order_by == 'name' or order_by_field is None:
+        query = query.order_by(
+            _case(
+                [(
+                    _or_(
+                        model.User.fullname == None,
+                        model.User.fullname == ''
+                    ),
+                    model.User.name
+                )],
+                else_=model.User.fullname
+            )
+        )
+    else:
+        query = query.order_by(order_by_field)
 
     # Filter deleted users
     query = query.filter(model.User.state != model.State.DELETED)
