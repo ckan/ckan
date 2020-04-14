@@ -338,10 +338,8 @@ def _read(id, limit, group_type):
 
         facets = OrderedDict()
 
-        org_type = h.default_group_type(u'organization')
-        org_label = h.humanize_entity_type(org_type + u's').capitalize()
-
-        group_type = h.default_group_type(u'group') + u's'
+        org_label = h.humanize_entity_type(
+            h.default_group_type(u'organization') + u's').capitalize()
         group_label = h.humanize_entity_type(group_type).capitalize()
 
         default_facet_titles = {
