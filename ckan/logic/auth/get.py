@@ -437,33 +437,18 @@ def job_show(context, data_dict):
 def package_member_list(context, data_dict):
     '''Checks if a user is allowed to list the collaborators from a dataset
 
-    The current implementation restricts this ability to Administrators of the
-    organization the dataset belongs to, or members with "admin" role if
-    :ref:`ckan.auth.allow_admin_collaborators` is set to True.
+    See :py:func:`~ckan.authz.can_manage_collaborators` for details
     '''
     user = context['user']
     model = context['model']
 
     pkg = model.Package.get(data_dict['id'])
+    user_obj = model.User.get(user)
 
-    owner_org = pkg.owner_org
-
-    if not owner_org:
-        return {'success': False}
-
-    if not authz.has_user_permission_for_group_or_org(
-            owner_org, user, 'membership'):
-        success = False
-        if authz.check_config_permission('allow_admin_collaborators'):
-            # Is this user a collaborator with admin role?
-            user_obj = model.User.get(user)
-            collaborators = logic.get_action('package_member_list')(
-                {'ignore_auth': True}, {'id': pkg.id, 'capacity': 'admin'})
-            success = user_obj.id in [c['user_id'] for c in collaborators]
-        if not success:
-            return {
-                'success': False,
-                'msg': _('User %s not authorized to list members from this dataset') % user}
+    if not authz.can_manage_collaborators(pkg.id, user_obj.id):
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to list members from this dataset') % user}
 
     return {'success': True}
 

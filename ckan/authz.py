@@ -404,6 +404,44 @@ def get_user_id_for_username(user_name, allow_none=False):
     raise Exception('Not logged in user')
 
 
+def can_manage_collaborators(package_id, user_id):
+    '''
+    Returns True if a user is allowed to manage the collaborators of a given
+    dataset.
+
+    Currently a user can manage collaborators if:
+
+    1. Is an administrator of the organization the dataset belongs to
+    2. Is a collaborator with role "admin" (
+        assuming :ref:`ckan.auth.allow_admin_collaborators` is set to True)
+    3. Is the creator of the dataset and the dataset does not belong to an
+        organization (
+        requires :ref:`ckan.auth.create_dataset_if_not_in_organization`
+        and :ref:`ckan.auth.create_unowned_dataset`)
+    '''
+    pkg = model.Package.get(package_id)
+
+    owner_org = pkg.owner_org
+
+    if (not owner_org
+            and check_config_permission('create_dataset_if_not_in_organization')
+            and check_config_permission('create_unowned_dataset')
+            and pkg.creator_user_id == user_id):
+
+        return True
+
+    if not has_user_permission_for_group_or_org(
+            owner_org, user_id, 'membership'):
+        if check_config_permission('allow_admin_collaborators'):
+            # Is this user a collaborator with admin role?
+            collaborators = p.toolkit.get_action('package_member_list')(
+                {'ignore_auth': True}, {'id': pkg.id, 'capacity': 'admin'})
+            if user_id not in [c['user_id'] for c in collaborators]:
+                return False
+
+    return True
+
+
 CONFIG_PERMISSIONS_DEFAULTS = {
     # permission and default
     # these are prefixed with ckan.auth. in config to override
