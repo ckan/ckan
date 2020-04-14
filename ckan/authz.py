@@ -427,19 +427,22 @@ def can_manage_collaborators(package_id, user_id):
             and check_config_permission('create_dataset_if_not_in_organization')
             and check_config_permission('create_unowned_dataset')
             and pkg.creator_user_id == user_id):
-
+        # User is the creator of this unowned dataset
         return True
 
-    if not has_user_permission_for_group_or_org(
+    if has_user_permission_for_group_or_org(
             owner_org, user_id, 'membership'):
-        if check_config_permission('allow_admin_collaborators'):
-            # Is this user a collaborator with admin role?
-            collaborators = p.toolkit.get_action('package_member_list')(
-                {'ignore_auth': True}, {'id': pkg.id, 'capacity': 'admin'})
-            if user_id not in [c['user_id'] for c in collaborators]:
-                return False
+        # User is an administrator of the organization the dataset belongs to
+        return True
 
-    return True
+    if check_config_permission('allow_admin_collaborators'):
+        collaborators = p.toolkit.get_action('package_member_list')(
+            {'ignore_auth': True}, {'id': pkg.id, 'capacity': 'admin'})
+        if user_id in [c['user_id'] for c in collaborators]:
+            # User is a collaborator with admin role
+            return True
+
+    return False
 
 
 CONFIG_PERMISSIONS_DEFAULTS = {
