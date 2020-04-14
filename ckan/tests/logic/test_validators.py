@@ -607,10 +607,10 @@ class TestPasswordValidator(object):
             call_validator(key, {key: password}, errors, None)
 
     def test_too_short(self):
-        password = 'MyPass1'
+        password = 'MyP'
         key = ('password',)
 
-        @adds_message_to_errors_dict('Your password must be 8 characters or '
+        @adds_message_to_errors_dict('Your password must be 4 characters or '
                                      'longer')
         def call_validator(*args, **kwargs):
             return validators.user_password_validator(*args, **kwargs)

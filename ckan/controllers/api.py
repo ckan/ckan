@@ -747,13 +747,15 @@ class ApiController(base.BaseController):
         q = request.str_params.get('incomplete', '')
         q = unicode(urllib.unquote(q), 'utf-8')
         limit = request.params.get('limit', 10)
+        vocab = request.params.get(u'vocabulary_id', u'')
         tag_names = []
         if q:
             context = {'model': model, 'session': model.Session,
                        'user': c.user, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
-
+            if vocab != u'':
+                data_dict[u'vocabulary_id'] = vocab
             tag_names = get_action('tag_autocomplete')(context, data_dict)
 
         resultSet = {
