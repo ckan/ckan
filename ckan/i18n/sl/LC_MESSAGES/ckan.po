@@ -72,54 +72,57 @@ msgstr "Nimate dovoljenja za ogled te strani"
 msgid "Complete"
 msgstr "Končano"
 
-#: ckanext/datapusher/helpers.py:22
-msgid "Pending"
-msgstr "V teku"
+#: ckan/authz.py:226 ckan/templates/header.html:11
+msgid "Admin"
+msgstr "Administrator"
 
-#: ckanext/datapusher/helpers.py:23
-msgid "Submitting"
-msgstr "Pošiljam"
+#: ckan/authz.py:230
+msgid "Editor"
+msgstr "Urejevalec"
 
 #: ckan/controllers/package.py:684 ckan/views/resource.py:231
 #: ckanext/datapusher/helpers.py:24
 msgid "Error"
 msgstr "Napaka"
 
-#: ckanext/datapusher/helpers.py:29
-msgid "Not Uploaded Yet"
-msgstr "Ni še naloženo"
+#: ckan/controllers/admin.py:34 ckan/views/admin.py:76
+msgid "Need to be system administrator to administer"
+msgstr "Za administracijo so potrebne sistemske pravice"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:12
 #: ckanext/datapusher/templates/datapusher/resource_data.html:12
 msgid "Upload to DataStore"
 msgstr "Naloži na DataStore"
 
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:19
-#: ckanext/datapusher/templates/datapusher/resource_data.html:19
-msgid "Upload error:"
-msgstr "Napake prenosa:"
+#: ckan/controllers/api.py:133 ckan/controllers/api.py:227
+#: ckan/logic/action/create.py:911 ckan/logic/converters.py:123
+#: ckan/logic/converters.py:148 ckan/logic/converters.py:173
+#: ckan/logic/validators.py:151 ckan/logic/validators.py:172
+#: ckan/logic/validators.py:193 ckan/logic/validators.py:202
+#: ckan/logic/validators.py:216 ckan/logic/validators.py:233
+#: ckan/logic/validators.py:246 ckan/logic/validators.py:270
+#: ckan/logic/validators.py:715 ckan/views/api.py:121 ckan/views/api.py:310
+msgid "Not found"
+msgstr "Ni na voljo"
 
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:25
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:27
-#: ckanext/datapusher/templates/datapusher/resource_data.html:25
-#: ckanext/datapusher/templates/datapusher/resource_data.html:27
-msgid "Error:"
-msgstr "Napaka:"
+#: ckan/controllers/api.py:139 ckan/views/api.py:128
+msgid "Bad request"
+msgstr "Neveljavna zahteva"
 
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:36
-#: ckanext/datapusher/templates/datapusher/resource_data.html:36
-msgid "Error traceback:"
-msgstr ""
+#: ckan/controllers/api.py:167
+#, python-format
+msgid "Action name not known: %s"
+msgstr "Ime ukaza je neznan: %s"
 
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:48
-#: ckanext/datapusher/templates/datapusher/resource_data.html:48
-msgid "Status"
-msgstr "Status"
+#: ckan/controllers/api.py:188 ckan/views/api.py:270
+#, python-format
+msgid "JSON Error: %s"
+msgstr "JSON napaka: %s"
 
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:52
-#: ckanext/datapusher/templates/datapusher/resource_data.html:52
-msgid "Last updated"
-msgstr "Nazadnje posodobljeno"
+#: ckan/controllers/api.py:194 ckan/views/api.py:276
+#, python-format
+msgid "Bad request data: %s"
+msgstr "Neuspešna zahteva podatkov: %s"
 
 #: ckan/templates/user/snippets/api_token_list.html:32
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:56
@@ -127,25 +130,24 @@ msgstr "Nazadnje posodobljeno"
 msgid "Never"
 msgstr "Nikoli"
 
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:62
-#: ckanext/datapusher/templates/datapusher/resource_data.html:62
-msgid "Upload Log"
-msgstr "Dnevnik prenosov"
+#: ckan/controllers/api.py:287
+#, python-format
+msgid "There is no revision with id: %s"
+msgstr "Različica za id %s ne obstaja."
 
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:76
-#: ckanext/datapusher/templates/datapusher/resource_data.html:76
-msgid "Details"
-msgstr "Podrobnosti"
+#: ckan/controllers/api.py:297
+msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
+msgstr "Manjka iskalni niz ('od id=UUID' ali  'od time=TIMESTAMP')"
 
-#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:83
-#: ckanext/datapusher/templates/datapusher/resource_data.html:83
-msgid "End of log"
-msgstr "Konec dnevnika"
+#: ckan/controllers/api.py:309
+#, python-format
+msgid "Could not read parameters: %r"
+msgstr "Ni bilo možno prebrati parametra: %r"
 
-#: ckanext/datapusher/templates-bs2/package/resource_edit_base.html:5
-#: ckanext/datapusher/templates/package/resource_edit_base.html:5
-msgid "DataStore"
-msgstr "DataStore"
+#: ckan/controllers/api.py:370
+#, python-format
+msgid "Bad search option: %s"
+msgstr "Neveljaven iskalni parameter: %s"
 
 #: ckanext/datastore/blueprint.py:89
 msgid "DataStore resource not found"
@@ -170,10 +172,18 @@ msgstr "Vir \"{0}\" ni na voljo."
 msgid "User {0} not authorized to update resource {1}"
 msgstr "Uporabnik {0} nima dovoljenja za posodobitev vira {1}"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:19
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:21
-msgid "CKAN Data API"
-msgstr "CKAN podatkovni API"
+#: ckan/controllers/group.py:306 ckan/controllers/home.py:61
+#: ckan/controllers/package.py:256 ckan/lib/helpers.py:1073
+#: ckan/templates/header.html:87 ckan/templates/organization/edit_base.html:5
+#: ckan/templates/organization/edit_base.html:8
+#: ckan/templates/organization/index.html:3
+#: ckan/templates/organization/index.html:6
+#: ckan/templates/organization/index.html:18
+#: ckan/templates/organization/read_base.html:3
+#: ckan/templates/organization/read_base.html:6
+#: ckan/templates/package/base.html:15 ckan/views/home.py:46
+msgid "Organizations"
+msgstr "Organizacije"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:23
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:25
@@ -203,60 +213,69 @@ msgstr ""
 "Do podatkovnega API-ja se lahko dostopa preko naslednjih ukazov iz CKAN API-"
 "ja."
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:44
-msgid "Create"
-msgstr "Ustvari"
+#: ckan/controllers/group.py:308 ckan/controllers/home.py:63
+#: ckan/controllers/package.py:258 ckan/lib/helpers.py:1075
+#: ckan/logic/__init__.py:110
+#: ckan/templates/package/snippets/package_basic_fields.html:24
+#: ckan/templates/snippets/context/dataset.html:17
+#: ckan/templates/tag/index.html:3 ckan/templates/tag/index.html:6
+#: ckan/templates/tag/index.html:12 ckan/views/home.py:48
+msgid "Tags"
+msgstr "Oznake"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:46
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:48
-msgid "Update / Insert"
-msgstr "Posodobi / Vnesi"
+#: ckan/controllers/group.py:309 ckan/controllers/home.py:64
+#: ckan/controllers/package.py:259 ckan/lib/helpers.py:1076
+#: ckan/views/home.py:49
+msgid "Formats"
+msgstr "Formati"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:50
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:52
-msgid "Query"
-msgstr "Pozvedba"
+#: ckan/controllers/group.py:310 ckan/controllers/home.py:65
+#: ckan/controllers/package.py:260 ckan/lib/helpers.py:1077
+#: ckan/views/home.py:50
+msgid "Licenses"
+msgstr "Licence"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:54
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:56
-msgid "Query (via SQL)"
-msgstr "Poizvedba (preko SQL)"
+#: ckan/controllers/group.py:396 ckan/controllers/group.py:513
+#: ckan/controllers/package.py:345 ckan/controllers/package.py:576
+#: ckan/controllers/package.py:789 ckan/controllers/package.py:1409
+#: ckan/controllers/package.py:1443
+#, python-format
+msgid "User %r not authorized to edit %s"
+msgstr "Uporabnik %r nima dovoljenja za urejanje %s"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:66
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:68
-msgid "Querying"
-msgstr "Poizvedovanje"
+#: ckan/controllers/group.py:443
+msgid "Not authorized to perform bulk update"
+msgstr "Nimate dovoljenja za masovne posodobitve"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:70
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:72
-msgid "Query example (first 5 results)"
-msgstr "Primer pozvedbe (prvih 5 rezultatov)"
+#: ckan/controllers/group.py:461
+msgid "Unauthorized to create a group"
+msgstr "Nimate dovoljenja za ustvarjanje skupin"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:75
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:77
-msgid "Query example (results containing 'jones')"
-msgstr "Primer poizvedbe (rezultati ki vsebujejo 'jones')"
+#: ckan/controllers/group.py:539 ckan/controllers/group.py:569
+#: ckan/controllers/package.py:944 ckan/controllers/package.py:992
+#: ckan/controllers/user.py:250 ckan/controllers/user.py:380
+#: ckan/controllers/user.py:551 ckan/views/user.py:193 ckan/views/user.py:300
+#: ckan/views/user.py:643
+msgid "Integrity Error"
+msgstr "Napaka v integriteti"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:80
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:82
-msgid "Query example (via SQL statement)"
-msgstr "Primer poizvedbe (preko SQL stavkov)"
+#: ckan/controllers/group.py:595
+#, python-format
+msgid "User %r not authorized to edit %s authorizations"
+msgstr "Uporabnik %r nima dovoljenja za urejanje %s dovoljenj"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:91
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:93
-msgid "Example: Javascript"
-msgstr "Primer: Javascript"
+#: ckan/controllers/group.py:615 ckan/controllers/group.py:630
+#, python-format
+msgid "Unauthorized to delete group %s"
+msgstr "Nimate dovoljenja za brisanje skupine %s"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:95
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:97
-msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr "Preprosta ajax (JSONP) poizvedba na podatkovni API z uporabo jQuery."
+#: ckan/controllers/group.py:621
+msgid "Organization has been deleted."
+msgstr "Organizacija je bila izbrisana"
 
-#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:116
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:118
-msgid "Example: Python"
-msgstr "Primer: Python"
+#: ckan/controllers/group.py:623
+msgid "Group has been deleted."
+msgstr "Skupina je bila izbrisana"
 
 #: ckan/templates/group/member_new.html:73
 #: ckanext/datastore/templates-bs2/datastore/dictionary.html:32
@@ -294,23 +313,17 @@ msgstr ""
 msgid "Description"
 msgstr "Opis"
 
-#: ckanext/datastore/templates-bs2/package/resource_edit_base.html:6
-#: ckanext/datastore/templates-bs2/package/resource_read.html:14
-#: ckanext/datastore/templates/package/resource_edit_base.html:6
-#: ckanext/datastore/templates/package/resource_read.html:14
-msgid "Data Dictionary"
-msgstr ""
+#: ckan/controllers/group.py:738
+msgid "Group member has been deleted."
+msgstr "Član skupine je bil izbrisan."
 
-#: ckanext/datastore/templates-bs2/package/resource_read.html:18
-#: ckanext/datastore/templates/package/resource_read.html:19
-#: ckanext/datatablesview/templates/datatables/datatables_form.html:17
-msgid "Column"
-msgstr ""
+#: ckan/controllers/group.py:762 ckan/controllers/package.py:436
+msgid "Select two revisions before doing the comparison."
+msgstr "Pred primerjanjem morate izbrati dve verziji."
 
-#: ckanext/datastore/templates-bs2/package/resource_read.html:19
-#: ckanext/datastore/templates/package/resource_read.html:20
-msgid "Type"
-msgstr ""
+#: ckan/controllers/group.py:786
+msgid "CKAN Group Revision History"
+msgstr "Zgodovina revizij CKAN skupine"
 
 #: ckan/public-bs2/base/javascript/modules/activity-stream.js:97
 #: ckan/public-bs2/base/javascript/modules/popover-context.js:62
@@ -346,32 +359,30 @@ msgstr "Podatkovni API"
 msgid "Table"
 msgstr "Tabela"
 
-#: ckanext/datatablesview/templates/datatables/datatables_form.html:6
-msgid "Responsive display"
-msgstr ""
+#: ckan/controllers/group.py:901 ckan/controllers/user.py:584
+#: ckan/views/user.py:720
+#, python-format
+msgid "Unauthorized to view followers %s"
+msgstr "Nimate dovoljenja za prikaz sledilcev :%s"
 
-#: ckanext/datatablesview/templates/datatables/datatables_form.html:12
-msgid "Show Columns"
-msgstr ""
+#: ckan/controllers/home.py:35
+msgid "This site is currently off-line. Database is not initialised."
+msgstr "Stran trenutno ni na voljo. Podatkovna baza ni inicializirana."
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:30
 msgid "Hide/Unhide Columns"
 msgstr ""
+"Prosim <a href=\"%s\">posodobite svoj profil</a> in dodajte vaš email "
+"naslov. "
 
-#: ckanext/example_iconfigurer/templates/admin/config.html:11
-msgid "Datasets per page"
-msgstr "Nabori podatkov na stran"
+#: ckan/controllers/home.py:75 ckan/views/home.py:60
+#, python-format
+msgid "%s uses your email address if you need to reset your password."
+msgstr "%s uporablja vaš email naslov, če želite ponastaviti vaše geslo."
 
-#: ckanext/example_iconfigurer/templates/admin/config.html:13
-msgid "Test conf"
-msgstr "Testna nastavitev"
-
-#: ckan/templates/group/read.html:13 ckan/templates/organization/read.html:19
-#: ckan/templates/package/search.html:29
-#: ckan/templates/snippets/sort_by.html:14
-#: ckanext/example_idatasetform/templates/package/search.html:12
-msgid "Relevance"
-msgstr "Ustreznost"
+#: ckan/controllers/package.py:304
+msgid "Invalid search query: {error_message}"
+msgstr ""
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:14
 #: ckan/templates/organization/bulk_process.html:27
@@ -407,71 +418,62 @@ msgstr "Padajoče po imenih"
 msgid "Last Modified"
 msgstr "Nazadnje spremenjeno"
 
-#: ckanext/example_idatasetform/templates/package/search.html:16
-msgid "Custom Field Ascending"
-msgstr "Polje po meri naraščujoče"
-
-#: ckanext/example_idatasetform/templates/package/search.html:17
-msgid "Custom Field Descending"
-msgstr "Polje po meri padajoče"
-
-#: ckan/templates/group/read.html:17 ckan/templates/organization/read.html:23
-#: ckan/templates/package/search.html:33
-#: ckan/templates/snippets/package_item.html:50
-#: ckan/templates/snippets/popular.html:3
-#: ckan/templates/snippets/sort_by.html:19
-#: ckanext/example_idatasetform/templates/package/search.html:18
-msgid "Popular"
-msgstr "Popularno"
-
-#: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
-#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
-#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
-msgid "Custom Text"
-msgstr "Tekst po meri"
-
-#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
-msgid "custom text"
-msgstr "tekst po meri"
-
-#: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
-msgid "Country Code"
-msgstr "Geslo države"
-
-#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
-msgid "custom resource text"
-msgstr "tekst vira po meri"
-
-#: ckanext/example_itranslation/templates/home/index.html:4
-msgid "This is an untranslated string"
+#: ckan/controllers/package.py:415
+msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
 
-#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
-#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
-msgid "This group has no description"
-msgstr "ta skupina nima opisa"
+#: ckan/controllers/package.py:454 ckan/controllers/package.py:839
+#: ckan/controllers/package.py:940 ckan/controllers/package.py:988
+#: ckan/controllers/package.py:1239
+#, python-format
+msgid "Unauthorized to read package %s"
+msgstr "Nimate pravic za branje paketa %s"
 
-#: ckan/templates/group/snippets/group_item.html:32
-#: ckan/templates/organization/snippets/organization_item.html:31
-#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
-#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
-msgid "{num} Dataset"
-msgid_plural "{num} Datasets"
-msgstr[0] "{num} naborov podatkov"
-msgstr[1] "1 nabor podatkov"
-msgstr[2] "2 nabora podatkov"
-msgstr[3] "{num} naborov podatkov"
+#: ckan/controllers/package.py:463
+msgid "CKAN Dataset Revision History"
+msgstr "Zgodovina revizij CKAN podatkov"
 
-#: ckan/templates/group/snippets/group_item.html:34
-#: ckan/templates/organization/snippets/organization_item.html:33
-#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
-#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
-msgid "0 Datasets"
-msgstr "0 naborov podatkov"
+#: ckan/controllers/package.py:466
+msgid "Recent changes to CKAN Dataset: "
+msgstr "Nedavne spremembe CKAN podatkov:"
 
-#: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
-msgid "CKAN's data previewing tool has many powerful features"
-msgstr "CKANovo orodje za predogled podatkov ima močne zmogljivosti"
+#: ckan/controllers/package.py:522
+msgid "Unauthorized to create a package"
+msgstr "Nimate dovoljenja za ustvarjenje paketa"
+
+#: ckan/controllers/package.py:598
+msgid "Unauthorized to edit this resource"
+msgstr "Nimate dovoljenja za urejanje tega vira"
+
+#: ckan/controllers/package.py:613 ckan/controllers/package.py:1076
+#: ckan/controllers/package.py:1096 ckan/controllers/package.py:1163
+#: ckan/controllers/package.py:1346 ckan/controllers/package.py:1424
+#: ckan/controllers/package.py:1455 ckan/controllers/package.py:1563
+#: ckan/controllers/package.py:1614 ckanext/datapusher/plugin.py:59
+#: ckanext/datastore/controller.py:80 ckanext/resourceproxy/controller.py:33
+msgid "Resource not found"
+msgstr "Vir ni na voljo"
+
+#: ckan/controllers/package.py:666
+msgid "Unauthorized to update dataset"
+msgstr "Nimate dovoljanje za posodobitev nabora podatkov"
+
+#: ckan/controllers/package.py:668 ckan/controllers/package.py:705
+#: ckan/controllers/package.py:731
+msgid "The dataset {id} could not be found."
+msgstr "Nabor podatkov {id} ni an voljo"
+
+#: ckan/controllers/package.py:672
+msgid "You must add at least one data resource"
+msgstr "Dodati morate vsaj en podatkovni vir"
+
+#: ckan/controllers/package.py:681 ckanext/datapusher/helpers.py:24
+msgid "Error"
+msgstr "Napaka"
+
+#: ckan/controllers/package.py:703
+msgid "Unauthorized to create a resource"
+msgstr "Nimate dovoljenja za ustvarjenje vira"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
 #: ckan/templates/group/snippets/info.html:34
@@ -531,13 +533,14 @@ msgstr ""
 msgid "Image"
 msgstr "Slika"
 
-#: ckanext/imageview/theme/templates/image_form.html:3
-msgid "Image url"
-msgstr "url slike"
+#: ckan/controllers/package.py:1035
+msgid "Dataset has been deleted."
+msgstr "Nabor podatkov je bil izbrisan"
 
-#: ckanext/imageview/theme/templates/image_form.html:3
-msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr "npr. http://primer.net/slika.jpg (če prazno, uporabi url vira)"
+#: ckan/controllers/package.py:1040 ckan/controllers/package.py:1058
+#, python-format
+msgid "Unauthorized to delete package %s"
+msgstr "Nimate dovoljenja za izbris paketa %s"
 
 #: ckanext/reclineview/plugin.py:113
 msgid "Data Explorer"
@@ -586,61 +589,58 @@ msgstr ""
 msgid "Filters"
 msgstr "Filtri"
 
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
-#: ckanext/reclineview/theme/templates/recline_map_form.html:3
-msgid "Row offset"
-msgstr "Odklon vrstic"
+#: ckan/controllers/package.py:1508
+msgid "View not found"
+msgstr "Pogled ni na voljo"
 
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
-#: ckanext/reclineview/theme/templates/recline_map_form.html:3
-msgid "eg: 0"
-msgstr "npr: 0"
+#: ckan/controllers/package.py:1514
+msgid "View Type Not found"
+msgstr "Tip pogleda ni na voljo"
 
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
-#: ckanext/reclineview/theme/templates/recline_map_form.html:4
-msgid "Number of rows"
-msgstr "Število vrstic"
+#: ckan/controllers/package.py:1570
+msgid "Bad resource view data"
+msgstr "Nepravilen zahtevek za pogled vira podatkov"
 
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
-#: ckanext/reclineview/theme/templates/recline_map_form.html:4
-msgid "eg: 100"
-msgstr "npr: 100"
+#: ckan/controllers/package.py:1579
+msgid "Resource view not supplied"
+msgstr "Vir pogleda ni podan"
 
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:6
-msgid "Graph type"
-msgstr "Tip grafa"
+#: ckan/controllers/package.py:1608
+msgid "No preview has been defined."
+msgstr "Predogled ni definiran"
 
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:7
-msgid "Group (Axis 1)"
-msgstr "Skupina (os 1)"
+#: ckan/controllers/revision.py:45
+msgid "CKAN Repository Revision History"
+msgstr "Zgodovina različic skladišča CKAN"
 
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:8
-msgid "Series (Axis 2)"
-msgstr "Serija (os 2)"
+#: ckan/controllers/revision.py:47
+msgid "Recent changes to the CKAN repository."
+msgstr "Nedavne spremembe skladišča CKAN."
 
-#: ckanext/reclineview/theme/templates/recline_map_form.html:6
-msgid "Field type"
-msgstr "Tip polja"
+#: ckan/controllers/revision.py:111
+#, python-format
+msgid "Datasets affected: %s.\n"
+msgstr "Nabori podatki, ki so bili vplivani: %s.\n"
 
-#: ckanext/reclineview/theme/templates/recline_map_form.html:7
-msgid "Latitude field"
-msgstr "Polje zemljepisne širine"
+#: ckan/controllers/revision.py:218
+msgid "Revision updated"
+msgstr "Revizija posodobljena"
 
-#: ckanext/reclineview/theme/templates/recline_map_form.html:8
-msgid "Longitude field"
-msgstr "Polje zemljepisne dolžine"
+#: ckan/controllers/tag.py:60
+msgid "Other"
+msgstr "Drugo"
 
-#: ckanext/reclineview/theme/templates/recline_map_form.html:9
-msgid "GeoJSON field"
-msgstr "GeoJSON polje"
+#: ckan/controllers/tag.py:74
+msgid "Tag not found"
+msgstr "Oznaka ne obstaja"
 
-#: ckanext/reclineview/theme/templates/recline_map_form.html:10
-msgid "Auto zoom to features"
-msgstr "Samodejni zoom na značilnosti"
+#: ckan/controllers/user.py:162 ckan/views/user.py:290
+msgid "Unauthorized to register as a user."
+msgstr "Nimate dovoljenja za registracijo kot uporabnik."
 
-#: ckanext/reclineview/theme/templates/recline_map_form.html:11
-msgid "Cluster markers"
-msgstr "Markerji gruč"
+#: ckan/controllers/user.py:180
+msgid "Unauthorized to create a user"
+msgstr "Nimate dovoljenja za ustvarjanje novega uporabnika"
 
 #: ckanext/resourceproxy/blueprint.py:42
 msgid "Invalid URL."
@@ -758,9 +758,9 @@ msgstr ""
 msgid "Website"
 msgstr "Spletna stran"
 
-#: ckanext/webpageview/theme/templates/webpage_form.html:3
-msgid "Web Page url"
-msgstr "URL spletne strani"
+#: ckan/controllers/user.py:658 ckan/views/dashboard.py:79
+msgid "Everything"
+msgstr "Vse"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com  (if blank uses resource url)"
@@ -1093,9 +1093,9 @@ msgstr "Prenehali ste slediti {0}"
 msgid "Unauthorized to view followers %s"
 msgstr "Nimate dovoljenja za prikaz sledilcev :%s"
 
-#: ckan/controllers/home.py:35
-msgid "This site is currently off-line. Database is not initialised."
-msgstr "Stran trenutno ni na voljo. Podatkovna baza ni inicializirana."
+#: ckan/lib/helpers.py:1670
+msgid "Edited settings."
+msgstr "Nastavitve urejene."
 
 #: ckan/controllers/home.py:73 ckan/views/home.py:61
 #, python-format
@@ -1106,16 +1106,16 @@ msgstr ""
 
 #: ckan/controllers/home.py:75 ckan/views/home.py:63
 #, python-format
-msgid "%s uses your email address if you need to reset your password."
-msgstr "%s uporablja vaš email naslov, če želite ponastaviti vaše geslo."
+msgid "%s <%s>"
+msgstr "%s <%s>"
 
 #: ckan/controllers/package.py:304 ckan/views/dataset.py:335
 msgid "Invalid search query: {error_message}"
 msgstr ""
 
-#: ckan/controllers/package.py:323
-msgid "Parameter \"{parameter_name}\" is not an integer"
-msgstr "Parameter \"{parameter_name}\" ni cela številka"
+#: ckan/lib/mailer.py:136 ckan/templates/home/snippets/stats.html:17
+msgid "organization"
+msgstr "organizacija"
 
 #: ckan/controllers/package.py:343 ckan/controllers/package.py:351
 #: ckan/controllers/package.py:389 ckan/controllers/package.py:455
@@ -1138,11 +1138,24 @@ msgstr "Parameter \"{parameter_name}\" ni cela številka"
 msgid "Dataset not found"
 msgstr "Podatki niso na voljo"
 
-#: ckan/controllers/package.py:377 ckan/controllers/package.py:379
-#: ckan/controllers/package.py:381
+#: ckan/lib/navl/dictization_functions.py:16
+#: ckan/lib/navl/dictization_functions.py:19
+#: ckan/lib/navl/dictization_functions.py:22
+#: ckan/lib/navl/dictization_functions.py:25
+#: ckan/lib/navl/dictization_functions.py:28
+#: ckan/lib/navl/dictization_functions.py:31
+#: ckan/lib/navl/dictization_functions.py:34
+#: ckan/lib/navl/dictization_functions.py:37 ckan/lib/navl/validators.py:27
+#: ckan/lib/navl/validators.py:34 ckan/lib/navl/validators.py:54
+#: ckan/logic/action/get.py:2047 ckan/logic/action/update.py:261
+#: ckan/logic/validators.py:615
+msgid "Missing value"
+msgstr "Manjkajoča vrednost"
+
+#: ckan/lib/navl/validators.py:68
 #, python-format
-msgid "Invalid revision format: %r"
-msgstr "Nepravilen foramt revizije: %r"
+msgid "The input field %(name)s was not expected."
+msgstr "Vnosno polje %(name)s ni bilo pričakovano"
 
 #: ckan/controllers/package.py:414 ckan/views/dataset.py:512
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
@@ -1153,8 +1166,8 @@ msgstr ""
 #: ckan/controllers/package.py:1241 ckan/views/dataset.py:740
 #: ckan/views/dataset.py:980
 #, python-format
-msgid "Unauthorized to read package %s"
-msgstr "Nimate pravic za branje paketa %s"
+msgid "Tag vocabulary \"%s\" does not exist"
+msgstr "Slovar oznak \"%s\" ne obstaja"
 
 #: ckan/controllers/package.py:462
 msgid "CKAN Dataset Revision History"
@@ -1238,13 +1251,13 @@ msgstr "Prenos podatkov ni na voljo"
 
 #: ckan/controllers/package.py:1320 ckan/views/dataset.py:1100
 #, python-format
-msgid "Unauthorized to read dataset %s"
-msgstr "Nimate dovoljenja za branje nabora podatkov %s"
+msgid "Must be at least %s characters long"
+msgstr "Mora biti dolgo vsaj %s znakov"
 
 #: ckan/controllers/package.py:1428 ckan/views/resource.py:547
 #, python-format
-msgid "Unauthorized to read resource %s"
-msgstr "Nimate dovoljenja za branje vira %s"
+msgid "Name must be a maximum of %i characters long"
+msgstr "Ime more biti največ %i znakov dolgo"
 
 #: ckan/controllers/package.py:1492 ckan/views/resource.py:697
 msgid "Unauthorized to edit resource"
@@ -1312,8 +1325,8 @@ msgstr "Profil posodobljen"
 
 #: ckan/controllers/user.py:241 ckan/views/user.py:402
 #, python-format
-msgid "Unauthorized to create user %s"
-msgstr "Nimate dovoljenja za ustvarjenje uporabnika %s"
+msgid "Name must be at least %s characters long"
+msgstr "Ime mora biti dolgo vsaj %s znakov"
 
 #: ckan/controllers/user.py:247 ckan/views/user.py:395
 msgid "Bad Captcha. Please try again."
@@ -1321,12 +1334,10 @@ msgstr "Napačen Captcha. Prosim poskusite ponovno."
 
 #: ckan/controllers/user.py:261 ckan/views/user.py:414
 #, python-format
-msgid ""
-"User \"%s\" is now registered but you are still logged in as \"%s\" from "
-"before"
+msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr ""
-"Uporabnik \"%s\" je sedaj registriran, vendar vi ste še vedno prijavljeni "
-"kot \"%s\" od prej"
+"Ni mogoče spremeniti vrednosti ključa iz %s v %s. Ta ključ je namenjen samo "
+"branju"
 
 #: ckan/controllers/user.py:289 ckan/views/user.py:258
 msgid "Unauthorized to edit a user."
@@ -1412,13 +1423,9 @@ msgstr "Vse"
 msgid "View"
 msgstr "Preglej"
 
-#: ckan/lib/email_notifications.py:103
-msgid "{n} new activity from {site_title}"
-msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+#: ckan/logic/action/get.py:2060
+msgid "Must be <field>:<value> pair(s)"
+msgstr "Morajo biti <field>:<value> pari"
 
 #: ckan/lib/formatters.py:49
 msgid "Just now"
@@ -1519,8 +1526,8 @@ msgstr[3] "{number} nedavnih ogledov"
 
 #: ckan/lib/mailer.py:58
 #, python-format
-msgid "%s <%s>"
-msgstr "%s <%s>"
+msgid "User %s not authorized to edit permissions of group %s"
+msgstr "Uporabnik %s nima dovoljenja za urejanje dovoljenj skupine %s"
 
 #: ckan/lib/mailer.py:132
 msgid "No recipient email address available!"
@@ -1550,8 +1557,8 @@ msgstr "Manjkajoča vrednost"
 
 #: ckan/lib/navl/validators.py:69
 #, python-format
-msgid "The input field %(name)s was not expected."
-msgstr "Vnosno polje %(name)s ni bilo pričakovano"
+msgid "User %s not authorized to update task_status table"
+msgstr "Uporabnik %s nima dovoljenja za posodobitev task_status tabele"
 
 #: ckan/lib/navl/validators.py:133
 msgid "Please enter an integer value"
@@ -1668,18 +1675,18 @@ msgstr "Ta URL je že v uporabi"
 
 #: ckan/logic/validators.py:390
 #, python-format
-msgid "Name \"%s\" length is less than minimum %s"
-msgstr "Dolžina imena \"%s\" je manjša od minimuma %s"
+msgid "is a dependency of %s"
+msgstr "je odvisnost za %s"
 
 #: ckan/logic/validators.py:394
 #, python-format
-msgid "Name \"%s\" length is more than maximum %s"
-msgstr "Dolžina imena \"%s\" je večja od maksimuma %s"
+msgid "derives from %s"
+msgstr "izhaja iz %s"
 
 #: ckan/logic/validators.py:400
 #, python-format
-msgid "Version must be a maximum of %i characters long"
-msgstr "verzija mora biti največ %i znakov dolga"
+msgid "has derivation %s"
+msgstr "ima predelavo %s"
 
 #: ckan/logic/validators.py:418
 #, python-format
@@ -1692,23 +1699,23 @@ msgstr "Skupina s tem imenom že obstaja v podatkovni bazi"
 
 #: ckan/logic/validators.py:440
 #, python-format
-msgid "Tag \"%s\" length is less than minimum %s"
-msgstr "Dolžina oznake \"%s\" je manjša od minimuma %s"
+msgid "is linked from %s"
+msgstr "vodi od %s"
 
 #: ckan/logic/validators.py:444
 #, python-format
-msgid "Tag \"%s\" length is more than maximum %i"
-msgstr "Dolžina oznake \"%s\" je večja od maksimuma %i"
+msgid "is a child of %s"
+msgstr "je naslednik %s"
 
 #: ckan/logic/validators.py:452
 #, python-format
-msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr "Oznaka \"%s\" mora biti iz alfanumeričnih znakov ali simbolov: -_."
+msgid "is a parent of %s"
+msgstr "je predhodnik %s"
 
 #: ckan/logic/validators.py:460
 #, python-format
-msgid "Tag \"%s\" must not be uppercase"
-msgstr "Oznaka \"%s\" ne sme imeti velikih črk"
+msgid "has sibling %s"
+msgstr "je soroden %s"
 
 #: ckan/logic/validators.py:568
 msgid "User names must be strings"
@@ -1889,6 +1896,8 @@ msgstr "Ocena mora biti med %i in %i."
 #: ckan/logic/action/create.py:1175
 msgid "Error sending the invite email, the user was not created: {0}"
 msgstr ""
+"Trenutno prenašate datoteko. Ste prepričani da se želite preusmeriti drugam "
+"in prekiniti ta prenos?"
 
 #: ckan/logic/action/create.py:1349 ckan/logic/action/create.py:1356
 msgid "You must be logged in to follow users"
@@ -1931,8 +1940,8 @@ msgstr "id ni v podatkih"
 #: ckan/logic/action/delete.py:639 ckan/logic/action/get.py:2458
 #: ckan/logic/action/update.py:1088
 #, python-format
-msgid "Could not find vocabulary \"%s\""
-msgstr "Ni možno najti slovarja \"%s\""
+msgid "hello %(name)s!"
+msgstr ""
 
 #: ckan/logic/action/delete.py:669
 #, python-format
@@ -1988,61 +1997,71 @@ msgstr "TaskStatus ni na voljo."
 msgid "Organization was not found."
 msgstr "Organizacija ni na voljo."
 
-#: ckan/logic/auth/create.py:27 ckan/logic/auth/create.py:45
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:100
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:105
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:110
+#: ckan/public/base/test/spec/i18n.spec.js:100
+#: ckan/public/base/test/spec/i18n.spec.js:105
+#: ckan/public/base/test/spec/i18n.spec.js:110
+#: ckan/public/base/test/spec/i18n.spec.min.js:1
 #, python-format
-msgid "User %s not authorized to create packages"
-msgstr "Uporabnik %s nima dovoljenja za ustvarjanje paketov"
+msgid "%(num)d missing translation"
+msgid_plural "%(num)d missing translations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/logic/auth/create.py:31 ckan/logic/auth/update.py:56
 #, python-format
-msgid "User %s not authorized to edit these groups"
-msgstr "Uporabnik %s nima dovoljenja za urejanje teh skupin"
+msgid "Error %(error_code)s"
+msgstr "Napaka %(error_code)s"
 
-#: ckan/logic/auth/create.py:38
-#, python-format
-msgid "User %s not authorized to add dataset to this organization"
-msgstr ""
-"Uporabnik %s nima dovoljenja za dodajanje naborov podatkov k tej "
-"organizaciji"
+#: ckan/templates/footer.html:9
+msgid "About {0}"
+msgstr "O {0}"
 
-#: ckan/logic/auth/create.py:61
-msgid "No dataset id provided, cannot check auth."
-msgstr "Id nabora podatkov niste podali, ni možno preveriti avtentikacije."
+#: ckan/templates/footer.html:15
+msgid "CKAN API"
+msgstr "CKAN API"
 
 #: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
 #: ckan/logic/auth/get.py:137 ckan/logic/auth/update.py:79
 msgid "No package found for this resource, cannot check auth."
 msgstr "Paketa za ta vir ni na voljo, ni možno preveriti avtentikacije."
 
-#: ckan/logic/auth/create.py:76
-#, python-format
-msgid "User %s not authorized to create resources on dataset %s"
+#: ckan/templates/footer.html:24
+msgid ""
+"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
-"Uporabnik %s nima dovoljenja za ustvarjenje vira na naboru podatkov %s"
+"<strong>Portal omogoča</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
-#: ckan/logic/auth/create.py:108
+#: ckan/templates/header.html:9
+msgid "Sysadmin settings"
+msgstr "Nastavitve skrbnika sistema"
+
+#: ckan/templates/header.html:16
+msgid "View profile"
+msgstr "Poglej profil"
+
+#: ckan/templates/header.html:23
 #, python-format
-msgid "User %s not authorized to edit these packages"
-msgstr "Uporabnik %s nima dovoljenja za urejanje teh paketov"
+msgid "Dashboard (%(num)d new item)"
+msgid_plural "Dashboard (%(num)d new items)"
+msgstr[0] "Delovna deska ima (%(num)d novih predmetov)"
+msgstr[1] "Delovna deska ima (%(num)d novi predmet)"
+msgstr[2] "Delovna deska ima (%(num)d nova predmeta)"
+msgstr[3] "Delovna deska ima (%(num)d novih predmetov"
 
-#: ckan/logic/auth/create.py:119
-#, python-format
-msgid "User %s not authorized to create groups"
-msgstr "Uporabnik %s nima dovoljenja za ustvarjanje skupin"
+#: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
+msgid "Dashboard"
+msgstr "Digitalna delovna deska"
 
-#: ckan/logic/auth/create.py:129
-#, python-format
-msgid "User %s not authorized to create organizations"
-msgstr "Uporabnik %s nima dovoljenja za ustvarjanje organizacij"
-
-#: ckan/logic/auth/create.py:145
-msgid "User {user} not authorized to create users via the API"
-msgstr ""
-"Uporabnik {user} nima dovoljenja za ustvarjanje uporabnikov preko API-ja"
-
-#: ckan/logic/auth/create.py:148
-msgid "Not authorized to create users"
-msgstr "Ni dovoljenja za ustvarjanje uporabnikov"
+#: ckan/templates/header.html:33 ckan/templates/user/dashboard.html:16
+msgid "Edit settings"
+msgstr "Uredi nastavitve"
 
 #: ckan/logic/auth/create.py:191
 msgid "Group was not found."
@@ -2072,35 +2091,31 @@ msgstr "Uporabnik %s nima dovoljenja za brisanje vira %s"
 msgid "Resource view not found, cannot check auth."
 msgstr "Pogled vira ni an voljo, ni možno preveriti avtentikacije."
 
-#: ckan/logic/auth/delete.py:73
-#, python-format
-msgid "User %s not authorized to delete relationship %s"
-msgstr "Uporabnik %s nima dovoljenja za brisanje relacije %s"
+#: ckan/templates/header.html:94
+msgid "Search Datasets"
+msgstr "Preišči nabore podatkov"
 
-#: ckan/logic/auth/delete.py:82
-#, python-format
-msgid "User %s not authorized to delete groups"
-msgstr "Uporabnik %s nima dovoljenja za brisanje skupin"
+#: ckan/templates/header.html:95 ckan/templates/home/snippets/search.html:11
+#: ckan/templates/snippets/simple_search.html:5
+#: ckan/templates/user/snippets/user_search.html:6
+msgid "Search"
+msgstr "Išči"
 
-#: ckan/logic/auth/delete.py:86
-#, python-format
-msgid "User %s not authorized to delete group %s"
-msgstr "Uporabnik %s nima dovoljenja za brisanje skupine %s"
+#: ckan/templates/page.html:6
+msgid "Skip to content"
+msgstr "Preskoči na vsebino"
 
-#: ckan/logic/auth/delete.py:103
-#, python-format
-msgid "User %s not authorized to delete organizations"
-msgstr "Uporabnik %s nima dovoljenja za brisanje organizacij"
+#: ckan/templates/activity_streams/activity_stream_items.html:9
+msgid "Load less"
+msgstr "Naloži manj"
 
-#: ckan/logic/auth/delete.py:107
-#, python-format
-msgid "User %s not authorized to delete organization %s"
-msgstr "Uporabnik %s nima dovoljenja za brisanje organizacije %s"
+#: ckan/templates/activity_streams/activity_stream_items.html:17
+msgid "Load more"
+msgstr "Naloži več"
 
-#: ckan/logic/auth/delete.py:120
-#, python-format
-msgid "User %s not authorized to delete task_status"
-msgstr "Uporabnik %s nima dovoljenja za brisanje task_status"
+#: ckan/templates/activity_streams/activity_stream_items.html:23
+msgid "No activities are within this activity stream"
+msgstr "Ni aktivnosti v tem toku aktivnosti"
 
 #: ckan/logic/auth/delete.py:156
 #, python-format
@@ -2116,15 +2131,13 @@ msgstr "Nimate dovoljenja"
 msgid "User %s not authorized to read these packages"
 msgstr "Uporabnik %s nima dovoljenja za branje teh paketov"
 
-#: ckan/logic/auth/get.py:124
-#, python-format
-msgid "User %s not authorized to read package %s"
-msgstr "Uporabnik %s nima dovoljenja za branje paketa %s"
+#: ckan/templates/admin/base.html:9
+msgid "Config"
+msgstr "Nastavitve"
 
-#: ckan/logic/auth/get.py:143
-#, python-format
-msgid "User %s not authorized to read resource %s"
-msgstr "Uporabnik %s nima dovoljenja za branje vira %s"
+#: ckan/templates/admin/base.html:10 ckan/templates/admin/trash.html:29
+msgid "Trash"
+msgstr "Smeti"
 
 #: ckan/logic/auth/get.py:177
 #, python-format
@@ -2157,8 +2170,36 @@ msgstr "Uporabnik %s nima dovoljenja za spremembo stanja paketa %s"
 
 #: ckan/logic/auth/update.py:144
 #, python-format
-msgid "User %s not authorized to edit organization %s"
-msgstr "Uporabnik %s nima dovoljenja za urjanje organizacije %s"
+msgid ""
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+"Text:</strong> This text will appear on this CKAN instances <a "
+"href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
+"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
+"target=\"_blank\">reading the documentation</a>.</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
+msgstr ""
+" <p><strong>Naslov strani:</strong> To je naslov te CKAN instance Pojavi se "
+"na različnih mestih po CKANu.</p> <p><strong>Stil:</strong> Izberite s "
+"seznama preprostih variacij glavne barvne sheme za hitro menjavo teme.</p> "
+"<p><strong>Logo strani:</strong> Ta logo se pojavi v glavi vseh osnutkov the"
+" CKAN instance.</p> <p><strong>O strani:</strong> Ta tekst se pojavi na <a "
+"href=\"%(about_url)s\">O strani</a> te CKAN instance </p> <p><strong>Intro "
+"Tekst:</strong> Ta tekst se pojavi na <a href=\"%(home_url)s\">domači "
+"strani</a> te CKAN instance kot pozdrav obiskovalcem.</p> <p><strong>Lasten "
+"CSS:</strong> Ta blok CSS-a se pojave v <code>&lt;glavi&gt;</code> vsake "
+"strani. Če želite bolj spremeniti podobo te strani , potem priporoačmo da "
+"preberete <a href=\"%(docs_url)s\" target=\"_blank\">dokumentacijo</a>.</p> "
+"<p><strong>Domača stran:</strong> To je za izbiranje vnaprej določenih "
+"osnutkov za module, ki se pojavijo na domači strani.</p> "
 
 #: ckan/logic/auth/update.py:161
 #, python-format
@@ -2167,8 +2208,14 @@ msgstr "Uporabnik %s nima dovoljenja za spremembo stanja skupine %s"
 
 #: ckan/logic/auth/update.py:178
 #, python-format
-msgid "User %s not authorized to edit permissions of group %s"
-msgstr "Uporabnik %s nima dovoljenja za urejanje dovoljenj skupine %s"
+msgid ""
+" <p>As a sysadmin user you have full control over this CKAN instance. "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
+msgstr ""
+" <p>Kot skrbnik sistema imaš poln nadzor nad to CKAN instanco. Nadaljuj "
+"skrbno!</p> <p>Za nasvete o uporabi skrbniških natavitev, si poglej CKAN <a "
+"href=\"%(docs_url)s\" target=\"_blank\">skrbniška navodila</a></p> "
 
 #: ckan/logic/auth/update.py:206
 msgid "Have to be logged in to edit user"
@@ -2505,11 +2552,13 @@ msgstr "Podatkov za preneseno datoteko ni mogoč pridobiti"
 #: ckan/public/base/javascript/modules/resource-upload-field.js:275
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop "
-"this upload?"
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
+"datasets from groups</p> "
 msgstr ""
-"Trenutno prenašate datoteko. Ste prepričani da se želite preusmeriti drugam "
-"in prekiniti ta prenos?"
+" <p><strong>Skrbnik:</strong> Lahko ureja informacijo o skupini, kot tudi "
+"upravlja s člani organizacije.</p> <p><strong>Član:</strong> Lahko "
+"doda/odstrani nabore podatkov iz skupin</p> "
 
 #: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:9
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
@@ -2552,165 +2601,145 @@ msgstr "Pokaži več"
 msgid "Hide"
 msgstr "Skrij"
 
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:13
-#: ckan/public-bs2/base/test/spec/module.spec.js:385
-#: ckan/public/base/test/spec/i18n.spec.js:13
-#: ckan/public/base/test/spec/module.spec.js:385
-msgid "foo"
-msgstr ""
+#: ckan/templates/group/read.html:17 ckan/templates/organization/read.html:23
+#: ckan/templates/package/search.html:33
+#: ckan/templates/snippets/package_item.html:50
+#: ckan/templates/snippets/popular.html:3
+#: ckan/templates/snippets/sort_by.html:19
+#: ckanext/example_idatasetform/templates/package/search.html:18
+msgid "Popular"
+msgstr "Popularno"
 
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:17
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:46
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:50
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:54
-#: ckan/public/base/test/spec/i18n.spec.js:17
-#: ckan/public/base/test/spec/i18n.spec.js:46
-#: ckan/public/base/test/spec/i18n.spec.js:50
-#: ckan/public/base/test/spec/i18n.spec.js:54
-msgid "no translation"
-msgid_plural "no translations"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+#: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:25
+#: ckan/templates/snippets/search_form.html:3
+msgid "Search datasets..."
+msgstr "Preišči nabore podatkov..."
 
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:22
-#: ckan/public/base/test/spec/i18n.spec.js:22
-#, python-format
-msgid "hello %(name)s!"
-msgstr ""
+#: ckan/templates/group/snippets/feeds.html:3
+msgid "Datasets in group: {group}"
+msgstr "Nabori podatkov v skupini: {group}"
 
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:29
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:76
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:81
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:86
-#: ckan/public/base/test/spec/i18n.spec.js:29
-#: ckan/public/base/test/spec/i18n.spec.js:76
-#: ckan/public/base/test/spec/i18n.spec.js:81
-#: ckan/public/base/test/spec/i18n.spec.js:86
-#, python-format
-msgid "no %(attr)s translation"
-msgid_plural "no %(attr)s translations"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+#: ckan/templates/group/snippets/feeds.html:4
+#: ckan/templates/organization/snippets/feeds.html:4
+msgid "Recent Revision History"
+msgstr "Nedavna zgodovina revizij"
 
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:39
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:40
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:41
-#: ckan/public-bs2/base/test/spec/module.spec.js:395
-#: ckan/public-bs2/base/test/spec/module.spec.js:396
-#: ckan/public-bs2/base/test/spec/module.spec.js:397
-#: ckan/public/base/test/spec/i18n.spec.js:39
-#: ckan/public/base/test/spec/i18n.spec.js:40
-#: ckan/public/base/test/spec/i18n.spec.js:41
-#: ckan/public/base/test/spec/module.spec.js:395
-#: ckan/public/base/test/spec/module.spec.js:396
-#: ckan/public/base/test/spec/module.spec.js:397
-msgid "bar"
-msgid_plural "bars"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+#: ckan/templates/group/snippets/group_form.html:10
+#: ckan/templates/organization/snippets/organization_form.html:10
+#: ckan/templates/package/snippets/resource_form.html:30
+msgid "Name"
+msgstr "Ime"
 
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:61
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:65
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:69
-#: ckan/public/base/test/spec/i18n.spec.js:61
-#: ckan/public/base/test/spec/i18n.spec.js:65
-#: ckan/public/base/test/spec/i18n.spec.js:69
-#, python-format
-msgid "%(color)s shirt"
-msgid_plural "%(color)s shirts"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+#: ckan/templates/group/snippets/group_form.html:10
+msgid "My Group"
+msgstr "Moja skupina"
 
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:93
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:94
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:95
-#: ckan/public/base/test/spec/i18n.spec.js:93
-#: ckan/public/base/test/spec/i18n.spec.js:94
-#: ckan/public/base/test/spec/i18n.spec.js:95
-#, python-format
-msgid "%(num)d item"
-msgid_plural "%(num)d items"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+#: ckan/templates/group/snippets/group_form.html:19
+#: ckan/templates/organization/snippets/organization_form.html:19
+#: ckan/templates/package/snippets/package_basic_fields.html:19
+#: ckan/templates/package/snippets/resource_form.html:34
+#: ckan/templates/package/snippets/view_form.html:9
+#: ckanext/datastore/templates-bs2/datastore/dictionary.html:21
+#: ckanext/datastore/templates-bs2/package/resource_read.html:21
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:24
+#: ckanext/datastore/templates/package/resource_read.html:22
+msgid "Description"
+msgstr "Opis"
 
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:100
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:105
-#: ckan/public-bs2/base/test/spec/i18n.spec.js:110
-#: ckan/public/base/test/spec/i18n.spec.js:100
-#: ckan/public/base/test/spec/i18n.spec.js:105
-#: ckan/public/base/test/spec/i18n.spec.js:110
-#, python-format
-msgid "%(num)d missing translation"
-msgid_plural "%(num)d missing translations"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+#: ckan/templates/group/snippets/group_form.html:19
+msgid "A little information about my group..."
+msgstr "Nekaj informacij o moji skupini..."
 
-#: ckan/templates/error_document_template.html:3
-#, python-format
-msgid "Error %(error_code)s"
-msgstr "Napaka %(error_code)s"
+#: ckan/templates/group/snippets/group_form.html:37
+msgid "Are you sure you want to delete this Group?"
+msgstr "Ste prepričani, da želite izbrisati to skupino?"
 
-#: ckan/templates/footer.html:9
-msgid "About {0}"
-msgstr "O {0}"
+#: ckan/templates/group/snippets/group_form.html:40
+msgid "Save Group"
+msgstr "Shrani skupino"
 
-#: ckan/templates/footer.html:15
-msgid "CKAN API"
-msgstr "CKAN API"
+#: ckan/templates/group/snippets/group_item.html:32
+#: ckan/templates/organization/snippets/organization_item.html:31
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
+msgid "{num} Dataset"
+msgid_plural "{num} Datasets"
+msgstr[0] "{num} naborov podatkov"
+msgstr[1] "1 nabor podatkov"
+msgstr[2] "2 nabora podatkov"
+msgstr[3] "{num} naborov podatkov"
 
-#: ckan/templates/footer.html:16
-msgid "CKAN Association"
-msgstr ""
+#: ckan/templates/group/snippets/group_item.html:34
+#: ckan/templates/organization/snippets/organization_item.html:33
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
+msgid "0 Datasets"
+msgstr "0 naborov podatkov"
 
-#: ckan/templates/footer.html:24
+#: ckan/templates/group/snippets/group_item.html:38
+#: ckan/templates/group/snippets/group_item.html:39
+msgid "View {name}"
+msgstr "Pogled {name}"
+
+#: ckan/templates/group/snippets/group_item.html:43
+msgid "Remove dataset from this group"
+msgstr "Izbriši nabor podatkov iz te skupine"
+
+#: ckan/templates/group/snippets/helper.html:4
+msgid "What are Groups?"
+msgstr "Kaj so skupine?"
+
+#: ckan/templates/group/snippets/helper.html:8
 msgid ""
-"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
 msgstr ""
-"<strong>Portal omogoča</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+" CKAN skupine lahko uporabite za ustvarjanje in upravljanje zbirk naborov "
+"podatkov. To so lahko katalogi naborov podatkov za določen projekt ali "
+"ekipo, ali za določeno tematiko, ali kot preprost način da drugi ljudje "
+"najdejo in uporabijo vaše objavljene nabore podatkov. "
 
-#: ckan/templates/header.html:9
-msgid "Sysadmin settings"
-msgstr "Nastavitve skrbnika sistema"
+#: ckan/templates/group/snippets/history_revisions.html:10
+#: ckan/templates/package/snippets/history_revisions.html:10
+msgid "Compare"
+msgstr "Primerjaj"
 
-#: ckan/templates/header.html:16
-msgid "View profile"
-msgstr "Poglej profil"
+#: ckan/templates/group/snippets/info.html:16
+#: ckan/templates/organization/bulk_process.html:72
+#: ckan/templates/package/read.html:21
+#: ckan/templates/package/snippets/package_basic_fields.html:118
+#: ckan/templates/snippets/organization.html:37
+#: ckan/templates/snippets/package_item.html:42
+msgid "Deleted"
+msgstr "Izbrisano"
 
-#: ckan/templates/header.html:23
-#, python-format
-msgid "Dashboard (%(num)d new item)"
-msgid_plural "Dashboard (%(num)d new items)"
-msgstr[0] "Delovna deska ima (%(num)d novih predmetov)"
-msgstr[1] "Delovna deska ima (%(num)d novi predmet)"
-msgstr[2] "Delovna deska ima (%(num)d nova predmeta)"
-msgstr[3] "Delovna deska ima (%(num)d novih predmetov"
+#: ckan/templates/group/snippets/info.html:24
+#: ckan/templates/package/snippets/package_context.html:7
+#: ckan/templates/snippets/organization.html:45
+msgid "read more"
+msgstr "preberi več"
 
-#: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
-msgid "Dashboard"
-msgstr "Digitalna delovna deska"
+#: ckan/templates/group/snippets/revisions_table.html:7
+#: ckan/templates/package/snippets/revisions_table.html:7
+#: ckan/templates/revision/read.html:5 ckan/templates/revision/read.html:9
+#: ckan/templates/revision/read.html:39
+#: ckan/templates/revision/snippets/revisions_list.html:4
+msgid "Revision"
+msgstr "Različica"
 
 #: ckan/templates/header.html:33 ckan/templates/header.html:35
 #: ckan/templates/user/dashboard.html:16
 msgid "Profile settings"
 msgstr ""
 
-#: ckan/templates/header.html:40 ckan/templates/header.html:42
-msgid "Log out"
-msgstr "Odjava"
+#: ckan/templates/group/snippets/revisions_table.html:10
+#: ckan/templates/package/snippets/revisions_table.html:10
+#: ckan/templates/revision/read.html:56
+#: ckan/templates/revision/snippets/revisions_list.html:8
+msgid "Log Message"
+msgstr "Dnevniško sporočilo"
 
 #: ckan/templates/header.html:49
 msgid "Account"
@@ -2720,9 +2749,46 @@ msgstr ""
 msgid "Log in"
 msgstr "Prijava"
 
-#: ckan/templates/header.html:54 ckan/templates/user/new.html:3
-msgid "Register"
-msgstr "Registracija"
+#: ckan/templates/home/snippets/about_text.html:1
+msgid ""
+" <p>CKAN is the world’s leading open-source data portal platform.</p> "
+"<p>CKAN is a complete out-of-the-box software solution that makes data "
+"accessible and usable – by providing tools to streamline publishing, "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
+"href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
+"government portals, as well as city and municipal sites in the US, UK, "
+"Argentina, Finland and elsewhere.</p> <p>CKAN: <a "
+"href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a "
+"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
+"overview: <a "
+"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+msgstr ""
+" <p>CKAN je vodilna odprto-kodna platforma za podatkovne portale na "
+"svetu.</p> <p>CKAN je popolnoma 'out-of-the-box' rešitev, ki naredi podatke "
+"dostopne in uporabne – tako da ponudi orodja za preprosto objavo, izmenjavo,"
+" iskanje in uporabo podatkov (vključno s shrambo podatkov in ponudbo "
+"robustnih podatkovnih API-jev).  CKAN je namenjen objavljalcem podatkov "
+"(državne in regionalne uprave, podjetja in organizacije), ki želijo narediti"
+" svoje podatke odprte in dostopne.</p> <p>CKAN uporabljajo državne vlade ter"
+" uporabniške skupine po celem svetu in tudi omogoča številne portale uradnim"
+" in skupnostnim skupinam, kot tudi portale za lokalne, državne, in "
+"mednarodne vlade, kot je npr. za Združeno kraljestvo <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> za Evropsko unijo <a "
+"href=\"http://publicdata.eu/\">publicdata.eu</a>, za Brazilski <a "
+"href=\"http://dados.gov.br/\">dados.gov.br</a>, Nizozemski vladni portal, "
+"kot tudi za mesta in občine v ZDA, združenem kraljestvu, Argentini, Finski "
+"in še drugod. </p> <p>CKAN: <a "
+"href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Ogled: <a "
+"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Lastnosti "
+"overview: <a "
+"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/group/read_base.html:17
 #: ckan/templates/group/snippets/info.html:38 ckan/templates/header.html:89
@@ -2768,50 +2834,52 @@ msgstr ""
 msgid "Load less"
 msgstr "Naloži manj"
 
-#: ckan/templates/activity_streams/activity_stream_items.html:17
-msgid "Load more"
-msgstr "Naloži več"
+#: ckan/templates/home/snippets/stats.html:5
+msgid "{0} statistics"
+msgstr "{0} statistike"
 
-#: ckan/templates/activity_streams/activity_stream_items.html:23
-msgid "No activities are within this activity stream"
-msgstr "Ni aktivnosti v tem toku aktivnosti"
+#: ckan/templates/home/snippets/stats.html:11
+msgid "dataset"
+msgstr "nabor podatkov"
 
-#: ckan/templates/admin/base.html:3
-msgid "Administration"
-msgstr "Administracija"
+#: ckan/templates/home/snippets/stats.html:11
+msgid "datasets"
+msgstr "nabori podatkov"
 
-#: ckan/templates/admin/base.html:8
-msgid "Sysadmins"
-msgstr "Skrbniki sistema"
+#: ckan/templates/home/snippets/stats.html:17
+msgid "organizations"
+msgstr "organizacije"
 
-#: ckan/templates/admin/base.html:9
-msgid "Config"
-msgstr "Nastavitve"
+#: ckan/templates/home/snippets/stats.html:23
+msgid "groups"
+msgstr "skupine"
 
 #: ckan/templates/admin/base.html:10 ckan/templates/admin/trash.html:27
 msgid "Trash"
 msgstr "Smeti"
 
-#: ckan/templates/admin/config.html:23 ckan/templates/macros/autoform.html:62
-msgid "Site logo"
+#: ckan/templates/macros/form.html:233
+msgid "Key"
 msgstr ""
 
-#: ckan/templates/admin/config.html:35
-#: ckan/templates/admin/confirm_reset.html:7
-msgid "Are you sure you want to reset the config?"
-msgstr "Ste prepričani da želite ponastaviti nastavitve?"
+#: ckan/templates/macros/form.html:245
+#: ckan/templates/package/resource_read.html:167
+#: ckan/templates/package/snippets/additional_info.html:7
+#: ckan/templates/snippets/additional_info.html:12
+msgid "Value"
+msgstr "Vrednost"
 
-#: ckan/templates/admin/config.html:35
-msgid "Reset"
-msgstr "Ponastavi"
+#: ckan/templates/macros/form.html:277
+msgid "This field is required"
+msgstr "To polje je nujno"
 
-#: ckan/templates/admin/config.html:36
-msgid "Update Config"
-msgstr "Posodobi nastavitve"
+#: ckan/templates/macros/form.html:277
+msgid "Custom"
+msgstr "Po meri"
 
-#: ckan/templates/admin/config.html:45
-msgid "CKAN config options"
-msgstr "CKAN nastavitve"
+#: ckan/templates/macros/form.html:302
+msgid "The form contains invalid entries:"
+msgstr "Ta obrazec vsebuje neveljavne vnose:"
 
 #: ckan/templates/admin/config.html:52
 #, python-format
@@ -2846,14 +2914,13 @@ msgstr ""
 "<p><strong>Domača stran:</strong> To je za izbiranje vnaprej določenih "
 "osnutkov za module, ki se pojavijo na domači strani.</p> "
 
-#: ckan/templates/admin/confirm_reset.html:3
-#: ckan/templates/admin/confirm_reset.html:10
-msgid "Confirm Reset"
-msgstr "Potrdi ponastavitev"
+#: ckan/templates/macros/form.html:422
+msgid "http://example.com/my-image.jpg"
+msgstr "http://example.com/my-image.jpg"
 
-#: ckan/templates/admin/index.html:15
-msgid "Administer CKAN"
-msgstr "Administriraj CKAN"
+#: ckan/templates/macros/form.html:423
+msgid "Image URL"
+msgstr "URL slike"
 
 #: ckan/templates/admin/index.html:20
 #, python-format
@@ -2922,85 +2989,119 @@ msgstr "Trenutno ni možen predogled vira."
 msgid "Click here for more information."
 msgstr "Klikni za več informacij."
 
-#: ckan/templates/dataviewer/snippets/data_preview.html:18
-#: ckan/templates/package/snippets/resource_view.html:41
-msgid "Download resource"
-msgstr "Prenesi vir"
+#: ckan/templates/organization/bulk_process.html:37
+msgid "Make public"
+msgstr "Naredi javno"
 
-#: ckan/templates/dataviewer/snippets/no_preview.html:3
-msgid "No preview available."
-msgstr "Predolged ni na voljo."
+#: ckan/templates/organization/bulk_process.html:41
+msgid "Make private"
+msgstr "Naredi zasebno"
 
-#: ckan/templates/dataviewer/snippets/no_preview.html:5
-msgid "More details..."
-msgstr "Več podrobnosti..."
+#: ckan/templates/organization/bulk_process.html:70
+#: ckan/templates/package/read.html:18
+#: ckan/templates/snippets/package_item.html:40
+msgid "Draft"
+msgstr "Osnutek"
 
-#: ckan/templates/dataviewer/snippets/no_preview.html:12
-#, python-format
-msgid "No handler defined for data type: %(type)s."
-msgstr "Upravljalec za podatkovni tip %(type)s ni definiran."
+#: ckan/templates/organization/bulk_process.html:75
+#: ckan/templates/package/read.html:11
+#: ckan/templates/package/snippets/package_basic_fields.html:98
+#: ckan/templates/snippets/package_item.html:31
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
+msgid "Private"
+msgstr "Zasebno"
 
-#: ckan/templates/development/snippets/form.html:5
-msgid "Standard"
-msgstr "Standard"
+#: ckan/templates/organization/bulk_process.html:88
+msgid "This organization has no datasets associated to it"
+msgstr "Ta organizacija nima naborov podatkov"
 
-#: ckan/templates/development/snippets/form.html:5
-msgid "Standard Input"
-msgstr "Standardni vhod"
+#: ckan/templates/organization/confirm_delete.html:11
+msgid "Are you sure you want to delete organization - {name}?"
+msgstr "Ste prepričani da želite izbrisati organizacijo - {name}?"
 
-#: ckan/templates/development/snippets/form.html:6
-msgid "Medium"
-msgstr "Srednji"
+#: ckan/templates/organization/edit.html:6
+#: ckan/templates/organization/snippets/info.html:13
+#: ckan/templates/organization/snippets/info.html:16
+msgid "Edit Organization"
+msgstr "Uredi organizacijo"
 
-#: ckan/templates/development/snippets/form.html:6
-msgid "Medium Width Input"
-msgstr "Srednje obsežni vhod"
+#: ckan/templates/organization/index.html:13
+#: ckan/templates/user/dashboard_organizations.html:7
+msgid "Add Organization"
+msgstr "Dodaj organizacijo"
 
-#: ckan/templates/development/snippets/form.html:7
-msgid "Full"
-msgstr "Polno"
+#: ckan/templates/organization/index.html:20
+msgid "Search organizations..."
+msgstr "Preišči organizacije..."
 
-#: ckan/templates/development/snippets/form.html:7
-msgid "Full Width Input"
-msgstr "Polno obsežni vhod"
+#: ckan/templates/organization/index.html:29
+msgid "There are currently no organizations for this site"
+msgstr "Trenutno ni na voljo organizacij na tej strani"
 
-#: ckan/templates/development/snippets/form.html:8
-msgid "Large"
-msgstr "Velik"
+#: ckan/templates/organization/member_new.html:33
+#: ckan/templates/user/edit_user_form.html:8
+#: ckan/templates/user/logout_first.html:10
+#: ckan/templates/user/new_user_form.html:5
+#: ckan/templates/user/perform_reset.html:22
+#: ckan/templates/user/read_base.html:76
+#: ckan/templates/user/snippets/login_form.html:20
+msgid "Username"
+msgstr "Uporabniško ime"
 
-#: ckan/templates/development/snippets/form.html:8
-msgid "Large Input"
-msgstr "Velik vhod"
+#: ckan/templates/organization/member_new.html:55
+msgid "Email address"
+msgstr "Email naslov"
 
-#: ckan/templates/development/snippets/form.html:9
-msgid "Prepend"
-msgstr "Predpni"
+#: ckan/templates/organization/member_new.html:68
+msgid "Update Member"
+msgstr "Posodobi člana"
 
-#: ckan/templates/development/snippets/form.html:9
-msgid "Prepend Input"
-msgstr "Predpni vhod"
+#: ckan/templates/organization/member_new.html:88
+msgid ""
+" <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
+"manage organization members.</p> <p><strong>Editor:</strong> Can add and "
+"edit datasets, but not manage organization members.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
+msgstr ""
+" <p><strong>Skrbnik:</strong> Lahko doda/uredi in izbriše nabore podatkov, "
+"kot tudi upravlja s člani organizacije.</p> <p><strong>Urejevalec:</strong> "
+"Lahko doda in uredi nabore poadtkov, tuda ne more upravljati s člani "
+"organizacije.</p> <p><strong>Član:</strong> Lahko vidi zasebne nabore "
+"podatkov organizacije, vendar ne more dodati novih naborov podatkov.</p> "
 
-#: ckan/templates/development/snippets/form.html:13
-msgid "Custom Field (empty)"
-msgstr "Polje po meri (prazno)"
+#: ckan/templates/organization/members.html:14
+msgid "{count} member"
+msgid_plural "{count} members"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
-#: ckan/templates/development/snippets/form.html:19
-#: ckan/templates/snippets/custom_form_fields.html:20
-#: ckan/templates/snippets/custom_form_fields.html:37
-msgid "Custom Field"
-msgstr "Polje po meri"
+#: ckan/templates/organization/new.html:3
+#: ckan/templates/organization/new.html:5
+#: ckan/templates/organization/new.html:7
+#: ckan/templates/organization/new.html:12
+msgid "Create an Organization"
+msgstr "Ustvarite organizacijo"
 
-#: ckan/templates/development/snippets/form.html:22
-msgid "Markdown"
-msgstr "Označevanje"
+#: ckan/templates/organization/new_organization_form.html:17
+msgid "Update Organization"
+msgstr "Posodobite organizacijo"
 
-#: ckan/templates/development/snippets/form.html:23
-msgid "Textarea"
-msgstr "Tekstovno polje"
+#: ckan/templates/organization/new_organization_form.html:19
+msgid "Create Organization"
+msgstr "Ustvarite organizacijo"
 
-#: ckan/templates/development/snippets/form.html:24
-msgid "Select"
-msgstr "Izberi"
+#: ckan/templates/organization/snippets/feeds.html:3
+msgid "Datasets in organization: {group}"
+msgstr "Nabori podatkov v organizaciji: {group}"
+
+#: ckan/templates/organization/snippets/help.html:4
+#: ckan/templates/organization/snippets/helper.html:4
+msgid "What are Organizations?"
+msgstr "Kaj so organizacije?"
 
 #: ckan/templates/group/activity_stream.html:3
 #: ckan/templates/group/activity_stream.html:8
@@ -3017,11 +3118,16 @@ msgstr "Izberi"
 msgid "Activity Stream"
 msgstr "Tok aktivnosti"
 
-#: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
-#: ckan/templates/organization/admins.html:3
-#: ckan/templates/organization/admins.html:6
-msgid "Administrators"
-msgstr "Administratorji"
+#: ckan/templates/organization/snippets/helper.html:8
+msgid ""
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
+msgstr ""
+" CKAN organizacije se uporabljajo da ustvarijo, upravljajo in izdajajo "
+"zbrike naborov podatkov. Uporabniki lahko imajo različne vloge znotraj "
+"organizacije, glede na njihovo raven avtorizacije za ustvarjanje, urejanje "
+"in izdajanje podatkov. "
 
 #: ckan/templates/group/base_form_page.html:5
 msgid "Add a Group"
@@ -3035,10 +3141,10 @@ msgstr "Obrazec za skupino"
 msgid "Are you sure you want to delete group - {name}?"
 msgstr "Ali ste prepričani, da želite izbrisat skupino - {name}?"
 
-#: ckan/templates/group/confirm_delete_member.html:11
-#: ckan/templates/organization/confirm_delete_member.html:11
-msgid "Are you sure you want to delete member - {name}?"
-msgstr "Ali ste prepričani, da želite izbrisati člana - {name}?"
+#: ckan/templates/organization/snippets/organization_item.html:42
+#: ckan/templates/organization/snippets/organization_item.html:43
+msgid "View {organization_name}"
+msgstr "Poglej {organization_name}"
 
 #: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
 #: ckan/templates/group/edit_base.html:11
@@ -3052,44 +3158,53 @@ msgstr "Ali ste prepričani, da želite izbrisati člana - {name}?"
 msgid "Manage"
 msgstr "Oskrbi"
 
-#: ckan/templates/group/edit.html:12
-msgid "Edit Group"
-msgstr "Uredi skupino"
+#: ckan/templates/package/base_form_page.html:22
+msgid "What are datasets?"
+msgstr "Kaj so nabori podatkov?"
 
-#: ckan/templates/group/edit_base.html:21 ckan/templates/group/members.html:3
-#: ckan/templates/organization/edit_base.html:24
-#: ckan/templates/organization/members.html:3
-msgid "Members"
-msgstr "Člani"
+#: ckan/templates/package/base_form_page.html:25
+msgid ""
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
+msgstr ""
+" CKAN nabor podatkov je zbirka podatkovnih virov (npr. datotek), z opisom in"
+" drugimi informaciji, na stalnem URL naslovu. Nabore podatkov vidijo "
+"uporabniki ko iščejo podatke. "
 
 #: ckan/templates/group/index.html:13
 #: ckan/templates/user/dashboard_groups.html:7
 msgid "Add Group"
 msgstr "Dodaj skupno"
 
-#: ckan/templates/group/index.html:20
-msgid "Search groups..."
-msgstr "Išči po skupinah..."
+#: ckan/templates/package/edit_base.html:16
+msgid "View dataset"
+msgstr "Poglej nabor podatkov"
 
-#: ckan/templates/group/index.html:29
-msgid "There are currently no groups for this site"
-msgstr "Trenutno ni skupin za to stran"
+#: ckan/templates/package/edit_base.html:20
+msgid "Edit metadata"
+msgstr "Uredi nabor podatkov"
 
-#: ckan/templates/group/index.html:31
-#: ckan/templates/organization/index.html:31
-msgid "How about creating one?"
-msgstr "Ali bi naredili novo?"
+#: ckan/templates/package/edit_view.html:3
+#: ckan/templates/package/edit_view.html:4
+#: ckan/templates/package/edit_view.html:8
+#: ckan/templates/package/edit_view.html:12
+msgid "Edit view"
+msgstr "Uredi pogled"
 
-#: ckan/templates/group/member_new.html:8
-#: ckan/templates/organization/member_new.html:10
-msgid "Back to all members"
-msgstr "Nazaj na vse člane"
+#: ckan/templates/package/edit_view.html:20
+#: ckan/templates/package/new_view.html:28
+#: ckan/templates/package/snippets/resource_item.html:32
+msgid "Preview"
+msgstr "Predogled"
 
-#: ckan/templates/group/member_new.html:10
-#: ckan/templates/organization/member_new.html:7
-#: ckan/templates/organization/member_new.html:12
-msgid "Edit Member"
-msgstr "Uredi člana"
+#: ckan/templates/package/edit_view.html:21
+msgid "Update"
+msgstr "Posodobi"
+
+#: ckan/templates/package/group_list.html:14
+msgid "Associate this group with this dataset"
+msgstr "Naveži to skupino s tem naborom podatkov"
 
 #: ckan/templates/group/member_new.html:10
 #: ckan/templates/group/member_new.html:77 ckan/templates/group/members.html:6
@@ -3173,27 +3288,26 @@ msgid ""
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p>"
 msgstr ""
-" <p><strong>Skrbnik:</strong> Lahko ureja informacijo o skupini, kot tudi "
-"upravlja s člani organizacije.</p> <p><strong>Član:</strong> Lahko "
-"doda/odstrani nabore podatkov iz skupin</p> "
+"To je starejša različica tega nabora podatkov, kot je bila urejena "
+"%(timestamp)s. Lahko se zelo razlikuje od <a href=\"%(url)s\">trenutne "
+"revizije</a>."
 
-#: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
-#: ckan/templates/group/new.html:7
-msgid "Create a Group"
-msgstr "Ustvari skupino"
+#: ckan/templates/package/resource_edit_base.html:17
+msgid "All resources"
+msgstr "Vsi viri"
 
-#: ckan/templates/group/new_group_form.html:17
-msgid "Update Group"
-msgstr "Posodobi skupino"
+#: ckan/templates/package/resource_edit_base.html:19
+msgid "View resource"
+msgstr "Poglej vir"
 
-#: ckan/templates/group/new_group_form.html:19
-msgid "Create Group"
-msgstr "Ustvari skupino"
+#: ckan/templates/package/resource_edit_base.html:24
+#: ckan/templates/package/resource_edit_base.html:30
+msgid "Edit resource"
+msgstr "Uredi vir"
 
-#: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:25
-#: ckan/templates/snippets/search_form.html:3
-msgid "Search datasets..."
-msgstr "Preišči nabore podatkov..."
+#: ckan/templates/package/resource_edit_base.html:26
+msgid "Views"
+msgstr "Pogledi"
 
 #: ckan/templates/group/snippets/feeds.html:2
 msgid "Datasets in group: {group}"
@@ -3205,46 +3319,45 @@ msgstr "Nabori podatkov v skupini: {group}"
 msgid "Name"
 msgstr "Ime"
 
-#: ckan/templates/group/snippets/group_form.html:10
-msgid "My Group"
-msgstr "Moja skupina"
+#: ckan/templates/package/resource_read.html:76
+#: ckan/templates/package/resource_read.html:78
+msgid "URL:"
+msgstr "URL:"
 
 #: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
 msgstr "Nekaj informacij o moji skupini..."
 
-#: ckan/templates/group/snippets/group_form.html:38
-msgid "Are you sure you want to delete this Group?"
-msgstr "Ste prepričani, da želite izbrisati to skupino?"
+#: ckan/templates/package/resource_read.html:127
+msgid "There are no views created for this resource yet."
+msgstr "Ni še narejenih pogledov za ta vir."
 
-#: ckan/templates/group/snippets/group_form.html:41
-msgid "Save Group"
-msgstr "Shrani skupino"
+#: ckan/templates/package/resource_read.html:131
+msgid "Not seeing the views you were expecting?"
+msgstr "Nimate na voljo pogledov, ki ste jih pričakovali?"
 
-#: ckan/templates/group/snippets/group_item.html:38
-#: ckan/templates/group/snippets/group_item.html:39
-msgid "View {name}"
-msgstr "Pogled {name}"
+#: ckan/templates/package/resource_read.html:136
+msgid "Here are some reasons you may not be seeing expected views:"
+msgstr "Tukajje nekaj razlogov zakaj se ti pogledi ne prikazujejo:"
 
-#: ckan/templates/group/snippets/group_item.html:43
-msgid "Remove dataset from this group"
-msgstr "Izbriši nabor podatkov iz te skupine"
+#: ckan/templates/package/resource_read.html:138
+msgid "No view has been created that is suitable for this resource"
+msgstr "Za ta vir še ni bil ustvarjen ustrezen pogled"
 
-#: ckan/templates/group/snippets/helper.html:4
-msgid "What are Groups?"
-msgstr "Kaj so skupine?"
+#: ckan/templates/package/resource_read.html:139
+msgid "The site administrators may not have enabled the relevant view plugins"
+msgstr "Skrbniki sistema mogoče niso omogočili vtičnikov za ustrezne poglede"
 
-#: ckan/templates/group/snippets/helper.html:8
+#: ckan/templates/package/resource_read.html:140
 msgid ""
 "You can use CKAN Groups to create and manage collections of datasets. This "
 "could be to catalogue datasets for a particular project or team, or on a "
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets."
 msgstr ""
-" CKAN skupine lahko uporabite za ustvarjanje in upravljanje zbirk naborov "
-"podatkov. To so lahko katalogi naborov podatkov za določen projekt ali "
-"ekipo, ali za določeno tematiko, ali kot preprost način da drugi ljudje "
-"najdejo in uporabijo vaše objavljene nabore podatkov. "
+"Če pogled potrebuje DataStore, lahko da njegov vtičnik ni vključen , ali "
+"podatki še niso na voljo v DataStore, ali pa DataStore še ni dokončal s "
+"procesiranjem podatkov"
 
 #: ckan/templates/group/snippets/info.html:16
 #: ckan/templates/organization/bulk_process.html:82
@@ -3264,7 +3377,9 @@ msgstr "preberi več"
 msgid "Welcome"
 msgstr "Dobrodošli"
 
-#: ckan/templates/home/snippets/about_text.html:1
+#: ckan/templates/package/resources.html:20
+#: ckan/templates/package/snippets/resources_list.html:26
+#, python-format
 msgid ""
 "<p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN"
 " is a complete out-of-the-box software solution that makes data accessible "
@@ -3285,77 +3400,81 @@ msgid ""
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 msgstr ""
-" <p>CKAN je vodilna odprto-kodna platforma za podatkovne portale na "
-"svetu.</p> <p>CKAN je popolnoma 'out-of-the-box' rešitev, ki naredi podatke "
-"dostopne in uporabne – tako da ponudi orodja za preprosto objavo, izmenjavo,"
-" iskanje in uporabo podatkov (vključno s shrambo podatkov in ponudbo "
-"robustnih podatkovnih API-jev).  CKAN je namenjen objavljalcem podatkov "
-"(državne in regionalne uprave, podjetja in organizacije), ki želijo narediti"
-" svoje podatke odprte in dostopne.</p> <p>CKAN uporabljajo državne vlade ter"
-" uporabniške skupine po celem svetu in tudi omogoča številne portale uradnim"
-" in skupnostnim skupinam, kot tudi portale za lokalne, državne, in "
-"mednarodne vlade, kot je npr. za Združeno kraljestvo <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> za Evropsko unijo <a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a>, za Brazilski <a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a>, Nizozemski vladni portal, "
-"kot tudi za mesta in občine v ZDA, združenem kraljestvu, Argentini, Finski "
-"in še drugod. </p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Ogled: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Lastnosti "
-"overview: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+" <p class=\"empty\">Ta nabor podatkov nima podatkov, <a "
+"href=\"%(url)s\">zakaj jih ne bi nekaj dodali?</a></p> "
 
-#: ckan/templates/home/snippets/promoted.html:8
-msgid "Welcome to CKAN"
-msgstr "Dobrodošli na CKAN"
+#: ckan/templates/package/search.html:52
+msgid "API"
+msgstr "API"
 
-#: ckan/templates/home/snippets/promoted.html:10
+#: ckan/templates/package/search.html:53
+msgid "API Docs"
+msgstr "API dokumentacija"
+
+#: ckan/templates/package/search.html:55
+msgid "full {format} dump"
+msgstr "poln {format} izpis"
+
+#: ckan/templates/package/search.html:56
+#, python-format
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will"
 msgstr ""
-"To je preprost vstopni paragraf o CKAN-u in o tej strani na splošno.Ustrezne"
-" kopije za tu še ni na voljo, vendar bo kmalu"
+" Do tega registra lahko dostopate tudi z %(api_link)s (poglejte "
+"%(api_doc_link)s) ali prenesite %(dump_link)s. "
 
-#: ckan/templates/home/snippets/promoted.html:19
-msgid "This is a featured section"
-msgstr "To je posebna sekcija"
-
-#: ckan/templates/home/snippets/search.html:2
-msgid "E.g. environment"
-msgstr "Npr. okolje"
-
-#: ckan/templates/home/snippets/search.html:6
-msgid "Search data"
-msgstr "Preišči podatke"
-
-#: ckan/templates/home/snippets/search.html:8
-msgid "Search datasets"
+#: ckan/templates/package/search.html:60
+#, python-format
+msgid ""
+" You can also access this registry using the %(api_link)s (see "
+"%(api_doc_link)s). "
 msgstr ""
+" Do tega registra lahko dostopate tudi z %(api_link)s (poglejte "
+"%(api_doc_link)s). "
 
-#: ckan/templates/home/snippets/search.html:16
-msgid "Popular tags"
-msgstr "Popularne oznake"
+#: ckan/templates/package/view_edit_base.html:9
+msgid "All views"
+msgstr "Vsi pogledi"
 
-#: ckan/templates/home/snippets/stats.html:5
-msgid "{0} statistics"
-msgstr "{0} statistike"
+#: ckan/templates/package/view_edit_base.html:12
+msgid "View view"
+msgstr "Pogled pogled"
 
-#: ckan/templates/home/snippets/stats.html:11
-msgid "dataset"
-msgstr "nabor podatkov"
+#: ckan/templates/package/view_edit_base.html:37
+msgid "View preview"
+msgstr "Predogled pogleda"
 
-#: ckan/templates/home/snippets/stats.html:11
-msgid "datasets"
-msgstr "nabori podatkov"
+#: ckan/templates/package/snippets/additional_info.html:2
+#: ckan/templates/snippets/additional_info.html:7
+msgid "Additional Info"
+msgstr "Dodatne informacije"
 
-#: ckan/templates/home/snippets/stats.html:17
-msgid "organizations"
-msgstr "organizacije"
+#: ckan/templates/package/snippets/additional_info.html:14
+#: ckan/templates/package/snippets/package_metadata_fields.html:6
+msgid "Source"
+msgstr "Izvor"
 
-#: ckan/templates/home/snippets/stats.html:23
-msgid "groups"
-msgstr "skupine"
+#: ckan/templates/package/snippets/additional_info.html:37
+#: ckan/templates/package/snippets/additional_info.html:42
+#: ckan/templates/package/snippets/package_metadata_fields.html:20
+msgid "Maintainer"
+msgstr "Skrbnik"
+
+#: ckan/templates/package/snippets/additional_info.html:49
+#: ckan/templates/package/snippets/package_metadata_fields.html:10
+msgid "Version"
+msgstr "Različica"
+
+#: ckan/templates/package/snippets/additional_info.html:56
+#: ckan/templates/package/snippets/package_basic_fields.html:114
+#: ckan/templates/user/read_base.html:91
+msgid "State"
+msgstr "Stanje"
+
+#: ckan/templates/package/snippets/additional_info.html:62
+msgid "Last Updated"
+msgstr "Nazadnje posodobljeno"
 
 #: ckan/templates/macros/form.html:54 ckan/templates/macros/form.html:287
 msgid "This field is required"
@@ -3364,13 +3483,9 @@ msgstr "To polje je nujno"
 #: ckan/templates/macros/form.html:136
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
-"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
-"html=\"true\">Markdown formatting</a> here"
+"Ask a system administrator to create an organization before you can "
+"continue."
 msgstr ""
-"Uporabite lahko <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
-"html=\"true\">Markdown formatiranje</a> teksta"
 
 #: ckan/templates/macros/form.html:243
 msgid "Key"
@@ -3415,18 +3530,27 @@ msgstr ""
 msgid "Organization Form"
 msgstr "Obrazec za organizacije"
 
-#: ckan/templates/organization/bulk_process.html:3
-#: ckan/templates/organization/bulk_process.html:11
-msgid "Edit datasets"
-msgstr "Uredi nabore podatke"
+#: ckan/templates/package/snippets/package_form.html:28
+msgid ""
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
+msgstr ""
+"<i>Licenca</i> ki ste jo izbrali zgoraj se nanaša samo na vsebino "
+"virov/datotek, ki ste jih dodali k temu naboru podatkov. Ob predložitvi tega"
+" obrazca, se strinjate z objavo <i>meta podatkov</i>, ki ste jih vnesli v "
+"obrazec pod <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 
-#: ckan/templates/organization/bulk_process.html:16
-msgid " found for \"{query}\""
-msgstr " najdeno za \"{query}\""
+#: ckan/templates/package/snippets/package_form.html:39
+msgid "Are you sure you want to delete this dataset?"
+msgstr "Ste prepričani da želite izbrisati ta nabor podatkov?"
 
-#: ckan/templates/organization/bulk_process.html:18
-msgid "Sorry no datasets found for \"{query}\""
-msgstr "Ni na voljo naborov podatkov za \"{query}\""
+#: ckan/templates/package/snippets/package_form.html:43
+msgid "Next: Add Data"
+msgstr "Naslednje: Dodaj podatke"
 
 #: ckan/templates/organization/bulk_process.html:47
 msgid "Make public"
@@ -3455,28 +3579,25 @@ msgstr "Zasebno"
 msgid "This organization has no datasets associated to it"
 msgstr "Ta organizacija nima naborov podatkov"
 
-#: ckan/templates/organization/confirm_delete.html:11
-msgid "Are you sure you want to delete organization - {name}?"
-msgstr "Ste prepričani da želite izbrisati organizacijo - {name}?"
+#: ckan/templates/package/snippets/package_metadata_fields.html:22
+msgid "Maintainer Email"
+msgstr "Email skrbnika"
 
-#: ckan/templates/organization/edit.html:6
-#: ckan/templates/organization/snippets/info.html:13
-#: ckan/templates/organization/snippets/info.html:16
-msgid "Edit Organization"
-msgstr "Uredi organizacijo"
+#: ckan/templates/package/snippets/resource_edit_form.html:12
+msgid "Update Resource"
+msgstr "Posodobi vir"
 
-#: ckan/templates/organization/index.html:13
-#: ckan/templates/user/dashboard_organizations.html:7
-msgid "Add Organization"
-msgstr "Dodaj organizacijo"
+#: ckan/templates/package/snippets/resource_form.html:26
+msgid "Data"
+msgstr ""
 
-#: ckan/templates/organization/index.html:20
-msgid "Search organizations..."
-msgstr "Preišči organizacije..."
+#: ckan/templates/package/snippets/resource_form.html:26
+msgid "http://example.com/external-data.csv"
+msgstr ""
 
-#: ckan/templates/organization/index.html:29
-msgid "There are currently no organizations for this site"
-msgstr "Trenutno ni na voljo organizacij na tej strani"
+#: ckan/templates/package/snippets/resource_form.html:30
+msgid "eg. January 2011 Gold Prices"
+msgstr "npr. Cene zlata Januar 2011"
 
 #: ckan/templates/organization/member_new.html:33
 #: ckan/templates/package/collaborators/collaborator_new.html:31
@@ -3511,13 +3632,9 @@ msgstr ""
 "organizacije.</p> <p><strong>Član:</strong> Lahko vidi zasebne nabore "
 "podatkov organizacije, vendar ne more dodati novih naborov podatkov.</p> "
 
-#: ckan/templates/organization/members.html:14
-msgid "{count} member"
-msgid_plural "{count} members"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+#: ckan/templates/package/snippets/resource_form.html:55
+msgid "File Size"
+msgstr "Velikost datoteke"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3525,22 +3642,23 @@ msgstr[3] ""
 msgid "Create an Organization"
 msgstr "Ustvarite organizacijo"
 
-#: ckan/templates/organization/new_organization_form.html:17
-msgid "Update Organization"
-msgstr "Posodobite organizacijo"
+#: ckan/templates/package/snippets/resource_form.html:57
+#: ckan/templates/package/snippets/resource_form.html:59
+msgid "MIME Type"
+msgstr "MIME tip"
 
-#: ckan/templates/organization/new_organization_form.html:19
-msgid "Create Organization"
-msgstr "Ustvarite organizacijo"
+#: ckan/templates/package/snippets/resource_form.html:57
+#: ckan/templates/package/snippets/resource_form.html:59
+msgid "eg. application/json"
+msgstr "npr. application/json"
 
 #: ckan/templates/organization/snippets/feeds.html:2
 msgid "Datasets in organization: {group}"
 msgstr "Nabori podatkov v organizaciji: {group}"
 
-#: ckan/templates/organization/snippets/help.html:4
-#: ckan/templates/organization/snippets/helper.html:4
-msgid "What are Organizations?"
-msgstr "Kaj so organizacije?"
+#: ckan/templates/package/snippets/resource_form.html:73
+msgid "Previous"
+msgstr "Prejšnji"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
@@ -3568,47 +3686,43 @@ msgstr ""
 "organizacije, glede na njihovo raven avtorizacije za ustvarjanje, urejanje "
 "in izdajanje podatkov. "
 
-#: ckan/templates/organization/snippets/organization_form.html:10
-msgid "My Organization"
-msgstr "Moja organizacija"
+#: ckan/templates/package/snippets/resource_help.html:2
+msgid "What's a resource?"
+msgstr "Kaj je vir?"
 
 #: ckan/templates/organization/snippets/organization_form.html:20
 msgid "A little information about my organization..."
 msgstr "Nekaj informacij o moji organizaciji..."
 
-#: ckan/templates/organization/snippets/organization_form.html:38
-msgid ""
-"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
-" performed while public or private datasets belong to this organization."
+#: ckan/templates/package/snippets/resource_item.html:35
+msgid "More information"
+msgstr "Več informacij"
+
+#: ckan/templates/package/snippets/resource_view.html:10
+msgid "Fullscreen"
 msgstr ""
 
-#: ckan/templates/organization/snippets/organization_form.html:41
-msgid "Save Organization"
-msgstr "Shrani organizacijo"
-
-#: ckan/templates/organization/snippets/organization_item.html:42
-#: ckan/templates/organization/snippets/organization_item.html:43
-msgid "View {organization_name}"
-msgstr "Poglej {organization_name}"
+#: ckan/templates/package/snippets/resource_view.html:18
+msgid "Embed"
+msgstr "Vključi"
 
 #: ckan/templates/package/base.html:24 ckan/templates/package/new.html:9
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
 msgid "Create Dataset"
 msgstr "Ustvari nabor podatkov"
 
-#: ckan/templates/package/base_form_page.html:22
-msgid "What are datasets?"
-msgstr "Kaj so nabori podatkov?"
+#: ckan/templates/package/snippets/resource_view.html:74
+msgid "Embed resource view"
+msgstr "Vključi pogled vira"
 
-#: ckan/templates/package/base_form_page.html:25
+#: ckan/templates/package/snippets/resource_view.html:77
 msgid ""
 "A CKAN Dataset is a collection of data resources (such as files), together "
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data."
 msgstr ""
-" CKAN nabor podatkov je zbirka podatkovnih virov (npr. datotek), z opisom in"
-" drugimi informaciji, na stalnem URL naslovu. Nabore podatkov vidijo "
-"uporabniki ko iščejo podatke. "
+"Vključitveno kodo lahko kopirate in prilepite v CMS ali blog software, ki "
+"podpira surov HTML zapis"
 
 #: ckan/templates/package/changes.html:9
 #: ckan/templates/package/changes.html:17
@@ -3620,9 +3734,9 @@ msgstr "Spremembe"
 msgid "Are you sure you want to delete dataset - {name}?"
 msgstr "Ste prepričani da želite izbrisati nabor podatkov - {name}?"
 
-#: ckan/templates/package/confirm_delete_resource.html:11
-msgid "Are you sure you want to delete resource - {name}?"
-msgstr "Ste prepričani da želite izbrisati vir - {name}?"
+#: ckan/templates/package/snippets/resource_view.html:83
+msgid "Height"
+msgstr "Višina"
 
 #: ckan/templates/package/edit_base.html:13
 msgid "View dataset"
@@ -3650,50 +3764,51 @@ msgstr "Uredi pogled"
 msgid "Preview"
 msgstr "Predogled"
 
-#: ckan/templates/package/edit_view.html:21
-msgid "Update"
-msgstr "Posodobi"
+#: ckan/templates/package/snippets/revisions_table.html:24
+#, python-format
+msgid "Read dataset as of %s"
+msgstr "Prebran nabor podatkov %s"
 
-#: ckan/templates/package/group_list.html:14
-msgid "Associate this group with this dataset"
-msgstr "Naveži to skupino s tem naborom podatkov"
+#: ckan/templates/package/snippets/stages.html:23
+#: ckan/templates/package/snippets/stages.html:25
+msgid "Create dataset"
+msgstr "Ustvari nabor podatkov"
 
-#: ckan/templates/package/group_list.html:14
-msgid "Add to group"
-msgstr "Dodaj k skupini"
+#: ckan/templates/package/snippets/stages.html:30
+#: ckan/templates/package/snippets/stages.html:34
+#: ckan/templates/package/snippets/stages.html:36
+msgid "Add data"
+msgstr "Dodaj podatke"
 
-#: ckan/templates/package/group_list.html:23
-msgid "There are no groups associated with this dataset"
-msgstr "K temu naboru podatkov ni navezane skupine"
+#: ckan/templates/package/snippets/view_form.html:8
+msgid "eg. My View"
+msgstr "npr. Moj pogled"
 
 #: ckan/templates/package/new_package_form.html:13
 msgid "Update Dataset"
 msgstr "Posodobi nabor podatkov"
 
-#: ckan/templates/package/new_resource.html:5
-msgid "Add data to the dataset"
-msgstr "Dodaj podatke k naboru podatkov"
+#: ckan/templates/package/snippets/view_form_filters.html:28
+msgid "Remove Filter"
+msgstr "Odstrani filter"
 
-#: ckan/templates/package/new_resource.html:11
-#: ckan/templates/package/new_resource_not_draft.html:8
-msgid "Add New Resource"
-msgstr "Dodaj nov vir"
+#: ckan/templates/package/snippets/view_form_filters.html:46
+#: ckanext/reclineview/theme/public/recline_view.js:219
+#: ckanext/reclineview/theme/public/recline_view.min.js:14
+msgid "Filters"
+msgstr "Filtri"
 
-#: ckan/templates/package/new_resource_not_draft.html:3
-#: ckan/templates/package/new_resource_not_draft.html:4
-msgid "Add resource"
-msgstr "Dodaj vir"
+#: ckan/templates/package/snippets/view_help.html:2
+msgid "What's a view?"
+msgstr "Kaj je pogled?"
 
-#: ckan/templates/package/new_resource_not_draft.html:16
-msgid "New resource"
-msgstr "Nov vir"
+#: ckan/templates/package/snippets/view_help.html:4
+msgid "A view is a representation of the data held against a resource"
+msgstr "Pogled je reprezentacija podatkov z ozirom na vir"
 
-#: ckan/templates/package/new_view.html:3
-#: ckan/templates/package/new_view.html:4
-#: ckan/templates/package/new_view.html:8
-#: ckan/templates/package/new_view.html:12
-msgid "Add view"
-msgstr "Dodaj pogled"
+#: ckan/templates/revision/diff.html:6
+msgid "Differences"
+msgstr "Razlike"
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
@@ -3722,26 +3837,26 @@ msgid ""
 "version, click <a href=\"%(url)s\">here</a>."
 msgstr ""
 
-#: ckan/templates/package/resource_edit_base.html:17
-msgid "All resources"
-msgstr "Vsi viri"
+#: ckan/templates/revision/list.html:3 ckan/templates/revision/list.html:6
+#: ckan/templates/revision/list.html:10
+msgid "Revision History"
+msgstr "Zgodovina sprememb"
 
-#: ckan/templates/package/resource_edit_base.html:19
-msgid "View resource"
-msgstr "Poglej vir"
+#: ckan/templates/revision/list.html:6 ckan/templates/revision/read.html:8
+msgid "Revisions"
+msgstr "Različice"
 
-#: ckan/templates/package/resource_edit_base.html:24
-#: ckan/templates/package/resource_edit_base.html:30
-msgid "Edit resource"
-msgstr "Uredi vir"
+#: ckan/templates/revision/read.html:30
+msgid "Undelete"
+msgstr "Povrni"
 
-#: ckan/templates/package/resource_edit_base.html:26
-msgid "Views"
-msgstr "Pogledi"
+#: ckan/templates/revision/read.html:64
+msgid "Changes"
+msgstr "Spremembe"
 
-#: ckan/templates/package/resource_read.html:40
-msgid "API Endpoint"
-msgstr "API končna točka"
+#: ckan/templates/revision/read.html:74
+msgid "Datasets' Tags"
+msgstr "Oznake naborov podatkov"
 
 #: ckan/templates/package/resource_read.html:42
 #: ckan/templates/package/snippets/resource_item.html:61
@@ -3842,17 +3957,25 @@ msgstr "Format"
 msgid "License"
 msgstr "Licenca"
 
-#: ckan/templates/package/resource_views.html:10
-msgid "New view"
-msgstr "Nov pogled"
+#: ckan/templates/snippets/search_result_text.html:17
+msgid "{number} dataset found"
+msgid_plural "{number} datasets found"
+msgstr[0] "Ni najdenih naborov podatkov."
+msgstr[1] "{number} nabor podatkov najden"
+msgstr[2] "{number} nabora podatkov najdena"
+msgstr[3] "{number} naborov podatkov najdenih"
 
 #: ckan/templates/package/resource_views.html:27
 msgid "This resource has no views"
 msgstr "Ta vir nima pogledov"
 
-#: ckan/templates/package/resources.html:8
-msgid "Add new resource"
-msgstr "Dodaj nov vir"
+#: ckan/templates/snippets/search_result_text.html:21
+msgid "{number} group found for \"{query}\""
+msgid_plural "{number} groups found for \"{query}\""
+msgstr[0] "{number} skupin najdenih za \"{query}\""
+msgstr[1] "{number} skupina najdena za \"{query}\""
+msgstr[2] "{number} skupini najdeni za \"{query}\""
+msgstr[3] "{number} skupin najdenih za \"{query}\""
 
 #: ckan/templates/package/resources.html:20
 #: ckan/templates/package/snippets/resources_list.html:27
@@ -3864,17 +3987,25 @@ msgstr ""
 " <p class=\"empty\">Ta nabor podatkov nima podatkov, <a "
 "href=\"%(url)s\">zakaj jih ne bi nekaj dodali?</a></p> "
 
-#: ckan/templates/package/search.html:52
-msgid "API"
-msgstr "API"
+#: ckan/templates/snippets/search_result_text.html:23
+msgid "{number} group found"
+msgid_plural "{number} groups found"
+msgstr[0] "Ni najdenih skupin"
+msgstr[1] "{number} najdena skupina"
+msgstr[2] "{number} najdeni skupini"
+msgstr[3] "{number} najdenih skupin"
 
-#: ckan/templates/package/search.html:53
-msgid "API Docs"
-msgstr "API dokumentacija"
+#: ckan/templates/snippets/search_result_text.html:24
+msgid "No groups found"
+msgstr "Ni najdenih skupin"
 
-#: ckan/templates/package/search.html:55
-msgid "full {format} dump"
-msgstr "poln {format} izpis"
+#: ckan/templates/snippets/search_result_text.html:27
+msgid "{number} organization found for \"{query}\""
+msgid_plural "{number} organizations found for \"{query}\""
+msgstr[0] "{number} organizacij najdenih za \"{query}\""
+msgstr[1] "{number} organizacija najdena za \"{query}\""
+msgstr[2] "{number} organizaciji najdeni za \"{query}\""
+msgstr[3] "{number} organizacij najdenih za \"{query}\""
 
 #: ckan/templates/package/search.html:56
 #, python-format
@@ -3894,17 +4025,17 @@ msgstr ""
 " Do tega registra lahko dostopate tudi z %(api_link)s (poglejte "
 "%(api_doc_link)s). "
 
-#: ckan/templates/package/view_edit_base.html:9
-msgid "All views"
-msgstr "Vsi pogledi"
+#: ckan/templates/snippets/search_result_text.html:30
+msgid "No organizations found"
+msgstr "Ni najdenih organizacij"
 
-#: ckan/templates/package/view_edit_base.html:12
-msgid "View view"
-msgstr "Pogled pogled"
+#: ckan/templates/snippets/social.html:5
+msgid "Social"
+msgstr "Socialno"
 
-#: ckan/templates/package/view_edit_base.html:37
-msgid "View preview"
-msgstr "Predogled pogleda"
+#: ckan/templates/snippets/subscribe.html:2
+msgid "Subscribe"
+msgstr "Naroči"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:5
 #: ckan/templates/package/collaborators/collaborator_new.html:10
@@ -3964,10 +4095,9 @@ msgstr[3] ""
 msgid "Additional Info"
 msgstr "Dodatne informacije"
 
-#: ckan/templates/package/snippets/additional_info.html:14
-#: ckan/templates/package/snippets/package_metadata_fields.html:6
-msgid "Source"
-msgstr "Izvor"
+#: ckan/templates/snippets/subscribe.html:5
+msgid "RSS"
+msgstr "RSS"
 
 #: ckan/templates/package/snippets/additional_info.html:25
 #: ckan/templates/package/snippets/additional_info.html:30
@@ -3981,10 +4111,9 @@ msgstr "Avtor"
 msgid "Maintainer"
 msgstr "Skrbnik"
 
-#: ckan/templates/package/snippets/additional_info.html:49
-#: ckan/templates/package/snippets/package_metadata_fields.html:10
-msgid "Version"
-msgstr "Različica"
+#: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
+msgid "Search Tags"
+msgstr "Iskalne oznake"
 
 #: ckan/templates/package/snippets/additional_info.html:56
 #: ckan/templates/package/snippets/package_basic_fields.html:117
@@ -3992,27 +4121,29 @@ msgstr "Različica"
 msgid "State"
 msgstr "Stanje"
 
-#: ckan/templates/package/snippets/additional_info.html:62
-msgid "Last Updated"
-msgstr "Nazadnje posodobljeno"
+#: ckan/templates/user/dashboard.html:20
+#: ckan/templates/user/dashboard_datasets.html:12
+msgid "My Datasets"
+msgstr "Moji nabori podatkov"
 
-#: ckan/templates/package/snippets/cannot_create_package.html:10
-msgid "Before you can create a dataset you need to create an organization."
-msgstr ""
+#: ckan/templates/user/dashboard.html:21
+#: ckan/templates/user/dashboard_organizations.html:12
+msgid "My Organizations"
+msgstr "Moje organizacije"
 
-#: ckan/templates/package/snippets/cannot_create_package.html:13
-msgid "Create a new organization"
-msgstr ""
+#: ckan/templates/user/dashboard.html:22
+#: ckan/templates/user/dashboard_groups.html:12
+msgid "My Groups"
+msgstr "Moje skupine"
 
-#: ckan/templates/package/snippets/cannot_create_package.html:18
-msgid "There are no organizations to which you can assign this dataset."
-msgstr ""
+#: ckan/templates/user/dashboard.html:39
+msgid "Activity from items that I'm following"
+msgstr "Aktivnosti predmetov, ki jim sledim"
 
-#: ckan/templates/package/snippets/cannot_create_package.html:19
-msgid ""
-"Ask a system administrator to create an organization before you can "
-"continue."
-msgstr ""
+#: ckan/templates/user/dashboard_datasets.html:17
+#: ckan/templates/user/read.html:20
+msgid "You haven't created any datasets."
+msgstr "Niste ustvarili še nobenih naborov podatkov."
 
 #: ckan/templates/package/snippets/change_item.html:1
 #, python-format
@@ -4024,21 +4155,24 @@ msgstr ""
 msgid "Title"
 msgstr "Naslov"
 
-#: ckan/templates/package/snippets/package_basic_fields.html:4
-msgid "eg. A descriptive title"
-msgstr "npr. Opisni naslov"
+#: ckan/templates/user/dashboard_groups.html:20
+msgid "You are not a member of any groups."
+msgstr "Niste član nobenih skupin."
 
-#: ckan/templates/package/snippets/package_basic_fields.html:13
-msgid "eg. my-dataset"
-msgstr "npr. moj-nabor-podatkov"
+#: ckan/templates/user/dashboard_organizations.html:21
+msgid "You are not a member of any organizations."
+msgstr "Niste član nobenih organizacij."
 
-#: ckan/templates/package/snippets/package_basic_fields.html:19
-msgid "eg. Some useful notes about the data"
-msgstr "npr. Nekaj uporabnih zapiskov o podatkih"
+#: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
+#: ckan/templates/user/read_base.html:5 ckan/templates/user/read_base.html:8
+#: ckan/templates/user/snippets/user_search.html:2
+msgid "Users"
+msgstr "Uporabniki"
 
-#: ckan/templates/package/snippets/package_basic_fields.html:24
-msgid "eg. economy, mental health, government"
-msgstr "npr. ekonomija, duševno zdravje, državna vlada"
+#: ckan/templates/user/edit.html:17
+msgid "Account Info"
+msgstr "Informacije o računu"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:36
 msgid "Please select the license"
@@ -4049,8 +4183,8 @@ msgid ""
 "License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 msgstr ""
-" Definicije licenc in dodatne informacije lahko najdete na <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
+" Vaš profil omogoča durgim CKAN uporabnikom, da spoznajo kdo ste in s čim se"
+" ukvarjate. "
 
 #: ckan/templates/package/snippets/package_basic_fields.html:79
 #: ckan/templates/snippets/organization.html:23
@@ -4073,113 +4207,109 @@ msgstr "Javno"
 msgid "Active"
 msgstr "Aktivno"
 
-#: ckan/templates/package/snippets/package_form.html:28
-msgid ""
-"The <i>data license</i> you select above only applies to the contents of any"
-" resource files that you add to this dataset. By submitting this form, you "
-"agree to release the <i>metadata</i> values that you enter into the form "
-"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
-"Database License</a>."
-msgstr ""
-"<i>Licenca</i> ki ste jo izbrali zgoraj se nanaša samo na vsebino "
-"virov/datotek, ki ste jih dodali k temu naboru podatkov. Ob predložitvi tega"
-" obrazca, se strinjate z objavo <i>meta podatkov</i>, ki ste jih vnesli v "
-"obrazec pod <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
-"Database License</a>."
+#: ckan/templates/user/edit_user_form.html:17
+msgid "Subscribe to notification emails"
+msgstr "Prijavi se na notifikacijske emaile"
 
-#: ckan/templates/package/snippets/package_form.html:39
-msgid "Are you sure you want to delete this dataset?"
-msgstr "Ste prepričani da želite izbrisati ta nabor podatkov?"
+#: ckan/templates/user/edit_user_form.html:26
+msgid "Change password"
+msgstr "Spremeni geslo"
 
-#: ckan/templates/package/snippets/package_form.html:43
-msgid "Next: Add Data"
-msgstr "Naslednje: Dodaj podatke"
-
-#: ckan/templates/package/snippets/package_metadata_fields.html:6
-msgid "http://example.com/dataset.json"
-msgstr "http://example.com/dataset.json"
-
-#: ckan/templates/package/snippets/package_metadata_fields.html:10
-msgid "1.0"
-msgstr "1.0"
-
-#: ckan/templates/package/snippets/package_metadata_fields.html:14
-#: ckan/templates/package/snippets/package_metadata_fields.html:20
-#: ckan/templates/user/new_user_form.html:6
-msgid "Joe Bloggs"
-msgstr "Janez Novak"
-
-#: ckan/templates/package/snippets/package_metadata_fields.html:16
-msgid "Author Email"
-msgstr "Email avtorja"
-
-#: ckan/templates/package/snippets/package_metadata_fields.html:16
-#: ckan/templates/package/snippets/package_metadata_fields.html:22
-#: ckan/templates/user/new_user_form.html:7
-msgid "joe@example.com"
-msgstr "janez@novak.sem"
-
-#: ckan/templates/package/snippets/package_metadata_fields.html:22
-msgid "Maintainer Email"
-msgstr "Email skrbnika"
-
-#: ckan/templates/package/snippets/resource_edit_form.html:12
-msgid "Update Resource"
-msgstr "Posodobi vir"
-
-#: ckan/templates/package/snippets/resource_form.html:26
-msgid "Data"
+#: ckan/templates/user/edit_user_form.html:29
+msgid "Sysadmin Password"
 msgstr ""
 
-#: ckan/templates/package/snippets/resource_form.html:26
-msgid "http://example.com/external-data.csv"
-msgstr ""
+#: ckan/templates/user/edit_user_form.html:37
+#: ckan/templates/user/logout_first.html:11
+#: ckan/templates/user/new_user_form.html:8
+#: ckan/templates/user/perform_reset.html:25
+#: ckan/templates/user/snippets/login_form.html:22
+msgid "Password"
+msgstr "Geslo"
 
-#: ckan/templates/package/snippets/resource_form.html:30
-msgid "eg. January 2011 Gold Prices"
-msgstr "npr. Cene zlata Januar 2011"
+#: ckan/templates/user/edit_user_form.html:39
+msgid "Confirm Password"
+msgstr "Potrdi geslo"
 
-#: ckan/templates/package/snippets/resource_form.html:34
-msgid "Some useful notes about the data"
-msgstr "Nekaj uporabnih zapiskov o podatkih"
+#: ckan/templates/user/edit_user_form.html:45
+msgid "Are you sure you want to delete this User?"
+msgstr "Ste prepričani da želite izbrisati uporabnika?"
 
-#: ckan/templates/package/snippets/resource_form.html:39
-msgid "eg. CSV, XML or JSON"
-msgstr "npr. CSV, XML ali JSON"
+#: ckan/templates/user/edit_user_form.html:50
+msgid "Are you sure you want to regenerate the API key?"
+msgstr "Ste prepričani da želite obnoviti vaš API ključ?"
 
-#: ckan/templates/package/snippets/resource_form.html:42
-msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr "Format bo samodejno zaznan. Lahko pustite prazno če želite."
+#: ckan/templates/user/edit_user_form.html:50
+msgid "Regenerate API Key"
+msgstr "Obnovi API ključ"
 
-#: ckan/templates/package/snippets/resource_form.html:53
-msgid "eg. 2012-06-05"
-msgstr "npr. 2012-06-05"
+#: ckan/templates/user/edit_user_form.html:54
+msgid "Update Profile"
+msgstr "Posodobi profil"
 
-#: ckan/templates/package/snippets/resource_form.html:55
-msgid "File Size"
-msgstr "Velikost datoteke"
+#: ckan/templates/user/list.html:3
+#: ckan/templates/user/snippets/user_search.html:11
+msgid "All Users"
+msgstr "Vsi uporabniki"
 
-#: ckan/templates/package/snippets/resource_form.html:55
-msgid "eg. 1024"
-msgstr "npr. 1024"
+#: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
+#: ckan/templates/user/login.html:12
+#: ckan/templates/user/snippets/login_form.html:28
+msgid "Login"
+msgstr "Prijava"
 
-#: ckan/templates/package/snippets/resource_form.html:57
-#: ckan/templates/package/snippets/resource_form.html:59
-msgid "MIME Type"
-msgstr "MIME tip"
+#: ckan/templates/user/login.html:25
+msgid "Need an Account?"
+msgstr "Potrebujete račun?"
 
-#: ckan/templates/package/snippets/resource_form.html:57
-#: ckan/templates/package/snippets/resource_form.html:59
-msgid "eg. application/json"
-msgstr "npr. application/json"
+#: ckan/templates/user/login.html:27
+msgid "Then sign right up, it only takes a minute."
+msgstr "Potem se kar prijavite, to vam vzame le minuto."
 
-#: ckan/templates/package/snippets/resource_form.html:67
-msgid "Are you sure you want to delete this resource?"
-msgstr "Ste prepričani da želite izbrisati ta vir?"
+#: ckan/templates/user/login.html:30
+msgid "Create an Account"
+msgstr "Ustvarite račun"
 
-#: ckan/templates/package/snippets/resource_form.html:73
-msgid "Previous"
-msgstr "Prejšnji"
+#: ckan/templates/user/login.html:42
+msgid "Forgotten your password?"
+msgstr "Ste pozabili svoje geslo?"
+
+#: ckan/templates/user/login.html:44
+msgid "No problem, use our password recovery form to reset it."
+msgstr "Ni problema, uporabite naš obrazec za ponastavitev gesla"
+
+#: ckan/templates/user/login.html:47
+msgid "Forgot your password?"
+msgstr "Ste pozabili svoje geslo?"
+
+#: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
+msgid "Logged Out"
+msgstr "Odjavljen"
+
+#: ckan/templates/user/logout.html:11
+msgid "You are now logged out."
+msgstr "Sedaj ste odjavljeni."
+
+#: ckan/templates/user/logout_first.html:9
+msgid "You're already logged in as {user}."
+msgstr "Ste že prijavljeni kot {user}."
+
+#: ckan/templates/user/logout_first.html:9
+msgid "Logout"
+msgstr "Odjava"
+
+#: ckan/templates/user/logout_first.html:12
+#: ckan/templates/user/snippets/login_form.html:24
+msgid "Remember me"
+msgstr "Zapomni se me"
+
+#: ckan/templates/user/logout_first.html:20
+msgid "You're already logged in"
+msgstr "Ste že prijavljeni"
+
+#: ckan/templates/user/logout_first.html:22
+msgid "You need to log out before you can log in with another account."
+msgstr "Morate se najprej odjaviti, da se lahko prijavite z drugim računom."
 
 #: ckan/templates/package/snippets/resource_form.html:77
 msgid "Save & add another"
@@ -4189,15 +4319,13 @@ msgstr "Shrani & dodaj novega"
 msgid "Finish"
 msgstr "Končaj"
 
-#: ckan/templates/package/snippets/resource_help.html:2
-msgid "What's a resource?"
-msgstr "Kaj je vir?"
+#: ckan/templates/user/new.html:14
+msgid "Register for an Account"
+msgstr "Registrirajte se za račun"
 
-#: ckan/templates/package/snippets/resource_help.html:4
-msgid "A resource can be any file or link to a file containing useful data."
-msgstr ""
-"Vir je lahko vsaka datoteka ali povezava na datoteko, ki vsebuje uporabne "
-"podatke."
+#: ckan/templates/user/new.html:26
+msgid "Why Sign Up?"
+msgstr "Zakaj se registrirati?"
 
 #: ckan/templates/package/snippets/resource_item.html:37
 msgid "Explore"
@@ -4207,17 +4335,18 @@ msgstr "Razišči"
 msgid "More information"
 msgstr "Več informacij"
 
-#: ckan/templates/package/snippets/resource_view.html:10
-msgid "Fullscreen"
-msgstr ""
+#: ckan/templates/user/new_user_form.html:6
+msgid "Full Name"
+msgstr "Polno ime"
 
-#: ckan/templates/package/snippets/resource_view.html:18
-msgid "Embed"
-msgstr "Vključi"
+#: ckan/templates/user/new_user_form.html:19
+msgid "Create Account"
+msgstr "Ustvari račun"
 
-#: ckan/templates/package/snippets/resource_view.html:32
-msgid "This resource view is not available at the moment."
-msgstr "Ta pogled vira trenutno ni na voljo."
+#: ckan/templates/user/perform_reset.html:4
+#: ckan/templates/user/perform_reset.html:15
+msgid "Reset Your Password"
+msgstr "Ponastavi geslo"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Embed resource view"
@@ -4243,9 +4372,9 @@ msgstr "Višina"
 msgid "Code"
 msgstr "Koda"
 
-#: ckan/templates/package/snippets/resource_views_list.html:8
-msgid "Resource Preview"
-msgstr "Predogled vira"
+#: ckan/templates/user/perform_reset.html:45
+msgid "Simply enter a new password and we'll update your account"
+msgstr "Samo vnesite novo geslo in vam bomo posodobili račun"
 
 #: ckan/templates/package/snippets/resources_list.html:14
 msgid "Data and Resources"
@@ -4260,43 +4389,42 @@ msgstr "Ta nabor podatkov nima podatkov"
 msgid "Create dataset"
 msgstr "Ustvari nabor podatkov"
 
-#: ckan/templates/package/snippets/stages.html:30
-#: ckan/templates/package/snippets/stages.html:34
-#: ckan/templates/package/snippets/stages.html:36
-msgid "Add data"
-msgstr "Dodaj podatke"
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
+msgid "This means only you can see this"
+msgstr "To pomeni, da to lahko vidite samo vi"
 
-#: ckan/templates/package/snippets/view_form.html:8
-msgid "eg. My View"
-msgstr "npr. Moj pogled"
+#: ckan/templates/user/read_base.html:87
+msgid "Member Since"
+msgstr "Član od"
 
-#: ckan/templates/package/snippets/view_form.html:9
-msgid "eg. Information about my view"
-msgstr "npr. Informacije o mojem pogledu"
+#: ckan/templates/user/read_base.html:96
+msgid "API Key"
+msgstr "API ključ"
 
-#: ckan/templates/package/snippets/view_form_filters.html:28
-msgid "Remove Filter"
-msgstr "Odstrani filter"
+#: ckan/templates/user/request_reset.html:3
+#: ckan/templates/user/request_reset.html:13
+msgid "Reset your password"
+msgstr "Ponastavite geslo"
 
-#: ckan/templates/package/snippets/view_help.html:2
-msgid "What's a view?"
-msgstr "Kaj je pogled?"
+#: ckan/templates/user/request_reset.html:17
+msgid "Email or username"
+msgstr ""
 
-#: ckan/templates/package/snippets/view_help.html:4
-msgid "A view is a representation of the data held against a resource"
-msgstr "Pogled je reprezentacija podatkov z ozirom na vir"
+#: ckan/templates/user/request_reset.html:22
+msgid "Request Reset"
+msgstr ""
 
 #: ckan/templates/snippets/add_dataset.html:6
 msgid "Add Dataset"
 msgstr "Dodaj nabor podatkov"
 
-#: ckan/templates/snippets/datapusher_status.html:8
-msgid "Datapusher status: {status}."
-msgstr "Datapusher stanje: {status}."
+#: ckanext/datapusher/helpers.py:23
+msgid "Submitting"
+msgstr "Pošiljam"
 
-#: ckan/templates/snippets/disqus_trackback.html:2
-msgid "Trackback URL"
-msgstr "Trackback URL"
+#: ckanext/datapusher/helpers.py:29
+msgid "Not Uploaded Yet"
+msgstr "Ni še naloženo"
 
 #: ckan/templates/snippets/facet_list.html:85
 msgid "Show More {facet_type}"
@@ -4310,20 +4438,20 @@ msgstr "Prikaži samo popularne {facet_type}"
 msgid "There are no {facet_type} that match this search"
 msgstr "Ni {facet_type} ki ustrezajo tem iskalnim pogojem"
 
-#: ckan/templates/snippets/home_breadcrumb_item.html:2
-msgid "Home"
-msgstr "Domov"
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:36
+#: ckanext/datapusher/templates/datapusher/resource_data.html:36
+msgid "Error traceback:"
+msgstr ""
 
-#: ckan/templates/snippets/language_selector.html:3
-msgid "Language"
-msgstr "Jezik"
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:48
+#: ckanext/datapusher/templates/datapusher/resource_data.html:48
+msgid "Status"
+msgstr "Status"
 
-#: ckan/templates/snippets/language_selector.html:11
-#: ckan/templates/snippets/search_form.html:42
-#: ckan/templates/snippets/simple_search.html:15
-#: ckan/templates/snippets/sort_by.html:22
-msgid "Go"
-msgstr "Pojdi"
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:52
+#: ckanext/datapusher/templates/datapusher/resource_data.html:52
+msgid "Last updated"
+msgstr "Nazadnje posodobljeno"
 
 #: ckan/templates/snippets/license.html:8
 msgid "No License Provided"
@@ -4337,109 +4465,114 @@ msgstr "Ta nabor podatkov ustreza the Open Definition"
 msgid "There is no description for this organization"
 msgstr "Ni opisa za to organizacijo"
 
-#: ckan/templates/snippets/package_item.html:57
-msgid "This dataset has no description"
-msgstr "Ta nabor podatkov nima opisa"
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:83
+#: ckanext/datapusher/templates/datapusher/resource_data.html:83
+msgid "End of log"
+msgstr "Konec dnevnika"
 
-#: ckan/templates/snippets/search_form.html:33
-#: ckan/templates/snippets/simple_search.html:8
-#: ckan/templates/snippets/sort_by.html:12
-msgid "Order by"
-msgstr "Uredi po"
+#: ckanext/datapusher/templates-bs2/package/resource_edit_base.html:5
+#: ckanext/datapusher/templates/package/resource_edit_base.html:5
+msgid "DataStore"
+msgstr "DataStore"
 
-#: ckan/templates/snippets/search_form.html:74
-msgid "Filter Results"
-msgstr "Filtriraj rezultate"
+#: ckanext/datastore/controller.py:53
+#, python-format
+msgid "format: must be one of %s"
+msgstr ""
 
 #: ckan/templates/snippets/search_form.html:81
 msgid "<p class=\"extra\">Please try another search.</p>"
 msgstr " <p class=\"extra\">Poskusite drugačno iskanje.</p> "
 
-#: ckan/templates/snippets/search_form.html:87
+#: ckanext/datastore/controller.py:101
 msgid ""
 "<p id=\"search-error\"><strong>There was an error while searching.</strong> "
 "Please try again.</p>"
 msgstr ""
 
-#: ckan/templates/snippets/search_result_text.html:15
-msgid "{number} dataset found for \"{query}\""
-msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] "Ni najdenih naborov podatkov"
-msgstr[1] "{number} nabor podatkov najden za \"{query}\""
-msgstr[2] "{number} nabora podatkov najdena za \"{query}\""
-msgstr[3] "{number} naborov podatkov najdenih za \"{query}\""
+#: ckanext/datastore/backend/postgres.py:1036
+msgid ""
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
+msgstr ""
+"Podatki so napačni (na primer: numerična vrednost je izven dovoljenega "
+"obsega ali pa je bila vnešena v tekstovno polje)."
 
-#: ckan/templates/snippets/search_result_text.html:16
-msgid "No datasets found for \"{query}\""
-msgstr "Za poizvedbo \"{query}\" ni bilo najdenih naborov podatkov"
+#: ckanext/datastore/logic/action.py:258 ckanext/datastore/logic/action.py:286
+#: ckanext/datastore/logic/action.py:344 ckanext/datastore/logic/action.py:457
+msgid "Resource \"{0}\" was not found."
+msgstr "Vir \"{0}\" ni na voljo."
 
-#: ckan/templates/snippets/search_result_text.html:17
-msgid "{number} dataset found"
-msgid_plural "{number} datasets found"
-msgstr[0] "Ni najdenih naborov podatkov."
-msgstr[1] "{number} nabor podatkov najden"
-msgstr[2] "{number} nabora podatkov najdena"
-msgstr[3] "{number} naborov podatkov najdenih"
+#: ckanext/datastore/logic/auth.py:19
+msgid "User {0} not authorized to update resource {1}"
+msgstr "Uporabnik {0} nima dovoljenja za posodobitev vira {1}"
 
-#: ckan/templates/snippets/search_result_text.html:18
-msgid "No datasets found"
-msgstr "Ni najdenih naborov podatkov"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:19
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:21
+msgid "CKAN Data API"
+msgstr "CKAN podatkovni API"
 
-#: ckan/templates/snippets/search_result_text.html:21
-msgid "{number} group found for \"{query}\""
-msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] "{number} skupin najdenih za \"{query}\""
-msgstr[1] "{number} skupina najdena za \"{query}\""
-msgstr[2] "{number} skupini najdeni za \"{query}\""
-msgstr[3] "{number} skupin najdenih za \"{query}\""
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:23
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:25
+msgid "Access resource data via a web API with powerful query support"
+msgstr ""
+"Dostopaj do podatkov virov preko spletnega API-ja z močno query podporo"
 
-#: ckan/templates/snippets/search_result_text.html:22
-msgid "No groups found for \"{query}\""
-msgstr "Ni najdenih skupin za \"{query}\""
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:26
+msgid ""
+" Further information in the <a             "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
 
-#: ckan/templates/snippets/search_result_text.html:23
-msgid "{number} group found"
-msgid_plural "{number} groups found"
-msgstr[0] "Ni najdenih skupin"
-msgstr[1] "{number} najdena skupina"
-msgstr[2] "{number} najdeni skupini"
-msgstr[3] "{number} najdenih skupin"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:33
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:35
+msgid "Endpoints"
+msgstr "Končne točke"
 
-#: ckan/templates/snippets/search_result_text.html:24
-msgid "No groups found"
-msgstr "Ni najdenih skupin"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:37
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:39
+msgid ""
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
+msgstr ""
+"Do podatkovnega API-ja se lahko dostopa preko naslednjih ukazov iz CKAN API-"
+"ja."
 
-#: ckan/templates/snippets/search_result_text.html:27
-msgid "{number} organization found for \"{query}\""
-msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] "{number} organizacij najdenih za \"{query}\""
-msgstr[1] "{number} organizacija najdena za \"{query}\""
-msgstr[2] "{number} organizaciji najdeni za \"{query}\""
-msgstr[3] "{number} organizacij najdenih za \"{query}\""
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:44
+msgid "Create"
+msgstr "Ustvari"
 
-#: ckan/templates/snippets/search_result_text.html:28
-msgid "No organizations found for \"{query}\""
-msgstr "Ni najdenih organizacij za \"{query}\""
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:46
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:48
+msgid "Update / Insert"
+msgstr "Posodobi / Vnesi"
 
-#: ckan/templates/snippets/search_result_text.html:29
-msgid "{number} organization found"
-msgid_plural "{number} organizations found"
-msgstr[0] "{number} najdenih organizacij"
-msgstr[1] "{number} najdena organizacija"
-msgstr[2] "{number} najdeni organizaciji"
-msgstr[3] "{number} najdenih organizacij"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:50
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:52
+msgid "Query"
+msgstr "Pozvedba"
 
-#: ckan/templates/snippets/search_result_text.html:30
-msgid "No organizations found"
-msgstr "Ni najdenih organizacij"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:54
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:56
+msgid "Query (via SQL)"
+msgstr "Poizvedba (preko SQL)"
 
-#: ckan/templates/snippets/social.html:5
-msgid "Social"
-msgstr "Socialno"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:66
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:68
+msgid "Querying"
+msgstr "Poizvedovanje"
 
-#: ckan/templates/snippets/subscribe.html:2
-msgid "Subscribe"
-msgstr "Naroči"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:70
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:72
+msgid "Query example (first 5 results)"
+msgstr "Primer pozvedbe (prvih 5 rezultatov)"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:75
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:77
+msgid "Query example (results containing 'jones')"
+msgstr "Primer poizvedbe (rezultati ki vsebujejo 'jones')"
 
 #: ckan/templates/snippets/subscribe.html:4
 #: ckan/templates/user/edit_user_form.html:12
@@ -4448,9 +4581,10 @@ msgstr "Naroči"
 msgid "Email"
 msgstr "Email"
 
-#: ckan/templates/snippets/subscribe.html:5
-msgid "RSS"
-msgstr "RSS"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:91
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:93
+msgid "Example: Javascript"
+msgstr "Primer: Javascript"
 
 #: ckan/templates/snippets/activities/added_tag.html:4
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -4851,9 +4985,10 @@ msgstr ""
 msgid "Changed the version of {pkg_link} to {new_version}"
 msgstr ""
 
-#: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
-msgid "Search Tags"
-msgstr "Iskalne oznake"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:116
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:118
+msgid "Example: Python"
+msgstr "Primer: Python"
 
 #: ckan/templates/user/api_tokens.html:19
 msgid "Create API Token"
@@ -4872,86 +5007,94 @@ msgstr ""
 msgid "News feed"
 msgstr "Vir novic"
 
-#: ckan/templates/user/dashboard.html:20
-#: ckan/templates/user/dashboard_datasets.html:12
-msgid "My Datasets"
-msgstr "Moji nabori podatkov"
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
+msgid "Type Override"
+msgstr ""
 
-#: ckan/templates/user/dashboard.html:21
-#: ckan/templates/user/dashboard_organizations.html:12
-msgid "My Organizations"
-msgstr "Moje organizacije"
+#: ckanext/datastore/templates-bs2/datastore/dictionary.html:18
+#: ckanext/datastore/templates-bs2/package/resource_read.html:20
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:20
+#: ckanext/datastore/templates/package/resource_read.html:21
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:18
+msgid "Label"
+msgstr ""
 
-#: ckan/templates/user/dashboard.html:22
-#: ckan/templates/user/dashboard_groups.html:12
-msgid "My Groups"
-msgstr "Moje skupine"
+#: ckanext/datastore/templates-bs2/package/resource_edit_base.html:6
+#: ckanext/datastore/templates-bs2/package/resource_read.html:14
+#: ckanext/datastore/templates/package/resource_edit_base.html:6
+#: ckanext/datastore/templates/package/resource_read.html:14
+msgid "Data Dictionary"
+msgstr ""
 
-#: ckan/templates/user/dashboard.html:39
-msgid "Activity from items that I'm following"
-msgstr "Aktivnosti predmetov, ki jim sledim"
+#: ckanext/datastore/templates-bs2/package/resource_read.html:18
+#: ckanext/datastore/templates/package/resource_read.html:19
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:17
+msgid "Column"
+msgstr ""
 
-#: ckan/templates/user/dashboard_datasets.html:17
-#: ckan/templates/user/read.html:20
-msgid "You haven't created any datasets."
-msgstr "Niste ustvarili še nobenih naborov podatkov."
+#: ckanext/datastore/templates-bs2/package/resource_read.html:19
+#: ckanext/datastore/templates/package/resource_read.html:20
+msgid "Type"
+msgstr ""
 
-#: ckan/templates/user/dashboard_datasets.html:19
-#: ckan/templates/user/dashboard_groups.html:22
-#: ckan/templates/user/dashboard_organizations.html:23
-#: ckan/templates/user/read.html:22
-msgid "Create one now?"
-msgstr "Ustvarim enega zdaj?"
+#: ckanext/datastore/templates-bs2/package/snippets/data_api_button.html:10
+#: ckanext/datastore/templates/package/snippets/data_api_button.html:9
+msgid "Data API"
+msgstr "Podatkovni API"
 
-#: ckan/templates/user/dashboard_groups.html:20
-msgid "You are not a member of any groups."
-msgstr "Niste član nobenih skupin."
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
+" Več informacij o <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">glavnem CKAN podatkovnem API-ju in DataStore "
+"dokumentacija</a>.</p> "
 
-#: ckan/templates/user/dashboard_organizations.html:21
-msgid "You are not a member of any organizations."
-msgstr "Niste član nobenih organizacij."
+#: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:137
+msgid "Table"
+msgstr "Tabela"
 
-#: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
-#: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
-#: ckan/templates/user/read_base.html:5 ckan/templates/user/read_base.html:8
-#: ckan/templates/user/snippets/user_search.html:2
-msgid "Users"
-msgstr "Uporabniki"
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:6
+msgid "Responsive display"
+msgstr ""
 
-#: ckan/templates/user/edit.html:17
-msgid "Account Info"
-msgstr "Informacije o računu"
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:12
+msgid "Show Columns"
+msgstr ""
 
 #: ckan/templates/user/edit.html:19
 msgid ""
 "Your profile lets other CKAN users know about who you are and what you do."
 msgstr ""
-" Vaš profil omogoča durgim CKAN uporabnikom, da spoznajo kdo ste in s čim se"
-" ukvarjate. "
 
-#: ckan/templates/user/edit_user_form.html:7
-msgid "Change details"
-msgstr "spremenite podrobnosti"
+#: ckanext/example_iconfigurer/templates/admin/config.html:11
+msgid "Datasets per page"
+msgstr "Nabori podatkov na stran"
 
-#: ckan/templates/user/edit_user_form.html:10
-msgid "Full name"
-msgstr "Polno ime"
+#: ckanext/example_iconfigurer/templates/admin/config.html:13
+msgid "Test conf"
+msgstr "Testna nastavitev"
 
-#: ckan/templates/user/edit_user_form.html:10
-msgid "eg. Joe Bloggs"
-msgstr "npr. Janez Novak"
+#: ckanext/example_idatasetform/templates/package/search.html:16
+msgid "Custom Field Ascending"
+msgstr "Polje po meri naraščujoče"
 
-#: ckan/templates/user/edit_user_form.html:12
-msgid "eg. joe@example.com"
-msgstr "npr. janez@novak.sem"
+#: ckanext/example_idatasetform/templates/package/search.html:17
+msgid "Custom Field Descending"
+msgstr "Polje po meri padajoče"
 
-#: ckan/templates/user/edit_user_form.html:14
-msgid "A little information about yourself"
-msgstr "Nekaj informacij o meni"
+#: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
+#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
+#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
+msgid "Custom Text"
+msgstr "Tekst po meri"
 
-#: ckan/templates/user/edit_user_form.html:17
-msgid "Subscribe to notification emails"
-msgstr "Prijavi se na notifikacijske emaile"
+#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
+msgid "custom text"
+msgstr "tekst po meri"
 
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates/user/new_user_form.html:14
@@ -4999,97 +5142,107 @@ msgstr "Obnovi API ključ"
 msgid "Update Profile"
 msgstr "Posodobi profil"
 
-#: ckan/templates/user/list.html:3
-#: ckan/templates/user/snippets/user_search.html:11
-msgid "All Users"
-msgstr "Vsi uporabniki"
+#: ckanext/reclineview/plugin.py:180
+#: ckanext/reclineview/theme/public/recline_view.js:204
+#: ckanext/reclineview/theme/public/recline_view.min.js:14
+msgid "Graph"
+msgstr "Graf"
 
-#: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
-#: ckan/templates/user/login.html:12
-#: ckan/templates/user/snippets/login_form.html:28
-msgid "Login"
-msgstr "Prijava"
+#: ckanext/reclineview/plugin.py:240
+#: ckanext/reclineview/theme/public/recline_view.js:211
+#: ckanext/reclineview/theme/public/recline_view.min.js:14
+msgid "Map"
+msgstr "Zemljevid"
 
-#: ckan/templates/user/login.html:25
-msgid "Need an Account?"
-msgstr "Potrebujete račun?"
+#: ckanext/reclineview/theme/public/recline_view.js:29
+#: ckanext/reclineview/theme/public/recline_view.min.js:1
+msgid "error loading view"
+msgstr ""
 
-#: ckan/templates/user/login.html:27
-msgid "Then sign right up, it only takes a minute."
-msgstr "Potem se kar prijavite, to vam vzame le minuto."
+#: ckanext/reclineview/theme/public/recline_view.js:79
+#: ckanext/reclineview/theme/public/recline_view.min.js:5
+msgid "Could not load view"
+msgstr ""
 
-#: ckan/templates/user/login.html:30
-msgid "Create an Account"
-msgstr "Ustvarite račun"
+#: ckanext/reclineview/theme/public/recline_view.js:81
+#: ckanext/reclineview/theme/public/recline_view.min.js:5
+msgid "DataStore returned an error"
+msgstr ""
 
-#: ckan/templates/user/login.html:42
-msgid "Forgotten your password?"
-msgstr "Ste pozabili svoje geslo?"
+#: ckanext/reclineview/theme/public/recline_view.js:83
+#: ckanext/reclineview/theme/public/recline_view.min.js:5
+msgid "DataProxy returned an error"
+msgstr ""
 
-#: ckan/templates/user/login.html:44
-msgid "No problem, use our password recovery form to reset it."
-msgstr "Ni problema, uporabite naš obrazec za ponastavitev gesla"
+#: ckanext/reclineview/theme/public/recline_view.js:197
+#: ckanext/reclineview/theme/public/recline_view.min.js:14
+msgid "Grid"
+msgstr ""
 
-#: ckan/templates/user/login.html:47
-msgid "Forgot your password?"
-msgstr "Ste pozabili svoje geslo?"
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
+#: ckanext/reclineview/theme/templates/recline_map_form.html:3
+msgid "Row offset"
+msgstr "Odklon vrstic"
 
-#: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
-msgid "Logged Out"
-msgstr "Odjavljen"
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
+#: ckanext/reclineview/theme/templates/recline_map_form.html:3
+msgid "eg: 0"
+msgstr "npr: 0"
 
-#: ckan/templates/user/logout.html:11
-msgid "You are now logged out."
-msgstr "Sedaj ste odjavljeni."
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
+#: ckanext/reclineview/theme/templates/recline_map_form.html:4
+msgid "Number of rows"
+msgstr "Število vrstic"
 
-#: ckan/templates/user/logout_first.html:9
-msgid "You're already logged in as {user}."
-msgstr "Ste že prijavljeni kot {user}."
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
+#: ckanext/reclineview/theme/templates/recline_map_form.html:4
+msgid "eg: 100"
+msgstr "npr: 100"
 
-#: ckan/templates/user/logout_first.html:9
-msgid "Logout"
-msgstr "Odjava"
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:6
+msgid "Graph type"
+msgstr "Tip grafa"
 
-#: ckan/templates/user/logout_first.html:12
-#: ckan/templates/user/snippets/login_form.html:24
-msgid "Remember me"
-msgstr "Zapomni se me"
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:7
+msgid "Group (Axis 1)"
+msgstr "Skupina (os 1)"
 
-#: ckan/templates/user/logout_first.html:20
-msgid "You're already logged in"
-msgstr "Ste že prijavljeni"
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:8
+msgid "Series (Axis 2)"
+msgstr "Serija (os 2)"
 
-#: ckan/templates/user/logout_first.html:22
-msgid "You need to log out before you can log in with another account."
-msgstr "Morate se najprej odjaviti, da se lahko prijavite z drugim računom."
+#: ckanext/reclineview/theme/templates/recline_map_form.html:6
+msgid "Field type"
+msgstr "Tip polja"
 
-#: ckan/templates/user/logout_first.html:23
-msgid "Log out now"
-msgstr "Odjavi se zdaj"
+#: ckanext/reclineview/theme/templates/recline_map_form.html:7
+msgid "Latitude field"
+msgstr "Polje zemljepisne širine"
 
-#: ckan/templates/user/new.html:6
-msgid "Registration"
-msgstr "Registracija"
+#: ckanext/reclineview/theme/templates/recline_map_form.html:8
+msgid "Longitude field"
+msgstr "Polje zemljepisne dolžine"
 
-#: ckan/templates/user/new.html:14
-msgid "Register for an Account"
-msgstr "Registrirajte se za račun"
+#: ckanext/reclineview/theme/templates/recline_map_form.html:9
+msgid "GeoJSON field"
+msgstr "GeoJSON polje"
 
-#: ckan/templates/user/new.html:26
-msgid "Why Sign Up?"
-msgstr "Zakaj se registrirati?"
+#: ckanext/reclineview/theme/templates/recline_map_form.html:10
+msgid "Auto zoom to features"
+msgstr "Samodejni zoom na značilnosti"
 
-#: ckan/templates/user/new.html:28
-msgid "Create datasets, groups and other exciting things"
-msgstr "Ustvarite nabore podatkov, skupine in druge zanimive stvari"
+#: ckanext/reclineview/theme/templates/recline_map_form.html:11
+msgid "Cluster markers"
+msgstr "Markerji gruč"
 
-#: ckan/templates/user/new_user_form.html:5
-msgid "username"
-msgstr "uporabniško ime"
+#: ckanext/stats/templates/ckanext/stats/index.html:10
+msgid "Total number of Datasets"
+msgstr "Celotno število naborov podatkov"
 
-#: ckan/templates/user/new_user_form.html:6
-msgid "Full Name"
-msgstr "Polno ime"
+#: ckanext/stats/templates/ckanext/stats/index.html:17
+#: ckanext/stats/templates/ckanext/stats/index.html:40
+msgid "Date"
+msgstr "Datum"
 
 #: ckan/templates/user/new_user_form.html:27
 msgid "Create Account"
@@ -5105,26 +5258,27 @@ msgstr "Ponastavi geslo"
 msgid "Password Reset"
 msgstr "Ponastavitev gesla"
 
-#: ckan/templates/user/perform_reset.html:21
-msgid "You can also change username. It can not be modified later."
-msgstr ""
+#: ckanext/stats/templates/ckanext/stats/index.html:42
+msgid "New datasets"
+msgstr "Novi nabori podatkov"
 
-#: ckan/templates/user/perform_reset.html:29
-msgid "Update Password"
-msgstr "Psodobi geslo"
+#: ckanext/stats/templates/ckanext/stats/index.html:58
+#: ckanext/stats/templates/ckanext/stats/index.html:180
+msgid "Top Rated Datasets"
+msgstr "Najvišje ocenjeni nabori podatkov"
 
 #: ckan/templates/user/perform_reset.html:43
 #: ckan/templates/user/request_reset.html:36
 msgid "How does this work?"
 msgstr "Kako to deluje?"
 
-#: ckan/templates/user/perform_reset.html:45
-msgid "Simply enter a new password and we'll update your account"
-msgstr "Samo vnesite novo geslo in vam bomo posodobili račun"
+#: ckanext/stats/templates/ckanext/stats/index.html:65
+msgid "Number of ratings"
+msgstr "Število ocen"
 
-#: ckan/templates/user/read.html:27
-msgid "User hasn't created any datasets."
-msgstr "Uporabnik še ni ustvaril nobenih naborov podatkov."
+#: ckanext/stats/templates/ckanext/stats/index.html:79
+msgid "No ratings"
+msgstr "Ni ocen"
 
 #: ckan/templates/user/read_base.html:42
 msgid "You have not provided a biography."
@@ -5150,10 +5304,10 @@ msgstr "Član od"
 msgid "API Key"
 msgstr "API ključ"
 
-#: ckan/templates/user/request_reset.html:3
-#: ckan/templates/user/request_reset.html:13
-msgid "Reset your password"
-msgstr "Ponastavite geslo"
+#: ckanext/stats/templates/ckanext/stats/index.html:132
+#: ckanext/stats/templates/ckanext/stats/index.html:183
+msgid "Top Tags"
+msgstr "Najvišje oznake"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Email or username"
@@ -5185,26 +5339,26 @@ msgstr ""
 msgid "Revoke"
 msgstr ""
 
-#: ckan/templates/user/snippets/followee_dropdown.html:15
-#: ckan/templates/user/snippets/followee_dropdown.html:16
-msgid "Activity from:"
-msgstr "Aktivnost od:"
+#: ckanext/stats/templates/ckanext/stats/index.html:175
+msgid "Statistics Menu"
+msgstr "Menu statistik"
 
-#: ckan/templates/user/snippets/followee_dropdown.html:23
-msgid "Search list..."
-msgstr "Preiskovanje seznama..."
+#: ckanext/stats/templates/ckanext/stats/index.html:178
+msgid "Total Number of Datasets"
+msgstr "Celotno število naborov podatkov"
 
-#: ckan/templates/user/snippets/followee_dropdown.html:44
-msgid "You are not following anything"
-msgstr "Ne sledite ničemur"
+#: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
+msgid "Text"
+msgstr "Besedilo"
 
-#: ckan/templates/user/snippets/followers.html:9
-msgid "No followers"
-msgstr "Ni sledilcev"
+#: ckanext/textview/theme/public/text_view.js:70
+#: ckanext/textview/theme/public/text_view.min.js:3
+msgid "An error occured during AJAX request. Could not load view."
+msgstr ""
 
-#: ckan/templates/user/snippets/user_search.html:5
-msgid "Search Users"
-msgstr "Preišči uporabnike"
+#: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
+msgid "Website"
+msgstr "Spletna stran"
 
 #: ckan/views/admin.py:203
 msgid "Massive purge complete"
