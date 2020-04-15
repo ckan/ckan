@@ -2,11 +2,11 @@
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
-# 
+#
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
 # 秋山 梓 <azusasansan@gmail.com>, 2019
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
@@ -19,7 +19,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.5.3\n"
@@ -2353,9 +2352,9 @@ msgstr "CKAN　管理者"
 #: ckan/templates/admin/index.html:20
 #, python-format
 msgid ""
-" <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
-"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed"
+" with care!</p> <p>For guidance on using sysadmin features, see the CKAN  <a"
+" href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p>"
 msgstr ""
 "<p>一人のsysadmin ユーザとして、あなたはこのCKANインスタンスに対する完全な権限を持っています。注意して作業してください！</p>\n"
 "<p>sysadmin機能の利用についての説明は、CKAN<a href=\"%(docs_url)s\" target=\"_blank\">sysadminガイド</a>を参照してください。</p>"
@@ -2811,10 +2810,10 @@ msgstr "グループ機能とは"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. This "
+"You can use CKAN Groups to create and manage collections of datasets. This "
 "could be to catalogue datasets for a particular project or team, or on a "
 "particular theme, or as a very simple way to help people find and search "
-"your own published datasets. "
+"your own published datasets."
 msgstr ""
 "あなたはデータセットの集合を作成・管理するためにCKANグループを使うことができます。これは特定のプロジェクトやチームあるいは特定のテーマのためのデータセットのカタログに成り得ますし、人々があなたの所有する公開データセットを発見し，検索するのを助ける簡単な方法として使えます。"
 
@@ -2876,16 +2875,16 @@ msgstr "ようこそ"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
-" <p>CKAN is the world’s leading open-source data portal platform.</p> "
-"<p>CKAN is a complete out-of-the-box software solution that makes data "
-"accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision of "
-"robust data APIs). CKAN is aimed at data publishers (national and regional "
-"governments, companies and organizations) wanting to make their data open "
-"and available.</p> <p>CKAN is used by governments and user groups worldwide "
-"and powers a variety of official and community data portals including "
-"portals for local, national and international government, such as the UK’s "
-"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"<p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN"
+" is a complete out-of-the-box software solution that makes data accessible "
+"and usable – by providing tools to streamline publishing, sharing, finding "
+"and using data (including storage of data and provision of robust data "
+"APIs). CKAN is aimed at data publishers (national and regional governments, "
+"companies and organizations) wanting to make their data open and "
+"available.</p> <p>CKAN is used by governments and user groups worldwide and "
+"powers a variety of official and community data portals including portals "
+"for local, national and international government, such as the UK’s <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2893,7 +2892,7 @@ msgid ""
 "href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a "
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 msgstr ""
 "<p>CKANは世界をリードするオープンソースのデータポータルプラットホームです。</p><p>CKANはデータをアクセス可能で使用可能にするための完全に枠を超えたソフトウェアソリューションです。データをストリームラインで公開、共有、発見、使用するためのツールを提供しています(データストレージや頑強なデータAPIの提供も含みます)。CKANはデータをオープンにして公開したいと思っているデータ公開者(国や地方行政、会社や組織)のために作られています。</p><p>CKANは世界中の行政やユーザグループによって使用されています。イギリスの"
 " <a href=\"http://data.gov.uk\">data.gov.uk</a>、EUの <a "
@@ -2910,7 +2909,7 @@ msgstr "CKANへようこそ"
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
-"don't have any copy to go here yet but soon we will "
+"don't have any copy to go here yet but soon we will"
 msgstr "これはCKANあるいはサイト全般についての良い紹介文です。我々はまだここへ行くためのコピーがありませんが、すぐに行くでしょう。"
 
 #: ckan/templates/home/snippets/promoted.html:19
@@ -3131,12 +3130,12 @@ msgstr "組織について"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for example,"
-" the Department of Health). This means that datasets can be published by and"
-" belong to a department instead of an individual user.</p> <p>Within "
+"<p>Organizations act like publishing departments for datasets (for example, "
+"the Department of Health). This means that datasets can be published by and "
+"belong to a department instead of an individual user.</p> <p>Within "
 "organizations, admins can assign roles and authorise its members, giving "
 "individual users the right to publish datasets from that particular "
-"organisation (e.g. Office of National Statistics).</p> "
+"organisation (e.g. Office of National Statistics).</p>"
 msgstr ""
 "<p>組織はデータセットを公開する部門のように振る舞います(例: "
 "保健省)。データセットが個々のユーザではなく、部門が所有して、部門によって公開されるということになります。</p><p>組織内では、管理者はメンバーに役割や権限を割り当てることができます。例えば個々のユーザに特定の組織"
@@ -3144,9 +3143,9 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of "
+"CKAN Organizations are used to create, manage and publish collections of "
 "datasets. Users can have different roles within an Organization, depending "
-"on their level of authorisation to create, edit and publish. "
+"on their level of authorisation to create, edit and publish."
 msgstr ""
 "CKANの組織は、データセットの集合を作成・管理・公開するために使われます。作成・編集・公開の権限レベルに応じて、ユーザは組織内で異なる役割を持てます。"
 
@@ -3267,11 +3266,11 @@ msgstr "ビューを追加"
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
-" Data Explorer views may be slow and unreliable unless the DataStore "
+"Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
 "href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
-"documentation</a>. "
+"documentation</a>."
 msgstr ""
 "データストア拡張が有効でない場合、データ探索ビューは遅くて信頼性がないかもしれません。より詳しい情報は<a "
 "href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
@@ -3541,8 +3540,8 @@ msgstr "例：経済,政府"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:45
 msgid ""
-" License definitions and additional information can be found at <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
+"License definitions and additional information can be found at <a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 msgstr ""
 "ライセンス定義や追加情報は<a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>にあります。"
@@ -4046,7 +4045,7 @@ msgstr "アカウント情報"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you do. "
+"Your profile lets other CKAN users know about who you are and what you do."
 msgstr "プロフィールによって、他のCKANユーザにあなたが何者で、何をしているのかを知らせることができます"
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4435,9 +4434,9 @@ msgstr "パワフルなクエリサポートがあるweb APIを通してリソ�
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:26
 msgid ""
-" Further information in the <a             "
+"Further information in the <a "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
 msgstr ""
 "より詳しい情報は <a             "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
@@ -4553,9 +4552,9 @@ msgstr "データAPI"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
 msgid ""
-" Further information in the <a       "
+"Further information in the <a "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
 msgstr ""
 " より詳しい情報は <a "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
@@ -4844,5 +4843,5 @@ msgid "Web Page url"
 msgstr "ウェブページURL"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
-msgid "eg. http://example.com (if blank uses resource url)"
+msgid "eg. http://example.com  (if blank uses resource url)"
 msgstr "例： http://example.com (空白の場合はリソースURL)"

@@ -2,7 +2,7 @@
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
-# 
+#
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
 # Ivaylo Petrov, 2018
@@ -19,7 +19,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
 "Language: bg\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.5.3\n"
@@ -2404,9 +2403,9 @@ msgstr ""
 #: ckan/templates/admin/index.html:20
 #, python-format
 msgid ""
-" <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
-"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed"
+" with care!</p> <p>For guidance on using sysadmin features, see the CKAN  <a"
+" href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p>"
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2864,10 +2863,10 @@ msgstr "Какво представляват групите?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. This "
+"You can use CKAN Groups to create and manage collections of datasets. This "
 "could be to catalogue datasets for a particular project or team, or on a "
 "particular theme, or as a very simple way to help people find and search "
-"your own published datasets. "
+"your own published datasets."
 msgstr ""
 "Можете да използвате CKAN Групи за създаване и управляване на колекции от "
 "данни. Това би могло да включва каталогизиране на данни за определен проект "
@@ -2933,16 +2932,16 @@ msgstr "Добре дошли!"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
-" <p>CKAN is the world’s leading open-source data portal platform.</p> "
-"<p>CKAN is a complete out-of-the-box software solution that makes data "
-"accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision of "
-"robust data APIs). CKAN is aimed at data publishers (national and regional "
-"governments, companies and organizations) wanting to make their data open "
-"and available.</p> <p>CKAN is used by governments and user groups worldwide "
-"and powers a variety of official and community data portals including "
-"portals for local, national and international government, such as the UK’s "
-"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"<p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN"
+" is a complete out-of-the-box software solution that makes data accessible "
+"and usable – by providing tools to streamline publishing, sharing, finding "
+"and using data (including storage of data and provision of robust data "
+"APIs). CKAN is aimed at data publishers (national and regional governments, "
+"companies and organizations) wanting to make their data open and "
+"available.</p> <p>CKAN is used by governments and user groups worldwide and "
+"powers a variety of official and community data portals including portals "
+"for local, national and international government, such as the UK’s <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2950,7 +2949,7 @@ msgid ""
 "href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a "
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 msgstr ""
 "<p>CKAN е водещата световна платформа-портал за отворени данни с отворен "
 "код.</p> <p>CKAN е напълно готово за употреба софтуерно решение, което прави"
@@ -2981,7 +2980,7 @@ msgstr "Добре дошли в CKAN"
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
-"don't have any copy to go here yet but soon we will "
+"don't have any copy to go here yet but soon we will"
 msgstr ""
 "Това е въвеждащ текст за CKAN или най-общо за сайта. Все още нямаме по-"
 "подробно описание, но скоро ще имаме."
@@ -3205,19 +3204,19 @@ msgstr "Какво представляват организациите?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for example,"
-" the Department of Health). This means that datasets can be published by and"
-" belong to a department instead of an individual user.</p> <p>Within "
+"<p>Organizations act like publishing departments for datasets (for example, "
+"the Department of Health). This means that datasets can be published by and "
+"belong to a department instead of an individual user.</p> <p>Within "
 "organizations, admins can assign roles and authorise its members, giving "
 "individual users the right to publish datasets from that particular "
-"organisation (e.g. Office of National Statistics).</p> "
+"organisation (e.g. Office of National Statistics).</p>"
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of "
+"CKAN Organizations are used to create, manage and publish collections of "
 "datasets. Users can have different roles within an Organization, depending "
-"on their level of authorisation to create, edit and publish. "
+"on their level of authorisation to create, edit and publish."
 msgstr ""
 "CKAN Организациите се използват за създаване, управление и публикуване на "
 "колекции набори от данни. Потребителите могат да имат различни роли в дадена"
@@ -3342,11 +3341,11 @@ msgstr ""
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
-" Data Explorer views may be slow and unreliable unless the DataStore "
+"Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
 "href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
-"documentation</a>. "
+"documentation</a>."
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3615,8 +3614,8 @@ msgstr "напр. икономика, психично здраве, прави�
 
 #: ckan/templates/package/snippets/package_basic_fields.html:45
 msgid ""
-" License definitions and additional information can be found at <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
+"License definitions and additional information can be found at <a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 msgstr ""
 "Описание и допълнителна информация за лиценза можете да намерите на <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
@@ -4123,7 +4122,7 @@ msgstr "Информация за акаунт"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you do. "
+"Your profile lets other CKAN users know about who you are and what you do."
 msgstr ""
 "Вашият профил позволява на други CKAN потребители да се запознаят с Вас и "
 "това, с което се занимавате. "
@@ -4516,9 +4515,9 @@ msgstr "Достъп до ресурсни данни чрез уеб API със
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:26
 msgid ""
-" Further information in the <a             "
+"Further information in the <a "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
 msgstr ""
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:33
@@ -4634,9 +4633,9 @@ msgstr "Data API"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
 msgid ""
-" Further information in the <a       "
+"Further information in the <a "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
 msgstr ""
 
 #: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:137
@@ -4921,5 +4920,5 @@ msgid "Web Page url"
 msgstr ""
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
-msgid "eg. http://example.com (if blank uses resource url)"
+msgid "eg. http://example.com  (if blank uses resource url)"
 msgstr ""
