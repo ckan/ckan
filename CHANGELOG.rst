@@ -7,8 +7,8 @@
 Changelog
 ---------
 
-v.2.7.7 TBA
-===========
+v.2.7.7 2020-04-15
+==================
 
 General notes:
  * Note: This version does not requires a requirements upgrade on source installations
