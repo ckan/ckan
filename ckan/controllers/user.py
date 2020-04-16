@@ -394,8 +394,12 @@ class UserController(base.BaseController):
         for item in p.PluginImplementations(p.IAuthenticator):
             item.login()
 
-        if 'error' in request.params:
-            h.flash_error(request.params['error'])
+        if error is None and 'error' in request.params:
+            # if no value is provided for error but request parameters have error
+            # then set error value same as request parameters
+            # pass error to template instead of with flash_error
+            # so it can be captured for GA events in our overridden templates
+            error = request.params['error']
 
         if not c.user:
             came_from = request.params.get('came_from')
