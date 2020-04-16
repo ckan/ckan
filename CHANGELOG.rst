@@ -7,6 +7,54 @@
 Changelog
 ---------
 
+v.2.6.9 TBA
+===========
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+* Fix for number of datasets displayed on the My organizations tab (`#3580 <https://github.com/ckan/ckan/pull/3580>`_)
+* Fix datetime comparison in resource_dict_save (`#5033 <https://github.com/ckan/ckan/pull/5033>`_)
+* Fetch less data for `get_all_entity_ids` (`#5201 <https://github.com/ckan/ckan/pull/5201>`_)
+* Show error in text view if xhr failed (`#5271 <https://github.com/ckan/ckan/pull/5271>`_)
+* Allow vocabulary_id in /api/2/util/tag/autocomplete (`#5071 <https://github.com/ckan/ckan/pull/5071>`_)
+* Fix code injection in autocomplete module (`#5064 <https://github.com/ckan/ckan/pull/5064>`_)
+* Fix broken translation in image view placeholder (`#5099 <https://github.com/ckan/ckan/pull/5116>`_)
+* Filter revisions shown according to dataset permissions
+* Update JS vendor libraries
+* Use returned facets in group controller (`#2713 <https://github.com/ckan/ckan/pull/5167>`_)
+* Samesite support in auth cookie (`#5255 <https://github.com/ckan/ckan/pull/5255>`_)
+* Handle missing resources in case we have a race condition with the DataPusher (`#3980 <https://github.com/ckan/ckan/pull/4918>`_)
+* Add the g object to toolkit
+
+v.2.6.8 2019-07-03
+==================
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+ * Fix broken div nesting in the `user/read_base.html` (`#4672 <https://github.com/ckan/ckan/issues/4672>`_)
+ * Strip local path when uploading file in IE (`#4608 <https://github.com/ckan/ckan/issues/4608>`_)
+ * Increase size of h1 headings to 1.8em (`#4665 <https://github.com/ckan/ckan/issues/4665>`_)
+ * Fix `ValueError` in `url_validator` (`#4629 <https://github.com/ckan/ckan/issues/4629>`_)
+ * More robust auth functions for `resource_view_show` (`#4827 <https://github.com/ckan/ckan/issues/4827>`_)
+ * Allow to customize the DataProxy URL (`#4874 <https://github.com/ckan/ckan/issues/4874>`_)
+ * Allow custom CKAN callback URL for the DataPusher (`#4878 <https://github.com/ckan/ckan/issues/4878>`_)
+
+v2.6.7 2018-12-12
+=================
+
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
 
 v2.6.6 2018-05-09
 =================

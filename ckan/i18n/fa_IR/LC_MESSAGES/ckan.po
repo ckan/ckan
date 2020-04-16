@@ -3,21 +3,25 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 # 
+# Translators:
+# Riccardo Erra, 2017
+# Shokoufeh Abdi <Shokoufeh@smallmedia.org.uk>, 2018
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.6.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Shokoufeh Abdi <Shokoufeh@smallmedia.org.uk>, 2017\n"
+"PO-Revision-Date: 2016-10-18 09:51+0000\n"
+"Last-Translator: Shokoufeh Abdi <Shokoufeh@smallmedia.org.uk>, 2018\n"
 "Language-Team: Persian (Iran) (https://www.transifex.com/okfn/teams/11162/fa_IR/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
 "Language: fa_IR\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ckan/authz.py:179
 #, python-format
@@ -826,6 +830,7 @@ msgstr "نمایش"
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
 msgstr[0] "{n} فعالیت جدید از {site_title} "
+msgstr[1] "{n} فعالیت جدید از {site_title} "
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -883,26 +888,31 @@ msgstr "هم‌اکنون"
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
 msgstr[0] "{mins} دقایق گذشته"
+msgstr[1] "{mins} دقایق گذشته"
 
 #: ckan/lib/formatters.py:121
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
 msgstr[0] "{hours} ساعات گذشته"
+msgstr[1] "{hours} ساعات گذشته"
 
 #: ckan/lib/formatters.py:127
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
 msgstr[0] "{days} روزهای گذشته"
+msgstr[1] "{days} روزهای گذشته"
 
 #: ckan/lib/formatters.py:130
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
 msgstr[0] "{months} ماه‌های گذشته"
+msgstr[1] "{months} ماه‌های گذشته"
 
 #: ckan/lib/formatters.py:132
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
 msgstr[0] " در طول {years}  سال گذشته"
+msgstr[1] " در طول {years}  سال گذشته"
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
@@ -996,11 +1006,13 @@ msgstr "تنظیمات ویرایش شدند."
 msgid "{number} view"
 msgid_plural "{number} views"
 msgstr[0] "{number} دیده شده"
+msgstr[1] "{number} دیده شده"
 
 #: ckan/lib/helpers.py:1618
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
 msgstr[0] "{number} به تازگی دیده شده"
+msgstr[1] "{number} به تازگی دیده شده"
 
 #: ckan/lib/mailer.py:39
 #, python-format
@@ -1997,6 +2009,7 @@ msgstr "نمایش پروفایل"
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -2655,6 +2668,7 @@ msgstr "ذخیره گروه"
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -3877,6 +3891,7 @@ msgstr ""
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -3886,6 +3901,7 @@ msgstr "هیچ مجموعه داده‌ای برای \"{query}\" پیدا نشد
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -3895,6 +3911,7 @@ msgstr "هیچ مجموعه داده‌ای پیدا نشده است"
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -3904,6 +3921,7 @@ msgstr "هیچ گروهی برای \"{query}\" پیدا نشده است"
 msgid "{number} group found"
 msgid_plural "{number} groups found"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -3913,6 +3931,7 @@ msgstr "هیچ گروهی پیدا نشد"
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -3922,6 +3941,7 @@ msgstr "هیچ سازمانی برای \"{query}\" پیدا نشد"
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"

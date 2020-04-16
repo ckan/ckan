@@ -226,7 +226,15 @@ def resource_show(context, data_dict):
 
 @logic.auth_read_safe
 def resource_view_show(context, data_dict):
-    return authz.is_authorized('resource_show', context, data_dict)
+
+    model = context['model']
+
+    resource_view = model.ResourceView.get(data_dict['id'])
+    if not resource_view:
+        raise logic.NotFound(_('Resource view not found, cannot check auth.'))
+    resource = model.Resource.get(resource_view.resource_id)
+
+    return authz.is_authorized('resource_show', context, {'id': resource.id})
 
 
 

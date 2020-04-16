@@ -156,6 +156,21 @@ This determines whether the secure flag will be set for the repoze.who
 authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
 default in the absence of the setting is ``False``.
 
+.. _who.samesite:
+
+who.samesite
+^^^^^^^^^^^^
+
+Example::
+
+ who.samesite = Strict
+
+Default value: Lax
+
+This determines whether the SameSite flag will be set for the repoze.who
+authorization cookie. Allowed values are ``Lax`` (the default one), ``Strict`` or ``None``.
+If set to ``None``,  ``who.secure`` must be set to ``True``.
+
 
 Database Settings
 -----------------
@@ -1189,6 +1204,23 @@ Default value: ``text plain text/plain``
 
 Plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
 
+
+.. _ckan.recline.dataproxy_url:
+
+ckan.recline.dataproxy_url
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.recline.dataproxy_url = https://mydataproxy.example.com
+
+Default value: ``//jsonpdataproxy.appspot.com``
+
+Custom URL to a self-hosted DataProxy instance. The DataProxy is an external service currently used to stream data in 
+JSON format to the Recline-based views when data is not on the DataStore. The main instance is deprecated and will
+be eventually shut down, so users that require it can host an instance themselves and use this configuration option
+to point Recline to it.
+
 .. end_resource-views
 
 Theming Settings
@@ -1385,6 +1417,22 @@ DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
 installed CKAN via :doc:`/maintaining/installing/install-from-package`, the DataPusher was installed for you
 running on port 8800. If you want to manually install the DataPusher, follow
 the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
+
+
+.. _ckan.datapusher.callback_url_base:
+
+ckan.datapusher.callback_url_base
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.datapusher.callback_url_base = http://ckan:5000/
+
+Default value: Value of ``ckan.site_url``
+
+Alternative callback URL for DataPusher when performing a request to CKAN. This is
+useful on scenarios where the host where DataPusher is running can not access the
+public CKAN site URL.
 
 
 User Settings

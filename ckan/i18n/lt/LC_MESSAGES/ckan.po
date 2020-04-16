@@ -3,21 +3,24 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 # 
+# Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2018
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.6.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2016\n"
+"PO-Revision-Date: 2016-10-18 09:51+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
 "Language-Team: Lithuanian (https://www.transifex.com/okfn/teams/11162/lt/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
 "Language: lt\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < 11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? 1 : n % 1 != 0 ? 2: 3);\n"
 
 #: ckan/authz.py:179
 #, python-format
@@ -828,6 +831,7 @@ msgid_plural "{n} new activities from {site_title}"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -887,6 +891,7 @@ msgid_plural "{mins} minutes ago"
 msgstr[0] "prieš {mins} minutę"
 msgstr[1] "prieš {mins} minutes"
 msgstr[2] "prieš {mins} minutes"
+msgstr[3] "prieš {mins} minutes"
 
 #: ckan/lib/formatters.py:121
 msgid "{hours} hour ago"
@@ -894,6 +899,7 @@ msgid_plural "{hours} hours ago"
 msgstr[0] "prieš {hours} valandą"
 msgstr[1] "prieš {hours} valandas"
 msgstr[2] "prieš {hours} valandas"
+msgstr[3] "prieš {hours} valandas"
 
 #: ckan/lib/formatters.py:127
 msgid "{days} day ago"
@@ -901,6 +907,7 @@ msgid_plural "{days} days ago"
 msgstr[0] "prieš vieną dieną"
 msgstr[1] "prieš {days} dienas"
 msgstr[2] "prieš {days} dienas"
+msgstr[3] "prieš {days} dienas"
 
 #: ckan/lib/formatters.py:130
 msgid "{months} month ago"
@@ -908,6 +915,7 @@ msgid_plural "{months} months ago"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:132
 msgid "over {years} year ago"
@@ -915,6 +923,7 @@ msgid_plural "over {years} years ago"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
@@ -1010,6 +1019,7 @@ msgid_plural "{number} views"
 msgstr[0] "{number} peržiūra"
 msgstr[1] "{number} peržiūrų"
 msgstr[2] "{number} peržiūrų"
+msgstr[3] "{number} peržiūrų"
 
 #: ckan/lib/helpers.py:1618
 msgid "{number} recent view"
@@ -1017,6 +1027,7 @@ msgid_plural "{number} recent views"
 msgstr[0] "{number} pastaroji peržiūra"
 msgstr[1] "{number} pastarųjų peržiūrų"
 msgstr[2] "{number} pastarūjų peržiūrų"
+msgstr[3] "{number} pastarūjų peržiūrų"
 
 #: ckan/lib/mailer.py:39
 #, python-format
@@ -2010,6 +2021,7 @@ msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Valdymo pultas (%(num)d naujas įrašas)"
 msgstr[1] "Valdymo pultas (%(num)d naujų įrašų)"
 msgstr[2] "Valdymo pultas (%(num)d naujų įrašų)"
+msgstr[3] "Valdymo pultas (%(num)d naujų įrašų)"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -2648,6 +2660,7 @@ msgid_plural "{num} Datasets"
 msgstr[0] "{num} rinkmena"
 msgstr[1] "{num} rinkmenos"
 msgstr[2] "{num} rinkmenos"
+msgstr[3] "{num} rinkmenos"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -3834,6 +3847,7 @@ msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -3845,6 +3859,7 @@ msgid_plural "{number} datasets found"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -3856,6 +3871,7 @@ msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -3867,6 +3883,7 @@ msgid_plural "{number} groups found"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -3878,6 +3895,7 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -3889,6 +3907,7 @@ msgid_plural "{number} organizations found"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"

@@ -510,8 +510,12 @@ def _group_or_org_update(context, data_dict, is_org=False):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    group = model_save.group_dict_save(data, context,
-        prevent_packages_update=is_org)
+    contains_packages = 'packages' in data_dict
+
+    group = model_save.group_dict_save(
+        data, context,
+        prevent_packages_update=is_org or not contains_packages
+    )
 
     if is_org:
         plugin_type = plugins.IOrganizationController

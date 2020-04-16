@@ -4467,8 +4467,6 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid ""
-#~ "{actor} updated the {related_type} "
-#~ "{related_item} of the dataset {dataset}"
 #~ msgstr ""
 
 #~ msgid "{actor} updated the {related_type} {related_item}"
@@ -4477,34 +4475,10 @@ msgstr ""
 #~ msgid "{actor} deleted the related item {related_item}"
 #~ msgstr ""
 
-#~ msgid ""
-#~ "{actor} added the {related_type} "
-#~ "{related_item} to the dataset {dataset}"
-#~ msgstr ""
-
 #~ msgid "{actor} added the {related_type} {related_item}"
 #~ msgstr ""
 
 #~ msgid "Dear %s,"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "You have requested your password on {site_title} to be reset.\n"
-#~ "\n"
-#~ "Please click the following link to confirm this request:\n"
-#~ "\n"
-#~ "   {reset_link}\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "You have been invited to {site_title}."
-#~ " A user has already been created "
-#~ "to you with the username {user_name}."
-#~ " You can change it later.\n"
-#~ "\n"
-#~ "To accept this invite, please reset your password at:\n"
-#~ "\n"
-#~ "   {reset_link}\n"
 #~ msgstr ""
 
 #~ msgid "Invite for {site_title}"
@@ -4552,17 +4526,6 @@ msgstr ""
 #~ msgid "Add Related Item"
 #~ msgstr ""
 
-#~ msgid ""
-#~ "No apps, ideas, news stories or "
-#~ "images have been related to this "
-#~ "dataset yet."
-#~ msgstr ""
-
 #~ msgid "Add Item"
-#~ msgstr ""
-
-#~ msgid ""
-#~ " <p><strong>There was an error while "
-#~ "searching.</strong> Please try again.</p> "
 #~ msgstr ""
 
