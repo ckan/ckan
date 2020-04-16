@@ -395,7 +395,7 @@ class UserController(base.BaseController):
             item.login()
 
         if 'error' in request.params:
-            error = request.params['error']
+            h.flash_error(request.params['error'])
 
         if not c.user:
             came_from = request.params.get('came_from')
