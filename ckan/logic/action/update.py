@@ -747,7 +747,7 @@ def task_status_update(context, data_dict):
 
     '''
     model = context['model']
-    session = model.Session
+    session = context.get('session', None) or model.Session
     context['session'] = session
 
     user = context['user']
