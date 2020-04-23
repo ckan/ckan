@@ -1,1 +1,1 @@
-setuptools==36.1
+setuptools==40.0
