@@ -2,9 +2,9 @@
 
 import pytest
 import six
+import bs4
 from ckan.lib.helpers import url_for
 
-import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
@@ -221,3 +221,26 @@ class TestGroupControllerEdit_DefaultGroupType(object):
         env, response, group_name = _get_group_edit_page(app, group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
+
+
+@pytest.mark.ckan_config("ckan.plugins", u"example_igroupform_v2")
+@pytest.mark.usefixtures(
+    "with_plugins", "with_request_context"
+)
+class TestGroupBlueprintPreparations(object):
+    def test_additional_routes_are_registered(self, app):
+        resp = app.get("/fancy_type/fancy-route", status=200)
+        assert resp.body == u'Hello, fancy_type'
+
+    def test_existing_routes_are_replaced(self, app):
+        resp = app.get("/fancy_type/new", status=200)
+        assert resp.body == u'Hello, new fancy_type'
+
+    @pytest.mark.usefixtures(u'clean_db', u'clean_index')
+    def test_existing_routes_are_untouched(self, app):
+        resp = app.get("/fancy_type", status=200)
+        page = bs4.BeautifulSoup(resp.body)
+        links = [
+            a['href'] for a in page.select(".breadcrumb a")
+        ]
+        assert links == ['/', '/fancy_type/']

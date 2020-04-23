@@ -247,6 +247,7 @@ _STRING_LITERALS_WHITELIST = [
     u"bin/running_stats.py",
     u"ckan/__init__.py",
     u"ckan/authz.py",
+    u"ckan/cli/translation.py",
     u"ckan/config/environment.py",
     u"ckan/config/install.py",
     u"ckan/config/middleware/__init__.py",

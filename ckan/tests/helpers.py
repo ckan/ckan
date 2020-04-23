@@ -254,7 +254,9 @@ class CKANTestClient(FlaskClient):
         res = super(CKANTestClient, self).open(*args, **kwargs)
 
         if status:
-            assert res.status_code == status, (res.status_code, status)
+            assert (
+                res.status_code == status
+            ), "Actual: {}. Expected: {}".format(res.status_code, status)
 
         return res
 

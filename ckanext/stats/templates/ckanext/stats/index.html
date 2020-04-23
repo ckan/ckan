@@ -21,7 +21,7 @@
           <tbody>
             {% for package, rating, num_ratings in c.top_rated_packages %}
               <tr>
-                <th>{{ h.link_to(package.title or package.name, h.url_for('dataset.read', id=package.name)) }}</th>
+                <th>{{ h.link_to(package.title or package.name, h.url_for(package.type ~ '.read', id=package.name)) }}</th>
                 <td class="metric">{{ rating }}</td>
                 <td class="metric">{{ num_ratings }}</td>
               </tr>
