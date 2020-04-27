@@ -58,7 +58,7 @@ def _get_pkg_template(template_type, package_type=None):
         # method declared with the only argument `self`
         return method()
 
-    options = {'package_type': package_type}
+    options = {u'package_type': package_type}
     return method(options)
 
 
