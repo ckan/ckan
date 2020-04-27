@@ -50,7 +50,7 @@ def _get_group_template(template_type, group_type=None):
         # method declared with the only argument `self`
         return method()
 
-    options = {'group_type': group_type}
+    options = {u'group_type': group_type}
     return method(options)
 
 
