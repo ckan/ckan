@@ -108,6 +108,7 @@ entry_points = {
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
         'example_idatasetform_v5 = ckanext.example_idatasetform.plugin_v5:ExampleIDatasetFormPlugin',
         'example_idatasetform_v6 = ckanext.example_idatasetform.plugin_v6:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v7 = ckanext.example_idatasetform.plugin_v7:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
         'example_igroupform_v2 = ckanext.example_igroupform.plugin_v2:ExampleIGroupFormPlugin',
         'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
