@@ -57,7 +57,12 @@ def _setup_template_variables(context, data_dict, package_type=None):
 def _get_pkg_template(template_type, package_type=None):
     pkg_plugin = lookup_package_plugin(package_type)
     method = getattr(pkg_plugin, template_type)
-    return method()
+    if method.__code__.co_argcount == 1:
+        # method declared with the only argument `self`
+        return method()
+
+    options = {'package_type': package_type}
+    return method(options)
 
 
 def _encode_params(params):

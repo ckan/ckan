@@ -46,7 +46,12 @@ is_org = False
 def _get_group_template(template_type, group_type=None):
     group_plugin = lookup_group_plugin(group_type)
     method = getattr(group_plugin, template_type)
-    return method()
+    if method.__code__.co_argcount == 1:
+        # method declared with the only argument `self`
+        return method()
+
+    options = {'group_type': group_type}
+    return method(options)
 
 
 def _db_to_form_schema(group_type=None):
