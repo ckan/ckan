@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """drop continuity_id constraints
 
 Revision ID: 9fadda785b07
