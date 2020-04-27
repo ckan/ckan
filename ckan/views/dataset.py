@@ -53,7 +53,8 @@ def _setup_template_variables(context, data_dict, package_type=None):
 
 def _get_pkg_template(template_type, package_type=None):
     pkg_plugin = lookup_package_plugin(package_type)
-    return getattr(pkg_plugin, template_type)()
+    method = getattr(pkg_plugin, template_type)
+    return method()
 
 
 def _encode_params(params):

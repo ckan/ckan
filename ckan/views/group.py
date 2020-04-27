@@ -41,16 +41,10 @@ lookup_group_blueprint = lib_plugins.lookup_group_blueprints
 is_org = False
 
 
-def _index_template(group_type):
-    return lookup_group_plugin(group_type).index_template()
-
-
-def _group_form(group_type=None):
-    return lookup_group_plugin(group_type).group_form()
-
-
-def _form_to_db_schema(group_type=None):
-    return lookup_group_plugin(group_type).form_to_db_schema()
+def _get_group_template(template_type, group_type=None):
+    group_plugin = lookup_group_plugin(group_type)
+    method = getattr(group_plugin, template_type)
+    return method()
 
 
 def _db_to_form_schema(group_type=None):
@@ -64,38 +58,6 @@ def _setup_template_variables(context, data_dict, group_type=None):
         data_dict[u'type'] = group_type
     return lookup_group_plugin(group_type).\
         setup_template_variables(context, data_dict)
-
-
-def _new_template(group_type):
-    return lookup_group_plugin(group_type).new_template()
-
-
-def _about_template(group_type):
-    return lookup_group_plugin(group_type).about_template()
-
-
-def _read_template(group_type):
-    return lookup_group_plugin(group_type).read_template()
-
-
-def _history_template(group_type):
-    return lookup_group_plugin(group_type).history_template()
-
-
-def _edit_template(group_type):
-    return lookup_group_plugin(group_type).edit_template()
-
-
-def _activity_template(group_type):
-    return lookup_group_plugin(group_type).activity_template()
-
-
-def _admins_template(group_type):
-    return lookup_group_plugin(group_type).admins_template()
-
-
-def _bulk_process_template(group_type):
-    return lookup_group_plugin(group_type).bulk_process_template()
 
 
 def _replace_group_org(string):
@@ -211,7 +173,8 @@ def index(group_type, is_organization):
         h.flash_error(msg)
         extra_vars["page"] = h.Page([], 0)
         extra_vars["group_type"] = group_type
-        return base.render(_index_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template('index_template', group_type), extra_vars)
 
     data_dict_page_results = {
         u'all_fields': True,
@@ -237,7 +200,8 @@ def index(group_type, is_organization):
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
     g.page = extra_vars["page"]
-    return base.render(_index_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template('index_template', group_type), extra_vars)
 
 
 def _read(id, limit, group_type):
@@ -488,7 +452,8 @@ def read(group_type, is_organization, id=None, limit=20):
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
 
-    return base.render(_read_template(g.group_dict['type']), extra_vars)
+    return base.render(
+        _get_group_template('read_template', g.group_dict['type']), extra_vars)
 
 
 def activity(id, group_type, is_organization, offset=0):
@@ -531,7 +496,8 @@ def activity(id, group_type, is_organization, offset=0):
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
     extra_vars["id"] = id
-    return base.render(_activity_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template('activity_template', group_type), extra_vars)
 
 
 def about(id, group_type, is_organization):
@@ -551,7 +517,8 @@ def about(id, group_type, is_organization):
     extra_vars = {u"group_dict": group_dict,
                   u"group_type": group_type}
 
-    return base.render(_about_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template('about_template', group_type), extra_vars)
 
 
 def members(id, group_type, is_organization):
@@ -721,7 +688,8 @@ def admins(id, group_type, is_organization):
         u"admins": admins
     }
 
-    return base.render(_admins_template(group_dict['type']), extra_vars)
+    return base.render(
+        _get_group_template('admins_template', group_dict['type']), extra_vars)
 
 
 class BulkProcessView(MethodView):
@@ -775,7 +743,9 @@ class BulkProcessView(MethodView):
             u'group_type': group_type
         }
 
-        return base.render(_bulk_process_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template('bulk_process_template', group_type),
+            extra_vars)
 
     def post(self, id, group_type, is_organization, data=None):
         set_org(is_organization)
@@ -924,7 +894,7 @@ class CreateGroupView(MethodView):
         _setup_template_variables(
             context, data, group_type=group_type)
         form = base.render(
-            _group_form(group_type=group_type), extra_vars)
+            _get_group_template('group_form', group_type), extra_vars)
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -932,7 +902,8 @@ class CreateGroupView(MethodView):
         g.form = form
 
         extra_vars["form"] = form
-        return base.render(_new_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template('new_template', group_type), extra_vars)
 
 
 class EditGroupView(MethodView):
@@ -1010,7 +981,8 @@ class EditGroupView(MethodView):
         }
 
         _setup_template_variables(context, data, group_type=group_type)
-        form = base.render(_group_form(group_type), extra_vars)
+        form = base.render(
+            _get_group_template('group_form', group_type), extra_vars)
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -1022,7 +994,7 @@ class EditGroupView(MethodView):
 
         extra_vars["form"] = form
         return base.render(
-            _edit_template(group_type), extra_vars)
+            _get_group_template('edit_template', group_type), extra_vars)
 
 
 class DeleteGroupView(MethodView):
