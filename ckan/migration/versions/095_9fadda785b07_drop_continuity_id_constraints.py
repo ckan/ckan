@@ -11,8 +11,8 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = '9fadda785b07'
-down_revision = '588d7cfb9a41'
+revision = u'9fadda785b07'
+down_revision = u'588d7cfb9a41'
 branch_labels = None
 depends_on = None
 
@@ -28,14 +28,14 @@ def upgrade():
 
 def downgrade():
     op.create_foreign_key(
-        'member_revision_continuity_id_fkey', 'member_revision', 'member',
-        ['continuity_id'], ['id']
+        u'member_revision_continuity_id_fkey', u'member_revision', u'member',
+        [u'continuity_id'], [u'id']
     )
     op.create_foreign_key(
-        'resource_revision_continuity_id_fkey', 'resource_revision',
-        'resource', ['continuity_id'], ['id']
+        u'resource_revision_continuity_id_fkey', u'resource_revision',
+        u'resource', [u'continuity_id'], [u'id']
     )
     op.create_foreign_key(
-        'package_revision_continuity_id_fkey', 'package_revision',
-        'package', ['continuity_id'], ['id']
+        u'package_revision_continuity_id_fkey', u'package_revision',
+        u'package', [u'continuity_id'], [u'id']
     )
