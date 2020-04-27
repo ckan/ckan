@@ -449,7 +449,8 @@ def read(group_type, is_organization, id=None, limit=20):
     extra_vars["group_dict"] = group_dict
 
     return base.render(
-        _get_group_template(u'read_template', g.group_dict['type']), extra_vars)
+        _get_group_template(u'read_template', g.group_dict['type']),
+        extra_vars)
 
 
 def activity(id, group_type, is_organization, offset=0):
@@ -685,7 +686,8 @@ def admins(id, group_type, is_organization):
     }
 
     return base.render(
-        _get_group_template(u'admins_template', group_dict['type']), extra_vars)
+        _get_group_template(u'admins_template', group_dict['type']),
+        extra_vars)
 
 
 class BulkProcessView(MethodView):
