@@ -114,6 +114,8 @@ class _Toolkit(object):
         'mail_recipient',
         # Email a user
         'mail_user',
+        # Collection of signals
+        'signals',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -148,6 +150,7 @@ class _Toolkit(object):
         import ckan.lib.helpers as h
         import ckan.cli as cli
         import ckan.lib.plugins as lib_plugins
+        import ckan.lib.signals as signals
         import ckan.common as common
         from ckan.exceptions import (
             CkanVersionException,
@@ -164,6 +167,7 @@ class _Toolkit(object):
         # Allow class access to these modules
         self.__class__.ckan = ckan
         self.__class__.base = base
+        self.__class__.signals = signals
 
         t = self._toolkit
 

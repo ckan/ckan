@@ -155,6 +155,7 @@ entry_points = {
         'example_idatastorebackend = ckanext.example_idatastorebackend.plugin:ExampleIDatastoreBackendPlugin',
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
+        'example_isignal = ckanext.example_isignal.plugin:ExampleISignalPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

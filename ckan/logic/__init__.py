@@ -1,11 +1,12 @@
 # encoding: utf-8
 
+import inspect
 import functools
 import logging
 import re
 from collections import defaultdict
 
-from werkzeug.local import LocalProxy
+from werkzeug.utils import import_string
 import six
 from six import string_types, text_type
 
@@ -388,31 +389,29 @@ def get_action(action):
     if _actions:
         if action not in _actions:
             raise KeyError("Action '%s' not found" % action)
+        p.toolkit.signals.before_action.send(action)
         return _actions.get(action)
     # Otherwise look in all the plugins to resolve all possible
     # First get the default ones in the ckan/logic/action directory
-    # Rather than writing them out in full will use __import__
+    # Rather than writing them out in full will use import
     # to load anything from ckan.logic.action that looks like it might
     # be an action
     for action_module_name in ['get', 'create', 'update', 'delete', 'patch']:
         module_path = 'ckan.logic.action.' + action_module_name
-        module = __import__(module_path)
-        for part in module_path.split('.')[1:]:
-            module = getattr(module, part)
-        for k, v in module.__dict__.items():
-            if not k.startswith('_') and not isinstance(v, LocalProxy):
-                # Only load functions from the action module or already
-                # replaced functions.
-                if (hasattr(v, '__call__') and
-                        (v.__module__ == module_path or
-                         hasattr(v, '__replaced'))):
-                    _actions[k] = v
+        module = import_string(module_path)
+        for k, v in inspect.getmembers(module, inspect.isfunction):
+            if k.startswith('_'):
+                continue
+            # Only load functions from the action module or already
+            # replaced functions.
+            if (v.__module__ == module_path or hasattr(v, '__replaced')):
+                _actions[k] = v
 
-                    # Whitelist all actions defined in logic/action/get.py as
-                    # being side-effect free.
-                    if action_module_name == 'get' and \
-                       not hasattr(v, 'side_effect_free'):
-                        v.side_effect_free = True
+                # Whitelist all actions defined in logic/action/get.py as
+                # being side-effect free.
+                if action_module_name == 'get' and \
+                   not hasattr(v, 'side_effect_free'):
+                    v.side_effect_free = True
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
@@ -500,7 +499,7 @@ def get_action(action):
         if getattr(_action, 'side_effect_free', False):
             fn.side_effect_free = True
         _actions[action_name] = fn
-
+    p.toolkit.signals.before_action.send(action)
     return _actions.get(action)
 
 

@@ -40,6 +40,7 @@ __all__ = [
     u'IPermissionLabels',
     u'IForkObserver',
     u'IClick',
+    u'ISignal',
 ]
 
 
@@ -1860,3 +1861,57 @@ class IClick(Interface):
         :rtype: list of function objects
         '''
         return []
+
+
+class ISignal(Interface):
+    """Subscribe to CKAN signals.
+    """
+
+    def get_signal_subscriptions(self):
+        """Return a mapping of signals to their listeners.
+
+        Resulting dict must be composed of the signal as key and a
+        list of listeners(or dicts `{receiver,sender,weak}`, if
+        `sender` and `weak` arguments of `blinker.Signal.connect` also
+        require customization) as value. Each listener is a callable,
+        that accepts one mandatory argument(sender) and an arbitrary
+        number of named arguments(context). The most optimal signature
+        for the listener is `def(sender, **kwargs)` and one should use
+        it in most cases(unless you are 100% sure you need something
+        else).
+
+        Even though it possible to change mutable arguments inside the
+        listener, or return something from it, the original(and main)
+        purpose of signals - performing some side effects, like
+        logging, triggering of background jobs, calls to external
+        services. Any mutation or attempt to change CKAN behavior
+        through signals is very risky and may lead to numerous bugs in
+        the future. So, avoid mutations, unless documentation for
+        signal clearly specifies, that mutations/returns are highly
+        desired.
+
+        Also, always check the presence of the value inside context -
+        signals will change with time as surrounding code changes, so
+        some options may disappear.
+
+        Example::
+
+            p.implements(p.ISignal)
+
+            def get_signal_subscriptions(self):
+
+                def log_action(sender):
+                    log.info("Action call: %s" % action)
+
+                return {
+                    p.toolkit.signals.before_action: [log_action],
+                    p.toolkit.signals.before_action: [
+                        {'receiver': log_action, 'sender': 'help_show'}
+                    ]
+                }
+
+        :returns: mapping of subscriptions to signals
+        :rtype: dict
+
+        """
+        return {}
