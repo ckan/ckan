@@ -1904,8 +1904,8 @@ class ISignal(Interface):
                     log.info("Action call: %s" % action)
 
                 return {
-                    p.toolkit.signals.before_action: [log_action],
                     p.toolkit.signals.before_action: [
+                        log_action,
                         {'receiver': log_action, 'sender': 'help_show'}
                     ]
                 }
