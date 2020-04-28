@@ -14,12 +14,10 @@ from ckan.config.middleware import make_app
 from ckan.cli import (
     config_tool,
     jobs,
-    datapusher,
     front_end_build,
     db, search_index, server,
     profile,
     asset,
-    datastore,
     sysadmin,
     translation,
     dataset,
@@ -164,11 +162,9 @@ ckan.add_command(server.run)
 ckan.add_command(profile.profile)
 ckan.add_command(seed.seed)
 ckan.add_command(db.db)
-ckan.add_command(datapusher.datapusher)
 ckan.add_command(search_index.search_index)
 ckan.add_command(sysadmin.sysadmin)
 ckan.add_command(asset.asset)
-ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
 ckan.add_command(dataset.dataset)
 ckan.add_command(views.views)
