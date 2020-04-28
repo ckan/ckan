@@ -17,10 +17,8 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     def package_types(self):
         return [u'first', u'second']
 
-    def read_template(self, options):
-        return u'{}/read.html'.format(
-            options[u'package_type']
-        )
+    def read_template(self, package_type):
+        return u'{}/read.html'.format(package_type)
 
     def new_template(self):
         return [u'first/new.html', u'first/read.html']
