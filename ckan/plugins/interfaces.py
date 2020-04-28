@@ -1196,7 +1196,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def new_template(self):
+    def new_template(self, package_type):
         u'''Return the path to the template for the new dataset page.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1206,7 +1206,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def read_template(self):
+    def read_template(self, package_type):
         u'''Return the path to the template for the dataset read page.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1223,7 +1223,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def edit_template(self):
+    def edit_template(self, package_type):
         u'''Return the path to the template for the dataset edit page.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1233,7 +1233,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def search_template(self):
+    def search_template(self, package_type):
         u'''Return the path to the template for use in the dataset search page.
 
         This template is used to render each dataset that is listed in the
@@ -1246,14 +1246,14 @@ class IDatasetForm(Interface):
 
         '''
 
-    def history_template(self):
+    def history_template(self, package_type):
         u'''
         .. warning:: This template is removed. The function exists for
             compatibility. It now returns None.
 
         '''
 
-    def resource_template(self):
+    def resource_template(self, package_type):
         u'''Return the path to the template for the resource read page.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1263,7 +1263,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def package_form(self):
+    def package_form(self, package_type):
         u'''Return the path to the template for the dataset form.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1273,7 +1273,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def resource_form(self):
+    def resource_form(self, package_type):
         u'''Return the path to the template for the resource form.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1418,39 +1418,39 @@ class IGroupForm(Interface):
 
     # Hooks for customising the GroupController's behaviour          ##########
     # TODO: flesh out the docstrings a little more
-    def new_template(self):
+    def new_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the 'new' page. Uses the default_group_type configuration
         option to determine which plugin to use the template from.
         '''
 
-    def index_template(self):
+    def index_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the index page. Uses the default_group_type configuration
         option to determine which plugin to use the template from.
         '''
 
-    def read_template(self):
+    def read_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the read page
         '''
 
-    def history_template(self):
+    def history_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the history page
         '''
 
-    def edit_template(self):
+    def edit_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the edit page
         '''
 
-    def group_form(self):
+    def group_form(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered.  e.g. ``group/new_group_form.html``.
