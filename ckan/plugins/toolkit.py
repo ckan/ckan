@@ -114,8 +114,6 @@ class _Toolkit(object):
         'mail_recipient',
         # Email a user
         'mail_user',
-        # Collection of signals
-        'signals',
 
         # Fully defined in this file ##
         'add_template_directory',
