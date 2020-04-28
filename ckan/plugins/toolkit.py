@@ -114,6 +114,8 @@ class _Toolkit(object):
         'mail_recipient',
         # Email a user
         'mail_user',
+        # Collection of signals
+        'signals',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -165,7 +167,6 @@ class _Toolkit(object):
         # Allow class access to these modules
         self.__class__.ckan = ckan
         self.__class__.base = base
-        self.__class__.signals = signals
 
         t = self._toolkit
 
@@ -321,6 +322,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
+        t['signals'] = signals
 
         if six.PY2:
             t['response'] = pylons.response
