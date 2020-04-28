@@ -27,6 +27,7 @@ def x10(sender):
 
 class ExampleISignalPlugin(p.SingletonPlugin):
     p.implements(p.ISignal)
+    p.implements(p.ITemplateHelpers)
 
     # ISignal
 
@@ -35,6 +36,13 @@ class ExampleISignalPlugin(p.SingletonPlugin):
             p.toolkit.signals.before_action: [action_logger],
             p.toolkit.signals.ckanext.signal(u'isignal_number'): [
                 x2,
-                {'receiver': x10, 'sender': 10}
+                {u'receiver': x10, u'sender': 10}
             ]
+        }
+
+    # ITemplateHelpers
+
+    def get_helpers(self):
+        return {
+            u'isignal_action_logger': action_logger
         }

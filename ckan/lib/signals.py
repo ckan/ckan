@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from blinker import Namespace
 
 ckan = Namespace()

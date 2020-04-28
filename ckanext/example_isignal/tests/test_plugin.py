@@ -41,13 +41,13 @@ class TestISignalPlugin(object):
     def test_action_logger(self):
         """Listener can be a callable class.
         """
-        log = tk.h.action_logger
+        log = tk.h.isignal_action_logger
         log.reset()
         assert log.actions == []
-        tk.get_action('help_show')(None, {'action': 'help_show'})
-        assert log.actions == ['help_show']
+        tk.get_action('package_search')(None, {'q': '*:*'})
+        assert log.actions == ['package_search']
         tk.get_action('status_show')(None, {})
-        assert log.actions == ['help_show', 'status_show']
+        assert log.actions == ['package_search', 'status_show']
 
     def test_return_value(self):
         """Return values can be collected.
