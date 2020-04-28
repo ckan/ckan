@@ -913,15 +913,15 @@ class IActions(Interface):
         Should return a dict, the keys being the name of the logic
         function and the values being the functions themselves.
 
-        By decorating a function with the `ckan.logic.side_effect_free`
+        By decorating a function with the ``ckan.logic.side_effect_free``
         decorator, the associated action will be made available to a GET
         request (as well as the usual POST request) through the Action API.
 
-        By decorating a function with 'ckan.plugins.toolkit.chained_action`,
+        By decorating a function with ``ckan.plugins.toolkit.chained_action``,
         the action will 'intercept' calls to an existing action function. This
         allows a plugin to modify the behaviour of an existing action function.
         Chained actions must be defined as
-        `action_function(original_action, context, data_dict)`, where the
+        ``action_function(original_action, context, data_dict)``, where the
         function's name matches the original action function it intercepts, the
         first parameter is the action function it intercepts (in the next
         plugin or in core ckan). The chained action may call the
@@ -1021,8 +1021,8 @@ class IAuthFunctions(Interface):
                 # NotAuthorized will be raised before reaching this function.
 
         By decorating a registered auth function with the
-        'ckan.plugins.toolkit.chained_auth_function` decorator you can create a
-        chain of auth checks that are completed when auth is requested. This
+        ``ckan.plugins.toolkit.chained_auth_function`` decorator you can create
+        a chain of auth checks that are completed when auth is requested. This
         chain starts with the last chained auth function to be registered and
         ends with the original auth function (or a non-chained plugin override
         version). Chained auth functions must accept an extra parameter,

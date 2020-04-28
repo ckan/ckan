@@ -776,6 +776,21 @@ Controls whether the default search page (``/dataset``) should include
 private datasets visible to the current user or only public datasets
 visible to everyone.
 
+.. _ckan.search.default_package_sort:
+
+ckan.search.default_package_sort
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.default_package_sort = "name asc"
+
+Default value:  ``score desc, metadata_modified desc``
+
+Controls whether the default search page (``/dataset``) should different
+sorting parameter by default when the request does not specify sort.
+
+
 .. _search.facets.limit:
 
 search.facets.limit
@@ -1246,6 +1261,20 @@ Default Value: (empty)
 Defines a list of organization names or ids. This setting is used to display
 an organization and datasets on the home page in the default templates (1
 group and 2 datasets are displayed).
+
+.. _ckan.default_group_sort:
+
+ckan.default_group_sort
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.default_group_sort = name
+
+Default Value: 'title'
+
+Defines if some other sorting is used in group_list and organization_list
+by default when the request does not specify sort.
 
 .. _ckan.gravatar_default:
 

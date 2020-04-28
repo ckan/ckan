@@ -389,7 +389,7 @@ Action API reference
 
    If you call one of the action functions listed below and the function
    raises an exception, the API will return a JSON dictionary with keys
-   ``"success": false`` and and an ``"error"`` key indicating the exception
+   ``"success": false`` and an ``"error"`` key indicating the exception
    that was raised.
 
    For example :py:func:`~ckan.logic.action.get.member_list` (which returns a
