@@ -399,9 +399,6 @@ class UserController(base.BaseController):
         for item in p.PluginImplementations(p.IAuthenticator):
             item.login()
 
-        if 'error' in request.params:
-            h.flash_error(request.params['error'])
-
         if not c.user:
             came_from = request.params.get('came_from')
             if not came_from:
