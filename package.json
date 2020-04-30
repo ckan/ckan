@@ -15,7 +15,7 @@
     "moment": "^2.24.0"
   },
   "devDependencies": {
-    "cypress": "^4.0.1",
+    "cypress": "^4.5.0",
     "cypress-axe": "^0.8.1"
   },
   "scripts": {
