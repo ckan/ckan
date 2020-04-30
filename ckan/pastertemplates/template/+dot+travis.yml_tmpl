@@ -1,12 +1,6 @@
 language: python
-sudo: required
 
-# use an older trusty image, because the newer images cause build errors with
-# psycopg2 that comes with CKAN<2.8:
-#   "Error: could not determine PostgreSQL version from '10.1'"
-# see https://github.com/travis-ci/travis-ci/issues/8897
-dist: trusty
-group: deprecated-2017Q4
+dist: bionic
 
 # matrix
 python:
@@ -20,18 +14,18 @@ env:
 services:
   - postgresql
   - redis-server
-install:
-  - bash bin/travis-build.bash
-  - pip install coveralls
+install: bash bin/travis-build.bash
 script: sh bin/travis-run.sh
+before_install:
+    - pip install codecov
 after_success:
-  - coveralls
+  - codecov
 
 # additional jobs
 matrix:
   include:
     - name: "Flake8 on Python 3.7"
-      dist: xenial    # required for Python 3.7
+      dist: bionic
       cache: pip
       install: pip install flake8
       script:
