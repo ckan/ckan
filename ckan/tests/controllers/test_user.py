@@ -1,6 +1,7 @@
 # encoding: utf-8
 from bs4 import BeautifulSoup
 from nose.tools import assert_true, assert_false, assert_equal, assert_in
+import mock
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -8,7 +9,7 @@ import ckan.tests.helpers as helpers
 
 from ckan.lib.helpers import url_for
 from ckan import model
-from ckan.lib.mailer import create_reset_key
+from ckan.lib.mailer import create_reset_key, MailerException
 
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
@@ -689,3 +690,213 @@ class TestUserSearch(helpers.FunctionalTestBase):
         user_list = search_response_html.select('ul.user-list li')
         assert_equal(len(user_list), 1)
         assert_equal(user_list[0].text.strip(), 'User One')
+
+
+class TestActivity(helpers.FunctionalTestBase):
+    def test_simple(self):
+        '''Checking the template shows the activity stream.'''
+        app = self._get_test_app()
+        user = factories.User()
+
+        url = url_for('user.activity',
+                      id=user['id'])
+        response = app.get(url)
+        assert_in('Mr. Test User', response)
+        assert_in('signed up', response)
+
+    def test_create_user(self):
+        app = self._get_test_app()
+        user = factories.User()
+
+        url = url_for('user.activity',
+                      id=user['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('signed up', response)
+
+    def _clear_activities(self):
+        model.Session.query(model.ActivityDetail).delete()
+        model.Session.query(model.Activity).delete()
+        model.Session.flush()
+
+    def test_change_user(self):
+        app = self._get_test_app()
+        user = factories.User()
+        self._clear_activities()
+        user['fullname'] = 'Mr. Changed Name'
+        helpers.call_action(
+            'user_update', context={'user': user['name']}, **user)
+
+        url = url_for('user.activity',
+                      id=user['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Changed Name'.format(user['name']),
+                  response)
+        assert_in('updated their profile', response)
+
+    def test_create_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        self._clear_activities()
+        dataset = factories.Dataset(user=user)
+
+        url = url_for('user.activity',
+                      id=user['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('created the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+                  response)
+
+    def test_change_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        url = url_for('user.activity',
+                      id=user['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">Dataset with changed title'
+                  .format(dataset['name']),
+                  response)
+
+    def test_delete_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+
+        url = url_for('user.activity',
+                      id=user['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'
+                  .format(dataset['name']),
+                  response)
+
+    def test_create_group(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+
+        url = url_for('user.activity',
+                      id=user['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('created the group', response)
+        assert_in('<a href="/group/{}">Test Group'.format(
+                  group['name']), response)
+
+    def test_change_group(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        self._clear_activities()
+        group['title'] = 'Group with changed title'
+        helpers.call_action(
+            'group_update', context={'user': user['name']}, **group)
+
+        url = url_for('user.activity',
+                      id=user['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the group', response)
+        assert_in('<a href="/group/{}">Group with changed title'
+                  .format(group['name']), response)
+
+
+class TestUserResetRequest(helpers.FunctionalTestBase):
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_by_email(self, send_reset_link):
+        user = factories.User()
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        response = app.post(offset, params=dict(user=user['email']),
+                            status=302).follow()
+
+        assert_in('A reset link has been emailed to you', response)
+        assert_equal(send_reset_link.call_args[0][0].id, user['id'])
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_by_name(self, send_reset_link):
+        user = factories.User()
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        response = app.post(offset, params=dict(user=user['name']),
+                            status=302).follow()
+
+        assert_in('A reset link has been emailed to you', response)
+        assert_equal(send_reset_link.call_args[0][0].id, user['id'])
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_when_duplicate_emails(self, send_reset_link):
+        user_a = factories.User(email='me@example.com')
+        user_b = factories.User(email='me@example.com')
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        response = app.post(offset, params=dict(user='me@example.com'),
+                            status=302).follow()
+
+        assert_in('A reset link has been emailed to you', response)
+        emailed_users = [call[0][0].name
+                         for call in send_reset_link.call_args_list]
+        assert_equal(emailed_users, [user_a['name'], user_b['name']])
+
+    def test_request_reset_without_param(self):
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        response = app.post(offset).follow()
+
+        assert_in('Email is required', response)
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_for_unknown_username(self, send_reset_link):
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        response = app.post(offset, params=dict(user='unknown'),
+                            status=302).follow()
+
+        # doesn't reveal account does or doesn't exist
+        assert_in('A reset link has been emailed to you', response)
+        send_reset_link.assert_not_called()
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_for_unknown_email(self, send_reset_link):
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        response = app.post(offset, params=dict(user='unknown@example.com'),
+                            status=302).follow()
+
+        # doesn't reveal account does or doesn't exist
+        assert_in('A reset link has been emailed to you', response)
+        send_reset_link.assert_not_called()
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_but_mailer_not_configured(self, send_reset_link):
+        user = factories.User()
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        # This is the exception when the mailer is not configured:
+        send_reset_link.side_effect = MailerException(
+            'SMTP server could not be connected to: "localhost" '
+            '[Errno 111] Connection refused')
+        response = app.post(offset, params=dict(user=user['name']),
+                            status=302).follow()
+
+        assert_in('Error sending the email', response)

@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.module.BasicFormModule()', function () {
+describe.skip('ckan.module.BasicFormModule()', function () {
   var BasicFormModule = ckan.module.registry['basic-form'];
 
   beforeEach(function () {

@@ -24,8 +24,10 @@ class _Toolkit(object):
         '_',
         # i18n translation (plural form)
         'ungettext',
-        # template context
+        # template context (deprecated)
         'c',
+        # Flask global object
+        'g',
         # template helpers
         'h',
         # http request object
@@ -194,6 +196,8 @@ Mark a string to be localized as follows::
         t['c'] = common.c
         self.docstring_overrides['c'] = '''The Pylons template context object.
 
+[Deprecated]: Use ``toolkit.g`` instead.
+
 This object is used to pass request-specific information to different parts of
 the code in a thread-safe way (so that variables from different requests being
 executed at the same time don't get confused with each other).
@@ -203,6 +207,32 @@ available throughout the template and application code, and are local to the
 current request.
 
 '''
+
+        t['g'] = common.g
+        self.docstring_overrides['g'] = '''The Flask global object.
+
+This object is used to pass request-specific information to different parts of
+the code in a thread-safe way (so that variables from different requests being
+executed at the same time don't get confused with each other).
+
+Any attributes assigned to :py:attr:`~ckan.plugins.toolkit.g` are
+available throughout the template and application code, and are local to the
+current request (Note that ``g`` won't be available on templates rendered
+by old endpoints served by Pylons).
+
+It is a bad pattern to pass variables to the templates using the ``g`` object.
+Pass them explicitly from the view functions as ``extra_vars``, eg::
+
+    return toolkit.render(
+        'myext/package/read.html',
+        extra_vars={
+            u'some_var': some_value,
+            u'some_other_var': some_other_value,
+        }
+    )
+
+'''
+
         t['h'] = h.helper_functions
         t['request'] = common.request
         self.docstring_overrides['request'] = '''The Pylons request object.

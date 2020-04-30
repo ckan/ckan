@@ -124,6 +124,9 @@ def tag_list(context, data_dict):
 @logic.auth_read_safe
 def user_list(context, data_dict):
     # Users list is visible by default
+    if data_dict.get('email'):
+        # only sysadmins can specify the 'email' parameter
+        return {'success': False}
     if not asbool(config.get('ckan.auth.public_user_details', True)):
         return restrict_anon(context)
     else:
