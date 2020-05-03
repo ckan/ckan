@@ -386,7 +386,6 @@ def logged_in():
     if g.user:
         return me()
     else:
-        plugins.toolkit.signals.login_fail.send(request.environ['REMOTE_ADDR'])
         err = _(u'Login failed. Bad username or password.')
         h.flash_error(err)
         return login()
