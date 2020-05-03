@@ -389,7 +389,6 @@ def get_action(action):
     if _actions:
         if action not in _actions:
             raise KeyError("Action '%s' not found" % action)
-        p.toolkit.signals.before_action.send(action)
         return _actions.get(action)
     # Otherwise look in all the plugins to resolve all possible
     # First get the default ones in the ckan/logic/action directory
@@ -468,6 +467,8 @@ def get_action(action):
                 context['__auth_audit'].append((action_name, id(_action)))
 
                 # check_access(action_name, context, data_dict=None)
+                p.toolkit.signals.before_action.send(
+                    action_name, context=context, data_dict=data_dict)
                 result = _action(context, data_dict, **kw)
                 try:
                     audit = context['__auth_audit'][-1]
@@ -483,6 +484,7 @@ def get_action(action):
                         context['__auth_audit'].pop()
                 except IndexError:
                     pass
+                p.toolkit.signals.after_action.send(action_name, result=result)
                 return result
             return wrapped
 
@@ -499,7 +501,6 @@ def get_action(action):
         if getattr(_action, 'side_effect_free', False):
             fn.side_effect_free = True
         _actions[action_name] = fn
-    p.toolkit.signals.before_action.send(action)
     return _actions.get(action)
 
 
