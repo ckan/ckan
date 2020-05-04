@@ -140,6 +140,8 @@ jobs:
           path: ~/junit
       - <<: *start_test_server
       - <<: *run_front_tests
+      - store_artifacts:
+          path: ~/project/cypress/screenshots
 workflows:
   version: 2
   build_and_test:
