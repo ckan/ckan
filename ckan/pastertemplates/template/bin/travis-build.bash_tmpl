@@ -33,24 +33,7 @@ then
 fi
 
 python setup.py develop
-
-if (( $CKAN_MINOR_VERSION >= 9 )) && (( $PYTHON_MAJOR_VERSION == 2 ))
-then
-    pip install -r requirements-py2.txt
-else
-    if (( $CKAN_MINOR_VERSION <= 7 ))
-    then
-        sed -i -r 's/psycopg2==.*//g' requirements.txt
-    fi
-    pip install -r requirements.txt
-fi
-
-# Override psycopg version to avoid problems with Travis and Postgres 10
-if (( $CKAN_MINOR_VERSION <= 7 ))
-then
-    pip install --upgrade psycopg2==2.7.7
-fi
-
+pip install -r requirements.txt
 pip install -r dev-requirements.txt
 cd -
 
@@ -62,19 +45,9 @@ echo "Setting up Solr..."
 # Solr is multicore for tests on ckan master, but it's easier to run tests on
 # Travis single-core. See https://github.com/ckan/ckan/issues/2972
 sed -i -e 's/solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' ckan/test-core.ini
-
-# Fix solr-jetty starting issues https://stackoverflow.com/a/56007895
-sudo mkdir /etc/systemd/system/jetty9.service.d
-printf "[Service]\nReadWritePaths=/var/lib/solr" | sudo tee /etc/systemd/system/jetty9.service.d/solr.conf
-sed '16,21d' /etc/solr/solr-jetty.xml | sudo tee /etc/solr/solr-jetty.xml
-sudo systemctl daemon-reload
-
-printf "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_ARGS=\"jetty.http.port=8983\"\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty9
+printf "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
 sudo cp ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-sudo service jetty9 restart
-
-# Wait for jetty9 to start
-timeout 20 bash -c 'while [[ "$(curl -s -o /dev/null -I -w %{http_code} http://localhost:8983)" != "200" ]]; do sleep 2;done'
+sudo service jetty restart
 
 echo "Initialising the database..."
 cd ckan
