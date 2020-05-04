@@ -7672,7 +7672,7 @@ select[multiple].control-large input {
   position: relative;
   display: block;
   font-size: 11px;
-  color: #aaa;
+  color: #6e6e6e;
   line-height: 1.3;
   margin-top: 6px;
 }
@@ -7713,7 +7713,7 @@ form .control-medium .info-block.info-inline {
   margin-right: 15px;
 }
 .form-group .info-block a {
-  color: #aaa;
+  color: #6e6e6e;
   text-decoration: underline;
 }
 .form-inline input {
@@ -10845,7 +10845,7 @@ iframe {
   text-indent: -999em;
 }
 .empty {
-  color: #aaa;
+  color: #6e6e6e;
   font-style: italic;
 }
 .page-heading {
