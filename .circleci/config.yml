@@ -112,6 +112,8 @@ jobs:
           path: ~/junit
       - <<: *start_test_server
       - <<: *run_front_tests
+      - store_artifacts:
+          path: ~/project/cypress/screenshots
   test-python-3:
     docker:
       - image: python:3-stretch
