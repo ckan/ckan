@@ -61,3 +61,10 @@ class TestClassLevelConfig(object):
 
     def test_ckan_config_mark_second(self, ckan_config):
         assert ckan_config[u"some.new.config"] == u"exists"
+
+
+def test_make_resource(make_resource):
+    resource = make_resource(u"hello world", u"file.txt")
+    assert resource[u"url_type"] == u"upload"
+    assert resource[u"format"] == u"TXT"
+    assert resource[u"size"] == 11
