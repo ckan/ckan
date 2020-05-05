@@ -1050,7 +1050,7 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert upd_mimetype == "text/plain"
 
-    @helpers.change_config("ckan.mimetype_guess", "file_contents")
+    @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
     def test_mimetype_by_upload_by_file(self, make_resource):
         """The mimetype is guessed from an uploaded file by the contents inside
 
@@ -1073,7 +1073,7 @@ class TestResourceUpdate(object):
         """
 
         res_update = make_resource(
-            content, "update_test", "resource_update",
+            content, "update_test", action="resource_update",
             id=resource["id"], url="http://localhost")
 
         org_mimetype = resource.pop("mimetype")
@@ -1121,8 +1121,8 @@ class TestResourceUpdate(object):
         """
 
         res_update = make_resource(
-                content, "update_test.csv", "resource_update",
-                id=resource["id"], url="http://localhost")
+            content, "update_test.csv", action="resource_update",
+            id=resource["id"], url="http://localhost")
 
         org_mimetype = resource.pop("mimetype")
         upd_mimetype = res_update.pop("mimetype")
@@ -1181,8 +1181,8 @@ class TestResourceUpdate(object):
         dataset = factories.Dataset()
 
         resource = make_resource(
-                content, 'test.json',
-                package=dataset, url="http://localhost")
+            content, 'test.json',
+            package=dataset, url="http://localhost")
 
         content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1191,8 +1191,8 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         res_update = make_resource(
-                content,"update_test.csv", "resource_update",
-                id=resource["id"], url="http://localhost")
+            content, "update_test.csv", action="resource_update",
+            id=resource["id"], url="http://localhost")
 
         org_size = int(resource.pop("size"))  # 669 bytes
         upd_size = int(res_update.pop("size"))  # 358 bytes
