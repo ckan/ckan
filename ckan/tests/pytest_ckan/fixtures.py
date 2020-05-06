@@ -290,6 +290,7 @@ def make_resource(clean_db, ckan_config, monkeypatch, tmpdir):
         action = kwargs.pop(u"action", u"resource_create")
         test_file = six.BytesIO()
         test_file.write(six.ensure_binary(data))
+        test_file.seek(0)
         test_resource = FakeFileStorage(test_file, filename)
 
         params = {
