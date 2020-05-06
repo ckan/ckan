@@ -209,9 +209,6 @@ class CreateView(MethodView):
                 break
 
         if not data_provided and save_action != u"go-dataset-complete":
-            if save_action == u'go-dataset':
-                # go to final stage of adddataset
-                return h.redirect_to(u'{}.edit'.format(package_type), id=id)
             # see if we have added any resources
             try:
                 data_dict = get_action(u'package_show')(context, {u'id': id})

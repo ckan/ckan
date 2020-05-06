@@ -22,7 +22,7 @@ Example:
     {% if s1 != 'complete' %}
       <span class="highlight">{{ _('Create dataset') }}</span>
     {% else %}
-      <button class="highlight" name="save" value="go-dataset" type="submit">{{ _('Create dataset') }}</button>
+      <a href="{{ h.url_for('dataset.edit', id=pkg_name) }}" class="highlight">{{ _('Create dataset') }}</a>
     {% endif %}
   </li>
   <li class="last {{ s2 }}">

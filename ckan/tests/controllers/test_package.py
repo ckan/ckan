@@ -154,13 +154,10 @@ class TestPackageNew(object):
             "_ckan_phase": 1
         }, follow_redirects=False)
 
-        location = _get_location(response)
-        response = app.post(location, environ_overrides=user_env, data={
-            "id": "",
-            "save": "go-dataset"
-        }, follow_redirects=False)
-
-        assert '/dataset/edit/' in response.headers['location']
+        url = url_for("dataset.edit", id="previous-button-works")
+        response = app.get(url=url, environ_overrides=user_env)
+        # dataset-edit form is in response
+        assert 'id="dataset-edit"' in response
 
     def test_previous_button_populates_form(self, app, user_env):
         url = url_for("dataset.new")
@@ -170,13 +167,11 @@ class TestPackageNew(object):
             "_ckan_phase": 1
         }, follow_redirects=False)
 
-        location = _get_location(response)
-        response = app.post(location, environ_overrides=user_env, data={
-            "id": "",
-            "save": "go-dataset"
-        })
+        # edit package page response
+        url = url_for("dataset.edit", id="previous-button-populates-form")
+        pkg_response = app.get(url=url, environ_overrides=user_env)
 
-        assert 'name="title"' in response
+        assert 'name="title"' in pkg_response
         assert 'value="previous-button-populates-form"'
 
     def test_previous_next_maintains_draft_state(self, app, user_env):
@@ -187,13 +182,11 @@ class TestPackageNew(object):
             "_ckan_phase": 1
         }, follow_redirects=False)
 
-        location = _get_location(response)
-        response = app.post(location, environ_overrides=user_env, data={
-            "id": "",
-            "save": "go-dataset"
-        })
+        url = url_for("dataset.edit", id="previous-next-maintains-draft")
+        response = app.get(url=url, environ_overrides=user_env)
 
         pkg = model.Package.by_name(u"previous-next-maintains-draft")
+        assert 'value="previous-next-maintains-draft"'
         assert pkg.state == "draft"
 
     def test_dataset_edit_org_dropdown_visible_to_normal_user_with_orgs_available(

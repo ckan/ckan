@@ -102,15 +102,6 @@ class TestUrlsForCustomDatasetType(object):
         )
 
         res_form_url = url_for("fancy_type_resource.new", id=name)
-        resp = app.post(
-            res_form_url,
-            environ_overrides=env,
-            data={"id": "", "url": "", "save": "go-dataset", "_ckan_phase": 2},
-            follow_redirects=False,
-        )
-        assert resp.location == url_for(
-            "fancy_type.edit", id=name, _external=True
-        )
 
         resp = app.post(
             res_form_url,

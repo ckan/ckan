@@ -655,9 +655,6 @@ class PackageController(base.BaseController):
                     break
 
             if not data_provided and save_action != "go-dataset-complete":
-                if save_action == 'go-dataset':
-                    # go to final stage of adddataset
-                    h.redirect_to(controller='package', action='edit', id=id)
                 # see if we have added any resources
                 try:
                     data_dict = get_action('package_show')(context, {'id': id})
@@ -714,9 +711,6 @@ class PackageController(base.BaseController):
                     dict(context, allow_state_change=True),
                     dict(data_dict, state='active'))
                 h.redirect_to(controller='package', action='read', id=id)
-            elif save_action == 'go-dataset':
-                # go to first stage of add dataset
-                h.redirect_to(controller='package', action='edit', id=id)
             elif save_action == 'go-dataset-complete':
                 # go to first stage of add dataset
                 h.redirect_to(controller='package', action='read', id=id)
