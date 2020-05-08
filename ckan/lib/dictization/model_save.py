@@ -5,15 +5,17 @@ import uuid
 import logging
 
 from sqlalchemy.orm import class_mapper
+import six
 from six import string_types
 
 import ckan.lib.dictization as d
-import ckan.lib.helpers as h
 import ckan.authz as authz
 
 log = logging.getLogger(__name__)
 
+
 def resource_dict_save(res_dict, context):
+
     model = context["model"]
     session = context["session"]
 
@@ -30,33 +32,56 @@ def resource_dict_save(res_dict, context):
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
 
+    # Strip the full url for resources of type 'upload'
+    if res_dict.get('url') and res_dict.get('url_type') == u'upload':
+        res_dict['url'] = res_dict['url'].rsplit('/')[-1]
+
     # Resource extras not submitted will be removed from the existing extras
     # dict
     new_extras = {}
-    for key, value in res_dict.iteritems():
+    has_changed = False
+    for key, value in six.iteritems(res_dict):
         if isinstance(value, list):
             continue
         if key in ('extras', 'revision_timestamp', 'tracking_summary'):
             continue
         if key in fields:
             if isinstance(getattr(obj, key), datetime.datetime):
-                if getattr(obj, key).isoformat() == value:
+                if isinstance(value, string_types):
+                    db_value = getattr(obj, key).isoformat()
+                else:
+                    db_value = getattr(obj, key)
+                if  db_value == value:
                     continue
                 if key == 'last_modified' and not new:
                     obj.url_changed = True
             if key == 'url' and not new and obj.url != value:
                 obj.url_changed = True
+            if getattr(obj, key) != value:
+                has_changed = True
             setattr(obj, key, value)
         else:
             # resources save extras directly onto the object, instead
             # of in a separate extras field like packages and groups
             new_extras[key] = value
 
+    # Check changes in extra fields
+    if set(new_extras.keys()) != set(obj.extras.keys()):
+        has_changed = True
+    else:
+        for key, value in six.iteritems(new_extras):
+            if obj.extras.get(key) != value:
+                has_changed = True
+                break
+
+    if has_changed:
+        obj.metadata_modified = datetime.datetime.utcnow()
     obj.state = u'active'
     obj.extras = new_extras
 
     session.add(obj)
     return obj
+
 
 def package_resource_list_save(res_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
@@ -90,16 +115,14 @@ def package_resource_list_save(res_dicts, package, context):
         resource_list.append(resource)
 
 
-def package_extras_save(extra_dicts, obj, context):
+def package_extras_save(extra_dicts, pkg, context):
     allow_partial_update = context.get("allow_partial_update", False)
     if extra_dicts is None and allow_partial_update:
         return
 
-    model = context["model"]
     session = context["session"]
 
-    extras_list = obj.extras_list
-    old_extras = dict((extra.key, extra) for extra in extras_list)
+    old_extras = pkg._extras
 
     new_extras = {}
     for extra_dict in extra_dicts or []:
@@ -110,28 +133,22 @@ def package_extras_save(extra_dicts, obj, context):
             pass
         else:
             new_extras[extra_dict["key"]] = extra_dict["value"]
+
     #new
     for key in set(new_extras.keys()) - set(old_extras.keys()):
-        state = 'active'
-        extra = model.PackageExtra(state=state, key=key, value=new_extras[key])
-        session.add(extra)
-        extras_list.append(extra)
+        pkg.extras[key] = new_extras[key]
     #changed
     for key in set(new_extras.keys()) & set(old_extras.keys()):
         extra = old_extras[key]
-        if new_extras[key] == extra.value and extra.state != 'deleted':
+        if new_extras[key] == extra.value:
             continue
-        state = 'active'
         extra.value = new_extras[key]
-        extra.state = state
         session.add(extra)
     #deleted
     for key in set(old_extras.keys()) - set(new_extras.keys()):
         extra = old_extras[key]
-        if extra.state == 'deleted':
-            continue
-        state = 'deleted'
-        extra.state = state
+        session.delete(extra)
+
 
 def package_tag_list_save(tag_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
@@ -299,7 +316,7 @@ def package_dict_save(pkg_dict, context):
         objects = pkg_dict.get('relationships_as_object')
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
-    extras = package_extras_save(pkg_dict.get("extras"), pkg, context)
+    package_extras_save(pkg_dict.get("extras"), pkg, context)
 
     return pkg
 
@@ -417,7 +434,7 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
     package_ids.extend( pkgs_edited['added'] )
     if package_ids:
         session.commit()
-        map( rebuild, package_ids )
+        [rebuild(package_id) for package_id in package_ids]
 
     return group
 
@@ -448,7 +465,7 @@ def package_api_to_dict(api1_dict, context):
 
     dictized = {}
 
-    for key, value in api1_dict.iteritems():
+    for key, value in six.iteritems(api1_dict):
         new_value = value
         if key == 'tags':
             if isinstance(value, string_types):
@@ -463,7 +480,7 @@ def package_api_to_dict(api1_dict, context):
 
             new_value = []
 
-            for extras_key, extras_value in updated_extras.iteritems():
+            for extras_key, extras_value in six.iteritems(updated_extras):
                 new_value.append({"key": extras_key,
                                   "value": extras_value})
 
@@ -487,7 +504,7 @@ def group_api_to_dict(api1_dict, context):
 
     dictized = {}
 
-    for key, value in api1_dict.iteritems():
+    for key, value in six.iteritems(api1_dict):
         new_value = value
         if key == 'packages':
             new_value = [{"id": item} for item in value]
@@ -514,13 +531,12 @@ def activity_dict_save(activity_dict, context):
     session = context['session']
     user_id = activity_dict['user_id']
     object_id = activity_dict['object_id']
-    revision_id = activity_dict['revision_id']
     activity_type = activity_dict['activity_type']
-    if activity_dict.has_key('data'):
+    if 'data' in activity_dict:
         data = activity_dict['data']
     else:
         data = None
-    activity_obj = model.Activity(user_id, object_id, revision_id,
+    activity_obj = model.Activity(user_id, object_id,
             activity_type, data)
     session.add(activity_obj)
 
@@ -553,7 +569,7 @@ def vocabulary_dict_save(vocabulary_dict, context):
     vocabulary_obj = model.Vocabulary(vocabulary_name)
     session.add(vocabulary_obj)
 
-    if vocabulary_dict.has_key('tags'):
+    if 'tags' in vocabulary_dict:
         vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
             context)
 
@@ -566,10 +582,10 @@ def vocabulary_dict_update(vocabulary_dict, context):
 
     vocabulary_obj = model.vocabulary.Vocabulary.get(vocabulary_dict['id'])
 
-    if vocabulary_dict.has_key('name'):
+    if 'name' in vocabulary_dict:
         vocabulary_obj.name = vocabulary_dict['name']
 
-    if vocabulary_dict.has_key('tags'):
+    if 'tags' in vocabulary_dict:
         vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
             context)
 
@@ -599,7 +615,7 @@ def resource_view_dict_save(data_dict, context):
     if resource_view:
         data_dict['id'] = resource_view.id
     config = {}
-    for key, value in data_dict.iteritems():
+    for key, value in six.iteritems(data_dict):
         if key not in model.ResourceView.get_columns():
             config[key]  = value
     data_dict['config'] = config

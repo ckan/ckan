@@ -1,12 +1,14 @@
 # encoding: utf-8
 
 import logging
-import urlparse
 
+from six.moves.urllib.parse import urlparse
 from flask import Blueprint, make_response
+import six
 from six import text_type
-import webhelpers.feedgenerator
-from ckan.common import _, config, g, request, response
+from dateutil.tz import tzutc
+from feedgen.feed import FeedGenerator
+from ckan.common import _, config, g, request
 import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.model as model
@@ -49,21 +51,92 @@ def _package_search(data_dict):
 
 
 def _enclosure(pkg):
-    links = []
-    links.append({
-        u'href': h.url(u'api.action', logic_function=u'package_show',
-                       ver=3, id=pkg['id'], _external=True),
-        u'rel': u'',
-        u'length': text_type(len(json.dumps(pkg))),
-        u'type': u'application/json'})
-    return links
+    url = h.url_for(
+        u'api.action',
+        logic_function=u'package_show',
+        id=pkg['name'],
+        ver=3,
+        _external=True
+    )
+    enc = Enclosure(url)
+    enc.type = u'application/json'
+    enc.length = text_type(len(json.dumps(pkg)))
+    return enc
 
 
 def _set_extras(**kw):
     extras = []
-    for key, value in kw.iteritems():
+    for key, value in six.iteritems(kw):
         extras.append({key: value})
     return extras
+
+
+class Enclosure(text_type):
+    def __init__(self, url):
+        self.url = url
+        self.length = u'0'
+        self.mime_type = u'application/json'
+
+
+class CKANFeed(FeedGenerator):
+    def __init__(
+        self,
+        feed_title,
+        feed_link,
+        feed_description,
+        language,
+        author_name,
+        feed_guid,
+        feed_url,
+        previous_page,
+        next_page,
+        first_page,
+        last_page,
+    ):
+        super(CKANFeed, self).__init__()
+
+        self.title(feed_title)
+        self.link(href=feed_link, rel=u"alternate")
+        self.description(feed_description)
+        self.language(language)
+        self.author({u"name": author_name})
+        self.id(feed_guid)
+        self.link(href=feed_url, rel=u"self")
+        links = (
+            (u"prev", previous_page),
+            (u"next", next_page),
+            (u"first", first_page),
+            (u"last", last_page),
+        )
+        for rel, href in links:
+            if not href:
+                continue
+            self.link(href=href, rel=rel)
+
+    def writeString(self, encoding):
+        return self.atom_str(encoding=encoding)
+
+    def add_item(self, **kwargs):
+        entry = self.add_entry()
+        for key, value in kwargs.items():
+            if key in {u"published", u"updated"} and not value.tzinfo:
+                value = value.replace(tzinfo=tzutc())
+            elif key == u'unique_id':
+                key = u'id'
+            elif key == u'categories':
+                key = u'category'
+                value = [{u'term': t} for t in value]
+            elif key == u'link':
+                value = {u'href': value}
+            elif key == u'author_name':
+                key = u'author'
+                value = {u'name': value}
+            elif key == u'author_email':
+                key = u'author'
+                value = {u'email': value}
+
+            key = key.replace(u"field_", u"")
+            getattr(entry, key)(value)
 
 
 def output_feed(results, feed_title, feed_description, feed_link, feed_url,
@@ -72,13 +145,10 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         config.get(u'ckan.site_id', u'').strip()
 
     # TODO: language
-    feed_class = None
+    feed_class = CKANFeed
     for plugin in plugins.PluginImplementations(plugins.IFeed):
         if hasattr(plugin, u'get_feed_class'):
             feed_class = plugin.get_feed_class()
-
-    if not feed_class:
-        feed_class = _FixedAtom1Feed
 
     feed = feed_class(
         feed_title,
@@ -114,15 +184,8 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
             author_name=pkg.get(u'author', u''),
             author_email=pkg.get(u'author_email', u''),
-            categories=[t['name'] for t in pkg.get(u'tags', [])],
-            enclosure=webhelpers.feedgenerator.Enclosure(
-                h.url_for(
-                    u'api.action',
-                    logic_function=u'package_show',
-                    id=pkg['name'],
-                    ver=3,
-                    _external=True),
-                text_type(len(json.dumps(pkg))), u'application/json'),
+            categories=[t[u'name'] for t in pkg.get(u'tags', [])],
+            enclosure=_enclosure(pkg),
             **additional_fields)
 
     resp = make_response(feed.writeString(u'utf-8'), 200)
@@ -213,11 +276,11 @@ def group_or_organization(obj_dict, is_org):
         params,
         item_count=item_count,
         limit=data_dict['rows'],
-        controller=u'feed',
+        controller=u'feeds',
         action=group_type,
         id=obj_dict['name'])
     feed_url = _feed_url(
-        params, controller=u'feed', action=group_type, id=obj_dict['name'])
+        params, controller=u'feeds', action=group_type, id=obj_dict['name'])
     # site_title = SITE_TITLE
     if is_org:
         guid = _create_atom_id(
@@ -353,7 +416,7 @@ def _alternate_url(params, **kwargs):
     # view.  So provide an alternate link to the first page, regardless
     # of the page we're looking at in the feed.
     search_params.pop(u'page', None)
-    return _feed_url(search_params, controller=u'package', action=u'search')
+    return _feed_url(search_params, controller=u'dataset', action=u'search')
 
 
 def _feed_url(query, controller, action, **kwargs):
@@ -361,7 +424,7 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    for item in query.iteritems():
+    for item in six.iteritems(query):
         kwargs['query'] = item
     return h.url_for(controller=controller, action=action, **kwargs)
 
@@ -477,7 +540,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
         authority_name = config.get(u'ckan.feeds.authority_name', u'').strip()
         if not authority_name:
             site_url = config.get(u'ckan.site_url', u'').strip()
-            authority_name = urlparse.urlparse(site_url).netloc
+            authority_name = urlparse(site_url).netloc
 
     if not authority_name:
         log.warning(u'No authority_name available for feed generation.  '
@@ -498,78 +561,6 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
 
     tagging_entity = u','.join([authority_name, date_string])
     return u':'.join(['tag', tagging_entity, resource_path])
-
-
-class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
-    """
-    The Atom1Feed defined in webhelpers doesn't provide all the fields we
-    might want to publish.
-     * In Atom1Feed, each <entry> is created with identical <updated> and
-       <published> fields.  See [1] (webhelpers 1.2) for details.
-       So, this class fixes that by allow an item to set both an <updated> and
-       <published> field.
-     * In Atom1Feed, the feed description is not used.  So this class uses the
-       <subtitle> field to publish that.
-       [1] https://bitbucket.org/bbangert/webhelpers/src/f5867a319abf/\
-       webhelpers/feedgenerator.py#cl-373
-    """
-
-    def add_item(self, *args, **kwargs):
-        """
-        Drop the pubdate field from the new item.
-        """
-        if u'pubdate' in kwargs:
-            kwargs.pop(u'pubdate')
-        defaults = {u'updated': None, u'published': None}
-        defaults.update(kwargs)
-        super(_FixedAtom1Feed, self).add_item(*args, **defaults)
-
-    def latest_post_date(self):
-        """
-        Calculates the latest post date from the 'updated' fields,
-        rather than the 'pubdate' fields.
-        """
-        updates = [
-            item['updated'] for item in self.items
-            if item['updated'] is not None
-        ]
-        if not len(updates):  # delegate to parent for default behaviour
-            return super(_FixedAtom1Feed, self).latest_post_date()
-        return max(updates)
-
-    def add_item_elements(self, handler, item):
-        """
-        Add the <updated> and <published> fields to each entry that's written
-        to the handler.
-        """
-        super(_FixedAtom1Feed, self).add_item_elements(handler, item)
-
-        dfunc = webhelpers.feedgenerator.rfc3339_date
-
-        if (item['updated']):
-            handler.addQuickElement(u'updated',
-                                    dfunc(item['updated']).decode(u'utf-8'))
-
-        if (item['published']):
-            handler.addQuickElement(u'published',
-                                    dfunc(item['published']).decode(u'utf-8'))
-
-    def add_root_elements(self, handler):
-        """
-        Add additional feed fields.
-         * Add the <subtitle> field from the feed description
-         * Add links other pages of the logical feed.
-        """
-        super(_FixedAtom1Feed, self).add_root_elements(handler)
-
-        handler.addQuickElement(u'subtitle', self.feed['description'])
-
-        for page in [u'previous', u'next', u'first', u'last']:
-            if self.feed.get(page + u'_page', None):
-                handler.addQuickElement(u'link', u'', {
-                    u'rel': page,
-                    u'href': self.feed.get(page + u'_page')
-                })
 
 
 # Routing

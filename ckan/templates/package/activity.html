@@ -1,10 +1,12 @@
 {% extends "package/read_base.html" %}
 
-{% block subtitle %}{{ _('Activity Stream') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  <h1 class="hide-heading">{% block page_heading %}{{ _('Activity Stream') }}{% endblock %}</h1>
-  {% block activity_stream %}
-    {{ c.package_activity_stream | safe }}
-  {% endblock %}
+  <h1 class="hide-heading">
+    {% block page_heading %}
+      {{ _('Activity Stream') }}
+    {% endblock %}
+  </h1>
+  {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream, id=id, object_type='package' %}
 {% endblock %}

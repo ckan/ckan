@@ -2,7 +2,8 @@ this.ckan.module('recline_view', function (jQuery) {
   return {
     options: {
       site_url: "",
-      controlsClassName: "controls"
+      controlsClassName: "controls",
+      dataproxyUrl: "//jsonpdataproxy.appspot.com"
     },
 
     initialize: function () {
@@ -44,6 +45,9 @@ this.ckan.module('recline_view', function (jQuery) {
 
       if (!resourceData.datastore_active) {
           recline.Backend.DataProxy.timeout = 10000;
+
+          recline.Backend.DataProxy.dataproxy_url = this.options.dataproxyUrl;
+
           resourceData.backend =  'dataproxy';
       } else {
           resourceData.backend =  'ckan';
@@ -116,7 +120,7 @@ this.ckan.module('recline_view', function (jQuery) {
           state.lonField = reclineView.longitude_field;
         }
 
-        view = new recline.View.Map(this._reclineMapViewOptions(dataset, this.options.map_config));
+        view = new recline.View.Map($.extend(this._reclineMapViewOptions(dataset, this.options.map_config), {state:state}));
       } else if(reclineView.view_type === "recline_view") {
         view = this._newDataExplorer(dataset, this.options.map_config);
       } else {

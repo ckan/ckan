@@ -1,23 +1,28 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import logging
 import sys
 import cgitb
 import warnings
 import xml.dom.minidom
-import urllib2
 
-from paste.deploy.converters import asbool
+import requests
 
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
 
-from common import (SearchIndexError, SearchError, SearchQueryError,
-                    make_connection, is_available, SolrSettings)
-from index import PackageSearchIndex, NoopSearchIndex
-from query import (TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
-                   QueryOptions, convert_legacy_parameters_to_solr)
+from ckan.lib.search.common import (
+    SearchIndexError, SearchError, SearchQueryError,
+    make_connection, is_available, SolrSettings
+)
+from ckan.lib.search.index import PackageSearchIndex, NoopSearchIndex
+from ckan.lib.search.query import (
+    TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
+    QueryOptions, convert_legacy_parameters_to_solr
+)
+
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +36,7 @@ def text_traceback():
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -55,7 +60,8 @@ _QUERIES = {
     'package': PackageSearchQuery
 }
 
-SOLR_SCHEMA_FILE_OFFSET = '/admin/file/?file=schema.xml'
+SOLR_SCHEMA_FILE_OFFSET_MANAGED = '/schema?wt=schema.xml'
+SOLR_SCHEMA_FILE_OFFSET_CLASSIC = '/admin/file/?file=schema.xml'
 
 
 def _normalize_type(_type):
@@ -152,7 +158,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
         log.info('Indexing just package %r...', pkg_dict['name'])
         package_index.remove_dict(pkg_dict)
         package_index.insert_dict(pkg_dict)
-    elif package_ids:
+    elif package_ids is not None:
         for package_id in package_ids:
             pkg_dict = logic.get_action('package_show')(context,
                 {'id': package_id})
@@ -218,19 +224,18 @@ def check():
     log.debug("Checking packages search index...")
     pkgs_q = model.Session.query(model.Package).filter_by(
         state=model.State.ACTIVE)
-    pkgs = set([pkg.id for pkg in pkgs_q])
+    pkgs = {pkg.id for pkg in pkgs_q}
     indexed_pkgs = set(package_query.get_all_entity_ids(max_results=len(pkgs)))
     pkgs_not_indexed = pkgs - indexed_pkgs
     print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
         pkg = model.Session.query(model.Package).get(pkg_id)
-        print(pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name)
+        print((pkg.metadata_modified.strftime('%Y-%m-%d'), pkg.name))
 
 
 def show(package_reference):
     package_query = query_for(model.Package)
-
     return package_query.get_index(package_reference)
 
 
@@ -246,6 +251,23 @@ def clear_all():
     log.debug("Clearing search index...")
     package_index.clear()
 
+def _get_schema_from_solr(file_offset):
+    solr_url, solr_user, solr_password = SolrSettings.get()
+
+    http_auth = None
+    if solr_user is not None and solr_password is not None:
+        http_auth = solr_user + ':' + solr_password
+        http_auth = 'Basic ' + http_auth.encode('base64').strip()
+
+    url = solr_url.strip('/') + file_offset
+
+    if http_auth:
+        response = requests.get(
+            url, headers={'Authorization': http_auth})
+    else:
+        response = requests.get(url)
+
+    return response
 
 def check_solr_schema_version(schema_file=None):
     '''
@@ -253,10 +275,15 @@ def check_solr_schema_version(schema_file=None):
         with this CKAN version.
 
         The schema will be retrieved from the SOLR server, using the
-        offset defined in SOLR_SCHEMA_FILE_OFFSET
-        ('/admin/file/?file=schema.xml'). The schema_file parameter
-        allows to override this pointing to different schema file, but
-        it should only be used for testing purposes.
+        offset defined in SOLR_SCHEMA_FILE_OFFSET_MANAGED
+        ('/schema?wt=schema.xml'). If SOLR is set to use the manually
+        edited `schema.xml`, the schema will be retrieved from the SOLR
+        server using the offset defined in
+        SOLR_SCHEMA_FILE_OFFSET_CLASSIC ('/admin/file/?file=schema.xml').
+
+        The schema_file parameter allows to override this pointing to
+        different schema file, but it should only be used for testing
+        purposes.
 
         If the CKAN instance is configured to not use SOLR or the SOLR
         server is not available, the function will return False, as the
@@ -275,30 +302,26 @@ def check_solr_schema_version(schema_file=None):
 
     # Try to get the schema XML file to extract the version
     if not schema_file:
-        solr_url, solr_user, solr_password = SolrSettings.get()
-
-        http_auth = None
-        if solr_user is not None and solr_password is not None:
-            http_auth = solr_user + ':' + solr_password
-            http_auth = 'Basic ' + http_auth.encode('base64').strip()
-
-        url = solr_url.strip('/') + SOLR_SCHEMA_FILE_OFFSET
-
-        req = urllib2.Request(url=url)
-        if http_auth:
-            req.add_header('Authorization', http_auth)
-
-        res = urllib2.urlopen(req)
+        try:
+            # Try Managed Schema
+            res = _get_schema_from_solr(SOLR_SCHEMA_FILE_OFFSET_MANAGED)
+            res.raise_for_status()
+        except requests.HTTPError:
+            # Fallback to Manually Edited schema.xml
+            res = _get_schema_from_solr(SOLR_SCHEMA_FILE_OFFSET_CLASSIC)
+        schema_content = res.text
     else:
-        url = 'file://%s' % schema_file
-        res = urllib2.urlopen(url)
+        with open(schema_file, 'rb') as f:
+            schema_content = f.read()
 
-    tree = xml.dom.minidom.parseString(res.read())
+    tree = xml.dom.minidom.parseString(schema_content)
 
     version = tree.documentElement.getAttribute('version')
     if not len(version):
-        raise SearchError('Could not extract version info from the SOLR'
-                          ' schema, using file: \n%s' % url)
+        msg = 'Could not extract version info from the SOLR schema'
+        if schema_file:
+            msg += ', using file {}'.format(schema_file)
+        raise SearchError(msg)
 
     if not version in SUPPORTED_SCHEMA_VERSIONS:
         raise SearchError('SOLR schema version not supported: %s. Supported'

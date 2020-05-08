@@ -99,7 +99,7 @@
 
 .resource-item .btn-group {
     position: absolute;
-    top: 14px;
+    top: (@grid-gutter-width/2 - 6);
     right: 10px;
 }
 
@@ -338,3 +338,51 @@
 .resource-view {
     margin-top: 20px;
 }
+
+#activity-archive-notice {
+  clear: both;
+}
+
+/* diff styles */
+table.diff {
+  font-family:Courier;
+  border:medium;
+}
+.diff_header {
+  background-color:#e0e0e0;
+}
+td.diff_header {
+  text-align:right;
+}
+.diff_next {
+  background-color:#c0c0c0;
+}
+.diff_add {
+  background-color:#aaffaa;
+}
+.diff_chg {
+  background-color:#ffff77;
+}
+.diff_sub {
+  background-color:#ffaaaa;
+}
+// TRASH VIEW accordion
+// --------------------------------------------------
+.accordion-item {
+    background-color: @navActiveBackgroundColor;
+    cursor: pointer;
+    padding: 10px;
+    margin-bottom: 5px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    transition: 0.4s;
+    &:hover {
+      background-color: darken(@navActiveBackgroundColor, 10%);
+    }
+  }
+  .purge-all {
+    float: right;
+    margin-bottom: 15px;
+  }

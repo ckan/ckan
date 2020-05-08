@@ -11,23 +11,22 @@
 from collections import MutableMapping
 
 import flask
-import pylons
+import six
 
 from werkzeug.local import Local, LocalProxy
 
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
-from pylons.i18n import (ugettext as pylons_ugettext,
-                         ungettext as pylons_ungettext)
-
-from pylons import response
 
 import simplejson as json
 
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
+if six.PY2:
+    import pylons
+    from pylons.i18n import (ugettext as pylons_ugettext,
+                             ungettext as pylons_ungettext)
+    from pylons import response
+
+current_app = flask.current_app
 
 
 def is_flask_request():
@@ -35,6 +34,8 @@ def is_flask_request():
     A centralized way to determine whether we are in the context of a
     request being served by Flask or Pylons
     '''
+    if six.PY3:
+        return True
     try:
         pylons.request.environ
         pylons_request_available = True
@@ -65,10 +66,7 @@ def streaming_response(
 
 
 def ugettext(*args, **kwargs):
-    if is_flask_request():
-        return flask_ugettext(*args, **kwargs)
-    else:
-        return pylons_ugettext(*args, **kwargs)
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext
@@ -118,12 +116,14 @@ class CKANConfig(MutableMapping):
             flask.current_app.config.clear()
         except RuntimeError:
             pass
-        try:
-            pylons.config.clear()
-            # Pylons set this default itself
-            pylons.config[u'lang'] = None
-        except TypeError:
-            pass
+
+        if six.PY2:
+            try:
+                pylons.config.clear()
+                # Pylons set this default itself
+                pylons.config[u'lang'] = None
+            except TypeError:
+                pass
 
     def __setitem__(self, key, value):
         self.store[key] = value
@@ -131,10 +131,12 @@ class CKANConfig(MutableMapping):
             flask.current_app.config[key] = value
         except RuntimeError:
             pass
-        try:
-            pylons.config[key] = value
-        except TypeError:
-            pass
+
+        if six.PY2:
+            try:
+                pylons.config[key] = value
+            except TypeError:
+                pass
 
     def __delitem__(self, key):
         del self.store[key]
@@ -142,10 +144,12 @@ class CKANConfig(MutableMapping):
             del flask.current_app.config[key]
         except RuntimeError:
             pass
-        try:
-            del pylons.config[key]
-        except TypeError:
-            pass
+
+        if six.PY2:
+            try:
+                del pylons.config[key]
+            except TypeError:
+                pass
 
 
 def _get_request():
@@ -206,3 +210,39 @@ request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
 g = c = LocalProxy(_get_c)
 session = LocalProxy(_get_session)
+
+truthy = frozenset([u'true', u'yes', u'on', u'y', u't', u'1'])
+falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
+
+
+def asbool(obj):
+    if isinstance(obj, six.string_types):
+        obj = obj.strip().lower()
+        if obj in truthy:
+            return True
+        elif obj in falsy:
+            return False
+        else:
+            raise ValueError(u"String is not true/false: {}".format(obj))
+    return bool(obj)
+
+
+def asint(obj):
+    try:
+        return int(obj)
+    except (TypeError, ValueError):
+        raise ValueError(u"Bad integer value: {}".format(obj))
+
+
+def aslist(obj, sep=None, strip=True):
+    if isinstance(obj, six.string_types):
+        lst = obj.split(sep)
+        if strip:
+            lst = [v.strip() for v in lst]
+        return lst
+    elif isinstance(obj, (list, tuple)):
+        return obj
+    elif obj is None:
+        return []
+    else:
+        return [obj]

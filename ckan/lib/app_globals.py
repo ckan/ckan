@@ -3,16 +3,14 @@
 ''' The application's Globals object '''
 
 import logging
-import time
 from threading import Lock
 import re
-
-from paste.deploy.converters import asbool
+import six
+from ckan.common import asbool
 from ckan.common import config
 
 import ckan
 import ckan.model as model
-import ckan.logic as logic
 from logic.schema import update_configuration_schema
 
 
@@ -42,13 +40,11 @@ app_globals_from_config_details = {
         # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
-    'ckan.recaptcha.version': {'name': 'recaptcha_version', 'default': '1'},
-    'ckan.template_title_deliminater': {'default': '-'},
+    'ckan.template_title_delimiter': {'default': '-'},
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
     'ckan.dumps_url': {},
     'ckan.dumps_format': {},
-    'ofs.impl': {'name': 'ofs_impl'},
     'ckan.homepage_style': {'default': '1'},
 
     # split string
@@ -141,9 +137,9 @@ def reset():
             value = None
         config_value = config.get(key)
         # sort encodeings if needed
-        if isinstance(config_value, str):
+        if isinstance(config_value, str) and six.PY2:
             try:
-                config_value = config_value.decode('utf-8')
+                config_value = six.ensure_text(config_value)
             except UnicodeDecodeError:
                 config_value = config_value.decode('latin-1')
         # we want to store the config the first time we get here so we can
@@ -212,7 +208,7 @@ class _Globals(object):
         self.ckan_version = ckan.__version__
         self.ckan_base_version = re.sub('[^0-9\.]', '', self.ckan_version)
         if self.ckan_base_version == self.ckan_version:
-            self.ckan_doc_version = 'ckan-{0}'.format(self.ckan_version)
+            self.ckan_doc_version = self.ckan_version[:3]
         else:
             self.ckan_doc_version = 'latest'
 

@@ -213,16 +213,13 @@ Any of the following objects may be used as validators as part
 of a custom dataset, group or organization schema. CKAN's validation
 code will check for and attempt to use them in this order:
 
-1. a `formencode Validator class <http://www.formencode.org/en/latest/Validator.html>`_ (not discussed)
 
-2. a formencode Validator instance (not discussed)
+1. a callable object taking a single parameter: ``validator(value)``
 
-3. a callable object taking a single parameter: ``validator(value)``
-
-4. a callable object taking four parameters:
+2. a callable object taking four parameters:
    ``validator(key, flattened_data, errors, context)``
 
-5. a callable object taking two parameters
+3. a callable object taking two parameters
    ``validator(value, context)``
 
 
@@ -302,6 +299,11 @@ special schema fields ``'__before'`` or ``'__after'`` to have them
 run before or after all the other validation takes place to avoid
 the problem of working with partially-validated data.
 
+The validator has to be registered. Example:
+
+.. literalinclude:: ../../ckanext/example_ivalidators/plugin.py
+    :start-after: from ckan.plugins.toolkit import Invalid
+    :end-before: def equals_fortytwo(value):
 
 Tag vocabularies
 ----------------
@@ -399,6 +401,13 @@ similarly
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin.py
     :pyobject: ExampleIDatasetFormPlugin.show_package_schema
     :emphasize-lines: 20-23
+
+Add the code below to ``package/snippets/resource_form.html``
+
+.. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/resource_form.html
+    :language: jinja
+
+This adds our custom_resource_text to the editing form of the resources.
 
 Save and reload your development server CKAN will take any additional keys from
 the resource schema and save them the its extras field.  The templates will

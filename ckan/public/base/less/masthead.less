@@ -113,14 +113,17 @@
             white-space: nowrap;
         }
     }
+    .logo{
+      display: inline-block;
+      img{
+        max-height: @logoMaxHeight;
+      }
+    }
     .navbar-collapse {
         padding: @grid-gutter-width/3 0;
     }
     .section {
         float: left;
-    }
-    input[type="text"] {
-        border-color: darken(@mastheadBackgroundColor, 5);
     }
     .navigation {
         &.section {

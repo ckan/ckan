@@ -1,13 +1,13 @@
 {% extends "group/edit_base.html" %}
 
-{% block subtitle %}{{ _('Members') }} - {{ c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
+{% block subtitle %}{{ _('Members') }} {{ g.template_title_delimiter }} {{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ _('Groups') }}{% endblock %}
 
 {% block page_primary_action %}
-  {% link_for _('Add Member'), controller='group', action='member_new', id=c.group_dict.id, class_='btn btn-primary', icon='plus-square', named_route=group_type + '_member_new' %}
+  {% link_for _('Add Member'), named_route=group_type+'.member_new', id=group_dict.id, class_='btn btn-primary', icon='plus-square' %}
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h3 class="page-heading">{{ _('{0} members'.format(c.members|length)) }}</h3>
+  <h3 class="page-heading">{{ _('{0} members'.format(members|length)) }}</h3>
   <table class="table table-header table-hover table-bordered" id="member-table">
     <thead>
       <tr>
@@ -17,7 +17,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for user_id, user, role in c.members %}
+      {% for user_id, user, role in members %}
       <tr>
         <td class="media">
           {{ h.linked_user(user_id, maxlength=20) }}
@@ -25,10 +25,10 @@
         <td>{{ role }}</td>
         <td>
           <div class="btn-group pull-right">
-            <a class="btn btn-default btn-sm" href="{{ h.url_for(group_type + '_member_new', id=c.group_dict.id, user=user_id) }}" title="{{ _('Edit') }}">
+            <a class="btn btn-default btn-sm" href="{{ h.url_for(group_type + '.member_new', id=group_dict.id, user=user_id) }}" title="{{ _('Edit') }}">
               <i class="fa fa-wrench"></i>
             </a>
-            <a class="btn btn-danger btn-sm" href="{{ h.url_for(group_type + '_member_delete', id=c.group_dict.id, user=user_id) }}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this member?') }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="fa fa-times"></i>{% endblock %}</a>
+            <a class="btn btn-danger btn-sm" href="{{ h.url_for(group_type + '.member_delete', id=group_dict.id, user=user_id) }}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this member?') }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="fa fa-times"></i>{% endblock %}</a>
           </div>
         </td>
       </tr>

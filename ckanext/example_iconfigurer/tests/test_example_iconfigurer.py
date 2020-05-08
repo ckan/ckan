@@ -1,84 +1,95 @@
 # encoding: utf-8
 
-from nose import tools as nosetools
+import six
+import pytest
 
 import ckan.tests.helpers as helpers
 import ckan.plugins as plugins
 
 
-class TestExampleIConfigurer(helpers.FunctionalTestBase):
+@pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestExampleIConfigurer(object):
+    def test_template_renders(self, app):
+        """Our controller renders the extension's config template."""
+        response = app.get("/ckan-admin/myext_config_one")
+        assert response.status_code == 200
+        assert helpers.body_contains(response, "My First Config Page")
 
-    @classmethod
-    def setup_class(cls):
-        super(TestExampleIConfigurer, cls).setup_class()
-        plugins.load('example_iconfigurer')
-
-    @classmethod
-    def teardown_class(cls):
-        plugins.unload('example_iconfigurer')
-        super(TestExampleIConfigurer, cls).teardown_class()
-
-    def test_template_renders(self):
-        '''Our controller renders the extension's config template.'''
-        app = self._get_test_app()
-        response = app.get('/ckan-admin/myext_config_one', status=200)
-        nosetools.assert_true('My First Config Page' in response)
-
-    def test_config_page_has_custom_tabs(self):
-        '''
+    def test_config_page_has_custom_tabs(self, app):
+        """
         The admin base template should include our custom ckan-admin tabs
         added using the toolkit.add_ckan_admin_tab method.
-        '''
-        app = self._get_test_app()
-        response = app.get('/ckan-admin/myext_config_one', status=200)
+        """
+        response = app.get("/ckan-admin/myext_config_one", status=200)
+        assert response.status_code == 200
         # The label text
-        nosetools.assert_true('My First Custom Config Tab' in response)
-        nosetools.assert_true('My Second Custom Config Tab' in response)
+        assert helpers.body_contains(response, "My First Custom Config Tab")
+        assert helpers.body_contains(response, "My Second Custom Config Tab")
         # The link path
-        nosetools.assert_true('/ckan-admin/myext_config_one' in response)
-        nosetools.assert_true('/ckan-admin/myext_config_two' in response)
+        assert helpers.body_contains(response, "/ckan-admin/myext_config_one")
+        assert helpers.body_contains(response, "/ckan-admin/myext_config_two")
 
 
-class TestExampleIConfigurerBuildExtraAdminTabsHelper(helpers.FunctionalTestBase):
-
+@pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
     """Tests for helpers.build_extra_admin_nav method."""
 
-    @classmethod
-    def setup_class(cls):
-        super(TestExampleIConfigurerBuildExtraAdminTabsHelper, cls).setup_class()
-        plugins.load('example_iconfigurer')
-
-    @classmethod
-    def teardown_class(cls):
-        plugins.unload('example_iconfigurer')
-        super(TestExampleIConfigurerBuildExtraAdminTabsHelper, cls).teardown_class()
-
-    @helpers.change_config('ckan.admin_tabs', {})
-    def test_build_extra_admin_nav_config_option_present_but_empty(self):
-        '''
+    def test_build_extra_admin_nav_config_option_present_but_empty(
+        self, app, ckan_config, monkeypatch
+    ):
+        """
         Empty string returned when ckan.admin_tabs option in config but empty.
-        '''
-        app = self._get_test_app()
+        """
+        monkeypatch.setitem(ckan_config, "ckan.admin_tabs", {})
         expected = ""
-        response = app.get('/build_extra_admin_nav')
-        nosetools.assert_equal(response.body, expected)
+        response = app.get("/build_extra_admin_nav")
+        assert six.ensure_text(response.data) == expected
 
-    @helpers.change_config('ckan.admin_tabs', {'ckanext_myext_config_one': 'My Label'})
-    def test_build_extra_admin_nav_one_value_in_config(self):
-        '''
+    def test_build_extra_admin_nav_one_value_in_config(
+        self, app, ckan_config, monkeypatch
+    ):
+        """
         Correct string returned when ckan.admin_tabs option has single value in config.
-        '''
-        app = self._get_test_app()
-        expected = """<li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li>"""
-        response = app.get('/build_extra_admin_nav')
-        nosetools.assert_equal(response.body, expected)
+        """
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.admin_tabs",
+            {
+                "example_iconfigurer.config_one": {
+                    "label": "My Label",
+                    "icon": None,
+                }
+            },
+        )
+        expected = (
+            """<li><a href="/ckan-admin/myext_config_one">My Label</a></li>"""
+        )
 
-    @helpers.change_config('ckan.admin_tabs', {'ckanext_myext_config_one': 'My Label', 'ckanext_myext_config_two': 'My Other Label'})
-    def test_build_extra_admin_nav_two_values_in_config(self):
-        '''
+        response = app.get("/build_extra_admin_nav")
+        assert six.ensure_text(response.data) == expected
+
+    def test_build_extra_admin_nav_two_values_in_config(
+        self, app, ckan_config, monkeypatch
+    ):
+        """
         Correct string returned when ckan.admin_tabs option has two values in config.
-        '''
-        app = self._get_test_app()
-        expected = """<li><a href="/ckan-admin/myext_config_two"><i class="fa fa-picture-o"></i> My Other Label</a></li><li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li>"""
-        response = app.get('/build_extra_admin_nav')
-        nosetools.assert_equal(response.body, expected)
+        """
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.admin_tabs",
+            {
+                "example_iconfigurer.config_one": {
+                    "label": "My Label",
+                    "icon": "picture-o",
+                },
+                "example_iconfigurer.config_two": {
+                    "label": "My Other Label",
+                    "icon": None,
+                },
+            },
+        )
+        expected = """<li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li><li><a href="/ckan-admin/myext_config_two">My Other Label</a></li>"""
+        response = app.get("/build_extra_admin_nav")
+        assert six.ensure_text(response.data) == expected

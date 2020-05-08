@@ -3,32 +3,29 @@
 import datetime
 
 from six import text_type
-from sqlalchemy.util import OrderedDict
+from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-import vdm.sqlalchemy
-import vdm.sqlalchemy.stateful
-from sqlalchemy import types, func, Column, Table, ForeignKey, and_
+from sqlalchemy import types, func, Column, Table, ForeignKey
 
-import meta
-import core
-import package as _package
-import types as _types
-import extension
-import activity
-import domain_object
+from ckan.model import (
+    meta,
+    core,
+    types as _types,
+    extension,
+    domain_object,
+)
 import ckan.lib.dictization
 from .package import Package
 import ckan.model
 
-__all__ = ['Resource', 'resource_table',
-           'ResourceRevision', 'resource_revision_table',
-           ]
+__all__ = ['Resource', 'resource_table']
 
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
-                         'size', 'created', 'last_modified', 'cache_url',
+                         'size', 'created', 'last_modified',
+                         'metadata_modified', 'cache_url',
                          'cache_last_updated', 'url_type']
 
 ##formally package_resource
@@ -51,18 +48,16 @@ resource_table = Table(
     Column('size', types.BigInteger),
     Column('created', types.DateTime, default=datetime.datetime.utcnow),
     Column('last_modified', types.DateTime),
+    Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
     Column('cache_url', types.UnicodeText),
     Column('cache_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-vdm.sqlalchemy.make_table_stateful(resource_table)
-resource_revision_table = core.make_revisioned_table(resource_table)
 
-
-class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
-               vdm.sqlalchemy.StatefulObjectMixin,
+class Resource(core.StatefulObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
 
@@ -158,23 +153,6 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     def related_packages(self):
         return [self.package]
 
-    def activity_stream_detail(self, activity_id, activity_type):
-        import ckan.model as model
-
-        # Handle 'deleted' resources.
-        # When the user marks a resource as deleted this comes through here as
-        # a 'changed' resource activity. We detect this and change it to a
-        # 'deleted' activity.
-        if activity_type == 'changed' and self.state == u'deleted':
-            activity_type = 'deleted'
-
-        res_dict = ckan.lib.dictization.table_dictize(self,
-                                                      context={'model': model})
-        return activity.ActivityDetail(activity_id, self.id, u"Resource",
-                                       activity_type,
-                                       {'resource': res_dict})
-
-
 
 ## Mappers
 
@@ -190,21 +168,8 @@ meta.mapper(Resource, resource_table, properties={
                             ),
     )
 },
-extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
-           extension.PluginMapperExtension(),
-           ],
+extension=[extension.PluginMapperExtension()],
 )
-
-
-## VDM
-
-vdm.sqlalchemy.modify_base_object_mapper(Resource, core.Revision, core.State)
-ResourceRevision = vdm.sqlalchemy.create_object_version(
-    meta.mapper, Resource, resource_revision_table)
-
-ResourceRevision.related_packages = lambda self: [
-    self.continuity.resouce_group.package
-]
 
 
 def resource_identifier(obj):

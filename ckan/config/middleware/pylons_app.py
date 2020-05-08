@@ -9,7 +9,7 @@ from beaker.middleware import CacheMiddleware, SessionMiddleware
 from paste.cascade import Cascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from paste.fileapp import _FileIter
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from routes.middleware import RoutesMiddleware
@@ -75,6 +75,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
                                     cleanup_pylons_response_string)
 
     # Fanstatic
+    fanstatic_enable_rollup = asbool(
+        conf.get('fanstatic_enable_rollup', False))
     if asbool(config.get('debug', False)):
         fanstatic_config = {
             'versioning': True,
@@ -82,6 +84,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
             'minified': False,
             'bottom': True,
             'bundle': False,
+            'rollup': fanstatic_enable_rollup,
         }
     else:
         fanstatic_config = {
@@ -90,6 +93,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
             'minified': True,
             'bottom': True,
             'bundle': True,
+            'rollup': fanstatic_enable_rollup,
         }
     root_path = config.get('ckan.root_path', None)
     if root_path:
@@ -118,7 +122,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
 
     # Initialize repoze.who
     who_parser = WhoConfig(conf['here'])
-    who_parser.parse(open(app_conf['who.config_file']))
+    who_parser.parse(open(conf['who.config_file']))
 
     app = PluggableAuthenticationMiddleware(
         app,
@@ -134,10 +138,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     )
 
     # Establish the Registry for this application
-    # The RegistryManager includes code to pop
-    # registry values after the stream has completed,
-    # so we need to prevent this with `streaming` set to True.
-    app = RegistryManager(app, streaming=True)
+    app = RegistryManager(app, streaming=False)
 
     if asbool(static_files):
         # Serve static files
@@ -263,7 +264,7 @@ def execute_on_completion(application, config, callback):
     def inner(environ, start_response):
         try:
             result = application(environ, start_response)
-        except:
+        except Exception:
             callback(environ)
             raise
         # paste.fileapp converts non-file responses into list

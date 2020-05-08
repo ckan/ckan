@@ -3,7 +3,7 @@
 import logging
 
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import text_type
 
 import ckan.lib.base as base
@@ -179,7 +179,7 @@ class UserController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to create a user'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context)
 
         if c.user and not data and not authz.is_sysadmin(c.user):
@@ -293,7 +293,7 @@ class UserController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to edit a user.'))
 
-        if (context['save']) and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context)
 
         try:
@@ -497,7 +497,7 @@ class UserController(base.BaseController):
                     mailer.send_reset_link(user_obj)
                     h.flash_success(_('Please check your inbox for '
                                     'a reset code.'))
-                    h.redirect_to('/')
+                    h.redirect_to(u'home.index')
                 except mailer.MailerException as e:
                     h.flash_error(_('Could not send reset link: %s') %
                                   text_type(e))
@@ -542,7 +542,7 @@ class UserController(base.BaseController):
                 mailer.create_reset_key(user_obj)
 
                 h.flash_success(_("Your password has been reset."))
-                h.redirect_to('/')
+                h.redirect_to(u'home.index')
             except NotAuthorized:
                 h.flash_error(_('Unauthorized to edit user %s') % id)
             except NotFound as e:

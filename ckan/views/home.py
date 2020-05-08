@@ -10,6 +10,9 @@ import ckan.lib.helpers as h
 
 from ckan.common import g, config, _
 
+CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
+
+
 home = Blueprint(u'home', __name__)
 
 
@@ -18,9 +21,9 @@ def before_request():
     u'''set context and check authorization'''
     try:
         context = {
-                u'model': model,
-                u'user': g.user,
-                u'auth_user_obj': g.userobj}
+            u'model': model,
+            u'user': g.user,
+            u'auth_user_obj': g.userobj}
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
         abort(403)
@@ -34,7 +37,7 @@ def index():
         data_dict = {u'q': u'*:*',
                      u'facet.field': h.facets(),
                      u'rows': 4,
-                     u'start': 4,
+                     u'start': 0,
                      u'sort': u'view_recent desc',
                      u'fq': u'capacity:"public"'}
         query = logic.get_action(u'package_search')(context, data_dict)

@@ -70,15 +70,21 @@ _MONTH_FUNCTIONS = [_month_jan, _month_feb, _month_mar, _month_apr,
                    _month_sept, _month_oct, _month_nov, _month_dec]
 
 
-def localised_nice_date(datetime_, show_date=False, with_hours=False):
+def localised_nice_date(datetime_, show_date=False, with_hours=False,
+                        with_seconds=False):
     ''' Returns a friendly localised unicode representation of a datetime.
+    e.g. '31 minutes ago'
+         '1 day ago'
+         'April 24, 2013'  (show_date=True)
 
     :param datetime_: The date to format
     :type datetime_: datetime
-    :param show_date: Show date not 2 days ago etc
+    :param show_date: Show 'April 24, 2013' instead of '2 days ago'
     :type show_date: bool
     :param with_hours: should the `hours:mins` be shown for dates
     :type with_hours: bool
+    :param with_seconds: should the `hours:mins:seconds` be shown for dates
+    :type with_seconds: bool
 
     :rtype: sting
     '''
@@ -114,10 +120,10 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
                     return _('Just now')
                 else:
                     return ungettext('{mins} minute ago', '{mins} minutes ago',
-                                     seconds / 60).format(mins=seconds / 60)
+                                     seconds // 60).format(mins=seconds // 60)
             else:
                 return ungettext('{hours} hour ago', '{hours} hours ago',
-                                 seconds / 3600).format(hours=seconds / 3600)
+                                 seconds // 3600).format(hours=seconds // 3600)
         # more than one day
         months = months_between(datetime_, now)
 
@@ -128,10 +134,11 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
             return ungettext('{months} month ago', '{months} months ago',
                              months).format(months=months)
         return ungettext('over {years} year ago', 'over {years} years ago',
-                         months / 12).format(years=months / 12)
+                         months // 12).format(years=months // 12)
 
     # actual date
     details = {
+        'sec': int(datetime_.second),
         'min': datetime_.minute,
         'hour': datetime_.hour,
         'day': datetime_.day,
@@ -140,14 +147,19 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         'timezone': datetime_.tzname(),
     }
 
-    if with_hours:
+    if with_seconds:
         return (
-            # NOTE: This is for translating dates like `April 24, 2013, 10:45 (Europe/Zurich)`
+            # Example output: `April 24, 2013, 10:45:21 (Europe/Zurich)`
+            _('{month} {day}, {year}, {hour:02}:{min:02}:{sec:02} ({timezone})') \
+            .format(**details))
+    elif with_hours:
+        return (
+            # Example output: `April 24, 2013, 10:45 (Europe/Zurich)`
             _('{month} {day}, {year}, {hour:02}:{min:02} ({timezone})') \
             .format(**details))
     else:
         return (
-            # NOTE: This is for translating dates like `April 24, 2013`
+            # Example output: `April 24, 2013`
             _('{month} {day}, {year}').format(**details))
 
 

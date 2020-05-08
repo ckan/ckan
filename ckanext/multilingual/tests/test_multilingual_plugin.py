@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import pytest
+
 import ckan.plugins
 import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers as h
@@ -8,12 +10,12 @@ import ckan.logic.action.update
 import ckan.model as model
 import ckan.tests.legacy
 import ckan.tests.legacy.html_check
-import routes
-from ckan.tests.helpers import _get_test_app
+from ckan.tests.helpers import _get_test_app, body_contains
 
 _create_test_data = ckan.lib.create_test_data
 
 
+@pytest.mark.usefixtures('clean_db', 'with_request_context')
 class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
     'Test the translation of datasets by the multilingual_dataset plugin.'
     @classmethod
@@ -71,8 +73,8 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
         # It is testsysadmin who created the dataset, so testsysadmin whom
         # we'd expect to see the datasets for.
         for user_name in ('testsysadmin',):
-            offset = h.url_for(
-                'user.read', id=user_name)
+            offset = str(h.url_for(
+                'user.read', id=user_name))
             for (lang_code, translations) in (
                     ('de', _create_test_data.german_translations),
                     ('fr', _create_test_data.french_translations),
@@ -86,13 +88,12 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
                 terms = ('A Novel By Tolstoy')
                 for term in terms:
                     if term in translations:
-                        assert translations[term] in response, response
+                        assert body_contains(response, translations[term])
                     elif term in _create_test_data.english_translations:
-                        assert (_create_test_data.english_translations[term]
-                                in response)
+                        assert body_contains(response, _create_test_data.english_translations[term])
                     else:
-                        assert term in response
-                assert 'this should not be rendered' not in response
+                        assert body_contains(response, term)
+                assert not body_contains(response, 'this should not be rendered')
 
     def test_org_read_translation(self):
         for (lang_code, translations) in (
@@ -108,13 +109,12 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
                      'Roger likes these books.')
             for term in terms:
                 if term in translations:
-                    assert translations[term] in response
+                    assert body_contains(response, translations[term])
                 elif term in _create_test_data.english_translations:
-                    assert (_create_test_data.english_translations[term]
-                            in response)
+                    assert body_contains(response, _create_test_data.english_translations[term])
                 else:
-                    assert term in response
-            assert 'this should not be rendered' not in response
+                    assert body_contains(response, term)
+            assert not body_contains(response, 'this should not be rendered')
 
     def test_org_index_translation(self):
         for (lang_code, translations) in (
@@ -126,24 +126,19 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
             response = self.app.get(offset, status=200)
             for term in ('russian', 'Roger likes these books.'):
                 if term in translations:
-                    assert translations[term] in response
+                    assert body_contains(response, translations[term])
                 elif term in _create_test_data.english_translations:
-                    assert (_create_test_data.english_translations[term]
-                            in response)
+                    assert body_contains(response, _create_test_data.english_translations[term])
                 else:
-                    assert term in response, response
-            assert ('/{0}/organization/{1}'.format(lang_code, self.org['name'])
-                    in response)
-            assert 'this should not be rendered' not in response
+                    assert body_contains(response, term)
+            assert body_contains(response, '/{0}/organization/{1}'.format(lang_code, self.org['name']))
+            assert not body_contains(response, 'this should not be rendered')
 
 
-class TestDatasetSearchIndex():
-
-    @classmethod
-    def setup_class(cls):
-        ckan.plugins.load('multilingual_dataset')
-        ckan.plugins.load('multilingual_group')
-
+@pytest.mark.ckan_config('multilingual_dataset', 'multilingual_group')
+@pytest.mark.usefixtures('with_plugins')
+class TestDatasetSearchIndex(object):
+    def test_translate_terms(self):
         data_dicts = [
             {'term': 'moo',
              'term_translation': 'french_moo',
@@ -181,13 +176,6 @@ class TestDatasetSearchIndex():
             ckan.logic.action.update.term_translation_update(
                 context, data_dict)
 
-    @classmethod
-    def teardown(cls):
-        ckan.plugins.unload('multilingual_dataset')
-        ckan.plugins.unload('multilingual_group')
-
-    def test_translate_terms(self):
-
         sample_index_data = {
             'download_url': u'moo',
             'notes': u'an interesting note',
@@ -202,7 +190,7 @@ class TestDatasetSearchIndex():
                           'text_de': '',
                           'text_pt_BR': '',
                           u'title_fr': u'french david',
-                          'text_fr': u'french note french boon french_moo french moon',
+                          'text_fr': u'french_moo french note french moon french boon',
                           'text_ja': '',
                           'text_sr': '',
                           'title': u'david',
@@ -220,7 +208,7 @@ class TestDatasetSearchIndex():
                           'tags': [u'moon', 'boon'],
                           'text_el': '',
                           'title_en': u'david',
-                          'text_en': u'an interesting note moon boon moo',
+                          'text_en': u'moo an interesting note moon boon',
                           'text_es': '',
                           'text_sl': '',
                           'text_pl': '',

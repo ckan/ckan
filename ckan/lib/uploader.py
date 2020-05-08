@@ -79,20 +79,8 @@ def get_storage_path():
     # None means it has not been set. False means not in config.
     if _storage_path is None:
         storage_path = config.get('ckan.storage_path')
-        ofs_impl = config.get('ofs.impl')
-        ofs_storage_dir = config.get('ofs.storage_dir')
         if storage_path:
             _storage_path = storage_path
-        elif ofs_impl == 'pairtree' and ofs_storage_dir:
-            log.warn('''Please use config option ckan.storage_path instead of
-                     ofs.storage_dir''')
-            _storage_path = ofs_storage_dir
-            return _storage_path
-        elif ofs_impl:
-            log.critical('''We only support local file storage form version 2.2
-                         of ckan please specify ckan.storage_path in your
-                         config for your uploads''')
-            _storage_path = False
         else:
             log.critical('''Please specify a ckan.storage_path in your config
                          for your uploads''')
@@ -156,14 +144,16 @@ class Upload(object):
         if not self.storage_path:
             return
 
-        if isinstance(self.upload_field_storage, (ALLOWED_UPLOAD_TYPES)):
-            self.filename = self.upload_field_storage.filename
-            self.filename = str(datetime.datetime.utcnow()) + self.filename
-            self.filename = munge.munge_filename_legacy(self.filename)
-            self.filepath = os.path.join(self.storage_path, self.filename)
-            data_dict[url_field] = self.filename
-            self.upload_file = _get_underlying_file(self.upload_field_storage)
-            self.tmp_filepath = self.filepath + '~'
+        if isinstance(self.upload_field_storage, ALLOWED_UPLOAD_TYPES):
+            if self.upload_field_storage.filename:
+                self.filename = self.upload_field_storage.filename
+                self.filename = str(datetime.datetime.utcnow()) + self.filename
+                self.filename = munge.munge_filename_legacy(self.filename)
+                self.filepath = os.path.join(self.storage_path, self.filename)
+                data_dict[url_field] = self.filename
+                self.upload_file = _get_underlying_file(
+                    self.upload_field_storage)
+                self.tmp_filepath = self.filepath + '~'
         # keep the file if there has been no change
         elif self.old_filename and not self.old_filename.startswith('http'):
             if not self.clear:
@@ -221,10 +211,11 @@ class ResourceUpload(object):
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
 
-        if config_mimetype_guess == 'file_ext':
+        if url and config_mimetype_guess == 'file_ext':
             self.mimetype = mimetypes.guess_type(url)[0]
 
-        if isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
+        if bool(upload_field_storage) and \
+                isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
             self.filesize = 0  # bytes
 
             self.filename = upload_field_storage.filename

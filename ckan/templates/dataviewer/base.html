@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
-{# use of c.resource and c.package are for backwards compatibility with old previews that need them #}
-
-{% block subtitle %}{{ h.dataset_display_name(package or c.package) }} - {{h.resource_display_name(resource or c.resource) }}{% endblock %}
+{% block subtitle %}{{ h.dataset_display_name(package) }} {{ g.template_title_delimiter }} {{h.resource_display_name(resource) }}{% endblock %}
 
 {# remove any scripts #}
 {% block scripts %}
   <script>
-    var preload_resource = {{ h.literal(h.dump_json(resource or c.resource)) }};
+    var preload_resource = {{ h.literal(h.dump_json(resource)) }};
   </script>
 {% endblock %}
 

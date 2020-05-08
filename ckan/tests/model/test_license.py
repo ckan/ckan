@@ -2,84 +2,117 @@
 
 import os
 
-from nose.tools import assert_equal
+import pytest
+
+import ckan.model as model
 from ckan.common import config
-
 from ckan.model.license import LicenseRegister
-from ckan.tests import helpers
+from ckan.tests import factories
+
+this_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-class TestLicenseRegister(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-    def test_default_register_has_basic_properties_of_a_license(self):
-        config['licenses_group_url'] = None
-        reg = LicenseRegister()
-
-        license = reg['cc-by']
-        assert_equal(license.url,
-                     'http://www.opendefinition.org/licenses/cc-by')
-        assert_equal(license.isopen(), True)
-        assert_equal(license.title, 'Creative Commons Attribution')
-
-    def test_import_v1_style_register(self):
-        this_dir = os.path.dirname(os.path.realpath(__file__))
-        # v1 is used by CKAN so far
-        register_filepath = '%s/licenses.v1' % this_dir
-        config['licenses_group_url'] = 'file:///%s' % register_filepath
-        reg = LicenseRegister()
-
-        license = reg['cc-by']
-        assert_equal(license.url,
-                     'http://www.opendefinition.org/licenses/cc-by')
-        assert_equal(license.isopen(), True)
-        assert_equal(license.title, 'Creative Commons Attribution')
-
-    def test_import_v2_style_register(self):
-        this_dir = os.path.dirname(os.path.realpath(__file__))
-        # v2 is used by http://licenses.opendefinition.org in recent times
-        register_filepath = '%s/licenses.v2' % this_dir
-        config['licenses_group_url'] = 'file:///%s' % register_filepath
-        reg = LicenseRegister()
-
-        license = reg['CC-BY-4.0']
-        assert_equal(license.url,
-                     'https://creativecommons.org/licenses/by/4.0/')
-        assert_equal(license.isopen(), True)
-        assert_equal(license.title, 'Creative Commons Attribution 4.0')
+@pytest.fixture
+def reset(clean_db):
+    yield
+    if hasattr(model.Package, "_license_register"):
+        del model.Package._license_register
 
 
-class TestLicense:
-    def test_access_via_attribute(self):
-        license = LicenseRegister()['cc-by']
-        assert_equal(license.od_conformance, 'approved')
+@pytest.mark.usefixtures("reset")
+def test_default_register_has_basic_properties_of_a_license():
+    config["licenses_group_url"] = None
+    reg = LicenseRegister()
 
-    def test_access_via_key(self):
-        license = LicenseRegister()['cc-by']
-        assert_equal(license['od_conformance'], 'approved')
-
-    def test_access_via_dict(self):
-        license = LicenseRegister()['cc-by']
-        license_dict = license.as_dict()
-        assert_equal(license_dict['od_conformance'], 'approved')
-        assert_equal(license_dict['osd_conformance'], 'not reviewed')
+    license = reg["cc-by"]
+    assert license.url == "http://www.opendefinition.org/licenses/cc-by"
+    assert license.isopen()
+    assert license.title == "Creative Commons Attribution"
 
 
-class TestLicenseLegacyFields:
-    def test_access_via_attribute(self):
-        license = LicenseRegister()['cc-by']
-        assert_equal(license.is_okd_compliant, True)
-        assert_equal(license.is_osi_compliant, False)
+@pytest.mark.usefixtures("reset")
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v1" % this_dir
+)
+def test_import_v1_style_register():
+    reg = LicenseRegister()
 
-    def test_access_via_key(self):
-        license = LicenseRegister()['cc-by']
-        assert_equal(license['is_okd_compliant'], True)
-        assert_equal(license['is_osi_compliant'], False)
+    license = reg["cc-by"]
+    assert license.url == "http://www.opendefinition.org/licenses/cc-by"
+    assert license.isopen()
+    assert license.title == "Creative Commons Attribution"
 
-    def test_access_via_dict(self):
-        license = LicenseRegister()['cc-by']
-        license_dict = license.as_dict()
-        assert_equal(license_dict['is_okd_compliant'], True)
-        assert_equal(license_dict['is_osi_compliant'], False)
+
+# v2 is used by http://licenses.opendefinition.org in recent times
+@pytest.mark.usefixtures("reset")
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v2" % this_dir
+)
+def test_import_v2_style_register():
+    reg = LicenseRegister()
+    license = reg["CC-BY-4.0"]
+    assert license.url == "https://creativecommons.org/licenses/by/4.0/"
+    assert license.isopen()
+    assert license.title == "Creative Commons Attribution 4.0"
+
+
+@pytest.mark.usefixtures("reset", "with_request_context")
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v1" % this_dir
+)
+@pytest.mark.ckan_config("ckan.locale_default", "ca")
+def test_import_v1_style_register_i18n(app):
+    sysadmin = factories.Sysadmin()
+    resp = app.get(
+        "/dataset/new", extra_environ={"REMOTE_USER": str(sysadmin["name"])}
+    )
+    assert "Altres (Oberta)" in resp.body
+
+
+@pytest.mark.usefixtures("reset", "with_request_context")
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v2" % this_dir
+)
+@pytest.mark.ckan_config("ckan.locale_default", "ca")
+def test_import_v2_style_register_i18n(app):
+    sysadmin = factories.Sysadmin()
+    resp = app.get(
+        "/dataset/new", extra_environ={"REMOTE_USER": str(sysadmin["name"])}
+    )
+    assert "Altres (Oberta)" in resp.body
+
+
+def test_access_via_attribute():
+    license = LicenseRegister()["cc-by"]
+    assert license.od_conformance == "approved"
+
+
+def test_access_via_key():
+    license = LicenseRegister()["cc-by"]
+    assert license["od_conformance"] == "approved"
+
+
+def test_access_via_dict():
+    license = LicenseRegister()["cc-by"]
+    license_dict = license.as_dict()
+    assert license_dict["od_conformance"] == "approved"
+    assert license_dict["osd_conformance"] == "not reviewed"
+
+
+def test_access_via_attribute():
+    license = LicenseRegister()["cc-by"]
+    assert license.is_okd_compliant
+    assert not license.is_osi_compliant
+
+
+def test_access_via_key():
+    license = LicenseRegister()["cc-by"]
+    assert license["is_okd_compliant"]
+    assert not license["is_osi_compliant"]
+
+
+def test_access_via_dict():
+    license = LicenseRegister()["cc-by"]
+    license_dict = license.as_dict()
+    assert license_dict["is_okd_compliant"]
+    assert not license_dict["is_osi_compliant"]

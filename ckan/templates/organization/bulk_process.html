@@ -1,28 +1,38 @@
 {% extends "organization/edit_base.html" %}
 
-{% block subtitle %}{{ _('Edit datasets') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Edit datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
-  {% snippet 'snippets/add_dataset.html', group=c.group_dict.id %}
+  {% snippet 'snippets/add_dataset.html', group=group_dict.id %}
 {% endblock %}
 
 {% block primary_content_inner %}
   <div class="row">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
-    <div class="primary col-md-8">
+    <div class="primary col-md-12">
       <h3 class="page-heading">
         {% block page_heading %}
-          {%- if c.page.item_count -%}
-            {{ c.page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=c.q) if c.q }}
+          {%- if page.item_count -%}
+            {{ page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=q) if q }}
           {%- elif request.params -%}
-            {{ _('Sorry no datasets found for "{query}"').format(query=c.q) }}
+            {{ _('Sorry no datasets found for "{query}"').format(query=q) }}
           {%- else -%}
             {{ _('Datasets') }}
           {%- endif -%}
         {% endblock %}
       </h3>
+
+      {% block search_form %}
+        {% set sorting = [
+            (_('Name Ascending'), 'title_string asc'),
+            (_('Name Descending'), 'title_string desc'),
+            (_('Last Modified'), 'data_modified desc') ]
+                %}
+        {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type='dataset', query=q, count=page.item_count, sorting=sorting, sorting_selected=sort_by_selected, no_title=true, search_class=' ' %}
+      {% endblock %}
+
       {% block form %}
-        {% if c.page.item_count %}
+        {% if page.item_count %}
           <form method="POST" data-module="basic-form">
             <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
               <col width="8">
@@ -51,7 +61,7 @@
                 </tr>
               </thead>
               <tbody>
-                {% for package in c.packages %}
+                {% for package in packages %}
                   {% set truncate = truncate or 180 %}
                   {% set truncate_title = truncate_title or 80 %}
                   {% set title = package.title or package.name %}
@@ -61,11 +71,11 @@
                       <input type="checkbox" name="dataset_{{ package.id }}">
                     </td>
                     <td class="context">
-                      <a href="{% url_for controller='package', action='edit', id=package.name %}" class="edit pull-right">
+                      <a href="{% url_for package.type ~ '.edit', id=package.name %}" class="edit pull-right">
                         {{ _('Edit') }}
                       </a>
                       <h3 class="dataset-heading">
-                        {{ h.link_to(h.truncate(title, truncate_title), h.url_for(controller='package', action='read', id=package.name)) }}
+                        {{ h.link_to(h.truncate(title, truncate_title), h.url_for(package.type ~ '.read', id=package.name)) }}
                         {% if package.get('state', '').startswith('draft') %}
                           <span class="label label-info">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}
@@ -89,24 +99,13 @@
         {% endif %}
       {% endblock %}
     </div>
-    <aside class="tertiary col-md-4">
-      {% block tertiary_content %}
-
-        {% block search_form %}
-          {% set sorting = [
-            (_('Name Ascending'), 'title_string asc'),
-            (_('Name Descending'), 'title_string desc'),
-            (_('Last Modified'), 'data_modified desc') ]
-          %}
-          {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type='dataset', query=c.q, count=c.page.item_count, sorting=sorting, sorting_selected=c.sort_by_selected, no_title=true, search_class=' ' %}
-        {% endblock %}
-
-        {#{% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search datasets...'), extra_sort=[(_('Last Modified'), 'data_modified asc')], input_class='search-normal', form_class='search-aside' %}#}
-        {% for facet in c.facet_titles %}
-          {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
-        {% endfor %}
-      {% endblock %}
-    </aside>
   </div>
-  {{ c.page.pager() }}
+  {{ page.pager() }}
+{% endblock %}
+
+{% block secondary_content %}
+    {{  super() }}
+    {% for facet in c.facet_titles %}
+    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}) }}
+  {% endfor %}
 {% endblock %}

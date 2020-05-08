@@ -1,6 +1,6 @@
 {% extends "package/resource_edit_base.html" %}
 
-{% block subtitle %}{{ _('Edit') }} - {{ h.resource_display_name(res) }} - {{ h.dataset_display_name(pkg) }}{% endblock %}
+{% block subtitle %}{{ _('Edit') }} {{ g.template_title_delimiter }} {{ h.resource_display_name(res) }} {{ g.template_title_delimiter }} {{ h.dataset_display_name(pkg) }}{% endblock %}
 
 {% block form %}
   {% snippet 'package/snippets/resource_edit_form.html',
@@ -8,8 +8,7 @@
     errors=errors,
     error_summary=error_summary,
     pkg_name=pkg.name,
-    form_action=c.form_action,
-    allow_upload=g.ofs_impl and logged_in,
+    form_action=form_action,
     resource_form_snippet=resource_form_snippet,
     dataset_type=dataset_type %}
 {% endblock %}

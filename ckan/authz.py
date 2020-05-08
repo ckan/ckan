@@ -2,17 +2,18 @@
 
 import functools
 import sys
-import re
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from logging import getLogger
 
+import six
+
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 
 import ckan.plugins as p
 import ckan.model as model
-from ckan.common import OrderedDict, _, c
+from ckan.common import _, g
 
 import ckan.lib.maintain as maintain
 
@@ -101,14 +102,20 @@ class AuthFunctions:
                     resolved_auth_function_plugins[name] = plugin.name
                     fetched_auth_functions[name] = auth_function
 
-        for name, func_list in chained_auth_functions.iteritems():
-            if name not in fetched_auth_functions:
+        for name, func_list in six.iteritems(chained_auth_functions):
+            if (name not in fetched_auth_functions and
+                    name not in self._functions):
                 raise Exception('The auth %r is not found for chained auth' % (
                     name))
             # create the chain of functions in the correct order
             for func in reversed(func_list):
-                prev_func = fetched_auth_functions[name]
-                fetched_auth_functions[name] = functools.partial(func, prev_func)
+                if name in fetched_auth_functions:
+                    prev_func = fetched_auth_functions[name]
+                else:
+                    # fallback to chaining off the builtin auth function
+                    prev_func = self._functions[name]
+                fetched_auth_functions[name] = (
+                    functools.partial(func, prev_func))
 
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
@@ -136,19 +143,26 @@ def is_sysadmin(username):
 
 
 def _get_user(username):
-    ''' Try to get the user from c, if possible, and fallback to using the DB '''
+    '''
+    Try to get the user from g, if possible.
+    If not fallback to using the DB
+    '''
     if not username:
         return None
     # See if we can get the user without touching the DB
     try:
-        if c.userobj and c.userobj.name == username:
-            return c.userobj
+        if g.userobj and g.userobj.name == username:
+            return g.userobj
     except AttributeError:
-        # c.userobj not set
+        # g.userobj not set
         pass
     except TypeError:
-        # c is not available
+        # c is not available (py2)
         pass
+    except RuntimeError:
+        # g is not available (py3)
+        pass
+
     # Get user from the DB
     return model.User.get(username)
 
@@ -197,10 +211,12 @@ def is_authorized(action, context, data_dict=None):
         # access straight away
         if not getattr(auth_function, 'auth_allow_anonymous_access', False) \
            and not context.get('auth_user_obj'):
-            return {'success': False,
-                    'msg': '{0} requires an authenticated user'
-                            .format(auth_function)
-                   }
+            return {
+                'success': False,
+                'msg': 'Action {0} requires an authenticated user'.format(
+                    (auth_function if not isinstance(auth_function, functools.partial)
+                        else auth_function.func).__name__)
+            }
 
         return auth_function(context, data_dict)
     else:
@@ -373,13 +389,7 @@ def has_user_permission_for_some_org(user_name, permission):
 def get_user_id_for_username(user_name, allow_none=False):
     ''' Helper function to get user id '''
     # first check if we have the user object already and get from there
-    try:
-        if c.userobj and c.userobj.name == user_name:
-            return c.userobj.id
-    except TypeError:
-        # c is not available
-        pass
-    user = model.User.get(user_name)
+    user = _get_user(user_name)
     if user:
         return user.id
     if allow_none:
@@ -400,6 +410,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'create_user_via_api': False,
     'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
+    'public_activity_stream_detail': False,
 }
 
 
@@ -448,7 +459,7 @@ def auth_is_registered_user():
 def auth_is_loggedin_user():
     ''' Do we have a logged in user '''
     try:
-        context_user = c.user
+        context_user = g.user
     except TypeError:
         context_user = None
     return bool(context_user)

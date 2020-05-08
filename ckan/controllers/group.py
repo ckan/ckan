@@ -2,8 +2,9 @@
 
 import logging
 import datetime
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
+from collections import OrderedDict
 from pylons.i18n import get_lang
 from six import string_types, text_type
 
@@ -16,7 +17,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, c, config, request, _
+from ckan.common import c, config, request, _
 
 log = logging.getLogger(__name__)
 
@@ -220,10 +221,20 @@ class GroupController(base.BaseController):
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
+
+            # Do not query group members as they aren't used in the view
+            data_dict['include_users'] = False
+
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
+
+        # if the user specified a group id, redirect to the group name
+        if data_dict['id'] == c.group_dict['id'] and \
+                data_dict['id'] != c.group_dict['name']:
+            h.redirect_to(controller=group_type, action='read',
+                          id=c.group_dict['name'])
 
         self._read(id, limit, group_type)
         return render(self._read_template(c.group_dict['type']),
@@ -316,7 +327,7 @@ class GroupController(base.BaseController):
                     facets[facet] = facet
 
             # Facet titles
-            self._update_facet_titles(facets, group_type)
+            facets = self._update_facet_titles(facets, group_type)
 
             c.facet_titles = facets
 
@@ -367,6 +378,7 @@ class GroupController(base.BaseController):
         for plugin in plugins.PluginImplementations(plugins.IFacets):
             facets = plugin.group_facets(
                 facets, group_type, None)
+        return facets
 
     def bulk_process(self, id):
         ''' Allow bulk processing of datasets for an organization.  Make
@@ -460,7 +472,7 @@ class GroupController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to create a group'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context, group_type)
 
         data = data or {}
@@ -491,7 +503,7 @@ class GroupController(base.BaseController):
                    }
         data_dict = {'id': id, 'include_datasets': False}
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context)
 
         try:
@@ -641,9 +653,14 @@ class GroupController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user}
 
+        data_dict = {'id': id}
         try:
-            data_dict = {'id': id}
             check_access('group_edit_permissions', context, data_dict)
+        except NotAuthorized:
+            abort(403,
+                  _('User %r not authorized to edit members of %s') % (c.user,
+                                                                       id))
+        try:
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
             )
@@ -651,11 +668,6 @@ class GroupController(base.BaseController):
             c.group_dict = self._action('group_show')(context, data_dict)
         except NotFound:
             abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(
-                403,
-                _('User %r not authorized to edit members of %s') % (
-                    c.user, id))
 
         return self._render_template('group/members.html', group_type)
 
@@ -796,7 +808,7 @@ class GroupController(base.BaseController):
                     revision_dict['timestamp'])
                 try:
                     dayHorizon = int(request.params.get('days'))
-                except:
+                except ValueError:
                     dayHorizon = 30
                 dayAge = (datetime.datetime.now() - revision_date).days
                 if dayAge >= dayHorizon:
@@ -860,6 +872,7 @@ class GroupController(base.BaseController):
             group_dict = get_action('group_show')(context, data_dict)
             h.flash_success(_("You are now following {0}").format(
                 group_dict['title']))
+            id = group_dict['name']
         except ValidationError as e:
             error_message = (e.message or e.error_summary
                              or e.error_dict)
@@ -880,6 +893,7 @@ class GroupController(base.BaseController):
             group_dict = get_action('group_show')(context, data_dict)
             h.flash_success(_("You are no longer following {0}").format(
                 group_dict['title']))
+            id = group_dict['name']
         except ValidationError as e:
             error_message = (e.message or e.error_summary
                              or e.error_dict)

@@ -68,7 +68,7 @@ the name of your extension. For example:
 
 * The names of *JavaScript modules* introduced by your extension should begin
   with the name of your extension. For example
-  ``fanstatic/example_theme_popover.js``:
+  ``assets/example_theme_popover.js``:
 
   .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
 
@@ -114,14 +114,14 @@ All user-visible strings should be internationalized, see
 Add third party libraries to requirements.txt
 ---------------------------------------------
 
-If your extension requires third party libraries, rather than 
+If your extension requires third party libraries, rather than
 adding them to ``setup.py``, they should be added
 to ``requirements.txt``, which can be installed with::
 
   pip install -r requirements.txt
 
-To prevent accidental breakage of your extension through backwards-incompatible 
-behaviour of newer versions of your dependencies, their versions should be pinned, 
+To prevent accidental breakage of your extension through backwards-incompatible
+behaviour of newer versions of your dependencies, their versions should be pinned,
 such as::
 
   requests==2.7.0
@@ -140,7 +140,6 @@ migrate them after an update. These modifications should not be performed
 automatically when the extension is loaded, since this can lead to `dead-locks
 and other problems`_.
 
-Instead, create a :doc:`paster command </maintaining/paster>` which can be run separately.
+Instead, create a :doc:`ckan command </maintaining/cli>` which can be run separately.
 
 .. _dead-locks and other problems: https://github.com/ckan/ideas-and-roadmap/issues/164
-

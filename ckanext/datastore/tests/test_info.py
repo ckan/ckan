@@ -1,55 +1,66 @@
 # encoding: utf-8
 
-import json
-import nose
-import pprint
-
-import pylons
-import sqlalchemy.orm as orm
-
-import ckan.plugins as p
-import ckan.lib.create_test_data as ctd
-import ckan.model as model
-from ckan.tests.legacy import is_datastore_supported
-
-import ckanext.datastore.backend.postgres as db
-from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
-
-import ckan.tests.helpers as helpers
+import pytest
+import six
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
+from ckan.lib import helpers as template_helpers
 
-assert_equals = nose.tools.assert_equals
-assert_raises = nose.tools.assert_raises
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+def test_info_success():
+    resource = factories.Resource()
+    data = {
+        "resource_id": resource["id"],
+        "force": True,
+        "records": [
+            {"from": "Brazil", "to": "Brazil", "num": 2},
+            {"from": "Brazil", "to": "Italy", "num": 22},
+        ],
+    }
+    result = helpers.call_action("datastore_create", **data)
+
+    info = helpers.call_action("datastore_info", id=resource["id"])
+
+    assert info["meta"]["count"] == 2, info["meta"]
+    assert len(info["schema"]) == 3
+    assert info["schema"]["to"] == "text"
+    assert info["schema"]["from"] == "text"
+    assert info["schema"]["num"] == "number", info["schema"]
 
 
-class TestDatastoreInfo(object):
-    @classmethod
-    def setup_class(cls):
-        if not is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        plugin = p.load('datastore')
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+def test_api_info(app):
+    dataset = factories.Dataset()
+    resource = factories.Resource(
+        id="588dfa82-760c-45a2-b78a-e3bc314a4a9b",
+        package_id=dataset["id"],
+        datastore_active=True,
+    )
 
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        helpers.reset_db()
+    # the 'API info' is seen on the resource_read page, a snippet loaded by
+    # javascript via data_api_button.html
+    url = template_helpers.url_for(
+        controller="api",
+        action="snippet",
+        ver=1,
+        snippet_path="api_info.html",
+        resource_id=resource["id"],
+    )
 
-    def test_info_success(self):
-        resource = factories.Resource()
-        data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'records': [
-                {'from': 'Brazil', 'to': 'Brazil', 'num': 2},
-                {'from': 'Brazil', 'to': 'Italy', 'num': 22}
-            ],
-        }
-        result = helpers.call_action('datastore_create', **data)
+    page = app.get(url, status=200)
 
-        info = helpers.call_action('datastore_info', id=resource['id'])
-
-        assert info['meta']['count'] == 2, info['meta']
-        assert len(info['schema']) == 3
-        assert info['schema']['to'] == 'text'
-        assert info['schema']['from'] == 'text'
-        assert info['schema']['num'] == 'number', info['schema']
+    # check we built all the urls ok
+    expected_urls = (
+        "http://test.ckan.net/api/3/action/datastore_create",
+        "http://test.ckan.net/api/3/action/datastore_upsert",
+        "<code>http://test.ckan.net/api/3/action/datastore_search",
+        "http://test.ckan.net/api/3/action/datastore_search_sql",
+        "url: 'http://test.ckan.net/api/3/action/datastore_search'",
+        "http://test.ckan.net/api/3/action/datastore_search"
+    )
+    content = six.ensure_text(page.data)
+    for url in expected_urls:
+        assert url in content

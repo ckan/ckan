@@ -1,0 +1,24 @@
+fuchsia:
+  filters: cssrewrite
+  output: base/%(version)s_fuchsia.css
+  contents: fuchsia.css
+green:
+  filters: cssrewrite
+  output: base/%(version)s_green.css
+  contents: green.css
+main:
+  filters: cssrewrite
+  output: base/%(version)s_main.css
+  contents: main.css
+main-rtl:
+  filters: cssrewrite
+  output: base/%(version)s_main-rtl.css
+  contents: main-rtl.css
+maroon:
+  filters: cssrewrite
+  output: base/%(version)s_maroon.css
+  contents: maroon.css
+red:
+  filters: cssrewrite
+  output: base/%(version)s_red.css
+  contents: red.css

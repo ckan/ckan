@@ -2,15 +2,14 @@
 
 import datetime
 
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from ckan.common import config
 """SQLAlchemy Metadata and Session object"""
 from sqlalchemy import MetaData, and_
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.session import SessionExtension
 
-import extension
-import ckan.lib.activity_streams_session_extension as activity
+from ckan.model import extension
 
 __all__ = ['Session', 'engine_is_sqlite', 'engine_is_pg']
 
@@ -55,44 +54,8 @@ class CkanSessionExtension(SessionExtension):
         session.flush()
         try:
             obj_cache = session._object_cache
-            revision = session.revision
         except AttributeError:
             return
-        if getattr(session, 'revisioning_disabled', False):
-            return
-        new = obj_cache['new']
-        changed = obj_cache['changed']
-        deleted = obj_cache['deleted']
-        for obj in new | changed | deleted:
-            if not hasattr(obj, '__revision_class__'):
-                continue
-            revision_cls = obj.__revision_class__
-            revision_table = orm.class_mapper(revision_cls).mapped_table
-            ## when a normal active transaction happens
-
-            ### this is an sql statement as we do not want it in object cache
-            session.execute(
-                revision_table.update().where(
-                    and_(revision_table.c.id == obj.id,
-                         revision_table.c.current == '1')
-                ).values(current='0')
-            )
-
-            q = session.query(revision_cls)
-            q = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31), id=obj.id)
-            results = q.all()
-            for rev_obj in results:
-                values = {}
-                if rev_obj.revision_id == revision.id:
-                    values['revision_timestamp'] = revision.timestamp
-                else:
-                    values['expired_timestamp'] = revision.timestamp
-                session.execute(
-                    revision_table.update().where(
-                        and_(revision_table.c.id == rev_obj.id,
-                             revision_table.c.revision_id == rev_obj.revision_id)
-                    ).values(**values)
-                )
 
     def after_commit(self, session):
         if hasattr(session, '_object_cache'):
@@ -114,7 +77,7 @@ Session = orm.scoped_session(orm.sessionmaker(
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               activity.DatasetActivitySessionExtension()],
+    ],
 ))
 
 create_local_session = orm.sessionmaker(
@@ -124,7 +87,7 @@ create_local_session = orm.sessionmaker(
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               activity.DatasetActivitySessionExtension()],
+    ],
 )
 
 #mapper = Session.mapper
@@ -137,11 +100,12 @@ metadata = MetaData()
 
 def engine_is_sqlite(sa_engine=None):
     # Returns true iff the engine is connected to a sqlite database.
-    return (sa_engine or engine).url.drivername == 'sqlite'
+
+    return (sa_engine or engine).engine.url.drivername == 'sqlite'
 
 
 def engine_is_pg(sa_engine=None):
     # Returns true iff the engine is connected to a postgresql database.
     # According to http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
     # all Postgres driver names start with `postgres`
-    return (sa_engine or engine).url.drivername.startswith('postgres')
+    return (sa_engine or engine).engine.url.drivername.startswith('postgres')

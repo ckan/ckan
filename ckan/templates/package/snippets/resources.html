@@ -1,14 +1,15 @@
 {#
-Displays a sidebard module with navigation containing the provided resources.
+Displays a sidebar module with navigation containing the provided resources.
 If no resources are provided then the module will not be displayed.
 
 pkg       - The package dict that owns the resources.
 active    - The id of the currently displayed resource.
-action    - The controller action to use (default: 'resource_read').
+action    - The resource action to use (default: 'read', meaning route 'resource.read').
+is_activity_archive - Whether this is an old version of the resource (and therefore read-only)
 
 Example:
 
-  {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id %}
+  {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, is_activity_archive=False %}
 
 #}
 {% set resources = pkg.resources or [] %}
@@ -23,7 +24,7 @@ Example:
           <ul class="list-unstyled nav nav-simple">
             {% for resource in resources %}
               <li class="nav-item{{ ' active' if active == resource.id }}">
-                {% link_for h.resource_display_name(resource)|truncate(25), controller='package', action=action or 'resource_read', id=pkg.name, resource_id=resource.id, inner_span=true %}
+                <a href="{{ h.url_for('%s_resource.%s' % (pkg.type, 'read' if is_activity_archive else (action or 'read')), id=pkg.id if is_activity_archive else pkg.name, resource_id=resource.id, inner_span=true, **({'activity_id': request.args['activity_id']} if 'activity_id' in request.args else {})) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
               </li>
             {% endfor %}
           </ul>

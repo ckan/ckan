@@ -3,13 +3,9 @@
 import os.path
 import logging
 import cgi
-import datetime
-import glob
-import urllib
 
-from webob.multidict import UnicodeMultiDict
-from paste.util.multidict import MultiDict
 from six import text_type
+from six.moves.urllib.parse import unquote_plus
 
 import ckan.model as model
 import ckan.logic as logic
@@ -23,6 +19,7 @@ import ckan.lib.munge as munge
 from ckan.views import identify_user
 
 from ckan.common import _, c, request, response
+from six.moves import map
 
 
 log = logging.getLogger(__name__)
@@ -257,353 +254,6 @@ class ApiController(base.BaseController):
             return self._finish(500, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
-    def _get_action_from_map(self, action_map, register, subregister):
-        ''' Helper function to get the action function specified in
-            the action map'''
-
-        # translate old package calls to use dataset
-        if register == 'package':
-            register = 'dataset'
-
-        action = action_map.get((register, subregister))
-        if not action:
-            action = action_map.get(register)
-        if action:
-            return get_action(action)
-
-    def list(self, ver=None, register=None, subregister=None, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'api_version': ver,
-                   'auth_user_obj': c.userobj}
-        log.debug('listing: %s', context)
-        action_map = {
-            'revision': 'revision_list',
-            'group': 'group_list',
-            'dataset': 'package_list',
-            'tag': 'tag_list',
-            'licenses': 'license_list',
-            ('dataset', 'relationships'): 'package_relationships_list',
-            ('dataset', 'revisions'): 'package_revision_list',
-            ('dataset', 'activity'): 'package_activity_list',
-            ('group', 'activity'): 'group_activity_list',
-            ('user', 'activity'): 'user_activity_list',
-            ('user', 'dashboard_activity'): 'dashboard_activity_list',
-            ('activity', 'details'): 'activity_detail_list',
-        }
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot list entity of this type: %s') % register)
-        try:
-            return self._finish_ok(action(context, {'id': id}))
-        except NotFound as e:
-            return self._finish_not_found(text_type(e))
-        except NotAuthorized as e:
-            return self._finish_not_authz(text_type(e))
-
-    def show(self, ver=None, register=None, subregister=None,
-             id=None, id2=None):
-        action_map = {
-            'revision': 'revision_show',
-            'group': 'group_show_rest',
-            'tag': 'tag_show_rest',
-            'dataset': 'package_show_rest',
-            ('dataset', 'relationships'): 'package_relationships_list',
-        }
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = 'package_relationships_list'
-
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'auth_user_obj': c.userobj}
-        data_dict = {'id': id, 'id2': id2, 'rel': subregister}
-
-        log.debug('show: %s', context)
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot read entity of this type: %s') % register)
-        try:
-            return self._finish_ok(action(context, data_dict))
-        except NotFound as e:
-            return self._finish_not_found(text_type(e))
-        except NotAuthorized as e:
-            return self._finish_not_authz(text_type(e))
-
-    def create(self, ver=None, register=None, subregister=None,
-               id=None, id2=None):
-
-        action_map = {
-            'group': 'group_create_rest',
-            'dataset': 'package_create_rest',
-            'rating': 'rating_create',
-            ('dataset', 'relationships'): 'package_relationship_create_rest',
-        }
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = 'package_relationship_create_rest'
-
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'auth_user_obj': c.userobj}
-        log.debug('create: %s', (context))
-        try:
-            request_data = self._get_request_data()
-            data_dict = {'id': id, 'id2': id2, 'rel': subregister}
-            data_dict.update(request_data)
-        except ValueError as inst:
-            return self._finish_bad_request(
-                _('JSON Error: %s') % inst)
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot create new entity of this type: %s %s') %
-                (register, subregister))
-
-        try:
-            response_data = action(context, data_dict)
-            location = None
-            if "id" in data_dict:
-                location = str('%s/%s' % (request.path.replace('package',
-                                                               'dataset'),
-                                          data_dict.get("id")))
-            return self._finish_ok(response_data,
-                                   resource_location=location)
-        except NotAuthorized as e:
-            return self._finish_not_authz(text_type(e))
-        except NotFound as e:
-            return self._finish_not_found(text_type(e))
-        except ValidationError as e:
-            # CS: nasty_string ignore
-            log.info('Validation error (REST create): %r', str(e.error_dict))
-            return self._finish(409, e.error_dict, content_type='json')
-        except DataError as e:
-            log.info('Format incorrect (REST create): %s - %s',
-                     e.error, request_data)
-            error_dict = {
-                'success': False,
-                'error': {'__type': 'Integrity Error',
-                                    'message': e.error,
-                                    'data': request_data}}
-            return self._finish(400, error_dict, content_type='json')
-        except search.SearchIndexError:
-            log.error('Unable to add package to search index: %s',
-                      request_data)
-            return self._finish(500,
-                                _(u'Unable to add package to search index') %
-                                request_data)
-        except:
-            model.Session.rollback()
-            raise
-
-    def update(self, ver=None, register=None, subregister=None,
-               id=None, id2=None):
-        action_map = {
-            'dataset': 'package_update_rest',
-            'group': 'group_update_rest',
-            ('dataset', 'relationships'): 'package_relationship_update_rest',
-        }
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = 'package_relationship_update_rest'
-
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'id': id, 'auth_user_obj': c.userobj}
-        log.debug('update: %s', context)
-        try:
-            request_data = self._get_request_data()
-            data_dict = {'id': id, 'id2': id2, 'rel': subregister}
-            data_dict.update(request_data)
-        except ValueError as inst:
-            return self._finish_bad_request(
-                _('JSON Error: %s') % inst)
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot update entity of this type: %s') %
-                register.encode('utf-8'))
-        try:
-            response_data = action(context, data_dict)
-            return self._finish_ok(response_data)
-        except NotAuthorized as e:
-            return self._finish_not_authz(text_type(e))
-        except NotFound as e:
-            return self._finish_not_found(text_type(e))
-        except ValidationError as e:
-            # CS: nasty_string ignore
-            log.info('Validation error (REST update): %r', str(e.error_dict))
-            return self._finish(409, e.error_dict, content_type='json')
-        except DataError as e:
-            log.info('Format incorrect (REST update): %s - %s',
-                     e.error, request_data)
-            error_dict = {
-                'success': False,
-                'error': {'__type': 'Integrity Error',
-                                    'message': e.error,
-                                    'data': request_data}}
-            return self._finish(400, error_dict, content_type='json')
-        except search.SearchIndexError:
-            log.error('Unable to update search index: %s', request_data)
-            return self._finish(500, _(u'Unable to update search index') %
-                                request_data)
-
-    def delete(self, ver=None, register=None, subregister=None,
-               id=None, id2=None):
-        action_map = {
-            'group': 'group_delete',
-            'dataset': 'package_delete',
-            ('dataset', 'relationships'): 'package_relationship_delete_rest',
-        }
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = 'package_relationship_delete_rest'
-
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'auth_user_obj': c.userobj}
-
-        data_dict = {'id': id, 'id2': id2, 'rel': subregister}
-
-        log.debug('delete %s/%s/%s/%s', register, id, subregister, id2)
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot delete entity of this type: %s %s') %
-                (register, subregister or ''))
-        try:
-            response_data = action(context, data_dict)
-            return self._finish_ok(response_data)
-        except NotAuthorized as e:
-            return self._finish_not_authz(text_type(e))
-        except NotFound as e:
-            return self._finish_not_found(text_type(e))
-        except ValidationError as e:
-            # CS: nasty_string ignore
-            log.info('Validation error (REST delete): %r', str(e.error_dict))
-            return self._finish(409, e.error_dict, content_type='json')
-
-    def search(self, ver=None, register=None):
-
-        log.debug('search %s params: %r', register, request.params)
-        if register == 'revision':
-            since_time = None
-            if 'since_id' in request.params:
-                id = request.params['since_id']
-                if not id:
-                    return self._finish_bad_request(
-                        _(u'No revision specified'))
-                rev = model.Session.query(model.Revision).get(id)
-                if rev is None:
-                    return self._finish_not_found(
-                        _(u'There is no revision with id: %s') % id)
-                since_time = rev.timestamp
-            elif 'since_time' in request.params:
-                since_time_str = request.params['since_time']
-                try:
-                    since_time = h.date_str_to_datetime(since_time_str)
-                except ValueError as inst:
-                    return self._finish_bad_request('ValueError: %s' % inst)
-            else:
-                return self._finish_bad_request(
-                    _("Missing search term ('since_id=UUID' or " +
-                      " 'since_time=TIMESTAMP')"))
-            revs = model.Session.query(model.Revision) \
-                .filter(model.Revision.timestamp > since_time) \
-                .order_by(model.Revision.timestamp) \
-                .limit(50)  # reasonable enough for a page
-            return self._finish_ok([rev.id for rev in revs])
-        elif register in ['dataset', 'package', 'resource']:
-            try:
-                params = MultiDict(self._get_search_params(request.params))
-            except ValueError as e:
-                return self._finish_bad_request(
-                    _('Could not read parameters: %r' % e))
-
-            # if using API v2, default to returning the package ID if
-            # no field list is specified
-            if register in ['dataset', 'package'] and not params.get('fl'):
-                params['fl'] = 'id' if ver == 2 else 'name'
-
-            try:
-                if register == 'resource':
-                    query = search.query_for(model.Resource)
-
-                    # resource search still uses ckan query parser
-                    options = search.QueryOptions()
-                    for k, v in params.items():
-                        if (k in search.DEFAULT_OPTIONS.keys()):
-                            options[k] = v
-                    options.update(params)
-                    options.username = c.user
-                    options.search_tags = False
-                    options.return_objects = False
-                    query_fields = MultiDict()
-                    for field, value in params.items():
-                        field = field.strip()
-                        if field in search.DEFAULT_OPTIONS.keys() or \
-                                field in IGNORE_FIELDS:
-                            continue
-                        values = [value]
-                        if isinstance(value, list):
-                            values = value
-                        for v in values:
-                            query_fields.add(field, v)
-
-                    results = query.run(
-                        query=params.get('q'),
-                        fields=query_fields,
-                        options=options
-                    )
-                else:
-                    # For package searches in API v3 and higher, we can pass
-                    # parameters straight to Solr.
-                    if ver in [1, 2]:
-                        # Otherwise, put all unrecognised ones into the q
-                        # parameter
-                        params = search.\
-                            convert_legacy_parameters_to_solr(params)
-                    query = search.query_for(model.Package)
-
-                    # Remove any existing fq param and set the capacity to
-                    # public
-                    if 'fq' in params:
-                        del params['fq']
-                    params['fq'] = '+capacity:public'
-                    # if callback is specified we do not want to send that to
-                    # the search
-                    if 'callback' in params:
-                        del params['callback']
-                    results = query.run(params)
-                return self._finish_ok(results)
-            except search.SearchError as e:
-                log.exception(e)
-                return self._finish_bad_request(
-                    _('Bad search option: %s') % e)
-        else:
-            return self._finish_not_found(
-                _('Unknown register: %s') % register)
-
-    @classmethod
-    def _get_search_params(cls, request_params):
-        if 'qjson' in request_params:
-            try:
-                qjson_param = request_params['qjson'].replace('\\\\u', '\\u')
-                params = h.json.loads(qjson_param, encoding='utf8')
-            except ValueError as e:
-                raise ValueError(_('Malformed qjson value: %r')
-                                 % e)
-        elif len(request_params) == 1 and \
-            len(request_params.values()[0]) < 2 and \
-                request_params.keys()[0].startswith('{'):
-            # e.g. {some-json}='1' or {some-json}=''
-            params = h.json.loads(request_params.keys()[0], encoding='utf8')
-        else:
-            params = request_params
-        if not isinstance(params, (UnicodeMultiDict, dict)):
-            msg = _('Request params must be in form ' +
-                    'of a json encoded dictionary.')
-            raise ValueError(msg)
-        return params
-
     @jsonp.jsonpify
     def user_autocomplete(self):
         q = request.params.get('q', '')
@@ -625,7 +275,7 @@ class ApiController(base.BaseController):
         limit = request.params.get('limit', 20)
         try:
             limit = int(limit)
-        except:
+        except ValueError:
             limit = 20
         limit = min(50, limit)
 
@@ -638,7 +288,7 @@ class ApiController(base.BaseController):
             return out
 
         query = query.limit(limit)
-        out = map(convert_to_dict, query.all())
+        out = [convert_to_dict(q) for q in query.all()]
         return out
 
     @jsonp.jsonpify
@@ -653,59 +303,6 @@ class ApiController(base.BaseController):
             organization_list = \
                 get_action('organization_autocomplete')(context, data_dict)
         return organization_list
-
-    def dataset_autocomplete(self):
-        q = request.params.get('incomplete', '')
-        limit = request.params.get('limit', 10)
-        package_dicts = []
-        if q:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'auth_user_obj': c.userobj}
-
-            data_dict = {'q': q, 'limit': limit}
-
-            package_dicts = get_action('package_autocomplete')(context,
-                                                               data_dict)
-
-        resultSet = {'ResultSet': {'Result': package_dicts}}
-        return self._finish_ok(resultSet)
-
-    def tag_autocomplete(self):
-        q = request.str_params.get('incomplete', '')
-        q = text_type(urllib.unquote(q), 'utf-8')
-        limit = request.params.get('limit', 10)
-        tag_names = []
-        if q:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'auth_user_obj': c.userobj}
-
-            data_dict = {'q': q, 'limit': limit}
-
-            tag_names = get_action('tag_autocomplete')(context, data_dict)
-
-        resultSet = {
-            'ResultSet': {
-                'Result': [{'Name': tag} for tag in tag_names]
-            }
-        }
-        return self._finish_ok(resultSet)
-
-    def format_autocomplete(self):
-        q = request.params.get('incomplete', '')
-        limit = request.params.get('limit', 5)
-        formats = []
-        if q:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'auth_user_obj': c.userobj}
-            data_dict = {'q': q, 'limit': limit}
-            formats = get_action('format_autocomplete')(context, data_dict)
-
-        resultSet = {
-            'ResultSet': {
-                'Result': [{'Format': format} for format in formats]
-            }
-        }
-        return self._finish_ok(resultSet)
 
     def munge_package_name(self):
         name = request.params.get('name')
@@ -787,7 +384,7 @@ class ApiController(base.BaseController):
                 if keys and request.POST[keys[0]] in [u'1', u'']:
                     request_data = keys[0]
                 else:
-                    request_data = urllib.unquote_plus(request.body)
+                    request_data = unquote_plus(request.body)
             except Exception as inst:
                 msg = "Could not find the POST data: %r : %s" % \
                       (request.POST, inst)

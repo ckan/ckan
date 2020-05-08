@@ -1,25 +1,47 @@
-sudo: required
-
+group: travis_latest
 language: python
 
-services:
-  - docker
+flake8-steps: &flake8-steps
+  env: FLAKE8=true
+  cache: pip
+  install: pip install flake8
+  before_script:
+    - flake8 --version
+    # stop the build if there are Python syntax errors or undefined names
+    - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude ./ckan/include/rjsmin.py,./contrib/cookiecutter/*
+    # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
+    - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  script:
+    - true
 
-cache:
-  directories:
-     - ~/docker
+matrix:
+  include:
+    - python: "2.7"
 
-before_install:
-  - docker build --rm=false -f contrib/docker/postgresql/Dockerfile -t postgresql .
-  - docker build --rm=false -f contrib/docker/solr/Dockerfile -t solr .
-  - docker pull redis:latest
-  - docker build --rm=false -t ckan .
+      services:
+        - docker
 
-install:
-  - docker run -d --name db postgresql
-  - docker run -d --name solr solr
-  - docker run -d --name redis redis:latest
-  - docker run -d --name ckan -p 5000:5000 --link db:db --link redis:redis --link solr:solr ckan
+      cache:
+        directories:
+          - ~/docker
 
-script:
-  - docker ps -a
+      before_install:
+        - docker build --rm=false -f contrib/docker/postgresql/Dockerfile -t postgresql .
+        - docker build --rm=false -f contrib/docker/solr/Dockerfile -t solr .
+        - docker pull redis:latest
+        - docker build --rm=false -t ckan .
+
+      install:
+        - docker run -d --name db postgresql
+        - docker run -d --name solr solr
+        - docker run -d --name redis redis:latest
+        - docker run -d --name ckan -p 5000:5000 --link db:db --link redis:redis --link solr:solr ckan
+
+      script:
+        - docker ps -a
+
+    - python: "2.7"
+      <<: *flake8-steps
+
+    - python: "3.8"
+      <<: *flake8-steps

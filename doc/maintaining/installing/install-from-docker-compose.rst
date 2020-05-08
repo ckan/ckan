@@ -22,7 +22,7 @@ taken to use this setup in production.
 --------------
 1. Environment
 --------------
-This tutorial was tested on Ubuntu 14.04 LTS and Ubuntu 16.04 LTS, respectively.
+This tutorial was tested on Ubuntu 16.04 LTS.
 The hosts can be local environments or cloud VMs. It is assumed that the user has direct access
 (via terminal / ssh) to the systems and root permissions.
 
@@ -69,9 +69,11 @@ Clone CKAN into a directory of your choice::
     git clone https://github.com/ckan/ckan.git
 
 This will use the latest CKAN master, which may not be stable enough for production use.
-To use a stable version, checkout the respective tag, e.g.::
+To use a stable version, checkout the respective tag, e.g.:
 
-    git checkout tags/ckan-2.6.2
+    .. parsed-literal::
+
+        git checkout tags/|latest_release_tag|
 
 ----------------------
 2. Build Docker images
@@ -166,20 +168,17 @@ against the database and import / export files from ``$VOL_CKAN_HOME``.
 ---------------------------
 3. Datastore and datapusher
 ---------------------------
-To enable the datastore, the datastore database and database users have to be created before
-enabling the datastore and datapusher settings in the ``production.ini``.
+The datastore database and user are created when the `db` container is first started, however we need to do some additional configuration before enabling the datastore and datapusher settings in the ``production.ini``.
 
-a. Create and configure datastore database
+a. Configure datastore database
 
-With running CKAN containers, execute the built-in setup scripts against the ``db`` container::
+With running CKAN containers, execute the built-in setup script against the ``db`` container::
 
-    docker exec -it db psql -U ckan -f 00_create_datastore.sql
     docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/production.ini | docker exec -i db psql -U ckan
 
-The first script will create the datastore database and the datastore readonly user in the ``db``
-container. The second script is the output of ``paster ckan set-permissions`` - however,
+The script pipes in the output of ``paster ckan set-permissions`` - however,
 as this output can change in future versions of CKAN, we set the permissions directly.
-The effect of these scripts is persisted in the named volume ``docker_pg_data``.
+The effect of this script is persisted in the named volume ``docker_pg_data``.
 
 .. note:: We re-use the already privileged default user of the CKAN database as read/write user
     for the datastore. The database user (``ckan``) is hard-coded, the password is supplied through

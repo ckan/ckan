@@ -383,14 +383,14 @@ of a file, etc.) in one place and then reuse it many times.
 
 You define the value once like this::
 
-    .. |production.ini| replace:: /etc/ckan/default/production.ini
+    .. |ckan.ini| replace:: /etc/ckan/default/ckan.ini
 
 and then reuse it like this::
 
-   Now open your |production.ini| file.
+   Now open your |ckan.ini| file.
 
-``|production.ini|`` will be replaced with the full value
-``/etc/ckan/default/production.ini``.
+``|ckan.ini|`` will be replaced with the full value
+``/etc/ckan/default/ckan.ini``.
 
 Substitutions can also be useful for achieving consistent spelling and
 capitalization of names like |restructuredtext|, |postgres|, |nginx|, etc.
@@ -492,7 +492,7 @@ is a nice way to include a list of related links::
        :doc:`The DataStore extension <datastore>`
          A CKAN extension for storing data.
 
-       CKAN's `demo site <http://demo.ckan.org/>`_
+       CKAN's `demo site <https://demo.ckan.org/>`_
          A demo site running the latest CKAN beta version.
 
 Seealso boxes are particularly useful when two pages are related, but don't

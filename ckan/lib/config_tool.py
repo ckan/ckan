@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from __future__ import print_function
+import six
 import re
 
 INSERT_NEW_SECTIONS_BEFORE_SECTION = 'app:main'
@@ -22,7 +24,7 @@ def config_edit_using_merge_file(config_filepath, merge_config_filepath):
     '''
     # Read and parse the merge config filepath
     with open(merge_config_filepath, 'rb') as f:
-        input_lines = [line.rstrip('\n') for line in f]
+        input_lines = [six.ensure_str(line).rstrip('\n') for line in f]
     desired_options_dict = parse_config(input_lines)
     desired_options = desired_options_dict.values()
     # Make the changes
@@ -33,7 +35,7 @@ def config_edit(config_filepath, desired_options, edit=False):
     '''Writes the desired_options to the config file.'''
     # Read and parse the existing config file
     with open(config_filepath, 'rb') as f:
-        input_lines = [line.rstrip('\n') for line in f]
+        input_lines = [six.ensure_str(line).rstrip('\n') for line in f]
     existing_options_dict = parse_config(input_lines)
     existing_options = existing_options_dict.values()
 
@@ -44,7 +46,7 @@ def config_edit(config_filepath, desired_options, edit=False):
     # write the file with the changes
     output = make_changes(input_lines, new_sections, changes)
     with open(config_filepath, 'wb') as f:
-        f.write('\n'.join(output) + '\n')
+        f.write(six.ensure_binary('\n'.join(output) + '\n'))
 
 
 def parse_option_string(section, option_string, raise_on_error=False):
@@ -89,8 +91,8 @@ class Option(object):
 
 
 def calculate_new_sections(existing_options, desired_options):
-    existing_sections = set([option.section for option in existing_options])
-    desired_sections = set([option.section for option in desired_options])
+    existing_sections = {option.section for option in existing_options}
+    desired_sections = {option.section for option in desired_options}
     new_sections = desired_sections - existing_sections
     return new_sections
 

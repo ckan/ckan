@@ -1,26 +1,26 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
+{% block subtitle %}{{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Groups'), controller='group', action='index', named_route=group_type + '_index' %}</li>
-  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name, named_route=group_type + '_read' %}</li>
+  <li>{% link_for _('Groups'), named_route=group_type+'.index' %}</li>
+  <li class="active">{% link_for group_dict.display_name|truncate(35), named_route=group_type+'.read', id=group_dict.name %}</li>
 {% endblock %}
 
 {% block content_action %}
-  {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
-    {% link_for _('Manage'), controller='group', action='edit', id=c.group_dict.name, class_='btn btn-default', icon='wrench', named_route=group_type + '_edit' %}
+  {% if h.check_access('group_update', {'id': group_dict.id}) %}
+    {% link_for _('Manage'), named_route=group_type+'.edit', id=group_dict.name, class_='btn btn-default', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon(group_type + '_read', _('Datasets'), id=c.group_dict.name) }}
-  {{ h.build_nav_icon(group_type + '_activity', _('Activity Stream'), id=c.group_dict.name, offset=0) }}
-  {{ h.build_nav_icon(group_type + '_about', _('About'), id=c.group_dict.name) }}
+  {{ h.build_nav_icon(group_type + '.read', _('Datasets'), id=group_dict.name, icon='sitemap') }}
+  {{ h.build_nav_icon(group_type + '.activity', _('Activity Stream'), id=group_dict.name, offset=0, icon='clock-o') }}
+  {{ h.build_nav_icon(group_type + '.about', _('About'), id=group_dict.name, icon='info-circle') }}
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet "group/snippets/info.html", group=c.group_dict, show_nums=true %}
+  {% snippet "group/snippets/info.html", group=group_dict, show_nums=true %}
 {% endblock %}
 
 {% block links %}

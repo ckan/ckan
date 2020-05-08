@@ -31,7 +31,7 @@ and the release is tagged in the form ``ckan-M.m.p``. All backports are cherry-p
         |                                         |
         +-----+-------------+------>  dev-v2.6    +------->  dev-v2.7
               |             |
-          ckan-2.6.0    ckan-2.6.1       
+          ckan-2.6.0    ckan-2.6.1
 
 
 Additionally, the ``release-vM.m-latest`` branches always contain the latest
@@ -41,7 +41,7 @@ published release for that version (eg ``2.6.1`` on the example above).
 .. note::
 
     Prior to CKAN 2.6, release branches were named ``release-vM.m.p``, after the
-    :ref:`major, minor and patch versions <releases>` they included, and patch releases 
+    :ref:`major, minor and patch versions <releases>` they included, and patch releases
     were always branched from the most recent tip of the previous patch release branch
     (tags were created with the same convention).
     Starting from CKAN 2.6, the convention is the one described above.
@@ -96,7 +96,7 @@ Turn this file into a github issue with a checklist using this command::
    cherry-picked from master, the less compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
-        ./bin/less --production
+        npm run build
         git commit -am "Rebuild CSS"
         git push
 
@@ -112,6 +112,11 @@ Turn this file into a github issue with a checklist using this command::
    a syadmin here: http://beta.ckan.org/ckan-admin/config
 
 #. Announce the branch and ask for help testing on beta.ckan.org on ckan-dev.
+
+#. Create the documentation branch from the release branch. This branch should be named
+   just with the minor version and nothing else (eg ``2.7``, ``2.8``, etc). We will use
+   this branch to build the documentation in Read the Docs on all patch releases for
+   this version.
 
 #. Make latest translation strings available on Transifex.
 
@@ -183,7 +188,7 @@ Turn this file into a github issue with a checklist using this command::
 
    g. Run our script that checks for mistakes in the ckan.po files::
 
-        paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
+        ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
 
       If the script finds any mistakes then at some point before release you
       will need to correct them, but it doesn't need to be done now, since the priority
@@ -296,7 +301,7 @@ Leading up to the release
 
    Check and compile them as before::
 
-        paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
+        ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
         python setup.py compile_catalog
 
     The compilation shows the translation percentage. Compare this with the new
@@ -329,12 +334,12 @@ a release.
 
 #. Run the most thorough tests::
 
-        nosetests ckan/tests --ckan --ckan-migration --with-pylons=test-core.ini
+        pytest --ckan-ini=test-core.ini ckan/tests
 
 #. Do a final build of the front-end, add the generated files to the repo and
    commit the changes::
 
-        paster front-end-build
+        ckan -c |ckan.ini| front-end-build
         git add ckan ckanext
         git commit -am "Rebuild front-end"
 
@@ -408,12 +413,15 @@ a release.
 
    (You will need an admin account.)
 
-   a. Go to the
-      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
-      and make the relevant release 'active' (make sure to use the tag, ie ckan-X.Y.Z,
-      not the branch, ie dev-vX.Y).
+   a. Make sure the documentation branch is up to date with the latest changes in the
+      corresponding ``dev-vX.Y`` branch.
 
-   b. If it is the latest stable release, set it to be the Default Version and
+   b. If this is the first time a minor version is released, go to the
+      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
+      and make the relevant release 'active' (make sure to use the documentation branch, ie X.Y,
+      not the development branch, ie dev-vX.Y).
+
+   c. If it is the latest stable release, set it to be the Default Version and
       check it is displayed on http://docs.ckan.org.
 
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
@@ -442,7 +450,7 @@ a release.
    to make sure you have the latest commits on master and no local changes.
    Then use ``git cherry-pick`` when on the master branch to cherry-pick these
    commits onto master. You should not get any merge conflicts. Run the
-   ``check-po-files`` command again just to be safe, it should not report any
+   ``check-po`` command again just to be safe, it should not report any
    problems. Run CKAN's tests, again just to be safe.  Then do ``git push
    origin master``.
 
@@ -465,7 +473,7 @@ Preparing patch releases
 
    These are usually marked on Github using the ``Backport Pending`` `labels`_ and the
    relevant labels for the versions they should be cherry-picked to (eg ``Backport 2.5.3``).
-   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the 
+   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the
    cherry-picking has been done (but leave the version ones).
 
 #. Ask the tech team if there are security fixes or other fixes to include.
@@ -480,7 +488,7 @@ Doing the patch releases
 
    Rebuild the front-end, add new files and commit with::
 
-        paster front-end-build
+        ckan -c |ckan.ini| front-end-build
         git add ckan ckanext
         git commit -am "Rebuild front-end"
 
@@ -514,10 +522,8 @@ Doing the patch releases
 
         python setup.py sdist upload
 
-#. Merge the release development branch to the relevant ``release-v2.X-latest`` branch, eg::
-
-        git checkout release-v2.7-latest
-        git merge dev-v2.7
+#. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the
+   corresponding ``dev-vX.Y`` branch.
 
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
 

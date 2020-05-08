@@ -7,17 +7,23 @@
 {% block primary_content_inner %}
 
   {% set action = h.url_for(
-    controller='ckanext.datastore.controller:DatastoreController',
-    action='dictionary', id=pkg.name, resource_id=res.id) %}
+    'datastore.dictionary', id=pkg.name, resource_id=res.id) %}
 
   <form method="post" action="{{ action }}" >
     {% block dictionary_form %}
       {% for f in fields %}
         <h3>{{ _( "Field {num}.").format(num=loop.index) }} {{ f.id }} ({{ f.type }})</h3>
-        {{ form.input('f' ~ loop.index ~ 'label',
+        {{ form.select('info__' ~ loop.index ~ '__type_override',
+          label=_('Type Override'), options=[
+          {'name': '', 'value': ''},
+          {'name': 'text', 'value': 'text'},
+          {'name': 'numeric', 'value': 'numeric'},
+          {'name': 'timestamp', 'value': 'timestamp'},
+          ], selected=f.get('info', {}).get('type_override', '')) }}
+        {{ form.input('info__' ~ loop.index ~ '__label',
           label=_('Label'), id='field-f' ~ loop.index ~ 'label',
           value=f.get('info', {}).get('label', ''), classes=['control-full']) }}
-        {{ form.markdown('f' ~ loop.index ~ 'notes',
+        {{ form.markdown('info__' ~ loop.index ~ '__notes',
           label=_('Description'), id='field-d' ~ loop.index ~ 'notes',
           value=f.get('info', {}).get('notes', '')) }}
       {% endfor %}

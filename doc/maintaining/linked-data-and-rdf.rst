@@ -9,10 +9,10 @@ https://github.com/ckan/ckanext-dcat
 These features include the RDF serializations of CKAN datasets based on `DCAT`_, that used to be generated
 using templates hosted on the main CKAN repo, eg:
 
-* http://demo.ckan.org/dataset/newcastle-city-council-payments-over-500.xml
-* http://demo.ckan.org/dataset/newcastle-city-council-payments-over-500.ttl
-* http://demo.ckan.org/dataset/newcastle-city-council-payments-over-500.n3
-* http://demo.ckan.org/dataset/newcastle-city-council-payments-over-500.jsonld
+* https://demo.ckan.org/dataset/newcastle-city-council-payments-over-500.xml
+* https://demo.ckan.org/dataset/newcastle-city-council-payments-over-500.ttl
+* https://demo.ckan.org/dataset/newcastle-city-council-payments-over-500.n3
+* https://demo.ckan.org/dataset/newcastle-city-council-payments-over-500.jsonld
 
 ckanext-dcat offers many more `features <https://github.com/ckan/ckanext-dcat#overview>`_,
 including catalog-wide endpoints and harvesters to import RDF data into CKAN. Please check

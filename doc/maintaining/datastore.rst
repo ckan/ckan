@@ -17,7 +17,7 @@ The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
 The DataStore is generally used alongside the
-`DataPusher <http://docs.ckan.org/projects/datapusher>`_, which will
+`DataPusher <https://docs.ckan.org/projects/datapusher/en/latest/>`_, which will
 automatically upload data to the DataStore from suitable files, whether
 uploaded to CKAN's FileStore or externally linked.
 
@@ -125,7 +125,7 @@ Replace ``pass`` with the passwords you created for your |database_user| and
 Set permissions
 ---------------
 
-Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a paster command to help you correctly set these permissions.
+Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a ckan command to help you correctly set these permissions.
 
 If you are able to use the ``psql`` command to connect to your database as a
 superuser, you can use the ``datastore set-permissions`` command to emit the
@@ -136,25 +136,33 @@ superuser using::
 
     sudo -u postgres psql
 
-Then you can use this connection to set the permissions::
+Then you can use this connection to set the permissions:
+
+   .. parsed-literal::
+
+    ckan -c |ckan.ini| datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
+
+.. note::
+
+   If you performed a package install, you will need to replace all references to
+   'ckan -c |ckan.ini| ...' with 'sudo ckan ...' and provide the path to
+   the config file, e.g.::
 
     sudo ckan datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
 
-.. note::
-   If you performed a source install, you will need to replace all references to
-   ``sudo ckan ...`` with ``paster --plugin=ckan ...`` and provide the path to
-   the config file, e.g. ``paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini | sudo -u postgres psql --set ON_ERROR_STOP=1``
-
 If your database server is not local, but you can access it over SSH, you can
-pipe the permissions script over SSH::
+pipe the permissions script over SSH:
 
-    sudo ckan datastore set-permissions |
-    ssh dbserver sudo -u postgres psql --set ON_ERROR_STOP=1
+    .. parsed-literal::
+
+     ckan -c |ckan.ini| datastore set-permissions | ssh dbserver sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If you can't use the ``psql`` command in this way, you can simply copy and paste
-the output of::
+the output of:
 
-    sudo ckan datastore set-permissions
+    .. parsed-literal::
+
+     ckan -c |ckan.ini| datastore set-permissions
 
 into a |postgres| superuser console.
 
@@ -205,8 +213,10 @@ This task of automatically parsing and then adding data to the DataStore is
 performed by the `DataPusher`_, a service that runs asynchronously and can be installed
 alongside CKAN.
 
-To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
+To install this please look at the docs here: https://docs.ckan.org/projects/datapusher/en/latest/
 
+.. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
+   not support duplicate column headers. That includes blank column headings.
 
 .. _data_dictionary:
 
@@ -247,6 +257,9 @@ JSON (``?format=json``) and XML (``?format=xml``). E.g. to download an Excel-com
 tab-separated file use
 ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
 
+A number of parameters from :meth:`~ckanext.datastore.logic.action.datastore_search` can be used:
+    ``offset``, ``limit``, ``filters``, ``q``, ``distinct``, ``plain``, ``language``, ``fields``, ``sort``
+
 .. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
 
 
@@ -266,7 +279,7 @@ inserted, existing data can be updated or deleted. You can also add a new column
 an existing table even if the DataStore resource already contains some data.
 
 Triggers may be added to enforce validation, clean data as it is loaded or
-even record record histories. Triggers are PL/pgSQL functions that must be
+even record histories. Triggers are PL/pgSQL functions that must be
 created by a sysadmin.
 
 You will notice that we tried to keep the layer between the underlying PostgreSQL

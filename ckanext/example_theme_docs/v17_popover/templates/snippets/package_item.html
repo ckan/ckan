@@ -2,11 +2,11 @@
 
 {% block content %}
   {{ super() }}
-  {% resource 'example_theme/example_theme_popover.js' %}
+  {% asset 'example_theme/example_theme' %}
 
   {# Apply our JavaScript module to an HTML <button> element.
-     The additional data-module-* attributes are options that will be passed
-     to the JavaScript module. #}
+    The additional data-module-* attributes are options that will be passed
+    to the JavaScript module. #}
   <button data-module="example_theme_popover"
           data-module-title="{{ package.title }}"
           data-module-license="{{ package.license_title }}"

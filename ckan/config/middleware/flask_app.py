@@ -1,41 +1,65 @@
 # encoding: utf-8
 
 import os
+import sys
 import re
+import time
 import inspect
 import itertools
 import pkgutil
 
-from flask import Flask, Blueprint
+from flask import Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
+from flask_multistatic import MultiStaticFlask
 
-from werkzeug.exceptions import HTTPException
+import six
+from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
 from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
 import ckan.model as model
+from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
+from ckan.lib import uploader
 from ckan.common import config, g, request, ungettext
+from ckan.config.middleware.common_middleware import TrackingMiddleware
 import ckan.lib.app_globals as app_globals
+import ckan.lib.plugins as lib_plugins
+import ckan.plugins.toolkit as toolkit
+from ckan.lib.webassets_tools import get_webassets_path
+
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
+                        set_controller_and_action,
+                        handle_i18n,
+                        set_ckan_current_url,
                         )
 
-
 import logging
+from logging.handlers import SMTPHandler
 log = logging.getLogger(__name__)
+
+
+class I18nMiddleware(object):
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+
+        handle_i18n(environ)
+        return self.app(environ, start_response)
 
 
 class CKANBabel(Babel):
@@ -63,31 +87,44 @@ class CKANBabel(Babel):
             self._i18n_path_idx += 1
 
 
-def make_flask_stack(conf, **app_conf):
+def make_flask_stack(conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
     root = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    debug = asbool(app_conf.get('debug', app_conf.get('DEBUG', False)))
-    testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
+    debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
+    testing = asbool(conf.get('testing', conf.get('TESTING', False)))
+    app = flask_app = CKANFlask(__name__, static_url_path='')
 
-    app = flask_app = CKANFlask(__name__)
+    # Register storage for accessing group images, site logo, etc.
+    storage_folder = []
+    storage = uploader.get_storage_path()
+    if storage:
+        storage_folder = [os.path.join(storage, 'storage')]
+
+    # Static files folders (core and extensions)
+    public_folder = config.get(u'ckan.base_public_folder')
+    app.static_folder = config.get(
+        'extra_public_paths', ''
+    ).split(',') + [os.path.join(root, public_folder)] + storage_folder
+
+    app.jinja_options = jinja_extensions.get_jinja_env_options()
+    app.jinja_env.policies['ext.i18n.trimmed'] = True
+
     app.debug = debug
     app.testing = testing
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
 
-    app.jinja_options = jinja_extensions.get_jinja_env_options()
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     if config:
         app.config.update(config)
     else:
         app.config.update(conf)
-        app.config.update(app_conf)
 
     # Do all the Flask-specific stuff before adding other middlewares
 
@@ -98,10 +135,34 @@ def make_flask_stack(conf, **app_conf):
         raise RuntimeError(u'You must provide a value for the secret key'
                            ' with the SECRET_KEY config option')
 
+    root_path = config.get('ckan.root_path', None)
     if debug:
         from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-        DebugToolbarExtension(app)
+        debug_ext = DebugToolbarExtension()
+
+        # register path that includes `ckan.site_root` before
+        # initializing debug app. In such a way, our route receives
+        # higher precedence.
+
+        # TODO: After removal of Pylons code, switch to
+        # `APPLICATION_ROOT` config value for flask application. Right
+        # now it's a bad option because we are handling both pylons
+        # and flask urls inside helpers and splitting this logic will
+        # bring us tons of headache.
+        if root_path:
+            app.add_url_rule(
+                root_path.replace('{{LANG}}', '').rstrip('/') +
+                '/_debug_toolbar/static/<path:filename>',
+                '_debug_toolbar.static', debug_ext.send_static_file
+            )
+        debug_ext.init_app(app)
+
+        from werkzeug.debug import DebuggedApplication
+        app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
+
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.DEBUG)
 
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
@@ -113,14 +174,14 @@ def make_flask_stack(conf, **app_conf):
             session.save()
 
     namespace = 'beaker.session.'
-    session_opts = dict([(k.replace('beaker.', ''), v)
-                        for k, v in config.iteritems()
-                        if k.startswith(namespace)])
+    session_opts = {k.replace('beaker.', ''): v
+                    for k, v in six.iteritems(config)
+                    if k.startswith(namespace)}
     if (not session_opts.get('session.data_dir') and
             session_opts.get('session.type', 'file') == 'file'):
-        cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
+        cache_dir = conf.get('cache_dir') or conf.get('cache.dir')
         session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
-                data_dir=cache_dir)
+            data_dir=cache_dir)
 
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
@@ -161,23 +222,29 @@ def make_flask_stack(conf, **app_conf):
 
     babel.localeselector(get_locale)
 
-    @app.route('/hello', methods=['GET'])
-    def hello_world():
-        return 'Hello World, this is served by Flask'
-
-    @app.route('/hello', methods=['POST'])
-    def hello_world_post():
-        return 'Hello World, this was posted to Flask'
+    # WebAssets
+    _setup_webassets(app)
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
+    _register_error_handler(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
-            app.register_extension_blueprint(plugin.get_blueprint())
+            plugin_blueprints = plugin.get_blueprint()
+            if not isinstance(plugin_blueprints, list):
+                plugin_blueprints = [plugin_blueprints]
+            for blueprint in plugin_blueprints:
+                app.register_extension_blueprint(blueprint)
+
+    lib_plugins.register_package_blueprints(app)
+    lib_plugins.register_group_blueprints(app)
 
     # Set flask routes in named_routes
+    # TODO: refactor whatever helper is using this to not do it
+    if 'routes.named_routes' not in config:
+        config['routes.named_routes'] = {}
     for rule in app.url_map.iter_rules():
         if '.' not in rule.endpoint:
             continue
@@ -189,8 +256,8 @@ def make_flask_stack(conf, **app_conf):
                 'controller': controller,
                 'highlight_actions': action,
                 'needed': needed
-                }
             }
+        }
         config['routes.named_routes'].update(route)
 
     # Start other middleware
@@ -198,6 +265,8 @@ def make_flask_stack(conf, **app_conf):
         app = plugin.make_middleware(app, config)
 
     # Fanstatic
+    fanstatic_enable_rollup = asbool(
+        conf.get('fanstatic_enable_rollup', False))
     if debug:
         fanstatic_config = {
             'versioning': True,
@@ -205,6 +274,7 @@ def make_flask_stack(conf, **app_conf):
             'minified': False,
             'bottom': True,
             'bundle': False,
+            'rollup': fanstatic_enable_rollup,
         }
     else:
         fanstatic_config = {
@@ -213,8 +283,9 @@ def make_flask_stack(conf, **app_conf):
             'minified': True,
             'bottom': True,
             'bundle': True,
+            'rollup': fanstatic_enable_rollup,
         }
-    root_path = config.get('ckan.root_path', None)
+
     if root_path:
         root_path = re.sub('/{{LANG}}', '', root_path)
         fanstatic_config['base_url'] = root_path
@@ -230,7 +301,7 @@ def make_flask_stack(conf, **app_conf):
 
     # Initialize repoze.who
     who_parser = WhoConfig(conf['here'])
-    who_parser.parse(open(app_conf['who.config_file']))
+    who_parser.parse(open(conf['who.config_file']))
 
     app = PluggableAuthenticationMiddleware(
         app,
@@ -250,6 +321,12 @@ def make_flask_stack(conf, **app_conf):
     flask_config_keys = set(flask_app.config.keys()) - set(config.keys())
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
+
+    if six.PY3:
+        app = I18nMiddleware(app)
+
+        if asbool(config.get('ckan.tracking_enabled', 'false')):
+            app = TrackingMiddleware(app, config)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
@@ -278,6 +355,13 @@ def ckan_before_request():
     # Sets g.user and g.userobj
     identify_user()
 
+    # Provide g.controller and g.action for backward compatibility
+    # with extensions
+    set_controller_and_action()
+
+    set_ckan_current_url(request.environ)
+    g.__timer = time.time()
+
 
 def ckan_after_request(response):
     u'''Common handler executed after all Flask requests'''
@@ -291,12 +375,18 @@ def ckan_after_request(response):
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
 
+    r_time = time.time() - g.__timer
+    url = request.environ['PATH_INFO']
+
+    log.info(' %s render time %.3f seconds' % (url, r_time))
+
     return response
 
 
 def helper_functions():
     u'''Make helper functions (`h`) available to Flask templates'''
-    helpers.load_plugin_helpers()
+    if not helpers.helper_functions:
+        helpers.load_plugin_helpers()
     return dict(h=helpers.helper_functions)
 
 
@@ -332,7 +422,7 @@ class CKAN_AppCtxGlobals(_AppCtxGlobals):
         return getattr(app_globals.app_globals, name)
 
 
-class CKANFlask(Flask):
+class CKANFlask(MultiStaticFlask):
 
     '''Extend the Flask class with a special method called on incoming
      requests by AskAppDispatcherMiddleware.
@@ -350,8 +440,8 @@ class CKANFlask(Flask):
         `origin` can be either 'core' or 'extension' depending on where
         the route was defined.
         '''
-
         urls = self.url_map.bind_to_environ(environ)
+
         try:
             rule, args = urls.match(return_rule=True)
             origin = 'core'
@@ -359,6 +449,12 @@ class CKANFlask(Flask):
                 origin = 'extension'
             log.debug('Flask route match, endpoint: {0}, args: {1}, '
                       'origin: {2}'.format(rule.endpoint, args, origin))
+
+            # Disable built-in flask's ability to prepend site root to
+            # generated url, as we are going to use locale and existing
+            # logic is not flexible enough for this purpose
+            environ['SCRIPT_NAME'] = ''
+
             return (True, self.app_name, origin)
         except HTTPException:
             return (False, self.app_name)
@@ -376,7 +472,7 @@ class CKANFlask(Flask):
 
         # Get the new blueprint rules
         bp_rules = itertools.chain.from_iterable(
-            v for k, v in self.url_map._rules_by_endpoint.iteritems()
+            v for k, v in six.iteritems(self.url_map._rules_by_endpoint)
             if k.startswith(u'{0}.'.format(blueprint.name))
         )
 
@@ -400,3 +496,80 @@ def _register_core_blueprints(app):
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
             log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+
+
+def _register_error_handler(app):
+    u'''Register error handler'''
+
+    def error_handler(e):
+        log.error(e, exc_info=sys.exc_info)
+        if isinstance(e, HTTPException):
+            extra_vars = {
+                u'code': e.code,
+                u'content': e.description,
+                u'name': e.name
+            }
+
+            return base.render(
+                u'error_document_template.html', extra_vars), e.code
+        extra_vars = {u'code': [500], u'content': u'Internal server error'}
+        return base.render(u'error_document_template.html', extra_vars), 500
+
+    for code in default_exceptions:
+        app.register_error_handler(code, error_handler)
+    if not app.debug and not app.testing:
+        app.register_error_handler(Exception, error_handler)
+        if config.get('email_to'):
+            _setup_error_mail_handler(app)
+
+
+def _setup_error_mail_handler(app):
+
+    class ContextualFilter(logging.Filter):
+        def filter(self, log_record):
+            log_record.url = request.path
+            log_record.method = request.method
+            log_record.ip = request.environ.get("REMOTE_ADDR")
+            log_record.headers = request.headers
+            return True
+
+    smtp_server = config.get('smtp.server', 'localhost')
+    mailhost = tuple(smtp_server.split(':')) \
+        if ':' in smtp_server else smtp_server
+    credentials = None
+    if config.get('smtp.user'):
+        credentials = (config.get('smtp.user'), config.get('smtp.password'))
+    secure = () if asbool(config.get('smtp.starttls')) else None
+    mail_handler = SMTPHandler(
+        mailhost=mailhost,
+        fromaddr=config.get('error_email_from'),
+        toaddrs=[config.get('email_to')],
+        subject='Application Error',
+        credentials=credentials,
+        secure=secure
+    )
+
+    mail_handler.setFormatter(logging.Formatter('''
+Time:               %(asctime)s
+URL:                %(url)s
+Method:             %(method)s
+IP:                 %(ip)s
+Headers:            %(headers)s
+
+'''))
+
+    context_provider = ContextualFilter()
+    app.logger.addFilter(context_provider)
+    app.logger.addHandler(mail_handler)
+
+
+def _setup_webassets(app):
+    app.use_x_sendfile = toolkit.asbool(
+        config.get('ckan.webassets.use_x_sendfile')
+    )
+
+    webassets_folder = get_webassets_path()
+
+    @app.route('/webassets/<path:path>', endpoint='webassets.index')
+    def webassets(path):
+        return send_from_directory(webassets_folder, path)

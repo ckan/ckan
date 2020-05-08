@@ -5,8 +5,8 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 16.04 64-bit** or **Ubuntu 14.04 64-bit**. If
-you're not using Ubuntu 16.04 64-bit or Ubuntu 14.04 64-bit, or if you're installing CKAN for
+and easiest way to install CKAN, but it requires **Ubuntu 16.04 64-bit**. If
+you're not using Ubuntu 16.04 64-bit, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
 At the end of the installation process you will end up with two running web
@@ -47,7 +47,13 @@ CKAN:
 
 #. Install the Ubuntu packages that CKAN requires (and 'git', to enable you to install CKAN extensions)::
 
-    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5 redis-server git-core
+    sudo apt-get install -y apache2 libapache2-mod-wsgi libpq5 redis-server git-core
+
+#. Then stop apache2 service to install nginx
+
+    sudo service apache2 stop
+
+    sudo apt-get install -y nginx
 
 #. Download the CKAN package:
 
@@ -57,12 +63,6 @@ CKAN:
 
            wget \http://packaging.ckan.org/|latest_package_name_xenial|
 
-   - On Ubuntu 14.04:
-
-       .. parsed-literal::
-
-           wget \http://packaging.ckan.org/|latest_package_name_trusty|
-
 
 #. Install the CKAN package:
 
@@ -71,12 +71,6 @@ CKAN:
        .. parsed-literal::
 
            sudo dpkg -i |latest_package_name_xenial|
-
-   - On Ubuntu 14.04:
-
-       .. parsed-literal::
-
-           sudo dpkg -i |latest_package_name_trusty|
 
     .. note:: If you get the following error it means that for some reason the
      Apache WSGI module was not enabled::
@@ -101,7 +95,11 @@ CKAN:
 
    You can install |postgres| and CKAN on different servers. Just
    change the :ref:`sqlalchemy.url` setting in your
-   |production.ini| file to reference your |postgres| server.
+   |ckan.ini| file to reference your |postgres| server.
+
+.. note::
+
+   The commands mentioned below are tested for Ubuntu system
 
 Install |postgres|, running this command in a terminal::
 
@@ -109,7 +107,7 @@ Install |postgres|, running this command in a terminal::
 
 .. include:: postgres.rst
 
-Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|production.ini|) file and
+Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|ckan.ini|) file and
 set the correct password, database and database user.
 
 
@@ -121,7 +119,7 @@ set the correct password, database and database user.
 
    You can install |solr| and CKAN on different servers. Just
    change the :ref:`solr_url` setting in your
-   |production.ini| file to reference your |solr| server.
+   |ckan.ini| |production.ini| file to reference your |solr| server.
 
 Install |solr|, running this command in a terminal::
 
@@ -137,7 +135,7 @@ The install will whirr away, then towards the end you'll see this::
 4. Update the configuration and initialize the database
 -------------------------------------------------------
 
-#. Edit the :ref:`config_file` (|production.ini|) to set up the following options:
+#. Edit the :ref:`config_file` (|ckan.ini|) to set up the following options:
 
     site_id
       Each CKAN site should have a unique ``site_id``, for example::

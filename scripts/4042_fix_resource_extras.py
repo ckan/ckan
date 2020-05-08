@@ -28,8 +28,9 @@ activated.
 '''
 
 import json
-from ConfigParser import ConfigParser
+from six.moves.configparser import ConfigParser
 from argparse import ArgumentParser
+from six.moves import input
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 
@@ -76,10 +77,10 @@ def main():
         print(u'\tCurrent extras state in DB: {}'.format(current))
         print(u'\tAccording to the revision:  {}'.format(rev))
         if not skip_confirmation:
-            choice = raw_input(
+            choice = input(
                 u'\tRequired action: '
                 u'y - rewrite; n - skip; ! - rewrite all; q - skip all: '
-            ).strip()
+            ).strip().lower()
             if choice == u'q':
                 break
             elif choice == u'n':

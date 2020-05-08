@@ -140,7 +140,7 @@ Adding a new dataset
 
     You may need to be a member of an organization in order to add and edit
     datsets. See the section :ref:`creating_an_organization` below. On
-    http://demo.ckan.org, you can add a dataset without being in an organization,
+    https://demo.ckan.org, you can add a dataset without being in an organization,
     but dataset features relating to authorization and organizations will not be
     available.
 
@@ -471,6 +471,110 @@ If the dataset is of interest, you can opt to be notified of changes to it by
 using the "Follow" button on the dataset page. See the section
 :ref:`managing_your_news_feed` below. You must have a user account and be
 logged in to use this feature.
+
+Search in detail
+================
+
+CKAN supports two search modes, both are used from the same search field.
+If the search terms entered into the search field contain no colon (":")
+CKAN will perform a simple search. If the search expression does contain at
+least one colon (":") CKAN will perform an advanced search.
+
+Simple Search
+-------------
+
+CKAN defers most of the search to Solr and by default it uses the `DisMax Query
+Parser <https://lucene.apache.org/solr/guide/6_6/the-dismax-query-parser.html>`_
+that was primarily designed to be easy to use and to accept almost any input
+without returning an error.
+
+The search words typed by the user in the search box defines the main "query"
+constituting the essence of the search. The + and - characters are
+treated as **mandatory** and **prohibited** modifiers for terms. Text wrapped
+in balanced quote characters (for example, "San Jose") is treated as a phrase.
+By default, all words or phrases specified by the user are treated as
+**optional** unless they are preceded by a "+" or a "-".
+
+.. note::
+
+    CKAN will search for the **complete** word and when doing simple search are
+    wildcards are not supported.
+
+Simple search examples:
+
+* ``census`` will search for all the datasets containing the word "census" in
+  the query fields.
+
+* ``census +2019`` will search for all the datasets contaning the word "census"
+  and filter only those matching also "2019" as it is treated as mandatory.
+
+* ``census -2019`` will search for all the datasets containing the word
+  "census" and will exclude "2019" from the results as it is treated as
+  prohibited.
+
+* ``"european census"`` will search for all the datasets containing the phrase
+  "european census".
+
+Solr applies some preprocessing and stemming when searching. Stemmers remove
+morphological affixes from words, leaving only the word stem. This may cause,
+for example, that searching for "testing" or "tested" will show also results
+containing the word "test".
+
+* ``Testing`` will search for all the datasets containing the word "Testing"
+  and also "Test" as it is the stem of "Testing".
+
+.. note::
+
+    If the Name of the dataset contains words separated by "-" it will consider
+    each word independently in the search.
+
+
+Advanced Search
+---------------
+
+If the query has a colon in it it will be considered a fielded search and the
+query syntax of Solr will be used to search. This will allow us to use wildcards
+"*", proximity matching "~" and general features described in Solr docs.
+The basic syntax is ``field:term``.
+
+Advanced Search Examples:
+
+* ``title:european`` this will look for all the datasets containing in its
+  title the word "european".
+
+* ``title:europ*`` this will look for all the datasets containing in its title
+  a word that starts with "europ" like "europe" and "european".
+
+* ``title:europe || title:africa`` will look for datasets containing "europe"
+  or "africa" in its title.
+
+* ``title: "european census" ~ 4`` A proximity search looks for terms that
+  are within a specific distance from one another. This example will look for
+  datasets which title contains the words "european" and "census" within a
+  distance of 4 words.
+
+* ``author:powell~`` CKAN supports fuzzy searches based on the Levenshtein
+  Distance, or Edit Distance algorithm. To do a fuzzy search use the "~"
+  symbol at the end of a single-word term. In this example words like
+  "jowell" or "pomell" will also be found.
+
+
+.. note::
+
+    Field names used in advanced search may differ from Datasets Attributes,
+    the mapping rules are defined in the ``schema.xml`` file. You can use ``title``
+    to search by the dataset name and ``text`` to look in a catch-all field that
+    includes author, license, mantainer, tags, etc.
+
+.. note::
+
+    CKAN uses Apache Solr as its search engine. For further details check the
+    `Solr documentation
+    <https://lucene.apache.org/solr/guide/6_6/searching.html#searching>`_.
+    Please note that CKAN sometimes uses different values than what is mentioned
+    in that documentation. Also note that not the whole functionality is offered
+    through the simplified search interface in CKAN or it can differ due to
+    extensions or local development in your CKAN instance.
 
 Personalization
 ===============

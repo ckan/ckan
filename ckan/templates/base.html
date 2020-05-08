@@ -40,7 +40,7 @@
     <title>
       {%- block title -%}
         {%- block subtitle %}{% endblock -%}
-        {%- if self.subtitle()|trim %} {{ g.template_title_deliminater }} {% endif -%}
+        {%- if self.subtitle()|trim %} {{ g.template_title_delimiter }} {% endif -%}
         {{ g.site_title }}
       {%- endblock -%}
     </title>
@@ -66,7 +66,10 @@
       {% endblock %}
     #}
     {%- block styles %}
-      {% resource g.main_css[6:] %}
+      {# TODO: store just name of asset instead of path to it. #}
+      {% set main_css = h.get_rtl_css() if h.is_rtl_language() else g.main_css %}
+      {# strip '/base/' prefix and '.css' suffix #}
+      {% asset main_css[6:-4] %}
     {% endblock %}
 
     {% block head_extras %}
@@ -74,6 +77,8 @@
       {{ g.template_head_end | safe }}
     {% endblock %}
 
+    {# render all assets included in styles block #}
+    {{ h.render_assets('style') }}
     {%- block custom_styles %}
       {%- if g.site_custom_css -%}
       <style>
@@ -112,5 +117,10 @@
       {# defined in the config.ini under "ckan.template_footer_end" #}
       {{ g.template_footer_end | safe }}
     {%- endblock %}
+
+    {# render all assets included in scripts block and everywhere else #}
+    {# make sure there are no calls to `asset` tag after this point #}
+    {{ h.render_assets('style') }}
+    {{ h.render_assets('script') }}
   </body>
 </html>

@@ -33,19 +33,7 @@ If run into any problems following these instructions, see `Troubleshooting`_
 below.
 
 -----------------------------------
-1. Create a ``production.ini`` File
------------------------------------
-
-Create your site's ``production.ini`` file, by copying the ``development.ini``
-file you created in :doc:`install-from-source` earlier:
-
-.. parsed-literal::
-
-    cp |development.ini| |production.ini|
-
-
------------------------------------
-2. Install Apache, modwsgi, modrpaf
+1. Install Apache, modwsgi, modrpaf
 -----------------------------------
 
 Install Apache_ (a web server), modwsgi_ (an Apache module that adds WSGI
@@ -59,7 +47,7 @@ address when there is a proxy forwarding to Apache)::
 
 
 ----------------
-3. Install Nginx
+2. Install Nginx
 ----------------
 
 Install Nginx_ (a web server) which will proxy the content from Apache_ and add
@@ -68,7 +56,7 @@ a layer of caching::
     sudo apt-get install nginx
 
 --------------------------
-4. Install an email server
+3. Install an email server
 --------------------------
 
 If one isn't installed already, install an email server to enable CKAN's email
@@ -84,7 +72,7 @@ return.
 
 
 ------------------------------
-5. Create the WSGI script file
+4. Create the WSGI script file
 ------------------------------
 
 Create your site's WSGI script file |apache.wsgi| with the following
@@ -97,7 +85,7 @@ contents:
     execfile(activate_this, dict(__file__=activate_this))
 
     from paste.deploy import loadapp
-    config_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'production.ini')
+    config_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ckan.ini')
     from paste.script.util.logging_config import fileConfig
     fileConfig(config_filepath)
     application = loadapp('config:%s' % config_filepath)
@@ -109,7 +97,7 @@ CKAN to run in).
 
 
 --------------------------------
-6. Create the Apache config file
+5. Create the Apache config file
 --------------------------------
 
 Create your site's Apache config file at |apache_config_file|, with the
@@ -148,28 +136,18 @@ following contents:
 Replace ``default.ckanhosted.com`` and ``www.default.ckanhosted.com`` with the
 domain name for your site.
 
-.. note::
-
-    If you are running |apache| 2.2 or lower (eg on Ubuntu 12.04), remove this directive,
-    as it is not supported::
-
-        <Directory />
-            Require all granted
-        </Directory>
-
-
 This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
 
 ------------------------------------
-7. Modify the Apache ports.conf file
+6. Modify the Apache ports.conf file
 ------------------------------------
 
 Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with the 8080 one.
 
 
-   - On Apache 2.4 (eg Ubuntu 14.04 or RHEL 7):
+   - On Apache 2.4 (eg Ubuntu 18.04 or RHEL 7):
 
      Replace this line:
 
@@ -184,23 +162,8 @@ Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with th
             Listen 8080
 
 
-   - On Apache 2.2 (eg Ubuntu 12.04 or RHEL 6):
-
-     Replace these lines:
-
-        .. parsed-literal::
-
-            NameVirtualHost \*:80
-            Listen 80
-
-     With these ones:
-
-        .. parsed-literal::
-            NameVirtualHost \*:8080
-            Listen 8080
-
 -------------------------------
-8. Create the Nginx config file
+7. Create the Nginx config file
 -------------------------------
 
 Create your site's Nginx config file at |nginx_config_file|, with the
@@ -230,7 +193,7 @@ following contents:
 
 
 ------------------------
-9. Enable your CKAN site
+8. Enable your CKAN site
 ------------------------
 
 To prevent conflicts, disable your default nginx and apache sites.  Finally, enable your CKAN site in Apache:
@@ -249,7 +212,7 @@ CKAN instance.
 
 
 --------------------------------------
-10. Setup a worker for background jobs
+9. Setup a worker for background jobs
 --------------------------------------
 CKAN uses asynchronous :ref:`background jobs` for long tasks. These jobs are
 executed by a separate process which is called a :ref:`worker <background jobs

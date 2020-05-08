@@ -1,11 +1,10 @@
 # encoding: utf-8
 
-'''This is a collection of helper functions for use in tests.
+"""This is a collection of helper functions for use in tests.
 
 We want to avoid sharing test helper functions between test modules as
-much as possible, and we definitely don't want to share test fixtures between
-test modules, or to introduce a complex hierarchy of test class subclasses,
-etc.
+much as possible, and we definitely don't want to introduce a complex
+hierarchy of test class subclasses, etc.
 
 We want to reduce the amount of "travel" that a reader needs to undertake to
 understand a test method -- reducing the number of other files they need to go
@@ -16,23 +15,26 @@ But some test helper functions just increase the readability of tests so much
 and make writing tests so much easier, that it's worth having them despite the
 potential drawbacks.
 
-This module is reserved for these very useful functions.
+New in CKAN 2.9: Consider using :ref:`fixtures` whenever possible for setting
+up the initial state of a test or to create helpers objects like client apps.
 
-'''
+"""
 
 import collections
 import contextlib
-import errno
 import functools
 import logging
-import os
 import re
+import json
+import smtplib
 
-import webtest
-import nose.tools
-from nose.tools import assert_in, assert_not_in
+from flask.testing import Client as FlaskClient
+from flask.wrappers import Response
+from click.testing import CliRunner
+import pytest
 import mock
 import rq
+import six
 
 from ckan.common import config
 import ckan.lib.jobs as jobs
@@ -44,9 +46,25 @@ import ckan.logic as logic
 
 
 def reset_db():
-    '''Reset CKAN's database.
+    """Reset CKAN's database.
 
-    If a test class uses the database, then it should call this function in its
+    Rather than use this function directly, use the ``clean_db`` fixture
+    either for all tests in a class::
+
+        @pytest.mark.usefixtures("clean_db")
+        class TestExample(object):
+
+            def test_example(self):
+
+    or for a single test::
+
+        class TestExample(object):
+
+            @pytest.mark.usefixtures("clean_db")
+            def test_example(self):
+
+
+    If a test class uses the database, then it may call this function in its
     ``setup()`` method to make sure that it has a clean database to start with
     (nothing left over from other test classes or from previous test runs).
 
@@ -55,7 +73,7 @@ def reset_db():
 
     :returns: ``None``
 
-    '''
+    """
     # Close any database connections that have been left open.
     # This prevents CKAN from hanging waiting for some unclosed connection.
     model.Session.close_all()
@@ -64,7 +82,7 @@ def reset_db():
 
 
 def call_action(action_name, context=None, **kwargs):
-    '''Call the named ``ckan.logic.action`` function and return the result.
+    """Call the named ``ckan.logic.action`` function and return the result.
 
     This is just a nicer way for user code to call action functions, nicer than
     either calling the action function directly or via
@@ -101,16 +119,16 @@ def call_action(action_name, context=None, **kwargs):
     :type context: dict
     :returns: the dict or other value that the action function returns
 
-    '''
+    """
     if context is None:
         context = {}
-    context.setdefault('user', '127.0.0.1')
-    context.setdefault('ignore_auth', True)
+    context.setdefault("user", "127.0.0.1")
+    context.setdefault("ignore_auth", True)
     return logic.get_action(action_name)(context=context, data_dict=kwargs)
 
 
 def call_auth(auth_name, context, **kwargs):
-    '''Call the named ``ckan.logic.auth`` function and return the result.
+    """Call the named ``ckan.logic.auth`` function and return the result.
 
     This is just a convenience function for tests in
     :py:mod:`ckan.tests.logic.auth` to use.
@@ -135,50 +153,161 @@ def call_auth(auth_name, context, **kwargs):
         or just ``{'success': False}``
     :rtype: dict
 
-    '''
-    assert 'user' in context, ('Test methods must put a user name in the '
-                               'context dict')
-    assert 'model' in context, ('Test methods must put a model in the '
-                                'context dict')
+    """
+    assert "user" in context, (
+        "Test methods must put a user name in the " "context dict"
+    )
+    assert "model" in context, (
+        "Test methods must put a model in the " "context dict"
+    )
 
     return logic.check_access(auth_name, context, data_dict=kwargs)
 
 
-class CKANTestApp(webtest.TestApp):
-    '''A wrapper around webtest.TestApp
+def body_contains(res, content):
+    try:
+        body = res.data
+    except AttributeError:
+        body = res.body
+    body = six.ensure_text(body)
+    return content in body
+
+
+class CKANCliRunner(CliRunner):
+    def invoke(self, *args, **kwargs):
+        # prevent cli runner from str/bytes exceptions
+        kwargs.setdefault(u'complete_var', u'_CKAN_COMPLETE')
+        return super(CKANCliRunner, self).invoke(*args, **kwargs)
+
+
+class CKANResponse(Response):
+    @property
+    def body(self):
+        return six.ensure_str(self.data)
+
+    def __contains__(self, segment):
+        return body_contains(self, segment)
+
+
+class CKANTestApp(object):
+    """A wrapper around flask.testing.Client
 
     It adds some convenience methods for CKAN
-    '''
+    """
 
     _flask_app = None
 
     @property
     def flask_app(self):
         if not self._flask_app:
-            self._flask_app = self.app.apps['flask_app']._wsgi_app
+            if six.PY2:
+                self._flask_app = self.app.apps["flask_app"]._wsgi_app
+            else:
+                self._flask_app = self.app._wsgi_app
         return self._flask_app
+
+    def __init__(self, app):
+        self.app = app
+
+    def test_client(self, use_cookies=True):
+        return CKANTestClient(self.app, CKANResponse, use_cookies=use_cookies)
+        self.flask_app.test_client_class = CKANTestClient
+        return self.flask_app.test_client()
+
+    def options(self, url, *args, **kwargs):
+        res = self.test_client().options(url, *args, **kwargs)
+        return res
+
+    def post(self, url, *args, **kwargs):
+        params = kwargs.pop("params", None)
+        if params:
+            kwargs["data"] = params
+        res = self.test_client().post(url, *args, **kwargs)
+        return res
+
+    def get(self, url, *args, **kwargs):
+        params = kwargs.pop("params", None)
+        if params:
+            kwargs["query_string"] = params
+
+        res = self.test_client().get(url, *args, **kwargs)
+        return res
+
+    @property
+    def json(self):
+        return json.loads(self.data)
+
+
+class CKANTestClient(FlaskClient):
+    def open(self, *args, **kwargs):
+        status = kwargs.pop("status", None)
+        extra_environ = kwargs.pop("extra_environ", None)
+        if extra_environ:
+            kwargs["environ_overrides"] = extra_environ
+        # params = kwargs.pop('params', None)
+        # if params:
+        # kwargs['query_string'] = params
+
+        if args and isinstance(args[0], six.string_types):
+            kwargs.setdefault("follow_redirects", True)
+            kwargs.setdefault("base_url", config["ckan.site_url"])
+        res = super(CKANTestClient, self).open(*args, **kwargs)
+
+        if status:
+            assert (
+                res.status_code == status
+            ), "Actual: {}. Expected: {}".format(res.status_code, status)
+
+        return res
 
 
 def _get_test_app():
-    '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
+    """Return a CKANTestApp.
+
+    Don't use this function directly, use the ``app`` fixture::
+
+        def test_dataset_search(self, app):
+
+            url = h.url_for('dataset.search')
+
+            response = app.get(url)
+
 
     For functional tests that need to request CKAN pages or post to the API.
     Unit tests shouldn't need this.
 
-    '''
-    config['ckan.legacy_templates'] = False
-    config['testing'] = True
-    app = ckan.config.middleware.make_app(config['global_conf'], **config)
+    """
+    config["ckan.legacy_templates"] = False
+    config["testing"] = True
+    if six.PY2:
+        app = ckan.config.middleware.make_app(config)
+    else:
+        app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
+
     return app
 
 
 class FunctionalTestBase(object):
-    '''A base class for functional test classes to inherit from.
+    """A base class for functional test classes to inherit from.
+
+    Deprecated: Use the ``app``, ``clean_db``, ``ckan_config`` and
+    ``with_plugins`` ref:`fixtures` as needed to create functional test
+    classes, eg::
+
+        @pytest.mark.ckan_config('ckan.plugins', 'image_view')
+        @pytest.mark.usefixtures('with_plugins')
+        @pytest.mark.usefixtures('clean_db')
+        class TestDatasetSearch(object):
+
+            def test_dataset_search(self, app):
+
+                url = h.url_for('dataset.search')
+                response = app.get(url)
 
     Allows configuration changes by overriding _apply_config_changes and
     resetting the CKAN config after your test class has run. It creates a
-    webtest.TestApp at self.app for your class to use to make HTTP requests
+    CKANTestApp at self.app for your class to use to make HTTP requests
     to the CKAN web UI or API. Also loads plugins defined by
     _load_plugins in the class definition.
 
@@ -186,40 +315,46 @@ class FunctionalTestBase(object):
     and teardown_class(), make sure to use super() to call this class's methods
     at the top of yours!
 
-    '''
+    """
+
     @classmethod
-    def _get_test_app(cls):  # leading _ because nose is terrible
+    def _get_test_app(cls):
         # FIXME: remove this method and switch to using helpers.get_test_app
         # in each test once the old functional tests are fixed or removed
-        if not hasattr(cls, '_test_app'):
+        if not hasattr(cls, "_test_app"):
             cls._test_app = _get_test_app()
         return cls._test_app
 
     @classmethod
     def setup_class(cls):
         import ckan.plugins as p
+
         # Make a copy of the Pylons config, so we can restore it in teardown.
         cls._original_config = dict(config)
         cls._apply_config_changes(config)
+        try:
+            config["ckan.plugins"] = " ".join(cls._load_plugins)
+            del cls._test_app  # reload with the new plugins
+        except AttributeError:
+            pass
         cls._get_test_app()
-        for plugin in getattr(cls, '_load_plugins', []):
-            p.load(plugin)
 
     @classmethod
     def _apply_config_changes(cls, cfg):
         pass
 
     def setup(self):
-        '''Reset the database and clear the search indexes.'''
+        """Reset the database and clear the search indexes."""
         reset_db()
-        if hasattr(self, '_test_app'):
+        if hasattr(self, "_test_app"):
             self._test_app.reset()
         search.clear_all()
 
     @classmethod
     def teardown_class(cls):
         import ckan.plugins as p
-        for plugin in reversed(getattr(cls, '_load_plugins', [])):
+
+        for plugin in reversed(getattr(cls, "_load_plugins", [])):
             p.unload(plugin)
         # Restore the Pylons config to its original values, in case any tests
         # changed any config settings.
@@ -227,14 +362,16 @@ class FunctionalTestBase(object):
         config.update(cls._original_config)
 
 
+@pytest.mark.usefixtures("with_test_worker")
 class RQTestBase(object):
-    '''
+    """
     Base class for tests of RQ functionality.
-    '''
+    """
+
     def setup(self):
-        u'''
+        u"""
         Delete all RQ queues and jobs.
-        '''
+        """
         # See https://github.com/nvie/rq/issues/731
         redis_conn = connect_to_redis()
         for queue in rq.Queue.all(connection=redis_conn):
@@ -243,9 +380,9 @@ class RQTestBase(object):
             redis_conn.delete(queue._key)
 
     def all_jobs(self):
-        u'''
+        u"""
         Get a list of all RQ jobs.
-        '''
+        """
         jobs = []
         redis_conn = connect_to_redis()
         for queue in rq.Queue.all(connection=redis_conn):
@@ -253,116 +390,26 @@ class RQTestBase(object):
         return jobs
 
     def enqueue(self, job=None, *args, **kwargs):
-        u'''
+        u"""
         Enqueue a test job.
-        '''
+        """
         if job is None:
             job = jobs.test_job
         return jobs.enqueue(job, *args, **kwargs)
 
 
-class FunctionalRQTestBase(FunctionalTestBase, RQTestBase):
-    '''
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class FunctionalRQTestBase(RQTestBase):
+    """
     Base class for functional tests of RQ functionality.
-    '''
+    """
+
     def setup(self):
-        FunctionalTestBase.setup(self)
         RQTestBase.setup(self)
 
 
-def submit_and_follow(app, form, extra_environ=None, name=None,
-                      value=None, **args):
-    '''
-    Call webtest_submit with name/value passed expecting a redirect
-    and return the response from following that redirect.
-    '''
-    response = webtest_submit(form, name, value=value, status=302,
-                              extra_environ=extra_environ, **args)
-    return app.get(url=response.headers['Location'],
-                   extra_environ=extra_environ)
-
-
-# FIXME: remove webtest_* functions below when we upgrade webtest
-
-def webtest_submit(form, name=None, index=None, value=None, **args):
-    '''
-    backported version of webtest.Form.submit that actually works
-    for submitting with different submit buttons.
-
-    We're stuck on an old version of webtest because we're stuck
-    on an old version of webob because we're stuck on an old version
-    of Pylons. This prolongs our suffering, but on the bright side
-    it lets us have functional tests that work.
-    '''
-    fields = webtest_submit_fields(form, name, index=index, submit_value=value)
-    if form.method.upper() != "GET":
-        args.setdefault("content_type",  form.enctype)
-    return form.response.goto(form.action, method=form.method,
-                              params=fields, **args)
-
-
-def webtest_submit_fields(form, name=None, index=None, submit_value=None):
-    '''
-    backported version of webtest.Form.submit_fields that actually works
-    for submitting with different submit buttons.
-    '''
-    from webtest.app import File
-    submit = []
-    # Use another name here so we can keep function param the same for BWC.
-    submit_name = name
-    if index is not None and submit_value is not None:
-        raise ValueError("Can't specify both submit_value and index.")
-
-    # If no particular button was selected, use the first one
-    if index is None and submit_value is None:
-        index = 0
-
-    # This counts all fields with the submit name not just submit fields.
-    current_index = 0
-    for name, field in form.field_order:
-        if name is None:  # pragma: no cover
-            continue
-        if submit_name is not None and name == submit_name:
-            if index is not None and current_index == index:
-                submit.append((name, field.value_if_submitted()))
-            if submit_value is not None and \
-               field.value_if_submitted() == submit_value:
-                submit.append((name, field.value_if_submitted()))
-            current_index += 1
-        else:
-            value = field.value
-            if value is None:
-                continue
-            if isinstance(field, File):
-                submit.append((name, field))
-                continue
-            if isinstance(value, list):
-                for item in value:
-                    submit.append((name, item))
-            else:
-                submit.append((name, value))
-    return submit
-
-
-def webtest_maybe_follow(response, **kw):
-    """
-    Follow all redirects. If this response is not a redirect, do nothing.
-    Returns another response object.
-
-    (backported from WebTest 2.0.1)
-    """
-    remaining_redirects = 100  # infinite loops protection
-
-    while 300 <= response.status_int < 400 and remaining_redirects:
-        response = response.follow(**kw)
-        remaining_redirects -= 1
-
-    assert remaining_redirects > 0, "redirects chain looks infinite"
-    return response
-
-
 def change_config(key, value):
-    '''Decorator to temporarily change CKAN's config to a new value
+    """Decorator to temporarily change CKAN's config to a new value
 
     This allows you to easily create tests that need specific config values to
     be set, making sure it'll be reverted to what it was originally, after your
@@ -381,19 +428,22 @@ def change_config(key, value):
     :type value: string
 
     .. seealso:: The context manager :py:func:`changed_config`
-    '''
+    """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             with changed_config(key, value):
                 return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 @contextlib.contextmanager
 def changed_config(key, value):
-    '''
+    """
     Context manager for temporarily changing a config value.
 
     Allows you to temporarily change the value of a CKAN configuration
@@ -406,7 +456,7 @@ def changed_config(key, value):
             assert config[u'ckan.site_title'] == u'My Test CKAN'
 
     .. seealso:: The decorator :py:func:`change_config`
-    '''
+    """
     _original_config = config.copy()
     config[key] = value
     try:
@@ -416,147 +466,14 @@ def changed_config(key, value):
         config.update(_original_config)
 
 
-def mock_auth(auth_function_path):
-    '''
-    Decorator to easily mock a CKAN auth method in the context of a test
-     function
-
-    It adds a mock object for the provided auth_function_path as a parameter to
-     the test function.
-
-    Essentially it makes sure that `ckan.authz.clear_auth_functions_cache` is
-     called before and after to make sure that the auth functions pick up
-     the newly changed values.
-
-    Usage::
-
-        @helpers.mock_auth('ckan.logic.auth.create.package_create')
-        def test_mock_package_create(self, mock_package_create):
-            from ckan import logic
-            mock_package_create.return_value = {'success': True}
-
-            # package_create is mocked
-            eq_(logic.check_access('package_create', {}), True)
-
-            assert mock_package_create.called
-
-    :param action_name: the full path to the auth function to be mocked,
-        e.g. ``ckan.logic.auth.create.package_create``
-    :type action_name: string
-
-    '''
-    from ckan.authz import clear_auth_functions_cache
-
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-
-            try:
-                with mock.patch(auth_function_path) as mocked_auth:
-                    clear_auth_functions_cache()
-                    new_args = args + tuple([mocked_auth])
-                    return_value = func(*new_args, **kwargs)
-            finally:
-                clear_auth_functions_cache()
-            return return_value
-
-        return nose.tools.make_decorator(func)(wrapper)
-    return decorator
-
-
-def mock_action(action_name):
-    '''
-    Decorator to easily mock a CKAN action in the context of a test function
-
-    It adds a mock object for the provided action as a parameter to the test
-    function. The mock is discarded at the end of the function, even if there
-    is an exception raised.
-
-    Note that this mocks the action both when it's called directly via
-    ``ckan.logic.get_action`` and via ``ckan.plugins.toolkit.get_action``.
-
-    Usage::
-
-        @mock_action('user_list')
-        def test_mock_user_list(self, mock_user_list):
-
-            mock_user_list.return_value = 'hi'
-
-            # user_list is mocked
-            eq_(helpers.call_action('user_list', {}), 'hi')
-
-            assert mock_user_list.called
-
-    :param action_name: the name of the action to be mocked,
-        e.g. ``package_create``
-    :type action_name: string
-
-    '''
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            mock_action = mock.MagicMock()
-
-            from ckan.logic import get_action as original_get_action
-
-            def side_effect(called_action_name):
-                if called_action_name == action_name:
-                    return mock_action
-                else:
-                    return original_get_action(called_action_name)
-            try:
-                with mock.patch('ckan.logic.get_action') as mock_get_action, \
-                        mock.patch('ckan.plugins.toolkit.get_action') \
-                        as mock_get_action_toolkit:
-                    mock_get_action.side_effect = side_effect
-                    mock_get_action_toolkit.side_effect = side_effect
-
-                    new_args = args + tuple([mock_action])
-                    return_value = func(*new_args, **kwargs)
-            finally:
-                # Make sure to stop the mock, even with an exception
-                mock_action.stop()
-            return return_value
-
-        return nose.tools.make_decorator(func)(wrapper)
-    return decorator
-
-
-def set_extra_environ(key, value):
-    '''Decorator to temporarily changes a single request environemnt value
-
-    Create a new test app and use the a side effect of making a request
-    to set an extra_environ value. Reset the value to '' after the test.
-
-    Usage::
-
-        @helpers.extra_environ('SCRIPT_NAME', '/myscript')
-        def test_ckan_thing_affected_by_script_name(self):
-            # ...
-
-    :param key: the extra_environ key to be changed, e.g. ``'SCRIPT_NAME'``
-    :type key: string
-
-    :param value: the new extra_environ key's value, e.g. ``'/myscript'``
-    :type value: string
-    '''
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            app = _get_test_app()
-            app.get('/', extra_environ={key: value})
-
-            try:
-                return_value = func(*args, **kwargs)
-            finally:
-                app.get('/', extra_environ={key: ''})
-
-            return return_value
-        return nose.tools.make_decorator(func)(wrapper)
-    return decorator
-
-
 @contextlib.contextmanager
-def recorded_logs(logger=None, level=logging.DEBUG,
-                  override_disabled=True, override_global_level=True):
-    u'''
+def recorded_logs(
+    logger=None,
+    level=logging.DEBUG,
+    override_disabled=True,
+    override_global_level=True,
+):
+    u"""
     Context manager for recording log messages.
 
     :param logger: The logger to record messages from. Can either be a
@@ -596,7 +513,7 @@ def recorded_logs(logger=None, level=logging.DEBUG,
             logger.info(u'Hello, world!')
 
         logs.assert_log(u'info', u'world')
-    '''
+    """
     if logger is None:
         logger = logging.getLogger()
     elif not isinstance(logger, logging.Logger):
@@ -625,7 +542,7 @@ def recorded_logs(logger=None, level=logging.DEBUG,
 
 
 class RecordingLogHandler(logging.Handler):
-    u'''
+    u"""
     Log handler that records log messages for later inspection.
 
     You can inspect the recorded messages via the ``messages`` attribute
@@ -634,7 +551,8 @@ class RecordingLogHandler(logging.Handler):
 
     This class is rarely useful on its own, instead use
     :py:func:`recorded_logs` to temporarily record log messages.
-    '''
+    """
+
     def __init__(self, *args, **kwargs):
         super(RecordingLogHandler, self).__init__(*args, **kwargs)
         self.clear()
@@ -643,7 +561,7 @@ class RecordingLogHandler(logging.Handler):
         self.messages[record.levelname.lower()].append(record.getMessage())
 
     def assert_log(self, level, pattern, msg=None):
-        u'''
+        u"""
         Assert that a certain message has been logged.
 
         :param string pattern: A regex which the message has to match.
@@ -655,24 +573,58 @@ class RecordingLogHandler(logging.Handler):
             log message was not logged.
 
         :raises AssertionError: If the expected message was not logged.
-        '''
+        """
         compiled_pattern = re.compile(pattern)
         for log_msg in self.messages[level]:
             if compiled_pattern.search(log_msg):
                 return
         if not msg:
             if self.messages[level]:
-                lines = u'\n    '.join(self.messages[level])
-                msg = (u'Pattern "{}" was not found in the log messages for '
-                       + u'level "{}":\n    {}').format(pattern, level, lines)
+                lines = u"\n    ".join(self.messages[level])
+                msg = (
+                    u'Pattern "{}" was not found in the log messages for '
+                    + u'level "{}":\n    {}'
+                ).format(pattern, level, lines)
             else:
-                msg = (u'Pattern "{}" was not found in the log messages for '
-                       + u'level "{}" (no messages were recorded for that '
-                       + u'level).').format(pattern, level)
+                msg = (
+                    u'Pattern "{}" was not found in the log messages for '
+                    + u'level "{}" (no messages were recorded for that '
+                    + u"level)."
+                ).format(pattern, level)
         raise AssertionError(msg)
 
     def clear(self):
-        u'''
+        u"""
         Clear all captured log messages.
-        '''
+        """
         self.messages = collections.defaultdict(list)
+
+
+class FakeSMTP(smtplib.SMTP):
+    """Mock `SMTP` client, catching all the messages.
+    """
+
+    connect = mock.Mock()
+    ehlo = mock.Mock()
+    starttls = mock.Mock()
+    login = mock.Mock()
+    quit = mock.Mock()
+
+    def __init__(self):
+        self._msgs = []
+
+    def __call__(self, *args):
+        return self
+
+    def get_smtp_messages(self):
+        return self._msgs
+
+    def clear_smtp_messages(self):
+        self._msgs = []
+
+    def sendmail(
+        self, from_addr, to_addrs, msg, mail_options=(), rcpt_options=()
+    ):
+        """Just store message inside current instance.
+        """
+        self._msgs.append((None, from_addr, to_addrs, msg))

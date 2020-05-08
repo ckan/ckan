@@ -19,6 +19,7 @@ from ckanext.datastore.backend import (
     DatastoreBackend
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
+import ckanext.datastore.blueprint as view
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -39,6 +40,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IForkObserver, inherit=True)
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
+    p.implements(p.IBlueprint)
 
     resource_show_action = None
 
@@ -115,19 +117,6 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_run_triggers': auth.datastore_run_triggers,
         }
 
-    # IRoutes
-
-    def before_map(self, m):
-        m.connect(
-            '/datastore/dump/{resource_id}',
-            controller='ckanext.datastore.controller:DatastoreController',
-            action='dump')
-        m.connect(
-            'resource_dictionary', '/dataset/{id}/dictionary/{resource_id}',
-            controller='ckanext.datastore.controller:DatastoreController',
-            action='dictionary', ckan_icon='book')
-        return m
-
     # IResourceController
 
     def before_show(self, resource_dict):
@@ -135,8 +124,7 @@ class DatastorePlugin(p.SingletonPlugin):
         # they link to the datastore dumps.
         if resource_dict.get('url_type') == 'datastore':
             resource_dict['url'] = p.toolkit.url_for(
-                controller='ckanext.datastore.controller:DatastoreController',
-                action='dump', resource_id=resource_dict['id'],
+                'datastore.dump', resource_id=resource_dict['id'],
                 qualified=True)
 
         if 'datastore_active' not in resource_dict:
@@ -167,13 +155,10 @@ class DatastorePlugin(p.SingletonPlugin):
     # IDatastore
 
     def datastore_validate(self, context, data_dict, fields_types):
-        column_names = fields_types.keys()
-        fields = data_dict.get('fields')
-        if fields:
-            data_dict['fields'] = list(set(fields) - set(column_names))
+        column_names = list(fields_types.keys())
 
         filters = data_dict.get('filters', {})
-        for key in filters.keys():
+        for key in list(filters.keys()):
             if key in fields_types:
                 del filters[key]
 
@@ -181,11 +166,17 @@ class DatastorePlugin(p.SingletonPlugin):
         if q:
             if isinstance(q, string_types):
                 del data_dict['q']
+                column_names.append(u'rank')
             elif isinstance(q, dict):
-                for key in q.keys():
+                for key in list(q.keys()):
                     if key in fields_types and isinstance(q[key],
                                                           string_types):
+                        column_names.append(u'rank ' + key)
                         del q[key]
+
+        fields = data_dict.get('fields')
+        if fields:
+            data_dict['fields'] = list(set(fields) - set(column_names))
 
         language = data_dict.get('language')
         if language:
@@ -254,3 +245,10 @@ class DatastorePlugin(p.SingletonPlugin):
             pass
         else:
             before_fork()
+
+    # IBlueprint
+
+    def get_blueprint(self):
+        u'''Return a Flask Blueprint object to be registered by the app.'''
+
+        return view.datastore

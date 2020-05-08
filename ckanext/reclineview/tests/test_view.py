@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from ckan.tests.helpers import _get_test_app
+import pytest
 from ckan.common import config
 
 import ckan.model as model
@@ -12,27 +12,16 @@ import ckan.lib.create_test_data as create_test_data
 from ckan.tests import helpers, factories
 
 
-class BaseTestReclineViewBase():
-    @classmethod
-    def setup_class(cls):
-        cls.config_templates = config['ckan.legacy_templates']
-        config['ckan.legacy_templates'] = 'false'
+@pytest.mark.ckan_config('ckan.legacy_templates', 'false')
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+class BaseTestReclineViewBase(object):
 
-        cls.app = _get_test_app()
-        p.load(cls.view_type)
-
-        cls.p = cls.view_class()
-
+    @pytest.fixture(autouse=True)
+    def initial_data(self, clean_db, with_request_context):
         create_test_data.CreateTestData.create()
-
-        cls.resource_view, cls.package, cls.resource_id = \
-            _create_test_view(cls.view_type)
-
-    @classmethod
-    def teardown_class(cls):
-        config['ckan.legacy_templates'] = cls.config_templates
-        p.unload(cls.view_type)
-        model.repo.rebuild_db()
+        self.p = self.view_class()
+        self.resource_view, self.package, self.resource_id = \
+            _create_test_view(self.view_type)
 
     def test_can_view(self):
         data_dict = {'resource': {'datastore_active': True}}
@@ -41,15 +30,16 @@ class BaseTestReclineViewBase():
         data_dict = {'resource': {'datastore_active': False}}
         assert not self.p.can_view(data_dict)
 
-    def test_title_description_iframe_shown(self):
-        url = h.url_for(controller='package', action='resource_read',
+    def test_title_description_iframe_shown(self, app):
+        url = h.url_for('{}_resource.read'.format(self.package.type),
                         id=self.package.name, resource_id=self.resource_id)
-        result = self.app.get(url)
+        result = app.get(url)
         assert self.resource_view['title'] in result
         assert self.resource_view['description'] in result
         assert 'data-module="data-viewer"' in result.body
 
 
+@pytest.mark.ckan_config('ckan.plugins', 'recline_view')
 class TestReclineView(BaseTestReclineViewBase):
     view_type = 'recline_view'
     view_class = plugin.ReclineView
@@ -80,28 +70,13 @@ class TestReclineView(BaseTestReclineViewBase):
             assert not self.p.can_view(data_dict)
 
 
-class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
+@pytest.mark.ckan_config('ckan.legacy_templates', 'false')
+@pytest.mark.ckan_config('ckan.plugins', 'recline_view datastore')
+@pytest.mark.ckan_config('ckan.views.default_views', 'recline_view')
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestReclineViewDatastoreOnly(object):
 
-    @classmethod
-    def setup_class(cls):
-        cls.app = _get_test_app()
-        if not p.plugin_loaded('recline_view'):
-            p.load('recline_view')
-        if not p.plugin_loaded('datastore'):
-            p.load('datastore')
-        app_config = config.copy()
-        app_config['ckan.legacy_templates'] = 'false'
-        app_config['ckan.plugins'] = 'recline_view datastore'
-        app_config['ckan.views.default_views'] = 'recline_view'
-
-    @classmethod
-    def teardown_class(cls):
-        if p.plugin_loaded('recline_view'):
-            p.unload('recline_view')
-        if p.plugin_loaded('datastore'):
-            p.unload('datastore')
-
-    def test_create_datastore_only_view(self):
+    def test_create_datastore_only_view(self, app):
         dataset = factories.Dataset()
         data = {
             'resource': {'package_id': dataset['id']},
@@ -112,14 +87,15 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
 
         resource_id = result['resource_id']
 
-        url = h.url_for(controller='package', action='resource_read',
+        url = h.url_for('{}_resource.read'.format(dataset['type']),
                         id=dataset['id'], resource_id=resource_id)
 
-        result = self.app.get(url)
+        result = app.get(url)
 
         assert 'data-module="data-viewer"' in result.body
 
 
+@pytest.mark.ckan_config('ckan.plugins', 'recline_grid_view')
 class TestReclineGridView(BaseTestReclineViewBase):
     view_type = 'recline_grid_view'
     view_class = plugin.ReclineGridView
@@ -129,6 +105,7 @@ class TestReclineGridView(BaseTestReclineViewBase):
         assert schema is None, schema
 
 
+@pytest.mark.ckan_config('ckan.plugins', 'recline_graph_view')
 class TestReclineGraphView(BaseTestReclineViewBase):
     view_type = 'recline_graph_view'
     view_class = plugin.ReclineGraphView
@@ -139,6 +116,7 @@ class TestReclineGraphView(BaseTestReclineViewBase):
         _assert_schema_exists_and_has_keys(schema, expected_keys)
 
 
+@pytest.mark.ckan_config('ckan.plugins', 'recline_map_view')
 class TestReclineMapView(BaseTestReclineViewBase):
     view_type = 'recline_map_view'
     view_class = plugin.ReclineMapView
@@ -170,7 +148,7 @@ def _create_test_view(view_type):
 def _assert_schema_exists_and_has_keys(schema, expected_keys):
     assert schema is not None, schema
 
-    keys = schema.keys()
+    keys = list(schema.keys())
     keys.sort()
     expected_keys.sort()
 

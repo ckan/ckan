@@ -4,11 +4,11 @@ import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 
-import meta
-import package as _package
-import user
-import domain_object
-import types as _types
+from ckan.model import meta
+from ckan.model import package as _package
+from ckan.model import user
+from ckan.model import domain_object
+from ckan.model import types as _types
 
 __all__ = ['Rating', 'MIN_RATING', 'MAX_RATING']
 

@@ -1,7 +1,5 @@
 {% extends "package/read_base.html" %}
 
-{% set pkg = c.pkg_dict %}
-
 {% block primary_content_inner %}
   {{ super() }}
   {% block package_description %}
@@ -11,6 +9,16 @@
         {{ _('Private') }}
       </span>
     {% endif %}
+    {% block package_archive_notice %}
+      {% if is_activity_archive %}
+        <div class="alert alert-danger">
+          {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
+          You're currently viewing an old version of this dataset. To see the
+          current version, click <a href="{{ url }}">here</a>.
+          {% endtrans %}
+        </div>
+      {% endif %}
+    {% endblock %}
     <h1>
       {% block page_heading %}
         {{ h.dataset_display_name(pkg) }}
@@ -34,7 +42,7 @@
   {% endblock %}
 
   {% block package_resources %}
-    {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
+    {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources, is_activity_archive=is_activity_archive %}
   {% endblock %}
 
   {% block package_tags %}

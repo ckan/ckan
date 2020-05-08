@@ -9,7 +9,7 @@
           {#- passing c to a snippet is bad but is required here
               for backwards compatibility with old templates and
               plugins using setup_template_variables() -#}
-          {{- h.snippet(form_snippet, c=c, **form_vars) -}}
+          {{- h.snippet(form_snippet, pkg_dict=pkg_dict, **form_vars) -}}
         {% endblock %}
       {% endblock %}
     </div>
@@ -34,6 +34,6 @@
 
   {% block resources_module %}
     {# TODO: Pass in a list of previously created resources and the current package dict #}
-    {% snippet "package/snippets/resources.html", pkg={}, action='new_resource' %}
+    {% snippet "package/snippets/resources.html", pkg={}, action='new_resource', is_activity_archive=False %}
   {% endblock %}
 {% endblock %}

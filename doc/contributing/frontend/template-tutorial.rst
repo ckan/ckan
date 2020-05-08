@@ -74,12 +74,12 @@ it is useful to provide additional actions that a related to the page.
 ::
 
     {% block breadcrumb_content %}
-      <li class="active">{% link_for _('Viewing Dataset'), controller='package', action='read', id=pkg.id %}</li>
+      <li class="active">{% link_for _('Viewing Dataset'), named_route=pkg.type ~ '.read', id=pkg.id %}</li>
     {% endblock %}
 
     {% block actions_content %}
       {{ super() }}
-      <li class="active">{% link_for _('New Dataset'), controller='package', action='new', class_='btn', icon='plus' %}</li>
+      <li class="active">{% link_for _('New Dataset'), named_route='dataset.new', class_='btn', icon='plus' %}</li>
     {% endblock %}
 
 Scripts and Stylesheets

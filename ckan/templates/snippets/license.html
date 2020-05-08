@@ -2,23 +2,22 @@
   {% if 'license_url' in pkg_dict %}
     <a href="{{ pkg_dict.license_url }}" rel="dc:rights">{{ pkg_dict.license_title }}</a>
   {% else %}
-    <span property="dc:rights">{{ pkg_dict.license_title }}</span>
+    {% if pkg_dict.license_id %}
+      <span property="dc:rights">{{ pkg_dict.license_title }}</span>
+    {% else %}
+      <span>{{ _('No License Provided') }}</span>
+    {% endif %}
   {% endif %}
 {% endmacro %}
 
 {% block license %}
   {% if text_only %}
-    {% if pkg_dict.license_id %}
-      {{ license_string(pkg_dict) }}
-    {% else %}
-      {{ _('No License Provided') }}
-    {% endif %}
+    {{ license_string(pkg_dict) }}
   {% else %}
-    {% if pkg_dict.license_id %}
       {% block license_wrapper %}
         <section class="module module-narrow module-shallow license">
           {% block license_title %}
-            <h2 class="module-heading"><i class="fa fa-medium fa-lock"></i> {{ _('License') }}</h2>
+            <h2 class="module-heading"><i class="fa fa-lock"></i> {{ _('License') }}</h2>
           {% endblock %}
           {% block license_content %}
             <p class="module-content">
@@ -34,6 +33,5 @@
           {% endblock %}
         </section>
       {% endblock %}
-    {% endif %}
   {% endif %}
 {% endblock %}

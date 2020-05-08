@@ -3,6 +3,8 @@
 import os
 import os.path
 
+from pkg_resources import parse_version
+
 # Avoid problem releasing to pypi from vagrant
 if os.environ.get('USER', '') == 'vagrant':
     del os.link
@@ -24,9 +26,6 @@ from ckan import (__version__, __description__, __long_description__,
 # Check setuptools version
 #
 
-def parse_version(s):
-    return map(int, s.split('.'))
-
 HERE = os.path.dirname(__file__)
 with open(os.path.join(HERE, 'requirement-setuptools.txt')) as f:
         setuptools_requirement = f.read().strip()
@@ -42,9 +41,6 @@ if parse_version(setuptools_version) < min_setuptools_version:
 
 
 entry_points = {
-    'nose.plugins.0.10': [
-        'main = ckan.ckan_nose_plugin:CkanNose',
-    ],
     'paste.app_factory': [
         'main = ckan.config.middleware:make_app',
     ],
@@ -52,32 +48,11 @@ entry_points = {
         'main = ckan.config.install:CKANInstaller',
     ],
     'paste.paster_command': [
-        'db = ckan.lib.cli:ManageDb',
-        'create-test-data = ckan.lib.cli:CreateTestDataCommand',
-        'sysadmin = ckan.lib.cli:Sysadmin',
-        'user = ckan.lib.cli:UserCmd',
-        'dataset = ckan.lib.cli:DatasetCmd',
-        'search-index = ckan.lib.cli:SearchIndexCommand',
-        'ratings = ckan.lib.cli:Ratings',
-        'notify = ckan.lib.cli:Notification',
-        'rdf-export = ckan.lib.cli:RDFExport',
-        'tracking = ckan.lib.cli:Tracking',
-        'plugin-info = ckan.lib.cli:PluginInfo',
-        'profile = ckan.lib.cli:Profile',
-        'color = ckan.lib.cli:CreateColorSchemeCommand',
-        'check-po-files = ckan.i18n.check_po_files:CheckPoFiles',
-        'trans = ckan.lib.cli:TranslationsCommand',
-        'minify = ckan.lib.cli:MinifyCommand',
-        'less = ckan.lib.cli:LessCommand',
         'datastore = ckanext.datastore.commands:datastore_group',
         'datapusher = ckanext.datapusher.cli:DatapusherCommand',
-        'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
-        'views = ckan.lib.cli:ViewsCommand',
-        'config-tool = ckan.lib.cli:ConfigToolCommand',
-        'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
-        'ckan-admin = bin.ckan_admin:Command',
+        'ckan = ckan.cli.cli:ckan',
     ],
     'paste.paster_create_template': [
         'ckanext = ckan.pastertemplates:CkanextTemplate',
@@ -114,6 +89,8 @@ entry_points = {
         'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
         'datatables_view = ckanext.datatablesview.plugin:DataTablesView',
         'image_view = ckanext.imageview.plugin:ImageView',
+        'audio_view = ckanext.audioview.plugin:AudioView',
+        'video_view = ckanext.videoview.plugin:VideoView',
         'webpage_view = ckanext.webpageview.plugin:WebPageView',
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
@@ -129,7 +106,10 @@ entry_points = {
         'example_idatasetform_v2 = ckanext.example_idatasetform.plugin_v2:ExampleIDatasetFormPlugin',
         'example_idatasetform_v3 = ckanext.example_idatasetform.plugin_v3:ExampleIDatasetFormPlugin',
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v5 = ckanext.example_idatasetform.plugin_v5:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v6 = ckanext.example_idatasetform.plugin_v6:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
+        'example_igroupform_v2 = ckanext.example_igroupform.plugin_v2:ExampleIGroupFormPlugin',
         'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
         'example_igroupform_organization = ckanext.example_igroupform.plugin:ExampleIGroupFormOrganizationPlugin',
         'example_iauthfunctions_v1 = ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin',
@@ -160,6 +140,7 @@ entry_points = {
         'example_theme_v19_02_error_handling = ckanext.example_theme_docs.v19_02_error_handling.plugin:ExampleThemePlugin',
         'example_theme_v20_pubsub = ckanext.example_theme_docs.v20_pubsub.plugin:ExampleThemePlugin',
         'example_theme_v21_custom_jquery_plugin = ckanext.example_theme_docs.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
+        'example_theme_v22_fanstatic_and_webassets = ckanext.example_theme_docs.v22_fanstatic_and_webassets.plugin:ExampleThemePlugin',
         'example_theme_custom_config_setting = ckanext.example_theme_docs.custom_config_setting.plugin:ExampleThemePlugin',
         'example_theme_custom_emails = ckanext.example_theme_docs.custom_emails.plugin:ExampleCustomEmailsPlugin',
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
@@ -173,6 +154,7 @@ entry_points = {
         'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
         'example_idatastorebackend = ckanext.example_idatastorebackend.plugin:ExampleIDatastoreBackendPlugin',
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
+        'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
@@ -193,6 +175,7 @@ entry_points = {
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
         'example_datastore_deleted_with_count_plugin = ckanext.datastore.tests.test_chained_action:ExampleDataStoreDeletedWithCountPlugin',
         'example_data_store_search_sql_plugin = ckanext.datastore.tests.test_chained_auth_functions:ExampleDataStoreSearchSQLPlugin',
+        'example_external_provider_plugin = ckanext.datastore.tests.test_chained_auth_functions:ExampleExternalProviderPlugin',
         'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
         'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
@@ -200,6 +183,7 @@ entry_points = {
         'test_helpers_plugin = ckan.tests.lib.test_helpers:TestHelpersPlugin',
         'test_feed_plugin = ckan.tests.controllers.test_feed:MockFeedPlugin',
         'test_js_translations_plugin = ckan.tests.lib.test_i18n:TestJSTranslationsPlugin',
+        'legacy_mock_search_plugin = ckan.tests.legacy.logic.test_action:MockPackageSearchPlugin',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
@@ -239,7 +223,6 @@ setup(
     },
     entry_points=entry_points,
     # setup.py test command needs a TestSuite so does not work with py.test
-    # test_suite = 'nose.collector',
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers

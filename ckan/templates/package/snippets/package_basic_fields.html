@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block package_basic_fields_url %}
-{% set prefix = h.url_for(controller='package', action='read', id='') %}
-{% set domain = h.url_for(controller='package', action='read', id='', qualified=true) %}
+{% set prefix = h.url_for('dataset.read', id='') %}
+{% set domain = h.url_for('dataset.read', id='', qualified=true) %}
 {% set domain = domain|replace("http://", "")|replace("https://", "") %}
 {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>', 'class': 'form-control input-sm'} %}
 
@@ -33,6 +33,8 @@
         <div class="col-md-6">
           <select id="field-license" name="license_id" data-module="autocomplete">
             {% set existing_license_id = data.get('license_id') %}
+            {% set empty_license = _('Please select the license') %}
+            <option value="">{{ empty_license }}</option>
             {% for license_id, license_desc in h.license_options(existing_license_id) %}
             <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
             {% endfor %}

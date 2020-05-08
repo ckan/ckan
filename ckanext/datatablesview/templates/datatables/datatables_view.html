@@ -8,9 +8,11 @@
       data-server-side="true"
       data-processing="true"
       data-ajax='{
-          "url": "/datatables/ajax/{{ resource_view.id }}",
+          "url": "{{ h.url_for(
+            'datatablesview.ajax',
+            resource_view_id=resource_view.id) }}",
           "type": "POST",
-          "data": { "filters": "{{ request.params.get('filters', '')|e }}" }
+          "data": { "filters": "{{ request.args.get('filters', '')|e }}" }
         }'
       {% if resource_view.get('responsive') %}
         data-responsive="true"
@@ -26,7 +28,7 @@
         {
           "extend": "colvis",
           "text": "{{ _('Hide/Unhide Columns') }}"
-        }{{ ', "copy", "excel", "print"' | safe
+        }{{ ', "copy", "print"' | safe
           if resource_view.get('export_buttons') else ''}}
         ]'
       data-keys='true'>
@@ -43,9 +45,19 @@
     <tbody>
     </tbody>
   </table>
+  <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
+                                                                  'datatablesview.filtered_download',
+                                                                  resource_view_id=resource_view.id) }}">
+    <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e }}" />
+  </form>
 
-  {% resource 'ckanext-datatablesview/main' %}
+
 {% endblock %}
 
-{% block styles %}{% endblock %}
+{% block styles %}
+  {{ super() }}
+  {% asset 'ckanext-datatablesview/main-css' %}
+  {% asset 'ckanext-datatablesview/main-js' %}
+{% endblock %}
+
 {% block custom_styles %}{% endblock %}

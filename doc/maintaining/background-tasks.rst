@@ -99,6 +99,12 @@ You can also give the job a title which can be useful for identifying it when
 
     jobs.enqueue(log_job, [u'My log message'], title=u'My log job')
 
+A timeout can also be set on a job iwth the ``timeout`` keyword argument::
+
+    jobs.enqueue(log_job, [u'My log message'], timeout=3600)
+
+The default background job timeout is 180 seconds. This is set in the
+ckan config ``.ini`` file under the ``ckan.jobs.timeout`` item.
 
 Accessing the database from background jobs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -139,9 +145,9 @@ Afterwards the worker waits again for the next job to be enqueued.
     Executed jobs are discarded. In particular, no information about past jobs
     is kept.
 
-Workers can be started using the :ref:`paster jobs worker` command::
+Workers can be started using the :ref:`cli jobs worker` command::
 
-    paster --plugin=ckan jobs worker --config=/etc/ckan/default/development.ini
+    ckan -c /etc/ckan/default/ckan.ini jobs worker
 
 The worker process will run indefinitely (you can stop it using ``CTRL+C``).
 
@@ -195,7 +201,7 @@ via
 
 ::
 
-    paster --plugin=ckan jobs test -c /etc/ckan/default/production.ini
+    ckan -c |ckan.ini| jobs test
 
 The worker's log (``/var/log/ckan-worker.log``) should then show how the job
 was processed by the worker.
@@ -212,29 +218,29 @@ the worker::
 
 Managing background jobs
 ========================
-Once they are enqueued, background jobs can be managed via
-:ref:`paster <paster>` and the :ref:`web API <action api>`.
+Once they are enqueued, background jobs can be managed via the
+:ref:`ckan command <cli>` and the :ref:`web API <action api>`.
 
 List enqueues jobs
 ^^^^^^^^^^^^^^^^^^
-* :ref:`paster jobs list <paster jobs list>`
+* :ref:`ckan jobs list <cli jobs list>`
 * :py:func:`ckan.logic.action.get.job_list`
 
 Show details about a job
 ^^^^^^^^^^^^^^^^^^^^^^^^
-* :ref:`paster jobs show <paster jobs show>`
+* :ref:`ckan jobs show <cli jobs show>`
 * :py:func:`ckan.logic.action.get.job_show`
 
 Cancel a job
 ^^^^^^^^^^^^
 A job that hasn't been processed yet can be canceled via
 
-* :ref:`paster jobs cancel <paster jobs cancel>`
+* :ref:`ckan jobs cancel <cli jobs cancel>`
 * :py:func:`ckan.logic.action.delete.job_cancel`
 
 Clear all enqueued jobs
 ^^^^^^^^^^^^^^^^^^^^^^^
-* :ref:`paster jobs clear <paster jobs clear>`
+* :ref:`ckan jobs clear <cli jobs clear>`
 * :py:func:`ckan.logic.action.delete.job_clear`
 
 Logging
@@ -264,7 +270,7 @@ enqueue a job at a non-default queue::
 Similarly, to start a worker that only listens to the queue you just posted a
 job to::
 
-    paster --plugin=ckan jobs worker my-own-queue --config=/etc/ckan/default/development.ini
+    ckan -c |ckan.ini| jobs worker my-own-queue
 
 See the documentation of the various functions and commands for details on how
 to use non-standard queues.

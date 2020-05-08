@@ -1,13 +1,12 @@
 # encoding: utf-8
 
-import vdm.sqlalchemy
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 
-import meta
-import core
-import package as _package
-import types as _types
-import domain_object
+from ckan.model import meta
+from ckan.model import core
+from ckan.model import package as _package
+from ckan.model import types as _types
+from ckan.model import domain_object
 
 # i18n only works when this is run as part of pylons,
 # which isn't the case for paster commands.
@@ -19,7 +18,7 @@ except:
         return txt
 
 __all__ = ['PackageRelationship', 'package_relationship_table',
-           'package_relationship_revision_table']
+           ]
 
 package_relationship_table = Table('package_relationship', meta.metadata,
      Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -27,13 +26,11 @@ package_relationship_table = Table('package_relationship', meta.metadata,
      Column('object_package_id', types.UnicodeText, ForeignKey('package.id')),
      Column('type', types.UnicodeText),
      Column('comment', types.UnicodeText),
+     Column('state', types.UnicodeText, default=core.State.ACTIVE),
      )
 
-vdm.sqlalchemy.make_table_stateful(package_relationship_table)
-package_relationship_revision_table = core.make_revisioned_table(package_relationship_table)
 
-class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
-                          vdm.sqlalchemy.StatefulObjectMixin,
+class PackageRelationship(core.StatefulObjectMixin,
                           domain_object.DomainObject):
     '''The rule with PackageRelationships is that they are stored in the model
     always as the "forward" relationship - i.e. "child_of" but never
@@ -169,10 +166,4 @@ meta.mapper(PackageRelationship, package_relationship_table, properties={
            backref='relationships_as_subject'),
     'object':orm.relation(_package.Package, primaryjoin=package_relationship_table.c.object_package_id==_package.Package.id,
            backref='relationships_as_object'),
-    },
-    extension = [vdm.sqlalchemy.Revisioner(package_relationship_revision_table)]
-    )
-
-vdm.sqlalchemy.modify_base_object_mapper(PackageRelationship, core.Revision, core.State)
-PackageRelationshipRevision = vdm.sqlalchemy.create_object_version(
-    meta.mapper, PackageRelationship, package_relationship_revision_table)
+    })
