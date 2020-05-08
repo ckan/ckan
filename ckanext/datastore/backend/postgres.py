@@ -1919,7 +1919,9 @@ def create_function(name, arguments, rettype, definition, or_replace):
         or_replace=u'OR REPLACE' if or_replace else u'',
         name=identifier(name),
         args=u', '.join(
-            u'{argname} {argtype}'.format(
+            u'{argmode} {argname} {argtype}'.format(
+                # validator OneOf checks for safety of argmode
+                argmode=a['argmode'] if 'argmode' in a else '',
                 argname=identifier(a['argname']),
                 argtype=identifier(a['argtype']))
             for a in arguments),
