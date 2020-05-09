@@ -374,6 +374,29 @@ class TestPackageNew(object):
             status=403,
         )
 
+    def test_form_without_initial_data(self, app):
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("dataset.new")
+        resp = app.get(url=url, extra_environ=env)
+        page = BeautifulSoup(resp.body)
+        form = page.select_one('#dataset-edit')
+        assert not form.select_one('[name=title]')['value']
+        assert not form.select_one('[name=name]')['value']
+        assert not form.select_one('[name=notes]').text
+
+    def test_form_with_initial_data(self, app):
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("dataset.new", name="name",
+                      notes="notes", title="title")
+        resp = app.get(url=url, extra_environ=env)
+        page = BeautifulSoup(resp.body)
+        form = page.select_one('#dataset-edit')
+        assert form.select_one('[name=title]')['value'] == "title"
+        assert form.select_one('[name=name]')['value'] == "name"
+        assert form.select_one('[name=notes]').text == "notes"
+
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageEdit(object):

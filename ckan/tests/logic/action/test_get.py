@@ -4546,3 +4546,34 @@ class TestCollaboratorsSearch(object):
 
         assert results['results'][0]['id'] == dataset1['id']
         assert results['results'][1]['id'] == dataset2['id']
+
+
+@pytest.mark.usefixtures('clean_db', 'with_request_context')
+class TestResourceSearch(object):
+    def test_required_fields(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('resource_search')
+        helpers.call_action('resource_search', query='name:*')
+
+    def test_base_search(self):
+        factories.Resource(name='one')
+        factories.Resource(name='two')
+        result = helpers.call_action('resource_search', query="name:three")
+        assert not result['count']
+
+        result = helpers.call_action('resource_search', query="name:one")
+        assert result['count'] == 1
+
+        result = helpers.call_action('resource_search', query="name:")
+        assert result['count'] == 2
+
+    def test_date_search(self):
+        res = factories.Resource()
+        result = helpers.call_action(
+            'resource_search', query="created:" + res['created'])
+        assert result['count'] == 1
+
+    def test_number_search(self):
+        factories.Resource(size=10)
+        result = helpers.call_action('resource_search', query="size:10")
+        assert result['count'] == 1

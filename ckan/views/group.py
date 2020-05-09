@@ -18,6 +18,8 @@ import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
 from ckan.common import g, config, request, _
+from ckan.views.home import CACHE_PARAMETERS
+
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -900,7 +902,14 @@ class CreateGroupView(MethodView):
         extra_vars = {}
         set_org(is_organization)
         context = self._prepare()
-        data = data or {}
+        data = data or clean_dict(
+            dict_fns.unflatten(
+                tuplize_dict(
+                    parse_params(request.args, ignore_keys=CACHE_PARAMETERS)
+                )
+            )
+        )
+
         if not data.get(u'image_url', u'').startswith(u'http'):
             data.pop(u'image_url', None)
         errors = errors or {}

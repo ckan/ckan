@@ -75,7 +75,7 @@ Configure Solr Multi-core
 The tests assume that Solr is configured 'multi-core', whereas the default
 Solr set-up is often 'single-core'. You can ask Solr for its cores status::
 
-    curl -s 'http://127.0.0.1:8983/solr/admin/cores?action=STATUS' |python -c 'import sys;import xml.dom.minidom;s=sys.stdin.read();print xml.dom.minidom.parseString(s).toprettyxml()'
+    curl -s 'http://127.0.0.1:8983/solr/admin/cores?action=STATUS' |python -c 'import sys;import xml.dom.minidom;s=sys.stdin.read();print(xml.dom.minidom.parseString(s).toprettyxml())'
 
 Each core will be within a child from the ``<lst name="status"`` element, and contain a ``<str name="instanceDir">`` element.
 

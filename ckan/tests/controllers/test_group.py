@@ -103,6 +103,29 @@ class TestGroupControllerNew(object):
         assert group.title == u"Science"
         assert group.description == "Sciencey datasets"
 
+    def test_form_without_initial_data(self, app):
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("group.new")
+        resp = app.get(url=url, extra_environ=env)
+        page = BeautifulSoup(resp.body)
+        form = page.select_one('#group-edit')
+        assert not form.select_one('[name=title]')['value']
+        assert not form.select_one('[name=name]')['value']
+        assert not form.select_one('[name=description]').text
+
+    def test_form_with_initial_data(self, app):
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("group.new", name="name",
+                      description="description", title="title")
+        resp = app.get(url=url, extra_environ=env)
+        page = BeautifulSoup(resp.body)
+        form = page.select_one('#group-edit')
+        assert form.select_one('[name=title]')['value'] == "title"
+        assert form.select_one('[name=name]')['value'] == "name"
+        assert form.select_one('[name=description]').text == "description"
+
 
 def _get_group_edit_page(app, group_name=None):
     user = factories.User()
