@@ -520,3 +520,18 @@ class TestPackageMemberList(object):
             helpers.call_auth(
                 'package_member_list_for_user',
                 context=context, id=self.normal_user['id'])
+
+    @pytest.mark.ckan_config('ckan.auth.create_dataset_if_not_in_organization', True)
+    @pytest.mark.ckan_config('ckan.auth.create_unowned_dataset', True)
+    def test_list_unowned_datasets(self):
+
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        assert dataset['owner_org'] is None
+        assert dataset['creator_user_id'] == user['id']
+
+        context = self._get_context(user)
+        assert helpers.call_auth(
+            'package_member_list', context=context, id=dataset['id'])

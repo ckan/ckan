@@ -416,6 +416,16 @@ class TestPackageMemberCreateAuth(object):
                 'package_member_create',
                 context=context, id=self.dataset['id'])
 
+    def test_create_non_org_user_is_not_authorized(self):
+
+        user = factories.User()
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_member_create',
+                context=context, id=self.dataset['id'])
+
     def test_create_org_admin_from_other_org_is_not_authorized(self):
 
         org_admin2 = factories.User()
@@ -467,3 +477,18 @@ class TestPackageMemberCreateAuth(object):
             helpers.call_auth(
                 'package_member_create',
                 context=context, id=self.dataset['id'])
+
+    @pytest.mark.ckan_config('ckan.auth.create_dataset_if_not_in_organization', True)
+    @pytest.mark.ckan_config('ckan.auth.create_unowned_dataset', True)
+    def test_create_unowned_datasets(self):
+
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        assert dataset['owner_org'] is None
+        assert dataset['creator_user_id'] == user['id']
+
+        context = self._get_context(user)
+        assert helpers.call_auth(
+            'package_member_create', context=context, id=dataset['id'])
