@@ -279,6 +279,7 @@ class TestUpdate(object):
 @pytest.mark.usefixtures('clean_db', 'with_plugins')
 @pytest.mark.ckan_config('ckan.plugins', 'image_view')
 @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+@pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
 class TestUpdateAuthWithCollaborators(object):
 
     def _get_context(self, user):
@@ -288,36 +289,56 @@ class TestUpdateAuthWithCollaborators(object):
             'user': user if isinstance(user, string_types) else user.get('name')
         }
 
-    def test_dataset_update_public_editor(self):
+    @pytest.mark.parametrize('role,action,private', [
+        ('admin', 'package_update', False),
+        ('editor', 'package_update', False),
+        ('admin', 'package_update', True),
+        ('editor', 'package_update', True),
+        ('admin', 'package_delete', False),
+        ('editor', 'package_delete', False),
+        ('admin', 'package_delete', True),
+        ('editor', 'package_delete', True),
+    ])
+    def test_dataset_manage_admin_and_editors(self, role, action, private):
 
         org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org['id'])
+        dataset = factories.Dataset(owner_org=org['id'], private=private)
         user = factories.User()
 
         context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_update',
+                action,
                 context=context, id=dataset['id'])
 
         helpers.call_action(
             'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            id=dataset['id'], user_id=user['id'], capacity=role)
 
         assert helpers.call_auth(
-            'package_update',
+            action,
             context=context, id=dataset['id'])
 
-    def test_dataset_update_public_member(self):
+    @pytest.mark.parametrize('action,private', [
+        ('package_update', False),
+        ('package_update', False),
+        ('package_update', True),
+        ('package_update', True),
+        ('package_delete', False),
+        ('package_delete', False),
+        ('package_delete', True),
+        ('package_delete', True),
+    ])
+    def test_dataset_manage_member(self, action, private):
 
         org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org['id'])
+        dataset = factories.Dataset(owner_org=org['id'], private=private)
         user = factories.User()
 
         context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_update',
+                action,
                 context=context, id=dataset['id'])
 
         helpers.call_action(
@@ -327,94 +348,11 @@ class TestUpdateAuthWithCollaborators(object):
         context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_update',
+                action,
                 context=context, id=dataset['id'])
 
-    def test_dataset_update_private_editor(self):
-
-        org = factories.Organization()
-        dataset = factories.Dataset(private=True, owner_org=org['id'])
-        user = factories.User()
-
-        context = self._get_context(user)
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                'package_update',
-                context=context, id=dataset['id'])
-
-        helpers.call_action(
-            'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
-
-        assert helpers.call_auth(
-            'package_update',
-            context=context, id=dataset['id'])
-
-    def test_dataset_update_private_member(self):
-
-        org = factories.Organization()
-        dataset = factories.Dataset(private=True, owner_org=org['id'])
-        user = factories.User()
-
-        context = self._get_context(user)
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                'package_update',
-                context=context, id=dataset['id'])
-
-        helpers.call_action(
-            'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='member')
-
-        context = self._get_context(user)
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                'package_update',
-                context=context, id=dataset['id'])
-
-    def test_dataset_delete_private_editor(self):
-
-        org = factories.Organization()
-        dataset = factories.Dataset(private=True, owner_org=org['id'])
-        user = factories.User()
-
-        context = self._get_context(user)
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                'package_delete',
-                context=context, id=dataset['id'])
-
-        helpers.call_action(
-            'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
-
-        assert helpers.call_auth(
-            'package_delete',
-            context=context, id=dataset['id'])
-
-    def test_dataset_delete_private_member(self):
-
-        org = factories.Organization()
-        dataset = factories.Dataset(private=True, owner_org=org['id'])
-        user = factories.User()
-
-        context = self._get_context(user)
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                'package_delete',
-                context=context, id=dataset['id'])
-
-        helpers.call_action(
-            'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='member')
-
-        context = self._get_context(user)
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                'package_delete',
-                context=context, id=dataset['id'])
-
-    def test_resource_create_public_editor(self):
+    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    def test_resource_create_public_admin_and_editor(self, role):
 
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org['id'])
@@ -428,7 +366,7 @@ class TestUpdateAuthWithCollaborators(object):
 
         helpers.call_action(
             'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            id=dataset['id'], user_id=user['id'], capacity=role)
 
         assert helpers.call_auth(
             'resource_create',
@@ -455,7 +393,13 @@ class TestUpdateAuthWithCollaborators(object):
                 'resource_create',
                 context=context, package_id=dataset['id'])
 
-    def test_resource_update_public_editor(self):
+    @pytest.mark.parametrize('role,action', [
+        ('admin', 'resource_update'),
+        ('editor', 'resource_update'),
+        ('admin', 'resource_delete'),
+        ('editor', 'resource_delete'),
+    ])
+    def test_resource_manage_public_admin_and_editor(self, role, action):
 
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org['id'])
@@ -465,15 +409,15 @@ class TestUpdateAuthWithCollaborators(object):
         context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'resource_update',
+                action,
                 context=context, id=resource['id'])
 
         helpers.call_action(
             'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            id=dataset['id'], user_id=user['id'], capacity=role)
 
         assert helpers.call_auth(
-            'resource_update',
+            action,
             context=context, id=resource['id'])
 
     def test_resource_update_public_member(self):
@@ -498,27 +442,6 @@ class TestUpdateAuthWithCollaborators(object):
                 'resource_update',
                 context=context, id=resource['id'])
 
-    def test_resource_delete_public_editor(self):
-
-        org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org['id'])
-        resource = factories.Resource(package_id=dataset['id'])
-        user = factories.User()
-
-        context = self._get_context(user)
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                'resource_delete',
-                context=context, id=resource['id'])
-
-        helpers.call_action(
-            'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
-
-        assert helpers.call_auth(
-            'resource_delete',
-            context=context, id=resource['id'])
-
     def test_resource_delete_public_member(self):
 
         org = factories.Organization()
@@ -541,7 +464,8 @@ class TestUpdateAuthWithCollaborators(object):
                 'resource_delete',
                 context=context, id=resource['id'])
 
-    def test_resource_view_create_public_editor(self):
+    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    def test_resource_view_create_public_editor(self, role):
 
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org['id'])
@@ -556,7 +480,7 @@ class TestUpdateAuthWithCollaborators(object):
 
         helpers.call_action(
             'package_member_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            id=dataset['id'], user_id=user['id'], capacity=role)
 
         assert helpers.call_auth(
             'resource_view_create',

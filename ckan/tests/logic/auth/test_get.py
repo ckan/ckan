@@ -449,6 +449,33 @@ class TestPackageMemberList(object):
                 'package_member_list_for_user',
                 context=context, id=self.dataset['id'])
 
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+    def test_list_collaborator_admin_is_authorized(self):
+
+        user = factories.User()
+
+        helpers.call_action(
+            'package_member_create',
+            id=self.dataset['id'], user_id=user['id'], capacity='admin')
+
+        context = self._get_context(user)
+        assert helpers.call_auth(
+            'package_member_list', context=context, id=self.dataset['id'])
+
+    @pytest.mark.parametrize('role', ['editor', 'member'])
+    def test_list_collaborator_editor_and_member_are_not_authorized(self, role):
+        user = factories.User()
+
+        helpers.call_action(
+            'package_member_create',
+            id=self.dataset['id'], user_id=user['id'], capacity=role)
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_member_list',
+                context=context, id=self.dataset['id'])
+
     def test_user_list_own_user_is_authorized(self):
 
         context = self._get_context(self.normal_user)

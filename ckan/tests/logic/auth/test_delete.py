@@ -207,17 +207,29 @@ class TestPackageMemberDeleteAuth(object):
                 'package_member_delete',
                 context=context, id=dataset['id'])
 
-    def test_list_org_admin_is_authorized(self):
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+    def test_delete_collaborator_admin_is_authorized(self):
 
-        context = self._get_context(self.org_admin)
+        user = factories.User()
+
+        helpers.call_action(
+            'package_member_create',
+            id=self.dataset['id'], user_id=user['id'], capacity='admin')
+
+        context = self._get_context(user)
         assert helpers.call_auth(
-            'package_member_list',
-            context=context, id=self.dataset['id'])
+            'package_member_delete', context=context, id=self.dataset['id'])
 
-    def test_list_org_editor_is_not_authorized(self):
+    @pytest.mark.parametrize('role', ['editor', 'member'])
+    def test_delete_collaborator_editor_and_member_are_not_authorized(self, role):
+        user = factories.User()
 
-        context = self._get_context(self.org_editor)
+        helpers.call_action(
+            'package_member_create',
+            id=self.dataset['id'], user_id=user['id'], capacity=role)
+
+        context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_member_list',
+                'package_member_delete',
                 context=context, id=self.dataset['id'])
