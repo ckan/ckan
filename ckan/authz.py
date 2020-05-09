@@ -461,6 +461,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'public_activity_stream_detail': False,
     'allow_dataset_collaborators': False,
     'allow_admin_collaborators': False,
+    'allow_collaborators_to_change_owner_org': False,
 }
 
 
