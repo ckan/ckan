@@ -2,6 +2,8 @@
 
 import datetime
 import pytz
+import six
+
 from flask_babel import (
     format_number,
     format_datetime,
@@ -51,7 +53,15 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
     if with_seconds:
         return format_datetime(datetime_, format or 'long')
     elif with_hours:
-        return format_datetime(datetime_, format or 'MMMM d, YYYY, HH:mm (z)')
+        if six.PY2:
+            # timezones rendered as offset in py2 - let's use
+            # abbreviation instead
+            fmt_str = "MMMM d, YYYY, HH:mm ('{zone'})".format(
+                datetime_.tzname()
+            )
+        else:
+            fmt_str = "MMMM d, YYYY, HH:mm (z)"
+        return format_datetime(datetime_, format or fmt_str)
     else:
         return format_date(datetime_, format or 'long')
 
