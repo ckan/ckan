@@ -99,15 +99,12 @@ class TestLocalizedNiceDate(object):
             (_now, True, False, None, u"October 23, 2017, 16:03 (UTC)"),
             (_now, True, False, u"EEE, HH:mm", u"Mon, 16:03"),
             (_now, True, True, None, u"October 23, 2017 at 4:03:52 PM UTC"),
-            pytest.param(
+            (
                 _now,
                 True,
                 False,
                 u"MMM dd, yy. EEEE 'at' hh:mm:ss [z]",
                 u"Oct 23, 17. Monday at 04:03:52 [UTC]",
-                marks=pytest.mark.skipif(
-                    six.PY2,
-                    reason="Py2 renders offset instead of tz abbreviation")
             ),
         ],
     )

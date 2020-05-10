@@ -39,12 +39,10 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
 
     :rtype: sting
     '''
-
+    if datetime_.tzinfo is None:
+        datetime_ = datetime_.replace(tzinfo=pytz.utc)
     if not show_date:
         now = datetime.datetime.now(pytz.utc)
-        if datetime_.tzinfo is None:
-            datetime_ = datetime_.replace(tzinfo=pytz.utc)
-
         date_diff = datetime_ - now
         if abs(date_diff) < datetime.timedelta(seconds=1):
             return _('Just now')
@@ -53,14 +51,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
     if with_seconds:
         return format_datetime(datetime_, format or 'long')
     elif with_hours:
-        if six.PY2:
-            # timezones rendered as offset in py2 - let's use
-            # abbreviation instead
-            fmt_str = "MMMM d, YYYY, HH:mm ('{zone'})".format(
-                datetime_.tzname()
-            )
-        else:
-            fmt_str = "MMMM d, YYYY, HH:mm (z)"
+        fmt_str = "MMMM d, YYYY, HH:mm (z)"
         return format_datetime(datetime_, format or fmt_str)
     else:
         return format_date(datetime_, format or 'long')
