@@ -13,7 +13,7 @@ from datetime import datetime
         (1, u"1"),
         (1e3, u"1k"),
         (1e6, u"1M"),
-        (1e6 + 32e3, u"1.032M"),
+        (1e6 + 32e3, u"1M"),
         (1e9, u"1G"),
         (1e9 + 1, u"1G"),
         (1e12, u"1T"),
@@ -35,11 +35,11 @@ def test_localized_SI_number(number, expected):
         (1, u"1 bytes"),
         (1024, u"1 KiB"),
         (1024 ** 2, u"1 MiB"),
-        (1024 ** 2 + 1024 * 31, u"1.03 MiB"),
+        (1024 ** 2 + 1024 * 31, u"1 MiB"),
         (1024 ** 3, u"1 GiB"),
         (1024 ** 3 + 1, u"1 GiB"),
         (1024 ** 4, u"1 TiB"),
-        (1024 ** 4 + 1024 ** 3 * 900, u"1.879 TiB"),
+        (1024 ** 4 + 1024 ** 3 * 900, u"1.8 TiB"),
     ],
 )
 @pytest.mark.usefixtures(u"with_request_context")

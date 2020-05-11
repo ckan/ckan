@@ -67,7 +67,7 @@ def localised_filesize(number):
     etc '''
     def rnd(number, divisor):
         # round to 1 decimal place
-        return localised_number(float(number * 10 / divisor) / 10)
+        return localised_number(float(number * 10 // divisor) / 10)
 
     if number < 1024:
         return _('{bytes} bytes').format(bytes=localised_number(number))
@@ -87,7 +87,7 @@ def localised_SI_number(number):
 
     def rnd(number, divisor):
         # round to 1 decimal place
-        return localised_number(float(number * 10 / divisor) / 10)
+        return localised_number(float(number * 10 // divisor) / 10)
 
     if number < 1000:
         return _('{n}').format(n=localised_number(number))
