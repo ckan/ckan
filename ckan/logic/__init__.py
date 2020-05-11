@@ -467,8 +467,6 @@ def get_action(action):
                 context['__auth_audit'].append((action_name, id(_action)))
 
                 # check_access(action_name, context, data_dict=None)
-                p.toolkit.signals.before_action.send(
-                    action_name, context=context, data_dict=data_dict)
                 result = _action(context, data_dict, **kw)
                 try:
                     audit = context['__auth_audit'][-1]
@@ -484,7 +482,7 @@ def get_action(action):
                         context['__auth_audit'].pop()
                 except IndexError:
                     pass
-                p.toolkit.signals.after_action.send(action_name, result=result)
+
                 return result
             return wrapped
 

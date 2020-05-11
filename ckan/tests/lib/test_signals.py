@@ -4,33 +4,6 @@ import mock
 
 import pytest
 import ckan.plugins.toolkit as tk
-import ckan.tests.helpers as h
-
-
-@pytest.mark.parametrize(u'action,args', [
-    (u'status_show', {}),
-    (u'package_search', {u'q': u'title:title'})
-])
-def test_before_action(action, args):
-    receiver = mock.Mock()
-    with tk.signals.before_action.connected_to(receiver):
-        h.call_action(action, **args)
-    receiver.assert_called_once()
-
-    (name, ), kwargs = receiver.call_args
-
-    assert name == action
-    assert kwargs[u'data_dict'] == args
-
-
-def test_after_action():
-    receiver = mock.Mock()
-    with tk.signals.after_action.connected_to(receiver):
-        h.call_action(u'status_show')
-    receiver.assert_called_once()
-    (name, ), kwargs = receiver.call_args
-    assert name == u'status_show'
-    assert kwargs[u'result'][u'ckan_version'] == tk.h.ckan_version()
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_idatasetform_v6")
