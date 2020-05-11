@@ -24,12 +24,12 @@ def test_request_signals(app):
     finish_receiver = mock.Mock()
     with tk.signals.request_started.connected_to(start_receiver):
         with tk.signals.request_finished.connected_to(finish_receiver):
-            app.get('/')
+            app.get(u'/')
     assert start_receiver.call_count == 1
     assert finish_receiver.call_count == 1
 
     with tk.signals.request_started.connected_to(start_receiver):
         with tk.signals.request_finished.connected_to(finish_receiver):
-            app.get('/about')
+            app.get(u'/about')
     assert start_receiver.call_count == 2
     assert finish_receiver.call_count == 2
