@@ -67,11 +67,17 @@ control over subscriptions available depending on enabled plugins::
                 ]
             }
 
+.. warning:: Arguments passed to subscribers in no case should be modified. Use them only for doing some extra work and don't ever try to change existing CKAN behavior using subscribers. If one need to alter CKAN behavior, :mod:`ckan.plugins.interfaces` must be used instead.
+
 :py:mod:`ckan.lib.signals` contains a few core signals for
 plugins to subscribe:
 
 .. currentmodule:: ckan.lib.signals
 
+.. autodata:: request_started
+   :annotation: (app)
+.. autodata:: request_finished
+   :annotation: (app, response)
 .. autodata:: before_action
    :annotation: (action_name, context, data_dict)
 .. autodata:: after_action
