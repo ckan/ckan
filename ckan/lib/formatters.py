@@ -21,7 +21,8 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
          '1 day ago'
          'April 24, 2013'  (show_date=True)
          'October 25, 2017, 16:03 (UTC)' (show_date=True, with_hours=True)
-         'Apr 3, 2020, 4:00:31 PM' (show_date=True, format='medium')
+         'Apr 3, 2020, 4:00:31 PM' (
+                 show_date=True, with_hours=True, format='medium')
          'April 03, 20' (show_date=True, format='MMMM dd, YY')
 
     :param datetime_: The date to format
