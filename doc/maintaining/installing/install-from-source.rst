@@ -125,7 +125,7 @@ c. Install the CKAN source code into your virtualenv.
 
       pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
 
-   *** Please note that the latest stable version of CKAN (2.8.*) requires Python 2 ***
+   ** Please note that the latest stable version of CKAN (2.8.*) requires Python 2 **
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of
