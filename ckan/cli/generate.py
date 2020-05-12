@@ -147,13 +147,18 @@ def migration(plugin, message):
     """Create new alembic revision for DB migration.
     """
     import ckan.model
+    if not tk.config:
+        tk.error_shout('Config is not loaded')
+        raise click.Abort()
     config = CKANAlembicConfig(_resolve_alembic_config(plugin))
+    migration_dir = os.path.dirname(config.config_file_name)
     config.set_main_option(u"sqlalchemy.url",
                            str(ckan.model.repo.metadata.bind.url))
+    config.set_main_option('script_location', migration_dir)
 
-    migration_dir = os.path.dirname(config.config_file_name)
-    if not os.path.isdir(migration_dir):
+    if not os.path.exists(os.path.join(migration_dir, 'script.py.mako')):
         alembic.command.init(config, migration_dir)
+
     rev = alembic.command.revision(config, message)
     click.secho(
         u"Revision file created. Now, you need to update it: \n\t{}".format(

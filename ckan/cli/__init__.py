@@ -7,6 +7,7 @@ import logging
 from logging.config import fileConfig as loggingFileConfig
 from configparser import ConfigParser
 
+from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
 
@@ -83,13 +84,12 @@ def load_config(ini_path=None):
                 u'\nUse the --config parameter or set environment ' \
                 u'variable CKAN_INI or have {}\nin the current directory.' \
                 .format(default_filename)
-            exit(msg)
+            raise CkanConfigurationException(msg)
 
     if not os.path.exists(filename):
         msg = u'Config file not found: %s' % filename
         msg += u'\n(Given by: %s)' % config_source
-        exit(msg)
-
+        raise CkanConfigurationException(msg)
     config_loader = CKANConfigLoader(filename)
     loggingFileConfig(filename)
     log.info(u'Using configuration file {}'.format(filename))
