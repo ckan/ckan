@@ -19,7 +19,7 @@ def test_incorrect_config(cli):
     """Config file must exist.
     """
     result = cli.invoke(ckan, [u'-c', u'/a/b/c/d/e/f/g/h.ini'])
-    assert result.output.startswith(u'Config file not found')
+    assert result.output.startswith(u'Aborted')
 
 
 def test_correct_config(cli, ckan_config):
@@ -45,24 +45,6 @@ def test_config_via_env_var(cli, ckan_config):
     result = cli.invoke(ckan, [u'-c', None, u'-h'],
                         env={u'CKAN_INI': ckan_config[u'__file__']})
     assert not result.exit_code
-
-
-def test_command_from_extension_is_not_available_without_extension(cli):
-    """Extension must be enabled in order to make its commands available.
-    """
-    result = cli.invoke(ckan, [u'example-iclick-hello'])
-    assert result.exit_code
-
-
-@pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')
-@pytest.mark.usefixtures(u'with_plugins')
-def test_command_from_extension_is_not_available_without_additional_fixture(cli):
-    """Without `with_extended_cli` extension still unable to register
-    command durint tests.
-
-    """
-    result = cli.invoke(ckan, [u'example-iclick-hello'])
-    assert result.exit_code
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')

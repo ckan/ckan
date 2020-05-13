@@ -148,15 +148,15 @@ def migration(plugin, message):
     """
     import ckan.model
     if not tk.config:
-        tk.error_shout('Config is not loaded')
+        tk.error_shout(u'Config is not loaded')
         raise click.Abort()
     config = CKANAlembicConfig(_resolve_alembic_config(plugin))
     migration_dir = os.path.dirname(config.config_file_name)
     config.set_main_option(u"sqlalchemy.url",
                            str(ckan.model.repo.metadata.bind.url))
-    config.set_main_option('script_location', migration_dir)
+    config.set_main_option(u'script_location', migration_dir)
 
-    if not os.path.exists(os.path.join(migration_dir, 'script.py.mako')):
+    if not os.path.exists(os.path.join(migration_dir, u'script.py.mako')):
         alembic.command.init(config, migration_dir)
 
     rev = alembic.command.revision(config, message)
