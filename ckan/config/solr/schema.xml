@@ -149,6 +149,8 @@ schema. In this case the version should be set to the next CKAN version number.
     <field name="res_url" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="res_type" type="string" indexed="true" stored="true" multiValued="true"/>
 
+    <field name="extras_harvest_document_content" type="xml" indexed="true" stored="true" multiValued="false"/>
+
     <!-- catchall field, containing all other searchable text fields (implemented
          via copyField further on in this schema  -->
     <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
@@ -219,5 +221,6 @@ schema. In this case the version should be set to the next CKAN version number.
 <copyField source="res_description" dest="text"/>
 <copyField source="maintainer" dest="text"/>
 <copyField source="author" dest="text"/>
+<copyField source="extras_harvest_document_content" dest="text"/>
 
 </schema>
