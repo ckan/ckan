@@ -638,7 +638,7 @@ def user_update(context, data_dict):
     '''Update a user account.
 
     Normal users can only update their own user accounts. Sysadmins can update
-    any user account. Can not modify exisiting user's name.
+    any user account and modify existing usernames.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.user_create`.
