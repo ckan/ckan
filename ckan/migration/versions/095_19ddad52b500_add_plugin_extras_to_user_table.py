@@ -1,3 +1,4 @@
+# encoding: utf-8
 """Add plugin_extras to user table
 
 Revision ID: 19ddad52b500
@@ -10,7 +11,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '19ddad52b500'
+revision = u'19ddad52b500'
 down_revision = u'588d7cfb9a41'
 branch_labels = None
 depends_on = None
@@ -18,13 +19,13 @@ depends_on = None
 
 def upgrade():
     op.add_column(
-        'user',
+        u'user',
         sa.Column(
-            'plugin_extras',
+            u'plugin_extras',
             postgresql.JSONB(astext_type=sa.Text()),
             nullable=True)
     )
 
 
 def downgrade():
-    op.drop_column('user', 'plugin_extras')
+    op.drop_column(u'user', u'plugin_extras')

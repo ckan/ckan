@@ -1007,7 +1007,9 @@ def user_create(context, data_dict):
     if author_obj:
         include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
     user_dict = model_dictize.user_dictize(
-        user, user_dictize_context, include_plugin_extras=include_plugin_extras)
+        user, user_dictize_context,
+        include_plugin_extras=include_plugin_extras
+    )
 
     context['user_obj'] = user
     context['id'] = user.id
