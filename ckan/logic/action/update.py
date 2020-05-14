@@ -685,8 +685,10 @@ def user_update(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    author_obj = model.User.get(author)
-    include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+    author_obj = model.User.get(context['user'])
+    include_plugin_extras = False
+    if author_obj:
+        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
     user_dict = model_dictize.user_dictize(
         user, context, include_plugin_extras=include_plugin_extras)
 
