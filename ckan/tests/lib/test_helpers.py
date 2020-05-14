@@ -793,3 +793,37 @@ class TestActivityListSelect(object):
 
         html = out[0]
         assert str(html).startswith(u'<option value="&#34;&gt;" >')
+
+
+class TestAddUrlParam(object):
+
+    @pytest.mark.parametrize(u'url,params,expected', [
+        (u'/dataset', {u'a': u'2'}, u'/dataset/?a=2'),
+        (u'/dataset?a=1', {u'a': u'2'}, u'/dataset/?a=1&a=2'),
+        (u'/dataset?a=1&a=3', {u'a': u'2'}, u'/dataset/?a=1&a=3&a=2'),
+        (u'/dataset?a=2', {u'a': u'2'}, u'/dataset/?a=2&a=2'),
+    ])
+    def test_new_param(self, test_request_context, url, params, expected):
+        with test_request_context(url):
+            assert h.add_url_param(new_params=params) == expected
+
+    def test_alternative_url(self, test_request_context):
+        with test_request_context(u'/dataset'):
+            assert h.add_url_param(u'/group') == u'/group'
+            assert h.add_url_param(
+                u'/group', new_params={'x': 'y'}) == u'/group?x=y'
+            assert h.add_url_param() == u'/dataset/'
+
+    @pytest.mark.parametrize(u'controller,action,extras', [
+        ('dataset', 'read', {'id': 'uuid'}),
+        ('dataset', 'search', {'q': '*:*'}),
+        ('organization', 'index', {}),
+        ('home', 'index', {'a': '1'}),
+        ('dashboard', 'index', {}),
+    ])
+    def test_controller_action(
+            self, test_request_context, controller, action, extras):
+        with test_request_context(u'/dataset/'):
+            assert h.add_url_param(
+                controller=controller, action=action, extras=extras
+            ) == h.url_for(controller + '.' + action, **extras)
