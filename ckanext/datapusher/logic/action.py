@@ -60,7 +60,7 @@ def datapusher_submit(context, data_dict):
 
     datapusher_url = config.get('ckan.datapusher.url')
 
-    site_url = 'http://ckan:5000'
+    site_url = h.url_for('/', qualified=True)
 
     callback_url_base = config.get('ckan.datapusher.callback_url_base')
     if callback_url_base:
