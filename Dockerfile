@@ -25,6 +25,9 @@ RUN virtualenv $CKAN_HOME
 RUN ln -s $CKAN_HOME/bin/pip /usr/local/bin/ckan-pip
 RUN ln -s $CKAN_HOME/bin/paster /usr/local/bin/ckan-paster
 
+# Update pip version
+RUN ckan-pip install -U pip
+
 # SetUp Requirements
 # https://github.com/ckan/ckan/pull/4197
 ADD ./requirement-setuptools.txt $CKAN_HOME/src/ckan/requirement-setuptools.txt
