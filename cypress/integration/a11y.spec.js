@@ -20,12 +20,15 @@ function terminalLog(violations) {
 
 describe("Runs a11y check on pages.", () => {
 
-  before(() => {
+  it('Has no a11y violations on front page.', () => {
     cy.visit('/');
     cy.injectAxe();
+    cy.checkA11y(null, null, terminalLog);
   })
 
-  it('Has no a11y violations on front page.', () => {
+  it("Has no a11y violations on dataset page.", () => {
+    cy.visit('/dataset')
+    cy.injectAxe();
     cy.checkA11y(null, null, terminalLog);
   })
 });
