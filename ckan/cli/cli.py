@@ -11,6 +11,7 @@ import sys
 import ckan.plugins as p
 import ckan.cli as ckan_cli
 from ckan.config.middleware import make_app
+from ckan.exceptions import CkanConfigurationException
 from ckan.cli import (
     config_tool,
     jobs,
@@ -81,13 +82,20 @@ def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
 
 
 def _init_ckan_config(ctx, param, value):
-    # Some commands don't require the config loaded
-    if (len(sys.argv) > 1 and not value
-            and sys.argv[1] in (u'generate', u'config-tool')) \
-            or u'--help' in sys.argv:
-        return
+    is_help = u'--help' in sys.argv
+    no_config = len(sys.argv) > 1 and sys.argv[1] in (
+        u'generate', u'config-tool')
 
-    ctx.obj = CkanCommand(value)
+    try:
+        ctx.obj = CkanCommand(value)
+    except CkanConfigurationException as e:
+        # Some commands don't require the config loaded
+        if no_config or is_help:
+            return
+        else:
+            log.warn(u'Configuration not loaded: %s', e)
+            raise click.Abort()
+
     if six.PY2:
         ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
     else:
