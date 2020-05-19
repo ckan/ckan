@@ -1,10 +1,11 @@
 # encoding: utf-8
 
+import mock
 from bs4 import BeautifulSoup
 import pytest
 import six
 from ckan.lib.helpers import url_for
-
+import ckan.logic as logic
 import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
@@ -249,6 +250,24 @@ class TestGroupRead(object):
 
         # 200 == no redirect
         app.get(url_for("group.read", id=group["id"]), status=200)
+
+    def test_search_with_extra_params(self, app, monkeypatch):
+        group = factories.Group()
+        url = url_for('group.read', id=group['id'])
+        url += '?ext_a=1&ext_a=2&ext_b=3'
+        search_result = {
+            'count': 0,
+            'sort': "score desc, metadata_modified desc",
+            'facets': {},
+            'search_facets': {},
+            'results': []
+        }
+        search = mock.Mock(return_value=search_result)
+        logic._actions['package_search'] = search
+        app.get(url)
+        search.assert_called()
+        extras = search.call_args[0][1]['extras']
+        assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")

@@ -19,9 +19,12 @@ import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
 from ckan.common import g, config, request, _
 from ckan.views.home import CACHE_PARAMETERS
+from ckan.views.dataset import _get_search_details
 
 from flask import Blueprint
 from flask.views import MethodView
+
+
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -315,64 +318,60 @@ def _read(id, limit, group_type):
         params.append((u'page', page))
         return search_url(params)
 
+    details = _get_search_details()
+    extra_vars[u'fields'] = details[u'fields']
+    extra_vars[u'fields_grouped'] = details[u'fields_grouped']
+    fq += details[u'fq']
+    search_extras = details[u'search_extras']
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.fields = extra_vars[u'fields']
+    g.fields_grouped = extra_vars[u'fields_grouped']
+
+
+
+    facets = OrderedDict()
+
+    default_facet_titles = {
+        u'organization': _(u'Organizations'),
+        u'groups': _(u'Groups'),
+        u'tags': _(u'Tags'),
+        u'res_format': _(u'Formats'),
+        u'license_id': _(u'Licenses')
+    }
+
+    for facet in h.facets():
+        if facet in default_facet_titles:
+            facets[facet] = default_facet_titles[facet]
+        else:
+            facets[facet] = facet
+
+    # Facet titles
+    facets = _update_facet_titles(facets, group_type)
+
+    extra_vars["facet_titles"] = facets
+
+    data_dict = {
+        u'q': q,
+        u'fq': fq,
+        u'include_private': True,
+        u'facet.field': list(facets.keys()),
+        u'rows': limit,
+        u'sort': sort_by,
+        u'start': (page - 1) * limit,
+        u'extras': search_extras
+    }
+
+    context_ = dict((k, v) for (k, v) in context.items() if k != u'schema')
     try:
-        extra_vars["fields"] = fields = []
-        extra_vars["fields_grouped"] = fields_grouped = {}
-        search_extras = {}
-        for (param, value) in request.params.items():
-            if param not in [u'q', u'page', u'sort'] \
-                    and len(value) and not param.startswith(u'_'):
-                if not param.startswith(u'ext_'):
-                    fields.append((param, value))
-                    fq += u' %s: "%s"' % (param, value)
-                    if param not in fields_grouped:
-                        fields_grouped[param] = [value]
-                    else:
-                        fields_grouped[param].append(value)
-                else:
-                    search_extras[param] = value
-
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.fields = fields
-        g.fields_grouped = fields_grouped
-
-        facets = OrderedDict()
-
-        default_facet_titles = {
-            u'organization': _(u'Organizations'),
-            u'groups': _(u'Groups'),
-            u'tags': _(u'Tags'),
-            u'res_format': _(u'Formats'),
-            u'license_id': _(u'Licenses')
-        }
-
-        for facet in h.facets():
-            if facet in default_facet_titles:
-                facets[facet] = default_facet_titles[facet]
-            else:
-                facets[facet] = facet
-
-        # Facet titles
-        facets = _update_facet_titles(facets, group_type)
-
-        extra_vars["facet_titles"] = facets
-
-        data_dict = {
-            u'q': q,
-            u'fq': fq,
-            u'include_private': True,
-            u'facet.field': list(facets.keys()),
-            u'rows': limit,
-            u'sort': sort_by,
-            u'start': (page - 1) * limit,
-            u'extras': search_extras
-        }
-
-        context_ = dict((k, v) for (k, v) in context.items() if k != u'schema')
         query = get_action(u'package_search')(context_, data_dict)
-
+    except search.SearchError as se:
+        log.error(u'Group search error: %r', se.args)
+        extra_vars["query_error"] = True
+        extra_vars["page"] = h.Page(collection=[])
+    else:
         extra_vars["page"] = h.Page(
             collection=query['results'],
             page=page,
@@ -395,11 +394,6 @@ def _read(id, limit, group_type):
         extra_vars["page"].items = query['results']
 
         extra_vars["sort_by_selected"] = sort_by
-
-    except search.SearchError as se:
-        log.error(u'Group search error: %r', se.args)
-        extra_vars["query_error"] = True
-        extra_vars["page"] = h.Page(collection=[])
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
