@@ -1658,6 +1658,7 @@ class TestSearch(object):
         extras = search.call_args[0][1]['extras']
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
+
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageFollow(object):
     def test_package_follow(self, app):

@@ -25,7 +25,6 @@ from flask import Blueprint
 from flask.views import MethodView
 
 
-
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -329,8 +328,6 @@ def _read(id, limit, group_type):
     # compatibility with templates in existing extensions
     g.fields = extra_vars[u'fields']
     g.fields_grouped = extra_vars[u'fields_grouped']
-
-
 
     facets = OrderedDict()
 

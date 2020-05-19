@@ -187,10 +187,10 @@ def _get_search_details():
         for k, v in search_extras.lists()
     ])
     return {
-        'fields': fields,
-        'fields_grouped': fields_grouped,
-        'fq': fq,
-        'search_extras': search_extras,
+        u'fields': fields,
+        u'fields_grouped': fields_grouped,
+        u'fq': fq,
+        u'search_extras': search_extras,
     }
 
 
