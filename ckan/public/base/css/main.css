@@ -8418,7 +8418,7 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
 }
 .label[data-format=text],
 .label[data-format*=text] {
-  background-color: #74cbec;
+  background-color: #1A7EA3;
 }
 .label[data-format=csv],
 .label[data-format*=csv] {
