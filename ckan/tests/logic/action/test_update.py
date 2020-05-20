@@ -128,14 +128,14 @@ class TestUpdate(object):
             )
 
     def test_user_update_with_id_that_does_not_exist(self):
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         user_dict["id"] = "there's no user with this id"
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("user_update", **user_dict)
 
     def test_user_update_with_no_id(self):
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         assert "id" not in user_dict
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user_dict)
@@ -210,7 +210,7 @@ class TestUpdate(object):
         changed either.
 
         """
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         original_password = user_dict["password"]
         user_dict = factories.User(**user_dict)
 
@@ -274,7 +274,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.attributes()["password"],
+            password=factories.User.passwords,
             fullname="updated full name",
         )
 
@@ -322,7 +322,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.attributes()["password"],
+            password=factories.User.password,
             fullname="updated full name",
         )
 
@@ -340,7 +340,7 @@ class TestUpdate(object):
             "email": user["email"],
             # FIXME: We shouldn't have to put password here since we're not
             # updating it, but user_update sucks.
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         helpers.call_action("user_update", **params)
@@ -360,7 +360,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -371,13 +371,12 @@ class TestUpdate(object):
         API key."""
 
         user = factories.User()
-
         params = {
             "id": user["id"],
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -398,7 +397,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
