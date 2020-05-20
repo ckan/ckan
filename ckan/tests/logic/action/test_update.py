@@ -274,7 +274,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.passwords,
+            password=factories.User.password,
             fullname="updated full name",
         )
 
