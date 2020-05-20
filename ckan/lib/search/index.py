@@ -42,7 +42,7 @@ RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description"
 RELATIONSHIP_TYPES = PackageRelationship.types
 
 # Regular expression used to strip invalid XML characters
-_illegal_xml_chars_re = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+_illegal_xml_chars_re = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
 
 def escape_xml_illegal_chars(val, replacement=''):
     '''

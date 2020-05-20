@@ -5,3 +5,5 @@ plugins:
       languages:
         python:
           python_version: 3
+exclude_patterns:
+- "ckan/lib/search/index.py"
