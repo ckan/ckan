@@ -1,0 +1,3 @@
+Extensions that add CLI commands should note the deprecation of
+``ckan.lib.cli.CkanCommand`` and all other helpers in ckan.lib.cli.
+Extensions should instead implement CLIs using the new IClick interface.
