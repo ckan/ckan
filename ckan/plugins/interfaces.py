@@ -1871,10 +1871,10 @@ class ISignal(Interface):
         """Return a mapping of signals to their listeners.
 
         Note that keys are not strings, they are instances of
-        ``blinker.Signal``. When using signals provided by CKAN core, it is better
-        to use the references from the :doc:`plugins toolkit <plugins-toolkit>`
-        for better future compatibility. Values should be a list of listener
-        functions::
+        ``blinker.Signal``. When using signals provided by CKAN core,
+        it is better to use the references from the :doc:`plugins
+        toolkit <plugins-toolkit>` for better future
+        compatibility. Values should be a list of listener functions::
 
             def get_signal_subscriptions(self):
                 import ckan.plugins.toolkit as tk
@@ -1925,11 +1925,11 @@ class ISignal(Interface):
                         ]
                     }
 
-        Because this is a really common use case, there is additional form
-        of listener registration supported. Instead of just callables, one can
-        use dictionaries of form ``{'receiver': CALLABLE, 'sender':
-        DESIRED_SENDER}``. The following code snippet has the same effect than the
-        previous one::
+        Because this is a really common use case, there is additional
+        form of listener registration supported. Instead of just
+        callables, one can use dictionaries of form ``{'receiver':
+        CALLABLE, 'sender': DESIRED_SENDER}``. The following code
+        snippet has the same effect than the previous one::
 
 
             import ckan.plugins.toolkit as tk
@@ -1949,8 +1949,9 @@ class ISignal(Interface):
                         }]
                     }
 
-        The two forms of registration can be mixed when multiple listeners are
-        registered, callables and dictionaries with ``receiver``/``sender`` keys::
+        The two forms of registration can be mixed when multiple
+        listeners are registered, callables and dictionaries with
+        ``receiver``/``sender`` keys::
 
             import ckan.plugins.toolkit as tk
 
@@ -1984,5 +1985,6 @@ class ISignal(Interface):
 
         :returns: mapping of subscriptions to signals
         :rtype: dict
+
         """
         return {}
