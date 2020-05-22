@@ -41,7 +41,7 @@ write_config () {
 }
 
 # Wait for PostgreSQL
-while ! pg_isready -h db -U postgres; do
+while ! pg_isready -h db -U ckan; do
   sleep 1;
 done
 
