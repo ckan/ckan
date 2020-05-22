@@ -49,7 +49,7 @@ failed_login = ckan.signal(u"failed_login")
 """
 
 user_created = ckan.signal(u"user_created")
-"""This signal is sent after failed login attempt.
+"""This signal is sent when new user created.
 """
 
 request_password_reset = ckan.signal(u"request_password_reset")
