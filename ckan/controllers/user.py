@@ -316,11 +316,6 @@ class UserController(base.BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (authz.is_sysadmin(c.user)
-                or c.user == user_obj.name):
-            abort(403, _('User %s not authorized to edit %s') %
-                  (str(c.user), id))
-
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
