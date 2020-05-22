@@ -1870,26 +1870,11 @@ class ISignal(Interface):
     def get_signal_subscriptions(self):
         """Return a mapping of signals to their listeners.
 
-        Resulting dict must be composed of the signal bound to the
-        collection of listeners::
-
-            def get_signal_subscriptions(self):
-                from ckan.lib.signals import (
-                        request_started, register_blueprint
-                )
-
-                return {
-                    request_started: [request_listener],
-                    register_blueprint: [
-                        first_blueprint_listener,
-                        second_blueprint_listener
-                    ]
-                }
-
-        Note, keys are not stirngs, they are instances of
-        ``blinker.Signal``. It better to use alias from
-        ``ckan.plugins.toolkit`` if you want to support wider set of
-        CKAN versions::
+        Note that keys are not strings, they are instances of
+        ``blinker.Signal``. When using signals provided by CKAN core, it is better
+        to use the references from the :doc:`plugins toolkit <plugins-toolkit>`
+        for better future compatibility. Values should be a list of listener
+        functions::
 
             def get_signal_subscriptions(self):
                 import ckan.plugins.toolkit as tk
@@ -1906,22 +1891,23 @@ class ISignal(Interface):
                     ]
                 }
 
-        Listener is a callable, that accepts one mandatory
-        argument(sender) and an arbitrary number of named
-        arguments(context). The most optimal signature for the
-        listener is ``def(sender, **kwargs)`` and one should use it in
-        most cases(unless you are 100% sure you need something else).
+        Listeners are callables that accept one mandatory
+        argument (``sender``) and an arbitrary number of
+        named arguments (text). The best signature for a listener is
+        ``def(sender, **kwargs)``.
 
-        Sender will be different, depending on the signal and mostly
-        it should be used for coditional applying of listener. For
-        example, ``register_blueprint`` signal is sent every time,
-        custom dataset/group/organization blueprint is registered
-        inside application(using
-        :class:`ckan.plugins.interfaces.IDatasetForm` or
-        :class:`ckan.plugins.interfaces.IGroupForm`). Depending on
-        kind of blueprint, sender may be 'dataset', 'group',
+        The ``sender`` argument  will be different depending on the signal
+        and will be generally used to conditionally executing code on the
+        listener. For example, the ``register_blueprint`` signal is sent every
+        time a custom dataset/group/organization blueprint is registered
+        (using :class:`ckan.plugins.interfaces.IDatasetForm`
+        or :class:`ckan.plugins.interfaces.IGroupForm`). Depending on
+        the kind of blueprint, ``sender`` may be 'dataset', 'group',
         'organization' or 'resource'. If you want to do some work only
         for 'dataset' blueprints, you may end up with something similar to::
+
+
+            import ckan.plugins.toolkit as tk
 
             def dataset_blueprint_listener(sender, **kwargs):
                 if sender != 'dataset':
@@ -1932,7 +1918,6 @@ class ISignal(Interface):
                 plugins.implements(plugins.ISignal)
 
                 def get_signal_subscriptions(self):
-                    import ckan.plugins.toolkit as tk
 
                     return {
                         tk.signals.register_blueprint: [
@@ -1940,11 +1925,14 @@ class ISignal(Interface):
                         ]
                     }
 
-        Because this use-case is so popular, there is additional form
-        of listener registration. Instead of plain callables, one can
+        Because this is a really common use case, there is additional form
+        of listener registration supported. Instead of just callables, one can
         use dictionaries of form ``{'receiver': CALLABLE, 'sender':
-        DESIRED_SENDER}``. Following code snippet is identical to the
+        DESIRED_SENDER}``. The following code snippet has the same effect than the
         previous one::
+
+
+            import ckan.plugins.toolkit as tk
 
             def dataset_blueprint_listener(sender, **kwargs):
                 # do something..
@@ -1953,7 +1941,6 @@ class ISignal(Interface):
                 plugins.implements(plugins.ISignal)
 
                 def get_signal_subscriptions(self):
-                    import ckan.plugins.toolkit as tk
 
                     return {
                         tk.signals.register_blueprint: [{
@@ -1962,40 +1949,40 @@ class ISignal(Interface):
                         }]
                     }
 
+        The two forms of registration can be mixed when multiple listeners are
+        registered, callables and dictionaries with ``receiver``/``sender`` keys::
 
-        Even though it possible to change mutable arguments inside the
-        listener, or return something from it, the original(and main)
-        purpose of signals - performing some side effects, like
-        logging, triggering of background jobs, calls to external
-        services. Any mutation or attempt to change CKAN behavior
-        through signals is very risky and may lead to numerous bugs in
-        the future. So, never modify arguments of signal listener and
-        treat them like constants.
+            import ckan.plugins.toolkit as tk
 
-        Also, always check the presence of the value inside context -
-        signals will change with time as surrounding code changes, so
-        some options may disappear.
-
-        Finally, when multiple listeners are registered, plain
-        callables and dictionaries with ``receiver``/``sender`` keys
-        can be mixed::
-
-            def log_action(sender):
-                log.info("Action call: %s" % action)
+            def log_registration(sender, **kwargs):
+                log.info("Log something")
 
             class ExamplePlugin(plugins.SingletonPlugin)
                 plugins.implements(plugins.ISignal)
 
                 def get_signal_subscriptions(self):
                     return {
-                        p.toolkit.signals.before_action: [
-                            log_action,
-                            {'receiver': log_action, 'sender': 'help_show'}
+                        tk.signals.request_started: [
+                            log_registration,
+                            {'receiver': log_registration, 'sender': 'dataset'}
                         ]
                     }
 
+        Even though it is possible to change mutable arguments inside the
+        listener, or return something from it, the main purpose of signals
+        is the triggering of side effects, like logging, starting background
+        jobs, calls to external services, etc.
+
+        Any mutation or attempt to change CKAN behavior through signals should
+        be considered unsafe and may lead to hard to track bugs in
+        the future. So never modify the arguments of signal listener and
+        treat them as constants.
+
+        Always check for the presence of the desired value inside the received
+        context (named arguments). Arguments passed to
+        signals may change over time, and some arguments may disappear.
+
         :returns: mapping of subscriptions to signals
         :rtype: dict
-
         """
         return {}

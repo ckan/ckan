@@ -1,15 +1,17 @@
 Signals
 =======
 
-Starting v3.0, CKAN comes with built-in signal support, provided by
+.. versionadded:: 2.9
+
+Starting from CKAN 2.9, CKAN comes with built-in signal support, powered by
 `blinker <https://pythonhosted.org/blinker/>`_.
 
 The same library is used by `Flask
 <https://flask.palletsprojects.com/en/1.1.x/signals/>`_ and anything
-written in Flask docs also applies to CKAN. Probably, the most
+written in the Flask documentation also applies to CKAN. Probably, the most
 important point:
 
-.. note:: Flask comes with a couple of signals and other extensions
+    Flask comes with a couple of signals and other extensions
     might provide more. Also keep in mind that signals are intended to
     notify subscribers and should not encourage subscribers to modify
     data. You will notice that there are signals that appear to do the
@@ -23,10 +25,10 @@ important point:
 
 
 :mod:`ckan.lib.signals` provides two namespaces for signals: ``ckan``
-and ``ckanext``. All core signals resides in ``ckan``, while signals
+and ``ckanext``. All core signals reside in ``ckan``, while signals
 from extensions (``datastore``, ``datapusher``, third-party
-extensions) are registered under ``ckanext``. It's only a
-recommendation and nothing prevents developers from creating and using
+extensions) are registered under ``ckanext``. This is a recommended pattern
+and nothing prevents developers from creating and using
 their own namespaces.
 
 Signal subscribers **MUST** always be defined as callable accepting
@@ -36,22 +38,22 @@ arguments::
     def subscriber(sender, **kwargs):
         ...
 
-CKAN core doesn't make any guarantees as for concrete named arguments
+CKAN core doesn't make any guarantees as for the concrete named arguments
 that will be passed to subscriber. For particular CKAN version one can
 use signlal-listing below as a reference, but in future versions
 signature may change. In additon, any event can be fired by
-third-party plugin, so it would be safer to check whether particular
-argument is available inisde `kwargs`.
+a third-party plugin, so it is always safer to check whether a particular
+argument is available inisde the provided `kwargs`.
 
-Even though it possible to register subscribers using decorators::
+Even though it is possible to register subscribers using decorators::
 
     @p.toolkit.signals.before_action.connect
     def action_subscriber(sender, **kwargs):
         pass
 
-recommended approach is using
-:class:`ckan.plugins.interfaces.ISignal`, in order to give CKAN more
-control over subscriptions available depending on enabled plugins::
+the recommended approach is to use the 
+:class:`ckan.plugins.interfaces.ISignal` interface, in order to give CKAN more
+control over the subscriptions available depending on the enabled plugins::
 
     class ExampleISignalPlugin(p.SingletonPlugin):
         p.implements(p.ISignal)
@@ -67,19 +69,18 @@ control over subscriptions available depending on enabled plugins::
                 ]
             }
 
-.. warning:: Arguments passed to subscribers in no case should be
-             modified. Use them only for doing some extra work and
-             don't ever try to change existing CKAN behavior using
-             subscribers. If one need to alter CKAN behavior,
-             :mod:`ckan.plugins.interfaces` must be used instead.
+.. warning:: Arguments passed to subscribers should never be
+             modified. Use subscribers only to trigger side effects and
+             not to change existing CKAN behavior. If one needs to alter
+             CKAN behavior use :mod:`ckan.plugins.interfaces` instead.
 
-There are a number of built-in signals in CKAN(listing available in
-the end of the page). All of them are created inside one of the
+There are a number of built-in signals in CKAN (check the list at the bottom
+of the page). All of them are created inside one of the
 available namespaces: ``ckan`` and ``ckanext``. For simplicity sake,
 all built in signals have aliases inside ``ckan.lib.signals`` (or
 ``ckan.plugins.toolkit.signals``, or ``ckantoolkit.signals``), but you
-always can get signals directly from corresponding namespace(though,
-don't use this ability, unless you are familiar with ``blinker``
+can always get signals directly from corresponding the namespace 
+(you shouldn't use this directly unless you are familiar with the ``blinker``
 library)::
 
   from ckan.lib.signals import (
@@ -91,8 +92,8 @@ library)::
 
 This information may be quite handy, if you want to define custom
 signals inside your extension. Just use ``ckanext`` namespace and call
-its method ``signal`` in order to create new(or get existing)
-signal. In order to avoid name collisions and unexpected behavior,
+its method ``signal`` in order to create a new signal (or get an existing one).
+In order to avoid name collisions and unexpected behavior,
 always use your plugin's name as prefix for the signal.::
 
   # ckanext-custom/ckanext/custom/signals.py
@@ -104,7 +105,7 @@ always use your plugin's name as prefix for the signal.::
   # after this, you can notify subscribers using following code:
   custom_signal_happened.send(SENDER, ARG1=VALUE1, ARG2=VALUE2, ...)
 
-Now, everyone, who are using your extension can subscirbe to your
+From now on, everyone who is using your extension can subscribe to your
 signal from another extension::
 
   # ckanext-ext/ckanext/ext/plugin.py
@@ -125,13 +126,12 @@ signal from another extension::
 There is a small problem in snippet above. If ``ckanext-custom`` is
 not installed, you'll get ``ImportError``. This is perfectly fine if
 you are sure that you are using ``ckanext-custom``, but may be a
-problem for some general-use plugin. In order to avoid problem, either
-use ``try/except`` block, or take signals from ``ckanext`` namespace
-instead::
+problem for some general-use plugin. To avoid this, import signals from
+the ``ckanext`` namespace instead::
 
   # ckanext-ext/ckanext/ext/plugin.py
   import ckan.plugins as p
-  from ckanext.ext import listeners # here you'll define listeners
+  from ckanext.ext import listeners
 
   class ExtPlugin(p.SingletonPlugin):
       p.implements(p.ISignal)
@@ -147,11 +147,10 @@ instead::
               ]
           }
 
-All signals are singletons inside namespace and, if ``ckanext-custom``
-is installed, you'll get existing signal, otherwise you'll create new
-signal, that is never sent. I.e., your subscription will work only
-when ``ckanext-custom`` available and do nothing(and don't consume
-resources) otherwise.
+All signals are singletons inside their namespace. If ``ckanext-custom``
+is installed, you'll get its existing signal, otherwise you'll create a new
+signal that is never sent. So your subscription will work only
+when ``ckanext-custom`` is available and do nothing otherwise.
 
 
 :py:mod:`ckan.lib.signals` contains a few core signals for

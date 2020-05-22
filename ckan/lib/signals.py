@@ -26,16 +26,16 @@ request processing happens.
 request_finished = ckan.signal(u'request_finished')
 """This signal is sent right before the response is sent to the
 client.
-
 """
 
 
 register_blueprint = ckan.signal(u'register_blueprint')
-"""Blueprint for dataset/resoruce/group/organization is going to be
-registered inside application.
+"""This signal is sent when a blueprint for dataset/resource/group/organization
+is going to be registered inside the application.
 """
 
 
 resource_download = ckan.signal(u'resource_download')
-"""File from uploaded resource will be sent to user.
+"""This signal is sent just before a file from an uploaded resource is sent
+to the user.
 """
