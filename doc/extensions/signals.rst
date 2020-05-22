@@ -51,7 +51,7 @@ Even though it is possible to register subscribers using decorators::
     def action_subscriber(sender, **kwargs):
         pass
 
-the recommended approach is to use the 
+the recommended approach is to use the
 :class:`ckan.plugins.interfaces.ISignal` interface, in order to give CKAN more
 control over the subscriptions available depending on the enabled plugins::
 
@@ -79,7 +79,7 @@ of the page). All of them are created inside one of the
 available namespaces: ``ckan`` and ``ckanext``. For simplicity sake,
 all built in signals have aliases inside ``ckan.lib.signals`` (or
 ``ckan.plugins.toolkit.signals``, or ``ckantoolkit.signals``), but you
-can always get signals directly from corresponding the namespace 
+can always get signals directly from corresponding the namespace
 (you shouldn't use this directly unless you are familiar with the ``blinker``
 library)::
 
@@ -166,3 +166,18 @@ plugins to subscribe:
    :annotation: (blueprint_type, blueprint)
 .. autodata:: resource_download
    :annotation: (resource_id)
+.. autodata:: successful_login
+   :annotation: (username)
+.. autodata:: failed_login
+   :annotation: (username)
+.. autodata:: user_created
+   :annotation: (username, user)
+.. autodata:: request_password_reset
+   :annotation: (username, user)
+.. autodata:: perform_password_reset
+   :annotation: (username, user)
+
+.. autodata:: datastore_upsert
+   :annotation: (resource_id, records)
+.. autodata:: datastore_delete
+   :annotation: (resource_id, result, data_dict)
