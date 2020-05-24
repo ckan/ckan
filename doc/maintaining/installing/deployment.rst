@@ -4,101 +4,136 @@ Deploying a source install
 
 Once you've installed CKAN from source by following the instructions in
 :doc:`install-from-source`, you can follow these instructions to deploy
-your CKAN site using a production web server (Apache), so that it's available
+your CKAN site using a rudimentary web server, so that it's available
 to the Internet.
-
-.. note::
-
-   If you installed CKAN from package you don't need to follow this section,
-   your site is already deployed using Apache and modwsgi as described below.
 
 Because CKAN uses WSGI, a standard interface between web servers and Python web
 applications, CKAN can be used with a number of different web server and
 deployment configurations including:
 
-* Apache_ with the modwsgi Apache module proxied with Nginx_ for caching
-* Apache_ with the modwsgi Apache module
-* Apache_ with paster and reverse proxy
-* Nginx_ with paster and reverse proxy
 * Nginx_ with uwsgi
+* Nginx_ with gunicorn
+* Apache_ with the modwsgi Apache module
 
+.. _uwsgi: https://uwsgi-docs.readthedocs.io/en/latest/
+.. _gunicorn: https://gunicorn.org/
 .. _Apache: http://httpd.apache.org/
 .. _Nginx: http://nginx.org/
+.. _Supervisor: http://http://supervisord.org/
 
-This guide explains how to deploy CKAN using Apache and modwsgi and proxied
+This guide explains how to deploy CKAN using a WSGI web server and proxied
 with Nginx on an Ubuntu server. These instructions have been tested on Ubuntu
-12.04.
-
-If run into any problems following these instructions, see `Troubleshooting`_
-below.
-
------------------------------------
-1. Install Apache, modwsgi, modrpaf
------------------------------------
-
-Install Apache_ (a web server), modwsgi_ (an Apache module that adds WSGI
-support to Apache), and modrpaf_ (an Apache module that sets the right IP
-address when there is a proxy forwarding to Apache)::
-
-  sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf
-
-.. _modwsgi: https://code.google.com/p/modwsgi/
-.. _modrpaf: https://github.com/gnif/mod_rpaf
+18.04.
 
 
 ----------------
-2. Install Nginx
+1. Install Nginx
 ----------------
 
-Install Nginx_ (a web server) which will proxy the content from Apache_ and add
-a layer of caching::
+Install Nginx_ (a web server) which will proxy the content from one of the WSGI Servers 
+and add a layer of caching::
 
     sudo apt-get install nginx
 
---------------------------
-3. Install an email server
---------------------------
 
-If one isn't installed already, install an email server to enable CKAN's email
-features (such as sending traceback emails to sysadmins when crashes occur, or
-sending new activity :doc:`email notifications </maintaining/email-notifications>`
-to users). For example, to install the `Postfix <http://www.postfix.org/>`_
-email server, do::
-
-    sudo apt-get install postfix
-
-When asked to choose a Postfix configuration, choose *Internet Site* and press
-return.
-
+.. _create-wsgi-script-file:
 
 ------------------------------
-4. Create the WSGI script file
+2. Create the WSGI script file
 ------------------------------
 
-Create your site's WSGI script file |apache.wsgi| with the following
+Create your site's WSGI script file |wsgi.py| with the following
 contents:
 
 .. parsed-literal::
 
     import os
-    activate_this = os.path.join('|virtualenv|/bin/activate_this.py')
-    execfile(activate_this, dict(__file__=activate_this))
+    from ckan.config.middleware import make_app
+    from ckan.cli import CKANConfigLoader
+    from logging.config import fileConfig as loggingFileConfig
 
-    from paste.deploy import loadapp
     config_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ckan.ini')
-    from paste.script.util.logging_config import fileConfig
-    fileConfig(config_filepath)
-    application = loadapp('config:%s' % config_filepath)
+    abspath = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+    loggingFileConfig(config_filepath)
+    config = CKANConfigLoader(config_filepath).get_config()
+    application = make_app(config)
 
-The modwsgi Apache module will redirect requests to your web server to this
+The WSGI Server (configured next) will redirect requests to this
 WSGI script file. The script file then handles those requests by directing them
 on to your CKAN instance (after first configuring the Python environment for
 CKAN to run in).
 
 
---------------------------------
-5. Create the Apache config file
---------------------------------
+-------------------------
+3. Create the WSGI Server
+-------------------------
+
+There is a choice of 3 different WSGI Servers. We recommend one of the first two options (uwsgi or gunicorn)
+Make sure you have activated the Python virtual environment before running these commands:  |activate|
+
+
+3a uwsgi
+
+.. parsed-literal::
+
+    pip install uwsgi
+    Create the uwsgi configuration file /etc/ckan/default/ckan-uwsgi.ini
+
+    [uwsgi]
+
+    http            =  127.0.0.1:8080
+    uid             =  www-data
+    guid            =  www-data
+    wsgi-file       =  /etc/ckan/default/wsgi.py
+    virtualenv      =  /usr/lib/ckan/default
+    module          =  wsgi:application
+    master          =  true
+    pidfile         =  /tmp/%n.pid
+    harakiri        =  50
+    max-requests    =  5000
+    vacuum          =  true
+    callable        =  application  
+
+    Run: /usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini
+
+
+3b. gunicorn
+
+.. parsed-literal::
+
+    pip install gunicorn
+    Create the gunicorn configuration file /etc/ckan/default/ckan-gunicorn.ini
+
+    pidfile = '/tmp/gunicorn.pid'
+    chdir = '/etc/ckan/default'
+    errorlog = '/etc/ckan/default/gunicorn.ERR'
+    accesslog = '/etc/ckan/default/gunicorn.OUT'
+    loglevel = 'debug'
+    bind = '127.0.0.1:8080'
+    daemon = True
+    workers = 4
+    worker_class = 'sync'
+    threads = 2
+    user = 'www-data'
+    group = 'www-data'  
+
+    Run: /usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini
+
+
+3c. Apache
+
+Install Apache_ (a web server), modwsgi_ (an Apache module that adds WSGI
+support to Apache), and modrpaf_ (an Apache module that sets the right IP
+address when there is a proxy forwarding to Apache)::
+
+  sudo apt-get install apache2 libapache2-mod-wsgi-py3 libapache2-mod-rpaf
+
+.. _modwsgi: https://code.google.com/p/modwsgi/
+.. _modrpaf: https://github.com/gnif/mod_rpaf
+
+.. Note: For python 2 change this to:
+   sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf
+
 
 Create your site's Apache config file at |apache_config_file|, with the
 following contents:
@@ -114,7 +149,7 @@ following contents:
         WSGIPassAuthorization On
 
         # Deploy as a daemon (avoids conflicts between CKAN instances).
-        WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
+        WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=10 python-home=/usr/lib/ckan/default
 
         WSGIProcessGroup ckan_default
 
@@ -140,10 +175,6 @@ This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
 
-------------------------------------
-6. Modify the Apache ports.conf file
-------------------------------------
-
 Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with the 8080 one.
 
 
@@ -161,9 +192,120 @@ Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with th
 
             Listen 8080
 
+Finally create a softlink for Apache to the WSGI script  ``ln -s |wsgi.py| |apache.wsgi|``
+
+To prevent conflicts, disable your default nginx and apache sites.  Finally, enable your CKAN site in Apache:
+
+.. parsed-literal::
+
+    sudo a2ensite ckan_default
+    sudo a2dissite 000-default
+    sudo rm -vi /etc/nginx/sites-enabled/default
+    sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
+    |reload_apache|
+    |restart_nginx|
+
+
+-------------------------------------------------------
+4. Install Supervisor for the uwsgi or gunicorn servers
+-------------------------------------------------------
+
+Install Supervisor_ (a Process Control System) used to control starting, stopping the 
+uwsgi or gunicorn servers::
+
+  sudo apt-get install supervisor
+  sudo service supervisor restart
+
+4a. uwsgi
+
+Create the  ``/etc/supervisor/conf.d/ckan-uwsgi.conf`` file
+
+.. parsed-literal::
+
+    [program:ckan-uwsgi]
+
+    command=/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini
+
+    ; Start just a single worker. Increase this number if you have many or
+    ; particularly long running background jobs.
+    numprocs=1
+    process_name=%(program_name)s-%(process_num)02d
+
+    ; Log files - change this to point to the existing CKAN log files
+    stdout_logfile=/etc/ckan/default/uwsgi.OUT
+    stderr_logfile=/etc/ckan/default/uwsgi.ERR
+
+    ; Make sure that the worker is started on system start and automatically
+    ; restarted if it crashes unexpectedly.
+    autostart=true
+    autorestart=true
+
+    ; Number of seconds the process has to run before it is considered to have
+    ; started successfully.
+    startsecs=10
+
+    ; Need to wait for currently executing tasks to finish at shutdown.
+    ; Increase this if you have very long running tasks.
+    stopwaitsecs = 600
+
+    ; Required for uWSGI as it does not obey SIGTERM.
+    stopsignal=QUIT
+    
+4b. gunicorn
+
+Create the  ``/etc/supervisor/conf.d/ckan-uwsgi.conf`` file
+
+.. parsed-literal::
+
+    [program:ckan-uwsgi]
+
+    command=/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini
+
+    ; Start just a single worker. Increase this number if you have many or
+    ; particularly long running background jobs.
+    numprocs=1
+    process_name=%(program_name)s-%(process_num)02d
+
+    ; Log files - change this to point to the existing CKAN log files
+    stdout_logfile=/etc/ckan/default/uwsgi.OUT
+    stderr_logfile=/etc/ckan/default/uwsgi.ERR
+
+    ; Make sure that the worker is started on system start and automatically
+    ; restarted if it crashes unexpectedly.
+    autostart=true
+    autorestart=true
+
+    ; Number of seconds the process has to run before it is considered to have
+    ; started successfully.
+    startsecs=10
+
+    ; Need to wait for currently executing tasks to finish at shutdown.
+    ; Increase this if you have very long running tasks.
+    stopwaitsecs = 600
+
+    ; Required for uWSGI as it does not obey SIGTERM.
+    stopsignal=QUIT
+
+
+--------------------------
+5. Install an email server
+--------------------------
+
+If one isn't installed already, install an email server to enable CKAN's email
+features (such as sending traceback emails to sysadmins when crashes occur, or
+sending new activity :doc:`email notifications </maintaining/email-notifications>`
+to users). For example, to install the `Postfix <http://www.postfix.org/>`_
+email server, do::
+
+    sudo apt-get install postfix
+
+When asked to choose a Postfix configuration, choose *Internet Site* and press
+return.
+
+
 
 -------------------------------
-7. Create the Nginx config file
+6. Create the Nginx config file
 -------------------------------
 
 Create your site's Nginx config file at |nginx_config_file|, with the
@@ -191,28 +333,19 @@ following contents:
 
     }
 
+Now restart the nginx server: |restart_nginx|
+
 
 ------------------------
-8. Enable your CKAN site
+7. Access your CKAN site
 ------------------------
-
-To prevent conflicts, disable your default nginx and apache sites.  Finally, enable your CKAN site in Apache:
-
-.. parsed-literal::
-
-    sudo a2ensite ckan_default
-    sudo a2dissite 000-default
-    sudo rm -vi /etc/nginx/sites-enabled/default
-    sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
-    |reload_apache|
-    |reload_nginx|
 
 You should now be able to visit your server in a web browser and see your new
 CKAN instance.
 
 
 --------------------------------------
-9. Setup a worker for background jobs
+8. Setup a worker for background jobs
 --------------------------------------
 CKAN uses asynchronous :ref:`background jobs` for long tasks. These jobs are
 executed by a separate process which is called a :ref:`worker <background jobs
@@ -222,54 +355,6 @@ To run the worker in a robust way, :ref:`install and configure Supervisor
 <background jobs supervisor>`.
 
 
----------------
-Troubleshooting
----------------
-
-Default Apache welcome page
-===========================
-
-If you see a default Apache welcome page where your CKAN front page should be,
-it may be because the default Apache config file is overriding your CKAN config
-file (both use port 80), so disable it and restart Apache:
-
-.. parsed-literal::
-
-    sudo a2dissite default
-    |reload_apache|
-
-403 Forbidden and 500 Internal Server Error
-===========================================
-
-If you see a 403 Forbidden or 500 Internal Server Error page where your CKAN
-front page should be, you may have a problem with your unix file permissions.
-The Apache web server needs to have permission to access your WSGI script file
-and all of its parent directories. The permissions of the file should look
-like ``-rw-r--r--`` and the permissions of each of its parent directories
-should look like ``drwxr-xr-x``.
-
-IOError: sys.stdout access restricted by mod_wsgi
-=================================================
-
-If you're getting 500 Internal Server Error pages and you see ``IOError:
-sys.stdout access restricted by mod_wsgi`` in your log files, it means that
-something in your WSGI application (e.g. your WSGI script file, your CKAN
-instance, or one of your CKAN extensions) is trying to print to stdout, for
-example by using standard Python ``print`` statements. WSGI applications are
-not allowed to write to stdout. Possible solutions include:
-
-1. Remove the offending print statements. One option is to replace print
-   statements with statements like ``print >> sys.stderr, "..."``
-
-2. Redirect all print statements to stderr::
-
-    import sys
-    sys.stdout = sys.stderr
-
-3. Allow your application to print to stdout by putting ``WSGIRestrictStdout Off`` in your Apache config file (not recommended).
-
-Also see https://code.google.com/p/modwsgi/wiki/ApplicationIssues
-
 Log files
 =========
 
@@ -277,14 +362,43 @@ In general, if it's not working look in the log files in ``/var/log/apache2``
 for error messages. ``ckan_default.error.log`` should be particularly
 interesting.
 
-modwsgi wiki
-============
 
-Some pages on the modwsgi wiki have some useful information for troubleshooting modwsgi problems:
 
-* https://code.google.com/p/modwsgi/wiki/ApplicationIssues
-* http://code.google.com/p/modwsgi/wiki/DebuggingTechniques
-* http://code.google.com/p/modwsgi/wiki/QuickConfigurationGuide
-* http://code.google.com/p/modwsgi/wiki/ConfigurationGuidelines
-* http://code.google.com/p/modwsgi/wiki/FrequentlyAskedQuestions
-* http://code.google.com/p/modwsgi/wiki/ConfigurationIssues
+.. _deployment-changes-for-ckan-2.9:
+
+-------------------------------
+Deployment changes for CKAN 2.9
+-------------------------------
+
+This section describes how to update your deployment for CKAN 2.9 or later, if
+you have an existing deployment of CKAN 2.8 or earlier. This is necessary,
+whether you continue running CKAN on Python 2 or Python 3, because the WSGI
+entry point for running CKAN has changed. If your existing deployment is
+different to that described in the `official CKAN 2.8 deployment instructions
+<https://docs.ckan.org/en/2.8/maintaining/installing/deployment.html>`_
+(apache2 + mod_wsgi + nginx) then you'll need to adapt these instructions to
+your setup.
+
+1. We now recommend you activate the Python virtual environment in a different
+place, compared to earlier CKAN versions. Activation is now done in the Apache
+mod_wsgi config. To achieve this, edit |apache_config_file| and change the
+WSGIDaemonProcess to include the ``python-home`` parameter::
+
+    WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=10 python-home=/usr/lib/ckan/default
+
+(In CKAN 2.8.x and earlier, the virtual environment was activated in the WSGI
+script file.)
+
+2. The WSGI script file needs replacing because the WSGI entrypoint for CKAN
+has `changed <https://github.com/ckan/ckan/issues/4802>`_. Back-up your
+existing |apache.wsgi| file and then replace it with the new version defined
+above - see: :ref:`create-wsgi-script-file`
+
+3. If/when you are switching from running CKAN with Python 2 to Python 3,
+you'll need to switch to the Python 3 version of the Apache WSGI module:
+
+.. parsed-literal::
+
+    sudo apt-get remove libapache2-mod-wsgi
+    sudo apt-get install libapache2-mod-wsgi-py3
+    |reload_apache|
