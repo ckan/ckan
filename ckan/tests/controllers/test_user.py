@@ -232,6 +232,13 @@ class TestUser(object):
         assert user.about == "new about"
         assert user.activity_streams_email_notifications
 
+    def test_edit_user_as_wrong_user(self, app):
+        user = factories.User(password="TestPassword1")
+        other_user = factories.User(password="TestPassword2")
+
+        env = {"REMOTE_USER": six.ensure_str(other_user["name"])}
+        response = app.get(url_for("user.edit", id=user['name']), extra_environ=env, status=403)
+
     def test_email_change_without_password(self, app):
 
         user = factories.User()
