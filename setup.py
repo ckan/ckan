@@ -190,6 +190,15 @@ entry_points = {
     ],
 }
 
+extras_require = {}
+_extras_groups = [
+    ('py3', 'requirements.txt'), ('py2', 'requirements-py2.txt'),
+    ('setuptools', 'requirement-setuptools.txt'), ('dev', 'dev-requirements.txt'),
+]
+for group, filepath in _extras_groups:
+    with open(filepath, 'r') as f:
+        extras_require[group] = f.readlines()
+
 setup(
     name='ckan',
     version=__version__,
@@ -224,6 +233,7 @@ setup(
     entry_points=entry_points,
     # setup.py test command needs a TestSuite so does not work with py.test
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
+    extras_require=extras_require,
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 5 - Production/Stable',
