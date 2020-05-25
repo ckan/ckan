@@ -264,7 +264,6 @@ class EditView(MethodView):
             u'user': g.user
         }, data_dict)
 
-        extra_vars[u'is_myself'] = True
         extra_vars[u'show_email_notifications'] = asbool(
             config.get(u'ckan.activity_streams_email_notifications'))
         vars.update(extra_vars)
