@@ -11,7 +11,7 @@ The basic recipe is to call:
 
 which builds the dictionary by iterating over the table columns.
 '''
-
+import copy
 import six
 from six.moves.urllib.parse import urlsplit
 
@@ -526,8 +526,8 @@ def user_dictize(
             result_dict['password_hash'] = password_hash
 
         if include_plugin_extras:
-            result_dict['plugin_extras'] = plugin_extras
-
+            result_dict['plugin_extras'] = copy.deepcopy(
+                plugin_extras) if plugin_extras else plugin_extras
 
     model = context['model']
     session = model.Session
