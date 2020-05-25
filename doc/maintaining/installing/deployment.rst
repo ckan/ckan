@@ -72,13 +72,13 @@ There is a choice of 3 different WSGI Servers. We recommend one of the first two
 Make sure you have activated the Python virtual environment before running these commands:  |activate|
 
 
-3a uwsgi
+3a. uwsgi
+---------
+
+Run ``pip install uwsgi``
+Create the uwsgi configuration file ``/etc/ckan/default/ckan-uwsgi.ini``
 
 .. parsed-literal::
-
-    pip install uwsgi
-    Create the uwsgi configuration file /etc/ckan/default/ckan-uwsgi.ini
-
     [uwsgi]
 
     http            =  127.0.0.1:8080
@@ -94,16 +94,16 @@ Make sure you have activated the Python virtual environment before running these
     vacuum          =  true
     callable        =  application  
 
-    Run: /usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini
+Run: ``/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini``    
 
 
 3b. gunicorn
+------------
+
+Run ``pip install gunicorn``
+Create the gunicorn configuration file ``/etc/ckan/default/ckan-gunicorn.ini``
 
 .. parsed-literal::
-
-    pip install gunicorn
-    Create the gunicorn configuration file /etc/ckan/default/ckan-gunicorn.ini
-
     pidfile = '/tmp/gunicorn.pid'
     chdir = '/etc/ckan/default'
     errorlog = '/etc/ckan/default/gunicorn.ERR'
@@ -117,10 +117,11 @@ Make sure you have activated the Python virtual environment before running these
     user = 'www-data'
     group = 'www-data'  
 
-    Run: /usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini
+Run: ``/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini``    
 
 
 3c. Apache
+----------
 
 Install Apache_ (a web server), modwsgi_ (an Apache module that adds WSGI
 support to Apache), and modrpaf_ (an Apache module that sets the right IP
@@ -355,14 +356,6 @@ To run the worker in a robust way, :ref:`install and configure Supervisor
 <background jobs supervisor>`.
 
 
-Log files
-=========
-
-In general, if it's not working look in the log files in ``/var/log/apache2``
-for error messages. ``ckan_default.error.log`` should be particularly
-interesting.
-
-
 
 .. _deployment-changes-for-ckan-2.9:
 
@@ -380,21 +373,21 @@ different to that described in the `official CKAN 2.8 deployment instructions
 your setup.
 
 1. We now recommend you activate the Python virtual environment in a different
-place, compared to earlier CKAN versions. Activation is now done in the Apache
-mod_wsgi config. To achieve this, edit |apache_config_file| and change the
-WSGIDaemonProcess to include the ``python-home`` parameter::
-
-    WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=10 python-home=/usr/lib/ckan/default
+place, compared to earlier CKAN versions. Activation is now done in the WSGI Server 
+config file.
 
 (In CKAN 2.8.x and earlier, the virtual environment was activated in the WSGI
 script file.)
+
+2. There is now a choice of 3 different WSGI Servers. We recommend one of the first two options 
+(uwsgi or gunicorn). Apache is not the prefered option any more.
 
 2. The WSGI script file needs replacing because the WSGI entrypoint for CKAN
 has `changed <https://github.com/ckan/ckan/issues/4802>`_. Back-up your
 existing |apache.wsgi| file and then replace it with the new version defined
 above - see: :ref:`create-wsgi-script-file`
 
-3. If/when you are switching from running CKAN with Python 2 to Python 3,
+3. For Apache, if/when you are switching from running CKAN with Python 2 to Python 3,
 you'll need to switch to the Python 3 version of the Apache WSGI module:
 
 .. parsed-literal::

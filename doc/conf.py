@@ -69,6 +69,7 @@ rst_epilog = '''
 .. |apache| replace:: Apache
 .. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan
 .. |reload_nginx| replace:: sudo service nginx reload
+.. |restart_nginx| replace:: sudo service nginx restart
 .. |jquery| replace:: jQuery
 .. |nodejs| replace:: Node.js
 
