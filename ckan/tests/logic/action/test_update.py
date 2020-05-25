@@ -1779,3 +1779,39 @@ class TestDashboardMarkActivitiesOld(object):
             ("new package", False),
             ("changed package", False),
         ]
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_nested_updates_are_reflected_in_db(self):
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        sysadmin = factories.Sysadmin()
+
+        context = {'user': sysadmin['name']}
+
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        user['plugin_extras']['plugin1']['key1'] = 'value2'
+
+        updated_user = helpers.call_action('user_update', context=context, **user)
+
+        assert updated_user['plugin_extras']['plugin1']['key1'] == 'value2'
+
+        # Hold on, partner
+
+        plugin_extras = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras['plugin1']['key1'] == 'value2'
