@@ -123,15 +123,15 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[py3]'
+      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements]'
 
    .. note::
 
-      For Python 2 replace the last fragment with `py2`
+      For Python 2 replace the last fragment with `requirements-py2`
 
       .. parsed-literal::
 
-         pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[py2]'
+         pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements-py2]'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of
@@ -139,7 +139,7 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-       pip install -e 'git+\ |git_url|\#egg=ckan[py3,dev]'
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,dev]'
 
    .. warning::
 

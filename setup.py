@@ -192,7 +192,7 @@ entry_points = {
 
 extras_require = {}
 _extras_groups = [
-    ('py3', 'requirements.txt'), ('py2', 'requirements-py2.txt'),
+    ('requirements', 'requirements.txt'), ('requirements-py2', 'requirements-py2.txt'),
     ('setuptools', 'requirement-setuptools.txt'), ('dev', 'dev-requirements.txt'),
 ]
 for group, filepath in _extras_groups:
