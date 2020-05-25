@@ -1191,3 +1191,85 @@ class TestFollowUser(object):
         assert [activity["activity_type"] for activity in activities] == []
         # A follow creates no Activity, since:
         # https://github.com/ckan/ckan/pull/317
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_stored_on_create_if_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user_dict = {
+            'name': 'test-user',
+            'email': 'test@example.com',
+            'password': '12345678',
+            'plugin_extras': {
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_create', context=context, **user_dict)
+
+        assert created_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+        user_dict = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user_dict['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+        plugin_extras_from_db = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': created_user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras_from_db == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+
+    def test_ignored_on_create_if_non_sysadmin(self):
+
+        author = factories.User()
+        sysadmin = factories.Sysadmin()
+
+        user_dict = {
+            'name': 'test-user',
+            'email': 'test@example.com',
+            'password': '12345678',
+            'plugin_extras': {
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': author['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_create', context=context, **user_dict)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] is None

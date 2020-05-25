@@ -1002,7 +1002,7 @@ def user_create(context, data_dict):
     user_dictize_context['keep_apikey'] = True
     user_dictize_context['keep_email'] = True
 
-    author_obj = model.User.get(context.get('name'))
+    author_obj = model.User.get(context.get('user'))
     include_plugin_extras = False
     if author_obj:
         include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
