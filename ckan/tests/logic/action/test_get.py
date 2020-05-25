@@ -4356,17 +4356,16 @@ class TestUserPluginExtras(object):
             'user_show', context=context, id=user['id'], include_plugin_extras=True)
 
         assert user['plugin_extras'] == {
-                'plugin1': {
-                    'key1': 'value1'
-                }
+            'plugin1': {
+                'key1': 'value1'
             }
+        }
 
         context = {'user': sysadmin['name'], 'ignore_auth': False}
         user = helpers.call_action(
             'user_show', context=context, id=user['id'])
 
         assert 'plugin_extras' not in user
-
 
         context = {'user': user['name'], 'ignore_auth': False}
         user = helpers.call_action(

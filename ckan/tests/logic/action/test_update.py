@@ -1839,7 +1839,6 @@ class TestUserPluginExtras(object):
             }
         }
 
-
     def test_ignored_on_update_if_non_sysadmin(self):
 
         sysadmin = factories.Sysadmin()
@@ -1872,10 +1871,10 @@ class TestUserPluginExtras(object):
             'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
 
         assert user['plugin_extras'] == {
-                'plugin1': {
-                    'key1': 'value1'
-                }
+            'plugin1': {
+                'key1': 'value1'
             }
+        }
 
     def test_ignored_on_update_if_non_sysadmin_when_empty(self):
 

@@ -1243,7 +1243,6 @@ class TestUserPluginExtras(object):
             }
         }
 
-
     def test_ignored_on_create_if_non_sysadmin(self):
 
         author = factories.User()
