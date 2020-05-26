@@ -131,9 +131,7 @@ address when there is a proxy forwarding to Apache)::
 .. _modwsgi: https://code.google.com/p/modwsgi/
 .. _modrpaf: https://github.com/gnif/mod_rpaf
 
-Note: For python 2 change this to:
-.. parsed-literal::
-   sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf
+Note: For python 2 change this to: ``sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf``
 
 
 Create your site's Apache config file at |apache_config_file|, with the
