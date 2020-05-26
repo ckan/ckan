@@ -51,7 +51,6 @@ contents:
     from ckan.config.middleware import make_app
     from ckan.cli import CKANConfigLoader
     from logging.config import fileConfig as loggingFileConfig
-
     config_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ckan.ini')
     abspath = os.path.join(os.path.dirname(os.path.abspath(__file__)))
     loggingFileConfig(config_filepath)
@@ -72,7 +71,7 @@ There is a choice of 3 different WSGI Servers. We recommend one of the first two
 Make sure you have activated the Python virtual environment before running these commands:  |activate|
 
 
-3a. uwsgi
+a. uwsgi
 ---------
 
 Run ``pip install uwsgi``
@@ -97,7 +96,7 @@ Create the uwsgi configuration file ``/etc/ckan/default/ckan-uwsgi.ini``
 Run: ``/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini``    
 
 
-3b. gunicorn
+b. gunicorn
 ------------
 
 Run ``pip install gunicorn``
@@ -120,7 +119,7 @@ Create the gunicorn configuration file ``/etc/ckan/default/ckan-gunicorn.ini``
 Run: ``/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini``    
 
 
-3c. Apache
+c. Apache
 ----------
 
 Install Apache_ (a web server), modwsgi_ (an Apache module that adds WSGI
@@ -132,7 +131,8 @@ address when there is a proxy forwarding to Apache)::
 .. _modwsgi: https://code.google.com/p/modwsgi/
 .. _modrpaf: https://github.com/gnif/mod_rpaf
 
-.. Note: For python 2 change this to:
+Note: For python 2 change this to:
+.. parsed-literal::
    sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf
 
 
@@ -217,7 +217,7 @@ uwsgi or gunicorn servers::
   sudo apt-get install supervisor
   sudo service supervisor restart
 
-4a. uwsgi
+a. uwsgi
 
 Create the  ``/etc/supervisor/conf.d/ckan-uwsgi.conf`` file
 
@@ -252,7 +252,7 @@ Create the  ``/etc/supervisor/conf.d/ckan-uwsgi.conf`` file
     ; Required for uWSGI as it does not obey SIGTERM.
     stopsignal=QUIT
     
-4b. gunicorn
+b. gunicorn
 
 Create the  ``/etc/supervisor/conf.d/ckan-uwsgi.conf`` file
 
