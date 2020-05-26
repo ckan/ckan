@@ -12,6 +12,11 @@ If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
+**For Python 3 installations, the minimum Python version required is 3.6**
+
+* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
+* **Ubuntu 16.04** includes **Python 3.5** as part of its distribution
+
 From source is also the right installation method for developers who want to
 work on CKAN.
 
