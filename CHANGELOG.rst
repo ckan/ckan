@@ -34,7 +34,7 @@ v.2.9.0 TBA
    standard `paster db upgrade` migrations need CKAN to be stopped). Ideally it
    is run before CKAN is upgraded, but it can be run afterwards. If running
    previous versions or this version of CKAN, download and run
-   migrate_package_activity.py like this:
+   migrate_package_activity.py like this::
 
      cd /usr/lib/ckan/default/src/ckan/
      wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py

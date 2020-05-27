@@ -1969,12 +1969,11 @@ def add_url_param(alternative_url=None, controller=None, action=None,
         (k, v) for k, v in params_items
         if k != 'page'
     ]
-    params = set(params_nopage)
     if new_params:
-        params |= set(new_params.items())
+        params_nopage += list(new_params.items())
     if alternative_url:
-        return _url_with_params(alternative_url, params)
-    return _create_url_with_params(params=params, controller=controller,
+        return _url_with_params(alternative_url, params_nopage)
+    return _create_url_with_params(params=params_nopage, controller=controller,
                                    action=action, extras=extras)
 
 

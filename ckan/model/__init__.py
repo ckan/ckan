@@ -2,6 +2,7 @@
 
 import warnings
 import logging
+import os
 import re
 from time import sleep
 from os.path import splitext
@@ -157,8 +158,10 @@ def init_model(engine):
 
 
 class Repository():
-    _repo_path, _dot_repo_name = splitext(ckan.migration.__name__)
-    migrate_repository = _repo_path + ':' + _dot_repo_name[1:]
+    _alembic_ini = os.path.join(
+        os.path.dirname(ckan.migration.__file__),
+        u"alembic.ini"
+    )
 
     # note: tables_created value is not sustained between instantiations
     #       so only useful for tests. The alternative is to use
@@ -258,10 +261,7 @@ class Repository():
 
     def setup_migration_version_control(self):
         self.reset_alembic_output()
-        alembic_config = AlembicConfig()
-        alembic_config.set_main_option(
-            "script_location", self.migrate_repository
-        )
+        alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
             "sqlalchemy.url", str(self.metadata.bind.url)
         )

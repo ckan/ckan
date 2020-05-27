@@ -106,7 +106,7 @@ In future, when the pot file is updated, you can update the strings in your po f
 2. Do the translation
 ---------------------
 
-Edit the po file and translate the strings. For more information on how to do this, see `the Pylons book <http://pylonsbook.com/en/1.1/internationalization-and-localization.html>`_.
+Edit the po file and translate the strings. For more information on how to do this, see `the Pylons book <https://docs.pylonsproject.org/projects/pylons-webframework/en/latest/i18n.html#back-to-work>`_.
 
 We recommend using a translation tool, such as `poedit <http://www.poedit.net/>`_, to check the syntax is correct. There are also extensions for editors such as emacs.
 
