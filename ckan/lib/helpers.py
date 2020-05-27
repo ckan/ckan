@@ -2868,7 +2868,7 @@ def activity_list_select(pkg_activity_list, current_activity_id):
 def get_collaborators(package_id):
     '''Return the collaborators list for a dataset
 
-    Returns a list of dicts with the user id and the capacity
+    Returns a list of tuples with the user id and the capacity
     '''
     context = {'ignore_auth': True, 'user': g.user}
     data_dict = {'id': package_id}
@@ -2878,9 +2878,36 @@ def get_collaborators(package_id):
     collaborators = []
 
     for collaborator in _collaborators:
-        collaborators.append([
+        collaborators.append((
             collaborator['user_id'],
             collaborator['capacity']
-        ])
+        ))
 
     return collaborators
+
+
+@core_helper
+def can_update_owner_org(package_dict, user_orgs=None):
+
+    if not package_dict.get('id') or not package_dict.get('owner_org'):
+        # We are either creating a dataset or it is an unowned dataset.
+        # In both cases we defer to the other auth settings
+        return True
+
+    if not user_orgs:
+        user_orgs = organizations_available('create_dataset')
+
+    if package_dict['owner_org'] in [o['id'] for o in user_orgs]:
+        # Admins and editors of the current org can change it
+        return True
+
+    user = model.User.get(c.user)
+
+    if (user
+            and authz.check_config_permission('allow_dataset_collaborators')
+            and user.id in [co[0] for co in get_collaborators(package_dict['id'])]):
+
+        # User is a collaborator, allow to change the owner_org depending on config
+        return authz.check_config_permission('allow_collaborators_to_change_owner_org')
+
+    return False
