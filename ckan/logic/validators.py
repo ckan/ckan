@@ -897,8 +897,8 @@ def json_object(value):
         return
     try:
         if not json.dumps(value).startswith('{'):
-            raise Invalid(_('plugin_extras should be valid a JSON object'))
+            raise Invalid(_('The value should be a valid JSON object'))
     except ValueError as e:
-        raise Invalid(_('Could not parse plugin_extras as a valid JSON object'))
+        raise Invalid(_('Could not parse the value as a valid JSON object'))
 
     return value
