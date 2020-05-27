@@ -195,8 +195,9 @@ _extras_groups = [
     ('requirements', 'requirements.txt'), ('requirements-py2', 'requirements-py2.txt'),
     ('setuptools', 'requirement-setuptools.txt'), ('dev', 'dev-requirements.txt'),
 ]
+
 for group, filepath in _extras_groups:
-    with open(filepath, 'r') as f:
+    with open(os.path.join(HERE, filepath), 'r') as f:
         extras_require[group] = f.readlines()
 
 setup(
