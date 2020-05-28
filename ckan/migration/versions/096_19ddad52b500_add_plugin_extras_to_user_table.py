@@ -2,7 +2,7 @@
 """Add plugin_extras to user table
 
 Revision ID: 19ddad52b500
-Revises: 588d7cfb9a41
+Revises: 9fadda785b07
 Create Date: 2020-05-12 22:19:37.878470
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = u'19ddad52b500'
-down_revision = u'588d7cfb9a41'
+down_revision = u'9fadda785b07'
 branch_labels = None
 depends_on = None
 
