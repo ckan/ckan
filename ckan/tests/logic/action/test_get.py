@@ -4334,3 +4334,41 @@ class TestResourceSearch(object):
         factories.Resource(size=10)
         result = helpers.call_action('resource_search', query="size:10")
         assert result['count'] == 1
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_returned_if_sysadmin_and_include_plugin_extras_only(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1'
+            }
+        }
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'])
+
+        assert 'plugin_extras' not in user
+
+        context = {'user': user['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert 'plugin_extras' not in user
