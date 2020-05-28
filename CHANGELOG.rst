@@ -104,6 +104,7 @@ Fixes:
 * Allow to defined legacy route mappings as a dict in config (`#4521 <https://github.com/ckan/ckan/issues/4521>`_)
 * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
 
+
 v.2.8.1 2018-07-25
 ==================
 

@@ -293,11 +293,14 @@ Leading up to the release
         towncrier --draft
 
      And check output. If no problems identified, compile updated
-     changelog and remove used fragments using command::
+     changelog::
 
         towncrier --yes
 
-     Don't forget to commit changes afterwards.
+     You'll be asked, whether it's ok to remove source fragments. Feel
+     free to answer "yes" - all changes will be automatically inserted
+     into changelog, so there is no sense in keeping those
+     files. Don't forget to commit changes afterwards.
 
 #. A week before the translations will be closed send a reminder email.
 
