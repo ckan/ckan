@@ -27,7 +27,7 @@ required packages with this command::
 .. note::
 
     For Python 2 (deprecated, but compatible with CKAN 2.9 and earlier), do
-    this instead:
+    this instead::
 
         sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
 
@@ -123,7 +123,15 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
+      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements]'
+
+   .. note::
+
+      For Python 2 replace the last fragment with `requirements-py2`
+
+      .. parsed-literal::
+
+         pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements-py2]'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of
@@ -131,7 +139,7 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-       pip install -e 'git+\ |git_url|\#egg=ckan'
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,dev]'
 
    .. warning::
 
@@ -139,17 +147,7 @@ c. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
-d. Install the Python modules that CKAN requires into your virtualenv:
-
-   .. parsed-literal::
-
-       pip install -r |virtualenv|/src/ckan/requirements.txt
-
-.. note::
-
-    For Python 2 adjust the filename to: `requirements-py2.txt`
-
-e. Deactivate and reactivate your virtualenv, to make sure you're using the
+d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``ckan`` rather than any system-wide
    installed copies:
 
