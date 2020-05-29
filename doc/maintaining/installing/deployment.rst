@@ -9,16 +9,14 @@ to the Internet.
 
 Because CKAN uses WSGI, a standard interface between web servers and Python web
 applications, CKAN can be used with a number of different web server and
-deployment configurations, however the CKAN project has now standardized on one
-
-* Nginx_ with uwsgi
+deployment configurations, however the CKAN project has now standardized on one NGINX_ with uwsgi
 
 .. _uwsgi: https://uwsgi-docs.readthedocs.io/en/latest/
-.. _Nginx: http://nginx.org/
+.. _NGINX: http://nginx.org/
 .. _Supervisor: http://http://supervisord.org/
 
 This guide explains how to deploy CKAN using a uwsgi web server and proxied
-with Nginx on an Ubuntu server. These instructions have been tested on Ubuntu
+with NGINX on an Ubuntu server. These instructions have been tested on Ubuntu
 18.04.
 
 
@@ -26,7 +24,7 @@ with Nginx on an Ubuntu server. These instructions have been tested on Ubuntu
 1. Install Nginx
 ----------------
 
-Install Nginx_ (a web server) which will proxy the content from one of the WSGI Servers 
+Install NGINX_ (a web server) which will proxy the content from one of the WSGI Servers 
 and add a layer of caching::
 
     sudo apt-get install nginx
@@ -38,8 +36,10 @@ and add a layer of caching::
 2. Create the WSGI script file
 ------------------------------
 
-Create your site's WSGI script file |wsgi.py| with the following
-contents:
+The WSGI script file can be copied from the CKAN distribution:
+``cp /usr/lib/ckan/default/src/ckan/wsgi.py /etc/ckan/default/``
+
+Here is the file:
 
 .. parsed-literal::
 
@@ -63,13 +63,16 @@ CKAN to run in).
 3. Create the WSGI Server
 -------------------------
 
-Make sure you have activated the Python virtual environment before running these commands:  |activate|
+Make sure you have activated the Python virtual environment before running this commands:  ``|activate|``
 
 uwsgi
 -----
 
 Run ``pip install uwsgi``
-Create the uwsgi configuration file ``/etc/ckan/default/ckan-uwsgi.ini``
+The uwsgi configuration file can be copied from the CKAN distribution:
+ ``cp /usr/lib/ckan/default/src/ckan/ckan-uwsgi.ini /etc/ckan/default/``
+
+ Here is the file:
 
 .. parsed-literal::
     [uwsgi]
@@ -87,7 +90,7 @@ Create the uwsgi configuration file ``/etc/ckan/default/ckan-uwsgi.ini``
     vacuum          =  true
     callable        =  application  
 
-Run: ``/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini``    
+Run: ``/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini``  to test everything works
 
 
 -----------------------------------
@@ -155,10 +158,10 @@ return.
 
 
 -------------------------------
-6. Create the Nginx config file
+6. Create the NGINX config file
 -------------------------------
 
-Create your site's Nginx config file at |nginx_config_file|, with the
+Create your site's NGINX config file at |nginx_config_file|, with the
 following contents:
 
 .. parsed-literal::
@@ -183,7 +186,7 @@ following contents:
 
     }
 
-Now restart the nginx server: |restart_nginx|
+Now restart the NGINX server: |restart_nginx|
 
 
 ------------------------
@@ -221,14 +224,10 @@ different to that described in the `official CKAN 2.8 deployment instructions
 (apache2 + mod_wsgi + nginx) then you'll need to adapt these instructions to
 your setup.
 
-1. We now recommend you activate the Python virtual environment in a different
-place, compared to earlier CKAN versions. Activation is now done in the uwsgi server 
-config file.
+We now recommend you activate the Python virtual environment in a different
+place, compared to earlier CKAN versions. For the WSGI server, activation is done 
+in the uwsgi server config file (/etc/ckan/default/ckan-uwsgi.ini).
 
 (In CKAN 2.8.x and earlier, the virtual environment was activated in the WSGI
 script file.)
 
-2. The WSGI script file needs replacing because the WSGI entrypoint for CKAN
-has `changed <https://github.com/ckan/ckan/issues/4802>`_. Back-up your
-existing |apache.wsgi| file and then replace it with the new version defined
-above - see: :ref:`create-wsgi-script-file`
