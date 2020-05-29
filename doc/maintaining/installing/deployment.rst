@@ -70,7 +70,7 @@ uwsgi
 
 Run ``pip install uwsgi``
 The uwsgi configuration file can be copied from the CKAN distribution:
- ``cp /usr/lib/ckan/default/src/ckan/ckan-uwsgi.ini /etc/ckan/default/``
+``cp /usr/lib/ckan/default/src/ckan/ckan-uwsgi.ini /etc/ckan/default/``
 
  Here is the file:
 
