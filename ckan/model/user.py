@@ -11,6 +11,8 @@ from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 from six import text_type
 
 from ckan.model import meta
@@ -34,6 +36,7 @@ user_table = Table('user', meta.metadata,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
+        Column('plugin_extras', MutableDict.as_mutable(JSONB))
         )
 
 

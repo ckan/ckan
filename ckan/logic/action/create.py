@@ -931,6 +931,25 @@ def user_create(context, data_dict):
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
+    :param plugin_extras: private extra user data belonging to plugins.
+        Only sysadmin users may set this value. It should be a dict that can
+        be dumped into JSON, and plugins should namespace their extras with
+        the plugin name to avoid collisions with other plugins, eg::
+
+            {
+                "name": "test_user",
+                "email": "test@example.com",
+                "plugin_extras": {
+                    "my_plugin": {
+                        "private_extra": 1
+                    },
+                    "another_plugin": {
+                        "another_extra": True
+                    }
+                }
+            }
+    :type plugin_extras: dict
+
 
     :returns: the newly created user
     :rtype: dictionary
@@ -982,7 +1001,15 @@ def user_create(context, data_dict):
     user_dictize_context = context.copy()
     user_dictize_context['keep_apikey'] = True
     user_dictize_context['keep_email'] = True
-    user_dict = model_dictize.user_dictize(user, user_dictize_context)
+
+    author_obj = model.User.get(context.get('user'))
+    include_plugin_extras = False
+    if author_obj:
+        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+    user_dict = model_dictize.user_dictize(
+        user, user_dictize_context,
+        include_plugin_extras=include_plugin_extras
+    )
 
     context['user_obj'] = user
     context['id'] = user.id

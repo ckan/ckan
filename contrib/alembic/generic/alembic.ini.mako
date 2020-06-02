@@ -27,23 +27,15 @@ script_location = %(here)s
 # sourceless = false
 
 # version location specification; this defaults
-# to ckan/migration/alembic/versions.  When using multiple version
+# to ${script_location}/versions.  When using multiple version
 # directories, initial revisions must be specified with --version-path
-# version_locations = %(here)s/bar %(here)s/bat ckan/migration/alembic/versions
+# version_locations = %(here)s/bar %(here)s/bat ${script_location}/versions
 
 # the output encoding used when revision files
 # are written from script.py.mako
 # output_encoding = utf-8
 
-# This value does not affects CKAN commands, but developers are able
-# to execute alembic commands(i.e. `alembic heads`, `alembic
-# revision`) directly from this folder with line bellow. If it
-# configured to correct values, migrations can even be applied(but it
-# strongly discouraged - use CKAN's upgrade command instead). This
-# functionality is considered as internal, so don't rely on it,
-# because it may be removed in future. Use official CKAN commands
-# rather than direct interactions with alembic
-sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
+sqlalchemy.url = driver://user:pass@localhost/dbname
 
 
 # Logging configuration
