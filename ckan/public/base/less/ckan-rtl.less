@@ -70,6 +70,7 @@
 .search-form .search-input.search-giant button {
     margin-top: -15px;
     left: 15px;
+    right: auto;
 }
 
 .context-info .nums dl, .toolbar .breadcrumb {
@@ -101,4 +102,11 @@
 
 .format-label {
     text-indent: 900em;
+}
+
+@media (min-width: @screen-md-min) {
+    .homepage.layout-1 .row1 .col2 {
+        right: auto;
+        left: 0;
+    }
 }
