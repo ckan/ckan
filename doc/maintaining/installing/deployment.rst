@@ -205,7 +205,7 @@ To prevent conflicts, disable your default nginx and apache sites.  Finally, ena
     sudo rm -vi /etc/nginx/sites-enabled/default
     sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
     |reload_apache|
-    |reload_nginx|
+    |restart_nginx|
 
 You should now be able to visit your server in a web browser and see your new
 CKAN instance.

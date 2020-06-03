@@ -55,8 +55,8 @@ rst_epilog = '''
 .. |storage_parent_dir| replace:: /var/lib/ckan
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |storage_path| replace:: |storage_parent_dir|/default
-.. |reload_apache| replace:: sudo service apache2 reload
-.. |restart_apache| replace:: sudo service apache2 restart
+.. |reload_apache| replace:: sudo systemctl reload apache2
+.. |restart_apache| replace:: sudo systemctl restart apache2
 .. |restart_solr| replace:: sudo service jetty8 restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
@@ -67,7 +67,7 @@ rst_epilog = '''
 .. |javascript| replace:: JavaScript
 .. |apache| replace:: Apache
 .. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan
-.. |reload_nginx| replace:: sudo service nginx reload
+.. |restart_nginx| replace:: sudo systemctl restart nginx
 .. |jquery| replace:: jQuery
 .. |nodejs| replace:: Node.js
 
