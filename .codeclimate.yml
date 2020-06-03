@@ -14,9 +14,9 @@ checks:
     # config:
       # threshold: 250
 
-  # method-complexity:            # Functions or methods that may be hard to understand (Cognitive Complexity)
-  #   config:
-  #     threshold: 5
+  method-complexity:            # Functions or methods that may be hard to understand (Cognitive Complexity)
+    config:
+      threshold: 50
 
   # method-count:                 # Classes defined with a high number of functions or methods
   #   config:
@@ -52,3 +52,4 @@ plugins:
 exclude_patterns:
   - "ckan/lib/search/index.py" # contains regular expression that cannot be parsed py CodeClimate
   - "**/*.js"
+  - "**/tests/"
