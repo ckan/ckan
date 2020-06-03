@@ -1,9 +1,9 @@
 version: 2
 
 checks:
-  # argument-count:               # Methods or functions defined with a high number of arguments
-  #   config:
-  #     threshold: 4
+  argument-count:               # Methods or functions defined with a high number of arguments
+    config:
+      threshold: 10
 
   # complex-logic:                #  Boolean logic that may be hard to understand
   #   config:
@@ -43,12 +43,13 @@ checks:
   #     threshold: # language-specific defaults. an override will affect all languages.
 
 plugins:
+  sonar-python:
+    enabled: true
+  bandit:
+    enabled: true
   duplication:
     enabled: true
-    config:
-      languages:
-        python:
-          python_version: 3
+
 exclude_patterns:
   - "ckan/lib/search/index.py" # contains regular expression that cannot be parsed py CodeClimate
   - "**/*.js"
