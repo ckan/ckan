@@ -1,0 +1,81 @@
+{% extends "page.html" %}
+{% import 'macros/form.html' as form %}
+
+{% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), named_route='%s.search' % dataset_type, highlight_actions = 'new index') }}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      {% block page_primary_action %}
+        {% if h.check_access('package_create') %}
+          <div class="page_primary_action">
+            {{ h.snippet ('snippets/add_dataset.html', dataset_type=dataset_type) }}
+          </div>
+        {% endif %}
+      {% endblock %}
+      {% block form %}
+        {% set facets = {
+          'fields': fields_grouped,
+          'search': search_facets,
+          'titles': facet_titles,
+          'translated_fields': translated_fields,
+          'remove_field': remove_field }
+        %}
+        {% set sorting = [
+          (_('Relevance'), 'score desc, metadata_modified desc'),
+          (_('Name Ascending'), 'title_string asc'),
+          (_('Name Descending'), 'title_string desc'),
+          (_('Last Modified'), 'metadata_modified desc'),
+          (_('Popular'), 'views_recent desc') if g.tracking_enabled else (false, false) ]
+        %}
+        {% snippet 'snippets/search_form.html', form_id='dataset-search-form', type=dataset_type, query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, placeholder=_('Search ' + dataset_type + 's') + '...', facets=facets, show_empty=request.params, error=query_error, fields=fields %}
+      {% endblock %}
+      {% block package_search_results_list %}
+        {{ h.snippet('snippets/package_list.html', packages=page.items) }}
+      {% endblock %}
+    </div>
+
+    {% block page_pagination %}
+      {{ page.pager(q=q) }}
+    {% endblock %}
+  </section>
+
+  {% block package_search_results_api %}
+    <section class="module">
+      <div class="module-content">
+        {% block package_search_results_api_inner %}
+          <small>
+            {% set api_link = h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=3)) %}
+            {% set api_doc_link = h.link_to(_('API Docs'), 'http://docs.ckan.org/en/{0}/api/'.format(g.ckan_doc_version)) %}
+            {% if g.dumps_url -%}
+              {% set dump_link = h.link_to(_('full {format} dump').format(format=g.dumps_format), g.dumps_url) %}
+              {% trans %}
+              You can also access this registry using the {{ api_link }} (see {{ api_doc_link }}) or download a {{ dump_link }}.
+          {% endtrans %}
+            {% else %}
+          {% trans %}
+          You can also access this registry using the {{ api_link }} (see {{ api_doc_link}}).
+          {% endtrans %}
+            {%- endif %}
+          </small>
+        {% endblock %}
+      </div>
+    </section>
+  {% endblock %}
+{% endblock %}
+
+
+{% block secondary_content %}
+  <div class="filters">
+    <div>
+      {% for facet in facet_titles %}
+        {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets) }}
+      {% endfor %}
+    </div>
+    <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
+  </div>
+{% endblock %}

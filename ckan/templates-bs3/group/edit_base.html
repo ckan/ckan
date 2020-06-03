@@ -1,0 +1,26 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Manage') }} {{ g.template_title_delimiter }} {{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ _('Groups') }}{% endblock %}
+
+{% set group = group_dict %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Groups'), named_route=group_type + '.index' %}</li>
+  {% block breadcrumb_content_inner %}
+    <li>{% link_for group.display_name|truncate(35), named_route=group_type+'.read', id=group.name %}</li>
+    <li class="active">{% link_for _('Manage'), named_route=group_type+'.edit', id=group.name %}</li>
+  {% endblock %}
+{% endblock %}
+
+{% block content_action %}
+  {% link_for _('View'), named_route=group_type+'.read', id=group_dict.name, class_='btn btn-default', icon='eye' %}
+{% endblock %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon(group_type + '.edit', _('Edit'), id=group_dict.name, icon='pencil-square-o') }}
+  {{ h.build_nav_icon(group_type + '.members', _('Members'), id=group_dict.name, icon='users') }}
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "group/snippets/info.html", group=group_dict, show_nums=false %}
+{% endblock %}

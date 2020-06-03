@@ -1,0 +1,24 @@
+{% extends "package/view_edit_base.html" %}
+
+{% block subtitle %}{{ _('Edit view') }} {{ g.template_title_delimiter }} {{ h.resource_display_name(resource) }}{% endblock %}
+{% block form_title %}{{ _('Edit view') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ super() }}
+  <li class="active"><a href="#">{{ _('Edit view') }}</a></li>
+{% endblock %}
+
+{% block content_primary_nav %}
+  <li class="active"><a href="#"><i class="fa fa-pencil-square-o"></i> {{ _('Edit view') }}</a></li>
+{% endblock %}
+
+{% block form %}
+  <form class="dataset-form dataset-resource-form" method="post" data-module="basic-form resource-form">
+    {% include 'package/snippets/view_form.html' %}
+    <div class="form-actions">
+      <button class="btn btn-danger pull-left" name="delete" value="Delete"> {{ _('Delete') }} </button>
+      <button class="btn btn-default {% if not h.resource_view_display_preview(data) %}hide{%endif%}" name="preview" value="True" type="submit">{{ _('Preview') }}</button>
+      <button class="btn btn-primary" name="save" value="Save" type="submit">{{ _('Update') }}</button>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,79 @@
+{#
+  Renders a single resource with icons and view links.
+
+  res - A resource dict to render
+  pkg - A package dict that the resource belongs to
+  can_edit - Whether the user is allowed to edit the resource
+  url_is_edit - Whether the link to the resource should be to editing it (set to False to make the link view the resource)
+  is_activity_archive - Whether this is an old version of the dataset (and therefore read-only)
+
+  Example:
+
+    {% snippet "package/snippets/resource_item.html", res=resource, pkg_dict=pkg_dict, can_edit=True, url_is_edit=False %}
+
+#}
+{% set url_action = pkg.type ~ ('_resource.edit' if url_is_edit and can_edit else '_resource.read') %}
+{% set url = h.url_for(url_action, id=pkg.id if is_activity_archive else pkg.name, resource_id=res.id, **({'activity_id': request.args['activity_id']} if 'activity_id' in request.args else {})) %}
+
+<li class="resource-item" data-id="{{ res.id }}">
+  {% block resource_item_title %}
+  <a class="heading" href="{{ url }}" title="{{ res.name or res.description }}">
+    {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ h.get_translated(res, 'format') }}</span>
+    {{ h.popular('views', res.tracking_summary.total, min=10) if res.tracking_summary }}
+  </a>
+  {% endblock %}
+  {% block resource_item_description %}
+    <p class="description">
+      {% if res.description %}
+        {{ h.markdown_extract(h.get_translated(res, 'description'), extract_length=80) }}
+      {% endif %}
+    </p>
+  {% endblock %}
+  {% block resource_item_explore %}
+  {% if not url_is_edit %}
+  <div class="dropdown btn-group">
+    <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+      <i class="fa fa-share"></i>
+      {{ _('Explore') }}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      {% block resource_item_explore_links %}
+      <li>
+        <a href="{{ url }}">
+          {% if not is_activity_archive and res.has_views %}
+            <i class="fa fa-bar-chart-o"></i>
+            {{ _('Preview') }}
+          {% else %}
+            <i class="fa fa-info-circle"></i>
+            {{ _('More information') }}
+          {% endif %}
+        </a>
+      </li>
+      {% if res.url and h.is_url(res.url) %}
+      <li>
+        <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
+          {% if res.has_views or res.url_type == 'upload' %}
+            <i class="fa fa-arrow-circle-o-down"></i>
+            {{ _('Download') }}
+          {% else %}
+            <i class="fa fa-external-link"></i>
+            {{ _('Go to resource') }}
+          {% endif %}
+        </a>
+      </li>
+      {% endif %}
+      {% if can_edit %}
+      <li>
+        <a href="{{ h.url_for(pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id) }}">
+          <i class="fa fa-pencil-square-o"></i>
+          {{ _('Edit') }}
+        </a>
+      </li>
+      {% endif %}
+      {% endblock %}
+    </ul>
+  </div>
+  {% endif %}
+  {% endblock %}
+</li>

@@ -1,0 +1,33 @@
+{% extends "page.html" %}
+
+{% set organization = group_dict %}
+
+{% block subtitle %}{{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ _('Organizations') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Organizations'), named_route=group_type+'.index' %}</li>
+  {% block breadcrumb_content_inner %}
+    <li>{% link_for organization.display_name|truncate(35), named_route=group_type+'.read', id=organization.name %}</li>
+    <li class="active">{% link_for _('Manage'), named_route=group_type+'.edit', id=organization.name %}</li>
+  {% endblock %}
+{% endblock %}
+
+{% block content_action %}
+  {% if organization and h.check_access('organization_update', {'id': organization.id}) %}
+    {% link_for _('View'), named_route=group_type+'.read', id=organization.name, class_='btn btn-default', icon='eye'%}
+  {% endif %}
+{% endblock %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon(group_type + '.edit', _('Edit'), id=group_dict.name, icon='pencil-square-o') }}
+  {{ h.build_nav_icon(group_type + '.bulk_process', _('Datasets'), id=group_dict.name, icon='sitemap') }}
+  {{ h.build_nav_icon(group_type + '.members', _('Members'), id=group_dict.name, icon='users') }}
+{% endblock %}
+
+{% block secondary_content %}
+  {% if organization %}
+    {% snippet 'snippets/organization.html', organization=organization %}
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}

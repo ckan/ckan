@@ -1,0 +1,100 @@
+{% extends "group/edit_base.html" %}
+
+{% import 'macros/form.html' as form %}
+
+{% set user = user_dict %}
+
+{% block primary_content_inner %}
+  {% link_for _('Back to all members'), named_route=group_type+'.members', id=group.name, class_='btn btn-default pull-right', icon='arrow-left' %}
+  <h1 class="page-heading">
+    {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
+  </h1>
+  {% block form %}
+  <form class="dataset-form add-member-form" method='post' id="add-member-form">
+    <div class="row">
+      <div class="col-md-5">
+        <div class="form-group control-medium">
+          {% if not user %}
+            <label class="control-label" for="username">
+              {{ _('Existing User') }}
+            </label>
+            <p>
+              {{ _('If you wish to add an existing user, search for their username below.') }}
+            </p>
+          {% endif %}
+          <div class="controls">
+            {% if user %}
+              <input type="hidden" name="username" value="{{ user.name }}" />
+              <input id="username" name="username" type="text" value="{{ user.name }}"
+              disabled="True" class="form-control control-medium">
+            {% else %}
+              <input id="username" type="text" name="username" placeholder="Username"
+              value="" class="control-medium" data-module="autocomplete"
+              data-module-source="/api/2/util/user/autocomplete?ignore_self=true&q=?">
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% if not user %}
+      <div class="col-md-2 add-member-or-wrap">
+        <div class="add-member-or">
+          {{ _('or') }}
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="form-group control-medium">
+          <label class="control-label" for="email">
+            {{ _('New User') }}
+          </label>
+          <p>
+            {{ _('If you wish to invite a new user, enter their email address.') }}
+          </p>
+          <div class="controls">
+            <input id="email" type="text" name="email" placeholder="Email address" class="form-control">
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if user and user.name == c.user and user_role == 'admin' %}
+      {% set format_attrs = {'data-module': 'autocomplete', 'disabled': 'disabled'} %}
+      {{ form.select('role', label=_('Role'), options=roles, selected=user_role, error='', attrs=format_attrs) }}
+      {{ form.hidden('role', value=user_role) }}
+    {% else %}
+      {% set format_attrs = {'data-module': 'autocomplete'} %}
+      {{ form.select('role', label=_('Role'), options=roles, selected=user_role, error='', attrs=format_attrs) }}
+    {% endif %}
+
+    <div class="form-actions">
+      {% if user %}
+        <a href="{{ h.url_for(group_type + '.member_delete', id=group_dict.id, user=user.id) }}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this member?') }}">{{ _('Delete') }}</a>
+        <button class="btn btn-primary" type="submit" name="submit" >
+          {{ _('Save') }}
+        </button>
+      {% else %}
+        <button class="btn btn-primary" type="submit" name="submit" >
+          {{ _('Add Member') }}
+        </button>
+      {% endif %}
+    </div>
+  </form>
+  {% endblock %}
+{% endblock %}
+
+{% block secondary_content %}
+  {{ super() }}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="fa fa-lg fa-info-circle"></i>
+      {{ _('What are roles?') }}
+    </h2>
+    <div class="module-content">
+      {% trans %}
+         <p><strong>Admin:</strong> Can edit group information, as well as
+           manage organization members.</p>
+         <p><strong>Member:</strong> Can add/remove datasets from groups</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}
