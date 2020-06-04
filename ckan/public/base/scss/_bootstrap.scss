@@ -1,0 +1,59 @@
+/*!
+ * Bootstrap v4.5.0 (https://getbootstrap.com/)
+ * Copyright 2011-2020 The Bootstrap Authors
+ * Copyright 2011-2020 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+
+$bootstrap-path: "../vendor/bootstrap/scss/";
+
+// Core variables and mixins
+@use '${bootstrap-path}variables';
+@use '${bootstrap-path}mixins';
+
+// Reset and dependencies
+@use '${bootstrap-path}normalize';
+@use '${bootstrap-path}print';
+@use '${bootstrap-path}glyphicons';
+
+// Core CSS
+@use '${bootstrap-path}scaffolding';
+@use '${bootstrap-path}type';
+@use '${bootstrap-path}code';
+@use '${bootstrap-path}grid';
+@use '${bootstrap-path}tables';
+@use '${bootstrap-path}forms';
+@use '${bootstrap-path}buttons';
+
+// Components
+@use '${bootstrap-path}component-animations';
+@use '${bootstrap-path}dropdowns';
+@use '${bootstrap-path}button-groups';
+@use '${bootstrap-path}input-groups';
+@use '${bootstrap-path}navs';
+@use '${bootstrap-path}navbar';
+@use '${bootstrap-path}breadcrumbs';
+@use '${bootstrap-path}pagination';
+@use '${bootstrap-path}pager';
+@use '${bootstrap-path}labels';
+@use '${bootstrap-path}badges';
+@use '${bootstrap-path}jumbotron';
+@use '${bootstrap-path}thumbnails';
+@use '${bootstrap-path}alerts';
+@use '${bootstrap-path}progress-bars';
+@use '${bootstrap-path}media';
+@use '${bootstrap-path}list-group';
+@use '${bootstrap-path}panels';
+@use '${bootstrap-path}responsive-embed';
+@use '${bootstrap-path}wells';
+@use '${bootstrap-path}close';
+
+// Components w/ JavaScript
+@use '${bootstrap-path}modals';
+@use '${bootstrap-path}tooltip';
+@use '${bootstrap-path}popovers';
+@use '${bootstrap-path}carousel';
+
+// Utility classes
+@use '${bootstrap-path}utilities';
+@use '${bootstrap-path}responsive-utilities';
