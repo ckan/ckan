@@ -450,9 +450,9 @@ class TestGroupList(object):
 
     def test_group_list_limit_and_offset(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
-        group3 = factories.Group()
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+        group3 = factories.Group(name='cc')
 
         group_list = helpers.call_action("group_list", offset=1, limit=1)
 
