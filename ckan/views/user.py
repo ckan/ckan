@@ -192,6 +192,10 @@ class EditView(MethodView):
             data_dict = logic.clean_dict(
                 dictization_functions.unflatten(
                     logic.tuplize_dict(logic.parse_params(request.form))))
+            data_dict.update(logic.clean_dict(
+                dictization_functions.unflatten(logic.tuplize_dict(logic.parse_params(request.files))))
+            )
+
         except dictization_functions.DataError:
             base.abort(400, _(u'Integrity Error'))
         data_dict.setdefault(u'activity_streams_email_notifications', False)
@@ -299,6 +303,10 @@ class RegisterView(MethodView):
             data_dict = logic.clean_dict(
                 dictization_functions.unflatten(
                     logic.tuplize_dict(logic.parse_params(request.form))))
+            data_dict.update(logic.clean_dict(
+                dictization_functions.unflatten(logic.tuplize_dict(logic.parse_params(request.files)))
+            ))
+
         except dictization_functions.DataError:
             base.abort(400, _(u'Integrity Error'))
 

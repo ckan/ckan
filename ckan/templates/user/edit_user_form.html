@@ -1,6 +1,6 @@
 {% import 'macros/form.html' as form %}
 
-<form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}">
+<form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
   {{ form.errors(error_summary) }}
 
   <fieldset>
@@ -19,6 +19,11 @@
       {{ form.info(helper_text.format(site_title=g.site_title), classes=['info-help-tight']) }}
       {% endcall %}
     {% endif %}
+
+    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
 
   </fieldset>
 

@@ -931,6 +931,9 @@ def user_create(context, data_dict):
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
+    :param image_url: the URL to an image to be displayed on the group's page
+        (optional)
+    :type image_url: string
     :param plugin_extras: private extra user data belonging to plugins.
         Only sysadmin users may set this value. It should be a dict that can
         be dumped into JSON, and plugins should namespace their extras with
@@ -959,7 +962,12 @@ def user_create(context, data_dict):
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
 
+
     _check_access('user_create', context, data_dict)
+
+    upload = uploader.get_uploader('user')
+    upload.update_data_dict(data_dict, 'image_url',
+                            'image_upload', 'clear_upload')
     data, errors = _validate(data_dict, schema, context)
 
     if errors:
@@ -989,6 +997,8 @@ def user_create(context, data_dict):
         'activity_type': 'new user',
     }
     logic.get_action('activity_create')(activity_create_context, activity_dict)
+
+    upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
         model.repo.commit()
