@@ -6,7 +6,7 @@ etc.
 These are meant to be used by tests to create any objects that are needed for
 the tests. They're written using ``factory_boy``:
 
-http://factoryboy.readthedocs.org/en/latest/
+https://factoryboy.readthedocs.org/en/latest/
 
 These are not meant to be used for the actual testing, e.g. if you're writing
 a test for the :py:func:`~ckan.logic.action.create.user_create` function then
@@ -109,6 +109,7 @@ class User(factory.Factory):
     fullname = "Mr. Test User"
     password = "RandomPassword123"
     about = "Just another test user."
+    image_url = "https://placekitten.com/g/200/100"
 
     # Generate a different user name param for each user that gets created.
     name = factory.Sequence(lambda n: "test_user_{0:02d}".format(n))
@@ -126,7 +127,7 @@ class User(factory.Factory):
     # To make factory_boy work with CKAN we override _create() and make it call
     # a CKAN action function.
     # We might also be able to do this by using factory_boy's direct SQLAlchemy
-    # support: http://factoryboy.readthedocs.org/en/latest/orms.html#sqlalchemy
+    # support: https://factoryboy.readthedocs.org/en/latest/orms.html#sqlalchemy
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
         if args:
@@ -283,7 +284,7 @@ class Organization(factory.Factory):
 
     title = "Test Organization"
     description = "Just another test organization."
-    image_url = "http://placekitten.com/g/200/100"
+    image_url = "https://placekitten.com/g/200/100"
 
     # Generate a different group name param for each user that gets created.
     name = factory.Sequence(lambda n: "test_org_{0:02d}".format(n))
