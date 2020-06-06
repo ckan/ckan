@@ -962,7 +962,6 @@ def user_create(context, data_dict):
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
 
-
     _check_access('user_create', context, data_dict)
 
     upload = uploader.get_uploader('user')

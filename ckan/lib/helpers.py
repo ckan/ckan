@@ -1530,12 +1530,16 @@ def user_image(user_id, size=100):
 
     if user_dict['image_display_url']:
         return literal('''<img src="{url}"
-            class="user-image" width="{size}" height="{size}" alt="{alt}" />'''.format(
-                url=user_dict['image_display_url'], size=size, alt=user_dict['name']
+                       class="user-image"
+                       width="{size}" height="{size}" alt="{alt}" />'''.format(
+            url=user_dict['image_display_url'],
+            size=size,
+            alt=user_dict['name']
         ))
     elif gravatar_default == 'disabled':
-	return snippet(
-            'user/snippets/placeholder.html', size=size, user_name=user_dict['display_name'])
+        return snippet(
+            'user/snippets/placeholder.html',
+            size=size, user_name=user_dict['display_name'])
     else:
         return gravatar(user_dict['email_hash'], size, gravatar_default)
 

@@ -1288,6 +1288,5 @@ class TestUserImageUrl(object):
 
         user_dict = helpers.call_action('user_create', {}, **params)
 
-
         assert user_dict['image_url'] == 'https://example.com/mypic.png'
         assert user_dict['image_display_url'] == 'https://example.com/mypic.png'

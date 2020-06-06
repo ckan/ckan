@@ -193,7 +193,8 @@ class EditView(MethodView):
                 dictization_functions.unflatten(
                     logic.tuplize_dict(logic.parse_params(request.form))))
             data_dict.update(logic.clean_dict(
-                dictization_functions.unflatten(logic.tuplize_dict(logic.parse_params(request.files))))
+                dictization_functions.unflatten(
+                    logic.tuplize_dict(logic.parse_params(request.files))))
             )
 
         except dictization_functions.DataError:
@@ -304,7 +305,8 @@ class RegisterView(MethodView):
                 dictization_functions.unflatten(
                     logic.tuplize_dict(logic.parse_params(request.form))))
             data_dict.update(logic.clean_dict(
-                dictization_functions.unflatten(logic.tuplize_dict(logic.parse_params(request.files)))
+                dictization_functions.unflatten(
+                    logic.tuplize_dict(logic.parse_params(request.files)))
             ))
 
         except dictization_functions.DataError:

@@ -1,3 +1,4 @@
+# encoding: utf-8
 """Add image_url field to user table
 
 Revision ID: ddbd0a9a4489
@@ -25,6 +26,6 @@ def upgrade():
         )
     )
 
+
 def downgrade():
     op.drop_column('user', 'image_url')
-

@@ -127,7 +127,7 @@ class User(factory.Factory):
     # To make factory_boy work with CKAN we override _create() and make it call
     # a CKAN action function.
     # We might also be able to do this by using factory_boy's direct SQLAlchemy
-    # support: https://factoryboy.readthedocs.org/en/latest/orms.html#sqlalchemy
+    # support: http://factoryboy.readthedocs.org/en/latest/orms.html#sqlalchemy
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
         if args:
