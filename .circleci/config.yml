@@ -144,6 +144,7 @@ jobs:
       - <<: *run_front_tests
       - store_artifacts:
           path: ~/project/cypress/screenshots
+      - run: coveralls
 workflows:
   version: 2
   build_and_test:

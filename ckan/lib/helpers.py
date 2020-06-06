@@ -1647,13 +1647,14 @@ def date_str_to_datetime(date_str):
 
     # Extract seconds and microseconds
     if len(time_tuple) >= 6:
-        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
+        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d+))?$',
                      time_tuple[5])
         if not m:
             raise ValueError('Unable to parse %s as seconds.microseconds' %
                              time_tuple[5])
         seconds = int(m.groupdict().get('seconds'))
-        microseconds = int(m.groupdict(0).get('microseconds'))
+        microseconds = int((str(m.groupdict(0).get('microseconds')) +
+                            '00000')[0:6])
         time_tuple = time_tuple[:5] + [seconds, microseconds]
 
     return datetime.datetime(*list(int(item) for item in time_tuple))
@@ -1969,12 +1970,11 @@ def add_url_param(alternative_url=None, controller=None, action=None,
         (k, v) for k, v in params_items
         if k != 'page'
     ]
-    params = set(params_nopage)
     if new_params:
-        params |= set(new_params.items())
+        params_nopage += list(new_params.items())
     if alternative_url:
-        return _url_with_params(alternative_url, params)
-    return _create_url_with_params(params=params, controller=controller,
+        return _url_with_params(alternative_url, params_nopage)
+    return _create_url_with_params(params=params_nopage, controller=controller,
                                    action=action, extras=extras)
 
 

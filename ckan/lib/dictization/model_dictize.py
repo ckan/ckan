@@ -11,7 +11,7 @@ The basic recipe is to call:
 
 which builds the dictionary by iterating over the table columns.
 '''
-
+import copy
 import six
 from six.moves.urllib.parse import urlsplit
 
@@ -482,7 +482,9 @@ def user_list_dictize(obj_list, context,
 def member_dictize(member, context):
     return d.table_dictize(member, context)
 
-def user_dictize(user, context, include_password_hash=False):
+def user_dictize(
+        user, context, include_password_hash=False,
+        include_plugin_extras=False):
 
     if context.get('with_capacity'):
         user, capacity = user
@@ -504,6 +506,7 @@ def user_dictize(user, context, include_password_hash=False):
     reset_key = result_dict.pop('reset_key', None)
     apikey = result_dict.pop('apikey', None)
     email = result_dict.pop('email', None)
+    plugin_extras = result_dict.pop('plugin_extras', None)
 
     if context.get('keep_email', False):
         result_dict['email'] = email
@@ -521,6 +524,10 @@ def user_dictize(user, context, include_password_hash=False):
 
         if include_password_hash:
             result_dict['password_hash'] = password_hash
+
+        if include_plugin_extras:
+            result_dict['plugin_extras'] = copy.deepcopy(
+                plugin_extras) if plugin_extras else plugin_extras
 
     model = context['model']
     session = model.Session
