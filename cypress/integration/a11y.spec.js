@@ -31,4 +31,10 @@ describe("Runs a11y check on pages.", () => {
     cy.injectAxe();
     cy.checkA11y(null, null, terminalLog);
   })
+
+  it("Has no a11y violations on organization page.", () => {
+    cy.visit('/organization')
+    cy.injectAxe();
+    cy.checkA11y(null, null, terminalLog)
+  })
 });
