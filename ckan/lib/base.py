@@ -147,7 +147,7 @@ def render(template_name, extra_vars=None, *pargs, **kwargs):
                                             *pargs, **kwargs)
         return cached_template(template_name, renderer)
 
-    _allow_caching(extra_vars)
+    _allow_caching()
     return flask_render_template(template_name, **extra_vars)
 
 
@@ -231,7 +231,7 @@ def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
     return render_template
 
 
-def _allow_caching(extra_vars, cache_force=None):
+def _allow_caching(cache_force=None):
     # Caching Logic
 
     allow_cache = True
