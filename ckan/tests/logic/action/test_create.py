@@ -1277,7 +1277,7 @@ class TestUserPluginExtras(object):
 @pytest.mark.usefixtures("clean_db")
 class TestUserImageUrl(object):
 
-    def test_upload_picture(self, make_resource):
+    def test_upload_picture(self):
 
         params = {
             'name': 'test_user',
