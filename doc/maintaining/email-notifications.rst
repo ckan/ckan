@@ -22,7 +22,7 @@ notifications for a CKAN site, a sysadmin must:
    simulates an HTTP-request. For example, here is a crontab line to send out
    CKAN email notifications hourly::
 
-    @hourly echo '{}' | /usr/lib/ckan/bin/paster --plugin=ckan post -c /etc/ckan/production.ini /api/action/send_email_notifications > /dev/null
+    @hourly echo '{}' | ckan post -c |ckan.ini| /api/action/send_email_notifications > /dev/null
 
    The ``@hourly`` can be replaced with ``@daily``, ``@weekly`` or ``@monthly``.
 
@@ -66,6 +66,11 @@ notifications for a CKAN site, a sysadmin must:
 
     From: PublicData.eu <mailmain@publicdata.eu>
 
+   If you would like to use an alternate reply address, such as a "no-reply"
+   address, set :ref:`smtp.reply_to` in the ``[app:main]``
+   section of your CKAN configuration file. For example::
+
+    smtp.reply_to = noreply@example.com
 
 5. If you do not have an SMTP server running locally on the machine that hosts
    your CKAN instance, you can change the :ref:`email-settings` to send email via an

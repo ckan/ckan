@@ -4,7 +4,7 @@
 
 {% block primary_content_inner %}
 
-  {% set action = h.url_for(controller='ckanext.datapusher.plugin:ResourceDataController', action='resource_data', id=pkg.name, resource_id=res.id) %}
+  {% set action = h.url_for('datapusher.resource_data', id=pkg.name, resource_id=res.id) %}
   {% set show_table = true %}
 
   <form method="post" action="{{ action }}" class="datapusher-form">
@@ -25,7 +25,7 @@
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
       {% elif status.task_info.error is mapping %}
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error.message }}
-        {% for error_key, error_value in status.task_info.error.iteritems() %}
+        {% for error_key, error_value in status.task_info.error.items() %}
           {% if error_key != "message" and error_value %}
             <br>
             <strong>{{ error_key }}</strong>:
@@ -73,7 +73,7 @@
             {% endfor %}
             <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
               {{ h.time_ago_from_timestamp(item.timestamp) }}
-              <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.iteritems() %}<dt>{{ key }}</dt><dd>{{ h.clean_html(value|string) }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
+              <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.items() %}<dt>{{ key }}</dt><dd>{{ h.clean_html(value|string) }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
             </span>
           </p>
         </li>

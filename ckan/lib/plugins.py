@@ -8,7 +8,6 @@ from flask import Blueprint
 
 from ckan.common import c, g
 from ckan import logic
-import logic.schema
 from ckan import plugins
 import ckan.authz
 import ckan.plugins.toolkit as toolkit
@@ -111,7 +110,6 @@ def register_package_plugins():
                 raise ValueError("An existing IDatasetForm is "
                                  "already associated with the package type "
                                  "'%s'" % package_type)
-
             _package_plugins[package_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
@@ -148,7 +146,12 @@ def register_package_blueprints(app):
                 dataset.import_name,
                 url_prefix='/{}'.format(package_type),
                 url_defaults={'package_type': package_type})
+            if hasattr(plugin, 'prepare_dataset_blueprint'):
+                dataset_blueprint = plugin.prepare_dataset_blueprint(
+                    package_type,
+                    dataset_blueprint)
             register_dataset_plugin_rules(dataset_blueprint)
+
             app.register_blueprint(dataset_blueprint)
 
             resource_blueprint = Blueprint(
@@ -156,6 +159,10 @@ def register_package_blueprints(app):
                 resource.import_name,
                 url_prefix=u'/{}/<id>/resource'.format(package_type),
                 url_defaults={u'package_type': package_type})
+            if hasattr(plugin, 'prepare_resource_blueprint'):
+                resource_blueprint = plugin.prepare_resource_blueprint(
+                    package_type,
+                    resource_blueprint)
             dataset_resource_rules(resource_blueprint)
             app.register_blueprint(resource_blueprint)
             log.debug(
@@ -261,8 +268,12 @@ def register_group_blueprints(app):
             blueprint = Blueprint(group_type,
                                   group.import_name,
                                   url_prefix='/{}'.format(group_type),
-                                  url_defaults={u'group_type': group_type,
-                                                u'is_organization': is_organization})
+                                  url_defaults={
+                                      u'group_type': group_type,
+                                      u'is_organization': is_organization})
+            if hasattr(plugin, 'prepare_group_blueprint'):
+                blueprint = plugin.prepare_group_blueprint(
+                    group_type, blueprint)
             register_group_plugin_rules(blueprint)
             app.register_blueprint(blueprint)
 
@@ -326,13 +337,13 @@ class DefaultDatasetForm(object):
 
     '''
     def create_package_schema(self):
-        return ckan.logic.schema.default_create_package_schema()
+        return logic.schema.default_create_package_schema()
 
     def update_package_schema(self):
-        return ckan.logic.schema.default_update_package_schema()
+        return logic.schema.default_update_package_schema()
 
     def show_package_schema(self):
-        return ckan.logic.schema.default_show_package_schema()
+        return logic.schema.default_show_package_schema()
 
     def setup_template_variables(self, context, data_dict):
         data_dict.update({'available_only': True})

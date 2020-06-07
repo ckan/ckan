@@ -58,10 +58,11 @@ details on how to do this check :doc:`/extensions/remote-config-update`.
 CKAN configuration file
 ***********************
 
-By default, the
-configuration file is located at ``/etc/ckan/default/development.ini`` or
-``/etc/ckan/default/production.ini``. This section documents all of the config file
-settings, for reference.
+From CKAN 2.9, by default, the configuration file is located at
+``/etc/ckan/default/ckan.ini``. Previous releases the configuration file(s)
+were:  ``/etc/ckan/default/development.ini`` or
+``/etc/ckan/default/production.ini``. This section documents all of the config
+file settings, for reference.
 
 .. note:: After editing your config file, you need to restart your webserver
    for the changes to take effect.
@@ -103,8 +104,24 @@ Example::
 
 Default value: ``False``
 
-This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
-files, and enables CKAN templates' debugging features.
+This enables the `Flask-DebugToolbar
+<https://flask-debugtoolbar.readthedocs.io/>`_ in the web interface, makes
+Webassets serve unminified JS and CSS files, and enables CKAN templates'
+debugging features.
+
+You will need to ensure the ``Flask-DebugToolbar`` python package is installed,
+by activating your ckan virtual environment and then running::
+
+    pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt
+
+If you are running CKAN on Apache, you must change the WSGI
+configuration to run a single process of CKAN. Otherwise
+the execution will fail with: ``AssertionError: The EvalException
+middleware is not usable in a multi-process environment``. Eg. change::
+
+  WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
+  to
+  WSGIDaemonProcess ckan_default display-name=ckan_default threads=15
 
 .. warning:: This option should be set to ``False`` for a public site.
    With debug mode enabled, a visitor to your site could execute malicious
@@ -170,6 +187,21 @@ Default value: False
 This determines whether the secure flag will be set for the repoze.who
 authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
 default in the absence of the setting is ``False``.
+
+.. _who.samesite:
+
+who.samesite
+^^^^^^^^^^^^
+
+Example::
+
+ who.samesite = Strict
+
+Default value: Lax
+
+This determines whether the SameSite flag will be set for the repoze.who
+authorization cookie. Allowed values are ``Lax`` (the default one), ``Strict`` or ``None``.
+If set to ``None``,  ``who.secure`` must be set to ``True``.
 
 
 Database Settings
@@ -607,7 +639,7 @@ Example::
 Default value: ``admin``
 
 
-Makes role permissions apply to all the groups down the hierarchy from the groups that the role is applied to.
+Makes role permissions apply to all the groups or organizations down the hierarchy from the groups or organizations that the role is applied to.
 
 e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
 
@@ -743,6 +775,21 @@ Default value:  ``true``
 Controls whether the default search page (``/dataset``) should include
 private datasets visible to the current user or only public datasets
 visible to everyone.
+
+.. _ckan.search.default_package_sort:
+
+ckan.search.default_package_sort
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.default_package_sort = "name asc"
+
+Default value:  ``score desc, metadata_modified desc``
+
+Controls whether the default search page (``/dataset``) should different
+sorting parameter by default when the request does not specify sort.
+
 
 .. _search.facets.limit:
 
@@ -1215,6 +1262,20 @@ Defines a list of organization names or ids. This setting is used to display
 an organization and datasets on the home page in the default templates (1
 group and 2 datasets are displayed).
 
+.. _ckan.default_group_sort:
+
+ckan.default_group_sort
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.default_group_sort = name
+
+Default Value: 'title'
+
+Defines if some other sorting is used in group_list and organization_list
+by default when the request does not specify sort.
+
 .. _ckan.gravatar_default:
 
 ckan.gravatar_default
@@ -1329,6 +1390,23 @@ Default value: ``png jpeg jpg gif``
 
 Space-delimited list of image-based resource formats that will be rendered by the Image view plugin (``image_view``)
 
+
+.. _ckan.recline.dataproxy_url:
+
+ckan.recline.dataproxy_url
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.recline.dataproxy_url = https://mydataproxy.example.com
+
+Default value: ``//jsonpdataproxy.appspot.com``
+
+Custom URL to a self-hosted DataProxy instance. The DataProxy is an external service currently used to stream data in
+JSON format to the Recline-based views when data is not on the DataStore. The main instance is deprecated and will
+be eventually shut down, so users that require it can host an instance themselves and use this configuration option
+to point Recline to it.
+
 .. end_resource-views
 
 Theming Settings
@@ -1430,15 +1508,8 @@ Example::
 Default value:  ``public``
 
 This config option is used to configure the base folder for static files used
-by CKAN core. It's used to determine which version of Bootstrap to be used.
-It accepts two values: ``public`` (Bootstrap 3, the default value from CKAN
-2.8 onwards) and ``public-bs2`` (Bootstrap 2, used until CKAN 2.7).
-
-It must be used in conjunction with :ref:`ckan.base_templates_folder` in order
-for it to properly function. Also, you can't use for example Bootstrap 3 for
-static files and Bootstrap 2 for templates or vice versa.
-
-.. note:: Starting with CKAN 2.8, Bootstrap 3 will be used as a default.
+by CKAN core. It is currently unused and it only accepts one value: ``public``
+(Bootstrap 3, the default value from CKAN 2.8 onwards).
 
 .. _ckan.base_templates_folder:
 
@@ -1452,15 +1523,8 @@ Example::
 Default value:  ``templates``
 
 This config option is used to configure the base folder for templates used
-by CKAN core. It's used to determine which version of Bootstrap to be used.
-It accepts two values: ``templates`` (Bootstrap 3, the default value from CKAN
-2.8 onwards) and ``templates-bs2`` (Bootstrap 2, used until CKAN 2.7).
-
-It must be used in conjunction with :ref:`ckan.base_public_folder` in order
-for it to properly function. Also, you can't use for example Bootstrap 3 for
-templates and Bootstrap 2 for static files or vice versa.
-
-.. note:: Starting with CKAN 2.8, Bootstrap 3 will be used as a default.
+by CKAN core. It is currently unused and it only accepts one vaue: ``templates``
+(Bootstrap 3, the default value from CKAN 2.8 onwards).
 
 .. end_config-theming
 
@@ -1536,6 +1600,22 @@ DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
 installed CKAN via :doc:`/maintaining/installing/install-from-package`, the DataPusher was installed for you
 running on port 8800. If you want to manually install the DataPusher, follow
 the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
+
+
+.. _ckan.datapusher.callback_url_base:
+
+ckan.datapusher.callback_url_base
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.datapusher.callback_url_base = http://ckan:5000/
+
+Default value: Value of ``ckan.site_url``
+
+Alternative callback URL for DataPusher when performing a request to CKAN. This is
+useful on scenarios where the host where DataPusher is running can not access the
+public CKAN site URL.
 
 
 .. _ckan.datapusher.assume_task_stale_after:
@@ -1906,6 +1986,10 @@ This setting is used to construct URLs inside CKAN. It specifies two things:
 
     The host of your CKAN installation can be set via :ref:`ckan.site_url`.
 
+The CKAN repoze config file ``who.ini`` file will also need to be edited
+by adding the path prefix to the options in the ``[plugin:friendlyform]``
+section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
+Do not change the login/logout_handler_path options.
 
 .. _ckan.resource_formats:
 
@@ -2067,6 +2151,21 @@ Default value: ``None``
 
 The email address that emails sent by CKAN will come from. Note that, if left blank, the
 SMTP server may insert its own.
+
+.. _smtp.reply_to:
+
+smtp.reply_to
+^^^^^^^^^^^^^
+
+Example::
+
+  smtp.mail_from = noreply.example.com
+
+Default value: ``None``
+
+The email address that will be used if someone attempts to reply to a system email.
+If left blank, no ``Reply-to`` will be added to the email and the value of
+``smtp.mail_from`` will be used.
 
 .. _email_to:
 

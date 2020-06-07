@@ -1,13 +1,14 @@
 # encoding: utf-8
 
 import datetime
+import six
+import os
 
-import nose
 import pytz
 import tzlocal
 from babel import Locale
 from six import text_type
-
+import pytest
 from ckan.common import config
 import ckan.lib.helpers as h
 import ckan.plugins as p
@@ -15,384 +16,386 @@ import ckan.exceptions
 from ckan.tests import helpers
 import ckan.lib.base as base
 
-ok_ = nose.tools.ok_
-eq_ = nose.tools.eq_
-raises = nose.tools.raises
+
 CkanUrlException = ckan.exceptions.CkanUrlException
 
 
 class BaseUrlFor(object):
-
-    @classmethod
-    def setup_class(cls):
-
-        # Make a copy of the Pylons config, so we can restore it in teardown.
-        cls._original_config = dict(config)
-        config['ckan.site_url'] = 'http://example.com'
-        cls.app = helpers._get_test_app()
-
-    def setup(self):
-
-        self.request_context = self.app.flask_app.test_request_context()
+    @pytest.fixture(autouse=True)
+    def request_context(self, monkeypatch, ckan_config, app):
+        monkeypatch.setitem(ckan_config, "ckan.site_url", "http://example.com")
+        self.request_context = app.flask_app.test_request_context()
         self.request_context.push()
-
-    def teardown(self):
-
+        yield
         self.request_context.pop()
-
-    @classmethod
-    def teardown_class(cls):
-        # Restore the config to its original values
-        config.clear()
-        config.update(cls._original_config)
 
 
 class TestHelpersUrlForStatic(BaseUrlFor):
-
     def test_url_for_static(self):
-        url = '/assets/ckan.jpg'
-        eq_(h.url_for_static(url), url)
+        url = "/assets/ckan.jpg"
+        assert h.url_for_static(url) == url
 
     def test_url_for_static_adds_starting_slash_if_url_doesnt_have_it(self):
-        slashless_url = 'ckan.jpg'
-        url = '/' + slashless_url
-        eq_(h.url_for_static(slashless_url), url)
+        slashless_url = "ckan.jpg"
+        url = "/" + slashless_url
+        assert h.url_for_static(slashless_url) == url
 
     def test_url_for_static_converts_unicode_strings_to_regular_strings(self):
-        url = u'/ckan.jpg'
+        url = u"/ckan.jpg"
         assert isinstance(h.url_for_static(url), str)
 
     def test_url_for_static_raises_when_called_with_external_urls(self):
-        url = 'http://assets.ckan.org/ckan.jpg'
-        nose.tools.assert_raises(CkanUrlException, h.url_for_static, url)
+        url = "http://assets.ckan.org/ckan.jpg"
+        with pytest.raises(CkanUrlException):
+            h.url_for_static(url)
 
     def test_url_for_static_raises_when_called_with_protocol_relative(self):
-        url = '//assets.ckan.org/ckan.jpg'
-        nose.tools.assert_raises(CkanUrlException, h.url_for_static, url)
+        url = "//assets.ckan.org/ckan.jpg"
+        with pytest.raises(CkanUrlException):
+            h.url_for_static(url)
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
     def test_url_for_static_with_root_path(self):
-        url = '/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt')
-        eq_(generated_url, url)
+        url = "/my/custom/path/foo/my-asset/file.txt"
+        generated_url = h.url_for_static("/my-asset/file.txt")
+        assert generated_url == url
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
     def test_url_for_static_qualified_with_root_path(self):
-        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt',
-                                         qualified=True)
-        eq_(generated_url, url)
+        url = "http://example.com/my/custom/path/foo/my-asset/file.txt"
+        generated_url = h.url_for_static("/my-asset/file.txt", qualified=True)
+        assert generated_url == url
 
-    @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
-    def test_url_for_static_with_root_path_and_script_name_env(self):
-        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt',
-                                         qualified=True)
-        eq_(generated_url, url)
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_static_with_root_path_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
+        url = "http://example.com/my/custom/path/foo/my-asset/file.txt"
+        generated_url = h.url_for_static("/my-asset/file.txt", qualified=True)
+        assert generated_url == url
 
 
-class TestHelpersUrlForStaticOrExternal(BaseUrlFor):
-
-    def test_url_for_static_or_external(self):
-        url = '/assets/ckan.jpg'
-        eq_(h.url_for_static_or_external(url), url)
-
-    def test_url_for_static_or_external_works_with_external_urls(self):
-        url = 'http://assets.ckan.org/ckan.jpg'
-        eq_(h.url_for_static_or_external(url), url)
-
-    def test_url_for_static_or_external_converts_unicode_to_strings(self):
-        url = u'/ckan.jpg'
-        assert isinstance(h.url_for_static_or_external(url), str)
-
-    def test_url_for_static_or_external_adds_starting_slash_if_needed(self):
-        slashless_url = 'ckan.jpg'
-        url = '/' + slashless_url
-        eq_(h.url_for_static_or_external(slashless_url), url)
-
-    def test_url_for_static_or_external_works_with_protocol_relative_url(self):
-        url = '//assets.ckan.org/ckan.jpg'
-        eq_(h.url_for_static_or_external(url), url)
+@pytest.mark.parametrize(
+    "url",
+    [
+        "/assets/ckan.jpg",
+        "http://assets.ckan.org/ckan.jpg",
+        u"/ckan.jpg",
+        "/ckan.jpg",
+        "//assets.ckan.org/ckan.jpg",
+    ],
+)
+def test_url_for_static_or_external(url):
+    generated = h.url_for_static_or_external(url)
+    assert generated == url
+    assert isinstance(generated, str)
 
 
 class TestHelpersUrlFor(BaseUrlFor):
+    @pytest.mark.parametrize(
+        "extra,exp",
+        [
+            ({}, "/dataset/my_dataset"),
+            ({"locale": "de"}, "/de/dataset/my_dataset"),
+            ({"qualified": False}, "/dataset/my_dataset"),
+            ({"qualified": True}, "http://example.com/dataset/my_dataset"),
+            (
+                {"qualified": True, "locale": "de"},
+                "http://example.com/de/dataset/my_dataset",
+            ),
+        ],
+    )
+    def test_url_for_default(self, extra, exp):
+        generated_url = h.url_for("dataset.read", id="my_dataset", **extra)
+        assert generated_url == exp
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    def test_url_for_default(self):
-        url = '/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
-                                  id='my_dataset')
-        eq_(generated_url, url)
-
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    def test_url_for_with_locale(self):
-        url = '/de/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
-                                  id='my_dataset',
-                                  locale='de')
-        eq_(generated_url, url)
-
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    @helpers.change_config('ckan.root_path', '/foo/{{LANG}}')
+    @pytest.mark.ckan_config("ckan.root_path", "/foo/{{LANG}}")
     def test_url_for_with_locale_object(self):
-        url = '/foo/de/dataset/my_dataset'
-        generated_url = h.url_for('/dataset/my_dataset',
-                                  locale=Locale('de'))
-        eq_(generated_url, url)
+        url = "/foo/de/dataset/my_dataset"
+        generated_url = h.url_for("/dataset/my_dataset", locale=Locale("de"))
+        assert generated_url == url
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    def test_url_for_not_qualified(self):
-        url = '/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
-                                  id='my_dataset',
-                                  qualified=False)
-        eq_(generated_url, url)
-
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    def test_url_for_qualified(self):
-        url = 'http://example.com/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
-                                  id='my_dataset',
-                                  qualified=True)
-        eq_(generated_url, url)
-
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    @helpers.change_config('ckan.root_path', '/my/prefix')
+    @pytest.mark.ckan_config("ckan.root_path", "/my/prefix")
     def test_url_for_qualified_with_root_path(self):
-        url = 'http://example.com/my/prefix/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
-                                  id='my_dataset',
-                                  qualified=True)
-        eq_(generated_url, url)
+        url = "http://example.com/my/prefix/dataset/my_dataset"
+        generated_url = h.url_for(
+            "dataset.read", id="my_dataset", qualified=True
+        )
+        assert generated_url == url
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    def test_url_for_qualified_with_locale(self):
-        url = 'http://example.com/de/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
-                                  id='my_dataset',
-                                  qualified=True,
-                                  locale='de')
-        eq_(generated_url, url)
-
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
     def test_url_for_qualified_with_root_path_and_locale(self):
-        url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
-                                  id='my_dataset',
-                                  qualified=True,
-                                  locale='de')
-        eq_(generated_url, url)
+        url = "http://example.com/my/custom/path/de/foo/dataset/my_dataset"
+        generated_url = h.url_for(
+            "dataset.read", id="my_dataset", qualified=True, locale="de"
+        )
+        assert generated_url == url
 
-    @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
-    @helpers.change_config('ckan.site_url', 'http://example.com')
-    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
-    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self):
-        url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
-                                  id='my_dataset',
-                                  qualified=True,
-                                  locale='de')
-        eq_(generated_url, url)
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
+        url = "http://example.com/my/custom/path/de/foo/dataset/my_dataset"
+        generated_url = h.url_for(
+            "dataset.read", id="my_dataset", qualified=True, locale="de"
+        )
+        assert generated_url == url
 
+    @pytest.mark.ckan_config("ckan.site_url", "http://example.com")
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+    def test_url_for_with_root_path_locale_and_script_name_env(self, monkeypatch):
+        monkeypatch.setitem(os.environ, "SCRIPT_NAME", "/my/custom/path")
 
-class TestHelpersUrlForFlaskandPylons2(BaseUrlFor):
+        url = "/my/custom/path/de/foo/dataset/my_dataset"
+        generated_url = h.url_for("dataset.read", id="my_dataset", locale="de")
+        assert generated_url == url
 
-    def test_url_for_flask_route_new_syntax(self):
-        url = '/api/3'
-        generated_url = h.url_for('api.get_api', ver=3)
-        eq_(generated_url, url)
+    @pytest.mark.ckan_config("debug", True)
+    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
+    @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
+    def test_debugtoolbar_url(self, ckan_config):
+        # test against built-in `url_for`, that is used by debugtoolbar ext.
+        from flask import url_for
+        expected = "/my/custom/path/_debug_toolbar/static/test.js"
+        url = url_for('_debug_toolbar.static', filename='test.js')
+        assert url == expected
 
 
 class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
-
     def test_url_for_flask_route_new_syntax(self):
-        url = '/api/3'
-        generated_url = h.url_for('api.get_api', ver=3)
-        eq_(generated_url, url)
+        url = "/api/3"
+        generated_url = h.url_for("api.get_api", ver=3)
+        assert generated_url == url
 
     def test_url_for_flask_route_old_syntax(self):
-        url = '/api/3'
-        generated_url = h.url_for(controller='api', action='get_api', ver=3)
-        eq_(generated_url, url)
+        url = "/api/3"
+        generated_url = h.url_for(controller="api", action="get_api", ver=3)
+        assert generated_url == url
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_flask_route_new_syntax_external(self):
-        url = 'http://example.com/api/3'
-        generated_url = h.url_for('api.get_api', ver=3, _external=True)
-        eq_(generated_url, url)
+        url = "http://example.com/api/3"
+        generated_url = h.url_for("api.get_api", ver=3, _external=True)
+        assert generated_url == url
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @pytest.mark.ckan_config("ckan.root_path", "/{{LANG}}/data")
+    def test_url_for_flask_route_new_syntax_external_with_root_path(self):
+        url = "http://example.com/data/api/3"
+        generated_url = h.url_for("api.get_api", ver=3, _external=True)
+        assert generated_url == url
+
     def test_url_for_flask_route_old_syntax_external(self):
-        url = 'http://example.com/api/3'
-        generated_url = h.url_for(controller='api', action='get_api', ver=3, _external=True)
-        eq_(generated_url, url)
+        url = "http://example.com/api/3"
+        generated_url = h.url_for(
+            controller="api", action="get_api", ver=3, _external=True
+        )
+        assert generated_url == url
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @pytest.mark.ckan_config("ckan.root_path", "/{{LANG}}/data")
+    def test_url_for_flask_route_old_syntax_external_with_root_path(self):
+        url = "http://example.com/data/api/3"
+        generated_url = h.url_for(
+            controller="api", action="get_api", ver=3, _external=True
+        )
+        assert generated_url == url
+
     def test_url_for_flask_route_old_syntax_qualified(self):
-        url = 'http://example.com/api/3'
-        generated_url = h.url_for(controller='api', action='get_api', ver=3, qualified=True)
-        eq_(generated_url, url)
+        url = "http://example.com/api/3"
+        generated_url = h.url_for(
+            controller="api", action="get_api", ver=3, qualified=True
+        )
+        assert generated_url == url
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @pytest.mark.ckan_config("ckan.root_path", "/{{LANG}}/data")
+    def test_url_for_flask_route_old_syntax_qualified_with_root_path(self):
+        url = "http://example.com/data/api/3"
+        generated_url = h.url_for(
+            controller="api", action="get_api", ver=3, qualified=True
+        )
+        assert generated_url == url
+
     def test_url_for_flask_route_new_syntax_site_url(self):
-        url = '/api/3'
-        generated_url = h.url_for('api.get_api', ver=3)
-        eq_(generated_url, url)
+        url = "/api/3"
+        generated_url = h.url_for("api.get_api", ver=3)
+        assert generated_url == url
 
-    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_flask_route_old_syntax_site_url(self):
-        url = '/api/3'
-        generated_url = h.url_for(controller='api', action='get_api', ver=3)
-        eq_(generated_url, url)
+        url = "/api/3"
+        generated_url = h.url_for(controller="api", action="get_api", ver=3)
+        assert generated_url == url
 
-    def test_url_for_flask_route_new_syntax_request_context(self):
-        with self.app.flask_app.test_request_context():
-            url = '/api/3'
-            generated_url = h.url_for('api.get_api', ver=3)
-            eq_(generated_url, url)
+    def test_url_for_flask_route_new_syntax_request_context(self, app):
+        with app.flask_app.test_request_context():
+            url = "/api/3"
+            generated_url = h.url_for("api.get_api", ver=3)
+            assert generated_url == url
 
-    def test_url_for_flask_request_using_pylons_url_for(self):
+    @pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
+    @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_url_for_flask_request_using_pylons_url_for(self, app):
 
-        if not p.plugin_loaded('test_routing_plugin'):
-            p.load('test_routing_plugin')
-            plugin = p.get_plugin('test_routing_plugin')
-            self.app.flask_app.register_extension_blueprint(
-                plugin.get_blueprint())
+        res = app.get("/flask_route_pylons_url_for")
 
-        res = self.app.get('/flask_route_pylons_url_for')
+        assert u"This URL was generated by Pylons" in res.body
+        assert u"/from_pylons_extension_before_map" in res.body
 
-        assert u'This URL was generated by Pylons' in res.ubody
-        assert u'/from_pylons_extension_before_map' in res.ubody
+    @pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
+    @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_url_for_pylons_request_using_flask_url_for(self, app):
 
-        p.unload('test_routing_plugin')
+        res = app.get("/pylons_route_flask_url_for")
 
-    def test_url_for_pylons_request_using_flask_url_for(self):
+        assert u"This URL was generated by Flask" in res.body
+        assert u"/api/3" in res.body
 
-        if not p.plugin_loaded('test_routing_plugin'):
-            p.load('test_routing_plugin')
+    @pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
+    @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_url_for_pylons_request_external(self):
 
-        res = self.app.get('/pylons_route_flask_url_for')
-
-        assert u'This URL was generated by Flask' in res.ubody
-        assert u'/api/3' in res.ubody
-
-        p.unload('test_routing_plugin')
+        url = "http://example.com/from_pylons_extension_before_map"
+        generated_url = h.url_for(
+            controller="ckan.tests.config.test_middleware:MockPylonsController",
+            action="view",
+            _external=True,
+        )
+        assert generated_url == url
 
 
 class TestHelpersRenderMarkdown(object):
-
-    def test_render_markdown_allow_html(self):
-        data = '<h1>moo</h1>'
-        eq_(h.render_markdown(data, allow_html=True), data)
-
-    def test_render_markdown_not_allow_html(self):
-        data = '<h1>moo</h1>'
-        output = '<p>moo</p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_render_markdown_auto_link_without_path(self):
-        data = 'http://example.com'
-        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_render_markdown_auto_link(self):
-        data = 'https://example.com/page.html'
-        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_render_markdown_auto_link_ignoring_trailing_punctuation(self):
-        data = 'My link: http://example.com/page.html.'
-        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.</p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_render_naughty_markdown(self):
-        data = u'* [Foo (http://foo.bar) * Bar] (http://foo.bar)'
-        output = u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>'
-        eq_(h.render_markdown(data), output)
-
-    def test_render_markdown_with_js(self):
-        data = u'[text](javascript: alert(1))'
-        output = u'<p><a>text</a></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_event_attributes(self):
-        data = u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>'
-        output = u'<p>and text</p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_ampersand_in_links(self):
-        data = u'[link](/url?a=1&b=2)'
-        output = u'<p><a href="/url?a=1&amp;b=2">link</a></p>'
-        eq_(h.render_markdown(data), output)
-
-        data = u'http://example.com/page?a=1&b=2'
-        output = u'<p><a href="http://example.com/page?a=1&amp;b=2" target="_blank" rel="nofollow">http://example.com/page?a=1&amp;b=2</a></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_tags_h1(self):
-        data = u'#heading'
-        output = u'<h1>heading</h1>'
-        eq_(h.render_markdown(data), output)
-
-    def test_tags_h2(self):
-        data = u'##heading'
-        output = u'<h2>heading</h2>'
-        eq_(h.render_markdown(data), output)
-
-    def test_tags_h3(self):
-        data = u'###heading'
-        output = u'<h3>heading</h3>'
-        eq_(h.render_markdown(data), output)
-
-    def test_tags_img(self):
-        data = u'![image](/image.png)'
-        output = u'<p><img alt="image" src="/image.png"></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_bold(self):
-        data = u'Something **important**'
-        output = u'<p>Something <strong>important</strong></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_italics(self):
-        data = u'Something *important*'
-        output = u'<p>Something <em>important</em></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_internal_tag_link(self):
-        """Asserts links like 'tag:test-tag' work"""
-        data = 'tag:test-tag foobar'
-        output = '<p><a href="/dataset/?tags=test-tag">tag:test-tag</a> foobar</p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_internal_tag_linked_with_quotes(self):
-        """Asserts links like 'tag:"test-tag"' work"""
-        data = 'tag:"test-tag" foobar'
-        output = '<p><a href="/dataset/?tags=test-tag">tag:&#34;test-tag&#34;</a> foobar</p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_internal_tag_linked_with_quotes_and_space(self):
-        """Asserts links like 'tag:"test tag"' work"""
-        data = 'tag:"test tag" foobar'
-        output = '<p><a href="/dataset/?tags=test+tag">tag:&#34;test tag&#34;</a> foobar</p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_internal_tag_with_no_opening_quote_only_matches_single_word(self):
-        """Asserts that without an opening quote only one word is matched"""
-        data = 'tag:test tag" foobar'  # should match 'tag:test'
-        output = '<p><a href="/dataset/?tags=test">tag:test</a> tag" foobar</p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_internal_tag_with_no_opening_quote_wont_match_the_closing_quote(self):
-        """Asserts that 'tag:test" tag' is matched, but to 'tag:test'"""
-        data = 'tag:test" foobar'  # should match 'tag:test'
-        output = '<p><a href="/dataset/?tags=test">tag:test</a>" foobar</p>'
-        eq_(h.render_markdown(data), output)
+    @pytest.mark.parametrize(
+        "data,output,allow_html",
+        [
+            ("<h1>moo</h1>", "<h1>moo</h1>", True),
+            ("<h1>moo</h1>", "<p>moo</p>", False),
+            (
+                "http://example.com",
+                '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>',
+                False,
+            ),
+            (
+                "https://example.com/page.html",
+                '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a></p>',
+                False,
+            ),
+            (
+                "My link: http://example.com/page.html.",
+                '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.</p>',
+                False,
+            ),
+            (
+                u"* [Foo (http://foo.bar) * Bar] (http://foo.bar)",
+                u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>',
+                False,
+            ),
+            (u"[text](javascript: alert(1))", u"<p><a>text</a></p>", False),
+            (
+                u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>',
+                u"<p>and text</p>",
+                False,
+            ),
+            (u"#heading", u"<h1>heading</h1>", False),
+            (u"##heading", u"<h2>heading</h2>", False),
+            (u"###heading", u"<h3>heading</h3>", False),
+            (
+                u"![image](/image.png)",
+                u'<p><img alt="image" src="/image.png"></p>',
+                False,
+            ),
+            (
+                u"Something **important**",
+                u"<p>Something <strong>important</strong></p>",
+                False,
+            ),
+            (
+                u"Something *important*",
+                u"<p>Something <em>important</em></p>",
+                False,
+            ),
+            (
+                u"[link](/url?a=1&b=2)",
+                u'<p><a href="/url?a=1&amp;b=2">link</a></p>',
+                False,
+            ),
+            (
+                u"http://example.com/page?a=1&b=2",
+                u'<p><a href="http://example.com/page?a=1&amp;b=2" target="_blank" rel="nofollow">http://example.com/page?a=1&amp;b=2</a></p>',
+                False,
+            ),
+            (
+                "tag:test-tag foobar",
+                (
+                    '<p><a href="/dataset/?tags=test-tag">tag:test-tag</a> foobar</p>'
+                ),
+                False,
+            ),
+            (
+                'tag:"test-tag" foobar',
+                '<p><a href="/dataset/?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>',
+                False,
+            ),
+            (
+                'tag:"test tag" foobar',
+                '<p><a href="/dataset/?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>',
+                False,
+            ),
+            (
+                'tag:test tag" foobar',  # should match 'tag:test'
+                (
+                    '<p><a href="/dataset/?tags=test">tag:test</a> tag" foobar</p>'
+                ),
+                False,
+            ),
+            (
+                'tag:test" foobar',  # should match 'tag:test'
+                '<p><a href="/dataset/?tags=test">tag:test</a>" foobar</p>',
+                False,
+            ),
+            (
+                'tag:"Test- _." foobar',
+                '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>',
+                False,
+            ),
+            (
+                "tag:Test,tag foobar",
+                '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>',
+                False,
+            ),
+            (
+                u'tag:"Japanese katakana \u30a1" blah',
+                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>',
+                False,
+            ),
+            (
+                "http://somelink/",
+                '<p><a href="http://somelink/" target="_blank" rel="nofollow">http://somelink/</a></p>',
+                False,
+            ),
+            (
+                "http://somelink.com/#anchor",
+                '<p><a href="http://somelink.com/#anchor" target="_blank" rel="nofollow">http://somelink.com/#anchor</a></p>',
+                False,
+            ),
+            (
+                "http://somelink.com",
+                '<p><a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>',
+                False,
+            ),
+            (
+                "go to http://somelink.com",
+                '<p>go to <a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>',
+                False,
+            ),
+            (
+                u"<a href=\u201dsomelink\u201d>somelink</a>",
+                "<p>somelink</p>",
+                False,
+            ),
+        ],
+    )
+    def test_render_markdown(self, data, output, allow_html):
+        assert h.render_markdown(data, allow_html=allow_html) == output
 
     def test_internal_tag_with_no_closing_quote_does_not_match(self):
         """Asserts that without an opening quote only one word is matched"""
@@ -403,343 +406,425 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
-        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&#34;Test- _.&#34;</a> foobar</p>'
-        eq_(h.render_markdown(data), output)
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
+        assert h.render_markdown(data) == output
 
     def test_tag_names_do_not_match_commas(self):
         """Asserts commas don't get matched as part of a tag name"""
-        data = 'tag:Test,tag foobar'
+        data = "tag:Test,tag foobar"
         output = '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>'
-        eq_(h.render_markdown(data), output)
+        assert h.render_markdown(data) == output
 
     def test_tag_names_dont_match_non_space_whitespace(self):
         """Asserts that the only piece of whitespace matched in a tagname is a space"""
-        whitespace_characters = '\t\n\r\f\v'
+        whitespace_characters = "\t\n\r\f\v"
         for ch in whitespace_characters:
-            data = 'tag:Bad' + ch + 'space'
+            data = "tag:Bad" + ch + "space"
             output = '<p><a href="/dataset/?tags=Bad">tag:Bad</a>'
             result = h.render_markdown(data)
-            assert output in result, '\nGot: %s\nWanted: %s' % (result, output)
-
-    def test_tag_names_with_unicode_alphanumeric(self):
-        """Asserts that unicode alphanumeric characters are captured"""
-        data = u'tag:"Japanese katakana \u30a1" blah'
-        output = u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_normal_link(self):
-        data = 'http://somelink/'
-        output = '<p><a href="http://somelink/" target="_blank" rel="nofollow">http://somelink/</a></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_normal_link_with_anchor(self):
-        data = 'http://somelink.com/#anchor'
-        output = '<p><a href="http://somelink.com/#anchor" target="_blank" rel="nofollow">http://somelink.com/#anchor</a></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_auto_link(self):
-        data = 'http://somelink.com'
-        output = '<p><a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_auto_link_after_whitespace(self):
-        data = 'go to http://somelink.com'
-        output = '<p>go to <a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>'
-        eq_(h.render_markdown(data), output)
-
-    def test_malformed_link_1(self):
-        data = u'<a href=\u201dsomelink\u201d>somelink</a>'
-        output = '<p>somelink</p>'
-        eq_(h.render_markdown(data), output)
+            assert output in result, "\nGot: %s\nWanted: %s" % (result, output)
 
 
 class TestHelpersRemoveLineBreaks(object):
-
     def test_remove_linebreaks_removes_linebreaks(self):
-        test_string = 'foo\nbar\nbaz'
+        test_string = "foo\nbar\nbaz"
         result = h.remove_linebreaks(test_string)
 
-        assert result.find('\n') == -1,\
-            '"remove_linebreaks" should remove line breaks'
+        assert (
+            result.find("\n") == -1
+        ), '"remove_linebreaks" should remove line breaks'
 
     def test_remove_linebreaks_casts_into_unicode(self):
         class UnicodeLike(text_type):
             pass
 
-        test_string = UnicodeLike('foo')
+        test_string = UnicodeLike("foo")
         result = h.remove_linebreaks(test_string)
 
-        strType = u''.__class__
-        assert result.__class__ == strType,\
-            '"remove_linebreaks" casts into unicode()'
+        strType = u"".__class__
+        assert (
+            result.__class__ == strType
+        ), '"remove_linebreaks" casts into unicode()'
 
 
 class TestLicenseOptions(object):
     def test_includes_existing_license(self):
-        licenses = h.license_options('some-old-license')
-        eq_(dict(licenses)['some-old-license'], 'some-old-license')
+        licenses = h.license_options("some-old-license")
+        assert dict(licenses)["some-old-license"] == "some-old-license"
         # and it is first on the list
-        eq_(licenses[0][0], 'some-old-license')
+        assert licenses[0][0] == "some-old-license"
 
 
-class TestUnifiedResourceFormat(object):
-    def test_unified_resource_format_by_extension(self):
-        eq_(h.unified_resource_format('xls'), 'XLS')
-
-    def test_unified_resource_format_by_description(self):
-        eq_(h.unified_resource_format('Excel document'), 'XLS')
-
-    def test_unified_resource_format_by_primary_mimetype(self):
-        eq_(h.unified_resource_format('application/vnd.ms-excel'), 'XLS')
-
-    def test_unified_resource_format_by_alternative_description(self):
-        eq_(h.unified_resource_format('application/msexcel'), 'XLS')
-
-    def test_unified_resource_format_by_alternative_description2(self):
-        eq_(h.unified_resource_format('Excel'), 'XLS')
-
-    def test_autodetect_tsv(self):
-
-        eq_(h.unified_resource_format('tsv'), 'TSV')
-
-        eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
-
-        eq_(h.unified_resource_format('text/tsv'), 'TSV')
+@pytest.mark.parametrize(
+    "fmt,exp",
+    [
+        ("xls", "XLS"),
+        ("Excel document", "XLS"),
+        ("application/vnd.ms-excel", "XLS"),
+        ("application/msexcel", "XLS"),
+        ("Excel", "XLS"),
+        ("tsv", "TSV"),
+        ("text/tab-separated-values", "TSV"),
+        ("text/tsv", "TSV"),
+    ],
+)
+def test_unified_resource_format(fmt, exp):
+    assert h.unified_resource_format(fmt) == exp
 
 
 class TestGetDisplayTimezone(object):
-    @helpers.change_config('ckan.display_timezone', '')
+    @pytest.mark.ckan_config("ckan.display_timezone", "")
     def test_missing_config(self):
-        eq_(h.get_display_timezone(), pytz.timezone('utc'))
+        assert h.get_display_timezone() == pytz.timezone("utc")
 
-    @helpers.change_config('ckan.display_timezone', 'server')
+    @pytest.mark.ckan_config("ckan.display_timezone", "server")
     def test_server_timezone(self):
-        eq_(h.get_display_timezone(), tzlocal.get_localzone())
+        assert h.get_display_timezone() == tzlocal.get_localzone()
 
-    @helpers.change_config('ckan.display_timezone', 'America/New_York')
+    @pytest.mark.ckan_config("ckan.display_timezone", "America/New_York")
     def test_named_timezone(self):
-        eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))
+        assert h.get_display_timezone() == pytz.timezone("America/New_York")
 
 
-class TestHelpersRenderDatetime(object):
-
-    def test_date(self):
-        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
-        eq_(h.render_datetime(data), 'April 13, 2008')
-
-    def test_with_hours(self):
-        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
-        eq_(h.render_datetime(data, with_hours=True),
-            'April 13, 2008, 20:40 (UTC)')
-
-    def test_with_seconds(self):
-        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
-        eq_(h.render_datetime(data, with_seconds=True),
-            'April 13, 2008, 20:40:59 (UTC)')
-
-    def test_from_string(self):
-        data = '2008-04-13T20:40:20.123456'
-        eq_(h.render_datetime(data), 'April 13, 2008')
-
-    def test_blank(self):
-        data = None
-        eq_(h.render_datetime(data), '')
-
-    def test_before_1900(self):
-        data = '1875-04-13T20:40:20.123456'
-        eq_(h.render_datetime(data, date_format='%Y'), '1875')
-
-    def test_before_1900_with_2_digit_year(self):
-        data = '1875-04-13T20:40:20.123456'
-        eq_(h.render_datetime(data, date_format='%y'), '75')
-
-    def test_escaped_percent(self):
-        data = '2008-04-13T20:40:20.123456'
-        eq_(h.render_datetime(data, date_format='%%%Y'), '%2008')
+@pytest.mark.parametrize(
+    "date,extra,exp",
+    [
+        (
+            datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
+            {},
+            "April 13, 2008",
+        ),
+        (
+            datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
+            {"with_hours": True},
+            "April 13, 2008, 20:40 (UTC)",
+        ),
+        (
+            datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
+            {"with_seconds": True},
+            "April 13, 2008 at 8:40:59 PM UTC",
+        ),
+        ("2008-04-13T20:40:20.123456", {}, "April 13, 2008"),
+        (None, {}, ""),
+        ("1875-04-13T20:40:20.123456", {"date_format": "%Y"}, "1875"),
+        ("1875-04-13T20:40:20.123456", {"date_format": "%y"}, "75"),
+        ("2008-04-13T20:40:20.123456", {"date_format": "%%%Y"}, "%2008"),
+    ],
+)
+@pytest.mark.usefixtures("with_request_context")
+def test_render_datetime(date, extra, exp):
+    assert h.render_datetime(date, **extra) == exp
 
 
-class TestCleanHtml(object):
-    def test_disallowed_tag(self):
-        eq_(h.clean_html('<b><bad-tag>Hello'),
-            u'<b>&lt;bad-tag&gt;Hello</b>')
+@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.freeze_time("2020-02-17 12:00:00")
+@pytest.mark.parametrize(
+    "date, exp",
+    [
+        (
+            datetime.datetime(2020, 2, 17, 11, 59, 30),
+            "30 seconds ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 59, 0),
+            "1 minute ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 55, 0),
+            "5 minutes ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 11, 0, 0),
+            "1 hour ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 17, 7, 0, 0),
+            "5 hours ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 16, 12, 0, 0),
+            "1 day ago",
+        ),
+        (
+            datetime.datetime(2020, 2, 12, 12, 0, 0),
+            "5 days ago",
+        ),
+        (
+            datetime.datetime(2020, 1, 17, 12, 0, 0),
+            "1 month ago",
+        ),
+        (
+            datetime.datetime(2019, 9, 17, 12, 0, 0),
+            "5 months ago",
+        ),
+        (
+            datetime.datetime(2019, 1, 17, 12, 0, 0),
+            "1 year ago",
+        ),
+        (
+            datetime.datetime(2015, 1, 17, 12, 0, 0),
+            "5 years ago",
+        ),
+    ]
+)
+def test_time_ago_from_timestamp(date, exp):
+    assert h.time_ago_from_timestamp(date) == exp
 
-    def test_non_string(self):
-        # allow a datetime for compatibility with older ckanext-datapusher
-        eq_(h.clean_html(datetime.datetime(2018, 1, 5, 10, 48, 23, 463511)),
-            u'2018-01-05 10:48:23.463511')
+
+def test_clean_html_disallowed_tag():
+    assert h.clean_html("<b><bad-tag>Hello") == u"<b>&lt;bad-tag&gt;Hello</b>"
 
 
+def test_clean_html_non_string():
+    # allow a datetime for compatibility with older ckanext-datapusher
+    assert (
+        h.clean_html(datetime.datetime(2018, 1, 5, 10, 48, 23, 463511))
+        == u"2018-01-05 10:48:23.463511"
+    )
+
+
+@pytest.mark.usefixtures("with_request_context")
 class TestBuildNavMain(object):
     def test_flask_routes(self):
         menu = (
-            ('home.index', 'Home'),
-            ('dataset.search', 'Datasets'),
-            ('organization.index', 'Organizations'),
-            ('group.index', 'Groups'),
-            ('home.about', 'About')
+            ("home.index", "Home"),
+            ("dataset.search", "Datasets"),
+            ("organization.index", "Organizations"),
+            ("group.index", "Groups"),
+            ("home.about", "About"),
         )
-        eq_(h.build_nav_main(*menu), (
-            '<li><a href="/">Home</a></li>'
+        assert h.build_nav_main(*menu) == (
+            '<li class="active"><a href="/">Home</a></li>'
             '<li><a href="/dataset/">Datasets</a></li>'
             '<li><a href="/organization/">Organizations</a></li>'
             '<li><a href="/group/">Groups</a></li>'
-            '<li><a href="/about">About</a></li>'))
+            '<li><a href="/about">About</a></li>'
+        )
 
     def test_legacy_pylon_routes(self):
         menu = (
-            ('home', 'Home'),
-            ('search', 'Datasets'),
-            ('organizations_index', 'Organizations'),
-            ('group_index', 'Groups'),
-            ('about', 'About')
+            ("home", "Home"),
+            ("search", "Datasets"),
+            ("organizations_index", "Organizations"),
+            ("group_index", "Groups"),
+            ("about", "About"),
         )
-        eq_(h.build_nav_main(*menu), (
-            '<li><a href="/">Home</a></li>'
+        assert h.build_nav_main(*menu) == (
+            '<li class="active"><a href="/">Home</a></li>'
             '<li><a href="/dataset/">Datasets</a></li>'
             '<li><a href="/organization/">Organizations</a></li>'
             '<li><a href="/group/">Groups</a></li>'
-            '<li><a href="/about">About</a></li>'))
+            '<li><a href="/about">About</a></li>'
+        )
 
     def test_dataset_navigation_legacy_routes(self):
-        dataset_name = 'test-dataset'
-        eq_(
-            h.build_nav_icon('dataset_read', 'Datasets', id=dataset_name),
-            '<li><a href="/dataset/test-dataset">Datasets</a></li>'
+        dataset_name = "test-dataset"
+        assert (
+            h.build_nav_icon("dataset_read", "Datasets", id=dataset_name)
+            == '<li><a href="/dataset/test-dataset">Datasets</a></li>'
         )
-        eq_(
-            h.build_nav_icon('dataset_groups', 'Groups', id=dataset_name),
-            '<li><a href="/dataset/groups/test-dataset">Groups</a></li>'
+        assert (
+            h.build_nav_icon("dataset_groups", "Groups", id=dataset_name)
+            == '<li><a href="/dataset/groups/test-dataset">Groups</a></li>'
         )
-        eq_(
-            h.build_nav_icon('dataset_activity', 'Activity Stream', id=dataset_name),
-            '<li><a href="/dataset/activity/test-dataset">Activity Stream</a></li>'
+        assert (
+            h.build_nav_icon(
+                "dataset_activity", "Activity Stream", id=dataset_name
+            )
+            == '<li><a href="/dataset/activity/test-dataset">Activity Stream</a></li>'
         )
 
     def test_group_navigation_legacy_routes(self):
-        group_name = 'test-group'
-        eq_(
-            h.build_nav_icon('group_read', 'Datasets', id=group_name),
-            '<li><a href="/group/test-group">Datasets</a></li>'
+        group_name = "test-group"
+        assert (
+            h.build_nav_icon("group_read", "Datasets", id=group_name)
+            == '<li><a href="/group/test-group">Datasets</a></li>'
         )
-        eq_(
-            h.build_nav_icon('group_activity', 'Activity Stream', id=group_name),
-            '<li><a href="/group/activity/test-group">Activity Stream</a></li>'
+        assert (
+            h.build_nav_icon(
+                "group_activity", "Activity Stream", id=group_name
+            )
+            == '<li><a href="/group/activity/test-group">Activity Stream</a></li>'
         )
-        eq_(
-            h.build_nav_icon('group_about', 'About', id=group_name),
-            '<li><a href="/group/about/test-group">About</a></li>'
+        assert (
+            h.build_nav_icon("group_about", "About", id=group_name)
+            == '<li><a href="/group/about/test-group">About</a></li>'
         )
 
     def test_organization_navigation_legacy_routes(self):
-        org_name = 'test-org'
-        eq_(
-            h.build_nav_icon('organization_read', 'Datasets', id=org_name),
-            '<li><a href="/organization/test-org">Datasets</a></li>'
+        org_name = "test-org"
+        assert (
+            h.build_nav_icon("organization_read", "Datasets", id=org_name)
+            == '<li><a href="/organization/test-org">Datasets</a></li>'
         )
-        eq_(
-            h.build_nav_icon('organization_activity', 'Activity Stream', id=org_name),
-            '<li><a href="/organization/activity/test-org">Activity Stream</a></li>'
+        assert (
+            h.build_nav_icon(
+                "organization_activity", "Activity Stream", id=org_name
+            )
+            == '<li><a href="/organization/activity/test-org">Activity Stream</a></li>'
         )
-        eq_(
-            h.build_nav_icon('organization_about', 'About', id=org_name),
-            '<li><a href="/organization/about/test-org">About</a></li>'
+        assert (
+            h.build_nav_icon("organization_about", "About", id=org_name)
+            == '<li><a href="/organization/about/test-org">About</a></li>'
         )
 
 
-class TestHelperException(helpers.FunctionalTestBase):
+@pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
+@pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
+@pytest.mark.usefixtures("with_plugins")
+class TestHelperException(object):
 
-    @raises(ckan.exceptions.HelperError)
-    def test_helper_exception_non_existing_helper_as_attribute(self):
-        '''Calling a non-existing helper on `h` raises a HelperException.'''
-        if not p.plugin_loaded('test_helpers_plugin'):
-            p.load('test_helpers_plugin')
+    def test_helper_exception_non_existing_helper_as_attribute(self, app):
+        """Calling a non-existing helper on `h` raises a HelperException."""
+        app.get("/broken_helper_as_attribute", status=500)
 
-        app = self._get_test_app()
+    def test_helper_exception_non_existing_helper_as_item(self, app):
+        """Calling a non-existing helper on `h` raises a HelperException."""
 
-        app.get('/broken_helper_as_attribute')
+        app.get("/broken_helper_as_item", status=500)
 
-        p.unload('test_helpers_plugin')
+    def test_helper_existing_helper_as_attribute(self, app):
+        """Calling an existing helper on `h` doesn't raises a
+        HelperException."""
 
-    @raises(ckan.exceptions.HelperError)
-    def test_helper_exception_non_existing_helper_as_item(self):
-        '''Calling a non-existing helper on `h` raises a HelperException.'''
-        if not p.plugin_loaded('test_helpers_plugin'):
-            p.load('test_helpers_plugin')
+        res = app.get("/helper_as_attribute")
 
-        app = self._get_test_app()
+        assert helpers.body_contains(res, "My lang is: en")
 
-        app.get('/broken_helper_as_item')
+    def test_helper_existing_helper_as_item(self, app):
+        """Calling an existing helper on `h` doesn't raises a
+        HelperException."""
 
-        p.unload('test_helpers_plugin')
+        res = app.get("/helper_as_item")
 
-    def test_helper_existing_helper_as_attribute(self):
-        '''Calling an existing helper on `h` doesn't raises a
-        HelperException.'''
-
-        if not p.plugin_loaded('test_helpers_plugin'):
-            p.load('test_helpers_plugin')
-
-        app = self._get_test_app()
-
-        res = app.get('/helper_as_attribute')
-
-        ok_('My lang is: en' in res.body)
-
-        p.unload('test_helpers_plugin')
-
-    def test_helper_existing_helper_as_item(self):
-        '''Calling an existing helper on `h` doesn't raises a
-        HelperException.'''
-
-        if not p.plugin_loaded('test_helpers_plugin'):
-            p.load('test_helpers_plugin')
-
-        app = self._get_test_app()
-
-        res = app.get('/helper_as_item')
-
-        ok_('My lang is: en' in res.body)
-
-        p.unload('test_helpers_plugin')
+        assert helpers.body_contains(res, "My lang is: en")
 
 
 class TestHelpersPlugin(p.SingletonPlugin):
 
     p.implements(p.IRoutes, inherit=True)
 
-    controller = 'ckan.tests.lib.test_helpers:TestHelperController'
+    controller = "ckan.tests.lib.test_helpers:TestHelperController"
 
     def after_map(self, _map):
 
-        _map.connect('/broken_helper_as_attribute',
-                     controller=self.controller,
-                     action='broken_helper_as_attribute')
+        _map.connect(
+            "/broken_helper_as_attribute",
+            controller=self.controller,
+            action="broken_helper_as_attribute",
+        )
 
-        _map.connect('/broken_helper_as_item',
-                     controller=self.controller,
-                     action='broken_helper_as_item')
+        _map.connect(
+            "/broken_helper_as_item",
+            controller=self.controller,
+            action="broken_helper_as_item",
+        )
 
-        _map.connect('/helper_as_attribute',
-                     controller=self.controller,
-                     action='helper_as_attribute')
+        _map.connect(
+            "/helper_as_attribute",
+            controller=self.controller,
+            action="helper_as_attribute",
+        )
 
-        _map.connect('/helper_as_item',
-                     controller=self.controller,
-                     action='helper_as_item')
+        _map.connect(
+            "/helper_as_item",
+            controller=self.controller,
+            action="helper_as_item",
+        )
 
         return _map
 
 
-class TestHelperController(p.toolkit.BaseController):
+if six.PY2:
+    class TestHelperController(p.toolkit.BaseController):
+        def broken_helper_as_attribute(self):
+            return base.render("tests/broken_helper_as_attribute.html")
 
-    def broken_helper_as_attribute(self):
-        return base.render('tests/broken_helper_as_attribute.html')
+        def broken_helper_as_item(self):
+            return base.render("tests/broken_helper_as_item.html")
 
-    def broken_helper_as_item(self):
-        return base.render('tests/broken_helper_as_item.html')
+        def helper_as_attribute(self):
+            return base.render("tests/helper_as_attribute.html")
 
-    def helper_as_attribute(self):
-        return base.render('tests/helper_as_attribute.html')
+        def helper_as_item(self):
+            return base.render("tests/helper_as_item.html")
 
-    def helper_as_item(self):
-        return base.render('tests/helper_as_item.html')
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestActivityListSelect(object):
+    def test_simple(self):
+        pkg_activity = {
+            "id": "id1",
+            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
+        }
+
+        out = h.activity_list_select([pkg_activity], "")
+
+        html = out[0]
+        assert (
+            str(html)
+            == '<option value="id1" >February 1, 2018 at 10:58:59 AM UTC'
+            "</option>"
+        )
+        assert hasattr(html, "__html__")  # shows it is safe Markup
+
+    def test_selected(self):
+        pkg_activity = {
+            "id": "id1",
+            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
+        }
+
+        out = h.activity_list_select([pkg_activity], "id1")
+
+        html = out[0]
+        assert (
+            str(html)
+            == '<option value="id1" selected>February 1, 2018 at 10:58:59 AM UTC'
+            "</option>"
+        )
+        assert hasattr(html, "__html__")  # shows it is safe Markup
+
+    def test_escaping(self):
+        pkg_activity = {
+            "id": '">',  # hacked somehow
+            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
+        }
+
+        out = h.activity_list_select([pkg_activity], "")
+
+        html = out[0]
+        assert str(html).startswith(u'<option value="&#34;&gt;" >')
+
+
+class TestAddUrlParam(object):
+
+    @pytest.mark.parametrize(u'url,params,expected', [
+        (u'/dataset', {u'a': u'2'}, u'/dataset/?a=2'),
+        (u'/dataset?a=1', {u'a': u'2'}, u'/dataset/?a=1&a=2'),
+        (u'/dataset?a=1&a=3', {u'a': u'2'}, u'/dataset/?a=1&a=3&a=2'),
+        (u'/dataset?a=2', {u'a': u'2'}, u'/dataset/?a=2&a=2'),
+    ])
+    def test_new_param(self, test_request_context, url, params, expected):
+        with test_request_context(url):
+            assert h.add_url_param(new_params=params) == expected
+
+    def test_alternative_url(self, test_request_context):
+        with test_request_context(u'/dataset'):
+            assert h.add_url_param(u'/group') == u'/group'
+            assert h.add_url_param(
+                u'/group', new_params={'x': 'y'}) == u'/group?x=y'
+            assert h.add_url_param() == u'/dataset/'
+
+    @pytest.mark.parametrize(u'controller,action,extras', [
+        ('dataset', 'read', {'id': 'uuid'}),
+        ('dataset', 'search', {'q': '*:*'}),
+        ('organization', 'index', {}),
+        ('home', 'index', {'a': '1'}),
+        ('dashboard', 'index', {}),
+    ])
+    def test_controller_action(
+            self, test_request_context, controller, action, extras):
+        with test_request_context(u'/dataset/'):
+            assert h.add_url_param(
+                controller=controller, action=action, extras=extras
+            ) == h.url_for(controller + '.' + action, **extras)

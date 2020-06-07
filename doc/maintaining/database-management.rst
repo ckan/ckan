@@ -6,7 +6,7 @@ Database Management
 
 .. note::
 
-    See :doc:`paster` for details on running the ``paster`` commands
+    See :doc:`cli` for details on running the ``ckan`` commands
     mentioned below.
 
 
@@ -20,7 +20,7 @@ initialize your database:
 
 .. parsed-literal::
 
-    paster db init -c |production.ini|
+    ckan -c |ckan.ini| db init
 
 If you forget to do this you'll see this error message in your web browser:
 
@@ -42,7 +42,7 @@ from scratch:
 
 .. parsed-literal::
 
-    paster db clean -c |production.ini|
+    ckan -c |ckan.ini| db clean
 
 After cleaning the database you must do either `initialize it`_ or `import
 a previously created dump`_.
@@ -81,7 +81,7 @@ Then restore it again:
 
 .. parsed-literal::
 
-    paster db clean -c |production.ini|
+    ckan -c |ckan.ini| db clean
     sudo -u postgres pg_restore --clean --if-exists -d ckan_default < ckan.dump
 
 If you're importing a dump from an older version of CKAN you must :ref:`upgrade
@@ -104,7 +104,7 @@ Lines file using ckanapi_:
 
 .. parsed-literal::
 
-    ckanapi dump datasets -c |production.ini| -O my_datasets.jsonl
+    ckanapi dump datasets -c |ckan.ini| -O my_datasets.jsonl
 
 This is useful to create a simple public listing of the datasets, with no user
 information. Some simple additions to the Apache config can serve the dump
@@ -138,7 +138,7 @@ a JSON Lines file using ckanapi_:
 
 .. parsed-literal::
 
-    ckanapi dump users -c |production.ini| -O my_database_users.jsonl
+    ckanapi dump users -c |ckan.ini| -O my_database_users.jsonl
 
 
 .. _db upgrade:
@@ -156,9 +156,8 @@ Upgrading
     the upgrade finishes.
 
 If you are upgrading to a new CKAN :ref:`major release <releases>` update your
-CKAN database's schema using the ``paster db upgrade`` command:
+CKAN database's schema using the ``ckan db upgrade`` command:
 
 .. parsed-literal::
 
-    paster db upgrade -c |production.ini|
-
+    ckan -c |ckan.ini| db upgrade

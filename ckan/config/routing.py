@@ -134,14 +134,6 @@ def make_map():
     # users
     map.redirect('/users/{url:.*}', '/user/{url}')
 
-    with SubMapper(map, controller='util') as m:
-        m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')
-        m.connect('/util/redirect', action='redirect')
-        m.connect('/testing/primer', action='primer')
-
-    # robots.txt
-    map.connect('/(robots.txt)', controller='template', action='view')
-
     # Mark all unmarked routes added up until now as core routes
     for route in map.matchlist:
         if not hasattr(route, '_ckan_core'):
@@ -161,6 +153,5 @@ def make_map():
     map.redirect('/favicon.ico', config.get('ckan.favicon'))
 
     map.redirect('/*(url)/', '/{url}', _redirect_code='301 Moved Permanently')
-    map.connect('/*url', controller='template', action='view', ckan_core=True)
 
     return map

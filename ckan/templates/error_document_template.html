@@ -1,10 +1,13 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ gettext('Error %(error_code)s', error_code=code[0]) }}{% endblock %}
+{% block subtitle %}{{ gettext('Error %(error_code)s', error_code=code) }}{% endblock %}
 
 {% block primary %}
   <article class="module">
     <div class="module-content">
+      {% if name %}
+      <h1>{{ code }} {{ name }}</h1>
+      {% endif %}
       {{ content}}
     </div>
   </article>

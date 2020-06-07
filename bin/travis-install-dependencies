@@ -30,13 +30,13 @@ sudo -E -u postgres ./bin/postgres_init/2_create_ckan_datastore_db.sh
 
 export PIP_USE_MIRRORS=true
 pip install -r requirement-setuptools.txt --allow-all-external
-pip install -r requirements.txt --allow-all-external
+pip install -r requirements-py2.txt --allow-all-external
 pip install -r dev-requirements.txt --allow-all-external
 
 python setup.py develop
 
-# Install npm dpes for mocha
-npm install -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1
+# Install npm deps
+npm install
 
 paster db init -c test-core.ini
 

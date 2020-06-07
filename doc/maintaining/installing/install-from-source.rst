@@ -5,12 +5,17 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 18.04 64-bit, Ubuntu
-16.04 64-bit, or Ubuntu 14.04 64-bit. Installing CKAN from source works with other
+:doc:`install-from-package` is simpler, it requires Ubuntu 18.04 64-bit or
+Ubuntu 16.04 64-bit. Installing CKAN from source works with other
 versions of Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
 If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
+
+**For Python 3 installations, the minimum Python version required is 3.6**
+
+* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
+* **Ubuntu 16.04** includes **Python 3.5** as part of its distribution
 
 From source is also the right installation method for developers who want to
 work on CKAN.
@@ -20,13 +25,16 @@ work on CKAN.
 --------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
-required packages with this command for Ubuntu 18.04 and Ubuntu 16.04::
+required packages with this command::
 
-    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-jetty openjdk-8-jdk redis-server
 
-or for Ubuntu 14.04::
+.. note::
 
-    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
+    For Python 2 (deprecated, but compatible with CKAN 2.9 and earlier), do
+    this instead::
+
+        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -36,16 +44,16 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v9.3 or newer <http://www.postgresql.org/download/>`_
+Python                 `The Python programming language, v3.6 or newer (or v2.7) <https://www.python.org/getit/>`_
+|postgres|             `The PostgreSQL database system, v9.3 or newer <https://www.postgresql.org/docs/9.5/libpq.html>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
-pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
-virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
-Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
-Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
-Jetty                  `An HTTP server <http://www.eclipse.org/jetty/>`_ (used for Solr).
-OpenJDK JDK            `The Java Development Kit <http://openjdk.java.net/install/>`_ (used by Jetty)
-Redis                  `An in-memory data structure store <http://redis.io/>`_
+pip                    `A tool for installing and managing Python packages <https://pip.pypa.io/en/stable/>`_
+python3-venv           `The Python3 virtual environment builder (or for Python 2 use 'virtualenv' instead) <https://virtualenv.pypa.io/en/latest/>`_
+Git                    `A distributed version control system <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
+Apache Solr            `A search platform <https://lucene.apache.org/solr/>`_
+Jetty                  `An HTTP server <https://www.eclipse.org/jetty/>`_ (used for Solr).
+OpenJDK JDK            `The Java Development Kit <https://openjdk.java.net/install/>`_ (used by Jetty)
+Redis                  `An in-memory data structure store <https://redis.io/>`_
 =====================  ===============================================
 
 
@@ -70,27 +78,15 @@ Redis                  `An in-memory data structure store <http://redis.io/>`_
      mkdir -p ~/ckan/etc
      sudo ln -s ~/ckan/etc |config_parent_dir|
 
-a. Create a Python `virtual environment <http://www.virtualenv.org>`_
+a. Create a Python `virtual environment <https://virtualenv.pypa.io/en/latest/>`_
    (virtualenv) to install CKAN into, and activate it:
 
    .. parsed-literal::
 
        sudo mkdir -p |virtualenv|
        sudo chown \`whoami\` |virtualenv|
-       virtualenv --no-site-packages |virtualenv|
+       python3 -m venv |virtualenv|
        |activate|
-    
-.. note::
-
-    If your system uses Python3 by default (e.g. Ubuntu 18.04) make sure to create
-    the virtualenv using the Python2.7 executable with the ``--python`` option: 
-
-    .. parsed-literal::
-
-        sudo mkdir -p |virtualenv|
-        sudo chown \`whoami\` |virtualenv|
-        virtualenv --python=/usr/bin/python2.7 --no-site-packages |virtualenv|
-        |activate|
 
 .. important::
 
@@ -109,11 +105,21 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the recommended ``setuptools`` version:
+.. note::
+
+    For Python 2 then replace the `python3 -m venv` command with:
+
+    .. parsed-literal::
+
+        virtualenv --python=/usr/bin/python2.7 --no-site-packages |virtualenv|
+        |activate|
+
+b. Install the recommended ``setuptools`` version and up-to-date pip:
 
    .. parsed-literal::
 
        pip install setuptools==\ |min_setuptools_version|
+       pip install --upgrade pip
 
 c. Install the CKAN source code into your virtualenv.
 
@@ -122,7 +128,15 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
+      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements]'
+
+   .. note::
+
+      For Python 2 replace the last fragment with `requirements-py2`
+
+      .. parsed-literal::
+
+         pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements-py2]'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of
@@ -130,7 +144,7 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-       pip install -e 'git+\ |git_url|\#egg=ckan'
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,dev]'
 
    .. warning::
 
@@ -138,14 +152,8 @@ c. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
-d. Install the Python modules that CKAN requires into your virtualenv:
-
-   .. parsed-literal::
-
-       pip install -r |virtualenv|/src/ckan/requirements.txt
-
-e. Deactivate and reactivate your virtualenv, to make sure you're using the
-   virtualenv's copies of commands like ``paster`` rather than any system-wide
+d. Deactivate and reactivate your virtualenv, to make sure you're using the
+   virtualenv's copies of commands like ``ckan`` rather than any system-wide
    installed copies:
 
    .. parsed-literal::
@@ -176,9 +184,9 @@ Create the CKAN config file:
 
 .. parsed-literal::
 
-    paster make-config ckan |development.ini|
+    ckan generate config |ckan.ini|
 
-Edit the ``development.ini`` file in a text editor, changing the following
+Edit the ``ckan.ini`` file in a text editor, changing the following
 options:
 
 sqlalchemy.url
@@ -246,7 +254,7 @@ database, you can :ref:`create the database tables <db init>`:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    paster db init -c |development.ini|
+    ckan -c |ckan.ini| db init
 
 You should see ``Initialising DB: SUCCESS``.
 
@@ -273,14 +281,13 @@ in your CKAN config file.
 9. You're done!
 ---------------
 
-You can now use the Paste development server to serve CKAN from the
-command-line.  This is a simple and lightweight way to serve CKAN that is
+You can now run CKAN from the command-line.  This is a simple and lightweight way to serve CKAN that is
 useful for development and testing:
 
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    paster serve |development.ini|
+    ckan -c |ckan.ini| run
 
 Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
 page.
@@ -334,17 +341,17 @@ Check by seeing if ``javac`` is installed::
 
 If ``javac`` isn't installed, do::
 
-     sudo apt-get install openjdk-6-jdk
+     sudo apt-get install openjdk-8-jdk
 
 and then restart Solr:
 
-For Ubuntu 16.04::
+For Ubuntu 18.04::
+
+     sudo service jetty9 restart
+
+or for Ubuntu 16.04::
 
      sudo service jetty8 restart
-
-or for Ubuntu 14.04::
-
-     sudo service jetty restart
 
 AttributeError: 'module' object has no attribute 'css/main.debug.css'
 ---------------------------------------------------------------------
@@ -352,8 +359,8 @@ AttributeError: 'module' object has no attribute 'css/main.debug.css'
 This error is likely to show up when `debug` is set to `True`. To fix this
 error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
-After installing the dependencies, run ``bin/less`` and then start paster server
-again.
+After installing the dependencies, run ``npm run build`` and then start ckan
+server again.
 
 If you do not want to compile CSS, you can also copy the main.css to
 main.debug.css to get CKAN running::
@@ -361,20 +368,10 @@ main.debug.css to get CKAN running::
     cp /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.css \
     /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.debug.css
 
-JSP support not configured
---------------------------
-
-This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty fix::
-
-    cd /tmp
-    wget https://launchpad.net/~vshn/+archive/ubuntu/solr/+files/solr-jetty-jsp-fix_1.0.2_all.deb
-    sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
-    sudo service jetty restart
-
 ImportError: No module named 'flask_debugtoolbar'
 -------------------------------------------------
 
-This may show up if you are creating the database tables and you have enabled debug
-mode in the config file. Simply install the development requirements::
+This may show up if you have enabled debug mode in the config file. Simply
+install the development requirements::
 
     pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt

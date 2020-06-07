@@ -1,14 +1,11 @@
 # encoding: utf-8
 
 import copy
-import formencode as fe
-import inspect
 import json
 
+import six
 from six import text_type
-from ckan.common import config
-
-from ckan.common import _
+from ckan.common import config, _
 
 
 class Missing(object):
@@ -36,8 +33,8 @@ class Missing(object):
     def __hex__(self):
         raise Invalid(_('Missing value'))
 
-    def __nonzero__(self):
-        return False
+    def __len__(self):
+        return 0
 
 
 missing = Missing()
@@ -49,7 +46,7 @@ class State(object):
 
 class DictizationError(Exception):
     def __str__(self):
-        return text_type(self).encode('utf8')
+        return six.ensure_str(self.__unicode__())
 
     def __unicode__(self):
         if hasattr(self, 'error') and self.error:
@@ -109,7 +106,7 @@ def flatten_schema(schema, flattened=None, key=None):
     flattened = flattened or {}
     old_key = key or []
 
-    for key, value in schema.iteritems():
+    for key, value in six.iteritems(schema):
         new_key = old_key + [key]
         if isinstance(value, dict):
             flattened = flatten_schema(value, flattened, new_key)
@@ -124,7 +121,7 @@ def get_all_key_combinations(data, flattened_schema):
     match the schema ignoring the last value in the tuple.
 
     '''
-    schema_prefixes = set([key[:-1] for key in flattened_schema])
+    schema_prefixes = {key[:-1] for key in flattened_schema}
     combinations = set([()])
 
     for key in sorted(data.keys(), key=flattened_order_key):
@@ -156,7 +153,7 @@ def make_full_schema(data, schema):
         for key in combination[::2]:
             sub_schema = sub_schema[key]
 
-        for key, value in sub_schema.iteritems():
+        for key, value in six.iteritems(sub_schema):
             if isinstance(value, list):
                 full_schema[combination + (key,)] = value
 
@@ -179,8 +176,10 @@ def augment_data(data, schema):
 
     new_data = copy.copy(data)
 
+    keys_to_remove = []
+    junk = {}
+    extras_keys = {}
     # fill junk and extras
-
     for key, value in new_data.items():
         if key in full_schema:
             continue
@@ -193,16 +192,21 @@ def augment_data(data, schema):
                 raise DataError('Only lists of dicts can be placed against '
                                 'subschema %s, not %s' %
                                 (key, type(data[key])))
-
         if key[:-1] in key_combinations:
             extras_key = key[:-1] + ('__extras',)
-            extras = new_data.get(extras_key, {})
+            extras = extras_keys.get(extras_key, {})
             extras[key[-1]] = value
-            new_data[extras_key] = extras
+            extras_keys[extras_key] = extras
         else:
-            junk = new_data.get(("__junk",), {})
             junk[key] = value
-            new_data[("__junk",)] = junk
+        keys_to_remove.append(key)
+
+    if junk:
+        new_data[("__junk",)] = junk
+    for extra_key in extras_keys:
+        new_data[extra_key] = extras_keys[extra_key]
+
+    for key in keys_to_remove:
         new_data.pop(key)
 
     # add missing
@@ -215,22 +219,6 @@ def augment_data(data, schema):
 
 
 def convert(converter, key, converted_data, errors, context):
-
-    if inspect.isclass(converter) and issubclass(converter, fe.Validator):
-        try:
-            value = converted_data.get(key)
-            value = converter().to_python(value, state=context)
-        except fe.Invalid as e:
-            errors[key].append(e.msg)
-        return
-
-    if isinstance(converter, fe.Validator):
-        try:
-            value = converted_data.get(key)
-            value = converter.to_python(value, state=context)
-        except fe.Invalid as e:
-            errors[key].append(e.msg)
-        return
 
     try:
         value = converter(converted_data.get(key))
@@ -266,18 +254,6 @@ def convert(converter, key, converted_data, errors, context):
         return
 
 
-def _remove_blank_keys(schema):
-
-    for key, value in schema.items():
-        if isinstance(value[0], dict):
-            for item in value:
-                _remove_blank_keys(item)
-            if not any(value):
-                schema.pop(key)
-
-    return schema
-
-
 def validate(data, schema, context=None):
     '''Validate an unflattened nested dict against a schema.'''
     context = context or {}
@@ -291,7 +267,7 @@ def validate(data, schema, context=None):
 
     # create a copy of the context which also includes the schema keys so
     # they can be used by the validators
-    validators_context = dict(context, schema_keys=schema.keys())
+    validators_context = dict(context, schema_keys=list(schema.keys()))
 
     flattened = flatten_dict(data)
     converted_data, errors = _validate(flattened, schema, validators_context)
@@ -304,20 +280,12 @@ def validate(data, schema, context=None):
             if key not in converted_data:
                 converted_data[key] = []
 
-    errors_unflattened = unflatten(errors)
-
     # remove validators that passed
-    dicts_to_process = [errors_unflattened]
-    while dicts_to_process:
-        dict_to_process = dicts_to_process.pop()
-        for key, value in dict_to_process.items():
-            if not value:
-                dict_to_process.pop(key)
-                continue
-            if isinstance(value[0], dict):
-                dicts_to_process.extend(value)
+    for key in list(errors.keys()):
+        if not errors[key]:
+            del errors[key]
 
-    _remove_blank_keys(errors_unflattened)
+    errors_unflattened = unflatten(errors)
 
     return converted_data, errors_unflattened
 
@@ -398,7 +366,7 @@ def flatten_dict(data, flattened=None, old_key=None):
     flattened = flattened or {}
     old_key = old_key or []
 
-    for key, value in data.iteritems():
+    for key, value in six.iteritems(data):
         new_key = old_key + [key]
         if isinstance(value, list) and value and isinstance(value[0], dict):
             flattened = flatten_list(value, flattened, new_key)

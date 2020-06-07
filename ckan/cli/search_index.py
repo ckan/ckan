@@ -5,7 +5,7 @@ import multiprocessing as mp
 import click
 import sqlalchemy as sa
 
-from ckan.cli import error_shout
+import ckan.plugins.toolkit as tk
 
 
 @click.group(name=u'search-index', short_help=u'Search index commands')
@@ -28,20 +28,22 @@ def search_index():
                    u'ensures that changes are immediately available on the'
                    u'search, but slows significantly the process. Default'
                    u'is false.')
-@click.pass_context
-def rebuild(ctx, verbose, force, refresh, only_missing, quiet, commit_each):
+@click.argument(u'package_id', required=False)
+def rebuild(
+        verbose, force, refresh, only_missing, quiet, commit_each, package_id
+):
     u''' Rebuild search index '''
-    flask_app = ctx.obj.app.apps['flask_app']._wsgi_app
     from ckan.lib.search import rebuild, commit
     try:
-        with flask_app.test_request_context():
-            rebuild(only_missing=only_missing,
-                    force=force,
-                    refresh=refresh,
-                    defer_commit=(not commit_each),
-                    quiet=quiet)
+
+        rebuild(package_id,
+                only_missing=only_missing,
+                force=force,
+                refresh=refresh,
+                defer_commit=(not commit_each),
+                quiet=quiet)
     except Exception as e:
-        error_shout(e)
+        tk.error_shout(e)
     if not commit_each:
         commit()
 
@@ -74,11 +76,10 @@ def clear(dataset_name):
 
 @search_index.command(name=u'rebuild-fast',
                       short_help=u'Reindex with multiprocessing')
-@click.pass_context
-def rebuild_fast(ctx):
-    conf = ctx.obj.config
-    flask_app = ctx.obj.app.apps['flask_app']._wsgi_app
-    db_url = conf['sqlalchemy.url']
+def rebuild_fast():
+    from ckan.lib.search import commit
+
+    db_url = tk.config['sqlalchemy.url']
     engine = sa.create_engine(db_url)
     package_ids = []
     result = engine.execute(u"select id from package where state = 'active';")
@@ -86,9 +87,8 @@ def rebuild_fast(ctx):
         package_ids.append(row[0])
 
     def start(ids):
-        from ckan.lib.search import rebuild, commit
+        from ckan.lib.search import rebuild
         rebuild(package_ids=ids)
-        commit()
 
     def chunks(l, n):
         u""" Yield n successive chunks from l."""
@@ -98,15 +98,16 @@ def rebuild_fast(ctx):
         yield l[n * newn - newn:]
 
     processes = []
-    with flask_app.test_request_context():
-        try:
-            for chunk in chunks(package_ids, mp.cpu_count()):
-                process = mp.Process(target=start, args=(chunk,))
-                processes.append(process)
-                process.daemon = True
-                process.start()
 
-            for process in processes:
-                process.join()
-        except Exception as e:
-            click.echo(e.message)
+    try:
+        for chunk in chunks(package_ids, mp.cpu_count()):
+            process = mp.Process(target=start, args=(chunk,))
+            processes.append(process)
+            process.daemon = True
+            process.start()
+
+        for process in processes:
+            process.join()
+        commit()
+    except Exception as e:
+        click.echo(e.message)

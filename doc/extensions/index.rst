@@ -21,10 +21,10 @@ features by developing your own CKAN extensions.
 .. seealso::
 
     **External extensions** are CKAN extensions that don't come packaged with
-    CKAN, but must be downloaded and installed separately. A good place to find
-    external extensions is the `list of extensions on the CKAN wiki
-    <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.  Again, follow
-    each extension's own documentation to install, setup and use the extension.
+    CKAN, but must be downloaded and installed separately. Find
+    external extensions at `https://extensions.ckan.org/
+    <https://extensions.ckan.org/>`_.  Again, follow
+    each extension's own documentation to install, setup, and use the extension.
 
 .. toctree::
    :maxdepth: 2

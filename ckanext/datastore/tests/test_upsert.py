@@ -1,690 +1,831 @@
 # encoding: utf-8
 
-import json
-import datetime
-from nose.tools import assert_equal, assert_not_equal
+import pytest
 
-import sqlalchemy.orm as orm
-
-import ckan.lib.create_test_data as ctd
-import ckan.model as model
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-from ckan.plugins.toolkit import ValidationError
-
-import ckanext.datastore.backend.postgres as db
-from ckanext.datastore.tests.helpers import (
-    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase,
-    when_was_last_analyze)
+import ckan.tests.helpers as helpers
+from ckan.plugins.toolkit import ValidationError, NotAuthorized
+from ckanext.datastore.tests.helpers import when_was_last_analyze
 
 
-class TestDatastoreUpsert(DatastoreFunctionalTestBase):
+def _search(resource_id):
+    return helpers.call_action(u"datastore_search", resource_id=resource_id)
+
+
+@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreUpsert(object):
+    # Test action 'datastore_upsert' with 'method': 'upsert'
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_upsert_requires_auth(self):
+        resource = factories.Resource(url_type=u"datastore")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+            ],
+            "records": [],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {"resource_id": resource["id"]}
+        with pytest.raises(NotAuthorized) as context:
+            helpers.call_action(
+                "datastore_upsert",
+                context={"user": "", "ignore_auth": False},
+                **data
+            )
+        assert (
+            u"Action datastore_upsert requires an authenticated user"
+            in str(context.value)
+        )
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_upsert_empty_fails(self):
+        resource = factories.Resource(url_type=u"datastore")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+            ],
+            "records": [],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {}  # empty
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u"'Missing value'" in str(context.value)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_basic_as_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"id": "1", "book": u"The boy", "author": u"F Torres"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["book"] == "The boy"
+        assert search_result["records"][0]["author"] == "F Torres"
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_basic_as_insert(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"id": "2", "book": u"The boy", "author": u"F Torres"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 2
+        assert search_result["records"][0]["book"] == u"El Niño"
+        assert search_result["records"][1]["book"] == u"The boy"
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_upsert_only_one_field(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"id": "1", "book": u"The boy"}
+            ],  # not changing the author
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["book"] == "The boy"
+        assert search_result["records"][0]["author"] == "Torres"
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_field_types(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"b\xfck",
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "nested", "type": "json"},
+                {"id": "characters", "type": "text[]"},
+                {"id": "published"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                },
+                {
+                    "author": "adams",
+                    "characters": ["Arthur", "Marvin"],
+                    "nested": {"foo": "bar"},
+                    u"b\xfck": u"guide to the galaxy",
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "method": "upsert",
+            "records": [
+                {
+                    "author": "adams",
+                    "characters": ["Bob", "Marvin"],
+                    "nested": {"baz": 3},
+                    u"b\xfck": u"guide to the galaxy",
+                }
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 3
+        assert (
+            search_result["records"][0]["published"] == u"2005-03-01T00:00:00"
+        )  # i.e. stored in db as datetime
+        assert search_result["records"][2]["author"] == "adams"
+        assert search_result["records"][2]["characters"] == ["Bob", "Marvin"]
+        assert search_result["records"][2]["nested"] == {"baz": 3}
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_percent(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "bo%ok", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1%", "bo%ok": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"id": "1%", "bo%ok": u"The % boy", "author": u"F Torres"},
+                {"id": "2%", "bo%ok": u"Gu%ide", "author": u"Adams"},
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 2
+        assert search_result["records"][0]["bo%ok"] == "The % boy"
+        assert search_result["records"][1]["bo%ok"] == "Gu%ide"
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_missing_key(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1", "book": "guide", "author": "adams"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [{"book": u"El Niño", "author": "Torres"}],  # no key
+        }
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u'fields "id" are missing' in str(context.value)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_non_existing_field(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "method": "upsert",
+            "records": [{"id": "1", "dummy": "tolkien"}],  # key not known
+        }
+
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u'fields "dummy" do not exist' in str(context.value)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_upsert_works_with_empty_list_in_json_field(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "nested", "type": "json"},
+            ],
+            "records": [{"id": "1", "nested": {"foo": "bar"}}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [{"id": "1", "nested": []}],  # empty list
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["nested"] == []
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_field_value(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [{"id": "1", "book": None}],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["book"] is None
+        assert search_result["records"][0]["author"] == "Torres"
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_doesnt_crash_with_json_field(self):
         resource = factories.Resource()
         data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'primary_key': 'id',
-            'fields': [{'id': 'id', 'type': 'text'},
-                       {'id': 'book', 'type': 'json'},
-                       {'id': 'author', 'type': 'text'}],
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "json"},
+                {"id": "author", "type": "text"},
+            ],
         }
-        helpers.call_action('datastore_create', **data)
+        helpers.call_action("datastore_create", **data)
         data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'method': 'insert',
-            'records': [
-                {'id': '1',
-                 'book': {'code': 'A', 'title': u'ñ'},
-                 'author': 'tolstoy'}],
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {
+                    "id": "1",
+                    "book": {"code": "A", "title": u"ñ"},
+                    "author": "tolstoy",
+                }
+            ],
         }
-        helpers.call_action('datastore_upsert', **data)
+        helpers.call_action("datastore_upsert", **data)
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_doesnt_crash_with_json_field_with_string_value(self):
         resource = factories.Resource()
         data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'primary_key': 'id',
-            'fields': [{'id': 'id', 'type': 'text'},
-                       {'id': 'book', 'type': 'json'},
-                       {'id': 'author', 'type': 'text'}],
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "json"},
+                {"id": "author", "type": "text"},
+            ],
         }
-        helpers.call_action('datastore_create', **data)
+        helpers.call_action("datastore_create", **data)
         data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'method': 'insert',
-            'records': [
-                {'id': '1',
-                 'book': u'ñ',
-                 'author': 'tolstoy'}],
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [{"id": "1", "book": u"ñ", "author": "tolstoy"}],
         }
-        helpers.call_action('datastore_upsert', **data)
+        helpers.call_action("datastore_upsert", **data)
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dry_run(self):
         ds = factories.Dataset()
         table = helpers.call_action(
-            u'datastore_create',
-            resource={u'package_id': ds['id']},
-            fields=[{u'id': u'spam', u'type': u'text'}],
-            primary_key=u'spam')
+            u"datastore_create",
+            resource={u"package_id": ds["id"]},
+            fields=[{u"id": u"spam", u"type": u"text"}],
+            primary_key=u"spam",
+        )
         helpers.call_action(
-            u'datastore_upsert',
-            resource_id=table['resource_id'],
-            records=[{u'spam': u'SPAM'}, {u'spam': u'EGGS'}],
-            dry_run=True)
+            u"datastore_upsert",
+            resource_id=table["resource_id"],
+            records=[{u"spam": u"SPAM"}, {u"spam": u"EGGS"}],
+            dry_run=True,
+        )
         result = helpers.call_action(
-            u'datastore_search',
-            resource_id=table['resource_id'])
-        assert_equal(result['records'], [])
+            u"datastore_search", resource_id=table["resource_id"]
+        )
+        assert result["records"] == []
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dry_run_type_error(self):
         ds = factories.Dataset()
         table = helpers.call_action(
-            u'datastore_create',
-            resource={u'package_id': ds['id']},
-            fields=[{u'id': u'spam', u'type': u'numeric'}],
-            primary_key=u'spam')
+            u"datastore_create",
+            resource={u"package_id": ds["id"]},
+            fields=[{u"id": u"spam", u"type": u"numeric"}],
+            primary_key=u"spam",
+        )
         try:
             helpers.call_action(
-                u'datastore_upsert',
-                resource_id=table['resource_id'],
-                records=[{u'spam': u'SPAM'}, {u'spam': u'EGGS'}],
-                dry_run=True)
+                u"datastore_upsert",
+                resource_id=table["resource_id"],
+                records=[{u"spam": u"SPAM"}, {u"spam": u"EGGS"}],
+                dry_run=True,
+            )
         except ValidationError as ve:
-            assert_equal(ve.error_dict['records'],
-                [u'invalid input syntax for type numeric: "SPAM"'])
+            assert ve.error_dict["records"] == [
+                u'invalid input syntax for type numeric: "SPAM"'
+            ]
         else:
-            assert 0, 'error not raised'
+            assert 0, "error not raised"
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dry_run_trigger_error(self):
         ds = factories.Dataset()
         helpers.call_action(
-            u'datastore_function_create',
-            name=u'spamexception_trigger',
-            rettype=u'trigger',
-            definition=u'''
+            u"datastore_function_create",
+            name=u"spamexception_trigger",
+            rettype=u"trigger",
+            definition=u"""
                 BEGIN
                 IF NEW.spam != 'spam' THEN
                     RAISE EXCEPTION '"%"? Yeeeeccch!', NEW.spam;
                 END IF;
                 RETURN NEW;
-                END;''')
+                END;""",
+        )
         table = helpers.call_action(
-            u'datastore_create',
-            resource={u'package_id': ds['id']},
-            fields=[{u'id': u'spam', u'type': u'text'}],
-            primary_key=u'spam',
-            triggers=[{u'function': u'spamexception_trigger'}])
+            u"datastore_create",
+            resource={u"package_id": ds["id"]},
+            fields=[{u"id": u"spam", u"type": u"text"}],
+            primary_key=u"spam",
+            triggers=[{u"function": u"spamexception_trigger"}],
+        )
         try:
             helpers.call_action(
-                u'datastore_upsert',
-                resource_id=table['resource_id'],
-                records=[{u'spam': u'EGGS'}],
-                dry_run=True)
+                u"datastore_upsert",
+                resource_id=table["resource_id"],
+                records=[{u"spam": u"EGGS"}],
+                dry_run=True,
+            )
         except ValidationError as ve:
-            assert_equal(ve.error_dict['records'],
-                [u'"EGGS"? Yeeeeccch!'])
+            assert ve.error_dict["records"] == [u'"EGGS"? Yeeeeccch!']
         else:
-            assert 0, 'error not raised'
+            assert 0, "error not raised"
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_calculate_record_count_is_false(self):
         resource = factories.Resource()
         data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'fields': [{'id': 'name', 'type': 'text'},
-                       {'id': 'age', 'type': 'text'}],
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
         }
-        helpers.call_action('datastore_create', **data)
+        helpers.call_action("datastore_create", **data)
         data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'method': 'insert',
-            'records': [{"name": "Sunita", "age": "51"},
-                        {"name": "Bowan", "age": "68"}],
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
         }
-        helpers.call_action('datastore_upsert', **data)
-        last_analyze = when_was_last_analyze(resource['id'])
-        assert_equal(last_analyze, None)
+        helpers.call_action("datastore_upsert", **data)
+        last_analyze = when_was_last_analyze(resource["id"])
+        assert last_analyze is None
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         resource = factories.Resource()
         data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'fields': [{'id': 'name', 'type': 'text'},
-                       {'id': 'age', 'type': 'text'}],
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
         }
-        helpers.call_action('datastore_create', **data)
+        helpers.call_action("datastore_create", **data)
         data = {
-            'resource_id': resource['id'],
-            'force': True,
-            'method': 'insert',
-            'records': [{"name": "Sunita", "age": "51"},
-                        {"name": "Bowan", "age": "68"}],
-            'calculate_record_count': True
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+            "calculate_record_count": True,
         }
-        helpers.call_action('datastore_upsert', **data)
-        last_analyze = when_was_last_analyze(resource['id'])
-        assert_not_equal(last_analyze, None)
+        helpers.call_action("datastore_upsert", **data)
+        last_analyze = when_was_last_analyze(resource["id"])
+        assert last_analyze is not None
 
 
-class TestDatastoreUpsertLegacyTests(DatastoreLegacyTestBase):
-    sysadmin_user = None
-    normal_user = None
+@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreInsert(object):
+    # Test action 'datastore_upsert' with 'method': 'insert'
 
-    @classmethod
-    def setup_class(cls):
-        cls.app = helpers._get_test_app()
-        super(TestDatastoreUpsertLegacyTests, cls).setup_class()
-        ctd.CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-        cls.normal_user = model.User.get('annafan')
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
-        resource = model.Package.get('annakarenina').resources[0]
-        cls.data = {
-            'resource_id': resource.id,
-            'fields': [{'id': u'b\xfck', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'},
-                       {'id': 'nested', 'type': 'json'},
-                       {'id': 'characters', 'type': 'text[]'},
-                       {'id': 'published'}],
-            'primary_key': u'b\xfck',
-            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
-                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a':'b'}}
-                       ]
-            }
-        postparams = '%s=1' % json.dumps(cls.data)
-        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
-        res = cls.app.post('/api/action/datastore_create', params=postparams,
-                           extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        engine = db.get_write_engine()
-        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    def test_upsert_requires_auth(self):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_basic_insert(self):
+        resource = factories.Resource()
         data = {
-            'resource_id': self.data['resource_id']
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
         }
-        postparams = '%s=1' % json.dumps(data)
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-
-    def test_upsert_empty_fails(self):
-        postparams = '%s=1' % json.dumps({})
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-
-    def test_upsert_basic(self):
-        c = self.Session.connection()
-        results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 2
-        self.Session.remove()
-
-        hhguide = u"hitchhiker's guide to the galaxy"
+        helpers.call_action("datastore_create", **data)
 
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'upsert',
-            'records': [{
-                'author': 'adams',
-                'nested': {'a': 2, 'b': {'c': 'd'}},
-                'characters': ['Arthur Dent', 'Marvin'],
-                'nested': {'foo': 'bar'},
-                u'b\xfck': hhguide}]
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["fields"] == [
+            {u"id": "_id", u"type": "int"},
+            {u"id": u"id", u"type": u"text"},
+            {u"id": u"book", u"type": u"text"},
+            {u"id": u"author", u"type": u"text"},
+        ]
+        assert search_result["records"][0] == {
+            u"book": u"El Ni\xf1o",
+            u"_id": 1,
+            u"id": u"1",
+            u"author": u"Torres",
         }
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is True
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 3
-
-        records = results.fetchall()
-        assert records[2][u'b\xfck'] == hhguide
-        assert records[2].author == 'adams'
-        assert records[2].characters == ['Arthur Dent', 'Marvin']
-        assert json.loads(records[2].nested.json) == {'foo': 'bar'}
-        self.Session.remove()
-
-        c = self.Session.connection()
-        results = c.execute("select * from \"{0}\" where author='{1}'".format(self.data['resource_id'], 'adams'))
-        assert results.rowcount == 1
-        self.Session.remove()
-
-        # upsert only the publish date
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_non_existing_field(self):
+        resource = factories.Resource(url_type="datastore")
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'upsert',
-            'records': [{'published': '1979-1-1', u'b\xfck': hhguide}]
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [],
         }
-
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is True
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 3
-
-        records = results.fetchall()
-        assert records[2][u'b\xfck'] == hhguide
-        assert records[2].author == 'adams'
-        assert records[2].published == datetime.datetime(1979, 1, 1)
-        self.Session.remove()
-
-        # delete publish date
-        data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'upsert',
-            'records': [{u'b\xfck': hhguide, 'published': None}]
-        }
-
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is True
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 3
-
-        records = results.fetchall()
-        assert records[2][u'b\xfck'] == hhguide
-        assert records[2].author == 'adams'
-        assert records[2].published == None
-        self.Session.remove()
+        helpers.call_action("datastore_create", **data)
 
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'upsert',
-            'records': [{'author': 'tolkien', u'b\xfck': 'the hobbit'}]
+            "resource_id": resource["id"],
+            "method": "insert",
+            "records": [{"id": "1", "dummy": "tolkien"}],  # key not known
         }
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u'row "1" has extra keys "dummy"' in str(context.value)
 
-        assert res_dict['success'] is True
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 4
-
-        records = results.fetchall()
-        assert records[3][u'b\xfck'] == 'the hobbit'
-        assert records[3].author == 'tolkien'
-        self.Session.remove()
-
-        # test % in records
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_key_already_exists(self):
+        resource = factories.Resource()
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'upsert',
-            'records': [{'author': 'tol % kien', u'b\xfck': 'the % hobbit'}]
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1", "book": "guide", "author": "adams"}],
         }
-
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is True
-
-    def test_upsert_missing_key(self):
-        data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'upsert',
-            'records': [{'author': 'tolkien'}]
-        }
-
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is False
-
-    def test_upsert_non_existing_field(self):
-        data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'upsert',
-            'records': [{u'b\xfck': 'annakarenina', 'dummy': 'tolkien'}]
-        }
-
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is False
-
-    def test_upsert_works_with_empty_list_in_json_field(self):
-        hhguide = u"hitchhiker's guide to the galaxy"
+        helpers.call_action("datastore_create", **data)
 
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'upsert',
-            'records': [{
-                'nested': [],
-                u'b\xfck': hhguide}]
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {
+                    "id": "1",  # already exists
+                    "book": u"El Niño",
+                    "author": "Torres",
+                }
+            ],
         }
-
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True, res_dict
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(data['resource_id']))
-        record = [r for r in results.fetchall() if r[2] == hhguide]
-        self.Session.remove()
-        assert len(record) == 1, record
-        assert_equal(json.loads(record[0][4].json),
-                     data['records'][0]['nested'])
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u"duplicate key value violates unique constraint" in str(
+            context.value
+        )
 
 
+@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreUpdate(object):
+    # Test action 'datastore_upsert' with 'method': 'update'
 
-class TestDatastoreInsertLegacyTests(DatastoreLegacyTestBase):
-    sysadmin_user = None
-    normal_user = None
-
-    @classmethod
-    def setup_class(cls):
-        cls.app = helpers._get_test_app()
-        super(TestDatastoreInsertLegacyTests, cls).setup_class()
-        ctd.CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-        cls.normal_user = model.User.get('annafan')
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
-        resource = model.Package.get('annakarenina').resources[0]
-        cls.data = {
-            'resource_id': resource.id,
-            'fields': [{'id': u'b\xfck', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'},
-                       {'id': 'nested', 'type': 'json'},
-                       {'id': 'characters', 'type': 'text[]'},
-                       {'id': 'published'}],
-            'primary_key': u'b\xfck',
-            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
-                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a':'b'}}
-                       ]
-            }
-        postparams = '%s=1' % json.dumps(cls.data)
-        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
-        res = cls.app.post('/api/action/datastore_create', params=postparams,
-                           extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        engine = db.get_write_engine()
-        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    def test_insert_non_existing_field(self):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_basic(self):
+        resource = factories.Resource(url_type="datastore")
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'insert',
-            'records': [{u'b\xfck': 'the hobbit', 'dummy': 'tolkien'}]
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
         }
+        helpers.call_action("datastore_create", **data)
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is False
-
-    def test_insert_with_index_violation(self):
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'insert',
-            'records': [{u'b\xfck': 'annakarenina'}]
+            "resource_id": resource["id"],
+            "method": "update",
+            "records": [{"id": "1", "book": u"The boy"}],
         }
+        helpers.call_action("datastore_upsert", **data)
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["book"] == "The boy"
+        assert search_result["records"][0]["author"] == "Torres"
 
-        assert res_dict['success'] is False
-
-    def test_insert_basic(self):
-        hhguide = u"hitchhiker's guide to the galaxy"
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_field_types(self):
+        resource = factories.Resource(url_type="datastore")
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'insert',
-            'records': [{
-                'author': 'adams',
-                'characters': ['Arthur Dent', 'Marvin'],
-                'nested': {'foo': 'bar', 'baz': 3},
-                u'b\xfck': hhguide}]
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"b\xfck",
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "nested", "type": "json"},
+                {"id": "characters", "type": "text[]"},
+                {"id": "published"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                },
+                {
+                    "author": "adams",
+                    "characters": ["Arthur", "Marvin"],
+                    "nested": {"foo": "bar"},
+                    u"b\xfck": u"guide to the galaxy",
+                },
+            ],
         }
+        helpers.call_action("datastore_create", **data)
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is True
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
-        self.Session.remove()
-
-        assert results.rowcount == 3
-
-
-class TestDatastoreUpdateLegacyTests(DatastoreLegacyTestBase):
-    sysadmin_user = None
-    normal_user = None
-
-    @classmethod
-    def setup_class(cls):
-        cls.app = helpers._get_test_app()
-        super(TestDatastoreUpdateLegacyTests, cls).setup_class()
-        ctd.CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-        cls.normal_user = model.User.get('annafan')
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
-        resource = model.Package.get('annakarenina').resources[0]
-        hhguide = u"hitchhiker's guide to the galaxy"
-        cls.data = {
-            'resource_id': resource.id,
-            'fields': [{'id': u'b\xfck', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'},
-                       {'id': 'nested', 'type': 'json'},
-                       {'id': 'characters', 'type': 'text[]'},
-                       {'id': 'published'}],
-            'primary_key': u'b\xfck',
-            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
-                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a':'b'}},
-                        {'author': 'adams',
-                        'characters': ['Arthur Dent', 'Marvin'],
-                        'nested': {'foo': 'bar'},
-                        u'b\xfck': hhguide}
-                       ]
-            }
-        postparams = '%s=1' % json.dumps(cls.data)
-        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
-        res = cls.app.post('/api/action/datastore_create', params=postparams,
-                           extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        engine = db.get_write_engine()
-        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    def test_update_basic(self):
-        c = self.Session.connection()
-        results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 3, results.rowcount
-        self.Session.remove()
-
-        hhguide = u"hitchhiker's guide to the galaxy"
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'update',
-            'records': [{
-                'author': 'adams',
-                'characters': ['Arthur Dent', 'Marvin'],
-                'nested': {'baz': 3},
-                u'b\xfck': hhguide}]
+            "resource_id": resource["id"],
+            "method": "update",
+            "records": [
+                {
+                    "author": "adams",
+                    "characters": ["Bob", "Marvin"],
+                    "nested": {"baz": 3},
+                    u"b\xfck": u"guide to the galaxy",
+                }
+            ],
         }
+        helpers.call_action("datastore_upsert", **data)
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 3
+        assert search_result["records"][2]["author"] == "adams"
+        assert search_result["records"][2]["characters"] == ["Bob", "Marvin"]
+        assert search_result["records"][2]["nested"] == {"baz": 3}
 
-        assert res_dict['success'] is True
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 3
-
-        records = results.fetchall()
-        assert records[2][u'b\xfck'] == hhguide
-        assert records[2].author == 'adams'
-        self.Session.remove()
-
-        c = self.Session.connection()
-        results = c.execute("select * from \"{0}\" where author='{1}'".format(self.data['resource_id'], 'adams'))
-        assert results.rowcount == 1
-        self.Session.remove()
-
-        # update only the publish date
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_update_unspecified_key(self):
+        resource = factories.Resource(url_type="datastore")
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'update',
-            'records': [{'published': '1979-1-1', u'b\xfck': hhguide}]
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [],
         }
+        helpers.call_action("datastore_create", **data)
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is True
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
-        self.Session.remove()
-        assert results.rowcount == 3
-
-        records = results.fetchall()
-        assert records[2][u'b\xfck'] == hhguide
-        assert records[2].author == 'adams'
-        assert records[2].published == datetime.datetime(1979, 1, 1)
-
-        # delete publish date
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'update',
-            'records': [{u'b\xfck': hhguide, 'published': None}]
+            "resource_id": resource["id"],
+            "method": "update",
+            "records": [{"author": "tolkien"}],  # no id
         }
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u'fields "id" are missing' in str(context.value)
 
-        assert res_dict['success'] is True
-
-        c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
-        self.Session.remove()
-        assert results.rowcount == 3
-
-        records = results.fetchall()
-        assert records[2][u'b\xfck'] == hhguide
-        assert records[2].author == 'adams'
-        assert records[2].published == None
-
-    def test_update_missing_key(self):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_update_unknown_key(self):
+        resource = factories.Resource(url_type="datastore")
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'update',
-            'records': [{'author': 'tolkien'}]
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [],
         }
+        helpers.call_action("datastore_create", **data)
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is False
-
-    def test_update_non_existing_key(self):
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'update',
-            'records': [{u'b\xfck': '', 'author': 'tolkien'}]
+            "resource_id": resource["id"],
+            "method": "update",
+            "records": [{"id": "1", "author": "tolkien"}],  # unknown
         }
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u"key \"[\\'1\\']\" not found" in str(context.value)
 
-        assert res_dict['success'] is False
-
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_update_non_existing_field(self):
+        resource = factories.Resource(url_type="datastore")
         data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'update',
-            'records': [{u'b\xfck': 'annakarenina', 'dummy': 'tolkien'}]
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"id": "1", "book": "guide"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "method": "update",
+            "records": [{"id": "1", "dummy": "tolkien"}],  # key not known
         }
 
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is False
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u'fields "dummy" do not exist' in str(context.value)

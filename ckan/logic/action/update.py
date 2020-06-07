@@ -6,11 +6,10 @@ import logging
 import datetime
 import time
 import json
-import mimetypes
-import os
 
 from ckan.common import config
-import paste.deploy.converters as converters
+import ckan.common as converters
+import six
 from six import text_type
 
 import ckan.lib.helpers as h
@@ -117,7 +116,7 @@ def resource_update(context, data_dict):
         context.pop('defer_commit')
     except ValidationError as e:
         try:
-            raise ValidationError(e.error_dict['resources'][-1])
+            raise ValidationError(e.error_dict['resources'][n])
         except (KeyError, IndexError):
             raise ValidationError(e.error_dict)
 
@@ -255,6 +254,7 @@ def package_update(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
     user = context['user']
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
@@ -300,13 +300,6 @@ def package_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name")
-
     #avoid revisioning by updating directly
     model.Session.query(model.Package).filter_by(id=pkg.id).update(
         {"metadata_modified": datetime.datetime.utcnow()})
@@ -317,7 +310,6 @@ def package_update(context, data_dict):
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
     context_org_update['defer_commit'] = True
-    context_org_update['add_revision'] = False
     _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
@@ -332,6 +324,17 @@ def package_update(context, data_dict):
         item.edit(pkg)
 
         item.after_update(context, data)
+
+    # Create activity
+    if not pkg.private:
+        user_obj = model.User.by_name(user)
+        if user_obj:
+            user_id = user_obj.id
+        else:
+            user_id = 'not logged in'
+
+        activity = pkg.activity_stream_item('changed', user_id)
+        session.add(activity)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -400,10 +403,6 @@ def _update_package_relationship(relationship, comment, context):
     ref_package_by = 'id' if api == 2 else 'name'
     is_changed = relationship.comment != comment
     if is_changed:
-        rev = model.repo.new_revision()
-        rev.author = context["user"]
-        rev.message = (_(u'REST API: Update package relationship: %s %s %s') %
-            (relationship.subject, relationship.type, relationship.object))
         relationship.comment = comment
         if not context.get('defer_commit'):
             model.repo.commit_and_remove()
@@ -517,14 +516,6 @@ def _group_or_org_update(context, data_dict, is_org=False):
         session.rollback()
         raise ValidationError(errors)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name")
-
     contains_packages = 'packages' in data_dict
 
     group = model_save.group_dict_save(
@@ -546,7 +537,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
         activity_type = 'changed group'
 
     activity_dict = {
-            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'user_id': model.User.by_name(six.ensure_text(user)).id,
             'object_id': group.id,
             'activity_type': activity_type,
             }
@@ -652,7 +643,7 @@ def user_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
+    user = author = context['user']
     session = context['session']
     schema = context.get('schema') or schema_.default_update_user_schema()
     id = _get_or_bust(data_dict, 'id')
@@ -682,7 +673,7 @@ def user_update(context, data_dict):
             }
     activity_create_context = {
         'model': model,
-        'user': user,
+        'user': author,
         'defer_commit': True,
         'ignore_auth': True,
         'session': session
@@ -693,7 +684,15 @@ def user_update(context, data_dict):
 
     if not context.get('defer_commit'):
         model.repo.commit()
-    return model_dictize.user_dictize(user, context)
+
+    author_obj = model.User.get(context.get('user'))
+    include_plugin_extras = False
+    if author_obj:
+        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+    user_dict = model_dictize.user_dictize(
+        user, context, include_plugin_extras=include_plugin_extras)
+
+    return user_dict
 
 
 def user_generate_apikey(context, data_dict):
@@ -756,7 +755,7 @@ def task_status_update(context, data_dict):
 
     '''
     model = context['model']
-    session = model.meta.create_local_session()
+    session = model.Session
     context['session'] = session
 
     user = context['user']
@@ -915,7 +914,7 @@ def vocabulary_update(context, data_dict):
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     data_dict['id'] = vocab.id
-    if data_dict.has_key('name'):
+    if 'name' in data_dict:
         if data_dict['name'] == vocab.name:
             del data_dict['name']
 
@@ -1005,14 +1004,6 @@ def package_owner_org_update(context, data_dict):
         org = None
         pkg.owner_org = None
 
-    if context.get('add_revision', True):
-        rev = model.repo.new_revision()
-        rev.author = user
-        if 'message' in context:
-            rev.message = context['message']
-        else:
-            rev.message = _(u'REST API: Update object %s') % pkg.get("name")
-
     members = model.Session.query(model.Member) \
         .filter(model.Member.table_id == pkg.id) \
         .filter(model.Member.capacity == 'organization')
@@ -1049,13 +1040,6 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     model.Session.query(model.package_table) \
         .filter(model.Package.id.in_(datasets)) \
         .filter(model.Package.owner_org == org_id) \
-        .update(update_dict, synchronize_session=False)
-
-    # revisions
-    model.Session.query(model.package_revision_table) \
-        .filter(model.PackageRevision.id.in_(datasets)) \
-        .filter(model.PackageRevision.owner_org == org_id) \
-        .filter(model.PackageRevision.current is True) \
         .update(update_dict, synchronize_session=False)
 
     model.Session.commit()
@@ -1209,7 +1193,7 @@ def config_option_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    for key, value in data.iteritems():
+    for key, value in six.iteritems(data):
 
         # Set full Logo url
         if key == 'ckan.site_logo' and value and not value.startswith('http')\

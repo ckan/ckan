@@ -51,18 +51,34 @@ installed, we need to install and configure Solr.
 
     sudo service jetty8 restart
 
-   Or for Ubuntu 14.04::
-
-    sudo service jetty restart
-
    .. note::
 
     Ignore any warning that it wasn't already running - some Ubuntu
     distributions choose not to start Jetty on install, but it's not important.
 
-   You should now see a welcome page from Solr if you open
-   http://localhost:8983/solr/ in your web browser (replace localhost with
-   your server address if needed).
+   You can test Solr responds correctly like this (you may need to install curl
+   first)::
+
+        $ curl http://localhost:8983/solr/
+
+        <html>
+        <head>
+        <link rel="stylesheet" type="text/css" href="solr-admin.css">
+        <link rel="icon" href="favicon.ico" type="image/ico"></link>
+        <link rel="shortcut icon" href="favicon.ico" type="image/ico"></link>
+        <title>Welcome to Solr</title>
+        </head>
+
+        <body>
+        <h1>Welcome to Solr!</h1>
+        <a href="."><img border="0" align="right" height="78" width="142" src="admin/solr_small.png" alt="Solr"/></a>
+
+
+        <a href="admin/">Solr Admin</a>
+
+
+        </body>
+        </html>
 
    .. note::
 
@@ -95,14 +111,10 @@ installed, we need to install and configure Solr.
 
     sudo service jetty8 restart
 
-   or for Ubuntu 14.04::
-
-    sudo service jetty restart
-
    Check that Solr is running by opening http://localhost:8983/solr/.
 
 
-#. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|production.ini|) to
+#. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to
    point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr

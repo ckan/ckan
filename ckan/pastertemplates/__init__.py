@@ -12,6 +12,7 @@ See:
 * http://pythonpaste.org/script/developer.html#templates
 
 """
+from __future__ import print_function
 import sys
 
 import jinja2

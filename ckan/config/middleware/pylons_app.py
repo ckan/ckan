@@ -9,7 +9,7 @@ from beaker.middleware import CacheMiddleware, SessionMiddleware
 from paste.cascade import Cascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from paste.fileapp import _FileIter
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from routes.middleware import RoutesMiddleware
@@ -75,8 +75,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
                                     cleanup_pylons_response_string)
 
     # Fanstatic
-    fanstatic_enable_rollup = asbool(app_conf.get('fanstatic_enable_rollup',
-                                                  False))
+    fanstatic_enable_rollup = asbool(
+        conf.get('fanstatic_enable_rollup', False))
     if asbool(config.get('debug', False)):
         fanstatic_config = {
             'versioning': True,
@@ -122,7 +122,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
 
     # Initialize repoze.who
     who_parser = WhoConfig(conf['here'])
-    who_parser.parse(open(app_conf['who.config_file']))
+    who_parser.parse(open(conf['who.config_file']))
 
     app = PluggableAuthenticationMiddleware(
         app,

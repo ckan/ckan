@@ -9,38 +9,34 @@ import time
 import inspect
 import sys
 
-from pylons import cache
-from pylons.controllers import WSGIController
-from pylons.controllers.util import abort as _abort
-from pylons.decorators import jsonify
-from pylons.templating import cached_template, pylons_globals
-from webhelpers.html import literal
 from jinja2.exceptions import TemplateNotFound
-from paste.deploy.converters import asbool
 
+import six
 from flask import (
     render_template as flask_render_template,
     abort as flask_abort
 )
-import ckan.exceptions
-import ckan
+
 import ckan.lib.i18n as i18n
 import ckan.lib.render as render_
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
 import ckan.model as model
-
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
                         )
+from ckan.common import (c, request, config,
+                         session, is_flask_request, asbool)
 
-# These imports are for legacy usages and will be removed soon these should
-# be imported directly from ckan.common for internal ckan code and via the
-# plugins.toolkit for extensions.
-from ckan.common import (json, _, ungettext, c, request, response, config,
-                         session, is_flask_request)
+
+if six.PY2:
+    from pylons.controllers import WSGIController
+    from pylons.controllers.util import abort as _abort
+    from pylons.templating import cached_template, pylons_globals
+    from ckan.common import response
+
 
 log = logging.getLogger(__name__)
 
@@ -65,11 +61,13 @@ def abort(status_code=None, detail='', headers=None, comment=None):
 
     if detail and status_code != 503:
         h.flash_error(detail)
+
+    if is_flask_request():
+        flask_abort(status_code, detail)
+
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
     # with Lucid) causes an exception when unicode is received.
     detail = detail.encode('utf8')
-    if is_flask_request():
-        flask_abort(status_code, detail)
 
     return _abort(status_code=status_code,
                   detail=detail,
@@ -91,7 +89,7 @@ def render_snippet(*template_names, **kw):
     :type kw: named arguments of any type that are supported by the template
     '''
 
-    exc = None
+    last_exc = None
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
@@ -99,15 +97,18 @@ def render_snippet(*template_names, **kw):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
-            return literal(output)
+            return h.literal(output)
         except TemplateNotFound as exc:
             if exc.name == template_name:
-                # the specified template doesn't exist - try the next fallback
+                # the specified template doesn't exist - try the next
+                # fallback, but store the exception in case it was
+                # last one
+                last_exc = exc
                 continue
             # a nested template doesn't exist - don't fallback
             raise exc
     else:
-        raise exc or TemplateNotFound
+        raise last_exc or TemplateNotFound
 
 
 def render_jinja2(template_name, extra_vars):
@@ -272,45 +273,41 @@ class ValidationException(Exception):
     pass
 
 
-class BaseController(WSGIController):
-    '''Base class for CKAN controller classes to inherit from.
+if six.PY2:
+    class BaseController(WSGIController):
+        '''Base class for CKAN controller classes to inherit from.
 
-    '''
-    repo = model.repo
-    log = logging.getLogger(__name__)
+        '''
+        repo = model.repo
+        log = logging.getLogger(__name__)
 
-    def __before__(self, action, **params):
-        c.__timer = time.time()
-        app_globals.app_globals._check_uptodate()
+        def __before__(self, action, **params):
+            c.__timer = time.time()
+            app_globals.app_globals._check_uptodate()
 
-        identify_user()
+            identify_user()
 
-        i18n.handle_request(request, c)
+            i18n.handle_request(request, c)
 
-    def __call__(self, environ, start_response):
-        """Invoke the Controller"""
-        # WSGIController.__call__ dispatches to the Controller method
-        # the request is routed to. This routing information is
-        # available in environ['pylons.routes_dict']
+        def __call__(self, environ, start_response):
+            """Invoke the Controller"""
+            # WSGIController.__call__ dispatches to the Controller method
+            # the request is routed to. This routing information is
+            # available in environ['pylons.routes_dict']
 
-        try:
-            res = WSGIController.__call__(self, environ, start_response)
-        finally:
-            model.Session.remove()
+            try:
+                res = WSGIController.__call__(self, environ, start_response)
+            finally:
+                model.Session.remove()
 
-        check_session_cookie(response)
+            check_session_cookie(response)
 
-        return res
+            return res
 
-    def __after__(self, action, **params):
+        def __after__(self, action, **params):
 
-        set_cors_headers_for_response(response)
+            set_cors_headers_for_response(response)
 
-        r_time = time.time() - c.__timer
-        url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
-        log.info(' %s render time %.3f seconds' % (url, r_time))
-
-
-# Include the '_' function in the public names
-__all__ = [__name for __name in locals().keys() if not __name.startswith('_')
-           or __name == '_']
+            r_time = time.time() - c.__timer
+            url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+            log.info(' %s render time %.3f seconds' % (url, r_time))

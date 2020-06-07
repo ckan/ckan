@@ -2,15 +2,16 @@
 import logging
 from collections import OrderedDict
 from functools import partial
-from urllib import urlencode
-import datetime
+from six.moves.urllib.parse import urlencode
+from datetime import datetime
 
-from flask import Blueprint, make_response
+from flask import Blueprint
 from flask.views import MethodView
-from paste.deploy.converters import asbool
+from ckan.common import asbool
+
+import six
 from six import string_types, text_type
 
-import ckan.lib.i18n as i18n
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
@@ -18,12 +19,11 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import _, config, g, request
-from ckan.controllers.home import CACHE_PARAMETERS
+from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
 from ckan.views import LazyView
-from ckan.views.api import CONTENT_TYPES
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -67,10 +67,9 @@ def url_with_params(url, params):
 
 
 def search_url(params, package_type=None):
-    if not package_type or package_type == u'dataset':
-        url = h.url_for(u'dataset.search')
-    else:
-        url = h.url_for(u'{0}_search'.format(package_type))
+    if not package_type:
+        package_type = u'dataset'
+    url = h.url_for(u'{0}.search'.format(package_type))
     return url_with_params(url, params)
 
 
@@ -84,13 +83,14 @@ def drill_down_url(alternative_url=None, **by):
 
 
 def remove_field(package_type, key, value=None, replace=None):
+    if not package_type:
+        package_type = u'dataset'
+    url = h.url_for(u'{0}.search'.format(package_type))
     return h.remove_url_param(
         key,
         value=value,
         replace=replace,
-        controller=u'dataset',
-        action=u'search',
-        alternative_url=package_type
+        alternative_url=url
     )
 
 
@@ -140,10 +140,9 @@ def _form_save_redirect(pkg_name, action, package_type=None):
     if url:
         url = url.replace(u'<NAME>', pkg_name)
     else:
-        if package_type is None or package_type == u'dataset':
-            url = h.url_for(u'dataset.read', id=pkg_name)
-        else:
-            url = h.url_for(u'{0}_read'.format(package_type), id=pkg_name)
+        if not package_type:
+            package_type = u'dataset'
+        url = h.url_for(u'{0}.read'.format(package_type), id=pkg_name)
     return h.redirect_to(url)
 
 
@@ -274,7 +273,7 @@ def search(package_type):
         data_dict = {
             u'q': q,
             u'fq': fq.strip(),
-            u'facet.field': facets.keys(),
+            u'facet.field': list(facets.keys()),
             u'rows': limit,
             u'start': (page - 1) * limit,
             u'sort': sort_by,
@@ -340,7 +339,7 @@ def search(package_type):
     extra_vars[u'dataset_type'] = package_type
 
     # TODO: remove
-    for key, value in extra_vars.iteritems():
+    for key, value in six.iteritems(extra_vars):
         setattr(g, key, value)
 
     return base.render(
@@ -451,7 +450,7 @@ def read(package_type, id):
     # if the user specified a package id, redirect to the package name
     if data_dict['id'] == pkg_dict['id'] and \
             data_dict['id'] != pkg_dict['name']:
-        return h.redirect_to(u'dataset.read',
+        return h.redirect_to(u'{}.read'.format(package_type),
                              id=pkg_dict['name'],
                              activity_id=activity_id)
 
@@ -516,7 +515,6 @@ class CreateView(MethodView):
         context = self._prepare()
         is_an_update = False
         ckan_phase = request.form.get(u'_ckan_phase')
-
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
@@ -545,7 +543,10 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    url = h.url_for(u'resource.new', id=pkg_dict[u'name'])
+                    url = h.url_for(
+                        u'{}_resource.new'.format(package_type),
+                        id=pkg_dict[u'name']
+                    )
                     return h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.form[u'save'] not in [
@@ -561,7 +562,10 @@ class CreateView(MethodView):
 
             if ckan_phase:
                 # redirect to add dataset resources
-                url = h.url_for(u'resource.new', id=pkg_dict[u'name'])
+                url = h.url_for(
+                    u'{}_resource.new'.format(package_type),
+                    id=pkg_dict[u'name']
+                )
                 return h.redirect_to(url)
 
             return _form_save_redirect(
@@ -589,7 +593,11 @@ class CreateView(MethodView):
                 pkg_dict = get_action(u'package_show')(context, data_dict)
                 data_dict[u'state'] = pkg_dict[u'state']
                 return EditView().get(
-                    data_dict[u'id'], data_dict, errors, error_summary
+                    package_type,
+                    data_dict[u'id'],
+                    data_dict,
+                    errors,
+                    error_summary
                 )
             data_dict[u'state'] = u'none'
             return self.get(package_type, data_dict, errors, error_summary)
@@ -739,7 +747,7 @@ class EditView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         # are we doing a multiphase add?
         if data.get(u'state', u'').startswith(u'draft'):
-            g.form_action = h.url_for(u'dataset.new')
+            g.form_action = h.url_for(u'{}.new'.format(package_type))
             g.form_style = u'new'
 
             return CreateView().get(
@@ -820,7 +828,7 @@ class DeleteView(MethodView):
 
     def post(self, package_type, id):
         if u'cancel' in request.form:
-            return h.redirect_to(u'dataset.edit', id=id)
+            return h.redirect_to(u'{}.edit'.format(package_type), id=id)
         context = self._prepare()
         try:
             get_action(u'package_delete')(context, {u'id': id})
@@ -884,7 +892,7 @@ def follow(package_type, id):
             _(u"You are now following {0}").format(package_dict[u'title'])
         )
 
-    return h.redirect_to(u'dataset.read', id=id)
+    return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
 
 def unfollow(package_type, id):
@@ -914,7 +922,7 @@ def unfollow(package_type, id):
             )
         )
 
-    return h.redirect_to(u'dataset.read', id=id)
+    return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
 
 def followers(package_type, id=None):
@@ -1005,7 +1013,7 @@ class GroupView(MethodView):
                 get_action(u'member_delete')(context, data_dict)
             except NotFound:
                 return base.abort(404, _(u'Group not found'))
-        return h.redirect_to(u'dataset.groups', id=id)
+        return h.redirect_to(u'{}.groups'.format(package_type), id=id)
 
     def get(self, package_type, id):
         context, pkg_dict = self._prepare(id)
@@ -1101,18 +1109,108 @@ def changes(id, package_type=None):
     # changed, and we need a link to it which works
     pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
+    pkg_activity_list = get_action(u'package_activity_list')(
+        context, {
+            u'id': pkg_id,
+            u'limit': 100
+        }
+    )
 
     return base.render(
         u'package/changes.html', {
-            u'activity_diff': activity_diff,
+            u'activity_diffs': [activity_diff],
             u'pkg_dict': current_pkg_dict,
+            u'pkg_activity_list': pkg_activity_list,
+            u'dataset_type': current_pkg_dict[u'type'],
+        }
+    )
+
+
+def changes_multiple(package_type=None):
+    '''
+    Called when a user specifies a range of versions they want to look at
+    changes between. Verifies that the range is valid and finds the set of
+    activity diffs for the changes in the given version range, then
+    re-renders changes.html with the list.
+    '''
+
+    new_id = h.get_request_param(u'new_id')
+    old_id = h.get_request_param(u'old_id')
+
+    context = {
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
+    }
+
+    # check to ensure that the old activity is actually older than
+    # the new activity
+    old_activity = get_action(u'activity_show')(context, {
+        u'id': old_id,
+        u'include_data': False})
+    new_activity = get_action(u'activity_show')(context, {
+        u'id': new_id,
+        u'include_data': False})
+
+    old_timestamp = old_activity[u'timestamp']
+    new_timestamp = new_activity[u'timestamp']
+
+    t1 = datetime.strptime(old_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
+    t2 = datetime.strptime(new_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
+
+    time_diff = t2 - t1
+    # if the time difference is negative, just return the change that put us
+    # at the more recent ID we were just looking at
+    # TODO: do something better here - go back to the previous page,
+    # display a warning that the user can't look at a sequence where
+    # the newest item is older than the oldest one, etc
+    if time_diff.total_seconds() < 0:
+        return changes(h.get_request_param(u'current_new_id'))
+
+    done = False
+    current_id = new_id
+    diff_list = []
+
+    while not done:
+        try:
+            activity_diff = get_action(u'activity_diff')(
+                context, {
+                    u'id': current_id,
+                    u'object_type': u'package',
+                    u'diff_type': u'html'})
+        except NotFound as e:
+            log.info(
+                u'Activity not found: {} - {}'.format(str(e), current_id)
+            )
+            return base.abort(404, _(u'Activity not found'))
+        except NotAuthorized:
+            return base.abort(403, _(u'Unauthorized to view activity data'))
+
+        diff_list.append(activity_diff)
+
+        if activity_diff['activities'][0]['id'] == old_id:
+            done = True
+        else:
+            current_id = activity_diff['activities'][0]['id']
+
+    pkg_id = diff_list[0][u'activities'][1][u'data'][u'package'][u'id']
+    current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
+    pkg_activity_list = get_action(u'package_activity_list')(context, {
+        u'id': pkg_id,
+        u'limit': 100})
+
+    return base.render(
+        u'package/changes.html', {
+            u'activity_diffs': diff_list,
+            u'pkg_dict': current_pkg_dict,
+            u'pkg_activity_list': pkg_activity_list,
+            u'dataset_type': current_pkg_dict[u'type'],
         }
     )
 
 
 # deprecated
 def history(package_type, id):
-    return h.redirect_to(u'dataset.activity', id=id)
+    return h.redirect_to(u'{}.activity'.format(package_type), id=id)
 
 
 def register_dataset_plugin_rules(blueprint):
@@ -1139,6 +1237,8 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
+
+    blueprint.add_url_rule(u'/changes_multiple', view_func=changes_multiple)
 
     # Duplicate resource create and edit for backward compatibility. Note,
     # we cannot use resource.CreateView directly here, because of

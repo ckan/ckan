@@ -1,13 +1,13 @@
 # encoding: utf-8
 
 import logging
-from urllib import urlencode
+import six
+from six.moves.urllib.parse import urlencode
 import datetime
 import mimetypes
 import cgi
 
-from ckan.common import config
-from paste.deploy.converters import asbool
+from collections import OrderedDict
 import paste.fileapp
 from six import string_types, text_type
 
@@ -24,8 +24,8 @@ import ckan.lib.uploader as uploader
 import ckan.plugins as p
 import ckan.lib.render
 
-from ckan.common import OrderedDict, _, json, request, c, response
-from home import CACHE_PARAMETERS
+from ckan.common import config, asbool, _, json, request, c, response
+from ckan.controllers.home import CACHE_PARAMETERS
 
 log = logging.getLogger(__name__)
 
@@ -648,7 +648,7 @@ class PackageController(base.BaseController):
 
             # see if we have any data that we are trying to save
             data_provided = False
-            for key, value in data.iteritems():
+            for key, value in six.iteritems(data):
                 if ((value or isinstance(value, cgi.FieldStorage))
                         and key != 'resource_type'):
                     data_provided = True

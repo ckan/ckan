@@ -3,16 +3,14 @@
 ''' The application's Globals object '''
 
 import logging
-import time
 from threading import Lock
 import re
-
-from paste.deploy.converters import asbool
+import six
+from ckan.common import asbool
 from ckan.common import config
 
 import ckan
 import ckan.model as model
-import ckan.logic as logic
 from logic.schema import update_configuration_schema
 
 
@@ -139,9 +137,9 @@ def reset():
             value = None
         config_value = config.get(key)
         # sort encodeings if needed
-        if isinstance(config_value, str):
+        if isinstance(config_value, str) and six.PY2:
             try:
-                config_value = config_value.decode('utf-8')
+                config_value = six.ensure_text(config_value)
             except UnicodeDecodeError:
                 config_value = config_value.decode('latin-1')
         # we want to store the config the first time we get here so we can

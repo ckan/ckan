@@ -1,0 +1,4 @@
+example_theme:
+  output: example_theme/example_theme.css
+  contents:
+    - example_theme.css

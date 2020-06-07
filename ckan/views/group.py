@@ -1,12 +1,12 @@
 # encoding: utf-8
 
-import datetime
 import logging
 import re
-from urllib import urlencode
+from collections import OrderedDict
 
-from pylons.i18n import get_lang
-from six import string_types, text_type
+import six
+from six import string_types
+from six.moves.urllib.parse import urlencode
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -17,7 +17,9 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, c, g, config, request, _
+from ckan.common import g, config, request, _
+from ckan.views.home import CACHE_PARAMETERS
+
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -322,7 +324,7 @@ def _read(id, limit, group_type):
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
                     fields.append((param, value))
-                    q += u' %s: "%s"' % (param, value)
+                    fq += u' %s: "%s"' % (param, value)
                     if param not in fields_grouped:
                         fields_grouped[param] = [value]
                     else:
@@ -353,7 +355,7 @@ def _read(id, limit, group_type):
                 facets[facet] = facet
 
         # Facet titles
-        _update_facet_titles(facets, group_type)
+        facets = _update_facet_titles(facets, group_type)
 
         extra_vars["facet_titles"] = facets
 
@@ -361,7 +363,7 @@ def _read(id, limit, group_type):
             u'q': q,
             u'fq': fq,
             u'include_private': True,
-            u'facet.field': facets.keys(),
+            u'facet.field': list(facets.keys()),
             u'rows': limit,
             u'sort': sort_by,
             u'start': (page - 1) * limit,
@@ -413,6 +415,7 @@ def _read(id, limit, group_type):
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
         facets = plugin.group_facets(facets, group_type, None)
+    return facets
 
 
 def _get_group_dict(id, group_type):
@@ -466,8 +469,12 @@ def read(group_type, is_organization, id=None, limit=20):
     # if the user specified a group id, redirect to the group name
     if data_dict['id'] == group_dict['id'] and \
             data_dict['id'] != group_dict['name']:
-        return h.redirect_to(u'{}.read'.format(group_type),
-                             id=group_dict['name'])
+
+        url_with_name = h.url_for(u'{}.read'.format(group_type),
+                                  id=group_dict['name'])
+
+        return h.redirect_to(
+            h.add_url_param(alternative_url=url_with_name))
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -807,7 +814,7 @@ class BulkProcessView(MethodView):
         actions = form_names.intersection(actions_in_form)
         # ie7 puts all buttons in form params but puts submitted one twice
 
-        for key, value in request.form.to_dict().iteritems():
+        for key, value in six.iteritems(request.form.to_dict()):
             if value in [u'private', u'public']:
                 action = key.split(u'.')[-1]
                 break
@@ -895,7 +902,14 @@ class CreateGroupView(MethodView):
         extra_vars = {}
         set_org(is_organization)
         context = self._prepare()
-        data = data or {}
+        data = data or clean_dict(
+            dict_fns.unflatten(
+                tuplize_dict(
+                    parse_params(request.args, ignore_keys=CACHE_PARAMETERS)
+                )
+            )
+        )
+
         if not data.get(u'image_url', u'').startswith(u'http'):
             data.pop(u'image_url', None)
         errors = errors or {}
@@ -981,13 +995,10 @@ class EditGroupView(MethodView):
         context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
         try:
-            old_data = _action(u'group_show')(context, data_dict)
-            grouptitle = old_data.get(u'title')
-            groupname = old_data.get(u'name')
-            data = data or old_data
+            group_dict = _action(u'group_show')(context, data_dict)
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
-        group_dict = data
+        data = data or group_dict
         errors = errors or {}
         extra_vars = {
             u'data': data,
@@ -1004,8 +1015,8 @@ class EditGroupView(MethodView):
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
-        g.grouptitle = grouptitle
-        g.groupname = groupname
+        g.grouptitle = group_dict.get(u'title')
+        g.groupname = group_dict.get(u'name')
         g.data = data
         g.group_dict = group_dict
 
@@ -1118,6 +1129,7 @@ class MembersGroupView(MethodView):
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
             h.flash_error(e.error_summary)
+            return h.redirect_to(u'{}.member_new'.format(group_type), id=id)
 
         # TODO: Remove
         g.group_dict = group_dict

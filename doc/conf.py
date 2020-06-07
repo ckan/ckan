@@ -17,7 +17,7 @@
 import re
 import os
 import subprocess
-
+import six
 
 import ckan
 
@@ -38,6 +38,7 @@ rst_epilog = '''
 .. |config_dir| replace:: |config_parent_dir|/default
 .. |production.ini| replace:: |config_dir|/production.ini
 .. |development.ini| replace:: |config_dir|/development.ini
+.. |ckan.ini| replace:: |config_dir|/ckan.ini
 .. |git_url| replace:: \https://github.com/ckan/ckan.git
 .. |raw_git_url| replace:: \https://raw.githubusercontent.com/ckan/ckan
 .. |postgres| replace:: PostgreSQL
@@ -54,8 +55,8 @@ rst_epilog = '''
 .. |storage_parent_dir| replace:: /var/lib/ckan
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |storage_path| replace:: |storage_parent_dir|/default
-.. |reload_apache| replace:: sudo service apache2 reload
-.. |restart_apache| replace:: sudo service apache2 restart
+.. |reload_apache| replace:: sudo systemctl reload apache2
+.. |restart_apache| replace:: sudo systemctl restart apache2
 .. |restart_solr| replace:: sudo service jetty8 restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
@@ -66,7 +67,7 @@ rst_epilog = '''
 .. |javascript| replace:: JavaScript
 .. |apache| replace:: Apache
 .. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan
-.. |reload_nginx| replace:: sudo service nginx reload
+.. |restart_nginx| replace:: sudo systemctl restart nginx
 .. |jquery| replace:: jQuery
 .. |nodejs| replace:: Node.js
 
@@ -99,7 +100,7 @@ master_doc = 'contents'
 # General information about the project.
 project = u'CKAN'
 project_short_name = u'CKAN'
-copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge International</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
+copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge Foundation</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
     href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
@@ -126,8 +127,7 @@ SUPPORTED_CKAN_VERSIONS = 3
 def get_release_tags():
     git_tags = subprocess.check_output(
         ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
-
-    release_tags_ = [tag for tag in git_tags if tag.startswith('ckan-')]
+    release_tags_ = [tag for tag in git_tags if tag.startswith(six.b('ckan-'))]
 
     # git tag -l prints out the tags in the right order anyway, but don't rely
     # on that, sort them again here for good measure.
@@ -144,6 +144,8 @@ def parse_version(version_):
     global version_re
     if version_re is None:
         version_re = re.compile('(?:ckan-)?(\d+)\.(\d+)(?:\.(\d+))?[a-z]?')
+    if isinstance(version_, six.binary_type):
+        version_ = version_.decode()
     return version_re.match(version_).groups()
 
 
@@ -311,6 +313,7 @@ write_substitutions_file(
     latest_package_name_precise=get_latest_package_name('precise'),
     latest_package_name_trusty=get_latest_package_name('trusty'),
     latest_package_name_xenial=get_latest_package_name('xenial'),
+    latest_package_name_bionic=get_latest_package_name('bionic'),
     min_setuptools_version=get_min_setuptools_version(),
 )
 

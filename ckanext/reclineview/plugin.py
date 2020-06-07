@@ -2,6 +2,8 @@
 
 from logging import getLogger
 
+import six
+
 from ckan.common import json, config
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -17,8 +19,17 @@ def get_mapview_config():
     Extracts and returns map view configuration of the reclineview extension.
     '''
     namespace = 'ckanext.spatial.common_map.'
-    return dict([(k.replace(namespace, ''), v) for k, v in config.iteritems()
-                 if k.startswith(namespace)])
+    return {k.replace(namespace, ''): v
+            for k, v in six.iteritems(config)
+            if k.startswith(namespace)}
+
+
+def get_dataproxy_url():
+    '''
+    Returns the value of the ckan.recline.dataproxy_url config option
+    '''
+    return config.get(
+        'ckan.recline.dataproxy_url', '//jsonpdataproxy.appspot.com')
 
 
 def in_list(list_possible_values):
@@ -83,7 +94,8 @@ class ReclineViewBase(p.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'get_map_config': get_mapview_config
+            'get_map_config': get_mapview_config,
+            'get_dataproxy_url': get_dataproxy_url,
         }
 
 
@@ -109,7 +121,9 @@ class ReclineView(ReclineViewBase):
             return True
         resource_format = resource.get('format', None)
         if resource_format:
-            return resource_format.lower() in ['csv', 'xls', 'xlsx', 'tsv']
+            return resource_format.lower() in [
+                'csv', 'xls', 'xlsx', 'ods', 'tsv'
+            ]
         else:
             return False
 

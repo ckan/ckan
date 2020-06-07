@@ -2,7 +2,7 @@
 
 import logging
 
-from ckan.controllers.home import CACHE_PARAMETERS
+from ckan.views.home import CACHE_PARAMETERS
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -115,8 +115,8 @@ class ConfigView(MethodView):
             data_dict = logic.clean_dict(
                 dict_fns.unflatten(
                     logic.tuplize_dict(
-                        logic.parse_params(
-                            req, ignore_keys=CACHE_PARAMETERS))))
+                        logic.parse_params(req,
+                                           ignore_keys=CACHE_PARAMETERS))))
 
             del data_dict['save']
             data = logic.get_action(u'config_option_update')({
@@ -128,12 +128,11 @@ class ConfigView(MethodView):
             data = request.form
             errors = e.error_dict
             error_summary = e.error_summary
-            vars = dict(
-                data=data,
-                errors=errors,
-                error_summary=error_summary,
-                form_items=items,
-                **items)
+            vars = dict(data=data,
+                        errors=errors,
+                        error_summary=error_summary,
+                        form_items=items,
+                        **items)
             return base.render(u'admin/config.html', extra_vars=vars)
 
         return h.redirect_to(u'admin.config')
@@ -143,73 +142,83 @@ class TrashView(MethodView):
     def __init__(self):
         self.deleted_packages = model.Session.query(
             model.Package).filter_by(state=model.State.DELETED)
+        self.deleted_orgs = model.Session.query(model.Group).filter_by(
+            state=model.State.DELETED, is_organization=True)
+        self.deleted_groups = model.Session.query(model.Group).filter_by(
+            state=model.State.DELETED, is_organization=False)
+
+        self.deleted_entities = {
+            u'package': self.deleted_packages,
+            u'organization': self.deleted_orgs,
+            u'group': self.deleted_groups
+        }
+        self.messages = {
+            u'confirm': {
+                u'all': u'Are you sure you want to purge everything?',
+                u'package': u'Are you sure you want to purge datasets?',
+                u'organization':
+                    u'Are you sure you want to purge organizations?',
+                u'group': u'Are you sure you want to purge groups?'
+            },
+            u'success': {
+                u'package': u'{number} datasets have been purged',
+                u'organization': u'{number} organizations have been purged',
+                u'group': u'{number} groups have been purged'
+            },
+            u'empty': {
+                u'package': u'There are no datasets to purge',
+                u'organization': u'There are no organizations to purge',
+                u'group': u'There are no groups to purge'
+            }
+        }
 
     def get(self):
-        data = dict(deleted_packages=self.deleted_packages)
+        ent_type = request.args.get(u'name')
+
+        if ent_type:
+            return base.render(u'admin/snippets/confirm_delete.html',
+                               extra_vars={
+                                   u'ent_type': ent_type,
+                                   u'messages': self.messages})
+
+        data = dict(data=self.deleted_entities, messages=self.messages)
         return base.render(u'admin/trash.html', extra_vars=data)
 
     def post(self):
-        deleted_revisions = model.Session.query(
-            model.Revision).filter_by(state=model.State.DELETED)
-        # NB: we repeat retrieval of of revisions
-        # this is obviously inefficient (but probably not *that* bad)
-        # but has to be done to avoid (odd) sqlalchemy errors (when doing
-        # purge packages) of form: "this object already exists in the
-        # session"
-        msgs = []
-        if (u'purge-packages' in request.form) or (
-                u'purge-revisions' in request.form):
-            if u'purge-packages' in request.form:
-                revs_to_purge = []
-                for pkg in self.deleted_packages:
-                    revisions = [x[0] for x in pkg.all_related_revisions]
-                    # ensure no accidental purging of other(non-deleted)
-                    # packages initially just avoided purging revisions
-                    # where non-deleted packages were affected
-                    # however this lead to confusing outcomes e.g.
-                    # we succesfully deleted revision in which package
-                    # was deleted (so package now active again) but no
-                    # other revisions
-                    problem = False
-                    for r in revisions:
-                        affected_pkgs = set(r.packages).\
-                            difference(set(self.deleted_packages))
-                        if affected_pkgs:
-                            msg = _(u'Cannot purge package %s as '
-                                    u'associated revision %s includes '
-                                    u'non-deleted packages %s')
-                            msg = msg % (pkg.id, r.id,
-                                         [pkg.id for r in affected_pkgs])
-                            msgs.append(msg)
-                            problem = True
-                            break
-                    if not problem:
-                        revs_to_purge += [r.id for r in revisions]
-                model.Session.remove()
-            else:
-                revs_to_purge = [rev.id for rev in deleted_revisions]
-            revs_to_purge = list(set(revs_to_purge))
-            for id in revs_to_purge:
-                revision = model.Session.query(model.Revision).get(id)
-                try:
-                    # TODO deleting the head revision corrupts the edit
-                    # page Ensure that whatever 'head' pointer is used
-                    # gets moved down to the next revision
-                    model.repo.purge_revision(revision, leave_record=False)
-                except Exception as inst:
-                    msg = _(u'Problem purging revision %s: %s') % (id, inst)
-                    msgs.append(msg)
-            h.flash_success(_(u'Purge complete'))
-        else:
-            msgs.append(_(u'Action not implemented.'))
+        if u'cancel' in request.form:
+            return h.redirect_to(u'admin.trash')
 
-        for msg in msgs:
-            h.flash_error(msg)
+        req_action = request.form.get(u'action')
+        if req_action == u'all':
+            d = {
+                u'dataset_purge': self.deleted_packages,
+                u'group_purge': self.deleted_groups,
+                u'organization_purge': self.deleted_orgs
+            }
+            for action, deleted_entities in d.items():
+                for ent in deleted_entities:
+                    logic.get_action(action)({u'user': g.user},
+                                             {u'id': ent.id})
+                model.Session.remove()
+            h.flash_success(_(u'Massive purge complete'))
+
+        elif req_action in (u'package', u'organization', u'group'):
+            entities = self.deleted_entities[req_action]
+            number = entities.count()
+            for ent in entities:
+                logic.get_action(ent.type + u'_purge')({u'user': g.user},
+                                                       {u'id': ent.id})
+            model.Session.remove()
+            h.flash_success(_(self.messages[u'success'][req_action].format(
+                number=number))
+            )
+        else:
+            h.flash_error(_(u'Action not implemented.'))
         return h.redirect_to(u'admin.trash')
 
 
 admin.add_url_rule(u'/', view_func=index, strict_slashes=False)
-admin.add_url_rule(
-    u'/reset_config', view_func=ResetConfigView.as_view(str(u'reset_config')))
+admin.add_url_rule(u'/reset_config',
+                   view_func=ResetConfigView.as_view(str(u'reset_config')))
 admin.add_url_rule(u'/config', view_func=ConfigView.as_view(str(u'config')))
 admin.add_url_rule(u'/trash', view_func=TrashView.as_view(str(u'trash')))

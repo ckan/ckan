@@ -8,24 +8,20 @@
 .. image:: https://coveralls.io/repos/{{ github_user_name }}/{{ project }}/badge.svg
   :target: https://coveralls.io/r/{{ github_user_name }}/{{ project }}
 
-.. image:: https://pypip.in/download/{{ project }}/badge.svg
-    :target: https://pypi.python.org/pypi//{{ project }}/
-    :alt: Downloads
-
-.. image:: https://pypip.in/version/{{ project }}/badge.svg
-    :target: https://pypi.python.org/pypi/{{ project }}/
+.. image:: https://img.shields.io/pypi/v/{{ project }}.svg
+    :target: https://pypi.org/project/{{ project }}/
     :alt: Latest Version
 
-.. image:: https://pypip.in/py_versions/{{ project }}/badge.svg
-    :target: https://pypi.python.org/pypi/{{ project }}/
+.. image:: https://img.shields.io/pypi/pyversions/{{ project }}.svg
+    :target: https://pypi.org/project/{{ project }}/
     :alt: Supported Python versions
 
-.. image:: https://pypip.in/status/{{ project }}/badge.svg
-    :target: https://pypi.python.org/pypi/{{ project }}/
+.. image:: https://img.shields.io/pypi/status/{{ project }}.svg
+    :target: https://pypi.org/project/{{ project }}/
     :alt: Development Status
 
-.. image:: https://pypip.in/license/{{ project }}/badge.svg
-    :target: https://pypi.python.org/pypi/{{ project }}/
+.. image:: https://img.shields.io/pypi/l/{{ project }}.svg
+    :target: https://pypi.org/project/{{ project }}/
     :alt: License
 
 =============
@@ -65,7 +61,7 @@ To install {{ project }}:
 
 3. Add ``{{ project_shortname }}`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at
-   ``/etc/ckan/default/production.ini``).
+   ``/etc/ckan/default/ckan.ini``).
 
 4. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu::
 
@@ -73,19 +69,21 @@ To install {{ project }}:
 
 
 ---------------
-Config Settings
+Config settings
 ---------------
 
-Document any optional config settings here. For example::
+None at present
 
-    # The minimum number of hours to wait before re-checking a resource
-    # (optional, default: 24).
-    ckanext.{{ project_shortname }}.some_setting = some_default_value
+.. Document any optional config settings here. For example::
+
+.. # The minimum number of hours to wait before re-checking a resource
+   # (optional, default: 24).
+   ckanext.{{ project_shortname }}.some_setting = some_default_value
 
 
-------------------------
-Development Installation
-------------------------
+----------------------
+Developer installation
+----------------------
 
 To install {{ project }} for development, activate your CKAN virtualenv and
 do::
@@ -96,72 +94,52 @@ do::
     pip install -r dev-requirements.txt
 
 
------------------
-Running the Tests
------------------
+-----
+Tests
+-----
 
 To run the tests, do::
 
-    nosetests --nologcapture --with-pylons=test.ini
+    pytest --ckan-ini=test.ini
 
 To run the tests and produce a coverage report, first make sure you have
 coverage installed in your virtualenv (``pip install coverage``) then run::
 
-    nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.{{ project_shortname }} --cover-inclusive --cover-erase --cover-tests
-
-
----------------------------------
-Registering {{ project }} on PyPI
----------------------------------
-
-{{ project }} should be availabe on PyPI as
-https://pypi.python.org/pypi/{{ project }}. If that link doesn't work, then
-you can register the project on PyPI for the first time by following these
-steps:
-
-1. Create a source distribution of the project::
-
-     python setup.py sdist
-
-2. Register the project::
-
-     python setup.py register
-
-3. Upload the source distribution to PyPI::
-
-     python setup.py sdist upload
-
-4. Tag the first release of the project on GitHub with the version number from
-   the ``setup.py`` file. For example if the version number in ``setup.py`` is
-   0.0.1 then do::
-
-       git tag 0.0.1
-       git push --tags
+    pytest --ckan-ini=test.ini --cov=ckanext.{{ project_shortname }}
 
 
 ----------------------------------------
-Releasing a New Version of {{ project }}
+Releasing a new version of {{ project }}
 ----------------------------------------
 
-{{ project }} is availabe on PyPI as https://pypi.python.org/pypi/{{ project }}.
+{{ project }} should be available on PyPI as https://pypi.org/project/{{ project }}.
 To publish a new version to PyPI follow these steps:
 
 1. Update the version number in the ``setup.py`` file.
    See `PEP 440 <http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers>`_
    for how to choose version numbers.
 
-2. Create a source distribution of the new version::
+2. Make sure you have the latest version of necessary packages::
 
-     python setup.py sdist
+    pip install --upgrade setuptools wheel twine
 
-3. Upload the source distribution to PyPI::
+3. Create a source and binary distributions of the new version::
 
-     python setup.py sdist upload
+       python setup.py sdist bdist_wheel && twine check dist/*
 
-4. Tag the new release of the project on GitHub with the version number from
+   Fix any errors you get.
+
+4. Upload the source distribution to PyPI::
+
+       twine upload dist/*
+
+5. Commit any outstanding changes::
+
+       git commit -a
+
+6. Tag the new release of the project on GitHub with the version number from
    the ``setup.py`` file. For example if the version number in ``setup.py`` is
-   0.0.2 then do::
+   0.0.1 then do::
 
-       git tag 0.0.2
+       git tag 0.0.1
        git push --tags
-
