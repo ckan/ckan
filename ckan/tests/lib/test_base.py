@@ -429,6 +429,7 @@ def test_cache_control_in_when_cache_is_not_enabled(app):
     assert 'Cache-Control' in response_headers
     assert response_headers['Cache-Control'] == 'private'
 
+
 @pytest.mark.ckan_config('ckan.cache_enabled', 'true')
 def test_cache_control_when_cache_enabled(app):
     request_headers = {}
@@ -437,6 +438,7 @@ def test_cache_control_when_cache_enabled(app):
 
     assert 'Cache-Control' in response_headers
     assert 'public' in response_headers['Cache-Control']
+
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'true')
 @pytest.mark.ckan_config('ckan.cache_expires', 300)
@@ -449,6 +451,7 @@ def test_cache_control_max_age_when_cache_enabled(app):
     assert 'public' in response_headers['Cache-Control']
     assert 'max-age=300' in response_headers['Cache-Control']
 
+
 @pytest.mark.ckan_config('ckan.cache_enabled', None)
 def test_cache_control_when_cache_is_not_set_in_config(app):
     request_headers = {}
@@ -457,6 +460,7 @@ def test_cache_control_when_cache_is_not_set_in_config(app):
 
     assert 'Cache-Control' in response_headers
     assert response_headers['Cache-Control'] == 'private'
+
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'true')
 def test_cache_control_while_logged_in(app):
