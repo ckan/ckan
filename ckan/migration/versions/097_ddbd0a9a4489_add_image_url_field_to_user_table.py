@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ddbd0a9a4489'
+revision = u'ddbd0a9a4489'
 down_revision = u'19ddad52b500'
 branch_labels = None
 depends_on = None
@@ -19,13 +19,13 @@ depends_on = None
 
 def upgrade():
     op.add_column(
-        'user',
+        u'user',
         sa.Column(
-            'image_url',
+            u'image_url',
             sa.UnicodeText
         )
     )
 
 
 def downgrade():
-    op.drop_column('user', 'image_url')
+    op.drop_column(u'user', u'image_url')
