@@ -17653,6 +17653,7 @@ th.dataset-label,
 .search-form .search-input.search-giant button {
   margin-top: -15px;
   left: 15px;
+  right: auto;
 }
 .context-info .nums dl,
 .toolbar .breadcrumb {
@@ -17698,4 +17699,10 @@ td.diff_header {
 }
 .diff_sub {
   background-color:#ffaaaa;
+}
+@media (min-width: 992px) {
+  .homepage.layout-1 .row1 .col2 {
+    right: auto;
+    left: 0;
+  }
 }
