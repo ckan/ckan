@@ -1,8 +1,8 @@
 # The file contains the direct ckan requirements (python2).
 # Use pip-compile to create a requirements.txt file from this
 alembic==1.0.0
-Babel==2.3.4
-bleach==3.1.2
+Babel==2.7.0
+bleach==3.1.4
 click==6.7
 dominate==2.4.0
 fanstatic==0.12

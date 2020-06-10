@@ -11,7 +11,8 @@
     "gulp-less": "^4.0.1",
     "gulp-rename": "^2.0.0",
     "gulp-sourcemaps": "^2.6.5",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
+    "less": "^3.11.2",
     "moment": "^2.24.0"
   },
   "devDependencies": {

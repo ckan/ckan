@@ -18,6 +18,8 @@ import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
 from ckan.common import g, config, request, _
+from ckan.views.home import CACHE_PARAMETERS
+
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -353,7 +355,7 @@ def _read(id, limit, group_type):
                 facets[facet] = facet
 
         # Facet titles
-        _update_facet_titles(facets, group_type)
+        facets = _update_facet_titles(facets, group_type)
 
         extra_vars["facet_titles"] = facets
 
@@ -413,6 +415,7 @@ def _read(id, limit, group_type):
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
         facets = plugin.group_facets(facets, group_type, None)
+    return facets
 
 
 def _get_group_dict(id, group_type):
@@ -899,7 +902,14 @@ class CreateGroupView(MethodView):
         extra_vars = {}
         set_org(is_organization)
         context = self._prepare()
-        data = data or {}
+        data = data or clean_dict(
+            dict_fns.unflatten(
+                tuplize_dict(
+                    parse_params(request.args, ignore_keys=CACHE_PARAMETERS)
+                )
+            )
+        )
+
         if not data.get(u'image_url', u'').startswith(u'http'):
             data.pop(u'image_url', None)
         errors = errors or {}

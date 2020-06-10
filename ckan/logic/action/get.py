@@ -253,7 +253,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or 'title'
+    sort = data_dict.get('sort') or config.get('ckan.default_group_sort') or 'title'
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -360,7 +360,7 @@ def group_list(context, data_dict):
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
-        "name asc" string of field name and sort-order. The allowed fields are
+        "title asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
     :param limit: the maximum number of groups returned (optional)
@@ -411,7 +411,7 @@ def organization_list(context, data_dict):
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
-        "name asc" string of field name and sort-order. The allowed fields are
+        "title asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
     :param limit: the maximum number of organizations returned (optional)
@@ -1262,6 +1262,10 @@ def user_show(context, data_dict):
     :param include_password_hash: Include the stored password hash
         (sysadmin only, optional, default:``False``)
     :type include_password_hash: bool
+    :param include_plugin_extras: Include the internal plugin extras object
+        (sysadmin only, optional, default:``False``)
+    :type include_plugin_extras: bool
+
 
     :returns: the details of the user. Includes email_hash and
         number_created_packages (which excludes draft or private datasets
@@ -1303,8 +1307,11 @@ def user_show(context, data_dict):
     include_password_hash = sysadmin and asbool(
         data_dict.get('include_password_hash', False))
 
+    include_plugin_extras = sysadmin and asbool(
+        data_dict.get('include_plugin_extras', False))
+
     user_dict = model_dictize.user_dictize(
-        user_obj, context, include_password_hash)
+        user_obj, context, include_password_hash, include_plugin_extras)
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '
@@ -1547,8 +1554,9 @@ def package_search(context, data_dict):
 
     **Solr Parameters:**
 
-    For more in depth treatment of each paramter, please read the `Solr
-    Documentation <http://wiki.apache.org/solr/CommonQueryParameters>`_.
+    For more in depth treatment of each paramter, please read the
+    `Solr Documentation
+    <https://lucene.apache.org/solr/guide/6_6/common-query-parameters.html>`_.
 
     This action accepts a *subset* of solr's search query parameters:
 
@@ -1561,7 +1569,7 @@ def package_search(context, data_dict):
     :param fq_list: additional filter queries to apply.
     :type fq_list: list of strings
     :param sort: sorting of the search results.  Optional.  Default:
-        ``'relevance asc, metadata_modified desc'``.  As per the solr
+        ``'score desc, metadata_modified desc'``.  As per the solr
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
@@ -1698,7 +1706,7 @@ def package_search(context, data_dict):
     abort = data_dict.get('abort_search', False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = 'score desc, metadata_modified desc'
+        data_dict['sort'] = config.get('ckan.search.default_package_sort') or 'score desc, metadata_modified desc'
 
     results = []
     if not abort:
@@ -1994,7 +2002,11 @@ def resource_search(context, data_dict):
 
             # Just a regular field
             else:
-                q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
+                column = model_attr.property.columns[0]
+                if isinstance(column.type, sqlalchemy.UnicodeText):
+                    q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
+                else:
+                    q = q.filter(model_attr == term)
 
     if order_by is not None:
         if hasattr(model.Resource, order_by):

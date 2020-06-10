@@ -914,15 +914,15 @@ class IActions(Interface):
         Should return a dict, the keys being the name of the logic
         function and the values being the functions themselves.
 
-        By decorating a function with the `ckan.logic.side_effect_free`
+        By decorating a function with the ``ckan.logic.side_effect_free``
         decorator, the associated action will be made available to a GET
         request (as well as the usual POST request) through the Action API.
 
-        By decorating a function with 'ckan.plugins.toolkit.chained_action`,
+        By decorating a function with ``ckan.plugins.toolkit.chained_action``,
         the action will 'intercept' calls to an existing action function. This
         allows a plugin to modify the behaviour of an existing action function.
         Chained actions must be defined as
-        `action_function(original_action, context, data_dict)`, where the
+        ``action_function(original_action, context, data_dict)``, where the
         function's name matches the original action function it intercepts, the
         first parameter is the action function it intercepts (in the next
         plugin or in core ckan). The chained action may call the
@@ -1022,8 +1022,8 @@ class IAuthFunctions(Interface):
                 # NotAuthorized will be raised before reaching this function.
 
         By decorating a registered auth function with the
-        'ckan.plugins.toolkit.chained_auth_function` decorator you can create a
-        chain of auth checks that are completed when auth is requested. This
+        ``ckan.plugins.toolkit.chained_auth_function`` decorator you can create
+        a chain of auth checks that are completed when auth is requested. This
         chain starts with the last chained auth function to be registered and
         ends with the original auth function (or a non-chained plugin override
         version). Chained auth functions must accept an extra parameter,
@@ -1314,6 +1314,41 @@ class IDatasetForm(Interface):
         :rtype: (dictionary, dictionary)
         '''
 
+    def prepare_dataset_blueprint(self, package_type, blueprint):
+        u'''Update or replace dataset blueprint for given package type.
+
+        Internally CKAN registers blueprint for every custom dataset
+        type. Before default routes added to this blueprint and it
+        registered inside application this method is called. It can be
+        used either for registration of the view function under new
+        path or under existing path(like `/new`), in which case this
+        new function will be used instead of default one.
+
+        Note, this blueprint has prefix `/{package_type}`.
+
+        :rtype: flask.Blueprint
+
+        '''
+        return blueprint
+
+    def prepare_resource_blueprint(self, package_type, blueprint):
+        u'''Update or replace resource blueprint for given package type.
+
+        Internally CKAN registers separate resource blueprint for
+        every custom dataset type. Before default routes added to this
+        blueprint and it registered inside application this method is
+        called. It can be used either for registration of the view
+        function under new path or under existing path(like `/new`),
+        in which case this new function will be used instead of
+        default one.
+
+        Note, this blueprint has prefix `/{package_type}/<id>/resource`.
+
+        :rtype: flask.Blueprint
+
+        '''
+        return blueprint
+
 
 class IGroupForm(Interface):
     u'''
@@ -1477,6 +1512,24 @@ class IGroupForm(Interface):
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
         '''
+
+    def prepare_group_blueprint(self, group_type, blueprint):
+        u'''Update or replace group blueprint for given group type.
+
+        Internally CKAN registers separate blueprint for
+        every custom group type. Before default routes added to this
+        blueprint and it registered inside application this method is
+        called. It can be used either for registration of the view
+        function under new path or under existing path(like `/new`),
+        in which case this new function will be used instead of
+        default one.
+
+        Note, this blueprint has prefix `/{group_type}`.
+
+        :rtype: flask.Blueprint
+
+        '''
+        return blueprint
 
     # End of hooks ############################################################
 
