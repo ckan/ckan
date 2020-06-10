@@ -4309,16 +4309,18 @@ class TestDashboardNewActivities(object):
 @pytest.mark.usefixtures(u"clean_db")
 class TestApiToken(object):
 
-    @pytest.mark.parametrize('num_tokens', [0, 1, 2, 5])
+    @pytest.mark.parametrize(u'num_tokens', [0, 1, 2, 5])
     def test_token_list(self, num_tokens):
+        from ckan.lib.api_token import decode
         user = factories.User()
         ids = []
         for _ in range(num_tokens):
-            token = helpers.call_action(u"api_token_create", context={
+            data = helpers.call_action(u"api_token_create", context={
                 u"model": model,
                 u"user": user[u"name"]
             }, user=user[u"name"], name=u"token-name")
-            ids.append(tk.jwt_decode(token)['token'])
+            token = data[u'token']
+            ids.append(decode(token)[u'jti'])
 
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,

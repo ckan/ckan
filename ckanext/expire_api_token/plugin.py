@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from dateutil.parser import parse as parse_date
 
@@ -8,32 +8,48 @@ import ckan.plugins as p
 from ckan.logic import get_action
 
 
+def default_token_lifetime():
+    return p.toolkit.config.get(u"expire_api_token.default_lifetime", 3600)
+
+
 class ExpireApiTokenPlugin(p.SingletonPlugin):
     p.implements(p.IApiToken, inherit=True)
     p.implements(p.IConfigurer)
+    p.implements(p.ITemplateHelpers)
 
     # IConfigurer
 
     def update_config(self, config_):
         p.toolkit.add_template_directory(config_, u"templates")
 
+    # ITemplateHelpers
+
+    def get_helpers(self):
+        return {
+            "expire_api_token_default_token_lifetime": default_token_lifetime
+        }
+
     # IApiToken
 
     def create_api_token_schema(self, schema):
-        schema[u"expires_at"] = [
+        schema[u"expires_in"] = [
             p.toolkit.get_validator(u"not_empty"),
-            p.toolkit.get_validator(u"isodate"),
+            p.toolkit.get_validator(u"is_positive_integer"),
+        ]
+        schema[u"unit"] = [
+            p.toolkit.get_validator(u"not_empty"),
+            p.toolkit.get_validator(u"is_positive_integer"),
         ]
         return schema
 
-    def postprocess_api_token(self, data, token, data_dict):
-        data[u"expires_at"] = data_dict[u"expires_at"]
-        return data
-
-    def preprocess_api_token(self, data):
-        expires_at = parse_date(data.get(u"expires_at", u"0001-01-01"))
-        token = data["token"]
-        obj = model.ApiToken.get(token)
-        if obj and expires_at < datetime.now():
-            model.ApiToken.revoke(token)
+    def postprocess_api_token(self, data, jti, data_dict):
+        seconds = data_dict.get(u"expires_in", 0) * data_dict.get(u"unit", 0)
+        if not seconds:
+            seconds = default_token_lifetime()
+        data[u"exp"] = datetime.utcnow() + timedelta(seconds=seconds)
+        token = model.ApiToken.get(jti)
+        extras = token.plugin_extras or {}
+        extras[u"expire_api_token"] = {u"exp": data[u"exp"].isoformat()}
+        token.plugin_extras = extras
+        model.Session.commit()
         return data

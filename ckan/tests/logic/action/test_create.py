@@ -1197,17 +1197,18 @@ class TestFollowUser(object):
 class TestApiToken(object):
 
     def test_token_created(self):
+        from ckan.lib.api_token import decode
         user = factories.User()
-        token = helpers.call_action(u"api_token_create", context={
+        data = helpers.call_action(u"api_token_create", context={
             u"model": model,
             u"user": user[u"name"]
         }, user=user[u"name"], name=u"token-name")
-
-        token = p.toolkit.jwt_decode(token)['token']
-        res = model.ApiToken.get(token)
+        token = data[u'token']
+        jti = decode(token)[u'jti']
+        res = model.ApiToken.get(jti)
         assert res.user_id == user[u"id"]
         assert res.last_access is None
-        assert res.id == token
+        assert res.id == jti
 
 
 @pytest.mark.usefixtures("clean_db")

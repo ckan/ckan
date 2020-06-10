@@ -1838,6 +1838,13 @@ class IForkObserver(Interface):
 
 class IApiToken(Interface):
     """Extend functionality of API Tokens.
+
+    .. warning:: This interface is unstable and new methods may be
+    introduced in future. Always use `inherit=True` when implementing
+    it::
+
+        p.implements(p.IApiToken, inherit=True)
+
     """
 
     def create_api_token_schema(self, schema):
@@ -1860,8 +1867,9 @@ class IApiToken(Interface):
         """Make an attempt to decode API Token provided in request.
 
         Decode token if it possible and return dictionary with
-        mandatory `token` key and optional additional items, that will
-        be used further in `preprocess_api_token`.
+        mandatory `jti` key(token id for DB lookup) and optional
+        additional items, which will be used further in
+        `preprocess_api_token`.
 
         :param encoded: API Token provided in request
         :type encoded: str
@@ -1895,8 +1903,8 @@ class IApiToken(Interface):
         current user from database.
 
         :param data: dictionary with all fields that were previously
-            created in `postprocess_api_token` (may be already
-            modified by some plugin.)
+            created in `postprocess_api_token` (potentially
+            modified by some other plugin already.)
         :type data: dict
 
         :returns: dictionary that will be passed into other
@@ -1906,19 +1914,19 @@ class IApiToken(Interface):
         """
         return data
 
-    def postprocess_api_token(self, data, token, data_dict):
+    def postprocess_api_token(self, data, jti, data_dict):
         """Encode additional information into API Token.
 
         Allows passing any kind of additional information into API
         Token or performing side effects, before it shown to user.
 
-        :param data: dictionary with `token` item, representing newly
-            generated API Token(may be already modified by some
-            plugin.)
+        :param data: dictionary representing newly
+            generated API Token. May be already modified by some
+            plugin.
         :type data: dict
 
-        :param token: token itself
-        :type token: str
+        :param jti: Id of the token
+        :type jti: str
 
         :param data_dict: data used for token creation.
         :type data_dict: dict
@@ -1929,6 +1937,23 @@ class IApiToken(Interface):
 
         """
         return data
+
+    def add_extra_fields(self, data_dict):
+        """Provide additional information alongside with API Token.
+
+        Any extra information that is not itself a part of a token,
+        but can extend its functionality(for example, refresh token)
+        is registered here.
+
+        :param data_dict: dictionary that will bre returned from
+            `api_token_create` API call.
+        :type data_dict: dict
+
+        :returns: dictionary with token and optional set of extra fields.
+        :rtype: dict
+
+        """
+        return data_dict
 
 
 class IClick(Interface):

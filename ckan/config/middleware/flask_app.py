@@ -114,7 +114,6 @@ def make_flask_stack(conf):
     app.jinja_env.policies['ext.i18n.trimmed'] = True
 
     app.debug = debug
-
     app.testing = testing
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals

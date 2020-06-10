@@ -148,7 +148,7 @@ class TestApiToken(object):
         helpers.call_auth(u"api_token_revoke", {
             u"model": model,
             u"user": user[u"name"]
-        }, token=token.id)
+        }, jti=token.id)
 
     @pytest.mark.usefixtures(u"clean_db")
     def test_auth_user_is_allowed_to_revoke_unowned_tokens(self):
@@ -162,7 +162,7 @@ class TestApiToken(object):
             helpers.call_auth(u"api_token_revoke", {
                 u"model": model,
                 u"user": not_owner[u"name"]
-            }, token=token.id)
+            }, jti=token.id)
 
     @pytest.mark.usefixtures(u"clean_db")
     def test_auth_user_is_allowed_to_revoke_unexisting_tokens(self):
@@ -172,4 +172,4 @@ class TestApiToken(object):
             helpers.call_auth(u"api_token_revoke", {
                 u"model": model,
                 u"user": user[u"name"]
-            }, token='not-exists')
+            }, jti='not-exists')

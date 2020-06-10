@@ -8,10 +8,11 @@ Create Date: 2020-03-26 18:50:47.502458
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = u"3ae4b17ed66d"
-down_revision = u"588d7cfb9a41"
+down_revision = u"19ddad52b500"
 branch_labels = None
 depends_on = None
 
@@ -27,6 +28,11 @@ def upgrade():
             server_default=sa.func.current_timestamp()
         ),
         sa.Column(u"last_access", sa.DateTime, nullable=True),
+        sa.Column(
+            u"plugin_extras",
+            postgresql.JSONB(astext_type=sa.Text()),
+            nullable=True
+        )
     )
 
 

@@ -13,6 +13,7 @@ import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.api_token as api_token
 from ckan import authz
 
 from ckan.common import _
@@ -773,22 +774,26 @@ def job_cancel(context, data_dict):
 def api_token_revoke(context, data_dict):
     """Delete API Token.
 
-    :param string token: Token to remove.
+    :param string token: Token to remove(optional when `jti` specified).
+    :param string jti: Id of the token to remove(optional when `token` specified).
 
-    .. versionadded:: 2.9
+    .. versionadded:: 3.0
     """
-    token = _get_or_bust(data_dict, u'token')
-    decoders = plugins.PluginImplementations(plugins.IApiToken)
-    for plugin in decoders:
-        data = plugin.decode_api_token(token)
-        if data:
-            break
-    else:
-        data = plugins.toolkit.jwt_decode(token)
+    jti = data_dict.get(u'jti')
+    if not jti:
+        token = _get_or_bust(data_dict, u'token')
+        decoders = plugins.PluginImplementations(plugins.IApiToken)
+        for plugin in decoders:
+            data = plugin.decode_api_token(token)
+            if data:
+                break
+        else:
+            data = api_token.decode(token)
 
-    if not data or u'token' not in data:
-        return
+        if not data:
+            return
+        jti = data.get(u'jti')
 
-    _check_access(u'api_token_revoke', context, data)
+    _check_access(u'api_token_revoke', context, {u'jti': jti})
     model = context[u'model']
-    model.ApiToken.revoke(data[u'token'])
+    model.ApiToken.revoke(jti)

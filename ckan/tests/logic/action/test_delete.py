@@ -7,6 +7,7 @@ from six import text_type
 
 import ckan.lib.jobs as jobs
 import ckan.lib.search as search
+import ckan.lib.api_token as api_token
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
@@ -579,7 +580,23 @@ class TestApiToken(object):
         token = helpers.call_action(u"api_token_create", context={
             u"model": model,
             u"user": user[u"name"]
-        }, user=user[u"name"], name="token-name")
+        }, user=user[u"name"], name="token-name")['token']
+        token2 = helpers.call_action(u"api_token_create", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"], name="token-name-2")['token']
+
+        tokens = helpers.call_action(u"api_token_list", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"])
+        assert len(tokens) == 2
+
+        helpers.call_action(u"api_token_revoke", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, token=token)
+
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,
             u"user": user[u"name"]
@@ -589,7 +606,7 @@ class TestApiToken(object):
         helpers.call_action(u"api_token_revoke", context={
             u"model": model,
             u"user": user[u"name"]
-        }, token=token)
+        }, jti=api_token.decode(token2)[u'jti'])
 
         tokens = helpers.call_action(u"api_token_list", context={
             u"model": model,

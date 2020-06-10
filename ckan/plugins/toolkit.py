@@ -123,8 +123,6 @@ class _Toolkit(object):
         'requires_ckan_version',
         'check_ckan_version',
         'CkanVersionException',
-        'jwt_decode',
-        'jwt_encode',
     ]
 
     def __init__(self):
@@ -321,8 +319,6 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
-        t['jwt_decode'] = self._jwt_decode
-        t['jwt_encode'] = self._jwt_encode
 
         if six.PY2:
             t['response'] = pylons.response
@@ -554,26 +550,6 @@ content type, cookies, etc.
         if len(endpoint) == 1:
             return endpoint + ('index', )
         return endpoint
-
-    @classmethod
-    def _jwt_decode(cls, encoded):
-        import jwt
-        from ckan.common import config
-        import logging
-
-        log = logging.getLogger(__name__)
-        secret = config.get('beaker.session.secret')
-        try:
-            return jwt.decode(encoded, secret)
-        except jwt.InvalidTokenError as e:
-            log.exception("Invalid JWT token", exc_info=e)
-
-    @classmethod
-    def _jwt_encode(cls, data):
-        import jwt
-        from ckan.common import config
-        secret = config.get('beaker.session.secret')
-        return jwt.encode(data, secret)
 
     def __getattr__(self, name):
         ''' return the function/object requested '''

@@ -8,8 +8,7 @@ import json
 import datetime
 import socket
 
-from itertools import chain
-from ckan.common import config, request, asbool
+from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
 from six import string_types, text_type
@@ -28,8 +27,6 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
-
-from ckan.lib.authenticator import UsernamePasswordAuthenticator
 
 from ckan.common import _
 
@@ -3437,12 +3434,13 @@ def api_token_list(context, data_dict):
     :returns: collection of all API Tokens
     :rtype: list
 
-    .. versionadded:: 2.9
+    .. versionadded:: 3.0
     '''
-    user = _get_or_bust(data_dict, u'user')
+    id_or_name = _get_or_bust(data_dict, u'user')
     _check_access(u'api_token_list', context, data_dict)
+    user = model.User.get(id_or_name)
 
-    tokens = model.Session.query(model.ApiToken).filter_by(
-        user_id=model.User.get(user).id
+    tokens = model.Session.query(model.ApiToken).filter(
+        model.ApiToken.user_id == user.id
     )
     return model_dictize.api_token_list_dictize(tokens, context)

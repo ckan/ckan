@@ -4,6 +4,8 @@ import datetime
 from secrets import token_urlsafe
 
 from sqlalchemy import types, Column, Table, ForeignKey, orm
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 
 import ckan.plugins.toolkit as tk
 from ckan.model import meta, User
@@ -13,7 +15,7 @@ __all__ = [u'ApiToken', u'api_token_table']
 
 
 def _make_token():
-    nbytes = tk.asint(tk.config.get(u'ckan.api_token.nbytes', 60))
+    nbytes = tk.asint(tk.config.get(u'api_token.nbytes', 60))
     return token_urlsafe(nbytes)
 
 
@@ -24,6 +26,8 @@ api_token_table = Table(
     Column(u'user_id', types.UnicodeText, ForeignKey(u'user.id')),
     Column(u'created_at', types.DateTime, default=datetime.datetime.utcnow),
     Column(u'last_access', types.DateTime, nullable=True),
+    Column('plugin_extras', MutableDict.as_mutable(JSONB)),
+
 )
 
 
@@ -42,10 +46,12 @@ class ApiToken(object):
 
     @classmethod
     def revoke(cls, id):
-        token = meta.Session.query(cls).get(id)
+        token = cls.get(id)
         if token:
             meta.Session.delete(token)
             meta.Session.commit()
+            return True
+        return False
 
     def touch(self, commit=False):
         self.last_access = datetime.datetime.utcnow()

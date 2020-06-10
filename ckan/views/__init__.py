@@ -8,6 +8,7 @@ from six.moves.urllib.parse import quote
 from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
+import ckan.lib.api_token as api_token
 from ckan.common import g, request, config, session
 from ckan.lib.helpers import redirect_to as redirect
 from ckan.lib.i18n import get_locales_from_config
@@ -271,7 +272,7 @@ def _get_user_from_api_token(token, update_access_time=True):
         if data:
             break
     else:
-        data = p.toolkit.jwt_decode(token)
+        data = api_token.decode(token)
 
     if not data:
         return
@@ -280,11 +281,11 @@ def _get_user_from_api_token(token, update_access_time=True):
     # token was created
     for plugin in reversed(decoders):
         data = plugin.preprocess_api_token(data)
-    if not data or u'token' not in data:
+    if not data or u'jti' not in data:
         return
-    api_token = model.Session.query(model.ApiToken).get(data['token'])
-    if not api_token:
+    token_obj = model.ApiToken.get(data[u'jti'])
+    if not token_obj:
         return
     if update_access_time:
-        api_token.touch(True)
-    return api_token.owner
+        token_obj.touch(True)
+    return token_obj.owner

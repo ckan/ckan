@@ -25,3 +25,6 @@ showcontent = true
 directory = 'misc'
 name = 'Minor changes'
 showcontent = true
+
+[tool.black]
+line-length = 79

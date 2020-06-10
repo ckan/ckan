@@ -7,6 +7,7 @@ import six
 from freezegun import freeze_time
 
 import ckan.model as model
+import ckan.lib.api_token as api_token
 import ckan.plugins.toolkit as tk
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -19,28 +20,28 @@ class TestExpireApiTokenPlugin(object):
     def test_token_is_removed_on_second_use(self, app):
         user = factories.User()
         now = datetime.now()
-        token = helpers.call_action(
-            u"api_token_create",
-            context={u"model": model, u"user": user[u"name"]},
-            user=user[u"name"],
-            name=u"token-name",
-            expires_at=(now + timedelta(days=1)).strftime(u"%Y-%m-%d"),
-        )
+        with freeze_time(now):
+            data = helpers.call_action(
+                u"api_token_create",
+                context={u"model": model, u"user": user[u"name"]},
+                user=user[u"name"],
+                name=u"token-name",
+                expires_in=20,
+                unit=1,
+            )
 
-        data = tk.jwt_decode(token)
-        id = data["token"]
+        decoded = api_token.decode(data["token"])
+        id = decoded["jti"]
         assert model.ApiToken.get(id)
 
+        url = url_for(u"user.api_tokens", id=user["id"])
         app.get(
-            url_for(u"user.api_tokens", id=user["id"]),
-            headers={u"authorization": six.ensure_str(token)},
+            url, headers={u"authorization": six.ensure_str(data[u'token'])},
         )
-        assert model.ApiToken.get(id)
 
-        with freeze_time(now + timedelta(days=2)):
+        with freeze_time(now + timedelta(seconds=22)):
             app.get(
-                url_for(u"user.api_tokens", id=user["id"]),
-                headers={u"authorization": six.ensure_str(token)},
+                url,
+                headers={u"authorization": six.ensure_str(data[u'token'])},
                 status=403,
             )
-            assert not model.ApiToken.get(id)

@@ -26,6 +26,7 @@ import ckan.lib.uploader as uploader
 import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
+import ckan.lib.api_token as api_token
 
 from ckan.common import _, config
 
@@ -1512,15 +1513,14 @@ def api_token_create(context, data_dict):
     :returns: a representation of the 'api_token'
     :rtype: dictionary
 
-    .. versionadded:: 2.9
     """
-    model = context['model']
-    user, name = _get_or_bust(data_dict, ['user', 'name'])
+    model = context[u'model']
+    user, name = _get_or_bust(data_dict, [u'user', u'name'])
 
-    _check_access('api_token_create', context, data_dict)
+    _check_access(u'api_token_create', context, data_dict)
 
     encoders = plugins.PluginImplementations(plugins.IApiToken)
-    schema = context.get('schema')
+    schema = context.get(u'schema')
     if not schema:
         schema = ckan.logic.schema.default_create_api_token_schema()
         for plugin in encoders:
@@ -1531,19 +1531,27 @@ def api_token_create(context, data_dict):
     if errors:
         raise ValidationError(errors)
 
-    api_token = model_save.api_token_save(
-        {'user': user, 'name': name}, context
+    token_obj = model_save.api_token_save(
+        {u'user': user, u'name': name}, context
     )
     model.Session.commit()
-    data = {'token': api_token.id}
+    data = {
+        u'jti': token_obj.id,
+        u'iat': token_obj.created_at
+    }
 
     for plugin in encoders:
-        data = plugin.postprocess_api_token(data, api_token.id, data_dict)
+        data = plugin.postprocess_api_token(
+            data, token_obj.id, validated_data_dict)
     for plugin in encoders:
         token = plugin.encode_api_token(data)
         if token:
             break
     else:
-        token = plugins.toolkit.jwt_encode(data)
+        token = api_token.encode(data)
 
-    return token
+    result = {u'token': token}
+    for plugin in encoders:
+        result = plugin.add_extra_fields(result)
+
+    return result

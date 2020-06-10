@@ -162,7 +162,8 @@ class ApiTokenView(MethodView):
             u'session': model.Session,
             u'user': g.user,
             u'auth_user_obj': g.userobj,
-            u'for_view': True
+            u'for_view': True,
+            u'include_plugin_extras': True
         }
         try:
             tokens = logic.get_action(u'api_token_list')(
@@ -196,12 +197,12 @@ class ApiTokenView(MethodView):
             dictization_functions.unflatten(
                 logic.tuplize_dict(logic.parse_params(request.form))))
 
-        data_dict['user'] = id
+        data_dict[u'user'] = id
         try:
             token = logic.get_action(u'api_token_create')(
                 context,
                 data_dict
-            )
+            )[u'token']
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to create API tokens.'))
         except logic.ValidationError as e:
@@ -215,7 +216,7 @@ class ApiTokenView(MethodView):
             u'type': u'button',
             u'class': u'btn btn-default btn-xs',
             u'data-module': u'copy-into-buffer',
-            u'data-module-value': ensure_str(token)
+            u'data-module-copy-value': ensure_str(token)
         })
         h.flash_success(
             _(
@@ -229,16 +230,13 @@ class ApiTokenView(MethodView):
         return h.redirect_to(u'user.api_tokens', id=id)
 
 
-def api_token_revoke(id, token):
+def api_token_revoke(id, jti):
     context = {u'model': model}
     try:
-        logic.check_access(u'api_token_revoke', context, {u'token': token})
+        logic.check_access(u'api_token_revoke', context, {u'token': jti})
     except logic.NotAuthorized:
         base.abort(403, _(u'Unauthorized to revoke API tokens.'))
-    token = model.Session.query(model.ApiToken).get(token)
-    if token:
-        model.Session.delete(token)
-        model.Session.commit()
+    model.ApiToken.revoke(jti)
 
     return h.redirect_to(u'user.api_tokens', id=id)
 
@@ -859,6 +857,6 @@ user.add_url_rule(
     u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
 )
 user.add_url_rule(
-    u'/<id>/api-tokens/<token>/revoke', view_func=api_token_revoke,
+    u'/<id>/api-tokens/<jti>/revoke', view_func=api_token_revoke,
     methods=(u'POST',)
 )
