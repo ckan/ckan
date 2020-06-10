@@ -1432,14 +1432,15 @@ def user_show(context, data_dict):
     if id:
         user_obj = model.User.get(id)
         context['user_obj'] = user_obj
-        if user_obj is None:
-            raise NotFound
     elif provided_user:
         context['user_obj'] = user_obj = provided_user
     else:
         raise NotFound
 
     _check_access('user_show', context, data_dict)
+
+    if not bool(user_obj):
+        raise NotFound
 
     # include private and draft datasets?
     requester = context.get('user')
