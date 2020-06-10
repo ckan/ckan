@@ -1,0 +1,2 @@
+If you've customized the schema for package_search, you'll need to add to it
+the limiting of ``row``, as per default_package_search_schema now does.

@@ -684,7 +684,15 @@ def user_update(context, data_dict):
 
     if not context.get('defer_commit'):
         model.repo.commit()
-    return model_dictize.user_dictize(user, context)
+
+    author_obj = model.User.get(context.get('user'))
+    include_plugin_extras = False
+    if author_obj:
+        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+    user_dict = model_dictize.user_dictize(
+        user, context, include_plugin_extras=include_plugin_extras)
+
+    return user_dict
 
 
 def user_generate_apikey(context, data_dict):

@@ -1,0 +1,27 @@
+[tool.towncrier]
+directory = "changes"
+package = "ckan"
+filename = "CHANGELOG.rst"
+title_format = "v.{version} {project_date}"
+issue_format = "`#{issue} <https://github.com/ckan/ckan/pull/{issue}>`_"
+wrap = true
+
+[[tool.towncrier.type]]
+directory = 'migration'
+name = 'Migration'
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = 'bugfix'
+name = 'Bugfixes'
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = 'removal'
+name = 'Removals and deprecations'
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = 'misc'
+name = 'Minor changes'
+showcontent = true
