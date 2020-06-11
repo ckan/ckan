@@ -16,7 +16,7 @@ __all__ = [u"ApiToken", u"api_token_table"]
 
 
 def _make_token():
-    nbytes = tk.asint(tk.config.get(u"api_token.nbytes", 60))
+    nbytes = tk.asint(tk.config.get(u"api_token.nbytes", 32))
     return token_urlsafe(nbytes)
 
 

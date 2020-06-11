@@ -677,6 +677,76 @@ Restricts access to 'view this version' and 'changes' in the Activity Stream pag
 
 .. end_config-authorization
 
+API Token Settings
+------------------
+
+.. _api_token.nbytes:
+
+api_token.nbytes
+^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.nbytes = 20
+
+Default value: 32
+
+Number of bytes used to generate unique id for API Token.
+
+.. _api_token.jwt.encode.secret:
+
+api_token.jwt.encode.secret
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.encode.secret = file:/path/to/private/key
+
+Default value: same as ``beaker.session.secret`` config option with ``string:`` type.
+
+A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
+
+* for asymmetric algorithms: path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
+* for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+
+Value must have prefix, which defines it's type. Supported prefixes are:
+
+* ``string:`` - Plain string, will be used as is.
+* ``file:`` - Path to file. Content of the file will be used as key.
+
+.. _api_token.jwt.decode.secret:
+
+api_token.jwt.decode.secret
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.decode.secret = file:/path/to/public/key.pub
+
+Default value: same as ``beaker.session.secret`` config option with ``string:`` type.
+
+A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
+
+* for asymmetric algorithms: path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
+* for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+
+Value must have prefix, which defines it's type. Supported prefixes are:
+
+* ``string:`` - Plain string, will be used as is.
+* ``file:`` - Path to file. Content of the file will be used as key.
+
+.. _api_token.jwt.algorithm:
+
+api_token.jwt.algorithm
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.algorithm = RS256
+
+Default value: ``HS256``
+
+Algorithm to sign the token with, e.g. "ES256", "RS256"
 
 Search Settings
 ---------------

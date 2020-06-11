@@ -73,7 +73,7 @@ To call the CKAN API, post a JSON dictionary in an HTTP POST request to one of
 CKAN's API URLs. The parameters for the API function should be given in the
 JSON dictionary. CKAN will also return its response in a JSON dictionary.
 
-One way to post a JSON dictionary to a URL is using the command-line 
+One way to post a JSON dictionary to a URL is using the command-line
 client `Curl <https://curl.haxx.se/>`_.  For example, to get a list of the names
 of all the datasets in the ``data-explorer`` group on demo.ckan.org, install
 curl and then call the ``group_list`` API function by running this command
@@ -251,9 +251,11 @@ functions and configuration as the web interface, so if a user is authorized to
 do something in the web interface they'll be authorized to do it via the API as
 well.
 
-When calling an API function that requires authorization, you must authenticate
-yourself by providing your API key with your HTTP request. To find your API
-key, login to the CKAN site using its web interface and visit your user profile
+When calling an API function that requires authorization, you must
+authenticate yourself by providing your API key or API token with your
+HTTP request. To find your API key, login to the CKAN site using its
+web interface and visit your user profile page. To generate new API
+token visit **API Tokens** tab available from your puser profile's
 page.
 
 To provide your API key in an HTTP request, include it in either an
@@ -264,7 +266,7 @@ configuration file.)
 For example, to ask whether or not you're currently following the user
 ``markw`` on demo.ckan.org using curl, run this command::
 
-    curl -H "Authorization: XXX"  https://demo.ckan.org/api/3/action/am_following_user?id=markw 
+    curl -H "Authorization: XXX"  https://demo.ckan.org/api/3/action/am_following_user?id=markw
 
 (Replacing ``XXX`` with your API key.)
 
@@ -376,7 +378,7 @@ You can use the ``upload`` parameter of the
 new version of a resource file. This requires a ``multipart/form-data``
 request, with curl you can do this using the ``@file.csv``::
 
-    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_update  
+    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_update
 
 
 .. _api-reference:
