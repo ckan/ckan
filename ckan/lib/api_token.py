@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import jwt
 import logging
+
+from calendar import timegm
 
 import ckan.plugins as plugins
 import ckan.model as model
@@ -20,26 +24,30 @@ def _get_plugins():
 
 
 def _get_algorithm():
-    return config.get(_config_algorithm, "HS256")
+    return config.get(_config_algorithm, u"HS256")
 
 
 def _get_secret(encode):
     config_key = _config_encode_secret if encode else _config_decode_secret
     secret = config.get(config_key)
     if not secret:
-        secret = 'string:' + config.get(_config_secret_fallback)
-    type_, value = secret.split(':', 1)
-    if type_ == 'file':
-        with open(value, 'rb') as key_file:
+        secret = u'string:' + config.get(_config_secret_fallback)
+    type_, value = secret.split(u':', 1)
+    if type_ == u'file':
+        with open(value, u'rb') as key_file:
             value = key_file.read()
     if not value:
         log.warning(
-            "Neither `%s` nor `%s` specified. "
-            "Missing secret key is a critical security issue.",
+            u"Neither `%s` nor `%s` specified. "
+            u"Missing secret key is a critical security issue.",
             config_key,
             _config_secret_fallback,
         )
     return value
+
+
+def into_seconds(dt):
+    return timegm(dt.timetuple())
 
 
 def get_schema():
@@ -70,7 +78,7 @@ def decode(encoded, **kwargs):
         except jwt.InvalidTokenError as e:
             # TODO: add signal for performing extra work, like removing
             # expired tokens
-            log.error("Cannot decode JWT token: %s", e)
+            log.error(u"Cannot decode JWT token: %s", e)
             data = None
     return data
 

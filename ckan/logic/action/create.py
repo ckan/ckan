@@ -1534,7 +1534,7 @@ def api_token_create(context, data_dict):
     model.Session.commit()
     data = {
         u'jti': token_obj.id,
-        u'iat': token_obj.created_at
+        u'iat': api_token.into_seconds(token_obj.created_at)
     }
 
     data = api_token.postprocess(data, token_obj.id, validated_data_dict)

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from dateutil.parser import parse as parse_date
-
 import ckan.model as model
 import ckan.plugins as p
+import ckan.lib.api_token as api_token
 from ckan.logic import get_action
 
 
@@ -26,7 +25,7 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            "expire_api_token_default_token_lifetime": default_token_lifetime
+            u"expire_api_token_default_token_lifetime": default_token_lifetime
         }
 
     # IApiToken
@@ -46,7 +45,9 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
         seconds = data_dict.get(u"expires_in", 0) * data_dict.get(u"unit", 0)
         if not seconds:
             seconds = default_token_lifetime()
-        data[u"exp"] = datetime.utcnow() + timedelta(seconds=seconds)
+        data[u"exp"] = api_token.into_seconds(
+            datetime.utcnow() + timedelta(seconds=seconds)
+        )
         token = model.ApiToken.get(jti)
         token.set_extra(
             u"expire_api_token", {u"exp": data[u"exp"].isoformat()}, True

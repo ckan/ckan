@@ -49,5 +49,5 @@ class ExampleIApiTokenPlugin(p.SingletonPlugin):
         return data
 
     def add_extra_fields(self, data_dict):
-        data_dict[u"hello"] = "world"
+        data_dict[u"hello"] = u"world"
         return data_dict

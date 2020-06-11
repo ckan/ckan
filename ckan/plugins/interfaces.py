@@ -1839,11 +1839,14 @@ class IForkObserver(Interface):
 class IApiToken(Interface):
     """Extend functionality of API Tokens.
 
-    .. warning:: This interface is unstable and new methods may be
+    This interface is unstable and new methods may be
     introduced in future. Always use `inherit=True` when implementing
-    it::
+    it.
+
+    Example::
 
         p.implements(p.IApiToken, inherit=True)
+
 
     """
 
