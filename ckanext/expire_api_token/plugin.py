@@ -45,12 +45,13 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
         seconds = data_dict.get(u"expires_in", 0) * data_dict.get(u"unit", 0)
         if not seconds:
             seconds = default_token_lifetime()
+        expire_at = datetime.utcnow() + timedelta(seconds=seconds)
         data[u"exp"] = api_token.into_seconds(
-            datetime.utcnow() + timedelta(seconds=seconds)
+            expire_at
         )
         token = model.ApiToken.get(jti)
         token.set_extra(
-            u"expire_api_token", {u"exp": data[u"exp"].isoformat()}, True
+            u"expire_api_token", {u"exp": expire_at.isoformat()}, True
         )
         return data
 
