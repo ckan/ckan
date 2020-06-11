@@ -5,55 +5,57 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 
+/* Sass does not support @import with variable interpolation
 $bootstrap-path: "../vendor/bootstrap/scss/";
+*/
 
 // Core variables and mixins
-@use '${bootstrap-path}variables';
-@use '${bootstrap-path}mixins';
+@import "../vendor/bootstrap/scss/variables";
+@import "../vendor/bootstrap/scss/mixins";
 
 // Reset and dependencies
-@use '${bootstrap-path}normalize';
-@use '${bootstrap-path}print';
-@use '${bootstrap-path}glyphicons';
+@import "../vendor/bootstrap/scss/normalize";
+@import "../vendor/bootstrap/scss/print";
+@import "../vendor/bootstrap/scss/glyphicons";
 
 // Core CSS
-@use '${bootstrap-path}scaffolding';
-@use '${bootstrap-path}type';
-@use '${bootstrap-path}code';
-@use '${bootstrap-path}grid';
-@use '${bootstrap-path}tables';
-@use '${bootstrap-path}forms';
-@use '${bootstrap-path}buttons';
+@import "../vendor/bootstrap/scss/scaffolding";
+@import "../vendor/bootstrap/scss/type";
+@import "../vendor/bootstrap/scss/code";
+@import "../vendor/bootstrap/scss/grid";
+@import "../vendor/bootstrap/scss/tables";
+@import "../vendor/bootstrap/scss/forms";
+@import "../vendor/bootstrap/scss/buttons";
 
 // Components
-@use '${bootstrap-path}component-animations';
-@use '${bootstrap-path}dropdowns';
-@use '${bootstrap-path}button-groups';
-@use '${bootstrap-path}input-groups';
-@use '${bootstrap-path}navs';
-@use '${bootstrap-path}navbar';
-@use '${bootstrap-path}breadcrumbs';
-@use '${bootstrap-path}pagination';
-@use '${bootstrap-path}pager';
-@use '${bootstrap-path}labels';
-@use '${bootstrap-path}badges';
-@use '${bootstrap-path}jumbotron';
-@use '${bootstrap-path}thumbnails';
-@use '${bootstrap-path}alerts';
-@use '${bootstrap-path}progress-bars';
-@use '${bootstrap-path}media';
-@use '${bootstrap-path}list-group';
-@use '${bootstrap-path}panels';
-@use '${bootstrap-path}responsive-embed';
-@use '${bootstrap-path}wells';
-@use '${bootstrap-path}close';
+@import "../vendor/bootstrap/scss/component-animations";
+@import "../vendor/bootstrap/scss/dropdowns";
+@import "../vendor/bootstrap/scss/button-groups";
+@import "../vendor/bootstrap/scss/input-groups";
+@import "../vendor/bootstrap/scss/navs";
+@import "../vendor/bootstrap/scss/navbar";
+@import "../vendor/bootstrap/scss/breadcrumbs";
+@import "../vendor/bootstrap/scss/pagination";
+@import "../vendor/bootstrap/scss/pager";
+@import "../vendor/bootstrap/scss/labels";
+@import "../vendor/bootstrap/scss/badges";
+@import "../vendor/bootstrap/scss/jumbotron";
+@import "../vendor/bootstrap/scss/thumbnails";
+@import "../vendor/bootstrap/scss/alerts";
+@import "../vendor/bootstrap/scss/progress-bars";
+@import "../vendor/bootstrap/scss/media";
+@import "../vendor/bootstrap/scss/list-group";
+@import "../vendor/bootstrap/scss/panels";
+@import "../vendor/bootstrap/scss/responsive-embed";
+@import "../vendor/bootstrap/scss/wells";
+@import "../vendor/bootstrap/scss/close";
 
 // Components w/ JavaScript
-@use '${bootstrap-path}modals';
-@use '${bootstrap-path}tooltip';
-@use '${bootstrap-path}popovers';
-@use '${bootstrap-path}carousel';
+@import "../vendor/bootstrap/scss/modals";
+@import "../vendor/bootstrap/scss/tooltip";
+@import "../vendor/bootstrap/scss/popovers";
+@import "../vendor/bootstrap/scss/carousel";
 
 // Utility classes
-@use '${bootstrap-path}utilities';
-@use '${bootstrap-path}responsive-utilities';
+@import "../vendor/bootstrap/scss/utilities";
+@import "../vendor/bootstrap/scss/responsive-utilities";

@@ -1,6 +1,6 @@
 // Bootstrap 4.5.0
-@use 'bootstrap';
-@use 'bootstrap-rtl';
+@import "bootstrap";
+@import "bootstrap-rtl";
 
 // CKAN
-@use 'ckan-rtl';
+@import "ckan-rtl";

@@ -12,7 +12,8 @@
     "gulp-rename": "^2.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "jquery": "^3.5.0",
-    "moment": "^2.24.0"
+    "moment": "^2.24.0",
+    "popper.js": "^1.16.0"
   },
   "devDependencies": {
     "cypress": "^4.0.1"

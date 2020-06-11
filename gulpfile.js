@@ -59,9 +59,9 @@ const fontAwesomeFonts = () =>
     dest(__dirname + "/ckan/public/base/vendor/font-awesome/fonts")
   );
 
-const fontAwesomeLess = () =>
-  src(__dirname + "/node_modules/font-awesome/less/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/font-awesome/less")
+const fontAwesomeScss = () =>
+  src(__dirname + "/node_modules/font-awesome/scss/*").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/font-awesome/scss")
   );
 
 const jQueryFileUpload = () =>
@@ -78,6 +78,6 @@ exports.updateVendorLibs = parallel(
   moment,
   fontAwesomeCss,
   fontAwesomeFonts,
-  fontAwesomeLess,
+  fontAwesomeScss,
   jQueryFileUpload
 );

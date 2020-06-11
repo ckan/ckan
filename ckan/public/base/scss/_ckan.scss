@@ -1,29 +1,28 @@
-@use 'variables';
-@use 'custom';
-@use 'mixins';
-@use 'module';
-@use 'media';
-@use 'nav';
-@use 'forms';
-@use 'dataset';
-@use 'search';
-@use 'group';
-@use 'toolbar';
-@use 'prose';
-@use 'icons';
-@use 'layout';
-@use 'homepage';
-@use 'masthead';
-@use 'footer';
-@use 'tables';
-@use 'profile';
-@use 'activity';
-@use 'dropdown';
-@use 'dashboard';
-@use 'resource-view';
-@use 'datapusher';
-@use 'alerts';
-@use 'input-groups';
+@import "variables";
+@import "mixins";
+@import "module";
+@import "media";
+@import "nav";
+@import "forms";
+@import "dataset";
+@import "search";
+@import "group";
+@import "toolbar";
+@import "prose";
+@import "icons";
+@import "layout";
+@import "homepage";
+@import "masthead";
+@import "footer";
+@import "tables";
+@import "profile";
+@import "activity";
+@import "dropdown";
+@import "dashboard";
+@import "resource-view";
+@import "datapusher";
+@import "input-groups";
+
 body {
   // Using the masthead/footer gradient prevents the color from changing
   // at the bottom of the window on pages with little content.
@@ -151,4 +150,4 @@ iframe {
   padding: 3px 5px;
 }
 
-// @use "iehacks';
+// @import "iehacks";

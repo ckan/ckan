@@ -1,4 +1,4 @@
-@use 'ckan';
+@import "ckan";
 
 .wrapper {
   @media (min-width: $screen-sm-min) {
