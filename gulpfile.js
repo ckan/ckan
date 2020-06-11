@@ -44,6 +44,16 @@ const bootstrapScss = () =>
     dest(__dirname + "/ckan/public/base/vendor/bootstrap/scss")
   );
 
+const bootstrapRTL = () =>
+  src(__dirname + "/node_modules/bootstrap/dist/**/*").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/bootstrap-rtl")
+  );
+
+const bootstrapRTLScss = () =>
+  src(__dirname + "/node_modules/bootstrap/scss/**/*").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/bootstrap-rtl/scss")
+  );
+
 const moment = () =>
   src(__dirname + "/node_modules/moment/min/moment-with-locales.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor")
@@ -75,6 +85,8 @@ exports.updateVendorLibs = parallel(
   jquery,
   bootstrap,
   bootstrapScss,
+  bootstrapRTL,
+  bootstrapRTLScss,
   moment,
   fontAwesomeCss,
   fontAwesomeFonts,
