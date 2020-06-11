@@ -24,14 +24,14 @@ class ExampleIApiTokenPlugin(p.SingletonPlugin):
     def create_api_token_schema(self, schema):
         return schema
 
-    def encode_api_token(self, data):
+    def encode_api_token(self, data, **kwargs):
         for k, v in data.items():
             if isinstance(v, datetime):
                 data[k] = v.timestamp()
 
         return json.dumps(data)
 
-    def decode_api_token(self, token):
+    def decode_api_token(self, token, **kwargs):
         return json.loads(token)
 
     def postprocess_api_token(self, data, jti, data_dict):

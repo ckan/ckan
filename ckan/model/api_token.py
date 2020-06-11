@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import copy
 import datetime
 from secrets import token_urlsafe
 
@@ -11,23 +12,23 @@ import ckan.plugins.toolkit as tk
 from ckan.model import meta, User
 
 
-__all__ = [u'ApiToken', u'api_token_table']
+__all__ = [u"ApiToken", u"api_token_table"]
 
 
 def _make_token():
-    nbytes = tk.asint(tk.config.get(u'api_token.nbytes', 60))
+    nbytes = tk.asint(tk.config.get(u"api_token.nbytes", 60))
     return token_urlsafe(nbytes)
 
 
 api_token_table = Table(
-    u'api_token', meta.metadata,
-    Column(u'id', types.UnicodeText, primary_key=True, default=_make_token),
-    Column(u'name', types.UnicodeText),
-    Column(u'user_id', types.UnicodeText, ForeignKey(u'user.id')),
-    Column(u'created_at', types.DateTime, default=datetime.datetime.utcnow),
-    Column(u'last_access', types.DateTime, nullable=True),
-    Column('plugin_extras', MutableDict.as_mutable(JSONB)),
-
+    u"api_token",
+    meta.metadata,
+    Column(u"id", types.UnicodeText, primary_key=True, default=_make_token),
+    Column(u"name", types.UnicodeText),
+    Column(u"user_id", types.UnicodeText, ForeignKey(u"user.id")),
+    Column(u"created_at", types.DateTime, default=datetime.datetime.utcnow),
+    Column(u"last_access", types.DateTime, nullable=True),
+    Column("plugin_extras", MutableDict.as_mutable(JSONB)),
 )
 
 
@@ -58,9 +59,20 @@ class ApiToken(object):
         if commit:
             meta.Session.commit()
 
+    def set_extra(self, key, value, commit=False):
+        extras = self.plugin_extras or {}
+        extras[key] = value
+        self.plugin_extras = copy.deepcopy(extras)
+        if commit:
+            meta.Session.commit()
 
-meta.mapper(ApiToken, api_token_table, properties={
-    u'owner': orm.relation(
-        User, backref=orm.backref(u'api_tokens', cascade=u'all, delete')
-    )
-})
+
+meta.mapper(
+    ApiToken,
+    api_token_table,
+    properties={
+        u"owner": orm.relation(
+            User, backref=orm.backref(u"api_tokens", cascade=u"all, delete")
+        )
+    },
+)

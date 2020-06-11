@@ -36,12 +36,12 @@ class TestExpireApiTokenPlugin(object):
 
         url = url_for(u"user.api_tokens", id=user["id"])
         app.get(
-            url, headers={u"authorization": six.ensure_str(data[u'token'])},
+            url, headers={u"authorization": six.ensure_str(data[u"token"])},
         )
 
         with freeze_time(now + timedelta(seconds=22)):
             app.get(
                 url,
-                headers={u"authorization": six.ensure_str(data[u'token'])},
+                headers={u"authorization": six.ensure_str(data[u"token"])},
                 status=403,
             )

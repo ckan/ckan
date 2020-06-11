@@ -208,7 +208,7 @@ def _get_user_for_apikey():
     user = query.filter_by(apikey=apikey).first()
 
     if not user:
-        user = _get_user_from_api_token(apikey)
+        user = api_token.get_user_from_token(apikey)
     return user
 
 
@@ -263,29 +263,3 @@ def set_ckan_current_url(environ):
         environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
     else:
         environ[u'CKAN_CURRENT_URL'] = path_info
-
-
-def _get_user_from_api_token(token, update_access_time=True):
-    decoders = list(p.PluginImplementations(p.IApiToken))
-    for plugin in decoders:
-        data = plugin.decode_api_token(token)
-        if data:
-            break
-    else:
-        data = api_token.decode(token)
-
-    if not data:
-        return
-    # do preprocessing in reverse order, allowing onion-like
-    # "unwrapping" of the data, added during postprocessing, when
-    # token was created
-    for plugin in reversed(decoders):
-        data = plugin.preprocess_api_token(data)
-    if not data or u'jti' not in data:
-        return
-    token_obj = model.ApiToken.get(data[u'jti'])
-    if not token_obj:
-        return
-    if update_access_time:
-        token_obj.touch(True)
-    return token_obj.owner

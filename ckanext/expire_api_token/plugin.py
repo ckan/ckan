@@ -48,8 +48,10 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
             seconds = default_token_lifetime()
         data[u"exp"] = datetime.utcnow() + timedelta(seconds=seconds)
         token = model.ApiToken.get(jti)
-        extras = token.plugin_extras or {}
-        extras[u"expire_api_token"] = {u"exp": data[u"exp"].isoformat()}
-        token.plugin_extras = extras
-        model.Session.commit()
+        token.set_extra(
+            u"expire_api_token", {u"exp": data[u"exp"].isoformat()}, True
+        )
         return data
+
+    # TODO: subscribe to signal, sent from api_token.decode and remove
+    # expired tokens

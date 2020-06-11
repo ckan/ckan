@@ -1863,7 +1863,7 @@ class IApiToken(Interface):
         '''
         return schema
 
-    def decode_api_token(self, encoded):
+    def decode_api_token(self, encoded, **kwargs):
         """Make an attempt to decode API Token provided in request.
 
         Decode token if it possible and return dictionary with
@@ -1874,13 +1874,19 @@ class IApiToken(Interface):
         :param encoded: API Token provided in request
         :type encoded: str
 
+        :param kwargs: any additional parameters that can be added
+            in future or by plugins. Current implementation won't pass
+            any additional fields, but plugins may use this feature, passing
+            JWT `aud` or `iss` claims, for example
+        :type kwargs: dict
+
         :returns: dictionary with all the decoded fields or None
         :rtype: dict | None
 
         """
         return None
 
-    def encode_api_token(self, data):
+    def encode_api_token(self, data, **kwargs):
         """Make an attempt to encode API Token.
 
         Encode token if it possible and return string, that will be
@@ -1888,6 +1894,12 @@ class IApiToken(Interface):
 
         :param data: dictionary, containing all postprocessed data
         :type data: dict
+
+        :param kwargs: any additional parameters that can be added
+            in future or by plugins. Current implementation won't pass
+            any additional fields, but plugins may use this feature, passing
+            JWT `aud` or `iss` claims, for example
+        :type kwargs: dict
 
         :returns: token as encodes string or None
         :rtype: str | None

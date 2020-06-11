@@ -1519,12 +1519,9 @@ def api_token_create(context, data_dict):
 
     _check_access(u'api_token_create', context, data_dict)
 
-    encoders = plugins.PluginImplementations(plugins.IApiToken)
     schema = context.get(u'schema')
     if not schema:
-        schema = ckan.logic.schema.default_create_api_token_schema()
-        for plugin in encoders:
-            schema = plugin.create_api_token_schema(schema)
+        schema = api_token.get_schema()
 
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
@@ -1540,18 +1537,8 @@ def api_token_create(context, data_dict):
         u'iat': token_obj.created_at
     }
 
-    for plugin in encoders:
-        data = plugin.postprocess_api_token(
-            data, token_obj.id, validated_data_dict)
-    for plugin in encoders:
-        token = plugin.encode_api_token(data)
-        if token:
-            break
-    else:
-        token = api_token.encode(data)
+    data = api_token.postprocess(data, token_obj.id, validated_data_dict)
+    token = api_token.encode(data)
 
-    result = {u'token': token}
-    for plugin in encoders:
-        result = plugin.add_extra_fields(result)
-
+    result = api_token.add_extra({u'token': token})
     return result
