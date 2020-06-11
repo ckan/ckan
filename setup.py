@@ -47,12 +47,12 @@ entry_points = {
     'paste.app_install': [
         'main = ckan.config.install:CKANInstaller',
     ],
-    'paste.paster_command': [
-        'datastore = ckanext.datastore.commands:datastore_group',
-        'datapusher = ckanext.datapusher.cli:DatapusherCommand',
-    ],
     'console_scripts': [
         'ckan = ckan.cli.cli:ckan',
+    ],
+    'ckan.click_command': [
+        'datastore = ckanext.datastore.cli:datastore',
+        'datapusher = ckanext.datapusher.cli:datapusher',
     ],
     'paste.paster_create_template': [
         'ckanext = ckan.pastertemplates:CkanextTemplate',
