@@ -1,5 +1,6 @@
 // Bootstrap 4.5.0
-@import "bootstrap";
+@import "bootstrap-variables";
+@import "../vendor/bootstrap/scss/bootstrap.scss";
 
 // CKAN
 @import "ckan";
