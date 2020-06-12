@@ -250,4 +250,8 @@ setup(
         'Programming Language :: Python :: 2 :: Only',
         'Programming Language :: Python :: 2.7',
     ],
+    # this is used to fix an incompatiblity with readthedocs dependencies
+    extras_require={
+        "readthedocs":  ["Jinja2>=2.3"],
+    }
 )
