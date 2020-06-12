@@ -37,7 +37,7 @@ and add a layer of caching::
 ------------------------------
 
 The WSGI script file can be copied from the CKAN distribution:
-``cp /usr/lib/ckan/default/src/ckan/wsgi.py /etc/ckan/default/``
+``sudo cp /usr/lib/ckan/default/src/ckan/wsgi.py /etc/ckan/default/``
 
 Here is the file:
 
@@ -70,7 +70,7 @@ uwsgi
 
 Run ``pip install uwsgi``
 The uwsgi configuration file can be copied from the CKAN distribution:
-``cp /usr/lib/ckan/default/src/ckan/ckan-uwsgi.ini /etc/ckan/default/``
+``sudo cp /usr/lib/ckan/default/src/ckan/ckan-uwsgi.ini /etc/ckan/default/``
 
  Here is the file:
 
@@ -89,8 +89,6 @@ The uwsgi configuration file can be copied from the CKAN distribution:
     max-requests    =  5000
     vacuum          =  true
     callable        =  application  
-
-Run: ``/usr/lib/ckan/default/bin/uwsgi -i /etc/ckan/default/ckan-uwsgi.ini``  to test everything works
 
 
 -----------------------------------
@@ -186,8 +184,14 @@ following contents:
 
     }
 
-Now restart the NGINX server: |restart_nginx|
 
+To prevent conflicts, disable your default nginx sites:
+
+.. parsed-literal::
+
+    sudo rm -vi /etc/nginx/sites-enabled/default
+    sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
+    |restart_nginx|
 
 ------------------------
 7. Access your CKAN site
