@@ -204,4 +204,16 @@ setup(
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
+    classifiers=[
+        # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'Development Status :: 5 - Production/Stable',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2 :: Only',
+        'Programming Language :: Python :: 2.7',
+    ],
+    # this is used to fix an incompatiblity with readthedocs dependencies
+    extras_require={
+        "readthedocs": ["Jinja2>=2.3"],
+    }
 )
