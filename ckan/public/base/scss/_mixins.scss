@@ -1,4 +1,4 @@
-.break-word {
+@mixin break-word {
   -ms-word-break: break-all;
   word-break: break-all;
   /* Non standard for webkit */
@@ -103,7 +103,7 @@
   background-repeat: no-repeat;
 }
 
-.tag {
+@mixin tag {
   display: inline-block;
   margin-bottom: 4px;
   color: $tabTextColor;
@@ -122,7 +122,7 @@ a.tag:hover {
   @include box-shadow(inset 0 1px 0 lighten($btnPrimaryBackground, 10%));
 }
 
-.pill {
+@mixin pill {
   display: inline-block;
   background-color: $pillBackgroundColor;
   color: $pillTextColor;
@@ -138,12 +138,12 @@ a.tag:hover {
   }
 }
 
-.list-unstyled {
+@mixin list-unstyled {
   margin: 0;
   list-style: none;
 }
 
-.simple-item {
+@mixin simple-item {
   font-size: 12px;
   line-height: 14 / 12em;
   padding: 7px $gutterX;
@@ -153,7 +153,7 @@ a.tag:hover {
   }
 }
 
-.simple-list {
+@mixin simple-list {
   @include clearfix;
   @include list-unstyled;
   & > li {
@@ -165,17 +165,22 @@ a.tag:hover {
   }
 }
 
-.module-narrow .simple-list > li {
-  padding-left: $gutterSmallX;
-  padding-right: $gutterSmallX;
-  position: relative;
+@mixin module-narrow {
+  @include simple-list;
+  > li {
+    padding-left: $gutterSmallX;
+    padding-right: $gutterSmallX;
+    position: relative;
+  }
 }
 
-.listing li {
-  text-align: right; //overflow: hidden;
-  //white-space: nowrap;
-  //text-overflow: ellipsis;
-  margin-bottom: 5px;
+@mixin listing {
+  li {
+    text-align: right; //overflow: hidden;
+    //white-space: nowrap;
+    //text-overflow: ellipsis;
+    margin-bottom: 5px;
+  }
 }
 
 .listing .key,
@@ -195,7 +200,7 @@ a.tag:hover {
   display: block;
 }
 
-.box {
+@mixin box {
   background-color: $body-bg;
   border: 1px solid $layoutTrimBorderColor;
   @include border-radius(4px);
