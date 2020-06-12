@@ -10,19 +10,19 @@
 }
 
 @mixin transform($func) {
-  -webkit-transform: $arguments;
-  -moz-transform: $arguments;
-  -ms-transform: $arguments;
-  -o-transform: $arguments;
-  transform: $arguments;
+  -webkit-transform: $func;
+  -moz-transform: $func;
+  -ms-transform: $func;
+  -o-transform: $func;
+  transform: $func;
 }
 
 @mixin transform-origin($x, $y) {
-  -webkit-transform-origin: $arguments;
-  -moz-transform-origin: $arguments;
-  -ms-transform-origin: $arguments;
-  -o-transform-origin: $arguments;
-  transform-origin: $arguments;
+  -webkit-transform-origin: $x $y;
+  -moz-transform-origin: $x $y;
+  -ms-transform-origin: $x $y;
+  -o-transform-origin: $x $y;
+  transform-origin: $x $y;
 }
 
 // Allows use of rgba() in gradients. This will not provide a fallback for IE.

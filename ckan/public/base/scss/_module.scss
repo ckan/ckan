@@ -146,7 +146,9 @@
 
 .module-item {
   @include media-item;
-  @include make-md-column(6);
+  @include media-breakpoint-up(md) {
+    @include make-col(6);
+  }
   padding-top: 10px;
   padding-bottom: 10px;
   padding-right: 50px;
