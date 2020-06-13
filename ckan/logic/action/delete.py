@@ -58,6 +58,11 @@ def user_delete(context, data_dict):
     for membership in user_memberships:
         membership.delete()
 
+    datasets_where_user_is_collaborator = model.Session.query(model.PackageMember).filter(
+            model.PackageMember.user_id == user.id).all()
+    for collaborator in datasets_where_user_is_collaborator:
+        collaborator.delete()
+
     model.repo.commit()
 
 
@@ -98,6 +103,11 @@ def package_delete(context, data_dict):
 
     for membership in dataset_memberships:
         membership.delete()
+
+    dataset_collaborators = model.Session.query(model.PackageMember).filter(
+            model.PackageMember.package_id == id).all()
+    for collaborator in dataset_collaborators:
+        collaborator.delete()
 
     # Create activity
     if not entity.private:

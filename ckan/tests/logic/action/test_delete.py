@@ -517,6 +517,23 @@ class TestUserDelete(object):
 
         assert [m.state for m in user_memberships] == [u"deleted", u"deleted"]
 
+    @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+    def test_user_delete_removes_collaborations(self):
+        user = factories.User()
+        dataset = factories.Dataset()
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        assert len(helpers.call_action('package_member_list', id=dataset['id'])) == 1
+
+        context = {}
+        params = {u"id": user[u"id"]}
+
+        helpers.call_action(u"user_delete", context, **params)
+
+        assert len(helpers.call_action('package_member_list', id=dataset['id'])) == 0
+
 
 class TestJobClear(helpers.FunctionalRQTestBase):
     def test_all_queues(self):
@@ -623,3 +640,23 @@ class TestPackageMemberDelete(object):
             helpers.call_action(
                 'package_member_delete',
                 id=dataset['id'], user_id=user['id'])
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+def test_package_delete_removes_collaborations():
+
+    user = factories.User()
+    dataset = factories.Dataset()
+    helpers.call_action(
+        'package_member_create',
+        id=dataset['id'], user_id=user['id'], capacity='editor')
+
+    assert len(helpers.call_action('package_member_list_for_user', id=user['id'])) == 1
+
+    context = {}
+    params = {u"id": dataset[u"id"]}
+
+    helpers.call_action(u"package_delete", context, **params)
+
+    assert len(helpers.call_action('package_member_list_for_user', id=user['id'])) == 0
