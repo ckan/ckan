@@ -23,19 +23,23 @@ from ckan.common import config
 log = logging.getLogger(__name__)
 
 
+def _get_extensions():
+    return ['jinja2.ext.do', 'jinja2.ext.with_',
+            SnippetExtension,
+            CkanExtend,
+            CkanInternationalizationExtension,
+            LinkForExtension,
+            ResourceExtension,
+            UrlForStaticExtension,
+            UrlForExtension,
+            AssetExtension]
+
+
 def get_jinja_env_options():
     return dict(
         loader=CkanFileSystemLoader(config['computed_template_paths']),
         autoescape=True,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
-                    SnippetExtension,
-                    CkanExtend,
-                    CkanInternationalizationExtension,
-                    LinkForExtension,
-                    ResourceExtension,
-                    UrlForStaticExtension,
-                    UrlForExtension,
-                    AssetExtension],
+        extensions=_get_extensions(),
     )
 
 
