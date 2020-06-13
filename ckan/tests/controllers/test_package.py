@@ -514,6 +514,99 @@ class TestPackageEdit(object):
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestPackageOwnerOrgList(object):
+
+    owner_org_select = '<select id="field-organizations" name="owner_org"'
+
+    def test_org_list_shown_if_new_dataset_and_user_is_admin_or_editor_in_an_org(self, app):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.get(
+            url_for("dataset.new"), extra_environ=env
+        )
+        assert self.owner_org_select in response.body
+
+    def test_org_list_shown_if_admin_or_editor_of_the_dataset_org(self, app):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
+        dataset = factories.Dataset(owner_org=organization["id"])
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]), extra_environ=env
+        )
+        assert self.owner_org_select in response.body
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_org_list_not_shown_if_user_is_a_collaborator_with_default_config(self, app):
+
+        organization1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization1["id"])
+
+        user = factories.User()
+        organization2 = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]), extra_environ=env
+        )
+        assert self.owner_org_select not in response.body
+
+        response = app.post(
+            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
+            data={
+                "notes": "changed",
+                "save": ""
+            },
+            follow_redirects=False
+        )
+        updated_dataset = helpers.call_action("package_show", id=dataset["id"])
+        assert updated_dataset['owner_org'] == organization1['id']
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    def test_org_list_shown_if_user_is_a_collaborator_with_config_enabled(self, app):
+
+        organization1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization1["id"])
+
+        user = factories.User()
+        organization2 = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
+        helpers.call_action(
+            'package_member_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        response = app.get(
+            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
+        )
+        assert self.owner_org_select in response.body
+
+        response = app.post(
+            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
+            data={
+                "notes": "changed",
+                "owner_org": organization2['id'],
+                "save": ""
+            },
+            follow_redirects=False
+        )
+        updated_dataset = helpers.call_action("package_show", id=dataset["id"])
+        assert updated_dataset['owner_org'] == organization2['id']
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageRead(object):
     def test_read(self, app):
         dataset = factories.Dataset()

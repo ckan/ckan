@@ -2905,9 +2905,13 @@ def can_update_owner_org(package_dict, user_orgs=None):
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')
-            and user.id in [co[0] for co in get_collaborators(package_dict['id'])]):
+            and user.id in [
+                co[0] for co in get_collaborators(package_dict['id'])
+            ]):
 
-        # User is a collaborator, allow to change the owner_org depending on config
-        return authz.check_config_permission('allow_collaborators_to_change_owner_org')
+        # User is a collaborator, allow to change the owner_org depending
+        # on config
+        return authz.check_config_permission(
+            'allow_collaborators_to_change_owner_org')
 
     return False
