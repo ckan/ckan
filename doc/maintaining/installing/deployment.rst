@@ -63,7 +63,7 @@ CKAN to run in).
 3. Create the WSGI Server
 -------------------------
 
-Make sure you have activated the Python virtual environment before running this commands:  ``|activate|``
+Make sure you have activated the Python virtual environment before running this command:  |activate|
 
 uwsgi
 -----
@@ -185,12 +185,12 @@ following contents:
     }
 
 
-To prevent conflicts, disable your default nginx sites:
+To prevent conflicts, disable your default nginx sites and restart:
 
 .. parsed-literal::
 
     sudo rm -vi /etc/nginx/sites-enabled/default
-    sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
+    sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan
     |restart_nginx|
 
 ------------------------
