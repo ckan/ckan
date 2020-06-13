@@ -3,7 +3,7 @@
 """Add package_member_table
 
 Revision ID: f789f233226e
-Revises: 9fadda785b07
+Revises: 19ddad52b500
 Create Date: 2020-02-09 01:15:12.158897
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = u'f789f233226e'
-down_revision = u'9fadda785b07'
+down_revision = u'19ddad52b500'
 branch_labels = None
 depends_on = None
 
