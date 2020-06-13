@@ -15,7 +15,7 @@ const renamer = path => {
 };
 
 const build = () =>
-  src(__dirname + "/ckan/public/base/less/main.less")
+  src([__dirname + "/ckan/public/base/less/main.less", __dirname + "/ckan/public/base/less/main-rtl.less"])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
     .pipe(less())
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))

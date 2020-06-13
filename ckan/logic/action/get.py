@@ -1369,6 +1369,10 @@ def user_show(context, data_dict):
     :param include_password_hash: Include the stored password hash
         (sysadmin only, optional, default:``False``)
     :type include_password_hash: bool
+    :param include_plugin_extras: Include the internal plugin extras object
+        (sysadmin only, optional, default:``False``)
+    :type include_plugin_extras: bool
+
 
     :returns: the details of the user. Includes email_hash and
         number_created_packages (which excludes draft or private datasets
@@ -1410,8 +1414,11 @@ def user_show(context, data_dict):
     include_password_hash = sysadmin and asbool(
         data_dict.get('include_password_hash', False))
 
+    include_plugin_extras = sysadmin and asbool(
+        data_dict.get('include_plugin_extras', False))
+
     user_dict = model_dictize.user_dictize(
-        user_obj, context, include_password_hash)
+        user_obj, context, include_password_hash, include_plugin_extras)
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '

@@ -1,0 +1,1 @@
+Action function "datastore_search" would calculate the total, even if you set ``include_total=False``.
