@@ -1325,7 +1325,7 @@ mark,
   text-transform: capitalize;
 }
 .text-muted {
-  color: #777777;
+  color: #555555;
 }
 .text-primary {
   color: #206b82;
@@ -2353,7 +2353,7 @@ table th[class*="col-"] {
 caption {
   padding-top: 8px;
   padding-bottom: 8px;
-  color: #777777;
+  color: #555555;
   text-align: left;
 }
 th {
@@ -6829,7 +6829,7 @@ a.tag:hover {
 }
 .pill {
   display: inline-block;
-  background-color: #6f8890;
+  background-color: #4e5f65;
   color: #FFF;
   padding: 2px 10px 1px 10px;
   margin-right: 5px;
@@ -7366,12 +7366,12 @@ a.tag:hover {
 .nav-aside li.active a {
   position: relative;
   color: #FFF;
-  background-color: #8CA0A6;
+  background-color: #647A82;
 }
 .nav-item.active > a:hover,
 .nav-aside li.active a:hover {
   color: #FFF;
-  background-color: #8CA0A6;
+  background-color: #647A82;
 }
 @media (min-width: 768px) {
   .nav-item.active > a:before,
@@ -7380,7 +7380,7 @@ a.tag:hover {
     position: absolute;
     border: 20px solid transparent;
     border-right: none;
-    border-left-color: #8CA0A6;
+    border-left-color: #647A82;
     border-left-width: 6px;
     top: 0;
     bottom: 0;
