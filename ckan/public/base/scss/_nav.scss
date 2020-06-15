@@ -35,7 +35,7 @@
   }
 }
 
-@media (min-width: $screen-sm-min) {
+@media (min-width: $grid-breakpoints(sm)) {
   .nav-item.active > a:before,
   .nav-aside li.active a:before {
     content: " ";
@@ -55,7 +55,7 @@
 
 .nav-pills > li {
   float: none;
-  @media (min-width: $grid-float-breakpoint) {
+  @media (min-width: $grid-breakpoints(sm)) {
     float: left;
   }
 }
