@@ -87,147 +87,147 @@ $variableMap: (
 }
 
 // SMALL
-.ckan-icon-fb {
+@mixin ckan-icon-fb {
   @include ckan-icon-background-position(0, small);
 }
 
-.ckan-icon-gplus {
+@mixin ckan-icon-gplus {
   @include ckan-icon-background-position(1, small);
 }
 
-.ckan-icon-twitter {
+@mixin ckan-icon-twitter {
   @include ckan-icon-background-position(2, small);
 }
 
-.ckan-icon-email {
+@mixin ckan-icon-email {
   @include ckan-icon-background-position(3, small);
 }
 
-.ckan-icon-share {
+@mixin ckan-icon-share {
   @include ckan-icon-background-position(4, small);
 }
 
-.ckan-icon-feed {
+@mixin ckan-icon-feed {
   @include ckan-icon-background-position(5, small);
 }
 
-.ckan-icon-calendar {
+@mixin ckan-icon-calendar {
   @include ckan-icon-background-position(6, small);
 }
 
-.ckan-icon-file {
+@mixin ckan-icon-file {
   @include ckan-icon-background-position(7, small);
 }
 
-.ckan-icon-lock {
+@mixin ckan-icon-lock {
   @include ckan-icon-background-position(8, small);
 }
 
-.ckan-icon-link-file {
+@mixin ckan-icon-link-file {
   @include ckan-icon-background-position(9, small);
 }
 
-.ckan-icon-link-plugin {
+@mixin ckan-icon-link-plugin {
   @include ckan-icon-background-position(10, small);
 }
 
-.ckan-icon-upload-file {
+@mixin ckan-icon-upload-file {
   @include ckan-icon-background-position(11, small);
 }
 
-.ckan-icon-callout {
+@mixin ckan-icon-callout {
   @include ckan-icon-background-position(12, small);
 }
 
 // MEDIUM
-.ckan-icon-circle-cross {
+@mixin ckan-icon-circle-cross {
   @include ckan-icon-background-position(0, medium);
 }
 
-.ckan-icon-circle-add {
+@mixin ckan-icon-circle-add {
   @include ckan-icon-background-position(1, medium);
 }
 
-.ckan-icon-flame {
+@mixin ckan-icon-flame {
   @include ckan-icon-background-position(2, medium);
 }
 
-.ckan-icon-search {
+@mixin ckan-icon-search {
   @include ckan-icon-background-position(3, medium);
 }
 
 // LARGE
-.ckan-icon-large-lock {
+@mixin ckan-icon-large-lock {
   @include ckan-icon-background-position(0, large);
 }
 
-.ckan-icon-photo {
+@mixin ckan-icon-photo {
   @include ckan-icon-background-position(1, large);
 }
 
-.ckan-icon-add {
+@mixin ckan-icon-add {
   @include ckan-icon-background-position(2, large);
 }
 
-.ckan-icon-home {
+@mixin ckan-icon-home {
   @include ckan-icon-background-position(3, large);
 }
 
-.ckan-icon-rewind {
+@mixin ckan-icon-rewind {
   @include ckan-icon-background-position(4, large);
 }
 
-.ckan-icon-tools {
+@mixin ckan-icon-tools {
   @include ckan-icon-background-position(5, large);
 }
 
-.ckan-icon-flag {
+@mixin ckan-icon-flag {
   @include ckan-icon-background-position(6, large);
 }
 
-.ckan-icon-clipboard {
+@mixin ckan-icon-clipboard {
   @include ckan-icon-background-position(7, large);
 }
 
-.ckan-icon-share {
+@mixin ckan-icon-share {
   @include ckan-icon-background-position(8, large);
 }
 
-.ckan-icon-info {
+@mixin ckan-icon-info {
   @include ckan-icon-background-position(9, large);
 }
 
-.ckan-icon-download {
+@mixin ckan-icon-download {
   @include ckan-icon-background-position(10, large);
 }
 
-.ckan-icon-star {
+@mixin ckan-icon-star {
   @include ckan-icon-background-position(11, large);
 }
 
-.ckan-icon-info-flat {
+@mixin ckan-icon-info-flat {
   @include ckan-icon-background-position(12, large);
 }
 
-.ckan-icon-tag {
+@mixin ckan-icon-tag {
   @include ckan-icon-background-position(13, large);
 }
 
-.ckan-icon-plus {
+@mixin ckan-icon-plus {
   @include ckan-icon-background-position(14, large);
   width: 16px;
 }
 
-.ckan-icon-head {
+@mixin ckan-icon-head {
   @include ckan-icon-background-position(15, large);
 }
 
-.ckan-icon-arrow-e {
+@mixin ckan-icon-arrow-e {
   @include ckan-icon-background-position(16, large);
   width: 16px;
 }
 
-.ckan-icon-bookmark {
+@mixin ckan-icon-bookmark {
   @include ckan-icon-background-position(0, huge);
 }
 
