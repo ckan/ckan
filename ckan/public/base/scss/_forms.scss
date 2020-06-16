@@ -31,7 +31,7 @@ label.checkbox:after {
   content: "";
 }
 
-.cr-controls-reset {
+@mixin cr-controls-reset {
   position: relative;
   margin-left: initial;
   margin-right: $grid-gutter-width/6;
@@ -73,7 +73,7 @@ textarea {
   top: -2px;
 }
 
-.unselectable {
+@mixin unselectable {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
@@ -88,17 +88,17 @@ textarea {
 .control-full input,
 .control-full select,
 .control-full textarea {
-  @include box-sizing(border-box);
   height: auto;
   width: 100%;
 }
 
 .control-large {
   input {
-    @include input-lg;
+    @extend .form-control-lg;
   }
+
   .control-label {
-    font-size: $font-size-large;
+    font-size: $font-size-lg;
   }
 }
 
@@ -120,7 +120,7 @@ textarea {
   overflow: auto;
 }
 
-@media (min-width: $screen-sm-min) {
+@include media-breakpoint-up(sm) {
   .form-actions {
     text-align: right;
   }
@@ -133,7 +133,7 @@ textarea {
   margin: 0;
 }
 
-@media (min-width: $screen-sm-min) {
+@include media-breakpoint-up(sm) {
   .form-actions .action-info {
     float: left;
     width: 50%;
@@ -146,7 +146,7 @@ textarea {
   line-height: 1.2;
 }
 
-@media (max-width: $screen-sm-max) {
+@include media-breakpoint-down(sm) {
   .form-actions .btn {
     margin-top: 5px;
   }
@@ -181,7 +181,7 @@ textarea {
   margin-top: -10px;
 }
 
-@media (min-width: $screen-md-min) {
+@include media-breakpoint-up(md) {
   .form-group .info-block {
     padding: $grid-gutter-width/6 0 $grid-gutter-width/6 $grid-gutter-width/3;
   }
@@ -385,7 +385,7 @@ select[data-module="autocomplete"] {
 }
 
 .control-custom.disabled .checkbox.btn {
-  @include btn-danger;
+  @extend .btn-danger;
 }
 
 // Errors
@@ -415,7 +415,7 @@ select[data-module="autocomplete"] {
 
 .error-block,
 .error-inline {
-  font-size: $font-size-small;
+  font-size: $font-size-sm;
 }
 
 .error-block {
@@ -442,7 +442,7 @@ select[data-module="autocomplete"] {
 
 .control-custom.error .error-block {
   width: auto;
-  @include border-radius($border-radius-small);
+  @include border-radius($border-radius-sm);
 }
 
 .control-select.error .error-block {
@@ -463,7 +463,6 @@ select[data-module="autocomplete"] {
 }
 
 .stages li {
-  @include box-sizing(border-box);
   line-height: 27px;
   counter-increment: stage;
   width: 50%;
@@ -567,7 +566,7 @@ select[data-module="autocomplete"] {
   z-index: -1;
 }
 
-@media (max-width: $screen-sm-max) {
+@media (max-width: map-get($grid-breakpoints, "md") - 1) {
   .stages li .highlight {
     text-indent: -9999px;
   }
@@ -614,7 +613,6 @@ select[data-module="autocomplete"] {
 }
 
 .resource-upload-field input {
-  @include opacity(0);
   position: absolute;
   top: 0;
   right: 0;
@@ -733,7 +731,6 @@ select[data-module="autocomplete"] {
     cursor: pointer;
     position: absolute;
     z-index: 1;
-    @include opacity(0);
   }
   .controls {
     position: relative;
@@ -743,7 +740,7 @@ select[data-module="autocomplete"] {
     top: 0;
     margin-right: 10px;
     &.hover {
-      color: $gray-dark;
+      color: map-get($colors, "gray-dark");
       text-decoration: none;
       background-position: 0 -15px;
       @include transition(background-position 0.1s linear);
@@ -776,10 +773,11 @@ select[data-module="autocomplete"] {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  @media (max-width: $screen-sm-max) {
+
+  @include media-breakpoint-down(sm) {
     margin-bottom: $grid-gutter-width;
   }
-  @media (min-width: $screen-md-min) {
+  @include media-breakpoint-up(md) {
     min-height: $grid-gutter-width * 3 + 10;
   }
 }
@@ -787,7 +785,7 @@ select[data-module="autocomplete"] {
 .add-member-or {
   text-align: center;
   text-transform: uppercase;
-  color: $gray-light;
+  color: map-get($grays, "600");
   font-weight: bold;
 }
 
