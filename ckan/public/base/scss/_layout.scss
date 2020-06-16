@@ -4,7 +4,7 @@
   position: relative;
   min-height: 300px;
   background-color: #fff;
-  @media (min-width: $screen-sm-min) {
+  @include media-breakpoint-up(sm) {
     &:before {
       content: "";
       display: block;
@@ -43,7 +43,7 @@
   padding-bottom: 20px;
 }
 
-@media (min-width: $screen-sm-min) {
+@include media-breakpoint-up(sm) {
   [role="main"],
   .main {
     padding-top: 10px;
@@ -88,7 +88,7 @@
   display: none;
 }
 
-@media (max-width: $screen-xs-max) {
+@include media-breakpoint-down(sm) {
   .wrapper {
     border-width: 0;
     @include box-shadow(0);
@@ -158,7 +158,7 @@
   }
 }
 
-@media (min-width: $screen-sm-min) {
+@include media-breakpoint-up(sm) {
   .hero {
     background: url("${imagePath}/background-tile.png");
   }

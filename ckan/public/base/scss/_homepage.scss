@@ -63,7 +63,7 @@
           display: block;
           b {
             display: block;
-            font-size: $font-size-large * 2;
+            font-size: $font-size-lg * 2;
             line-height: 1.5;
           }
           &:hover {
@@ -77,7 +77,8 @@
     margin-top: $gutterY;
   }
 }
-@media (min-width: $screen-md-min) {
+
+@include media-breakpoint-up(md) {
   .homepage [role="main"] {
     padding: 20px 0;
   }
