@@ -35,7 +35,7 @@
   }
 }
 
-@media (min-width: map-get($grid-breakpoints, "sm")) {
+@include media-breakpoint-up(sm) {
   .nav-item.active > a:before,
   .nav-aside li.active a:before {
     content: " ";
@@ -55,7 +55,7 @@
 
 .nav-pills > li {
   float: none;
-  @media (min-width: map-get($grid-breakpoints, "sm")) {
+  @include media-breakpoint-up(sm) {
     float: left;
   }
 }

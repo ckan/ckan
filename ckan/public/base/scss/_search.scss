@@ -8,7 +8,6 @@
     position: relative;
     margin-bottom: 20px;
     input {
-      @include box-sizing(border-box);
       margin: 0;
       width: 100%;
       height: auto;
@@ -116,7 +115,7 @@
   }
 }
 
-@media (min-width: $screen-md-min) {
+@include media-breakpoint-up(md) {
   .search-form .control-order-by {
     float: right;
     margin-left: 15px;
