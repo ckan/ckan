@@ -4,7 +4,7 @@
   margin-bottom: 20px;
 }
 
-@media (max-width: $screen-sm-max) {
+@include media-breakpoint-down(sm) {
   .dataset-item {
     word-wrap: break-word;
   }
@@ -33,7 +33,7 @@
 }
 
 .label-inverse {
-  background-color: $gray;
+  background-color: map-get($colors, "gray");
 }
 
 .dataset-private {
@@ -103,7 +103,7 @@
   right: 10px;
 }
 
-@media (max-width: $screen-sm-max) {
+@include media-breakpoint-down(sm) {
   .resource-item .btn-group {
     display: none;
   }

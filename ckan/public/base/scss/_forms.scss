@@ -566,7 +566,7 @@ select[data-module="autocomplete"] {
   z-index: -1;
 }
 
-@media (max-width: map-get($grid-breakpoints, "md") - 1) {
+@include media-breakpoint-down(sm) {
   .stages li .highlight {
     text-indent: -9999px;
   }
