@@ -233,6 +233,27 @@ def test_flatten():
     assert data == unflatten(flatten_dict(data))
 
 
+def test_flatten_deeper():
+    data = {
+        u"resources": [
+            {
+                u"subfields": [
+                    {
+                        u"test": u"hello",
+                    },
+                ],
+            },
+        ],
+    }
+
+    assert flatten_dict(data) == {
+        ("resources", 0, u"subfields", 0, u"test"): u"hello",
+    }, pformat(flatten_dict(data))
+
+    assert data == unflatten(flatten_dict(data)), pformat(
+        unflatten(flatten_dict(data)))
+
+
 def test_simple():
     schema = {
         "name": [not_empty],
