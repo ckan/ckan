@@ -10,6 +10,8 @@ import inspect
 import sys
 
 from jinja2.exceptions import TemplateNotFound
+from sqlalchemy.exc import OperationalError
+
 import six
 from flask import (
     render_template as flask_render_template,
@@ -261,6 +263,10 @@ if six.PY2:
 
             try:
                 res = WSGIController.__call__(self, environ, start_response)
+            except OperationalError as error:
+                log.warn('%s: %s' % (type(error).__name__, error.message.rstrip()))
+                model.Session.connection().should_close_with_result = True
+                raise
             finally:
                 model.Session.remove()
 
