@@ -1779,3 +1779,158 @@ class TestDashboardMarkActivitiesOld(object):
             ("new package", False),
             ("changed package", False),
         ]
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_stored_on_update_if_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+
+        updated_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert updated_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert updated_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+        plugin_extras_from_db = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras_from_db == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # User edits themselves
+        context = {'user': user['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1'
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin_when_empty(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User()
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # User edits themselves
+        context = {'user': user['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] is None
+
+    def test_nested_updates_are_reflected_in_db(self):
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        sysadmin = factories.Sysadmin()
+
+        context = {'user': sysadmin['name']}
+
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        user['plugin_extras']['plugin1']['key1'] = 'value2'
+
+        updated_user = helpers.call_action('user_update', context=context, **user)
+
+        assert updated_user['plugin_extras']['plugin1']['key1'] == 'value2'
+
+        # Hold on, partner
+
+        plugin_extras = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras['plugin1']['key1'] == 'value2'

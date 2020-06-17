@@ -1,0 +1,6 @@
+Logic functions removed:
+  ``dashboard_activity_list_html`` ``organization_activity_list_html``
+  ``user_activity_list_html`` ``package_activity_list_html``
+  ``group_activity_list_html`` ``organization_activity_list_html``
+  ``recently_changed_packages_activity_list_html``
+  ``dashboard_activity_list_html`` ``activity_detail_list``

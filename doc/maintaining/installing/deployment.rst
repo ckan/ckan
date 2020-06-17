@@ -197,6 +197,7 @@ To prevent conflicts, disable your default nginx sites and restart:
 7. Access your CKAN site
 ------------------------
 
+
 You should now be able to visit your server in a web browser and see your new
 CKAN instance.
 

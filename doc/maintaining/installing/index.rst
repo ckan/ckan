@@ -9,6 +9,11 @@ There are three ways to install CKAN:
 #. Install from source
 #. Install from Docker Compose
 
+**For Python 3 installations, the minimum Python version required is 3.6**
+
+* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
+* **Ubuntu 16.04** includes **Python 3.5** as part of its distribution
+
 From package is the quickest and easiest way to install CKAN, but it requires
 Ubuntu 16.04 or 18.04 64-bit. **You should install CKAN from package if**:
 
