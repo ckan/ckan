@@ -20,5 +20,4 @@ def extract_ckan(fileobj, *args, **kw):
     if 'extensions' not in kw['options']:
         kw['options']['extensions'] = ','.join(extensions)
 
-
     return babel_extract(fileobj, *args, **kw)
