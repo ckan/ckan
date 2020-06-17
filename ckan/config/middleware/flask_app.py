@@ -207,7 +207,11 @@ def make_flask_stack(conf):
         return dict(ungettext=ungettext)
 
     # Babel
-    pairs = [(os.path.join(root, u'i18n'), 'ckan')] + [
+    _ckan_i18n_dir = config.get(
+        'ckan.i18n_directory', os.path.join(root, u'i18n'))
+    pairs = [
+        (_ckan_i18n_dir, u'ckan')
+    ] + [
         (p.i18n_directory(), p.i18n_domain())
         for p in PluginImplementations(ITranslation)
     ]
