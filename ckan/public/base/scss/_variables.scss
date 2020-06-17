@@ -32,7 +32,7 @@ $gutterY: 20px;
 $gutterSmallX: 15px;
 $gutterSmallY: $gutterY;
 
-$emptyTextColor: #aaa;
+$emptyTextColor: #6e6e6e;
 $genericBorderColor: #ddd;
 
 $breadcrumbTextColor: #505050;
@@ -44,7 +44,7 @@ $mastheadBackgroundColorStart: #005d7a;
 $mastheadBackgroundColorEnd: #00536b;
 
 $navItemActiveTextColor: #fff;
-$navItemActiveBackgroundColor: #8ca0a6;
+$navItemActiveBackgroundColor: #647a82;
 $navItemActiveArrowSize: 6px;
 
 $pillTextColor: $navItemActiveTextColor;
@@ -56,7 +56,7 @@ $bannerBackgroundColor: $mastheadBackgroundColor;
 $footerTextColor: #ccdee3;
 $footerLinkColor: $footerTextColor;
 
-$inputColor: $gray-base;
+$inputColor: map-get($colors,"gray");
 $inputBackground: $body-bg;
 $inputBorder: #ccc;
 $inputBorderRadius: 3px;
@@ -95,7 +95,7 @@ $codeTextColor: #000;
 // Datasets
 
 $listingHeadingTextColor: #333;
-$resourceFormatBackground: #aaa;
+$resourceFormatBackground: #6e6e6e;
 
 // Table
 

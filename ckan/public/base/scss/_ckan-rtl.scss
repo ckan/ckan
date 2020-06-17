@@ -1,7 +1,7 @@
 @import "ckan";
 
 .wrapper {
-  @media (min-width: $screen-sm-min) {
+  @include media-breakpoint-up(sm) {
     &:before {
       left: initial;
       right: 0;
@@ -16,7 +16,7 @@
   left: 0;
 }
 
-@media (min-width: $screen-md-min) {
+@include media-breakpoint-up(md) {
   .masthead .navbar-collapse {
     float: left;
   }
@@ -31,7 +31,7 @@
     margin-left: 20px;
   }
   .site-search {
-    @media (min-width: $screen-md-min) {
+    @include media-breakpoint-up(md) {
       margin-right: $grid-gutter-width / 2;
     }
     margin: ($grid-gutter-width / 6 - 1) 0 ($grid-gutter-width / 6 - 1)
@@ -39,7 +39,7 @@
   }
 }
 
-@media (min-width: $screen-sm-min) {
+@include media-breakpoint-up(sm) {
   .nav-item.active > a:before,
   .nav-aside li.active a:before {
     border-left: none;
@@ -54,7 +54,7 @@
 }
 
 .nav-pills > li {
-  @media (min-width: $grid-float-breakpoint) {
+  @include media-breakpoint-up(sm) {
     float: right;
   }
 }
@@ -84,6 +84,7 @@ th.dataset-label,
 .search-form .search-input.search-giant button {
   margin-top: -15px;
   left: 15px;
+  right: auto;
 }
 
 .context-info .nums dl,
@@ -113,4 +114,11 @@ th.dataset-label,
 
 .nav-facet .nav-item a span.item-label {
   padding-right: 15px;
+}
+
+@include media-breakpoint-up(md) {
+  .homepage.layout-1 .row1 .col2 {
+    right: auto;
+    left: 0;
+  }
 }
