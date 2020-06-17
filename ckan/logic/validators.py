@@ -54,9 +54,12 @@ def owner_org_validator(key, data, errors, context):
 
         package = context.get('package')
         if package and user and not user.sysadmin:
-            user_packages = logic.get_action(
-                'package_member_list_for_user')(
-                        {'ignore_auth': True}, {'id': user.id})
+            try:
+                user_packages = logic.get_action(
+                    'package_member_list_for_user')(
+                            {'ignore_auth': True}, {'id': user.id})
+            except logic.NotFound:
+                user_packages = []
             if package.id in [d['package_id'] for d in user_packages]:
                 # User is a collaborator, check if it's also a member with
                 # edit rights of the current organization (redundant, but possible)
