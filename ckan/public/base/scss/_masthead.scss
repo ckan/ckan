@@ -3,11 +3,10 @@ $notificationsBg: #c9403a;
   @include clearfix();
   min-height: 30px;
   color: $mastheadTextColor;
-  background: darken($mastheadBackgroundColor, 10%) url("${bgPath}");
+  background: darken($mastheadBackgroundColor, 10%) url("#{$bgPath}");
   .account {
     float: right;
     ul {
-      @include clearfix();
       li {
         display: block;
         float: left;
@@ -83,7 +82,7 @@ $notificationsBg: #c9403a;
   margin-bottom: initial;
   padding: $grid-gutter-width/3 0;
   color: $mastheadTextColor;
-  background: $mastheadBackgroundColor url("${bgPath}");
+  background: $mastheadBackgroundColor url("#{$bgPath}");
   .container {
     position: relative;
   }
