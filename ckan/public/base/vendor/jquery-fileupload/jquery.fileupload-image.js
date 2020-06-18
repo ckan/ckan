@@ -11,7 +11,7 @@
 
 /* global define, require */
 
-(function(factory) {
+(function (factory) {
   'use strict';
   if (typeof define === 'function' && define.amd) {
     // Register as an anonymous AMD module:
@@ -21,6 +21,7 @@
       'load-image-meta',
       'load-image-scale',
       'load-image-exif',
+      'load-image-orientation',
       'canvas-to-blob',
       './jquery.fileupload-process'
     ], factory);
@@ -32,6 +33,7 @@
       require('blueimp-load-image/js/load-image-meta'),
       require('blueimp-load-image/js/load-image-scale'),
       require('blueimp-load-image/js/load-image-exif'),
+      require('blueimp-load-image/js/load-image-orientation'),
       require('blueimp-canvas-to-blob'),
       require('./jquery.fileupload-process')
     );
@@ -39,18 +41,24 @@
     // Browser globals:
     factory(window.jQuery, window.loadImage);
   }
-})(function($, loadImage) {
+})(function ($, loadImage) {
   'use strict';
 
   // Prepend to the default processQueue:
   $.blueimp.fileupload.prototype.options.processQueue.unshift(
     {
       action: 'loadImageMetaData',
+      maxMetaDataSize: '@',
       disableImageHead: '@',
+      disableMetaDataParsers: '@',
       disableExif: '@',
-      disableExifThumbnail: '@',
-      disableExifSub: '@',
-      disableExifGps: '@',
+      disableExifOffsets: '@',
+      includeExifTags: '@',
+      excludeExifTags: '@',
+      disableIptc: '@',
+      disableIptcOffsets: '@',
+      includeIptcTags: '@',
+      excludeIptcTags: '@',
       disabled: '@disableImageMetaDataLoad'
     },
     {
@@ -125,7 +133,7 @@
       imageMaxHeight: 1080,
       // Defines the image orientation (1-8) or takes the orientation
       // value from Exif data if set to true:
-      imageOrientation: false,
+      imageOrientation: true,
       // Define if resized images should be cropped or only scaled:
       imageCrop: false,
       // Disable the resize image functionality by default:
@@ -150,7 +158,7 @@
       // as img element, if the browser supports the File API.
       // Accepts the options fileTypes (regular expression)
       // and maxFileSize (integer) to limit the files to load:
-      loadImage: function(data, options) {
+      loadImage: function (data, options) {
         if (options.disabled) {
           return data;
         }
@@ -164,7 +172,7 @@
           (options.fileTypes && !options.fileTypes.test(file.type)) ||
           !loadImage(
             file,
-            function(img) {
+            function (img) {
               if (img.src) {
                 data.img = img;
               }
@@ -183,7 +191,7 @@
       // Also stores the resized image as preview property.
       // Accepts the options maxWidth, maxHeight, minWidth,
       // minHeight, canvas and crop:
-      resizeImage: function(data, options) {
+      resizeImage: function (data, options) {
         if (options.disabled || !(data.canvas || data.img)) {
           return data;
         }
@@ -193,7 +201,7 @@
           // eslint-disable-next-line new-cap
           dfd = $.Deferred(),
           img = (options.canvas && data.canvas) || data.img,
-          resolve = function(newImg) {
+          resolve = function (newImg) {
             if (
               newImg &&
               (newImg.width !== img.width ||
@@ -205,27 +213,25 @@
             data.preview = newImg;
             dfd.resolveWith(that, [data]);
           },
-          thumbnail;
-        if (data.exif) {
-          if (options.orientation === true) {
+          thumbnail,
+          thumbnailBlob;
+        if (data.exif && options.thumbnail) {
+          thumbnail = data.exif.get('Thumbnail');
+          thumbnailBlob = thumbnail && thumbnail.get('Blob');
+          if (thumbnailBlob) {
             options.orientation = data.exif.get('Orientation');
-          }
-          if (options.thumbnail) {
-            thumbnail = data.exif.get('Thumbnail');
-            if (thumbnail) {
-              loadImage(thumbnail, resolve, options);
-              return dfd.promise();
-            }
-          }
-          // Prevent orienting the same image twice:
-          if (data.orientation) {
-            delete options.orientation;
-          } else {
-            data.orientation = options.orientation;
+            loadImage(thumbnailBlob, resolve, options);
+            return dfd.promise();
           }
         }
+        if (data.orientation) {
+          // Prevent orienting the same image twice:
+          delete options.orientation;
+        } else {
+          data.orientation = options.orientation || loadImage.orientation;
+        }
         if (img) {
-          resolve(loadImage.scale(img, options));
+          resolve(loadImage.scale(img, options, data));
           return dfd.promise();
         }
         return data;
@@ -233,7 +239,7 @@
 
       // Saves the processed image given as data.canvas
       // inplace at data.index of data.files:
-      saveImage: function(data, options) {
+      saveImage: function (data, options) {
         if (!data.canvas || options.disabled) {
           return data;
         }
@@ -243,7 +249,7 @@
           dfd = $.Deferred();
         if (data.canvas.toBlob) {
           data.canvas.toBlob(
-            function(blob) {
+            function (blob) {
               if (!blob.name) {
                 if (file.type === blob.type) {
                   blob.name = file.name;
@@ -272,7 +278,7 @@
         return dfd.promise();
       },
 
-      loadImageMetaData: function(data, options) {
+      loadImageMetaData: function (data, options) {
         if (options.disabled) {
           return data;
         }
@@ -281,7 +287,7 @@
           dfd = $.Deferred();
         loadImage.parseMetaData(
           data.files[data.index],
-          function(result) {
+          function (result) {
             $.extend(data, result);
             dfd.resolveWith(that, [data]);
           },
@@ -290,7 +296,7 @@
         return dfd.promise();
       },
 
-      saveImageMetaData: function(data, options) {
+      saveImageMetaData: function (data, options) {
         if (
           !(
             data.imageHead &&
@@ -301,31 +307,32 @@
         ) {
           return data;
         }
-        var file = data.files[data.index],
-          blob = new Blob(
-            [
-              data.imageHead,
-              // Resized images always have a head size of 20 bytes,
-              // including the JPEG marker and a minimal JFIF header:
-              this._blobSlice.call(file, 20)
-            ],
-            { type: file.type }
-          );
-        blob.name = file.name;
-        data.files[data.index] = blob;
-        return data;
+        var that = this,
+          file = data.files[data.index],
+          // eslint-disable-next-line new-cap
+          dfd = $.Deferred();
+        if (data.orientation === true && data.exifOffsets) {
+          // Reset Exif Orientation data:
+          loadImage.writeExifData(data.imageHead, data, 'Orientation', 1);
+        }
+        loadImage.replaceHead(file, data.imageHead, function (blob) {
+          blob.name = file.name;
+          data.files[data.index] = blob;
+          dfd.resolveWith(that, [data]);
+        });
+        return dfd.promise();
       },
 
       // Sets the resized version of the image as a property of the
       // file object, must be called after "saveImage":
-      setImage: function(data, options) {
+      setImage: function (data, options) {
         if (data.preview && !options.disabled) {
           data.files[data.index][options.name || 'preview'] = data.preview;
         }
         return data;
       },
 
-      deleteImageReferences: function(data, options) {
+      deleteImageReferences: function (data, options) {
         if (!options.disabled) {
           delete data.img;
           delete data.canvas;
