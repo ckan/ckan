@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: CKAN Support Mailing List
+    url: https://groups.google.com/a/ckan.org/forum/#!forum/ckan-dev
+    about: Please ask and answer questions here.
+  - name: CKAN Gitter Channel
+    url: https://gitter.im/ckan/chat
+    about: For support requests or general questions you can also reach other CKAN users and developers here.
+  - name: Security Issues
+    url: mailto:security@ckan.org
+    about: Please report any security related vulnerabilities here.
+  - name: Ideas Repository
+    url: https://github.com/ckan/ideas
+    about: For new feature requests or discussion, please create an issue on the ideas repository.
