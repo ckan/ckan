@@ -46,7 +46,7 @@
 @include media-breakpoint-up(sm) {
   .main {
     padding-top: 10px;
-    background: $layoutBackgroundColor url("${bgPath}");
+    background: $layoutBackgroundColor url("#{$bgPath}");
   }
 }
 
@@ -160,7 +160,7 @@
 
 @include media-breakpoint-up(sm) {
   .hero {
-    background: url("${imagePath}/background-tile.png");
+    background: url("#{$imagePath}/background-tile.png");
   }
 }
 

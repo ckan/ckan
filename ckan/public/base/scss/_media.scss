@@ -19,7 +19,7 @@
   @include clearfix;
   min-height: 205px;
   padding-top: $grid-gutter-width/2;
-  background: lighten($layoutBackgroundColor, 5%) url("${bgPath}");
+  background: lighten($layoutBackgroundColor, 5%) url("#{$bgPath}");
   border: 1px solid $moduleHeadingBorderColor;
   border-width: 1px 0;
 }

@@ -627,7 +627,7 @@ select[data-module="autocomplete"] {
 
 .resource-upload-field.loading {
   display: inline-block;
-  background: url("${imagePath}/loading-adjust-huener.gif") no-repeat center
+  background: url("#{$imagePath}/loading-adjust-huener.gif") no-repeat center
     right;
   padding-right: 5px;
 }
