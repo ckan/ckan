@@ -30,6 +30,7 @@ from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.lib import uploader
+from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import TrackingMiddleware
 import ckan.lib.app_globals as app_globals
@@ -207,8 +208,8 @@ def make_flask_stack(conf):
         return dict(ungettext=ungettext)
 
     # Babel
-    _ckan_i18n_dir = config.get(
-        'ckan.i18n_directory', os.path.join(root, u'i18n'))
+    _ckan_i18n_dir = i18n.get_ckan_i18n_dir()
+
     pairs = [
         (_ckan_i18n_dir, u'ckan')
     ] + [
