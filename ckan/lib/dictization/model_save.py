@@ -40,8 +40,6 @@ def resource_dict_save(res_dict, context):
     # dict
     new_extras = {}
     for key, value in res_dict.iteritems():
-        if isinstance(value, list):
-            continue
         if key in ('extras', 'revision_timestamp', 'tracking_summary'):
             continue
         if key in fields:
