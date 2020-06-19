@@ -75,6 +75,8 @@ to execute. Most commands have their own subcommands and options.
 
 Commands and Subcommands
 
+.. parsed-literal::
+
    ckan -c |ckan.ini| user list
 
 (Here ``user`` is the name of the CKAN command you're running, and ``list`` is
@@ -84,7 +86,9 @@ For a list of all available commands, see `CKAN Commands Reference`_.
 
 Each command has its own help text, which tells you what subcommands and
 options it has (if any). To print out a command's help text, run the command
-with the ``--help`` option, for example::
+with the ``--help`` option, for example:
+
+.. parsed-literal::
 
    ckan -c |ckan.ini| user --help
 
@@ -300,7 +304,8 @@ The ``jobs`` command can be used to manage :ref:`background jobs`.
 
 Run a background job worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-::
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs worker [--burst] [QUEUES]
 
@@ -308,17 +313,21 @@ Starts a worker that fetches job from the :ref:`job queues <background jobs
 queues>` and executes them. If no queue names are given then it listens to
 the default queue. This is equivalent to
 
-::
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs worker default
 
 If queue names are given then the worker listens to those queues and only
-those::
+those:
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs worker my-custom-queue another-special-queue
 
 Hence, if you want the worker to listen to the default queue and some others
-then you must list the default queue explicitly::
+then you must list the default queue explicitly
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs worker default my-custom-queue
 
@@ -336,7 +345,8 @@ enqueued (this is the default).
 
 List enqueued jobs
 ^^^^^^^^^^^^^^^^^^
-::
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs list [QUEUES]
 
@@ -349,7 +359,8 @@ listed.
 
 Show details about a job
 ^^^^^^^^^^^^^^^^^^^^^^^^
-::
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs show ID
 
@@ -360,7 +371,8 @@ Shows details about the enqueued job with the given ID.
 
 Cancel a job
 ^^^^^^^^^^^^
-::
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs cancel ID
 
@@ -373,7 +385,8 @@ aborted anymore.
 
 Clear job queues
 ^^^^^^^^^^^^^^^^
-::
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs clear [QUEUES]
 
@@ -385,7 +398,8 @@ queues are given then *all* queues are cleared.
 
 Enqueue a test job
 ^^^^^^^^^^^^^^^^^^
-::
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| jobs test [QUEUES]
 
@@ -407,7 +421,9 @@ Usage::
 minify: Create minified versions of the given Javascript and CSS files
 ======================================================================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan minify [--clean] PATH    - remove any minified files in the path
 
@@ -423,7 +439,9 @@ If the --clean option is provided any minified files will be removed.
 notify: Send out modification notifications
 ===========================================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan notify replay    - send out modification signals. In "replay" mode,
                        an update signal is sent for each dataset in the database.
@@ -441,7 +459,9 @@ profile: Code speed profiler
 Provide a ckan url and it will make the request and record how long each function call took in a file that can be read
 by runsnakerun.
 
-Usage::
+Usage
+
+.. parsed-literal::
 
    ckan profile URL
 
@@ -455,7 +475,9 @@ You may need to install the cProfile python module.
 search-index: Search index commands
 ===================================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan search-index check                    - Check search index
     ckan search-index clear                    - Clear the search index
@@ -471,31 +493,43 @@ search-index: Rebuild search index
 
 Rebuilds the search index. This is useful to prevent search indexes from getting out of sync with the main database.
 
-For example::
+For example
+
+.. parsed-literal::
 
  ckan -c |ckan.ini| search-index rebuild
 
 This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
-one dataset, you can provide a dataset name::
+one dataset, you can provide a dataset name
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| search-index rebuild test-dataset-name
 
 Alternatively, you can use the `-o` or `--only-missing` option to only reindex datasets which are not
-already indexed::
+already indexed
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| search-index rebuild -o
 
 If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
-won't clear the index before starting rebuilding it::
+won't clear the index before starting rebuilding it
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| search-index rebuild -r
 
 There is also an option available which works like the refresh option but tries to use all processes on the
-computer to reindex faster::
+computer to reindex faster
+
+.. parsed-literal::
 
     ckan -c |ckan.ini| search-index rebuild_fast
 
-There are other search related commands, mostly useful for debugging purposes::
+There are other search related commands, mostly useful for debugging purposes
+
+.. parsed-literal::
 
     ckan search-index check                  - checks for datasets not indexed
     ckan search-index show DATASET_NAME      - shows index of a dataset
@@ -505,7 +539,9 @@ There are other search related commands, mostly useful for debugging purposes::
 seed: Create test data in the database
 ======================================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     basic           - annakarenina and warandpeace.
     family          - package relationships data.
@@ -516,7 +552,9 @@ Usage::
     user            - create a user "tester" with api key "tester".
     vocabs          - some test vocabularies.
 
-Examples::
+Examples
+
+.. parsed-literal::
 
       ckan -c |ckan.ini| seed basic
 
@@ -524,7 +562,9 @@ Examples::
 server: Start Development server
 ==================================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan server --host (-h)          - Set Host
     ckan server --port (-p)          - Set Port
@@ -534,13 +574,17 @@ Usage::
 sysadmin: Give sysadmin rights
 ==============================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan sysadmin add       - convert user into a sysadmin
     ckan sysadmin list      - list sysadmins
     ckan sysadmin remove    - removes user from sysadmins
 
-For example, to make a user called 'admin' into a sysadmin::
+For example, to make a user called 'admin' into a sysadmin
+
+.. parsed-literal::
 
  ckan -c |ckan.ini| sysadmin add admin
 
@@ -548,7 +592,9 @@ For example, to make a user called 'admin' into a sysadmin::
 tracking: Update tracking statistics
 ====================================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan tracking update [start_date]       - update tracking stats
     ckan tracking export FILE [start_date]  - export tracking stats to a csv file
@@ -557,7 +603,9 @@ Usage::
 translation: Translation helper functions
 =========================================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan translation js          - generate the JavaScript translations
     ckan translation mangle      - mangle the zh_TW translations for testing
@@ -577,7 +625,9 @@ user: Create and manage users
 
 Lets you create, remove, list and manage users.
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan user add         - add new user
     ckan user list        - list all users
@@ -585,11 +635,15 @@ Usage::
     ckan user setpass     - set password for the user
     ckan user show        - show user
 
-For example, to create a new user called 'admin'::
+For example, to create a new user called 'admin'
+
+.. parsed-literal::
 
  ckan -c |ckan.ini| user add admin
 
-To delete the 'admin' user::
+To delete the 'admin' user
+
+.. parsed-literal::
 
  ckan -c |ckan.ini| user remove admin
 
@@ -597,7 +651,9 @@ To delete the 'admin' user::
 views: Create views on relevant resources
 =========================================
 
-Usage::
+Usage
+
+.. parsed-literal::
 
     ckan views clean      - permanently delete views for all types no...
     ckan views clear      - permanently delete all views or the ones with...
