@@ -3,6 +3,7 @@
 import datetime
 import uuid
 import logging
+import six
 
 from sqlalchemy.orm import class_mapper
 import six
