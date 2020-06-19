@@ -645,7 +645,7 @@ To delete the 'admin' user
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| user remove admin
+    ckan -c |ckan.ini| user remove admin
 
 
 views: Create views on relevant resources
