@@ -4,10 +4,8 @@
   }
 }
 
-.input-group-btn {
-  &:last-child {
-    > .btn {
-      z-index: 0;
-    }
+.input-group { 
+  .btn-outline-secondary {
+    border-color: #ced4da;
   }
 }
