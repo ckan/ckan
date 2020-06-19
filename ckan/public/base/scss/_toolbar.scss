@@ -45,7 +45,7 @@
   color: $breadcrumbTextColor;
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(xs) {
   .toolbar .breadcrumb {
     color: #fff;
     text-shadow: none;
