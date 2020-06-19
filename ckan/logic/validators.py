@@ -5,6 +5,7 @@ import datetime
 from itertools import count
 import re
 import mimetypes
+import json
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -846,3 +847,12 @@ def email_validator(value, context):
         if not email_pattern.match(value):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
+
+
+def extras_valid_json(extras, context):
+    try:
+        for extra, value in extras.iteritems():
+            json.dumps(extra)
+    except ValueError as e:
+        raise Invalid(_('Could not parse the value as valid JSON'))
+    return extras

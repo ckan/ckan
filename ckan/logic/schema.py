@@ -70,7 +70,8 @@ from ckan.logic.validators import (
     extra_key_not_in_root_schema,
     empty_if_not_sysadmin,
     package_id_does_not_exist,
-    email_validator
+    email_validator,
+    extras_valid_json,
     )
 
 
@@ -98,7 +99,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
-        '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
+        '__extras': [ignore_missing, extras_valid_json, keep_extras],
     }
 
     return schema
