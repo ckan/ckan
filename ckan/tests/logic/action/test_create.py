@@ -631,7 +631,7 @@ class TestResourceCreate:
             somekey="somevalue",  # this is how to do resource extras
             extras={u"someotherkey": u"alt234"},  # this isnt
             subobject={u'hello': u'there'},  # JSON objects supported
-            sublist=[1, 2, 3], # JSON lists suppoted
+            sublist=[1, 2, 3],  # JSON lists suppoted
             format=u"plain text",
             url=u"http://datahub.io/download/",
         )
