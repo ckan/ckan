@@ -40,8 +40,6 @@ defaults:
         ;;
         2) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 3
         ;;
-        3) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 4
-        ;;
       esac
 
   # Tests Frontend, only in one container
@@ -73,8 +71,8 @@ defaults:
       CKAN_POSTGRES_USER: ckan_default
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
-      NODE_TESTS_CONTAINER: 1
-      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --test-group-count 4  --test-group-random-seed 1
+      NODE_TESTS_CONTAINER: 3
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --test-group-count 3  --test-group-random-seed 1
   pg_image: &pg_image
     image: postgres:10
     environment:
