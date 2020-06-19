@@ -6,8 +6,8 @@
 
 {% block breadcrumb_content %}
   {{ super() }}
-  <li>{% link_for _('Changes'), named_route=dataset_type ~ '.activity', id=pkg_dict.name %}</li>
-  <li class="active">{% link_for activity_diffs[0].activities[1].id|truncate(30), named_route=dataset_type ~ '.changes', id=activity_diffs[0].activities[1].id %}</li>
+  <li class="breadcrumb-item">{% link_for _('Changes'), named_route=dataset_type ~ '.activity', id=pkg_dict.name %}</li>
+  <li class="breadcrumb-item active">{% link_for activity_diffs[0].activities[1].id|truncate(30), named_route=dataset_type ~ '.changes', id=activity_diffs[0].activities[1].id %}</li>
 {% endblock %}
 
 {% block primary %}
