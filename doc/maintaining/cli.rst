@@ -48,7 +48,7 @@ The config file (ckan.ini) will generally be located in the
 ``/etc/ckan/default/`` directory however it can be located in any directory on
 the host machine
 
-``command`` should be replaced with the name of the CKAN command that you wish
+**command** should be replaced with the name of the CKAN command that you wish
 to execute. Most commands have their own subcommands and options.
 
 .. note::
@@ -447,12 +447,12 @@ Usage
 
 .. parsed-literal::
 
- ckan minify [--clean] PATH    - remove any minified files in the path
-
- For example:
+ ckan minify [--clean] PATH     - remove any minified files in the path
+ 
+.. parsed-literal::
 
  ckan -c |ckan.ini| minify ckan/public/base
- ckan -c |ckan.ini| minify ckan/public/base/css/*.css
+ ckan -c |ckan.ini| minify ckan/public/base/css/\*.css
  ckan -c |ckan.ini| minify ckan/public/base/css/red.css
 
 If the --clean option is provided any minified files will be removed.
