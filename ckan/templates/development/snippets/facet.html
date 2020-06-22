@@ -2,9 +2,11 @@
   {% with items=(("First", true), ("Second", false), ("Third", true), ("Fourth", false), ("Last", false)) %}
     <h2 class="module-heading"><i class="fa fa-filter"></i>  Facet List</h2>
     <nav>
-      <ul class="list-unstyled nav nav-simple nav-facet">
+      <ul class="nav nav-facet flex-column">
         {% for value, active in items %}
-          <li class="nav-item{{ ' active' if active }}"><a href="#">{{ value }}</a></li>
+          <li class="nav-pills">
+            <a class="nav-link {{ ' active' if active }}" href="#">{{ value }}</a>
+          </li>
         {% endfor %}
       </ul>
     </nav>

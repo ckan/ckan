@@ -1,3 +1,5 @@
+/*
+
 .nav-simple,
 .nav-aside {
   @include simple-list; // Adds border and padding.
@@ -24,8 +26,9 @@
   background-color: $navActiveBackgroundColor;
 }
 
-.nav-item.active > a,
-.nav-aside li.active a {
+
+.nav-pills a.nav-link.active:after,
+.nav-pills a.nav-link li.active:after {
   position: relative;
   color: $navItemActiveTextColor;
   background-color: $navItemActiveBackgroundColor;
@@ -34,25 +37,37 @@
     background-color: $navItemActiveBackgroundColor;
   }
 }
+*/
 
-@include media-breakpoint-up(sm) {
-  .nav-item.active > a:before,
-  .nav-aside li.active a:before {
-    content: " ";
-    position: absolute;
-    border: ($navItemActiveArrowSize * 3 + 2) solid transparent;
-    border-right: none;
-    border-left-color: $navItemActiveBackgroundColor;
-    border-left-width: $navItemActiveArrowSize;
-    top: 0;
-    bottom: 0;
-    right: -$navItemActiveArrowSize;
-    width: $navItemActiveArrowSize;
-    height: 34px;
-    // background-image: url("#{$imagePath}/nav-active.png?1");
-  }
+.nav > li > a:hover,
+.nav > li > a:focus {
+   text-decoration: none;
+   background-color: #eeeeee;
 }
 
+.nav-pills a.nav-link.active:before,
+.nav-pills a.nav-link li.active:before {
+  content: " ";
+  position: absolute;
+  border: ($navItemActiveArrowSize * 3 + 2) solid transparent;
+  border-right: none;
+  border-left-color: $navItemActiveBackgroundColor;
+  border-left-width: $navItemActiveArrowSize;
+  top: 0;
+  bottom: 0;
+  right: -$navItemActiveArrowSize;
+  width: $navItemActiveArrowSize;
+  height: 34px;
+  // background-image: url("#{$imagePath}/nav-active.png?1");
+}
+
+.module-narrow .nav-pills > a {
+  padding-left: $gutterSmallX;
+  padding-right: $gutterSmallX;
+  position: relative;
+}
+
+/*
 .nav-pills > li {
   float: none;
   @include media-breakpoint-up(sm) {
@@ -60,33 +75,28 @@
   }
 }
 
-.nav-item.active > a span,
-.nav-aside li.active a span {
+.nav-pills.active > a span,
+.nav-pills li.active a span {
   white-space: nowrap;
   overflow: hidden;
   // display: block;
 }
 
-.module-narrow .nav-item > a,
-.module-narrow .nav-aside li a {
-  padding-left: $gutterSmallX;
-  padding-right: $gutterSmallX;
+
+
+.module-narrow .nav-pills.image,
+.module-narrow .nav-pills li.image {
   position: relative;
 }
 
-.module-narrow .nav-item.image,
-.module-narrow .nav-aside li.image {
-  position: relative;
-}
-
-.module-narrow .nav-item.image > a,
-.module-narrow .nav-aside li.image a {
+.module-narrow .nav-pills.image > a,
+.module-narrow .nav-pills li.image a {
   padding-left: $gutterSmallX + 27;
   padding-right: $gutterSmallX + 27;
 }
 
-.module-narrow .nav-item.image > img,
-.module-narrow .nav-aside li.image img {
+.module-narrow .nav-pills.image > img,
+.module-narrow .nav-pills li.image img {
   position: absolute;
   top: 50%;
   left: $gutterSmallX;
@@ -95,10 +105,11 @@
   margin-top: -10px;
   z-index: 2;
 }
+*/
 
 // FACET NAVIGATION
-.nav-facet .nav-item > a:hover:after,
-.nav-facet .nav-item.active > a:after {
+.nav-facet a.nav-link:hover:after,
+.nav-facet a.nav-link.active:after {
   @include ckan-icon;
   content: "";
   position: absolute;
@@ -107,11 +118,11 @@
   margin-top: -8px;
 }
 
-.nav-facet .nav-item > a:hover:after {
+.nav-facet a.nav-link:hover:after {
   @include ckan-icon-circle-add;
 }
 
-.nav-facet .nav-item.active > a:after {
+.nav-facet a.nav-link.active:after {
   @include ckan-icon-circle-cross;
   right: 3px;
 }

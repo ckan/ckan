@@ -9,3 +9,6 @@ $text-muted: #555555;
 //makes the navbar icon more prominent
 $navbar-dark-toggler-border-color:  rgba(white, .5);
 $navbar-dark-color:                 rgba(white, 1);
+
+//overwrite nav-pills border radius
+$nav-pills-border-radius:          0; //$border-radius !default;
