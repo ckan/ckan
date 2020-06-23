@@ -41,8 +41,6 @@ def resource_dict_save(res_dict, context):
     new_extras = {}
     has_changed = False
     for key, value in six.iteritems(res_dict):
-        if isinstance(value, list):
-            continue
         if key in ('extras', 'revision_timestamp', 'tracking_summary'):
             continue
         if key in fields:
