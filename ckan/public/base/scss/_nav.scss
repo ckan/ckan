@@ -53,6 +53,9 @@
   background-color: darken($mastheadBackgroundColor, 10%);
 }
 
+.nav-tabs .nav-item:hover {
+  background-color: #fff;
+}
 
 .nav > li > a:hover,
 .nav > li > a:focus {

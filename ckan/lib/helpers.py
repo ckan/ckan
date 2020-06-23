@@ -1121,8 +1121,8 @@ def _make_menu_item(menu_item, title, **kw):
                             % (menu_item, need))
     link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
-        return literal('<li class="nav-pills nav-link active">') + link + literal('</li>')
-    return literal('<li class="nav-pills nav-link">') + link + literal('</li>')
+        return literal('<li class="nav-item nav-link active">') + link + literal('</li>')
+    return literal('<li class="nav-item nav-link">') + link + literal('</li>')
 
 
 @core_helper
