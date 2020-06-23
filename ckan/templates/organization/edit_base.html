@@ -8,7 +8,7 @@
   <li class="breadcrumb-item">{% link_for _('Organizations'), named_route=group_type+'.index' %}</li>
   {% block breadcrumb_content_inner %}
     <li class="breadcrumb-item">{% link_for organization.display_name|truncate(35), named_route=group_type+'.read', id=organization.name %}</li>
-    <li class="breadcrumb-itme active">{% link_for _('Manage'), named_route=group_type+'.edit', id=organization.name %}</li>
+    <li class="breadcrumb-item active">{% link_for _('Manage'), named_route=group_type+'.edit', id=organization.name %}</li>
   {% endblock %}
 {% endblock %}
 

@@ -5,8 +5,8 @@
 {% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  {{ h.build_nav('user.index', _('Users')) }}
-  {{ h.build_nav('user.read', user.display_name|truncate(35), id=user.name) }}
+  <li class="breadcrumb-item"><a href="{{ h.url_for('user.index') }}">{{ _('Users') }}</a></li>
+  <li class="breadcrumb-item active"><a href="{{ h.url_for('user.read', id=user_dict.name) }}">{{ user_dict.display_name }}</a></li>
 {% endblock %}
 
 {% block content_action %}
