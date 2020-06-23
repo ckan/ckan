@@ -117,8 +117,8 @@ class DomainObject(object):
         were not found in columns.
 
         When key for a column is not present in _dict, columns marked
-        with doc='from_dict' will have their field set to None,
-        otherwise existing field value won't be changed.
+        with doc='remove_if_not_provided' will have their field set
+        to N , otherwise existing field value won't be changed.
         """
         changed = set()
         skipped = dict(_dict)
@@ -135,7 +135,7 @@ class DomainObject(object):
                     changed.add(col.name)
                     setattr(self, col.name, value)
                 del skipped[col.name]
-            elif col.doc == 'from_dict':
+            elif col.doc == 'remove_if_not_provided':
                 blank = None if col.nullable else ''
                 # these are expected when updating, clear when missing
                 if getattr(self, col.name) != blank:
