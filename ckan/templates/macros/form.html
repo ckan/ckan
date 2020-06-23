@@ -195,7 +195,7 @@ options     - A list/tuple of fields to be used as <options>.
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error='', classes=classes, extra_html=extra_html, is_required=is_required) %}
   <div class="input-group">
-    {% if prepend %}<span class="input-group-addon">{{ prepend }}</span>{%- endif -%}
+    {% if prepend %}<div class="input-group-prepend"><span class="input-group-text">{{ prepend }}</span></div>{%- endif -%}
     <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
     {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
   </div>
@@ -240,20 +240,24 @@ options     - A list/tuple of fields to be used as <options>.
   <div class="row">
     <div class="col-md-6">
       <div class="input-group" {{ attributes(attrs) }}>
-        <label for="{{ label_id }}" class="input-group-addon">{{ _('Key') }}</label>
+        <div class="input-group-prepend">
+          <label for="{{ label_id }}" class="input-group-text">{{ _('Key') }}</label>
+        </div>
         <input class="form-control" id="{{ id or names[0] }}-key" type="text" name="{{ names[0] }}" value="{{ values[0] | empty_and_escape }}" placeholder="{{ placeholders[0] }}" />
       </div>
     </div>
     <div class="col-md-6">
-      {% if values[0] or values[1] or error %}
-      <label class="checkbox pull-right" for="{{ id or names[2] }}-remove">
-        <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} />
-        <span class="btn btn-danger"><span class="fa fa-trash"></span><span class="sr-only">{{ _('Remove') }}</span></span>
-      </label>
-      {% endif %}
       <div class="input-group" {{ attributes(attrs) }}>
-        <label for="{{ id or names[1] }}-value" class="input-group-addon">{{ _('Value') }}</label>
+        <div class="input-group-prepend">
+          <label for="{{ id or names[1] }}-value" class="input-group-text">{{ _('Value') }}</label>
+        </div>
         <input class="form-control" id="{{ id or names[1] }}-value" type="text" name="{{ names[1] }}" value="{{ values[1] | empty_and_escape }}" placeholder="{{ placeholders[1] }}" />
+        {% if values[0] or values[1] or error %}
+        <label class="checkbox pull-right" for="{{ id or names[2] }}-remove">
+          <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} />
+          <span class="btn btn-danger"><span class="fa fa-trash"></span><span class="sr-only">{{ _('Remove') }}</span></span>
+        </label>
+        {% endif %}
       </div>
     </div>
   </div>

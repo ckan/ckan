@@ -68,11 +68,6 @@ textarea {
   max-width: 100%;
 }
 
-.form-group .btn {
-  position: relative;
-  top: -2px;
-}
-
 @mixin unselectable {
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -332,7 +327,7 @@ select[data-module="autocomplete"] {
 
 .control-custom .checkbox {
   display: inline-block;
-  margin: 2px 0 2px $grid-gutter-width/3;
+  margin: 0px 0 0px $grid-gutter-width/3;
 }
 
 .control-custom .checkbox input {
