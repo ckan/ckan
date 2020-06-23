@@ -907,7 +907,8 @@ def json_object(value):
 def extras_valid_json(extras, context):
     try:
         for extra, value in iteritems(extras):
-            json.dumps(extra)
+            json.dumps(value)
     except ValueError as e:
-        raise Invalid(_('Could not parse the value as valid JSON'))
+        raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
+                format(name=extra))
     return extras
