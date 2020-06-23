@@ -45,7 +45,7 @@ def resource_dict_save(res_dict, context):
     if 'url' in changed or ('last_modified' in changed and not new):
         obj.url_changed = True
 
-    if changed:
+    if changed or obj.extras != skipped:
         obj.metadata_modified = datetime.datetime.utcnow()
     obj.state = u'active'
     obj.extras = skipped
