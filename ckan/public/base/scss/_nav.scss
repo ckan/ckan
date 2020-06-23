@@ -21,10 +21,7 @@
   padding: 7px $gutterX;
 }
 
-.nav-item.active,
-.nav-aside li.active {
-  background-color: $navActiveBackgroundColor;
-}
+
 
 
 .nav-pills a.nav-link.active:after,
@@ -38,6 +35,21 @@
   }
 }
 */
+
+.flex-column .nav-pills .nav-link {
+  border-radius: 0;
+ }
+
+.navbar-nav .nav-link.active{
+  border-radius: .25rem;
+  background-color: $navItemActiveBackgroundColor;
+}
+
+.navbar-nav .nav-link:hover{
+  border-radius: .25rem;
+  background-color: $navItemActiveBackgroundColor;
+}
+
 
 .nav > li > a:hover,
 .nav > li > a:focus {

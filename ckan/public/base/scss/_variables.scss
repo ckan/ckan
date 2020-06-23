@@ -44,7 +44,7 @@ $mastheadBackgroundColorStart: #005d7a;
 $mastheadBackgroundColorEnd: #00536b;
 
 $navItemActiveTextColor: #fff;
-$navItemActiveBackgroundColor: #206b82;
+$navItemActiveBackgroundColor: darken($mastheadBackgroundColor, 10%);
 $navItemActiveArrowSize: 6px;
 
 $pillTextColor: $navItemActiveTextColor;
