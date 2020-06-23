@@ -288,9 +288,7 @@
 		
 	</searchComponent>
 	
-	<schemaFactory class="ManagedIndexSchemaFactory">
-		<bool name="mutable">true</bool>
-	</schemaFactory>
+	<schemaFactory class="ClassicIndexSchemaFactory" />
 	
 	<updateRequestProcessorChain name="add-unknown-fields-to-the-schema">
 		<processor class="solr.UUIDUpdateProcessorFactory" />

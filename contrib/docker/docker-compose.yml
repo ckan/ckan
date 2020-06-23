@@ -1,78 +1,68 @@
-# docker-compose build && docker-compose up -d
-# If "docker-compose logs ckan" shows DB not ready, run "docker-compose restart ckan" a few times.
 version: "3"
 
-volumes:
-  ckan_config:
-  ckan_home:
-  ckan_storage:
-  pg_data:
-  solr_data:
-
 services:
+
+  nginx:
+    container_name: nginx
+    build:
+      context: nginx/
+      dockerfile: Dockerfile
+    links:
+      - ckan
+    ports:
+      - "0.0.0.0:80:80"
+    
   ckan:
     container_name: ckan
     build:
-      context: ../../
+      context: ckan/
+      dockerfile: Dockerfile
       args:
-          - CKAN_SITE_URL=${CKAN_SITE_URL}
+        - TZ=${TZ}
+    env_file:
+      - .env
     links:
       - db
       - solr
       - redis
-    depends_on:
-      - db
+      - datapusher
     ports:
-      - "0.0.0.0:${CKAN_PORT}:5000"
-    environment:
-      # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
-      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
-      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
-      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
-      - CKAN_SOLR_URL=http://solr:8983/solr/ckan
-      - CKAN_REDIS_URL=redis://redis:6379/1
-      - CKAN_DATAPUSHER_URL=http://datapusher:8800
-      - CKAN_SITE_URL=${CKAN_SITE_URL}
-      - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-
+      - "0.0.0.0:5000:5000"
     volumes:
-      - ckan_config:/etc/ckan
-      - ckan_home:/usr/lib/ckan
       - ckan_storage:/var/lib/ckan
-
+    
   datapusher:
     container_name: datapusher
-    image: clementmouchet/datapusher
+    build:
+      context: datapusher/
     ports:
       - "8800:8800"
 
   db:
     container_name: db
     build:
-      context: ../../
-      dockerfile: contrib/docker/postgresql/Dockerfile
+      context: postgresql/
       args:
-        - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+        - DATASTORE_READONLY_PASSWORD=${DATASTORE_READONLY_PASSWORD}
         - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     environment:
-      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - DATASTORE_READONLY_PASSWORD=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "ckan"]
-
+     
   solr:
     container_name: solr
     build:
-      context: ../../
-      dockerfile: contrib/docker/solr/Dockerfile
+      context: solr/
     volumes:
-      - solr_data:/opt/solr/server/solr/ckan/data
-
+      - solr_data:/opt/solr/server/solr/ckan/data/index
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:alpine
+
+volumes:
+  ckan_storage:
+  pg_data:
+  solr_data:
