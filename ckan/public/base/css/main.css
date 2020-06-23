@@ -7258,6 +7258,10 @@ a.tag:hover {
   -ms-hyphens: auto;
   hyphens: auto;
 }
+.media-description {
+  word-wrap: break-word;
+  word-break: break-all;
+}
 .media-overlay {
   position: relative;
   min-height: 35px;
@@ -9587,7 +9591,9 @@ h4 small {
   height: 100%;
   border-radius: 4px;
 }
-.context-info p {
+.context-info .description {
+  word-wrap: break-word;
+  word-break: break-all;
   overflow: auto;
 }
 .context-info code {
