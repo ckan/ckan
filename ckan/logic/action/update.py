@@ -387,9 +387,16 @@ def package_revise(context, data_dict):
                     fields returned)
     :type include: list of string patterns
 
-    match and update parameters may also be passed as path keys, e.g.
+    match and update parameters may also be passed as path keys, using
+    either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
     ``update__resource__1f9ab__description="file here"`` would set the
-    description of resource id starting with "1f9ab" to "file here".
+    description of the resource with id starting with "1f9ab" to "file here", and
+    ``update__resource__1__description="file here"`` would do the same
+    on the second resource in the dataset.
+    
+    The ``extend`` key can also be used on the update parameter to add
+    a new item to a list, e.g. ``update__resources__extend=[{"name": "new resource", "url": "https://example.com"}]`` 
+    will add a new resource to the dataset with the provided ``name`` and ``url``.
 
     :returns: the updated dataset with fields filtered by include parameter
     :rtype: dictionary
