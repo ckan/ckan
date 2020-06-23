@@ -5,13 +5,18 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 16.04 64-bit**. If
-you're not using Ubuntu 16.04 64-bit, or if you're installing CKAN for
+and easiest way to install CKAN, but it requires **Ubuntu 16.04 or 18.04 64-bit**. If
+you're not using any of these Ubuntu versions, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
 At the end of the installation process you will end up with two running web
 applications, CKAN itself and the DataPusher, a separate service for automatically
 importing data to CKAN's :doc:`/maintaining/datastore`.
+
+**For Python 3 installations, the minimum Python version required is 3.6**
+
+* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
+* **Ubuntu 16.04** includes **Python 3.5** as part of its distribution
 
 
 Host ports requirements:
@@ -62,6 +67,12 @@ CKAN:
        .. parsed-literal::
 
            wget \http://packaging.ckan.org/|latest_package_name_xenial|
+           
+     - On Ubuntu 18.04:
+
+       .. parsed-literal::
+
+           wget \http://packaging.ckan.org/|latest_package_name_bionic|
 
 
 #. Install the CKAN package:
@@ -71,6 +82,12 @@ CKAN:
        .. parsed-literal::
 
            sudo dpkg -i |latest_package_name_xenial|
+           
+   - On Ubuntu 18.04:
+
+       .. parsed-literal::
+
+           sudo dpkg -i |latest_package_name_bionic|
 
     .. note:: If you get the following error it means that for some reason the
      Apache WSGI module was not enabled::
@@ -95,7 +112,7 @@ CKAN:
 
    You can install |postgres| and CKAN on different servers. Just
    change the :ref:`sqlalchemy.url` setting in your
-   |production.ini| file to reference your |postgres| server.
+   |ckan.ini| file to reference your |postgres| server.
 
 .. note::
 
@@ -107,7 +124,7 @@ Install |postgres|, running this command in a terminal::
 
 .. include:: postgres.rst
 
-Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|production.ini|) file and
+Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|ckan.ini|) file and
 set the correct password, database and database user.
 
 
@@ -119,7 +136,7 @@ set the correct password, database and database user.
 
    You can install |solr| and CKAN on different servers. Just
    change the :ref:`solr_url` setting in your
-   |production.ini| file to reference your |solr| server.
+   |ckan.ini| |production.ini| file to reference your |solr| server.
 
 Install |solr|, running this command in a terminal::
 
@@ -135,7 +152,7 @@ The install will whirr away, then towards the end you'll see this::
 4. Update the configuration and initialize the database
 -------------------------------------------------------
 
-#. Edit the :ref:`config_file` (|production.ini|) to set up the following options:
+#. Edit the :ref:`config_file` (|ckan.ini|) to set up the following options:
 
     site_id
       Each CKAN site should have a unique ``site_id``, for example::

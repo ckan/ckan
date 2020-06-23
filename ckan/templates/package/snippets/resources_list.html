@@ -11,7 +11,7 @@ Example:
 
 #}
 <section id="dataset-resources" class="resources">
-  <h3>{{ _('Data and Resources') }}</h3>
+  <h2>{{ _('Data and Resources') }}</h2>
   {% block resource_list %}
     {% if resources %}
       <ul class="{% block resource_list_class %}resource-list{% endblock %}">
@@ -24,7 +24,7 @@ Example:
       </ul>
     {% else %}
       {% if h.check_access('resource_create', {'package_id': pkg['id']}) and not is_activity_archive %}
-          {% trans url=h.url_for('resource.new', id=pkg.name) %}
+          {% trans url=h.url_for(pkg.type ~ '_resource.new', id=pkg.name) %}
             <p class="empty">This dataset has no data, <a href="{{ url }}">why not add some?</a></p>
           {% endtrans %}
       {% else %}

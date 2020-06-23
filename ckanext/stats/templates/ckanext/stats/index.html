@@ -21,7 +21,7 @@
           <tbody>
             {% for package, rating, num_ratings in c.top_rated_packages %}
               <tr>
-                <th>{{ h.link_to(package.title or package.name, h.url_for('dataset.read', id=package.name)) }}</th>
+                <th>{{ h.link_to(package.title or package.name, h.url_for(package.type ~ '.read', id=package.name)) }}</th>
                 <td class="metric">{{ rating }}</td>
                 <td class="metric">{{ num_ratings }}</td>
               </tr>
@@ -101,7 +101,7 @@
 
 {% block secondary_content %}
   <section class="module module-narrow">
-    <h2 class="module-heading"><i class="fa fa-bar-chart-o fa-medium"></i> {{ _('Statistics Menu') }}</h2>
+    <h2 class="module-heading"><i class="fa fa-bar-chart-o"></i> {{ _('Statistics Menu') }}</h2>
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
         <li class="nav-item active"><a href="#stats-top-rated" data-toggle="tab">{{ _('Top Rated Datasets') }}</a></li>

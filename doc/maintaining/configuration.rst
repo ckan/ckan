@@ -58,10 +58,11 @@ details on how to do this check :doc:`/extensions/remote-config-update`.
 CKAN configuration file
 ***********************
 
-By default, the
-configuration file is located at ``/etc/ckan/default/development.ini`` or
-``/etc/ckan/default/production.ini``. This section documents all of the config file
-settings, for reference.
+From CKAN 2.9, by default, the configuration file is located at
+``/etc/ckan/default/ckan.ini``. Previous releases the configuration file(s)
+were:  ``/etc/ckan/default/development.ini`` or
+``/etc/ckan/default/production.ini``. This section documents all of the config
+file settings, for reference.
 
 .. note:: After editing your config file, you need to restart your webserver
    for the changes to take effect.
@@ -103,8 +104,24 @@ Example::
 
 Default value: ``False``
 
-This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
-files, and enables CKAN templates' debugging features.
+This enables the `Flask-DebugToolbar
+<https://flask-debugtoolbar.readthedocs.io/>`_ in the web interface, makes
+Webassets serve unminified JS and CSS files, and enables CKAN templates'
+debugging features.
+
+You will need to ensure the ``Flask-DebugToolbar`` python package is installed,
+by activating your ckan virtual environment and then running::
+
+    pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt
+
+If you are running CKAN on Apache, you must change the WSGI
+configuration to run a single process of CKAN. Otherwise
+the execution will fail with: ``AssertionError: The EvalException
+middleware is not usable in a multi-process environment``. Eg. change::
+
+  WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
+  to
+  WSGIDaemonProcess ckan_default display-name=ckan_default threads=15
 
 .. warning:: This option should be set to ``False`` for a public site.
    With debug mode enabled, a visitor to your site could execute malicious
@@ -170,6 +187,21 @@ Default value: False
 This determines whether the secure flag will be set for the repoze.who
 authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
 default in the absence of the setting is ``False``.
+
+.. _who.samesite:
+
+who.samesite
+^^^^^^^^^^^^
+
+Example::
+
+ who.samesite = Strict
+
+Default value: Lax
+
+This determines whether the SameSite flag will be set for the repoze.who
+authorization cookie. Allowed values are ``Lax`` (the default one), ``Strict`` or ``None``.
+If set to ``None``,  ``who.secure`` must be set to ``True``.
 
 
 Database Settings
@@ -744,6 +776,21 @@ Controls whether the default search page (``/dataset``) should include
 private datasets visible to the current user or only public datasets
 visible to everyone.
 
+.. _ckan.search.default_package_sort:
+
+ckan.search.default_package_sort
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.default_package_sort = "name asc"
+
+Default value:  ``score desc, metadata_modified desc``
+
+Controls whether the default search page (``/dataset``) should different
+sorting parameter by default when the request does not specify sort.
+
+
 .. _search.facets.limit:
 
 search.facets.limit
@@ -1214,6 +1261,20 @@ Default Value: (empty)
 Defines a list of organization names or ids. This setting is used to display
 an organization and datasets on the home page in the default templates (1
 group and 2 datasets are displayed).
+
+.. _ckan.default_group_sort:
+
+ckan.default_group_sort
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.default_group_sort = name
+
+Default Value: 'title'
+
+Defines if some other sorting is used in group_list and organization_list
+by default when the request does not specify sort.
 
 .. _ckan.gravatar_default:
 

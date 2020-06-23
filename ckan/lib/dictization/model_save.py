@@ -45,11 +45,14 @@ def resource_dict_save(res_dict, context):
     if 'url' in changed or ('last_modified' in changed and not new):
         obj.url_changed = True
 
+    if changed:
+        obj.metadata_modified = datetime.datetime.utcnow()
     obj.state = u'active'
     obj.extras = skipped
 
     session.add(obj)
     return obj
+
 
 def package_resource_list_save(res_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
@@ -115,7 +118,7 @@ def package_extras_save(extra_dicts, pkg, context):
     #deleted
     for key in set(old_extras.keys()) - set(new_extras.keys()):
         extra = old_extras[key]
-        extra.delete()
+        session.delete(extra)
 
 
 def package_tag_list_save(tag_dicts, package, context):

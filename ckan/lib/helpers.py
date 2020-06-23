@@ -1270,11 +1270,6 @@ def _url_with_params(url, params):
     return url + u'?' + urlencode(params)
 
 
-def _search_url(params):
-    url = url_for('dataset.search')
-    return _url_with_params(url, params)
-
-
 @core_helper
 def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
     ''' Used for outputting package extras
@@ -1652,13 +1647,14 @@ def date_str_to_datetime(date_str):
 
     # Extract seconds and microseconds
     if len(time_tuple) >= 6:
-        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
+        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d+))?$',
                      time_tuple[5])
         if not m:
             raise ValueError('Unable to parse %s as seconds.microseconds' %
                              time_tuple[5])
         seconds = int(m.groupdict().get('seconds'))
-        microseconds = int(m.groupdict(0).get('microseconds'))
+        microseconds = int((str(m.groupdict(0).get('microseconds')) +
+                            '00000')[0:6])
         time_tuple = time_tuple[:5] + [seconds, microseconds]
 
     return datetime.datetime(*list(int(item) for item in time_tuple))
@@ -1774,12 +1770,14 @@ def dataset_display_name(package_or_package_dict):
 def dataset_link(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         name = package_or_package_dict['name']
+        type_ = package_or_package_dict.get('type', 'dataset')
     else:
         name = package_or_package_dict.name
+        type_ = package_or_package_dict.type
     text = dataset_display_name(package_or_package_dict)
     return link_to(
         text,
-        url_for('dataset.read', id=name)
+        url_for('{}.read'.format(type_), id=name)
     )
 
 
@@ -1801,17 +1799,17 @@ def resource_display_name(resource_dict):
 
 
 @core_helper
-def resource_link(resource_dict, package_id):
+def resource_link(resource_dict, package_id, package_type='dataset'):
     text = resource_display_name(resource_dict)
-    url = url_for('resource.read',
+    url = url_for('{}_resource.read'.format(package_type),
                   id=package_id,
                   resource_id=resource_dict['id'])
     return link_to(text, url)
 
 
 @core_helper
-def tag_link(tag):
-    url = url_for('dataset.search', tags=tag['name'])
+def tag_link(tag, package_type='dataset'):
+    url = url_for('{}.search'.format(package_type), tags=tag['name'])
     return link_to(tag.get('title', tag['name']), url)
 
 
@@ -1972,12 +1970,11 @@ def add_url_param(alternative_url=None, controller=None, action=None,
         (k, v) for k, v in params_items
         if k != 'page'
     ]
-    params = set(params_nopage)
     if new_params:
-        params |= set(new_params.items())
+        params_nopage += list(new_params.items())
     if alternative_url:
-        return _url_with_params(alternative_url, params)
-    return _create_url_with_params(params=params, controller=controller,
+        return _url_with_params(alternative_url, params_nopage)
+    return _create_url_with_params(params=params_nopage, controller=controller,
                                    action=action, extras=extras)
 
 
@@ -2376,7 +2373,7 @@ def resource_preview(resource, package):
     data_dict = {'resource': resource, 'package': package}
 
     if datapreview.get_preview_plugin(data_dict, return_first=True):
-        url = url_for('resource.datapreview',
+        url = url_for('{}_resource.datapreview'.format(package['type']),
                       resource_id=resource['id'], id=package['id'],
                       qualified=True)
     else:
@@ -2454,7 +2451,10 @@ def resource_view_get_fields(resource):
         'limit': 0,
         'include_total': False,
     }
-    result = logic.get_action('datastore_search')({}, data)
+    try:
+        result = logic.get_action('datastore_search')({}, data)
+    except logic.NotFound:
+        return []
 
     fields = [field['id'] for field in result.get('fields', [])]
 

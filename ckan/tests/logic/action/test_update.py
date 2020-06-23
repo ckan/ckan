@@ -19,6 +19,7 @@ from ckan.common import config
 
 from six import BytesIO
 from pyfakefs import fake_filesystem
+from freezegun import freeze_time
 
 try:
     import __builtin__ as builtins
@@ -570,6 +571,40 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
         assert dataset_["extras"][0]["key"] == "original media"
         assert dataset_["extras"][0]["value"] == '"book"'
+
+    def test_extra_can_be_restored_after_deletion(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"old attribute", "value": u'value'},
+                {"key": u"original media", "value": u'"book"'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[],
+        )
+
+        assert dataset_["extras"] == []
+
+        dataset_ = helpers.call_action(
+            "package_update",
+            id=dataset["id"],
+            extras=[
+                {"key": u"original media", "value": u'"book"'},
+                {"key": u"new attribute", "value": u'value'},
+            ],
+        )
+
+        assert len(dataset_["extras"]) == 2
 
     def test_license(self):
         user = factories.User()
@@ -1375,6 +1410,113 @@ class TestResourceUpdate(object):
         # View is created
         assert len(res_views) == 1
 
+    def test_edit_metadata_updates_metadata_modified_field(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='New Description',
+            )
+            assert resource['metadata_modified'] == '2020-02-25T12:00:00'
+
+    def test_same_values_dont_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='Test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='Test',
+                some_custom_field='test',
+                url='http://link.to.some.data'  # Default Value from Factory
+            )
+            assert (resource['metadata_modified'] !=
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '1987-03-04T23:30:00')
+
+    def test_new_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(package_id=dataset['id'], description='test')
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                some_custom_field='test',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
+
+    def test_remove_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
+
+    def test_update_keys_update_metadata_modified_field(self):
+        dataset = factories.Dataset()
+
+        with freeze_time('1987-03-04 23:30:00'):
+            resource = factories.Resource(
+                package_id=dataset['id'],
+                description='test',
+                some_custom_field='test',
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+
+        with freeze_time('2020-02-25 12:00:00'):
+            resource = helpers.call_action(
+                "resource_update",
+                id=resource["id"],
+                description='test',
+                some_custom_field='test2',
+                url='http://link.to.some.data'  # default value from factory
+            )
+            assert (resource['metadata_modified'] ==
+                    datetime.datetime.utcnow().isoformat())
+            assert (resource['metadata_modified'] ==
+                    '2020-02-25T12:00:00')
+
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestConfigOptionUpdate(object):
@@ -1732,3 +1874,158 @@ class TestDatasetRevise(object):
         )
         assert response['package']['resources'][0]['name'] == 'new name'
         assert response['package']['resources'][0]['url'] == ''
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_stored_on_update_if_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+
+        updated_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert updated_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert updated_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+        plugin_extras_from_db = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras_from_db == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # User edits themselves
+        context = {'user': user['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1'
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin_when_empty(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User()
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # User edits themselves
+        context = {'user': user['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] is None
+
+    def test_nested_updates_are_reflected_in_db(self):
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        sysadmin = factories.Sysadmin()
+
+        context = {'user': sysadmin['name']}
+
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        user['plugin_extras']['plugin1']['key1'] = 'value2'
+
+        updated_user = helpers.call_action('user_update', context=context, **user)
+
+        assert updated_user['plugin_extras']['plugin1']['key1'] == 'value2'
+
+        # Hold on, partner
+
+        plugin_extras = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras['plugin1']['key1'] == 'value2'

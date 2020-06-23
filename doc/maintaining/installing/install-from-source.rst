@@ -12,6 +12,11 @@ If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
+**For Python 3 installations, the minimum Python version required is 3.6**
+
+* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
+* **Ubuntu 16.04** includes **Python 3.5** as part of its distribution
+
 From source is also the right installation method for developers who want to
 work on CKAN.
 
@@ -27,7 +32,7 @@ required packages with this command::
 .. note::
 
     For Python 2 (deprecated, but compatible with CKAN 2.9 and earlier), do
-    this instead:
+    this instead::
 
         sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
 
@@ -123,7 +128,15 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
+      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements]'
+
+   .. note::
+
+      For Python 2 replace the last fragment with `requirements-py2`
+
+      .. parsed-literal::
+
+         pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements-py2]'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of
@@ -131,7 +144,7 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-       pip install -e 'git+\ |git_url|\#egg=ckan'
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,dev]'
 
    .. warning::
 
@@ -139,18 +152,8 @@ c. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
-d. Install the Python modules that CKAN requires into your virtualenv:
-
-   .. parsed-literal::
-
-       pip install -r |virtualenv|/src/ckan/requirements.txt
-
-.. note::
-
-    For Python 2 adjust the filename to: `requirements-py2.txt`
-
-e. Deactivate and reactivate your virtualenv, to make sure you're using the
-   virtualenv's copies of commands like ``paster`` rather than any system-wide
+d. Deactivate and reactivate your virtualenv, to make sure you're using the
+   virtualenv's copies of commands like ``ckan`` rather than any system-wide
    installed copies:
 
    .. parsed-literal::
@@ -181,9 +184,9 @@ Create the CKAN config file:
 
 .. parsed-literal::
 
-    paster make-config ckan |development.ini|
+    ckan generate config |ckan.ini|
 
-Edit the ``development.ini`` file in a text editor, changing the following
+Edit the ``ckan.ini`` file in a text editor, changing the following
 options:
 
 sqlalchemy.url
@@ -251,7 +254,7 @@ database, you can :ref:`create the database tables <db init>`:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    paster db init -c |development.ini|
+    ckan -c |ckan.ini| db init
 
 You should see ``Initialising DB: SUCCESS``.
 
@@ -278,14 +281,13 @@ in your CKAN config file.
 9. You're done!
 ---------------
 
-You can now use the Paste development server to serve CKAN from the
-command-line.  This is a simple and lightweight way to serve CKAN that is
+You can now run CKAN from the command-line.  This is a simple and lightweight way to serve CKAN that is
 useful for development and testing:
 
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    paster serve |development.ini|
+    ckan -c |ckan.ini| run
 
 Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
 page.
@@ -357,8 +359,8 @@ AttributeError: 'module' object has no attribute 'css/main.debug.css'
 This error is likely to show up when `debug` is set to `True`. To fix this
 error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
-After installing the dependencies, run ``npm run build`` and then start paster server
-again.
+After installing the dependencies, run ``npm run build`` and then start ckan
+server again.
 
 If you do not want to compile CSS, you can also copy the main.css to
 main.debug.css to get CKAN running::
@@ -369,7 +371,7 @@ main.debug.css to get CKAN running::
 ImportError: No module named 'flask_debugtoolbar'
 -------------------------------------------------
 
-This may show up if you are creating the database tables and you have enabled debug
-mode in the config file. Simply install the development requirements::
+This may show up if you have enabled debug mode in the config file. Simply
+install the development requirements::
 
     pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt

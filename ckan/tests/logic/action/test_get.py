@@ -72,6 +72,7 @@ class TestPackageShow(object):
         replace_number_suffix(dataset2, "name")
         replace_datetime(dataset2, "metadata_created")
         replace_datetime(dataset2, "metadata_modified")
+        replace_datetime(dataset2['resources'][0], "metadata_modified")
         replace_uuid(dataset2["groups"][0], "id")
         replace_number_suffix(dataset2["groups"][0], "name")
         replace_number_suffix(dataset2["groups"][0], "title")
@@ -139,6 +140,7 @@ class TestPackageShow(object):
                     u"hash": u"",
                     u"id": u"<SOME-UUID>",
                     u"last_modified": None,
+                    u"metadata_modified": u"2019-05-24T15:52:30.123456",
                     u"mimetype": None,
                     u"mimetype_inner": None,
                     u"name": u"Image num",
@@ -287,6 +289,29 @@ class TestGroupList(object):
 
         assert group_list == ["bb", "aa"]
 
+    def test_group_list_sort_default(self):
+
+        factories.Group(name="zz", title="aa")
+        factories.Group(name="yy", title="bb")
+
+        group_list = helpers.call_action(
+            "group_list"
+        )
+
+        assert group_list == ['zz', 'yy']
+
+    @pytest.mark.ckan_config("ckan.default_group_sort", "name")
+    def test_group_list_sort_from_config(self):
+
+        factories.Group(name="zz", title="aa")
+        factories.Group(name="yy", title="bb")
+
+        group_list = helpers.call_action(
+            "group_list"
+        )
+
+        assert group_list == ['yy', 'zz']
+
     def eq_expected(self, expected_dict, result_dict):
         superfluous_keys = set(result_dict) - set(expected_dict)
         assert not superfluous_keys, "Did not expect key: %s" % " ".join(
@@ -402,28 +427,32 @@ class TestGroupList(object):
         group1 = factories.Group()
         group2 = factories.Group()
         group3 = factories.Group()
+        group_names = [g["name"] for g in [group1, group2, group3]]
 
         group_list = helpers.call_action("group_list", limit=1)
 
         assert len(group_list) == 1
-        assert group_list[0] == group1["name"]
+        assert group_list[0] == sorted(group_names)[0]
 
     def test_group_list_offset(self):
 
         group1 = factories.Group()
         group2 = factories.Group()
         group3 = factories.Group()
+        group_names = [g["name"] for g in [group1, group2, group3]]
 
         group_list = helpers.call_action("group_list", offset=2)
 
         assert len(group_list) == 1
-        assert group_list[0] == group3["name"]
+        # group list returns sorted result. This is not necessarily
+        # order of creation
+        assert group_list[0] == sorted(group_names)[2]
 
     def test_group_list_limit_and_offset(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
-        group3 = factories.Group()
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+        group3 = factories.Group(name='cc')
 
         group_list = helpers.call_action("group_list", offset=1, limit=1)
 
@@ -1335,6 +1364,19 @@ class TestPackageSearch(object):
 
         result_names = [result["name"] for result in search_result["results"]]
         assert result_names == [u"test2", u"test1", u"test0"]
+
+    @pytest.mark.ckan_config("ckan.search.default_package_sort", "metadata_created asc")
+    def test_sort_default_from_config(self):
+        factories.Dataset(name="test0")
+        factories.Dataset(name="test1")
+        factories.Dataset(name="test2")
+
+        search_result = helpers.call_action(
+            "package_search"
+        )
+
+        result_names = [result["name"] for result in search_result["results"]]
+        assert result_names == [u"test0", u"test1", u"test2"]
 
     def test_package_search_on_resource_name(self):
         """
@@ -4261,3 +4303,72 @@ class TestDashboardNewActivities(object):
             )
             == 15
         )
+
+
+@pytest.mark.usefixtures('clean_db', 'with_request_context')
+class TestResourceSearch(object):
+    def test_required_fields(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('resource_search')
+        helpers.call_action('resource_search', query='name:*')
+
+    def test_base_search(self):
+        factories.Resource(name='one')
+        factories.Resource(name='two')
+        result = helpers.call_action('resource_search', query="name:three")
+        assert not result['count']
+
+        result = helpers.call_action('resource_search', query="name:one")
+        assert result['count'] == 1
+
+        result = helpers.call_action('resource_search', query="name:")
+        assert result['count'] == 2
+
+    def test_date_search(self):
+        res = factories.Resource()
+        result = helpers.call_action(
+            'resource_search', query="created:" + res['created'])
+        assert result['count'] == 1
+
+    def test_number_search(self):
+        factories.Resource(size=10)
+        result = helpers.call_action('resource_search', query="size:10")
+        assert result['count'] == 1
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_returned_if_sysadmin_and_include_plugin_extras_only(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1'
+            }
+        }
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'])
+
+        assert 'plugin_extras' not in user
+
+        context = {'user': user['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert 'plugin_extras' not in user

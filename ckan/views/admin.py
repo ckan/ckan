@@ -115,8 +115,8 @@ class ConfigView(MethodView):
             data_dict = logic.clean_dict(
                 dict_fns.unflatten(
                     logic.tuplize_dict(
-                        logic.parse_params(
-                            req, ignore_keys=CACHE_PARAMETERS))))
+                        logic.parse_params(req,
+                                           ignore_keys=CACHE_PARAMETERS))))
 
             del data_dict['save']
             data = logic.get_action(u'config_option_update')({
@@ -128,12 +128,11 @@ class ConfigView(MethodView):
             data = request.form
             errors = e.error_dict
             error_summary = e.error_summary
-            vars = dict(
-                data=data,
-                errors=errors,
-                error_summary=error_summary,
-                form_items=items,
-                **items)
+            vars = dict(data=data,
+                        errors=errors,
+                        error_summary=error_summary,
+                        form_items=items,
+                        **items)
             return base.render(u'admin/config.html', extra_vars=vars)
 
         return h.redirect_to(u'admin.config')
@@ -143,26 +142,83 @@ class TrashView(MethodView):
     def __init__(self):
         self.deleted_packages = model.Session.query(
             model.Package).filter_by(state=model.State.DELETED)
+        self.deleted_orgs = model.Session.query(model.Group).filter_by(
+            state=model.State.DELETED, is_organization=True)
+        self.deleted_groups = model.Session.query(model.Group).filter_by(
+            state=model.State.DELETED, is_organization=False)
+
+        self.deleted_entities = {
+            u'package': self.deleted_packages,
+            u'organization': self.deleted_orgs,
+            u'group': self.deleted_groups
+        }
+        self.messages = {
+            u'confirm': {
+                u'all': u'Are you sure you want to purge everything?',
+                u'package': u'Are you sure you want to purge datasets?',
+                u'organization':
+                    u'Are you sure you want to purge organizations?',
+                u'group': u'Are you sure you want to purge groups?'
+            },
+            u'success': {
+                u'package': u'{number} datasets have been purged',
+                u'organization': u'{number} organizations have been purged',
+                u'group': u'{number} groups have been purged'
+            },
+            u'empty': {
+                u'package': u'There are no datasets to purge',
+                u'organization': u'There are no organizations to purge',
+                u'group': u'There are no groups to purge'
+            }
+        }
 
     def get(self):
-        data = dict(deleted_packages=self.deleted_packages)
+        ent_type = request.args.get(u'name')
+
+        if ent_type:
+            return base.render(u'admin/snippets/confirm_delete.html',
+                               extra_vars={
+                                   u'ent_type': ent_type,
+                                   u'messages': self.messages})
+
+        data = dict(data=self.deleted_entities, messages=self.messages)
         return base.render(u'admin/trash.html', extra_vars=data)
 
     def post(self):
-        if (u'purge-packages' in request.form):
-            for pkg in self.deleted_packages:
-                logic.get_action(u'dataset_purge')(
-                    {u'user': g.user}, {u'id': pkg.id})
+        if u'cancel' in request.form:
+            return h.redirect_to(u'admin.trash')
+
+        req_action = request.form.get(u'action')
+        if req_action == u'all':
+            d = {
+                u'dataset_purge': self.deleted_packages,
+                u'group_purge': self.deleted_groups,
+                u'organization_purge': self.deleted_orgs
+            }
+            for action, deleted_entities in d.items():
+                for ent in deleted_entities:
+                    logic.get_action(action)({u'user': g.user},
+                                             {u'id': ent.id})
+                model.Session.remove()
+            h.flash_success(_(u'Massive purge complete'))
+
+        elif req_action in (u'package', u'organization', u'group'):
+            entities = self.deleted_entities[req_action]
+            number = entities.count()
+            for ent in entities:
+                logic.get_action(ent.type + u'_purge')({u'user': g.user},
+                                                       {u'id': ent.id})
             model.Session.remove()
-            h.flash_success(_(u'Purge complete'))
+            h.flash_success(_(self.messages[u'success'][req_action].format(
+                number=number))
+            )
         else:
             h.flash_error(_(u'Action not implemented.'))
-
         return h.redirect_to(u'admin.trash')
 
 
 admin.add_url_rule(u'/', view_func=index, strict_slashes=False)
-admin.add_url_rule(
-    u'/reset_config', view_func=ResetConfigView.as_view(str(u'reset_config')))
+admin.add_url_rule(u'/reset_config',
+                   view_func=ResetConfigView.as_view(str(u'reset_config')))
 admin.add_url_rule(u'/config', view_func=ConfigView.as_view(str(u'config')))
 admin.add_url_rule(u'/trash', view_func=TrashView.as_view(str(u'trash')))

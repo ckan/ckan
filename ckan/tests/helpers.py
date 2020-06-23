@@ -240,13 +240,11 @@ class CKANTestApp(object):
 
 class CKANTestClient(FlaskClient):
     def open(self, *args, **kwargs):
+        kwargs.pop('expect_errors', None)
         status = kwargs.pop("status", None)
         extra_environ = kwargs.pop("extra_environ", None)
         if extra_environ:
             kwargs["environ_overrides"] = extra_environ
-        # params = kwargs.pop('params', None)
-        # if params:
-        # kwargs['query_string'] = params
 
         if args and isinstance(args[0], six.string_types):
             kwargs.setdefault("follow_redirects", True)
@@ -254,7 +252,9 @@ class CKANTestClient(FlaskClient):
         res = super(CKANTestClient, self).open(*args, **kwargs)
 
         if status:
-            assert res.status_code == status, (res.status_code, status)
+            assert (
+                res.status_code == status
+            ), "Actual: {}. Expected: {}".format(res.status_code, status)
 
         return res
 
@@ -278,9 +278,9 @@ def _get_test_app():
     config["ckan.legacy_templates"] = False
     config["testing"] = True
     if six.PY2:
-        app = ckan.config.middleware.make_app(config["global_conf"], **config)
+        app = ckan.config.middleware.make_app(config)
     else:
-        app = ckan.config.middleware.make_app(config, **config)
+        app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
 
     return app

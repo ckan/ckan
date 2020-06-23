@@ -103,6 +103,29 @@ class TestGroupControllerNew(object):
         assert group.title == u"Science"
         assert group.description == "Sciencey datasets"
 
+    def test_form_without_initial_data(self, app):
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("group.new")
+        resp = app.get(url=url, extra_environ=env)
+        page = BeautifulSoup(resp.body)
+        form = page.select_one('#group-edit')
+        assert not form.select_one('[name=title]')['value']
+        assert not form.select_one('[name=name]')['value']
+        assert not form.select_one('[name=description]').text
+
+    def test_form_with_initial_data(self, app):
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("group.new", name="name",
+                      description="description", title="title")
+        resp = app.get(url=url, extra_environ=env)
+        page = BeautifulSoup(resp.body)
+        form = page.select_one('#group-edit')
+        assert form.select_one('[name=title]')['value'] == "title"
+        assert form.select_one('[name=name]')['value'] == "name"
+        assert form.select_one('[name=description]').text == "description"
+
 
 def _get_group_edit_page(app, group_name=None):
     user = factories.User()
@@ -162,6 +185,43 @@ class TestGroupControllerEdit(object):
         assert group.title == u"Science"
         assert group.description == "Sciencey datasets"
         assert group.image_url == "http://example.com/image.png"
+
+    def test_display_name_shown(self, app):
+        user = factories.User()
+        group = factories.Group(
+            name="display-name",
+            title="Display name",
+            user=user,
+        )
+
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+
+        form = {
+            "name": "",
+            "save": "",
+        }
+        resp = app.get(
+            url=url_for("group.edit", id=group["name"]),
+            extra_environ=env,
+        )
+        page = BeautifulSoup(resp.body)
+        breadcrumbs = page.select('.breadcrumb a')
+        # Home -> Groups -> NAME -> Manage
+        assert len(breadcrumbs) == 4
+        # Verify that `NAME` is not empty, as well as other parts
+        assert all([part.text for part in breadcrumbs])
+
+        resp = app.post(
+            url=url_for("group.edit", id=group["name"]),
+            extra_environ=env,
+            data=form,
+        )
+        page = BeautifulSoup(resp.body)
+        breadcrumbs = page.select('.breadcrumb a')
+        # Home -> Groups -> NAME -> Manage
+        assert len(breadcrumbs) == 4
+        # Verify that `NAME` is not empty, as well as other parts
+        assert all([part.text for part in breadcrumbs])
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -545,7 +605,7 @@ class TestGroupSearch(object):
         index_response = app.get(url_for("group.index"))
         index_response_html = BeautifulSoup(index_response.body)
         grp_names = index_response_html.select(
-            "ul.media-grid " "li.media-item " "h3.media-heading"
+            "ul.media-grid " "li.media-item " "h2.media-heading"
         )
         grp_names = [n.string for n in grp_names]
 
@@ -565,7 +625,7 @@ class TestGroupSearch(object):
         )
         search_response_html = BeautifulSoup(search_response.body)
         grp_names = search_response_html.select(
-            "ul.media-grid " "li.media-item " "h3.media-heading"
+            "ul.media-grid " "li.media-item " "h2.media-heading"
         )
         grp_names = [n.string for n in grp_names]
 
@@ -587,7 +647,7 @@ class TestGroupSearch(object):
 
         search_response_html = BeautifulSoup(search_response.body)
         grp_names = search_response_html.select(
-            "ul.media-grid " "li.media-item " "h3.media-heading"
+            "ul.media-grid " "li.media-item " "h2.media-heading"
         )
         grp_names = [n.string for n in grp_names]
 

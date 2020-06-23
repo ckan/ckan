@@ -7,6 +7,7 @@ from itertools import count
 import re
 import mimetypes
 import string
+import json
 
 from six import string_types
 from six.moves.urllib.parse import urlparse
@@ -912,7 +913,8 @@ def email_is_unique(key, data, errors, context):
     else:
         # allow user to update their own email
         for user in users:
-            if user.id == data[("id",)]:
+            if (user.name == data[("name",)]
+                    or user.id == data[("id",)]):
                 return
 
     raise Invalid(
@@ -927,3 +929,16 @@ def one_of(list_of_value):
             raise Invalid(_('Value must be one of {}'.format(list_of_value)))
         return value
     return callable
+
+
+def json_object(value):
+    ''' Make sure value can be serialized as a JSON object'''
+    if value is None or value == '':
+        return
+    try:
+        if not json.dumps(value).startswith('{'):
+            raise Invalid(_('The value should be a valid JSON object'))
+    except ValueError as e:
+        raise Invalid(_('Could not parse the value as a valid JSON object'))
+
+    return value

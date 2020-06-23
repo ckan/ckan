@@ -387,7 +387,7 @@ def default_user_schema(
         ignore_missing, unicode_safe, name_validator, user_name_validator,
         user_password_validator, user_password_not_empty, email_is_unique,
         ignore_not_sysadmin, not_empty, email_validator,
-        user_about_validator, ignore, boolean_validator):
+        user_about_validator, ignore, boolean_validator, json_object):
     return {
         'id': [ignore_missing, unicode_safe],
         'name': [
@@ -405,6 +405,7 @@ def default_user_schema(
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
         'state': [ignore_missing],
+        'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
     }
 
 

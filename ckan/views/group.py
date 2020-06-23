@@ -18,6 +18,8 @@ import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
 from ckan.common import g, config, request, _
+from ckan.views.home import CACHE_PARAMETERS
+
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -353,7 +355,7 @@ def _read(id, limit, group_type):
                 facets[facet] = facet
 
         # Facet titles
-        _update_facet_titles(facets, group_type)
+        facets = _update_facet_titles(facets, group_type)
 
         extra_vars["facet_titles"] = facets
 
@@ -413,6 +415,7 @@ def _read(id, limit, group_type):
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
         facets = plugin.group_facets(facets, group_type, None)
+    return facets
 
 
 def _get_group_dict(id, group_type):
@@ -899,7 +902,14 @@ class CreateGroupView(MethodView):
         extra_vars = {}
         set_org(is_organization)
         context = self._prepare()
-        data = data or {}
+        data = data or clean_dict(
+            dict_fns.unflatten(
+                tuplize_dict(
+                    parse_params(request.args, ignore_keys=CACHE_PARAMETERS)
+                )
+            )
+        )
+
         if not data.get(u'image_url', u'').startswith(u'http'):
             data.pop(u'image_url', None)
         errors = errors or {}
@@ -985,13 +995,10 @@ class EditGroupView(MethodView):
         context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
         try:
-            old_data = _action(u'group_show')(context, data_dict)
-            grouptitle = old_data.get(u'title')
-            groupname = old_data.get(u'name')
-            data = data or old_data
+            group_dict = _action(u'group_show')(context, data_dict)
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
-        group_dict = data
+        data = data or group_dict
         errors = errors or {}
         extra_vars = {
             u'data': data,
@@ -1008,8 +1015,8 @@ class EditGroupView(MethodView):
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
-        g.grouptitle = grouptitle
-        g.groupname = groupname
+        g.grouptitle = group_dict.get(u'title')
+        g.groupname = group_dict.get(u'name')
         g.data = data
         g.group_dict = group_dict
 
