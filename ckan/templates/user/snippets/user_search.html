@@ -7,7 +7,7 @@
       <button class="btn-search" type="submit"><i class="fa fa-search"></i></button>
     </div>
   </form>
-  <ul class="nav nav-simple">
-    <li class="nav-item">{{ h.nav_link(_('All Users'), named_route='user.index') }}</li>
+  <ul class="nav flex-column">
+    <li class="nav-pills">{{ h.nav_link(_('All Users'), named_route='user.index') }}</li>
   </ul>
 </section>

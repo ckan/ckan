@@ -5,9 +5,9 @@
       <h2 class="module-heading"><i class="fa fa-share-square-o"></i> {{ _('Social') }}</h2>
     {% endblock %}
     {% block social_nav %}
-      <ul class="nav nav-simple">
-        <li class="nav-item"><a href="https://twitter.com/share?url={{ current_url }}" target="_blank"><i class="fa fa-twitter-square"></i> Twitter</a></li>
-        <li class="nav-item"><a href="https://www.facebook.com/sharer.php?u={{ current_url }}" target="_blank"><i class="fa fa-facebook-square"></i> Facebook</a></li>
+      <ul class="nav flex-column">
+        <li class="nav-pills"><a href="https://twitter.com/share?url={{ current_url }}" target="_blank"><i class="fa fa-twitter-square"></i> Twitter</a></li>
+        <li class="nav-pills"><a href="https://www.facebook.com/sharer.php?u={{ current_url }}" target="_blank"><i class="fa fa-facebook-square"></i> Facebook</a></li>
       </ul>
     {% endblock %}
   </section>

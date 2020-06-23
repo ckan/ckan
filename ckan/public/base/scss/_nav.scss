@@ -39,6 +39,21 @@
 }
 */
 
+.flex-column .nav-pills .nav-link {
+  border-radius: 0;
+}
+
+.navbar-nav .nav-link.active {
+  border-radius: .25rem;
+  background-color: darken($mastheadBackgroundColor, 10%);
+}
+
+.navbar-nav .nav-link:hover {
+  border-radius: .25rem;
+  background-color: darken($mastheadBackgroundColor, 10%);
+}
+
+
 .nav > li > a:hover,
 .nav > li > a:focus {
    text-decoration: none;
@@ -180,6 +195,7 @@
   }
 }
 
+/*
 .nav-simple > .nav-btn {
   padding-left: 0;
   padding-right: 0;
@@ -188,6 +204,7 @@
     display: inline-block;
   }
 }
+
 
 // STACKED NAV
 // -----------
@@ -199,3 +216,4 @@
 .nav-stacked > li > a {
   margin-right: 0; // no need for the gap between nav items
 }
+*/
