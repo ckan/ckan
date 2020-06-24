@@ -51,7 +51,7 @@ $variableMap: (
   resourceIconOffsetY: $resourceIconOffsetY,
 );
 
-@mixin ckan-icon {
+.ckan-icon {
   //@include ie7-restore-right-whitespace;
   display: inline-block;
   vertical-align: text-bottom;
@@ -87,153 +87,153 @@ $variableMap: (
 }
 
 // SMALL
-@mixin ckan-icon-fb {
+.ckan-icon-fb {
   @include ckan-icon-background-position(0, small);
 }
 
-@mixin ckan-icon-gplus {
+.ckan-icon-gplus {
   @include ckan-icon-background-position(1, small);
 }
 
-@mixin ckan-icon-twitter {
+.ckan-icon-twitter {
   @include ckan-icon-background-position(2, small);
 }
 
-@mixin ckan-icon-email {
+.ckan-icon-email {
   @include ckan-icon-background-position(3, small);
 }
 
-@mixin ckan-icon-share {
+.ckan-icon-share {
   @include ckan-icon-background-position(4, small);
 }
 
-@mixin ckan-icon-feed {
+.ckan-icon-feed {
   @include ckan-icon-background-position(5, small);
 }
 
-@mixin ckan-icon-calendar {
+.ckan-icon-calendar {
   @include ckan-icon-background-position(6, small);
 }
 
-@mixin ckan-icon-file {
+.ckan-icon-file {
   @include ckan-icon-background-position(7, small);
 }
 
-@mixin ckan-icon-lock {
+.ckan-icon-lock {
   @include ckan-icon-background-position(8, small);
 }
 
-@mixin ckan-icon-link-file {
+.ckan-icon-link-file {
   @include ckan-icon-background-position(9, small);
 }
 
-@mixin ckan-icon-link-plugin {
+.ckan-icon-link-plugin {
   @include ckan-icon-background-position(10, small);
 }
 
-@mixin ckan-icon-upload-file {
+.ckan-icon-upload-file {
   @include ckan-icon-background-position(11, small);
 }
 
-@mixin ckan-icon-callout {
+.ckan-icon-callout {
   @include ckan-icon-background-position(12, small);
 }
 
 // MEDIUM
-@mixin ckan-icon-circle-cross {
+.ckan-icon-circle-cross {
   @include ckan-icon-background-position(0, medium);
 }
 
-@mixin ckan-icon-circle-add {
+.ckan-icon-circle-add {
   @include ckan-icon-background-position(1, medium);
 }
 
-@mixin ckan-icon-flame {
+.ckan-icon-flame {
   @include ckan-icon-background-position(2, medium);
 }
 
-@mixin ckan-icon-search {
+.ckan-icon-search {
   @include ckan-icon-background-position(3, medium);
 }
 
 // LARGE
-@mixin ckan-icon-large-lock {
+.ckan-icon-large-lock {
   @include ckan-icon-background-position(0, large);
 }
 
-@mixin ckan-icon-photo {
+.ckan-icon-photo {
   @include ckan-icon-background-position(1, large);
 }
 
-@mixin ckan-icon-add {
+.ckan-icon-add {
   @include ckan-icon-background-position(2, large);
 }
 
-@mixin ckan-icon-home {
+.ckan-icon-home {
   @include ckan-icon-background-position(3, large);
 }
 
-@mixin ckan-icon-rewind {
+.ckan-icon-rewind {
   @include ckan-icon-background-position(4, large);
 }
 
-@mixin ckan-icon-tools {
+.ckan-icon-tools {
   @include ckan-icon-background-position(5, large);
 }
 
-@mixin ckan-icon-flag {
+.ckan-icon-flag {
   @include ckan-icon-background-position(6, large);
 }
 
-@mixin ckan-icon-clipboard {
+.ckan-icon-clipboard {
   @include ckan-icon-background-position(7, large);
 }
 
-@mixin ckan-icon-share {
+.ckan-icon-share {
   @include ckan-icon-background-position(8, large);
 }
 
-@mixin ckan-icon-info {
+.ckan-icon-info {
   @include ckan-icon-background-position(9, large);
 }
 
-@mixin ckan-icon-download {
+.ckan-icon-download {
   @include ckan-icon-background-position(10, large);
 }
 
-@mixin ckan-icon-star {
+.ckan-icon-star {
   @include ckan-icon-background-position(11, large);
 }
 
-@mixin ckan-icon-info-flat {
+.ckan-icon-info-flat {
   @include ckan-icon-background-position(12, large);
 }
 
-@mixin ckan-icon-tag {
+.ckan-icon-tag {
   @include ckan-icon-background-position(13, large);
 }
 
-@mixin ckan-icon-plus {
+.ckan-icon-plus {
   @include ckan-icon-background-position(14, large);
   width: 16px;
 }
 
-@mixin ckan-icon-head {
+.ckan-icon-head {
   @include ckan-icon-background-position(15, large);
 }
 
-@mixin ckan-icon-arrow-e {
+.ckan-icon-arrow-e {
   @include ckan-icon-background-position(16, large);
   width: 16px;
 }
 
-@mixin ckan-icon-bookmark {
+.ckan-icon-bookmark {
   @include ckan-icon-background-position(0, huge);
 }
 
 // RESOURCE FORMAT ICONS
 .format-label {
-  @include ckan-icon;
+  @extend .ckan-icon;
   text-indent: -900em;
   background: url("#{$imagePath}/sprite-resource-icons.png") no-repeat 0 0;
 }

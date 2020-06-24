@@ -14,7 +14,7 @@
   text-transform: uppercase;
 }
 
-@mixin media-grid {
+.media-grid {
   @include list-unstyled;
   @include clearfix;
   min-height: 205px;
@@ -24,7 +24,7 @@
   border-width: 1px 0;
 }
 
-@mixin media-item {
+.media-item {
   position: relative;
   float: left;
   width: 178px;

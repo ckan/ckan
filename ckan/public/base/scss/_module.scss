@@ -141,11 +141,11 @@
 // Module Grid
 .module-grid {
   @include list-unstyled;
-  @include media-grid; // @include media-wide;
+  @extend .media-grid; // @include media-wide;
 }
 
 .module-item {
-  @include media-item;
+  @extend .media-item;
   @include media-breakpoint-up(md) {
     @include make-col(6);
   }

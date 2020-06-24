@@ -31,7 +31,7 @@ label.checkbox:after {
   content: "";
 }
 
-@mixin cr-controls-reset {
+.cr-controls-reset {
   position: relative;
   margin-left: initial;
   margin-right: $grid-gutter-width/6;
@@ -40,13 +40,13 @@ label.checkbox:after {
 
 .checkbox {
   input[type="checkbox"] {
-    @include cr-controls-reset;
+    @extend .cr-controls-reset;
   }
 }
 
 .radio {
   input[type="radio"] {
-    @include cr-controls-reset;
+    @extend .cr-controls-reset;
   }
 }
 
@@ -68,7 +68,7 @@ textarea {
   max-width: 100%;
 }
 
-@mixin unselectable {
+.unselectable {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
@@ -77,7 +77,7 @@ textarea {
 
 .checkbox,
 .radio {
-  @include unselectable;
+  @extend .unselectable;
 }
 
 .control-full input,

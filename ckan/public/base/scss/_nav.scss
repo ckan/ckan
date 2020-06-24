@@ -128,7 +128,7 @@
 // FACET NAVIGATION
 .nav-facet a.nav-link:hover:after,
 .nav-facet a.nav-link.active:after {
-  @include ckan-icon;
+  @extend .ckan-icon;
   content: "";
   position: absolute;
   top: 50%;
@@ -137,11 +137,11 @@
 }
 
 .nav-facet a.nav-link:hover:after {
-  @include ckan-icon-circle-add;
+  @extend .ckan-icon-circle-add;
 }
 
 .nav-facet a.nav-link.active:after {
-  @include ckan-icon-circle-cross;
+  @extend .ckan-icon-circle-cross;
   right: 3px;
 }
 
@@ -188,8 +188,8 @@
   }
   .nav li.active > a:hover:after,
   .nav li.active > a:after {
-    @include ckan-icon;
-    @include ckan-icon-circle-cross;
+    @extend .ckan-icon;
+    @extend .ckan-icon-circle-cross;
     content: "";
     position: absolute;
     top: 50%;
