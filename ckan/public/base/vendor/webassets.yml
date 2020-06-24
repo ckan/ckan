@@ -36,7 +36,7 @@ bootstrap:
       - vendor/font-awesome
       - vendor/jquery
   contents:
-    - bootstrap/js/bootstrap.js
+    - bootstrap/js/bootstrap.bundle.js
 
 fileupload:
   filters: rjsmin
