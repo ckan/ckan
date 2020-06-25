@@ -122,7 +122,8 @@ def index():
 
 
 def me():
-    return h.redirect_to(config.get(u'ckan.route_after_login', u'dashboard.index'))
+    return h.redirect_to(
+        config.get(u'ckan.route_after_login', u'dashboard.index'))
 
 
 def read(id):
