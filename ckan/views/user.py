@@ -56,8 +56,7 @@ def _extra_template_variables(context, data_dict):
     try:
         user_dict = logic.get_action(u'user_show')(context, data_dict)
     except logic.NotFound:
-        h.flash_error(_(u'Not authorized to see this page'))
-        return
+        base.abort(404, _(u'User not found'))
     except logic.NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
@@ -123,11 +122,7 @@ def index():
 
 
 def me():
-    if g.user:
-        route = config.get(u'ckan.route_after_login', u'dashboard.index')
-    else:
-        route = u'user.login'
-    return h.redirect_to(route)
+    return h.redirect_to(config.get(u'ckan.route_after_login', u'dashboard.index'))
 
 
 def read(id):
