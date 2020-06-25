@@ -155,20 +155,19 @@ class TestConfig(object):
         intro_response_html = BeautifulSoup(app.get("/").body)
         style_tag = intro_response_html.select("head style")
         assert len(style_tag) == 0
-
         # set new tagline css
         url = url_for(u"admin.config")
         form = {
             "ckan.site_custom_css": "body {background-color:red}",
             "save": "",
         }
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline not visible yet
         new_intro_response_html = BeautifulSoup(app.get("/").body)
         style_tag = new_intro_response_html.select("head style")
         assert len(style_tag) == 1
-        assert style_tag[0].text.strip() == "body {background-color:red}"
+        assert style_tag[0].string.strip() == "body {background-color:red}"
 
         # reset config value
         _reset_config(app)

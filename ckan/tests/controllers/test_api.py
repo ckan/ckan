@@ -6,41 +6,22 @@ controller itself.
 import json
 import re
 
-import mock
 import pytest
 import six
-
-from pyfakefs import fake_filesystem
 
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
 from ckan.lib import uploader as ckan_uploader
 
-try:
-    import __builtin__ as builtins
-except ImportError:
-    import builtins
-
-fs = fake_filesystem.FakeFilesystem()
-fake_os = fake_filesystem.FakeOsModule(fs)
-fake_open = fake_filesystem.FakeFileOpen(fs)
-real_open = open
-
-
-def mock_open_if_open_fails(*args, **kwargs):
-    try:
-        return real_open(*args, **kwargs)
-    except (OSError, IOError):
-        return fake_open(*args, **kwargs)
-
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestApiController(object):
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan_uploader, "os", fake_os)
-    @mock.patch.object(ckan_uploader, "_storage_path", new="/doesnt_exist")
-    def test_resource_create_upload_file(self, app, monkeypatch):
+    def test_resource_create_upload_file(
+            self, app, monkeypatch, tmpdir, ckan_config):
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        monkeypatch.setattr(ckan_uploader, u'_storage_path', str(tmpdir))
+
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user["id"])
 
@@ -54,8 +35,10 @@ class TestApiController(object):
 
         content = six.ensure_binary('upload-content')
         upload_content = six.BytesIO(content)
-        postparams = {"name": "test-flask-upload", "package_id": pkg["id"], "upload": (upload_content, "test-upload.txt")}
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
+        postparams = {
+            "name": "test-flask-upload",
+            "package_id": pkg["id"],
+            "upload": (upload_content, "test-upload.txt")}
 
         resp = app.post(
             url,
