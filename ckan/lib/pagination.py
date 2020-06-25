@@ -615,21 +615,21 @@ class BasePage(list):
                     {u"partial_url": partial_url, u"page": page}
                 )
             return tags.a(
-                text, href=link_url, onclick=onclick_action, **self.link_attr
+                text, cls=u"page-link", href=link_url, onclick=onclick_action, **self.link_attr
             )
         else:  # return static link
-            return tags.a(text, href=link_url, **self.link_attr)
+            return tags.a(text, cls=u"page-link", href=link_url, **self.link_attr)
 
 
 class Page(BasePage):
     def pager(self, *args, **kwargs):
         with tags.div(cls=u"pagination-wrapper") as wrapper:
-            tags.ul(u"$link_previous ~2~ $link_next", cls=u"pagination")
+            tags.ul(u"$link_previous ~2~ $link_next", cls=u"pagination justify-content-center")
         params = dict(
             format=text_type(wrapper),
             symbol_previous=u"«",
             symbol_next=u"»",
-            curpage_attr={u"class": u"active"},
+            curpage_attr={u"class": u"page-item active"},
             link_attr={},
         )
         params.update(kwargs)
@@ -640,7 +640,7 @@ class Page(BasePage):
     def _pagerlink(self, page, text, extra_attributes=None):
         anchor = super(Page, self)._pagerlink(page, text)
         extra_attributes = extra_attributes or {}
-        return text_type(tags.li(anchor, **extra_attributes))
+        return text_type(tags.li(anchor, cls=u"page-item" **extra_attributes))
 
     # Change 'current page' link from <span> to <li><a>
     # and '..' into '<li><a>..'
