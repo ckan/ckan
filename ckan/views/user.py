@@ -679,7 +679,7 @@ def follow(id):
     except logic.ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
-    except logic.NotAuthorized as e:
+    except (logic.NotFound, logic.NotAuthorized) as e:
         h.flash_error(e.message)
     return h.redirect_to(u'user.read', id=id)
 
@@ -699,12 +699,11 @@ def unfollow(id):
         h.flash_success(
             _(u'You are no longer following {0}').format(
                 user_dict[u'display_name']))
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        error_message = e.message
-        h.flash_error(error_message)
     except logic.ValidationError as e:
         error_message = (e.error_summary or e.message or e.error_dict)
         h.flash_error(error_message)
+    except (logic.NotFound, logic.NotAuthorized) as e:
+        h.flash_error(e.message)
     return h.redirect_to(u'user.read', id=id)
 
 
