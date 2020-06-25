@@ -7,6 +7,7 @@ from datetime import datetime
 
 from flask import Blueprint
 from flask.views import MethodView
+from werkzeug.datastructures import MultiDict
 from ckan.common import asbool
 
 import six
@@ -24,6 +25,7 @@ from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
 from ckan.views import LazyView
+
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -157,6 +159,41 @@ def _get_package_type(id):
     return None
 
 
+def _get_search_details():
+    fq = u''
+
+    # fields_grouped will contain a dict of params containing
+    # a list of values eg {u'tags':[u'tag1', u'tag2']}
+
+    fields = []
+    fields_grouped = {}
+    search_extras = MultiDict()
+
+    for (param, value) in request.args.items(multi=True):
+        if param not in [u'q', u'page', u'sort'] \
+                and len(value) and not param.startswith(u'_'):
+            if not param.startswith(u'ext_'):
+                fields.append((param, value))
+                fq += u' %s:"%s"' % (param, value)
+                if param not in fields_grouped:
+                    fields_grouped[param] = [value]
+                else:
+                    fields_grouped[param].append(value)
+            else:
+                search_extras.update({param: value})
+
+    search_extras = dict([
+        (k, v[0]) if len(v) == 1 else (k, v)
+        for k, v in search_extras.lists()
+    ])
+    return {
+        u'fields': fields,
+        u'fields_grouped': fields_grouped,
+        u'fq': fq,
+        u'search_extras': search_extras,
+    }
+
+
 def search(package_type):
     extra_vars = {}
 
@@ -200,89 +237,74 @@ def search(package_type):
     search_url_params = urlencode(_encode_params(params_nopage))
     extra_vars[u'search_url_params'] = search_url_params
 
+    details = _get_search_details()
+    extra_vars[u'fields'] = details[u'fields']
+    extra_vars[u'fields_grouped'] = details[u'fields_grouped']
+    fq = details[u'fq']
+    search_extras = details[u'search_extras']
+
+    context = {
+        u'model': model,
+        u'session': model.Session,
+        u'user': g.user,
+        u'for_view': True,
+        u'auth_user_obj': g.userobj
+    }
+
+    # Unless changed via config options, don't show other dataset
+    # types any search page. Potential alternatives are do show them
+    # on the default search page (dataset) or on one other search page
+    search_all_type = config.get(u'ckan.search.show_all_types', u'dataset')
+    search_all = False
+
     try:
-        # fields_grouped will contain a dict of params containing
-        # a list of values eg {u'tags':[u'tag1', u'tag2']}
+        # If the "type" is set to True or False, convert to bool
+        # and we know that no type was specified, so use traditional
+        # behaviour of applying this only to dataset type
+        search_all = asbool(search_all_type)
+        search_all_type = u'dataset'
+    # Otherwise we treat as a string representing a type
+    except ValueError:
+        search_all = True
 
-        extra_vars[u'fields'] = fields = []
-        extra_vars[u'fields_grouped'] = fields_grouped = {}
-        search_extras = {}
-        fq = u''
-        for (param, value) in request.args.items(multi=True):
-            if param not in [u'q', u'page', u'sort'] \
-                    and len(value) and not param.startswith(u'_'):
-                if not param.startswith(u'ext_'):
-                    fields.append((param, value))
-                    fq += u' %s:"%s"' % (param, value)
-                    if param not in fields_grouped:
-                        fields_grouped[param] = [value]
-                    else:
-                        fields_grouped[param].append(value)
-                else:
-                    search_extras[param] = value
+    if not search_all or package_type != search_all_type:
+        # Only show datasets of this particular type
+        fq += u' +dataset_type:{type}'.format(type=package_type)
 
-        context = {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'for_view': True,
-            u'auth_user_obj': g.userobj
-        }
+    facets = OrderedDict()
 
-        # Unless changed via config options, don't show other dataset
-        # types any search page. Potential alternatives are do show them
-        # on the default search page (dataset) or on one other search page
-        search_all_type = config.get(u'ckan.search.show_all_types', u'dataset')
-        search_all = False
+    default_facet_titles = {
+        u'organization': _(u'Organizations'),
+        u'groups': _(u'Groups'),
+        u'tags': _(u'Tags'),
+        u'res_format': _(u'Formats'),
+        u'license_id': _(u'Licenses'),
+    }
 
-        try:
-            # If the "type" is set to True or False, convert to bool
-            # and we know that no type was specified, so use traditional
-            # behaviour of applying this only to dataset type
-            search_all = asbool(search_all_type)
-            search_all_type = u'dataset'
-        # Otherwise we treat as a string representing a type
-        except ValueError:
-            search_all = True
+    for facet in h.facets():
+        if facet in default_facet_titles:
+            facets[facet] = default_facet_titles[facet]
+        else:
+            facets[facet] = facet
 
-        if not search_all or package_type != search_all_type:
-            # Only show datasets of this particular type
-            fq += u' +dataset_type:{type}'.format(type=package_type)
+    # Facet titles
+    for plugin in plugins.PluginImplementations(plugins.IFacets):
+        facets = plugin.dataset_facets(facets, package_type)
 
-        facets = OrderedDict()
-
-        default_facet_titles = {
-            u'organization': _(u'Organizations'),
-            u'groups': _(u'Groups'),
-            u'tags': _(u'Tags'),
-            u'res_format': _(u'Formats'),
-            u'license_id': _(u'Licenses'),
-        }
-
-        for facet in h.facets():
-            if facet in default_facet_titles:
-                facets[facet] = default_facet_titles[facet]
-            else:
-                facets[facet] = facet
-
-        # Facet titles
-        for plugin in plugins.PluginImplementations(plugins.IFacets):
-            facets = plugin.dataset_facets(facets, package_type)
-
-        extra_vars[u'facet_titles'] = facets
-        data_dict = {
-            u'q': q,
-            u'fq': fq.strip(),
-            u'facet.field': list(facets.keys()),
-            u'rows': limit,
-            u'start': (page - 1) * limit,
-            u'sort': sort_by,
-            u'extras': search_extras,
-            u'include_private': asbool(
-                config.get(u'ckan.search.default_include_private', True)
-            ),
-        }
-
+    extra_vars[u'facet_titles'] = facets
+    data_dict = {
+        u'q': q,
+        u'fq': fq.strip(),
+        u'facet.field': list(facets.keys()),
+        u'rows': limit,
+        u'start': (page - 1) * limit,
+        u'sort': sort_by,
+        u'extras': search_extras,
+        u'include_private': asbool(
+            config.get(u'ckan.search.default_include_private', True)
+        ),
+    }
+    try:
         query = get_action(u'package_search')(context, data_dict)
 
         extra_vars[u'sort_by_selected'] = query[u'sort']
