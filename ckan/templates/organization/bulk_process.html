@@ -77,12 +77,12 @@
                       <h3 class="dataset-heading">
                         {{ h.link_to(h.truncate(title, truncate_title), h.url_for(package.type ~ '.read', id=package.name)) }}
                         {% if package.get('state', '').startswith('draft') %}
-                          <span class="label label-info">{{ _('Draft') }}</span>
+                          <span class="badge badge-info">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}
-                          <span class="label label-danger">{{ _('Deleted') }}</span>
+                          <span class="badge badge-danger">{{ _('Deleted') }}</span>
                         {% endif %}
                         {% if package.private %}
-                          <span class="label label-danger">{{ _('Private') }}</span>
+                          <span class="badge badge-danger">{{ _('Private') }}</span>
                         {% endif %}
                       </h3>
                       {% if notes %}

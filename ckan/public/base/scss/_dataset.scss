@@ -175,56 +175,56 @@
 }
 
 // FORMATS
-.label[data-format="html"],
-.label[data-format*="html"] {
+.badge-primary[data-format="html"],
+.badge-primary[data-format*="html"] {
   background-color: #2e759e;
 }
 
-.label[data-format="json"],
-.label[data-format*="json"] {
+.badge-primary[data-format="json"],
+.badge-primary[data-format*="json"] {
   background-color: #d63b00;
 }
 
-.label[data-format="xml"],
-.label[data-format*="xml"] {
+.badge-primary[data-format="xml"],
+.badge-primary[data-format*="xml"] {
   background-color: #d63b00;
 }
 
-.label[data-format="text"],
-.label[data-format*="text"] {
+.badge-primary[data-format="text"],
+.badge-primary[data-format*="text"] {
   background-color: #1a7ea3;
 }
 
-.label[data-format="csv"],
-.label[data-format*="csv"] {
+.badge-primary[data-format="csv"],
+.badge-primary[data-format*="csv"] {
   background-color: #856a00;
 }
 
-.label[data-format="xls"],
-.label[data-format*="xls"] {
+.badge-primary[data-format="xls"],
+.badge-primary[data-format*="xls"] {
   background-color: #207e42;
 }
 
-.label[data-format="zip"],
-.label[data-format*="zip"] {
+.badge-primary[data-format="zip"],
+.badge-primary[data-format*="zip"] {
   background-color: #686868;
 }
 
-.label[data-format="api"],
-.label[data-format*="api"] {
+.badge-primary[data-format="api"],
+.badge-primary[data-format*="api"] {
   background-color: #d22d81;
 }
 
-.label[data-format="pdf"],
-.label[data-format*="pdf"] {
+.badge-primary[data-format="pdf"],
+.badge-primary[data-format*="pdf"] {
   background-color: #e0051e;
 }
 
-.label[data-format="rdf"],
-.label[data-format*="rdf"],
-.label[data-format*="nquad"],
-.label[data-format*="ntriples"],
-.label[data-format*="turtle"] {
+.badge-primary[data-format="rdf"],
+.badge-primary[data-format*="rdf"],
+.badge-primary[data-format*="nquad"],
+.badge-primary[data-format*="ntriples"],
+.badge-primary[data-format*="turtle"] {
   background-color: #0b4498;
 }
 
