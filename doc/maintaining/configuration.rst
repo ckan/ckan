@@ -143,6 +143,52 @@ maintain compatibility.
   .. warning:: This configuration will be removed when migration to Flask is completed. Please
     update the extension code to use the new Flask-based route names.
 
+
+Development Settings
+--------------------
+
+.. _ckan.devserver.threaded:
+
+ckan.devserver.threaded
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.threaded = true
+
+Default value: False
+
+Controls, whether development server handle each request in a separate
+thread.
+
+.. _ckan.devserver.multiprocess:
+
+ckan.devserver.multiprocess
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.multiprocess = 8
+
+Default value: 1
+
+If greater than 1 then handle each request in a new process up to this
+maximum number of concurrent processes.
+
+.. _ckan.devserver.watch_patterns:
+
+ckan.devserver.watch_patterns
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.watch_patterns = mytheme/**/*.yaml mytheme/**/*.json
+
+Default value: None
+
+A list of files the reloader should watch additionally to the
+modules. For example configuration files.
+
 Repoze.who Settings
 -------------------
 
