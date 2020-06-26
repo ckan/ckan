@@ -387,16 +387,58 @@ def package_revise(context, data_dict):
                     fields returned)
     :type include: list of string patterns
 
-    match and update parameters may also be passed as path keys, using
+    ``match`` and ``update`` parameters may also be passed as path keys, using
     either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
     ``update__resource__1f9ab__description="file here"`` would set the
     description of the resource with id starting with "1f9ab" to "file here", and
     ``update__resource__1__description="file here"`` would do the same
     on the second resource in the dataset.
-    
+
     The ``extend`` key can also be used on the update parameter to add
-    a new item to a list, e.g. ``update__resources__extend=[{"name": "new resource", "url": "https://example.com"}]`` 
+    a new item to a list, e.g. ``update__resources__extend=[{"name": "new resource", "url": "https://example.com"}]``
     will add a new resource to the dataset with the provided ``name`` and ``url``.
+
+    Usage examples:
+
+    * Change description in dataset, checking for old description::
+
+        match={"notes": "old notes", "name": "xyz"}
+        date={"notes": "new notes"}
+
+    * Identical to above, but using flattened keys::
+
+        match__name "xyz"
+        match__notes "old notes"
+        update__notes "new notes"
+
+    * Replace all fields at dataset level only, keep resources (note: dataset id
+      and type fields can't be deleted) ::
+
+        match={"id": "1234abc-1420-cbad-1922"}
+        filter=["+resources", "-*"]
+        update={"name": "fresh-start", "title": "Fresh Start"}
+
+    * Add a new resource (__extend on flattened key)::
+
+        match={"id": "abc0123-1420-cbad-1922"}
+        update__resources__extend=[{"name": "new resource", "url": "http://example.com"}]
+
+    * Update a resource by its index::
+
+        match={"name": "my-data"}
+        update__resources__0={"name": "new name, first resource"}
+
+    * Update a resource by its id (provide at least 5 characters)::
+
+        match={"name": "their-data"}
+        update__resources__19cfad={"description": "right one for sure"}
+
+    * Replace all fields of a resource::
+
+        match={"id": "34a12bc-1420-cbad-1922"}
+        filter=["+resources__1492a__id", "-resources__1492a__*"]
+        update__resources__1492a={"name": "edits here", "url": "http://example.com"}
+
 
     :returns: the updated dataset with fields filtered by include parameter
     :rtype: dictionary
