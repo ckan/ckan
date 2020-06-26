@@ -20,14 +20,14 @@ depends_on = None
 def upgrade():
     op.create_table(
         u'package_member',
-        sa.Column(u'id', sa.UnicodeText(), nullable=False),
-        sa.Column(u'package_id', sa.UnicodeText(), nullable=True),
-        sa.Column(u'user_id', sa.UnicodeText(), nullable=True),
+        sa.Column(u'package_id', sa.UnicodeText()),
+        sa.Column(u'user_id', sa.UnicodeText()),
         sa.Column(u'capacity', sa.UnicodeText(), nullable=False),
-        sa.Column(u'modified', sa.DateTime(), nullable=True),
+        sa.Column(u'modified', sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint([u'package_id'], [u'package.id'], ),
         sa.ForeignKeyConstraint([u'user_id'], [u'user.id'], ),
-        sa.PrimaryKeyConstraint(u'id')
+        sa.PrimaryKeyConstraint(
+            u'package_id', u'user_id', name=u'package_member_pkey')
     )
 
 

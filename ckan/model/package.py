@@ -59,9 +59,8 @@ package_table = Table('package', meta.metadata,
 package_member_table = Table(
     'package_member',
     meta.metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-    Column('package_id', ForeignKey('package.id')),
-    Column('user_id', ForeignKey('user.id')),
+    Column('package_id', ForeignKey('package.id'), primary_key=True),
+    Column('user_id', ForeignKey('user.id'), primary_key = True),
     Column('capacity', types.UnicodeText, nullable=False),
     Column('modified', types.DateTime, default=datetime.datetime.utcnow),
 )
