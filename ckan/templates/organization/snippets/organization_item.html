@@ -23,7 +23,7 @@ Example:
   {% endblock %}
   {% block description %}
     {% if organization.description %}
-      <p>{{ h.markdown_extract(organization.description, extract_length=80) }}</p>
+      <p class="media-description">{{ h.markdown_extract(organization.description, extract_length=80) }}</p>
     {% endif %}
   {% endblock %}
   {% block datasets %}
