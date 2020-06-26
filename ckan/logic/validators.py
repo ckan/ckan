@@ -54,18 +54,14 @@ def owner_org_validator(key, data, errors, context):
 
         package = context.get('package')
         if package and user and not user.sysadmin:
-            try:
-                user_packages = logic.get_action(
-                    'package_member_list_for_user')(
-                            {'ignore_auth': True}, {'id': user.id})
-            except logic.NotFound:
-                user_packages = []
-            if package.id in [d['package_id'] for d in user_packages]:
+            is_collaborator = authz.user_is_collaborator_on_dataset(
+                user.id, package.id, ['admin', 'editor'])
+            if is_collaborator:
                 # User is a collaborator, check if it's also a member with
                 # edit rights of the current organization (redundant, but possible)
                 user_orgs = logic.get_action(
                     'organization_list_for_user')(
-                            {'ignore_auth': True}, {'id': user.id, 'permission': 'update_dataset'})
+                        {'ignore_auth': True}, {'id': user.id, 'permission': 'update_dataset'})
                 user_is_org_member = package.owner_org in [org['id'] for org in user_orgs]
                 if data.get(key) != package.owner_org and not user_is_org_member:
                     raise Invalid(_('You cannot move this dataset to another organization'))

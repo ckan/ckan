@@ -2902,17 +2902,20 @@ def can_update_owner_org(package_dict, user_orgs=None):
         # Admins and editors of the current org can change it
         return True
 
+    collaborators_can_change_owner_org = authz.check_config_permission(
+        'allow_collaborators_to_change_owner_org')
+
     user = model.User.get(c.user)
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')
+            and collaborators_can_change_owner_org
             and user.id in [
                 co[0] for co in get_collaborators(package_dict['id'])
             ]):
 
-        # User is a collaborator, allow to change the owner_org depending
-        # on config
-        return authz.check_config_permission(
-            'allow_collaborators_to_change_owner_org')
+        # User is a collaborator and changing the owner_org is allowed via
+        # config
+        return True
 
     return False

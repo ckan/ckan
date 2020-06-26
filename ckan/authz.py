@@ -444,6 +444,28 @@ def can_manage_collaborators(package_id, user_id):
 
     return False
 
+def user_is_collaborator_on_dataset(user_id, dataset_id, capacity=None):
+    '''
+    Returns True if the provided user is a collaborator on the provided
+    dataset.
+
+    If capacity is provided it restricts the check to the capacity
+    provided (eg `admin` or `editor`). Multiple capacities can be
+    provided passing a list
+
+    '''
+
+    q = model.Session.query(model.PackageMember) \
+        .filter(model.PackageMember.user_id == user_id) \
+        .filter(model.PackageMember.package_id == dataset_id)
+
+    if capacity:
+        if isinstance(capacity, six.string_types):
+            capacity = [capacity]
+        q = q.filter(model.PackageMember.capacity.in_(capacity))
+
+    return q.count() > 0
+
 
 CONFIG_PERMISSIONS_DEFAULTS = {
     # permission and default
