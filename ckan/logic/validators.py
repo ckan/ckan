@@ -9,7 +9,7 @@ import mimetypes
 import string
 import json
 
-from six import string_types
+from six import string_types, iteritems
 from six.moves.urllib.parse import urlparse
 
 import ckan.lib.navl.dictization_functions as df
@@ -923,3 +923,13 @@ def json_object(value):
         raise Invalid(_('Could not parse the value as a valid JSON object'))
 
     return value
+
+
+def extras_valid_json(extras, context):
+    try:
+        for extra, value in iteritems(extras):
+            json.dumps(value)
+    except ValueError as e:
+        raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
+                format(name=extra))
+    return extras
