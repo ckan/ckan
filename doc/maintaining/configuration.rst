@@ -416,9 +416,9 @@ Example::
 
   ckan.cache_enabled = True
 
-Default value: ``None``
+Default value: ``False``
 
-This sets ``Cache-Control`` header for unauthenticated users.
+This enables cache control headers on all requests. If the user is not logged in and there is no session data a ``Cache-Control: public`` header will be added. For all other requests the ``Cache-control: private`` header will be added.
 
 .. _ckan.use_pylons_response_cleanup_middleware:
 

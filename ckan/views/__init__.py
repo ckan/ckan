@@ -98,13 +98,13 @@ def set_cors_headers_for_response(response):
 
 def set_cache_control_headers_for_response(response):
 
-    # no_cache should be None when caching is allowed
-    allow_cache = request.environ.get(u'__no_cache__')
+    # __no_cache__ should not be present when caching is allowed
+    allow_cache = u'__no_cache__' not in request.environ
 
     if u'Pragma' in response.headers:
         del response.headers["Pragma"]
 
-    if allow_cache is None:
+    if allow_cache:
         response.cache_control.public = True
         try:
             cache_expire = int(config.get(u'ckan.cache_expires', 0))
