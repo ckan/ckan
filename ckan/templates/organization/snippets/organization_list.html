@@ -9,11 +9,11 @@ Example:
 
 #}
 {% block organization_list %}
-<ul class="media-grid" data-module="media-grid">
+<div class="card-columns" data-module="card-columns">
   {% block organization_list_inner %}
   {% for organization in organizations %}
     {% snippet "organization/snippets/organization_item.html", organization=organization, position=loop.index, show_capacity=show_capacity %}
   {% endfor %}
    {% endblock %}
-</ul>
+</div>
 {% endblock %}

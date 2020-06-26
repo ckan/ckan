@@ -5,7 +5,7 @@ organization - A organization dict.
 
 Example:
 
-    <ul class="media-grid">
+    <div class="card-columns">
       {% for organization in organizations %}
         {% snippet "organization/snippets/organization_item.html", organization=organization %}
       {% endfor %}
@@ -13,17 +13,18 @@ Example:
 #}
 {% set url = h.url_for(organization.type ~ '.read', id=organization.name) %}
 {% block item %}
-<li class="media-item">
+<div class="card">
   {% block item_inner %}
   {% block image %}
-    <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-responsive media-image">
+    <img class="card-img-top" src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-responsive media-image">
   {% endblock %}
   {% block title %}
-    <h2 class="media-heading">{{ organization.display_name }}</h2>
+    <div class="card-body">
+      <h2 class="card-title">{{ organization.display_name }}</h2>
   {% endblock %}
   {% block description %}
     {% if organization.description %}
-      <p>{{ h.markdown_extract(organization.description, extract_length=80) }}</p>
+      <p class="card-text"> {{ h.markdown_extract(organization.description, extract_length=80) }}</p>
     {% endif %}
   {% endblock %}
   {% block datasets %}
@@ -35,17 +36,13 @@ Example:
   {% endblock %}
   {% block capacity %}
     {% if show_capacity and organization.capacity %}
-    <p><span class="label label-default">{{ h.roles_translated().get(organization.capacity, organization.capacity) }}</span></p>
+      <p><span class="label label-default">{{ h.roles_translated().get(organization.capacity, organization.capacity) }}</span></p>
     {% endif %}
   {% endblock %}
   {% block link %}
-  <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}" class="media-view">
-    <span>{{ _('View {organization_name}').format(organization_name=organization.display_name) }}</span>
-  </a>
+      <a class="stretched-link" href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}"></a>
   {% endblock %}
   {% endblock %}
-</li>
+  </div>
+</div>
 {% endblock %}
-{% if position is divisibleby 3 %}
-  <li class="clearfix js-hide"></li>
-{% endif %}

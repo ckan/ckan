@@ -1,0 +1,12 @@
+// adjusts the number of card columns displayed based on client size
+.card-columns {
+  @include media-breakpoint-up(xl) {
+    column-count: $card-columns-count + 1;
+  }
+  @include media-breakpoint-only(md) {
+    column-count: $card-columns-count - 1;
+  }
+  @include media-breakpoint-down(sm) {
+    column-count: $card-columns-count - 2;
+  }  
+}

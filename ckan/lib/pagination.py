@@ -640,7 +640,7 @@ class Page(BasePage):
     def _pagerlink(self, page, text, extra_attributes=None):
         anchor = super(Page, self)._pagerlink(page, text)
         extra_attributes = extra_attributes or {}
-        return text_type(tags.li(anchor, cls=u"page-item" **extra_attributes))
+        return text_type(tags.li(anchor, cls=u"page-item", **extra_attributes))
 
     # Change 'current page' link from <span> to <li><a>
     # and '..' into '<li><a>..'

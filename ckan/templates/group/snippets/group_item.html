@@ -1,30 +1,31 @@
 {#
-Renders a media item for a group. This should be used in a list.
+Renders a card item for a group. This should be used in a list.
 
 group - A group dict.
 
 Example:
 
-    <ul class="media-grid">
+    <div class="card-columns">
       {% for group in groups %}
         {% snippet "group/snippets/group_item.html", group=group %}
       {% endfor %}
-    </ul>
+    </div>
 #}
 {% set type = group.type or 'group' %}
 {% set url = h.url_for(type ~ '.read', id=group.name) %}
 {% block item %}
-<li class="media-item">
+<div class="card">
   {% block item_inner %}
   {% block image %}
-    <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image img-responsive">
+    <img class="card-img-top" src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" >
   {% endblock %}
   {% block title %}
-    <h2 class="media-heading">{{ group.display_name }}</h2>
+    <div class="card-body">
+    <h2 class="card-title">{{ group.display_name }}</h2>
   {% endblock %}
   {% block description %}
     {% if group.description %}
-      <p>{{ h.markdown_extract(group.description, extract_length=80) }}</p>
+    <p class="card-text">{{ h.markdown_extract(group.description, extract_length=80) }}</p>
     {% endif %}
   {% endblock %}
   {% block datasets %}
@@ -35,16 +36,12 @@ Example:
     {% endif %}
   {% endblock %}
   {% block link %}
-  <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="media-view">
-    <span>{{ _('View {name}').format(name=group.display_name) }}</span>
-  </a>
+    <a class="stretched-link" href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" ></a>
   {% endblock %}
   {% if group.user_member %}
     <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" title="{{ _('Remove dataset from this group') }}"/>
   {% endif %}
   {% endblock %}
-</li>
+  </div>
+</div>
 {% endblock %}
-{% if position is divisibleby 3 %}
-  <li class="clearfix js-hide"></li>
-{% endif %}
