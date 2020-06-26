@@ -155,7 +155,6 @@ class TestUser(object):
         assert "/my/prefix/user/logout" in logout_response.headers['location']
 
     def test_not_logged_in_dashboard(self, app):
-
         for route in ["index", "organizations", "datasets", "groups"]:
             response = app.get(url=url_for(u"dashboard.{}".format(route)), follow_redirects=False)
             assert response.status_code == 302
@@ -423,7 +422,7 @@ class TestUser(object):
         follow_url = url_for(controller="user", action="follow", id="not-here")
         response = app.post(follow_url, extra_environ=env)
 
-        assert "Not found" in response.body
+        assert response.status_code == 404
 
     def test_user_unfollow(self, app):
 
@@ -473,7 +472,7 @@ class TestUser(object):
             controller="user", action="unfollow", id="not-here")
         response = app.post(unfollow_url, extra_environ=env)
 
-        assert "Not found" in response.body
+        assert response.status_code == 404
 
     def test_user_follower_list(self, app):
         """Following users appear on followers list page."""
