@@ -197,6 +197,7 @@ def default_show_package_schema(
         'mimetype': [],
         'cache_url': [],
         'name': [],
+        'description': [],
         'mimetype_inner': [],
         'resource_type': [],
         'url_type': [],
@@ -789,4 +790,29 @@ def job_list_schema(ignore_missing, list_of_strings):
 def job_clear_schema(ignore_missing, list_of_strings):
     return {
         u'queues': [ignore_missing, list_of_strings],
+    }
+
+
+@validator_args
+def package_revise_schema(
+        ignore_missing, list_of_strings,
+        collect_prefix_validate, json_or_string,
+        json_list_or_string, dict_only):
+    return {
+        u'__before': [
+            collect_prefix_validate(
+                u'match__', u'json_or_string'),
+            collect_prefix_validate(
+                u'update__', u'json_or_string')],
+        u'match': [
+            ignore_missing, json_or_string, dict_only],
+        u'filter': [
+            ignore_missing, json_list_or_string, list_of_strings],
+        u'update': [
+            ignore_missing, json_or_string, dict_only],
+        u'include': [
+            ignore_missing, json_list_or_string, list_of_strings],
+        # collect_prefix moves values to these, always dicts:
+        u'match__': [],
+        u'update__': [],
     }
