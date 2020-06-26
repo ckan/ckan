@@ -435,14 +435,9 @@ def can_manage_collaborators(package_id, user_id):
         # User is an administrator of the organization the dataset belongs to
         return True
 
-    if check_config_permission('allow_admin_collaborators'):
-        collaborators = p.toolkit.get_action('package_member_list')(
-            {'ignore_auth': True}, {'id': pkg.id, 'capacity': 'admin'})
-        if user_id in [c['user_id'] for c in collaborators]:
-            # User is a collaborator with admin role
-            return True
+    # Check if user is a collaborator with admin role
+    return user_is_collaborator_on_dataset(user_id, pkg.id, 'admin')
 
-    return False
 
 def user_is_collaborator_on_dataset(user_id, dataset_id, capacity=None):
     '''
