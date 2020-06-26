@@ -96,6 +96,28 @@ def set_cors_headers_for_response(response):
     return response
 
 
+def set_cache_control_headers_for_response(response):
+
+    # no_cache should be None when caching is allowed
+    allow_cache = request.environ.get(u'__no_cache__')
+
+    if u'Pragma' in response.headers:
+        del response.headers["Pragma"]
+
+    if allow_cache is None:
+        response.cache_control.public = True
+        try:
+            cache_expire = int(config.get(u'ckan.cache_expires', 0))
+            response.cache_control.max_age = cache_expire
+            response.cache_control.must_revalidate = True
+        except ValueError:
+            pass
+    else:
+        response.cache_control.private = True
+
+    return response
+
+
 def identify_user():
     u'''Try to identify the user
     If the user is identified then:

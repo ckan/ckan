@@ -43,6 +43,7 @@ from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
                         set_controller_and_action,
+                        set_cache_control_headers_for_response,
                         handle_i18n,
                         set_ckan_current_url,
                         )
@@ -374,6 +375,9 @@ def ckan_after_request(response):
 
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
+
+    # Set Cache Control headers
+    response = set_cache_control_headers_for_response(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
