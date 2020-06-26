@@ -877,6 +877,46 @@ def email_validator(value, context):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
 
+def collect_prefix_validate(prefix, *validator_names):
+    """
+    Return a validator that will collect top-level keys starting with
+    prefix then apply validator_names to each one. Results are moved
+    to a dict under the prefix name, with prefix removed from keys
+    """
+    validator_fns = [logic.get_validator(v) for v in validator_names]
+
+    def prefix_validator(key, data, errors, context):
+        out = {}
+        extras = data.get(('__extras',), {})
+
+        # values passed as lists of dicts will have been flattened into __junk
+        junk = df.unflatten(data.get(('__junk',), {}))
+        for field_name in junk:
+            if not field_name.startswith(prefix):
+                continue
+            extras[field_name] = junk[field_name]
+
+        for field_name in list(extras):
+            if not field_name.startswith(prefix):
+                continue
+            data[(field_name,)] = extras.pop(field_name)
+            for v in validator_fns:
+                try:
+                    df.convert(v, (field_name,), data, errors, context)
+                except df.StopOnError:
+                    break
+            out[field_name[len(prefix):]] = data.pop((field_name,))
+
+        data[(prefix,)] = out
+
+    return prefix_validator
+
+
+def dict_only(value):
+    if not isinstance(value, dict):
+        raise Invalid(_('Must be a dict'))
+    return value
+
 def email_is_unique(key, data, errors, context):
     '''Validate email is unique'''
     model = context['model']

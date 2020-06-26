@@ -1861,6 +1861,101 @@ class TestCollaboratorsUpdate(object):
         assert updated_dataset['owner_org'] == org2['id']
 
 
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestDatasetRevise(object):
+    def test_revise_description(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        response = helpers.call_action(
+            'package_revise',
+            match={'notes': 'old notes', 'name': 'xyz'},
+            update={'notes': 'new notes'},
+        )
+        assert response['package']['notes'] == 'new notes'
+
+    def test_revise_failed_match(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_revise',
+                match={'notes': 'wrong notes', 'name': 'xyz'},
+                update={'notes': 'new notes'},
+            )
+
+    def test_revise_description_flattened(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        response = helpers.call_action(
+            'package_revise',
+            match__notes='old notes',
+            match__name='xyz',
+            update__notes='new notes',
+        )
+        assert response['package']['notes'] == 'new notes'
+
+    def test_revise_dataset_fields_only(self):
+        dataset = factories.Dataset(
+            name='xyz',
+            notes='old notes',
+            resources=[{'url': 'http://example.com'}])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            filter=[
+                '+resources',  # keep everything under resources
+                '-*',  # remove everything else
+            ],
+            update={'name': 'fresh-start', 'title': 'Fresh Start'},
+        )
+        assert response['package']['notes'] is None
+        assert response['package']['name'] == 'fresh-start'
+        assert response['package']['resources'][0]['url'] == 'http://example.com'
+
+    def test_revise_add_resource(self):
+        dataset = factories.Dataset()
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__extend=[{'name': 'new resource', 'url': 'http://example.com'}],
+        )
+        assert response['package']['resources'][0]['name'] == 'new resource'
+
+    def test_revise_resource_by_index(self):
+        dataset = factories.Dataset(resources=[{'url': 'http://example.com'}])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__0={'name': 'new name'},
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+
+    def test_revise_resource_by_id(self):
+        dataset = factories.Dataset(resources=[{
+            'id': '34a12bc-1420-cbad-1922',
+            'url': 'http://example.com',
+            'name': 'old name',
+        }])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__34a12={'name': 'new name'},  # prefixes allowed >4 chars
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+
+    def test_revise_resource_replace_all(self):
+        dataset = factories.Dataset(resources=[{
+            'id': '34a12bc-1420-cbad-1922',
+            'url': 'http://example.com',
+            'name': 'old name',
+        }])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            filter=['+resources__34a12__id', '-resources__34a12__*'],
+            update__resources__34a12={'name': 'new name'},
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+        assert response['package']['resources'][0]['url'] == ''
+
+
 @pytest.mark.usefixtures("clean_db")
 class TestUserPluginExtras(object):
 

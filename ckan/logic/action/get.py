@@ -955,7 +955,9 @@ def package_show(context, data_dict):
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
 
-    pkg = model.Package.get(name_or_id)
+    pkg = model.Package.get(
+        name_or_id,
+        for_update=context.get('for_update', False))
 
     if pkg is None:
         raise NotFound

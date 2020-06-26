@@ -37,15 +37,16 @@ package_table = Table('package', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
                nullable=False, unique=True),
-        Column('title', types.UnicodeText),
-        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH)),
-        Column('url', types.UnicodeText),
-        Column('author', types.UnicodeText),
-        Column('author_email', types.UnicodeText),
-        Column('maintainer', types.UnicodeText),
-        Column('maintainer_email', types.UnicodeText),
-        Column('notes', types.UnicodeText),
-        Column('license_id', types.UnicodeText),
+        Column('title', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH),
+               doc='remove_if_not_provided'),
+        Column('url', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('author', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('author_email', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('maintainer', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
         Column('type', types.UnicodeText, default=u'dataset'),
         Column('owner_org', types.UnicodeText),
         Column('creator_user_id', types.UnicodeText),
@@ -84,14 +85,17 @@ class Package(core.StatefulObjectMixin,
         return meta.Session.query(cls).filter(cls.name.contains(text_query.lower()))
 
     @classmethod
-    def get(cls, reference):
+    def get(cls, reference, for_update=False):
         '''Returns a package object referenced by its id or name.'''
         if not reference:
             return None
 
-        pkg = meta.Session.query(cls).get(reference)
+        q = meta.Session.query(cls)
+        if for_update:
+            q = q.with_for_update()
+        pkg = q.get(reference)
         if pkg == None:
-            pkg = cls.by_name(reference)
+            pkg = cls.by_name(reference, for_update=for_update)
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
 

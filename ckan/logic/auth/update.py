@@ -59,6 +59,10 @@ def package_update(context, data_dict):
     return {'success': True}
 
 
+def package_revise(context, data_dict):
+    return authz.is_authorized('package_update', context, data_dict['update'])
+
+
 def package_resource_reorder(context, data_dict):
     ## the action function runs package update so no need to run it twice
     return {'success': True}
