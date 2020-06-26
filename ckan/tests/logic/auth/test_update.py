@@ -312,7 +312,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, id=dataset['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity=role)
 
         assert helpers.call_auth(
@@ -342,7 +342,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, id=dataset['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='member')
 
         context = self._get_context(user)
@@ -365,7 +365,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, package_id=dataset['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity=role)
 
         assert helpers.call_auth(
@@ -385,7 +385,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, package_id=dataset['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='member')
 
         with pytest.raises(logic.NotAuthorized):
@@ -413,7 +413,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, id=resource['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity=role)
 
         assert helpers.call_auth(
@@ -434,7 +434,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, id=resource['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='member')
 
         with pytest.raises(logic.NotAuthorized):
@@ -456,7 +456,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, id=resource['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='member')
 
         with pytest.raises(logic.NotAuthorized):
@@ -479,7 +479,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, resource_id=resource['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity=role)
 
         assert helpers.call_auth(
@@ -500,7 +500,7 @@ class TestUpdateAuthWithCollaborators(object):
                 context=context, resource_id=resource['id'])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='member')
 
         with pytest.raises(logic.NotAuthorized):

@@ -554,7 +554,7 @@ class TestPackageOwnerOrgList(object):
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='editor')
 
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
@@ -586,7 +586,7 @@ class TestPackageOwnerOrgList(object):
             users=[{"name": user["id"], "capacity": "admin"}]
         )
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='editor')
 
         env = {"REMOTE_USER": six.ensure_str(user["name"])}

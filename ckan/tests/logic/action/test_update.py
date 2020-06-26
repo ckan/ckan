@@ -1793,7 +1793,7 @@ class TestCollaboratorsUpdate(object):
         org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='editor')
 
         context = {
@@ -1819,7 +1819,7 @@ class TestCollaboratorsUpdate(object):
         org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='editor')
 
         context = {
@@ -1845,7 +1845,7 @@ class TestCollaboratorsUpdate(object):
         org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='editor')
 
         context = {

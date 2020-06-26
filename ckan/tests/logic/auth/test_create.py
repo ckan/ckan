@@ -398,14 +398,14 @@ class TestPackageMemberCreateAuth(object):
 
         context = self._get_context(self.org_admin)
         assert helpers.call_auth(
-            'package_member_create', context=context, id=self.dataset['id'])
+            'package_collaborator_create', context=context, id=self.dataset['id'])
 
     def test_create_org_editor_is_not_authorized(self):
 
         context = self._get_context(self.org_editor)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_member_create',
+                'package_collaborator_create',
                 context=context, id=self.dataset['id'])
 
     def test_create_org_member_is_not_authorized(self):
@@ -413,7 +413,7 @@ class TestPackageMemberCreateAuth(object):
         context = self._get_context(self.org_member)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_member_create',
+                'package_collaborator_create',
                 context=context, id=self.dataset['id'])
 
     def test_create_non_org_user_is_not_authorized(self):
@@ -423,7 +423,7 @@ class TestPackageMemberCreateAuth(object):
         context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_member_create',
+                'package_collaborator_create',
                 context=context, id=self.dataset['id'])
 
     def test_create_org_admin_from_other_org_is_not_authorized(self):
@@ -438,7 +438,7 @@ class TestPackageMemberCreateAuth(object):
         context = self._get_context(org_admin2)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_member_create',
+                'package_collaborator_create',
                 context=context, id=self.dataset['id'])
 
     def test_create_missing_org_is_not_authorized(self):
@@ -448,7 +448,7 @@ class TestPackageMemberCreateAuth(object):
         context = self._get_context(self.org_admin)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_member_create',
+                'package_collaborator_create',
                 context=context, id=dataset['id'])
 
     @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
@@ -457,25 +457,25 @@ class TestPackageMemberCreateAuth(object):
         user = factories.User()
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=self.dataset['id'], user_id=user['id'], capacity='admin')
 
         context = self._get_context(user)
         assert helpers.call_auth(
-            'package_member_create', context=context, id=self.dataset['id'])
+            'package_collaborator_create', context=context, id=self.dataset['id'])
 
     @pytest.mark.parametrize('role', ['editor', 'member'])
     def test_create_collaborator_editor_and_member_are_not_authorized(self, role):
         user = factories.User()
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=self.dataset['id'], user_id=user['id'], capacity=role)
 
         context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                'package_member_create',
+                'package_collaborator_create',
                 context=context, id=self.dataset['id'])
 
     @pytest.mark.ckan_config('ckan.auth.create_dataset_if_not_in_organization', True)
@@ -491,4 +491,4 @@ class TestPackageMemberCreateAuth(object):
 
         context = self._get_context(user)
         assert helpers.call_auth(
-            'package_member_create', context=context, id=dataset['id'])
+            'package_collaborator_create', context=context, id=dataset['id'])

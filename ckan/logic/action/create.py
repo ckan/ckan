@@ -620,7 +620,7 @@ def member_create(context, data_dict=None):
     return model_dictize.member_dictize(member, context)
 
 
-def package_member_create(context, data_dict):
+def package_collaborator_create(context, data_dict):
     '''Make a user a collaborator in a dataset.
 
     If the user is already a collaborator in the dataset then their
@@ -659,7 +659,7 @@ def package_member_create(context, data_dict):
             _('Role must be one of "{}"').format(', '.join(
                 allowed_capacities)))
 
-    _check_access('package_member_create', context, data_dict)
+    _check_access('package_collaborator_create', context, data_dict)
 
     package = model.Package.get(package_id)
     if not package:
@@ -672,23 +672,23 @@ def package_member_create(context, data_dict):
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
 
-    # Check if member already exists
-    member = model.Session.query(model.PackageMember). \
+    # Check if collaborator already exists
+    collaborator = model.Session.query(model.PackageMember). \
         filter(model.PackageMember.package_id == package.id). \
         filter(model.PackageMember.user_id == user.id).one_or_none()
-    if not member:
-        member = model.PackageMember(
+    if not collaborator:
+        collaborator = model.PackageMember(
             package_id=package.id,
             user_id=user.id)
-    member.capacity = capacity
-    member.modified = datetime.datetime.utcnow()
-    model.Session.add(member)
+    collaborator.capacity = capacity
+    collaborator.modified = datetime.datetime.utcnow()
+    model.Session.add(collaborator)
     model.repo.commit()
 
     log.info('User {} added as collaborator in package {} ({})'.format(
         user.name, package.id, capacity))
 
-    return model_dictize.member_dictize(member, context)
+    return model_dictize.member_dictize(collaborator, context)
 
 
 def _group_or_org_create(context, data_dict, is_org=False):

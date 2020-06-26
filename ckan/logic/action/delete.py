@@ -105,7 +105,7 @@ def package_delete(context, data_dict):
         membership.delete()
 
     dataset_collaborators = model.Session.query(model.PackageMember).filter(
-            model.PackageMember.package_id == id).all()
+        model.PackageMember.package_id == id).all()
     for collaborator in dataset_collaborators:
         collaborator.delete()
 
@@ -328,7 +328,7 @@ def member_delete(context, data_dict=None):
         model.repo.commit()
 
 
-def package_member_delete(context, data_dict):
+def package_collaborator_delete(context, data_dict):
     '''Remove a collaborator from a dataset.
 
     Currently you must be an Admin on the dataset owner organization to
@@ -351,7 +351,7 @@ def package_member_delete(context, data_dict):
         ['id', 'user_id']
     )
 
-    _check_access('package_member_delete', context, data_dict)
+    _check_access('package_collaborator_delete', context, data_dict)
 
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
@@ -364,14 +364,14 @@ def package_member_delete(context, data_dict):
     if not user:
         raise NotFound(_('User not found'))
 
-    member = model.Session.query(model.PackageMember).\
+    collaborator = model.Session.query(model.PackageMember).\
         filter(model.PackageMember.package_id == package.id).\
         filter(model.PackageMember.user_id == user.id).one_or_none()
-    if not member:
+    if not collaborator:
         raise NotFound(
             'User {} is not a collaborator on this package'.format(user_id))
 
-    model.Session.delete(member)
+    model.Session.delete(collaborator)
     model.repo.commit()
 
     log.info('User {} removed as collaborator from package {}'.format(

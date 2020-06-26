@@ -234,7 +234,7 @@ def member_list(context, data_dict=None):
             for m in q.all()]
 
 
-def package_member_list(context, data_dict):
+def package_collaborator_list(context, data_dict):
     '''Return the list of all collaborators for a given package.
 
     Currently you must be an Admin on the package owner organization to
@@ -263,7 +263,7 @@ def package_member_list(context, data_dict):
     if not package:
         raise NotFound(_('Package not found'))
 
-    _check_access('package_member_list', context, data_dict)
+    _check_access('package_collaborator_list', context, data_dict)
 
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
@@ -281,12 +281,12 @@ def package_member_list(context, data_dict):
     if capacity:
         q = q.filter(model.PackageMember.capacity == capacity)
 
-    members = q.all()
+    collaborators = q.all()
 
-    return [member.as_dict() for member in members]
+    return [collaborator.as_dict() for collaborator in collaborators]
 
 
-def package_member_list_for_user(context, data_dict):
+def package_collaborator_list_for_user(context, data_dict):
     '''Return a list of all package the user is a collaborator in
 
     Note: This action requires the collaborators feature to be enabled with
@@ -311,7 +311,7 @@ def package_member_list_for_user(context, data_dict):
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
 
-    _check_access('package_member_list_for_user', context, data_dict)
+    _check_access('package_collaborator_list_for_user', context, data_dict)
 
     user = model.User.get(user_id)
     if not user:
@@ -330,14 +330,14 @@ def package_member_list_for_user(context, data_dict):
     if capacity:
         q = q.filter(model.PackageMember.capacity == capacity)
 
-    members = q.all()
+    collaborators = q.all()
 
     out = []
-    for member in members:
+    for collaborator in collaborators:
         out.append({
-            'package_id': member.package_id,
-            'capacity': member.capacity,
-            'modified': member.modified.isoformat(),
+            'package_id': collaborator.package_id,
+            'capacity': collaborator.capacity,
+            'modified': collaborator.modified.isoformat(),
         })
 
     return out

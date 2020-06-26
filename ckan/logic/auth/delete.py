@@ -139,7 +139,7 @@ def member_delete(context, data_dict):
     return authz.is_authorized('member_create', context, data_dict)
 
 
-def package_member_delete(context, data_dict):
+def package_collaborator_delete(context, data_dict):
     '''Checks if a user is allowed to remove collaborators from a dataset
 
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
@@ -153,7 +153,7 @@ def package_member_delete(context, data_dict):
     if not authz.can_manage_collaborators(pkg.id, user_obj.id):
         return {
             'success': False,
-            'msg': _('User %s not authorized to remove members from this dataset') % user}
+            'msg': _('User %s not authorized to remove collaborators from this dataset') % user}
 
     return {'success': True}
 

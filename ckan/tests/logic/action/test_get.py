@@ -4307,13 +4307,13 @@ class TestDashboardNewActivities(object):
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
-def test_package_member_list_when_config_disabled():
+def test_package_collaborator_list_when_config_disabled():
 
     dataset = factories.Dataset()
 
     with pytest.raises(logic.ValidationError):
         helpers.call_action(
-            'package_member_list',
+            'package_collaborator_list',
             id=dataset['id'])
 
 
@@ -4330,15 +4330,15 @@ class TestPackageMemberList(object):
         capacity2 = 'member'
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user1['id'], capacity=capacity1)
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user2['id'], capacity=capacity2)
 
         members = helpers.call_action(
-            'package_member_list',
+            'package_collaborator_list',
             id=dataset['id'])
 
         assert len(members) == 2
@@ -4360,15 +4360,15 @@ class TestPackageMemberList(object):
         capacity2 = 'member'
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user1['id'], capacity=capacity1)
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user2['id'], capacity=capacity2)
 
         members = helpers.call_action(
-            'package_member_list',
+            'package_collaborator_list',
             id=dataset['id'], capacity='member')
 
         assert len(members) == 1
@@ -4381,7 +4381,7 @@ class TestPackageMemberList(object):
 
         with pytest.raises(logic.NotFound):
             helpers.call_action(
-                'package_member_list',
+                'package_collaborator_list',
                 id='xxx')
 
     def test_list_wrong_capacity(self):
@@ -4391,7 +4391,7 @@ class TestPackageMemberList(object):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-                'package_member_list',
+                'package_collaborator_list',
                 id=dataset['id'], user_id=user['id'], capacity=capacity)
 
     def test_list_for_user(self):
@@ -4403,15 +4403,15 @@ class TestPackageMemberList(object):
         capacity2 = 'member'
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset1['id'], user_id=user['id'], capacity=capacity1)
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset2['id'], user_id=user['id'], capacity=capacity2)
 
         datasets = helpers.call_action(
-            'package_member_list_for_user',
+            'package_collaborator_list_for_user',
             id=user['id'])
 
         assert len(datasets) == 2
@@ -4431,15 +4431,15 @@ class TestPackageMemberList(object):
         capacity2 = 'member'
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset1['id'], user_id=user['id'], capacity=capacity1)
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset2['id'], user_id=user['id'], capacity=capacity2)
 
         datasets = helpers.call_action(
-            'package_member_list_for_user',
+            'package_collaborator_list_for_user',
             id=user['id'], capacity='editor')
 
         assert len(datasets) == 1
@@ -4451,7 +4451,7 @@ class TestPackageMemberList(object):
 
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
-                'package_member_list_for_user',
+                'package_collaborator_list_for_user',
                 id='xxx')
 
     def test_list_for_user_wrong_capacity(self):
@@ -4460,7 +4460,7 @@ class TestPackageMemberList(object):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-                'package_member_list_for_user',
+                'package_collaborator_list_for_user',
                 id=user['id'], capacity=capacity)
 
 
@@ -4491,7 +4491,7 @@ class TestCollaboratorsSearch(object):
         assert results['results'][0]['id'] == dataset2['id']
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset1['id'], user_id=user['id'], capacity='editor')
 
         results = helpers.call_action(
@@ -4531,7 +4531,7 @@ class TestCollaboratorsSearch(object):
         assert results['results'][0]['id'] == dataset2['id']
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset1['id'], user_id=user['id'], capacity='member')
 
         results = helpers.call_action(

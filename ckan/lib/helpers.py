@@ -2873,7 +2873,7 @@ def get_collaborators(package_id):
     '''
     context = {'ignore_auth': True, 'user': g.user}
     data_dict = {'id': package_id}
-    _collaborators = logic.get_action('package_member_list')(
+    _collaborators = logic.get_action('package_collaborator_list')(
         context, data_dict)
 
     collaborators = []

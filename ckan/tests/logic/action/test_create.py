@@ -1209,7 +1209,7 @@ def test_create_package_member_when_config_disabled():
 
     with pytest.raises(logic.ValidationError):
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity=capacity)
 
 
@@ -1224,7 +1224,7 @@ class TestPackageMemberCreate(object):
         capacity = 'editor'
 
         member = helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity=capacity)
 
         assert member['package_id'] == dataset['id']
@@ -1240,11 +1240,11 @@ class TestPackageMemberCreate(object):
         capacity = 'editor'
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity=capacity)
 
         helpers.call_action(
-            'package_member_create',
+            'package_collaborator_create',
             id=dataset['id'], user_id=user['id'], capacity='member')
 
         assert model.Session.query(model.PackageMember).count() == 1
@@ -1258,7 +1258,7 @@ class TestPackageMemberCreate(object):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-                'package_member_create',
+                'package_collaborator_create',
                 id=dataset['id'], user_id=user['id'], capacity=capacity)
 
     def test_create_dataset_not_found(self):
@@ -1268,7 +1268,7 @@ class TestPackageMemberCreate(object):
 
         with pytest.raises(logic.NotFound):
             helpers.call_action(
-                'package_member_create',
+                'package_collaborator_create',
                 id=dataset['id'], user_id=user['id'], capacity=capacity)
 
     def test_create_user_not_authorized(self):
@@ -1278,7 +1278,7 @@ class TestPackageMemberCreate(object):
 
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
-                'package_member_create',
+                'package_collaborator_create',
                 id=dataset['id'], user_id=user['id'], capacity=capacity)
 
 

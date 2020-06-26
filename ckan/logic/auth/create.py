@@ -255,7 +255,7 @@ def member_create(context, data_dict):
         return {'success': True}
 
 
-def package_member_create(context, data_dict):
+def package_collaborator_create(context, data_dict):
     '''Checks if a user is allowed to add collaborators to a dataset
 
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
@@ -269,6 +269,6 @@ def package_member_create(context, data_dict):
     if not authz.can_manage_collaborators(pkg.id, user_obj.id):
         return {
             'success': False,
-            'msg': _('User %s not authorized to add members to this dataset') % user}
+            'msg': _('User %s not authorized to add collaborators to this dataset') % user}
 
     return {'success': True}

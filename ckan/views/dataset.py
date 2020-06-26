@@ -1236,7 +1236,7 @@ def collaborators_read(package_type, id):
     data_dict = {u'id': id}
 
     try:
-        check_access(u'package_member_list', context, data_dict)
+        check_access(u'package_collaborator_list', context, data_dict)
         # needed to ckan_extend package/edit_base.html
         pkg_dict = get_action(u'package_show')(context, data_dict)
     except NotAuthorized:
@@ -1253,7 +1253,7 @@ def collaborator_delete(package_type, id, user_id):
     context = {u'model': model, u'user': g.user}
 
     try:
-        get_action(u'package_member_delete')(context, {
+        get_action(u'package_collaborator_delete')(context, {
             u'id': id,
             u'user_id': user_id
         })
@@ -1289,7 +1289,7 @@ class CollaboratorEditView(MethodView):
                 u'capacity': form_dict[u'capacity']
             }
 
-            get_action(u'package_member_create')(
+            get_action(u'package_collaborator_create')(
                 context, data_dict)
 
         except dict_fns.DataError:
@@ -1311,7 +1311,7 @@ class CollaboratorEditView(MethodView):
         data_dict = {u'id': id}
 
         try:
-            check_access(u'package_member_list', context, data_dict)
+            check_access(u'package_collaborator_list', context, data_dict)
             # needed to ckan_extend package/edit_base.html
             pkg_dict = get_action(u'package_show')(context, data_dict)
         except NotAuthorized:
@@ -1324,7 +1324,7 @@ class CollaboratorEditView(MethodView):
         user_capacity = u'member'
 
         if user:
-            collaborators = get_action(u'package_member_list')(
+            collaborators = get_action(u'package_collaborator_list')(
                 context, data_dict)
             for c in collaborators:
                 if c[u'user_id'] == user:

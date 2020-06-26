@@ -434,7 +434,7 @@ def job_show(context, data_dict):
     return {'success': False}
 
 
-def package_member_list(context, data_dict):
+def package_collaborator_list(context, data_dict):
     '''Checks if a user is allowed to list the collaborators from a dataset
 
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
@@ -448,12 +448,12 @@ def package_member_list(context, data_dict):
     if not authz.can_manage_collaborators(pkg.id, user_obj.id):
         return {
             'success': False,
-            'msg': _('User %s not authorized to list members from this dataset') % user}
+            'msg': _('User %s not authorized to list collaborators from this dataset') % user}
 
     return {'success': True}
 
 
-def package_member_list_for_user(context, data_dict):
+def package_collaborator_list_for_user(context, data_dict):
     '''Checks if a user is allowed to list all datasets a user is a collaborator in
 
     The current implementation restricts to the own users themselves.

@@ -655,7 +655,7 @@ class DefaultPermissionLabels(object):
 
         if ckan.authz.check_config_permission('allow_dataset_collaborators'):
             # Add a label for each dataset this user is a collaborator of
-            datasets = logic.get_action('package_member_list_for_user')(
+            datasets = logic.get_action('package_collaborator_list_for_user')(
                 {'ignore_auth': True}, {'id': user_obj.id})
 
             labels.extend('collaborator-%s' % d['package_id'] for d in datasets)
