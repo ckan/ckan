@@ -251,10 +251,6 @@ class EditView(MethodView):
             base.abort(404, _(u'User not found'))
         user_obj = context.get(u'user_obj')
 
-        if not (authz.is_sysadmin(g.user) or g.user == user_obj.name):
-            msg = _(u'User %s not authorized to edit %s') % (g.user, id)
-            base.abort(403, msg)
-
         errors = errors or {}
         vars = {
             u'data': data,
@@ -268,7 +264,6 @@ class EditView(MethodView):
             u'user': g.user
         }, data_dict)
 
-        extra_vars[u'is_myself'] = True
         extra_vars[u'show_email_notifications'] = asbool(
             config.get(u'ckan.activity_streams_email_notifications'))
         vars.update(extra_vars)

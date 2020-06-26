@@ -316,11 +316,6 @@ class UserController(base.BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (authz.is_sysadmin(c.user)
-                or c.user == user_obj.name):
-            abort(403, _('User %s not authorized to edit %s') %
-                  (str(c.user), id))
-
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
@@ -329,7 +324,6 @@ class UserController(base.BaseController):
                                         'user': c.user},
                                        data_dict)
 
-        c.is_myself = True
         c.show_email_notifications = asbool(
             config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
