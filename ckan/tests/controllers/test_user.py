@@ -157,7 +157,9 @@ class TestUser(object):
     def test_not_logged_in_dashboard(self, app):
 
         for route in ["index", "organizations", "datasets", "groups"]:
-            app.get(url=url_for(u"dashboard.{}".format(route)), status=403)
+            response = app.get(url=url_for(u"dashboard.{}".format(route)), follow_redirects=False)
+            assert response.status_code == 302
+            assert "user/login" in response.headers['location']
 
     def test_own_datasets_show_up_on_user_dashboard(self, app):
         user = factories.User()
