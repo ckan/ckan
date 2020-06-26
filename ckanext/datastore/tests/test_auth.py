@@ -32,7 +32,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'editor')
 
         assert helpers.call_auth(
@@ -53,7 +53,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'member')
 
         assert helpers.call_auth(
@@ -74,7 +74,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'editor')
 
         assert helpers.call_auth(
@@ -95,7 +95,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'member')
 
         assert helpers.call_auth(
@@ -118,7 +118,7 @@ class TestCollaboratorsDataStore():
                     resource[u'id']))
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'editor')
 
         assert helpers.call_auth(
@@ -141,7 +141,7 @@ class TestCollaboratorsDataStore():
                     resource[u'id']))
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'member')
 
         assert helpers.call_auth(
@@ -162,7 +162,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'editor')
 
         assert helpers.call_auth(
@@ -183,7 +183,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'member')
 
         with pytest.raises(logic.NotAuthorized):
@@ -205,7 +205,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'editor')
 
         assert helpers.call_auth(
@@ -226,7 +226,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'member')
 
         with pytest.raises(logic.NotAuthorized):
@@ -248,7 +248,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'editor')
 
         assert helpers.call_auth(
@@ -269,7 +269,7 @@ class TestCollaboratorsDataStore():
                 context=context, resource_id=resource[u'id'])
 
         helpers.call_action(
-            u'package_member_create',
+            u'package_collaborator_create',
             id=dataset[u'id'], user_id=user[u'id'], capacity=u'member')
 
         with pytest.raises(logic.NotAuthorized):

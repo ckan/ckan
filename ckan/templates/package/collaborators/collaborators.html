@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('Collaborators') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
-  {% if h.check_access('package_member_create', {'id': pkg_dict.id})%}
+  {% if h.check_access('package_collaborator_create', {'id': pkg_dict.id})%}
     {% link_for _('Add Collaborators'), named_route='dataset.new_collaborator', id=pkg_dict.name, class_='btn btn-primary', icon='plus-square' %}
   {% endif %}
 {% endblock %}

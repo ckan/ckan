@@ -590,7 +590,7 @@ class TestJobCancel(helpers.FunctionalRQTestBase):
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
-def test_delete_package_member_when_config_disabled():
+def test_delete_package_collaborator_when_config_disabled():
 
     dataset = factories.Dataset()
     user = factories.User()
