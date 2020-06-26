@@ -1781,6 +1781,87 @@ class TestDashboardMarkActivitiesOld(object):
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+class TestCollaboratorsUpdate(object):
+
+    def test_collaborators_can_not_change_owner_org_by_default(self):
+
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        user = factories.User()
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        with pytest.raises(logic.ValidationError) as e:
+            helpers.call_action('package_update', context=context, **dataset)
+
+        assert e.value.error_dict['owner_org'] == [
+            'You cannot move this dataset to another organization']
+
+    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    def test_collaborators_can_change_owner_org_if_config_true(self):
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        user = factories.User()
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+
+        assert updated_dataset['owner_org'] == org2['id']
+
+    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    def test_editors_can_change_owner_org_even_if_collaborators(self):
+
+        user = factories.User()
+
+        org1 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+
+        assert updated_dataset['owner_org'] == org2['id']
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDatasetRevise(object):
     def test_revise_description(self):
         factories.Dataset(name='xyz', notes='old notes')

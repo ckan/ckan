@@ -4,10 +4,9 @@ import datetime
 import logging
 
 from sqlalchemy.sql import and_, or_
-from sqlalchemy import orm
-from sqlalchemy import types, Column, Table
-from ckan.common import config
+from sqlalchemy import orm, types, Column, Table, ForeignKey
 
+from ckan.common import config
 from ckan.model import (
     meta,
     core,
@@ -17,12 +16,12 @@ from ckan.model import (
     activity,
     extension,
 )
-
 import ckan.lib.maintain as maintain
+
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['Package', 'package_table',
+__all__ = ['Package', 'package_table', 'PackageMember', 'package_member_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
            'PACKAGE_VERSION_MAX_LENGTH',
            ]
@@ -32,7 +31,8 @@ PACKAGE_NAME_MAX_LENGTH = 100
 PACKAGE_NAME_MIN_LENGTH = 2
 PACKAGE_VERSION_MAX_LENGTH = 100
 
-## Our Domain Object Tables
+
+# Our Domain Object Tables
 package_table = Table('package', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
@@ -54,6 +54,16 @@ package_table = Table('package', meta.metadata,
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
+)
+
+
+package_member_table = Table(
+    'package_member',
+    meta.metadata,
+    Column('package_id', ForeignKey('package.id'), primary_key=True),
+    Column('user_id', ForeignKey('user.id'), primary_key = True),
+    Column('capacity', types.UnicodeText, nullable=False),
+    Column('modified', types.DateTime, default=datetime.datetime.utcnow),
 )
 
 
@@ -536,6 +546,10 @@ class Package(core.StatefulObjectMixin,
             .all()
 
 
+class PackageMember(domain_object.DomainObject):
+    pass
+
+
 class RatingValueException(Exception):
     pass
 
@@ -566,3 +580,5 @@ meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
     order_by=tag.package_tag_table.c.id,
     extension=[extension.PluginMapperExtension()],
     )
+
+meta.mapper(PackageMember, package_member_table)

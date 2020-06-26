@@ -4305,6 +4305,249 @@ class TestDashboardNewActivities(object):
         )
 
 
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+def test_package_collaborator_list_when_config_disabled():
+
+    dataset = factories.Dataset()
+
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action(
+            'package_collaborator_list',
+            id=dataset['id'])
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+class TestPackageMemberList(object):
+
+    def test_list(self):
+
+        dataset = factories.Dataset()
+        user1 = factories.User()
+        capacity1 = 'editor'
+        user2 = factories.User()
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user1['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user2['id'], capacity=capacity2)
+
+        members = helpers.call_action(
+            'package_collaborator_list',
+            id=dataset['id'])
+
+        assert len(members) == 2
+
+        assert members[0]['package_id'] == dataset['id']
+        assert members[0]['user_id'] == user1['id']
+        assert members[0]['capacity'] == capacity1
+
+        assert members[1]['package_id'] == dataset['id']
+        assert members[1]['user_id'] == user2['id']
+        assert members[1]['capacity'] == capacity2
+
+    def test_list_with_capacity(self):
+
+        dataset = factories.Dataset()
+        user1 = factories.User()
+        capacity1 = 'editor'
+        user2 = factories.User()
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user1['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user2['id'], capacity=capacity2)
+
+        members = helpers.call_action(
+            'package_collaborator_list',
+            id=dataset['id'], capacity='member')
+
+        assert len(members) == 1
+
+        assert members[0]['package_id'] == dataset['id']
+        assert members[0]['user_id'] == user2['id']
+        assert members[0]['capacity'] == capacity2
+
+    def test_list_dataset_not_found(self):
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_collaborator_list',
+                id='xxx')
+
+    def test_list_wrong_capacity(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_collaborator_list',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_list_for_user(self):
+
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+        user = factories.User()
+        capacity1 = 'editor'
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset1['id'], user_id=user['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset2['id'], user_id=user['id'], capacity=capacity2)
+
+        datasets = helpers.call_action(
+            'package_collaborator_list_for_user',
+            id=user['id'])
+
+        assert len(datasets) == 2
+
+        assert datasets[0]['package_id'] == dataset1['id']
+        assert datasets[0]['capacity'] == capacity1
+
+        assert datasets[1]['package_id'] == dataset2['id']
+        assert datasets[1]['capacity'] == capacity2
+
+    def test_list_for_user_with_capacity(self):
+
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+        user = factories.User()
+        capacity1 = 'editor'
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset1['id'], user_id=user['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset2['id'], user_id=user['id'], capacity=capacity2)
+
+        datasets = helpers.call_action(
+            'package_collaborator_list_for_user',
+            id=user['id'], capacity='editor')
+
+        assert len(datasets) == 1
+
+        assert datasets[0]['package_id'] == dataset1['id']
+        assert datasets[0]['capacity'] == capacity1
+
+    def test_list_for_user_user_not_found(self):
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                'package_collaborator_list_for_user',
+                id='xxx')
+
+    def test_list_for_user_wrong_capacity(self):
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_collaborator_list_for_user',
+                id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures('clean_db', 'clean_index')
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+class TestCollaboratorsSearch(object):
+
+    def test_search_results_editor(self):
+
+        org = factories.Organization()
+        dataset1 = factories.Dataset(
+            name='test1', private=True, owner_org=org['id'])
+        dataset2 = factories.Dataset(name='test2')
+
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False
+        }
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*', include_private=True
+        )
+
+        assert results['count'] == 1
+        assert results['results'][0]['id'] == dataset2['id']
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset1['id'], user_id=user['id'], capacity='editor')
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True,
+            sort='name asc'
+        )
+
+        assert results['count'] == 2
+
+        assert results['results'][0]['id'] == dataset1['id']
+        assert results['results'][1]['id'] == dataset2['id']
+
+    def test_search_results_member(self):
+
+        org = factories.Organization()
+        dataset1 = factories.Dataset(
+            name='test1', private=True, owner_org=org['id'])
+        dataset2 = factories.Dataset(name='test2')
+
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False
+        }
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True
+        )
+
+        assert results['count'] == 1
+        assert results['results'][0]['id'] == dataset2['id']
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset1['id'], user_id=user['id'], capacity='member')
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True,
+            sort='name asc'
+        )
+
+        assert results['count'] == 2
+
+        assert results['results'][0]['id'] == dataset1['id']
+        assert results['results'][1]['id'] == dataset2['id']
+
+
 @pytest.mark.usefixtures('clean_db', 'with_request_context')
 class TestResourceSearch(object):
     def test_required_fields(self):
