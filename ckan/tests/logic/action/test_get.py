@@ -4449,7 +4449,7 @@ class TestPackageMemberList(object):
 
     def test_list_for_user_user_not_found(self):
 
-        with pytest.raises(logic.NotFound):
+        with pytest.raises(logic.NotAuthorized):
             helpers.call_action(
                 'package_member_list_for_user',
                 id='xxx')

@@ -42,6 +42,7 @@ _check_access = logic.check_access
 _get_action = logic.get_action
 ValidationError = logic.ValidationError
 NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
 _get_or_bust = logic.get_or_bust
 
 
@@ -603,8 +604,8 @@ def member_create(context, data_dict=None):
                 member.table_id == user_obj.id and \
                 member.capacity == u'admin' and \
                 capacity != u'admin':
-            raise logic.NotAuthorized("Administrators cannot revoke their "
-                                      "own admin status")
+            raise NotAuthorized("Administrators cannot revoke their "
+                                "own admin status")
     else:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
@@ -658,15 +659,15 @@ def package_member_create(context, data_dict):
             _('Role must be one of "{}"').format(', '.join(
                 allowed_capacities)))
 
+    _check_access('package_member_create', context, data_dict)
+
     package = model.Package.get(package_id)
     if not package:
         raise NotFound(_('Dataset not found'))
 
     user = model.User.get(user_id)
     if not user:
-        raise NotFound(_('User not found'))
-
-    _check_access('package_member_create', context, data_dict)
+        raise NotAuthorized(_('Not allowed to add collaborators'))
 
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
@@ -1335,14 +1336,14 @@ def follow_user(context, data_dict):
 
     '''
     if 'user' not in context:
-        raise logic.NotAuthorized(_("You must be logged in to follow users"))
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
     session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(_("You must be logged in to follow users"))
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = (context.get('schema')
               or ckan.logic.schema.default_follow_user_schema())
@@ -1393,7 +1394,7 @@ def follow_dataset(context, data_dict):
     '''
 
     if 'user' not in context:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a dataset."))
 
     model = context['model']
@@ -1401,7 +1402,7 @@ def follow_dataset(context, data_dict):
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a dataset."))
 
     schema = (context.get('schema')
@@ -1534,7 +1535,7 @@ def follow_group(context, data_dict):
 
     '''
     if 'user' not in context:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a group."))
 
     model = context['model']
@@ -1542,7 +1543,7 @@ def follow_group(context, data_dict):
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a group."))
 
     schema = context.get('schema',

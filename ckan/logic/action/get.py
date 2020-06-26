@@ -40,6 +40,7 @@ _validate = ckan.lib.navl.dictization_functions.validate
 _table_dictize = ckan.lib.dictization.table_dictize
 _check_access = logic.check_access
 NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
@@ -307,14 +308,14 @@ def package_member_list_for_user(context, data_dict):
 
     user_id = _get_or_bust(data_dict, 'id')
 
-    user = model.User.get(user_id)
-    if not user:
-        raise NotFound('User not found')
-
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
 
     _check_access('package_member_list_for_user', context, data_dict)
+
+    user = model.User.get(user_id)
+    if not user:
+        raise NotAuthorized(_('Not allowed to retrieve collaborators'))
 
     capacity = data_dict.get('capacity')
     allowed_capacities = authz.get_collaborator_capacities()
@@ -2840,13 +2841,13 @@ def _am_following(context, data_dict, default_schema, FollowerClass):
         raise ValidationError(errors)
 
     if 'user' not in context:
-        raise logic.NotAuthorized
+        raise NotAuthorized
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized
+        raise NotAuthorized
 
     object_id = data_dict.get('id')
 
