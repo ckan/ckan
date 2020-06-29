@@ -783,6 +783,8 @@ def if_empty_guess_format(key, data, errors, context):
     # if resource_id then an update
     if (not value or value is Missing) and not resource_id:
         url = data.get(key[:-1] + ('url',), '')
+        if not url:
+            return
         mimetype, encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype
