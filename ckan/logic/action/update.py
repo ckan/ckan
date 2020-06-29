@@ -496,8 +496,16 @@ def package_revise(context, data_dict):
             model.Session.rollback()
             raise ValidationError([{'update': [de.error]}])
 
-    for k, v in sorted(data['update__'].items()):
-        dfunc.update_merge_string_key(orig, k, v)
+    # update __extend keys before __#__* so that files may be
+    # attached to newly added resources in the same call
+    try:
+        for k, v in sorted(
+                data['update__'].items(),
+                key=lambda (k, v): k[-6] if k.endswith('extend') else k):
+            dfunc.update_merge_string_key(orig, k, v)
+    except dfunc.DataError as de:
+        model.Session.rollback()
+        raise ValidationError([{k: [de.error]}])
 
     _check_access('package_revise', context, orig)
 
