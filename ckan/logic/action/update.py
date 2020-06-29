@@ -501,7 +501,7 @@ def package_revise(context, data_dict):
     try:
         for k, v in sorted(
                 data['update__'].items(),
-                key=lambda (k, v): k[-6] if k.endswith('extend') else k):
+                key=lambda s: s[0][-6] if s[0].endswith('extend') else s[0]):
             dfunc.update_merge_string_key(orig, k, v)
     except dfunc.DataError as de:
         model.Session.rollback()
