@@ -37,42 +37,36 @@
       {{ _('Explore') }}
       <span class="caret"></span>
     </a>
-    <ul class="dropdown-menu">
+    <div class="dropdown-menu">
       {% block resource_item_explore_links %}
-      <li>
-        <a href="{{ url }}">
-          {% if not is_activity_archive and res.has_views %}
-            <i class="fa fa-bar-chart-o"></i>
-            {{ _('Preview') }}
-          {% else %}
-            <i class="fa fa-info-circle"></i>
-            {{ _('More information') }}
-          {% endif %}
-        </a>
-      </li>
+      <a class="dropdown-item" href="{{ url }}">
+        {% if not is_activity_archive and res.has_views %}
+          <i class="fa fa-bar-chart-o"></i>
+          {{ _('Preview') }}
+        {% else %}
+          <i class="fa fa-info-circle"></i>
+          {{ _('More information') }}
+        {% endif %}
+      </a>
       {% if res.url and h.is_url(res.url) %}
-      <li>
-        <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
-          {% if res.has_views or res.url_type == 'upload' %}
-            <i class="fa fa-arrow-circle-o-down"></i>
-            {{ _('Download') }}
-          {% else %}
-            <i class="fa fa-external-link"></i>
-            {{ _('Go to resource') }}
-          {% endif %}
-        </a>
-      </li>
+      <a class="dropdown-item" href="{{ res.url }}" class="resource-url-analytics" target="_blank">
+        {% if res.has_views or res.url_type == 'upload' %}
+          <i class="fa fa-arrow-circle-o-down"></i>
+          {{ _('Download') }}
+        {% else %}
+          <i class="fa fa-external-link"></i>
+          {{ _('Go to resource') }}
+        {% endif %}
+      </a>
       {% endif %}
       {% if can_edit %}
-      <li>
-        <a href="{{ h.url_for(pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id) }}">
-          <i class="fa fa-pencil-square-o"></i>
-          {{ _('Edit') }}
-        </a>
-      </li>
+      <a class="dropdown-item" href="{{ h.url_for(pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id) }}">
+        <i class="fa fa-pencil-square-o"></i>
+        {{ _('Edit') }}
+      </a>
       {% endif %}
       {% endblock %}
-    </ul>
+    </div>
   </div>
   {% endif %}
   {% endblock %}

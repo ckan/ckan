@@ -66,6 +66,7 @@
 // Resource List
 .resource-list {
   @include list-unstyled;
+  padding-left: 0;
   margin: -10px -10px 10px -10px;
 }
 

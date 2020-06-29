@@ -9,7 +9,7 @@
   &:hover .dropdown-menu {
     display: none;
   }
-  &.open .dropdown-menu {
+  &.show .dropdown-menu {
     display: block;
   }
 }
