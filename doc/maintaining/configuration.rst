@@ -306,7 +306,7 @@ ckan.site_url
 
 Example::
 
-  ckan.site_url = http://scotdata.ckan.net
+  ckan.site_url = http://mydataportal.example.com
 
 Default value:  (an explicit value is mandatory)
 
