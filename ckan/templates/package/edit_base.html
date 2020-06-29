@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content_action %}
-    {% link_for _('View dataset'), named_route=pkg.type ~ '.read', id=pkg.name, class_='btn btn-default', icon='eye' %}
+    {% link_for _('View dataset'), named_route=pkg.type ~ '.read', id=pkg.name, class_='btn btn-outline-primary', icon='eye' %}
 {% endblock %}
 
 {% block content_primary_nav %}
