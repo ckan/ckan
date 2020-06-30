@@ -16,7 +16,8 @@
     "moment": "^2.24.0"
   },
   "devDependencies": {
-    "cypress": "^4.0.1"
+    "cypress": "^4.8.0",
+    "cypress-axe": "^0.8.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

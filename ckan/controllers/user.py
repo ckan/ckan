@@ -80,8 +80,7 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            h.flash_error(_('Not authorized to see this page'))
-            h.redirect_to(controller='user', action='login')
+            abort(404, _('User not found'))
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
 
@@ -147,10 +146,6 @@ class UserController(base.BaseController):
         return render('user/read.html')
 
     def me(self, locale=None):
-        if not c.user:
-            h.redirect_to(locale=locale, controller='user', action='login',
-                          id=None)
-        user_ref = c.userobj.get_reference_preferred_for_uri()
         h.redirect_to(locale=locale, controller='user', action='dashboard')
 
     def register(self, data=None, errors=None, error_summary=None):
@@ -316,11 +311,6 @@ class UserController(base.BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (authz.is_sysadmin(c.user)
-                or c.user == user_obj.name):
-            abort(403, _('User %s not authorized to edit %s') %
-                  (str(c.user), id))
-
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
@@ -329,7 +319,6 @@ class UserController(base.BaseController):
                                         'user': c.user},
                                        data_dict)
 
-        c.is_myself = True
         c.show_email_notifications = asbool(
             config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
@@ -461,46 +450,56 @@ class UserController(base.BaseController):
 
         if request.method == 'POST':
             id = request.params.get('user')
-
+            if id in (None, u''):
+                h.flash_error(_(u'Email is required'))
+                return h.redirect_to(u'/user/reset')
             context = {'model': model,
-                       'user': c.user}
+                       'user': c.user,
+                       u'ignore_auth': True}
+            user_objs = []
 
-            data_dict = {'id': id}
-            user_obj = None
-            try:
-                user_dict = get_action('user_show')(context, data_dict)
-                user_obj = context['user_obj']
-            except NotFound:
-                # Try searching the user
-                del data_dict['id']
-                data_dict['q'] = id
+            if u'@' not in id:
+                try:
+                    user_dict = get_action('user_show')(context, {'id': id})
+                    user_objs.append(context['user_obj'])
+                except NotFound:
+                    pass
+            else:
+                user_list = logic.get_action(u'user_list')(context, {
+                    u'email': id
+                })
+                if user_list:
+                    # send reset emails for *all* user accounts with this email
+                    # (otherwise we'd have to silently fail - we can't tell the
+                    # user, as that would reveal the existence of accounts with
+                    # this email address)
+                    for user_dict in user_list:
+                        logic.get_action(u'user_show')(
+                            context, {u'id': user_dict[u'id']})
+                        user_objs.append(context[u'user_obj'])
 
-                if id and len(id) > 2:
-                    user_list = get_action('user_list')(context, data_dict)
-                    if len(user_list) == 1:
-                        # This is ugly, but we need the user object for the
-                        # mailer,
-                        # and user_list does not return them
-                        del data_dict['q']
-                        data_dict['id'] = user_list[0]['id']
-                        user_dict = get_action('user_show')(context, data_dict)
-                        user_obj = context['user_obj']
-                    elif len(user_list) > 1:
-                        h.flash_error(_('"%s" matched several users') % (id))
-                    else:
-                        h.flash_error(_('No such user: %s') % id)
-                else:
-                    h.flash_error(_('No such user: %s') % id)
+            if not user_objs:
+                log.info(u'User requested reset link for unknown user: {}'
+                         .format(id))
 
-            if user_obj:
+            for user_obj in user_objs:
+                log.info(u'Emailing reset link to user: {}'
+                         .format(user_obj.name))
                 try:
                     mailer.send_reset_link(user_obj)
-                    h.flash_success(_('Please check your inbox for '
-                                    'a reset code.'))
-                    h.redirect_to(u'home.index')
                 except mailer.MailerException as e:
-                    h.flash_error(_('Could not send reset link: %s') %
-                                  text_type(e))
+                    h.flash_error(
+                        _(u'Error sending the email. Try again later '
+                          'or contact an administrator for help')
+                    )
+                    log.exception(e)
+                    return h.redirect_to(u'/')
+            # always tell the user it succeeded, because otherwise we reveal
+            # which accounts exist or not
+            h.flash_success(
+                _(u'A reset link has been emailed to you '
+                  '(unless the account specified does not exist)'))
+            return h.redirect_to(u'/')
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
@@ -664,6 +663,11 @@ class UserController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'auth_user_obj': c.userobj,
                    'for_view': True}
+
+        if authz.auth_is_anon_user(context):
+            h.flash_error(_('Not authorized to see this page'))
+            return h.redirect_to(controller='user', action='login')
+
         data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
 

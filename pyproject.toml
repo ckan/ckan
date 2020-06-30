@@ -8,7 +8,12 @@ wrap = true
 
 [[tool.towncrier.type]]
 directory = 'migration'
-name = 'Migration'
+name = 'Migration notes'
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = 'feature'
+name = 'Major features'
 showcontent = true
 
 [[tool.towncrier.type]]

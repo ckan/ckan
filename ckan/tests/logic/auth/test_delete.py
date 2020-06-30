@@ -4,6 +4,7 @@
 """
 
 import pytest
+from six import string_types
 
 import ckan.logic.auth.delete as auth_delete
 import ckan.tests.factories as factories
@@ -173,3 +174,122 @@ class TestApiToken(object):
                 u"model": model,
                 u"user": user[u"name"]
             }, jti='not-exists')
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+class TestPackageMemberDeleteAuth(object):
+
+    def _get_context(self, user):
+
+        return {
+            'model': model,
+            'user': user if isinstance(user, string_types) else user.get('name')
+        }
+
+    def setup(self):
+
+        self.org_admin = factories.User()
+        self.org_editor = factories.User()
+        self.org_member = factories.User()
+
+        self.normal_user = factories.User()
+
+        self.org = factories.Organization(
+            users=[
+                {'name': self.org_admin['name'], 'capacity': 'admin'},
+                {'name': self.org_editor['name'], 'capacity': 'editor'},
+                {'name': self.org_member['name'], 'capacity': 'member'},
+            ]
+        )
+
+        self.dataset = factories.Dataset(owner_org=self.org['id'])
+
+    def test_delete_org_admin_is_authorized(self):
+
+        context = self._get_context(self.org_admin)
+        assert helpers.call_auth(
+            'package_collaborator_delete',
+            context=context, id=self.dataset['id'])
+
+    def test_delete_org_editor_is_not_authorized(self):
+
+        context = self._get_context(self.org_editor)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_collaborator_delete',
+                context=context, id=self.dataset['id'])
+
+    def test_delete_org_member_is_not_authorized(self):
+
+        context = self._get_context(self.org_member)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_collaborator_delete',
+                context=context, id=self.dataset['id'])
+
+    def test_delete_org_admin_from_other_org_is_not_authorized(self):
+        org_admin2 = factories.User()
+        factories.Organization(
+            users=[
+                {'name': org_admin2['name'], 'capacity': 'admin'},
+            ]
+        )
+
+        context = self._get_context(org_admin2)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_collaborator_delete',
+                context=context, id=self.dataset['id'])
+
+    def test_delete_missing_org_is_not_authorized(self):
+
+        dataset = factories.Dataset(owner_org=None)
+
+        context = self._get_context(self.org_admin)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_collaborator_delete',
+                context=context, id=dataset['id'])
+
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+    def test_delete_collaborator_admin_is_authorized(self):
+
+        user = factories.User()
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=self.dataset['id'], user_id=user['id'], capacity='admin')
+
+        context = self._get_context(user)
+        assert helpers.call_auth(
+            'package_collaborator_delete', context=context, id=self.dataset['id'])
+
+    @pytest.mark.parametrize('role', ['editor', 'member'])
+    def test_delete_collaborator_editor_and_member_are_not_authorized(self, role):
+        user = factories.User()
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=self.dataset['id'], user_id=user['id'], capacity=role)
+
+        context = self._get_context(user)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                'package_collaborator_delete',
+                context=context, id=self.dataset['id'])
+
+    @pytest.mark.ckan_config('ckan.auth.create_dataset_if_not_in_organization', True)
+    @pytest.mark.ckan_config('ckan.auth.create_unowned_dataset', True)
+    def test_delete_unowned_datasets(self):
+
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        assert dataset['owner_org'] is None
+        assert dataset['creator_user_id'] == user['id']
+
+        context = self._get_context(user)
+        assert helpers.call_auth(
+            'package_collaborator_delete', context=context, id=dataset['id'])

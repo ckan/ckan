@@ -6,7 +6,7 @@ import logging
 import random
 import re
 from socket import error as socket_error
-import string
+import datetime
 
 import six
 
@@ -23,10 +23,10 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
-import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
+import ckan.authz as authz
 
 from ckan.common import _, config
 
@@ -43,6 +43,7 @@ _check_access = logic.check_access
 _get_action = logic.get_action
 ValidationError = logic.ValidationError
 NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
 _get_or_bust = logic.get_or_bust
 
 
@@ -604,8 +605,8 @@ def member_create(context, data_dict=None):
                 member.table_id == user_obj.id and \
                 member.capacity == u'admin' and \
                 capacity != u'admin':
-            raise logic.NotAuthorized("Administrators cannot revoke their "
-                                      "own admin status")
+            raise NotAuthorized("Administrators cannot revoke their "
+                                "own admin status")
     else:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
@@ -618,6 +619,77 @@ def member_create(context, data_dict=None):
     model.repo.commit()
 
     return model_dictize.member_dictize(member, context)
+
+
+def package_collaborator_create(context, data_dict):
+    '''Make a user a collaborator in a dataset.
+
+    If the user is already a collaborator in the dataset then their
+    capacity will be updated.
+
+    Currently you must be an Admin on the dataset owner organization to
+    manage collaborators.
+
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :param user_id: the id or name of the user to add or edit
+    :type user_id: string
+    :param capacity: the capacity or role of the membership. Must be one of
+        "editor" or "member". Additionally
+        if :ref:`ckan.auth.allow_admin_collaborators` is set to True, "admin"
+        is also allowed.
+    :type capacity: string
+
+    :returns: the newly created (or updated) collaborator
+    :rtype: dictionary
+    '''
+
+    model = context['model']
+
+    package_id, user_id, capacity = _get_or_bust(
+        data_dict,
+        ['id', 'user_id', 'capacity']
+    )
+
+    allowed_capacities = authz.get_collaborator_capacities()
+    if capacity not in allowed_capacities:
+        raise ValidationError(
+            _('Role must be one of "{}"').format(', '.join(
+                allowed_capacities)))
+
+    _check_access('package_collaborator_create', context, data_dict)
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise NotFound(_('Dataset not found'))
+
+    user = model.User.get(user_id)
+    if not user:
+        raise NotAuthorized(_('Not allowed to add collaborators'))
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
+
+    # Check if collaborator already exists
+    collaborator = model.Session.query(model.PackageMember). \
+        filter(model.PackageMember.package_id == package.id). \
+        filter(model.PackageMember.user_id == user.id).one_or_none()
+    if not collaborator:
+        collaborator = model.PackageMember(
+            package_id=package.id,
+            user_id=user.id)
+    collaborator.capacity = capacity
+    collaborator.modified = datetime.datetime.utcnow()
+    model.Session.add(collaborator)
+    model.repo.commit()
+
+    log.info('User {} added as collaborator in package {} ({})'.format(
+        user.name, package.id, capacity))
+
+    return model_dictize.member_dictize(collaborator, context)
 
 
 def _group_or_org_create(context, data_dict, is_org=False):
@@ -1265,14 +1337,14 @@ def follow_user(context, data_dict):
 
     '''
     if 'user' not in context:
-        raise logic.NotAuthorized(_("You must be logged in to follow users"))
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
     session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(_("You must be logged in to follow users"))
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = (context.get('schema')
               or ckan.logic.schema.default_follow_user_schema())
@@ -1323,7 +1395,7 @@ def follow_dataset(context, data_dict):
     '''
 
     if 'user' not in context:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a dataset."))
 
     model = context['model']
@@ -1331,7 +1403,7 @@ def follow_dataset(context, data_dict):
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a dataset."))
 
     schema = (context.get('schema')
@@ -1464,7 +1536,7 @@ def follow_group(context, data_dict):
 
     '''
     if 'user' not in context:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a group."))
 
     model = context['model']
@@ -1472,7 +1544,7 @@ def follow_group(context, data_dict):
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a group."))
 
     schema = context.get('schema',

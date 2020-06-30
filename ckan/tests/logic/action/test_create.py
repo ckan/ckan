@@ -630,6 +630,8 @@ class TestResourceCreate:
             package_id=dataset["id"],
             somekey="somevalue",  # this is how to do resource extras
             extras={u"someotherkey": u"alt234"},  # this isnt
+            subobject={u'hello': u'there'},  # JSON objects supported
+            sublist=[1, 2, 3],  # JSON lists suppoted
             format=u"plain text",
             url=u"http://datahub.io/download/",
         )
@@ -637,12 +639,16 @@ class TestResourceCreate:
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
+        assert resource["subobject"] == {u"hello": u"there"}
+        assert resource["sublist"] == [1, 2, 3]
         resource = helpers.call_action("package_show", id=dataset["id"])[
             "resources"
         ][0]
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
+        assert resource["subobject"] == {u"hello": u"there"}
+        assert resource["sublist"] == [1, 2, 3]
 
     @freeze_time('2020-02-25 12:00:00')
     def test_metadata_modified_is_set_to_utcnow_when_created(self):
@@ -1209,6 +1215,89 @@ class TestApiToken(object):
         assert res.user_id == user[u"id"]
         assert res.last_access is None
         assert res.id == jti
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+def test_create_package_collaborator_when_config_disabled():
+
+    dataset = factories.Dataset()
+    user = factories.User()
+    capacity = 'editor'
+
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+class TestPackageMemberCreate(object):
+
+    def test_create(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        member = helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        assert member['package_id'] == dataset['id']
+        assert member['user_id'] == user['id']
+        assert member['capacity'] == capacity
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+    def test_update(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+        assert model.Session.query(model.PackageMember).one().capacity == 'member'
+
+    def test_create_wrong_capacity(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_create_dataset_not_found(self):
+        dataset = {'id': 'xxx'}
+        user = factories.User()
+        capacity = 'editor'
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_create_user_not_authorized(self):
+        dataset = factories.Dataset()
+        user = {'id': 'yyy'}
+        capacity = 'editor'
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
 
 
 @pytest.mark.usefixtures("clean_db")

@@ -143,6 +143,52 @@ maintain compatibility.
   .. warning:: This configuration will be removed when migration to Flask is completed. Please
     update the extension code to use the new Flask-based route names.
 
+
+Development Settings
+--------------------
+
+.. _ckan.devserver.threaded:
+
+ckan.devserver.threaded
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.threaded = true
+
+Default value: False
+
+Controls, whether development server handle each request in a separate
+thread.
+
+.. _ckan.devserver.multiprocess:
+
+ckan.devserver.multiprocess
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.multiprocess = 8
+
+Default value: 1
+
+If greater than 1 then handle each request in a new process up to this
+maximum number of concurrent processes.
+
+.. _ckan.devserver.watch_patterns:
+
+ckan.devserver.watch_patterns
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.watch_patterns = mytheme/**/*.yaml mytheme/**/*.json
+
+Default value: None
+
+A list of files the reloader should watch additionally to the
+modules. For example configuration files.
+
 Repoze.who Settings
 -------------------
 
@@ -416,9 +462,9 @@ Example::
 
   ckan.cache_enabled = True
 
-Default value: ``None``
+Default value: ``False``
 
-Controls if we're caching CKAN's static files, if it's serving them.
+This enables cache control headers on all requests. If the user is not logged in and there is no session data a ``Cache-Control: public`` header will be added. For all other requests the ``Cache-control: private`` header will be added.
 
 .. _ckan.use_pylons_response_cleanup_middleware:
 
@@ -668,11 +714,59 @@ ckan.auth.public_activity_stream_detail
 
 Example::
 
-  ckan.auth.public_activity_stream_detail = true
+  ckan.auth.public_activity_stream_detail = True
 
 Default value: ``False`` (however the default config file template sets it to ``True``)
 
 Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
+
+
+.. _ckan.auth.allow_dataset_collaborators:
+
+ckan.auth.allow_dataset_collaborators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_dataset_collaborators = True
+
+Default value: ``False``
+
+Enables or disable collaborators in individual datasets. If ``True``, in addition to the standard organization based permissions, users can be added as collaborators to individual datasets with different roles, regardless of the organization they belong to. For more information, check the documentation on :ref:`dataset_collaborators`.
+
+.. warning:: If this setting is turned off in a site where there already were collaborators created, you must reindex all datasets to update the permission labels, in order to prevent access to private datasets to the previous collaborators.
+
+.. _ckan.auth.allow_admin_collaborators:
+
+ckan.auth.allow_admin_collaborators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_admin_collaborators = True
+
+Default value: ``False``
+
+
+Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
+
+
+.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assinged to.
+
+.. _ckan.auth.allow_collaborators_to_change_owner_org:
+
+ckan.auth.allow_collaborators_to_change_owner_org
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_collaborators_to_change_owner_org = True
+
+Default value: ``False``
+
+
+Allows dataset collaborators to change the owner organization of the datasets they are collaborators on. Defaults to False, meaning that collaborators with role admin or editor can edit the dataset metadata but not the organization field.
+
 
 
 .. end_config-authorization

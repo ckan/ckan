@@ -103,7 +103,8 @@ class User(factory.Factory):
 
     # This is the class that UserFactory will create and return instances
     # of.
-    FACTORY_FOR = ckan.model.User
+    class Meta:
+        model = ckan.model.User
 
     # These are the default params that will be used to create new users.
     fullname = "Mr. Test User"
@@ -138,7 +139,8 @@ class User(factory.Factory):
 class Resource(factory.Factory):
     """A factory class for creating CKAN resources."""
 
-    FACTORY_FOR = ckan.model.Resource
+    class Meta:
+        model = ckan.model.Resource
 
     name = factory.Sequence(lambda n: "test_resource_{0:02d}".format(n))
     description = "Just another test resource."
@@ -178,7 +180,8 @@ class ResourceView(factory.Factory):
 
     """
 
-    FACTORY_FOR = ckan.model.ResourceView
+    class Meta:
+        model = ckan.model.ResourceView
 
     title = factory.Sequence(lambda n: "test_resource_view_{0:02d}".format(n))
     description = "Just another test resource view."
@@ -205,7 +208,8 @@ class ResourceView(factory.Factory):
 class Sysadmin(factory.Factory):
     """A factory class for creating sysadmin users."""
 
-    FACTORY_FOR = ckan.model.User
+    class Meta:
+        model = ckan.model.User
 
     fullname = "Mr. Test Sysadmin"
     password = "RandomPassword123"
@@ -243,7 +247,8 @@ class Sysadmin(factory.Factory):
 class Group(factory.Factory):
     """A factory class for creating CKAN groups."""
 
-    FACTORY_FOR = ckan.model.Group
+    class Meta:
+        model = ckan.model.Group
 
     name = factory.Sequence(lambda n: "test_group_{0:02d}".format(n))
     title = factory.LazyAttribute(_generate_group_title)
@@ -275,7 +280,8 @@ class Organization(factory.Factory):
 
     # This is the class that OrganizationFactory will create and return
     # instances of.
-    FACTORY_FOR = ckan.model.Group
+    class Meta:
+        model = ckan.model.Group
 
     # These are the default params that will be used to create new
     # organizations.
@@ -310,7 +316,8 @@ class Organization(factory.Factory):
 class Dataset(factory.Factory):
     """A factory class for creating CKAN datasets."""
 
-    FACTORY_FOR = ckan.model.Package
+    class Meta:
+        model = ckan.model.Package
 
     # These are the default params that will be used to create new groups.
     title = "Test Dataset"
@@ -339,7 +346,8 @@ class Dataset(factory.Factory):
 class MockUser(factory.Factory):
     """A factory class for creating mock CKAN users using the mock library."""
 
-    FACTORY_FOR = mock.MagicMock
+    class Meta:
+        model = mock.MagicMock
 
     fullname = "Mr. Mock User"
     password = "pass"
@@ -367,7 +375,8 @@ class SystemInfo(factory.Factory):
     """A factory class for creating SystemInfo objects (config objects
        stored in the DB)."""
 
-    FACTORY_FOR = ckan.model.SystemInfo
+    class Meta:
+        model = ckan.model.SystemInfo
 
     key = factory.Sequence(lambda n: "test_config_{0:02d}".format(n))
     value = _generate_random_string()
@@ -410,7 +419,8 @@ def validator_errors_dict():
 class Vocabulary(factory.Factory):
     """A factory class for creating tag vocabularies."""
 
-    FACTORY_FOR = ckan.model.Vocabulary
+    class Meta:
+        model = ckan.model.Vocabulary
     name = factory.Sequence(lambda n: "test_vocabulary_{0:02d}".format(n))
 
     @classmethod
@@ -427,7 +437,8 @@ class Vocabulary(factory.Factory):
 class Activity(factory.Factory):
     """A factory class for creating CKAN activity objects."""
 
-    FACTORY_FOR = ckan.model.Activity
+    class Meta:
+        model = ckan.model.Activity
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):

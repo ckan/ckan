@@ -75,6 +75,7 @@ ckan.auth.create_user_via_web = true
 ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.auth.public_user_details = true
 ckan.auth.public_activity_stream_detail = true
+ckan.auth.allow_dataset_collaborators = false
 
 ## API Token Settings
 api_token.nbytes = 60
