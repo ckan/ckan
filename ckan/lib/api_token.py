@@ -9,6 +9,7 @@ import ckan.plugins as plugins
 import ckan.model as model
 from ckan.common import config
 from ckan.logic.schema import default_create_api_token_schema
+from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
 
@@ -31,17 +32,19 @@ def _get_secret(encode):
     config_key = _config_encode_secret if encode else _config_decode_secret
     secret = config.get(config_key)
     if not secret:
-        secret = u'string:' + config.get(_config_secret_fallback)
-    type_, value = secret.split(u':', 1)
-    if type_ == u'file':
-        with open(value, u'rb') as key_file:
+        secret = u"string:" + config.get(_config_secret_fallback, u"")
+    type_, value = secret.split(u":", 1)
+    if type_ == u"file":
+        with open(value, u"rb") as key_file:
             value = key_file.read()
     if not value:
-        log.warning(
-            u"Neither `%s` nor `%s` specified. "
-            u"Missing secret key is a critical security issue.",
-            config_key,
-            _config_secret_fallback,
+        raise CkanConfigurationException(
+            (
+                u"Neither `{key}` nor `{fallback}` specified. "
+                u"Missing secret key is a critical security issue."
+            ).format(
+                key=config_key, fallback=_config_secret_fallback,
+            )
         )
     return value
 
@@ -71,7 +74,8 @@ def decode(encoded, **kwargs):
     else:
         try:
             data = jwt.decode(
-                encoded, _get_secret(encode=False),
+                encoded,
+                _get_secret(encode=False),
                 algorithms=_get_algorithm(),
                 **kwargs
             )
@@ -90,7 +94,9 @@ def encode(data, **kwargs):
             break
     else:
         token = jwt.encode(
-            data, _get_secret(encode=True), algorithm=_get_algorithm(),
+            data,
+            _get_secret(encode=True),
+            algorithm=_get_algorithm(),
             **kwargs
         )
 
