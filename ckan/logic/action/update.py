@@ -113,6 +113,7 @@ def resource_update(context, data_dict):
     try:
         context['defer_commit'] = True
         context['use_cache'] = False
+        context['resources_only'] = True
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError as e:
@@ -307,10 +308,11 @@ def package_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    #avoid revisioning by updating directly
-    model.Session.query(model.Package).filter_by(id=pkg.id).update(
-        {"metadata_modified": datetime.datetime.utcnow()})
-    model.Session.refresh(pkg)
+    if not context.get('resources_only', False):
+        #avoid revisioning by updating directly
+        model.Session.query(model.Package).filter_by(id=pkg.id).update(
+            {"metadata_modified": datetime.datetime.utcnow()})
+        model.Session.refresh(pkg)
 
     pkg = model_save.package_dict_save(data, context)
 
@@ -388,6 +390,7 @@ def package_resource_reorder(context, data_dict):
     new_resources = ordered_resources + existing_resources
     package_dict['resources'] = new_resources
 
+    context['resources_only'] = True
     _check_access('package_resource_reorder', context, package_dict)
     _get_action('package_update')(context, package_dict)
 
