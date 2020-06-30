@@ -373,28 +373,28 @@ def package_revise(context, data_dict):
                   is not "big.csv".
     :type match: dict
     :param filter: a list of string patterns of fields to remove from the
-                   current dataset. e.g. ``["-resources__1"]`` would remove the
-                   second resource, ``["+title", "+resources", "-*"]`` would
+                   current dataset. e.g. ``"-resources__1"`` would remove the
+                   second resource, ``"+title, +resources, -*"`` would
                    remove all fields at the dataset level except title and
                    all resources (default: ``[]``)
-    :type filter: list of string patterns
+    :type filter: comma-separated string patterns or list of string patterns
     :param update: a dict with values to update/create after filtering
                    e.g. ``{"resources": [{"description": "file here"}]}`` would
                    update the description for the first resource
     :type update: dict
     :param include: a list of string pattern of fields to include in response
-                    e.g. ``["-*"]`` to return nothing (default: ``[]`` all
+                    e.g. ``"-*"`` to return nothing (default: ``[]`` all
                     fields returned)
-    :type include: list of string patterns
+    :type include: comma-separated-string patterns or list of string patterns
 
-    ``match`` and ``update`` parameters may also be passed as path keys, using
+    ``match`` and ``update`` parameters may also be passed as "flattened keys", using
     either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
-    ``update__resource__1f9ab__description="file here"`` would set the
-    description of the resource with id starting with "1f9ab" to "file here", and
-    ``update__resource__1__description="file here"`` would do the same
-    on the second resource in the dataset.
+    ``update__resource__1f9ab__description="guidebook"`` would set the
+    description of the resource with id starting with "1f9ab" to "guidebook", and
+    ``update__resource__-1__description="guidebook"`` would do the same
+    on the last resource in the dataset.
 
-    The ``extend`` key can also be used on the update parameter to add
+    The ``extend`` suffix can also be used on the update parameter to add
     a new item to a list, e.g. ``update__resources__extend=[{"name": "new resource", "url": "https://example.com"}]``
     will add a new resource to the dataset with the provided ``name`` and ``url``.
 
@@ -407,9 +407,9 @@ def package_revise(context, data_dict):
 
     * Identical to above, but using flattened keys::
 
-        match__name "xyz"
-        match__notes "old notes"
-        update__notes "new notes"
+        match__name="xyz"
+        match__notes="old notes"
+        update__notes="new notes"
 
     * Replace all fields at dataset level only, keep resources (note: dataset id
       and type fields can't be deleted) ::
@@ -440,7 +440,7 @@ def package_revise(context, data_dict):
         update__resources__1492a={"name": "edits here", "url": "http://example.com"}
 
 
-    :returns: the updated dataset with fields filtered by include parameter
+    :returns: a dict containing 'package':the updated dataset with fields filtered by include parameter
     :rtype: dictionary
 
     '''
