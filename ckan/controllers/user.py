@@ -80,8 +80,7 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            h.flash_error(_('Not authorized to see this page'))
-            h.redirect_to(controller='user', action='login')
+            abort(404, _('User not found'))
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
 
@@ -147,10 +146,6 @@ class UserController(base.BaseController):
         return render('user/read.html')
 
     def me(self, locale=None):
-        if not c.user:
-            h.redirect_to(locale=locale, controller='user', action='login',
-                          id=None)
-        user_ref = c.userobj.get_reference_preferred_for_uri()
         h.redirect_to(locale=locale, controller='user', action='dashboard')
 
     def register(self, data=None, errors=None, error_summary=None):
@@ -668,6 +663,11 @@ class UserController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'auth_user_obj': c.userobj,
                    'for_view': True}
+
+        if authz.auth_is_anon_user(context):
+            h.flash_error(_('Not authorized to see this page'))
+            return h.redirect_to(controller='user', action='login')
+
         data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
 
