@@ -439,7 +439,7 @@ class TestResourceCreate:
         mimetype = result.pop("mimetype")
         assert mimetype == "application/csv"
 
-    def test_mimetype_by_upload_by_filename(self, make_resource):
+    def test_mimetype_by_upload_by_filename(self, create_with_upload):
         """The mimetype is guessed from an uploaded file with a filename
 
         Real world usage would be using the FileStore API or web UI
@@ -466,14 +466,17 @@ class TestResourceCreate:
         }
         """
 
-        result = make_resource(content, 'test.json')
+        result = create_with_upload(
+            content, 'test.json', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
         mimetype = result.pop("mimetype")
 
         assert mimetype
         assert mimetype == "application/json"
 
     @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
-    def test_mimetype_by_upload_by_file(self, make_resource):
+    def test_mimetype_by_upload_by_file(self, create_with_upload):
         """The mimetype is guessed from an uploaded file by the contents inside
 
         Real world usage would be using the FileStore API or web UI
@@ -491,14 +494,17 @@ class TestResourceCreate:
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        result = make_resource(content, 'test.csv')
+        result = create_with_upload(
+            content, 'test.csv', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
 
         mimetype = result.pop("mimetype")
 
         assert mimetype
         assert mimetype == "text/plain"
 
-    def test_size_of_resource_by_upload(self, make_resource):
+    def test_size_of_resource_by_upload(self, create_with_upload):
         """
         The size of the resource determined by the uploaded file
         """
@@ -511,7 +517,10 @@ class TestResourceCreate:
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        result = make_resource(content, 'test.csv')
+        result = create_with_upload(
+            content, 'test.csv', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
 
         size = result.pop("size")
 

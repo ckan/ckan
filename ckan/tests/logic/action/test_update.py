@@ -1050,7 +1050,7 @@ class TestResourceUpdate(object):
         assert upd_mimetype == "text/plain"
 
     @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
-    def test_mimetype_by_upload_by_file(self, make_resource):
+    def test_mimetype_by_upload_by_file(self, create_with_upload):
         """The mimetype is guessed from an uploaded file by the contents inside
 
         Real world usage would be using the FileStore API or web UI
@@ -1071,9 +1071,10 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
 
-        res_update = make_resource(
+        res_update = create_with_upload(
             content, "update_test", action="resource_update",
-            id=resource["id"], url="http://localhost")
+            id=resource["id"], url="http://localhost",
+            package_id=dataset["id"])
 
         org_mimetype = resource.pop("mimetype")
         upd_mimetype = res_update.pop("mimetype")
@@ -1081,7 +1082,7 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert upd_mimetype == "text/plain"
 
-    def test_mimetype_by_upload_by_filename(self, make_resource):
+    def test_mimetype_by_upload_by_filename(self, create_with_upload):
         """The mimetype is guessed from an uploaded file with a filename
 
         Real world usage would be using the FileStore API or web UI
@@ -1108,9 +1109,9 @@ class TestResourceUpdate(object):
         }
         """
         dataset = factories.Dataset()
-        resource = make_resource(
+        resource = create_with_upload(
             content, 'test.json',
-            package=dataset, url="http://localhost")
+            package_id=dataset['id'], url="http://localhost")
 
         content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1119,9 +1120,10 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
 
-        res_update = make_resource(
+        res_update = create_with_upload(
             content, "update_test.csv", action="resource_update",
-            id=resource["id"], url="http://localhost")
+            id=resource["id"], url="http://localhost",
+            package_id=dataset['id'])
 
         org_mimetype = resource.pop("mimetype")
         upd_mimetype = res_update.pop("mimetype")
@@ -1155,7 +1157,7 @@ class TestResourceUpdate(object):
 
         assert org_size < upd_size
 
-    def test_size_of_resource_by_upload(self, make_resource):
+    def test_size_of_resource_by_upload(self, create_with_upload):
         """The size of the resource determined by the uploaded file
 
         """
@@ -1179,9 +1181,9 @@ class TestResourceUpdate(object):
 
         dataset = factories.Dataset()
 
-        resource = make_resource(
+        resource = create_with_upload(
             content, 'test.json',
-            package=dataset, url="http://localhost")
+            package_id=dataset['id'], url="http://localhost")
 
         content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1189,9 +1191,10 @@ class TestResourceUpdate(object):
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        res_update = make_resource(
+        res_update = create_with_upload(
             content, "update_test.csv", action="resource_update",
-            id=resource["id"], url="http://localhost")
+            id=resource["id"], url="http://localhost",
+            package_id=dataset["id"])
 
         org_size = int(resource.pop("size"))  # 669 bytes
         upd_size = int(res_update.pop("size"))  # 358 bytes
