@@ -828,7 +828,9 @@ def user_list(context, data_dict):
       string (optional) (you must be a sysadmin to use this filter)
     :type email: string
     :param order_by: which field to sort the list by (optional, default:
-      ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
+      ``'display_name'``). Users can be sorted by ``'id'``, ``'name'``,
+      ``'fullname'``, ``'display_name'``, ``'created'``, ``'about'``,
+      ``'sysadmin'`` or ``'number_created_packages'``.
     :type order_by: string
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
@@ -846,7 +848,7 @@ def user_list(context, data_dict):
 
     q = data_dict.get('q', '')
     email = data_dict.get('email')
-    order_by = data_dict.get('order_by', 'name')
+    order_by = data_dict.get('order_by', 'display_name')
     all_fields = asbool(data_dict.get('all_fields', True))
 
     if all_fields:
@@ -881,12 +883,12 @@ def user_list(context, data_dict):
         raise ValidationError('order_by=edits is no longer supported')
     elif order_by == 'number_created_packages':
         order_by_field = order_by
-    elif order_by != 'name':
+    elif order_by != 'display_name':
         try:
             order_by_field = getattr(model.User, order_by)
         except AttributeError:
             pass
-    if order_by == 'name' or order_by_field is None:
+    if order_by == 'display_name' or order_by_field is None:
         query = query.order_by(
             _case(
                 [(
