@@ -168,7 +168,8 @@ def _run_plugin_authenticators():
         for item in authenticators:
             response = item.identify()
             if response:
-                # assume that no further extensions need to run if a plugin returned a response
+                # Assume that no further extensions need to run if a plugin
+                # returned a response.
                 return response
             try:
                 if g.user:
