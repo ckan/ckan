@@ -835,8 +835,8 @@ def job_cancel(context, data_dict):
 def api_token_revoke(context, data_dict):
     """Delete API Token.
 
-    :param string token: Token to remove(optional when `jti` specified).
-    :param string jti: Id of the token to remove(optional when `token` specified).
+    :param string token: Token to remove(required if `jti` not specified).
+    :param string jti: Id of the token to remove(overrides `token` if specified).
 
     .. versionadded:: 3.0
     """
