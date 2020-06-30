@@ -40,8 +40,10 @@ Example:
       {% endblock %}
       {% block description %}
       {% if organization.description %}
-        <p>
+        <p class="description">
           {{ h.markdown_extract(organization.description, 180) }}
+        </p>
+        <p class="read-more">
           {% link_for _('read more'), controller='organization', action='about', id=organization.name %}
         </p>
       {% else %}

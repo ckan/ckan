@@ -1,7 +1,7 @@
 {% set intro = g.site_intro_text %}
 
 <div class="module-content box">
-  <header>
+  <div>
     {% if intro %}
       {{ h.render_markdown(intro) }}
     {% else %}
@@ -12,7 +12,7 @@
         {% endtrans %}
       </p>
     {% endif %}
-  </header>
+  </div>
 
   {% block home_image %}
     <section class="featured media-overlay hidden-xs">

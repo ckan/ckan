@@ -546,6 +546,8 @@ class TestResourceCreate:
             package_id=dataset["id"],
             somekey="somevalue",  # this is how to do resource extras
             extras={u"someotherkey": u"alt234"},  # this isnt
+            subobject={u'hello': u'there'},  # JSON objects supported
+            sublist=[1, 2, 3],  # JSON lists suppoted
             format=u"plain text",
             url=u"http://datahub.io/download/",
         )
@@ -553,12 +555,16 @@ class TestResourceCreate:
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
+        assert resource["subobject"] == {u"hello": u"there"}
+        assert resource["sublist"] == [1, 2, 3]
         resource = helpers.call_action("package_show", id=dataset["id"])[
             "resources"
         ][0]
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
+        assert resource["subobject"] == {u"hello": u"there"}
+        assert resource["sublist"] == [1, 2, 3]
 
     @freeze_time('2020-02-25 12:00:00')
     def test_metadata_modified_is_set_to_utcnow_when_created(self):
@@ -1107,3 +1113,167 @@ class TestFollowUser(object):
         assert [activity["activity_type"] for activity in activities] == []
         # A follow creates no Activity, since:
         # https://github.com/ckan/ckan/pull/317
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+def test_create_package_collaborator_when_config_disabled():
+
+    dataset = factories.Dataset()
+    user = factories.User()
+    capacity = 'editor'
+
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+class TestPackageMemberCreate(object):
+
+    def test_create(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        member = helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        assert member['package_id'] == dataset['id']
+        assert member['user_id'] == user['id']
+        assert member['capacity'] == capacity
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+    def test_update(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+        assert model.Session.query(model.PackageMember).one().capacity == 'member'
+
+    def test_create_wrong_capacity(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_create_dataset_not_found(self):
+        dataset = {'id': 'xxx'}
+        user = factories.User()
+        capacity = 'editor'
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_create_user_not_authorized(self):
+        dataset = factories.Dataset()
+        user = {'id': 'yyy'}
+        capacity = 'editor'
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_stored_on_create_if_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user_dict = {
+            'name': 'test-user',
+            'email': 'test@example.com',
+            'password': '12345678',
+            'plugin_extras': {
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_create', context=context, **user_dict)
+
+        assert created_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+        user_dict = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user_dict['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+        plugin_extras_from_db = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': created_user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras_from_db == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+    def test_ignored_on_create_if_non_sysadmin(self):
+
+        author = factories.User()
+        sysadmin = factories.Sysadmin()
+
+        user_dict = {
+            'name': 'test-user',
+            'email': 'test@example.com',
+            'password': '12345678',
+            'plugin_extras': {
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': author['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_create', context=context, **user_dict)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] is None

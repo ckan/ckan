@@ -40,6 +40,7 @@ _validate = ckan.lib.navl.dictization_functions.validate
 _table_dictize = ckan.lib.dictization.table_dictize
 _check_access = logic.check_access
 NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
@@ -231,6 +232,115 @@ def member_list(context, data_dict=None):
 
     return [(m.table_id, m.table_name, translated_capacity(m.capacity))
             for m in q.all()]
+
+
+def package_collaborator_list(context, data_dict):
+    '''Return the list of all collaborators for a given package.
+
+    Currently you must be an Admin on the package owner organization to
+    manage collaborators.
+
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
+
+    :param id: the id or name of the package
+    :type id: string
+    :param capacity: (optional) If provided, only users with this capacity are
+        returned
+    :type capacity: string
+
+    :returns: a list of collaborators, each a dict including the package and
+        user id, the capacity and the last modified date
+    :rtype: list of dictionaries
+
+    '''
+
+    model = context['model']
+
+    package_id = _get_or_bust(data_dict, 'id')
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise NotFound(_('Package not found'))
+
+    _check_access('package_collaborator_list', context, data_dict)
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
+
+    capacity = data_dict.get('capacity')
+
+    allowed_capacities = authz.get_collaborator_capacities()
+    if capacity and capacity not in allowed_capacities:
+        raise ValidationError(
+            _('Capacity must be one of "{}"').format(', '.join(
+                allowed_capacities)))
+    q = model.Session.query(model.PackageMember).\
+        filter(model.PackageMember.package_id == package.id)
+
+    if capacity:
+        q = q.filter(model.PackageMember.capacity == capacity)
+
+    collaborators = q.all()
+
+    return [collaborator.as_dict() for collaborator in collaborators]
+
+
+def package_collaborator_list_for_user(context, data_dict):
+    '''Return a list of all package the user is a collaborator in
+
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
+
+    :param id: the id or name of the user
+    :type id: string
+    :param capacity: (optional) If provided, only packages where the user
+        has this capacity are returned
+    :type capacity: string
+
+    :returns: a list of packages, each a dict including the package id, the
+        capacity and the last modified date
+    :rtype: list of dictionaries
+
+    '''
+
+    model = context['model']
+
+    user_id = _get_or_bust(data_dict, 'id')
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
+
+    _check_access('package_collaborator_list_for_user', context, data_dict)
+
+    user = model.User.get(user_id)
+    if not user:
+        raise NotAuthorized(_('Not allowed to retrieve collaborators'))
+
+    capacity = data_dict.get('capacity')
+    allowed_capacities = authz.get_collaborator_capacities()
+    if capacity and capacity not in allowed_capacities:
+        raise ValidationError(
+            _('Capacity must be one of "{}"').format(', '.join(
+                allowed_capacities)))
+
+    q = model.Session.query(model.PackageMember).\
+        filter(model.PackageMember.user_id == user.id)
+
+    if capacity:
+        q = q.filter(model.PackageMember.capacity == capacity)
+
+    collaborators = q.all()
+
+    out = []
+    for collaborator in collaborators:
+        out.append({
+            'package_id': collaborator.package_id,
+            'capacity': collaborator.capacity,
+            'modified': collaborator.modified.isoformat(),
+        })
+
+    return out
 
 
 def _group_or_org_list(context, data_dict, is_org=False):
@@ -845,7 +955,9 @@ def package_show(context, data_dict):
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
 
-    pkg = model.Package.get(name_or_id)
+    pkg = model.Package.get(
+        name_or_id,
+        for_update=context.get('for_update', False))
 
     if pkg is None:
         raise NotFound
@@ -1260,6 +1372,10 @@ def user_show(context, data_dict):
     :param include_password_hash: Include the stored password hash
         (sysadmin only, optional, default:``False``)
     :type include_password_hash: bool
+    :param include_plugin_extras: Include the internal plugin extras object
+        (sysadmin only, optional, default:``False``)
+    :type include_plugin_extras: bool
+
 
     :returns: the details of the user. Includes email_hash and
         number_created_packages (which excludes draft or private datasets
@@ -1276,14 +1392,15 @@ def user_show(context, data_dict):
     if id:
         user_obj = model.User.get(id)
         context['user_obj'] = user_obj
-        if user_obj is None:
-            raise NotFound
     elif provided_user:
         context['user_obj'] = user_obj = provided_user
     else:
         raise NotFound
 
     _check_access('user_show', context, data_dict)
+
+    if not bool(user_obj):
+        raise NotFound
 
     # include private and draft datasets?
     requester = context.get('user')
@@ -1301,8 +1418,11 @@ def user_show(context, data_dict):
     include_password_hash = sysadmin and asbool(
         data_dict.get('include_password_hash', False))
 
+    include_plugin_extras = sysadmin and asbool(
+        data_dict.get('include_plugin_extras', False))
+
     user_dict = model_dictize.user_dictize(
-        user_obj, context, include_password_hash)
+        user_obj, context, include_password_hash, include_plugin_extras)
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '
@@ -1993,7 +2113,11 @@ def resource_search(context, data_dict):
 
             # Just a regular field
             else:
-                q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
+                column = model_attr.property.columns[0]
+                if isinstance(column.type, sqlalchemy.UnicodeText):
+                    q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
+                else:
+                    q = q.filter(model_attr == term)
 
     if order_by is not None:
         if hasattr(model.Resource, order_by):
@@ -2719,13 +2843,13 @@ def _am_following(context, data_dict, default_schema, FollowerClass):
         raise ValidationError(errors)
 
     if 'user' not in context:
-        raise logic.NotAuthorized
+        raise NotAuthorized
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized
+        raise NotAuthorized
 
     object_id = data_dict.get('id')
 

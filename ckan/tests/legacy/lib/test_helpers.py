@@ -52,8 +52,8 @@ class TestHelpers(object):
             h.date_str_to_datetime("2008-04-13T20:40:20foobar")
 
     def test_date_str_to_datetime_with_ambiguous_microseconds(self):
-        with pytest.raises(ValueError):
-            h.date_str_to_datetime("2008-04-13T20:40:20.500")
+        res = h.date_str_to_datetime("2008-04-13T20:40:20.1234")
+        assert res == datetime.datetime(2008, 4, 13, 20, 40, 20, 123400)
 
     def test_gravatar(self):
         email = "zephod@gmail.com"
