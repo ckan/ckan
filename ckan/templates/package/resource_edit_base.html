@@ -9,7 +9,7 @@
   {{ super() }}
   {% if res %}
       <li class="breadcrumb-item">{% link_for h.resource_display_name(res)|truncate(30), named_route=pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id %}</li>
-      <li{% block breadcrumb_edit_selected %} class="breadcrumb-item active"{% endblock %}><a href="">{{ _('Edit') }}</a></li>
+      <li class="breadcrumb-item {% block breadcrumb_edit_selected %} active{% endblock %}"><a href="">{{ _('Edit') }}</a></li>
   {% endif %}
 {% endblock %}
 

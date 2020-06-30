@@ -111,10 +111,6 @@ textarea {
   }
 }
 
-.form-actions {
-  overflow: auto;
-}
-
 @include media-breakpoint-up(sm) {
   .form-actions {
     text-align: right;
