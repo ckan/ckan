@@ -16,7 +16,7 @@ Example:
 <div class="card">
   {% block item_inner %}
   {% block image %}
-    <img class="card-img-top" src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-responsive media-image">
+    <img class="card-img-top" src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}">
   {% endblock %}
   {% block title %}
     <div class="card-body">
