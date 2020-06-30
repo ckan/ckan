@@ -359,7 +359,7 @@ def ckan_before_request():
 
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
-    identify_user()
+    response = identify_user()
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
@@ -367,6 +367,8 @@ def ckan_before_request():
 
     set_ckan_current_url(request.environ)
     g.__timer = time.time()
+
+    return response
 
 
 def ckan_after_request(response):

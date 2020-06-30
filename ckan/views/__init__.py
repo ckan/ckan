@@ -137,18 +137,7 @@ def identify_user():
         g.remote_addr = request.environ.get(u'REMOTE_ADDR',
                                             u'Unknown IP Address')
 
-    # Authentication plugins get a chance to run here break as soon as a user
-    # is identified.
-
-    authenticators = p.PluginImplementations(p.IAuthenticator)
-    if authenticators:
-        for item in authenticators:
-            item.identify()
-            try:
-                if g.user:
-                    break
-            except AttributeError:
-                continue
+    response = _run_plugin_authenticators()
 
     # We haven't identified the user so try the default methods
     if not getattr(g, u'user', None):
@@ -167,6 +156,26 @@ def identify_user():
     else:
         g.author = g.remote_addr
     g.author = text_type(g.author)
+
+    return response
+
+
+def _run_plugin_authenticators():
+    # Authentication plugins get a chance to run here break as soon as a user
+    # is identified.
+    authenticators = p.PluginImplementations(p.IAuthenticator)
+    if authenticators:
+        for item in authenticators:
+            response = item.identify()
+            if response:
+                # assume that no further extensions need to run if a plugin returned a response
+                return response
+            try:
+                if g.user:
+                    break
+            except AttributeError:
+                continue
+    return None
 
 
 def _identify_user_default():
