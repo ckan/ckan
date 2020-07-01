@@ -1,0 +1,43 @@
+{% extends "package/edit_base.html" %}
+
+{% block subtitle %}{{ _('Collaborators') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block page_primary_action %}
+  {% if h.check_access('package_collaborator_create', {'id': pkg_dict.id})%}
+    {% link_for _('Add Collaborators'), named_route='dataset.new_collaborator', id=pkg_dict.name, class_='btn btn-primary', icon='plus-square' %}
+  {% endif %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  {% set collaborators = h.get_collaborators(pkg_dict['id'])%}
+  {% set count = collaborators|length %}
+  {% set collaborators_count = ungettext('{count} collaborator', '{count} collaborators', count).format(count=count) %}
+  <h3 class="page-heading">{{ collaborators_count }}</h3>
+  <table class="table table-header table-hover table-bordered">
+    <thead>
+      <tr>
+          <th>{{ _('User') }}</th>
+          <th>{{ _('Role') }}</th>
+          <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user_id, capacity in collaborators %}
+        <tr>
+          <td class="media">
+            {{ h.linked_user(user_id, maxlength=20) }}
+          </td>
+          <td>{{ capacity }}</td>
+          <td>
+            <div class="btn-group pull-right">
+                <a class="btn btn-default btn-sm" href="{{ h.url_for('dataset.new_collaborator', id=pkg_dict.name, user_id=user_id) }}" title="{{ _('Edit') }}">
+                <i class="fa fa-wrench"></i>
+              </a>
+              <a class="btn btn-danger btn-sm" href="{{ h.url_for('dataset.collaborator_delete', id=pkg_dict.name, user_id=user_id) }}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this collaborator?') }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="fa fa-times"></i>{% endblock %}</a>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

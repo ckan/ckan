@@ -191,6 +191,30 @@ def convert_to_list_if_string(value, context=None):
     else:
         return value
 
+def json_or_string(value):
+    """
+    parse string values as json, return string if that fails
+    """
+    if isinstance(value, string_types):
+        try:
+            return json.loads(value)
+        except ValueError:
+            pass
+    return value
+
+def json_list_or_string(value):
+    """
+    parse string values as json or comma-separated lists, return
+    string as a one-element list if that fails
+    """
+    if isinstance(value, string_types):
+        try:
+            return json.loads(value)
+        except ValueError:
+            pass
+        return value.split(',')
+    return value
+
 
 def remove_whitespace(value, context):
     if isinstance(value, string_types):

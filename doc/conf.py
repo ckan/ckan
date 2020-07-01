@@ -50,6 +50,7 @@ rst_epilog = '''
 .. |test_datastore| replace:: datastore_test
 .. |apache_config_file| replace:: /etc/apache2/sites-available/ckan_default.conf
 .. |apache.wsgi| replace:: |config_dir|/apache.wsgi
+.. |wsgi.py| replace:: |config_dir|/wsgi.py
 .. |data_dir| replace:: |config_dir|/data
 .. |sstore| replace:: |config_dir|/sstore
 .. |storage_parent_dir| replace:: /var/lib/ckan
@@ -67,7 +68,8 @@ rst_epilog = '''
 .. |javascript| replace:: JavaScript
 .. |apache| replace:: Apache
 .. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan
-.. |restart_nginx| replace:: sudo systemctl restart nginx
+.. |reload_nginx| replace:: sudo service nginx reload
+.. |restart_nginx| replace:: sudo service nginx restart
 .. |jquery| replace:: jQuery
 .. |nodejs| replace:: Node.js
 
