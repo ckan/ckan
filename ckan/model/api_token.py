@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 
 import ckan.plugins.toolkit as tk
-from ckan.model import meta, User
+from ckan.model import meta, User, DomainObject
 
 
 __all__ = [u"ApiToken", u"api_token_table"]
@@ -32,7 +32,7 @@ api_token_table = Table(
 )
 
 
-class ApiToken(object):
+class ApiToken(DomainObject):
     def __init__(self, user_id=None, name=None):
         self.id = _make_token()
         self.user_id = user_id
