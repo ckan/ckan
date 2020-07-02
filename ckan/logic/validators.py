@@ -9,7 +9,7 @@ import mimetypes
 import string
 import json
 
-from six import string_types
+from six import string_types, iteritems
 from six.moves.urllib.parse import urlparse
 
 import ckan.lib.navl.dictization_functions as df
@@ -48,6 +48,23 @@ def owner_org_validator(key, data, errors, context):
         if not authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('An organization must be provided'))
         return
+
+    if (authz.check_config_permission('allow_dataset_collaborators')
+            and not authz.check_config_permission('allow_collaborators_to_change_owner_org')):
+
+        package = context.get('package')
+        if package and user and not user.sysadmin:
+            is_collaborator = authz.user_is_collaborator_on_dataset(
+                user.id, package.id, ['admin', 'editor'])
+            if is_collaborator:
+                # User is a collaborator, check if it's also a member with
+                # edit rights of the current organization (redundant, but possible)
+                user_orgs = logic.get_action(
+                    'organization_list_for_user')(
+                        {'ignore_auth': True}, {'id': user.id, 'permission': 'update_dataset'})
+                user_is_org_member = package.owner_org in [org['id'] for org in user_orgs]
+                if data.get(key) != package.owner_org and not user_is_org_member:
+                    raise Invalid(_('You cannot move this dataset to another organization'))
 
     group = model.Group.get(value)
     if not group:
@@ -860,6 +877,46 @@ def email_validator(value, context):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
 
+def collect_prefix_validate(prefix, *validator_names):
+    """
+    Return a validator that will collect top-level keys starting with
+    prefix then apply validator_names to each one. Results are moved
+    to a dict under the prefix name, with prefix removed from keys
+    """
+    validator_fns = [logic.get_validator(v) for v in validator_names]
+
+    def prefix_validator(key, data, errors, context):
+        out = {}
+        extras = data.get(('__extras',), {})
+
+        # values passed as lists of dicts will have been flattened into __junk
+        junk = df.unflatten(data.get(('__junk',), {}))
+        for field_name in junk:
+            if not field_name.startswith(prefix):
+                continue
+            extras[field_name] = junk[field_name]
+
+        for field_name in list(extras):
+            if not field_name.startswith(prefix):
+                continue
+            data[(field_name,)] = extras.pop(field_name)
+            for v in validator_fns:
+                try:
+                    df.convert(v, (field_name,), data, errors, context)
+                except df.StopOnError:
+                    break
+            out[field_name[len(prefix):]] = data.pop((field_name,))
+
+        data[(prefix,)] = out
+
+    return prefix_validator
+
+
+def dict_only(value):
+    if not isinstance(value, dict):
+        raise Invalid(_('Must be a dict'))
+    return value
+
 def email_is_unique(key, data, errors, context):
     '''Validate email is unique'''
     model = context['model']
@@ -902,3 +959,13 @@ def json_object(value):
         raise Invalid(_('Could not parse the value as a valid JSON object'))
 
     return value
+
+
+def extras_valid_json(extras, context):
+    try:
+        for extra, value in iteritems(extras):
+            json.dumps(value)
+    except ValueError as e:
+        raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
+                format(name=extra))
+    return extras

@@ -128,14 +128,14 @@ class TestUpdate(object):
             )
 
     def test_user_update_with_id_that_does_not_exist(self):
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         user_dict["id"] = "there's no user with this id"
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("user_update", **user_dict)
 
     def test_user_update_with_no_id(self):
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         assert "id" not in user_dict
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user_dict)
@@ -210,7 +210,7 @@ class TestUpdate(object):
         changed either.
 
         """
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         original_password = user_dict["password"]
         user_dict = factories.User(**user_dict)
 
@@ -274,7 +274,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.attributes()["password"],
+            password=factories.User.password,
             fullname="updated full name",
         )
 
@@ -322,7 +322,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.attributes()["password"],
+            password=factories.User.password,
             fullname="updated full name",
         )
 
@@ -340,7 +340,7 @@ class TestUpdate(object):
             "email": user["email"],
             # FIXME: We shouldn't have to put password here since we're not
             # updating it, but user_update sucks.
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         helpers.call_action("user_update", **params)
@@ -360,7 +360,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -371,13 +371,12 @@ class TestUpdate(object):
         API key."""
 
         user = factories.User()
-
         params = {
             "id": user["id"],
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -398,7 +397,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -1779,6 +1778,182 @@ class TestDashboardMarkActivitiesOld(object):
             ("new package", False),
             ("changed package", False),
         ]
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+class TestCollaboratorsUpdate(object):
+
+    def test_collaborators_can_not_change_owner_org_by_default(self):
+
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        user = factories.User()
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        with pytest.raises(logic.ValidationError) as e:
+            helpers.call_action('package_update', context=context, **dataset)
+
+        assert e.value.error_dict['owner_org'] == [
+            'You cannot move this dataset to another organization']
+
+    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    def test_collaborators_can_change_owner_org_if_config_true(self):
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        user = factories.User()
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+
+        assert updated_dataset['owner_org'] == org2['id']
+
+    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    def test_editors_can_change_owner_org_even_if_collaborators(self):
+
+        user = factories.User()
+
+        org1 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+
+        assert updated_dataset['owner_org'] == org2['id']
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestDatasetRevise(object):
+    def test_revise_description(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        response = helpers.call_action(
+            'package_revise',
+            match={'notes': 'old notes', 'name': 'xyz'},
+            update={'notes': 'new notes'},
+        )
+        assert response['package']['notes'] == 'new notes'
+
+    def test_revise_failed_match(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_revise',
+                match={'notes': 'wrong notes', 'name': 'xyz'},
+                update={'notes': 'new notes'},
+            )
+
+    def test_revise_description_flattened(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        response = helpers.call_action(
+            'package_revise',
+            match__notes='old notes',
+            match__name='xyz',
+            update__notes='new notes',
+        )
+        assert response['package']['notes'] == 'new notes'
+
+    def test_revise_dataset_fields_only(self):
+        dataset = factories.Dataset(
+            name='xyz',
+            notes='old notes',
+            resources=[{'url': 'http://example.com'}])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            filter=[
+                '+resources',  # keep everything under resources
+                '-*',  # remove everything else
+            ],
+            update={'name': 'fresh-start', 'title': 'Fresh Start'},
+        )
+        assert response['package']['notes'] is None
+        assert response['package']['name'] == 'fresh-start'
+        assert response['package']['resources'][0]['url'] == 'http://example.com'
+
+    def test_revise_add_resource(self):
+        dataset = factories.Dataset()
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__extend=[{'name': 'new resource', 'url': 'http://example.com'}],
+        )
+        assert response['package']['resources'][0]['name'] == 'new resource'
+
+    def test_revise_resource_by_index(self):
+        dataset = factories.Dataset(resources=[{'url': 'http://example.com'}])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__0={'name': 'new name'},
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+
+    def test_revise_resource_by_id(self):
+        dataset = factories.Dataset(resources=[{
+            'id': '34a12bc-1420-cbad-1922',
+            'url': 'http://example.com',
+            'name': 'old name',
+        }])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__34a12={'name': 'new name'},  # prefixes allowed >4 chars
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+
+    def test_revise_resource_replace_all(self):
+        dataset = factories.Dataset(resources=[{
+            'id': '34a12bc-1420-cbad-1922',
+            'url': 'http://example.com',
+            'name': 'old name',
+        }])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            filter=['+resources__34a12__id', '-resources__34a12__*'],
+            update__resources__34a12={'name': 'new name'},
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+        assert response['package']['resources'][0]['url'] == ''
 
 
 @pytest.mark.usefixtures("clean_db")

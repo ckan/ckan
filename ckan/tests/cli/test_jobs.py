@@ -91,7 +91,7 @@ class TestJobShow(helpers.RQTestBase):
         """
         result = cli.invoke(ckan, [u"jobs", u"show"])
         assert result.exit_code != 0
-        assert u'Error: Missing argument "id".' in result.output
+        assert u"Error: Missing argument" in result.output
 
 
 class TestJobsCancel(helpers.RQTestBase):
@@ -126,7 +126,7 @@ class TestJobsCancel(helpers.RQTestBase):
         """
         result = cli.invoke(ckan, [u"jobs", u"cancel"])
         assert result.exit_code != 0
-        assert u'Error: Missing argument "id".' in result.output
+        assert u"Error: Missing argument" in result.output
 
 
 class TestJobsClear(helpers.RQTestBase):

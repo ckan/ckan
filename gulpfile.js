@@ -5,11 +5,12 @@ const if_ = require("gulp-if");
 const sourcemaps = require("gulp-sourcemaps");
 const rename = require("gulp-rename");
 
-console.log(process.argv);
 const with_sourcemaps = () => !!process.env.DEBUG;
 const renamer = (path) => {
-  if (process.argv[3]) {
-    path.basename = process.argv[3].slice(1);
+  const variant = process.argv[3];
+  if (variant) {
+    // convert main/main-rtl into green/green-rtl
+    path.basename = path.basename.replace("main", variant.slice(2));
   }
   return path;
 };

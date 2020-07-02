@@ -29,7 +29,7 @@ def validator_args(fn):
 def default_resource_schema(
         ignore_empty, unicode_safe, ignore, ignore_missing,
         remove_whitespace, if_empty_guess_format, clean_format, isodate,
-        int_validator, extras_unicode_convert, keep_extras):
+        int_validator, extras_valid_json, keep_extras):
     return {
         'id': [ignore_empty, unicode_safe],
         'package_id': [ignore],
@@ -52,7 +52,7 @@ def default_resource_schema(
         'cache_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
-        '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
+        '__extras': [ignore_missing, extras_valid_json, keep_extras],
     }
 
 
@@ -197,6 +197,7 @@ def default_show_package_schema(
         'mimetype': [],
         'cache_url': [],
         'name': [],
+        'description': [],
         'mimetype_inner': [],
         'resource_type': [],
         'url_type': [],
@@ -789,4 +790,29 @@ def job_list_schema(ignore_missing, list_of_strings):
 def job_clear_schema(ignore_missing, list_of_strings):
     return {
         u'queues': [ignore_missing, list_of_strings],
+    }
+
+
+@validator_args
+def package_revise_schema(
+        ignore_missing, list_of_strings,
+        collect_prefix_validate, json_or_string,
+        json_list_or_string, dict_only):
+    return {
+        u'__before': [
+            collect_prefix_validate(
+                u'match__', u'json_or_string'),
+            collect_prefix_validate(
+                u'update__', u'json_or_string')],
+        u'match': [
+            ignore_missing, json_or_string, dict_only],
+        u'filter': [
+            ignore_missing, json_list_or_string, list_of_strings],
+        u'update': [
+            ignore_missing, json_or_string, dict_only],
+        u'include': [
+            ignore_missing, json_list_or_string, list_of_strings],
+        # collect_prefix moves values to these, always dicts:
+        u'match__': [],
+        u'update__': [],
     }
