@@ -1522,6 +1522,11 @@ class TestBulkOperations(object):
         for revision in revisions:
             eq_(revision.private, False)
 
+        activities = helpers.call_action(
+            "organization_activity_list", id=org["id"]
+        )
+        assert activities[0]['activity_type'] == 'changed package'
+
     def test_bulk_delete(self):
 
         org = factories.Organization()
@@ -1544,6 +1549,12 @@ class TestBulkOperations(object):
             .filter(model.Package.owner_org == org['id']).all()
         for dataset in datasets:
             eq_(dataset.state, 'deleted')
+
+        activities = helpers.call_action(
+            "organization_activity_list", id=org["id"]
+        )
+        assert activities[0]['activity_type'] == 'deleted package'
+
 
         revisions = model.Session.query(model.PackageRevision) \
             .filter(model.PackageRevision.owner_org == org['id']) \
