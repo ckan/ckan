@@ -1,0 +1,1 @@
+Prevent account presence exposure when `ckan.auth.public_user_details = false`
