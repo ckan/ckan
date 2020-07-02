@@ -58,7 +58,8 @@ class TestGroupController(object):
 
         assert helpers.body_contains(
             response,
-            '<span class="input-group-addon">/{}/</span>'.format(
+            '<div class="input-group-prepend"><span class="input-group-text"> \
+                /{}/</span></div>'.format(
                 custom_group_type
             ),
         )
@@ -108,7 +109,8 @@ class TestOrganizationController(object):
 
         assert helpers.body_contains(
             response,
-            '<span class="input-group-addon">/{}/</span>'.format(
+            '<div class="input-group-prepend"><span class="input-group-text"> \
+                /{}/</span></div>'.format(
                 custom_group_type
             ),
         )

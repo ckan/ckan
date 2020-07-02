@@ -1020,7 +1020,8 @@ def build_nav_main(*args):
 def build_nav_icon(menu_item, title, **kw):
     '''Build a navigation item used for example in ``user/read_base.html``.
 
-    Outputs ``<li class="nav-item nav-link"><a href="..."><i class="icon.."></i> title</a></li>``.
+    Outputs ``<li class="nav-item nav-link"><a href="..."><i class="icon..">
+                </i> title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
       config/routing as the named route of the same name
@@ -1121,7 +1122,8 @@ def _make_menu_item(menu_item, title, **kw):
                             % (menu_item, need))
     link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
-        return literal('<li class="nav-item nav-link active">') + link + literal('</li>')
+        return literal('<li class="nav-item nav-link active">') + link \
+               + literal('</li>')
     return literal('<li class="nav-item nav-link">') + link + literal('</li>')
 
 

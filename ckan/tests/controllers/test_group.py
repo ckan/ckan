@@ -624,7 +624,7 @@ class TestGroupSearch(object):
         index_response = app.get(url_for("group.index"))
         index_response_html = BeautifulSoup(index_response.body)
         grp_names = index_response_html.select(
-            "ul.media-grid " "li.media-item " "h2.media-heading"
+            "div.card-columns " "div.card" "h2.card-title"
         )
         grp_names = [n.string for n in grp_names]
 
@@ -644,7 +644,7 @@ class TestGroupSearch(object):
         )
         search_response_html = BeautifulSoup(search_response.body)
         grp_names = search_response_html.select(
-            "ul.media-grid " "li.media-item " "h2.media-heading"
+            "div.card-columns " "div.card" "h2.card-title"
         )
         grp_names = [n.string for n in grp_names]
 
@@ -666,7 +666,7 @@ class TestGroupSearch(object):
 
         search_response_html = BeautifulSoup(search_response.body)
         grp_names = search_response_html.select(
-            "ul.media-grid " "li.media-item " "h2.media-heading"
+            "div.card-columns " "div.card" "h2.card-title"
         )
         grp_names = [n.string for n in grp_names]
 
