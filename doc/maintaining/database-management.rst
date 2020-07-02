@@ -156,9 +156,8 @@ Upgrading
     the upgrade finishes.
 
 If you are upgrading to a new CKAN :ref:`major release <releases>` update your
-CKAN database's schema using the ``paster db upgrade`` command:
+CKAN database's schema using the ``ckan db upgrade`` command:
 
 .. parsed-literal::
 
     ckan -c |ckan.ini| db upgrade
-

@@ -317,7 +317,6 @@ class TestPep8(object):
         "ckan/lib/email_notifications.py",
         "ckan/lib/fanstatic_extensions.py",
         "ckan/lib/fanstatic_resources.py",
-        "ckan/lib/formatters.py",
         "ckan/lib/hash.py",
         "ckan/lib/help/flash_messages.py",
         "ckan/lib/jinja_extensions.py",

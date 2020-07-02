@@ -30,6 +30,7 @@ from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.lib import uploader
+from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import TrackingMiddleware
 import ckan.lib.app_globals as app_globals
@@ -43,6 +44,7 @@ from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
                         set_controller_and_action,
+                        set_cache_control_headers_for_response,
                         handle_i18n,
                         set_ckan_current_url,
                         )
@@ -111,6 +113,7 @@ def make_flask_stack(conf):
     ).split(',') + [os.path.join(root, public_folder)] + storage_folder
 
     app.jinja_options = jinja_extensions.get_jinja_env_options()
+    app.jinja_env.policies['ext.i18n.trimmed'] = True
 
     app.debug = debug
     app.testing = testing
@@ -206,7 +209,11 @@ def make_flask_stack(conf):
         return dict(ungettext=ungettext)
 
     # Babel
-    pairs = [(os.path.join(root, u'i18n'), 'ckan')] + [
+    _ckan_i18n_dir = i18n.get_ckan_i18n_dir()
+
+    pairs = [
+        (_ckan_i18n_dir, u'ckan')
+    ] + [
         (p.i18n_directory(), p.i18n_domain())
         for p in PluginImplementations(ITranslation)
     ]
@@ -373,6 +380,9 @@ def ckan_after_request(response):
 
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
+
+    # Set Cache Control headers
+    response = set_cache_control_headers_for_response(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']

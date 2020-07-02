@@ -33,6 +33,8 @@
         <div class="col-md-6">
           <select id="field-license" name="license_id" data-module="autocomplete">
             {% set existing_license_id = data.get('license_id') %}
+            {% set empty_license = _('Please select the license') %}
+            <option value="">{{ empty_license }}</option>
             {% for license_id, license_desc in h.license_options(existing_license_id) %}
             <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
             {% endfor %}
@@ -62,8 +64,9 @@
   {% set dataset_is_draft = data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
   {% set dataset_has_organization = data.owner_org or data.group_id %}
   {% set organizations_available = h.organizations_available('create_dataset') %}
+  {% set user_can_update_owner_org = h.can_update_owner_org(data, organizations_available) %}
   {% set user_is_sysadmin = h.check_access('sysadmin') %}
-  {% set show_organizations_selector = organizations_available %}
+  {% set show_organizations_selector = organizations_available and user_can_update_owner_org %}
   {% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
 
   {% if show_organizations_selector and show_visibility_selector %}
