@@ -4,9 +4,11 @@ import ckan.model as model
 import click
 import datetime
 import csv
+import re
 import ckan.logic as logic
 from collections import namedtuple
 from ckan.cli import error_shout
+from ckan.common import config
 
 _ViewCount = namedtuple(u'ViewCount', u'id name count')
 
@@ -141,16 +143,18 @@ def update_tracking(engine, summary_date):
                 COMMIT;'''
     engine.execute(sql, summary_date)
 
+    root_path = config.get('ckan.root_path', '')
+    root_path = re.sub('/{{LANG}}', '', root_path)
+    regexp = '^[ ]{1}(' + root_path + '){0,1}(/\\w{2}){0,1}'
     # get ids for dataset urls
-    sql = u'''UPDATE tracking_summary t
-                SET package_id = COALESCE(
+    sql = '''UPDATE tracking_summary t
+             SET package_id = COALESCE(
                     (SELECT id FROM package p
-                    WHERE p.name = regexp_replace
-                      (' ' || t.url, '^[ ]{1}(/\\w{2}){0,1}' || %s, ''))
-                    ,'~~not~found~~')
-                WHERE t.package_id IS NULL
-                AND tracking_type = 'page';'''
-    engine.execute(sql, PACKAGE_URL)
+                    WHERE p.name = regexp_replace(' ' || t.url, %s || %s, ''))
+                 ,'~~not~found~~')
+             WHERE t.package_id IS NULL
+             AND tracking_type = 'page';'''
+    engine.execute(sql, (regexp, PACKAGE_URL))
 
     # update summary totals for resources
     sql = u'''UPDATE tracking_summary t1
