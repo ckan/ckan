@@ -146,14 +146,14 @@ class Blanket(enum.IntEnum):
             try:
                 subject = import_module(import_path)
             except ImportError:
-                log.debug(
+                log.error(
                     u"Unable to import <%s> for "
                     u"blanket implementation of %s for %s",
                     import_path,
                     self.interface().__name__,
                     plugin.__name__,
                 )
-                return
+                raise
         locals[self.method()] = _as_implementation(
             subject, self.returns_list()
         )
