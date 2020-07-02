@@ -2,7 +2,7 @@
 """Add image_url field to user table
 
 Revision ID: ddbd0a9a4489
-Revises: 19ddad52b500
+Revises: f789f233226e
 Create Date: 2020-06-05 23:30:09.595981
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = u'ddbd0a9a4489'
-down_revision = u'19ddad52b500'
+down_revision = u'f789f233226e'
 branch_labels = None
 depends_on = None
 
