@@ -144,7 +144,7 @@ def update_tracking(engine, summary_date):
     engine.execute(sql, summary_date)
 
     root_path = config.get(u'ckan.root_path', u'')
-    root_path = re.sub(u'/{{LANG}}', '', root_path, flags=re.U)
+    root_path = re.sub(u'/{{LANG}}', u'', root_path, flags=re.U)
     regexp = u'^[ ]{1}(' + root_path + u'){0,1}(/\\w{2}){0,1}'
     # get ids for dataset urls
     sql = u'''UPDATE tracking_summary t
