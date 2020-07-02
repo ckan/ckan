@@ -143,11 +143,11 @@ def update_tracking(engine, summary_date):
                 COMMIT;'''
     engine.execute(sql, summary_date)
 
-    root_path = config.get('ckan.root_path', '')
-    root_path = re.sub('/{{LANG}}', '', root_path)
-    regexp = '^[ ]{1}(' + root_path + '){0,1}(/\\w{2}){0,1}'
+    root_path = config.get(u'ckan.root_path', u'')
+    root_path = re.sub(u'/{{LANG}}', '', root_path, flags=re.U)
+    regexp = u'^[ ]{1}(' + root_path + u'){0,1}(/\\w{2}){0,1}'
     # get ids for dataset urls
-    sql = '''UPDATE tracking_summary t
+    sql = u'''UPDATE tracking_summary t
              SET package_id = COALESCE(
                     (SELECT id FROM package p
                     WHERE p.name = regexp_replace(' ' || t.url, %s || %s, ''))
