@@ -218,8 +218,8 @@ class ApiTokenView(MethodView):
             _(
                 u'API Token created: <code style="word-break:break-all;">'
                 u'{token}</code> {copy}<br>'
-                u'Make sure to copy it now. '
-                u'It can be impossible to see it again!'
+                u'Make sure to copy it now, '
+                u'you won't be able to see it again!'
             ).format(token=ensure_str(token), copy=copy_btn),
             True
         )
