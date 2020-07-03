@@ -48,7 +48,9 @@ def _get_group_template(template_type, group_type=None):
     method = getattr(group_plugin, template_type)
     try:
         return method(group_type)
-    except TypeError:
+    except TypeError as err:
+        if 'takes no arguments' not in str(err):
+            raise
         return method()
 
 
