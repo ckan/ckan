@@ -803,7 +803,7 @@ A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
 * for asymmetric algorithms: path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
 * for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
 
-Value must have prefix, which defines it's type. Supported prefixes are:
+Value must have prefix, which defines its type. Supported prefixes are:
 
 * ``string:`` - Plain string, will be used as is.
 * ``file:`` - Path to file. Content of the file will be used as key.
