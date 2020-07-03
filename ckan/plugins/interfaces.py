@@ -1701,7 +1701,8 @@ class IUploader(Interface):
         ``update_data_dict(data_dict, url_field, file_field, clear_field)``
 
         Allow the data_dict to be manipulated before it reaches any
-        validators.
+            validators. Optionally, this data_dict can have the following attribute set:
+            preserve_filename (boolean):  If none, will append utcnow date to Filename
 
         :param data_dict: data_dict to be updated
         :type data_dict: dictionary
@@ -1710,7 +1711,8 @@ class IUploader(Interface):
         :type url_field: string
 
         :param file_field: name of the key where the FieldStorage is kept (i.e
-            the field where the file data actually is).
+            the field where the file data actually is). FileStorage must be an instance of;
+            cgi.FieldStorage or werkzeug.datastructures.FileStorage as FlaskFileStorage
         :type file_field: string
 
         :param clear_field: name of a boolean field which requests the upload
@@ -1723,6 +1725,28 @@ class IUploader(Interface):
 
         :param max_size: upload size can be limited by this value in MBs.
         :type max_size: int
+
+        ``delete(filename)``
+
+        Perform a delete.
+
+        :param filename: The filename to use when deleting a file, may be None depending on the storage provider.
+        :type filename: string
+
+        ``download(filename)``
+
+        Provide redirect url or file stream
+
+        :param filename: The filename to use when downloading a file, may be None depending on the storage provider.
+        :type filename: string
+
+        ``metadata(filename)``
+
+        Collect metadata of file. Returns dict { 'content_type': content_type, 'size': length, 'hash': hash }
+        Throws IOError if file does not exist
+
+        :param filename: The filename to use when collecting metadata
+        :type filename: string
 
         '''
 
@@ -1760,6 +1784,37 @@ class IUploader(Interface):
 
         :param id: resource id
         :type id: string
+
+        ``delete(id, filename)``
+
+        Perform a delete.
+
+        :param id: resource id, used to delete file
+        :type id: string
+
+        :param filename: The filename to use when storing a resource, may be None depending on the storage provider.
+        :type filename: string
+
+        ``download(id, filename)``
+
+        Provide redirect url or file stream
+
+        :param id: resource id, used to locate file
+        :type id: string
+
+        :param filename: The filename to use when storing a resource, may be None depending on the storage provider.
+        :type filename: string
+
+        ``metadata(id, filename)``
+
+        Collect metadata of resource. Returns dict { 'content_type': content_type, 'size': length, 'hash': hash }
+        Throws IOError if file does not exist
+
+        :param id: resource id, used to locate file
+        :type id: string
+
+        :param filename: The filename to use when collecting metadata, may be None depending on the storage provider.
+        :type filename: string
 
         '''
 

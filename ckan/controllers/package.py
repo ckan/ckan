@@ -1169,19 +1169,11 @@ class PackageController(base.BaseController):
 
         if rsc.get('url_type') == 'upload':
             upload = uploader.get_resource_uploader(rsc)
-            filepath = upload.get_path(rsc['id'])
-            fileapp = paste.fileapp.FileApp(filepath)
             try:
-                status, headers, app_iter = request.call_application(fileapp)
+                return upload.download(rsc['id'], filename)
             except OSError:
+                # includes FileNotFoundError
                 abort(404, _('Resource data not found'))
-            response.headers.update(dict(headers))
-            content_type, content_enc = mimetypes.guess_type(
-                rsc.get('url', ''))
-            if content_type:
-                response.headers['Content-Type'] = content_type
-            response.status = status
-            return app_iter
         elif 'url' not in rsc:
             abort(404, _('No download is available'))
         h.redirect_to(rsc['url'])

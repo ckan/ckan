@@ -177,6 +177,10 @@ def resource_view_list(context, data_dict):
     return authz.is_authorized('resource_show', context, data_dict)
 
 
+def resource_file_metadata_show(context, data_dict):
+    return authz.is_authorized('resource_show', context, data_dict)
+
+
 def revision_show(context, data_dict):
     # No authz check in the logic function
     return {'success': True}

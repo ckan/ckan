@@ -7,6 +7,14 @@
 Changelog
 ---------
 
+v.2.8.x
+=================
+
+Fixes:
+* Update to Interface IUploader, on get_uploader and get_resource_uploader, new method signatures delete(), download(), allowing integration with other cloud storage providers without overriding routes
+* Update to Interface IUploader, on get_uploader and get_resource_uploader, new to include new method signature metadata() which can be utilised by archiver and other plugins instead of trying on local disk directly
+* Add get api `resource_file_metadata_show` which takes resource id and returns { 'content_type': content_type, 'size': length, 'hash': hash } if found
+
 
 v.2.8.6 2020-10-21
 ==================
@@ -84,7 +92,6 @@ Fixes:
 * Use returned facets in group controller (`#2713 <https://github.com/ckan/ckan/pull/5167>`_)
 * Updated translations
 * Fix broken translation in image view placeholder (`#5099 <https://github.com/ckan/ckan/pull/5116>`_)
-
 
 v.2.8.3 2019-07-03
 ==================
