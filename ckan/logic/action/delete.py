@@ -851,9 +851,8 @@ def api_token_revoke(context, data_dict):
         else:
             data = api_token.decode(token)
 
-        if not data:
-            return
-        jti = data.get(u'jti')
+        if data:
+            jti = data.get(u'jti')
 
     _check_access(u'api_token_revoke', context, {u'jti': jti})
     model = context[u'model']

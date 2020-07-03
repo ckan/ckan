@@ -1580,9 +1580,19 @@ def follow_group(context, data_dict):
 def api_token_create(context, data_dict):
     """Create new API Token for current user.
 
-    You must provide your API key in the Authorization header.
+    Apart from the `user` and `name` field that are required by
+    default implementation, there may be additional fields registered
+    by extensions.
 
-    :returns: a representation of the 'api_token'
+    :param user: name or id of the user who owns new API Token
+    :type user: string
+    :param name: distinctive name for API Token
+    :type name: string
+
+    :returns: Returns a dict with the key "token" containing the
+              encoded token value. Extensions can privide additional
+              fields via `add_extra` method of
+              :py:class:`~ckan.plugins.interfaces.IApiToken`
     :rtype: dictionary
 
     """

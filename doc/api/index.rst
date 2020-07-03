@@ -242,9 +242,9 @@ request that doesn't specify the API version number cannot be relied on.
 
 .. _api authentication:
 
----------------------------
-Authentication and API keys
----------------------------
+---------------------------------------
+Authentication, API keys and API tokens
+---------------------------------------
 
 Some API functions require authorization. The API uses the same authorization
 functions and configuration as the web interface, so if a user is authorized to
@@ -258,7 +258,12 @@ web interface and visit your user profile page. To generate a new API
 token visit the *API Tokens* tab available on your user profile.
 page.
 
-To provide your API key in an HTTP request, include it in either an
+.. note:: API keys will be marked as deprecated in the near future
+  and, eventually, completely removed. There are no gains in using API
+  keys instead of API tokens so it's strongly recommended to always
+  use API tokens for API calls.
+
+To provide your API token in an HTTP request, include it in either an
 ``Authorization`` or ``X-CKAN-API-Key`` header.  (The name of the HTTP header
 can be configured with the ``apikey_header_name`` option in your CKAN
 configuration file.)
@@ -268,7 +273,7 @@ For example, to ask whether or not you're currently following the user
 
     curl -H "Authorization: XXX"  https://demo.ckan.org/api/3/action/am_following_user?id=markw
 
-(Replacing ``XXX`` with your API key.)
+(Replacing ``XXX`` with your API token.)
 
 Or, to get the list of activities from your user dashboard on demo.ckan.org,
 run this Python code::

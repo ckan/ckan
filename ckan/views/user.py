@@ -216,10 +216,10 @@ class ApiTokenView(MethodView):
         })
         h.flash_success(
             _(
-                u'API Token created: <code style="word-break:break-all;">'
-                u'{token}</code> {copy}<br>'
-                u'Make sure to copy it now, '
-                u'you won't be able to see it again!'
+                u"API Token created: <code style=\"word-break:break-all;\">"
+                u"{token}</code> {copy}<br>"
+                u"Make sure to copy it now, "
+                u"you won't be able to see it again!"
             ).format(token=ensure_str(token), copy=copy_btn),
             True
         )
@@ -229,11 +229,9 @@ class ApiTokenView(MethodView):
 def api_token_revoke(id, jti):
     context = {u'model': model}
     try:
-        logic.check_access(u'api_token_revoke', context, {u'token': jti})
+        logic.get_action(u'api_token_revoke')(context, {u'jti': jti})
     except logic.NotAuthorized:
         base.abort(403, _(u'Unauthorized to revoke API tokens.'))
-    model.ApiToken.revoke(jti)
-
     return h.redirect_to(u'user.api_tokens', id=id)
 
 
