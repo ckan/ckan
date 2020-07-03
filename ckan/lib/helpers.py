@@ -42,6 +42,7 @@ import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
+import ckan.lib.humanize as humanize
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
 import ckan.authz as authz
@@ -896,25 +897,13 @@ def link_to(label, url, **attrs):
     return literal(dom_tags.a(label, **attrs))
 
 
-@core_helper
-def file(name, value='', id=None, **attrs):
-    """Create a file upload field.
-
-    If you are using file uploads then you will also need to set the
-    multipart option for the form.
-
-    Example::
-
-        >>> file('myfile')
-        literal('<input id="myfile" name="myfile" type="file" value="">')
-
-    """
-    return literal(_input_tag(u"file", name, value, id, **attrs))
-
-
+@maintain.deprecated(u'h.submit is deprecated. '
+                     u'Use h.literal(<markup or dominate.tags>) instead.')
 @core_helper
 def submit(name, value=None, id=None, **attrs):
     """Create a submit field.
+
+    Deprecated: Use h.literal(<markup or dominate.tags>) instead.
     """
     return literal(_input_tag(u"submit", name, value, id, **attrs))
 
@@ -1134,18 +1123,20 @@ def default_group_type(type_='group'):
 
 
 @core_helper
-def humanize_entity_type(type_):
+def humanize_entity_type(entity_type, object_type, purpose):
     """Convert machine-readable representation of package/group type into
     human-readable form.
-
     Example::
-
-        >>> humanize_entity_type('group')
-        'group'
-        >>> humanize_entity_type('custom_group')
-        'custom group'
+        >>> humanize_entity_type('group', 'custom_group', 'add link')
+        'Add Custom Group'
+        >>> humanize_entity_type('group', 'custom_group', 'breadcrumb')
+        'Custom Groups'
     """
-    return type_.replace('_', ' ')
+    if entity_type == object_type:
+        return  # use the default text included in template
+
+    translator = humanize.get_translator('entity_type')
+    return translator(purpose, object_type, entity_type)
 
 
 @core_helper
@@ -1264,11 +1255,15 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    org_type = default_group_type(u'organization') + u's'
-    org_label = humanize_entity_type(org_type).capitalize()
+    org_label = h.humanize_entity_type(
+        u'organization',
+        h.default_group_type(u'organization'),
+        u'facet label') or _(u'Organizations')
 
-    group_type = default_group_type(u'group') + u's'
-    group_label = humanize_entity_type(group_type).capitalize()
+    group_label = h.humanize_entity_type(
+        u'group',
+        h.default_group_type(u'group'),
+        u'facet label') or _(u'Groups')
 
     facet_titles = {'organization': _(org_label),
                     'groups': _(group_label),

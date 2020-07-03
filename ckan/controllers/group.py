@@ -314,11 +314,15 @@ class GroupController(base.BaseController):
 
             facets = OrderedDict()
 
-            org_type = h.default_group_type(u'organization') + u's'
-            org_label = h.humanize_entity_type(org_type).capitalize()
+            org_label = h.humanize_entity_type(
+                u'organization',
+                h.default_group_type(u'organization'),
+                u'facet label') or _(u'Organizations')
 
-            group_type = h.default_group_type(u'group') + u's'
-            group_label = h.humanize_entity_type(group_type).capitalize()
+            group_label = h.humanize_entity_type(
+                u'group',
+                h.default_group_type(u'group'),
+                u'facet label') or _(u'Groups')
 
             default_facet_titles = {'organization': _(org_label),
                                     'groups': _(group_label),
@@ -635,7 +639,10 @@ class GroupController(base.BaseController):
         try:
             if request.method == 'POST':
                 self._action('group_delete')(context, {'id': id})
-                entity_label = h.humanize_entity_type(group_type).capitalize()
+                entity_label = h.humanize_entity_type(
+                    u'group',
+                    group_type,
+                    u'facet label') or _(u'Group')
                 h.flash_notice(_('%s has been deleted.')
                                % _(entity_label))
                 h.redirect_to(group_type + '_index')

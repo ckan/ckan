@@ -16,13 +16,11 @@
 
 {% set truncate = truncate or 0 %}
 {% set url = h.url_for(organization.type + '.read', id=organization.name, ) %}
-{% set group_type_label = h.humanize_entity_type(organization.type) %}
-
 
 {% block info %}
   <div class="module module-narrow module-shallow context-info">
     {% if has_context_title %}
-      <h2 class="module-heading"><i class="fa fa-building-o"></i> {{ _(group_type_label.capitalize()) }}</h2>
+      <h2 class="module-heading"><i class="fa fa-building-o"></i> {{ h.humanize_entity_type('organization', organization.type, 'sidebar label') or _('Organization') }}</h2>
     {% endif %}
     <section class="module-content">
       {% block inner %}
@@ -49,7 +47,7 @@
           {% link_for _('read more'), named_route=organization.type ~ '.about', id=organization.name %}
         </p>
       {% else %}
-        <p class="empty">{{ _('There is no description for this ' ~ group_type_label) }}</p>
+        <p class="empty">{{ h.humanize_entity_type('organization', organization.type, 'no description') or _('There is no description for this organization') }}</p>
       {% endif %}
       {% endblock %}
       {% if show_nums %}

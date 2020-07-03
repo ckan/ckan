@@ -1,14 +1,11 @@
 {% extends "organization/base_form_page.html" %}
 
-{% set title = _('Create an {organization_type}').format(organization_type=h.humanize_entity_type(group_type).capitalize()) %}
+{% set title = h.humanize_entity_type('organization', group_type, 'create title') or _('Create an Organization')%}
 
 
 {% block subtitle %}{{ title }}{% endblock %}
 
 {% block breadcrumb_link %}{{ h.nav_link(title, named_route=group_type+'.new') }}{% endblock %}
-
-
-{% block breadcrumb_link %}{{ h.nav_link(_('Create an ' ~ label), named_route=group_type+'.edit', id=organization.name) }}{% endblock %}
 
 {% block page_heading %}{{ title }}{% endblock %}
 
