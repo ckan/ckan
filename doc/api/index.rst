@@ -254,8 +254,8 @@ well.
 When calling an API function that requires authorization, you must
 authenticate yourself by providing your API key or API token with your
 HTTP request. To find your API key, login to the CKAN site using its
-web interface and visit your user profile page. To generate new API
-token visit **API Tokens** tab available from your puser profile's
+web interface and visit your user profile page. To generate a new API
+token visit the *API Tokens* tab available on your user profile.
 page.
 
 To provide your API key in an HTTP request, include it in either an
