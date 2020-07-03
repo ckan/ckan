@@ -114,6 +114,8 @@ class _Toolkit(object):
         'mail_recipient',
         # Email a user
         'mail_user',
+        # Add custom class to humanizers hierarchy
+        'add_humanizer',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -146,6 +148,7 @@ class _Toolkit(object):
         import ckan.logic.validators as logic_validators
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
+        import ckan.lib.humanize as humanize
         import ckan.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
@@ -306,6 +309,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         )
         t['mail_recipient'] = mailer.mail_recipient
         t['mail_user'] = mailer.mail_user
+        t['add_humanizer'] = humanize.add_humanizer
 
         # class functions
         t['render_snippet'] = self._render_snippet

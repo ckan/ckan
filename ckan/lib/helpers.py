@@ -1135,7 +1135,7 @@ def humanize_entity_type(entity_type, object_type, purpose):
     if entity_type == object_type:
         return  # use the default text included in template
 
-    translator = humanize.get_translator('entity_type')
+    translator = humanize.get_humanizer('entity_type')
     return translator(purpose, object_type, entity_type)
 
 

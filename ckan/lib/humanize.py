@@ -5,7 +5,7 @@ from ckan.common import _
 
 log = logging.getLogger(__name__)
 
-def reset_translators():
+def reset_humanizers():
     for k in _instances:
         _instances[k] = None
 
@@ -15,7 +15,44 @@ def reset_translators():
         _bases[k] = v[:1]
 
 
-def get_translator(type_, **kwargs):
+def add_humanizer(humanizer_type, cls):
+    """Add custom class to humanizers hierarchy.
+
+    Class must be inherited from
+    :py:class:`~ckan.lib.humanize.BaseHumanizer`. Every time
+    ``h.humanize_entity_type`` is called, its third argument `purpose`
+    will be converted to method name by replacing all whitespaces with
+    underscore. If corresponding method exists in humanizer instance,
+    it will be used for obtaining required message.
+
+    Example::
+
+        class LinkHumanizer(BaseHumanizer):
+            def add_link(self, term, entity_type):
+                # term: custom group/org/package type, i.e, `camel-photos`
+                # entity_type: native entity name, i.e, `organization`, `group`, `dataset`.
+                return _("Create new %s" % term)
+
+        class ExtPlugin(p.SingletonPlugin):
+            p.implements(p.IConfigure)
+            def update_config(self, config_):
+                tk.add_humanizer('entity_type', LinkHumanizer)
+
+        # will be used in following case
+        h.humanize_entity_type('group', 'custom_group', 'add link')
+
+    :param humanizer_type: defines type of conversions performed by
+        humanizer. At the moment only ``entity_type`` supported.
+    :type humanizer_type: string
+
+    :param cls: Class that extends :py:class:`~ckan.lib.humanize.BaseHumanizer`
+    :type cls: class
+
+    """
+    _bases[humanizer_type].append(cls)
+
+
+def get_humanizer(type_, **kwargs):
     if not _instances[type_]:
         _instances[type_] = type(
             type_,
@@ -25,7 +62,7 @@ def get_translator(type_, **kwargs):
     return _instances[type_]
 
 
-class BaseTranslator(object):
+class BaseHumanizer(object):
     def _prepare_term(self, term):
         return term.replace(u'_', u' ').capitalize()
 
@@ -41,59 +78,63 @@ class BaseTranslator(object):
         return self._default(term, **kwargs)
 
 
-class EntityTypeTranslator(BaseTranslator):
+class EntityTypeHumanizer(BaseHumanizer):
     def add_link(self, term, entity_type):
-        return _('Add {object_name}').format(object_name=term)
+        return _('Add {}'.format(term))
 
     def breadcrumb(self, term, entity_type):
-        return _('{object_name}s').format(object_name=term)
+        return _('{}s'.format(term))
 
     def facet_label(self, term, entity_type):
-        return _('{object_name}s').format(object_name=term)
+        return _('{}s'.format(term))
 
     def page_title(self, term, entity_type):
-        return _('{object_name}s').format(object_name=term)
+        return _('{}s'.format(term))
 
     def create_title(self, term, entity_type):
-        return _('Create {object_name}').format(object_name=term)
+        return _('Create {}'.format(term))
 
     def content_tab(self, term, entity_type):
-        return _('{object_name}').format(object_name=term)
+        return _('{}s'.format(term))
 
     def default_label(self, term, entity_type):
-        return _('{object_name}').format(object_name=term)
+        return _('{}'.format(term))
 
     def no_label(self, term, entity_type):
-        return _('No {object_name}').format(object_name=term)
+        return _('No {}'.format(term))
 
     def form_label(self, term, entity_type):
-        return _('{object_name} Form').format(object_name=term)
+        return _('{} Form'.format(term))
 
     def edit_label(self, term, entity_type):
-        return _('Edit {object_name}').format(object_name=term)
+        return _('Edit {}'.format(term))
 
     def update_label(self, term, entity_type):
-        return _('Update {object_name}').format(object_name=term)
+        return _('Update {}'.format(term))
 
     def create_label(self, term, entity_type):
-        return _('Create {object_name}').format(object_name=term)
+        return _('Create {}'.format(term))
 
     def save_label(self, term, entity_type):
-        return _('Save {object_name}').format(object_name=term)
+        return _('Save {}'.format(term))
 
     def sidebar_label(self, term, entity_type):
-        return _('{object_name}').format(object_name=term)
+        return _('{}'.format(term))
 
     def my_label(self, term, entity_type):
-        return _('My {object_name}s').format(object_name=term)
+        return _('My {}s'.format(term))
 
     def create_label(self, term, entity_type):
-        return _('There are currently no {object_name}s for this site').format(object_name=term)
+        return _('There are currently no {}s for this site'.format(term))
+
+    def description_placeholder(self, term, entity_type):
+        return _('A little information about my {}...'.format(term))
+
 
 _instances = {
     u'entity_type': None,
 }
 
 _bases = {
-    u'entity_type': [EntityTypeTranslator]
+    u'entity_type': [EntityTypeHumanizer]
 }

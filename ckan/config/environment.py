@@ -171,7 +171,7 @@ def update_config():
     change ckan.site_url) '''
 
     webassets_init()
-    humanize.reset_translators()
+    humanize.reset_humanizers()
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
