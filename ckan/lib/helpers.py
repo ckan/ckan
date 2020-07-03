@@ -1671,13 +1671,14 @@ def date_str_to_datetime(date_str):
 
     # Extract seconds and microseconds
     if len(time_tuple) >= 6:
-        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
+        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d+))?$',
                      time_tuple[5])
         if not m:
             raise ValueError('Unable to parse %s as seconds.microseconds' %
                              time_tuple[5])
         seconds = int(m.groupdict().get('seconds'))
-        microseconds = int(m.groupdict(0).get('microseconds'))
+        microseconds = int((str(m.groupdict(0).get('microseconds')) +
+                            '00000')[0:6])
         time_tuple = time_tuple[:5] + [seconds, microseconds]
 
     return datetime.datetime(*list(int(item) for item in time_tuple))
@@ -1993,12 +1994,11 @@ def add_url_param(alternative_url=None, controller=None, action=None,
         (k, v) for k, v in params_items
         if k != 'page'
     ]
-    params = set(params_nopage)
     if new_params:
-        params |= set(new_params.items())
+        params_nopage += list(new_params.items())
     if alternative_url:
-        return _url_with_params(alternative_url, params)
-    return _create_url_with_params(params=params, controller=controller,
+        return _url_with_params(alternative_url, params_nopage)
+    return _create_url_with_params(params=params_nopage, controller=controller,
                                    action=action, extras=extras)
 
 
@@ -2887,3 +2887,59 @@ def activity_list_select(pkg_activity_list, current_activity_id):
         ))
 
     return select_list
+
+
+@core_helper
+def get_collaborators(package_id):
+    '''Return the collaborators list for a dataset
+
+    Returns a list of tuples with the user id and the capacity
+    '''
+    context = {'ignore_auth': True, 'user': g.user}
+    data_dict = {'id': package_id}
+    _collaborators = logic.get_action('package_collaborator_list')(
+        context, data_dict)
+
+    collaborators = []
+
+    for collaborator in _collaborators:
+        collaborators.append((
+            collaborator['user_id'],
+            collaborator['capacity']
+        ))
+
+    return collaborators
+
+
+@core_helper
+def can_update_owner_org(package_dict, user_orgs=None):
+
+    if not package_dict.get('id') or not package_dict.get('owner_org'):
+        # We are either creating a dataset or it is an unowned dataset.
+        # In both cases we defer to the other auth settings
+        return True
+
+    if not user_orgs:
+        user_orgs = organizations_available('create_dataset')
+
+    if package_dict['owner_org'] in [o['id'] for o in user_orgs]:
+        # Admins and editors of the current org can change it
+        return True
+
+    collaborators_can_change_owner_org = authz.check_config_permission(
+        'allow_collaborators_to_change_owner_org')
+
+    user = model.User.get(c.user)
+
+    if (user
+            and authz.check_config_permission('allow_dataset_collaborators')
+            and collaborators_can_change_owner_org
+            and user.id in [
+                co[0] for co in get_collaborators(package_dict['id'])
+            ]):
+
+        # User is a collaborator and changing the owner_org is allowed via
+        # config
+        return True
+
+    return False

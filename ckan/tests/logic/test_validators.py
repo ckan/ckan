@@ -10,8 +10,6 @@ import fractions
 import mock
 import pytest
 
-from collections import namedtuple
-
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 import ckan.model as model

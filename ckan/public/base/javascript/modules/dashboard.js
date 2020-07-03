@@ -22,6 +22,11 @@ this.ckan.module('dashboard', function ($) {
       this.button = $('#followee-filter .btn').
         on('click', this._onShowFolloweeDropdown);
       var title = this.button.prop('title');
+
+      var myDefaultWhiteList = $.fn.popover.Constructor.DEFAULTS.whiteList
+      myDefaultWhiteList.input = []
+      myDefaultWhiteList.li = ['data-search']
+
       this.button.popover({
           placement: 'bottom',
           title: 'Filter',
