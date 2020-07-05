@@ -270,8 +270,9 @@ class TestCustomGroupBlueprint(object):
 
         resp = app.get("/grup/new", status=200, extra_environ=env)
         page = bs4.BeautifulSoup(resp.body)
-        assert page.select_one('.page-heading').text == 'Create Grup'
-        assert page.select_one('.form-actions .btn').text == 'Create grup'
+        assert page.select_one('.page-heading').text.strip() == 'Create Grup'
+        assert page.select_one(
+            '.form-actions .btn').text.strip() == 'Create grup'
 
     @pytest.mark.ckan_config('ckan.default.group_type', 'grup')
     def test_default_group_type(self, app):

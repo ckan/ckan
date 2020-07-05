@@ -1126,10 +1126,12 @@ def humanize_entity_type(entity_type, object_type, purpose):
     """Convert machine-readable representation of package/group type into
     human-readable form.
     Example::
-        >>> humanize_entity_type('group', 'custom_group', 'add link')
-        'Add Custom Group'
-        >>> humanize_entity_type('group', 'custom_group', 'breadcrumb')
-        'Custom Groups'
+
+      >>> humanize_entity_type('group', 'custom_group', 'add link')
+      'Add Custom Group'
+      >>> humanize_entity_type('group', 'custom_group', 'breadcrumb')
+      'Custom Groups'
+
     """
     if entity_type == object_type:
         return  # use the default text included in template

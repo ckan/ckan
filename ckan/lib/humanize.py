@@ -56,7 +56,8 @@ def add_humanizer(humanizer_type, cls):
 
 def get_humanizer(type_, **kwargs):
     if not _instances[type_]:
-        _instances[type_] = type(type_, tuple(reversed(_bases[type_])), kwargs)()
+        _instances[type_] = type(
+            type_, tuple(reversed(_bases[type_])), kwargs)()
     return _instances[type_]
 
 

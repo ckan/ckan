@@ -21,5 +21,5 @@ class TestExampleHumanizer(object):
         env = {u"REMOTE_USER": six.ensure_str(user[u"name"])}
         resp = app.get(url, extra_environ=env)
         page = bs4.BeautifulSoup(resp.body)
-        assert page.select_one('.toolbar .active').text == breadcrumb
-        btn = page.select_one('.page_primary_action').text.strip() == button
+        assert page.select_one(u'.toolbar .active').text == breadcrumb
+        btn = page.select_one(u'.page_primary_action').text.strip() == button
