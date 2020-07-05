@@ -127,7 +127,7 @@ class EntityTypeHumanizer(BaseHumanizer):
     def my_label(self, term, entity_type):
         return _(u"My {}s".format(term))
 
-    def create_label(self, term, entity_type):
+    def no_any_objects(self, term, entity_type):
         return _(u"There are currently no {}s for this site".format(term))
 
     def description_placeholder(self, term, entity_type):

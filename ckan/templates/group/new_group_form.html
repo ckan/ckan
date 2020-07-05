@@ -16,7 +16,7 @@
   {%- if action == "edit" -%}
     {{ h.humanize_entity_type('group', group_type, 'update label') or _('Update Group') }}
   {%- else -%}
-    {{ h.humanize_entity_type('group', group_type, 'update label') or _('Create Group') }}
+    {{ h.humanize_entity_type('group', group_type, 'create label') or _('Create Group') }}
   {%- endif -%}
 {% endblock %}
 
