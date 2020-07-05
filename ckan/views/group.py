@@ -49,7 +49,7 @@ def _get_group_template(template_type, group_type=None):
     try:
         return method(group_type)
     except TypeError as err:
-        if 'takes no arguments' not in str(err):
+        if 'takes 1 positional argument but 2 were given' not in str(err):
             raise
         return method()
 
