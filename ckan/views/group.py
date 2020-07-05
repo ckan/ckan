@@ -793,7 +793,8 @@ class BulkProcessView(MethodView):
             group_label = h.humanize_entity_type(
                 u'organization' if is_organization else u'group',
                 group_type,
-                u'default label') or _(u'Organization' if is_organization else u'Group')
+                u'default label') or _(
+                    u'Organization' if is_organization else u'Group')
             base.abort(404, _(u'{} not found'.format(group_label)))
         except NotAuthorized:
             base.abort(403,
@@ -1055,7 +1056,7 @@ class DeleteGroupView(MethodView):
                 group_type,
                 u'facet label') or _(u'Group')
             h.flash_notice(
-                _(u'%s has been deleted.') % _(group_label.capitalize()))
+                _(u'%s has been deleted.') % _(group_label))
             group_dict = _action(u'group_show')(context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')

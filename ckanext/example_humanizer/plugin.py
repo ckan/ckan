@@ -17,6 +17,7 @@ class ExampleHumanizerPlugin(p.SingletonPlugin, p.toolkit.DefaultGroupForm):
     def is_fallback(self):
         return False
 
+
 class CustomHumanizer(BaseHumanizer):
     def add_link(self, term, entity_type):
         return u"Create new {}".format(term)

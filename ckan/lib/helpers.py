@@ -14,7 +14,6 @@ import pytz
 import tzlocal
 import pprint
 import copy
-import sys
 import uuid
 
 from paste.deploy import converters
@@ -62,13 +61,13 @@ if six.PY2:
 
 log = logging.getLogger(__name__)
 
+DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
+
 MARKDOWN_TAGS = set([
     'del', 'dd', 'dl', 'dt', 'h1', 'h2',
     'h3', 'img', 'kbd', 'p', 'pre', 's',
     'sup', 'sub', 'strike', 'br', 'hr'
 ]).union(ALLOWED_TAGS)
-
-DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
 
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
 MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
@@ -1255,14 +1254,14 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    org_label = h.humanize_entity_type(
+    org_label = humanize_entity_type(
         u'organization',
-        h.default_group_type(u'organization'),
+        default_group_type(u'organization'),
         u'facet label') or _(u'Organizations')
 
-    group_label = h.humanize_entity_type(
+    group_label = humanize_entity_type(
         u'group',
-        h.default_group_type(u'group'),
+        default_group_type(u'group'),
         u'facet label') or _(u'Groups')
 
     facet_titles = {'organization': _(org_label),

@@ -1,7 +1,5 @@
 {% extends "group/edit_base.html" %}
 
-{% block page_primary_action %}{% endblock %}
-
 {% block breadcrumb_content %}
   <li>{{ h.nav_link(
         h.humanize_entity_type('group', group_type, 'breadcrumb') or _('Groups'),
