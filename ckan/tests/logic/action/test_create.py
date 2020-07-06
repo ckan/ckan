@@ -1199,6 +1199,24 @@ class TestFollowUser(object):
         # https://github.com/ckan/ckan/pull/317
 
 
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
+
+    def test_token_created(self):
+        from ckan.lib.api_token import decode
+        user = factories.User()
+        data = helpers.call_action(u"api_token_create", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"], name=u"token-name")
+        token = data[u'token']
+        jti = decode(token)[u'jti']
+        res = model.ApiToken.get(jti)
+        assert res.user_id == user[u"id"]
+        assert res.last_access is None
+        assert res.id == jti
+
+
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
 def test_create_package_collaborator_when_config_disabled():

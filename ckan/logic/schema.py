@@ -796,6 +796,17 @@ def job_clear_schema(ignore_missing, list_of_strings):
 
 
 @validator_args
+def default_create_api_token_schema(
+        not_empty, unicode_safe,
+        ignore_missing, json_object, ignore_not_sysadmin):
+    return {
+        u'name': [not_empty, unicode_safe],
+        u'user': [not_empty, unicode_safe],
+        u'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
+    }
+
+
+@validator_args
 def package_revise_schema(
         ignore_missing, list_of_strings,
         collect_prefix_validate, json_or_string,

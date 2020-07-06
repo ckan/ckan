@@ -125,6 +125,9 @@ from ckan.model.domain_object import (
 from ckan.model.dashboard import (
     Dashboard,
 )
+from ckan.model.api_token import (
+    ApiToken,
+)
 
 import ckan.migration
 from ckan.common import config

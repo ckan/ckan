@@ -723,3 +723,20 @@ def resource_view_list_dictize(resource_views, context):
     for view in resource_views:
         resource_view_dicts.append(resource_view_dictize(view, context))
     return resource_view_dicts
+
+
+def api_token_dictize(api_token, context):
+    include_plugin_extras = context.get(u'include_plugin_extras', False)
+    result_dict = d.table_dictize(api_token, context)
+    plugin_extras = result_dict.pop(u'plugin_extras', None)
+    if include_plugin_extras:
+        result_dict[u'plugin_extras'] = copy.deepcopy(
+            plugin_extras) if plugin_extras else plugin_extras
+    return result_dict
+
+
+def api_token_list_dictize(tokens, context):
+    token_dicts = []
+    for token in tokens:
+        token_dicts.append(api_token_dictize(token, context))
+    return token_dicts

@@ -7,6 +7,7 @@ from six import text_type
 
 import ckan.lib.jobs as jobs
 import ckan.lib.search as search
+import ckan.lib.api_token as api_token
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
@@ -586,6 +587,49 @@ class TestJobCancel(helpers.FunctionalRQTestBase):
     def test_not_existing_job(self):
         with pytest.raises(logic.NotFound):
             helpers.call_action(u"job_cancel", id=u"does-not-exist")
+
+
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
+
+    def test_token_revoke(self):
+        user = factories.User()
+        token = helpers.call_action(u"api_token_create", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"], name="token-name")['token']
+        token2 = helpers.call_action(u"api_token_create", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"], name="token-name-2")['token']
+
+        tokens = helpers.call_action(u"api_token_list", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"])
+        assert len(tokens) == 2
+
+        helpers.call_action(u"api_token_revoke", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, token=token)
+
+        tokens = helpers.call_action(u"api_token_list", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"])
+        assert len(tokens) == 1
+
+        helpers.call_action(u"api_token_revoke", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, jti=api_token.decode(token2)[u'jti'])
+
+        tokens = helpers.call_action(u"api_token_list", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"])
+        assert len(tokens) == 0
 
 
 @pytest.mark.usefixtures("clean_db")

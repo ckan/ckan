@@ -78,6 +78,7 @@ entry_points = {
         'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
+        'expire_api_token = ckanext.expire_api_token.plugin:ExpireApiTokenPlugin',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
         'datapusher=ckanext.datapusher.plugin:DatapusherPlugin',
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
@@ -154,6 +155,7 @@ entry_points = {
         'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
         'example_idatastorebackend = ckanext.example_idatastorebackend.plugin:ExampleIDatastoreBackendPlugin',
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
+        'example_iapitoken = ckanext.example_iapitoken.plugin:ExampleIApiTokenPlugin',
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
     ],
     'ckan.system_plugins': [
