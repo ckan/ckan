@@ -119,7 +119,7 @@ class TestPackageShow(object):
                 u"created": u"2019-05-24T15:52:30.123456",
                 u"description": u"Just another test organization.",
                 u"id": u"<SOME-UUID>",
-                u"image_url": u"http://placekitten.com/g/200/100",
+                u"image_url": u"https://placekitten.com/g/200/100",
                 u"is_organization": True,
                 u"name": u"test_org_num",
                 u"state": u"active",

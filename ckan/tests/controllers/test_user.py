@@ -841,3 +841,53 @@ class TestUser(object):
         )
 
         assert "Error sending the email" in response
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestUserImage(object):
+
+    def test_image_url_is_shown(self, app):
+
+        user = factories.User(image_url='https://example.com/mypic.png')
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'] == 'https://example.com/mypic.png'
+
+    def test_fallback_to_gravatar(self, app):
+
+        user = factories.User(image_url=None)
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'].startswith('//gravatar')
+
+    @pytest.mark.ckan_config('ckan.gravatar_default', 'disabled')
+    def test_fallback_to_placeholder_if_gravatar_disabled(self, app):
+
+        user = factories.User(image_url=None)
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'] == '/base/images/placeholder-user.png'
