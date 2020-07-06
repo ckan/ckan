@@ -1783,7 +1783,10 @@ class IBlueprint(Interface):
     u'''Register an extension as a Flask Blueprint.'''
 
     def get_blueprint(self):
-        u'''Return a Flask Blueprint object to be registered by the app.'''
+        u'''
+        Return either a single Flask Blueprint object or a list of Flask
+        Blueprint objects to be registered by the app.
+        '''
 
 
 class IPermissionLabels(Interface):
