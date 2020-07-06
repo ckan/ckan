@@ -2,52 +2,20 @@
 """Unit tests for ckan/logic/action/create.py.
 
 """
-import cgi
 import datetime
 import mock
 import pytest
-import six
-
-from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan
 import ckan.logic as logic
 import ckan.model as model
-import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
 
-from six import string_types, StringIO, BytesIO
+from six import string_types
 
-from pyfakefs import fake_filesystem
 from freezegun import freeze_time
-
-try:
-    import __builtin__ as builtins
-except ImportError:
-    import builtins
-
-real_open = open
-fs = fake_filesystem.FakeFilesystem()
-fake_os = fake_filesystem.FakeOsModule(fs)
-fake_open = fake_filesystem.FakeFileOpen(fs)
-
-
-class FakeFileStorage(FlaskFileStorage):
-    content_type = None
-
-    def __init__(self, stream, filename):
-        self.stream = stream
-        self.filename = filename
-        self.name = "upload"
-
-
-def mock_open_if_open_fails(*args, **kwargs):
-    try:
-        return real_open(*args, **kwargs)
-    except (OSError, IOError):
-        return fake_open(*args, **kwargs)
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -431,15 +399,12 @@ class TestResourceCreate:
 
         assert not stored_resource["url"]
 
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_url(self, monkeypatch):
-        """
-        The mimetype is guessed from the url
+    def test_mimetype_by_url(self, monkeypatch, tmpdir):
+        """The mimetype is guessed from the url
 
-        Real world usage would be externally linking the resource and the mimetype would
-        be guessed, based on the url
+        Real world usage would be externally linking the resource and
+        the mimetype would be guessed, based on the url
+
         """
         context = {}
         params = {
@@ -447,7 +412,7 @@ class TestResourceCreate:
             "url": "http://localhost/data.csv",
             "name": "A nice resource",
         }
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
+        monkeypatch.setattr(ckan.lib.uploader, "_storage_path", str(tmpdir))
         result = helpers.call_action("resource_create", context, **params)
 
         mimetype = result.pop("mimetype")
@@ -474,20 +439,16 @@ class TestResourceCreate:
         mimetype = result.pop("mimetype")
         assert mimetype == "application/csv"
 
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_filename(self, monkeypatch):
-        """
-        The mimetype is guessed from an uploaded file with a filename
+    def test_mimetype_by_upload_by_filename(self, create_with_upload):
+        """The mimetype is guessed from an uploaded file with a filename
 
-        Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
-        If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
-        """
+        Real world usage would be using the FileStore API or web UI
+        form to upload a file, with a filename plus extension If
+        there's no url or the mimetype can't be guessed by the url,
+        mimetype will be guessed by the extension in the filename
 
-        test_file = BytesIO()
-        test_file.write(six.ensure_binary(
-            """
+        """
+        content = """
         "info": {
             "title": "BC Data Catalogue API",
             "description": "This API provides information about datasets in the BC Data Catalogue.",
@@ -504,98 +465,62 @@ class TestResourceCreate:
             "version": "3.0.0"
         }
         """
-        ))
-        test_resource = FakeFileStorage(test_file, "test.json")
 
-        context = {}
-        params = {
-            "package_id": factories.Dataset()["id"],
-            "url": "http://data",
-            "name": "A nice resource",
-            "upload": test_resource,
-        }
-
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
-        # Mock url_for as using a test request context interferes with the FS mocking
-
-        with mock.patch("ckan.lib.helpers.url_for"):
-            result = helpers.call_action("resource_create", context, **params)
-
+        result = create_with_upload(
+            content, 'test.json', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
         mimetype = result.pop("mimetype")
 
         assert mimetype
         assert mimetype == "application/json"
 
     @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_file(self, monkeypatch):
-        """
-        The mimetype is guessed from an uploaded file by the contents inside
+    def test_mimetype_by_upload_by_file(self, create_with_upload):
+        """The mimetype is guessed from an uploaded file by the contents inside
 
-        Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
-        If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
+        Real world usage would be using the FileStore API or web UI
+        form to upload a file, that has no extension If the mimetype
+        can't be guessed by the url or filename, mimetype will be
+        guessed by the contents inside the file
+
         """
 
-        test_file = BytesIO()
-        test_file.write(six.ensure_binary(
-            """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        content = """
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm,\
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, \
+        Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        ))
-        test_resource = FakeFileStorage(test_file, "test.csv")
-
-        context = {}
-        params = {
-            "package_id": factories.Dataset()["id"],
-            "url": "http://data",
-            "name": "A nice resource",
-            "upload": test_resource,
-        }
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
-        # Mock url_for as using a test request context interferes with the FS mocking
-        with mock.patch("ckan.lib.helpers.url_for"):
-            result = helpers.call_action("resource_create", context, **params)
+        result = create_with_upload(
+            content, 'test.csv', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
 
         mimetype = result.pop("mimetype")
 
         assert mimetype
         assert mimetype == "text/plain"
 
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_size_of_resource_by_upload(self, monkeypatch):
+    def test_size_of_resource_by_upload(self, create_with_upload):
         """
         The size of the resource determined by the uploaded file
         """
 
-        test_file = BytesIO()
-        test_file.write(six.ensure_binary(
-            """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        content = """
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm,\
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, \
+        Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        ))
-        test_resource = FakeFileStorage(test_file, "test.csv")
-
-        context = {}
-        params = {
-            "package_id": factories.Dataset()["id"],
-            "url": "http://data",
-            "name": "A nice resource",
-            "upload": test_resource,
-        }
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
-        # Mock url_for as using a test request context interferes with the FS mocking
-        with mock.patch("ckan.lib.helpers.url_for"):
-            result = helpers.call_action("resource_create", context, **params)
+        result = create_with_upload(
+            content, 'test.csv', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
 
         size = result.pop("size")
 
