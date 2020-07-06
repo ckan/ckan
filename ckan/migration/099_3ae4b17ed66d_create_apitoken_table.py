@@ -2,7 +2,7 @@
 """Create ApiToken table
 
 Revision ID: 3ae4b17ed66d
-Revises: 588d7cfb9a41
+Revises: ddbd0a9a4489
 Create Date: 2020-03-26 18:50:47.502458
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = u"3ae4b17ed66d"
-down_revision = u"f789f233226e"
+down_revision = u"ddbd0a9a4489"
 branch_labels = None
 depends_on = None
 
