@@ -56,7 +56,9 @@ def _get_pkg_template(template_type, package_type=None):
     method = getattr(pkg_plugin, template_type)
     try:
         return method(package_type)
-    except TypeError:
+    except TypeError as err:
+        if u'takes 1' not in str(err) and u'takes exactly 1' not in str(err):
+            raise
         return method()
 
 
