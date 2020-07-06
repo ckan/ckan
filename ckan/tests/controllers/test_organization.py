@@ -346,7 +346,7 @@ class TestOrganizationSearch(object):
         index_response = app.get(url_for("organization.index"))
         index_response_html = BeautifulSoup(index_response.body)
         org_names = index_response_html.select(
-            "div.card-columns " "div.card" "h2.card-title"
+            "h2.card-title"
         )
         org_names = [n.string for n in org_names]
 
@@ -369,7 +369,7 @@ class TestOrganizationSearch(object):
 
         search_response_html = BeautifulSoup(search_response.body)
         org_names = search_response_html.select(
-            "div.card-columns " "div.card" "h2.card-title"
+            "h2.card-title"
         )
         org_names = [n.string for n in org_names]
 
@@ -391,7 +391,7 @@ class TestOrganizationSearch(object):
 
         search_response_html = BeautifulSoup(search_response.body)
         org_names = search_response_html.select(
-            "div.card-columns " "div.card" "h2.card-title"
+            "h2.card-title"
         )
         org_names = [n.string for n in org_names]
 

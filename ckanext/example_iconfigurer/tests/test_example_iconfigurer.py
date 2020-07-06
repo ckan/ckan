@@ -90,6 +90,6 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
                 },
             },
         )
-        expected = """<li class="nav-item nav-link"><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li><li><a href="/ckan-admin/myext_config_two">My Other Label</a></li>"""
+        expected = """<li class="nav-item nav-link"><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li><li class="nav-item nav-link"><a href="/ckan-admin/myext_config_two">My Other Label</a></li>"""
         response = app.get("/build_extra_admin_nav")
         assert six.ensure_text(response.data) == expected

@@ -615,18 +615,18 @@ class BasePage(list):
                     {u"partial_url": partial_url, u"page": page}
                 )
             return tags.a(
-                text, cls=u"page-link", href=link_url, onclick=onclick_action, \
-                 **self.link_attr
+                text, cls=u"page-link", href=link_url, onclick=onclick_action,
+                **self.link_attr
             )
         else:  # return static link
-            return tags.a(text, cls=u"page-link", href=link_url, \
-                           **self.link_attr)
+            return tags.a(text, cls=u"page-link", href=link_url,
+                          **self.link_attr)
 
 
 class Page(BasePage):
     def pager(self, *args, **kwargs):
         with tags.div(cls=u"pagination-wrapper") as wrapper:
-            tags.ul(u"$link_previous ~2~ $link_next", \
+            tags.ul(u"$link_previous ~2~ $link_next",
                     cls=u"pagination justify-content-center")
         params = dict(
             format=text_type(wrapper),
