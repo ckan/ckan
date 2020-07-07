@@ -479,7 +479,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'allow_dataset_collaborators': False,
     'allow_admin_collaborators': False,
     'allow_collaborators_to_change_owner_org': False,
-    'create_default_api_keys': True,
+    'create_default_api_keys': False,
 }
 
 

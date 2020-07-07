@@ -242,9 +242,14 @@ request that doesn't specify the API version number cannot be relied on.
 
 .. _api authentication:
 
----------------------------------------
-Authentication, API keys and API tokens
----------------------------------------
+-----------------------------
+Authentication and API tokens
+-----------------------------
+
+.. warning:: Starting from CKAN 2.9, API tokens are the preferred way of authenticating API calls.
+    The old legacy API keys will still work but they will be removed in future versions so it is
+    recommended to switch to use API tokens. Read below for more details.
+
 
 Some API functions require authorization. The API uses the same authorization
 functions and configuration as the web interface, so if a user is authorized to
@@ -252,16 +257,19 @@ do something in the web interface they'll be authorized to do it via the API as
 well.
 
 When calling an API function that requires authorization, you must
-authenticate yourself by providing your API key or API token with your
-HTTP request. To find your API key, login to the CKAN site using its
-web interface and visit your user profile page. To generate a new API
-token visit the *API Tokens* tab available on your user profile.
-page.
+authenticate yourself by providing an authentication key with your
+HTTP request. Starting from CKAN 2.9 the recommended mechanism to use are API tokens. These are
+encrypted keys that can be generated manually from the UI (User Profile > Manage > API tokens)
+or via the :py:func:`~ckan.logic.action.create.api_token_create` function. A user can create as many tokens as needed
+for different uses, and revoke one or multiple tokens at any time. In addition, enabling
+the ``expire_api_token`` core plugin allows to define the expiration timestamp for a token. 
 
-.. note:: API keys will be marked as deprecated in the near future
-  and, eventually, completely removed. There are no gains in using API
-  keys instead of API tokens so it's strongly recommended to always
-  use API tokens for API calls.
+Site maintainers can use :ref:`config-api-tokens` to configure the token generation.
+
+Legacy API keys (UUIDs that look like `ec5c0860-9e48-41f3-8850-4a7128b18df8`) are still supported,
+but its use is discouraged as they are not as secure as tokens and are limited to one per user.
+Support for legacy API keys will be removed in future CKAN versions.
+
 
 To provide your API token in an HTTP request, include it in either an
 ``Authorization`` or ``X-CKAN-API-Key`` header.  (The name of the HTTP header
