@@ -9,7 +9,7 @@ class ExampleHumanizerPlugin(p.SingletonPlugin, p.toolkit.DefaultGroupForm):
 
     def get_helpers(self):
         return {
-            'humanize_entity_type': humanize_entity_type
+            u'humanize_entity_type': humanize_entity_type
         }
 
     def group_types(self):
