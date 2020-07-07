@@ -774,15 +774,17 @@ ckan.auth.create_default_api_keys
 
 Example::
 
-  ckan.auth.create_default_api_keys = False
+  ckan.auth.create_default_api_keys = True
 
-Default value: ``True``
+Default value: ``False``
 
 
-Determines if a an API key should be automatically created for every user when creating a user account. If set to False users can manually create an API token from their profile instead. See :ref:`api authentication`: for more details.
+Determines if a an API key should be automatically created for every user when creating a user account. If set to False (the default value), users can manually create an API token from their profile instead. See :ref:`api authentication`: for more details.
 
 
 .. end_config-authorization
+
+.. _config-api-tokens:
 
 API Token Settings
 ------------------

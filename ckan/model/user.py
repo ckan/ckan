@@ -23,7 +23,7 @@ from ckan.common import config, asbool
 
 
 def set_api_key():
-    if asbool(config.get('ckan.auth.create_default_api_keys', True)):
+    if asbool(config.get('ckan.auth.create_default_api_keys', False)):
         return _types.make_uuid()
     return None
 
