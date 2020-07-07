@@ -50,6 +50,8 @@ class _Toolkit(object):
         'get_endpoint',
         # decorator for chained action
         'chained_action',
+        # decorator for chained helper
+        'chained_helper',
         # get navl schema converter
         'get_converter',
         # get navl schema validator
@@ -114,8 +116,6 @@ class _Toolkit(object):
         'mail_recipient',
         # Email a user
         'mail_user',
-        # Add custom class to humanizers hierarchy
-        'add_humanizer',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -148,7 +148,6 @@ class _Toolkit(object):
         import ckan.logic.validators as logic_validators
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
-        import ckan.lib.humanize as humanize
         import ckan.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
@@ -280,6 +279,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['literal'] = h.literal
         t['get_action'] = logic.get_action
         t['chained_action'] = logic.chained_action
+        t['chained_helper'] = h.chained_helper
         t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
@@ -309,7 +309,6 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         )
         t['mail_recipient'] = mailer.mail_recipient
         t['mail_user'] = mailer.mail_user
-        t['add_humanizer'] = humanize.add_humanizer
 
         # class functions
         t['render_snippet'] = self._render_snippet

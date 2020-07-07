@@ -16,7 +16,6 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
-import ckan.lib.humanize as humanize
 import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
@@ -171,7 +170,6 @@ def update_config():
     change ckan.site_url) '''
 
     webassets_init()
-    humanize.reset_humanizers()
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:

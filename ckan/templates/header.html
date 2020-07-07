@@ -1,21 +1,39 @@
+
 {% block header_wrapper %} {% block header_account %}
-<div class="account-masthead">
-  <div class="container">
-    {% block header_account_container_content %} {% if c.userobj %}
-    <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
-      <ul class="list-unstyled">
-        {% block header_account_logged %} {% if c.userobj.sysadmin %}
-        <li>
-          <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
-            <i class="fa fa-gavel" aria-hidden="true"></i>
-            <span class="text">{{ _('Admin') }}</span>
-          </a>
-        </li>
-        {% endif %}
-        <li>
-          <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
-                  {{ h.user_image((c.user if c and c.user else ''), size=22) }}
-                  <span class="username">{{ c.userobj.display_name }}</span>
+  <div class="account-masthead">
+    <div class="container">
+      {% block header_account_container_content %} {% if c.userobj %}
+        <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
+          <ul class="list-unstyled">
+            {% block header_account_logged %} {% if c.userobj.sysadmin %}
+              <li>
+                <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
+                  <i class="fa fa-gavel" aria-hidden="true"></i>
+                  <span class="text">{{ _('Admin') }}</span>
+                </a>
+              </li>
+            {% endif %}
+            <li>
+              <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
+                {{ h.user_image((c.user if c and c.user else ''), size=22) }}
+                <span class="username">{{ c.userobj.display_name }}</span>
+              </a>
+            </li>
+            {% set new_activities = h.new_activities() %}
+            <li class="notifications {% if new_activities > 0 %}notifications-important{% endif %}">
+              {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)', new_activities)
+              %}
+              <a href="{{ h.url_for('dashboard.index') }}" title="{{ notifications_tooltip }}">
+                <i class="fa fa-tachometer" aria-hidden="true"></i>
+                <span class="text">{{ _('Dashboard') }}</span>
+                <span class="badge">{{ new_activities }}</span>
+              </a>
+            </li>
+            {% block header_account_settings_link %}
+              <li>
+                <a href="{{ h.url_for('user.edit', id=c.userobj.name) }}" title="{{ _('Profile settings') }}">
+                  <i class="fa fa-cog" aria-hidden="true"></i>
+                  <span class="text">{{ _('Profile settings') }}</span>
                 </a>
               </li>
             {% endblock %} {% block header_account_log_out_link %}
@@ -75,10 +93,10 @@
 		            ('dataset.search', _('Datasets')),
 		            (org_type ~ '.index',
                   h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations')),
-		              (group_type ~ '.index',
-                    h.humanize_entity_type('group_type', group_type, 'main nav') or _('Groups')),
-		              ('home.about', _('About')) ) }}
-	          {% endblock header_site_navigation_tabs %}
+		            (group_type ~ '.index',
+                  h.humanize_entity_type('group_type', group_type, 'main nav') or _('Groups')),
+		            ('home.about', _('About')) ) }}
+	          {% endblock %}
           </ul>
         </nav>
       {% endblock %} {% block header_site_search %}

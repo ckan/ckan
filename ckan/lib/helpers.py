@@ -15,7 +15,9 @@ import tzlocal
 import pprint
 import copy
 import uuid
+import functools
 
+from collections import defaultdict
 from paste.deploy import converters
 
 import dominate.tags as dom_tags
@@ -41,7 +43,6 @@ import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
-import ckan.lib.humanize as humanize
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
 import ckan.authz as authz
@@ -138,6 +139,17 @@ def core_helper(f, name=None):
 
     _builtin_functions[name or _get_name(f)] = f
     return f
+
+
+def _is_chained_helper(func):
+    return getattr(func, 'chained_helper', False)
+
+
+def chained_helper(func):
+    """Decorator function allowing helper functions to be chained.
+    """
+    func.chained_helper = True
+    return func
 
 
 def _datestamp_to_datetime(datetime_):
@@ -1136,8 +1148,34 @@ def humanize_entity_type(entity_type, object_type, purpose):
     if entity_type == object_type:
         return  # use the default text included in template
 
-    translator = humanize.get_humanizer('entity_type')
-    return translator(purpose, object_type, entity_type)
+    log.debug(
+        u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
+    templates = {
+        u'add link': _(u"Add {object_type}"),
+        u'breadcrumb': _(u"{object_type}s"),
+        u'facet label': _(u"{object_type}s"),
+        u'page title': _(u"{object_type}s"),
+        u'main nav': _(u"{object_type}s"),
+        u'create title': _(u"Create {object_type}"),
+        u'content tab': _(u"{object_type}s"),
+        u'default label': _(u"{object_type}"),
+        u'no label': _(u"No {object_type}"),
+        u'form label': _(u"{object_type} Form"),
+        u'edit label': _(u"Edit {object_type}"),
+        u'update label': _(u"Update {object_type}"),
+        u'create label': _(u"Create {object_type}"),
+        u'save label': _(u"Save {object_type}"),
+        u'sidebar label': _(u"{object_type}"),
+        u'my label': _(u"My {object_type}s"),
+        u'no any objects': _(
+            u"There are currently no {object_type}s for this site"),
+        u'description placeholder': _(
+            u"A little information about my {object_type}..."),
+    }
+    if purpose not in templates:
+        return
+    type_label = object_type.replace(u"_", u" ").capitalize()
+    return templates[purpose].format(object_type=type_label)
 
 
 @core_helper
@@ -2834,9 +2872,21 @@ def load_plugin_helpers():
 
     helper_functions.clear()
     helper_functions.update(_builtin_functions)
+    chained_helpers = defaultdict(list)
 
     for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
-        helper_functions.update(plugin.get_helpers())
+        for name, func in plugin.get_helpers().items():
+            if _is_chained_helper(func):
+                chained_helpers[name].append(func)
+            else:
+                helper_functions[name] = func
+    for name, func_list in chained_helpers.items():
+        if name not in helper_functions:
+            raise Exception(
+                u'The helper %r is not found for chained helper' % (name))
+        for func in reversed(func_list):
+            helper_functions[name] = functools.partial(
+                func, helper_functions[name])
 
 
 @core_helper

@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import ckan.plugins as p
-from ckan.lib.humanize import BaseHumanizer
 
 
 class ExampleHumanizerPlugin(p.SingletonPlugin, p.toolkit.DefaultGroupForm):
-    p.implements(p.IConfigurer)
+    p.implements(p.ITemplateHelpers)
     p.implements(p.IGroupForm)
 
-    def update_config(self, config_):
-        p.toolkit.add_humanizer(u'entity_type', CustomHumanizer)
+    def get_helpers(self):
+        return {
+            'humanize_entity_type': humanize_entity_type
+        }
 
     def group_types(self):
         return (u'custom_group',)
@@ -18,6 +19,10 @@ class ExampleHumanizerPlugin(p.SingletonPlugin, p.toolkit.DefaultGroupForm):
         return False
 
 
-class CustomHumanizer(BaseHumanizer):
-    def add_link(self, term, entity_type):
-        return u"Create new {}".format(term)
+@p.toolkit.chained_helper
+def humanize_entity_type(next_helper, entity_type, object_type, purpose):
+    if purpose == u'add link':
+        tpl = p.toolkit._(u"Create new {object_type}")
+        type_label = object_type.replace(u"_", u" ").capitalize()
+        return tpl.format(object_type=type_label)
+    return next_helper(entity_type, object_type, purpose)

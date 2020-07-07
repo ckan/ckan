@@ -1059,6 +1059,22 @@ class ITemplateHelpers(Interface):
         Function names should start with the name of the extension providing
         the function, to prevent name clashes between extensions.
 
+        By decorating a registered helper function with the
+        ``ckan.plugins.toolkit.chained_helper`` decorator you can
+        create a chain of helpers that are called in a sequence. This
+        chain starts with the last chained helper to be registered and
+        ends with the original helper (or a non-chained plugin
+        override version). Chained helpers must accept an extra
+        parameter, specifically the next helper in the chain, for
+        example::
+
+            helper(next_helper, *args, **kwargs).
+
+        The chained helper function may call the next_helper function,
+        optionally passing different values, handling exceptions,
+        returning different values and/or raising different exceptions
+        to the caller.
+
         '''
 
 
