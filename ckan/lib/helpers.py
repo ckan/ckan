@@ -2874,7 +2874,7 @@ def load_plugin_helpers():
     helper_functions.update(_builtin_functions)
     chained_helpers = defaultdict(list)
 
-    for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
+    for plugin in p.PluginImplementations(p.ITemplateHelpers):
         for name, func in plugin.get_helpers().items():
             if _is_chained_helper(func):
                 chained_helpers[name].append(func)
@@ -2882,7 +2882,7 @@ def load_plugin_helpers():
                 helper_functions[name] = func
     for name, func_list in chained_helpers.items():
         if name not in helper_functions:
-            raise Exception(
+            raise logic.NotFoud(
                 u'The helper %r is not found for chained helper' % (name))
         for func in reversed(func_list):
             helper_functions[name] = functools.partial(
