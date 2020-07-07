@@ -68,8 +68,8 @@ class HomeController(base.BaseController):
                 u'facet label') or _(u'Groups')
 
             c.facet_titles = {
-                'organization': _(org_label),
-                'groups': _(group_label),
+                'organization': org_label,
+                'groups': group_label,
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
                 'license': _('Licenses'),

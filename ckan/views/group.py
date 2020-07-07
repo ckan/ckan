@@ -342,8 +342,8 @@ def _read(id, limit, group_type):
         u'facet label') or _(u'Groups')
 
     default_facet_titles = {
-        u'organization': _(org_label),
-        u'groups': _(group_label),
+        u'organization': org_label,
+        u'groups': group_label,
         u'tags': _(u'Tags'),
         u'res_format': _(u'Formats'),
         u'license_id': _(u'Licenses')

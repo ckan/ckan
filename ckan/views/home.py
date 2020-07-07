@@ -56,8 +56,8 @@ def index():
             u'facet label') or _(u'Groups')
 
         g.facet_titles = {
-            u'organization': _(org_label),
-            u'groups': _(group_label),
+            u'organization': org_label,
+            u'groups': group_label,
             u'tags': _(u'Tags'),
             u'res_format': _(u'Formats'),
             u'license': _(u'Licenses'),

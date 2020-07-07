@@ -263,8 +263,8 @@ class PackageController(base.BaseController):
                 u'facet label') or _(u'Groups')
 
             default_facet_titles = {
-                'organization': _(org_label),
-                'groups': _(group_label),
+                'organization': org_label,
+                'groups': group_label,
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
                 'license_id': _('Licenses'),

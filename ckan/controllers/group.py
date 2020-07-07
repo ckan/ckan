@@ -324,8 +324,8 @@ class GroupController(base.BaseController):
                 h.default_group_type(u'group'),
                 u'facet label') or _(u'Groups')
 
-            default_facet_titles = {'organization': _(org_label),
-                                    'groups': _(group_label),
+            default_facet_titles = {'organization': org_label,
+                                    'groups': group_label,
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
                                     'license_id': _('Licenses')}
