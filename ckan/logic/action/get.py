@@ -8,10 +8,9 @@ import json
 import datetime
 import socket
 
-from ckan.common import config
+from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
-from ckan.common import asbool
 from six import string_types, text_type
 
 import ckan.lib.dictization
@@ -3540,3 +3539,21 @@ def job_show(context, data_dict):
         return jobs.dictize_job(jobs.job_from_id(id))
     except KeyError:
         raise NotFound
+
+
+def api_token_list(context, data_dict):
+    '''Return list of all available API Tokens for current user.
+
+    :returns: collection of all API Tokens
+    :rtype: list
+
+    .. versionadded:: 3.0
+    '''
+    id_or_name = _get_or_bust(data_dict, u'user')
+    _check_access(u'api_token_list', context, data_dict)
+    user = model.User.get(id_or_name)
+
+    tokens = model.Session.query(model.ApiToken).filter(
+        model.ApiToken.user_id == user.id
+    )
+    return model_dictize.api_token_list_dictize(tokens, context)

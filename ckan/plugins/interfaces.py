@@ -39,6 +39,7 @@ __all__ = [
     u'IBlueprint',
     u'IPermissionLabels',
     u'IForkObserver',
+    u'IApiToken',
     u'IClick',
 ]
 
@@ -1833,6 +1834,141 @@ class IForkObserver(Interface):
         u'''
         Called shortly before the CKAN process is forked.
         '''
+
+
+class IApiToken(Interface):
+    """Extend functionality of API Tokens.
+
+    This interface is unstable and new methods may be
+    introduced in future. Always use `inherit=True` when implementing
+    it.
+
+    Example::
+
+        p.implements(p.IApiToken, inherit=True)
+
+
+    """
+
+    def create_api_token_schema(self, schema):
+        u'''Return the schema for validating new API tokens.
+
+        :param schema: a dictionary mapping api_token dict keys to lists of
+          validator and converter functions to be applied to those
+          keys
+        :type schema: dict
+
+        :returns: a dictionary mapping api_token dict keys to lists of
+          validator and converter functions to be applied to those
+          keys
+        :rtype: dict
+
+        '''
+        return schema
+
+    def decode_api_token(self, encoded, **kwargs):
+        """Make an attempt to decode API Token provided in request.
+
+        Decode token if it possible and return dictionary with
+        mandatory `jti` key(token id for DB lookup) and optional
+        additional items, which will be used further in
+        `preprocess_api_token`.
+
+        :param encoded: API Token provided in request
+        :type encoded: str
+
+        :param kwargs: any additional parameters that can be added
+            in future or by plugins. Current implementation won't pass
+            any additional fields, but plugins may use this feature, passing
+            JWT `aud` or `iss` claims, for example
+        :type kwargs: dict
+
+        :returns: dictionary with all the decoded fields or None
+        :rtype: dict | None
+
+        """
+        return None
+
+    def encode_api_token(self, data, **kwargs):
+        """Make an attempt to encode API Token.
+
+        Encode token if it possible and return string, that will be
+        shown to user.
+
+        :param data: dictionary, containing all postprocessed data
+        :type data: dict
+
+        :param kwargs: any additional parameters that can be added
+            in future or by plugins. Current implementation won't pass
+            any additional fields, but plugins may use this feature, passing
+            JWT `aud` or `iss` claims, for example
+        :type kwargs: dict
+
+        :returns: token as encodes string or None
+        :rtype: str | None
+
+        """
+        return None
+
+    def preprocess_api_token(self, data):
+        """Handle additional info from API Token.
+
+        Allows decoding or extracting any kind of additional
+        information from API Token, before it used for fetching
+        current user from database.
+
+        :param data: dictionary with all fields that were previously
+            created in `postprocess_api_token` (potentially
+            modified by some other plugin already.)
+        :type data: dict
+
+        :returns: dictionary that will be passed into other
+            plugins and, finally, used for fetching User instance
+        :rtype: dict
+
+        """
+        return data
+
+    def postprocess_api_token(self, data, jti, data_dict):
+        """Encode additional information into API Token.
+
+        Allows passing any kind of additional information into API
+        Token or performing side effects, before it shown to user.
+
+        :param data: dictionary representing newly
+            generated API Token. May be already modified by some
+            plugin.
+        :type data: dict
+
+        :param jti: Id of the token
+        :type jti: str
+
+        :param data_dict: data used for token creation.
+        :type data_dict: dict
+
+        :returns: dictionary with fields that will be encoded into
+            final API Token
+        :rtype: dict
+
+        """
+        return data
+
+    def add_extra_fields(self, data_dict):
+        """Provide additional information alongside with API Token.
+
+        Any extra information that is not itself a part of a token,
+        but can extend its functionality(for example, refresh token)
+        is registered here.
+
+        :param data_dict: dictionary that will bre returned from
+            `api_token_create` API call.
+        :type data_dict: dict
+
+        :returns: dictionary with token and optional set of extra fields.
+        :rtype: dict
+
+        """
+        return data_dict
 
 
 class IClick(Interface):

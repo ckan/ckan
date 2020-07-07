@@ -77,6 +77,14 @@ ckan.auth.public_user_details = true
 ckan.auth.public_activity_stream_detail = true
 ckan.auth.allow_dataset_collaborators = false
 
+## API Token Settings
+api_token.nbytes = 60
+api_token.jwt.encode.secret = string:$app_instance_secret
+api_token.jwt.decode.secret = string:$app_instance_secret
+api_token.jwt.algorithm = HS256
+
+## API Token: expire_api_token plugin
+expire_api_token.default_lifetime = 3600
 
 ## Search Settings
 

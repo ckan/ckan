@@ -815,6 +815,10 @@ def user_update(context, data_dict):
 
     _check_access('user_update', context, data_dict)
 
+    upload = uploader.get_uploader('user')
+    upload.update_data_dict(data_dict, 'image_url',
+                            'image_upload', 'clear_upload')
+
     data, errors = _validate(data_dict, schema, context)
     if errors:
         session.rollback()
@@ -841,6 +845,8 @@ def user_update(context, data_dict):
     _get_action('activity_create')(activity_create_context, activity_dict)
     # TODO: Also create an activity detail recording what exactly changed in
     # the user.
+
+    upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
         model.repo.commit()

@@ -8,11 +8,13 @@ import pytest
 from six import text_type
 from six.moves import xrange
 
+from ckan import model
 import ckan.logic as logic
 import ckan.logic.schema as schema
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+import ckan.plugins.toolkit as tk
 from ckan import __version__
 from ckan.lib.search.common import SearchError
 
@@ -119,7 +121,7 @@ class TestPackageShow(object):
                 u"created": u"2019-05-24T15:52:30.123456",
                 u"description": u"Just another test organization.",
                 u"id": u"<SOME-UUID>",
-                u"image_url": u"http://placekitten.com/g/200/100",
+                u"image_url": u"https://placekitten.com/g/200/100",
                 u"is_organization": True,
                 u"name": u"test_org_num",
                 u"state": u"active",
@@ -341,7 +343,6 @@ class TestGroupList(object):
         assert "datasets" not in group_list[0]
 
     def _create_bulk_groups(self, name, count):
-        from ckan import model
 
         groups = [
             model.Group(name="{}_{}".format(name, i)) for i in range(count)
@@ -4303,6 +4304,29 @@ class TestDashboardNewActivities(object):
             )
             == 15
         )
+
+
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
+
+    @pytest.mark.parametrize(u'num_tokens', [0, 1, 2, 5])
+    def test_token_list(self, num_tokens):
+        from ckan.lib.api_token import decode
+        user = factories.User()
+        ids = []
+        for _ in range(num_tokens):
+            data = helpers.call_action(u"api_token_create", context={
+                u"model": model,
+                u"user": user[u"name"]
+            }, user=user[u"name"], name=u"token-name")
+            token = data[u'token']
+            ids.append(decode(token)[u'jti'])
+
+        tokens = helpers.call_action(u"api_token_list", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"])
+        assert sorted([t[u"id"] for t in tokens]) == sorted(ids)
 
 
 @pytest.mark.usefixtures("clean_db")

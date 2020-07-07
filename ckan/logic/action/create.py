@@ -25,6 +25,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
+import ckan.lib.api_token as api_token
 import ckan.authz as authz
 
 from ckan.common import _, config
@@ -1003,6 +1004,9 @@ def user_create(context, data_dict):
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
+    :param image_url: the URL to an image to be displayed on the group's page
+        (optional)
+    :type image_url: string
     :param plugin_extras: private extra user data belonging to plugins.
         Only sysadmin users may set this value. It should be a dict that can
         be dumped into JSON, and plugins should namespace their extras with
@@ -1032,6 +1036,10 @@ def user_create(context, data_dict):
     session = context['session']
 
     _check_access('user_create', context, data_dict)
+
+    upload = uploader.get_uploader('user')
+    upload.update_data_dict(data_dict, 'image_url',
+                            'image_upload', 'clear_upload')
     data, errors = _validate(data_dict, schema, context)
 
     if errors:
@@ -1061,6 +1069,8 @@ def user_create(context, data_dict):
         'activity_type': 'new user',
     }
     logic.get_action('activity_create')(activity_create_context, activity_dict)
+
+    upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1574,3 +1584,52 @@ def follow_group(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_group_dictize(follower, context)
+
+
+def api_token_create(context, data_dict):
+    """Create new API Token for current user.
+
+    Apart from the `user` and `name` field that are required by
+    default implementation, there may be additional fields registered
+    by extensions.
+
+    :param user: name or id of the user who owns new API Token
+    :type user: string
+    :param name: distinctive name for API Token
+    :type name: string
+
+    :returns: Returns a dict with the key "token" containing the
+              encoded token value. Extensions can privide additional
+              fields via `add_extra` method of
+              :py:class:`~ckan.plugins.interfaces.IApiToken`
+    :rtype: dictionary
+
+    """
+    model = context[u'model']
+    user, name = _get_or_bust(data_dict, [u'user', u'name'])
+
+    _check_access(u'api_token_create', context, data_dict)
+
+    schema = context.get(u'schema')
+    if not schema:
+        schema = api_token.get_schema()
+
+    validated_data_dict, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        raise ValidationError(errors)
+
+    token_obj = model_save.api_token_save(
+        {u'user': user, u'name': name}, context
+    )
+    model.Session.commit()
+    data = {
+        u'jti': token_obj.id,
+        u'iat': api_token.into_seconds(token_obj.created_at)
+    }
+
+    data = api_token.postprocess(data, token_obj.id, validated_data_dict)
+    token = api_token.encode(data)
+
+    result = api_token.add_extra({u'token': token})
+    return result

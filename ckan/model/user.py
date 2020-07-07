@@ -36,6 +36,7 @@ user_table = Table('user', meta.metadata,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
+        Column('image_url', types.UnicodeText),
         Column('plugin_extras', MutableDict.as_mutable(JSONB))
         )
 
