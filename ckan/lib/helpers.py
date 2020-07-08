@@ -1137,12 +1137,18 @@ def default_group_type(type_='group'):
 def humanize_entity_type(entity_type, object_type, purpose):
     """Convert machine-readable representation of package/group type into
     human-readable form.
+
+    Returns capitalized `entity_type` with all underscores converted
+    into spaces.
+
     Example::
 
       >>> humanize_entity_type('group', 'custom_group', 'add link')
       'Add Custom Group'
       >>> humanize_entity_type('group', 'custom_group', 'breadcrumb')
       'Custom Groups'
+      >>> humanize_entity_type('group', 'custom_group', 'not real purpuse')
+      'Custom Group'
 
     """
     if entity_type == object_type:
@@ -1153,26 +1159,37 @@ def humanize_entity_type(entity_type, object_type, purpose):
     templates = {
         u'add link': _(u"Add {object_type}"),
         u'breadcrumb': _(u"{object_type}s"),
-        u'facet label': _(u"{object_type}s"),
-        u'page title': _(u"{object_type}s"),
-        u'main nav': _(u"{object_type}s"),
-        u'create title': _(u"Create {object_type}"),
         u'content tab': _(u"{object_type}s"),
-        u'no label': _(u"No {object_type}"),
-        u'form label': _(u"{object_type} Form"),
-        u'edit label': _(u"Edit {object_type}"),
-        u'update label': _(u"Update {object_type}"),
         u'create label': _(u"Create {object_type}"),
-        u'save label': _(u"Save {object_type}"),
-        u'my label': _(u"My {object_type}s"),
-        u'no any objects': _(
-            u"There are currently no {object_type}s for this site"),
+        u'create title': _(u"Create {object_type}"),
+        u'delete confirmation': _(
+            u'Are you sure you want to delete this {object_type}?')
         u'description placeholder': _(
             u"A little information about my {object_type}..."),
+        u'edit label': _(u"Edit {object_type}"),
+        u'facet label': _(u"{object_type}s"),
+        u'form label': _(u"{object_type} Form"),
+        u'main nav': _(u"{object_type}s"),
+        u'my label': _(u"My {object_type}s"),
+        u'name placeholder': _(u"My {object_type}"),
+        u'no any objects': _(
+            u"There are currently no {object_type}s for this site"),
+        u'no associated label': _(
+            u'There are no {object_type}s associated with this dataset'),
+        u'no description': _(
+            u'There is no description for this {object_type}'),
+        u'no label': _(u"No {object_type}"),
+        u'page title': _(u"{object_type}s"),
+        u'save label': _(u"Save {object_type}"),
+        u'search placeholder': _(u'Search {object_type}s...') ,
+        u'you not member': _(u'You are not a member of any {object_type}s.'),
+        u'update label': _(u"Update {object_type}"),
     }
-    if purpose not in templates:
-        return
+
     type_label = object_type.replace(u"_", u" ").capitalize()
+    if purpose not in templates:
+        return type_label
+
     return templates[purpose].format(object_type=type_label)
 
 

@@ -642,7 +642,7 @@ class GroupController(base.BaseController):
                 entity_label = h.humanize_entity_type(
                     u'group',
                     group_type,
-                    u'facet label') or _(u'Group')
+                    u'has been deleted') or _(u'Group')
                 h.flash_notice(_('%s has been deleted.')
                                % _(entity_label))
                 h.redirect_to(group_type + '_index')

@@ -1054,7 +1054,7 @@ class DeleteGroupView(MethodView):
             group_label = h.humanize_entity_type(
                 u'group',
                 group_type,
-                u'facet label') or _(u'Group')
+                u'has been deleted') or _(u'Group')
             h.flash_notice(
                 _(u'%s has been deleted.') % _(group_label))
             group_dict = _action(u'group_show')(context, {u'id': id})
