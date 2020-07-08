@@ -1163,7 +1163,7 @@ def humanize_entity_type(entity_type, object_type, purpose):
         u'create label': _(u"Create {object_type}"),
         u'create title': _(u"Create {object_type}"),
         u'delete confirmation': _(
-            u'Are you sure you want to delete this {object_type}?')
+            u'Are you sure you want to delete this {object_type}?'),
         u'description placeholder': _(
             u"A little information about my {object_type}..."),
         u'edit label': _(u"Edit {object_type}"),
