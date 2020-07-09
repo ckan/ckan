@@ -1181,7 +1181,7 @@ def humanize_entity_type(entity_type, object_type, purpose):
         u'no label': _(u"No {object_type}"),
         u'page title': _(u"{object_type}s"),
         u'save label': _(u"Save {object_type}"),
-        u'search placeholder': _(u'Search {object_type}s...') ,
+        u'search placeholder': _(u'Search {object_type}s...'),
         u'you not member': _(u'You are not a member of any {object_type}s.'),
         u'update label': _(u"Update {object_type}"),
     }
