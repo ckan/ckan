@@ -261,7 +261,7 @@ def search(package_type):
     # Unless changed via config options, don't show other dataset
     # types any search page. Potential alternatives are do show them
     # on the default search page (dataset) or on one other search page
-    search_all_type = config.get(u'ckan.search.show_all_types', u'dataset')
+    search_all_type = config.get(u'ckan.search.show_all_types', False)
     search_all = False
 
     try:

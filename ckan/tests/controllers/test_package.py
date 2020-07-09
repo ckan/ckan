@@ -1430,10 +1430,13 @@ class TestResourceDelete(object):
         assert 200 == response.status_code
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
+@pytest.mark.usefixtures(
+    "clean_db", "clean_index", "with_plugins", "with_request_context"
+)
 class TestSearch(object):
     def test_search_basic(self, app):
-        dataset1 = factories.Dataset()
+        dataset1 = factories.Dataset(type="dataset")
 
         offset = url_for("dataset.search")
         page = app.get(offset)
@@ -1441,7 +1444,7 @@ class TestSearch(object):
         assert helpers.body_contains(page, dataset1["name"])
 
     def test_search_language_toggle(self, app):
-        dataset1 = factories.Dataset()
+        dataset1 = factories.Dataset(type="dataset")
 
         with app.flask_app.test_request_context():
             offset = url_for("dataset.search", q=dataset1["name"])
@@ -1451,14 +1454,14 @@ class TestSearch(object):
         assert helpers.body_contains(page, "q=" + dataset1["name"])
 
     def test_search_sort_by_blank(self, app):
-        factories.Dataset()
+        factories.Dataset(type="dataset")
 
         # ?sort has caused an exception in the past
         offset = url_for("dataset.search") + "?sort"
         app.get(offset)
 
     def test_search_sort_by_bad(self, app):
-        factories.Dataset()
+        factories.Dataset(type="dataset")
 
         # bad spiders try all sorts of invalid values for sort. They should get
         # a 400 error with specific error message. No need to alert the
@@ -1476,7 +1479,7 @@ class TestSearch(object):
             )
 
     def test_search_solr_syntax_error(self, app):
-        factories.Dataset()
+        factories.Dataset(type="dataset")
 
         # SOLR raises SyntaxError when it can't parse q (or other fields?).
         # Whilst this could be due to a bad user input, it could also be
@@ -1503,9 +1506,15 @@ class TestSearch(object):
     def test_search_page_request(self, app):
         """Requesting package search page returns list of datasets."""
 
-        factories.Dataset(name="dataset-one", title="Dataset One")
-        factories.Dataset(name="dataset-two", title="Dataset Two")
-        factories.Dataset(name="dataset-three", title="Dataset Three")
+        factories.Dataset(
+            name="dataset-one", title="Dataset One", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-two", title="Dataset Two", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-three", title="Dataset Three", type="dataset"
+        )
 
         search_url = url_for("dataset.search")
         search_response = app.get(search_url)
@@ -1526,9 +1535,15 @@ class TestSearch(object):
     def test_search_page_results(self, app):
         """Searching for datasets returns expected results."""
 
-        factories.Dataset(name="dataset-one", title="Dataset One")
-        factories.Dataset(name="dataset-two", title="Dataset Two")
-        factories.Dataset(name="dataset-three", title="Dataset Three")
+        factories.Dataset(
+            name="dataset-one", title="Dataset One", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-two", title="Dataset Two", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-three", title="Dataset Three", type="dataset"
+        )
 
         search_url = url_for("dataset.search")
         search_results = app.get(search_url, query_string={'q': 'One'})
@@ -1547,9 +1562,15 @@ class TestSearch(object):
     def test_search_page_no_results(self, app):
         """Search with non-returning phrase returns no results."""
 
-        factories.Dataset(name="dataset-one", title="Dataset One")
-        factories.Dataset(name="dataset-two", title="Dataset Two")
-        factories.Dataset(name="dataset-three", title="Dataset Three")
+        factories.Dataset(
+            name="dataset-one", title="Dataset One", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-two", title="Dataset Two", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-three", title="Dataset Three", type="dataset"
+        )
 
         search_url = url_for("dataset.search")
         search_results = app.get(search_url, query_string={'q': 'Nout'})
@@ -1568,10 +1589,17 @@ class TestSearch(object):
         """Searching with a tag returns expected results."""
 
         factories.Dataset(
-            name="dataset-one", title="Dataset One", tags=[{"name": "my-tag"}]
+            name="dataset-one",
+            title="Dataset One",
+            tags=[{"name": "my-tag"}],
+            type="dataset",
         )
-        factories.Dataset(name="dataset-two", title="Dataset Two")
-        factories.Dataset(name="dataset-three", title="Dataset Three")
+        factories.Dataset(
+            name="dataset-two", title="Dataset Two", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-three", title="Dataset Three", type="dataset"
+        )
 
         search_url = url_for("dataset.search")
         search_response = app.get(search_url)
@@ -1601,9 +1629,14 @@ class TestSearch(object):
                 {"name": "my-tag-2"},
                 {"name": "my-tag-3"},
             ],
+            type="dataset",
         )
-        factories.Dataset(name="dataset-two", title="Dataset Two")
-        factories.Dataset(name="dataset-three", title="Dataset Three")
+        factories.Dataset(
+            name="dataset-two", title="Dataset Two", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-three", title="Dataset Three", type="dataset"
+        )
 
         params = "/dataset/?tags=my-tag-1&tags=my-tag-2&tags=my-tag-3"
         tag_search_response = app.get(params)
@@ -1623,9 +1656,14 @@ class TestSearch(object):
             title="Dataset One",
             owner_org=org["id"],
             private=True,
+            type="dataset",
         )
-        factories.Dataset(name="dataset-two", title="Dataset Two")
-        factories.Dataset(name="dataset-three", title="Dataset Three")
+        factories.Dataset(
+            name="dataset-two", title="Dataset Two", type="dataset"
+        )
+        factories.Dataset(
+            name="dataset-three", title="Dataset Three", type="dataset"
+        )
 
         search_url = url_for("dataset.search")
         search_response = app.get(search_url)
@@ -1647,7 +1685,9 @@ class TestSearch(object):
 
         user = factories.User()
         organization = factories.Organization()
-        dataset = factories.Dataset(owner_org=organization["id"], private=True)
+        dataset = factories.Dataset(
+            owner_org=organization["id"], private=True, type="dataset"
+        )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
@@ -1668,6 +1708,7 @@ class TestSearch(object):
             title="A private dataset",
             owner_org=organization["id"],
             private=True,
+            type="dataset",
         )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
@@ -1688,7 +1729,10 @@ class TestSearch(object):
         )
         org2 = factories.Organization()
         dataset = factories.Dataset(
-            title="A private dataset", owner_org=org2["id"], private=True
+            title="A private dataset",
+            owner_org=org2["id"],
+            private=True,
+            type="dataset"
         )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
@@ -1706,7 +1750,9 @@ class TestSearch(object):
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "member"}]
         )
-        dataset = factories.Dataset(owner_org=organization["id"], private=True)
+        dataset = factories.Dataset(
+            owner_org=organization["id"], private=True, type="dataset"
+        )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
@@ -1724,6 +1770,7 @@ class TestSearch(object):
             title="A private dataset",
             owner_org=organization["id"],
             private=True,
+            type="dataset",
         )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
@@ -1751,6 +1798,115 @@ class TestSearch(object):
         search.assert_called()
         extras = search.call_args[0][1]['extras']
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
+
+    def test_search_page_respects_show_all_types_param_default(self, app):
+        org = factories.Organization()
+
+        factories.Dataset(
+            name="dataset-one",
+            title="Dataset One",
+            type="dataset",
+        )
+        factories.Dataset(
+            name="dataset-two",
+            title="Dataset Two",
+            type="fancy_type",
+        )
+
+        search_url = url_for("dataset.search")
+        search_response = app.get(search_url)
+
+        search_response_html = BeautifulSoup(search_response.data)
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
+        ds_titles = [n.string for n in ds_titles]
+
+        assert len(ds_titles) == 1
+        assert "Dataset One" in ds_titles
+        assert "Dataset Two" not in ds_titles
+
+    @pytest.mark.ckan_config("ckan.search.show_all_types", "false")
+    def test_search_page_respects_show_all_types_param_false(self, app):
+        org = factories.Organization()
+
+        factories.Dataset(
+            name="dataset-one",
+            title="Dataset One",
+            type="dataset",
+        )
+        factories.Dataset(
+            name="dataset-two",
+            title="Dataset Two",
+            type="fancy_type",
+        )
+
+        search_url = url_for("dataset.search")
+        search_response = app.get(search_url)
+
+        search_response_html = BeautifulSoup(search_response.data)
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
+        ds_titles = [n.string for n in ds_titles]
+
+        assert len(ds_titles) == 1
+        assert "Dataset One" in ds_titles
+        assert "Dataset Two" not in ds_titles
+
+    @pytest.mark.ckan_config("ckan.search.show_all_types", "true")
+    def test_search_page_respects_show_all_types_param_true(self, app):
+        org = factories.Organization()
+
+        factories.Dataset(
+            name="dataset-one",
+            title="Dataset One",
+            type="dataset",
+        )
+        factories.Dataset(
+            name="dataset-two",
+            title="Dataset Two",
+            type="fancy_type",
+        )
+
+        search_url = url_for("dataset.search")
+        search_response = app.get(search_url)
+
+        search_response_html = BeautifulSoup(search_response.data)
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
+        ds_titles = [n.string for n in ds_titles]
+
+        assert len(ds_titles) == 2
+        assert "Dataset One" in ds_titles
+        assert "Dataset Two" in ds_titles
+
+    @pytest.mark.ckan_config("ckan.search.show_all_types", "fancy_type")
+    def test_search_page_respects_show_all_types_param_string(self, app):
+        org = factories.Organization()
+
+        factories.Dataset(
+            name="dataset-one",
+            title="Dataset One",
+            type="dataset",
+        )
+        factories.Dataset(
+            name="dataset-two",
+            title="Dataset Two",
+            type="fancy_type",
+        )
+
+        search_url = url_for("dataset.search")
+        search_response = app.get(search_url)
+
+        search_response_html = BeautifulSoup(search_response.data)
+        ds_titles = search_response_html.select(
+            ".dataset-list " ".dataset-item " ".dataset-heading a"
+        )
+        ds_titles = [n.string for n in ds_titles]
+
+        assert False
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")

@@ -230,7 +230,7 @@ class PackageController(base.BaseController):
             # types any search page. Potential alternatives are do show them
             # on the default search page (dataset) or on one other search page
             search_all_type = config.get(
-                'ckan.search.show_all_types', 'dataset')
+                'ckan.search.show_all_types', False)
             search_all = False
 
             try:
