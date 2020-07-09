@@ -158,6 +158,7 @@ entry_points = {
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
         'example_iapitoken = ckanext.example_iapitoken.plugin:ExampleIApiTokenPlugin',
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
+        'example_humanizer = ckanext.example_humanizer.plugin:ExampleHumanizerPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

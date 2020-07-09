@@ -15,7 +15,9 @@ import tzlocal
 import pprint
 import copy
 import uuid
+import functools
 
+from collections import defaultdict
 from paste.deploy import converters
 
 import dominate.tags as dom_tags
@@ -137,6 +139,17 @@ def core_helper(f, name=None):
 
     _builtin_functions[name or _get_name(f)] = f
     return f
+
+
+def _is_chained_helper(func):
+    return getattr(func, 'chained_helper', False)
+
+
+def chained_helper(func):
+    """Decorator function allowing helper functions to be chained.
+    """
+    func.chained_helper = True
+    return func
 
 
 def _datestamp_to_datetime(datetime_):
@@ -895,25 +908,13 @@ def link_to(label, url, **attrs):
     return literal(dom_tags.a(label, **attrs))
 
 
-@core_helper
-def file(name, value=None, id=None, **attrs):
-    """Create a file upload field.
-
-    If you are using file uploads then you will also need to set the
-    multipart option for the form.
-
-    Example::
-
-        >>> file('myfile')
-        literal(u'<input id="myfile" name="myfile" type="file" />')
-
-    """
-    return literal(_input_tag(u"file", name, value, id, **attrs))
-
-
+@maintain.deprecated(u'h.submit is deprecated. '
+                     u'Use h.literal(<markup or dominate.tags>) instead.')
 @core_helper
 def submit(name, value=None, id=None, **attrs):
     """Create a submit field.
+
+    Deprecated: Use h.literal(<markup or dominate.tags>) instead.
     """
     return literal(_input_tag(u"submit", name, value, id, **attrs))
 
@@ -1126,8 +1127,70 @@ def _make_menu_item(menu_item, title, **kw):
 
 
 @core_helper
-def default_group_type():
-    return str(config.get('ckan.default.group_type', 'group'))
+def default_group_type(type_='group'):
+    """Get default group/organization type for using site-wide.
+    """
+    return str(config.get('ckan.default.{}_type'.format(type_), type_))
+
+
+@core_helper
+def humanize_entity_type(entity_type, object_type, purpose):
+    """Convert machine-readable representation of package/group type into
+    human-readable form.
+
+    Returns capitalized `entity_type` with all underscores converted
+    into spaces.
+
+    Example::
+
+      >>> humanize_entity_type('group', 'custom_group', 'add link')
+      'Add Custom Group'
+      >>> humanize_entity_type('group', 'custom_group', 'breadcrumb')
+      'Custom Groups'
+      >>> humanize_entity_type('group', 'custom_group', 'not real purpuse')
+      'Custom Group'
+
+    """
+    if entity_type == object_type:
+        return  # use the default text included in template
+
+    log.debug(
+        u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
+    templates = {
+        u'add link': _(u"Add {object_type}"),
+        u'breadcrumb': _(u"{object_type}s"),
+        u'content tab': _(u"{object_type}s"),
+        u'create label': _(u"Create {object_type}"),
+        u'create title': _(u"Create {object_type}"),
+        u'delete confirmation': _(
+            u'Are you sure you want to delete this {object_type}?'),
+        u'description placeholder': _(
+            u"A little information about my {object_type}..."),
+        u'edit label': _(u"Edit {object_type}"),
+        u'facet label': _(u"{object_type}s"),
+        u'form label': _(u"{object_type} Form"),
+        u'main nav': _(u"{object_type}s"),
+        u'my label': _(u"My {object_type}s"),
+        u'name placeholder': _(u"My {object_type}"),
+        u'no any objects': _(
+            u"There are currently no {object_type}s for this site"),
+        u'no associated label': _(
+            u'There are no {object_type}s associated with this dataset'),
+        u'no description': _(
+            u'There is no description for this {object_type}'),
+        u'no label': _(u"No {object_type}"),
+        u'page title': _(u"{object_type}s"),
+        u'save label': _(u"Save {object_type}"),
+        u'search placeholder': _(u'Search {object_type}s...'),
+        u'you not member': _(u'You are not a member of any {object_type}s.'),
+        u'update label': _(u"Update {object_type}"),
+    }
+
+    type_label = object_type.replace(u"_", u" ").capitalize()
+    if purpose not in templates:
+        return type_label
+
+    return templates[purpose].format(object_type=type_label)
 
 
 @core_helper
@@ -1246,8 +1309,18 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'organization': _('Organizations'),
-                    'groups': _('Groups'),
+    org_label = humanize_entity_type(
+        u'organization',
+        default_group_type(u'organization'),
+        u'facet label') or _(u'Organizations')
+
+    group_label = humanize_entity_type(
+        u'group',
+        default_group_type(u'group'),
+        u'facet label') or _(u'Groups')
+
+    facet_titles = {'organization': _(org_label),
+                    'groups': _(group_label),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
                     'license': _('Licenses'), }
@@ -2814,9 +2887,21 @@ def load_plugin_helpers():
 
     helper_functions.clear()
     helper_functions.update(_builtin_functions)
+    chained_helpers = defaultdict(list)
 
-    for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
-        helper_functions.update(plugin.get_helpers())
+    for plugin in p.PluginImplementations(p.ITemplateHelpers):
+        for name, func in plugin.get_helpers().items():
+            if _is_chained_helper(func):
+                chained_helpers[name].append(func)
+            else:
+                helper_functions[name] = func
+    for name, func_list in chained_helpers.items():
+        if name not in helper_functions:
+            raise logic.NotFoud(
+                u'The helper %r is not found for chained helper' % (name))
+        for func in reversed(func_list):
+            helper_functions[name] = functools.partial(
+                func, helper_functions[name])
 
 
 @core_helper
