@@ -767,9 +767,24 @@ Default value: ``False``
 
 Allows dataset collaborators to change the owner organization of the datasets they are collaborators on. Defaults to False, meaning that collaborators with role admin or editor can edit the dataset metadata but not the organization field.
 
+.. _ckan.auth.create_default_api_keys:
+
+ckan.auth.create_default_api_keys
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.create_default_api_keys = True
+
+Default value: ``False``
+
+
+Determines if a an API key should be automatically created for every user when creating a user account. If set to False (the default value), users can manually create an API token from their profile instead. See :ref:`api authentication`: for more details.
 
 
 .. end_config-authorization
+
+.. _config-api-tokens:
 
 API Token Settings
 ------------------

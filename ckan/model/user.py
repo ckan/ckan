@@ -19,6 +19,13 @@ from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
+from ckan.common import config, asbool
+
+
+def set_api_key():
+    if asbool(config.get('ckan.auth.create_default_api_keys', False)):
+        return _types.make_uuid()
+    return None
 
 
 user_table = Table('user', meta.metadata,
@@ -28,7 +35,7 @@ user_table = Table('user', meta.metadata,
         Column('password', types.UnicodeText),
         Column('fullname', types.UnicodeText),
         Column('email', types.UnicodeText),
-        Column('apikey', types.UnicodeText, default=_types.make_uuid),
+        Column('apikey', types.UnicodeText, default=set_api_key),
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
