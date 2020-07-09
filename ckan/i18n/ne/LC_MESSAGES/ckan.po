@@ -2681,7 +2681,7 @@ msgstr ""
 #: ckan/templates/admin/config.html:33
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"<p><strong>Site Title:</strong> This is the title of this CKAN instance It "
 "appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
 "Choose from a list of simple variations of the main colour scheme to get a "
 "very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
@@ -2695,7 +2695,7 @@ msgid ""
 "templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
-"the modules that appear on your homepage.</p> "
+"the modules that appear on your homepage.</p>"
 msgstr ""
 
 #: ckan/templates/admin/confirm_reset.html:3
@@ -2996,9 +2996,9 @@ msgstr ""
 
 #: ckan/templates/group/member_new.html:80
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"<p><strong>Admin:</strong> Can edit group information, as well as manage "
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
-"datasets from groups</p> "
+"datasets from groups</p>"
 msgstr ""
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
@@ -3330,11 +3330,11 @@ msgstr ""
 
 #: ckan/templates/organization/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
+"<p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
-"but not add new datasets.</p> "
+"but not add new datasets.</p>"
 msgstr ""
 
 #: ckan/templates/organization/members.html:14
@@ -3428,9 +3428,9 @@ msgstr ""
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), together "
+"A CKAN Dataset is a collection of data resources (such as files), together "
 "with a description and other information, at a fixed URL. Datasets are what "
-"users see when searching for data. "
+"users see when searching for data."
 msgstr ""
 
 #: ckan/templates/package/confirm_delete.html:12
@@ -3666,8 +3666,8 @@ msgstr ""
 #: ckan/templates/package/snippets/resources_list.html:26
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
-"add some?</a></p> "
+"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not add"
+" some?</a></p>"
 msgstr ""
 
 #: ckan/templates/package/search.html:52
@@ -3685,15 +3685,15 @@ msgstr ""
 #: ckan/templates/package/search.html:56
 #, python-format
 msgid ""
-" You can also access this registry using the %(api_link)s (see "
-"%(api_doc_link)s) or download a %(dump_link)s. "
+"You can also access this registry using the %(api_link)s (see "
+"%(api_doc_link)s) or download a %(dump_link)s."
 msgstr ""
 
 #: ckan/templates/package/search.html:60
 #, python-format
 msgid ""
-" You can also access this registry using the %(api_link)s (see "
-"%(api_doc_link)s). "
+"You can also access this registry using the %(api_link)s (see "
+"%(api_doc_link)s)."
 msgstr ""
 
 #: ckan/templates/package/view_edit_base.html:9
@@ -4142,13 +4142,13 @@ msgid "Filter Results"
 msgstr ""
 
 #: ckan/templates/snippets/search_form.html:80
-msgid " <p class=\"extra\">Please try another search.</p> "
+msgid "<p class=\"extra\">Please try another search.</p>"
 msgstr ""
 
 #: ckan/templates/snippets/search_form.html:86
 msgid ""
-" <p id=\"search-error\"><strong>There was an error while searching.</strong>"
-" Please try again.</p> "
+"<p id=\"search-error\"><strong>There was an error while searching.</strong> "
+"Please try again.</p>"
 msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:15
