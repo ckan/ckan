@@ -28,7 +28,7 @@ const build = () =>
 
 const watchSource = () =>
   watch(
-    __dirname + "/ckan/public/base/sass/**/*.scss",
+    __dirname + "/ckan/public/base/scss/**/*.scss",
     { ignoreInitial: false },
     build
   );

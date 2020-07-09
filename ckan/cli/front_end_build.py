@@ -4,7 +4,7 @@ import os
 
 import click
 
-from ckan.cli import minify, less, translation
+from ckan.cli import minify, scss, translation
 import ckan.plugins.toolkit as toolkit
 
 
@@ -22,7 +22,7 @@ def front_end_build(ctx):
 @front_end_build.command(short_help=u"Compile css and js.",)
 @click.pass_context
 def build(ctx):
-    ctx.invoke(less.less)
+    ctx.invoke(scss.scss)
     ctx.invoke(translation.js)
 
     # minification
