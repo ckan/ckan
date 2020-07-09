@@ -5046,11 +5046,6 @@ msgstr ""
 msgid "Redirecting to external site is not allowed."
 msgstr ""
 
-#~ msgid ""
-#~ msgstr ""
-
-#~ msgid "Reorder resources"
-#~ msgstr ""
 
 #~ msgid "Reorder resource view"
 #~ msgstr ""
@@ -5110,9 +5105,6 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Height:"
-#~ msgstr ""
-
-#~ msgid "Submit"
 #~ msgstr ""
 
 #~ msgid "format: must be one of %s"
