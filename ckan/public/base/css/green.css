@@ -7467,9 +7467,9 @@ a.tag:hover {
 .user-list li {
   margin: 0 0 10px 0;
 }
-.user-list .gravatar {
-  vertical-align: -4px;
+.user-list .user-image {
   margin-right: 3px;
+  margin-bottom: 3px;
   border-radius: 100px;
 }
 .nav-facet-tertiary {
@@ -9904,7 +9904,6 @@ h4 small {
   padding: 0 6px;
 }
 .account-masthead .account.authed .image img {
-  vertical-align: -6px;
   border-radius: 4px;
 }
 .masthead {
@@ -10345,10 +10344,10 @@ h4 small {
   -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
-.activity .item .gravatar {
+.activity .item .user-image {
   border-radius: 100px;
 }
-.activity .item .actor .gravatar {
+.activity .item .actor .user-image {
   position: absolute;
   top: 0;
   left: 40px;
