@@ -1305,3 +1305,32 @@ class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
         assert_equals([res[u'the year'] for res in result['records']],
                       [2014, 2013])
         assert_equals(result[u'records_truncated'], True)
+
+class TestDatastoreWriteUrlSearch(DatastoreFunctionalTestBase):
+    @helpers.change_config('ckan.datastore.write_url_search', '')
+    def test_read_private_when_write_url_search_is_empty_in_config(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization["id"], private=True)
+        resource = factories.Resource(package_id=dataset["id"])
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'from': 'Brazil', 'year': {'foo': 2014}},
+                {'from': 'Brazil', 'year': {'foo': 1986}}
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+
+        search_data = {
+            'resource_id': resource['id'],
+            'fields': 'year',
+            'plain': False,
+            'q': {
+                'year': '20:*'
+            },
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(dataset['private'], True)
+        assert_equals(len(result['records']), 1)
+        assert_equals(result['records'][0]['year'], {'foo': 2014})

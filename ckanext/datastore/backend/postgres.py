@@ -1496,7 +1496,7 @@ def upsert(context, data_dict):
 
 def search(context, data_dict):
     backend = DatastorePostgresqlBackend.get_active_backend()
-    engine = backend._get_write_engine()
+    engine = backend._get_write_search_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context['connection'])
@@ -1591,6 +1591,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def _get_write_engine(self):
         return _get_engine_from_url(self.write_url)
 
+    def _get_write_search_engine(self):
+        return _get_engine_from_url(self.write_url_search)
+
     def _get_read_engine(self):
         return _get_engine_from_url(self.read_url)
 
@@ -1618,6 +1621,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             if not self._read_connection_has_correct_privileges():
                 self._log_or_raise('The read-only user has write privileges.')
+
+            if not self._write_url_search_connection_has_correct_privileges():
+                self._log_or_raise('The write_url_search user does not have correct privileges.')
 
     def _is_read_only_database(self):
         ''' Returns True if no connection has CREATE privileges on the public
@@ -1672,6 +1678,33 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             write_connection.close()
         return True
 
+    def _write_url_search_connection_has_correct_privileges(self):
+        ''' Returns True if the right permissions are set for the user
+        defined in write_url_search. A table is created by the write user to
+        test the write_url_search user.
+        '''
+        write_connection = self._get_write_engine().connect()
+        write_url_search_connection_user = sa_url.make_url(self.write_url_search).username
+
+        drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
+
+        write_connection.execute(drop_foo_sql)
+
+        try:
+            write_connection.execute(u'CREATE TEMP TABLE _foo ()')
+            for privilege in ['SELECT']:
+                privilege_sql = u"SELECT has_table_privilege(%s, '_foo', %s)"
+                have_privilege = write_connection.execute(
+                    privilege_sql,
+                    (write_url_search_connection_user, privilege)
+                ).first()[0]
+                if not have_privilege:
+                    return False
+        finally:
+            write_connection.execute(drop_foo_sql)
+            write_connection.close()
+        return True
+
     def is_legacy_mode(self, config):
         '''
             Decides if the DataStore should run on legacy mode
@@ -1707,8 +1740,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
-        self.write_url_search = self.config.get('ckan.datastore.write_url_search') \
-                                or self.config['ckan.datastore.write_url']
+
+        if self.config.get('ckan.datastore.write_url_search'):
+            self.write_url_search = self.config.get('ckan.datastore.write_url_search')
+        else:
+            self.write_url_search = self.config['ckan.datastore.write_url']
 
         self.legacy_mode = self.is_legacy_mode(config)
 
