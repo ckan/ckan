@@ -155,9 +155,10 @@ class TestUser(object):
         assert "/my/prefix/user/logout" in logout_response.headers['location']
 
     def test_not_logged_in_dashboard(self, app):
-
         for route in ["index", "organizations", "datasets", "groups"]:
-            app.get(url=url_for(u"dashboard.{}".format(route)), status=403)
+            response = app.get(url=url_for(u"dashboard.{}".format(route)), follow_redirects=False)
+            assert response.status_code == 302
+            assert "user/login" in response.headers['location']
 
     def test_own_datasets_show_up_on_user_dashboard(self, app):
         user = factories.User()
@@ -428,7 +429,7 @@ class TestUser(object):
         follow_url = url_for(controller="user", action="follow", id="not-here")
         response = app.post(follow_url, extra_environ=env)
 
-        assert "You're already logged in" in response.body
+        assert response.status_code == 404
 
     def test_user_unfollow(self, app):
 
@@ -474,10 +475,11 @@ class TestUser(object):
         user_one = factories.User()
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
-        unfollow_url = url_for("user.unfollow", id="not-here")
-        unfollow_response = app.post(
-            unfollow_url, extra_environ=env, follow_redirects=False, status=302
-        )
+        unfollow_url = url_for(
+            controller="user", action="unfollow", id="not-here")
+        response = app.post(unfollow_url, extra_environ=env)
+
+        assert response.status_code == 404
 
     def test_user_follower_list(self, app):
         """Following users appear on followers list page."""
@@ -839,3 +841,53 @@ class TestUser(object):
         )
 
         assert "Error sending the email" in response
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestUserImage(object):
+
+    def test_image_url_is_shown(self, app):
+
+        user = factories.User(image_url='https://example.com/mypic.png')
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'] == 'https://example.com/mypic.png'
+
+    def test_fallback_to_gravatar(self, app):
+
+        user = factories.User(image_url=None)
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'].startswith('//gravatar')
+
+    @pytest.mark.ckan_config('ckan.gravatar_default', 'disabled')
+    def test_fallback_to_placeholder_if_gravatar_disabled(self, app):
+
+        user = factories.User(image_url=None)
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'] == '/base/images/placeholder-user.png'

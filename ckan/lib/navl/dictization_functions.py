@@ -524,7 +524,7 @@ def resolve_string_key(data, string_key):
 
         try:
             index = int(k)
-            if index < 0 or index >= len(current):
+            if index < -len(current) or index >= len(current):
                 raise ValueError
         except ValueError:
             raise DataError('Unmatched key %s' % '__'.join(

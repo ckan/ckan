@@ -57,9 +57,19 @@ class HomeController(base.BaseController):
             c.package_count = query['count']
             c.datasets = query['results']
 
+            org_label = h.humanize_entity_type(
+                u'organization',
+                h.default_group_type(u'organization'),
+                u'facet label') or _(u'Organizations')
+
+            group_label = h.humanize_entity_type(
+                u'group',
+                h.default_group_type(u'group'),
+                u'facet label') or _(u'Groups')
+
             c.facet_titles = {
-                'organization': _('Organizations'),
-                'groups': _('Groups'),
+                'organization': org_label,
+                'groups': group_label,
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
                 'license': _('Licenses'),

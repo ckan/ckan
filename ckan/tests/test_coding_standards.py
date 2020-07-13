@@ -108,6 +108,7 @@ def test_building_the_docs():
         u"WARNING: duplicate label ckan.auth.allow_dataset_collaborators",
         u"WARNING: duplicate label ckan.auth.allow_admin_collaborators",
         u"WARNING: duplicate label ckan.auth.allow_collaborators_to_change_owner_org",
+        u"WARNING: duplicate label ckan.auth.create_default_api_keys",
     ]
 
     # Remove the allowed warnings from the list of collected warnings.

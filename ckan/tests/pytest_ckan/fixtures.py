@@ -28,16 +28,18 @@ Deeper expanation can be found in `official documentation
 
 """
 
-import functools
 import smtplib
 
 
 import pytest
 import six
-import mock
 import rq
 
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
+
 import ckan.tests.helpers as test_helpers
+import ckan.tests.factories as factories
+
 import ckan.plugins
 import ckan.cli
 import ckan.lib.search as search
@@ -248,3 +250,59 @@ def with_extended_cli(ckan_config, monkeypatch):
     # to apply per-test config changes to it without creating real
     # config file.
     monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)
+
+
+class FakeFileStorage(FlaskFileStorage):
+    content_type = None
+
+    def __init__(self, stream, filename):
+        self.stream = stream
+        self.filename = filename
+        self.name = u"upload"
+
+
+@pytest.fixture
+def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
+    """Shortcut for creating resource/user/org with upload.
+
+    Requires content and name for newly created object. By default is
+    using `resource_create` action, but it can be changed by passing
+    named argument `action`.
+
+    Upload field if configured by passing `upload_field_name` named
+    argument. Default value: `upload`.
+
+    In addition, accepts named argument `context` which will be passed
+    to `ckan.tests.helpers.call_action` and arbitary number of
+    additional named arguments, that will be used as resource
+    properties.
+
+    Example::
+
+        def test_uploaded_resource(create_with_upload):
+            dataset = factories.Dataset()
+            resource = make_resource(
+                "hello world", "file.txt", url="http://data",
+                package_id=dataset["id"])
+            assert resource["url_type"] == "upload"
+            assert resource["format"] == "TXT"
+            assert resource["size"] == 11
+
+    """
+    monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
+
+    def factory(data, filename, context={}, **kwargs):
+        action = kwargs.pop(u"action", u"resource_create")
+        field = kwargs.pop(u"upload_field_name", u"upload")
+        test_file = six.BytesIO()
+        test_file.write(six.ensure_binary(data))
+        test_file.seek(0)
+        test_resource = FakeFileStorage(test_file, filename)
+
+        params = {
+            field: test_resource,
+        }
+        params.update(kwargs)
+        return test_helpers.call_action(action, context, **params)
+    return factory
