@@ -99,10 +99,8 @@ def _get_locales():
     locale_order = config.get('ckan.locale_order', '').split()
 
     locales = ['en']
-    if config.get('ckan.i18n_directory'):
-        i18n_path = os.path.join(config.get('ckan.i18n_directory'), 'i18n')
-    else:
-        i18n_path = os.path.dirname(ckan.i18n.__file__)
+    i18n_path = config.get(
+        'ckan.i18n_directory', os.path.dirname(ckan.i18n.__file__))
 
     # For every file in the ckan i18n directory see if babel can understand
     # the locale. If yes, add it to the available locales
@@ -223,9 +221,11 @@ def _set_lang(lang):
     This is needed as Pylons will only look for an i18n directory in
     the application root.'''
     if config.get('ckan.i18n_directory'):
-        fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
-                       'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
+        fake_config = {'pylons.paths': {
+            'root': os.path.dirname(config['ckan.i18n_directory'].rstrip('/'))
+        }, 'pylons.package': config['pylons.package']}
+        i18n.set_lang(
+            lang, pylons_config=fake_config, class_=Translations)
     else:
         i18n.set_lang(lang, class_=Translations)
 
