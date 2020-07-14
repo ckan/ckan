@@ -1021,7 +1021,7 @@ def build_nav_icon(menu_item, title, **kw):
     '''Build a navigation item used for example in ``user/read_base.html``.
 
     Outputs::
-    
+
     <li class="nav-item nav-link"><a href="..."><i class="icon..">
     </i> title</a></li>.
 
