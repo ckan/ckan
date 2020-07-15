@@ -97,13 +97,16 @@ class TrackingMiddleware(object):
 
 class HostHeaderMiddleware(object):
     '''
-        Prevent the host from request to be added to the new header location.
+        Prevent the `Host` header from the incoming request to be used
+        in the `Location` header of a redirect.
     '''
     def __init__(self, app):
         self.app = app
 
     def __call__(self, environ, start_response):
         path_info = environ[u'PATH_INFO']
-        if path_info in ['/login_generic', '/user/login', '/user/logout', '/user/logged_in','/user/logged_out']:
+        if path_info in ['/login_generic', '/user/login',
+                         '/user/logout', '/user/logged_in',
+                         '/user/logged_out']:
             environ.pop('HTTP_HOST', None)
         return self.app(environ, start_response)
