@@ -36,7 +36,7 @@ def process_directory(directory, ext=".py"):
     for (dirpath, dirnames, filenames) in os.walk(directory):
         # ignore hidden files and dir
         filenames = [f for f in filenames if not f[0] == "."]
-        dirnames[:] = [d for d in dirnames if not d[0] == "."]
+        dirnames[:] = [d for d in dirnames if not(d[0] == "." or d == "node_modules")]
         for name in filenames:
             if name.endswith(ext):
                 path = os.path.join(dirpath, name)

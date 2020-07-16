@@ -1,0 +1,43 @@
+Overview of Bootstrap 4 changes:
+- IE8, 9 and iOS 6 no longer supported. IE 10+ and iOS 7+ required
+- Switched from Less to Sass css preprocessing
+- Switched from px to rem as primary CSS unit
+- Global font size increased from 14px to 16px
+
+CKAN style migration
+- badges
+    - existing "label-*" classes are replaced by bs4 "badge-*" classes
+        - "badge-primary" is used for data-type badges
+        - "badge-secondary" is used for private badge
+- breadcrumbs
+    - <li> elements now require bs4 "breadcrumb-item" class
+- buttons
+    - "btn-default" has been deprecated, switched to bs4 "btn-outline-primary"
+- cards
+    - "box" and "well" classes replaced with bs4 "card" system for more natively
+        responsive content
+- dropdowns menus
+    - switched from lists to use a div with the "dropdown-menu" class
+    - <a> elements 
+- input groups
+    - "input-group-btn" replaced by bs4 "input-group-append" for appending 
+        elements to input fields
+    - "input-group-addon" replaced by bs4 "input-group-prepends" for prepending
+        elements to input fields (note: prepend element will need to be 
+        surrounded by a separate div)
+- media-grid
+    - replaced with the bs4 "cards" system
+    - "card-columns" currently used for organizations and groups grid display 
+- navbar, nav-tabs 
+    - <li> elements now require bs4 "nav-item" and "nav-link" classes
+- nav-facets
+    - "list-unstyled nav-simple" replaced with native bs4 "flex-column" to 
+        display column style navigation
+    - <li> elements now require bs4 "nav-pills" class
+    - <a> elements now require bs4 "nav-link" class
+- paigination
+    - "justify-content-center" added to the <ul> element to center align display
+    - <li> elements now require bs4 "page-item" class
+    - <a> elements now require bs4 "page-link" class
+- tables
+    - "table-condensed" switched to bs4 "table-sm"

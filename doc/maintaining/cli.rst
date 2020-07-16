@@ -185,6 +185,7 @@ minify            Create minified versions of the given Javascript and CSS files
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
 profile           Code speed profiler
+scss              Compile all root scss documents into their CSS counterparts
 search-index      Creates a search index for all datasets
 seed              Create test data in the database.
 server            Start Development server.
@@ -438,6 +439,23 @@ Usage
 .. parsed-literal::
 
  less
+
+.. note::
+
+    With the upgrade to bootstrap v4, CSS preprocessing has switched to scss.
+    The front-end-build process also utilises the scss process instead.
+
+
+ .. _scss:
+
+scss: Compile all root scss documents into their CSS counterparts
+=================================================================
+
+Usage
+
+.. parsed-literal::
+
+ scss
 
 
 minify: Create minified versions of the given Javascript and CSS files
