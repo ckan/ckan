@@ -49,7 +49,6 @@ class TestConfig(object):
         reset_index_response = app.get("/")
         assert "Welcome - CKAN" in reset_index_response
 
-
     def test_main_css(self, app, sysadmin_env):
         """Define a custom css file"""
 
