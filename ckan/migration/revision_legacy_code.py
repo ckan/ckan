@@ -68,7 +68,9 @@ def package_dictize_with_revisions(pkg, context):
         res = model.resource_table
     else:
         res = revision_model.resource_revision_table
-    mm_col = res._columns.get('metadata_modified')
+    # metadata_modified was added after the revisioning was removed so
+    # it does not exist on the resource_revision table.
+    mm_col = res._columns.get(u'metadata_modified')
     if mm_col is not None:
         res._columns.remove(mm_col)
     q = select([res]).where(res.c.package_id == pkg.id)
