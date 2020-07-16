@@ -1488,9 +1488,9 @@ def current_user_show(context, data_dict):
     model = context['model']
     # Get the current user that is making the request
     # raise NotAuthorized if the requestor is not found
-    requester = context.get('user')
-    if requester:
-        user_obj = model.User.get(requester)
+    requestor = context.get('user')
+    if requestor:
+        user_obj = model.User.get(requestor)
         context['user_obj'] = user_obj
     else:
         raise NotAuthorized
