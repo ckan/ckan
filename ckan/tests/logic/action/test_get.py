@@ -1248,13 +1248,14 @@ class TestCurrentUserShow(object):
         """Test that calling current_user_show returns not authorized"""
 
         with pytest.raises(logic.NotAuthorized):
-            helpers.call_action("current_user_show", context={'user':''})
+            helpers.call_action("current_user_show", context={'user': ''})
 
     def test_current_user_show_not_found(self):
         """Test that calling current_user_show returns not found"""
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("current_user_show")
+
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestCurrentPackageList(object):

@@ -548,6 +548,7 @@ class TestActionAuth(object):
         "get: user_follower_count",
         "update: task_status_update_many",
         "update: term_translation_update_many",
+        "get: current_user_show",
     ]
 
     AUTH_NO_ACTION_BLACKLIST = [
