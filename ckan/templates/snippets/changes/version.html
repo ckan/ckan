@@ -2,8 +2,7 @@
   <p>
     {% if change.method == "change" %}
 
-      {{ _('Changed the version of {pkg_link}
-          to {new_version} (previously {old_version})').format(
+      {{ _('Changed the version of {pkg_link} to {new_version} (previously {old_version})').format(
             pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
               pkg_url = h.url_for(controller='dataset',
                                   action='read', id=change.pkg_id),
@@ -25,8 +24,7 @@
 
     {% elif change.method == "add" %}
 
-      {{ _('Changed the version of {pkg_link}
-          to {new_version}').format(
+      {{ _('Changed the version of {pkg_link} to {new_version}').format(
             pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
               pkg_url = h.url_for(controller='dataset',
                                   action='read', id=change.pkg_id),
