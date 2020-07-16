@@ -1171,6 +1171,82 @@ class TestUserShow(object):
         assert got_user["number_created_packages"] == 3
 
 
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestCurrentUserShow(object):
+    def test_user_show_default_values(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action(
+            "current_user_show",
+            context={"user": user["name"]}
+        )
+        assert got_user["id"] == user["id"]
+        assert "name" not in got_user
+        assert "fullname" not in got_user
+        assert "created" not in got_user
+        assert "about" not in got_user
+        assert "activity_streams_email_notifications" not in got_user
+        assert "sysadmin" not in got_user
+        assert "state" not in got_user
+        assert "image_url" not in got_user
+        assert "display_name" not in got_user
+        assert "email_hash" not in got_user
+        assert "number_created_packages" not in got_user
+        assert "apikey" not in got_user
+        assert "email" not in got_user
+        assert "image_display_url" not in got_user
+
+    def test_current_user_show_with_details(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action(
+            "current_user_show", include_details=True,
+            context={"user": user["name"]}
+        )
+
+        assert got_user["name"] == user["name"]
+        assert got_user["fullname"] == user["fullname"]
+        assert got_user["created"] == user["created"]
+        assert got_user["about"] == user["about"]
+        assert got_user["activity_streams_email_notifications"] \
+            == user["activity_streams_email_notifications"]
+        assert got_user["sysadmin"] == user["sysadmin"]
+        assert got_user["state"] == user["state"]
+        assert got_user["image_url"] == user["image_url"]
+        assert got_user["display_name"] == user["display_name"]
+        assert got_user["email_hash"] == user["email_hash"]
+        assert got_user["number_created_packages"] \
+            == user["number_created_packages"]
+        assert got_user["apikey"] == user["apikey"]
+        assert got_user["email"] == user["email"]
+        assert got_user["image_display_url"] == user["image_display_url"]
+        assert got_user["email"] == user["email"]
+        assert "password" not in got_user
+        assert "reset_key" not in got_user
+
+    def test_current_user_show_no_password_hash(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action(
+            "current_user_show", include_details=True,
+            context={"user": user["name"]}
+        )
+
+        assert "password_hash" not in got_user
+
+    def test_current_user_show_unauthorized(self):
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action("current_user_show", context={'user':''})
+
+    def test_current_user_show_not_found(self):
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("current_user_show")
+
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestCurrentPackageList(object):
     def test_current_package_list(self):

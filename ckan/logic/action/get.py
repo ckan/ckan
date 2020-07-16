@@ -1474,6 +1474,42 @@ def user_show(context, data_dict):
     return user_dict
 
 
+def current_user_show(context, data_dict):
+    '''Return user account of requestor
+    :param include_details: Include a details of the requstor.
+        (optional, default:``False``)
+    :type include_details: bool
+    :returns: the id of the user. If include_details: true is passed
+        then it will return the details of the user including email_hash,
+        apikey and email. Excludes the password (hash) and reset_key.
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+    # Get the current user that is making the request
+    # raise NotAuthorized if the requestor is not found
+    requester = context.get('user')
+    if requester:
+        user_obj = model.User.get(requester)
+        context['user_obj'] = user_obj
+    else:
+        raise NotAuthorized
+
+    _check_access('user_show', context, data_dict)
+
+    if not bool(user_obj):
+        raise NotFound
+
+    user_dict = model_dictize.user_dictize(
+        user_obj, context)
+    # Check if include_details is passed, default is False
+    include_details = asbool(
+        data_dict.get('include_details', False))
+    if not include_details:
+        user_dict = {'id': user_dict['id']}
+    return user_dict
+
+
 @logic.validate(logic.schema.default_autocomplete_schema)
 def package_autocomplete(context, data_dict):
     '''Return a list of datasets (packages) that match a string.
