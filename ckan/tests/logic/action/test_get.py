@@ -1173,14 +1173,17 @@ class TestUserShow(object):
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestCurrentUserShow(object):
-    def test_user_show_default_values(self):
+    def test_current_user_show_default_values(self):
+        """Test that calling current_user_show returns id only"""
 
+        # 1. Setup.
         user = factories.User()
-
+        # 2. Calling action with user
         got_user = helpers.call_action(
             "current_user_show",
             context={"user": user["name"]}
         )
+        # 3. Assertion to Validate Test
         assert got_user["id"] == user["id"]
         assert "name" not in got_user
         assert "fullname" not in got_user
@@ -1198,14 +1201,16 @@ class TestCurrentUserShow(object):
         assert "image_display_url" not in got_user
 
     def test_current_user_show_with_details(self):
+        """Test that calling current_user_show returns details"""
 
+        # 1. Setup.
         user = factories.User()
-
+        # 2. Calling action with include_details param
         got_user = helpers.call_action(
             "current_user_show", include_details=True,
             context={"user": user["name"]}
         )
-
+        # 3. Assertion to Validate Test
         assert got_user["name"] == user["name"]
         assert got_user["fullname"] == user["fullname"]
         assert got_user["created"] == user["created"]
@@ -1227,22 +1232,26 @@ class TestCurrentUserShow(object):
         assert "reset_key" not in got_user
 
     def test_current_user_show_no_password_hash(self):
+        """Test that calling current_user_show returns no password hash"""
 
+        # 1. Setup.
         user = factories.User()
-
+        # 2. Calling action with include_details param
         got_user = helpers.call_action(
             "current_user_show", include_details=True,
             context={"user": user["name"]}
         )
-
+        # 3. Assertion to Validate Test
         assert "password_hash" not in got_user
 
     def test_current_user_show_unauthorized(self):
+        """Test that calling current_user_show returns not authorized"""
 
         with pytest.raises(logic.NotAuthorized):
             helpers.call_action("current_user_show", context={'user':''})
 
     def test_current_user_show_not_found(self):
+        """Test that calling current_user_show returns not found"""
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("current_user_show")

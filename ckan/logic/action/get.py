@@ -1476,7 +1476,7 @@ def user_show(context, data_dict):
 
 def current_user_show(context, data_dict):
     '''Return user account of requestor
-    :param include_details: Include a details of the requstor.
+    :param include_details: Include details of the requstor.
         (optional, default:``False``)
     :type include_details: bool
     :returns: the id of the user. If include_details: true is passed
@@ -1497,6 +1497,7 @@ def current_user_show(context, data_dict):
 
     _check_access('user_show', context, data_dict)
 
+    # Raise Not Found if the requestor is not a valid user
     if not bool(user_obj):
         raise NotFound
 
