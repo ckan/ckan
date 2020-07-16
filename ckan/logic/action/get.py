@@ -1476,9 +1476,11 @@ def user_show(context, data_dict):
 
 def current_user_show(context, data_dict):
     '''Return user account of requestor
+
     :param include_details: Include details of the requstor.
         (optional, default:``False``)
     :type include_details: bool
+
     :returns: the id of the user. If include_details: true is passed
         then it will return the details of the user including email_hash,
         apikey and email. Excludes the password (hash) and reset_key.
