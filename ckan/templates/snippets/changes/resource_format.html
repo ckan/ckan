@@ -7,8 +7,7 @@
 
     {% if change.method == "add" %}
 
-      {{ _('Set format of resource {resource_link} to {format_link} in
-          {pkg_link}').format(
+      {{ _('Set format of resource {resource_link} to {format_link} in {pkg_link}').format(
             pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
               pkg_url = h.url_for(controller='dataset',
                                   action='read', id=change.pkg_id),
@@ -28,8 +27,7 @@
 
     {% elif change.method == "change" %}
 
-      {{ _('Set format of resource {resource_link} to {new_format_link}
-        (previously {old_format_link}) in {pkg_link}').format(
+      {{ _('Set format of resource {resource_link} to {new_format_link} (previously {old_format_link}) in {pkg_link}').format(
           pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
             pkg_url = h.url_for(controller='dataset',
                                 action='read', id=change.pkg_id),

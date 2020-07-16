@@ -2,8 +2,7 @@
   <p>
     {% if change.method == "add_one_value" %}
 
-      {{ _('Added field <q>{key}</q> with value <q>{value}</q> to
-        {pkg_link}').format(
+      {{ _('Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}').format(
           pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
             pkg_url = h.url_for(controller='dataset',
                                 action='read', id=change.pkg_id),
@@ -52,8 +51,7 @@
 
     {% elif change.method == "change_with_old_value" %}
 
-      {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q>
-        (previously <q>{old_val}</q>) in {pkg_link}').format(
+      {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}').format(
           pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
             pkg_url = h.url_for(controller='dataset',
                                 action='read', id=change.pkg_id),
@@ -66,8 +64,7 @@
 
     {% elif change.method == "change_no_old_value" %}
 
-      {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q>
-        in {pkg_link}').format(
+      {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}').format(
           pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
             pkg_url = h.url_for(controller='dataset',
                                 action='read', id=change.pkg_id),
@@ -79,8 +76,7 @@
 
     {% elif change.method == "remove_one" %}
 
-      {{ _('Removed field <q>{key}</q> from
-        {pkg_link}').format(
+      {{ _('Removed field <q>{key}</q> from {pkg_link}').format(
           pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
             pkg_url = h.url_for(controller='dataset',
                                 action='read', id=change.pkg_id),
@@ -111,7 +107,7 @@
     {% else %}
 
       {{ _('No fields were updated. See the metadata diff for more details.') }}
-      
+
     {% endif %}
   </p>
 </li>

@@ -2,8 +2,7 @@
   <p>
     {% if change.method == "change" %}
 
-      {{ _('Moved {pkg_link} from organization {old_org_link} to
-          organization {new_org_link}').format(
+      {{ _('Moved {pkg_link} from organization {old_org_link} to organization {new_org_link}').format(
             pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
               pkg_url = h.url_for(controller='dataset',
                                   action='read', id=change.pkg_id),
