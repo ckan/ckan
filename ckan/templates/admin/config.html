@@ -13,7 +13,7 @@
 
       {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=data['ckan.site_title'], error=error, classes=['control-medium']) }}
 
-      {{ form.select('ckan.main_css', id='field-ckan-main-css', label=_('Style'), options=styles, selected=data['ckan.main_css'], error=error) }}
+      {{ form.input('ckan.main_css', id='field-ckan-main-css', label=_('Custom Stylesheet'), value=data['ckan.main_css'], error=error, classes=['control-medium']) }}
 
       {{ form.input('ckan.site_description', id='field-ckan-site-description', label=_('Site Tag Line'), value=data['ckan.site_description'], error=error, classes=['control-medium']) }}
 
@@ -52,8 +52,7 @@
         {% trans %}
           <p><strong>Site Title:</strong> This is the title of this CKAN instance
             It appears in various places throughout CKAN.</p>
-          <p><strong>Style:</strong> Choose from a list of simple variations of
-            the main colour scheme to get a very quick custom theme working.</p>
+          <p><strong>Custom Stylesheet:</strong> Define an alternative main CSS file.</p>
           <p><strong>Site Tag Logo:</strong> This is the logo that appears in the
             header of all the CKAN instance templates.</p>
           <p><strong>About:</strong> This text will appear on this CKAN instances
