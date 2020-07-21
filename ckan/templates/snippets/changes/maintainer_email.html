@@ -2,8 +2,7 @@
   <p>
     {% if change.method == "change" %}
 
-      {{ _('Set maintainer email of {pkg_link} to {new_email}
-           (previously {old_email})').format(
+      {{ _('Set maintainer email of {pkg_link} to {new_email} (previously {old_email})').format(
              pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
                pkg_url = h.url_for(controller='dataset',
                                    action='read', id=change.pkg_id),

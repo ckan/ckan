@@ -2,9 +2,7 @@
   <p>
     {% if change.method == "add" %}
 
-      {{ _('Updated description of resource {resource_link} in {pkg_link}
-          to <br class="line-height2"><blockquote>{new_desc}</blockquote>'
-          ).format(
+    {{ _('Updated description of resource {resource_link} in {pkg_link} to <br class="line-height2"><blockquote>{new_desc}</blockquote>').format(
             pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
               pkg_url = h.url_for(controller='dataset',
                                   action='read', id=change.pkg_id),
@@ -21,8 +19,7 @@
 
     {% elif change.method == "remove" %}
 
-      {{ _('Removed description from resource {resource_link} in
-          {pkg_link}').format(
+      {{ _('Removed description from resource {resource_link} in {pkg_link}').format(
             pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
               pkg_url = h.url_for(controller='dataset',
                                   action='read', id=change.pkg_id),
@@ -38,10 +35,7 @@
 
     {% elif change.method == "change" %}
 
-      {{ _('Updated description of resource {resource_link} in {pkg_link}
-          from <br class="line-height2"><blockquote>{old_desc}</blockquote>
-          to <br class="line-height2"><blockquote>{new_desc}</blockquote>'
-          ).format(
+    {{ _('Updated description of resource {resource_link} in {pkg_link} from <br class="line-height2"><blockquote>{old_desc}</blockquote> to <br class="line-height2"><blockquote>{new_desc}</blockquote>').format(
             pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
               pkg_url = h.url_for(controller='dataset',
                                   action='read', id=change.pkg_id),

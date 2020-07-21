@@ -1,7 +1,6 @@
 <li>
   <p>
-    {{ _('Renamed resource {old_resource_link} to {new_resource_link}
-        in {pkg_link}').format(
+    {{ _('Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}').format(
           pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
             pkg_url = h.url_for(controller='dataset',
                                 action='read', id=change.pkg_id),
