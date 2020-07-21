@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.9.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-09 16:12+0200\n"
+"POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1772,22 +1772,22 @@ msgid "Must be a dict"
 msgstr ""
 
 #: ckan/logic/validators.py:940
-msgid "The email address '{email}'                     belongs to a registered user."
+msgid "The email address '{email}' belongs to a registered user."
 msgstr ""
 
-#: ckan/logic/validators.py:948
+#: ckan/logic/validators.py:947
 msgid "Value must be one of {}"
 msgstr ""
 
-#: ckan/logic/validators.py:959
+#: ckan/logic/validators.py:958
 msgid "The value should be a valid JSON object"
 msgstr ""
 
-#: ckan/logic/validators.py:961
+#: ckan/logic/validators.py:960
 msgid "Could not parse the value as a valid JSON object"
 msgstr ""
 
-#: ckan/logic/validators.py:971
+#: ckan/logic/validators.py:970
 msgid "Could not parse extra '{name}' as valid JSON"
 msgstr ""
 
@@ -4230,33 +4230,33 @@ msgid "Removed author from {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/author.html:38
-#: ckan/templates/snippets/changes/author_email.html:46
-#: ckan/templates/snippets/changes/extra_fields.html:113
-#: ckan/templates/snippets/changes/maintainer.html:40
-#: ckan/templates/snippets/changes/maintainer_email.html:48
+#: ckan/templates/snippets/changes/author_email.html:45
+#: ckan/templates/snippets/changes/extra_fields.html:109
+#: ckan/templates/snippets/changes/maintainer.html:38
+#: ckan/templates/snippets/changes/maintainer_email.html:47
 #: ckan/templates/snippets/changes/no_change.html:3
-#: ckan/templates/snippets/changes/notes.html:43
-#: ckan/templates/snippets/changes/org.html:55
-#: ckan/templates/snippets/changes/resource_desc.html:62
-#: ckan/templates/snippets/changes/resource_extras.html:170
-#: ckan/templates/snippets/changes/resource_format.html:56
+#: ckan/templates/snippets/changes/notes.html:38
+#: ckan/templates/snippets/changes/org.html:54
+#: ckan/templates/snippets/changes/resource_desc.html:56
+#: ckan/templates/snippets/changes/resource_extras.html:164
+#: ckan/templates/snippets/changes/resource_format.html:54
 #: ckan/templates/snippets/changes/tags.html:83
 #: ckan/templates/snippets/changes/url.html:47
-#: ckan/templates/snippets/changes/version.html:40
+#: ckan/templates/snippets/changes/version.html:38
 msgid "No fields were updated. See the metadata diff for more details."
 msgstr ""
 
 #: ckan/templates/snippets/changes/author_email.html:5
 msgid ""
-"Set author email of {pkg_link} to {new_author_email}\n"
-"          (previously {old_author_email})"
+"Set author email of {pkg_link} to {new_author_email} (previously "
+"{old_author_email})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/author_email.html:24
+#: ckan/templates/snippets/changes/author_email.html:23
 msgid "Set author email of {pkg_link} to {new_author_email}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/author_email.html:37
+#: ckan/templates/snippets/changes/author_email.html:36
 msgid "Removed author email from {pkg_link}"
 msgstr ""
 
@@ -4265,113 +4265,91 @@ msgid "Deleted resource {resource_link} from {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/extension_fields.html:3
-msgid ""
-"Changed value of field <q>{key}</q> to <q>{value}</q> in\n"
-"        {pkg_link}"
+msgid "Changed value of field <q>{key}</q> to <q>{value}</q> in {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/extra_fields.html:5
-msgid ""
-"Added field <q>{key}</q> with value <q>{value}</q> to\n"
-"        {pkg_link}"
+msgid "Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:18
+#: ckan/templates/snippets/changes/extra_fields.html:17
 msgid "Added field <q>{key}</q> to {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:29
+#: ckan/templates/snippets/changes/extra_fields.html:28
 msgid "Added the following fields to {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:40
-#: ckan/templates/snippets/changes/resource_extras.html:57
+#: ckan/templates/snippets/changes/extra_fields.html:39
+#: ckan/templates/snippets/changes/resource_extras.html:56
 msgid "{key} with value {value}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:45
-#: ckan/templates/snippets/changes/resource_extras.html:62
-#: ckan/templates/snippets/changes/resource_extras.html:105
+#: ckan/templates/snippets/changes/extra_fields.html:44
+#: ckan/templates/snippets/changes/resource_extras.html:61
+#: ckan/templates/snippets/changes/resource_extras.html:102
 msgid "{key}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:55
+#: ckan/templates/snippets/changes/extra_fields.html:54
 msgid ""
-"Changed value of field <q>{key}</q> to <q>{new_val}</q>\n"
-"        (previously <q>{old_val}</q>) in {pkg_link}"
+"Changed value of field <q>{key}</q> to <q>{new_val}</q> (previously "
+"<q>{old_val}</q>) in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:69
-msgid ""
-"Changed value of field <q>{key}</q> to <q>{new_val}</q>\n"
-"        in {pkg_link}"
+#: ckan/templates/snippets/changes/extra_fields.html:67
+msgid "Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:82
-msgid ""
-"Removed field <q>{key}</q> from\n"
-"        {pkg_link}"
+#: ckan/templates/snippets/changes/extra_fields.html:79
+msgid "Removed field <q>{key}</q> from {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:94
+#: ckan/templates/snippets/changes/extra_fields.html:90
 msgid "Removed the following fields from {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:104
+#: ckan/templates/snippets/changes/extra_fields.html:100
 msgid "<q>{key}</q>"
 msgstr ""
 
 #: ckan/templates/snippets/changes/license.html:6
-msgid ""
-"Changed the license of {pkg_link} to\n"
-"          {new_link} (previously {old_link})"
+msgid "Changed the license of {pkg_link} to {new_link} (previously {old_link})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/license.html:26
-msgid ""
-"Changed the license of {pkg_link} to\n"
-"          {new_link} (previously {old_title})"
+#: ckan/templates/snippets/changes/license.html:25
+msgid "Changed the license of {pkg_link} to {new_link} (previously {old_title})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/license.html:43
-msgid ""
-"Changed the license of {pkg_link} to\n"
-"        {new_title} (previously {old_link})"
+#: ckan/templates/snippets/changes/license.html:41
+msgid "Changed the license of {pkg_link} to {new_title} (previously {old_link})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/license.html:61
-msgid ""
-"Changed the license of {pkg_link} to\n"
-"          {new_title} (previously {old_title})"
+#: ckan/templates/snippets/changes/license.html:58
+msgid "Changed the license of {pkg_link} to {new_title} (previously {old_title})"
 msgstr ""
 
 #: ckan/templates/snippets/changes/maintainer.html:5
-msgid ""
-"Set maintainer of {pkg_link} to {new_maintainer}\n"
-"        (previously {old_maintainer})"
+msgid "Set maintainer of {pkg_link} to {new_maintainer} (previously {old_maintainer})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer.html:18
-msgid ""
-"Set maintainer of {pkg_link} to\n"
-"          {new_maintainer}"
+#: ckan/templates/snippets/changes/maintainer.html:17
+msgid "Set maintainer of {pkg_link} to {new_maintainer}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer.html:30
+#: ckan/templates/snippets/changes/maintainer.html:28
 msgid "Removed maintainer from {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/maintainer_email.html:5
-msgid ""
-"Set maintainer email of {pkg_link} to {new_email}\n"
-"           (previously {old_email})"
+msgid "Set maintainer email of {pkg_link} to {new_email} (previously {old_email})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer_email.html:24
+#: ckan/templates/snippets/changes/maintainer_email.html:23
 msgid "Set maintainer email of {pkg_link} to {new_email}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer_email.html:38
+#: ckan/templates/snippets/changes/maintainer_email.html:37
 msgid "Removed maintainer email from {pkg_link}"
 msgstr ""
 
@@ -4389,34 +4367,32 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/notes.html:5
 msgid ""
-"Updated description of {pkg_link} from\n"
-"            <br class=\"line-height2\"><blockquote>{old_notes}</blockquote>\n"
-"            to <br class=\"line-height2\"><blockquote>{new_notes}\n"
-"            </blockquote>"
+"Updated description of {pkg_link} from <br class=\"line-"
+"height2\"><blockquote>{old_notes}</blockquote> to <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/notes.html:20
+#: ckan/templates/snippets/changes/notes.html:17
 msgid ""
-"Updated description of {pkg_link}\n"
-"            to <br class=\"line-height2\"><blockquote>{new_notes}\n"
-"            </blockquote>"
+"Updated description of {pkg_link} to <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/notes.html:33
+#: ckan/templates/snippets/changes/notes.html:28
 msgid "Removed description from {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/org.html:5
 msgid ""
-"Moved {pkg_link} from organization {old_org_link} to\n"
-"          organization {new_org_link}"
+"Moved {pkg_link} from organization {old_org_link} to organization "
+"{new_org_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/org.html:26
+#: ckan/templates/snippets/changes/org.html:25
 msgid "Removed {pkg_link} from organization {old_org_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/org.html:41
+#: ckan/templates/snippets/changes/org.html:40
 msgid "Added {pkg_link} to organization {new_org_link}"
 msgstr ""
 
@@ -4426,84 +4402,73 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link}\n"
-"          to <br class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} to <br class"
+"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_desc.html:24
-msgid ""
-"Removed description from resource {resource_link} in\n"
-"          {pkg_link}"
+#: ckan/templates/snippets/changes/resource_desc.html:22
+msgid "Removed description from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_desc.html:41
+#: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link}\n"
-"          from <br class=\"line-height2\"><blockquote>{old_desc}</blockquote>"
-"\n"
-"          to <br class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} from <br class"
+"=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
+"height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 
 #: ckan/templates/snippets/changes/resource_extras.html:5
 msgid ""
-"Added field <q>{key}</q> with value <q>{value}</q>\n"
-"        to resource {resource_link} in {pkg_link}"
+"Added field <q>{key}</q> with value <q>{value}</q> to resource "
+"{resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:24
+#: ckan/templates/snippets/changes/resource_extras.html:23
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:41
+#: ckan/templates/snippets/changes/resource_extras.html:40
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:71
-msgid ""
-"Removed field <q>{key}</q> from resource {resource_link}\n"
-"        in {pkg_link}"
+#: ckan/templates/snippets/changes/resource_extras.html:70
+msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:89
-msgid ""
-"Removed the following fields from resource {resource_link}\n"
-"        in {pkg_link}"
+#: ckan/templates/snippets/changes/resource_extras.html:87
+msgid "Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:113
+#: ckan/templates/snippets/changes/resource_extras.html:110
 msgid ""
-"Changed value of field <q>{key}</q> of resource {resource_link} to\n"
-"        <q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
+"Changed value of field <q>{key}</q> of resource {resource_link} to "
+"<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:133
+#: ckan/templates/snippets/changes/resource_extras.html:129
 msgid ""
-"Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource\n"
-"        {resource_link} in {pkg_link}"
+"Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
+"{resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:152
+#: ckan/templates/snippets/changes/resource_extras.html:147
 msgid ""
-"Removed the value of field <q>{key}</q> in resource {resource_link}\n"
-"        in {pkg_link}"
+"Removed the value of field <q>{key}</q> in resource {resource_link} in "
+"{pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/resource_format.html:10
-msgid ""
-"Set format of resource {resource_link} to {format_link} in\n"
-"          {pkg_link}"
+msgid "Set format of resource {resource_link} to {format_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_format.html:31
+#: ckan/templates/snippets/changes/resource_format.html:30
 msgid ""
-"Set format of resource {resource_link} to {new_format_link}\n"
-"        (previously {old_format_link}) in {pkg_link}"
+"Set format of resource {resource_link} to {new_format_link} (previously "
+"{old_format_link}) in {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/resource_name.html:3
-msgid ""
-"Renamed resource {old_resource_link} to {new_resource_link}\n"
-"        in {pkg_link}"
+msgid "Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/tags.html:5
@@ -4544,19 +4509,15 @@ msgid "Changed the source URL of {pkg_link} to {new_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/version.html:5
-msgid ""
-"Changed the version of {pkg_link}\n"
-"          to {new_version} (previously {old_version})"
+msgid "Changed the version of {pkg_link} to {new_version} (previously {old_version})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/version.html:18
+#: ckan/templates/snippets/changes/version.html:17
 msgid "Removed the version from {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/version.html:28
-msgid ""
-"Changed the version of {pkg_link}\n"
-"          to {new_version}"
+#: ckan/templates/snippets/changes/version.html:27
+msgid "Changed the version of {pkg_link} to {new_version}"
 msgstr ""
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
