@@ -1007,8 +1007,8 @@ class TestUserList(object):
         assert got_names == expected_names
 
     def test_user_list_order_by_edits(self):
-        with pytest.raises(logic.ValidationError):
-            helpers.call_action('user_list', order_by='edits')
+        nose.tools.assert_raises(logic.ValidationError,
+            helpers.call_action, 'user_list', order_by='edits')
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
