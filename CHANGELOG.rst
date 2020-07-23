@@ -7,6 +7,30 @@
 Changelog
 ---------
 
+v.2.7.8 TBA
+===========
+
+Fixes:
+
+* Fix UnicodeDecodeError on abort fucntion (`#4829 <https://github.com/ckan/ckan/pull/4829>`_)
+* Improve and reorder resource_formats.json (`#5034 <https://github.com/ckan/ckan/pull/5034>`_)
+* Allow passing arguments to the RQ enqueue_call function (`#5208 <https://github.com/ckan/ckan/pull/5208>`_)
+* Fix dashboard follower filter (`#5412 <https://github.com/ckan/ckan/pull/5412>`_)
+* Update dictionary.html for bs2 version (`#5365 <https://github.com/ckan/ckan/pull/5365>`_)
+* Prevent password reset exposing account presence (`#5431 <https://github.com/ckan/ckan/pull/5431>`_)
+* Add class dropdown to 'New view' menu (`#5470 <https://github.com/ckan/ckan/pull/5470>`_)
+* Update jQuery to 3.5.0 (`#5364 <https://github.com/ckan/ckan/pull/5364>`_)
+* Fix dashboard activity filter (`#5424 <https://github.com/ckan/ckan/pull/5424>`_)
+* Prevent account presence exposure when ckan.auth.public_user_details = false (`#5432 <https://github.com/ckan/ckan/pull/5432>`_)
+* Fix resource upload filename fetching in IE (`#5438 <https://github.com/ckan/ckan/pull/5438>`_)
+* Unflatten: allow nesting >1 level (`#5444 <https://github.com/ckan/ckan/pull/5444>`_)
+* Allow lists in resource extras (`#5453 <https://github.com/ckan/ckan/pull/5453>`_)
+* Only add error to tag_errors if not empty (`#5454 <https://github.com/ckan/ckan/pull/5454>`_)
+* Fix order_by param in user_list action (`#5342 <https://github.com/ckan/ckan/pull/5342>`_)
+* Fix for Resources validation errors display (`#5335 <https://github.com/ckan/ckan/pull/5335>`_)
+
+
+
 v.2.7.7 2020-04-15
 ==================
 
