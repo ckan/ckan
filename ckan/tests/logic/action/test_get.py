@@ -674,7 +674,8 @@ class TestUserList(helpers.FunctionalTestBase):
         assert got_names == expected_names
 
     def test_user_list_order_by_edits(self):
-        nose.tools.assert_raises(logic.ValidationError,
+        nose.tools.assert_raises(
+            logic.ValidationError,
             helpers.call_action, 'user_list', order_by='edits')
 
 
