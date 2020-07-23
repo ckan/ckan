@@ -7,11 +7,12 @@
 Changelog
 ---------
 
-v.2.8.4 TBA
+v.2.8.5 TBA
 ===========
 
 Fixes:
 
+* Add RTL support (`#5413 <https://github.com/ckan/ckan/pull/5413>`_)
 * Fix UnicodeDecodeError on abort fucntion (`#4829 <https://github.com/ckan/ckan/pull/4829>`_)
 * Improve and reorder resource_formats.json (`#5034 <https://github.com/ckan/ckan/pull/5034>`_)
 * Allow passing arguments to the RQ enqueue_call function (`#5208 <https://github.com/ckan/ckan/pull/5208>`_)
