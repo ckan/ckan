@@ -5,8 +5,10 @@ import datetime
 from itertools import count
 import re
 import mimetypes
+import json
 
-from six import string_types
+from six import string_types, iteritems
+from six.moves.urllib.parse import urlparse
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -854,3 +856,57 @@ def email_validator(value, context):
         if not email_pattern.match(value):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
+
+
+def email_is_unique(key, data, errors, context):
+    '''Validate email is unique'''
+    model = context['model']
+    session = context['session']
+
+    users = session.query(model.User) \
+            .filter(model.User.email == data[key]).all()
+    # is there is no users with this email it's free
+    if not users:
+        return
+    else:
+        # allow user to update their own email
+        for user in users:
+            if (user.name == data[("name",)]
+                    or user.id == data[("id",)]):
+                return
+
+    raise Invalid(
+                _('The email address \'{email}\' \
+                    belongs to a registered user.').
+                        format(email=data[key]))
+
+def one_of(list_of_value):
+    ''' Checks if the provided value is present in a list '''
+    def callable(value):
+        if value not in list_of_value:
+            raise Invalid(_('Value must be one of {}'.format(list_of_value)))
+        return value
+    return callable
+
+
+def json_object(value):
+    ''' Make sure value can be serialized as a JSON object'''
+    if value is None or value == '':
+        return
+    try:
+        if not json.dumps(value).startswith('{'):
+            raise Invalid(_('The value should be a valid JSON object'))
+    except ValueError as e:
+        raise Invalid(_('Could not parse the value as a valid JSON object'))
+
+    return value
+
+
+def extras_valid_json(extras, context):
+    try:
+        for extra, value in iteritems(extras):
+            json.dumps(value)
+    except ValueError as e:
+        raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
+                format(name=extra))
+    return extras

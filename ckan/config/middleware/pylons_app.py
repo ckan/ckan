@@ -171,6 +171,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
                 )
         app = Cascade(extra_static_parsers + static_parsers)
 
+    # Prevent the host from request to be added to the new header location.
+    app = common_middleware.HostHeaderMiddleware(app)
     # Tracking
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = common_middleware.TrackingMiddleware(app, config)

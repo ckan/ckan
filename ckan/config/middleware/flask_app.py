@@ -28,6 +28,7 @@ from ckan.lib import jinja_extensions
 from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
+from ckan.config.middleware.common_middleware import HostHeaderMiddleware
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
@@ -263,6 +264,9 @@ def make_flask_stack(conf, **app_conf):
     flask_config_keys = set(flask_app.config.keys()) - set(config.keys())
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
+
+    # Prevent the host from request to be added to the new header location.
+    app = HostHeaderMiddleware(app)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app

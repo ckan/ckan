@@ -8,7 +8,7 @@
 # dread <david.read@hackneyworkshop.com>, 2019
 # Mayeul Kauffmann, 2019
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
-# olivierdalang <olivier.dalang@gmail.com>, 2020
+# Olivier Dalang <olivier.dalang@gmail.com>, 2020
 # Philippe Cloutier <chealer@gmail.com>, 2020
 # 
 #, fuzzy
@@ -927,7 +927,7 @@ msgstr[1] "Il y a plus de {years} ans"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
+msgstr "{day} {month} {year}, {hour:02} h {min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
@@ -2034,8 +2034,8 @@ msgid ""
 "When you are done, click the \"Save order\" -button."
 msgstr ""
 "Vous pouvez trier les resources par glisser-déposer en utilisant l'icône en "
-"forme de flèche. Quand vous avez terminé, cliquez sur le bouton "
-"\"Enregistrer l'ordre\"."
+"forme de flèches. Quand vous avez terminé, cliquez sur le bouton « "
+"Enregistrer l'ordre »."
 
 #: ckan/public-bs2/base/javascript/modules/resource-reorder.js:56
 #: ckan/public-bs2/base/javascript/modules/resource-view-reorder.js:50
@@ -2044,7 +2044,7 @@ msgstr ""
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:55
 #: ckan/public/base/javascript/modules/resource-view-reorder.min.js:1
 msgid "Save order"
-msgstr "Sauvegarder la commande"
+msgstr "Enregistrer l'ordre"
 
 #: ckan/public-bs2/base/javascript/modules/resource-reorder.js:69
 #: ckan/public-bs2/base/javascript/modules/resource-view-reorder.js:59
@@ -2704,7 +2704,7 @@ msgstr "Modifier le membre"
 #: ckan/templates/organization/member_new.html:72
 #: ckan/templates/organization/members.html:8
 msgid "Add Member"
-msgstr "Ajouter le membre"
+msgstr "Ajouter un membre"
 
 #: ckan/templates/group/member_new.html:19
 #: ckan/templates/organization/member_new.html:21
@@ -2782,7 +2782,7 @@ msgid ""
 msgstr ""
 "<p><strong>Administrateur:</strong> Peut éditer les informations de groupe, "
 "ainsi que gérer les membres d'organisations.</p> <p><strong>Membre:</strong>"
-" Peut ajouter/supprimer des jeux de données dans les groupes</p>"
+" Peut ajouter/retirer des jeux de données de groupes</p>"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2791,7 +2791,7 @@ msgstr "Créer un Groupe"
 
 #: ckan/templates/group/new_group_form.html:17
 msgid "Update Group"
-msgstr "Mise à jour du Groupe"
+msgstr "Modifier le groupe"
 
 #: ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
@@ -4048,7 +4048,7 @@ msgstr "Il n'y a pas de description pour ce jeu de données "
 #: ckan/templates/snippets/simple_search.html:8
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr "Par Ordre"
+msgstr "Trier par"
 
 #: ckan/templates/snippets/search_form.html:74
 msgid "Filter Results"

@@ -1,21 +1,25 @@
 {#
-Displays a sidebard module with information for given resource
+Displays a sidebar module with information for given resource
 
-res    - The respource dict
+res    - The resource dict
 
 Example:
 
-  {% snippet "package/snippets/resrouce_info.html", res=res %}
+  {% snippet "package/snippets/resource_info.html", res=res %}
 
 #}
 <div class="module context-info">
   <div class="module-content">
-    <h1 class="heading">{{ h.resource_display_name(res) or res.id }}</h1>
-    <div class="nums">
-      <dl>
-        <dt>{{ _('Format') }}</dt>
-        <dd>{{ h.get_translated(res, 'format') }}</dd>
-      </dl>
-    </div>
+    {% block page_title %}
+      <h1 class="heading">{{ h.resource_display_name(res) or res.id }}</h1>
+    {% endblock %}
+    {% block resource_info %}
+      <div class="nums">
+        <dl>
+          <dt>{{ _('Format') }}</dt>
+          <dd>{{ h.get_translated(res, 'format') }}</dd>
+        </dl>
+      </div>
+    {% endblock %}
   </div>
 </div>

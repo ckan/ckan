@@ -596,6 +596,88 @@ class TestUserList(helpers.FunctionalTestBase):
         got_user = got_users[0]
         assert got_user == user_a['name']
 
+    def test_user_list_order_by_default(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        expected_names = [
+            u['name'] for u in [
+                users[3],  # Kathy Tillman
+                users[1],  # Max Hankins
+                users[2],  # morgan_w
+                users[0],  # Xander Bird
+            ]
+        ]
+
+        got_users = helpers.call_action('user_list')
+        got_names = [
+            u['name'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_names == expected_names
+
+    def test_user_list_order_by_fullname_only(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        expected_fullnames = sorted([u['fullname'] for u in users])
+
+        got_users = helpers.call_action('user_list', order_by='fullname')
+        got_fullnames = [
+            u['fullname'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_fullnames == expected_fullnames
+
+    def test_user_list_order_by_created_datasets(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        datasets = [
+            factories.Dataset(user=users[1]),
+            factories.Dataset(user=users[1])
+        ]
+        for dataset in datasets:
+            dataset["title"] = "Edited title"
+            helpers.call_action(
+                'package_update', context={'user': users[1]['name']}, **dataset
+            )
+        expected_names = [
+            u['name'] for u in [
+                users[0],  # 0 packages created
+                users[2],  # 0 packages created
+                users[1],  # 2 packages created
+            ]
+        ]
+
+        got_users = helpers.call_action(
+            'user_list', order_by='number_created_packages'
+        )
+        got_names = [
+            u['name'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_names == expected_names
+
+    def test_user_list_order_by_edits(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action, 'user_list', order_by='edits')
+
 
 class TestUserShow(helpers.FunctionalTestBase):
 
