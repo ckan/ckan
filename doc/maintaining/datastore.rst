@@ -44,13 +44,6 @@ queries over the spreadsheet contents.
 Setting up the DataStore
 ------------------------
 
-.. note::
-
-   The DataStore (like CKAN) requires |postgres| 9.2 or later. This was
-   released in 2012, is widely available. At the time of writing, the only version
-   that is not supported by CKAN that has not been made 'end-of-life' by the
-   |postgres| community is 9.1.
-
 .. versionchanged:: 2.6
 
    Previous CKAN (and DataStore) versions were compatible with earlier versions
