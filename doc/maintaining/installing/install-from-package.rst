@@ -169,7 +169,7 @@ Install |solr|, running this command in a terminal::
 
 Restart uWSGI and Nginx by running this command in a terminal::
 
-    sudo supervisorctl restart ckan-uwsgi:*
+    sudo supervisorctl restart all
     sudo service nginx restart
 
 ---------------
