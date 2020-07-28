@@ -124,10 +124,8 @@ Upgrading
     |activate|
     cd |virtualenv|/src/ckan
 
-#. Stop your server to prevent further writes to the database (because those
-   changes would be lost)::
-
-     sudo service apache2 stop
+#. Stop your web server to prevent further writes to the database (because those
+   changes would be lost).
 
 #. Create a back-up of the database roles::
 

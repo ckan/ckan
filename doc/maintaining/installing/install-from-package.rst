@@ -11,7 +11,7 @@ development, you should follow :doc:`install-from-source` instead.
 
 At the end of the installation process you will end up with two running web
 applications, CKAN itself and the DataPusher, a separate service for automatically
-importing data to CKAN's :doc:`/maintaining/datastore`.
+importing data to CKAN's :doc:`/maintaining/datastore`. Additionally, there will be a process running the worker for running :doc:`/maintaining/background-tasks`. All these processes will be managed by `Supervisor <https://supervisord.org/>`_.
 
 For Python 3 installations, the minimum Python version required is 3.6.
 
@@ -27,6 +27,8 @@ Host ports requirements:
     | NGINX      | 80         | Proxy     |
     +------------+------------+-----------+
     | uWSGI      | 8080       | Web Server|
+    +------------+------------+-----------+
+    | uWSGI      | 8800       | DataPusher|
     +------------+------------+-----------+
     | Solr/Jetty | 8983       | Search    |
     +------------+------------+-----------+
