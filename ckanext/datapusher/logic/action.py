@@ -151,9 +151,11 @@ def datapusher_submit(context, data_dict):
         raise p.toolkit.ValidationError(error)
 
     except requests.exceptions.HTTPError as e:
-        m = 'An Error occurred while sending the job: {0}'.format(e.message)
+        m = 'An Error occurred while sending the job: {0}'.format(str(e))
         try:
             body = e.response.json()
+            if body.get('error'):
+                m += ' ' + body['error']
         except ValueError:
             body = e.response.text
         error = {'message': m,
