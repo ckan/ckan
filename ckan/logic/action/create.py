@@ -1146,7 +1146,7 @@ def user_invite(context, data_dict):
         random.SystemRandom().shuffle(passwd_list)
         password = ''.join(passwd_list)
   
-        # Occasionally it won't meet the constraints, so check
+       # Occasionally it won't meet the constraints, so check
         errors = {}
         logic.validators.user_password_validator(
             'password', {'password': password}, errors, None)
