@@ -67,21 +67,12 @@ minor release they belong to, so for example CKAN ``2.0``, ``2.0.1``,
      which does not use this requirements file names or is located elsewhere,
      you will need to manually reenable it.
 
-   .. note::
 
-      When upgrading from 2.0 to 2.0.1 you may see some vdm related warnings
-      when installing the package::
-
-        dpkg: warning: unable to delete old directory '/usr/lib/ckan/default/src/vdm': Directory not empty
-
-      These are due to vdm not longer being installed from source. You can
-      ignore them and delete the folder manually if you want.
-
-#. Finally, restart Apache and Nginx:
+#. Finally, restart uWSGI and Nginx:
 
    .. parsed-literal::
 
-    |restart_apache|
+    |restart_uwsgi|
     sudo service nginx restart
 
 #. You're done!
