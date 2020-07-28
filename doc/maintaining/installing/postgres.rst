@@ -43,7 +43,7 @@ database user you just created:
     ``listen_addresses = 'localhost,192.168.1.21'``
 
     Add a line similar to the line below to the bottom of `pg_hba.conf` to
-    allow the machine running Apache to connect to PostgreSQL. Please change
+    allow the machine running the web server to connect to PostgreSQL. Please change
     the IP address as desired according to your network settings.
 
     ``host    all             all             192.168.1.22/32                 md5``

@@ -45,7 +45,7 @@ To setup CKAN's FileStore with local file storage:
       ckan.storage_path = |storage_path|
 
 3. Set the permissions of your :ref:`ckan.storage_path` directory.
-   For example if you're running CKAN with Apache, then Apache's user
+   For example if you're running CKAN with Nginx, then the Nginx's user
    (``www-data`` on Ubuntu) must have read, write and execute permissions for
    the :ref:`ckan.storage_path`:
 
@@ -54,11 +54,11 @@ To setup CKAN's FileStore with local file storage:
      sudo chown www-data |storage_path|
      sudo chmod u+rwx |storage_path|
 
-4. Restart your web server, for example to restart Apache:
+4. Restart your web server, for example to restart uWSGI on a package install:
 
    .. parsed-literal::
 
-      |reload_apache|
+    sudo supervisorctl restart ckan-uwsgi:*
 
 
 -------------

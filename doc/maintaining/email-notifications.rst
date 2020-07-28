@@ -86,9 +86,9 @@ notifications for a CKAN site, a sysadmin must:
 
 
 6. You need to restart the web server for the new configuration to take effect.
-   For example, if you are using Apache on Ubuntu, run this command in a
+   For example, if you are using a CKAN package install, run this command in a
    shell:
 
    .. parsed-literal::
 
-      |reload_apache|
+      |restart_uwsgi|
