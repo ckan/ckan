@@ -3,7 +3,6 @@
 """Common middleware used by both Flask and Pylons app stacks."""
 import hashlib
 import cgi
-from urlparse import urlparse
 
 import six
 from six.moves.urllib.parse import unquote, urlparse
