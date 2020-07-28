@@ -1136,9 +1136,15 @@ def user_invite(context, data_dict):
     # Choose a password. However it will not be used - the invitee will not be
     # told it - they will need to reset it
     while True:
-        password = ''.join(random.SystemRandom().choice(
-            string.ascii_lowercase + string.ascii_uppercase + string.digits)
-            for _ in range(12))
+        passwd=[]
+        source_string = string.ascii_letters + string.digits + string.punctuation
+        passwd += random.choice(string.digits)
+
+        for _ in range(11):
+            passwd += random.choice(source_string)
+        passwd_list = list(passwd)
+        random.SystemRandom().shuffle(passwd_list)
+        password = ''.join(passwd_list)
         # Occasionally it won't meet the constraints, so check
         errors = {}
         logic.validators.user_password_validator(
