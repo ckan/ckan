@@ -609,6 +609,22 @@ def user_password_validator(key, data, errors, context):
     elif len(value) < 8:
         errors[('password',)].append(_('Your password must be 8 characters or '
                                        'longer'))
+    elif not any(char in SpecialChar for char in value):
+        raise ValueError(
+                   _(u'Your password must include'
+                     u'a special character.'))
+    elif not any(char.isdigit() for char in value):
+        raise ValueError(
+                   _(u'Your password must include'
+                     u' a number. '))
+    elif not any(char.isupper() for char in value):
+        raise ValueError(
+                   _(u'Your password must include'
+                     u' a letter in uppercase. '))
+    elif not any(char.islower() for char in value):
+        raise ValueError(
+                   _(u'Your password must include'
+                     u' a letter in lowercase. '))
 
 def user_passwords_match(key, data, errors, context):
 
