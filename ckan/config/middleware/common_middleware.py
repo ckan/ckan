@@ -6,8 +6,11 @@ import urllib2
 import hashlib
 import urllib
 import json
+from urlparse import urlparse
 
 import sqlalchemy as sa
+
+from ckan.common import config
 
 from ckan.lib.i18n import get_locales_from_config
 
@@ -229,5 +232,7 @@ class HostHeaderMiddleware(object):
         if path_info in ['/login_generic', '/user/login',
                          '/user/logout', '/user/logged_in',
                          '/user/logged_out']:
-            environ.pop('HTTP_HOST', None)
+            site_url = config.get('ckan.site_url')
+            parts = urlparse(site_url)
+            environ['HTTP_HOST'] = parts.netloc
         return self.app(environ, start_response)
