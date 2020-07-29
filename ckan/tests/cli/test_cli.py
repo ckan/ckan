@@ -19,7 +19,7 @@ def test_incorrect_config(cli):
     """Config file must exist.
     """
     result = cli.invoke(ckan, [u'-c', u'/a/b/c/d/e/f/g/h.ini'])
-    assert result.output.startswith(u'Aborted')
+    assert result.output.startswith(u'Config file not found')
 
 
 def test_correct_config(cli, ckan_config):
