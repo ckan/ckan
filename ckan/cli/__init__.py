@@ -89,8 +89,8 @@ def load_config(ini_path=None):
 ERROR: You need to specify the CKAN config (.ini) file path.
 
 Use the --config parameter or set environment variable CKAN_INI
-or have one of {} in the current directory.'''.format(
-        ', '.join(default_filenames))
+or have one of {} in the current directory.'''
+            msg = msg.format(u', '.join(default_filenames))
             raise CkanConfigurationException(msg)
 
     if not os.path.exists(filename):
