@@ -54,7 +54,7 @@ CKAN:
 
 #. Install the Ubuntu packages that CKAN requires (and 'git', to enable you to install CKAN extensions)::
 
-    sudo apt install -y libpq5 redis-server git nginx supervisor
+    sudo apt install -y libpq5 redis-server nginx supervisor
 
 #. Download the CKAN package:
 
@@ -163,13 +163,28 @@ Install |solr|, running this command in a terminal::
 #. Also optionally, you can enable file uploads by following the
    instructions in :doc:`/maintaining/filestore`.
 
----------------------------
-5. Restart uWSGI and Nginx
----------------------------
+-----------------------------------------
+5. Start the Web Server and restart Nginx
+-----------------------------------------
 
-Restart uWSGI and Nginx by running this command in a terminal::
+Reload the Supervisor daemon so the new processes are picked up::
 
-    sudo supervisorctl restart all
+    sudo supervisorctl reload
+
+After a few seconds run the following command to check the status of the processes::
+
+    sudo supervisorctl status
+
+You should see three processes running without errors::
+
+    ckan-datapusher:ckan-datapusher-00   RUNNING   pid 1963, uptime 0:00:12
+    ckan-uwsgi:ckan-uwsgi-00             RUNNING   pid 1964, uptime 0:00:12
+    ckan-worker:ckan-worker-00           RUNNING   pid 1965, uptime 0:00:12
+
+If some of the processes reports an error, make sure you've run all the previous steps and check the logs located in ``/var/log/ckan`` for more details.
+
+Restart Nginx by running this command::
+
     sudo service nginx restart
 
 ---------------
