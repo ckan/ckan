@@ -91,14 +91,12 @@ ERROR: You need to specify the CKAN config (.ini) file path.
 Use the --config parameter or set environment variable CKAN_INI
 or have one of {} in the current directory.'''.format(
         ', '.join(default_filenames))
-            error_shout(msg)
-            sys.exit(1)
+            raise CkanConfigurationException(msg)
 
     if not os.path.exists(filename):
         msg = u'Config file not found: %s' % filename
         msg += u'\n(Given by: %s)' % config_source
-        error_shout(msg)
-        sys.exit(1)
+        raise CkanConfigurationException(msg)
 
     config_loader = CKANConfigLoader(filename)
     loggingFileConfig(filename)
