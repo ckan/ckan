@@ -60,7 +60,7 @@ CKAN:
 
     .. parsed-literal::
 
-       sudo apt install python2
+       sudo apt install python2 libpython2.7
 
 
 #. Download the CKAN package:
