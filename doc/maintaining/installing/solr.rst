@@ -12,7 +12,7 @@ installed, we need to install and configure Solr.
    server, but CKAN doesn't require Tomcat - you can deploy Solr to another web
    server, such as Jetty, if that's convenient on your operating system.
 
-#. Change the default port Tomcat runs on (8080) to the one expected by CKAN. To do so change the following line in the ``/etc/tomcat9/server.xml`` file (``tomcat8`` in Ubuntu 18.04)::
+#. Change the default port Tomcat runs on (8080) to the one expected by CKAN. To do so change the following line in the ``/etc/tomcat9/server.xml`` file (``tomcat8`` in older Ubuntu versions)::
 
         From:
 
@@ -34,7 +34,7 @@ installed, we need to install and configure Solr.
       sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
       sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
 
-#. Now restart Solr (use ``tomcat8`` on Ubuntu 18.04)::
+#. Now restart Solr (use ``tomcat8`` on older Ubuntu versions)::
 
     sudo service tomcat9 restart
 

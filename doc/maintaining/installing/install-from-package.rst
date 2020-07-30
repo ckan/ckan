@@ -56,12 +56,15 @@ CKAN:
 
     sudo apt install -y libpq5 redis-server nginx supervisor
 
-   .. note:: If you want to install CKAN on Ubuntu 20.04 running on Python 2 for backwards compatibility, you need to also install the Python 2 libraries:
+   .. note:: If you want to install CKAN 2.9 running on Python 2 for backwards compatibility, you need to also install the Python 2 libraries:
 
     .. parsed-literal::
 
+       # On Ubuntu 18.04
        sudo apt install python2 libpython2.7
 
+       # On Ubuntu 20.04
+       sudo apt install libpython2.7
 
 #. Download the CKAN package:
 
