@@ -20,8 +20,7 @@
     <div class="popover-header">
       <div class="input-group">
         <span class="input-group-addon"><i class="fa fa-search"></i></span>
-        <label for="field-followee-search" style="display: none;">Search Followees</label>
-        <input id="field-followee-search" type="text" class="form-control" name="q" placeholder="{{ _('Search list...') }}" value="{{context.q}}" autocomplete="off">
+        <input type="text" class="form-control" name="q" placeholder="{{ _('Search list...') }}" value="{{context.q}}" autocomplete="off" aria-label="Search followee">
       </div>
     </div>
     {% if followees %}
