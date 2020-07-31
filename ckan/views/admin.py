@@ -60,8 +60,12 @@ def before_request():
 
 
 def index():
-    data = dict(sysadmins=[a.name for a in _get_sysadmins()])
-    return base.render(u'admin/index.html', extra_vars=data)
+    context = {u'user': g.user}
+    users = logic.get_action(u'user_list')(context, {})
+    return base.render(u'admin/index.html', {
+        u'sysadmins': [u for u in users if u[u'sysadmin']],
+        u'all_users': [u for u in users if not u[u'sysadmin']],
+    })
 
 
 class ResetConfigView(MethodView):
@@ -200,7 +204,9 @@ class TrashView(MethodView):
         return h.redirect_to(u'admin.trash')
 
 
-admin.add_url_rule(u'/', view_func=index, strict_slashes=False)
+admin.add_url_rule(
+    u'/', view_func=index, methods=['GET'], strict_slashes=False
+)
 admin.add_url_rule(u'/reset_config',
                    view_func=ResetConfigView.as_view(str(u'reset_config')))
 admin.add_url_rule(u'/config', view_func=ConfigView.as_view(str(u'config')))
