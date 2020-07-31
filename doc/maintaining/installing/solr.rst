@@ -38,7 +38,22 @@ installed, we need to install and configure Solr.
 
     sudo service tomcat9 restart
 
-   Check that Solr is running by opening http://localhost:8983/solr/.
+   Check that Solr is running by opening http://localhost:8983/solr/
+
+   .. note:: On Ubuntu 18.04 and older, instead of the Solr UI you may see an Internal Server Error page with a message containing:
+
+   .. parsed-literal::
+
+    java.io.IOException: Cannot create directory: /var/lib/solr/data/index
+
+   This is caused by a `bug <https://bugs.launchpad.net/ubuntu/+source/lucene-solr/+bug/1829611>`_ and you need to run some extra commands to fix it:
+
+
+   .. parsed-literal::
+
+        sudo mv /etc/systemd/system/tomcat9.d /etc/systemd/system/tomcat9.service.d
+        sudo systemctl daemon-reload
+        sudo service tomcat9 restart
 
 
 #. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to point to your Solr server, for example::
