@@ -829,18 +829,23 @@ def sysadmin():
         data_dict = {u'id': id_, u'sysadmin': status}
         user = logic.get_action(u'user_patch')(context, data_dict)
     except logic.NotAuthorized:
-        return base.abort(403, u'Not authorized to promote user to sysadmin')
+        return base.abort(
+            403,
+            _(u'Not authorized to promote user to sysadmin')
+        )
     except logic.NotFound:
-        return base.abort(404, u'User not found')
+        return base.abort(404, _(u'User not found'))
 
     if status:
         h.flash_success(
-            u'Promoted {} to sysadmin'.format(user[u'display_name'])
+            _(u'Promoted {} to sysadmin'.format(user[u'display_name']))
         )
     else:
         h.flash_success(
-            u'Revoked sysadmin permission from {}'.format(
-                user[u'display_name']
+            _(
+                u'Revoked sysadmin permission from {}'.format(
+                    user[u'display_name']
+                )
             )
         )
     return h.redirect_to(u'admin.index')
