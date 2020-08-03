@@ -42,14 +42,14 @@ installed, we need to install and configure Solr.
 
    .. note:: On Ubuntu 18.04 and older, instead of the Solr UI you may see an Internal Server Error page with a message containing:
 
-   .. parsed-literal::
+     .. parsed-literal::
 
-    java.io.IOException: Cannot create directory: /var/lib/solr/data/index
+      java.io.IOException: Cannot create directory: /var/lib/solr/data/index
 
-   This is caused by a `bug <https://bugs.launchpad.net/ubuntu/+source/lucene-solr/+bug/1829611>`_ and you need to run some extra commands to fix it:
+     This is caused by a `bug <https://bugs.launchpad.net/ubuntu/+source/lucene-solr/+bug/1829611>`_ and you need to run some extra commands to fix it:
 
 
-   .. parsed-literal::
+     .. parsed-literal::
 
         sudo mv /etc/systemd/system/tomcat9.d /etc/systemd/system/tomcat9.service.d
         sudo systemctl daemon-reload
