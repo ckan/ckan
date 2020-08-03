@@ -9,8 +9,8 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.9.0 TBD
-===========
+v.2.9.0 2020-08-05
+==================
 
 .. TODO click CLI, extension db migrations
 
@@ -20,7 +20,7 @@ Migration notes
 ---------------
 - This version does require a requirements upgrade on source installations
 - This version does require a database upgrade
-- This version does not require a Solr schema upgrade if you are already using the 2.8 schema, 
+- This version does not require a Solr schema upgrade if you are already using the 2.8 schema,
   but it is recommended to upgrade to the 2.9 Solr schema.
 - This version requires changes to the ``who.ini`` configuration file. If your
   setup doesn't use the one bundled with this repo, you will have to manually
@@ -77,6 +77,10 @@ Migration notes
   Full info about this migration is found here:
   https://github.com/ckan/ckan/wiki/Migrate-package-activity (`#4784
   <https://github.com/ckan/ckan/pull/4784>`_)
+- The :ref:`config_file` default name has been changed to ``ckan.ini`` across the documentation regardless of the environment. You can use any name including the legacy ``development.ini`` and ``production.ini`` but to keep in sync with the documentation is recommended to update the name.
+- The old `paster` CLI has been removed in favour of the new `ckan` command. In most cases the commands and subcommands syntax is the same, but the ``-c`` or ``--config`` parameter to point to the ini file needs to provided immediately after the `ckan` command, eg::
+
+        ckan -c /etc/ckan/default/ckan.ini sysadmin
 - The minimum PostgreSQL version required starting from this version is 9.5
   (`#5458 <https://github.com/ckan/ckan/pull/5458>`_)
 
@@ -111,6 +115,9 @@ Major features
   uploads in a single call.
   See the documentation at :py:func:`~ckan.logic.action.update.package_revise`
   (`#4618 <https://github.com/ckan/ckan/pull/4618>`_)
+- Refactor frontend assets management to use `webassets
+  <https://webassets.readthedocs.io/en/latest/>`_ (`#4614
+  <https://github.com/ckan/ckan/pull/4614>`_)
 - Users can now upload or link to custom profile pictures. By default, if a
   user picture is not provided it will fall back to gravatar. Alternatively,
   gravatar can be completely disabled by setting ``ckan.gravatar_default =
@@ -120,6 +127,68 @@ Major features
 - Add `plugin_extras` field allowing extending User object for internal use
   (`#5382 <https://github.com/ckan/ckan/pull/5382>`_)
 
+
+Minor changes
+-------------
+- New command for running database migrations from extensions. See :ref:`extensions db migrations` for details,
+  (`#5150 <https://github.com/ckan/ckan/pull/5150>`_)
+- For navl schemas, the 'default' validator no longer applies the default when
+  the value is False, 0, [] or {} (`#4448
+  <https://github.com/ckan/ckan/pull/4448>`_)
+- Use alembic instead of sqlalchemy-migrate for managing database migrations
+  (`#4450 <https://github.com/ckan/ckan/pull/4450>`_)
+- If you've customized the schema for package_search, you'll need to add to it
+  the limiting of ``row``, as per default_package_search_schema now does.
+  (`#4484 <https://github.com/ckan/ckan/pull/4484>`_)
+- Several logic functions now have new upper limits to how many items can be
+  returned, notably ``group_list``, ``organization_list`` when
+  ``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
+  These are all configurable. (`#4562
+  <https://github.com/ckan/ckan/pull/4562>`_)
+- Give users the option to define which page they want to be redirected
+  to after logging in via `ckan.route_after_login` config variable. (`#4770
+  <https://github.com/ckan/ckan/pull/4770>`_)
+- Add cache control headers to flask (`#4781
+  <https://github.com/ckan/ckan/pull/4781>`_)
+- Create recline_view on ods files by default (`#4936
+  <https://github.com/ckan/ckan/pull/4936>`_)
+- Replase nosetests with pytest (`#4996
+  <https://github.com/ckan/ckan/pull/4996>`_)
+- Make creating new tags in autocomplete module optional (`#5012
+  <https://github.com/ckan/ckan/pull/5012>`_)
+- Allow reply to emails (`#5024 <https://github.com/ckan/ckan/pull/5024>`_)
+- Improve and reorder resource_formats.json (`#5034
+  <https://github.com/ckan/ckan/pull/5034>`_)
+- Email unique validator (`#5100 <https://github.com/ckan/ckan/pull/5100>`_)
+- Preview for multimedia files (`#5103
+  <https://github.com/ckan/ckan/pull/5103>`_)
+- Allow extensions to define Click commands (`#5112
+  <https://github.com/ckan/ckan/pull/5112>`_)
+- Add organization and group purge (`#5127
+  <https://github.com/ckan/ckan/pull/5127>`_)
+- HTML emails (`#5132 <https://github.com/ckan/ckan/pull/5132>`_)
+- Unified workflow for creating/applying DB migrations from extensions (`#5150
+  <https://github.com/ckan/ckan/pull/5150>`_)
+- Use current package_type for urls (`#5189
+  <https://github.com/ckan/ckan/pull/5189>`_)
+- Werkzeug dev server improvements (`#5195
+  <https://github.com/ckan/ckan/pull/5195>`_)
+- Allow passing arguments to the RQ enqueue_call function (`#5208
+  <https://github.com/ckan/ckan/pull/5208>`_)
+- Add option to configure labels of next/prev page button and pager format.
+  (`#5223 <https://github.com/ckan/ckan/pull/5223>`_)
+- DevServer: threaded mode and extra files (`#5303
+  <https://github.com/ckan/ckan/pull/5303>`_)
+- Make default sorting configurable (`#5314
+  <https://github.com/ckan/ckan/pull/5314>`_)
+- Allow initial values in group form (`#5345
+  <https://github.com/ckan/ckan/pull/5345>`_)
+- Make ckan more accessible (`#5360 <https://github.com/ckan/ckan/pull/5360>`_)
+- Update date formatters (`#5376 <https://github.com/ckan/ckan/pull/5376>`_)
+- Allow multiple `ext_*` params in search views (`#5398
+  <https://github.com/ckan/ckan/pull/5398>`_)
+- Always 404 on non-existing user lookup (`#5464
+  <https://github.com/ckan/ckan/pull/5464>`_)
 
 Bugfixes
 --------
@@ -187,7 +256,7 @@ Removals and deprecations
   dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
   Pylons package controller in CKAN<2.9 (`#4319
   <https://github.com/ckan/ckan/pull/4319>`_)
-- The following logic functions have been removed (`#4627 <https://github.com/ckan/ckan/pull/4627>`_): 
+- The following logic functions have been removed (`#4627 <https://github.com/ckan/ckan/pull/4627>`_):
   * ``dashboard_activity_list_html``
   * ``organization_activity_list_html``
   * ``user_activity_list_html``
@@ -196,7 +265,7 @@ Removals and deprecations
   * ``organization_activity_list_html``
   * ``recently_changed_packages_activity_list_html``
   * ``dashboard_activity_list_html``
-  * ``activity_detail_list`` 
+  * ``activity_detail_list``
 - Remove Bootstrap 2 templates (`#4779
   <https://github.com/ckan/ckan/pull/4779>`_)
 - Extensions that add CLI commands should note the deprecation of
@@ -205,70 +274,6 @@ Removals and deprecations
   (`#5112 <https://github.com/ckan/ckan/pull/5112>`_)
 - Remove paster CLI (`#5264 <https://github.com/ckan/ckan/pull/5264>`_)
 
-
-Minor changes
--------------
-
-- For navl schemas, the 'default' validator no longer applies the default when
-  the value is False, 0, [] or {} (`#4448
-  <https://github.com/ckan/ckan/pull/4448>`_)
-- Use alembic instead of sqlalchemy-migrate for managing database migrations
-  (`#4450 <https://github.com/ckan/ckan/pull/4450>`_)
-- If you've customized the schema for package_search, you'll need to add to it
-  the limiting of ``row``, as per default_package_search_schema now does.
-  (`#4484 <https://github.com/ckan/ckan/pull/4484>`_)
-- Several logic functions now have new upper limits to how many items can be
-  returned, notably ``group_list``, ``organization_list`` when
-  ``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
-  These are all configurable. (`#4562
-  <https://github.com/ckan/ckan/pull/4562>`_)
-- Replace `fanstatic <http://www.fanstatic.org/en/latest/>`_ with `webassets
-  <https://webassets.readthedocs.io/en/latest/>`_ (`#4614
-  <https://github.com/ckan/ckan/pull/4614>`_)
-- Give users the option to define which page they want to be redirected
-  to after logging in via `ckan.route_after_login` config variable. (`#4770
-  <https://github.com/ckan/ckan/pull/4770>`_)
-- Add cache control headers to flask (`#4781
-  <https://github.com/ckan/ckan/pull/4781>`_)
-- Create recline_view on ods files by default (`#4936
-  <https://github.com/ckan/ckan/pull/4936>`_)
-- Replase nosetests with pytest (`#4996
-  <https://github.com/ckan/ckan/pull/4996>`_)
-- Make creating new tags in autocomplete module optional (`#5012
-  <https://github.com/ckan/ckan/pull/5012>`_)
-- Allow reply to emails (`#5024 <https://github.com/ckan/ckan/pull/5024>`_)
-- Improve and reorder resource_formats.json (`#5034
-  <https://github.com/ckan/ckan/pull/5034>`_)
-- Email unique validator (`#5100 <https://github.com/ckan/ckan/pull/5100>`_)
-- Preview for multimedia files (`#5103
-  <https://github.com/ckan/ckan/pull/5103>`_)
-- Allow extensions to define Click commands (`#5112
-  <https://github.com/ckan/ckan/pull/5112>`_)
-- Add organization and group purge (`#5127
-  <https://github.com/ckan/ckan/pull/5127>`_)
-- HTML emails (`#5132 <https://github.com/ckan/ckan/pull/5132>`_)
-- Unified workflow for creating/applying DB migrations from extensions (`#5150
-  <https://github.com/ckan/ckan/pull/5150>`_)
-- Use current package_type for urls (`#5189
-  <https://github.com/ckan/ckan/pull/5189>`_)
-- Werkzeug dev server improvements (`#5195
-  <https://github.com/ckan/ckan/pull/5195>`_)
-- Allow passing arguments to the RQ enqueue_call function (`#5208
-  <https://github.com/ckan/ckan/pull/5208>`_)
-- Add option to configure labels of next/prev page button and pager format.
-  (`#5223 <https://github.com/ckan/ckan/pull/5223>`_)
-- DevServer: threaded mode and extra files (`#5303
-  <https://github.com/ckan/ckan/pull/5303>`_)
-- Make default sorting configurable (`#5314
-  <https://github.com/ckan/ckan/pull/5314>`_)
-- Allow initial values in group form (`#5345
-  <https://github.com/ckan/ckan/pull/5345>`_)
-- Make ckan more accessible (`#5360 <https://github.com/ckan/ckan/pull/5360>`_)
-- Update date formatters (`#5376 <https://github.com/ckan/ckan/pull/5376>`_)
-- Allow multiple `ext_*` params in search views (`#5398
-  <https://github.com/ckan/ckan/pull/5398>`_)
-- Always 404 on non-existing user lookup (`#5464
-  <https://github.com/ckan/ckan/pull/5464>`_)
 
 
 v.2.8.4 2020-04-15

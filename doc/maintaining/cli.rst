@@ -64,9 +64,9 @@ to execute. Most commands have their own subcommands and options.
 
 .. note::
 
-  Deprecated usage: You can run the ckan command in the same directory as the
-  CKAN config file when the config file is named 'development.ini'. You will
-  not be required to use --config or -c in this case. This usage is deprecated
+  You can run the ckan command in the same directory as the
+  CKAN config file when the config file is named 'ckan.ini'. You will
+  not be required to use --config or -c in this case. For backwards compatibility, the config file can be also named 'development.ini', but this usage is deprecated
   and will be phased out in a future CKAN release.
 
 .. parsed-literal::
@@ -133,19 +133,7 @@ Running ckan commands provided by extensions
 
 **If you're trying to run a CKAN command provided by an extension** that you've
 installed and you're getting an error like **Command 'foo' not known** even
-though you've activated your virtualenv and changed to the ckan directory, this
-is because you need to run the extension's ckan commands from the extension's
-source directory not CKAN's source directory. For example:
-
-.. parsed-literal::
-
- |activate|
- cd |virtualenv|/src/ckanext-spatial
- ckan -c |ckan.ini| foo
-
-This should not be necessary when using the pre-installed extensions that come
-with CKAN.
-
+though you've activated your virtualenv, make sure that you have added the relevant plugin to the :ref:`ckan.plugins` setting in the ini file.
 
 Wrong config file path
 ======================
