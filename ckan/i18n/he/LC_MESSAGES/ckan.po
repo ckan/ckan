@@ -2,26 +2,26 @@
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
-#
+# 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
 # Yaron Shahrabani <sh.yaron@gmail.com>, 2020
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.9.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-09 16:12+0200\n"
+"POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2020\n"
 "Language-Team: Hebrew (https://www.transifex.com/okfn/teams/11162/he/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
 "Language: he\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
-"Generated-By: Babel 2.7.0\n"
 
 #: ckanext/audioview/plugin.py:25 ckanext/audioview/plugin.py:30
 msgid "Audio"
@@ -541,6 +541,7 @@ msgstr "כתובת תמונה"
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
 msgstr ""
+"למשל http://example.com/image.jpg (אם נשאר ריק כתובת המשאב תחליף אותה)"
 
 #: ckanext/reclineview/plugin.py:113
 msgid "Data Explorer"
@@ -571,12 +572,12 @@ msgstr "לא ניתן לטעון את התצוגה"
 #: ckanext/reclineview/theme/public/recline_view.js:81
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "DataStore returned an error"
-msgstr ""
+msgstr "חנות הנתונים (DataStore) החזירה שגיאה"
 
 #: ckanext/reclineview/theme/public/recline_view.js:83
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "DataProxy returned an error"
-msgstr ""
+msgstr "מתווך הנתונים (DataProxy) החזיר שגיאה"
 
 #: ckanext/reclineview/theme/public/recline_view.js:197
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
@@ -768,7 +769,7 @@ msgstr "כתובת אתר"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com  (if blank uses resource url)"
-msgstr ""
+msgstr "למשל http://example.com  (אם נשאר ריק כתובת המשאב תחליף אותה)"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 #: ckan/templates/package/snippets/resource_view.html:62
@@ -1147,7 +1148,7 @@ msgstr "פורמט שינוי לא תקין: %r"
 
 #: ckan/controllers/package.py:414 ckan/views/dataset.py:512
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
-msgstr ""
+msgstr "אין תמיכה בהצגת ערכות נתונים מסוג „{package_type}” ({file_!r})."
 
 #: ckan/controllers/package.py:453 ckan/controllers/package.py:842
 #: ckan/controllers/package.py:943 ckan/controllers/package.py:991
@@ -1361,12 +1362,14 @@ msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
 msgstr ""
+"שליחת ההודעה בדוא״ל נכשלה. נא לנסות שוב מאוחר יותר או ליצור קשר עם הנהלת "
+"המערכת לקבלת עזרה."
 
 #: ckan/controllers/user.py:500 ckan/views/user.py:664
 msgid ""
 "A reset link has been emailed to you (unless the account specified does not "
 "exist)"
-msgstr ""
+msgstr "נשלח אליך קישור לאיפוס (אלא אם כן החשבון שצוין אינו קיים)"
 
 #: ckan/controllers/user.py:514 ckan/views/user.py:686
 msgid "Unauthorized to reset password."
@@ -1414,10 +1417,10 @@ msgstr "תצוגה"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "פעילות חדשה מהאתר {site_title}"
+msgstr[1] "{n} פעילויות חדשות מהאתר {site_title}"
+msgstr[2] "{n} פעילויות חדשות מהאתר {site_title}"
+msgstr[3] "{n} פעילויות חדשות מהאתר {site_title}"
 
 #: ckan/lib/formatters.py:49
 msgid "Just now"
@@ -1590,7 +1593,7 @@ msgstr "יש לציין ארגון"
 
 #: ckan/logic/validators.py:67
 msgid "You cannot move this dataset to another organization"
-msgstr ""
+msgstr "אי אפשר להעביר את סדרת הנתונים הזו לארגון אחר"
 
 #: ckan/logic/validators.py:71
 msgid "Organization does not exist"
@@ -1647,7 +1650,7 @@ msgstr "אין אפשרות להשתמש בשם זה"
 #: ckan/logic/validators.py:362
 #, python-format
 msgid "Must be at least %s characters long"
-msgstr ""
+msgstr "חייב להיות באורך %s תווים לפחות"
 
 #: ckan/logic/validators.py:364 ckan/logic/validators.py:651
 #, python-format
@@ -1658,7 +1661,7 @@ msgstr "אורך השם אינו יכול לעלות על %i תווים"
 msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
-msgstr ""
+msgstr "חובה להשתמש אך ורק באותיות קטנות (ascii) ובספרות עם הסמלים האלו: -_"
 
 #: ckan/logic/validators.py:385
 msgid "That URL is already in use."
@@ -1812,7 +1815,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:849
 msgid "There is a schema field with the same name"
-msgstr ""
+msgstr "יש שדה סכמה באותו השם"
 
 #: ckan/logic/validators.py:879
 msgid "Email {email} is not a valid format"
@@ -1824,23 +1827,23 @@ msgstr ""
 
 #: ckan/logic/validators.py:940
 msgid "The email address '{email}' belongs to a registered user."
-msgstr ""
+msgstr "כתובת הדוא״ל ‚{email}’ שייכת למשתמש רשום."
 
-#: ckan/logic/validators.py:948
+#: ckan/logic/validators.py:947
 msgid "Value must be one of {}"
 msgstr "הערך חייב להיות אחד מתוך {}"
 
-#: ckan/logic/validators.py:959
+#: ckan/logic/validators.py:958
 msgid "The value should be a valid JSON object"
 msgstr "הערך אמור להיות פריט JSON תקני"
 
-#: ckan/logic/validators.py:961
+#: ckan/logic/validators.py:960
 msgid "Could not parse the value as a valid JSON object"
 msgstr "לא ניתן לפענח את הערך כפריט JSON תקני"
 
-#: ckan/logic/validators.py:971
+#: ckan/logic/validators.py:970
 msgid "Could not parse extra '{name}' as valid JSON"
-msgstr ""
+msgstr "לא ניתן לפענח ‚{name}’ נוסף כ־JSON תקני"
 
 #: ckan/logic/action/__init__.py:64 ckan/views/util.py:21
 msgid "Missing Value"
@@ -1852,7 +1855,7 @@ msgstr "התפקיד חייב להיות אחד מתוך „{}”"
 
 #: ckan/logic/action/create.py:671
 msgid "Not allowed to add collaborators"
-msgstr ""
+msgstr "אין הרשאה להוסיף שותפים"
 
 #: ckan/logic/action/create.py:674 ckan/logic/action/delete.py:358
 #: ckan/logic/action/get.py:268 ckan/logic/action/get.py:311
@@ -1915,7 +1918,7 @@ msgstr "החבילה לא נמצאה"
 
 #: ckan/logic/action/delete.py:418
 msgid "Organization cannot be deleted while it still has datasets"
-msgstr ""
+msgstr "אי אפשר למחוק את הארגון, עוד יש בו סדרות נתונים"
 
 #: ckan/logic/action/delete.py:635 ckan/logic/action/delete.py:661
 #: ckan/logic/action/get.py:2455 ckan/logic/action/update.py:1084
@@ -1947,7 +1950,7 @@ msgstr "הקיבולת חייבת להיות אחת מתוך „{}”"
 
 #: ckan/logic/action/get.py:317
 msgid "Not allowed to retrieve collaborators"
-msgstr ""
+msgstr "אין הרשאה לקבל משתתפים"
 
 #: ckan/logic/action/get.py:1097 ckan/logic/action/update.py:76
 #: ckan/logic/action/update.py:90
@@ -2739,16 +2742,17 @@ msgstr ""
 
 #: ckan/templates/admin/trash.html:12
 msgid "Are you sure you want to purge everything?"
-msgstr ""
+msgstr "למחוק הכול לחלוטין?"
 
 #: ckan/templates/admin/trash.html:13
 msgid "Purge all"
-msgstr ""
+msgstr "למחוק הכול לחלוטין"
 
 #: ckan/templates/admin/trash.html:31
 msgid ""
 "Purge deleted datasets, organizations or groups forever and irreversibly."
 msgstr ""
+"מחיקה של סדרות הנתונים, הארגונים או הקבוצות לחלוטין היא פעולה בלתי הפיכה."
 
 #: ckan/templates/admin/snippets/confirm_delete.html:3
 #: ckan/templates/admin/snippets/confirm_delete.html:17
@@ -2769,7 +2773,7 @@ msgstr "אשרו מחיקה"
 
 #: ckan/templates/admin/snippets/data_type.html:7
 msgid "Deleted datasets"
-msgstr ""
+msgstr "סדרות הנתונים נמחקו"
 
 #: ckan/templates/admin/snippets/data_type.html:9
 msgid "Deleted organizations"
@@ -3492,7 +3496,7 @@ msgstr "ערוך פרטים נוספים"
 #: ckan/templates/package/collaborators/collaborators.html:3
 #: ckan/templates/package/edit_base.html:20
 msgid "Collaborators"
-msgstr ""
+msgstr "שותפים"
 
 #: ckan/templates/package/edit_view.html:3
 #: ckan/templates/package/edit_view.html:4
@@ -4394,19 +4398,19 @@ msgid "Removed author from {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/author.html:38
-#: ckan/templates/snippets/changes/author_email.html:46
-#: ckan/templates/snippets/changes/extra_fields.html:113
-#: ckan/templates/snippets/changes/maintainer.html:40
-#: ckan/templates/snippets/changes/maintainer_email.html:48
+#: ckan/templates/snippets/changes/author_email.html:45
+#: ckan/templates/snippets/changes/extra_fields.html:109
+#: ckan/templates/snippets/changes/maintainer.html:38
+#: ckan/templates/snippets/changes/maintainer_email.html:47
 #: ckan/templates/snippets/changes/no_change.html:3
-#: ckan/templates/snippets/changes/notes.html:43
-#: ckan/templates/snippets/changes/org.html:55
-#: ckan/templates/snippets/changes/resource_desc.html:62
-#: ckan/templates/snippets/changes/resource_extras.html:170
-#: ckan/templates/snippets/changes/resource_format.html:56
+#: ckan/templates/snippets/changes/notes.html:38
+#: ckan/templates/snippets/changes/org.html:54
+#: ckan/templates/snippets/changes/resource_desc.html:56
+#: ckan/templates/snippets/changes/resource_extras.html:164
+#: ckan/templates/snippets/changes/resource_format.html:54
 #: ckan/templates/snippets/changes/tags.html:83
 #: ckan/templates/snippets/changes/url.html:47
-#: ckan/templates/snippets/changes/version.html:40
+#: ckan/templates/snippets/changes/version.html:38
 msgid "No fields were updated. See the metadata diff for more details."
 msgstr ""
 
@@ -4416,11 +4420,11 @@ msgid ""
 "{old_author_email})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/author_email.html:24
+#: ckan/templates/snippets/changes/author_email.html:23
 msgid "Set author email of {pkg_link} to {new_author_email}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/author_email.html:37
+#: ckan/templates/snippets/changes/author_email.html:36
 msgid "Removed author email from {pkg_link}"
 msgstr ""
 
@@ -4440,26 +4444,26 @@ msgstr ""
 "השדה <q>{key}</q> נוסף עם הערך <q>{value}</q> אל\n"
 "        {pkg_link}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:18
+#: ckan/templates/snippets/changes/extra_fields.html:17
 msgid "Added field <q>{key}</q> to {pkg_link}"
 msgstr "השדה <q>{key}</q> נוסף אל {pkg_link}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:29
+#: ckan/templates/snippets/changes/extra_fields.html:28
 msgid "Added the following fields to {pkg_link}"
 msgstr "השדות הבאים נוספו אל {pkg_link}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:40
-#: ckan/templates/snippets/changes/resource_extras.html:57
+#: ckan/templates/snippets/changes/extra_fields.html:39
+#: ckan/templates/snippets/changes/resource_extras.html:56
 msgid "{key} with value {value}"
 msgstr "{key} עם הערך {value}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:45
-#: ckan/templates/snippets/changes/resource_extras.html:62
-#: ckan/templates/snippets/changes/resource_extras.html:105
+#: ckan/templates/snippets/changes/extra_fields.html:44
+#: ckan/templates/snippets/changes/resource_extras.html:61
+#: ckan/templates/snippets/changes/resource_extras.html:102
 msgid "{key}"
 msgstr "{key}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:55
+#: ckan/templates/snippets/changes/extra_fields.html:54
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> (previously "
 "<q>{old_val}</q>) in {pkg_link}"
@@ -4467,23 +4471,23 @@ msgstr ""
 "ערך השדה <q>{key}</q> השתנה לכדי <q>{new_val}</q>\n"
 "        (לשעבר <q>{old_val}</q>) תחת {pkg_link}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:69
+#: ckan/templates/snippets/changes/extra_fields.html:67
 msgid "Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}"
 msgstr ""
 "ערך השדה <q>{key}</q> השתנה לכדי <q>{new_val}</q>\n"
 "        תחת {pkg_link}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:82
+#: ckan/templates/snippets/changes/extra_fields.html:79
 msgid "Removed field <q>{key}</q> from {pkg_link}"
 msgstr ""
 "השדה <q>{key}</q> הוסר מתוך\n"
 "        {pkg_link}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:94
+#: ckan/templates/snippets/changes/extra_fields.html:90
 msgid "Removed the following fields from {pkg_link}"
 msgstr "השדות הבאות הוסרו מתוך {pkg_link}"
 
-#: ckan/templates/snippets/changes/extra_fields.html:104
+#: ckan/templates/snippets/changes/extra_fields.html:100
 msgid "<q>{key}</q>"
 msgstr "<q>{key}</q>"
 
@@ -4494,21 +4498,21 @@ msgstr ""
 "הרישיון של {pkg_link} הוחלף ברישיון\n"
 "          {new_link} (לשעבר {old_link})"
 
-#: ckan/templates/snippets/changes/license.html:26
+#: ckan/templates/snippets/changes/license.html:25
 msgid ""
 "Changed the license of {pkg_link} to {new_link} (previously {old_title})"
 msgstr ""
 "הרישיון של {pkg_link} הוחלף ברישיון\n"
 "          {new_link} (לשעבר {old_title})"
 
-#: ckan/templates/snippets/changes/license.html:43
+#: ckan/templates/snippets/changes/license.html:41
 msgid ""
 "Changed the license of {pkg_link} to {new_title} (previously {old_link})"
 msgstr ""
 "הרישיון של {pkg_link} הוחלף ברישיון\n"
 "          {new_title} (לשעבר {old_link})"
 
-#: ckan/templates/snippets/changes/license.html:61
+#: ckan/templates/snippets/changes/license.html:58
 msgid ""
 "Changed the license of {pkg_link} to {new_title} (previously {old_title})"
 msgstr ""
@@ -4521,11 +4525,11 @@ msgid ""
 "{old_maintainer})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer.html:18
+#: ckan/templates/snippets/changes/maintainer.html:17
 msgid "Set maintainer of {pkg_link} to {new_maintainer}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer.html:30
+#: ckan/templates/snippets/changes/maintainer.html:28
 msgid "Removed maintainer from {pkg_link}"
 msgstr ""
 
@@ -4534,11 +4538,11 @@ msgid ""
 "Set maintainer email of {pkg_link} to {new_email} (previously {old_email})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer_email.html:24
+#: ckan/templates/snippets/changes/maintainer_email.html:23
 msgid "Set maintainer email of {pkg_link} to {new_email}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer_email.html:38
+#: ckan/templates/snippets/changes/maintainer_email.html:37
 msgid "Removed maintainer email from {pkg_link}"
 msgstr ""
 
@@ -4556,20 +4560,18 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/notes.html:5
 msgid ""
-"Updated description of {pkg_link} from\n"
-"            <br class=\"line-height2\"><blockquote>{old_notes}</blockquote>\n"
-"            to <br class=\"line-height2\"><blockquote>{new_notes}\n"
-"            </blockquote>"
+"Updated description of {pkg_link} from <br class=\"line-"
+"height2\"><blockquote>{old_notes}</blockquote> to <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/notes.html:20
+#: ckan/templates/snippets/changes/notes.html:17
 msgid ""
-"Updated description of {pkg_link}\n"
-"            to <br class=\"line-height2\"><blockquote>{new_notes}\n"
-"            </blockquote>"
+"Updated description of {pkg_link} to <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/notes.html:33
+#: ckan/templates/snippets/changes/notes.html:28
 msgid "Removed description from {pkg_link}"
 msgstr ""
 
@@ -4579,11 +4581,11 @@ msgid ""
 "{new_org_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/org.html:26
+#: ckan/templates/snippets/changes/org.html:25
 msgid "Removed {pkg_link} from organization {old_org_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/org.html:41
+#: ckan/templates/snippets/changes/org.html:40
 msgid "Added {pkg_link} to organization {new_org_link}"
 msgstr ""
 
@@ -4597,11 +4599,11 @@ msgid ""
 "=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_desc.html:24
+#: ckan/templates/snippets/changes/resource_desc.html:22
 msgid "Removed description from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_desc.html:41
+#: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
 "Updated description of resource {resource_link} in {pkg_link} from <br class"
 "=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
@@ -4614,36 +4616,36 @@ msgid ""
 "{resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:24
+#: ckan/templates/snippets/changes/resource_extras.html:23
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:41
+#: ckan/templates/snippets/changes/resource_extras.html:40
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:71
+#: ckan/templates/snippets/changes/resource_extras.html:70
 msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:89
+#: ckan/templates/snippets/changes/resource_extras.html:87
 msgid ""
 "Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:113
+#: ckan/templates/snippets/changes/resource_extras.html:110
 msgid ""
 "Changed value of field <q>{key}</q> of resource {resource_link} to "
 "<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:133
+#: ckan/templates/snippets/changes/resource_extras.html:129
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
 "{resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:152
+#: ckan/templates/snippets/changes/resource_extras.html:147
 msgid ""
 "Removed the value of field <q>{key}</q> in resource {resource_link} in "
 "{pkg_link}"
@@ -4653,7 +4655,7 @@ msgstr ""
 msgid "Set format of resource {resource_link} to {format_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_format.html:31
+#: ckan/templates/snippets/changes/resource_format.html:30
 msgid ""
 "Set format of resource {resource_link} to {new_format_link} (previously "
 "{old_format_link}) in {pkg_link}"
@@ -4709,11 +4711,11 @@ msgid ""
 "{old_version})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/version.html:18
+#: ckan/templates/snippets/changes/version.html:17
 msgid "Removed the version from {pkg_link}"
 msgstr "הגרסה הוסרה מתוך {pkg_link}"
 
-#: ckan/templates/snippets/changes/version.html:28
+#: ckan/templates/snippets/changes/version.html:27
 msgid "Changed the version of {pkg_link} to {new_version}"
 msgstr ""
 

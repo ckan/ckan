@@ -2,37 +2,39 @@
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
-#
+# 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.9.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-07-09 16:12+0200\n"
+"POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2020\n"
 "Language-Team: Catalan (https://www.transifex.com/okfn/teams/11162/ca/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
 "Language: ca\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Generated-By: Babel 2.7.0\n"
 
 #: ckanext/audioview/plugin.py:25 ckanext/audioview/plugin.py:30
 msgid "Audio"
-msgstr ""
+msgstr "Audio"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "Audio url"
-msgstr ""
+msgstr "URL de l'arxiu audio"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "eg. http://example.com/audio.mp3  (if blank uses resource url)"
 msgstr ""
+"p.ex. http://example.com/audio.mp3 (si es deixa en blanc s'usa la URL del "
+"recurs)"
 
 #: ckanext/audioview/theme/templates/audio_view.html:5
 #, python-format
@@ -40,6 +42,9 @@ msgid ""
 "Your browser does not support the <code>audio</code> element. But don't "
 "worry, you can <a href=\"%(res_url)s\" alt=\"video url\">download it</a>."
 msgstr ""
+"El vostre navegador no suporta l'element <code>audio</code>. Però no us "
+"preocupeu, podeu <a href=\"%(res_url)s\" alt=\"video url\">descarregar-"
+"lo</a>."
 
 #: ckan/controllers/package.py:612 ckan/controllers/package.py:1079
 #: ckan/controllers/package.py:1099 ckan/controllers/package.py:1165
@@ -161,7 +166,7 @@ msgstr ""
 
 #: ckanext/datastore/backend/postgres.py:1067
 msgid "The data was invalid: {}"
-msgstr ""
+msgstr "Les dades són invalides: {}"
 
 #: ckanext/datastore/logic/action.py:277 ckanext/datastore/logic/action.py:309
 #: ckanext/datastore/logic/action.py:373 ckanext/datastore/logic/action.py:509
@@ -502,31 +507,31 @@ msgstr "Recursos"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:6
 msgid "Second"
-msgstr ""
+msgstr "Segon"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:7
 msgid "Minute"
-msgstr ""
+msgstr "Minut"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:8
 msgid "Hour"
-msgstr ""
+msgstr "Hora"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:9
 msgid "Day"
-msgstr ""
+msgstr "Dia"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:15
 msgid "Expires in"
-msgstr ""
+msgstr "Caduca en"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:16
 msgid "Units"
-msgstr ""
+msgstr "Unitats"
 
 #: ckanext/expire_api_token/templates/user/snippets/api_token_list.html:5
 msgid "Expires at"
-msgstr ""
+msgstr "Caduca a"
 
 #: ckan/public/base/javascript/modules/image-upload.js:87
 #: ckan/public/base/javascript/modules/image-upload.min.js:7
@@ -650,7 +655,7 @@ msgstr "Agregar marcadors"
 
 #: ckanext/resourceproxy/blueprint.py:42
 msgid "Invalid URL."
-msgstr ""
+msgstr "URL invàlida."
 
 #: ckanext/stats/templates/ckanext/stats/index.html:11
 #: ckanext/stats/templates/ckanext/stats/index.html:107
@@ -731,26 +736,30 @@ msgstr "Text"
 #: ckanext/textview/theme/public/text_view.min.js:3
 msgid "An error occured during AJAX request. Could not load view."
 msgstr ""
+"S'ha produit un error durant la sol·licitud AJAX. No s'ha pogut carregar la "
+"vista."
 
 #: ckanext/videoview/plugin.py:25 ckanext/videoview/plugin.py:31
 msgid "Video"
-msgstr ""
+msgstr "Vídeo"
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "Video url"
-msgstr ""
+msgstr "URL del fitxer de vídeo"
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "eg. http://example.com/video.mpeg  (if blank uses resource url)"
 msgstr ""
+"p.ex. http://example.com/video.mpeg (si es deixa en blanc s'usa la URL del "
+"recurs)"
 
 #: ckanext/videoview/theme/templates/video_form.html:4
 msgid "Poster url"
-msgstr ""
+msgstr "URL del poster"
 
 #: ckanext/videoview/theme/templates/video_form.html:4
 msgid "eg. http://example.com/poster.jpg"
-msgstr ""
+msgstr "p.ex. http://example.com/poster.jpg"
 
 #: ckanext/videoview/theme/templates/video_view.html:7
 #, python-format
@@ -759,6 +768,9 @@ msgid ""
 "can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch it "
 "with your favorite video player!"
 msgstr ""
+"Ho sentim, el vostre navegador no suporta videos incrustats, però no us "
+"preocupeu, podeu<a href=\"%(res_url)s\" alt=\"video url\">descarregar-vos el"
+" fitxer</a> i veure'l amb el vostre reproductor favorit."
 
 #: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
 msgid "Website"
@@ -1369,19 +1381,22 @@ msgstr "No autoritzat a actualitzar la contrasenya."
 
 #: ckan/controllers/user.py:454 ckan/views/user.py:604
 msgid "Email is required"
-msgstr ""
+msgstr "L'adreça de correu electrònic és obligatoria"
 
 #: ckan/controllers/user.py:492 ckan/views/user.py:656
 msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
 msgstr ""
+"Error enviant el correu. Proveu d'aquí una estona o contacteu amb un "
+"administrador per a més ajuda."
 
 #: ckan/controllers/user.py:500 ckan/views/user.py:664
 msgid ""
 "A reset link has been emailed to you (unless the account specified does not "
 "exist)"
 msgstr ""
+"Se us ha enviat un enllaç de reinici (si el compte especificat existeix)"
 
 #: ckan/controllers/user.py:514 ckan/views/user.py:686
 msgid "Unauthorized to reset password."
@@ -1599,7 +1614,7 @@ msgstr "Cal proporcionar una organització"
 
 #: ckan/logic/validators.py:67
 msgid "You cannot move this dataset to another organization"
-msgstr ""
+msgstr "No podeu moure aquest conjunt de dades a una altra organització"
 
 #: ckan/logic/validators.py:71
 msgid "Organization does not exist"
@@ -1835,27 +1850,27 @@ msgstr "El correu electrònic {email} no té un format vàlid"
 
 #: ckan/logic/validators.py:919
 msgid "Must be a dict"
-msgstr ""
+msgstr "Ha de ser un diccionari (dict)"
 
 #: ckan/logic/validators.py:940
 msgid "The email address '{email}' belongs to a registered user."
-msgstr ""
+msgstr "L'adreça de correu {email} pertany a un usuari registrat."
 
-#: ckan/logic/validators.py:948
+#: ckan/logic/validators.py:947
 msgid "Value must be one of {}"
-msgstr ""
+msgstr "El valor ha d'estar entre {}"
 
-#: ckan/logic/validators.py:959
+#: ckan/logic/validators.py:958
 msgid "The value should be a valid JSON object"
-msgstr ""
+msgstr "El valor ha de ser un objecte JSON vàlid"
 
-#: ckan/logic/validators.py:961
+#: ckan/logic/validators.py:960
 msgid "Could not parse the value as a valid JSON object"
-msgstr ""
+msgstr "No s'ha pogut interpretar el valor com a JSON vàlid"
 
-#: ckan/logic/validators.py:971
+#: ckan/logic/validators.py:970
 msgid "Could not parse extra '{name}' as valid JSON"
-msgstr ""
+msgstr "No s'ha pogut interpretar el camp extra '{name}' com a JSON vàlid"
 
 #: ckan/logic/action/__init__.py:64 ckan/views/util.py:21
 msgid "Missing Value"
@@ -1863,16 +1878,16 @@ msgstr "Falta el valor"
 
 #: ckan/logic/action/create.py:660
 msgid "Role must be one of \"{}\""
-msgstr ""
+msgstr "El rol ha de ser un d'aquests valors: \"{}\""
 
 #: ckan/logic/action/create.py:671
 msgid "Not allowed to add collaborators"
-msgstr ""
+msgstr "No autoritzat a afegir col·laboradors"
 
 #: ckan/logic/action/create.py:674 ckan/logic/action/delete.py:358
 #: ckan/logic/action/get.py:268 ckan/logic/action/get.py:311
 msgid "Dataset collaborators not enabled"
-msgstr ""
+msgstr "Col·laboradors dels conjunts de dades no activats"
 
 #: ckan/logic/action/create.py:869
 msgid "Trying to create an organization as a group"
@@ -1928,7 +1943,7 @@ msgstr "Cal que us identifiqueu per a seguir un grup"
 
 #: ckan/logic/action/delete.py:362 ckan/logic/action/get.py:263
 msgid "Package not found"
-msgstr ""
+msgstr "Conjunt de dades no trobat"
 
 #: ckan/logic/action/delete.py:418
 msgid "Organization cannot be deleted while it still has datasets"
@@ -1960,11 +1975,11 @@ msgstr "No esteu seguint {0}"
 
 #: ckan/logic/action/get.py:275 ckan/logic/action/get.py:323
 msgid "Capacity must be one of \"{}\""
-msgstr ""
+msgstr "El rol ha de ser un d'aquests valors: \"{}\""
 
 #: ckan/logic/action/get.py:317
 msgid "Not allowed to retrieve collaborators"
-msgstr ""
+msgstr "No autoritzat a llegir els col·laboradors"
 
 #: ckan/logic/action/get.py:1097 ckan/logic/action/update.py:76
 #: ckan/logic/action/update.py:90
@@ -1973,7 +1988,7 @@ msgstr "Recurs no trobat"
 
 #: ckan/logic/action/get.py:1176
 msgid "Parameter is not an bool"
-msgstr ""
+msgstr "El paràmetre no és un booleà"
 
 #: ckan/logic/action/get.py:2056
 msgid "Do not specify if using \"query\" parameter"
@@ -2075,6 +2090,7 @@ msgstr "L'usuari %s no està autoritzat a editar el grup %s"
 #, python-format
 msgid "User %s not authorized to add collaborators to this dataset"
 msgstr ""
+"Usuari %s no autoritzat a afegir col·laboradors a aquest conjunt de dades"
 
 #: ckan/logic/auth/delete.py:40
 #, python-format
@@ -2120,6 +2136,7 @@ msgstr "L'usuari %s no està autoritzat a esborrar l'estat de les tasques"
 #, python-format
 msgid "User %s not authorized to remove collaborators from this dataset"
 msgstr ""
+"Usuari %s no autoritzat a eliminar col·laboradors d'aquest conjunt de dades"
 
 #: ckan/logic/auth/get.py:15 ckan/logic/auth/get.py:370
 msgid "Not authorized"
@@ -2153,6 +2170,8 @@ msgstr "Cal que us identifiqueu per a accedir al vostre panell."
 #, python-format
 msgid "User %s not authorized to list collaborators from this dataset"
 msgstr ""
+"Usuari %s no autoritzat a llegir els col·laboradors d'aquest conjunt de "
+"dades"
 
 #: ckan/logic/auth/update.py:50
 #, python-format
@@ -2217,7 +2236,7 @@ msgstr ""
 
 #: ckan/model/license.py:145
 msgid "title"
-msgstr ""
+msgstr "títol"
 
 #: ckan/model/license.py:240
 msgid "License not specified"
@@ -2421,7 +2440,7 @@ msgstr "Carregar"
 #: ckan/public/base/javascript/modules/image-upload.js:75
 #: ckan/public/base/javascript/modules/image-upload.min.js:5
 msgid "Please select the file to upload again"
-msgstr ""
+msgstr "Si us plau seleccioneu una altra vegada l'arxiu a pujar"
 
 #: ckan/public/base/javascript/modules/image-upload.js:79
 #: ckan/public/base/javascript/modules/image-upload.min.js:6
@@ -2459,7 +2478,7 @@ msgstr "Arxiu"
 #: ckan/public/base/javascript/modules/resource-reorder.js:42
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
 msgid "Reorder resources"
-msgstr ""
+msgstr "Reordenar recursos"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:43
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
@@ -2468,6 +2487,9 @@ msgid ""
 "the resource to the right and place it to the desired location on the list. "
 "When you are done, click the \"Save order\" -button."
 msgstr ""
+"Podeu re-ordernar els recursos arrossegant-los amb la icona de la fletxa. "
+"Arrossegueu els recursos a la dreta i col·loqueu-lo a la posició desitjada. "
+"Quan estigueu llestos, feu clic en el botó \"Desar ordre\""
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:65
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
@@ -2605,7 +2627,7 @@ msgstr "Panell de control"
 #: ckan/templates/header.html:33 ckan/templates/header.html:35
 #: ckan/templates/user/dashboard.html:16
 msgid "Profile settings"
-msgstr ""
+msgstr "Configuració del perfil"
 
 #: ckan/templates/header.html:40 ckan/templates/header.html:42
 msgid "Log out"
@@ -2613,7 +2635,7 @@ msgstr "Tancar sessió"
 
 #: ckan/templates/header.html:49
 msgid "Account"
-msgstr ""
+msgstr "Compte"
 
 #: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:14
 msgid "Log in"
@@ -2653,7 +2675,7 @@ msgstr "Cercar conjunts de dades"
 
 #: ckan/templates/header.html:101 ckan/templates/snippets/search_form.html:16
 msgid "Submit"
-msgstr ""
+msgstr "Enviar"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
@@ -2661,7 +2683,7 @@ msgstr "Saltar al contingut"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
-msgstr ""
+msgstr "Molla de pà"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
@@ -2771,16 +2793,18 @@ msgstr ""
 
 #: ckan/templates/admin/trash.html:12
 msgid "Are you sure you want to purge everything?"
-msgstr ""
+msgstr "Esteu segur que voleu purgar-ho tot?"
 
 #: ckan/templates/admin/trash.html:13
 msgid "Purge all"
-msgstr ""
+msgstr "Purgar tot"
 
 #: ckan/templates/admin/trash.html:31
 msgid ""
 "Purge deleted datasets, organizations or groups forever and irreversibly."
 msgstr ""
+"Purgar conjunts de dades, organitzacions i grups esborrats per sempre i "
+"irreversiblement."
 
 #: ckan/templates/admin/snippets/confirm_delete.html:3
 #: ckan/templates/admin/snippets/confirm_delete.html:17
@@ -2801,15 +2825,15 @@ msgstr "Confirmeu l'esborrat"
 
 #: ckan/templates/admin/snippets/data_type.html:7
 msgid "Deleted datasets"
-msgstr ""
+msgstr "Conjunts de dades esborrats"
 
 #: ckan/templates/admin/snippets/data_type.html:9
 msgid "Deleted organizations"
-msgstr ""
+msgstr "Organitzacions esborrades"
 
 #: ckan/templates/admin/snippets/data_type.html:11
 msgid "Deleted groups"
-msgstr ""
+msgstr "Grups esborrats"
 
 #: ckan/templates/admin/snippets/data_type.html:41
 msgid "Purge"
@@ -3272,7 +3296,7 @@ msgstr ""
 
 #: ckan/templates/macros/form.html:243
 msgid "Key"
-msgstr ""
+msgstr "Clau"
 
 #: ckan/templates/macros/form.html:255
 #: ckan/templates/package/resource_read.html:180
@@ -3307,7 +3331,7 @@ msgstr "Esborrar pujada"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Add an Organization"
-msgstr ""
+msgstr "Afegir una organització"
 
 #: ckan/templates/organization/base_form_page.html:10
 msgid "Organization Form"
@@ -3538,7 +3562,7 @@ msgstr "Editar metadades"
 #: ckan/templates/package/collaborators/collaborators.html:3
 #: ckan/templates/package/edit_base.html:20
 msgid "Collaborators"
-msgstr ""
+msgstr "Col·laboradors"
 
 #: ckan/templates/package/edit_view.html:3
 #: ckan/templates/package/edit_view.html:4
@@ -3624,6 +3648,8 @@ msgid ""
 "You're currently viewing an old version of this dataset. To see the current "
 "version, click <a href=\"%(url)s\">here</a>."
 msgstr ""
+"Esteu veient una versió antiga d'aquest conjunt de dades. Per veure la "
+"versió actual, feu clic <a href=\"%(url)s\">aquí</a>."
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
@@ -3663,7 +3689,7 @@ msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:97
 msgid "Dataset description:"
-msgstr ""
+msgstr "Descripció del conjunt de dades:"
 
 #: ckan/templates/package/resource_read.html:99
 #, python-format
@@ -3814,36 +3840,38 @@ msgstr "Previsualitzar vista"
 #: ckan/templates/package/collaborators/collaborator_new.html:5
 #: ckan/templates/package/collaborators/collaborator_new.html:10
 msgid "Edit Collaborator"
-msgstr ""
+msgstr "Editar col·laborador"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:5
 #: ckan/templates/package/collaborators/collaborator_new.html:10
 #: ckan/templates/package/collaborators/collaborator_new.html:50
 msgid "Add Collaborator"
-msgstr ""
+msgstr "Afegir col·laborador"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:8
 msgid "Back to all collaborators"
-msgstr ""
+msgstr "Tornar a tots els col·laboradors"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:44
 #: ckan/templates/package/collaborators/collaborators.html:36
 msgid "Are you sure you want to delete this collaborator?"
-msgstr ""
+msgstr "Esteu segur de que voleu eliminar aquest col·laborador?"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:46
 msgid "Update Collaborator"
-msgstr ""
+msgstr "Actualitzar col·laborador"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:63
 msgid "What are the available roles?"
-msgstr ""
+msgstr "Quins són els rols disponibles?"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:67
 msgid ""
 "<p><strong>Admin:</strong> In addition to managing the dataset, admins can "
 "add and remove collaborators from a dataset.</p>"
 msgstr ""
+"<p><strong>Administrador:</strong> A part de gestionar el conjunt de dades, "
+"els administradors poden afegir col·laboradors al conjunt de dades.</p>"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:71
 msgid ""
@@ -3851,16 +3879,20 @@ msgid ""
 "as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
 "Members can access the dataset if private, but not edit it.</p>"
 msgstr ""
+"<p><strong>Editor:</strong> Els editors poden editar el conjunt de dades i "
+"els seus recursos, així com accedir al conjunt de dades si és privat.</p> "
+"<p><strong>Membre:</strong> Els membres poden accedir al conjunt de dades si"
+" és privat, però no editar-lo.</p>"
 
 #: ckan/templates/package/collaborators/collaborators.html:7
 msgid "Add Collaborators"
-msgstr ""
+msgstr "Afegir col·laboradors"
 
 #: ckan/templates/package/collaborators/collaborators.html:14
 msgid "{count} collaborator"
 msgid_plural "{count} collaborators"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} col·laborador"
+msgstr[1] "{count} col·laboradors"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3922,7 +3954,7 @@ msgstr ""
 #: ckan/templates/package/snippets/change_item.html:1
 #, python-format
 msgid "On %(timestamp)s, %(username)s:"
-msgstr ""
+msgstr "A %(timestamp)s, %(username)s:"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
@@ -4447,19 +4479,19 @@ msgid "Removed author from {pkg_link}"
 msgstr ""
 
 #: ckan/templates/snippets/changes/author.html:38
-#: ckan/templates/snippets/changes/author_email.html:46
-#: ckan/templates/snippets/changes/extra_fields.html:113
-#: ckan/templates/snippets/changes/maintainer.html:40
-#: ckan/templates/snippets/changes/maintainer_email.html:48
+#: ckan/templates/snippets/changes/author_email.html:45
+#: ckan/templates/snippets/changes/extra_fields.html:109
+#: ckan/templates/snippets/changes/maintainer.html:38
+#: ckan/templates/snippets/changes/maintainer_email.html:47
 #: ckan/templates/snippets/changes/no_change.html:3
-#: ckan/templates/snippets/changes/notes.html:43
-#: ckan/templates/snippets/changes/org.html:55
-#: ckan/templates/snippets/changes/resource_desc.html:62
-#: ckan/templates/snippets/changes/resource_extras.html:170
-#: ckan/templates/snippets/changes/resource_format.html:56
+#: ckan/templates/snippets/changes/notes.html:38
+#: ckan/templates/snippets/changes/org.html:54
+#: ckan/templates/snippets/changes/resource_desc.html:56
+#: ckan/templates/snippets/changes/resource_extras.html:164
+#: ckan/templates/snippets/changes/resource_format.html:54
 #: ckan/templates/snippets/changes/tags.html:83
 #: ckan/templates/snippets/changes/url.html:47
-#: ckan/templates/snippets/changes/version.html:40
+#: ckan/templates/snippets/changes/version.html:38
 msgid "No fields were updated. See the metadata diff for more details."
 msgstr ""
 
@@ -4469,11 +4501,11 @@ msgid ""
 "{old_author_email})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/author_email.html:24
+#: ckan/templates/snippets/changes/author_email.html:23
 msgid "Set author email of {pkg_link} to {new_author_email}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/author_email.html:37
+#: ckan/templates/snippets/changes/author_email.html:36
 msgid "Removed author email from {pkg_link}"
 msgstr ""
 
@@ -4489,44 +4521,44 @@ msgstr ""
 msgid "Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:18
+#: ckan/templates/snippets/changes/extra_fields.html:17
 msgid "Added field <q>{key}</q> to {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:29
+#: ckan/templates/snippets/changes/extra_fields.html:28
 msgid "Added the following fields to {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:40
-#: ckan/templates/snippets/changes/resource_extras.html:57
+#: ckan/templates/snippets/changes/extra_fields.html:39
+#: ckan/templates/snippets/changes/resource_extras.html:56
 msgid "{key} with value {value}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:45
-#: ckan/templates/snippets/changes/resource_extras.html:62
-#: ckan/templates/snippets/changes/resource_extras.html:105
+#: ckan/templates/snippets/changes/extra_fields.html:44
+#: ckan/templates/snippets/changes/resource_extras.html:61
+#: ckan/templates/snippets/changes/resource_extras.html:102
 msgid "{key}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:55
+#: ckan/templates/snippets/changes/extra_fields.html:54
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> (previously "
 "<q>{old_val}</q>) in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:69
+#: ckan/templates/snippets/changes/extra_fields.html:67
 msgid "Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:82
+#: ckan/templates/snippets/changes/extra_fields.html:79
 msgid "Removed field <q>{key}</q> from {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:94
+#: ckan/templates/snippets/changes/extra_fields.html:90
 msgid "Removed the following fields from {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/extra_fields.html:104
+#: ckan/templates/snippets/changes/extra_fields.html:100
 msgid "<q>{key}</q>"
 msgstr ""
 
@@ -4535,17 +4567,17 @@ msgid ""
 "Changed the license of {pkg_link} to {new_link} (previously {old_link})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/license.html:26
+#: ckan/templates/snippets/changes/license.html:25
 msgid ""
 "Changed the license of {pkg_link} to {new_link} (previously {old_title})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/license.html:43
+#: ckan/templates/snippets/changes/license.html:41
 msgid ""
 "Changed the license of {pkg_link} to {new_title} (previously {old_link})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/license.html:61
+#: ckan/templates/snippets/changes/license.html:58
 msgid ""
 "Changed the license of {pkg_link} to {new_title} (previously {old_title})"
 msgstr ""
@@ -4556,11 +4588,11 @@ msgid ""
 "{old_maintainer})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer.html:18
+#: ckan/templates/snippets/changes/maintainer.html:17
 msgid "Set maintainer of {pkg_link} to {new_maintainer}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer.html:30
+#: ckan/templates/snippets/changes/maintainer.html:28
 msgid "Removed maintainer from {pkg_link}"
 msgstr ""
 
@@ -4569,11 +4601,11 @@ msgid ""
 "Set maintainer email of {pkg_link} to {new_email} (previously {old_email})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer_email.html:24
+#: ckan/templates/snippets/changes/maintainer_email.html:23
 msgid "Set maintainer email of {pkg_link} to {new_email}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/maintainer_email.html:38
+#: ckan/templates/snippets/changes/maintainer_email.html:37
 msgid "Removed maintainer email from {pkg_link}"
 msgstr ""
 
@@ -4591,20 +4623,18 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/notes.html:5
 msgid ""
-"Updated description of {pkg_link} from\n"
-"            <br class=\"line-height2\"><blockquote>{old_notes}</blockquote>\n"
-"            to <br class=\"line-height2\"><blockquote>{new_notes}\n"
-"            </blockquote>"
+"Updated description of {pkg_link} from <br class=\"line-"
+"height2\"><blockquote>{old_notes}</blockquote> to <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/notes.html:20
+#: ckan/templates/snippets/changes/notes.html:17
 msgid ""
-"Updated description of {pkg_link}\n"
-"            to <br class=\"line-height2\"><blockquote>{new_notes}\n"
-"            </blockquote>"
+"Updated description of {pkg_link} to <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/notes.html:33
+#: ckan/templates/snippets/changes/notes.html:28
 msgid "Removed description from {pkg_link}"
 msgstr ""
 
@@ -4614,11 +4644,11 @@ msgid ""
 "{new_org_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/org.html:26
+#: ckan/templates/snippets/changes/org.html:25
 msgid "Removed {pkg_link} from organization {old_org_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/org.html:41
+#: ckan/templates/snippets/changes/org.html:40
 msgid "Added {pkg_link} to organization {new_org_link}"
 msgstr ""
 
@@ -4632,11 +4662,11 @@ msgid ""
 "=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_desc.html:24
+#: ckan/templates/snippets/changes/resource_desc.html:22
 msgid "Removed description from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_desc.html:41
+#: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
 "Updated description of resource {resource_link} in {pkg_link} from <br class"
 "=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
@@ -4649,36 +4679,36 @@ msgid ""
 "{resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:24
+#: ckan/templates/snippets/changes/resource_extras.html:23
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:41
+#: ckan/templates/snippets/changes/resource_extras.html:40
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:71
+#: ckan/templates/snippets/changes/resource_extras.html:70
 msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:89
+#: ckan/templates/snippets/changes/resource_extras.html:87
 msgid ""
 "Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:113
+#: ckan/templates/snippets/changes/resource_extras.html:110
 msgid ""
 "Changed value of field <q>{key}</q> of resource {resource_link} to "
 "<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:133
+#: ckan/templates/snippets/changes/resource_extras.html:129
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
 "{resource_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_extras.html:152
+#: ckan/templates/snippets/changes/resource_extras.html:147
 msgid ""
 "Removed the value of field <q>{key}</q> in resource {resource_link} in "
 "{pkg_link}"
@@ -4688,7 +4718,7 @@ msgstr ""
 msgid "Set format of resource {resource_link} to {format_link} in {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/resource_format.html:31
+#: ckan/templates/snippets/changes/resource_format.html:30
 msgid ""
 "Set format of resource {resource_link} to {new_format_link} (previously "
 "{old_format_link}) in {pkg_link}"
@@ -4742,11 +4772,11 @@ msgid ""
 "{old_version})"
 msgstr ""
 
-#: ckan/templates/snippets/changes/version.html:18
+#: ckan/templates/snippets/changes/version.html:17
 msgid "Removed the version from {pkg_link}"
 msgstr ""
 
-#: ckan/templates/snippets/changes/version.html:28
+#: ckan/templates/snippets/changes/version.html:27
 msgid "Changed the version of {pkg_link} to {new_version}"
 msgstr ""
 
