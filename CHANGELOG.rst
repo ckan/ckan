@@ -12,10 +12,6 @@ Changelog
 v.2.9.0 2020-08-05
 ==================
 
-.. TODO click CLI, extension db migrations
-
-
-
 Migration notes
 ---------------
 - This version does require a requirements upgrade on source installations
