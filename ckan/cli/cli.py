@@ -94,7 +94,7 @@ def _init_ckan_config(ctx, param, value):
         if no_config or is_help:
             return
         else:
-            log.warn(u'Configuration not loaded: %s', e)
+            p.toolkit.error_shout(e)
             raise click.Abort()
 
     if six.PY2:

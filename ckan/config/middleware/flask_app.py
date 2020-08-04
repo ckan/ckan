@@ -32,7 +32,8 @@ from ckan.lib import jinja_extensions
 from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
-from ckan.config.middleware.common_middleware import TrackingMiddleware
+from ckan.config.middleware.common_middleware import (TrackingMiddleware,
+                                                      HostHeaderMiddleware)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins.toolkit as toolkit
@@ -328,6 +329,8 @@ def make_flask_stack(conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    # Prevent the host from request to be added to the new header location.
+    app = HostHeaderMiddleware(app)
     if six.PY3:
         app = I18nMiddleware(app)
 

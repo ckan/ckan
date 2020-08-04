@@ -937,9 +937,8 @@ def email_is_unique(key, data, errors, context):
                 return
 
     raise Invalid(
-                _('The email address \'{email}\' \
-                    belongs to a registered user.').
-                        format(email=data[key]))
+        _('The email address \'{email}\' belongs to a registered user.').format(email=data[key]))
+
 
 def one_of(list_of_value):
     ''' Checks if the provided value is present in a list '''
