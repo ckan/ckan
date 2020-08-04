@@ -71,16 +71,15 @@ to serve the CSS file with Webassets.
 
 .. _x-sendfile:
 
-XSendfile
-^^^^^^^^^
+X-Sendfile
+^^^^^^^^^^
 
-For webservers which support ``X-Sendfile`` header, one can set
+For web servers which support the *X-Sendfile* feature, you can set
 ``ckan.webassets.use_x_sendfile`` config option to ``true`` and
-configure `XSendfile
-<https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/>`_
+configure the web server (eg `Nginx
+<https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/>`_)
 in order to serve static files in a more efficient way. Static files
-served under URI ``/webassets/<PATH_TO_STATIC_FILE>`` and are stored
-in filesystem under path specified by ``ckan.webassets.path`` config
+served under the URI ``/webassets/<PATH_TO_STATIC_FILE>`` are stored
+in the file system under the path specified by :ref:`ckan.webassets.path` the config
 option. If ``ckan.webassets.path`` is not specified, static files are
-stored inside ``webassests`` folder which can be found in folder
-specified by ``ckan.storage_path`` config option.
+stored inside a ``webassests`` folder defined by the :ref:`ckan.storage_path` config option.
