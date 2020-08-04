@@ -1761,14 +1761,12 @@ Example::
 
   ckan.webassets.path = /var/lib/ckan/webassets
 
-Default value: ``webassets`` folder under path specified by
-``ckan.storage_path`` option
+Default value: ``webassets`` folder under the path specified by the
+:ref:`ckan.storage_path` option.
 
-In order to increase performance, static assets(CSS and JS files)
-included by ``asset`` tag inside templates are compiled only once,
-when asset is used for the first time. All subsequent requests to the
-asset will use existing file. CKAN stores compiled webassets in
-filesystem, under the path, specified by this config option.
+In order to increase performance, static assets (CSS and JS files) included via an ``asset`` tag inside templates are compiled only once,
+when the asset is used for the first time. All subsequent requests to the
+asset will use the existing file. CKAN stores the compiled webassets in the file system, in the path specified by this config option.
 
 
 .. _ckan.webassets.use_x_sendfile:
@@ -1782,10 +1780,9 @@ Example::
 
 Default value: ``false``
 
-When serving static files, set the ``X-Sendfile`` header instead of
-serving the data with Flask. Some web servers, such as Apache,
-recognize this and serve the data more efficiently. This only makes
-sense when using such a server. See :ref:`x-sendfile`.
+When serving static files, if this setting is ``True``, the applicatin will set the ``X-Sendfile`` header instead of
+serving the files directly with Flask. This will increase performance when serving the assets, but it
+requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 
 
 DataPusher Settings
