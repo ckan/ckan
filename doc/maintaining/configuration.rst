@@ -1466,7 +1466,7 @@ Example::
 
 Default value: ``identicon``
 
-This controls the default gravatar style. Gravatar is used by default when a user has not set a custom profile picture, 
+This controls the default gravatar style. Gravatar is used by default when a user has not set a custom profile picture,
 but it can be turn completely off by setting this option to "disabled". In that case, a placeholder image will be shown
 instead, which can be customized overriding the ``templates/user/snippets/placeholder.html`` template.
 
@@ -1747,6 +1747,45 @@ Example::
 Default value: ``2``
 
 The maximum in megabytes an image upload can be.
+
+
+Webassets Settings
+------------------
+
+.. _ckan.webassets.path:
+
+ckan.webassets.path
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.webassets.path = /var/lib/ckan/webassets
+
+Default value: ``webassets`` folder under path specified by
+``ckan.storage_path`` option
+
+In order to increase performance, static assets(CSS and JS files)
+included by ``asset`` tag inside templates are compiled only once,
+when asset is used for the first time. All subsequent requests to the
+asset will use existing file. CKAN stores compiled webassets in
+filesystem, under the path, specified by this config option.
+
+
+.. _ckan.webassets.use_x_sendfile:
+
+ckan.webassets.use_x_sendfile
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.webassets.use_x_sendfile = true
+
+Default value: ``false``
+
+When serving static files, set the ``X-Sendfile`` header instead of
+serving the data with Flask. Some web servers, such as Apache,
+recognize this and serve the data more efficiently. This only makes
+sense when using such a server. See :ref:`x-sendfile`.
 
 
 DataPusher Settings
