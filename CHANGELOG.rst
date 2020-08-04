@@ -116,7 +116,7 @@ Major features
   See the documentation at :py:func:`~ckan.logic.action.update.package_revise`
   (`#4618 <https://github.com/ckan/ckan/pull/4618>`_)
 - Refactor frontend assets management to use `webassets
-  <https://webassets.readthedocs.io/en/latest/>`_ (`#4614
+  <https://webassets.readthedocs.io/en/latest/>`_, including support for :ref:`x-sendfile` (`#4614
   <https://github.com/ckan/ckan/pull/4614>`_)
 - Users can now upload or link to custom profile pictures. By default, if a
   user picture is not provided it will fall back to gravatar. Alternatively,
