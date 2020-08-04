@@ -8,10 +8,9 @@ import json
 import datetime
 import socket
 
-from ckan.common import config
+from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
-from ckan.common import asbool
 from six import string_types, text_type
 
 import ckan.lib.dictization
@@ -814,7 +813,9 @@ def user_list(context, data_dict):
       string (optional) (you must be a sysadmin to use this filter)
     :type email: string
     :param order_by: which field to sort the list by (optional, default:
-      ``'name'``). Can be any user field.
+      ``'display_name'``). Users can be sorted by ``'id'``, ``'name'``,
+      ``'fullname'``, ``'display_name'``, ``'created'``, ``'about'``,
+      ``'sysadmin'`` or ``'number_created_packages'``.
     :type order_by: string
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
@@ -831,7 +832,7 @@ def user_list(context, data_dict):
 
     q = data_dict.get('q', '')
     email = data_dict.get('email')
-    order_by = data_dict.get('order_by', 'name')
+    order_by = data_dict.get('order_by', 'display_name')
     all_fields = asbool(data_dict.get('all_fields', True))
 
     if all_fields:
@@ -857,14 +858,31 @@ def user_list(context, data_dict):
     if email:
         query = query.filter_by(email=email)
 
+    order_by_field = None
     if order_by == 'edits':
         raise ValidationError('order_by=edits is no longer supported')
-    query = query.order_by(
-        _case([(
-            _or_(model.User.fullname == None,
-                    model.User.fullname == ''),
-            model.User.name)],
-            else_=model.User.fullname))
+    elif order_by == 'number_created_packages':
+        order_by_field = order_by
+    elif order_by != 'display_name':
+        try:
+            order_by_field = getattr(model.User, order_by)
+        except AttributeError:
+            pass
+    if order_by == 'display_name' or order_by_field is None:
+        query = query.order_by(
+            _case(
+                [(
+                    _or_(
+                        model.User.fullname == None,
+                        model.User.fullname == ''
+                    ),
+                    model.User.name
+                )],
+                else_=model.User.fullname
+            )
+        )
+    else:
+        query = query.order_by(order_by_field)
 
     # Filter deleted users
     query = query.filter(model.User.state != model.State.DELETED)
@@ -3540,3 +3558,21 @@ def job_show(context, data_dict):
         return jobs.dictize_job(jobs.job_from_id(id))
     except KeyError:
         raise NotFound
+
+
+def api_token_list(context, data_dict):
+    '''Return list of all available API Tokens for current user.
+
+    :returns: collection of all API Tokens
+    :rtype: list
+
+    .. versionadded:: 3.0
+    '''
+    id_or_name = _get_or_bust(data_dict, u'user')
+    _check_access(u'api_token_list', context, data_dict)
+    user = model.User.get(id_or_name)
+
+    tokens = model.Session.query(model.ApiToken).filter(
+        model.ApiToken.user_id == user.id
+    )
+    return model_dictize.api_token_list_dictize(tokens, context)

@@ -9,7 +9,7 @@ this.ckan.module('resource-view-reorder', function($) {
     template: {
       title: '<h1></h1>',
       button: [
-        '<a href="javascript:;" class="btn btn-outline-primary">',
+        '<a href="javascript:;" class="btn btn-default">',
         '<i class="fa fa-bars"></i>',
         '<span></span>',
         '</a>'

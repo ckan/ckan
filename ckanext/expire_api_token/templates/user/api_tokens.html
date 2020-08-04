@@ -1,0 +1,18 @@
+{% ckan_extends %}
+
+{% import 'macros/form.html' as form %}
+
+{% set unit_options = [
+  {'value': 1, 'text': _('Second')},
+  {'value': 60, 'text': _('Minute')},
+  {'value': 3600, 'text': _('Hour')},
+  {'value': 3600*24, 'text': _('Day')},
+  ] %}
+
+
+{% block additional_fields %}
+  <div class="form-group ">
+    {{ form.input('expires_in', label=_('Expires in'), is_required=true, type='number', value=data.expires_in or h.expire_api_token_default_token_lifetime(), error=errors.expires_in) }}
+    {{ form.select('unit', label=_('Units'), options=unit_options, selected=data.unit, error=errors.unit) }}
+  </div>
+{% endblock additional_fields %}

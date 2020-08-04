@@ -136,5 +136,22 @@ class TestUser:
         user_obj = model.User.by_name(user["name"])
         user_obj._set_password(password)
         user_obj.save()
-
         assert user_obj.validate_password(password)
+
+    def test_api_key_created_by_default(self):
+        user = factories.User()
+
+        assert user['apikey']
+
+    @pytest.mark.ckan_config('ckan.auth.create_default_api_keys', True)
+    def test_api_key_created_when_config_true(self):
+        user = factories.User()
+
+        assert user['apikey']
+
+    @pytest.mark.ckan_config('ckan.auth.create_default_api_keys', False)
+    def test_api_key_not_created_when_config_false(self):
+
+        user = factories.User()
+
+        assert user['apikey'] is None
