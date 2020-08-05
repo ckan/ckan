@@ -61,15 +61,12 @@
           <span class="facet">{{ facets.titles.get(field) }}:</span>
           {% for value in facets.fields[field] %}
             <span class="filtered pill">
-              <span id="filter-name">
-                {%- if facets.translated_fields and (field,value) in facets.translated_fields -%}
-                  {{ facets.translated_fields[(field,value)] }}
-                {%- else -%}
-                  {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}
-                {%- endif %}
-              </span>
-              <a href="{{ facets.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}" aria-describedby="filter-name"><i class="fa fa-times"></i>
-              </a>
+              {%- if facets.translated_fields and (field,value) in facets.translated_fields -%}
+                {{ facets.translated_fields[(field,value)] }}
+              {%- else -%}
+                {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}
+              {%- endif %}
+              <a href="{{ facets.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="fa fa-times"></i></a>
             </span>
           {% endfor %}
         {% endfor %}
