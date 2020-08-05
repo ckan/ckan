@@ -90,11 +90,11 @@ text editor. For example, to change the title of your site you would find the
 Make sure the line is not commented-out (lines in the config file that begin
 with ``#`` are considered comments, so if there's a ``#`` at the start of a
 line you've edited, delete it), save the file, and then restart your web server
-for the changes to take effect. For example, if using Apache on Ubuntu:
+for the changes to take effect. For example, if using a CKAN package install:
 
 .. parsed-literal::
 
-   |reload_apache|
+   |restart_uwsgi|
 
 For full documentation of CKAN's config file and all the options you can set,
 see :doc:`configuration`.
