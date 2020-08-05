@@ -298,7 +298,7 @@ Now that you've installed CKAN, you should:
 
 * If you want to use your CKAN site as a production site, not just for testing
   or development purposes, then deploy CKAN using a production web server such
-  as Apache or Nginx. See :doc:`deployment`.
+  as uWSGI or Nginx. See :doc:`deployment`.
 
 * Begin using and customizing your site, see :doc:`/maintaining/getting-started`.
 
