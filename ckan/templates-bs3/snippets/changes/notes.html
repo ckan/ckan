@@ -2,10 +2,7 @@
   <p>
     {% if change.method == "change" %}
 
-      {{ _('Updated description of {pkg_link} from
-            <br class="line-height2"><blockquote>{old_notes}</blockquote>
-            to <br class="line-height2"><blockquote>{new_notes}
-            </blockquote>').format(
+      {{ _('Updated description of {pkg_link} from <br class="line-height2"><blockquote>{old_notes}</blockquote> to <br class="line-height2"><blockquote>{new_notes}</blockquote>').format(
               pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
                 pkg_url = h.url_for(controller='dataset',
                                     action='read', id=change.pkg_id),
@@ -17,9 +14,7 @@
 
     {% elif change.method == "add" %}
 
-      {{ _('Updated description of {pkg_link}
-            to <br class="line-height2"><blockquote>{new_notes}
-            </blockquote>').format(
+      {{ _('Updated description of {pkg_link} to <br class="line-height2"><blockquote>{new_notes}</blockquote>').format(
               pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
                 pkg_url = h.url_for(controller='dataset',
                                     action='read', id=change.pkg_id),
