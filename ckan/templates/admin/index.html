@@ -1,12 +1,12 @@
 {% extends "admin/base.html" %}
 
 {% block primary_content_inner %}
-  <h2>Current Sysadmins</h2>
+  <h2>{{ _('Current Sysadmins') }}</h2>
 
   <table class="table table-header table-hover table-bordered">
     <thead>
       <tr>
-        <th>User</th>
+        <th>{{ _('User') }}</th>
         <th>&nbsp;</th>
       </tr>
     </thead>
@@ -22,7 +22,7 @@
                 <button
                   type="submit"
                   class="btn btn-danger btn-sm"
-                  title="Revoke Sysadmin permission"
+                  title="{{ _('Revoke Sysadmin permission') }}"
                 >
                   <i class="fa fa-times"></i>
                 </button>
@@ -36,7 +36,7 @@
 
   <hr />
 
-  <h2>Promote user to Sysadmin</h2>
+  <h2>{{ _('Promote user to Sysadmin') }}</h2>
 
   <form method="POST" action="{% url_for 'user.sysadmin' %}">
     <div class="row">
@@ -56,8 +56,8 @@
           <button
             type="submit"
             class="btn btn-primary"
-            title="Promote user to Sysadmin"
-          >Promote</button>
+            title="{{ _('Promote user to Sysadmin') }}"
+          >{{ _('Promote') }}</button>
         </div>
 
       </div>
@@ -68,7 +68,7 @@
   document.addEventListener("DOMContentLoaded", function(event) {
     $('#promote-userid')
       .select2({
-        placeholder: 'Click or start typing a user name',
+        placeholder: "{{ _('Click or start typing a user name') }}",
       });
   });
   </script>
