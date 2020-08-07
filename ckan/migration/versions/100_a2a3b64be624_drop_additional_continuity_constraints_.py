@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """drop additional continuity constraints for multiple revisions
 
 Revision ID: a2a3b64be624
@@ -10,8 +11,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a2a3b64be624'
-down_revision = u'3ae4b17ed66d'
+revision = u"a2a3b64be624"
+down_revision = u"3ae4b17ed66d"
 branch_labels = None
 depends_on = None
 
