@@ -847,7 +847,7 @@ class TestUser(object):
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app.post(
             url_for("user.sysadmin"),
-            data={'id': user['id'], 'status': '1'},
+            data={'username': user['name'], 'status': '1'},
             extra_environ=env,
             status=403
         )
@@ -857,7 +857,7 @@ class TestUser(object):
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app.post(
             url_for("user.sysadmin"),
-            data={'id': 'fred', 'status': '1'},
+            data={'username': 'fred', 'status': '1'},
             extra_environ=env,
             status=404
         )
@@ -872,7 +872,7 @@ class TestUser(object):
         # promote them
         resp = app.post(
             url_for("user.sysadmin"),
-            data={'id': user['id'], 'status': '1'},
+            data={'username': user['name'], 'status': '1'},
             extra_environ=env,
             status=200
         )
@@ -892,7 +892,7 @@ class TestUser(object):
         # revoke their status
         resp = app.post(
             url_for("user.sysadmin"),
-            data={'id': user['id'], 'status': '0'},
+            data={'username': user['name'], 'status': '0'},
             extra_environ=env,
             status=200
         )

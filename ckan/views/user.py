@@ -816,7 +816,7 @@ def followers(id):
 
 
 def sysadmin():
-    id_ = request.form.get(u'id')
+    username = request.form.get(u'username')
     status = asbool(request.form.get(u'status'))
 
     try:
@@ -826,7 +826,7 @@ def sysadmin():
             u'user': g.user,
             u'auth_user_obj': g.userobj,
         }
-        data_dict = {u'id': id_, u'sysadmin': status}
+        data_dict = {u'id': username, u'sysadmin': status}
         user = logic.get_action(u'user_patch')(context, data_dict)
     except logic.NotAuthorized:
         return base.abort(

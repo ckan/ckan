@@ -60,12 +60,8 @@ def before_request():
 
 
 def index():
-    context = {u'user': g.user}
-    users = logic.get_action(u'user_list')(context, {})
-    return base.render(u'admin/index.html', {
-        u'sysadmins': [u for u in users if u[u'sysadmin']],
-        u'all_users': [u for u in users if not u[u'sysadmin']],
-    })
+    data = dict(sysadmins=[a.name for a in _get_sysadmins()])
+    return base.render(u'admin/index.html', extra_vars=data)
 
 
 class ResetConfigView(MethodView):
