@@ -32,10 +32,12 @@ from ckan.model.system import (
 )
 from ckan.model.package import (
     Package,
+    PackageMember,
     PACKAGE_NAME_MIN_LENGTH,
     PACKAGE_NAME_MAX_LENGTH,
     PACKAGE_VERSION_MAX_LENGTH,
     package_table,
+    package_member_table,
 )
 from ckan.model.tag import (
     Tag,
@@ -122,6 +124,9 @@ from ckan.model.domain_object import (
 )
 from ckan.model.dashboard import (
     Dashboard,
+)
+from ckan.model.api_token import (
+    ApiToken,
 )
 
 import ckan.migration

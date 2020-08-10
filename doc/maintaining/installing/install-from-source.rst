@@ -12,6 +12,11 @@ If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
+**For Python 3 installations, the minimum Python version required is 3.6**
+
+* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
+* **Ubuntu 16.04** includes **Python 3.5** as part of its distribution
+
 From source is also the right installation method for developers who want to
 work on CKAN.
 
@@ -40,7 +45,7 @@ wiki page for help):
 Package                Description
 =====================  ===============================================
 Python                 `The Python programming language, v3.6 or newer (or v2.7) <https://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v9.3 or newer <https://www.postgresql.org/docs/9.5/libpq.html>`_
+|postgres|             `The PostgreSQL database system, v9.5 or newer <https://www.postgresql.org/docs/9.5/libpq.html>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <https://pip.pypa.io/en/stable/>`_
 python3-venv           `The Python3 virtual environment builder (or for Python 2 use 'virtualenv' instead) <https://virtualenv.pypa.io/en/latest/>`_
@@ -123,7 +128,15 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
+      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements]'
+
+   .. note::
+
+      For Python 2 replace the last fragment with `requirements-py2`
+
+      .. parsed-literal::
+
+         pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements-py2]'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of
@@ -131,7 +144,7 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-       pip install -e 'git+\ |git_url|\#egg=ckan'
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,dev]'
 
    .. warning::
 
@@ -139,17 +152,7 @@ c. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
-d. Install the Python modules that CKAN requires into your virtualenv:
-
-   .. parsed-literal::
-
-       pip install -r |virtualenv|/src/ckan/requirements.txt
-
-.. note::
-
-    For Python 2 adjust the filename to: `requirements-py2.txt`
-
-e. Deactivate and reactivate your virtualenv, to make sure you're using the
+d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``ckan`` rather than any system-wide
    installed copies:
 
@@ -295,7 +298,7 @@ Now that you've installed CKAN, you should:
 
 * If you want to use your CKAN site as a production site, not just for testing
   or development purposes, then deploy CKAN using a production web server such
-  as Apache or Nginx. See :doc:`deployment`.
+  as uWSGI or Nginx. See :doc:`deployment`.
 
 * Begin using and customizing your site, see :doc:`/maintaining/getting-started`.
 

@@ -139,6 +139,25 @@ def member_delete(context, data_dict):
     return authz.is_authorized('member_create', context, data_dict)
 
 
+def package_collaborator_delete(context, data_dict):
+    '''Checks if a user is allowed to remove collaborators from a dataset
+
+    See :py:func:`~ckan.authz.can_manage_collaborators` for details
+    '''
+    user = context['user']
+    model = context['model']
+
+    pkg = model.Package.get(data_dict['id'])
+    user_obj = model.User.get(user)
+
+    if not authz.can_manage_collaborators(pkg.id, user_obj.id):
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to remove collaborators from this dataset') % user}
+
+    return {'success': True}
+
+
 def job_clear(context, data_dict):
     '''Clear background jobs. Only sysadmins.'''
     return {'success': False}
@@ -147,3 +166,19 @@ def job_clear(context, data_dict):
 def job_cancel(context, data_dict):
     '''Cancel a background job. Only sysadmins.'''
     return {'success': False}
+
+
+def api_token_revoke(context, data_dict):
+    """Delete token.
+    """
+    if authz.auth_is_anon_user(context):
+        return {u'success': False}
+
+    model = context[u'model']
+    token = model.ApiToken.get(data_dict[u'jti'])
+
+    # Do not make distinction between absent keys and keys not owned
+    # by user in order to prevent accidential key discovery.
+    if token is None or token.owner.name != context[u'user']:
+        return {u'success': False}
+    return {u'success': True}

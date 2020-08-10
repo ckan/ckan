@@ -33,3 +33,7 @@ do these sections:
 * 1. Install the required packages
 * 2. Install CKAN into a Python virtual environment
 * 6. Link to who.ini
+
+.. note:: For changes about CKAN deployment see:
+ :doc:`/maintaining/installing/install-from-source` and specifically the changes
+ with CKAN 2.9: :ref:`deployment-changes-for-ckan-2.9`.

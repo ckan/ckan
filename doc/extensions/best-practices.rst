@@ -31,6 +31,8 @@ An extension can create its own tables in the CKAN database, but it should *not*
 write to core CKAN tables directly, add columns to core tables, or use foreign
 keys against core tables.
 
+.. _extensions db migrations:
+
 ------------------------------------------
 Use migrations when introducing new models
 ------------------------------------------

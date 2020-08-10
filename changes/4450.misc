@@ -1,0 +1,1 @@
+Use alembic instead of sqlalchemy-migrate for managing database migrations

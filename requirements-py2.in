@@ -1,7 +1,7 @@
 # The file contains the direct ckan requirements (python2).
 # Use pip-compile to create a requirements.txt file from this
 alembic==1.0.0
-Babel==2.3.4
+Babel==2.7.0
 bleach==3.1.4
 click==6.7
 dominate==2.4.0
@@ -12,6 +12,7 @@ Flask-Babel==0.11.2
 flask-multistatic==1.0
 future==0.18.2
 Jinja2==2.10.1
+PyJWT==1.7.1
 Markdown==2.6.7
 passlib==1.6.5
 paste==1.7.5.1

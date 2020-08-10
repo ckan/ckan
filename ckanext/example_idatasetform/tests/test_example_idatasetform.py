@@ -467,3 +467,31 @@ class TestDatasetBlueprintPreparations(object):
             a['href'] for a in page.select(".breadcrumb a")
         ]
         assert links == ['/', '/fancy_type/']
+
+
+@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v7")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+class TestDatasetMultiTypes(object):
+    @pytest.mark.parametrize('type_', ['first', 'second'])
+    def test_untouched_routes(self, type_, app):
+        resp = app.get('/' + type_, status=200)
+        page = bs4.BeautifulSoup(resp.body)
+        assert page.body.header
+
+    @pytest.mark.usefixtures('clean_db')
+    @pytest.mark.parametrize('type_', ['first', 'second'])
+    def test_template_without_options(self, type_, app):
+        user = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+
+        resp = app.get(
+            '/{}/new'.format(type_), status=200, environ_overrides=env)
+        assert resp.body == 'new package form'
+
+    @pytest.mark.usefixtures('clean_db')
+    @pytest.mark.parametrize('type_', ['first', 'second'])
+    def test_template_with_options(self, type_, app):
+        dataset = factories.Dataset(type=type_)
+        url = url_for(type_ + '.read', id=dataset['name'])
+        resp = app.get(url, status=200)
+        assert resp.body == 'Hello, {}!'.format(type_)

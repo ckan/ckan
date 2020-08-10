@@ -502,7 +502,7 @@ class TestGetDisplayTimezone(object):
         (
             datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
             {"with_seconds": True},
-            "April 13, 2008, 20:40:59 (UTC)",
+            "April 13, 2008 at 8:40:59 PM UTC",
         ),
         ("2008-04-13T20:40:20.123456", {}, "April 13, 2008"),
         (None, {}, ""),
@@ -511,6 +511,7 @@ class TestGetDisplayTimezone(object):
         ("2008-04-13T20:40:20.123456", {"date_format": "%%%Y"}, "%2008"),
     ],
 )
+@pytest.mark.usefixtures("with_request_context")
 def test_render_datetime(date, extra, exp):
     assert h.render_datetime(date, **extra) == exp
 
@@ -522,7 +523,7 @@ def test_render_datetime(date, extra, exp):
     [
         (
             datetime.datetime(2020, 2, 17, 11, 59, 30),
-            "Just now",
+            "30 seconds ago",
         ),
         (
             datetime.datetime(2020, 2, 17, 11, 59, 0),
@@ -558,11 +559,11 @@ def test_render_datetime(date, extra, exp):
         ),
         (
             datetime.datetime(2019, 1, 17, 12, 0, 0),
-            "over 1 year ago",
+            "1 year ago",
         ),
         (
             datetime.datetime(2015, 1, 17, 12, 0, 0),
-            "over 5 years ago",
+            "5 years ago",
         ),
     ]
 )
@@ -749,7 +750,7 @@ if six.PY2:
             return base.render("tests/helper_as_item.html")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivityListSelect(object):
     def test_simple(self):
         pkg_activity = {
@@ -762,7 +763,7 @@ class TestActivityListSelect(object):
         html = out[0]
         assert (
             str(html)
-            == '<option value="id1" >February 1, 2018, 10:58:59 (UTC)'
+            == '<option value="id1" >February 1, 2018 at 10:58:59 AM UTC'
             "</option>"
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup
@@ -778,7 +779,7 @@ class TestActivityListSelect(object):
         html = out[0]
         assert (
             str(html)
-            == '<option value="id1" selected>February 1, 2018, 10:58:59 (UTC)'
+            == '<option value="id1" selected>February 1, 2018 at 10:58:59 AM UTC'
             "</option>"
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup

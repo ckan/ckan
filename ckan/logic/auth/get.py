@@ -432,3 +432,42 @@ def job_list(context, data_dict):
 def job_show(context, data_dict):
     '''Show background job. Only sysadmins.'''
     return {'success': False}
+
+
+def api_token_list(context, data_dict):
+    """List all available tokens for current user.
+    """
+    user = context[u'model'].User.get(data_dict[u'user'])
+    success = user is not None and user.name == context[u'user']
+
+    return {u'success': success}
+
+
+def package_collaborator_list(context, data_dict):
+    '''Checks if a user is allowed to list the collaborators from a dataset
+
+    See :py:func:`~ckan.authz.can_manage_collaborators` for details
+    '''
+    user = context['user']
+    model = context['model']
+
+    pkg = model.Package.get(data_dict['id'])
+    user_obj = model.User.get(user)
+
+    if not authz.can_manage_collaborators(pkg.id, user_obj.id):
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to list collaborators from this dataset') % user}
+
+    return {'success': True}
+
+
+def package_collaborator_list_for_user(context, data_dict):
+    '''Checks if a user is allowed to list all datasets a user is a collaborator in
+
+    The current implementation restricts to the own users themselves.
+    '''
+    user_obj = context.get('auth_user_obj')
+    if user_obj and data_dict.get('id') in (user_obj.name, user_obj.id):
+        return {'success': True}
+    return {'success': False}

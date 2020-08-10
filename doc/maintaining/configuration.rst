@@ -143,6 +143,52 @@ maintain compatibility.
   .. warning:: This configuration will be removed when migration to Flask is completed. Please
     update the extension code to use the new Flask-based route names.
 
+
+Development Settings
+--------------------
+
+.. _ckan.devserver.threaded:
+
+ckan.devserver.threaded
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.threaded = true
+
+Default value: False
+
+Controls, whether development server handle each request in a separate
+thread.
+
+.. _ckan.devserver.multiprocess:
+
+ckan.devserver.multiprocess
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.multiprocess = 8
+
+Default value: 1
+
+If greater than 1 then handle each request in a new process up to this
+maximum number of concurrent processes.
+
+.. _ckan.devserver.watch_patterns:
+
+ckan.devserver.watch_patterns
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.watch_patterns = mytheme/**/*.yaml mytheme/**/*.json
+
+Default value: None
+
+A list of files the reloader should watch additionally to the
+modules. For example configuration files.
+
 Repoze.who Settings
 -------------------
 
@@ -416,9 +462,9 @@ Example::
 
   ckan.cache_enabled = True
 
-Default value: ``None``
+Default value: ``False``
 
-Controls if we're caching CKAN's static files, if it's serving them.
+This enables cache control headers on all requests. If the user is not logged in and there is no session data a ``Cache-Control: public`` header will be added. For all other requests the ``Cache-control: private`` header will be added.
 
 .. _ckan.use_pylons_response_cleanup_middleware:
 
@@ -668,15 +714,148 @@ ckan.auth.public_activity_stream_detail
 
 Example::
 
-  ckan.auth.public_activity_stream_detail = true
+  ckan.auth.public_activity_stream_detail = True
 
 Default value: ``False`` (however the default config file template sets it to ``True``)
 
 Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
 
 
+.. _ckan.auth.allow_dataset_collaborators:
+
+ckan.auth.allow_dataset_collaborators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_dataset_collaborators = True
+
+Default value: ``False``
+
+Enables or disable collaborators in individual datasets. If ``True``, in addition to the standard organization based permissions, users can be added as collaborators to individual datasets with different roles, regardless of the organization they belong to. For more information, check the documentation on :ref:`dataset_collaborators`.
+
+.. warning:: If this setting is turned off in a site where there already were collaborators created, you must reindex all datasets to update the permission labels, in order to prevent access to private datasets to the previous collaborators.
+
+.. _ckan.auth.allow_admin_collaborators:
+
+ckan.auth.allow_admin_collaborators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_admin_collaborators = True
+
+Default value: ``False``
+
+
+Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
+
+
+.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assinged to.
+
+.. _ckan.auth.allow_collaborators_to_change_owner_org:
+
+ckan.auth.allow_collaborators_to_change_owner_org
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_collaborators_to_change_owner_org = True
+
+Default value: ``False``
+
+
+Allows dataset collaborators to change the owner organization of the datasets they are collaborators on. Defaults to False, meaning that collaborators with role admin or editor can edit the dataset metadata but not the organization field.
+
+.. _ckan.auth.create_default_api_keys:
+
+ckan.auth.create_default_api_keys
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.create_default_api_keys = True
+
+Default value: ``False``
+
+
+Determines if a an API key should be automatically created for every user when creating a user account. If set to False (the default value), users can manually create an API token from their profile instead. See :ref:`api authentication`: for more details.
+
+
 .. end_config-authorization
 
+.. _config-api-tokens:
+
+API Token Settings
+------------------
+
+.. _api_token.nbytes:
+
+api_token.nbytes
+^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.nbytes = 20
+
+Default value: 32
+
+Number of bytes used to generate unique id for API Token.
+
+.. _api_token.jwt.encode.secret:
+
+api_token.jwt.encode.secret
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.encode.secret = file:/path/to/private/key
+
+Default value: same as ``beaker.session.secret`` config option with ``string:`` type.
+
+A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
+
+* for asymmetric algorithms: path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
+* for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+
+Value must have prefix, which defines its type. Supported prefixes are:
+
+* ``string:`` - Plain string, will be used as is.
+* ``file:`` - Path to file. Content of the file will be used as key.
+
+.. _api_token.jwt.decode.secret:
+
+api_token.jwt.decode.secret
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.decode.secret = file:/path/to/public/key.pub
+
+Default value: same as ``beaker.session.secret`` config option with ``string:`` type.
+
+A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
+
+* for asymmetric algorithms: path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
+* for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+
+Value must have prefix, which defines it's type. Supported prefixes are:
+
+* ``string:`` - Plain string, will be used as is.
+* ``file:`` - Path to file. Content of the file will be used as key.
+
+.. _api_token.jwt.algorithm:
+
+api_token.jwt.algorithm
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.algorithm = RS256
+
+Default value: ``HS256``
+
+Algorithm to sign the token with, e.g. "ES256", "RS256"
 
 Search Settings
 ---------------
@@ -1283,11 +1462,13 @@ ckan.gravatar_default
 
 Example::
 
-  ckan.gravatar_default = monsterid
+  ckan.gravatar_default = disabled
 
 Default value: ``identicon``
 
-This controls the default gravatar avatar, in case the user has none.
+This controls the default gravatar style. Gravatar is used by default when a user has not set a custom profile picture,
+but it can be turn completely off by setting this option to "disabled". In that case, a placeholder image will be shown
+instead, which can be customized overriding the ``templates/user/snippets/placeholder.html`` template.
 
 .. _ckan.debug_supress_header:
 
@@ -1566,6 +1747,42 @@ Example::
 Default value: ``2``
 
 The maximum in megabytes an image upload can be.
+
+
+Webassets Settings
+------------------
+
+.. _ckan.webassets.path:
+
+ckan.webassets.path
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.webassets.path = /var/lib/ckan/webassets
+
+Default value: ``webassets`` folder under the path specified by the
+:ref:`ckan.storage_path` option.
+
+In order to increase performance, static assets (CSS and JS files) included via an ``asset`` tag inside templates are compiled only once,
+when the asset is used for the first time. All subsequent requests to the
+asset will use the existing file. CKAN stores the compiled webassets in the file system, in the path specified by this config option.
+
+
+.. _ckan.webassets.use_x_sendfile:
+
+ckan.webassets.use_x_sendfile
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.webassets.use_x_sendfile = true
+
+Default value: ``false``
+
+When serving static files, if this setting is ``True``, the applicatin will set the ``X-Sendfile`` header instead of
+serving the files directly with Flask. This will increase performance when serving the assets, but it
+requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 
 
 DataPusher Settings

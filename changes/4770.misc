@@ -1,0 +1,2 @@
+Give users the option to define which page they want to be redirected
+to after logging in via `ckan.route_after_login` config variable.

@@ -1,0 +1,6 @@
+A full history of dataset changes is now displayed in the Activity Stream to
+admins, and optionally to the public. By default this is enabled for new
+installs, but disabled for sites which upgrade (just in case the history is
+sensitive). When upgrading, open data CKANs are encouraged to make this
+history open to the public, by setting this in production.ini:
+``ckan.auth.public_activity_stream_detail = true``
