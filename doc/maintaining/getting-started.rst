@@ -79,7 +79,7 @@ command line with the following ``seed`` commands:
 If you later want to delete this test data and start again with an empty
 database, you can use the :ref:`db clean <db clean>` command.
 
-For a list of other command line commands for creating tests data, run:
+For a short description of these seed subcommands for creating test data, run:
 
 .. parsed-literal::
 
