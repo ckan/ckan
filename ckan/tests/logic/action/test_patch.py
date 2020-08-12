@@ -121,3 +121,24 @@ class TestPatch(object):
 
         assert organization2["name"] == "economy"
         assert organization2["description"] == "somethingnew"
+
+    def test_user_patch_updating_single_field(self):
+        user = factories.User(
+            fullname="Mr. Test User",
+            about="Just another test user.",
+        )
+
+        user = helpers.call_action(
+            "user_patch",
+            id=user["id"],
+            about="somethingnew",
+            context={"user": user["name"]},
+        )
+
+        assert user["fullname"] == "Mr. Test User"
+        assert user["about"] == "somethingnew"
+
+        user2 = helpers.call_action("user_show", id=user["id"])
+
+        assert user2["fullname"] == "Mr. Test User"
+        assert user2["about"] == "somethingnew"
