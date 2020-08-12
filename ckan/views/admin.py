@@ -240,7 +240,9 @@ class TrashView(MethodView):
         return actions.get(ent_type)
 
 
-admin.add_url_rule(u'/', view_func=index, strict_slashes=False)
+admin.add_url_rule(
+    u'/', view_func=index, methods=['GET'], strict_slashes=False
+)
 admin.add_url_rule(u'/reset_config',
                    view_func=ResetConfigView.as_view(str(u'reset_config')))
 admin.add_url_rule(u'/config', view_func=ConfigView.as_view(str(u'config')))
