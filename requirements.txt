@@ -10,7 +10,7 @@ beaker==1.11.0
 bleach==3.1.4
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
-click==6.7
+click==7.1.2
 decorator==4.4.1          # via sqlalchemy-migrate
 dominate==2.4.0
 fanstatic==1.1
