@@ -9,7 +9,7 @@ import ckan.tests.helpers as helpers
 @pytest.mark.ckan_config('ckan.views.default_views', '')
 @pytest.mark.ckan_config("ckan.plugins", "pdf_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_view_shown_on_resource_page_with_image_url(app):
+def test_view_shown_on_resource_page_with_pdf_url(app):
 
     dataset = factories.Dataset()
 
@@ -18,7 +18,7 @@ def test_view_shown_on_resource_page_with_image_url(app):
 
     resource_view = factories.ResourceView(
         resource_id=resource['id'],
-        image_url='http://some.document.pdf')
+        pdf_url='http://some.document.pdf')
 
     url = url_for('{}_resource.read'.format(dataset['type']),
                   id=dataset['name'], resource_id=resource['id'])
