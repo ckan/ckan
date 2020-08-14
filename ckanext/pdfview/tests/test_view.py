@@ -18,7 +18,8 @@ def test_view_shown_on_resource_page_with_pdf_url(app):
 
     resource_view = factories.ResourceView(
         resource_id=resource['id'],
-        pdf_url='http://some.document.pdf')
+        view_type='pdf_view',
+        pdf_url='https://example/document.pdf')
 
     url = url_for('{}_resource.read'.format(dataset['type']),
                   id=dataset['name'], resource_id=resource['id'])
