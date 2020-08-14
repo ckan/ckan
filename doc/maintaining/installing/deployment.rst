@@ -184,6 +184,13 @@ following contents:
             proxy_cache_key $host$scheme$proxy_host$request_uri;
             # In emergency comment out line to force caching
             # proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+
+            # workaround for Chrome, as it transfer PDFs using
+            # 'application/octet-stream', downloading the PDF instead
+            # of rendering it
+            if ($request_filename ~ "^.*/(.+\.pdf)$"){
+                add_header Content-Type 'application/pdf';
+            }
         }
 
     }
