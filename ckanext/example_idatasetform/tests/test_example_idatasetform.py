@@ -60,6 +60,22 @@ class TestVersion1(ExampleIDatasetFormPluginBase):
 class TestVersion2(ExampleIDatasetFormPluginBase):
     pass
 
+    def test_custom_field_with_extras(self):
+        dataset = factories.Dataset(
+            type='fancy_type',
+            name='test-dataset',
+            custom_text='custom-text',
+            extras=[
+                {'key': 'key1', 'value': 'value1'},
+                {'key': 'key2', 'value': 'value2'},
+            ]
+        )
+        assert dataset['custom_text'] == 'custom-text'
+        assert dataset['extras'] == [
+            {'key': 'key1', 'value': 'value1'},
+            {'key': 'key2', 'value': 'value2'},
+        ]
+
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v3")
 class TestVersion3(ExampleIDatasetFormPluginBase):
