@@ -73,6 +73,22 @@ class TestVersion2(ExampleIDatasetFormPluginBase):
         plugins.unload('example_idatasetform_v2')
         super(TestVersion2, cls).teardown_class()
 
+    def test_custom_field_with_extras(self):
+        dataset = factories.Dataset(
+            type='fancy_type',
+            name='test-dataset',
+            custom_text='custom-text',
+            extras=[
+                {'key': 'key1', 'value': 'value1'},
+                {'key': 'key2', 'value': 'value2'},
+            ]
+        )
+        assert dataset['custom_text'] == 'custom-text'
+        assert dataset['extras'] == [
+            {'key': 'key1', 'value': 'value1'},
+            {'key': 'key2', 'value': 'value2'},
+        ]
+
 
 class TestVersion3(ExampleIDatasetFormPluginBase):
     @classmethod
