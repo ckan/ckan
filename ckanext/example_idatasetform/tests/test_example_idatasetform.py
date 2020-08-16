@@ -79,6 +79,22 @@ class TestVersion5(object):
             url_for("fancy_type.edit", id="check") == "/fancy_type/edit/check"
         )
 
+    def test_custom_field_with_extras(self):
+        dataset = factories.Dataset(
+            type='fancy_type',
+            name='test-dataset',
+            custom_text='custom-text',
+            extras=[
+                {'key': 'key1', 'value': 'value1'},
+                {'key': 'key2', 'value': 'value2'},
+            ]
+        )
+        assert dataset['custom_text'] == 'custom-text'
+        assert dataset['extras'] == [
+            {'key': 'key1', 'value': 'value1'},
+            {'key': 'key2', 'value': 'value2'},
+        ]
+
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
 @pytest.mark.ckan_config("package_edit_return_url", None)
