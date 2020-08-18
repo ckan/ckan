@@ -89,6 +89,24 @@ class TestVersion2(ExampleIDatasetFormPluginBase):
             {'key': 'key2', 'value': 'value2'},
         ]
 
+    def test_mixed_extras(self):
+        dataset = factories.Dataset(
+            type='fancy_type',
+            name='test-dataset',
+            custom_text='custom-text',
+            extras=[
+                {'key': 'key1', 'value': 'value1'},
+                {'key': 'custom_text_2', 'value': 'custom-text-2'},
+                {'key': 'key2', 'value': 'value2'},
+            ],
+        )
+        assert dataset['custom_text'] == 'custom-text'
+        assert dataset['custom_text_2'] == 'custom-text-2'
+        assert dataset['extras'] == [
+            {'key': 'key1', 'value': 'value1'},
+            {'key': 'key2', 'value': 'value2'},
+        ]
+
 
 class TestVersion3(ExampleIDatasetFormPluginBase):
     @classmethod
