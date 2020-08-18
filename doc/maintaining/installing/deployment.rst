@@ -188,7 +188,7 @@ following contents:
             # workaround for Chrome, as it transfer PDFs using
             # 'application/octet-stream', downloading the PDF instead
             # of rendering it
-            if ($request_filename ~ "^.*/(.+\.pdf)$"){
+            if ($request_filename ~* \.pdf$){
                 add_header Content-Type 'application/pdf';
             }
         }
