@@ -813,7 +813,7 @@ def _link_active_pylons(kwargs):
     highlight_controllers = kwargs.get('highlight_controllers', [])
     if highlight_controllers and c.controller in highlight_controllers:
         return True
-    
+
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split()
     return (c.controller == kwargs.get('controller')
@@ -829,6 +829,7 @@ def _link_active_flask(kwargs):
 
     return (kwargs.get('controller') == blueprint and
             kwargs.get('action') == endpoint)
+
 
 def _link_to(text, *args, **kwargs):
     '''Common link making code for several helper functions'''
@@ -1016,7 +1017,8 @@ def build_nav_main(*args):
     Outputs ``<li><a href="...">title</a></li>``
 
     :param args: tuples of (menu type, title) eg ('login', _('Login')).
-        Third item specifies controllers which should be used to mark link as active.
+        Third item specifies controllers which should be used to
+        mark link as active.
         Fourth item specifies auth function to check permissions against.
     :type args: tuple[str, str, Optional[list], Optional[str]]
 
@@ -1024,10 +1026,11 @@ def build_nav_main(*args):
     """
     output = ''
     for item in args:
-        menu_item, title, highlight_controllers = (list(item) +[None]*3)[:3]
+        menu_item, title, highlight_controllers = (list(item) + [None] * 3)[:3]
         if len(item) == 4 and not check_access(item[3]):
             continue
-        output += _make_menu_item(menu_item, title, highlight_controllers=highlight_controllers)
+        output += _make_menu_item(menu_item, title,
+                                  highlight_controllers=highlight_controllers)
     return output
 
 

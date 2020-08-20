@@ -638,7 +638,6 @@ class TestBuildNavMain(object):
                 '<li><a href="/about">About</a></li>'
             )
 
-
         resource = factories.Resource(name="some_resource")
         with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
             menu = (
@@ -689,6 +688,7 @@ class TestBuildNavMain(object):
                 '<li><a href="/group/">Groups</a></li>'
                 '<li><a href="/about">About</a></li>'
             )
+
     @pytest.mark.usefixtures("clean_db")
     def test_active_in_resource_controller_legacy_pylon_routes(self, test_request_context):
 
@@ -725,6 +725,7 @@ class TestBuildNavMain(object):
                 '<li><a href="/group/">Groups</a></li>'
                 '<li><a href="/about">About</a></li>'
             )
+
     def test_dataset_navigation_legacy_routes(self):
         dataset_name = "test-dataset"
         assert (
