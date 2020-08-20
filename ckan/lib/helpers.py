@@ -810,6 +810,10 @@ def _link_active(kwargs):
 
 
 def _link_active_pylons(kwargs):
+    highlight_controllers = kwargs.get('highlight_controllers', [])
+    if highlight_controllers and c.controller in highlight_controllers:
+        return True
+    
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split()
     return (c.controller == kwargs.get('controller')
@@ -818,9 +822,13 @@ def _link_active_pylons(kwargs):
 
 def _link_active_flask(kwargs):
     blueprint, endpoint = p.toolkit.get_endpoint()
-    return(kwargs.get('controller') == blueprint and
-           kwargs.get('action') == endpoint)
 
+    highlight_controllers = kwargs.get('highlight_controllers', [])
+    if highlight_controllers and blueprint in highlight_controllers:
+        return True
+
+    return (kwargs.get('controller') == blueprint and
+            kwargs.get('action') == endpoint)
 
 def _link_to(text, *args, **kwargs):
     '''Common link making code for several helper functions'''
@@ -1003,17 +1011,23 @@ def subnav_named_route(text, named_route, **kwargs):
 
 @core_helper
 def build_nav_main(*args):
-    ''' build a set of menu items.
+    """Build a set of menu items.
 
-    args: tuples of (menu type, title) eg ('login', _('Login'))
-    outputs <li><a href="...">title</a></li>
-    '''
+    Outputs ``<li><a href="...">title</a></li>``
+
+    :param args: tuples of (menu type, title) eg ('login', _('Login')).
+        Third item specifies controllers which should be used to mark link as active.
+        Fourth item specifies auth function to check permissions against.
+    :type args: tuple[str, str, Optional[list], Optional[str]]
+
+    :rtype: str
+    """
     output = ''
     for item in args:
-        menu_item, title = item[:2]
-        if len(item) == 3 and not check_access(item[2]):
+        menu_item, title, highlight_controllers = (list(item) +[None]*3)[:3]
+        if len(item) == 4 and not check_access(item[3]):
             continue
-        output += _make_menu_item(menu_item, title)
+        output += _make_menu_item(menu_item, title, highlight_controllers=highlight_controllers)
     return output
 
 
@@ -1115,6 +1129,9 @@ def _make_menu_item(menu_item, title, **kw):
     item = copy.copy(_menu_items[menu_item])
     item.update(kw)
     active = _link_active(item)
+
+    # Remove highlight controllers so that they won't appear in generated urls.
+    item.pop('highlight_controllers', False)
     needed = item.pop('needed')
     for need in needed:
         if need not in kw:

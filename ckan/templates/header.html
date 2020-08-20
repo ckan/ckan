@@ -90,7 +90,7 @@
               {% set group_type = h.default_group_type('group') %}
 
 		          {{ h.build_nav_main(
-		            ('dataset.search', _('Datasets')),
+		            ('dataset.search', _('Datasets'), ["dataset", "resource"]),
 		            (org_type ~ '.index',
                   h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations')),
 		            (group_type ~ '.index',
