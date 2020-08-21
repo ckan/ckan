@@ -30,7 +30,9 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
         schema.update({
             u'custom_text': [tk.get_converter(u'convert_from_extras'),
-                             tk.get_validator(u'ignore_missing')]
+                             tk.get_validator(u'ignore_missing')],
+            u'custom_text_2': [tk.get_converter(u'convert_from_extras'),
+                               tk.get_validator(u'ignore_missing')],
         })
         return schema
 

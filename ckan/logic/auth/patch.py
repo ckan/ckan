@@ -17,3 +17,7 @@ def group_patch(context, data_dict):
 
 def organization_patch(context, data_dict):
     return authz.is_authorized('organization_update', context, data_dict)
+
+
+def user_patch(context, data_dict):
+    return authz.is_authorized('user_update', context, data_dict)
