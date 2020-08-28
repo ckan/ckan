@@ -351,6 +351,8 @@ def resource_create(context, data_dict):
 def resource_view_create(context, data_dict):
     '''Creates a new resource view.
 
+    :param id: id of the resource view (optional)
+    :type id: string
     :param resource_id: id of the resource
     :type resource_id: string
     :param title: the title of the view

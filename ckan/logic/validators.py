@@ -203,6 +203,17 @@ def resource_id_exists(value, context):
     return value
 
 
+def resource_view_id_does_not_exist(value, context):
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.ResourceView).get(value)
+    if result:
+        raise Invalid(_('Resource view id already exists'))
+    return value
+
+
 def user_id_exists(user_id, context):
     '''Raises Invalid if the given user_id does not exist in the model given
     in the context, otherwise returns the given user_id.
