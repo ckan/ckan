@@ -171,7 +171,8 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                                 new_resource_dict[resource_id].get('name')})
 
         # if both have descriptions but they are different
-        elif old_metadata.get('description') != new_metadata.get('description'):
+        elif old_metadata.get('description') != \
+            new_metadata.get('description'):
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'change',
                                 u'pkg_id': new['id'],
