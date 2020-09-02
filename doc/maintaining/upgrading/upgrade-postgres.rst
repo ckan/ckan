@@ -217,7 +217,7 @@ Upgrading
 
    .. parsed-literal::
 
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c "SELECT postgis_full_version()"
+        sudo -u postgres psql --cluster 9.5/main -d |database| -c "SELECT postgis_full_version()"
 
 
 #. Now restore your databases::
