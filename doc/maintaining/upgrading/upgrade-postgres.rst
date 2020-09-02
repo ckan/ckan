@@ -96,7 +96,9 @@ Upgrading
 
    And if you need PostGIS::
 
-     sudo apt-get install postgresql-9.5-postgis-2.2
+     sudo apt-get install postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts
+     
+   Here we have install PostGIS 2.2, if you want a specific version then change the version number above.   
 
 #. If you have customized any |postgres| options, insert them into the new version's config files.
 
@@ -181,7 +183,7 @@ Upgrading
 
 #. Optional: If necessary, update the PostGIS objects (known as a 'hard upgrade'). Please refer to the `documentation <http://postgis.net/docs/postgis_installation.html#hard_upgrade>`_ if you find any issues. ::
 
-     perl /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis_restore.pl backup_ckan.sql > backup_ckan_postgis.sql
+     perl /usr/share/postgresql/9.5/contrib/postgis-2.2/postgis_restore.pl backup_ckan.sql > backup_ckan_postgis.sql
 
 #. Restore your |postgres| roles into the new |postgres| version cluster. If
    you're not upgrading to |postgres| version 9.5, you'll need to change the
@@ -206,10 +208,10 @@ Upgrading
 
    .. parsed-literal::
 
-        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis.sql
-        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/spatial_ref_sys.sql
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE spatial_ref_sys OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.5/main -d |database| -f /usr/share/postgresql/9.5/contrib/postgis-2.2/postgis.sql
+        sudo -u postgres psql --cluster 9.5/main -d |database| -f /usr/share/postgresql/9.5/contrib/postgis-2.2/spatial_ref_sys.sql
+        sudo -u postgres psql --cluster 9.5/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.5/main -d |database| -c 'ALTER TABLE spatial_ref_sys OWNER TO ckan_default;'
 
    To check if PostGIS was properly installed:
 
