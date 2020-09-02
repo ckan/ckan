@@ -171,17 +171,17 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                                 new_resource_dict[resource_id].get('name')})
 
         # if both have descriptions but they are different
-        elif old_metadata.get('description') != \
-            new_metadata.get('description'):
-                change_list.append({u'type': u'resource_desc',
-                                    u'method': u'change',
-                                    u'pkg_id': new['id'],
-                                    u'title': new.get('title'),
-                                    u'resource_id': resource_id,
-                                    u'resource_name':
-                                    new_resource_dict[resource_id].get('name'),
-                                    u'new_desc': new_metadata.get('description'),
-                                    u'old_desc': old_metadata.get('description')})
+        elif old_metadata.get('description') \
+                != new_metadata.get('description'):
+            change_list.append({u'type': u'resource_desc',
+                                u'method': u'change',
+                                u'pkg_id': new['id'],
+                                u'title': new.get('title'),
+                                u'resource_id': resource_id,
+                                u'resource_name':
+                                new_resource_dict[resource_id].get('name'),
+                                u'new_desc': new_metadata.get('description'),
+                                u'old_desc': old_metadata.get('description')})
 
         # check if the url changes (e.g. user uploaded a new file)
         # TODO: use regular expressions to determine the actual name of the
