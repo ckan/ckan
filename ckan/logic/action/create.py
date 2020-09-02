@@ -353,6 +353,8 @@ def resource_view_create(context, data_dict):
 
     :param id: id of the resource view (optional)
     :type id: string
+    :param package_id: id of the package (optional)
+    :type package_id: string
     :param resource_id: id of the resource
     :type resource_id: string
     :param title: the title of the view
