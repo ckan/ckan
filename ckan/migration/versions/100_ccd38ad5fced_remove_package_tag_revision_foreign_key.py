@@ -39,6 +39,11 @@ def upgrade():
         u"group_revision",
         type_=u"foreignkey",
     )
+    op.drop_constraint(
+        u"member_revision_group_id_fkey",
+        u"member_revision",
+        type_=u"foreignkey",
+    )
 
 
 def downgrade():
@@ -68,5 +73,12 @@ def downgrade():
         u"group_revision",
         u"group",
         [u"continuity_id"],
+        ["id"],
+    )
+    op.create_foreign_key(
+        u"member_revision_group_id_fkey",
+        u"member_revision",
+        u"group",
+        [u"group_id"],
         ["id"],
     )
