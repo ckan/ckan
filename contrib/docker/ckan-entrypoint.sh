@@ -42,7 +42,7 @@ write_config () {
 }
 
 # Wait for PostgreSQL
-while ! pg_isready -h db -U ckan; do
+while ! pg_isready -h ${POSTGRES_HOST}; do
   sleep 1;
 done
 
