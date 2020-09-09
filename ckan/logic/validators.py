@@ -124,7 +124,7 @@ def natural_number_validator(value, context):
 def is_positive_integer(value, context):
     value = int_validator(value, context)
     if value < 1:
-        raise Invalid(_('Must be a postive integer'))
+        raise Invalid(_('Must be a positive integer'))
     return value
 
 def boolean_validator(value, context):
