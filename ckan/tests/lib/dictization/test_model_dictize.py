@@ -94,30 +94,6 @@ class TestGroupListDictize:
 
         assert group_dicts[0]["extras"][0]["key"] == "k1"
 
-    def test_group_list_dictize_including_tags(self):
-        factories.Group()
-        # group tags aren't in the group_create schema, so its slightly more
-        # convoluted way to create them
-        group_obj = model.Session.query(model.Group).first()
-        tag = model.Tag(name="t1")
-        model.Session.add(tag)
-        model.Session.commit()
-        tag = model.Session.query(model.Tag).first()
-        group_obj = model.Session.query(model.Group).first()
-        member = model.Member(
-            group=group_obj, table_id=tag.id, table_name="tag"
-        )
-        model.Session.add(member)
-        model.Session.commit()
-        group_list = model.Session.query(model.Group).filter_by().all()
-        context = {"model": model, "session": model.Session}
-
-        group_dicts = model_dictize.group_list_dictize(
-            group_list, context, include_tags=True
-        )
-
-        assert group_dicts[0]["tags"][0]["name"] == "t1"
-
     def test_group_list_dictize_including_groups(self):
         factories.Group(name="parent")
         factories.Group(name="child", groups=[{"name": "parent"}])

@@ -448,7 +448,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
         group_list = []
         for group in groups:
             data_dict['id'] = group.id
-            for key in ('include_extras', 'include_tags', 'include_users',
+            for key in ('include_extras', 'include_users',
                         'include_groups', 'include_followers'):
                 if key not in data_dict:
                     data_dict[key] = False
@@ -495,9 +495,6 @@ def group_list(context, data_dict):
     :param include_extras: if all_fields, include the group extra fields
         (optional, default: ``False``)
     :type include_extras: bool
-    :param include_tags: if all_fields, include the group tags
-        (optional, default: ``False``)
-    :type include_tags: bool
     :param include_groups: if all_fields, include the groups the groups are in
         (optional, default: ``False``).
     :type include_groups: bool
@@ -547,9 +544,6 @@ def organization_list(context, data_dict):
     :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
     :type include_extras: bool
-    :param include_tags: if all_fields, include the organization tags
-        (optional, default: ``False``)
-    :type include_tags: bool
     :param include_groups: if all_fields, include the organizations the
         organizations are in
         (optional, default: ``False``)
@@ -1164,7 +1158,6 @@ def _group_or_org_show(context, data_dict, is_org=False):
         packages_field = None
 
     try:
-        include_tags = asbool(data_dict.get('include_tags', True))
         if asbool(config.get('ckan.auth.public_user_details', True)):
             include_users = asbool(data_dict.get('include_users', True))
         else:
@@ -1189,7 +1182,6 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     group_dict = model_dictize.group_dictize(group, context,
                                              packages_field=packages_field,
-                                             include_tags=include_tags,
                                              include_extras=include_extras,
                                              include_groups=include_groups,
                                              include_users=include_users,)
@@ -1246,9 +1238,6 @@ def group_show(context, data_dict):
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
     :type include_groups: bool
-    :param include_tags: include the group's tags
-         (optional, default: ``True``)
-    :type include_tags: bool
     :param include_followers: include the group's number of followers
          (optional, default: ``True``)
     :type include_followers: bool
@@ -1281,9 +1270,6 @@ def organization_show(context, data_dict):
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
     :type include_groups: bool
-    :param include_tags: include the organization's tags
-         (optional, default: ``True``)
-    :type include_tags: bool
     :param include_followers: include the organization's number of followers
          (optional, default: ``True``)
     :type include_followers: bool
