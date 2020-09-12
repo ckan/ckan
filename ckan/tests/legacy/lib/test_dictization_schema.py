@@ -132,7 +132,6 @@ class TestBasicDictize(object):
         # we don't want these here
         del data["groups"]
         del data["users"]
-        del data["tags"]
         del data["extras"]
 
         converted_data, errors = validate(

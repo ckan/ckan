@@ -122,7 +122,6 @@ class TestGroupDictize:
         assert group["name"] == "test_dictize"
         assert group["packages"] == []
         assert group["extras"] == []
-        assert group["tags"] == []
         assert group["groups"] == []
 
     def test_group_dictize_group_with_dataset(self):

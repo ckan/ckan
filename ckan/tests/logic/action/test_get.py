@@ -332,7 +332,7 @@ class TestGroupList(object):
         group_list = helpers.call_action("group_list", all_fields=True)
 
         expected_group = dict(group)
-        for field in ("users", "tags", "extras", "groups"):
+        for field in ("users", "extras", "groups"):
             del expected_group[field]
 
         assert group_list[0] == expected_group
@@ -961,8 +961,9 @@ class TestUserList(object):
         ]
         datasets = [
             factories.Dataset(user=users[1]),
-            factories.Dataset(user=users[1])
+            factories.Dataset(user=users[1]),
         ]
+        factories.Dataset(user=users[2])
         for dataset in datasets:
             dataset["title"] = "Edited title"
             helpers.call_action(
@@ -971,7 +972,7 @@ class TestUserList(object):
         expected_names = [
             u['name'] for u in [
                 users[0],  # 0 packages created
-                users[2],  # 0 packages created
+                users[2],  # 1 packages created
                 users[1],  # 2 packages created
             ]
         ]
