@@ -433,6 +433,8 @@ ckan.logic.action.create
 
 .. automodule:: ckan.logic.action.create
    :members:
+.. note::
+   Please refer link for `rating_create <https://github.com/6aika/ckanext-rating>`
 
 ckan.logic.action.update
 ========================

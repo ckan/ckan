@@ -128,10 +128,6 @@ def organization_create(context, data_dict=None):
     return {'success': False,
             'msg': _('User %s not authorized to create organizations') % user}
 
-def rating_create(context, data_dict):
-    # No authz check in the logic function
-    return {'success': True}
-
 
 @logic.auth_allow_anonymous_access
 def user_create(context, data_dict=None):
