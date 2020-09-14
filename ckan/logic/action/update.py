@@ -174,6 +174,7 @@ def resource_view_update(context, data_dict):
 
     context['resource_view'] = resource_view
     context['resource'] = model.Resource.get(resource_view.resource_id)
+    context['package'] = model.Package.get(context['resource'].package_id)
 
     _check_access('resource_view_update', context, data_dict)
 
@@ -183,7 +184,36 @@ def resource_view_update(context, data_dict):
     resource_view = model_save.resource_view_dict_save(data, context)
     if not context.get('defer_commit'):
         model.repo.commit()
-    return model_dictize.resource_view_dictize(resource_view, context)
+    view_dict = model_dictize.resource_view_dictize(resource_view, context)
+
+    # add activity for resource view update
+    user = context['user']
+    user_id = model.User.by_name(user.decode('utf8')).id
+    activity_data = {
+        'view': view_dict,
+        'resource': logic.get_action('resource_show')(context,
+                                                      {'id': resource_view.resource_id,
+                                                       'include_tracking': True}),
+        'package': logic.get_action('package_show')(context,
+                                                    {'id': context['resource'].package_id,
+                                                     'include_tracking': True}),
+    }
+    activity_dict = {
+        'user_id': user_id,
+        'object_id': context['package'].id,
+        'activity_type': 'changed package',
+        'data': activity_data,
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit': False,
+        'ignore_auth': True,
+        'session': context['session'],
+    }
+    logic.get_action('activity_create')(activity_create_context, activity_dict)
+    return view_dict
+
 
 def resource_view_reorder(context, data_dict):
     '''Reorder resource views.

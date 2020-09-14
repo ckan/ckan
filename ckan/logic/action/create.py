@@ -373,6 +373,19 @@ def resource_view_create(context, data_dict):
     model = context['model']
 
     resource_id = _get_or_bust(data_dict, 'resource_id')
+    resource = model.Resource.get(resource_id)
+    pkg = model.Package.get(resource.package_id)
+    package_id = pkg.id
+    if 'package_id' in data_dict.keys():
+        if package_id != data_dict['package_id']:
+            raise ValidationError(
+                {"package_id": "Incorrect package_id for resource {resource_id}".format(
+                    resource_id=resource_id
+                )}
+            )
+    else:
+        data_dict['package_id'] = package_id
+
     view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
 
@@ -410,7 +423,32 @@ def resource_view_create(context, data_dict):
     resource_view = model_save.resource_view_dict_save(data, context)
     if not context.get('defer_commit'):
         model.repo.commit()
-    return model_dictize.resource_view_dictize(resource_view, context)
+
+    view_dict = model_dictize.resource_view_dictize(resource_view, context)
+
+    # add activity for resource view create
+    user = context['user']
+    user_id = model.User.by_name(user.decode('utf8')).id
+    activity_data = {
+        'view': view_dict,
+        'resource': logic.get_action('resource_show')(context, {'id': resource_id, 'include_tracking': True}),
+        'package': logic.get_action('package_show')(context, {'id': package_id, 'include_tracking': True}),
+    }
+    activity_dict = {
+        'user_id': user_id,
+        'object_id': package_id,
+        'activity_type': 'changed package',
+        'data': activity_data,
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit': False,
+        'ignore_auth': True,
+        'session': context['session'],
+    }
+    logic.get_action('activity_create')(activity_create_context, activity_dict)
+    return view_dict
 
 
 def resource_create_default_resource_views(context, data_dict):
