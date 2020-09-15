@@ -100,7 +100,7 @@ def ajax(resource_view_id):
 
 
 def filtered_download(resource_view_id):
-    params = json.loads(request.params[u'params'])
+    params = json.loads(request.form[u'params'])
     resource_view = get_action(u'resource_view_show'
                                )(None, {
                                    u'id': resource_view_id
@@ -132,14 +132,14 @@ def filtered_download(resource_view_id):
 
     cols = [c for (c, v) in zip(cols, params[u'visible']) if v]
 
-    h.redirect_to(
+    return h.redirect_to(
         h.
         url_for(u'datastore.dump', resource_id=resource_view[u'resource_id']) +
         u'?' + urlencode({
             u'q': search_text,
             u'sort': u','.join(sort_list),
             u'filters': json.dumps(filters),
-            u'format': request.params[u'format'],
+            u'format': request.form[u'format'],
             u'fields': u','.join(cols),
         })
     )
@@ -151,5 +151,5 @@ datatablesview.add_url_rule(
 
 datatablesview.add_url_rule(
     u'/datatables/filtered-download/<resource_view_id>',
-    view_func=filtered_download
+    view_func=filtered_download, methods=[u'POST']
 )
