@@ -476,7 +476,7 @@ class Package(core.StatefulObjectMixin,
             }
         )
 
-@property
+    @property
     @maintain.deprecated()
     def extras_list(self):
         '''DEPRECATED in 2.9
