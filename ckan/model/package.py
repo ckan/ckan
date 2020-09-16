@@ -194,15 +194,6 @@ class Package(core.StatefulObjectMixin,
             return True
         return False
 
-    def get_average_rating(self):
-        total = 0
-        for rating in self.ratings:
-            total += rating.rating
-        if total == 0:
-            return None
-        else:
-            return total / len(self.ratings)
-
     def as_dict(self, ref_package_by='name', ref_group_by='name'):
         _dict = domain_object.DomainObject.as_dict(self)
         # Set 'license' in _dict to cater for old clients.
@@ -216,8 +207,6 @@ class Package(core.StatefulObjectMixin,
         groups.sort()
         _dict['groups'] = groups
         _dict['extras'] = {key: value for key, value in self.extras.items()}
-        _dict['ratings_average'] = self.get_average_rating()
-        _dict['ratings_count'] = len(self.ratings)
         _dict['resources'] = [res.as_dict(core_columns_only=False) \
                               for res in self.resources]
         site_url = config.get('ckan.site_url', None)
@@ -486,65 +475,6 @@ class Package(core.StatefulObjectMixin,
                 'actor': actor.name if actor else None
             }
         )
-
-    def set_rating(self, user_or_ip, rating):
-        '''Record a user's rating of this package.
-
-        The caller function is responsible for doing the commit.
-
-        If a rating is outside the range MAX_RATING - MIN_RATING then a
-        RatingValueException is raised.
-
-        @param user_or_ip - user object or an IP address string
-        '''
-        user = None
-        from ckan.model.user import User
-        from ckan.model.rating import Rating, MAX_RATING, MIN_RATING
-        if isinstance(user_or_ip, User):
-            user = user_or_ip
-            rating_query = meta.Session.query(Rating)\
-                               .filter_by(package=self, user=user)
-        else:
-            ip = user_or_ip
-            rating_query = meta.Session.query(Rating)\
-                               .filter_by(package=self, user_ip_address=ip)
-
-        try:
-            rating = float(rating)
-        except TypeError:
-            raise RatingValueException
-        except ValueError:
-            raise RatingValueException
-        if rating > MAX_RATING or rating < MIN_RATING:
-            raise RatingValueException
-
-        if rating_query.count():
-            rating_obj = rating_query.first()
-            rating_obj.rating = rating
-        elif user:
-            rating = Rating(package=self,
-                            user=user,
-                            rating=rating)
-            meta.Session.add(rating)
-        else:
-            rating = Rating(package=self,
-                            user_ip_address=ip,
-                            rating=rating)
-            meta.Session.add(rating)
-
-    @property
-    @maintain.deprecated()
-    def extras_list(self):
-        '''DEPRECATED in 2.9
-
-        Returns a list of the dataset's extras, as PackageExtra object
-        NB includes deleted ones too (state='deleted')
-        '''
-        from ckan.model.package_extra import PackageExtra
-        return meta.Session.query(PackageExtra) \
-            .filter_by(package_id=self.id) \
-            .all()
-
 
 class PackageMember(domain_object.DomainObject):
     pass
