@@ -63,7 +63,7 @@ RUN cd ${APP_DIR} && \
 ENV PATH=${APP_DIR}/bin:${PATH}   
     
 # Install CKAN and uwsgi
-RUN pip3 install -e git+${GIT_URL}#egg=ckan && \
+RUN pip3 install -e git+${GIT_URL}@${GIT_BRANCH}#egg=ckan && \ 
     pip3 install uwsgi && \
     cd ${SRC_DIR}/ckan && \
     cp who.ini ${APP_DIR} && \

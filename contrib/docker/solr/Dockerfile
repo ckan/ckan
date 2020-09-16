@@ -3,7 +3,7 @@ MAINTAINER Open Knowledge
 
 # Enviroment
 ENV SOLR_CORE ckan
-ENV CKAN_VERSION dev-v2.8
+ENV CKAN_VERSION dev-v2.9
 
 # User
 USER root
