@@ -476,6 +476,19 @@ class Package(core.StatefulObjectMixin,
             }
         )
 
+@property
+    @maintain.deprecated()
+    def extras_list(self):
+        '''DEPRECATED in 2.9
+        Returns a list of the dataset's extras, as PackageExtra object
+        NB includes deleted ones too (state='deleted')
+        '''
+        from ckan.model.package_extra import PackageExtra
+        return meta.Session.query(PackageExtra) \
+            .filter_by(package_id=self.id) \
+            .all()
+
+
 class PackageMember(domain_object.DomainObject):
     pass
 
