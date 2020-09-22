@@ -26,24 +26,14 @@ def convert_to_extras(key, data, errors, context):
 
 def convert_from_extras(key, data, errors, context):
 
-    def remove_from_extras(data, idx):
-        for key in sorted(data):
-            if key[0] != 'extras' or key[1] < idx:
-                continue
-            if key[1] == idx:
-                del data[key]
-
-            # Following block required for unflattening extras with
-            # "gaps" created sometimes by `convert_from_extra`
-            # validator :
-            #
-            #   {
-            #     ('extras', 0, 'key'): 'x',
-            #     ('extras', 2, 'key): 'y'
-            #   }
-            if key[1] > idx:
-                new_key = (key[0], key[1] - 1) + key[2:]
-                data[new_key] = data.pop(key)
+    def remove_from_extras(data, key):
+        to_remove = []
+        for data_key, data_value in six.iteritems(data):
+            if (data_key[0] == 'extras'
+                and data_key[1] == key):
+                to_remove.append(data_key)
+        for item in to_remove:
+            del data[item]
 
     for data_key, data_value in six.iteritems(data):
         if (data_key[0] == 'extras'
