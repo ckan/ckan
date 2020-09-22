@@ -3566,7 +3566,7 @@ def api_token_list(context, data_dict):
     :returns: collection of all API Tokens
     :rtype: list
 
-    .. versionadded:: 3.0
+    .. versionadded:: 2.9.0
     '''
     id_or_name = _get_or_bust(data_dict, u'user')
     _check_access(u'api_token_list', context, data_dict)
