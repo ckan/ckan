@@ -217,7 +217,6 @@ def resource_view_delete(context, data_dict):
 
     context["resource_view"] = resource_view
     context['resource'] = model.Resource.get(resource_view.resource_id)
-    context['package'] = model.Package.get(context['resource'].package_id)
     _check_access('resource_view_delete', context, data_dict)
 
     resource_view.delete()
@@ -226,20 +225,11 @@ def resource_view_delete(context, data_dict):
     # add activity for resource view delete
     user = context['user']
     user_id = model.User.by_name(user.decode('utf8')).id
-    activity_data = {
-        'view': data_dict,
-        'resource': ckan.logic.get_action('resource_show')(context,
-                                                           {'id': resource_view.resource_id,
-                                                            'include_tracking': True}),
-        'package': ckan.logic.get_action('package_show')(context,
-                                                         {'id': context['resource'].package_id,
-                                                          'include_tracking': True}),
-    }
     activity_dict = {
         'user_id': user_id,
-        'object_id': context['package'].id,
-        'activity_type': 'changed package',
-        'data': activity_data,
+        'object_id': context['resource'].package_id,
+        'activity_type': 'deleted resource view',
+        'data': {'id': resource_view.id},
     }
     activity_create_context = {
         'model': model,

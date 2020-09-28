@@ -32,6 +32,17 @@
 </span>
 {% endmacro %}
 
+{% macro view(activity_data) %}
+  <span class="resource-view">
+    {{ h.link_to(
+          activity_data.title if activity_data.title else h.resource_view_type(activity_data),
+          h.url_for(controller='package', action='resource_read',
+            id=activity_data.package_id,
+            resource_id=activity_data.resource_id) ~ '?view_id=' ~ activity_data.id)
+    }}
+  </span>
+{% endmacro %}
+
 {% block activity_stream %}
   <ul class="activity">
   {% for activity in activity_stream %}
@@ -40,6 +51,7 @@
       ), activity=activity, ah={
         'actor': actor,
         'dataset': dataset,
+        'view': view,
         'organization': organization,
         'user': user,
         'group': group,

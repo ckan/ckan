@@ -424,21 +424,14 @@ def resource_view_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    view_dict = model_dictize.resource_view_dictize(resource_view, context)
-
     # add activity for resource view create
     user = context['user']
     user_id = model.User.by_name(user.decode('utf8')).id
-    activity_data = {
-        'view': view_dict,
-        'resource': logic.get_action('resource_show')(context, {'id': resource_id, 'include_tracking': True}),
-        'package': logic.get_action('package_show')(context, {'id': package_id, 'include_tracking': True}),
-    }
     activity_dict = {
         'user_id': user_id,
         'object_id': package_id,
-        'activity_type': 'changed package',
-        'data': activity_data,
+        'activity_type': 'new resource view',
+        'data': {'id': resource_view.id},
     }
     activity_create_context = {
         'model': model,
@@ -448,7 +441,8 @@ def resource_view_create(context, data_dict):
         'session': context['session'],
     }
     logic.get_action('activity_create')(activity_create_context, activity_dict)
-    return view_dict
+
+    return model_dictize.resource_view_dictize(resource_view, context)
 
 
 def resource_create_default_resource_views(context, data_dict):
