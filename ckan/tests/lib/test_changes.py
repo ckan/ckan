@@ -1133,7 +1133,7 @@ class TestChangesWithSingleAttributes(object):
         assert changes[0]["method"] == u"remove_multiple"
         assert set(changes[0]["tags"]) == set((u"rivers", u"oceans", u"streams"))
 
-    def test_licence_title_added_when_it_does_not_exist(self):
+    def test_license_title_added_when_it_does_not_exist(self):
         changes = []
         original = {}
         new = {u"license_title": u"new license"}
@@ -1144,7 +1144,7 @@ class TestChangesWithSingleAttributes(object):
         assert changes[0]["type"] == u"license"
         assert changes[0]["new_title"] == u"new license"
 
-    def test_licence_title_changed(self):
+    def test_license_title_changed(self):
         changes = []
         original = {u"license_title": u"old license"}
         new = {u"license_title": u"new license"}
@@ -1156,7 +1156,7 @@ class TestChangesWithSingleAttributes(object):
         assert changes[0]["old_title"] == u"old license"
         assert changes[0]["new_title"] == u"new license"
 
-    def test_licence_title_removed_with_non_existing(self):
+    def test_license_title_removed_with_non_existing(self):
         changes = []
         original = {u"license_title": u"old license"}
         new = {}
@@ -1167,3 +1167,77 @@ class TestChangesWithSingleAttributes(object):
         assert changes[0]["type"] == u"license"
         assert changes[0]["old_title"] == u"old license"
         assert changes[0]["new_title"] is None
+
+    def test_url_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {u'url': u'http://example.com'}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"url"
+        assert changes[0]["method"] == u"add"
+        assert changes[0]["new_url"] == u'http://example.com'
+
+    def test_url_changed(self):
+        changes = []
+        original = {u"url": u"http://example.com"}
+        new = {u"url": u"http://example.com/new"}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"url"
+        assert changes[0]["method"] == u"change"
+        assert changes[0]["old_url"] == u"http://example.com"
+        assert changes[0]["new_url"] == u"http://example.com/new"
+
+    def test_url_removed_with_non_existing(self):
+        changes = []
+        original = {u"url": u"http://example.com"}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"url"
+        assert changes[0]["method"] == u"remove"
+        assert changes[0]["old_url"] == u"http://example.com"
+
+    def test_version_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {u'version': u'1'}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"version"
+        assert changes[0]["method"] == u"add"
+        assert changes[0]["new_version"] == u'1'
+
+    def test_version_changed(self):
+        changes = []
+        original = {u"version": u"1"}
+        new = {u"version": u"2"}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"version"
+        assert changes[0]["method"] == u"change"
+        assert changes[0]["old_version"] == u"1"
+        assert changes[0]["new_version"] == u"2"
+
+    def test_version_removed_with_non_existing(self):
+        changes = []
+        original = {u"version": u"1"}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"version"
+        assert changes[0]["method"] == u"remove"
+        assert changes[0]["old_version"] == u"1"
