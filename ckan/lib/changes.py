@@ -598,7 +598,7 @@ def _name_change(change_list, old, new):
     can be accessed at) between two versions (old and new) to
     change_list.
     '''
-    change_list.append({u'type': u'name', u'pkg_id': new.getu(u'id'),
+    change_list.append({u'type': u'name', u'pkg_id': new.get(u'id'),
                         u'title': new.get(u'title'), u'old_name':
                         old.get(u'name'), u'new_name': new.get(u'name')})
 
