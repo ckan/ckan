@@ -2342,7 +2342,8 @@ def get_resource_view(resource_view_id):
     '''Returns a resource view dict for the resource_view_id
     '''
     try:
-        return logic.get_action('resource_view_show')({}, {'id': resource_view_id})
+        return logic.get_action('resource_view_show')(
+            {}, {'id': resource_view_id})
     except logic.NotFound:
         return None
 

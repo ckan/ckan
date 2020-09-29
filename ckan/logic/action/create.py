@@ -374,17 +374,19 @@ def resource_view_create(context, data_dict):
 
     resource_id = _get_or_bust(data_dict, 'resource_id')
     resource = model.Resource.get(resource_id)
-    pkg = model.Package.get(resource.package_id)
-    package_id = pkg.id
+    pkg_dict = _get_action('package_show')(
+        dict(context, return_type='dict'),
+        {'id': resource.package_id})
+
     if 'package_id' in data_dict.keys():
-        if package_id != data_dict['package_id']:
+        if pkg_dict['id'] != data_dict['package_id']:
             raise ValidationError(
-                {"package_id": "Incorrect package_id for resource {resource_id}".format(
-                    resource_id=resource_id
-                )}
+                {"package_id": "Incorrect package_id for resource {res_id}"
+                    .format(res_id=resource_id)
+                 }
             )
     else:
-        data_dict['package_id'] = package_id
+        data_dict['package_id'] = pkg_dict['id']
 
     view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
@@ -434,7 +436,7 @@ def resource_view_create(context, data_dict):
     else:
         activity_dict = {
             'user_id': user_id,
-            'object_id': package_id,
+            'object_id': pkg_dict['id'],
             'activity_type': 'new resource view',
             'data': {'id': resource_view.id},
         }
@@ -445,7 +447,8 @@ def resource_view_create(context, data_dict):
             'ignore_auth': True,
             'session': context['session'],
         }
-        logic.get_action('activity_create')(activity_create_context, activity_dict)
+        _get_action('activity_create')(
+            activity_create_context, activity_dict)
 
     return model_dictize.resource_view_dictize(resource_view, context)
 
