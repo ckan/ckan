@@ -816,3 +816,354 @@ class TestChanges(object):
         else:
             assert changes[0]["resource_name"] == u"Image 2"
             assert changes[1]["resource_name"] == u"Image 1"
+
+
+class TestChangesWithSingleAttributes(object):
+
+    def test_title_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {'title': u"new title"}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"title"
+        assert changes[0]["old_title"] is None
+        assert changes[0]["new_title"] == u"new title"
+
+    def test_title_changed(self):
+        changes = []
+        original = {'title': u'old title'}
+        new = {'title': u"new title"}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"title"
+        assert changes[0]["old_title"] == u"old title"
+        assert changes[0]["new_title"] == u"new title"
+
+    def test_title_removed_with_non_existing(self):
+        changes = []
+        original = {'title': u'old title'}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"title"
+        assert changes[0]["old_title"] == u'old title'
+        assert changes[0]["new_title"] is None
+
+
+    def test_owner_org_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new_org = {u'id': u'new_org_id'}
+        new = {'owner_org': new_org['id'], 'organization': new_org}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"org"
+        assert changes[0]["method"] == u"add"
+        assert changes[0]["new_org_id"] == new_org['id']
+
+    def test_owner_org_changed(self):
+        changes = []
+        old_org = {u'id': u'old_org_id'}
+        original = {'owner_org': old_org['id'], 'organization': old_org}
+        new_org = {u'id': u'new_org_id'}
+        new = {'owner_org': new_org['id'], 'organization': new_org}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"org"
+        assert changes[0]["method"] == u"change"
+        assert changes[0]["old_org_id"] == old_org['id']
+        assert changes[0]["new_org_id"] == new_org['id']
+
+
+
+    def test_owner_org_removed_with_non_existing(self):
+        changes = []
+        old_org = {u'id': u'org_id'}
+        original = {'owner_org': old_org['id'], 'organization': old_org}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"org"
+        assert changes[0]["method"] == u"remove"
+        assert changes[0]["old_org_id"] == old_org['id']
+
+    def test_maintainer_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {'maintainer': u"new maintainer"}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert changes[0]["type"] == u"maintainer"
+        assert changes[0]["method"] == u"add"
+        assert changes[0]["new_maintainer"] == u"new maintainer"
+
+    def test_maintainer_changed(self):
+        changes = []
+        original = {'maintainer': u"old maintainer"}
+        new = {'maintainer': u"new maintainer"}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"maintainer"
+        assert changes[0]["method"] == u"change"
+        assert changes[0]["new_maintainer"] == u"new maintainer"
+        assert changes[0]["old_maintainer"] == u"old maintainer"
+
+    def test_maintainer_removed_with_non_existing(self):
+        changes = []
+        original = {'maintainer': u"old maintainer"}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"maintainer"
+        assert changes[0]["method"] == u"remove"
+
+    def test_maintainer_email_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {'maintainer_email': u"new@example.com"}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert changes[0]["type"] == u"maintainer_email"
+        assert changes[0]["method"] == u"add"
+        assert changes[0]["new_maintainer_email"] == u"new@example.com"
+
+    def test_maintainer_email_changed(self):
+        changes = []
+        original = {'maintainer_email': u"old@example.com"}
+        new = {'maintainer_email': u"new@example.com"}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"maintainer_email"
+        assert changes[0]["method"] == u"change"
+        assert changes[0]["new_maintainer_email"] == u"new@example.com"
+        assert changes[0]["old_maintainer_email"] == u"old@example.com"
+
+    def test_maintainer_email_removed_with_non_existing(self):
+        changes = []
+        original = {'maintainer_email': u"old@example.com"}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"maintainer_email"
+        assert changes[0]["method"] == u"remove"
+
+    def test_author_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {'author': u"new author"}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert changes[0]["type"] == u"author"
+        assert changes[0]["method"] == u"add"
+        assert changes[0]["new_author"] == u"new author"
+
+    def test_author_changed(self):
+        changes = []
+        original = {'author': u"old author"}
+        new = {'author': u"new author"}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"author"
+        assert changes[0]["method"] == u"change"
+        assert changes[0]["new_author"] == u"new author"
+        assert changes[0]["old_author"] == u"old author"
+
+    def test_author_removed_with_non_existing(self):
+        changes = []
+        original = {'author': u"old author"}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"author"
+        assert changes[0]["method"] == u"remove"
+
+    def test_author_email_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {'author_email': u"new@example.com"}
+
+        check_metadata_changes(changes, original, new)
+
+
+        assert changes[0]["type"] == u"author_email"
+        assert changes[0]["method"] == u"add"
+        assert changes[0]["new_author_email"] == u"new@example.com"
+
+    def test_author_email_changed(self):
+        changes = []
+        original = {'author_email': u"old@example.com"}
+        new = {'author_email': u"new@example.com"}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"author_email"
+        assert changes[0]["method"] == u"change"
+        assert changes[0]["new_author_email"] == u"new@example.com"
+        assert changes[0]["old_author_email"] == u"old@example.com"
+
+    def test_author_email_removed_with_non_existing(self):
+        changes = []
+        original = {'author_email': u"old@example.com"}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"author_email"
+        assert changes[0]["method"] == u"remove"
+
+    def test_notes_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {'notes': u'new notes'}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"notes"
+        assert changes[0]["method"] == u"add"
+        assert changes[0]["new_notes"] == u"new notes"
+
+    def test_notes_changed(self):
+        changes = []
+        original = {'notes': u'old notes'}
+        new = {'notes': u'new notes'}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"notes"
+        assert changes[0]["method"] == u"change"
+        assert changes[0]["new_notes"] == u"new notes"
+        assert changes[0]["old_notes"] == u"old notes"
+
+    def test_notes_removed_with_non_existing(self):
+        changes = []
+        original = {'notes': u'old notes'}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert changes[0]["type"] == u"notes"
+        assert changes[0]["method"] == u"remove"
+
+
+    def test_tag_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {"tags": [{u"name": u"rivers"}]}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"tags"
+        assert changes[0]["method"] == u"add_one"
+        assert changes[0]["tag"] == u"rivers"
+
+    def test_multiple_tags_added_when_it_does_not_exist(self):
+        changes = []
+        original = {"tags": [{u"name": u"rivers"}]}
+        new = {"tags":[
+                {u"name": u"rivers"},
+                {u"name": u"oceans"},
+                {u"name": u"streams"},
+            ]}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"tags"
+        assert changes[0]["method"] == u"add_multiple"
+        assert set(changes[0]["tags"]) == set((u"oceans", u"streams"))
+
+    def test_tag_removed_with_non_existing(self):
+        changes = []
+        original = {"tags": [{u"name": u"oceans"}]}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"tags"
+        assert changes[0]["method"] == u"remove_one"
+        assert changes[0]["tag"] == u"oceans"
+
+    def test_multiple_tags_removed_with_non_existing(self):
+        changes = []
+        original = {"tags": [
+                {u"name": u"rivers"},
+                {u"name": u"oceans"},
+                {u"name": u"streams"},
+            ]}
+
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"tags"
+        assert changes[0]["method"] == u"remove_multiple"
+        assert set(changes[0]["tags"]) == set((u"rivers", u"oceans", u"streams"))
+
+    def test_licence_title_added_when_it_does_not_exist(self):
+        changes = []
+        original = {}
+        new = {u"license_title": u"new license"}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"license"
+        assert changes[0]["new_title"] == u"new license"
+
+    def test_licence_title_changed(self):
+        changes = []
+        original = {u"license_title": u"old license"}
+        new = {u"license_title": u"new license"}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"license"
+        assert changes[0]["old_title"] == u"old license"
+        assert changes[0]["new_title"] == u"new license"
+
+    def test_licence_title_removed_with_non_existing(self):
+        changes = []
+        original = {u"license_title": u"old license"}
+        new = {}
+
+        check_metadata_changes(changes, original, new)
+
+        assert len(changes) == 1, changes
+        assert changes[0]["type"] == u"license"
+        assert changes[0]["old_title"] == u"old license"
+        assert changes[0]["new_title"] is None
