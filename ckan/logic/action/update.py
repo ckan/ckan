@@ -185,22 +185,26 @@ def resource_view_update(context, data_dict):
         model.repo.commit()
 
     # add activity for resource view update
-    user = context['user']
-    user_id = model.User.by_name(user.decode('utf8')).id
-    activity_dict = {
-        'user_id': user_id,
-        'object_id': context['resource'].package_id,
-        'activity_type': 'changed resource view',
-        'data': {'id': resource_view.id},
-    }
-    activity_create_context = {
-        'model': model,
-        'user': user,
-        'defer_commit': False,
-        'ignore_auth': True,
-        'session': context['session'],
-    }
-    logic.get_action('activity_create')(activity_create_context, activity_dict)
+    try:
+        user = context['user']
+        user_id = model.User.by_name(user.decode('utf8')).id
+        activity_dict = {
+            'user_id': user_id,
+            'object_id': context['resource'].package_id,
+            'activity_type': 'changed resource view',
+            'data': {'id': resource_view.id},
+        }
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit': False,
+            'ignore_auth': True,
+            'session': context['session'],
+        }
+        logic.get_action('activity_create')(activity_create_context, activity_dict)
+    except AttributeError:
+        # do not create activity for non-users
+        pass
 
     return model_dictize.resource_view_dictize(resource_view, context)
 
