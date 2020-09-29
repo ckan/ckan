@@ -827,7 +827,6 @@ class TestChangesWithSingleAttributes(object):
 
         check_metadata_changes(changes, original, new)
 
-
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"title"
         assert changes[0]["old_title"] is None
@@ -839,7 +838,6 @@ class TestChangesWithSingleAttributes(object):
         new = {'title': u"new title"}
 
         check_metadata_changes(changes, original, new)
-
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"title"
@@ -853,12 +851,10 @@ class TestChangesWithSingleAttributes(object):
 
         check_metadata_changes(changes, original, new)
 
-
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"title"
         assert changes[0]["old_title"] == u'old title'
         assert changes[0]["new_title"] is None
-
 
     def test_owner_org_added_when_it_does_not_exist(self):
         changes = []
@@ -867,7 +863,6 @@ class TestChangesWithSingleAttributes(object):
         new = {'owner_org': new_org['id'], 'organization': new_org}
 
         check_metadata_changes(changes, original, new)
-
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"org"
@@ -883,14 +878,11 @@ class TestChangesWithSingleAttributes(object):
 
         check_metadata_changes(changes, original, new)
 
-
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"org"
         assert changes[0]["method"] == u"change"
         assert changes[0]["old_org_id"] == old_org['id']
         assert changes[0]["new_org_id"] == new_org['id']
-
-
 
     def test_owner_org_removed_with_non_existing(self):
         changes = []
@@ -899,7 +891,6 @@ class TestChangesWithSingleAttributes(object):
         new = {}
 
         check_metadata_changes(changes, original, new)
-
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"org"
@@ -912,7 +903,6 @@ class TestChangesWithSingleAttributes(object):
         new = {'maintainer': u"new maintainer"}
 
         check_metadata_changes(changes, original, new)
-
 
         assert changes[0]["type"] == u"maintainer"
         assert changes[0]["method"] == u"add"
@@ -947,7 +937,6 @@ class TestChangesWithSingleAttributes(object):
 
         check_metadata_changes(changes, original, new)
 
-
         assert changes[0]["type"] == u"maintainer_email"
         assert changes[0]["method"] == u"add"
         assert changes[0]["new_maintainer_email"] == u"new@example.com"
@@ -981,7 +970,6 @@ class TestChangesWithSingleAttributes(object):
 
         check_metadata_changes(changes, original, new)
 
-
         assert changes[0]["type"] == u"author"
         assert changes[0]["method"] == u"add"
         assert changes[0]["new_author"] == u"new author"
@@ -1014,7 +1002,6 @@ class TestChangesWithSingleAttributes(object):
         new = {'author_email': u"new@example.com"}
 
         check_metadata_changes(changes, original, new)
-
 
         assert changes[0]["type"] == u"author_email"
         assert changes[0]["method"] == u"add"
@@ -1075,7 +1062,6 @@ class TestChangesWithSingleAttributes(object):
         assert changes[0]["type"] == u"notes"
         assert changes[0]["method"] == u"remove"
 
-
     def test_tag_added_when_it_does_not_exist(self):
         changes = []
         original = {}
@@ -1091,11 +1077,11 @@ class TestChangesWithSingleAttributes(object):
     def test_multiple_tags_added_when_it_does_not_exist(self):
         changes = []
         original = {"tags": [{u"name": u"rivers"}]}
-        new = {"tags":[
-                {u"name": u"rivers"},
-                {u"name": u"oceans"},
-                {u"name": u"streams"},
-            ]}
+        new = {"tags": [
+            {u"name": u"rivers"},
+            {u"name": u"oceans"},
+            {u"name": u"streams"},
+        ]}
 
         check_metadata_changes(changes, original, new)
 
@@ -1119,10 +1105,10 @@ class TestChangesWithSingleAttributes(object):
     def test_multiple_tags_removed_with_non_existing(self):
         changes = []
         original = {"tags": [
-                {u"name": u"rivers"},
-                {u"name": u"oceans"},
-                {u"name": u"streams"},
-            ]}
+            {u"name": u"rivers"},
+            {u"name": u"oceans"},
+            {u"name": u"streams"},
+        ]}
 
         new = {}
 

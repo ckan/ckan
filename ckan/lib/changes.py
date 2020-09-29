@@ -396,7 +396,8 @@ def _org_change(change_list, old, new):
                             u'old_org_title':
                             old.get(u'organization').get(u'title'),
                             u'new_org_id': new.get(u'organization').get(u'id'),
-                            u'new_org_title': new.get(u'organization').get(u'title')})
+                            u'new_org_title':
+                                new.get(u'organization').get(u'title')})
     # if the dataset was not in an organization before and it is now
     elif not old.get(u'owner_org') and new.get(u'owner_org'):
         change_list.append({u'type': u'org',
@@ -451,7 +452,8 @@ def _maintainer_email_change(change_list, old, new):
     if old.get(u'maintainer_email') and new.get(u'maintainer_email'):
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
                             new.get(u'id'), u'title': new.get(u'title'),
-                            u'new_maintainer_email': new.get(u'maintainer_email'),
+                            u'new_maintainer_email':
+                                new.get(u'maintainer_email'),
                             u'old_maintainer_email':
                             old.get(u'maintainer_email'),
                             u'method': u'change'})
@@ -464,7 +466,8 @@ def _maintainer_email_change(change_list, old, new):
     else:
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
                             new.get(u'id'), u'title': new.get(u'title'),
-                            u'new_maintainer_email': new.get(u'maintainer_email'),
+                            u'new_maintainer_email':
+                                new.get(u'maintainer_email'),
                             u'method': u'add'})
 
 
@@ -477,7 +480,8 @@ def _author_change(change_list, old, new):
     if old.get(u'author') and new.get(u'author'):
         change_list.append({u'type': u'author', u'pkg_id': new.get(u'id'),
                             u'title': new.get(u'title'), u'new_author':
-                            new.get(u'author'), u'old_author': old.get(u'author'),
+                            new.get(u'author'), u'old_author':
+                                old.get(u'author'),
                             u'method': u'change'})
     # if they removed the author
     elif not new.get(u'author'):
@@ -533,7 +537,8 @@ def _notes_change(change_list, old, new):
     else:
         change_list.append({u'type': u'notes', u'pkg_id':
                             new.get(u'id'), u'title': new.get(u'title'),
-                            u'new_notes': new.get(u'notes'), u'method': u'add'})
+                            u'new_notes': new.get(u'notes'),
+                            u'method': u'add'})
 
 
 def _tag_change(change_list, new_tags, old_tags, new):
