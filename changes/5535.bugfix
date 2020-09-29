@@ -1,0 +1,1 @@
+Catch IndexError from date parsing during dataset indexation
