@@ -188,6 +188,10 @@ def resource_view_update(context, data_dict):
     try:
         user = context['user']
         user_id = model.User.by_name(user.decode('utf8')).id
+    except AttributeError:
+        # do not create activity for non-users
+        pass
+    else:
         activity_dict = {
             'user_id': user_id,
             'object_id': context['resource'].package_id,
@@ -202,9 +206,6 @@ def resource_view_update(context, data_dict):
             'session': context['session'],
         }
         logic.get_action('activity_create')(activity_create_context, activity_dict)
-    except AttributeError:
-        # do not create activity for non-users
-        pass
 
     return model_dictize.resource_view_dictize(resource_view, context)
 
