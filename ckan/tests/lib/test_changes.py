@@ -823,7 +823,7 @@ class TestChangesWithSingleAttributes(object):
     def test_title_added_when_it_does_not_exist(self):
         changes = []
         original = {}
-        new = {'title': u"new title"}
+        new = {u'title': u"new title"}
 
         check_metadata_changes(changes, original, new)
 
@@ -834,8 +834,8 @@ class TestChangesWithSingleAttributes(object):
 
     def test_title_changed(self):
         changes = []
-        original = {'title': u'old title'}
-        new = {'title': u"new title"}
+        original = {u'title': u'old title'}
+        new = {u'title': u"new title"}
 
         check_metadata_changes(changes, original, new)
 
@@ -846,7 +846,7 @@ class TestChangesWithSingleAttributes(object):
 
     def test_title_removed_with_non_existing(self):
         changes = []
-        original = {'title': u'old title'}
+        original = {u'title': u'old title'}
         new = {}
 
         check_metadata_changes(changes, original, new)
@@ -860,7 +860,7 @@ class TestChangesWithSingleAttributes(object):
         changes = []
         original = {}
         new_org = {u'id': u'new_org_id'}
-        new = {'owner_org': new_org['id'], 'organization': new_org}
+        new = {u'owner_org': new_org['id'], u'organization': new_org}
 
         check_metadata_changes(changes, original, new)
 
@@ -872,9 +872,9 @@ class TestChangesWithSingleAttributes(object):
     def test_owner_org_changed(self):
         changes = []
         old_org = {u'id': u'old_org_id'}
-        original = {'owner_org': old_org['id'], 'organization': old_org}
+        original = {u'owner_org': old_org['id'], u'organization': old_org}
         new_org = {u'id': u'new_org_id'}
-        new = {'owner_org': new_org['id'], 'organization': new_org}
+        new = {u'owner_org': new_org['id'], u'organization': new_org}
 
         check_metadata_changes(changes, original, new)
 
@@ -887,7 +887,7 @@ class TestChangesWithSingleAttributes(object):
     def test_owner_org_removed_with_non_existing(self):
         changes = []
         old_org = {u'id': u'org_id'}
-        original = {'owner_org': old_org['id'], 'organization': old_org}
+        original = {u'owner_org': old_org['id'], u'organization': old_org}
         new = {}
 
         check_metadata_changes(changes, original, new)
@@ -900,7 +900,7 @@ class TestChangesWithSingleAttributes(object):
     def test_maintainer_added_when_it_does_not_exist(self):
         changes = []
         original = {}
-        new = {'maintainer': u"new maintainer"}
+        new = {u'maintainer': u"new maintainer"}
 
         check_metadata_changes(changes, original, new)
 
@@ -910,8 +910,8 @@ class TestChangesWithSingleAttributes(object):
 
     def test_maintainer_changed(self):
         changes = []
-        original = {'maintainer': u"old maintainer"}
-        new = {'maintainer': u"new maintainer"}
+        original = {u'maintainer': u"old maintainer"}
+        new = {u'maintainer': u"new maintainer"}
 
         check_metadata_changes(changes, original, new)
 
@@ -922,7 +922,7 @@ class TestChangesWithSingleAttributes(object):
 
     def test_maintainer_removed_with_non_existing(self):
         changes = []
-        original = {'maintainer': u"old maintainer"}
+        original = {u'maintainer': u"old maintainer"}
         new = {}
 
         check_metadata_changes(changes, original, new)
@@ -933,7 +933,7 @@ class TestChangesWithSingleAttributes(object):
     def test_maintainer_email_added_when_it_does_not_exist(self):
         changes = []
         original = {}
-        new = {'maintainer_email': u"new@example.com"}
+        new = {u'maintainer_email': u"new@example.com"}
 
         check_metadata_changes(changes, original, new)
 
@@ -943,8 +943,8 @@ class TestChangesWithSingleAttributes(object):
 
     def test_maintainer_email_changed(self):
         changes = []
-        original = {'maintainer_email': u"old@example.com"}
-        new = {'maintainer_email': u"new@example.com"}
+        original = {u'maintainer_email': u"old@example.com"}
+        new = {u'maintainer_email': u"new@example.com"}
 
         check_metadata_changes(changes, original, new)
 
@@ -955,7 +955,7 @@ class TestChangesWithSingleAttributes(object):
 
     def test_maintainer_email_removed_with_non_existing(self):
         changes = []
-        original = {'maintainer_email': u"old@example.com"}
+        original = {u'maintainer_email': u"old@example.com"}
         new = {}
 
         check_metadata_changes(changes, original, new)
@@ -966,7 +966,7 @@ class TestChangesWithSingleAttributes(object):
     def test_author_added_when_it_does_not_exist(self):
         changes = []
         original = {}
-        new = {'author': u"new author"}
+        new = {u'author': u"new author"}
 
         check_metadata_changes(changes, original, new)
 
@@ -976,8 +976,8 @@ class TestChangesWithSingleAttributes(object):
 
     def test_author_changed(self):
         changes = []
-        original = {'author': u"old author"}
-        new = {'author': u"new author"}
+        original = {u'author': u"old author"}
+        new = {u'author': u"new author"}
 
         check_metadata_changes(changes, original, new)
 
@@ -988,7 +988,7 @@ class TestChangesWithSingleAttributes(object):
 
     def test_author_removed_with_non_existing(self):
         changes = []
-        original = {'author': u"old author"}
+        original = {u'author': u"old author"}
         new = {}
 
         check_metadata_changes(changes, original, new)
@@ -999,7 +999,7 @@ class TestChangesWithSingleAttributes(object):
     def test_author_email_added_when_it_does_not_exist(self):
         changes = []
         original = {}
-        new = {'author_email': u"new@example.com"}
+        new = {u'author_email': u"new@example.com"}
 
         check_metadata_changes(changes, original, new)
 
@@ -1009,8 +1009,8 @@ class TestChangesWithSingleAttributes(object):
 
     def test_author_email_changed(self):
         changes = []
-        original = {'author_email': u"old@example.com"}
-        new = {'author_email': u"new@example.com"}
+        original = {u'author_email': u"old@example.com"}
+        new = {u'author_email': u"new@example.com"}
 
         check_metadata_changes(changes, original, new)
 
@@ -1021,7 +1021,7 @@ class TestChangesWithSingleAttributes(object):
 
     def test_author_email_removed_with_non_existing(self):
         changes = []
-        original = {'author_email': u"old@example.com"}
+        original = {u'author_email': u"old@example.com"}
         new = {}
 
         check_metadata_changes(changes, original, new)
@@ -1032,7 +1032,7 @@ class TestChangesWithSingleAttributes(object):
     def test_notes_added_when_it_does_not_exist(self):
         changes = []
         original = {}
-        new = {'notes': u'new notes'}
+        new = {u'notes': u'new notes'}
 
         check_metadata_changes(changes, original, new)
 
@@ -1042,8 +1042,8 @@ class TestChangesWithSingleAttributes(object):
 
     def test_notes_changed(self):
         changes = []
-        original = {'notes': u'old notes'}
-        new = {'notes': u'new notes'}
+        original = {u'notes': u'old notes'}
+        new = {u'notes': u'new notes'}
 
         check_metadata_changes(changes, original, new)
 
@@ -1054,7 +1054,7 @@ class TestChangesWithSingleAttributes(object):
 
     def test_notes_removed_with_non_existing(self):
         changes = []
-        original = {'notes': u'old notes'}
+        original = {u'notes': u'old notes'}
         new = {}
 
         check_metadata_changes(changes, original, new)
@@ -1065,7 +1065,7 @@ class TestChangesWithSingleAttributes(object):
     def test_tag_added_when_it_does_not_exist(self):
         changes = []
         original = {}
-        new = {"tags": [{u"name": u"rivers"}]}
+        new = {u"tags": [{u"name": u"rivers"}]}
 
         check_metadata_changes(changes, original, new)
 
@@ -1076,8 +1076,8 @@ class TestChangesWithSingleAttributes(object):
 
     def test_multiple_tags_added_when_it_does_not_exist(self):
         changes = []
-        original = {"tags": [{u"name": u"rivers"}]}
-        new = {"tags": [
+        original = {u"tags": [{u"name": u"rivers"}]}
+        new = {u"tags": [
             {u"name": u"rivers"},
             {u"name": u"oceans"},
             {u"name": u"streams"},
@@ -1092,7 +1092,7 @@ class TestChangesWithSingleAttributes(object):
 
     def test_tag_removed_with_non_existing(self):
         changes = []
-        original = {"tags": [{u"name": u"oceans"}]}
+        original = {u"tags": [{u"name": u"oceans"}]}
         new = {}
 
         check_metadata_changes(changes, original, new)
@@ -1104,7 +1104,7 @@ class TestChangesWithSingleAttributes(object):
 
     def test_multiple_tags_removed_with_non_existing(self):
         changes = []
-        original = {"tags": [
+        original = {u"tags": [
             {u"name": u"rivers"},
             {u"name": u"oceans"},
             {u"name": u"streams"},
