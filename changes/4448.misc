@@ -1,2 +1,0 @@
-For navl schemas, the 'default' validator no longer applies the default when
-the value is False, 0, [] or {}

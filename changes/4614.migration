@@ -1,5 +1,0 @@
-All the css/js files must be bundled via mandatory
-`webassets.yml`. Previously, optional `resource.config` was used for
-bundling. Check `Assets documentation
-<https://docs.ckan.org/en/latest/contributing/frontend/assets.html>`_
-for detailed explanation.
