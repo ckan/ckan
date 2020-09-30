@@ -375,9 +375,10 @@ def resource_view_create(context, data_dict):
     resource_id = _get_or_bust(data_dict, 'resource_id')
     resource = model.Resource.get(resource_id)
     if not resource:
-        raise NotFound(_('Resource {res_id} not found.')
-                       .format(res_id=resource_id))
-
+        raise ValidationError(
+            {"resource_id": "Resource {res_id} not found"
+                .format(res_id=resource_id)
+             })
     pkg_dict = _get_action('package_show')(
         dict(context, return_type='dict'),
         {'id': resource.package_id})
@@ -388,8 +389,7 @@ def resource_view_create(context, data_dict):
                 {"package_id": "Invalid package_id "
                                "{pkg_id} for resource {res_id}"
                     .format(pkg_id=data_dict['package_id'], res_id=resource_id)
-                 }
-            )
+                 })
     else:
         data_dict['package_id'] = pkg_dict['id']
 
