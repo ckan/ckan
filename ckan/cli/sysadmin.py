@@ -54,19 +54,22 @@ def list_sysadmins():
 @click.argument(u"args", nargs=-1)
 @click.pass_context
 def add(ctx, username, args):
-    user = model.User.by_name(text_type(username))
-    if not user:
-        click.secho(u'User "%s" not found' % username, fg=u"red")
-        if click.confirm(
-            u"Create new user: %s?" % username, default=True, abort=True
-        ):
-            ctx.forward(add_user)
-            user = model.User.by_name(text_type(username))
+    try:
+        user = model.User.by_name(text_type(username))
+        if not user:
+            click.secho(u'User "%s" not found' % username, fg=u"red")
+            if click.confirm(
+                u"Create new user: %s?" % username, default=True, abort=True
+            ):
+                ctx.forward(add_user)
+                user = model.User.by_name(text_type(username))
 
-    user.sysadmin = True
-    model.Session.add(user)
-    model.repo.commit_and_remove()
-    click.secho(u"Added %s as sysadmin" % username, fg=u"green")
+        user.sysadmin = True
+        model.Session.add(user)
+        model.repo.commit_and_remove()
+        click.secho(u"Added %s as sysadmin" % username, fg=u"green")
+    except ProgrammingError:
+        error_shout(u'The database is not created. Please initialize database first')
 
 
 @sysadmin.command(help=u"Removes user from sysadmins.")

@@ -80,7 +80,8 @@ def add_user(ctx, username, args):
     except logic.ValidationError as e:
         error_shout(e)
         raise click.Abort()
-
+    except ProgrammingError:
+        error_shout(u'The database is not created. Please initialize database first')
 
 def get_user_str(user):
     user_str = u'name=%s' % user.name
