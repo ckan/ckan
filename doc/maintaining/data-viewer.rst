@@ -203,6 +203,26 @@ an ``<img>`` tag pointing to the resource URL. You can provide an alternative
 URL on the edit view form. The available formats can be configured using the
 :ref:`ckan.preview.image_formats` configuration option.
 
+Video view
+++++++++++
+
+.. image:: /images/video_view.png
+
+View plugin: ``video_view``
+
+This plugin uses the HTML5 video tag to embed video content into a page,
+such as movie clip or other video streams.
+
+There are three supported video formats: MP4, WebM, and OGG.
+
+.. image:: /images/video_view_edit.png
+
+You can provide an alternative URL on the edit view form. Otherwise, the resource link will be used.
+
+Also, you can provide a poster image URL. The poster image will be shown while the
+video is downloading, or until the user hits the play button.
+If this is not provided, the first frame of the video will be used instead.
+
 Web page view
 +++++++++++++
 
