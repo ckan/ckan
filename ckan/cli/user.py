@@ -7,6 +7,8 @@ from pprint import pprint
 import six
 import click
 from six import text_type
+from sqlalchemy.exc import ProgrammingError
+
 
 import ckan.logic as logic
 import ckan.plugins as plugin
@@ -90,14 +92,15 @@ def get_user_str(user):
 @user.command(u'list', short_help=u'List all users')
 def list_users():
     import ckan.model as model
-    click.secho(u'Users:')
+
     users = model.Session.query(model.User).filter_by(state=u'active')
     try:
+        click.secho(u'Users:')
         click.secho(u'count = %i' % users.count())
         for user in users:
             click.secho(get_user_str(user))
-    except Exception:
-        error_shout("There are no users in the database. Maybe you should create one!")
+    except ProgrammingError:
+        error_shout(u'The database is not created. Please initialize database first')
 
 
 @user.command(u'remove', short_help=u'Remove user')

@@ -2,6 +2,8 @@
 
 import click
 from six import text_type
+from sqlalchemy.exc import ProgrammingError
+
 
 import ckan.model as model
 from ckan.cli import error_shout
@@ -24,6 +26,9 @@ def sysadmin(ctx):
 
 @sysadmin.command(name=u"list", help=u"List sysadmins.")
 def list_sysadmins():
+    """
+    List all the sysadmins
+    """
     click.secho(u"Sysadmins:")
     sysadmins = model.Session.query(model.User).filter_by(
         sysadmin=True, state=u"active"
@@ -40,8 +45,8 @@ def list_sysadmins():
                     sysadmin.id,
                 )
             )
-    except Exception:
-        error_shout("There are no users in the database. Maybe you should create one!")
+    except ProgrammingError:
+        error_shout(u'The database is not created. Please initialize database first')
 
 
 @sysadmin.command(help=u"Convert user into a sysadmin.")
