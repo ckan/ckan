@@ -97,7 +97,7 @@ def list_users():
         for user in users:
             click.secho(get_user_str(user))
     except Exception:
-        error_shout("There is no users in the database. Maybe you should create one!")
+        error_shout("There are no users in the database. Maybe you should create one!")
 
 
 @user.command(u'remove', short_help=u'Remove user')

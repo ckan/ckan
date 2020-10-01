@@ -41,7 +41,7 @@ def list_sysadmins():
                 )
             )
     except Exception:
-        error_shout("There is no users in the database. Maybe you should create one!")
+        error_shout("There are no users in the database. Maybe you should create one!")
 
 
 @sysadmin.command(help=u"Convert user into a sysadmin.")
