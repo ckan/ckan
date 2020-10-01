@@ -92,9 +92,12 @@ def list_users():
     import ckan.model as model
     click.secho(u'Users:')
     users = model.Session.query(model.User).filter_by(state=u'active')
-    click.secho(u'count = %i' % users.count())
-    for user in users:
-        click.secho(get_user_str(user))
+    try:
+        click.secho(u'count = %i' % users.count())
+        for user in users:
+            click.secho(get_user_str(user))
+    except Exception:
+        error_shout("There is no users in the database. Maybe you should create one!")
 
 
 @user.command(u'remove', short_help=u'Remove user')

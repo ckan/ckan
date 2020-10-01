@@ -13,6 +13,7 @@ from ckan.cli.user import add_user
     invoke_without_command=True,
 )
 @click.pass_context
+@click.help_option(u'-h', u'--help')
 def sysadmin(ctx):
     """Gives sysadmin rights to a named user.
 
@@ -27,17 +28,20 @@ def list_sysadmins():
     sysadmins = model.Session.query(model.User).filter_by(
         sysadmin=True, state=u"active"
     )
-    click.secho(u"count = %i" % sysadmins.count())
-    for sysadmin in sysadmins:
-        click.secho(
-            u"%s name=%s email=%s id=%s"
-            % (
-                sysadmin.__class__.__name__,
-                sysadmin.name,
-                sysadmin.email,
-                sysadmin.id,
+    try:
+        click.secho(u"count = %i" % sysadmins.count())
+        for sysadmin in sysadmins:
+            click.secho(
+                u"%s name=%s email=%s id=%s"
+                % (
+                    sysadmin.__class__.__name__,
+                    sysadmin.name,
+                    sysadmin.email,
+                    sysadmin.id,
+                )
             )
-        )
+    except Exception:
+        error_shout("There is no users in the database. Maybe you should create one!")
 
 
 @sysadmin.command(help=u"Convert user into a sysadmin.")
