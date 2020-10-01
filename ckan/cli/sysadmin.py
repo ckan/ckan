@@ -46,7 +46,8 @@ def list_sysadmins():
                 )
             )
     except ProgrammingError:
-        error_shout(u'The database is not created. Please initialize database first')
+        error_shout(u'The database is not created.\
+                    Please initialize database first')
 
 
 @sysadmin.command(help=u"Convert user into a sysadmin.")
@@ -69,7 +70,8 @@ def add(ctx, username, args):
         model.repo.commit_and_remove()
         click.secho(u"Added %s as sysadmin" % username, fg=u"green")
     except ProgrammingError:
-        error_shout(u'The database is not created. Please initialize database first')
+        error_shout(u'The database is not created.\
+                    Please initialize database first')
 
 
 @sysadmin.command(help=u"Removes user from sysadmins.")

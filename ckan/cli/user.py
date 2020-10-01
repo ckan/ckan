@@ -81,7 +81,8 @@ def add_user(ctx, username, args):
         error_shout(e)
         raise click.Abort()
     except ProgrammingError:
-        error_shout(u'The database is not created. Please initialize database first')
+        error_shout(u'The database is not created.\
+                    Please initialize database first')
 
 def get_user_str(user):
     user_str = u'name=%s' % user.name
@@ -101,7 +102,8 @@ def list_users():
         for user in users:
             click.secho(get_user_str(user))
     except ProgrammingError:
-        error_shout(u'The database is not created. Please initialize database first')
+        error_shout(u'The database is not created.\
+                    Please initialize database first')
 
 
 @user.command(u'remove', short_help=u'Remove user')
