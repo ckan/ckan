@@ -84,6 +84,7 @@ def add_user(ctx, username, args):
         error_shout(u'The database is not created.\
                     Please initialize database first')
 
+
 def get_user_str(user):
     user_str = u'name=%s' % user.name
     if user.name != user.display_name:
