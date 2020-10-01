@@ -203,6 +203,17 @@ def resource_id_exists(value, context):
     return value
 
 
+def resource_view_id_does_not_exist(value, context):
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.ResourceView).get(value)
+    if result:
+        raise Invalid(_('Resource view id already exists'))
+    return value
+
+
 def user_id_exists(user_id, context):
     '''Raises Invalid if the given user_id does not exist in the model given
     in the context, otherwise returns the given user_id.
@@ -287,6 +298,9 @@ object_id_validators = {
     'changed organization' : group_id_exists,
     'deleted organization' : group_id_exists,
     'follow group' : group_id_exists,
+    'new resource view': package_id_exists,
+    'changed resource view': package_id_exists,
+    'deleted resource view': package_id_exists,
     }
 
 def object_id_validator(key, activity_dict, errors, context):

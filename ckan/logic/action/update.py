@@ -183,7 +183,32 @@ def resource_view_update(context, data_dict):
     resource_view = model_save.resource_view_dict_save(data, context)
     if not context.get('defer_commit'):
         model.repo.commit()
+
+    # add activity for resource view update
+    try:
+        user = context['user']
+        user_id = model.User.by_name(user.decode('utf8')).id
+    except AttributeError:
+        # do not create activity for non-users
+        pass
+    else:
+        activity_dict = {
+            'user_id': user_id,
+            'object_id': context['resource'].package_id,
+            'activity_type': 'changed resource view',
+            'data': {'id': resource_view.id},
+        }
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit': False,
+            'ignore_auth': True,
+            'session': context['session'],
+        }
+        logic.get_action('activity_create')(activity_create_context, activity_dict)
+
     return model_dictize.resource_view_dictize(resource_view, context)
+
 
 def resource_view_reorder(context, data_dict):
     '''Reorder resource views.

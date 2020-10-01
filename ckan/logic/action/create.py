@@ -351,6 +351,10 @@ def resource_create(context, data_dict):
 def resource_view_create(context, data_dict):
     '''Creates a new resource view.
 
+    :param id: id of the resource view (optional)
+    :type id: string
+    :param package_id: id of the package (optional)
+    :type package_id: string
     :param resource_id: id of the resource
     :type resource_id: string
     :param title: the title of the view
@@ -369,6 +373,26 @@ def resource_view_create(context, data_dict):
     model = context['model']
 
     resource_id = _get_or_bust(data_dict, 'resource_id')
+    resource = model.Resource.get(resource_id)
+    if not resource:
+        raise ValidationError(
+            {"resource_id": "Resource {res_id} not found"
+                .format(res_id=resource_id)
+             })
+    pkg_dict = _get_action('package_show')(
+        dict(context, return_type='dict'),
+        {'id': resource.package_id})
+
+    if 'package_id' in data_dict.keys():
+        if pkg_dict['id'] != data_dict['package_id']:
+            raise ValidationError(
+                {"package_id": "Invalid package_id "
+                               "{pkg_id} for resource {res_id}"
+                    .format(pkg_id=data_dict['package_id'], res_id=resource_id)
+                 })
+    else:
+        data_dict['package_id'] = pkg_dict['id']
+
     view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
 
@@ -406,6 +430,31 @@ def resource_view_create(context, data_dict):
     resource_view = model_save.resource_view_dict_save(data, context)
     if not context.get('defer_commit'):
         model.repo.commit()
+
+    # add activity for resource view create
+    try:
+        user = context['user']
+        user_id = model.User.by_name(user.decode('utf8')).id
+    except AttributeError:
+        # do not create activity for non-users
+        pass
+    else:
+        activity_dict = {
+            'user_id': user_id,
+            'object_id': pkg_dict['id'],
+            'activity_type': 'new resource view',
+            'data': {'id': resource_view.id},
+        }
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit': False,
+            'ignore_auth': True,
+            'session': context['session'],
+        }
+        _get_action('activity_create')(
+            activity_create_context, activity_dict)
+
     return model_dictize.resource_view_dictize(resource_view, context)
 
 

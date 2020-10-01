@@ -222,6 +222,29 @@ def resource_view_delete(context, data_dict):
     resource_view.delete()
     model.repo.commit()
 
+    # add activity for resource view delete
+    try:
+        user = context['user']
+        user_id = model.User.by_name(user.decode('utf8')).id
+    except AttributeError:
+        # do not create activity for non-users
+        pass
+    else:
+        activity_dict = {
+            'user_id': user_id,
+            'object_id': context['resource'].package_id,
+            'activity_type': 'deleted resource view',
+            'data': {'id': resource_view.id},
+        }
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit': False,
+            'ignore_auth': True,
+            'session': context['session'],
+        }
+        ckan.logic.get_action('activity_create')(activity_create_context, activity_dict)
+
 
 def resource_view_clear(context, data_dict):
     '''Delete all resource views, or all of a particular type.
