@@ -382,6 +382,8 @@ def ckan_before_request():
     # with extensions
     set_controller_and_action()
 
+    return response
+
 
 def ckan_after_request(response):
     u'''Common handler executed after all Flask requests'''
