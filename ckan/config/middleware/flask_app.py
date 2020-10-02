@@ -280,18 +280,28 @@ def get_locale():
 
 
 def ckan_before_request():
-    u'''Common handler executed before all Flask requests'''
+    u'''
+    Common handler executed before all Flask requests
+
+    If a response is returned by any of the functions called (
+    currently ``identify_user()` only) any further processing of the
+    request will be stopped and that response will be returned.
+
+    '''
+    response = None
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
-    identify_user()
+    response = identify_user()
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
     set_controller_and_action()
+
+    return response
 
 
 def ckan_after_request(response):
