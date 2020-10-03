@@ -1,4 +1,6 @@
-"""privet
+# encoding: utf-8
+ 
+"""Add ondelete to package_member table
 
 Revision ID: 3f93f80a50f8
 Revises: ccd38ad5fced
