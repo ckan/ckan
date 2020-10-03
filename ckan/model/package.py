@@ -60,8 +60,10 @@ package_table = Table('package', meta.metadata,
 package_member_table = Table(
     'package_member',
     meta.metadata,
-    Column('package_id', ForeignKey('package.id'), primary_key=True),
-    Column('user_id', ForeignKey('user.id'), primary_key = True),
+    Column('package_id',
+           ForeignKey('package.id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id',
+           ForeignKey('user.id', ondelete='CASCADE'), primary_key=True),
     Column('capacity', types.UnicodeText, nullable=False),
     Column('modified', types.DateTime, default=datetime.datetime.utcnow),
 )
