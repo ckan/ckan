@@ -1,5 +1,5 @@
 # encoding: utf-8
- 
+
 """Add ondelete to package_member table
 
 Revision ID: 3f93f80a50f8
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3f93f80a50f8'
-down_revision = 'ccd38ad5fced'
+revision = u'3f93f80a50f8'
+down_revision = u'ccd38ad5fced'
 branch_labels = None
 depends_on = None
 
