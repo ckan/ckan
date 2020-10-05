@@ -42,7 +42,7 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
         # (relative to this plugin.py file), and 'example_theme' is the name
         # that we'll use to refer to this fanstatic directory from CKAN
         # templates.
-        toolkit.add_resource(u'fanstatic', u'example_theme')
+        toolkit.add_resource(u'assets', u'example_theme')
 
     def get_helpers(self):
         u'''Register the most_popular_groups() function above as a template
