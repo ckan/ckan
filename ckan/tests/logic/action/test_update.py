@@ -1694,6 +1694,34 @@ class TestDashboardMarkActivitiesOld(object):
 @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
 class TestCollaboratorsUpdate(object):
 
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    def test_collaborators_can_update_resources(self, role):
+
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        user = factories.User()
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=role)
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        updated_resource = helpers.call_action('resource_update',
+            context=context,
+            id=resource['id'],
+            description='updated')
+
+        assert updated_resource['description'] == 'updated'
+
+
     def test_collaborators_can_not_change_owner_org_by_default(self):
 
         org1 = factories.Organization()
