@@ -1714,13 +1714,13 @@ class TestCollaboratorsUpdate(object):
 
         }
 
-        updated_resource = helpers.call_action('resource_update',
+        updated_resource = helpers.call_action(
+            'resource_update',
             context=context,
             id=resource['id'],
             description='updated')
 
         assert updated_resource['description'] == 'updated'
-
 
     def test_collaborators_can_not_change_owner_org_by_default(self):
 

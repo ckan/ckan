@@ -608,13 +608,15 @@ class TestResourceCreate:
 
         }
 
-        created_resource = helpers.call_action('resource_create',
+        created_resource = helpers.call_action(
+            'resource_create',
             context=context,
             package_id=dataset['id'],
             name='created by collaborator',
             url='https://example.com')
 
         assert created_resource['name'] == 'created by collaborator'
+
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestMemberCreate(object):

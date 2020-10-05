@@ -56,7 +56,8 @@ class TestDelete:
 
         }
 
-        created_resource = helpers.call_action('resource_delete',
+        created_resource = helpers.call_action(
+            'resource_delete',
             context=context,
             id=resource['id'])
 
