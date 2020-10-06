@@ -81,7 +81,7 @@ class TestEnqueue(RQTestBase):
         self.enqueue(rq_kwargs={u'timeout': 0})
         self.enqueue(rq_kwargs={u'timeout': -1})
         self.enqueue(rq_kwargs={u'timeout': 3600})
-        monkeypatch.setitem(ckan_config, 'ckan.jobs.timeout', 10)
+        monkeypatch.setitem(ckan_config, u'ckan.jobs.timeout', 10)
         self.enqueue()
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 5
