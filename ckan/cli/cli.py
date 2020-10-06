@@ -37,9 +37,9 @@ from ckan.cli import seed
 log = logging.getLogger(__name__)
 
 _no_config_commands = [
-    ['config-tool'],
-    ['generate', 'config'],
-    ['generate', 'extension'],
+    [u'config-tool'],
+    [u'generate', u'config'],
+    [u'generate', u'extension'],
 ]
 
 
