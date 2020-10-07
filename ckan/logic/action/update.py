@@ -507,7 +507,7 @@ def package_revise(context, data_dict):
         model.Session.rollback()
         raise ValidationError([{k: [de.error]}])
 
-    _check_access('package_revise', context, orig)
+    _check_access('package_revise', context, {"update": orig})
 
     # future-proof return dict by putting package data under
     # "package". We will want to return activity info
