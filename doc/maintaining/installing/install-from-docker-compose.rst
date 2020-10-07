@@ -221,7 +221,13 @@ Now the datastore API should return content when visiting::
 -------------------------
 With all images up and running, create the CKAN admin user (johndoe in this example)::
 
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add johndoe
+    docker exec -it ckan bash
+    cd /usr/lib/ckan/
+    source venv/bin/activate
+    ckan -c /etc/ckan/production.ini sysadmin add johndoe email=johndoe@localhost name=johndoe
+    exit
+
+
 
 Now you should be able to login to the new, empty CKAN.
 The admin user's API key will be instrumental in tranferring data from other instances.
