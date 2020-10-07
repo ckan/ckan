@@ -1902,6 +1902,20 @@ class TestDatasetRevise(object):
         assert response['package']['resources'][0]['name'] == 'new name'
         assert response['package']['resources'][0]['url'] == ''
 
+    def test_revise_normal_user(self):
+        user = factories.User()
+        org = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        # make sure normal users can use package_revise
+        context = {'user': user['name'], 'ignore_auth': False}
+        ds = factories.Dataset(owner_org=org['id'])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': ds['id']},
+            update={'notes': 'new notes'},
+            context=context,
+        )
+        assert response['package']['notes'] == 'new notes'
+
 
 @pytest.mark.usefixtures("clean_db")
 class TestUserPluginExtras(object):
