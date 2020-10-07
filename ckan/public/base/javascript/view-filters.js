@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Return a new JSON object of the old string.
  * Turns:
@@ -79,6 +80,8 @@ String.prototype.queryStringToJSON = String.prototype.queryStringToJSON || funct
     return json;
 };
 
+=======
+>>>>>>> 48275468b... Replace querystring parsing with qs
 this.ckan = this.ckan || {};
 this.ckan.views = this.ckan.views || {};
 
@@ -153,7 +156,7 @@ this.ckan.views.filters = (function (queryString) {
   function _redirectTo(url) {
     var urlBase = url.split('?')[0],
         urlQueryString = url.split('?')[1] || '',
-        defaultParams = urlQueryString.queryStringToJSON(),
+        defaultParams = Qs.parse(urlQueryString, { ignoreQueryPrefix: true }),
         queryString = _encodedParams(defaultParams),
         destinationUrl;
 
@@ -205,7 +208,7 @@ this.ckan.views.filters = (function (queryString) {
 
   function _initialize(queryString) {
     // The filters are in format 'field:value|field:value|field:value'
-    var searchParams = queryString.queryStringToJSON();
+    var searchParams = Qs.parse(queryString, { ignoreQueryPrefix: true });
 
     if (searchParams.filters) {
       var filters = {},
