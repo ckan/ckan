@@ -14,7 +14,7 @@ flask-multistatic==1.0
 Jinja2==2.10.1
 PyJWT==1.7.1
 Markdown==2.6.7
-passlib==1.6.5
+passlib==1.7.3
 polib==1.0.7
 psycopg2==2.8.2
 python-magic==0.4.15
