@@ -1552,9 +1552,9 @@ ckan.preview.text_formats
 
 Example::
 
- ckan.preview.text_formats = text plain
+ ckan.preview.text_formats = txt plain
 
-Default value: ``text plain text/plain``
+Default value: ``txt plain text/plain``
 
 Space-delimited list of plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
 

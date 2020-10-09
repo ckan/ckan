@@ -7,30 +7,33 @@
  * prefix - The prefix used on the ids.
  *
  */
-this.ckan.module('stats-nav', {
-  /* An options object */
-  options: {
-    prefix: 'stats-'
-  },
 
-  /* Initializes the module and sets up event listeners.
-   *
-   * Returns nothing.
-   */
-  initialize: function () {
-    var location = this.sandbox.location;
-    var prefix = this.options.prefix;
-    var hash = location.hash.slice(1);
-    var selected = this.$('[href^=#' + prefix + hash + ']');
+ckan.module("stats-nav", function($) {
+  return {
+    /* An options object */
+    options: {
+      prefix: "stats-"
+    },
 
-    // Update the hash fragment when the tab changes.
-    this.el.on('shown', function (event) {
-      location.hash = event.target.hash.slice(prefix.length + 1);
-    });
+    /* Initializes the module and sets up event listeners.
+     *
+     * Returns nothing.
+     */
+    initialize: function() {
+      var location = this.sandbox.location;
+      var prefix = this.options.prefix;
+      var hash = location.hash.slice(1);
+      var selected = this.el.find('[href^="#' + prefix + hash + '"]');
 
-    // Show the current tab if the location provides one.
-    if (selected.length) {
-      selected.tab('show');
+      // Update the hash fragment when the tab changes.
+      this.el.on("shown.bs.tab", function(event) {
+        location.hash = event.target.hash.slice(prefix.length + 1);
+      });
+
+      // Show the current tab if the location provides one.
+      if (selected.length) {
+        selected.tab("show");
+      }
     }
-  }
+  };
 });

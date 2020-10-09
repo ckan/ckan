@@ -61,7 +61,7 @@ class ApiTestCase(object):
         return extra_environ
 
     @classmethod
-    def offset(self, path):
+    def offset(cls, path):
         """
         Returns the full path to the resource identified in path.
 
@@ -75,10 +75,10 @@ class ApiTestCase(object):
 
         [1] http://www.w3.org/International/articles/idn-and-iri/
         """
-        assert self.api_version != None, "API version is missing."
+        assert cls.api_version != None, "API version is missing."
         base = "/api"
-        if self.api_version:
-            base += "/%s" % self.api_version
+        if cls.api_version:
+            base += "/%s" % cls.api_version
         utf8_encoded = (u"%s%s" % (base, path)).encode("utf8")
         url_encoded = quote(utf8_encoded)
         return url_encoded
