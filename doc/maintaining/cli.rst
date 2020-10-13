@@ -173,9 +173,9 @@ minify            Create minified versions of the given Javascript and CSS files
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
 profile           Code speed profiler
+run               Start Development server.
 search-index      Creates a search index for all datasets
 seed              Create test data in the database.
-server            Start Development server.
 sysadmin          Gives sysadmin rights to a named user.
 tracking          Update tracking statistics.
 translation       Translation helper functions
@@ -482,6 +482,18 @@ The result is saved in profile.data.search. To view the profile in runsnakerun::
 You may need to install the cProfile python module.
 
 
+run: Start Development server
+==================================
+
+Usage
+
+.. parsed-literal::
+
+ ckan run --host (-h)          - Set Host
+ ckan run --port (-p)          - Set Port
+ ckan run --reloader (-r)      - Use reloader
+
+
 search-index: Search index commands
 ===================================
 
@@ -567,18 +579,6 @@ Examples
 .. parsed-literal::
 
  ckan -c |ckan.ini| seed basic
-
-
-server: Start Development server
-==================================
-
-Usage
-
-.. parsed-literal::
-
- ckan server --host (-h)          - Set Host
- ckan server --port (-p)          - Set Port
- ckan server --reloader (-r)      - Use reloader
 
 
 sysadmin: Give sysadmin rights

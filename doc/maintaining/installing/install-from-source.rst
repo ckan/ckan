@@ -27,14 +27,14 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-jetty openjdk-8-jdk redis-server
+    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-tomcat openjdk-8-jdk redis-server
 
 .. note::
 
     For Python 2 (deprecated, but compatible with CKAN 2.9 and earlier), do
     this instead::
 
-        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-tomcat openjdk-8-jdk redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -51,8 +51,7 @@ pip                    `A tool for installing and managing Python packages <http
 python3-venv           `The Python3 virtual environment builder (or for Python 2 use 'virtualenv' instead) <https://virtualenv.pypa.io/en/latest/>`_
 Git                    `A distributed version control system <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
 Apache Solr            `A search platform <https://lucene.apache.org/solr/>`_
-Jetty                  `An HTTP server <https://www.eclipse.org/jetty/>`_ (used for Solr).
-OpenJDK JDK            `The Java Development Kit <https://openjdk.java.net/install/>`_ (used by Jetty)
+Apache Tomcat          `An HTTP server <https://tomcat.apache.org/>`_ (used for Solr).
 Redis                  `An in-memory data structure store <https://redis.io/>`_
 =====================  ===============================================
 
@@ -287,10 +286,16 @@ useful for development and testing:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    ckan -c |ckan.ini| run
+    ckan -c |ckan.ini| run 
 
 Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
-page.
+page. 
+
+Note that by default, the development server listens for requests only from 
+the localhost, 127.0.0.1. If you are installing onto a server os with no web browser 
+available, then you can test by running ``ckan -c |ckan.ini| run --host 0.0.0.0`` to 
+listen on all network interfaces. You can then browse to http://your.ckan.server.ip:5000/
+from another machine to test your development installation.
 
 Now that you've installed CKAN, you should:
 
