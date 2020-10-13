@@ -286,16 +286,16 @@ useful for development and testing:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    ckan -c |ckan.ini| run 
+    ckan -c |ckan.ini| run
 
 Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
 page. 
 
-Note that by default, the development server listens for requests only from 
-the localhost, 127.0.0.1. If you are installing onto a server os with no web browser 
-available, then you can test by running ``ckan -c |ckan.ini| run --host 0.0.0.0`` to 
-listen on all network interfaces. You can then browse to http://your.ckan.server.ip:5000/
-from another machine to test your development installation.
+.. note:: by default, the development server listens for requests only from 
+    the localhost, 127.0.0.1. If you are installing into a server os with no web browser 
+    available, then you can test by running ``ckan -c |ckan.ini| run --host 0.0.0.0`` to 
+    listen on all network interfaces. You can then browse to http://your.ckan.server.ip:5000/
+    from another machine to test your development installation.
 
 Now that you've installed CKAN, you should:
 
