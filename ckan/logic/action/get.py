@@ -881,6 +881,8 @@ def user_list(context, data_dict):
                 else_=model.User.fullname
             )
         )
+    elif order_by == 'number_created_packages':
+        query = query.order_by(order_by_field, model.User.name)
     else:
         query = query.order_by(order_by_field)
 
