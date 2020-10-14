@@ -680,6 +680,11 @@ class TestAction(object):
         res = app.post("/api/action/resource_show", json={"id": resource.id})
         result = json.loads(res.body)["result"]
 
+        # Remove tracking data from the result dict. This tracking data is
+        # added by the logic, so the other resource dict taken straight from
+        # resource_dictize() won't have it.
+        del result['tracking_summary']
+
         resource_dict = resource_dictize(resource, {"model": model})
         assert result == resource_dict, (result, resource_dict)
 

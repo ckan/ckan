@@ -109,7 +109,7 @@ class TestTracking(object):
         # The API should return 0 recent views and 0 total views for the
         # unviewed package.
         package = tests.call_action_api(
-            app, "package_show", id=package["name"], include_tracking=True
+            app, "package_show", id=package["name"]
         )
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
@@ -131,7 +131,7 @@ class TestTracking(object):
         # The package_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
         package = tests.call_action_api(
-            app, "package_show", id=package["name"], include_tracking=True
+            app, "package_show", id=package["name"]
         )
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -150,7 +150,7 @@ class TestTracking(object):
         # The resource_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
         resource = tests.call_action_api(
-            app, "resource_show", id=resource["id"], include_tracking=True
+            app, "resource_show", id=resource["id"]
         )
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
@@ -175,7 +175,7 @@ class TestTracking(object):
         self._update_tracking_summary()
 
         package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+            app, "package_show", id=package["id"]
         )
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
@@ -217,7 +217,7 @@ class TestTracking(object):
         self._update_tracking_summary()
 
         package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+            app, "package_show", id=package["id"]
         )
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -261,7 +261,7 @@ class TestTracking(object):
         self._update_tracking_summary()
 
         package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+            app, "package_show", id=package["id"]
         )
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -284,7 +284,7 @@ class TestTracking(object):
 
         # The resource_show() API should return the same result.
         resource = tests.call_action_api(
-            app, "resource_show", id=resource["id"], include_tracking=True
+            app, "resource_show", id=resource["id"]
         )
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
@@ -342,7 +342,7 @@ class TestTracking(object):
         self._update_tracking_summary()
 
         package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+            app, "package_show", id=package["id"]
         )
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 3, (
@@ -380,7 +380,7 @@ class TestTracking(object):
         self._update_tracking_summary()
 
         package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+            app, "package_show", id=package["id"]
         )
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -459,7 +459,7 @@ class TestTracking(object):
         self._update_tracking_summary()
 
         package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+            app, "package_show", id=package["id"]
         )
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
@@ -487,7 +487,7 @@ class TestTracking(object):
         self._update_tracking_summary()
 
         resource = tests.call_action_api(
-            app, "resource_show", id=resource["id"], include_tracking=True
+            app, "resource_show", id=resource["id"]
         )
         tracking_summary = resource["tracking_summary"]
         assert (

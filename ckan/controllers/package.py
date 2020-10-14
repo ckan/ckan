@@ -345,7 +345,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id, 'include_tracking': True}
+        data_dict = {'id': id}
 
         try:
             check_access('package_update', context, data_dict)
@@ -371,7 +371,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id, 'include_tracking': True}
+        data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
