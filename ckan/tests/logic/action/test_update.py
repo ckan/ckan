@@ -1640,11 +1640,6 @@ class TestBulkOperations(object):
         )
         assert activities[0]['activity_type'] == 'changed package'
 
-        activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
-        )
-        assert activities[0]['activity_type'] == 'changed package'
-
     def test_bulk_delete(self):
 
         org = factories.Organization()
@@ -1674,11 +1669,6 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert dataset.state == "deleted"
-
-        activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
-        )
-        assert activities[0]['activity_type'] == 'deleted package'
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
