@@ -1057,18 +1057,6 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         .filter(model.PackageRevision.current is True) \
         .update(update_dict, synchronize_session=False)
 
-    # Handle Activity Stream for Bulk Operations
-    user = context['user']
-    user_obj = model.User.by_name(user)
-    if user_obj:
-        user_id = user_obj.id
-    else:
-        user_id = 'not logged in'
-    for dataset in datasets:
-        entity = model.Package.get(dataset)
-        activity = entity.activity_stream_item('changed', user_id)
-        model.Session.add(activity)
-
     model.Session.commit()
 
     # solr update here
