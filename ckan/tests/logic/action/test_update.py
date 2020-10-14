@@ -1545,7 +1545,6 @@ class TestBulkOperations(object):
         for dataset in datasets:
             eq_(dataset.state, 'deleted')
 
-
         revisions = model.Session.query(model.PackageRevision) \
             .filter(model.PackageRevision.owner_org == org['id']) \
             .filter(model.PackageRevision.current is True) \

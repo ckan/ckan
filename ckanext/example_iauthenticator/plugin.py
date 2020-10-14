@@ -55,5 +55,4 @@ class ExampleIAuthenticatorPlugin(p.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-
         return [blueprint]
