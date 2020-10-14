@@ -27,7 +27,7 @@ def convert_from_extras(key, data, errors, context):
 
     def remove_from_extras(data, key):
         to_remove = []
-        for data_key, data_value in six.iteritems(data):
+        for data_key, data_value in data.iteritems():
             if (data_key[0] == 'extras'
                 and data_key[1] == key):
                 to_remove.append(data_key)
