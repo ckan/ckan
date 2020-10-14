@@ -70,5 +70,5 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
       with:
-        paths-ignore:
-          - '**/vendor/**'
+        config-file: ./.github/codeql/codeql-config.yml
+    
