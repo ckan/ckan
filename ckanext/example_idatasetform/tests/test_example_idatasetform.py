@@ -7,6 +7,7 @@ from ckan.common import config
 import ckan.model as model
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 import ckanext.example_idatasetform as idf
 import ckan.lib.search
 
