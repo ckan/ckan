@@ -1,38 +1,42 @@
 # encoding: utf-8
 
-import pytest
-
+from ckan.tests import helpers
 import ckan.plugins as p
 
 toolkit = p.toolkit
 
 
-@pytest.mark.ckan_config(u'ckan.plugins', u'example_iauthenticator')
-@pytest.mark.usefixtures(u'with_plugins')
-class TestExampleIAuthenticator(object):
+class TestExampleIAuthenticator(helpers.FunctionalTestBase):
 
-    def test_identify_sets_cookie(self, app):
+    def setup(self):
+        self.app = helpers._get_test_app()
 
-        resp = app.get(toolkit.url_for(u'home.index'))
+        # Install plugin and register its blueprint
+        if not p.plugin_loaded(u'example_iauthenticator'):
+            p.load(u'example_iauthenticator')
+            plugin = p.get_plugin(u'example_iauthenticator')
+            self.app.flask_app.register_extension_blueprint(plugin.get_blueprint()[0])
+
+    def test_identify_sets_cookie(self):
+
+        resp = self.app.get(toolkit.url_for(u'home.index'))
 
         assert u'example_iauthenticator=hi' in resp.headers[u'Set-Cookie']
 
-    def test_login_redirects(self, app):
+    def test_login_redirects(self):
 
-        resp = app.get(
+        resp = self.app.get(
             toolkit.url_for(u'user.login'),
-            follow_redirects=False
         )
 
-        assert resp.status_code == 302
+        assert resp.status_int == 302
         assert resp.headers[u'Location'] == toolkit.url_for(u'example_iauthenticator.custom_login', _external=True)
 
-    def test_logout_redirects(self, app):
+    def test_logout_redirects(self):
 
-        resp = app.get(
+        resp = self.app.get(
             toolkit.url_for(u'user.logout'),
-            follow_redirects=False
         )
 
-        assert resp.status_code == 302
+        assert resp.status_int == 302
         assert resp.headers[u'Location'] == toolkit.url_for(u'example_iauthenticator.custom_logout', _external=True)
