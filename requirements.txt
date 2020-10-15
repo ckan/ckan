@@ -61,4 +61,4 @@ webassets==0.12.1
 webencodings==0.5.1       # via bleach
 webob==1.8.5              # via fanstatic, repoze.who
 werkzeug[watchdog]==1.0.0
-zope.interface==4.3.2
+zope.interface==4.7.2
