@@ -219,7 +219,10 @@ site_url
 
     ckan.site_url = http://demo.ckan.org
 
-  Do not add a trailing slash to the URL.
+  Do not add a trailing slash to the URL. Also note that this must exactly match the URL that
+  will appear in your browser, including the protocol (http or https). If for example you
+  later deploy CKAN as a production server with an SSL certificate, you should update
+  `ckan.site_url` accordingly.
 
 .. _setting up solr:
 
