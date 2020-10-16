@@ -74,6 +74,18 @@ class TestVersion2(ExampleIDatasetFormPluginBase):
         plugins.unload('example_idatasetform_v2')
         super(TestVersion2, cls).teardown_class()
 
+
+class TestVersion5(ExampleIDatasetFormPluginBase):
+    @classmethod
+    def setup_class(cls):
+        super(TestVersion5, cls).setup_class()
+        plugins.load('example_idatasetform_v5')
+
+    @classmethod
+    def teardown_class(cls):
+        plugins.unload('example_idatasetform_v5')
+        super(TestVersion5, cls).teardown_class()
+
     def test_custom_field_with_extras(self):
         dataset = factories.Dataset(
             type='fancy_type',
