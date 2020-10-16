@@ -141,12 +141,12 @@ msgstr "אין גרסה עם id כזה: %s"
 
 #: ckan/controllers/api.py:297
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr "מונח חיפוש חסר ('since_id=UUID' or  'since_time=TIMESTAMP')"
+msgstr "חסר ביטוי חיפוש ('since_id=UUID' או 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:309
 #, python-format
 msgid "Could not read parameters: %r"
-msgstr "איני יכולה לקרוא את המשתנה: %r"
+msgstr "לא ניתן לקרוא את המשתנים: %r"
 
 #: ckanext/datapusher/templates-bs2/package/resource_edit_base.html:5
 #: ckanext/datapusher/templates/package/resource_edit_base.html:5
@@ -360,7 +360,7 @@ msgstr "אנא <a href=\"%s\">עדכני את הפרופיל</a> ואת כתוב
 #: ckan/controllers/home.py:75 ckan/views/home.py:60
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr "%s משתמש בכתובת הדוא\"ל שלך, אם יהיה צורך לאתחל את סיסמתך."
+msgstr "%s משתמש בכתובת הדוא״ל שלך, אם יהיה עליך לאפס את ססמתך"
 
 #: ckan/controllers/package.py:304
 msgid "Invalid search query: {error_message}"
@@ -382,7 +382,7 @@ msgstr "פורמט שינוי לא תקין: %r"
 
 #: ckan/controllers/package.py:415
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
-msgstr ""
+msgstr "אין תמיכה בהצגת ערכות נתונים מסוג „{package_type}” ({file_!r})."
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:14
 #: ckan/templates/organization/bulk_process.html:27
@@ -5241,7 +5241,7 @@ msgstr "רשימת המעקב שלך ריקה"
 #: ckanext/textview/theme/public/text_view.js:70
 #: ckanext/textview/theme/public/text_view.min.js:3
 msgid "An error occured during AJAX request. Could not load view."
-msgstr ""
+msgstr "אירעה שגיאה עם בקשת ה־AJAX. לא ניתן לטעון את התצוגה."
 
 #: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
 msgid "Website"

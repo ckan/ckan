@@ -5402,7 +5402,7 @@ msgstr "Text"
 #: ckanext/textview/theme/public/text_view.js:70
 #: ckanext/textview/theme/public/text_view.min.js:3
 msgid "An error occured during AJAX request. Could not load view."
-msgstr ""
+msgstr "Během požadavku AJAX došlo k chybě. Nelze načíst pohled."
 
 #: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
 msgid "Website"
