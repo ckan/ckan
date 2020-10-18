@@ -93,17 +93,6 @@ class TestPackageShow(object):
             u"author": None,
             u"author_email": None,
             u"creator_user_id": u"<SOME-UUID>",
-            u"extras": [{u"key": u"subject", u"value": u"science"}],
-            u"groups": [
-                {
-                    u"description": u"A test description for this test group.",
-                    u"display_name": u"Test Group num",
-                    u"id": u"<SOME-UUID>",
-                    u"image_display_url": u"",
-                    u"name": u"test_group_num",
-                    u"title": u"Test Group num",
-                }
-            ],
             u"id": u"<SOME-UUID>",
             u"isopen": False,
             u"license_id": None,
@@ -117,21 +106,44 @@ class TestPackageShow(object):
             u"num_resources": 1,
             u"num_tags": 1,
             u"organization": {
-                u"approval_status": u"approved",
-                u"created": u"2019-05-24T15:52:30.123456",
-                u"description": u"Just another test organization.",
                 u"id": u"<SOME-UUID>",
-                u"image_url": u"https://placekitten.com/g/200/100",
-                u"is_organization": True,
                 u"name": u"test_org_num",
-                u"state": u"active",
                 u"title": u"Test Organization",
                 u"type": u"organization",
+                u"description": u"Just another test organization.",
+                u"image_url": u"https://placekitten.com/g/200/100",
+                u"created": u"2019-05-24T15:52:30.123456",
+                u"is_organization": True,
+                u"approval_status": u"approved",
+                u"state": u"active"
             },
             u"owner_org": u"<SOME-UUID>",
             u"private": False,
-            u"relationships_as_object": [],
-            u"relationships_as_subject": [],
+            u"state": u"active",
+            u"title": u"Test Dataset",
+            u"tracking_summary": {
+                u"total": 0,
+                u"recent": 0
+            },
+            u"type": u"dataset",
+            u"url": None,
+            u"version": None,
+            u"extras": [
+                {
+                    u"key": u"subject",
+                    u"value": u"science"
+                }
+            ],
+            u"groups": [
+                {
+                    u"description": u"A test description for this test group.",
+                    u"display_name": u"Test Group num",
+                    u"id": u"<SOME-UUID>",
+                    u"image_display_url": u"",
+                    u"name": u"test_group_num",
+                    u"title": u"Test Group num"
+                }
+            ],
             u"resources": [
                 {
                     u"cache_last_updated": None,
@@ -151,24 +163,25 @@ class TestPackageShow(object):
                     u"resource_type": None,
                     u"size": None,
                     u"state": u"active",
+                    u"tracking_summary": {
+                        u"total": 0,
+                        u"recent": 0
+                    },
                     u"url": u"http://example.com/image.png",
-                    u"url_type": None,
+                    u"url_type": None
                 }
             ],
-            u"state": u"active",
             u"tags": [
                 {
                     u"display_name": u"science",
                     u"id": u"<SOME-UUID>",
                     u"name": u"science",
                     u"state": u"active",
-                    u"vocabulary_id": None,
+                    u"vocabulary_id": None
                 }
             ],
-            u"title": u"Test Dataset",
-            u"type": u"dataset",
-            u"url": None,
-            u"version": None,
+            u"relationships_as_subject": [],
+            u"relationships_as_object": []
         }
 
     def test_package_show_with_custom_schema(self):
