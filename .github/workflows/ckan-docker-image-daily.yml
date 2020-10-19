@@ -9,9 +9,6 @@ on:
   #schedule:
   #  - cron: '1 1 * * *'
 
-env:
-   TAG: $(date +%F)
-
 jobs:
 
   build:
@@ -31,6 +28,8 @@ jobs:
         cp ./pycsw/pycsw.cfg.template ./pycsw/pycsw.cfg
         cd ../../
       shell: bash  
+    - name: Set current date as TAG env variable
+      run: echo "::set-env name=TAG::$(date +'%Y-%m-%d')"        
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag cioos-ckan-daily:$TAG
     - name: Push to Docker Hub
