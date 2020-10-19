@@ -55,6 +55,6 @@ jobs:
         push: true
         tags: | 
           cioos/ckan:latest
-          cioos/ckan:$TAG
+          cioos/ckan:${{env.TAG}}
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
