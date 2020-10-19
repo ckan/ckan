@@ -35,12 +35,10 @@ jobs:
     - run: git checkout cioos
     - run: git submodule init
     - run: git submodule update 
-    - run: cd ./contrib/docker/
-    - run: cp .env.template .env
-    - run: cp production_root_url.ini production.ini
-    - run: cp who_root_url.ini who.ini
-    - run: cp ./pycsw/pycsw.cfg.template ./pycsw/pycsw.cfg
-    - run: cd /
+    - run: cp ./contrib/docker/.env.template ./contrib/docker/.env
+    - run: cp ./contrib/docker/production_root_url.ini ./contrib/docker/production.ini
+    - run: cp ./contrib/docker/who_root_url.ini ./contrib/docker/who.ini
+    - run: cp ./contrib/docker/pycsw/pycsw.cfg.template ./contrib/docker/pycsw/pycsw.cfg
     - name: Set current date as TAG env variable
       run: echo "TAG=$(date +'%Y-%m-%d')" >> $GITHUB_ENV      
 #     - name: Build the Docker image
