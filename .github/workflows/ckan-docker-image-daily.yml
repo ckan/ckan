@@ -21,7 +21,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Init Project
       run: |  
-        cd ./ckan
         git checkout cioos
         git submodule init
         git submodule update 
