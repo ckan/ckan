@@ -29,7 +29,7 @@ jobs:
         cd ../../
       shell: bash  
     - name: Set current date as TAG env variable
-      run: echo "::set-env name=TAG::$(date +'%Y-%m-%d')"        
+      run: echo "TAG=$(date +'%Y-%m-%d')" >> $GITHUB_ENV      
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag cioos-ckan-daily:$TAG
     - name: Push to Docker Hub
