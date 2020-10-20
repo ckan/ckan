@@ -886,6 +886,7 @@ curl ifconfig.me
 
 Build translation file
 ```bash
+pip install babel
 cd ~/ckan/contrib/docker/src/ckanext-cioos_theme
 python setup.py compile_catalog --locale fr
 ```
@@ -895,3 +896,25 @@ Copy to volume
 cd ~/ckan/contrib/docker
 sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
 ```
+
+### add dhcp entries to docker container
+edit docker-compose.xml
+```bash
+cd ~/ckan/contrib/docker
+nano docker-compose.yml
+```
+
+add extra hosts entrie to any services. In this example we add a hosts entrie
+for test.ckan.org to the ckan_gather_harvester container. this will map the
+domain name to the local docker network.
+```yml
+services:
+  ckan_gather_harvester:
+    extra_hosts:
+      - "test.ckan.org:172.17.0.1"
+```
+
+you can examine the hosts file in the container using
+```bash
+sudo docker exec -u root -it ckan_gather_harvester cat /etc/hosts
+``
