@@ -1,4 +1,9 @@
 # This will install the requirements used to build the docs
 
+# Readthedocs only
+psycopg==2.7.3.2
+
 -r requirements.txt
 -r dev-requirements.txt
+
+
