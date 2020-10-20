@@ -7,6 +7,22 @@
 Changelog
 ---------
 
+
+v.2.8.6 2020-10-21
+==================
+
+Fixes:
+* Allow IAuthenticator methods to return responses (`#5259 <https://github.com/ckan/ckan/pull/5640>`_)
+* Fix skip to content link hiding on screen readers (`#5556 <https://github.com/ckan/ckan/pull/5556>`_)
+* Fix unflattening of dataset extras (`#5602 <https://github.com/ckan/ckan/pull/5611>`_)
+* Fix minified JS files in 2.7 (`#5557 <https://github.com/ckan/ckan/pull/5561>`_)
+* Send the right URL of CKAN to datapusher (`#5281 <https://github.com/ckan/ckan/pull/5281>`_)
+* Fix fullscreen for resource webpageview (`#5552 <https://github.com/ckan/ckan/pull/5552>`_)
+* PackageSearchIndex.index_package(): catch IndexError from date parsing (`#5535 <https://github.com/ckan/ckan/pull/5535>`_)
+* Fix collapsible menu in mobile view (`#5448 <https://github.com/ckan/ckan/pull/5448>`_)
+* Refactor query string parsing module
+
+
 v.2.8.5 2020-08-05
 ==================
 
