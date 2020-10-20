@@ -241,7 +241,7 @@ class PackageSearchIndex(SearchIndex):
                         # The date field was empty, so dateutil filled it with
                         # the default bogus date
                         value = None
-                except ValueError:
+                except (ValueError, IndexError):
                     continue
             new_dict[key] = value
         pkg_dict = new_dict

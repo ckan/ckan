@@ -21,13 +21,13 @@ String.prototype.queryStringToJSON = String.prototype.queryStringToJSON || funct
     // params = params.substring(params.indexOf('#')+1);
     // Change + to %20, the %20 is fixed up later with the decode
     params = params.replace(/\+/g, '%20');
-    // Do we have JSON string
-    if ( params.substring(0,1) === '{' && params.substring(params.length-1) === '}' )
-    {   // We have a JSON string
-        return eval(decodeURIComponent(params));
+    // Do we have JSON string?
+    try {
+      return JSON.parse(decodeURIComponent(params));
+    } catch  {
+      // We have a params string
+      params = params.split(/\&(amp\;)?/);
     }
-    // We have a params string
-    params = params.split(/\&(amp\;)?/);
     var json = {};
     // We have params
     for ( var i = 0, n = params.length; i < n; ++i )
@@ -51,7 +51,6 @@ String.prototype.queryStringToJSON = String.prototype.queryStringToJSON || funct
         value = decodeURIComponent(value);
 
         // Set
-        // window.console.log({'key':key,'value':value}, split);
         var keys = key.split('.');
         if ( keys.length === 1 )
         {   // Simple
@@ -59,25 +58,21 @@ String.prototype.queryStringToJSON = String.prototype.queryStringToJSON || funct
         }
         else
         {   // Advanced (Recreating an object)
-            var path = '',
-                cmd = '';
-            // Ensure Path Exists
-            $.each(keys,function(ii,key){
-                path += '["'+key.replace(/"/g,'\\"')+'"]';
-                jsonCLOSUREGLOBAL = json; // we have made this a global as closure compiler struggles with evals
-                cmd = 'if ( typeof jsonCLOSUREGLOBAL'+path+' === "undefined" ) jsonCLOSUREGLOBAL'+path+' = {}';
-                eval(cmd);
-                json = jsonCLOSUREGLOBAL;
-                delete jsonCLOSUREGLOBAL;
-            });
-            // Apply Value
-            jsonCLOSUREGLOBAL = json; // we have made this a global as closure compiler struggles with evals
-            valueCLOSUREGLOBAL = value; // we have made this a global as closure compiler struggles with evals
-            cmd = 'jsonCLOSUREGLOBAL'+path+' = valueCLOSUREGLOBAL';
-            eval(cmd);
-            json = jsonCLOSUREGLOBAL;
-            delete jsonCLOSUREGLOBAL;
-            delete valueCLOSUREGLOBAL;
+            // eg ?a.b.c=test -> {"a": {"b": {"c": "test}}}
+
+          var setNestedKey = function(obj, path, value) {
+            if (path.length === 1) {
+              obj[path] = value
+              return
+            }
+            if (typeof obj[path[0]] === 'undefined') {
+              obj[path[0]] = {}
+            }
+            return setNestedKey(obj[path[0]], path.slice(1), value)
+          }
+
+          setNestedKey(json, keys, value);
+
         }
         // ^ We now have the parts added to your JSON object
     }
