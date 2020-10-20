@@ -32,5 +32,6 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - run: docker build -t cioos/ckan:$TAG -t cioos/ckan:latest .
     - run: docker push cioos/ckan:$TAG
-    - run: docker push cioos/ckan:latest
+    - if: github.event_name != 'pull_request'
+      run: docker push cioos/ckan:latest
 
