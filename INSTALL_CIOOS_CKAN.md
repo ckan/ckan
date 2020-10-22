@@ -918,3 +918,120 @@ you can examine the hosts file in the container using
 ```bash
 sudo docker exec -u root -it ckan_gather_harvester cat /etc/hosts
 ``
+
+### push image to docker hub
+docker login --username <username>
+docker tag local-image:tagname new-repo:tagname
+docker push new-repo:tagname
+
+login to docker. use an access token instead of password by going to https://hub.docker.com/settings/security
+```bash
+sudo docker login --username fostermh
+```
+
+push images
+```bash
+sudo docker tag docker_ckan:latest cioos/ckan:latest
+sudo docker push cioos/ckan:latest
+sudo docker tag docker_ckan:latest cioos/ckan:2020-03-12
+sudo docker push cioos/ckan:2020-03-12
+
+sudo docker tag docker_solr:latest cioos/solr:latest
+sudo docker push cioos/solr:latest
+sudo docker tag docker_solr:latest cioos/solr:2020-01-22
+sudo docker push cioos/solr:2020-01-22
+
+
+sudo docker tag docker_db:latest cioos/postgresql:latest
+sudo docker push cioos/postgresql:latest
+sudo docker tag docker_db:latest cioos/postgresql:2019-03-20
+sudo docker push cioos/postgresql:2019-03-20
+
+```
+
+log out of docker
+```bash
+sudo docker logout
+```
+
+#### Use docker hub images
+sudo docker pull cioos/ckan:latest
+sudo docker pull cioos/solr:latest
+sudo docker pull cioos/postgresql:latest
+
+
+### push image to github
+Full instructions can be found on github under [configuring docker for use with github packages](https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages)
+cd ~/ckan/contrib/docker
+sudo docker-compose build --no-cache ckan
+
+sudo docker images docker.pkg.github.com/cioos-siooc/ckan/cioos_ckan
+or
+sudo docker images docker_ckan_home
+
+check https://github.com/cioos-siooc/ckan/packages/111846/versions for latest version number
+export CKAN_VERSION=test.2
+
+sudo docker tag docker_ckan docker.pkg.github.com/cioos-siooc/ckan/cioos_ckan:$CKAN_VERSION
+cat TOKEN.txt | sudo docker login docker.pkg.github.com -u USERNAME --password-stdin
+docker push docker.pkg.github.com/cioos-siooc/ckan/cioos_ckan:$CKAN_VERSION
+
+#### Use Image
+visit https://github.com/cioos-siooc/ckan/packages/111846 and identify latest version
+```bash
+  sudo docker pull docker.pkg.github.com/cioos-siooc/ckan/cioos_ckan:[LATEST CKAN VERSION]
+# for example
+  sudo docker pull docker.pkg.github.com/cioos-siooc/ckan/cioos_ckan:test.2
+```
+
+Stop running ckan container
+```bash
+  sudo docker-compose down
+# or
+  sudo docker-compose stop ckan
+```
+
+edit .env file and change compose file setting
+```bash
+COMPOSE_FILE=docker-cloud.yml
+```
+
+edit docker-cloud.yml to use correct image
+
+sudo docker-compose up -d
+
+
+# production settings to changes
+in production.ini
+
+uncomment
+```
+ckan.activity_streams_enabled = true
+ckan.activity_streams_email_notifications = true
+ckan.email_notifications_since = 2 days
+```
+
+update
+```
+ckan.plugins
+beaker.session.secret
+app_instance_uuid
+email_to
+error_email_from
+googleanalytics.ids
+ckanext.spatial.default_extent
+```
+
+in .env
+update
+```
+COMPOSE_FILE=docker-cloud.yml
+CKAN_SITE_URL
+CKAN_SMTP_SERVER
+CKAN_SMTP_STARTTLS
+CKAN_SMTP_USER
+CKAN_SMTP_PASSWORD
+CKAN_SMTP_MAIL_FROM
+POSTGRES_PASSWORD
+CKAN_LOG_PATH
+```
