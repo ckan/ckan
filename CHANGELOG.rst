@@ -324,7 +324,7 @@ v.2.8.6 2020-10-21
 ==================
 
 Fixes:
-* Allow IAuthenticator methods to return responses (`#5259 <https://github.com/ckan/ckan/pull/5640>`_)
+* Allow IAuthenticator methods to return responses (`#5259 <https://github.com/ckan/ckan/pull/5259>`_)
 * Fix skip to content link hiding on screen readers (`#5556 <https://github.com/ckan/ckan/pull/5556>`_)
 * Fix unflattening of dataset extras (`#5602 <https://github.com/ckan/ckan/pull/5611>`_)
 * Fix minified JS files in 2.7 (`#5557 <https://github.com/ckan/ckan/pull/5561>`_)
