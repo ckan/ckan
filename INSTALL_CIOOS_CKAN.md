@@ -921,16 +921,29 @@ sudo docker exec -u root -it ckan_gather_harvester cat /etc/hosts
 
 
 
-## build project using dfocker hub images
+## build project using docker hub images
 
 edit .env file and change compose file setting
 ```bash
 COMPOSE_FILE=docker-cloud.yml
 ```
 
-edit docker-cloud.yml to use correct image
+edit docker-cloud.yml to use correct image. If the CKAN_TAG variable is set in
+the .env file then docker compose will use that setting by default. The default
+setting for this variable is 'latest'. To change to a differente image tag you
+can change the setting in your .env file or overwrite at continer launch using
+a shell environment variable. For eample to use the PR37 tag of the cioos ckan
+image you would use the following command
+```bash
+export CKAN_TAG=PR37; docker-compose up -d
+or
+sudo CKAN_TAG=PR37 docker-compose up -d
+```
 
+If changing in .env file then you can start the containers normally
+```bash
 sudo docker-compose up -d
+```
 
 ### reindex if project was already installed / running
 
