@@ -35,6 +35,32 @@ class TestDelete:
         res_obj = model.Resource.get(resource["id"])
         assert res_obj.state == "deleted"
 
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    def test_collaborators_can_delete_resources(self, role):
+
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        user = factories.User()
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=role)
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        created_resource = helpers.call_action(
+            'resource_delete',
+            context=context,
+            id=resource['id'])
+
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
