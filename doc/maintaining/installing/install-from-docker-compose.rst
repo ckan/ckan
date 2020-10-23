@@ -221,12 +221,7 @@ Now the datastore API should return content when visiting::
 -------------------------
 With all images up and running, create the CKAN admin user (johndoe in this example)::
 
-    docker exec -it ckan bash
-    cd /usr/lib/ckan/
-    source venv/bin/activate
-    ckan -c /etc/ckan/production.ini sysadmin add johndoe email=johndoe@localhost name=johndoe
-    exit
-
+    docker exec -it ckan /usr/lib/ckan/venv/bin/ckan -c /etc/ckan/production.ini sysadmin add johndoe email=johndoe@localhost name=johndoe
 
 
 Now you should be able to login to the new, empty CKAN.
