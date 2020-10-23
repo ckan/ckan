@@ -203,6 +203,45 @@ an ``<img>`` tag pointing to the resource URL. You can provide an alternative
 URL on the edit view form. The available formats can be configured using the
 :ref:`ckan.preview.image_formats` configuration option.
 
+Video view
+++++++++++
+
+.. image:: /images/video_view.png
+
+View plugin: ``video_view``
+
+This plugin uses the HTML5 <video> tag to embed video content into a page,
+such as movie clip or other video streams.
+
+There are three supported video formats: MP4, WebM, and OGG.
+
+.. image:: /images/video_view_edit.png
+
+You can provide an alternative URL on the edit view form. Otherwise, the resource link will be used.
+
+Also, you can provide a poster image URL. The poster image will be shown while the
+video is downloading, or until the user hits the play button.
+If this is not provided, the first frame of the video will be used instead.
+
+Audio view
+++++++++++
+
+.. image:: /images/audio_view.png
+
+View plugin: ``audio_view``
+
+This plugin uses the HTML5 audio tag to embed an audio player on the page.
+
+Since we rely on HTML5 <audio> tag, there are three supported audio formats: MP3, WAV, and OGG.
+Notice. Browsers don't all support the same `file types`_ and `audio codecs`_.
+
+.. image:: /images/audio_view_edit.png
+
+You can provide an alternative URL on the edit view form. Otherwise, the resource link will be used.
+
+.. _file types: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers
+.. _audio codecs: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Audio_codecs
+
 Web page view
 +++++++++++++
 
