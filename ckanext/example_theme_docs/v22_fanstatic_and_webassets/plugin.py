@@ -37,8 +37,8 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
         # that CKAN will use this plugin's custom static files.
         toolkit.add_public_directory(config, u'public')
 
-        # Register this plugin's fanstatic directory with CKAN.
-        # Here, 'fanstatic' is the path to the fanstatic directory
+        # Register this plugin's assets directory with CKAN.
+        # Here, 'assets' is the path to the webassets directory
         # (relative to this plugin.py file), and 'example_theme' is the name
         # that we'll use to refer to this fanstatic directory from CKAN
         # templates.
