@@ -27,7 +27,7 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-jetty openjdk-8-jdk redis-server
+    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-tomcat openjdk-8-jdk redis-server
 
 .. note::
 
