@@ -34,7 +34,7 @@ required packages with this command::
     For Python 2 (deprecated, but compatible with CKAN 2.9 and earlier), do
     this instead::
 
-        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-tomcat openjdk-8-jdk redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -324,7 +324,7 @@ Solr requests and errors are logged in the web server log files.
 
 * For Tomcat servers, they're::
 
-    /var/log/tomcat6/catalina.<date>.log
+    /var/lib/tomcat9/logs/catalina.<date>.log
 
 Unable to find a javac compiler
 -------------------------------
