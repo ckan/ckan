@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import pytest
 import ckan.model as model
 import ckan.lib.create_test_data as ctd
 
@@ -33,12 +32,12 @@ class FollowerClassesTests(object):
 
     def test_followee_count(self):
         count = self.FOLLOWER_CLASS.followee_count(self.follower.id)
-        assert count == 1, count
+        assert count == 2, count
 
     def test_followee_list(self):
         followees = self.FOLLOWER_CLASS.followee_list(self.follower.id)
         object_ids = [f.object_id for f in followees]
-        assert object_ids == [self.followee.id], object_ids
+        assert object_ids == [self.followee.id, self.followee_deleted.id], object_ids
 
     def test_follower_count(self):
         count = self.FOLLOWER_CLASS.follower_count(self.followee.id)
@@ -58,14 +57,18 @@ class TestUserFollowingUser(FollowerClassesTests):
         model.repo.rebuild_db()
         cls.follower = CreateTestData.create_user("follower")
         cls.followee = CreateTestData.create_user("followee")
+
+        cls.followee_deleted = CreateTestData.create_user("followee_deleted")
+        cls.followee_deleted.delete()
+
         cls.FOLLOWER_CLASS(cls.follower.id, cls.followee.id).save()
+        cls.FOLLOWER_CLASS(cls.follower.id, cls.followee_deleted.id).save()
         cls._create_deleted_models()
 
     @classmethod
     def _create_deleted_models(cls):
         deleted_user = CreateTestData.create_user("deleted_user")
         cls.FOLLOWER_CLASS(deleted_user.id, cls.followee.id).save()
-        cls.FOLLOWER_CLASS(cls.follower.id, deleted_user.id).save()
         deleted_user.delete()
         deleted_user.save()
 
@@ -78,7 +81,12 @@ class TestUserFollowingDataset(FollowerClassesTests):
         model.repo.rebuild_db()
         cls.follower = CreateTestData.create_user("follower")
         cls.followee = cls._create_dataset("followee")
+
+        cls.followee_deleted = cls._create_dataset("followee_deleted")
+        cls.followee_deleted.delete()
+
         cls.FOLLOWER_CLASS(cls.follower.id, cls.followee.id).save()
+        cls.FOLLOWER_CLASS(cls.follower.id, cls.followee_deleted.id).save()
         cls._create_deleted_models()
 
     @classmethod
@@ -87,10 +95,6 @@ class TestUserFollowingDataset(FollowerClassesTests):
         cls.FOLLOWER_CLASS(deleted_user.id, cls.followee.id).save()
         deleted_user.delete()
         deleted_user.save()
-        deleted_dataset = cls._create_dataset("deleted_dataset")
-        cls.FOLLOWER_CLASS(cls.follower.id, deleted_dataset.id).save()
-        deleted_dataset.delete()
-        deleted_dataset.save()
 
     @classmethod
     def _create_dataset(cls, name):
@@ -106,7 +110,13 @@ class TestUserFollowingGroup(FollowerClassesTests):
         model.repo.rebuild_db()
         cls.follower = CreateTestData.create_user("follower")
         cls.followee = cls._create_group("followee")
+
+        cls.followee_deleted = cls._create_group("followee_deleted")
+        cls.followee_deleted.delete()
+
         cls.FOLLOWER_CLASS(cls.follower.id, cls.followee.id).save()
+        cls.FOLLOWER_CLASS(cls.follower.id, cls.followee_deleted.id).save()
+
         cls._create_deleted_models()
         model.repo.commit_and_remove()
 
@@ -116,10 +126,6 @@ class TestUserFollowingGroup(FollowerClassesTests):
         cls.FOLLOWER_CLASS(deleted_user.id, cls.followee.id).save()
         deleted_user.delete()
         deleted_user.save()
-        deleted_group = cls._create_group("deleted_group")
-        cls.FOLLOWER_CLASS(cls.follower.id, deleted_group.id).save()
-        deleted_group.delete()
-        deleted_group.save()
 
     @classmethod
     def _create_group(cls, name):
