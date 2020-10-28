@@ -251,6 +251,9 @@ def _group_activity_query(group_id, include_hidden_activity=False):
         )
     )
 
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+
     return q
 
 
