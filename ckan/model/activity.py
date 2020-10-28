@@ -201,7 +201,7 @@ def package_activity_list(
     return _activities_at_offset(q, limit, offset)
 
 
-def _group_activity_query(group_id):
+def _group_activity_query(group_id, include_hidden_activity=False):
     '''Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
