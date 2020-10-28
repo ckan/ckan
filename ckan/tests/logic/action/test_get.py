@@ -3164,9 +3164,11 @@ class TestPackageActivityList(object):
         dataset = factories.Dataset()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=dataset["id"],
                 activity_type=None,
                 data=None,
@@ -3396,8 +3398,9 @@ class TestUserActivityList(object):
         assert activities[0]["data"]["group"]["title"] == org["title"]
 
     def _create_bulk_user_activities(self, count):
-        user = factories.User()
         from ckan import model
+
+        user = factories.User()
 
         objs = [
             model.Activity(
@@ -3613,9 +3616,11 @@ class TestGroupActivityList(object):
         group = factories.Group()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=group["id"],
                 activity_type=None,
                 data=None,
@@ -3844,9 +3849,11 @@ class TestOrganizationActivityList(object):
         org = factories.Organization()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=org["id"],
                 activity_type=None,
                 data=None,
@@ -4013,9 +4020,11 @@ class TestRecentlyChangedPackagesActivityList(object):
     def _create_bulk_package_activities(self, count):
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=None,
                 activity_type="new_package",
                 data=None,
