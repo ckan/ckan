@@ -24,7 +24,7 @@ pytz==2016.7
 PyUtilib==5.7.1
 pyyaml==5.3.1
 repoze.who==2.3
-requests==2.22.0
+requests==2.24.0
 Routes==1.13
 rq==1.0
 simplejson==3.10.0
