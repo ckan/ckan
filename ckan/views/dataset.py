@@ -489,10 +489,13 @@ def read(package_type, id):
     # if the user specified a package id, redirect to the package name
     if data_dict['id'] == pkg_dict['id'] and \
             data_dict['id'] != pkg_dict['name']:
+        kwargs = {
+            **request.args,
+            'id': pkg_dict['name'],
+            'activity_id': activity_id
+            }
         return h.redirect_to(h.url_for(u'{}.read'.format(package_type),
-                             id=pkg_dict['name'],
-                             activity_id=activity_id,
-                             **request.args))
+                             **kwargs))
 
     # can the resources be previewed?
     for resource in pkg_dict[u'resources']:
