@@ -27,7 +27,6 @@ markdown==2.6.7           # via -r requirements.in
 markupsafe==1.1.1         # via jinja2, mako
 nose==1.3.7               # via pyutilib
 passlib==1.7.3            # via -r requirements.in
-pastedeploy==2.0.1        # manually kept - remove when #4802 is complete
 pathtools==0.1.2          # via watchdog
 pbr==5.4.4                # via sqlalchemy-migrate
 polib==1.0.7              # via -r requirements.in
