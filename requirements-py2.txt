@@ -72,4 +72,4 @@ webhelpers==1.3
 webob==1.0.8
 webtest==1.4.3
 werkzeug[watchdog]==0.16.1
-zope.interface==4.3.2
+zope.interface==4.7.2
