@@ -1,0 +1,18 @@
+diff a/ckan/model/activity.py b/ckan/model/activity.py	(rejected hunks)
+@@ -15,6 +15,7 @@ from sqlalchemy import (
+     text,
+ )
+ 
++from ckan.common import config
+ import ckan.model
+ import meta
+ import types as _types
+@@ -219,6 +227,8 @@ def _group_activity_query(group_id):
+         ),
+     )
+ 
++    q = _filter_activitites_from_users(q)
++
+     return q
+ 
+ 
