@@ -202,7 +202,7 @@ template file for the front page with an empty file.
 
 .. note::
 
-   If you run ``ckan run`` with the ``-r(--reloader)`` option, then it isn't
+   If you run ``ckan run`` without the ``-r(--disable-reloader)`` option, then it isn't
    usually necessary to restart the server after editing a Python file,
    a template file, your CKAN config file, or any other CKAN file. If you've
    added a new file or directory, however, you need to restart the server

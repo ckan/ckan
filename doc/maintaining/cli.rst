@@ -489,9 +489,9 @@ Usage
 
 .. parsed-literal::
 
- ckan run --host (-h)          - Set Host
- ckan run --port (-p)          - Set Port
- ckan run --reloader (-r)      - Use reloader
+ ckan run --host (-h)                  - Set Host
+ ckan run --port (-p)                  - Set Port
+ ckan run --disable-reloader (-r)      - Use reloader
 
 
 
