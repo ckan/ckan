@@ -24,7 +24,7 @@ with NGINX on an Ubuntu server. These instructions have been tested on Ubuntu
 1. Install Nginx
 ----------------
 
-Install NGINX_ (a web server) which will proxy the content from one of the WSGI Servers 
+Install NGINX_ (a web server) which will proxy the content from one of the WSGI Servers
 and add a layer of caching::
 
     sudo apt-get install nginx
@@ -81,25 +81,27 @@ The uwsgi configuration file can be copied from the CKAN distribution:
 .. parsed-literal::
     [uwsgi]
 
-    http            =  127.0.0.1:8080
-    uid             =  www-data
-    guid            =  www-data
-    wsgi-file       =  /etc/ckan/default/wsgi.py
-    virtualenv      =  /usr/lib/ckan/default
-    module          =  wsgi:application
-    master          =  true
-    pidfile         =  /tmp/%n.pid
-    harakiri        =  50
-    max-requests    =  5000
-    vacuum          =  true
-    callable        =  application  
+    http                =  127.0.0.1:8080
+    uid                 =  www-data
+    guid                =  www-data
+    wsgi-file           =  /etc/ckan/default/wsgi.py
+    virtualenv          =  /usr/lib/ckan/default
+    chdir               =  /etc/ckan/default
+    mount               =  /=wsgi:application
+    manage-script-name  =  true
+    master              =  true
+    pidfile             =  /tmp/%n.pid
+    harakiri            =  50
+    max-requests        =  5000
+    vacuum              =  true
+    callable            =  application
 
 
 -----------------------------------
 4. Install Supervisor for the uwsgi
 -----------------------------------
 
-Install Supervisor_ (a Process Control System) used to control starting, stopping the 
+Install Supervisor_ (a Process Control System) used to control starting, stopping the
 uwsgi or gunicorn servers::
 
   sudo apt-get install supervisor
@@ -234,7 +236,7 @@ different to that described in the `official CKAN 2.8 deployment instructions
 your setup.
 
 We now recommend you activate the Python virtual environment in a different
-place, compared to earlier CKAN versions. For the WSGI server, activation is done 
+place, compared to earlier CKAN versions. For the WSGI server, activation is done
 in the uwsgi server config file (/etc/ckan/default/ckan-uwsgi.ini).
 
 (In CKAN 2.8.x and earlier, the virtual environment was activated in the WSGI
