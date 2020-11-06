@@ -54,10 +54,6 @@ class TestStatsPlugin(object):
         model.Package.by_name(u"test3").notes = "Test 3 notes"
         model.repo.commit_and_remove()
 
-    def test_top_rated_packages(self):
-        pkgs = Stats.top_rated_packages()
-        assert pkgs == []
-
     def test_largest_groups(self):
         grps = Stats.largest_groups()
         grps = [(grp.name, count) for grp, count in grps]
