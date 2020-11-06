@@ -1302,8 +1302,8 @@ def tag_create(context, data_dict):
     :py:func:`~ckan.logic.action.update.package_update` function.)
 
     :param name: the name for the new tag, a string between 2 and 100
-        characters long containing only alphanumeric characters, three punctuations i.e., ``-``,
-        ``_`` and ``.``and space e.g. ``'Jazz'``
+        characters long containing only alphanumeric characters, three punctuations i.e. ``-``,
+        ``_`` and ``.``and space. e.g. ``'Jazz'``
     :type name: string
     :param vocabulary_id: the id of the vocabulary that the new tag
         should be added to, e.g. the id of vocabulary ``'Genre'``
