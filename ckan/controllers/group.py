@@ -326,6 +326,13 @@ class GroupController(base.BaseController):
 
                     c.fields_grouped.setdefault(param, []).append(value)
 
+            include_private = False
+            user_member_of_orgs = [org['id'] for org
+                                   in h.organizations_available('read')]
+
+            if (c.group and c.group.id in user_member_of_orgs):
+                include_private = True
+
             facets = OrderedDict()
 
             default_facet_titles = {'organization': _('Organizations'),
