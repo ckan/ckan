@@ -205,6 +205,7 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 #smtp.password = your_password
 #smtp.mail_from =
 #smtp.reply_to =
+#email_log_level = 40
 
 ## Background Job Settings
 ckan.jobs.timeout = 180
