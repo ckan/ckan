@@ -571,7 +571,7 @@ def _setup_error_mail_handler(app):
         secure=secure
     )
 
-    mail_handler.setLevel(config.get('email_log_level', 40))
+    mail_handler.setLevel(int(config.get('email_log_level', logging.ERROR)))
     mail_handler.setFormatter(logging.Formatter('''
 Time:               %(asctime)s
 URL:                %(url)s
