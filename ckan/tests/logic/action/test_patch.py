@@ -94,7 +94,6 @@ class TestPatch(object):
         assert len(group2["users"]) == 1
         assert group2["users"][0]["name"] == user["name"]
 
-
     def test_group_patch_preserve_datasets(self):
         user = factories.User()
         group = factories.Group(
@@ -172,7 +171,6 @@ class TestPatch(object):
         assert organization2["description"] == "somethingnew"
         assert len(organization2["users"]) == 1
         assert organization2["users"][0]["name"] == user["name"]
-
 
     def test_user_patch_updating_single_field(self):
         user = factories.User(
