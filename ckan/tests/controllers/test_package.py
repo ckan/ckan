@@ -1864,7 +1864,8 @@ class TestDatasetRead(object):
         assert response.headers['location'] == expected_url
 
     def test_redirect_also_with_activity_parameter(self, app):
-        dataset = factories.Dataset()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]

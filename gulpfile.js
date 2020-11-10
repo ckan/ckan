@@ -73,6 +73,11 @@ const jQueryFileUpload = () =>
     dest(__dirname + "/ckan/public/base/vendor/jquery-fileupload/")
   );
 
+const qs = () =>
+  src(__dirname + "/node_modules/qs/dist/qs.js").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/")
+  )
+
 exports.build = build;
 exports.watch = watchSource;
 exports.updateVendorLibs = parallel(
@@ -83,5 +88,6 @@ exports.updateVendorLibs = parallel(
   fontAwesomeCss,
   fontAwesomeFonts,
   fontAwesomeLess,
-  jQueryFileUpload
+  jQueryFileUpload,
+  qs
 );

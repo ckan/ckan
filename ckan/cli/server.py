@@ -5,8 +5,8 @@ import logging
 import click
 from werkzeug.serving import run_simple
 
-from ckan.common import config
 import ckan.plugins.toolkit as tk
+from ckan.common import config
 
 log = logging.getLogger(__name__)
 
@@ -14,7 +14,8 @@ log = logging.getLogger(__name__)
 @click.command(u"run", short_help=u"Start development server")
 @click.option(u"-H", u"--host", default=u"localhost", help=u"Set host")
 @click.option(u"-p", u"--port", default=5000, help=u"Set port")
-@click.option(u"-r", u"--reloader", default=True, help=u"Use reloader")
+@click.option(u"-r", u"--disable-reloader", is_flag=True,
+              help=u"Disable reloader")
 @click.option(
     u"-t", u"--threaded", is_flag=True,
     help=u"Handle each request in a separate thread"
@@ -25,8 +26,9 @@ log = logging.getLogger(__name__)
     help=u"Maximum number of concurrent processes"
 )
 @click.pass_context
-def run(ctx, host, port, reloader, threaded, extra_files, processes):
+def run(ctx, host, port, disable_reloader, threaded, extra_files, processes):
     u"""Runs the Werkzeug development server"""
+    use_reloader = not disable_reloader
     threaded = threaded or tk.asbool(config.get(u"ckan.devserver.threaded"))
     processes = processes or tk.asint(
         config.get(u"ckan.devserver.multiprocess", 1)
@@ -48,7 +50,7 @@ def run(ctx, host, port, reloader, threaded, extra_files, processes):
         host,
         port,
         ctx.obj.app,
-        use_reloader=reloader,
+        use_reloader=use_reloader,
         use_evalex=True,
         threaded=threaded,
         processes=processes,
