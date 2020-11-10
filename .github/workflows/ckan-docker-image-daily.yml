@@ -10,13 +10,29 @@ on:
     types: [published]
   repository_dispatch:
     types: [submodule-pull-request]
-    
+
 env:
   submod_path: "contrib/docker/src"
 
 jobs:
+  delete_pr:
+    if: |
+      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.action == 'closed' && github.event.client_payload.merged == true)
+    name: Delete docker tag on pull request merge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set PR number as TAG env variable for pull requests
+        if: github.event_name == 'pull_request'
+        run: echo "TAG=PR${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+      - name: Set repo name and PR number as TAG env variable for submodule pull requests
+        if: github.event_name == 'repository_dispatch'
+        run: echo "TAG=$SM_NAME-PR${{ github.event.client_payload.prn }}" >> $GITHUB_ENV
+
+      - run: docker run --rm -it lumir/remove-dockerhub-tag --user ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} cioos/ckan:$TAG
+
   build:
-    name: build ckan docker image 
+    name: build ckan docker image
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -26,33 +42,32 @@ jobs:
         submod_full_path=$(echo "$submod_path/$submod_name")
         echo "SM_NAME=$submod_name" >> $GITHUB_ENV
         git config --file=.gitmodules submodule.$submod_full_path.branch ${{github.event.client_payload.head_ref}}
-#        echo "$(git config --file=.gitmodules -l)"
     - run: git submodule init
-    - run: git submodule update --remote  
+    - run: git submodule update --remote
     - run: cp ./contrib/docker/.env.template ./contrib/docker/.env
     - run: cp ./contrib/docker/production_root_url.ini ./contrib/docker/production.ini
     - run: cp ./contrib/docker/who_root_url.ini ./contrib/docker/who.ini
     - run: cp ./contrib/docker/pycsw/pycsw.cfg.template ./contrib/docker/pycsw/pycsw.cfg
 
     - name: Set current date as TAG env variable for push requests
-      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' 
-      run: echo "TAG=$(date +'%Y-%m-%d')" >> $GITHUB_ENV    
+      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      run: echo "TAG=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
     - name: Set PR number as TAG env variable for pull requests
       if: github.event_name == 'pull_request'
       run: echo "TAG=PR${{ github.event.pull_request.number }}" >> $GITHUB_ENV
     - name: Set git tag as TAG env variable for releases
       if: github.event_name == 'release'
-      run: echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV 
-    - name: Set repo name and PR number as TAG env variable for submodule pull requests 
+      run: echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+    - name: Set repo name and PR number as TAG env variable for submodule pull requests
       if: github.event_name == 'repository_dispatch'
-      run: echo "TAG=$SM_NAME-PR${{ github.event.client_payload.prn }}" >> $GITHUB_ENV      
+      run: echo "TAG=$SM_NAME-PR${{ github.event.client_payload.prn }}" >> $GITHUB_ENV
 
     - name: Login to DockerHub
-      uses: docker/login-action@v1 
+      uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
     - run: docker build -t cioos/ckan:$TAG -t cioos/ckan:latest .
     - run: docker push cioos/ckan:$TAG
-    - if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' 
+    - if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
       run: docker push cioos/ckan:latest
