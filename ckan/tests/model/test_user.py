@@ -82,9 +82,9 @@ class TestUser:
     def test_upgrade_from_pbkdf2_with_less_rounds(self):
         """set up a pbkdf key with less than the default rounds
 
-    If the number of default_rounds is increased in a later version of
-    passlib, ckan should upgrade the password hashes for people without
-    involvement from users"""
+        If the number of default_rounds is increased in a later version of
+        passlib, ckan should upgrade the password hashes for people without
+        involvement from users"""
         user = factories.User()
         password = u"testpassword"
         user_obj = model.User.by_name(user["name"])

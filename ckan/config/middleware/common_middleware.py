@@ -111,5 +111,5 @@ class HostHeaderMiddleware(object):
                          '/user/logged_out']:
             site_url = config.get('ckan.site_url')
             parts = urlparse(site_url)
-            environ['HTTP_HOST'] = parts.netloc
+            environ['HTTP_HOST'] = str(parts.netloc)
         return self.app(environ, start_response)
