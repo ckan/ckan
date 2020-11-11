@@ -137,4 +137,4 @@ def organization_patch(context, data_dict):
     patched = dict(organization_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _update.group_update(dict(context, allow_partial_update=True), patched)
+    return _update.organization_update(dict(context, allow_partial_update=True), patched)
