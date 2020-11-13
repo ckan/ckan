@@ -2411,7 +2411,7 @@ Default value: ``None``
 This controls from which email the error messages will come from.
 
 email_log_level
-^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 Example::
 
