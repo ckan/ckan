@@ -266,6 +266,14 @@ This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
 
+CKAN uses `engine_from_config 
+<https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.engine_from_config>`_ 
+so you can add any slqalchemy setting in the CKAN ini file. Examples::
+
+ sqlalchemy.pool_size = 10
+ sqlalchemy.max_overflow = 20
+ sqlalchemy.encoding = 'latin1'
+
 .. start_config-datastore-urls
 
 .. _ckan.datastore.write_url:
