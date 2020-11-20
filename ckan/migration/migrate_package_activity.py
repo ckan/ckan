@@ -57,8 +57,7 @@ def num_unmigrated(engine):
     num_unmigrated = engine.execute('''
         SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
         WHERE a.activity_type IN ('new package', 'changed package')
-        AND a.data NOT LIKE '%%{"actor"%%'
-        AND p.private = false;
+        AND a.data NOT LIKE '%%{"actor"%%';
     ''').fetchone()[0]
     return num_unmigrated
 
@@ -67,8 +66,7 @@ def num_activities_migratable():
     from ckan import model
     num_activities = model.Session.execute(u'''
     SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
-    WHERE a.activity_type IN ('new package', 'changed package')
-    AND p.private = false;
+    WHERE a.activity_type IN ('new package', 'changed package');
     ''').fetchall()[0][0]
     return num_activities
 

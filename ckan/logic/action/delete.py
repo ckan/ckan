@@ -111,7 +111,7 @@ def package_delete(context, data_dict):
         collaborator.delete()
 
     # Create activity
-    if not entity.private:
+    if not entity.private  or ckan.common.asbool(config.get('ckan.activity_streams_for_private', 'false')):
         user_obj = model.User.by_name(user)
         if user_obj:
             user_id = user_obj.id
