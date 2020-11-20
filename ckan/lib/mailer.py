@@ -56,15 +56,13 @@ def _mail_recipient(recipient_name, recipient_email,
     subject = Header(subject.encode('utf-8'), 'utf-8')
     msg['Subject'] = subject
     msg['From'] = _("%s <%s>") % (sender_name, mail_from)
-    recipient = u"%s <%s>" % (recipient_name, recipient_email)
-    msg['To'] = Header(recipient, 'utf-8')
+    msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
     msg['Date'] = utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
     if reply_to and reply_to != '':
         msg['Reply-to'] = reply_to
 
     # Send the email using Python's smtplib.
-    smtp_connection = smtplib.SMTP()
     if 'smtp.test_server' in config:
         # If 'smtp.test_server' is configured we assume we're running tests,
         # and don't use the smtp.server, starttls, user, password etc. options.
@@ -80,11 +78,12 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_password = config.get('smtp.password')
 
     try:
-        smtp_connection.connect(smtp_server)
-    except socket.error as e:
+        smtp_connection = smtplib.SMTP(smtp_server)
+    except (socket.error, smtplib.SMTPConnectError) as e:
         log.exception(e)
         raise MailerException('SMTP server could not be connected to: "%s" %s'
                               % (smtp_server, e))
+
     try:
         # Identify ourselves and prompt the server for supported features.
         smtp_connection.ehlo()

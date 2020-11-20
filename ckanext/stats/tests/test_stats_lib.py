@@ -7,7 +7,6 @@ from ckan import model
 from ckan.tests import factories
 
 from ckanext.stats.stats import Stats
-from ckanext.stats.tests import StatsFixture
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'stats')

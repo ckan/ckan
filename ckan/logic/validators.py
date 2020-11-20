@@ -44,6 +44,8 @@ def owner_org_validator(key, data, errors, context):
     model = context['model']
     user = context['user']
     user = model.User.get(user)
+    package = context.get('package')
+
     if value == '':
         if not authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('An organization must be provided'))
@@ -52,7 +54,6 @@ def owner_org_validator(key, data, errors, context):
     if (authz.check_config_permission('allow_dataset_collaborators')
             and not authz.check_config_permission('allow_collaborators_to_change_owner_org')):
 
-        package = context.get('package')
         if package and user and not user.sysadmin:
             is_collaborator = authz.user_is_collaborator_on_dataset(
                 user.id, package.id, ['admin', 'editor'])
@@ -70,10 +71,14 @@ def owner_org_validator(key, data, errors, context):
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    if not context.get(u'ignore_auth', False) and not(user.sysadmin or
-           authz.has_user_permission_for_group_or_org(
-               group_id, user.name, 'create_dataset')):
-        raise Invalid(_('You cannot add a dataset to this organization'))
+
+    if not package or (package and package.owner_org != group_id):
+        # This is a new dataset or we are changing the organization
+        if not context.get(u'ignore_auth', False) and not(user.sysadmin or
+               authz.has_user_permission_for_group_or_org(
+                   group_id, user.name, 'create_dataset')):
+            raise Invalid(_('You cannot add a dataset to this organization'))
+
     data[key] = group_id
 
 

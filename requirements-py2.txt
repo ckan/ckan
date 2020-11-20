@@ -10,7 +10,6 @@ beaker==1.10.1            # via pylons
 bleach==3.1.4
 certifi==2019.3.9         # via requests
 chardet==3.0.4            # via requests
-click==6.7
 decorator==4.4.0          # via pylons, sqlalchemy-migrate
 dominate==2.4.0
 fanstatic==0.12

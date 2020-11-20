@@ -1,0 +1,1 @@
+Fix instantiation of smtp on python 3.8

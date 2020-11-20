@@ -1598,6 +1598,10 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert not (dataset.private)
+        activities = helpers.call_action(
+            "organization_activity_list", id=org["id"]
+        )
+        assert activities[0]['activity_type'] == 'changed package'
 
     def test_bulk_delete(self):
 
@@ -1628,6 +1632,11 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert dataset.state == "deleted"
+
+        activities = helpers.call_action(
+            "organization_activity_list", id=org["id"]
+        )
+        assert activities[0]['activity_type'] == 'deleted package'
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1693,6 +1702,34 @@ class TestDashboardMarkActivitiesOld(object):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
 class TestCollaboratorsUpdate(object):
+
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    def test_collaborators_can_update_resources(self, role):
+
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        user = factories.User()
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=role)
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        updated_resource = helpers.call_action(
+            'resource_update',
+            context=context,
+            id=resource['id'],
+            description='updated')
+
+        assert updated_resource['description'] == 'updated'
 
     def test_collaborators_can_not_change_owner_org_by_default(self):
 
@@ -1864,6 +1901,20 @@ class TestDatasetRevise(object):
         )
         assert response['package']['resources'][0]['name'] == 'new name'
         assert response['package']['resources'][0]['url'] == ''
+
+    def test_revise_normal_user(self):
+        user = factories.User()
+        org = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        # make sure normal users can use package_revise
+        context = {'user': user['name'], 'ignore_auth': False}
+        ds = factories.Dataset(owner_org=org['id'])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': ds['id']},
+            update={'notes': 'new notes'},
+            context=context,
+        )
+        assert response['package']['notes'] == 'new notes'
 
 
 @pytest.mark.usefixtures("clean_db")

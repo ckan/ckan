@@ -9,6 +9,56 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.9.1 2020-10-21
+==================
+
+General notes:
+ * Note: This version requires a database upgrade with ``ckan db upgrade`` (You should
+   always backup your database first)
+
+
+Bugfixes
+--------
+
+- Restore `stats` extension with reduced functionality (`#5215
+  <https://github.com/ckan/ckan/pull/5215>`_)
+- Allow IAuthenticator methods to return responses (`#5259
+  <https://github.com/ckan/ckan/pull/5259>`_)
+- Emit activities when updating datasets in bulk (`#5479
+  <https://github.com/ckan/ckan/pull/5479>`_)
+- Catch IndexError from date parsing during dataset indexation (`#5535
+  <https://github.com/ckan/ckan/pull/5535>`_)
+- Remove foreign keys relationships in revision tables to avoid purge errors
+  (`#5542 <https://github.com/ckan/ckan/pull/5542>`_)
+- Fix fullscreen for resource webpageview (`#5552
+  <https://github.com/ckan/ckan/pull/5552>`_)
+- Fix skip to content link hiding on screen readers (`#5556
+  <https://github.com/ckan/ckan/pull/5556>`_)
+- Fix KeyErrors in change list detection (`#5562
+  <https://github.com/ckan/ckan/pull/5562>`_)
+- Fix instantiation of smtp on python 3.8 (`#5595
+  <https://github.com/ckan/ckan/pull/5595>`_)
+- Fix `unflatten` function and DataDictionary/package extras update bug (`#5611
+  <https://github.com/ckan/ckan/pull/5611>`_)
+- Fix managing resources by collaborators (`#5620
+  <https://github.com/ckan/ckan/pull/5620>`_)
+- package_revise: allow use by normal users (`#5637
+  <https://github.com/ckan/ckan/pull/5637>`_)
+- Fix reloader option on ckan run command (`#5639
+  <https://github.com/ckan/ckan/pull/5639>`_)
+- Allow config-tool to be used with an incomplete config file (`#5647
+  <https://github.com/ckan/ckan/pull/5647>`_)
+
+
+Minor changes
+-------------
+
+- Add aria attribute and accessible screen reader text to the mobile nav
+  button. (`#5555 <https://github.com/ckan/ckan/pull/5555>`_)
+- Remove jinja2 blocks from robots.txt (`#5648
+  <https://github.com/ckan/ckan/pull/5648>`_)
+
+
 v.2.9.0 2020-08-05
 ==================
 
