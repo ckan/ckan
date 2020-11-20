@@ -122,7 +122,9 @@ def purge():
     u'''Purge deleted resources from the datastore using datastore_delete,
     which actually drops tables when passed an empty filter.'''
 
-    context = {}
+    site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
+    context = {u'user': site_user[u'name']}
+    
     result = logic.get_action(u'datastore_search')(
         context,
         {u'resource_id': u'_table_metadata'}
