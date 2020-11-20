@@ -7,6 +7,7 @@ import click
 
 from ckan.model import parse_db_config
 from ckan.common import config
+import ckan.logic as logic
 
 import ckanext.datastore as datastore_module
 from ckanext.datastore.backend.postgres import identifier
@@ -111,3 +112,48 @@ def _parse_db_config(config_key=u'sqlalchemy.url'):
         )
         raise click.Abort()
     return db_config
+
+
+@datastore.command(
+    u'purge',
+    short_help=u'purge deleted resources from the datastore.'
+)
+def purge():
+    u'''Purge deleted resources from the datastore using datastore_delete,
+    which actually drops tables when passed an empty filter.'''
+
+    context = {}
+    result = logic.get_action(u'datastore_search')(
+        context,
+        {u'resource_id': u'_table_metadata'}
+    )
+
+    resource_id_list = []
+    for record in result[u'records']:
+        try:
+            # ignore 'alias' records
+            if record[u'alias_of']:
+                continue
+
+            logic.get_action(u'resource_show')(
+                context,
+                {u'id': record[u'name']}
+            )
+            click.echo(u"Resource '%s' found" % record[u'name'])
+        except logic.NotFound:
+            resource_id_list.append(record[u'name'])
+            click.echo(u"Resource '%s' *not* found" % record[u'name'])
+        except KeyError:
+            continue
+
+    # drop the orphaned datastore tables
+    drop_count = 0
+    for resource_id in resource_id_list:
+        logic.get_action(u'datastore_delete')(
+            context,
+            {u'resource_id': resource_id, u'force': True}
+        )
+        click.echo(u"Table '%s' dropped)" % resource_id)
+        drop_count += 1
+
+    click.echo(u"Dropped %s tables" % drop_count)
