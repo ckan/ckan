@@ -124,7 +124,7 @@ def purge():
 
     site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     context = {u'user': site_user[u'name']}
-    
+
     result = logic.get_action(u'datastore_search')(
         context,
         {u'resource_id': u'_table_metadata'}
@@ -133,10 +133,6 @@ def purge():
     resource_id_list = []
     for record in result[u'records']:
         try:
-            # ignore 'alias' records
-            if record[u'alias_of']:
-                continue
-
             logic.get_action(u'resource_show')(
                 context,
                 {u'id': record[u'name']}
@@ -144,7 +140,7 @@ def purge():
             click.echo(u"Resource '%s' found" % record[u'name'])
         except logic.NotFound:
             resource_id_list.append(record[u'name'])
-            click.echo(u"Resource '%s' *not* found" % record[u'name'])
+            click.echo(u"Resource '%s' orphaned - queued for drop" % record[u'name'])
         except KeyError:
             continue
 
