@@ -422,16 +422,16 @@ A resource in the DataStore can have multiple aliases that are easier to remembe
 Comparison of different querying methods
 ----------------------------------------
 
-The DataStore supports querying with multiple API endpoints. They are similar but support different features. The following list gives an overview of the different methods.
+The DataStore supports querying with two API endpoints. They are similar but support different features. The following list gives an overview of the different methods.
 
-==============================  ========================================================  ============================================================  =============================
-..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`  :ref:`HTSQL<datastore_search_htsql>`
-==============================  ========================================================  ============================================================  =============================
-**Ease of use**                 Easy                                                      Complex                                                       Medium
-**Flexibility**                 Low                                                       High                                                          Medium
-**Query language**              Custom (JSON)                                             SQL                                                           HTSQL
-**Join resources**              No                                                        Yes                                                           No
-==============================  ========================================================  ============================================================  =============================
+==============================  ========================================================  ============================================================
+..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`
+==============================  ========================================================  ============================================================
+**Ease of use**                 Easy                                                      Complex
+**Flexibility**                 Low                                                       High
+**Query language**              Custom (JSON)                                             SQL
+**Join resources**              No                                                        Yes
+==============================  ========================================================  ============================================================
 
 
 .. _db_internals:
