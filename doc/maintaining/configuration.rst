@@ -268,7 +268,7 @@ This defines the database that CKAN is to use. The format is::
 
 CKAN uses `engine_from_config 
 <https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.engine_from_config>`_ 
-so you can add any slqalchemy setting in the CKAN ini file. Examples::
+so you can add any sqlalchemy setting in the CKAN ini file. Examples::
 
  sqlalchemy.pool_size = 10
  sqlalchemy.max_overflow = 20
