@@ -116,11 +116,11 @@ def _parse_db_config(config_key=u'sqlalchemy.url'):
 
 @datastore.command(
     u'purge',
-    short_help=u'purge deleted resources from the datastore.'
+    short_help=u'purge orphaned resources from the datastore.'
 )
 def purge():
-    u'''Purge deleted resources from the datastore using datastore_delete,
-    which actually drops tables when passed an empty filter.'''
+    u'''Purge orphaned resources from the datastore using the datastore_delete
+    action, which drops tables when called without filters.'''
 
     site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
     context = {u'user': site_user[u'name']}
@@ -140,11 +140,13 @@ def purge():
             click.echo(u"Resource '%s' found" % record[u'name'])
         except logic.NotFound:
             resource_id_list.append(record[u'name'])
-            click.echo(u"Resource '%s' orphaned - queued for drop" % record[u'name'])
+            click.echo(u"Resource '%s' orphaned - queued for drop" % 
+                record[u'name'])
         except KeyError:
             continue
 
-    # drop the orphaned datastore tables
+    # Drop the orphaned datastore tables. When datastore_delete is called 
+    # without filters, it does a drop table cascade
     drop_count = 0
     for resource_id in resource_id_list:
         logic.get_action(u'datastore_delete')(
@@ -154,4 +156,4 @@ def purge():
         click.echo(u"Table '%s' dropped)" % resource_id)
         drop_count += 1
 
-    click.echo(u"Dropped %s tables" % drop_count)
+    click.echo(u'Dropped %s tables' % drop_count)
