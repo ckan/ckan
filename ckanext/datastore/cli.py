@@ -140,12 +140,12 @@ def purge():
             click.echo(u"Resource '%s' found" % record[u'name'])
         except logic.NotFound:
             resource_id_list.append(record[u'name'])
-            click.echo(u"Resource '%s' orphaned - queued for drop" % 
-                record[u'name'])
+            click.echo(u"Resource '%s' orphaned - queued for drop" %
+                        record[u'name'])
         except KeyError:
             continue
 
-    # Drop the orphaned datastore tables. When datastore_delete is called 
+    # Drop the orphaned datastore tables. When datastore_delete is called
     # without filters, it does a drop table cascade
     drop_count = 0
     for resource_id in resource_id_list:
