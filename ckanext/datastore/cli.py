@@ -141,7 +141,7 @@ def purge():
         except logic.NotFound:
             resource_id_list.append(record[u'name'])
             click.echo(u"Resource '%s' orphaned - queued for drop" %
-                        record[u'name'])
+                       record[u'name'])
         except KeyError:
             continue
 
