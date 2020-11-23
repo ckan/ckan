@@ -114,8 +114,20 @@ class AuthFunctions:
                 else:
                     # fallback to chaining off the builtin auth function
                     prev_func = self._functions[name]
-                fetched_auth_functions[name] = (
-                    functools.partial(func, prev_func))
+                
+                new_func = (functools.partial(func, prev_func))
+                attributes_list = [
+                    'auth_allow_anonymous_access',
+                    'auth_disallow_anonymous_access',
+                    'auth_sysadmins_check',
+                    'chained_auth_function'
+                ]
+                for attribute in attributes_list:
+                    if hasattr(func, attribute):
+                        attval = getattr(func, attribute)
+                        setattr(new_func, attribute, attval)
+                
+                fetched_auth_functions[name] = new_func
 
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
