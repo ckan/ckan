@@ -1722,8 +1722,8 @@ msgstr "La longueur du mot-clé \"%s\" est supérieure à la longueur maximale %
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
 msgstr ""
-"Le mot-clé \"%s\" ne peut contenir que des lettres minuscules, des chiffres "
-"ou les symboles : -_."
+"Tag \"%s\" doit être composé de caractères alphanumériques "
+"ou de symboles: -_."
 
 #: ckan/logic/validators.py:460
 #, python-format
