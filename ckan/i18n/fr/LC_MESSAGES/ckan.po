@@ -1720,7 +1720,7 @@ msgstr "La longueur du mot-clé \"%s\" est supérieure à la longueur maximale %
 
 #: ckan/logic/validators.py:452
 #, python-format
-msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgid "Tag \"%s\" must consist of alphanumeric characters or symbols: -_."
 msgstr ""
 "Tag \"%s\" doit être composé de caractères alphanumériques "
 "ou de symboles: -_."
