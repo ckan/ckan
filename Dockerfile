@@ -1,5 +1,7 @@
 # See CKAN docs on installation from Docker Compose on usage
-FROM debian:stretch
+#------------------------------------------------------------------------------#
+FROM debian:stretch as base
+#------------------------------------------------------------------------------#
 MAINTAINER Open Knowledge
 
 # Install required system packages
@@ -57,21 +59,27 @@ RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     ln -s $CKAN_VENV/bin/ckan /usr/local/bin/ckan
 
 # Setup CKAN
-ADD . $CKAN_VENV/src/ckan/
-COPY ./contrib/docker/production.ini $CKAN_CONFIG/production.ini
-COPY ./contrib/docker/who.ini $CKAN_VENV/src/ckan/ckan/config/who.ini
+ADD ./bin/ $CKAN_VENV/src/ckan/bin/
+ADD ./ckan/ $CKAN_VENV/src/ckan/ckan/
+ADD ./ckanext/ $CKAN_VENV/src/ckan/ckanext/
+ADD ./scripts/ $CKAN_VENV/src/ckan/scripts/
+COPY ./*.py ./*.txt ./*.ini ./*.rst $CKAN_VENV/src/ckan/
+ADD ./contrib/docker/production.ini $CKAN_CONFIG/production.ini
+ADD ./contrib/docker/who.ini $CKAN_VENV/src/ckan/ckan/config/who.ini
+ADD ./contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh
+ADD ./contrib/docker/ckan-harvester-entrypoint.sh /ckan-harvester-entrypoint.sh
+ADD ./contrib/docker/ckan-run-harvester-entrypoint.sh /ckan-run-harvester-entrypoint.sh
+
 RUN ckan-pip install -U pip && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements-py2.txt && \
     ckan-pip install -e $CKAN_VENV/src/ckan/ && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
-    cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
-    cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-harvester-entrypoint.sh /ckan-harvester-entrypoint.sh && \
     chmod +x /ckan-harvester-entrypoint.sh && \
-    cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-run-harvester-entrypoint.sh /ckan-run-harvester-entrypoint.sh && \
     chmod +x /ckan-run-harvester-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+
 
 # Install needed libraries
 RUN ckan-pip install factory_boy
@@ -82,7 +90,7 @@ RUN ckan-pip install --global-option=build_ext --global-option="-I/usr/include/g
 # for debugging
 RUN ckan-pip install flask_debugtoolbar
 
-# Copy extensions into container
+# Copy extensions into container and Install
 WORKDIR $CKAN_VENV/src
 COPY ./contrib/docker/src/pycsw $CKAN_VENV/src/pycsw
 COPY ./contrib/docker/pycsw/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
@@ -97,27 +105,62 @@ COPY ./contrib/docker/src/ckanext_fluent $CKAN_VENV/src/ckanext_fluent
 COPY ./contrib/docker/src/ckanext-package_converter $CKAN_VENV/src/ckanext-package_converter
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
-# Install Extensions
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -e pycsw"
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r pycsw/requirements.txt"
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/pycsw && python setup.py build && python setup.py install && python setup.py develop"
+COPY ./contrib/docker/src/ckanext-geoview/pip-requirements.txt $CKAN_VENV/src/ckanext-geoview/pip-requirements.txt
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-geoview/pip-requirements.txt"
 
+COPY ./contrib/docker/src/ckanext-dcat/requirements.txt $CKAN_VENV/src/ckanext-dcat/requirements.txt
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-dcat/requirements.txt"
+
+COPY ./contrib/docker/src/ckanext-harvest/pip-requirements.txt $CKAN_VENV/src/ckanext-harvest/pip-requirements.txt
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-harvest/pip-requirements.txt"
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-harvest && python setup.py install && python setup.py develop"
 
+COPY ./contrib/docker/src/ckanext-spatial/pip-requirements.txt $CKAN_VENV/src/ckanext-spatial/pip-requirements.txt
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-spatial/pip-requirements.txt"
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-spatial && python setup.py install && python setup.py develop"
 
-# add simlink so ckan spatial can find pycsw
-RUN ln -s $CKAN_VENV/src/pycsw/pycsw $CKAN_VENV/src/ckanext-spatial/pycsw
-
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-cioos_theme && python setup.py compile_catalog -f && python setup.py install && python setup.py develop"
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-cioos_harvest && python setup.py install && python setup.py develop"
-#RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-doi && python setup.py install && python setup.py develop"
-
+COPY ./contrib/docker/src/ckanext-scheming/requirements.txt $CKAN_VENV/src/ckanext-scheming/requirements.txt
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-scheming/requirements.txt"
+
+COPY ./contrib/docker/src/ckanext-cioos_theme/dev-requirements.txt $CKAN_VENV/src/ckanext-cioos_theme/dev-requirements.txt
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-cioos_theme/dev-requirements.txt"
+
+#------------------------------------------------------------------------------#
+FROM base as extensions1
+#------------------------------------------------------------------------------#
+WORKDIR $CKAN_VENV/src
+
+# COPY ./contrib/docker/src/pycsw $CKAN_VENV/src/pycsw
+# COPY ./contrib/docker/pycsw/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
+
+COPY ./contrib/docker/src/ckanext-googleanalyticsbasic $CKAN_VENV/src/ckanext-googleanalyticsbasic
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-googleanalyticsbasic && python setup.py install && python setup.py develop"
+
+COPY ./contrib/docker/src/ckanext-geoview $CKAN_VENV/src/ckanext-geoview
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-geoview && python setup.py install && python setup.py develop"
+
+COPY ./contrib/docker/src/ckanext-dcat $CKAN_VENV/src/ckanext-dcat
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-dcat && python setup.py install && python setup.py develop"
+
+WORKDIR $CKAN_VENV/src
+RUN /bin/bash -c "rm -R ./ckan"
+
+WORKDIR $CKAN_VENV/lib/python2.7/site-packages/
+RUN /bin/bash -c "find . -maxdepth 1 ! -name 'ckanext*' ! -name '..' ! -name '.' ! -name 'easy-install.pth' | xargs rm -R; mv easy-install.pth easy-install-A.pth"
+
+#------------------------------------------------------------------------------#
+FROM base as extensions2
+#------------------------------------------------------------------------------#
+WORKDIR $CKAN_VENV/src
+
+COPY ./contrib/docker/src/ckanext-scheming $CKAN_VENV/src/ckanext-scheming
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-scheming && python setup.py install && python setup.py develop"
+
+COPY ./contrib/docker/src/ckanext-fluent $CKAN_VENV/src/ckanext-fluent
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-fluent && python setup.py install && python setup.py develop"
+
+COPY ./contrib/docker/src/ckanext-repeating $CKAN_VENV/src/ckanext-repeating
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-repeating && python setup.py install && python setup.py develop"
+
+COPY ./contrib/docker/src/ckanext-composite $CKAN_VENV/src/ckanext-composite
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-composite && python setup.py install && python setup.py develop"
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-fluent && python setup.py install && python setup.py develop"

@@ -1,0 +1,12 @@
+**/.git
+**/.github
+**/.gitignore
+**/.gitmodules
+**/.circleci
+**/.travis.yml
+**/*.md
+**/.DS_Store
+**/public/grunt
+**/doc
+/INSTALL_CIOOS_CKAN.md
+**/example*
