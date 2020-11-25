@@ -241,7 +241,7 @@ Usage
  ckan dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
 
 
-datastore: Perform commands to set up the datastore
+datastore: Perform commands in the datastore
 ===================================================
 
 Make sure that the datastore URLs are set properly before you run these commands.
@@ -252,6 +252,7 @@ Usage
 
  ckan datastore set-permissions  - generate SQL for permission configuration
  ckan datastore dump             - dump a datastore resource
+ ckan datastore purge            - purge orphaned datastore resources
 
 
 db: Manage databases
