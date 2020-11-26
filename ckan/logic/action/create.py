@@ -668,7 +668,7 @@ def package_collaborator_create(context, data_dict):
 
     user = model.User.get(user_id)
     if not user:
-        raise NotAuthorized(_('Not allowed to add collaborators'))
+        raise NotFound(_('User not found'))
 
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
