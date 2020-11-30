@@ -116,16 +116,9 @@ class AuthFunctions:
                     prev_func = self._functions[name]
                 
                 new_func = (functools.partial(func, prev_func))
-                attributes_list = [
-                    'auth_allow_anonymous_access',
-                    'auth_disallow_anonymous_access',
-                    'auth_sysadmins_check',
-                    'chained_auth_function'
-                ]
-                for attribute in attributes_list:
-                    if hasattr(func, attribute):
-                        attval = getattr(func, attribute)
-                        setattr(new_func, attribute, attval)
+                # persisting attributes to the new partial function
+                for attribute, value in func.__dict__.iteritems():
+                    setattr(new_func, attribute, value)
                 
                 fetched_auth_functions[name] = new_func
 
