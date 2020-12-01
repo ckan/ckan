@@ -35,7 +35,7 @@ CIOOS-SIOOC Changes
 * Added several plugins under `/contrib/docker/src` along with config and setup
   files in `/contrib/docker`.
 * Updated the Dockerfile to install plugins on container build
-* Created the [INSTALL_CIOOS_CKAN.md](./INSTALL_CIOOS_CKAN.md) install document to help with installing ckan and its plugins using
+* Created the `INSTALL_CIOOS_CKAN.md <./INSTALL_CIOOS_CKAN.md>`_ install document to help with installing ckan and its plugins using
   docker.
 
 Installation
