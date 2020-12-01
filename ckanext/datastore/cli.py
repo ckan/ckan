@@ -137,13 +137,20 @@ def purge():
                 context,
                 {u'id': record[u'name']}
             )
-            click.echo(u"Resource '%s' found" % record[u'name'])
-        except logic.NotFound:
+        except logicfNotFound:
             resource_id_list.append(record[u'name'])
             click.echo(u"Resource '%s' orphaned - queued for drop" %
                        record[u'name'])
         except KeyError:
             continue
+
+    orphaned_table_count = len(resource_id_list)
+    click.echo(u'%d orphaned tables found.' % orphaned_table_count)
+
+    if not orphaned_table_count:
+        return
+        
+    click.confirm(u'Proceed with purge?', abort=True)
 
     # Drop the orphaned datastore tables. When datastore_delete is called
     # without filters, it does a drop table cascade
@@ -157,3 +164,6 @@ def purge():
         drop_count += 1
 
     click.echo(u'Dropped %s tables' % drop_count)
+
+def get_commands():
+    return (set_permissions, dump, purge)
