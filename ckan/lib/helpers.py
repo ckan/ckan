@@ -2919,8 +2919,14 @@ def load_plugin_helpers():
             raise logic.NotFoud(
                 u'The helper %r is not found for chained helper' % (name))
         for func in reversed(func_list):
-            helper_functions[name] = functools.partial(
+            new_func = functools.partial(
                 func, helper_functions[name])
+            # persisting attributes to the new partial function
+            attributes = list(func.__dict__.keys())
+            for attribute in attributes:
+                value = getattr(func, attribute)
+                setattr(new_func, attribute, value)
+            helper_functions[name] = new_func
 
 
 @core_helper

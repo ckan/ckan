@@ -116,7 +116,7 @@ class AuthFunctions:
                     prev_func = self._functions[name]
                 
                 new_func = (functools.partial(func, prev_func))
-                # persisting attributes to the new partiall function
+                # persisting attributes to the new partial function
                 attributes = list(func.__dict__.keys())
                 for attribute in attributes:
                     value = getattr(func, attribute)
