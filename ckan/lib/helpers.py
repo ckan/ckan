@@ -2922,9 +2922,7 @@ def load_plugin_helpers():
             new_func = functools.partial(
                 func, helper_functions[name])
             # persisting attributes to the new partial function
-            attributes = list(func.__dict__.keys())
-            for attribute in attributes:
-                value = getattr(func, attribute)
+            for attribute, value in six.iteritems(func.__dict__):
                 setattr(new_func, attribute, value)
             helper_functions[name] = new_func
 

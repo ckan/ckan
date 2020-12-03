@@ -446,9 +446,7 @@ def get_action(action):
             prev_func = fetched_actions.get(name, _actions.get(name))
             new_func = functools.partial(func, prev_func)
             # persisting attributes to the new partial function
-            attributes = list(func.__dict__.keys())
-            for attribute in attributes:
-                value = getattr(func, attribute)
+            for attribute, value in six.iteritems(func.__dict__):
                 setattr(new_func, attribute, value)
             fetched_actions[name] = new_func
 
