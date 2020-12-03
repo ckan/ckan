@@ -13,6 +13,7 @@ _tests_test_request_context = None
 def pytest_addoption(parser):
     """Allow using custom config file during tests.
     """
+#    import ipdb; ipdb.set_trace()
     parser.addoption(u"--ckan-ini", action=u"store")
 
 
