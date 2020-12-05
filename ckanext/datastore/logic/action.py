@@ -79,7 +79,7 @@ def datastore_create(context, data_dict):
     :type calculate_record_count: bool (optional, default: False)
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
-    replaces the exising aliases or constraints. Setting ``records`` appends
+    replaces the existing aliases or constraints. Setting ``records`` appends
     the provided records to the resource.
 
     **Results:**
@@ -180,7 +180,7 @@ def datastore_create(context, data_dict):
 def datastore_run_triggers(context, data_dict):
     ''' update each record with trigger
 
-    The datastore_run_triggers API action allows you to re-apply exisitng
+    The datastore_run_triggers API action allows you to re-apply existing
     triggers to an existing DataStore resource.
 
     :param resource_id: resource id that the data is going to be stored under.
@@ -651,7 +651,7 @@ def _check_read_only(context, resource_id):
     if res.get('url_type') != 'datastore':
         raise p.toolkit.ValidationError({
             'read-only': ['Cannot edit read-only resource. Either pass'
-                          '"force=True" or change url-type to "datastore"']
+                          '"force=True" or change url_type to "datastore"']
         })
 
 
