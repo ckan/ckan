@@ -1,6 +1,7 @@
 name: Dependent Issues
 
 on:
+  workflow_dispatch:
   issues:
     types:
       - opened
