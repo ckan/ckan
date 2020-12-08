@@ -748,10 +748,10 @@ Example::
 Default value: ``False``
 
 
-Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
+Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default, collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
 
 
-.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assinged to.
+.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assigned to.
 
 .. _ckan.auth.allow_collaborators_to_change_owner_org:
 
