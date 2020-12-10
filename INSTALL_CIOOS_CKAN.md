@@ -288,6 +288,22 @@ sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /
 ```
 
 > **NOTE:** You'll receive warnings about Python 2 no longer being supported, you can safely ignore these for now - they will go away when the base version of CKAN is migrated to one that supports Python 3.
+### Update shared secrets and app uuid
+In production.ini, update beaker.session.secret and app_instance_uuid values. These values are generate by the make-config paster command.
+
+```bash
+export VOL_CKAN_HOME=`sudo docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
+cd ~/ckan/contrib/docker/
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan make-config ckan ./temp.ini
+
+sudo grep 'beaker.session.secret' $VOL_CKAN_HOME/venv/src/production.ini
+sudo grep 'app_instance_uuid' $VOL_CKAN_HOME/venv/src/production.ini
+```
+then update the corosponing lines in production.init
+
+```bash
+sudo nano $VOL_CKAN_HOME/venv/src/production.ini
+```
 
 ## Configure admin settings
 
@@ -641,6 +657,40 @@ Add md5 index
 ```sql
 CREATE INDEX ix_records_abstract ON records((md5(abstract)));
 ```
+
+## Export Logs from CKAN
+Exporting logs from CKAN allows fail2ban to monitor CKAN and prevent bruteforce attacks.
+
+Edit .env file and update CKAN_LOG_PATH. Path must not have a trailing slash. The path will point to a directory which will be mounted into the CKAN container. Here we assume the path is `/var/log/ckan`
+```bash
+cd ~/ckan/contrib/docker
+nano .env
+```
+
+Change folder permissions on ckan log folder so ckan can write to it.
+sudo mkdir /var/log/ckan
+sudo chmod -R 770  /var/log/ckan
+sudo chown -R root:900 /var/log/ckan
+
+If updating an exsiting ckan instance you will need to copy the new entrypoint file into the ckan container. We set owner and permissions using tar stream
+```bash
+tar -cf - ckan-entrypoint.sh --mode u=rwx,g=rx,o=rx --owner root --group root | sudo docker cp - ckan:/
+```
+
+Then restart CKAN
+```bash
+sudo docker-compose restart ckan
+```
+
+If ckan does not start becouse of failed permissions you can reset the container by forcing it to recreate.
+```bash
+sudo docker-compose up -d --force-recreate ckan
+```
+
+## Setup fail2ban on host
+see [how to protect ssh with fail2ban on centos 7](https://www.digitalocean.com/community/tutorials/how-to-protect-ssh-with-fail2ban-on-centos-7)
+to get started. You will want to create custom ruls for ckan and
+possible wordpress depending on how your site is configured.
 
 ## Update SOLR schema
 

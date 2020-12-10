@@ -34,6 +34,7 @@ set_environment () {
   export CKAN_SMTP_PASSWORD=${CKAN_SMTP_PASSWORD}
   export CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
   export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
+  export CKAN_LOG_PATH=${CKAN_LOG_PATH}
 }
 
 write_config () {
@@ -67,6 +68,15 @@ fi
 if [ -z "$CKAN_DATAPUSHER_URL" ]; then
     abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
 fi
+
+# create log files
+if [! -f "$CKAN_LOG_PATH/ckan_access.log" ]; then
+    touch "$CKAN_LOG_PATH/ckan_access.log"
+fi
+if [! -f "$CKAN_LOG_PATH/ckan_default.log" ]; then
+    touch "$CKAN_LOG_PATH/ckan_default.log"
+fi
+
 
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"

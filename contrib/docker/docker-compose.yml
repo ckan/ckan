@@ -30,7 +30,7 @@ x-ckan: &ckan_app
     - ckan_config:/etc/ckan
     - ckan_home:/usr/lib/ckan
     - ckan_storage:/var/lib/ckan
-    - ${CKAN_LOG_PATH}:/usr/lib/ckan/venv/src/ckanlog.log
+    - ${CKAN_LOG_PATH}:/usr/lib/ckan/venv/src/logs
 
 volumes:
   ckan_config:
