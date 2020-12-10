@@ -24,7 +24,7 @@ future==0.18.2
 idna==2.10                # via requests
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.1
-lxml==4.6.1               # via feedgen
+lxml==4.6.2               # via feedgen
 mako==1.1.3               # via alembic, pylons
 markdown==2.6.7
 markupsafe==1.1.1         # via jinja2, mako, webhelpers
