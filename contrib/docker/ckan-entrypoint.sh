@@ -73,4 +73,7 @@ ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckanext-harvest harvester initdb -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckanext-spatial spatial initdb -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/production.ini | psql postgresql://ckan:$POSTGRES_PASSWORD@db
+
+chown -R ckan:ckan ${CKAN_VENV}/src/ckan/ckan/public/base/i18n
+
 exec "$@"
