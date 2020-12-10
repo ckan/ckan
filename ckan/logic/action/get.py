@@ -354,8 +354,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
             'ckan.group_and_organization_list_all_fields_max', 25)
     else:
         max_limit = config.get('ckan.group_and_organization_list_max', 1000)
-    if limit is None or limit > max_limit:
-        limit = max_limit
+    if limit is None or int(limit) > max_limit:
+        limit = str(max_limit)
 
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
