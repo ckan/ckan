@@ -803,7 +803,7 @@ sudo cp -r src/ckanext-fluent/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-dcat/ $VOL_CKAN_HOME/venv/src/
 sudo cp src/cioos-siooc-schema/cioos-siooc_schema.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
 sudo cp src/cioos-siooc-schema/organization.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/organization.json
-sudo cp src/cioos-siooc-schema/ckan_license.json $VOL_CKAN_HOME/venv/src/cioos-siooc-schema/ckan_license.json
+sudo cp src/cioos-siooc-schema/ckan_license.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/ckan_license.json
 ```
 
 Exporting volumes on windows does not work so another option for copying files to the volumes is to use the `docker cp` command. You must know the path of the named volume in the container you are connecting to and the container must be running for this to work
@@ -823,7 +823,7 @@ docker cp -r src/ckanext-fluent/ ckan:/usr/lib/ckan/venv/src/
 docker cp -r src/ckanext-dcat/ ckan:/usr/lib/ckan/venv/src/
 docker cp src/cioos-siooc-schema/cioos-siooc_schema.json ckan:/usr/lib/ckan/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
 docker cp src/cioos-siooc-schema/organization.json ckan:/usr/lib/ckan/venv/src/ckanext-scheming/ckanext/scheming/organization.json
-docker cp src/cioos-siooc-schema/ckan_license.json ckan:/usr/lib/ckan/venv/src/cioos-siooc-schema/ckan_license.json
+docker cp src/cioos-siooc-schema/ckan_license.json ckan:/usr/lib/ckan/venv/src/ckanext-scheming/ckanext/scheming/ckan_license.json
 ```
 
 update permissions (optional)
