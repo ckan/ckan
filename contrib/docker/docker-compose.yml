@@ -48,7 +48,7 @@ services:
       - solr
       # - redis
     <<: *ckan_app
-    ports:
+    # ports:
       # - "5678:5678" # used by the debugger during development. NOT for production
 
   ckan_gather_harvester:
