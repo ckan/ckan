@@ -69,6 +69,7 @@ ADD ./contrib/docker/who.ini $CKAN_VENV/src/ckan/ckan/config/who.ini
 ADD ./contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh
 ADD ./contrib/docker/ckan-harvester-entrypoint.sh /ckan-harvester-entrypoint.sh
 ADD ./contrib/docker/ckan-run-harvester-entrypoint.sh /ckan-run-harvester-entrypoint.sh
+ADD ./contrib/docker/crontab $CKAN_VENV/src/ckan/contrib/docker/crontab
 
 RUN ckan-pip install -U pip && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
