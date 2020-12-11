@@ -133,11 +133,15 @@ def purge():
     resource_id_list = []
     for record in result[u'records']:
         try:
+            # ignore 'alias' records
+            if record[u'alias_of']:
+                continue
+
             logic.get_action(u'resource_show')(
                 context,
                 {u'id': record[u'name']}
             )
-        except logicfNotFound:
+        except logic.NotFound:
             resource_id_list.append(record[u'name'])
             click.echo(u"Resource '%s' orphaned - queued for drop" %
                        record[u'name'])
@@ -149,7 +153,7 @@ def purge():
 
     if not orphaned_table_count:
         return
-        
+
     click.confirm(u'Proceed with purge?', abort=True)
 
     # Drop the orphaned datastore tables. When datastore_delete is called
@@ -164,6 +168,7 @@ def purge():
         drop_count += 1
 
     click.echo(u'Dropped %s tables' % drop_count)
+
 
 def get_commands():
     return (set_permissions, dump, purge)
