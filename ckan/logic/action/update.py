@@ -327,8 +327,6 @@ def package_update(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
 
-        item.after_update(context, data)
-
     # Create activity
     if not pkg.private:
         user_obj = model.User.by_name(user)
@@ -342,6 +340,9 @@ def package_update(context, data_dict):
 
     if not context.get('defer_commit'):
         model.repo.commit()
+
+    for item in plugins.PluginImplementations(plugins.IPackageController):
+        item.after_update(context, data)
 
     log.debug('Updated object %s' % pkg.name)
 

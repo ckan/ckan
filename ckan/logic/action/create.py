@@ -206,8 +206,6 @@ def package_create(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
-        item.after_create(context, data)
-
     # Make sure that a user provided schema is not used in create_views
     # and on package_show
     context.pop('schema', None)
@@ -232,6 +230,9 @@ def package_create(context, data_dict):
 
     if not context.get('defer_commit'):
         model.repo.commit()
+
+    for item in plugins.PluginImplementations(plugins.IPackageController):
+        item.after_create(context, data)
 
     return_id_only = context.get('return_id_only', False)
 
