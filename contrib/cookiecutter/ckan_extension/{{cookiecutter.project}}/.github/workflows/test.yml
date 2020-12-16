@@ -1,7 +1,7 @@
 name: Tests
 on: [push, pull_request]
 jobs:
-  testbox:
+  test:
     runs-on: ubuntu-latest
     container:
       # The CKAN version tag of the Solr and Postgres containers should match
@@ -34,6 +34,7 @@ jobs:
       # Install any extra requirements your extension has here (dev requirements, other extensions etc)
       run: |
         pip install -r requirements.txt
+        pip install -r dev-requirements.txt
         pip install -e .
     - name: Setup extension
       # Extra initialization steps
@@ -42,7 +43,6 @@ jobs:
         sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
 
         ckan -c test.ini db init
-        ckan -c test.ini harvester initdb
     - name: Run tests
       run: pytest --ckan-ini=test.ini --cov=ckanext.{{ cookiecutter.project_shortname }} --disable-warnings ckanext/{{ cookiecutter.project_shortname }}
 
