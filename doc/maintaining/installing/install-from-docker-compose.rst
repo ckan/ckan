@@ -129,12 +129,10 @@ There should be five containers running (``docker ps``):
 * ``solr``: A pre-built SolR image set up for CKAN.
 * ``datapusher``: A pre-built CKAN Datapusher image.
 
-There should be four named Docker volumes (``docker volume ls | grep docker``). They will be
+There should be two named Docker volumes (``docker volume ls | grep docker``). They will be
 prefixed with the Docker Compose project name (default: ``docker`` or value of host environment
 variable ``COMPOSE_PROJECT_NAME``.)
 
-* ``docker_ckan_config``: home of production.ini
-* ``docker_ckan_home``: home of ckan venv and source, later also additional CKAN extensions
 * ``docker_ckan_storage``: home of CKAN's filestore (resource files)
 * ``docker_pg_data``: home of the database files for CKAN's default and datastore databases
 
@@ -151,12 +149,6 @@ We'll use a prefix ``VOL_`` to avoid overriding variables in ``docker-compose.ym
     # Find the path to a named volume
     docker volume inspect docker_ckan_home | jq -c '.[] | .Mountpoint'
     # "/var/lib/docker/volumes/docker_ckan_config/_data"
-
-    export VOL_CKAN_HOME=`docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
-    echo $VOL_CKAN_HOME
-
-    export VOL_CKAN_CONFIG=`docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
-    echo $VOL_CKAN_CONFIG
 
     export VOL_CKAN_STORAGE=`docker volume inspect docker_ckan_storage | jq -r -c '.[] | .Mountpoint'`
     echo $VOL_CKAN_STORAGE
