@@ -17,7 +17,7 @@ The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
 The DataStore is generally used alongside the
-`DataPusher <https://docs.ckan.org/projects/datapusher/en/latest/>`_, which will
+`DataPusher <https://github.com/ckan/datapusher>`_, which will
 automatically upload data to the DataStore from suitable files, whether
 uploaded to CKAN's FileStore or externally linked.
 
@@ -206,7 +206,7 @@ This task of automatically parsing and then adding data to the DataStore is
 performed by the `DataPusher`_, a service that runs asynchronously and can be installed
 alongside CKAN.
 
-To install this please look at the docs here: https://docs.ckan.org/projects/datapusher/en/latest/
+To install this please look at the docs here: https://github.com/ckan/datapusher
 
 .. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
    not support duplicate column headers. That includes blank column headings.
