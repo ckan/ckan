@@ -1,5 +1,18 @@
 .. include:: /_substitutions.rst
 
+--------------
+TDLR:
+--------------
+
+0. Make sure you have docker and docker-compose installed
+
+1. Create your env-file, in particular, take care of the host
+  Copy ``contrib/docker/.env.template`` to ``contrib/docker/.env`` and follow instructions
+
+2. build and start  `` docker-compose up --build ``
+
+3. Create superuser account
+
 ===================================
 Installing CKAN with Docker Compose
 ===================================
@@ -213,7 +226,8 @@ Now the datastore API should return content when visiting::
 -------------------------
 With all images up and running, create the CKAN admin user (johndoe in this example)::
 
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add johndoe
+    docker exec -it ckan ckan -c /etc/ckan/production.ini sysadmin add admin email=admin@emaillocalhost name=adminsNae
+
 
 Now you should be able to login to the new, empty CKAN.
 The admin user's API key will be instrumental in tranferring data from other instances.
