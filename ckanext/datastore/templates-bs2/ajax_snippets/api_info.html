@@ -16,15 +16,15 @@ Example
 <div{% if not embedded %} class="modal"{% endif %}>
   <div class="modal-header">
     <h3>
-      {{ _('CKAN Data API') }}
+      {{ _('CKAN DataStore API') }}
     </h3>
   </div>
   <div{% if not embedded %} class="modal-body"{% endif %}>
     <p><strong>{{ _('Access resource data via a web API with powerful query support') }}</strong>.
     {% trans %}
     Further information in the <a
-      href="http://docs.ckan.org/en/latest/maintaining/datastore.html" target="_blank">main
-      CKAN Data API and DataStore documentation</a>.</p>
+      href="http://docs.ckan.org/en/latest/maintaining/datastore.html" target="_blank">CKAN 
+      DataStore extension documentation</a>.</p>
     {% endtrans %}
     <div class="accordion" id="accordion2">
     <div class="accordion-group">
@@ -34,7 +34,7 @@ Example
       </div>
       <div id="collapse-endpoints" class="in accordion-body collapse">
         <div class="accordion-inner">
-          <p>{{ _('The Data API can be accessed via the following actions of the CKAN action API.') }}</p>
+          <p>{{ _('The DataStore API can be accessed via the following actions of the CKAN action API.') }}</p>
           <table class="table-condensed table-striped table-bordered">
             <thead></thead>
             <tbody>
