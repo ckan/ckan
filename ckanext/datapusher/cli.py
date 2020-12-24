@@ -38,7 +38,7 @@ def datapusher():
 @datapusher.command()
 @requires_confirmation
 def resubmit(yes):
-    u'''Resubmit udated datastore resources.
+    u'''Resubmit updated datastore resources.
     '''
     confirm(yes)
 
