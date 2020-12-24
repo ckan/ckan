@@ -197,9 +197,10 @@ class TestDatastoreDump(object):
 
         attachment_filename = res.headers['Content-disposition']
 
-        expected_attachment_filename =  'attachment; filename="{0}.csv"'.format(resource['id'])
+        expected_attch_filename = 'attachment; filename="{0}.csv"'.format(
+            resource['id'])
 
-        assert attachment_filename == expected_attachment_filename
+        assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -291,9 +292,10 @@ class TestDatastoreDump(object):
 
         attachment_filename = res.headers['Content-disposition']
 
-        expected_attachment_filename =  'attachment; filename="{0}.tsv"'.format(resource['id'])
+        expected_attch_filename = 'attachment; filename="{0}.tsv"'.format(
+            resource['id'])
 
-        assert attachment_filename == expected_attachment_filename
+        assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -397,9 +399,10 @@ class TestDatastoreDump(object):
 
         attachment_filename = res.headers['Content-disposition']
 
-        expected_attachment_filename =  'attachment; filename="{0}.json"'.format(resource['id'])
+        expected_attch_filename = 'attachment; filename="{0}.json"'.format(
+            resource['id'])
 
-        assert attachment_filename == expected_attachment_filename
+        assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -507,9 +510,10 @@ class TestDatastoreDump(object):
 
         attachment_filename = res.headers['Content-disposition']
 
-        expected_attachment_filename =  'attachment; filename="{0}.xml"'.format(resource['id'])
+        expected_attch_filename = 'attachment; filename="{0}.xml"'.format(
+            resource['id'])
 
-        assert attachment_filename == expected_attachment_filename
+        assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "3")
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -655,7 +659,10 @@ class TestDatastoreDump(object):
 
 
 def get_csv_record_values(response_body):
-    return [int(record.split(",")[1]) for record in six.ensure_text(response_body).split()[1:]]
+    return [
+        int(record.split(",")[1]) for record in six.ensure_text(
+            response_body).split()[1:]
+    ]
 
 
 def get_json_record_values(response_body):
