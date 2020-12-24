@@ -59,7 +59,9 @@ def tsv_writer(response, fields, name=None, bom=False):
         response.stream.write(BOM_UTF8)
 
     unicodecsv.writer(
-        response.stream, encoding=u'utf-8', dialect=unicodecsv.excel_tab).writerow(
+        response.stream,
+        encoding=u'utf-8',
+        dialect=unicodecsv.excel_tab).writerow(
             f['id'] for f in fields)
     yield TextWriter(response.stream)
 
