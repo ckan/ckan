@@ -699,6 +699,38 @@ class IPackageController(Interface):
         '''
         return pkg_dict
 
+    def validate(self, context, pkg_dict, schema, action):
+        u'''Customize validation of package search.
+
+        When this method is implemented it is used to perform all validation
+        for package search. The default implementation calls and returns the
+        result from ``ckan.plugins.toolkit.navl_validate``.
+
+        This is an adaanced interface. Most changes to validation should be
+        accomplished by customizing the schemas returned from
+        ``show_package_schema()``, ``create_package_schema()``
+        and ``update_package_schema()``. If you need to have a different
+        schema depending on the user or value of any field stored in the
+        dataset, or if you wish to use a different method for validation, then
+        this method may be used.
+
+        :param context: extra information about the request
+        :type context: dictionary
+        :param pkg_dict: the package search to be validated
+        :type pkg_dict: dictionary
+        :param schema: a schema, typically from ``show_package_schema()``,
+          ``create_package_schema()`` or ``update_package_schema()``
+        :type schema: dictionary
+        :param action: ``'package_show'``, ``'package_create'`` or
+          ``'package_update'``
+        :type action: string
+        :returns: (data_dict, errors) where data_dict is the possibly-modified
+          dataset and errors is a dictionary with keys matching data_dict
+          and lists-of-string-error-messages as values
+        :rtype: (dictionary, dictionary)
+        '''
+
+
 
 class IResourceController(Interface):
     u'''
@@ -1504,7 +1536,7 @@ class IGroupForm(Interface):
         for these groups. The default implementation calls and returns the
         result from ``ckan.plugins.toolkit.navl_validate``.
 
-        This is an adavanced interface. Most changes to validation should be
+        This is an advanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
         ``form_to_db_schema()`` and ``db_to_form_schema()``
         If you need to have a different
