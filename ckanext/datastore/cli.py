@@ -138,8 +138,9 @@ def purge():
             if record[u'alias_of']:
                 continue
 
-            # we need to do this in the loop to trigger resource_show auth function
-            site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
+            # we need to do this to trigger resource_show auth function
+            site_user = logic.get_action(u'get_site_user')(
+                {u'ignore_auth': True}, {})
             context = {u'user': site_user[u'name']}
 
             logic.get_action(u'resource_show')(
