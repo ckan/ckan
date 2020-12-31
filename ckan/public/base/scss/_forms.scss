@@ -387,8 +387,8 @@ select[data-module="autocomplete"] {
 .form-group.has-error input,
 .form-group.has-error select,
 .form-group.has-error textarea,
-.form-group.has-error .input-group .input-group-addon,
-.form-group.has-error .input-group .input-group-addon {
+.form-group.has-error .input-group .input-group-prepend,
+.form-group.has-error .input-group .input-group-prepend {
   border-color: $errorBorder;
 }
 

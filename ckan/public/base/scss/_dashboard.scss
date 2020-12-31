@@ -42,10 +42,7 @@
 }
 
 .popover-followee {
-  .popover-title {
-    display: none;
-  }
-  .popover-content {
+  .popover-body {
     padding: 0;
     @include border-radius(3px);
   }
@@ -53,19 +50,19 @@
     padding: 10px;
   }
   .popover-header {
-    @include clearfix();
     background-color: whiteSmoke;
     padding: 5px;
     border-bottom: 1px solid $inputBorder;
     @include border-radius(3px 3px 0 0);
     .input-group {
       margin-bottom: 0;
+      flex-wrap: nowrap;
     }
-    .input-group-addon,
+    .input-group-prepend,
     input {
       margin: 0;
     }
-    .input-group-addon {
+    .input-group-prepend {
       padding: 4px 8px 4px 12px;
       border-right-width: 0;
       @include border-radius(100px 0 0 100px);

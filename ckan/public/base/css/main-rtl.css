@@ -8885,7 +8885,7 @@ td.diff_header {
           .search-form .search-input button i {
             transition: none; } }
       .search-form .search-input button:hover i {
-        color: #6c757d; }
+        color: #343a40; }
     .search-form .search-input.search-giant input {
       font-size: 16px;
       padding: 15px; }
@@ -9694,10 +9694,10 @@ h4 {
   margin-top: 0; }
 
 .lang-select select {
-  color: #6c757d; }
+  color: #343a40; }
 
 .lang-dropdown {
-  color: #6c757d; }
+  color: #343a40; }
 
 .lang-dropdown li {
   width: auto; }

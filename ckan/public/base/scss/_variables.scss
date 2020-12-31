@@ -56,7 +56,7 @@ $bannerBackgroundColor: $mastheadBackgroundColor;
 $footerTextColor: #ccdee3;
 $footerLinkColor: $footerTextColor;
 
-$inputColor: map-get($colors,"gray");
+$inputColor: map-get($colors,"gray-dark");
 $inputBackground: $body-bg;
 $inputBorder: #ccc;
 $inputBorderRadius: 3px;

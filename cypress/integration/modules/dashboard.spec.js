@@ -46,7 +46,7 @@ describe('ckan.modules.DashboardModule()', function () {
       this.module.button.click();
       assert.equal(this.fixture.children().length, 1);
       assert.equal(this.fixture.find('#followee-filter').length, 1);
-      assert.equal(this.fixture.find('#followee-filter .btn-group input').length, 1);
+      assert.equal(this.fixture.find('#followee-filter .input-group input').length, 1);
     });
   })
 
