@@ -158,7 +158,7 @@ Example::
 
 Default value: False
 
-Controls, whether development server handle each request in a separate
+Controls whether the development server should handle each request in a separate
 thread.
 
 .. _ckan.devserver.multiprocess:
@@ -172,7 +172,7 @@ Example::
 
 Default value: 1
 
-If greater than 1 then handle each request in a new process up to this
+If greater than 1 then the developmente server will handle each request in a new process, up to this
 maximum number of concurrent processes.
 
 .. _ckan.devserver.watch_patterns:
@@ -186,8 +186,48 @@ Example::
 
 Default value: None
 
-A list of files the reloader should watch additionally to the
-modules. For example configuration files.
+A list of files the reloader should watch to restart the development server, in addition to the
+Python modules (for example configuration files)
+
+.. _ckan.devserver.ssl_cert:
+
+ckan.devserver.ssl_cert
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_cert = path/to/host.cert
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). You can generate a
+self-signed certificate and key (see :ref:`ckan.devserver.ssl_key`) running
+the following commands::
+
+    openssl genrsa 2048 > host.key
+    chmod 400 host.key
+    openssl req -new -x509 -nodes -sha256 -days 3650 -key host.key > host.cert
+
+Alternatively, setting this option to ``adhoc`` will automatically generate a new
+certificate file (on each server reload, which means that you'll get a browser warning
+about the certificate on each reload).
+
+.. _ckan.devserver.ssl_key:
+
+ckan.devserver.ssl_key
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_key = path/to/host.key
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). See :ref:`ckan.devserver.ssl_cert`
+for more details. This option also supports the ``adhoc`` value, with the same caveat.
+
 
 Repoze.who Settings
 -------------------
