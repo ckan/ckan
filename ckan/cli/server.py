@@ -24,18 +24,21 @@ log = logging.getLogger(__name__)
     u"--processes", type=int, default=0,
     help=u"Maximum number of concurrent processes"
 )
-@click.option(u"-e", u"--extra-files", multiple=True,
+@click.option(
+    u"-e", u"--extra-files", multiple=True,
     help=u"Additional files that should be watched for server reloading"
     " (you can provide multiple values)")
-@click.option(u"-C", u"--ssl-cert", default=None,
+@click.option(
+    u"-C", u"--ssl-cert", default=None,
     help=u"Certificate file to use to enable SSL. Passing 'adhoc' will "
     " automatically generate a new one (on each server reload).")
-@click.option(u"-K", u"--ssl-key", default=None,
+@click.option(
+    u"-K", u"--ssl-key", default=None,
     help=u"Key file to use to enable SSL. Passing 'adhoc' will "
     " automatically generate a new one (on each server reload).")
 @click.pass_context
 def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
-    ssl_cert, ssl_key):
+        ssl_cert, ssl_key):
     u"""Runs the Werkzeug development server"""
 
     # Reloading
@@ -68,7 +71,7 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
     else:
         ssl_context = None
 
-    log.info(u"Running CKAN on {scheme}://{host}/{port}".format(
+    log.info(u"Running CKAN on {scheme}://{host}:{port}".format(
         scheme='https' if ssl_context else 'http', host=host, port=port))
 
     run_simple(
