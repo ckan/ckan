@@ -70,4 +70,9 @@ fi
 
 set_environment
 ckan --config "$CONFIG" db init
+
+echo
+
+service nginx start
+
 exec "$@"

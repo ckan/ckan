@@ -6,8 +6,6 @@ MAINTAINER Open Knowledge
 RUN apt-get -q -y update \
     && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade \
     && apt-get -q -y install \
-        python3-dev \
-        python3-venv \
         libpq-dev \
         libxml2-dev \
         libxslt-dev \
@@ -17,10 +15,11 @@ RUN apt-get -q -y update \
         postgresql-client \
         build-essential \
         git-core \
-        vim \
-        wget \
+        vim nano \
+        nginx supervisor \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
+RUN pip install -U pip && pip install --upgrade --no-cache-dir uwsgi
 
 # Define environment variables
 ENV CKAN_HOME /usr/lib/ckan
@@ -43,22 +42,29 @@ RUN mkdir -p $CKAN_INST $CKAN_CONFIG $CKAN_STORAGE_PATH
 ADD ./requirement-setuptools.txt /tmp
 ADD ./requirements.txt /tmp
 
-RUN pip install -U pip && \
-    pip install --upgrade --no-cache-dir -r /tmp/requirement-setuptools.txt && \
+RUN pip install --upgrade --no-cache-dir -r /tmp/requirement-setuptools.txt && \
     pip install --upgrade --no-cache-dir -r /tmp/requirements.txt
 
 # Setup CKAN
-
 ADD . $CKAN_INST/src/ckan/
+ADD ./contrib/docker/ckan-entrypoint.sh  /
 RUN pip install -e $CKAN_INST/src/ckan/ && \
     ln -s $CKAN_INST/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
-    cp -v $CKAN_INST/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_INST $CKAN_CONFIG $CKAN_STORAGE_PATH
 
+
+# Setup the WSGI server
+ADD contrib/docker/nginx.conf /etc/nginx/sites-available/ckan
+RUN rm  /etc/nginx/sites-enabled/default && \
+  ln -s /etc/nginx/sites-available/ckan /etc/nginx/sites-enabled/ckan
+ADD wsgi.py /etc/ckan/
+ADD ckan-uwsgi.ini /etc/c/usr/lib/ckan/installation/src/ckan/binkan/
+ADD contrib/docker/ckan-uwsgi.conf /etc/supervisor/conf.d/
+
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
-USER ckan
+
 EXPOSE 5000
 
 CMD ["ckan","-c","/etc/ckan/production.ini", "run", "--host", "0.0.0.0"]

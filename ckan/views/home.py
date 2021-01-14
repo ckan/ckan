@@ -20,7 +20,7 @@ home = Blueprint(u'home', __name__)
 @home.before_request
 def before_request():
     u'''set context and check authorization'''
-    print("-----------\n\n\n-------Before request")
+    #print("-----------\n\n\n-------Before request")
     try:
         context = {
             u'model': model,
@@ -33,8 +33,8 @@ def before_request():
 
 def index():
     u'''display home page'''
-    dt = datetime.datetime.now()
-    print("------------------Before request:  "+dt.isoformat())
+    #dt = datetime.datetime.now()
+    #print("------------------Before request:  "+dt.isoformat())
     try:
         context = {u'model': model, u'session': model.Session,
                    u'user': g.user, u'auth_user_obj': g.userobj}
