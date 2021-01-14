@@ -70,10 +70,10 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
 fi
 
 # create log files
-if [! -f "$CKAN_LOG_PATH/ckan_access.log" ]; then
+if [ ! -f "$CKAN_LOG_PATH/ckan_access.log" ]; then
     touch "$CKAN_LOG_PATH/ckan_access.log"
 fi
-if [! -f "$CKAN_LOG_PATH/ckan_default.log" ]; then
+if [ ! -f "$CKAN_LOG_PATH/ckan_default.log" ]; then
     touch "$CKAN_LOG_PATH/ckan_default.log"
 fi
 
