@@ -172,7 +172,7 @@ Example::
 
 Default value: 1
 
-If greater than 1 then the developmente server will handle each request in a new process, up to this
+If greater than 1 then the development server will handle each request in a new process, up to this
 maximum number of concurrent processes.
 
 .. _ckan.devserver.watch_patterns:
@@ -208,6 +208,10 @@ the following commands::
     openssl genrsa 2048 > host.key
     chmod 400 host.key
     openssl req -new -x509 -nodes -sha256 -days 3650 -key host.key > host.cert
+
+After that you can run CKAN locally with SSL using this command::
+
+    ckan -c /path/to/ckan.ini run --ssl-cert=/path/to/host.cert --ssl-key=/path/to/host.key
 
 Alternatively, setting this option to ``adhoc`` will automatically generate a new
 certificate file (on each server reload, which means that you'll get a browser warning
