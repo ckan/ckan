@@ -325,6 +325,22 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     all_fields = asbool(data_dict.get('all_fields', None))
 
+    if all_fields:
+        # all_fields is really computationally expensive, so need a tight limit
+        try:
+            max_limit = int(config.get(
+                'ckan.group_and_organization_list_all_fields_max', 25))
+        except ValueError:
+            max_limit = 25
+    else:
+        try:
+            max_limit = int(config.get('ckan.group_and_organization_list_max', 1000))
+        except ValueError:
+            max_limit = 1000
+
+    if limit is None or int(limit) > max_limit:
+        limit = max_limit
+
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
     order_by = data_dict.get('order_by', '')
