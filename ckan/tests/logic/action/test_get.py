@@ -460,6 +460,15 @@ class TestGroupList(object):
         assert len(group_list) == 1
         assert group_list[0] == group2["name"]
 
+    def test_group_list_limit_as_string(self):
+
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+
+        group_list = helpers.call_action("group_list", limit="1")
+
+        assert len(group_list) == 1
+
     def test_group_list_wrong_limit(self):
 
         with pytest.raises(logic.ValidationError):
