@@ -14,7 +14,7 @@ def test_view_shown_on_resource_page_with_pdf_url(app):
     dataset = factories.Dataset()
 
     resource = factories.Resource(package_id=dataset['id'],
-                                  format='pdf')
+                                  format=u'pdf')
 
     resource_view = factories.ResourceView(
         resource_id=resource['id'],
