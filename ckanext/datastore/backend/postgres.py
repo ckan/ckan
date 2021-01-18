@@ -1952,44 +1952,58 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def resource_fields(self, id):
 
-        info = {'meta': {}, 'schema': {}}
+        info = {'meta': {}, 'schema': {}, 'datadictionary': []}
 
-        meta_results = None
-        schema_results = None
         try:
             engine = self._get_read_engine()
 
+            # count of rows in table
             meta_sql = sqlalchemy.text(
                 u'SELECT count(_id) FROM "{0}"'.format(id))
             meta_results = engine.execute(meta_sql)
             info['meta']['count'] = meta_results.fetchone()[0]
 
+            # table_type - BASE TABLE, VIEW, FOREIGN TABLE, MATVIEW
             table_sql = sqlalchemy.text(u'''
-                SELECT table_type FROM INFORMATION_SCHEMA.TABLES WHERE table_name = '{0}'
+                SELECT table_type FROM INFORMATION_SCHEMA.TABLES
+                WHERE table_name = '{0}'
                 '''.format(id))
             table_results = engine.execute(table_sql)
             info['meta']['type'] = table_results.fetchone()[0]
+            # MATERIALIZED VIEWS show as BASE TABLE, so
+            # we check pg_matviews
+            matview_sql = sqlalchemy.text(u'''
+                SELECT count(*) FROM pg_matviews
+                WHERE matviewname = '{0}'
+                '''.format(id))
+            matview_results = engine.execute(matview_sql)
+            if matview_results.fetchone()[0]:
+                info['meta']['type'] = 'MATERIALIZED VIEW'
 
+            # SIZE - size of table in bytes
             size_sql = sqlalchemy.text(
                 u"SELECT pg_relation_size('{0}')".format(id))
             size_results = engine.execute(size_sql)
             info['meta']['size'] = size_results.fetchone()[0]
 
+            # DBSIZE - size of database in bytes
             dbsize_sql = sqlalchemy.text(
                 u"SELECT pg_database_size(current_database())".format(id))
             dbsize_results = engine.execute(dbsize_sql)
             info['meta']['dbsize'] = dbsize_results.fetchone()[0]
 
+            # IDXSIZE - size of all indices for table in bytes
             idxsize_sql = sqlalchemy.text(
                 u"SELECT pg_indexes_size('{0}')".format(id))
             idxsize_results = engine.execute(idxsize_sql)
             info['meta']['idxsize'] = idxsize_results.fetchone()[0]
 
+            # all the aliases for this resource
             alias_sql = sqlalchemy.text(u'''
                 SELECT name FROM "_table_metadata" WHERE alias_of = '{0}'
             '''.format(id))
             alias_results = engine.execute(alias_sql)
-            aliases = []            
+            aliases = []
             for alias in alias_results.fetchall():
                 aliases.append(alias[0])
             if aliases:
@@ -2026,11 +2040,20 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 ORDER BY c.relname,f.attname;
             '''.format(id))
             schema_results = engine.execute(schema_sql)
-            schemainfo = []
+            schemainfo = {}
             for row in schema_results.fetchall():
-                schemainfo.append(dict(row.items()))
+                colname = row.column_name
+                if colname.startswith('_'):  # Skip internal rows
+                    continue
+                colinfo = {'data_type': row.data_type,
+                           'notnull': row.notnull,
+                           'index_name': row.index_name,
+                           'is_index': row.is_index,
+                           'uniquekey': row.uniquekey}
+                schemainfo[colname] = colinfo
             info['schema'] = schemainfo
 
+            # get the data dictionary for the resource
             info['datadictionary'] = datastore_helpers.datastore_dictionary(id)
         except Exception:
             pass

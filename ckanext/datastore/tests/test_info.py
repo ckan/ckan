@@ -19,15 +19,33 @@ def test_info_success():
             {"from": "Brazil", "to": "Italy", "num": 22},
         ],
     }
-    result = helpers.call_action("datastore_create", **data)
+    helpers.call_action("datastore_create", **data)
+
+    # aliases can only be created against an existing resource
+    data = {
+        "resource_id": resource["id"],
+        "force": True,
+        "aliases": "testalias1, testview2",
+
+    }
+    helpers.call_action("datastore_create", **data)
 
     info = helpers.call_action("datastore_info", id=resource["id"])
 
-    assert info["meta"]["count"] == 2, info["meta"]
-    assert len(info["schema"]) == 3
-    assert info["schema"]["to"] == "text"
-    assert info["schema"]["from"] == "text"
-    assert info["schema"]["num"] == "number", info["schema"]
+    assert len(info["meta"]) == 6, info["meta"]
+    assert info["meta"]["count"] == 2
+    assert info["meta"]["type"] == "BASE TABLE"
+    assert len(info["meta"]["aliases"]) == 2
+    assert info["meta"]["aliases"] == ["testview2", "testalias1"]
+    assert len(info["schema"]) == 3, info["schema"]
+    assert info["schema"]["to"]["data_type"] == "text"
+    assert info["schema"]["to"]["is_index"] == False
+    assert info["schema"]["num"]["data_type"] == "integer"
+    assert len(info["datadictionary"]) == 3, info["datadictionary"]
+    assert info["datadictionary"][0]["id"] == "to"
+    assert info["datadictionary"][0]["type"] == "text"
+    assert info["datadictionary"][1]["id"] == "num"
+
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
