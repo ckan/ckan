@@ -58,7 +58,7 @@ ckan.module('text_view', function (jQuery) {
           if (p.language) {
             highlighted = hljs.highlight(p.language, data, true).value;
           } else {
-            highlighted = '<pre>' + data + '</pre>';
+            highlighted = $('<pre></pre>').text(data)[0].outerHTML;
           }
 
           self.el[0].innerHTML = highlighted;
