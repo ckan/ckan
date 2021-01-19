@@ -11,5 +11,5 @@ main:
       - base/main
       - ckanext-textview/main-css
   contents:
-    - vendor/highlight.pack.js
+    - vendor/highlight.js
     - text_view.js
