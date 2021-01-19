@@ -84,8 +84,8 @@ const highlightJs = () =>
   )
 
 const highlightJsStyles = () =>
-  src(__dirname + "/node_modules/@highlightjs/cdn-assets/styles/github.min.css").pipe(
-    rename("github.css")).pipe(
+  src(__dirname + "/node_modules/@highlightjs/cdn-assets/styles/a11y-light.min.css").pipe(
+    rename("a11y-light.css")).pipe(
     dest(__dirname + "/ckanext/textview/theme/public/styles/")
   )
 
