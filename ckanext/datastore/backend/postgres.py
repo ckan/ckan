@@ -2016,6 +2016,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             schema_sql = sqlalchemy.text(u'''
                 SELECT
+                f.attnum as column_no,
                 f.attname AS column_name,
                 pg_catalog.format_type(f.atttypid,f.atttypmod) AS data_type,
                 f.attnotnull AS notnull,
@@ -2048,7 +2049,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 colname = row.column_name
                 if colname.startswith('_'):  # Skip internal rows
                     continue
-                colinfo = {'data_type': row.data_type,
+                colinfo = {'column_no': row.column_no,
+                           'data_type': row.data_type,
                            'notnull': row.notnull,
                            'index_name': row.index_name,
                            'is_index': row.is_index,

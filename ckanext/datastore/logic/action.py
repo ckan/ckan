@@ -314,6 +314,8 @@ def datastore_info(context, data_dict):
         :type type: string
     :param schema
     :type nested dictionary
+        :key column_no
+        :type column_no: int
         :key data_type: native database data type
         :type data_type: string
         :key index_name
@@ -333,18 +335,25 @@ def datastore_info(context, data_dict):
     '''
     backend = DatastoreBackend.get_active_backend()
 
+    resource_id = _get_or_bust(data_dict, 'id')
+    res_exists = backend.resource_exists(resource_id)
+    if not res_exists:
+        alias_exists, real_id = backend.resource_id_from_alias(resource_id)
+        if not alias_exists:
+            raise p.toolkit.ObjectNotFound(p.toolkit._(
+                u'Resource/Alias "{0}" was not found.'.format(resource_id)
+            ))
+        else:
+            id = real_id
+    else:
+        id = resource_id
+
+    data_dict['id'] = id
     p.toolkit.check_access('datastore_info', context, data_dict)
 
-    resource_id = _get_or_bust(data_dict, 'id')
-    p.toolkit.get_action('resource_show')(context, {'id': resource_id})
+    p.toolkit.get_action('resource_show')(context, {'id': id})
 
-    res_exists, real_id = backend.resource_id_from_alias(resource_id)
-    if not res_exists:
-        raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource/Alias "{0}" was not found.'.format(resource_id)
-        ))
-
-    info = backend.resource_fields(real_id)
+    info = backend.resource_fields(id)
 
     return info
 

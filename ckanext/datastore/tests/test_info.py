@@ -38,6 +38,7 @@ def test_info_success():
     assert len(info["meta"]["aliases"]) == 2
     assert info["meta"]["aliases"] == ["testview2", "testalias1"]
     assert len(info["schema"]) == 3, info["schema"]
+    assert len(info["schema"]["to"]) == 6
     assert info["schema"]["to"]["data_type"] == "text"
     assert not info["schema"]["to"]["is_index"]
     assert info["schema"]["num"]["data_type"] == "integer"
