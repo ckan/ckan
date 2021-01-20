@@ -39,13 +39,19 @@ def test_info_success():
     assert info["meta"]["aliases"] == ["testview2", "testalias1"]
     assert len(info["schema"]) == 3, info["schema"]
     assert info["schema"]["to"]["data_type"] == "text"
-    assert info["schema"]["to"]["is_index"] == False
+    assert not info["schema"]["to"]["is_index"]
     assert info["schema"]["num"]["data_type"] == "integer"
     assert len(info["datadictionary"]) == 3, info["datadictionary"]
     assert info["datadictionary"][0]["id"] == "to"
     assert info["datadictionary"][0]["type"] == "text"
     assert info["datadictionary"][1]["id"] == "num"
 
+    # check datastore_info with alias
+    info = helpers.call_action("datastore_info", id='testalias1')
+
+    assert len(info["meta"]) == 6, info["meta"]
+    assert info["meta"]["count"] == 2
+    assert info["meta"]["id"] == resource["id"]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")

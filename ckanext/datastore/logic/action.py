@@ -289,11 +289,46 @@ def datastore_upsert(context, data_dict):
 
 def datastore_info(context, data_dict):
     '''
-    Returns information about the data imported, such as column names
-    and types.
+    Returns detailed metadata about a resource.
 
-    :rtype: A dictionary describing the columns and their types.
-    :param id: Id of the resource we want info about
+ **Results:**
+
+    The result of this action is a dictionary with the following keys:
+
+    :rtype: A nested dictionary with the following keys
+    :param meta: resource metadata
+    :type fields: dictionary
+        :key aliases: aliases (views) for the resource
+        :type aliases: string
+        :key count: row count
+        :type count: int
+        :key dbsize: size of the datastore database
+        :type dbsize: bytes
+        :key id: resource id (useful for dereferencing aliases)
+        :type id: A UUID
+        :key idxsize: size of all indices for the resource
+        :type idxsize: bytes
+        :key size: size of resource
+        :type size: bytes
+        :key type: BASE TABLE, VIEW, FOREIGN TABLE or MATERIALIZED VIEW
+        :type type: string
+    :param schema
+    :type nested dictionary
+        :key data_type: native database data type
+        :type data_type: string
+        :key index_name
+        :type index_name: string
+        :key is_index
+        :type is_index: bool
+        :key notnull
+        :type notnull: bool
+        :key uniquekey
+        :type uniquekey: bool
+    :param data_dictionary: see :ref:`data_dictionary`
+    :type data_dictionary: list of dictionaries
+
+    :rtype: A dictionary describing the resource.
+    :param id: id or alias of the resource we want info about
     :type id: A UUID
     '''
     backend = DatastoreBackend.get_active_backend()
@@ -303,13 +338,13 @@ def datastore_info(context, data_dict):
     resource_id = _get_or_bust(data_dict, 'id')
     p.toolkit.get_action('resource_show')(context, {'id': resource_id})
 
-    res_exists = backend.resource_exists(resource_id)
+    res_exists, real_id = backend.resource_id_from_alias(resource_id)
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(resource_id)
+            u'Resource/Alias "{0}" was not found.'.format(resource_id)
         ))
 
-    info = backend.resource_fields(resource_id)
+    info = backend.resource_fields(real_id)
 
     return info
 
