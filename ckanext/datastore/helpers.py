@@ -70,6 +70,24 @@ def should_fts_index_field_type(field_type):
     return field_type.lower() in ['tsvector', 'text', 'number']
 
 
+def get_function_names_from_sql(context, sql):
+
+    def _get_function_names(tokens, function_names):
+        for token in tokens:
+            if isinstance(token, sqlparse.sql.Function):
+                function_name = token.get_name()
+                if function_name not in function_names:
+                    function_names.append(function_name)
+            if hasattr(token, 'tokens'):
+                return _get_function_names(token.tokens, function_names)
+
+        return function_names
+
+    parsed = sqlparse.parse(sql)[0]
+
+    return _get_function_names(parsed.tokens, [])
+
+
 def get_table_names_from_sql(context, sql):
     '''Parses the output of EXPLAIN (FORMAT JSON) looking for table names
 
