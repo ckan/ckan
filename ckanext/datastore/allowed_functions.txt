@@ -1,0 +1,4 @@
+count
+max
+min
+sum
