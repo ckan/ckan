@@ -32,7 +32,7 @@ def test_info_success():
 
     info = helpers.call_action("datastore_info", id=resource["id"])
 
-    assert len(info["meta"]) == 6, info["meta"]
+    assert len(info["meta"]) == 7, info["meta"]
     assert info["meta"]["count"] == 2
     assert info["meta"]["type"] == "BASE TABLE"
     assert len(info["meta"]["aliases"]) == 2
@@ -49,7 +49,7 @@ def test_info_success():
     # check datastore_info with alias
     info = helpers.call_action("datastore_info", id='testalias1')
 
-    assert len(info["meta"]) == 6, info["meta"]
+    assert len(info["meta"]) == 7, info["meta"]
     assert info["meta"]["count"] == 2
     assert info["meta"]["id"] == resource["id"]
 
