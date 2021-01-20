@@ -1724,7 +1724,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         if self.enable_sql_search:
             allowed_sql_functions_file = self.config.get(
-                'ckan.datastore.sqlsearch.enabled', _SQL_FUNCTIONS_ALLOWLIST_FILE
+                'ckan.datastore.sqlsearch.allowed_functions_file', _SQL_FUNCTIONS_ALLOWLIST_FILE
             )
 
             with open(allowed_sql_functions_file, 'r') as f:
