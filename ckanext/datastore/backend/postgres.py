@@ -1913,7 +1913,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         trans = context['connection'].begin()
         try:
-            # check if table already existes
+            # check if table already exists
             context['connection'].execute(
                 u'SET LOCAL statement_timeout TO {0}'.format(timeout))
             result = context['connection'].execute(
@@ -2012,6 +2012,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         try:
             engine = self._get_read_engine()
+
+            # resource id for deferencing aliases
+            info['meta']['id'] = id
 
             # count of rows in table
             meta_sql = sqlalchemy.text(
