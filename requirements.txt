@@ -38,7 +38,7 @@ python-editor==1.0.4      # via alembic
 python-magic==0.4.15      # via -r requirements.in
 pytz==2016.7              # via -r requirements.in, babel, flask-babel, tzlocal
 pyutilib==5.7.1           # via -r requirements.in
-pyyaml==5.3.1             # via -r requirements.in
+pyyaml==5.4             # via -r requirements.in
 redis==3.5.3              # via rq
 repoze.lru==0.7           # via routes
 repoze.who==2.3           # via -r requirements.in
