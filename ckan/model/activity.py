@@ -358,7 +358,7 @@ def _activities_from_groups_followed_by_user_query(user_id, limit):
 
 def _activities_from_everything_followed_by_user_query(user_id, limit):
     '''Return a query for all activities from everything user_id follows.'''
-    q1 = _activites_from_users_followed_by_user_query(user_id, limit)
+    q1 = _activities_from_users_followed_by_user_query(user_id, limit)
     q2 = _activities_from_datasets_followed_by_user_query(user_id, limit)
     q3 = _activities_from_groups_followed_by_user_query(user_id, limit)
     return _activities_union_all(q1, q2, q3)

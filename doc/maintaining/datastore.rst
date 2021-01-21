@@ -18,7 +18,6 @@ authorization system.
 
 The DataStore is generally used alongside the
 `DataPusher <http://docs.ckan.org/projects/datapusher>`_, which will
->>>>>>> 4013dff64... Update references to DataPusher documentation
 automatically upload data to the DataStore from suitable files, whether
 uploaded to CKAN's FileStore or externally linked.
 
