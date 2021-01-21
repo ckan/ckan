@@ -57,3 +57,9 @@ contrib/docker/schema/hakai/hakai_schema\.json
 contrib/docker/schema/hakai/hakai_preset\.json
 
 contrib/docker/publish_to_github.txt
+
+contrib/docker/monitoring/prometheus_db/
+
+contrib/docker/monitoring/grafana_db/
+
+contrib/docker/monitoring/.env
