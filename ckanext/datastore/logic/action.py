@@ -291,29 +291,29 @@ def datastore_info(context, data_dict):
     '''
     Returns detailed metadata about a resource.
 
- **Results:**
+    **Results:**
 
     The result of this action is a dictionary with the following keys:
 
-    :rtype: A nested dictionary with the following keys
+    :rtype: dictionary
     :param meta: resource metadata
     :type fields: dictionary
         :key aliases: aliases (views) for the resource
         :type aliases: string
         :key count: row count
         :type count: int
-        :key dbsize: size of the datastore database
-        :type dbsize: bytes
+        :key dbsize: size of the datastore database (bytes)
+        :type dbsize: int
         :key id: resource id (useful for dereferencing aliases)
         :type id: A UUID
-        :key idxsize: size of all indices for the resource
-        :type idxsize: bytes
-        :key size: size of resource
-        :type size: bytes
+        :key idxsize: size of all indices for the resource (bytes)
+        :type idxsize: int
+        :key size: size of resource (bytes)
+        :type size: int
         :key type: BASE TABLE, VIEW, FOREIGN TABLE or MATERIALIZED VIEW
         :type type: string
     :param schema
-    :type nested dictionary
+    :type dictionary
         :key column_no
         :type column_no: int
         :key data_type: native database data type
@@ -329,9 +329,10 @@ def datastore_info(context, data_dict):
     :param data_dictionary: see :ref:`data_dictionary`
     :type data_dictionary: list of dictionaries
 
-    :rtype: A dictionary describing the resource.
+    :rtype: dictionary
     :param id: id or alias of the resource we want info about
     :type id: A UUID
+
     '''
     backend = DatastoreBackend.get_active_backend()
 
