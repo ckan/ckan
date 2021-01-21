@@ -2009,10 +2009,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             aliases = []
             for alias in alias_results.fetchall():
                 aliases.append(alias[0])
-            if aliases:
-                info['meta']['aliases'] = aliases
-            else:
-                info['meta']['aliases'] = None
+            info['meta']['aliases'] = aliases
 
             schema_sql = sqlalchemy.text(u'''
                 SELECT
@@ -2041,7 +2038,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 WHERE c.relkind = 'r'::char
                       AND c.relname = '{0}'
                       AND f.attnum > 0
-                ORDER BY c.relname,f.attname;
+                ORDER BY c.relname,f.attnum;
             '''.format(id))
             schema_results = engine.execute(schema_sql)
             schemainfo = {}
