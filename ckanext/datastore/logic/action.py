@@ -302,22 +302,22 @@ def datastore_info(context, data_dict):
         :type aliases: string
         :key count: row count
         :type count: int
-        :key dbsize: size of the datastore database (bytes)
-        :type dbsize: int
+        :key db_size: size of the datastore database (bytes)
+        :type db_size: int
         :key id: resource id (useful for dereferencing aliases)
         :type id: A UUID
-        :key idxsize: size of all indices for the resource (bytes)
-        :type idxsize: int
+        :key idx_size: size of all indices for the resource (bytes)
+        :type idx_size: int
         :key size: size of resource (bytes)
         :type size: int
-        :key type: BASE TABLE, VIEW, FOREIGN TABLE or MATERIALIZED VIEW
-        :type type: string
+        :key table_type: BASE TABLE, VIEW, FOREIGN TABLE or MATERIALIZED VIEW
+        :type table_type: string
     :param schema
     :type dictionary
         :key column_no
         :type column_no: int
-        :key data_type: native database data type
-        :type data_type: string
+        :key native_type: native database data type
+        :type native_type: string
         :key index_name
         :type index_name: string
         :key is_index
