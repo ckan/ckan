@@ -2517,7 +2517,7 @@ def package_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('package_show', context, data_dict)
-
+    include_hidden_activity = data_dict.get('include_hidden_activity', False)
     model = context['model']
 
     package_ref = data_dict.get('id')  # May be name or ID.
@@ -2559,7 +2559,7 @@ def group_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('group_show', context, data_dict)
-
+    include_hidden_activity = data_dict.get('include_hidden_activity', False)
     model = context['model']
     group_id = data_dict.get('id')
     offset = data_dict.get('offset', 0)
@@ -2591,7 +2591,7 @@ def organization_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('organization_show', context, data_dict)
-
+    include_hidden_activity = data_dict.get('include_hidden_activity', False)
     model = context['model']
     org_id = data_dict.get('id')
     offset = data_dict.get('offset', 0)
