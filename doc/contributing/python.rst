@@ -384,7 +384,7 @@ Example of a ckan.logic.action API docstring:
 
         '''
 
-.. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
+.. _Autodoc: https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
 
 
 Some helpful tools for Python code quality
