@@ -34,14 +34,14 @@ def test_info_success():
 
     assert len(info["meta"]) == 7, info["meta"]
     assert info["meta"]["count"] == 2
-    assert info["meta"]["type"] == "BASE TABLE"
+    assert info["meta"]["table_type"] == "BASE TABLE"
     assert len(info["meta"]["aliases"]) == 2
     assert info["meta"]["aliases"] == ["testview2", "testalias1"]
     assert len(info["schema"]) == 3, info["schema"]
     assert len(info["schema"]["to"]) == 6
-    assert info["schema"]["to"]["data_type"] == "text"
+    assert info["schema"]["to"]["native_type"] == "text"
     assert not info["schema"]["to"]["is_index"]
-    assert info["schema"]["num"]["data_type"] == "integer"
+    assert info["schema"]["num"]["native_type"] == "integer"
     assert len(info["datadictionary"]) == 3, info["datadictionary"]
     assert info["datadictionary"][0]["id"] == "from"
     assert info["datadictionary"][0]["type"] == "text"
