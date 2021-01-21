@@ -14,8 +14,29 @@
           {% snippet "datastore/snippets/dictionary_form.html", field=field, position=loop.index %}
       {% endfor %}
     {% endblock %}
-    <button class="btn btn-primary" name="save" type="submit">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#SaveDictionary">
       <i class="fa fa-book"></i> {{ _('Save') }}
     </button>
+
+    <div class="modal fade" id="SaveDictionary" tabindex="-1" role="dialog" aria-labelledby="SaveDictionaryLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="SaveDictionarylLabel">Save confirmation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Modifications done to fields will be applied permanently, so make sure that fields are set correctly. For large files it may take some time to update.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-primary" name="save" type="submit">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </form>
 {% endblock %}

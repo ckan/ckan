@@ -149,9 +149,7 @@ class DictionaryView(MethodView):
 
         h.flash_success(
             _(
-                u'Data Dictionary saved. Any type overrides will '
-                u'take effect when the resource is next uploaded '
-                u'to DataStore'
+                u'Data Dictionary saved. Fields should be updated now.'
             )
         )
         return h.redirect_to(

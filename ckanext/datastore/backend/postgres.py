@@ -969,7 +969,10 @@ def alter_table(context, data_dict):
                     'fields': [u'"{0}" type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
-        new_fields.append(field)
+
+        # Check if field came from Data Dictionary
+        if 'info' not in field:
+            new_fields.append(field)
 
     if records:
         # check record for sanity as they have not been
@@ -1001,11 +1004,56 @@ def alter_table(context, data_dict):
         if u'info' in f:
             info = f.get(u'info')
             if isinstance(info, dict):
+                type_override = info.get(u'type_override')
                 info_sql = literal_string(
                     json.dumps(info, ensure_ascii=False))
             else:
+                type_override = None
                 info_sql = 'NULL'
-            alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+
+            if info_sql is not 'NULL' \
+                and type_override and f['type'] != type_override:
+                if type_override != 'text' and f['type'] == 'text':
+                    sql_get_res_field_index = u"""
+                        SELECT
+                            idx.indexname as indexname
+                        FROM
+                            pg_indexes idx
+                        WHERE
+                            idx.schemaname = 'public'
+                            AND idx.tablename = '{0}'
+                            AND idx.indexdef LIKE '%"{1}"%';
+                        """.format(
+                            data_dict['resource_id'],
+                            f['id']).replace(u'%', u'%%')
+        
+                    index_to_drop = context['connection'].execute(
+                        sql_get_res_field_index).first()
+
+                    if index_to_drop:
+                        drop_field_index = u'DROP INDEX "{0}" CASCADE'
+                        context['connection'].execute(
+                            drop_field_index.format(
+                                index_to_drop[0]).replace('%', '%%'))
+
+                        alter_sql.append(u"""ALTER TABLE {0}
+                            ALTER {1}
+                            TYPE {2}
+                            USING (trim({3})::{4});""".format(
+                            identifier(data_dict['resource_id']),
+                            identifier(f['id']),
+                            type_override,
+                            identifier(f['id']),
+                            type_override))
+                else:
+                    alter_sql.append(u"""ALTER TABLE {0}
+                        ALTER {1}
+                        TYPE {2};""".format(
+                        identifier(data_dict['resource_id']),
+                        identifier(f['id']),
+                        type_override))
+
+            alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2};'.format(
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
                 info_sql))
