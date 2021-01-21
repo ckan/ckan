@@ -54,7 +54,7 @@ Some notes on how these tests work:
 * You might also find it useful to read the
   `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_.
 
-* The Pylons book also has a `chapter on testing <http://pylonsbook.com/en/1.0/testing.html>`_.
+* The Pylons book also has a `chapter on testing <https://thejimmyg.github.io/pylonsbook/en/1.0/testing.html>`_.
 
 * Avoid importing the plugin modules directly into your test modules
   (e.g from example_iauthfunctions import plugin_v5_custom_config_setting).
