@@ -60,19 +60,19 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
         raise click.Abort()
 
     # SSL
-    cert_file = ssl_cert or config.get('ckan.devserver.ssl_cert')
-    key_file = ssl_key or config.get('ckan.devserver.ssl_key')
+    cert_file = ssl_cert or config.get(u"ckan.devserver.ssl_cert")
+    key_file = ssl_key or config.get(u"ckan.devserver.ssl_key")
 
     if cert_file and key_file:
-        if cert_file == key_file == 'adhoc':
-            ssl_context = 'adhoc'
+        if cert_file == key_file == u"adhoc":
+            ssl_context = u"adhoc"
         else:
             ssl_context = (ssl_cert, ssl_key)
     else:
         ssl_context = None
 
     log.info(u"Running CKAN on {scheme}://{host}:{port}".format(
-        scheme='https' if ssl_context else 'http', host=host, port=port))
+        scheme=u"https" if ssl_context else u"http", host=host, port=port))
 
     run_simple(
         host,

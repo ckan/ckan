@@ -19,7 +19,7 @@ def pytest_addoption(parser):
     try:
         parser.addoption(u"--ckan-ini", action=u"store")
     except ValueError as e:
-        if str(e) == 'option names {\'--ckan-ini\'} already added':
+        if str(e) == u"option names {\'--ckan-ini\'} already added":
             pass
         else:
             raise
