@@ -419,6 +419,11 @@ a release.
    If you upload a bad package, then you can remove it from PyPI however you
    must use a new version number next time.
 
+#. Build new Docker images for the new version in the following repos:
+
+   * `openknowledge/docker-ckan <https://github.com/okfn/docker-ckan>`_ -> ``openknowledge/ckan-base:{Major:minor}`` and ``openknowledge/ckan-dev:{Major:minor}`` (ping @amercader for this one)
+   * `ckan/ckan-solr-dev <https://github.com/ckan/ckan-solr-dev>`_ -> ``ckan/ckan-solr-dev:{Major:minor}``
+   * `ckan/ckan-postgres-dev <https://github.com/ckan/ckan-postgres-dev>`_ -> ``ckan/ckan-postgres-dev:{Major:minor}``
 
 #. Enable the new version of the docs on Read the Docs.
 
