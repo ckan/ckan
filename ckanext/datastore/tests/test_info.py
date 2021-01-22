@@ -42,7 +42,7 @@ def test_info_success():
     assert info["schema"]["to"]["native_type"] == "text"
     assert not info["schema"]["to"]["is_index"]
     assert info["schema"]["num"]["native_type"] == "integer"
-    assert len(info["datadictionary"]) == 3, info["datadictionary"]
+    assert len(info["fields"]) == 3, info["fields"]
     assert info["fields"][0]["id"] == "from"
     assert info["fields"][0]["type"] == "text"
     assert info["fields"][1]["id"] == "to"
