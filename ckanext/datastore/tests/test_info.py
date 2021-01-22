@@ -43,9 +43,9 @@ def test_info_success():
     assert not info["schema"]["to"]["is_index"]
     assert info["schema"]["num"]["native_type"] == "integer"
     assert len(info["datadictionary"]) == 3, info["datadictionary"]
-    assert info["datadictionary"][0]["id"] == "from"
-    assert info["datadictionary"][0]["type"] == "text"
-    assert info["datadictionary"][1]["id"] == "to"
+    assert info["fields"][0]["id"] == "from"
+    assert info["fields"][0]["type"] == "text"
+    assert info["fields"][1]["id"] == "to"
 
     # check datastore_info with alias
     info = helpers.call_action("datastore_info", id='testalias1')
