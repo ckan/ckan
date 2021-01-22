@@ -326,8 +326,8 @@ def datastore_info(context, data_dict):
         :type notnull: bool
         :key uniquekey
         :type uniquekey: bool
-    :param data_dictionary: see :ref:`data_dictionary`
-    :type data_dictionary: list of dictionaries
+    :param fields: See data dictionary :ref:`fields`
+    :type fields: list of dictionaries
 
     :rtype: dictionary
     :param id: id or alias of the resource we want info about

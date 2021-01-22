@@ -1952,7 +1952,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def resource_fields(self, id):
 
-        info = {'meta': {}, 'schema': {}, 'datadictionary': []}
+        info = {'meta': {}, 'schema': {}, 'fields': []}
 
         try:
             engine = self._get_read_engine()
@@ -2056,7 +2056,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             info['schema'] = schemainfo
 
             # get the data dictionary for the resource
-            info['datadictionary'] = datastore_helpers.datastore_dictionary(id)
+            info['fields'] = datastore_helpers.datastore_dictionary(id)
         except Exception:
             pass
         return info
