@@ -791,6 +791,12 @@ def if_empty_guess_format(key, data, errors, context):
         url = data.get(key[:-1] + ('url',), '')
         if not url:
             return
+
+        # Uploaded files have only the filename as url, so check scheme to determine if it's an actual url
+        parsed = urlparse(url)
+        if parsed.scheme and not parsed.path:
+            return
+
         mimetype, encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype
