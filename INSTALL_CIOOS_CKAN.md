@@ -1019,6 +1019,27 @@ background:rgb(185, 214, 242);
 }
 ```
 
+
+### reset runtime edited config settings
+
+connect to db
+```bash
+sudo docker exec -u root -it db psql -U ckan
+```
+
+delete appropreit records. Some example field names are: `ckan.site_title`, `ckan.header_file_name`, or  `ckan.hide_organization_in_dataset_sidebar`
+```sql
+delete from public.system_info_revision where key = 'your_config_field_name';
+delete from public.system_info where key = 'your_config_field_name';
+exit
+```
+
+restart ckan
+```bash
+cd ~/ckan/contrib/docker
+sudo docker-compose restart ckan
+```
+
 ## Enable Google Analytics
 
 edit the **production.ini** file currently in the volume.
