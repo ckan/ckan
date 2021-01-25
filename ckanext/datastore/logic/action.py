@@ -291,45 +291,32 @@ def datastore_info(context, data_dict):
     '''
     Returns detailed metadata about a resource.
 
+    :param resource_id: id or alias of the resource we want info about.
+    :type resource_id: string
+
     **Results:**
 
-    The result of this action is a dictionary with the following keys:
-
     :rtype: dictionary
-    :param meta: resource metadata
-    :type fields: dictionary
-        :key aliases: aliases (views) for the resource
-        :type aliases: string
-        :key count: row count
-        :type count: int
-        :key db_size: size of the datastore database (bytes)
-        :type db_size: int
-        :key id: resource id (useful for dereferencing aliases)
-        :type id: A UUID
-        :key idx_size: size of all indices for the resource (bytes)
-        :type idx_size: int
-        :key size: size of resource (bytes)
-        :type size: int
-        :key table_type: BASE TABLE, VIEW, FOREIGN TABLE or MATERIALIZED VIEW
-        :type table_type: string
-    :param fields: See data dictionary :ref:`fields`
-    :type fields: list of dictionaries
-        :key schema: additional dictionary in fields dictionary
-        :type schema: dictionary
-            :key native_type: native database data type
-            :type native_type: string
-            :key index_name
-            :type index_name: string
-            :key is_index
-            :type is_index: bool
-            :key notnull
-            :type notnull: bool
-            :key uniquekey
-            :type uniquekey: bool
+    :returns:
+        **meta**: resource metadata dictionary with the following keys:
 
-    :rtype: dictionary
-    :param id: id or alias of the resource we want info about
-    :type id: A UUID
+        - aliases - aliases (views) for the resource
+        - count - row count
+        - db_size - size of the datastore database (bytes)
+        - id - resource id (useful for dereferencing aliases)
+        - idx_size - size of all indices for the resource (bytes)
+        - size - size of resource (bytes)
+        - table_type - BASE TABLE, VIEW, FOREIGN TABLE or MATERIALIZED VIEW
+
+        **fields**: A list of dictionaries based on :ref:`fields`, with an
+        additional nested dictionary per field called **schema**, with the
+        following keys:
+
+        - native_type - native database data type
+        - index_name
+        - is_index
+        - notnull
+        - uniquekey
 
     '''
     backend = DatastoreBackend.get_active_backend()
