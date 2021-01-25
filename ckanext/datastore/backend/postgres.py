@@ -1952,7 +1952,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def resource_fields(self, id):
 
-        info = {'meta': {}, 'schema': {}, 'fields': []}
+        info = {'meta': {}, 'fields': []}
 
         try:
             engine = self._get_read_engine()
@@ -2011,9 +2011,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 aliases.append(alias[0])
             info['meta']['aliases'] = aliases
 
+            # get the data dictionary for the resource
+            data_dictionary = datastore_helpers.datastore_dictionary(id)
+
             schema_sql = sqlalchemy.text(u'''
                 SELECT
-                f.attnum as column_no,
                 f.attname AS column_name,
                 pg_catalog.format_type(f.atttypid,f.atttypmod) AS native_type,
                 f.attnotnull AS notnull,
@@ -2046,17 +2048,17 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 colname = row.column_name
                 if colname.startswith('_'):  # Skip internal rows
                     continue
-                colinfo = {'column_no': row.column_no,
-                           'native_type': row.native_type,
+                colinfo = {'native_type': row.native_type,
                            'notnull': row.notnull,
                            'index_name': row.index_name,
                            'is_index': row.is_index,
                            'uniquekey': row.uniquekey}
                 schemainfo[colname] = colinfo
-            info['schema'] = schemainfo
 
-            # get the data dictionary for the resource
-            info['fields'] = datastore_helpers.datastore_dictionary(id)
+            for field in data_dictionary:
+                field.update({'schema': schemainfo[field['id']]})
+                info['fields'].append(field)
+
         except Exception:
             pass
         return info
