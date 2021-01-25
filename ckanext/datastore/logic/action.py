@@ -312,22 +312,20 @@ def datastore_info(context, data_dict):
         :type size: int
         :key table_type: BASE TABLE, VIEW, FOREIGN TABLE or MATERIALIZED VIEW
         :type table_type: string
-    :param schema
-    :type dictionary
-        :key column_no
-        :type column_no: int
-        :key native_type: native database data type
-        :type native_type: string
-        :key index_name
-        :type index_name: string
-        :key is_index
-        :type is_index: bool
-        :key notnull
-        :type notnull: bool
-        :key uniquekey
-        :type uniquekey: bool
     :param fields: See data dictionary :ref:`fields`
     :type fields: list of dictionaries
+        :key schema: additional dictionary in fields dictionary
+        :type schema: dictionary
+            :key native_type: native database data type
+            :type native_type: string
+            :key index_name
+            :type index_name: string
+            :key is_index
+            :type is_index: bool
+            :key notnull
+            :type notnull: bool
+            :key uniquekey
+            :type uniquekey: bool
 
     :rtype: dictionary
     :param id: id or alias of the resource we want info about
