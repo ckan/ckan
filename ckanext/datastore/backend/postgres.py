@@ -1575,21 +1575,21 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
-        function_names = datastore_helpers.get_function_names_from_sql(context, sql)
-        for f in function_names:
-            if f not in backend.allowed_sql_functions:
-                raise toolkit.NotAuthorized({
-                    'permissions': ['Not authorized to call function {}'.format(f)]
-                })
-
-        table_names = datastore_helpers.get_table_names_from_sql(context, sql)
+        table_names, function_names = datastore_helpers.get_table_and_function_names_from_sql(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
+        log.debug('Functions involved in input SQL: {0!r}'.format(function_names))
 
         if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
         context['check_access'](table_names)
+
+        for f in function_names:
+            if f not in backend.allowed_sql_functions:
+                raise toolkit.NotAuthorized({
+                    'permissions': ['Not authorized to call function {}'.format(f)]
+                })
 
         results = context['connection'].execute(sql)
 
