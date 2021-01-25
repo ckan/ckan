@@ -26,10 +26,12 @@ def is_valid_field_name(name):
     * can't start with underscore
     * can't contain double quote (")
     * can't be empty
+    * can't be longer than 63 characters
     '''
     return (name and name == name.strip() and
             not name.startswith('_') and
-            '"' not in name)
+            '"' not in name and
+            not len(name) > 63)
 
 
 def is_valid_table_name(name):

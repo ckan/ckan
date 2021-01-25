@@ -22,6 +22,8 @@ def test_is_valid_field_name():
     assert helpers.is_valid_field_name("'")
     assert not helpers.is_valid_field_name("")
     assert helpers.is_valid_field_name("foo%bar")
+    long_field_name = 'testfield' + 'a' * 60
+    assert not helpers.is_valid_field_name(long_field_name)
 
 
 def test_is_valid_table_name():
@@ -33,6 +35,8 @@ def test_is_valid_table_name():
     assert helpers.is_valid_table_name("'")
     assert not helpers.is_valid_table_name("")
     assert not helpers.is_valid_table_name("foo%bar")
+    long_table_name = 'testtable' + 'a' * 60
+    assert not helpers.is_valid_table_name(long_table_name)
 
 
 def test_pg_version_check():
