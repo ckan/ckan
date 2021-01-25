@@ -141,6 +141,7 @@ class TestGetFunctions(object):
             (u"SELECT count(distinct(id)) FROM test_a", ["count", "distinct"]),
             (u"SELECT trunc(avg(result),2) FROM test_a", ["trunc", "avg"]),
             (u"SELECT query_to_xml('SELECT max(id) FROM test_a', true, true , '')", ["query_to_xml"]),
+            (u"select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
         ]
 
         context = {"connection": session.connection()}
