@@ -69,15 +69,6 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
     abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
 fi
 
-# create log files
-if [ ! -f "$CKAN_LOG_PATH/ckan_access.log" ]; then
-    touch "$CKAN_LOG_PATH/ckan_access.log"
-fi
-if [ ! -f "$CKAN_LOG_PATH/ckan_default.log" ]; then
-    touch "$CKAN_LOG_PATH/ckan_default.log"
-fi
-
-
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckanext-harvest harvester initdb -c "${CKAN_CONFIG}/production.ini"

@@ -170,6 +170,10 @@ RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pi
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-package_converter/dev-requirements.txt"
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-package_converter && python setup.py install && python setup.py develop"
 
+RUN mkdir -p $CKAN_VENV/src/logs
+RUN touch "$CKAN_VENV/src/logs/ckan_access.log"
+RUN touch "$CKAN_VENV/src/logs/ckan_default.log"
+
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
