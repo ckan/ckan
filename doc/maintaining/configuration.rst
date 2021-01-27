@@ -400,12 +400,11 @@ ckan.datastore.sqlsearch.enabled
 
 Example::
 
- ckan.datastore.sqlsearch.enabled = False
+ ckan.datastore.sqlsearch.enabled = True
 
-Default value:  ``True``
+Default value:  ``False``
 
-This option allows you to disable the datastore_search_sql action function, and
-corresponding API endpoint if you do not wish it to be activated.
+This option allows you to enable the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` action function, and corresponding API endpoint.
 
 .. _ckan.datastore.search.rows_default:
 

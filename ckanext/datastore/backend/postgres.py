@@ -1720,7 +1720,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         # Check whether users have disabled datastore_search_sql
         self.enable_sql_search = toolkit.asbool(
-            self.config.get('ckan.datastore.sqlsearch.enabled', True))
+            self.config.get('ckan.datastore.sqlsearch.enabled', False))
 
         if self.enable_sql_search:
             allowed_sql_functions_file = self.config.get(
