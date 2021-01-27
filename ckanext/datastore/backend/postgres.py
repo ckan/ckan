@@ -1728,7 +1728,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             )
 
             with open(allowed_sql_functions_file, 'r') as f:
-                self.allowed_sql_functions = [line.strip() for line in f]
+                self.allowed_sql_functions = set(line.strip() for line in f)
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
