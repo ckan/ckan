@@ -128,7 +128,7 @@ class TestPatch(helpers.FunctionalTestBase):
             'group_show', id=group['id'], include_datasets=True
         )
         assert_equals(0, group4['package_count'])
-	
+
     def test_organization_patch_updating_single_field(self):
         user = factories.User()
         organization = factories.Organization(
