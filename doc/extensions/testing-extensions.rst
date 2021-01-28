@@ -35,7 +35,7 @@ Finally, create the file
 with the following contents:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/tests/test_example_iauthfunctions.py
-   :end-before: class TestExampleIAuthFunctionsPluginV3
+   :end-before: @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v3')
 
 To run these extension tests, ``cd`` into the ``ckanext-iauthfunctions``
 directory and run this command::
