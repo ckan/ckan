@@ -51,9 +51,9 @@ Some notes on how these tests work:
   that CKAN provides for its own tests.
 
 * You might also find it useful to read the
-  `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_.
-
-* The Pylons book also has a `chapter on testing <https://thejimmyg.github.io/pylonsbook/en/1.0/testing.html>`_.
+  `Flask testing documentation <https://flask-doc.readthedocs.io/en/latest/testing.html>`_ (or
+  `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_
+  for plugins using legacy pylons controllers).
 
 * Avoid importing the plugin modules directly into your test modules
   (e.g from example_iauthfunctions import plugin_v5_custom_config_setting).
