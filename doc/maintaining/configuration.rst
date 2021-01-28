@@ -406,6 +406,16 @@ Default value:  ``False``
 
 This option allows you to enable the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` action function, and corresponding API endpoint.
 
+This action function has protections from abuse including:
+
+- parsing of the query to prevent unsafe functions from being called, see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`
+- parsing of the query to prevent multiple statements
+- prevention of data modification by using a read-only database role
+- use of ``explain`` to resolve tables accessed in the query to check against user permissions
+- use of a statement timeout to prevent queries from running indefinitely
+
+These protections offer some safety but are not designed to prevent all types of abuse. Depending on the sensitivity of private data in your datastore and the likelihood of abuse of your site you may choose to disable this action function or restrict its use with a :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin.
+
 .. _ckan.datastore.search.rows_default:
 
 ckan.datastore.search.rows_default
