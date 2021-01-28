@@ -50,6 +50,18 @@ Some notes on how these tests work:
 * We're calling :func:`ckan.tests.call_action` This is a convenience function
   that CKAN provides for its own tests.
 
+* The CKAN core :doc:`/contributing/testing` can usefully be applied to writing tests for plugins.
+
+* CKAN core provides:
+
+  * :mod:`ckan.tests.factories` for creating test data
+
+  * :mod:`ckan.tests.helpers` a collection of helper functions for use in tests
+
+  * :mod:`ckan.tests.pytest_ckan.fixtures` for setting up the test environment
+
+  which are also useful for testing extensions.
+
 * You might also find it useful to read the
   `Flask testing documentation <https://flask-doc.readthedocs.io/en/latest/testing.html>`_ (or
   `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_
