@@ -758,7 +758,6 @@ def task_status_update(context, data_dict):
     session = model.meta.create_local_session()
     context['session'] = session
 
-    user = context['user']
     id = data_dict.get("id")
     schema = context.get('schema') or schema_.default_task_status_schema()
 
