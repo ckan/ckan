@@ -47,9 +47,8 @@ Some notes on how these tests work:
 * Pytest has lots of useful functions for testing, see the
   `pytest documentation <https://docs.pytest.org/en/latest/>`_.
 
-* We're calling :func:`ckan.tests.call_action_api` to post (simulated) HTTP
-  requests to the CKAN API. This is a convenience function that CKAN provides
-  for its own tests.
+* We're calling :func:`ckan.tests.call_action` This is a convenience function
+  that CKAN provides for its own tests.
 
 * You might also find it useful to read the
   `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_.
