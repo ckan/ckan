@@ -1064,6 +1064,7 @@ class TestResourceNew(object):
                 status=403,
             )
 
+
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestResourceDownload(object):
 
