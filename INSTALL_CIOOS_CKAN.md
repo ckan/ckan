@@ -711,7 +711,7 @@ sudo docker-compose restart solr
 Rebuild search index
 
 ```bash
-sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild --config=/etc/ckan/production.ini
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index -o rebuild --config=/etc/ckan/production.ini
 ```
 
 ## Update CKAN
@@ -929,7 +929,7 @@ sudo docker-compose up -d
 
 ```bash
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild --config=/etc/ckan/production.ini
-sudo docker exec -it ckan /usr/local/bin/ckaext-harvest harvester reindex --config=/etc/ckan/production.ini
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester reindex --config=/etc/ckan/production.ini
 ```
 
 ## Customize interface
@@ -1017,27 +1017,6 @@ Now that you have ckan running you can customize the interface via the admin con
 #header-container #header .menu>li>a::after {
 background:rgb(185, 214, 242);
 }
-```
-
-
-### reset runtime edited config settings
-
-connect to db
-```bash
-sudo docker exec -u root -it db psql -U ckan
-```
-
-delete appropreit records. Some example field names are: `ckan.site_title`, `ckan.header_file_name`, or  `ckan.hide_organization_in_dataset_sidebar`
-```sql
-delete from public.system_info_revision where key = 'your_config_field_name';
-delete from public.system_info where key = 'your_config_field_name';
-exit
-```
-
-restart ckan
-```bash
-cd ~/ckan/contrib/docker
-sudo docker-compose restart ckan
 ```
 
 ## Enable Google Analytics
