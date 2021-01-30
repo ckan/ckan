@@ -671,7 +671,7 @@ def is_valid_pg_identifier(name):
     return (name and name == name.strip() and
             not name.startswith('_') and
             '"' not in name and
-            not len(name.encode(db_encoding)) > _max_identifier_length)
+            not len(name.encode(_db_encoding)) > _max_identifier_length)
 
 
 def _execute_single_statement(context, sql_string, where_values):

@@ -45,13 +45,13 @@ def test_pg_version_check():
 
 
 def test_is_valid_pg_identifier():
-    assert db._is_valid_pg_identifier("foo")
-    assert db._is_valid_pg_identifier("foo bar")
-    assert db._is_valid_pg_identifier("42")
-    assert not db._is_valid_pg_identifier('foo"bar')
-    assert not db._is_valid_pg_identifier('"')
-    assert db._is_valid_pg_identifier("'")
-    assert not db._is_valid_pg_identifier("")
-    assert not db._is_valid_pg_identifier("foo%bar")
+    assert db.is_valid_pg_identifier("foo")
+    assert db.is_valid_pg_identifier("foo bar")
+    assert db.is_valid_pg_identifier("42")
+    assert not db.is_valid_pg_identifier('foo"bar')
+    assert not db.is_valid_pg_identifier('"')
+    assert db.is_valid_pg_identifier("'")
+    assert not db.is_valid_pg_identifier("")
+    assert not db.is_valid_pg_identifier("foo%bar")
     long_pg_identifier = 'testid' + 'a' * 1000
-    assert not db._is_valid_pg_identifier(long_pg_identifier)
+    assert not db.is_valid_pg_identifier(long_pg_identifier)
