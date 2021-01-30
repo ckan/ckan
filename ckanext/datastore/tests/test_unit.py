@@ -22,8 +22,6 @@ def test_is_valid_field_name():
     assert helpers.is_valid_field_name("'")
     assert not helpers.is_valid_field_name("")
     assert helpers.is_valid_field_name("foo%bar")
-    long_field_name = 'testfield' + 'a' * 60
-    assert not helpers.is_valid_field_name(long_field_name)
 
 
 def test_is_valid_table_name():
@@ -35,8 +33,6 @@ def test_is_valid_table_name():
     assert helpers.is_valid_table_name("'")
     assert not helpers.is_valid_table_name("")
     assert not helpers.is_valid_table_name("foo%bar")
-    long_table_name = 'testtable' + 'a' * 60
-    assert not helpers.is_valid_table_name(long_table_name)
 
 
 def test_pg_version_check():
@@ -46,3 +42,16 @@ def test_pg_version_check():
     connection = engine.connect()
     assert db._pg_version_is_at_least(connection, "8.0")
     assert not db._pg_version_is_at_least(connection, "20.0")
+
+
+def test_is_valid_pg_identifier():
+    assert db._is_valid_pg_identifier("foo")
+    assert db._is_valid_pg_identifier("foo bar")
+    assert db._is_valid_pg_identifier("42")
+    assert not db._is_valid_pg_identifier('foo"bar')
+    assert not db._is_valid_pg_identifier('"')
+    assert db._is_valid_pg_identifier("'")
+    assert not db._is_valid_pg_identifier("")
+    assert not db._is_valid_pg_identifier("foo%bar")
+    long_pg_identifier = 'testid' + 'a' * 1000
+    assert not db._is_valid_pg_identifier(long_pg_identifier)

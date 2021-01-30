@@ -17,7 +17,7 @@ import ckanext.datastore.helpers as datastore_helpers
 from ckanext.datastore.backend import (
     DatastoreBackend, InvalidDataError
 )
-from ckanext.datastore.backend.postgres import identifier
+from ckanext.datastore.backend.postgres import identifier, is_valid_pg_identifier
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -149,7 +149,7 @@ def datastore_create(context, data_dict):
     # validate aliases
     aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
     for alias in aliases:
-        if not datastore_helpers.is_valid_table_name(alias):
+        if not is_valid_pg_identifier(alias):
             raise p.toolkit.ValidationError({
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })

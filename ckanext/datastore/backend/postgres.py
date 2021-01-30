@@ -47,6 +47,9 @@ _pg_types = {}
 _type_names = set()
 _engines = {}
 
+_max_identifier_length = 63
+_db_enconding = 'UTF8'
+
 _TIMEOUT = 60000  # milliseconds
 
 # See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
@@ -656,6 +659,20 @@ def _is_valid_pg_type(context, type_name):
         else:
             return True
 
+def is_valid_pg_identifier(name):
+    '''
+    Check that identifier is valid:
+    * can't start or end with whitespace characters
+    * can't start with underscore
+    * can't contain double quote (")
+    * can't be empty
+    * can't be longer than max_id_len per _db_enconding
+    '''
+    return (name and name == name.strip() and
+            not name.startswith('_') and
+            '"' not in name and
+            not len(name.encode(db_encoding)) > _max_identifier_length)
+
 
 def _execute_single_statement(context, sql_string, where_values):
     if not datastore_helpers.is_single_statement(sql_string):
@@ -757,7 +774,7 @@ def check_fields(context, fields):
                 'fields': [u'"{0}" is not a valid field type'.format(
                     field['type'])]
             })
-        elif not datastore_helpers.is_valid_field_name(field['id']):
+        elif not is_valid_pg_identifier(field['id']):
             raise ValidationError({
                 'fields': [u'"{0}" is not a valid field name'.format(
                     field['id'])]
@@ -857,20 +874,6 @@ def create_table(context, data_dict):
     check_fields(context, supplied_fields)
     field_ids = _pluck('id', supplied_fields)
     records = data_dict.get('records')
-
-    fields_errors = []
-
-    for field_id in field_ids:
-        # Postgres has a limit of 63 characters for a column name
-        if len(field_id) > 63:
-            message = 'Column heading "{0}" exceeds limit of 63 '\
-                'characters.'.format(field_id)
-            fields_errors.append(message)
-
-    if fields_errors:
-        raise ValidationError({
-            'fields': fields_errors
-        })
 
     # if type is field is not given try and guess or throw an error
     for field in supplied_fields:
@@ -1697,6 +1700,31 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             write_connection.close()
         return True
 
+    def _get_max_identifier_length(self):
+        read_connection = self._get_read_engine().connect()
+
+        if _pg_version_is_at_least(read_connection, '9.5'):
+            max_len_sql = u'''
+                SELECT max_identifier_length FROM pg_control_init()
+                '''
+            max_len = read_connection.execute(
+                max_len_sql
+            ).fetchone()[0]
+        else:
+            max_len = 63
+        return max_len
+
+    def _get_db_encoding(self):
+        read_connection = self._get_read_engine().connect()
+
+        db_encoding_sql = u'''
+            SELECT character_set_name FROM INFORMATION_SCHEMA.CHARACTER_SETS
+            '''
+        db_encoding = read_connection.execute(
+            db_encoding_sql
+        ).fetchone()[0]
+        return db_encoding
+
     def configure(self, config):
         self.config = config
         # check for ckan.datastore.write_url and ckan.datastore.read_url
@@ -1741,6 +1769,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         rows_max = config.get('ckan.datastore.search.rows_max')
         if rows_max is not None:
             int(rows_max)
+
+        self._max_identifier_length = self._get_max_identifier_length()
+        self._db_enconding = self._get_db_encoding()
 
     def datastore_delete(self, context, data_dict, fields_types, query_dict):
         query_dict['where'] += _where_clauses(data_dict, fields_types)
