@@ -161,7 +161,8 @@ def token():
 @click.argument(u'extras', type=click.UNPROCESSED, nargs=-1)
 @click.option(
     u'--json', metavar=u'EXTRAS', type=json.loads, default=u'{}',
-    help=u"Valid JSON object with additional fields passed to api_token_create")
+    help=u"Valid JSON object with additional fields passed to api_token_create"
+)
 def add_token(username, token_name, extras, json):
     """Create new API Token for the given user.
 
@@ -180,7 +181,8 @@ def add_token(username, token_name, extras, json):
         try:
             key, value = chunk.split(u'=')
         except ValueError:
-            error_shout(u"Extras must be passed in `key=value` format. Got: {}".format(chunk))
+            error_shout(
+                u"Extras must be passed in `key=value` format. Got: {}".format(chunk))
             raise click.Abort()
         json[key] = value
     json.update({u"user": username, u"name": token_name})
@@ -226,7 +228,8 @@ def list_tokens(username):
     for token in tokens:
         last_access = token[u"last_access"]
         if last_access:
-            accessed = plugin.toolkit.h.date_str_to_datetime(last_access).isoformat(u" ", u"seconds")
+            accessed = plugin.toolkit.h.date_str_to_datetime(
+                last_access).isoformat(u" ", u"seconds")
 
         else:
             accessed = u"Never"
