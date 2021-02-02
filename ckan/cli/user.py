@@ -159,7 +159,7 @@ def token():
     metavar=u"EXTRAS",
     type=json.loads,
     default=u"{}",
-    help=u"Valid JSON object with additional fields passed to api_token_create",
+    help=u"Valid JSON object with additional fields for api_token_create",
 )
 def add_token(username, token_name, extras, json):
     """Create new API Token for the given user.
