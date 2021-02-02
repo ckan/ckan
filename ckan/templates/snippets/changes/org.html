@@ -3,51 +3,23 @@
     {% if change.method == "change" %}
 
       {{ _('Moved {pkg_link} from organization {old_org_link} to organization {new_org_link}').format(
-            pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-              pkg_url = h.url_for(controller='dataset',
-                                  action='read', id=change.pkg_id),
-              pkg_name = change.title
-            )|safe,
-            old_org_link = '<a href="{old_url}">{old_name}</a>'.format(
-              old_url = h.url_for(controller='organization', action='read',
-                id=change.old_org_id),
-              old_name = change.old_org_title
-            )|safe,
-            new_org_link = '<a href="{new_url}">{new_name}</a>'.format(
-              new_url = h.url_for(controller='organization', action='read',
-                id=change.new_org_id),
-              new_name = change.new_org_title
-            )|safe
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        old_org_link = h.nav_link(change.old_org_title, named_route='organization.read', id=change.old_org_id),
+        new_org_link = h.nav_link(change.new_org_title, named_route='organization.read', id=change.new_org_id)
         ) }}
 
-      {% elif change.method == "remove" %}
+    {% elif change.method == "remove" %}
 
-        {{ _('Removed {pkg_link} from organization {old_org_link}').format(
-              pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-                pkg_url = h.url_for(controller='dataset',
-                                    action='read', id=change.pkg_id),
-                pkg_name = change.title
-              )|safe,
-              old_org_link = '<a href="{old_url}">{old_name}</a>'.format(
-                old_url = h.url_for(controller='organization', action='read',
-                  id=change.old_org_id),
-                old_name = change.old_org_title
-              )|safe
-            ) }}
+      {{ _('Removed {pkg_link} from organization {old_org_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        old_org_link = h.nav_link(change.old_org_title, named_route='organization.read', id=change.old_org_id)
+        ) }}
 
-      {% elif change.method == "add" %}
+    {% elif change.method == "add" %}
 
-        {{ _('Added {pkg_link} to organization {new_org_link}').format(
-              pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-                pkg_url = h.url_for(controller='dataset',
-                                    action='read', id=change.pkg_id),
-                pkg_name = change.title
-              )|safe,
-              new_org_link = '<a href="{new_url}">{new_name}</a>'.format(
-                new_url = h.url_for(controller='organization', action='read',
-                  id=change.new_org_id),
-                new_name = change.new_org_title
-              )|safe
+      {{ _('Added {pkg_link} to organization {new_org_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_org_link = h.nav_link(change.new_org_title, named_route='organization.read', id=change.new_org_id)
         ) }}
       {% else %}
 
