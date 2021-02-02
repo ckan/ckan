@@ -28,18 +28,22 @@ class ChainedFunctionsPlugin(p.SingletonPlugin):
             "ckan_version": ckan_version
         }
 
+
 @chained_auth_function
 @auth_allow_anonymous_access
 def user_show(next_auth, context, data_dict=None):
     return next_auth(context, data_dict)
+
 
 @chained_action
 @side_effect_free
 def package_search(original_action, context, data_dict):
     return original_action(context, data_dict)
 
+
 @chained_helper
 def ckan_version(next_func, **kw):
     return next_func(**kw)
+
 
 setattr(ckan_version, "some_attribute", "some_value")
