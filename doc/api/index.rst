@@ -4,7 +4,7 @@
 API guide
 =========
 
-This section documents CKAN's API, for developers who want to write code that
+This section documents CKAN APIs, for developers who want to write code that
 interacts with CKAN sites and their data.
 
 CKAN's **Action API** is a powerful, RPC-style API that exposes all of CKAN's
@@ -70,7 +70,7 @@ Making an API request
 ---------------------
 
 To call the CKAN API, post a JSON dictionary in an HTTP POST request to one of
-CKAN's API URLs. The parameters for the API function should be given in the
+CKAN APIs URLs. The parameters for the API function should be given in the
 JSON dictionary. CKAN will also return its response in a JSON dictionary.
 
 One way to post a JSON dictionary to a URL is using the command-line
@@ -231,7 +231,7 @@ you request::
 
 Version 3 is currently the only version of the Action API.
 
-We recommend that you specify the API number in your requests, because this
+We recommend that you specify the API version number in your requests, because this
 ensures that your API client will work across different sites running different
 version of CKAN (and will keep working on the same sites, when those sites
 upgrade to new versions of CKAN). Because the latest version of the API may

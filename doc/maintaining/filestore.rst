@@ -95,7 +95,7 @@ To create a new resource and upload a file to it using the Python library
  requests.post('http://0.0.0.0:5000/api/action/resource_create',
                data={"package_id":"my_dataset"},
                headers={"X-CKAN-API-Key": "21a47217-6d7b-49c5-88f9-72ebd5a4d4bb"},
-               files=[('upload', file('/path/to/file/to/upload.csv'))])
+               files=[('upload', open('/path/to/file/to/upload.csv', 'rb'))])
 
 (Requests automatically sends a ``multipart-form-data`` heading when you use the
 ``files=`` parameter.)

@@ -116,7 +116,7 @@ the name of your extension. For example:
   with the name of your extension. For example
   ``assets/example_theme_popover.js``:
 
-  .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+  .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/assets/example_theme_popover.js
 
 * The names of *API action functions* introduced by your extension should begin
   with the name of your extension. For example

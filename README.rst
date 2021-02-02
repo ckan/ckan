@@ -60,7 +60,7 @@ Contributing to CKAN
 --------------------
 
 For contributing to CKAN or its documentation, see
-`CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.rst>`_.
+`CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.md>`_.
 
 Mailing List
 ~~~~~~~~~~~~

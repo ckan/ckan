@@ -234,7 +234,7 @@ class TestBasicDictize(object):
             assert "name" in errors
             error_message = errors["name"][0]
             assert data["name"] in error_message, error_message
-            assert "must be alphanumeric" in error_message
+            assert "can only contain alphanumeric characters" in error_message
 
     def test_7_tag_schema_disallows_whitespace_other_than_spaces(self):
         """Asserts whitespace characters, such as tabs, are not allowed."""
@@ -248,4 +248,4 @@ class TestBasicDictize(object):
             assert "name" in errors
             error_message = errors["name"][0]
             assert data["name"] in error_message, error_message
-            assert "must be alphanumeric" in error_message
+            assert "can only contain alphanumeric characters" in error_message

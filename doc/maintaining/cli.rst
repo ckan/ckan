@@ -57,7 +57,7 @@ to execute. Most commands have their own subcommands and options.
   environment variable. You will no longer need to use --config= or -c to
   tell ckan where the config file is:
 
-  
+
 .. parsed-literal::
 
  export CKAN_INI=\ |ckan.ini|
@@ -172,7 +172,7 @@ less              Compile all root less documents into their CSS counterparts
 minify            Create minified versions of the given Javascript and CSS files.
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
-profile           Code speed profiler
+profile           Code speed profiler.
 run               Start Development server.
 search-index      Creates a search index for all datasets
 seed              Create test data in the database.
@@ -241,7 +241,7 @@ Usage
  ckan dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
 
 
-datastore: Perform commands to set up the datastore
+datastore: Perform commands in the datastore
 ===================================================
 
 Make sure that the datastore URLs are set properly before you run these commands.
@@ -252,6 +252,7 @@ Usage
 
  ckan datastore set-permissions  - generate SQL for permission configuration
  ckan datastore dump             - dump a datastore resource
+ ckan datastore purge            - purge orphaned datastore resources
 
 
 db: Manage databases
@@ -436,7 +437,7 @@ Usage
 .. parsed-literal::
 
  ckan minify [--clean] PATH     - remove any minified files in the path
- 
+
 .. parsed-literal::
 
  ckan -c |ckan.ini| minify ckan/public/base
@@ -489,9 +490,10 @@ Usage
 
 .. parsed-literal::
 
- ckan run --host (-h)          - Set Host
- ckan run --port (-p)          - Set Port
- ckan run --reloader (-r)      - Use reloader
+ ckan run --host (-h)                  - Set Host
+ ckan run --port (-p)                  - Set Port
+ ckan run --disable-reloader (-r)      - Use reloader
+
 
 
 search-index: Search index commands

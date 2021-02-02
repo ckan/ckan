@@ -3,7 +3,7 @@
 <audio style="margin:auto; max-height:100%; display:block; min-width: 100%;"
 controls src="{{ resource_view.audio_url or resource.get('url') }}">
   {% trans %}
-    Your browser does not support the <code>audio</code> element.
-    But don't worry, you can <a href="{{ res_url }}" alt="video url">download it</a>.
+    Your browser doesn't support <code>HTML5 audio</code>. Here is
+    a <a href="{{ res_url }}" alt="audio url">link to the audio</a> instead.
   {% endtrans %}
 </audio>

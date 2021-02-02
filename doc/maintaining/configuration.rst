@@ -158,7 +158,7 @@ Example::
 
 Default value: False
 
-Controls, whether development server handle each request in a separate
+Controls whether the development server should handle each request in a separate
 thread.
 
 .. _ckan.devserver.multiprocess:
@@ -172,7 +172,7 @@ Example::
 
 Default value: 1
 
-If greater than 1 then handle each request in a new process up to this
+If greater than 1 then the development server will handle each request in a new process, up to this
 maximum number of concurrent processes.
 
 .. _ckan.devserver.watch_patterns:
@@ -186,8 +186,52 @@ Example::
 
 Default value: None
 
-A list of files the reloader should watch additionally to the
-modules. For example configuration files.
+A list of files the reloader should watch to restart the development server, in addition to the
+Python modules (for example configuration files)
+
+.. _ckan.devserver.ssl_cert:
+
+ckan.devserver.ssl_cert
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_cert = path/to/host.cert
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). You can generate a
+self-signed certificate and key (see :ref:`ckan.devserver.ssl_key`) running
+the following commands::
+
+    openssl genrsa 2048 > host.key
+    chmod 400 host.key
+    openssl req -new -x509 -nodes -sha256 -days 3650 -key host.key > host.cert
+
+After that you can run CKAN locally with SSL using this command::
+
+    ckan -c /path/to/ckan.ini run --ssl-cert=/path/to/host.cert --ssl-key=/path/to/host.key
+
+Alternatively, setting this option to ``adhoc`` will automatically generate a new
+certificate file (on each server reload, which means that you'll get a browser warning
+about the certificate on each reload).
+
+.. _ckan.devserver.ssl_key:
+
+ckan.devserver.ssl_key
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_key = path/to/host.key
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). See :ref:`ckan.devserver.ssl_cert`
+for more details. This option also supports the ``adhoc`` value, with the same caveat.
+
 
 Repoze.who Settings
 -------------------
@@ -748,10 +792,10 @@ Example::
 Default value: ``False``
 
 
-Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
+Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default, collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
 
 
-.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assinged to.
+.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assigned to.
 
 .. _ckan.auth.allow_collaborators_to_change_owner_org:
 
