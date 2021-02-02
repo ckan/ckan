@@ -1,9 +1,6 @@
 # encoding: utf-8
 
 import logging
-import sys
-from pprint import pprint
-
 import six
 import click
 from six import text_type
@@ -149,19 +146,20 @@ def set_password(username):
 
 @user.group()
 def token():
-    """Control API Tokens
-    """
+    """Control API Tokens"""
     pass
 
 
-@token.command(u"add", context_settings=dict(
-    ignore_unknown_options=True))
-@click.argument(u'username')
-@click.argument(u'token_name')
-@click.argument(u'extras', type=click.UNPROCESSED, nargs=-1)
+@token.command(u"add", context_settings=dict(ignore_unknown_options=True))
+@click.argument(u"username")
+@click.argument(u"token_name")
+@click.argument(u"extras", type=click.UNPROCESSED, nargs=-1)
 @click.option(
-    u'--json', metavar=u'EXTRAS', type=json.loads, default=u'{}',
-    help=u"Valid JSON object with additional fields passed to api_token_create"
+    u"--json",
+    metavar=u"EXTRAS",
+    type=json.loads,
+    default=u"{}",
+    help=u"Valid JSON object with additional fields passed to api_token_create",
 )
 def add_token(username, token_name, extras, json):
     """Create new API Token for the given user.
@@ -179,10 +177,13 @@ def add_token(username, token_name, extras, json):
     """
     for chunk in extras:
         try:
-            key, value = chunk.split(u'=')
+            key, value = chunk.split(u"=")
         except ValueError:
             error_shout(
-                u"Extras must be passed in `key=value` format. Got: {}".format(chunk))
+                u"Extras must be passed in `key=value` format. Got: {}".format(
+                    chunk
+                )
+            )
             raise click.Abort()
         json[key] = value
     json.update({u"user": username, u"name": token_name})
@@ -199,10 +200,9 @@ def add_token(username, token_name, extras, json):
 
 
 @token.command(u"revoke")
-@click.argument(u'id')
+@click.argument(u"id")
 def revoke_token(id):
-    """Remove API Token with the given ID
-    """
+    """Remove API Token with the given ID"""
     if not model.ApiToken.revoke(id):
         error_shout(u"API Token not found")
         raise click.Abort()
@@ -210,13 +210,13 @@ def revoke_token(id):
 
 
 @token.command(u"list")
-@click.argument(u'username')
+@click.argument(u"username")
 def list_tokens(username):
-    """List all API Tokens for the given user
-    """
+    """List all API Tokens for the given user"""
     try:
         tokens = plugin.toolkit.get_action(u"api_token_list")(
-            {u"ignore_auth": True}, {u"user": username})
+            {u"ignore_auth": True}, {u"user": username}
+        )
     except plugin.toolkit.ObjectNotFound as e:
         error_shout(e)
         raise click.Abort()
@@ -229,12 +229,13 @@ def list_tokens(username):
         last_access = token[u"last_access"]
         if last_access:
             accessed = plugin.toolkit.h.date_str_to_datetime(
-                last_access).isoformat(u" ", u"seconds")
+                last_access
+            ).isoformat(u" ", u"seconds")
 
         else:
             accessed = u"Never"
-        click.echo(u"\t[{id}] {name} - {accessed}".format(
-            name=token[u"name"],
-            id=token[u"id"],
-            accessed=accessed
-        ))
+        click.echo(
+            u"\t[{id}] {name} - {accessed}".format(
+                name=token[u"name"], id=token[u"id"], accessed=accessed
+            )
+        )
