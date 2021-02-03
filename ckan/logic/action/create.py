@@ -1168,10 +1168,9 @@ def user_invite(context, data_dict):
     try:
         mailer.send_invite(user, group_dict, data['role'])
     except (socket_error, mailer.MailerException) as error:
-        # Email could not be sent, delete the pending user
-
-        _get_action('user_delete')(context, {'id': user.id})
-
+        # Email could not be sent, purge the pending user
+        user.purge()
+        user.commit()
         msg = _('Error sending the invite email, ' +
                 'the user was not created: {0}').format(error)
         raise ValidationError({'message': msg}, error_summary=msg)

@@ -120,7 +120,7 @@ class TestUserInvite(object):
             .all()
         )
 
-        assert user[0].state == "deleted"
+        assert not user
 
     def _invite_user_to_group(
         self, email="user@email.com", group=None, role="member"
