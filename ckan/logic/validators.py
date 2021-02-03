@@ -871,9 +871,9 @@ def empty_if_not_sysadmin(key, data, errors, context):
 email_pattern = re.compile(
                             # additional pattern to reject malformed dots usage
                             r"^(?!\.)(?!.*\.$)(?!.*?\.\.)"\
-                            "[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
-                            "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
-                            "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+                            r"[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
+                            r"(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
+                            r"(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$"
                         )
 
 

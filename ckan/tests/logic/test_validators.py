@@ -267,6 +267,7 @@ def test_email_validator_with_invalid_value():
         "test..test@example.com",
         "test.test...@example.com",
         "...test@example.com",
+        "test@example"
     ]
 
     for invalid_value in invalid_values:
