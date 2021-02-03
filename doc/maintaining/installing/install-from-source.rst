@@ -27,14 +27,14 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-jetty openjdk-8-jdk redis-server
+    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-tomcat openjdk-8-jdk redis-server
 
 .. note::
 
     For Python 2 (deprecated, but compatible with CKAN 2.9 and earlier), do
     this instead::
 
-        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-tomcat openjdk-8-jdk redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
