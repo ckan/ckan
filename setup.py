@@ -103,6 +103,7 @@ entry_points = {
         'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
+        'chained_functions = ckanext.chained_functions.plugin:ChainedFunctionsPlugin',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
         'datapusher=ckanext.datapusher.plugin:DatapusherPlugin',
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
