@@ -1609,6 +1609,9 @@ def api_token_create(context, data_dict):
     model = context[u'model']
     user, name = _get_or_bust(data_dict, [u'user', u'name'])
 
+    if model.User.get(user) is None:
+        raise NotFound("User not found")
+
     _check_access(u'api_token_create', context, data_dict)
 
     schema = context.get(u'schema')

@@ -3555,7 +3555,8 @@ def api_token_list(context, data_dict):
     id_or_name = _get_or_bust(data_dict, u'user')
     _check_access(u'api_token_list', context, data_dict)
     user = model.User.get(id_or_name)
-
+    if user is None:
+        raise NotFound("User not found")
     tokens = model.Session.query(model.ApiToken).filter(
         model.ApiToken.user_id == user.id
     )

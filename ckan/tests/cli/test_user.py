@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import six
 import pytest
 
+import ckan.model as model
+from ckan.tests.helpers import call_action
 from ckan.cli.cli import ckan
+from ckan.tests import factories
 
 
 @pytest.mark.usefixtures(u"clean_db")
@@ -74,3 +78,86 @@ class TestUserAdd(object):
         ]
         result = cli.invoke(ckan, args)
         assert not result.exit_code
+
+
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
+
+    def test_revoke(self, cli):
+        user = factories.User()
+        call_action(u"api_token_create", user=user[u"id"], name=u"first token")
+        tid = model.Session.query(model.ApiToken).first().id
+        args = [
+            u"user",
+            u"token",
+            u"revoke",
+            tid,
+        ]
+        result = cli.invoke(ckan, args)
+        assert result.exit_code == 0
+        assert u"API Token has been revoked" in result.output
+
+        result = cli.invoke(ckan, args)
+        assert result.exit_code == 1
+        assert u"API Token not found" in result.output
+
+    def test_list(self, cli):
+        user = factories.User()
+        call_action(u"api_token_create", user=user[u"id"], name=u"first token")
+        call_action(u"api_token_create", user=user[u"id"], name=u"second token")
+        args = [
+            u"user",
+            u"token",
+            u"list",
+            user[u"name"],
+        ]
+        result = cli.invoke(ckan, args)
+        assert result.exit_code == 0
+        for (id,) in model.Session.query(model.ApiToken.id):
+            assert id in result.output
+
+    def test_add_with_extras(self, cli):
+        """Command shouldn't raise SystemExit when valid args are provided.
+        """
+        user = factories.User()
+        args = [
+            u"user",
+            u"token",
+            u"add",
+            user[u"name"],
+            u"new_token",
+            u"""--json={"x": "y"}""",
+        ]
+
+        assert model.Session.query(model.ApiToken).count() == 0
+        result = cli.invoke(ckan, args)
+        assert result.exit_code == 0
+        assert model.Session.query(model.ApiToken).count() == 1
+
+        args = [
+            u"user",
+            u"token",
+            u"add",
+            user[u"name"],
+            u"new_token",
+            u"x=1",
+            u"y=2"
+        ]
+
+        result = cli.invoke(ckan, args)
+        assert result.exit_code == 0
+        assert model.Session.query(model.ApiToken).count() == 2
+
+        args = [
+            u"user",
+            u"token",
+            u"add",
+            user[u"name"],
+            u"new_token",
+            u"x",
+            u"y=2"
+        ]
+
+        result = cli.invoke(ckan, args)
+        assert result.exit_code == 1
+        assert model.Session.query(model.ApiToken).count() == 2
