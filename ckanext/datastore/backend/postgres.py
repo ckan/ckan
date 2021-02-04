@@ -78,6 +78,11 @@ _SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
 )
 
 
+_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), u"..", "allowed_functions.txt"
+)
+
+
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError
 else:

@@ -69,6 +69,8 @@ def _strip(s):
 def should_fts_index_field_type(field_type):
     return field_type.lower() in ['tsvector', 'text', 'number']
 
+def get_table_and_function_names_from_sql(context, sql):
+    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and function names
 
 def get_table_and_function_names_from_sql(context, sql):
     '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and
@@ -154,6 +156,24 @@ def _parse_query_plan(plan):
             functions.extend(f)
 
     return table_names, queries, functions
+
+
+def _get_function_names_from_sql(sql):
+    function_names = []
+
+    def _get_function_names(tokens):
+        for token in tokens:
+            if isinstance(token, sqlparse.sql.Function):
+                function_name = token.get_name()
+                if function_name not in function_names:
+                    function_names.append(function_name)
+            if hasattr(token, 'tokens'):
+                _get_function_names(token.tokens)
+
+    parsed = sqlparse.parse(sql)[0]
+    _get_function_names(parsed.tokens)
+
+    return function_names
 
 
 def _get_function_names_from_sql(sql):
