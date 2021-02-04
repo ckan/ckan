@@ -453,6 +453,9 @@ def _group_or_org_list(context, data_dict, is_org=False):
 def group_list(context, data_dict):
     '''Return a list of the names of the site's groups.
 
+    :param type: the type of group to list (optional, default: ``'group'``),
+        See docs for :py:class:`~ckan.plugins.interfaces.IGroupForm`
+    :type type: string
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
@@ -504,6 +507,10 @@ def group_list(context, data_dict):
 def organization_list(context, data_dict):
     '''Return a list of the names of the site's organizations.
 
+    :param type: the type of organization to list (optional,
+        default: ``'organization'``),
+        See docs for :py:class:`~ckan.plugins.interfaces.IGroupForm`
+    :type type: string
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
