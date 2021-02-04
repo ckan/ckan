@@ -871,6 +871,35 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(self.data['resource_id'])
         helpers.call_action('datastore_search_sql', sql=sql)
 
+    def test_works_with_allowed_functions(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT upper(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    def test_not_authorized_with_disallowed_functions(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = "SELECT query_to_xml('SELECT upper(author) from \"{}\"', true, true, '')".format(
+            resource["id"]
+        )
+        assert_raises(p.toolkit.NotAuthorized,
+            helpers.call_action, "datastore_search_sql", sql=sql)
+
     def test_invalid_statement(self):
         query = 'SELECT ** FROM foobar'
         data = {'sql': query}
