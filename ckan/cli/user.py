@@ -101,7 +101,6 @@ def list_users():
 @click.argument(u'username')
 @click.pass_context
 def remove_user(ctx, username):
-    import ckan.model as model
     if not username:
         error_shout(u'Please specify the username to be removed')
         return
@@ -146,7 +145,7 @@ def set_password(username):
 
 @user.group()
 def token():
-    """Control API Tokens"""
+    """Manage API Tokens"""
     pass
 
 
@@ -162,15 +161,14 @@ def token():
     help=u"Valid JSON object with additional fields for api_token_create",
 )
 def add_token(username, token_name, extras, json):
-    """Create new API Token for the given user.
+    """Create a new API Token for the given user.
 
-    Either arbitary numer of arguments in format `key=value` or --json
-    option containing encoded JSON object can be passed in order to
-    customize behavior of api_token_create action. When both privided,
-    `key=value` will have higher precedence and will replace
-    corresponding keys from --json object.
+    Arbitrary fields can be passed in the form `key=value` or using
+    the --json option, containing a JSON encoded object. When both provided,
+    `key=value` fields will take precedence and will replace the
+    corresponding keys from the --json object.
 
-    Example::
+    Example:
 
       ckan user token add john_doe new_token x=y --json '{"prop": "value"}'
 
@@ -180,7 +178,7 @@ def add_token(username, token_name, extras, json):
             key, value = chunk.split(u"=")
         except ValueError:
             error_shout(
-                u"Extras must be passed in `key=value` format. Got: {}".format(
+                u"Extras must be passed in the `key=value` format. Got: {}".format(
                     chunk
                 )
             )
