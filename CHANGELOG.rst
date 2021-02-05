@@ -7,11 +7,38 @@
 Changelog
 ---------
 
+v.2.8.7 2021-02-10
+==================
+
+Fixes:
+
+* Persist attributes in chained functions (`#5751 <https://github.com/ckan/ckan/pull/5751>`_)
+* Fix install documentation (`#5618 <https://github.com/ckan/ckan/pull/5618>`_)
+* Fix exception when passing limit to organization (`#5789 <https://github.com/ckan/ckan/pull/5789>`_)
+* Fix for adding directories from plugins if partially string matches existing values (`#5836 <https://github.com/ckan/ckan/pull/5836>`_)
+* Fix upload log activity sorting (`#5827 <https://github.com/ckan/ckan/pull/5827>`_)
+* Textview: escape text formats (`#5814 <https://github.com/ckan/ckan/pull/5814>`_)
+* Add allow_partial_update to fix losing users (`#5734 <https://github.com/ckan/ckan/pull/5734>`_)
+* Set default group_type to group in group_create (`#5693 <https://github.com/ckan/ckan/pull/5693>`_)
+* Use user performing the action on activity context on user_update (`#5743 <https://github.com/ckan/ckan/pull/5743>`_)
+* New block in nav links in user dashboard (`#5804 <https://github.com/ckan/ckan/pull/5804>`_)
+* Update references to DataPusher documentation
+* Fix JavaScript error on Edge (`#5782 <https://github.com/ckan/ckan/pull/5782>`_)
+* Fix error when deleting resource with missing datastore table (`#5757 <https://github.com/ckan/ckan/pull/5757>`_)
+* ensure HTTP_HOST is bytes under python2 (`#5714 <https://github.com/ckan/ckan/pull/5714>`_)
+* Don't set old_filename when updating groups (`#5707 <https://github.com/ckan/ckan/pull/5707>`_)
+* Filter activities from user at the database level (`#5698 <https://github.com/ckan/ckan/pull/5698>`_)
+* Fix user_list ordering (`#5667 <https://github.com/ckan/ckan/pull/5667>`_)
+* Allowlist for functions in datastore_search_sql (see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`)
+
+
+
 
 v.2.8.6 2020-10-21
 ==================
 
 Fixes:
+
 * Allow IAuthenticator methods to return responses (`#5259 <https://github.com/ckan/ckan/pull/5640>`_)
 * Fix skip to content link hiding on screen readers (`#5556 <https://github.com/ckan/ckan/pull/5556>`_)
 * Fix unflattening of dataset extras (`#5602 <https://github.com/ckan/ckan/pull/5611>`_)
