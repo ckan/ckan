@@ -2,6 +2,7 @@
 
 from ckan import plugins
 
+
 class TestChainedFunctionsPlugin(object):
 
     @classmethod

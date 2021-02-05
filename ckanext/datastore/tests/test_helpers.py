@@ -118,8 +118,10 @@ class TestGetTables(DatastoreLegacyTestBase):
             'connection': self.Session.connection()
         }
         for case in test_cases:
-            eq_(sorted(datastore_helpers.get_table_and_function_names_from_sql(
-                    context, case[0])[0]),
+            eq_(
+                sorted(
+                    datastore_helpers.get_table_and_function_names_from_sql(
+                        context, case[0])[0]),
                 sorted(case[1]))
 
 
@@ -189,13 +191,14 @@ class TestGetFunctions(object):
             session.execute(create_table_sql)
 
         test_cases = [
-            (u"""SELECT *
+            (
+                u"""SELECT *
                 FROM crosstab(
                     'SELECT extract(month from period)::text, test_b.name, trunc(avg(result),2)
                      FROM test_a, test_b
                      WHERE test_a.subject_id = test_b.subject_id')
                      AS final_result(month text, subject_1 numeric,subject_2 numeric);""",
-            ['crosstab', 'final_result', 'extract', 'trunc', 'avg']
+                ['crosstab', 'final_result', 'extract', 'trunc', 'avg']
             ),
         ]
 

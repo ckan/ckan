@@ -68,8 +68,10 @@ def _strip(s):
 def should_fts_index_field_type(field_type):
     return field_type.lower() in ['tsvector', 'text', 'number']
 
+
 def get_table_and_function_names_from_sql(context, sql):
-    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and function names
+    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and
+    function names
 
 
     It performs an EXPLAIN query against the provided SQL, and parses
@@ -83,7 +85,8 @@ def get_table_and_function_names_from_sql(context, sql):
     :param sql: the SQL statement to parse for table and function names
     :type sql: string
 
-    :rtype: a tuple with two list of strings, one for table and one for function names
+    :rtype: a tuple with two list of strings, one for table and one for
+        function names
     '''
 
     queries = [sql]
