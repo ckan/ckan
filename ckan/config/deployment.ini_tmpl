@@ -37,29 +37,51 @@ beaker.session.secret = $app_instance_secret
 # a config file.
 app_instance_uuid = $app_instance_uuid
 
-# repoze.who config
+## Development Settings
+#ckan.devserver.threaded = false
+#ckan.devserver.multiprocess = 1
+#ckan.devserver.watch_patterns = 
+#ckan.devserver.ssl_cert = None (SSL disabled)
+#ckan.devserver.ssl_key = None (SSL disabled)
+
+## repoze.who config
 who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 # Session timeout (user logged out after period of inactivity, in seconds).
 # Inactive by default, so the session doesn't expire.
 # who.timeout = 86400
+# who.httponly = true
+# who.secure = false
+# who.samesite = Lax
 
 ## Database Settings
 sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 
 #ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
 #ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
+#ckan.datastore.sqlalchemy.pool_size=10
+#ckan.datastore.sqlalchemy.max_overflow=20
 
 # PostgreSQL' full-text search parameters
 ckan.datastore.default_fts_lang = english
 ckan.datastore.default_fts_index_method = gist
+#ckan.datastore.sqlsearch.enabled = true
+#ckan.datastore.search.rows_default = 100
+#ckan.datastore.search.rows_max = 32000
 
 
 ## Site Settings
 
 ckan.site_url =
+#apikey_header_name = X-CKAN-API-Key & Authorization
+#ckan.cache_expires = 0
+#ckan.cache_enabled = false
 #ckan.use_pylons_response_cleanup_middleware = true
+#ckan.mimetype_guess = file_ext
+#ckan.static_max_age = 3600
+#ckan.tracking_enabled = false
+#ckan.valid_url_schemes = http https ftp
 
 ## Authorization Settings
 
@@ -76,6 +98,8 @@ ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.auth.public_user_details = true
 ckan.auth.public_activity_stream_detail = true
 ckan.auth.allow_dataset_collaborators = false
+#ckan.auth.allow_admin_collaborators = false
+#ckan.auth.allow_collaborators_to_change_owner_org = false
 ckan.auth.create_default_api_keys = false
 
 ## API Token Settings
@@ -91,6 +115,17 @@ expire_api_token.default_lifetime = 3600
 
 ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
+#ckan.search.automatic_indexing = true
+#ckan.search.solr_commit = true
+#ckan.search.show_all_types = false
+#ckan.search.default_include_private = true
+#ckan.search.default_package_sort = "score desc, metadata_modified desc"
+#search.facets.limit = 50
+#search.facets.default = 10
+#ckan.extra_resource_fields = 
+#ckan.search.rows_max = 1000
+#ckan.group_and_organization_list_max = 1000
+#ckan.group_and_organization_list_all_fields_max = 25
 
 
 ## Redis Settings
@@ -115,7 +150,58 @@ ckan.site_id = default
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
 ckan.plugins = stats text_view image_view recline_view
+#ckanext.stats.cache_enabled = True
+# Preview size limit, default: 1MB
+#ckan.resource_proxy.max_file_size = 1048576
+# Size of chunks to read/write.
+#ckan.resource_proxy.chunk_size = 4096
 
+## Front-End Settings
+
+ckan.site_title = CKAN
+ckan.site_description =
+#ckan.site_intro_text = 
+ckan.site_logo = /base/images/ckan-logo.png
+#ckan.site_about = <p>CKAN is the world’s leading open-source data portal platform.</p>
+
+#                  <p>CKAN is a complete out-of-the-box software solution that makes data
+#	                 accessible and usable – by providing tools to streamline publishing, sharing,
+#                  finding and using data (including storage of data and provision of robust data
+#                  APIs). CKAN is aimed at data publishers (national and regional governments,
+#                  companies and organizations) wanting to make their data open and available.</p>
+
+#                  <p>CKAN is used by governments and user groups worldwide and powers a variety
+#                  of official and community data portals including portals for local, national
+#                  and international government, such as the UK’s <a href="http://data.gov.uk">data.gov.uk</a>
+#                  and the European Union’s <a href="http://publicdata.eu/">publicdata.eu</a>,
+#                  the Brazilian <a href="http://dados.gov.br/">dados.gov.br</a>, Dutch and
+#                  Netherland government portals, as well as city and municipal sites in the US,
+#                  UK, Argentina, Finland and elsewhere.</p>
+
+#                  <p>CKAN: <a href="http://ckan.org/">http://ckan.org/</a><br />
+#                  CKAN Tour: <a href="http://ckan.org/tour/">http://ckan.org/tour/</a><br />
+#                  Features overview: <a href="http://ckan.org/features/">http://ckan.org/features/</a></p>
+
+#ckan.main_css = /base/css/main.css
+ckan.favicon = /base/images/ckan.ico
+#ckan.legacy_templates = false
+#ckan.datasets_per_page = 20
+#package_hide_extras = for_search_index_only
+#ckan.dumps_url = http://ckan.net/dump/
+#ckan.dumps_format = CSV/JSON
+#ckan.recaptcha.publickey =
+#ckan.recaptcha.privatekey =
+#ckan.featured_groups = 
+#ckan.featured_orgs =
+#ckan.default_group_sort = 'title'
+ckan.gravatar_default = identicon
+#ckan.debug_supress_header = false
+ckan.preview.direct = png jpg gif
+ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
+# ckan.template_footer_end =
+
+## Resource Views Settings
+ 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
 ckan.views.default_views = image_view text_view recline_view
@@ -128,38 +214,29 @@ ckan.views.default_views = image_view text_view recline_view
 # Customize which image formats the image_view plugin will show
 #ckan.preview.image_formats = png jpeg jpg gif
 
-## Front-End Settings
+#ckan.recline.dataproxy_url = https://jsonpdataproxy.appspot.com
 
-ckan.site_title = CKAN
-ckan.site_logo = /base/images/ckan-logo.png
-ckan.site_description =
-ckan.favicon = /base/images/ckan.ico
-ckan.gravatar_default = identicon
-ckan.preview.direct = png jpg gif
-ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
-ckan.display_timezone = server
+## Theming Settings
 
-# package_hide_extras = for_search_index_only
-#package_edit_return_url = http://another.frontend/dataset/<NAME>
-#package_new_return_url = http://another.frontend/dataset/<NAME>
-#ckan.recaptcha.publickey =
-#ckan.recaptcha.privatekey =
-#licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
-# ckan.template_footer_end =
+#HTML content to be inserted just before </head> tag 
+#ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css">
+ 
+#ckan.template_footer_end = <!-- Google Analytics -->
+#  <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
+#  <script type="text/javascript">
+#  try {
+#  var pageTracker = _gat._getTracker("XXXXXXXXX");
+#  pageTracker._setDomainName(".ckan.net");
+#  pageTracker._trackPageview();
+#  } catch(err) {}
+#  </script>
+#  <!-- /Google Analytics -->
 
-
-## Internationalisation Settings
-ckan.locale_default = en
-ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
-ckan.locales_offered =
-ckan.locales_filtered_out = en_GB
-
-## Feeds Settings
-
-ckan.feeds.authority_name =
-ckan.feeds.date =
-ckan.feeds.author_name =
-ckan.feeds.author_link =
+#ckan.template_title_delimiter = -
+#extra_template_paths = /home/okfn/brazil_ckan_config/templates
+#extra_public_paths = /home/okfn/brazil_ckan_config/public
+#ckan.base_public_folder = public
+#ckan.base_templates_folder = templates
 
 ## Storage Settings
 
@@ -171,40 +248,67 @@ ckan.feeds.author_link =
 #ckan.webassets.use_x_sendfile = false
 #ckan.webassets.path = /var/lib/ckan/webassets
 
-
 ## Datapusher settings
 
 # Make sure you have set up the DataStore
 
 #ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 #ckan.datapusher.url = http://127.0.0.1:8800/
+#ckan.datapusher.callback_url_base = http://ckan:5000/
 #ckan.datapusher.assume_task_stale_after = 3600
-
-# Resource Proxy settings
-# Preview size limit, default: 1MB
-#ckan.resource_proxy.max_file_size = 1048576
-# Size of chunks to read/write.
-#ckan.resource_proxy.chunk_size = 4096
+ 
+## User Settings
+#ckan.user_list_limit = 20
 
 ## Activity Streams Settings
 
 #ckan.activity_streams_enabled = true
+#ckan.activity_streams_email_notifications = false
 #ckan.activity_list_limit = 31
-#ckan.activity_streams_email_notifications = true
+#ckan.activity_list_limit_max = 100
 #ckan.email_notifications_since = 2 days
 ckan.hide_activity_from_users = %(ckan.site_id)s
 
+## Feeds Settings
+
+ckan.feeds.author_name =
+ckan.feeds.author_link =
+ckan.feeds.authority_name =
+ckan.feeds.date =
+
+## Internationalisation Settings
+
+ckan.locale_default = en
+ckan.locales_offered =
+ckan.locales_filtered_out = en_GB
+ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
+#ckan.i18n_directory = 
+#ckan.i18n.extra_directory = 
+#ckan.i18n.extra_gettext_domain = 
+#ckan.i18n.extra_locales =  
+#ckan.i18n.rtl_languages = he ar fa_IR
+#ckan.i18n.rtl_css = /base/css/rtl.css
+ckan.display_timezone = server
+#ckan.root_path = 
+#ckan.resource_formats = ckan/config/resource_formats.json
+
+## Form Settings
+
+#ckan.dataset.create_on_ui_requires_resources = true
+#package_new_return_url = http://another.frontend/dataset/<NAME>
+#package_edit_return_url = http://another.frontend/dataset/<NAME>
+##licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
 
 ## Email settings
 
-#email_to = errors@example.com
-#error_email_from = ckan-errors@example.com
 #smtp.server = localhost
 #smtp.starttls = False
 #smtp.user = username@example.com
 #smtp.password = your_password
 #smtp.mail_from =
 #smtp.reply_to =
+#email_to = errors@example.com
+#error_email_from = ckan-errors@example.com
 
 ## Background Job Settings
 ckan.jobs.timeout = 180
