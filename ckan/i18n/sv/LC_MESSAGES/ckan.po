@@ -400,7 +400,7 @@ msgstr "%s använder din e-postadress om du behöver återställa ditt lösenord
 
 #: ckan/controllers/package.py:304
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "Ogiltig sökning: {error_message}"
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:14
 #: ckan/templates/organization/bulk_process.html:27
@@ -5071,7 +5071,7 @@ msgstr "Nyhetsfeed"
 #: ckanext/datastore/templates/package/resource_read.html:21
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:18
 msgid "Label"
-msgstr ""
+msgstr "Etikett"
 
 #: ckanext/datastore/templates-bs2/package/resource_edit_base.html:6
 #: ckanext/datastore/templates-bs2/package/resource_read.html:14
@@ -5084,12 +5084,12 @@ msgstr ""
 #: ckanext/datastore/templates/package/resource_read.html:19
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid "Column"
-msgstr ""
+msgstr "Kolumn"
 
 #: ckanext/datastore/templates-bs2/package/resource_read.html:19
 #: ckanext/datastore/templates/package/resource_read.html:20
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: ckanext/datastore/templates-bs2/package/snippets/data_api_button.html:10
 #: ckanext/datastore/templates/package/snippets/data_api_button.html:9
@@ -5116,11 +5116,11 @@ msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:12
 msgid "Show Columns"
-msgstr ""
+msgstr "Visa kolumner"
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:28
 msgid "Hide/Unhide Columns"
-msgstr ""
+msgstr "Göm/Visa kolumner"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
@@ -5219,22 +5219,22 @@ msgstr "Fel vid laddning av vy"
 #: ckanext/reclineview/theme/public/recline_view.js:79
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "Could not load view"
-msgstr ""
+msgstr "Kunde inte ladda vy"
 
 #: ckanext/reclineview/theme/public/recline_view.js:81
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "DataStore returned an error"
-msgstr ""
+msgstr "DataStore rapporterade ett fel"
 
 #: ckanext/reclineview/theme/public/recline_view.js:83
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "DataProxy returned an error"
-msgstr ""
+msgstr "DataProxy rapporterade ett fel"
 
 #: ckanext/reclineview/theme/public/recline_view.js:197
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Grid"
-msgstr ""
+msgstr "Tabell"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -5413,7 +5413,7 @@ msgstr "Text"
 #: ckanext/textview/theme/public/text_view.js:70
 #: ckanext/textview/theme/public/text_view.min.js:3
 msgid "An error occured during AJAX request. Could not load view."
-msgstr ""
+msgstr "Ett fel uppstod i en AJAX förfrågan. Kan inte ladda vy."
 
 #: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
 msgid "Website"
