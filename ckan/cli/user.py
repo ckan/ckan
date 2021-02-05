@@ -178,7 +178,7 @@ def add_token(username, token_name, extras, json):
             key, value = chunk.split(u"=")
         except ValueError:
             error_shout(
-                u"Extras must be passed in the `key=value` format. Got: {}".format(
+                u"Extras must be passed as `key=value`. Got: {}".format(
                     chunk
                 )
             )
