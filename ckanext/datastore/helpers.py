@@ -67,7 +67,7 @@ def should_fts_index_field_type(field_type):
     return field_type.lower() in ['tsvector', 'text', 'number']
 
 
-def get_table_names_from_sql(context, sql):
+def get_table_and_function_names_from_sql(context, sql):
     '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and function names
 
     It performs an EXPLAIN query against the provided SQL, and parses
@@ -108,7 +108,10 @@ def get_table_names_from_sql(context, sql):
         'EXPLAIN (FORMAT JSON) {0}'.format(sql.encode('utf-8'))).fetchone()
 
     try:
-        query_plan = json.loads(result['QUERY PLAN'])
+        if isinstance(result['QUERY PLAN'], basestring):
+            query_plan = json.loads(result['QUERY PLAN'])
+        else:
+            query_plan = result['QUERY PLAN']
         plan = query_plan[0]['Plan']
 
         table_names.extend(_get_table_names_from_plan(plan))
