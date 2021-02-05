@@ -124,8 +124,10 @@ class TestGetTables(object):
             'connection': self.Session.connection()
         }
         for case in test_cases:
-            eq_(sorted(datastore_helpers.get_table_and_function_names_from_sql(
-                    context, case[0])[0]),
+            eq_(
+                sorted(
+                    datastore_helpers.get_table_and_function_names_from_sql(
+                        context, case[0])[0]),
                 sorted(case[1]))
 
 
