@@ -106,7 +106,7 @@ def version(plugin):
                 bold=True)
 
 
-@db.command(u"duplicate_emails", short_help=u"Check users email for duplicate")
+@db.command(u"duplicate-emails", short_help=u"Check users email for duplicate")
 def duplicate_emails():
     u'''Check users email for duplicate'''
     log.info(u"Searching for accounts with duplicate emails.")

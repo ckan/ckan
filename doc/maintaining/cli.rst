@@ -40,13 +40,13 @@ The general form of a CKAN ``ckan`` command is:
 
  ckan --config=\ |ckan.ini| **command**
 
-The `` --config`` option tells CKAN where to find your config file, which it
+The ``--config`` option tells CKAN where to find your config file, which it
 reads for example to know which database it should use. As you'll see in the
 examples below, this option can be given as ``-c`` for short.
 
 The config file (ckan.ini) will generally be located in the
 ``/etc/ckan/default/`` directory however it can be located in any directory on
-the host machine
+the host machine.
 
 **command** should be replaced with the name of the CKAN command that you wish
 to execute. Most commands have their own subcommands and options.
@@ -165,11 +165,11 @@ datapusher        Perform commands in the datapusher.
 dataset           Manage datasets.
 datastore         Perform commands to set up the datastore.
 db                Perform various tasks on the database.
-front-end-build   Creates and minifies css and JavaScript files
+front-end-build   Creates and minifies CSS and JavaScript files
 generate          Generate empty extension files to expand CKAN
 jobs              Manage background jobs
 less              Compile all root less documents into their CSS counterparts
-minify            Create minified versions of the given Javascript and CSS files.
+minify            Create minified versions of the given JavaScript and CSS files.
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
 profile           Code speed profiler.
@@ -234,8 +234,8 @@ Usage
 
 .. parsed-literal::
 
- ckan dataset DATASET_NAME|ID            - shows dataset properties
- ckan dataset show DATASET_NAME|ID       - shows dataset properties
+ ckan dataset [DATASET_NAME|ID]            - shows dataset properties
+ ckan dataset show [DATASET_NAME|ID]       - shows dataset properties
  ckan dataset list                       - lists datasets
  ckan dataset delete [DATASET_NAME|ID]   - changes dataset state to 'deleted'
  ckan dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
@@ -262,7 +262,7 @@ db: Manage databases
 
  ckan db clean               - Clean the database
  ckan db downgrade           - Downgrade the database
- ckan db duplicate_emails    - Check users email for duplicate
+ ckan db duplicate-emails    - Check users email for duplicate
  ckan db init                - Initialize the database
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
@@ -270,14 +270,14 @@ db: Manage databases
 See :doc:`database-management`.
 
 
-front-end-build: Creates and minifies css and JavaScript files
+front-end-build: Creates and minifies CSS and JavaScript files
 ==============================================================
 
 Usage
 
 .. parsed-literal::
 
- ckan front-end-build      - compile css and js
+ ckan front-end-build      - compile CSS and JS
 
 
 generate: Generate empty extension files to expand CKANs
@@ -320,7 +320,7 @@ Run a background job worker
 
 Starts a worker that fetches job from the :ref:`job queues <background jobs
 queues>` and executes them. If no queue names are given then it listens to
-the default queue. This is equivalent to
+the default queue. This is equivalent to:
 
 .. parsed-literal::
 
@@ -334,14 +334,14 @@ those:
  ckan -c |ckan.ini| jobs worker my-custom-queue another-special-queue
 
 Hence, if you want the worker to listen to the default queue and some others
-then you must list the default queue explicitly
+then you must list the default queue explicitly.
 
 .. parsed-literal::
 
  ckan -c |ckan.ini| jobs worker default my-custom-queue
 
 If the ``--burst`` option is given then the worker will exit as soon as all its
-queues are empty. Otherwise it will wait indefinitely until a new job is
+queues are empty. Otherwise, it will wait indefinitely until a new job is
 enqueued (this is the default).
 
 .. note::
@@ -371,9 +371,9 @@ Show details about a job
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| jobs show ID
+ ckan -c |ckan.ini| jobs show [JOB_ID]
 
-Shows details about the enqueued job with the given ID.
+Show details about the enqueued job with the given ID.
 
 
 .. _cli jobs cancel:
@@ -383,9 +383,9 @@ Cancel a job
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| jobs cancel ID
+ ckan -c |ckan.ini| jobs cancel [JOB_ID]
 
-Cancels the enqueued job with the given ID. Jobs can only be canceled while
+Cancels the enqueued job with the given ID. Jobs can only be cancelled while
 they are enqueued. Once a worker has started executing a job it cannot be
 aborted anymore.
 
@@ -429,7 +429,7 @@ Usage
  less
 
 
-minify: Create minified versions of the given Javascript and CSS files
+minify: Create minified versions of the given JavaScript and CSS files
 ======================================================================
 
 Usage
@@ -444,7 +444,7 @@ Usage
  ckan -c |ckan.ini| minify ckan/public/base/css/\*.css
  ckan -c |ckan.ini| minify ckan/public/base/css/red.css
 
-If the --clean option is provided any minified files will be removed.
+If the `--clean` option is provided any minified files will be removed.
 
 
 notify: Send out modification notifications
@@ -461,7 +461,8 @@ Usage
 plugin-info: Provide info on installed plugins
 ==============================================
 
-As the name suggests, this commands shows you the installed plugins (based on the .ini file) , their description, and which interfaces they implement
+As the name suggests, this commands shows you the installed plugins (based on the .ini file),
+their description, and which interfaces they implement.
 
 
 profile: Code speed profiler
@@ -517,47 +518,75 @@ search-index: Rebuild search index
 
 Rebuilds the search index. This is useful to prevent search indexes from getting out of sync with the main database.
 
-For example
+For example:
 
 .. parsed-literal::
 
  ckan -c |ckan.ini| search-index rebuild
 
 This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
-one dataset, you can provide a dataset name
+one dataset, you can provide a dataset name.
 
 .. parsed-literal::
 
  ckan -c |ckan.ini| search-index rebuild test-dataset-name
 
 Alternatively, you can use the `-o` or `--only-missing` option to only reindex datasets which are not
-already indexed
+already indexed.
 
 .. parsed-literal::
 
  ckan -c |ckan.ini| search-index rebuild -o
 
 If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
-won't clear the index before starting rebuilding it
+won't clear the index before starting rebuilding it.
 
 .. parsed-literal::
 
  ckan -c |ckan.ini| search-index rebuild -r
 
-There is also an option available which works like the refresh option but tries to use all processes on the
-computer to reindex faster
+If you are facing an error with a particular dataset during the rebuild process, you can use `-i` or `--force` option.
+This will ignore exceptions when rebuilding the index.
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| search-index rebuild_fast
+ ckan -c |ckan.ini| search-index rebuild -i
 
-There are other search related commands, mostly useful for debugging purposes
+To perform a commit after indexing each dataset, use `-e` or `--commit-each` option. This ensures that changes
+are immediately available on the search, but slows significantly the process.
+
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild -e
+
+Use `-q` or `--quite` option to not show the search-index rebuild progress.
+
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild -q
+
+You can combine options and use them together. Just list the options you need right after the command name.
+
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild -i -e
+
+That stand for `--force` and `--commit-each` options.
+
+There is also an option available which works like the refresh option but tries to use all processes on the
+computer to reindex faster.
+
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild-fast
+
+There are other search related commands, mostly useful for debugging purposes:
 
 .. parsed-literal::
 
  ckan search-index check                  - checks for datasets not indexed
- ckan search-index show DATASET_NAME      - shows index of a dataset
- ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
+ ckan search-index show [DATASET_NAME|ID]      - shows index of a dataset
+ ckan search-index clear [DATASET_NAME|ID]   - clears the search index for the provided dataset or for the whole ckan instance
 
 
 seed: Create test data in the database
@@ -594,7 +623,7 @@ Usage
  ckan sysadmin list      - list sysadmins
  ckan sysadmin remove    - removes user from sysadmins
 
-For example, to make a user called 'admin' into a sysadmin
+For example, to make a user called 'admin' into a sysadmin:
 
 .. parsed-literal::
 
@@ -609,7 +638,7 @@ Usage
 .. parsed-literal::
 
  ckan tracking update [start_date]       - update tracking stats
- ckan tracking export FILE [start_date]  - export tracking stats to a csv file
+ ckan tracking export FILE [start_date]  - export tracking stats to a CSV file
 
 
 translation: Translation helper functions
@@ -626,7 +655,7 @@ Usage
 .. note::
 
     Since version 2.7 the JavaScript translation files are automatically
-    regenerated if necessary when CKAN is started. Hence you usually do not
+    regenerated if necessary when CKAN is started. Hence, you usually do not
     need to run ``ckan translation js`` manually.
 
 
