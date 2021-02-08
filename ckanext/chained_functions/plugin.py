@@ -13,12 +13,12 @@ class ChainedFunctionsPlugin(p.SingletonPlugin):
 
     def get_auth_functions(self):
         return {
-            "user_show": user_show
+            u"user_show": user_show
         }
 
     def get_actions(self):
         return {
-            "package_search": package_search
+            u"package_search": package_search
         }
 
 

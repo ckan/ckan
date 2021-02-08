@@ -146,7 +146,7 @@ def set_password(username):
 
 @user.group()
 def token():
-    """Control API Tokens"""
+    u"""Control API Tokens"""
     pass
 
 
@@ -162,7 +162,7 @@ def token():
     help=u"Valid JSON object with additional fields for api_token_create",
 )
 def add_token(username, token_name, extras, json):
-    """Create new API Token for the given user.
+    u"""Create new API Token for the given user.
 
     Either arbitary numer of arguments in format `key=value` or --json
     option containing encoded JSON object can be passed in order to
@@ -202,7 +202,7 @@ def add_token(username, token_name, extras, json):
 @token.command(u"revoke")
 @click.argument(u"id")
 def revoke_token(id):
-    """Remove API Token with the given ID"""
+    u"""Remove API Token with the given ID"""
     if not model.ApiToken.revoke(id):
         error_shout(u"API Token not found")
         raise click.Abort()
@@ -212,7 +212,7 @@ def revoke_token(id):
 @token.command(u"list")
 @click.argument(u"username")
 def list_tokens(username):
-    """List all API Tokens for the given user"""
+    u"""List all API Tokens for the given user"""
     try:
         tokens = plugin.toolkit.get_action(u"api_token_list")(
             {u"ignore_auth": True}, {u"user": username}

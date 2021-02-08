@@ -173,8 +173,8 @@ def download(package_type, id, resource_id, filename=None):
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
         resp = flask.send_file(filepath)
-        if rsc.get('mimetype'):
-            resp.headers['Content-Type'] = rsc['mimetype']
+        if rsc.get(u'mimetype'):
+            resp.headers[u'Content-Type'] = rsc[u'mimetype']
         return resp
 
     elif u'url' not in rsc:
