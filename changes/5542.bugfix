@@ -1,1 +1,0 @@
-Remove foreign keys relationships in revision tables to avoid purge errors

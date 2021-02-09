@@ -107,7 +107,8 @@ def group_patch(context, data_dict):
     patched = dict(group_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _update.group_update(context, patched)
+    return _update.group_update(
+        dict(context, allow_partial_update=True), patched)
 
 
 def organization_patch(context, data_dict):
@@ -137,4 +138,5 @@ def organization_patch(context, data_dict):
     patched = dict(organization_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _update.organization_update(context, patched)
+    return _update.organization_update(
+        dict(context, allow_partial_update=True), patched)

@@ -460,6 +460,15 @@ class TestGroupList(object):
         assert len(group_list) == 1
         assert group_list[0] == group2["name"]
 
+    def test_group_list_limit_as_string(self):
+
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+
+        group_list = helpers.call_action("group_list", limit="1")
+
+        assert len(group_list) == 1
+
     def test_group_list_wrong_limit(self):
 
         with pytest.raises(logic.ValidationError):
@@ -734,10 +743,22 @@ class TestOrganizationList(object):
         results = helpers.call_action("organization_list")
         assert len(results) == 5  # i.e. configured limit
 
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    def test_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_default", 5)
+        results = helpers.call_action("organization_list", limit=2)
+        assert len(results) == 2
+
     def test_all_fields_limit_default(self):
         self._create_bulk_orgs("org_all_fields_default", 30)
         results = helpers.call_action("organization_list", all_fields=True)
         assert len(results) == 25  # i.e. default value
+
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_all_fields_max", "5")
+    def test_all_fields_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_all_fields_default", 5)
+        results = helpers.call_action("organization_list", all_fields=True, limit=2)
+        assert len(results) == 2
 
     @pytest.mark.ckan_config(
         "ckan.group_and_organization_list_all_fields_max", "5"
@@ -3164,9 +3185,11 @@ class TestPackageActivityList(object):
         dataset = factories.Dataset()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=dataset["id"],
                 activity_type=None,
                 data=None,
@@ -3396,8 +3419,9 @@ class TestUserActivityList(object):
         assert activities[0]["data"]["group"]["title"] == org["title"]
 
     def _create_bulk_user_activities(self, count):
-        user = factories.User()
         from ckan import model
+
+        user = factories.User()
 
         objs = [
             model.Activity(
@@ -3613,9 +3637,11 @@ class TestGroupActivityList(object):
         group = factories.Group()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=group["id"],
                 activity_type=None,
                 data=None,
@@ -3844,9 +3870,11 @@ class TestOrganizationActivityList(object):
         org = factories.Organization()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=org["id"],
                 activity_type=None,
                 data=None,
@@ -4013,9 +4041,11 @@ class TestRecentlyChangedPackagesActivityList(object):
     def _create_bulk_package_activities(self, count):
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=None,
                 activity_type="new_package",
                 data=None,

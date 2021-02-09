@@ -17,7 +17,7 @@ The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
 The DataStore is generally used alongside the
-`DataPusher <https://docs.ckan.org/projects/datapusher/en/latest/>`_, which will
+`DataPusher <https://github.com/ckan/datapusher>`_, which will
 automatically upload data to the DataStore from suitable files, whether
 uploaded to CKAN's FileStore or externally linked.
 
@@ -206,7 +206,7 @@ This task of automatically parsing and then adding data to the DataStore is
 performed by the `DataPusher`_, a service that runs asynchronously and can be installed
 alongside CKAN.
 
-To install this please look at the docs here: https://docs.ckan.org/projects/datapusher/en/latest/
+To install this please look at the docs here: https://github.com/ckan/datapusher
 
 .. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
    not support duplicate column headers. That includes blank column headings.
@@ -416,30 +416,22 @@ Resource aliases
 
 A resource in the DataStore can have multiple aliases that are easier to remember than the resource id. Aliases can be created and edited with the :meth:`~ckanext.datastore.logic.action.datastore_create` API endpoint. All aliases can be found in a special view called ``_table_metadata``. See :ref:`db_internals` for full reference.
 
-.. _datastore_search_htsql:
-
-HTSQL support
--------------
-
-
-The `ckanext-htsql <https://github.com/okfn/ckanext-htsql>`_ extension adds an API action that allows a user to search data in a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. Please refer to the extension documentation to know more.
-
 
 .. _comparison_querying:
 
 Comparison of different querying methods
 ----------------------------------------
 
-The DataStore supports querying with multiple API endpoints. They are similar but support different features. The following list gives an overview of the different methods.
+The DataStore supports querying with two API endpoints. They are similar but support different features. The following list gives an overview of the different methods.
 
-==============================  ========================================================  ============================================================  =============================
-..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`  :ref:`HTSQL<datastore_search_htsql>`
-==============================  ========================================================  ============================================================  =============================
-**Ease of use**                 Easy                                                      Complex                                                       Medium
-**Flexibility**                 Low                                                       High                                                          Medium
-**Query language**              Custom (JSON)                                             SQL                                                           HTSQL
-**Join resources**              No                                                        Yes                                                           No
-==============================  ========================================================  ============================================================  =============================
+==============================  ========================================================  ============================================================
+..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`
+==============================  ========================================================  ============================================================
+**Ease of use**                 Easy                                                      Complex
+**Flexibility**                 Low                                                       High
+**Query language**              Custom (JSON)                                             SQL
+**Join resources**              No                                                        Yes
+==============================  ========================================================  ============================================================
 
 
 .. _db_internals:

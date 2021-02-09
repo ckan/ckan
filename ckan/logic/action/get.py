@@ -53,23 +53,6 @@ _case = sqlalchemy.case
 _text = sqlalchemy.text
 
 
-def _filter_activity_by_user(activity_list, users=[]):
-    '''
-    Return the given ``activity_list`` but with activities from the specified
-    users removed. The users parameters should be a list of ids.
-
-    A *new* filtered list is returned, the given ``activity_list`` itself is
-    not modified.
-    '''
-    if not len(users):
-        return activity_list
-    new_list = []
-    for activity in activity_list:
-        if activity.user_id not in users:
-            new_list.append(activity)
-    return new_list
-
-
 def _activity_stream_get_filtered_users():
     '''
     Get the list of users from the :ref:`ckan.hide_activity_from_users` config
@@ -367,11 +350,18 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     if all_fields:
         # all_fields is really computationally expensive, so need a tight limit
-        max_limit = config.get(
-            'ckan.group_and_organization_list_all_fields_max', 25)
+        try:
+            max_limit = int(config.get(
+                'ckan.group_and_organization_list_all_fields_max', 25))
+        except ValueError:
+            max_limit = 25
     else:
-        max_limit = config.get('ckan.group_and_organization_list_max', 1000)
-    if limit is None or limit > max_limit:
+        try:
+            max_limit = int(config.get('ckan.group_and_organization_list_max', 1000))
+        except ValueError:
+            max_limit = 1000
+
+    if limit is None or int(limit) > max_limit:
         limit = max_limit
 
     # order_by deprecated in ckan 1.8
@@ -881,6 +871,9 @@ def user_list(context, data_dict):
                 else_=model.User.fullname
             )
         )
+    elif order_by_field == 'number_created_packages' or order_by_field == 'fullname' \
+            or order_by_field == 'about' or order_by_field == 'sysadmin':
+        query = query.order_by(order_by_field, model.User.name)
     else:
         query = query.order_by(order_by_field)
 
@@ -1291,7 +1284,7 @@ def organization_show(context, data_dict):
 
     :rtype: dictionary
 
-    .. note:: Only its first 1000 datasets are returned
+    .. note:: Only its first 10 datasets are returned
     '''
     return _group_or_org_show(context, data_dict, is_org=True)
 
@@ -2496,10 +2489,8 @@ def user_activity_list(context, data_dict):
     offset = data_dict.get('offset', 0)
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = model.activity.user_activity_list(
+    activity_objects = model.activity.user_activity_list(
         user.id, limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(
-        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -2550,13 +2541,10 @@ def package_activity_list(context, data_dict):
     offset = int(data_dict.get('offset', 0))
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = model.activity.package_activity_list(
-        package.id, limit=limit, offset=offset)
-    if not include_hidden_activity:
-        activity_objects = _filter_activity_by_user(
-            _activity_objects, _activity_stream_get_filtered_users())
-    else:
-        activity_objects = _activity_objects
+    activity_objects = model.activity.package_activity_list(
+        package.id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+    )
 
     return model_dictize.activity_list_dictize(
         activity_objects, context, include_data=data_dict['include_data'])
@@ -2605,13 +2593,10 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(
-        group_id, limit=limit, offset=offset)
-    if not include_hidden_activity:
-        activity_objects = _filter_activity_by_user(
-            _activity_objects, _activity_stream_get_filtered_users())
-    else:
-        activity_objects = _activity_objects
+    activity_objects = model.activity.group_activity_list(
+        group_id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+    )
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -2659,13 +2644,10 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.organization_activity_list(
-        org_id, limit=limit, offset=offset)
-    if not include_hidden_activity:
-        activity_objects = _filter_activity_by_user(
-            _activity_objects, _activity_stream_get_filtered_users())
-    else:
-        activity_objects = _activity_objects
+    activity_objects = model.activity.organization_activity_list(
+        org_id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+    )
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -2695,12 +2677,9 @@ def recently_changed_packages_activity_list(context, data_dict):
     data_dict['include_data'] = False
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = \
+    activity_objects = \
         model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(
-        _activity_objects,
-        _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -3213,13 +3192,11 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _activity_tuple_objects = model.activity.dashboard_activity_list(
+    activity_objects = model.activity.dashboard_activity_list(
         user_id, limit=limit, offset=offset)
 
-    activity_tuple_list = _filter_activity_by_user(
-        _activity_tuple_objects, _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
-        activity_tuple_list, context)
+        activity_objects, context)
 
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
@@ -3571,7 +3548,8 @@ def api_token_list(context, data_dict):
     id_or_name = _get_or_bust(data_dict, u'user')
     _check_access(u'api_token_list', context, data_dict)
     user = model.User.get(id_or_name)
-
+    if user is None:
+        raise NotFound("User not found")
     tokens = model.Session.query(model.ApiToken).filter(
         model.ApiToken.user_id == user.id
     )

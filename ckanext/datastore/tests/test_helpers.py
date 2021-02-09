@@ -1,7 +1,10 @@
 # encoding: utf-8
+import re
+import mock
 
 import pytest
 import sqlalchemy.orm as orm
+from sqlalchemy.exc import ProgrammingError
 
 import ckanext.datastore.backend.postgres as db
 import ckanext.datastore.backend.postgres as postgres_backend
@@ -68,9 +71,9 @@ class TestTypeGetters(object):
             )
 
 
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 class TestGetTables(object):
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_get_table_names(self):
         engine = db.get_write_engine()
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
@@ -116,5 +119,95 @@ class TestGetTables(object):
         context = {"connection": session.connection()}
         for case in test_cases:
             assert sorted(
-                datastore_helpers.get_table_names_from_sql(context, case[0])
+                datastore_helpers.get_table_and_function_names_from_sql(context, case[0])[0]
             ) == sorted(case[1])
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+class TestGetFunctions(object):
+    def test_get_function_names(self):
+
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        create_tables = [
+            u"CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
+            u"CREATE TABLE test_b (name text, subject_id text)",
+        ]
+        for create_table_sql in create_tables:
+            session.execute(create_table_sql)
+
+        test_cases = [
+            (u"SELECT max(id) from test_a", ["max"]),
+            (u"SELECT count(distinct(id)) FROM test_a", ["count", "distinct"]),
+            (u"SELECT trunc(avg(result),2) FROM test_a", ["trunc", "avg"]),
+            (u"SELECT query_to_xml('SELECT max(id) FROM test_a', true, true , '')", ["query_to_xml"]),
+            (u"select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
+        ]
+
+        context = {"connection": session.connection()}
+        for case in test_cases:
+            assert sorted(
+                datastore_helpers.get_table_and_function_names_from_sql(context, case[0])[1]
+            ) == sorted(case[1])
+
+    def test_get_function_names_custom_function(self):
+
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        create_tables = [
+            u"""CREATE FUNCTION add(integer, integer) RETURNS integer
+                AS 'select $1 + $2;'
+                    LANGUAGE SQL
+                        IMMUTABLE
+                            RETURNS NULL ON NULL INPUT;
+            """
+        ]
+        for create_table_sql in create_tables:
+            session.execute(create_table_sql)
+
+        context = {"connection": session.connection()}
+
+        sql = "SELECT add(1, 2);"
+
+        assert datastore_helpers.get_table_and_function_names_from_sql(context, sql)[1] == ["add"]
+
+    def test_get_function_names_crosstab(self):
+        """
+        Crosstab functions need to be enabled in the database by executing the following using
+        a super user:
+
+            CREATE extension tablefunc;
+
+        """
+
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        create_tables = [
+            u"CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
+            u"CREATE TABLE test_b (name text, subject_id text)",
+        ]
+        for create_table_sql in create_tables:
+            session.execute(create_table_sql)
+
+        test_cases = [
+            (
+                u"""SELECT *
+                FROM crosstab(
+                    'SELECT extract(month from period)::text, test_b.name, trunc(avg(result),2)
+                     FROM test_a, test_b
+                     WHERE test_a.subject_id = test_b.subject_id')
+                     AS final_result(month text, subject_1 numeric,subject_2 numeric);""",
+                ['crosstab', 'final_result', 'extract', 'trunc', 'avg']
+            ),
+        ]
+
+        context = {"connection": session.connection()}
+        try:
+            for case in test_cases:
+                assert sorted(
+                    datastore_helpers.get_table_and_function_names_from_sql(context, case[0])[1]
+                ) == sorted(case[1])
+        except ProgrammingError as e:
+            if bool(re.search("function crosstab(.*) does not exist", str(e))):
+                pytest.skip("crosstab functions not enabled in DataStore database")

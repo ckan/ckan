@@ -158,7 +158,7 @@ Example::
 
 Default value: False
 
-Controls, whether development server handle each request in a separate
+Controls whether the development server should handle each request in a separate
 thread.
 
 .. _ckan.devserver.multiprocess:
@@ -172,7 +172,7 @@ Example::
 
 Default value: 1
 
-If greater than 1 then handle each request in a new process up to this
+If greater than 1 then the developmente server will handle each request in a new process, up to this
 maximum number of concurrent processes.
 
 .. _ckan.devserver.watch_patterns:
@@ -186,8 +186,48 @@ Example::
 
 Default value: None
 
-A list of files the reloader should watch additionally to the
-modules. For example configuration files.
+A list of files the reloader should watch to restart the development server, in addition to the
+Python modules (for example configuration files)
+
+.. _ckan.devserver.ssl_cert:
+
+ckan.devserver.ssl_cert
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_cert = path/to/host.cert
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). You can generate a
+self-signed certificate and key (see :ref:`ckan.devserver.ssl_key`) running
+the following commands::
+
+    openssl genrsa 2048 > host.key
+    chmod 400 host.key
+    openssl req -new -x509 -nodes -sha256 -days 3650 -key host.key > host.cert
+
+Alternatively, setting this option to ``adhoc`` will automatically generate a new
+certificate file (on each server reload, which means that you'll get a browser warning
+about the certificate on each reload).
+
+.. _ckan.devserver.ssl_key:
+
+ckan.devserver.ssl_key
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_key = path/to/host.key
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). See :ref:`ckan.devserver.ssl_cert`
+for more details. This option also supports the ``adhoc`` value, with the same caveat.
+
 
 Repoze.who Settings
 -------------------
@@ -363,6 +403,17 @@ Default value:  ``True``
 This option allows you to disable the datastore_search_sql action function, and
 corresponding API endpoint if you do not wish it to be activated.
 
+This action function has protections from abuse including:
+
+- parsing of the query to prevent unsafe functions from being called, see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`
+- parsing of the query to prevent multiple statements
+- prevention of data modification by using a read-only database role
+- use of ``explain`` to resolve tables accessed in the query to check against user permissions
+- use of a statement timeout to prevent queries from running indefinitely
+
+These protections offer some safety but are not designed to prevent all types of abuse. Depending on the sensitivity of private data in your datastore and the likelihood of abuse of your site you may choose to disable this action function or restrict its use with a :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin.
+
+
 .. _ckan.datastore.search.rows_default:
 
 ckan.datastore.search.rows_default
@@ -396,6 +447,30 @@ Specifically this limits:
 
 * ``datastore_search``'s ``limit`` parameter.
 * ``datastore_search_sql`` queries have this limit inserted.
+
+.. _ckan.datastore.sqlsearch.allowed_functions_file:
+
+ckan.datastore.sqlsearch.allowed_functions_file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlsearch.allowed_functions_file = /path/to/my_allowed_functions.txt
+
+Default value: File included in the source code at ``ckanext/datastore/allowed_functions.txt``.
+
+Allows to define the path to a text file listing the SQL functions that should be allowed to run
+on queries sent to the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` function
+(if enabled, see :ref:`ckan.datastore.sqlsearch.enabled`). Function names should be listed one on
+each line, eg::
+
+    abbrev
+    abs
+    abstime
+    ...
+
+
+
 
 Site Settings
 -------------

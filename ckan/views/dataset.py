@@ -1303,10 +1303,12 @@ class CollaboratorEditView(MethodView):
         except NotAuthorized:
             message = _(u'Unauthorized to edit collaborators {}').format(id)
             return base.abort(401, _(message))
-        except NotFound:
-            return base.abort(404, _(u'Resource not found'))
+        except NotFound as e:
+            h.flash_error(_(u'User not found'))
+            return h.redirect_to(u'dataset.new_collaborator', id=id)
         except ValidationError as e:
             h.flash_error(e.error_summary)
+            return h.redirect_to(u'dataset.new_collaborator', id=id)
         else:
             h.flash_success(_(u'User added to collaborators'))
 

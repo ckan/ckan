@@ -70,28 +70,34 @@ def should_fts_index_field_type(field_type):
     return field_type.lower() in ['tsvector', 'text', 'number']
 
 
-def get_table_names_from_sql(context, sql):
-    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table names
+def get_table_and_function_names_from_sql(context, sql):
+    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and
+    function names
 
     It performs an EXPLAIN query against the provided SQL, and parses
-    the output recusively looking for "Relation Name".
+    the output recusively.
 
     Note that this requires Postgres 9.x.
 
     :param context: a CKAN context dict. It must contain a 'connection' key
         with the current DB connection.
     :type context: dict
-    :param sql: the SQL statement to parse for table names
+    :param sql: the SQL statement to parse for table and function names
     :type sql: string
 
-    :rtype: list of strings
+    :rtype: a tuple with two list of strings, one for table and one for
+        function names
     '''
 
     queries = [sql]
     table_names = []
+    function_names = []
 
     while queries:
         sql = queries.pop()
+
+        function_names.extend(_get_function_names_from_sql(sql))
+
         result = context['connection'].execute(
             'EXPLAIN (VERBOSE, FORMAT JSON) {0}'.format(
                 six.ensure_str(sql))).fetchone()
@@ -108,7 +114,7 @@ def get_table_names_from_sql(context, sql):
             log.error('Could not parse query plan')
             raise
 
-    return table_names
+    return table_names, function_names
 
 
 def _get_table_names_queries_from_plan(plan):
@@ -118,7 +124,6 @@ def _get_table_names_queries_from_plan(plan):
 
     if plan.get('Relation Name'):
         table_names.append(plan['Relation Name'])
-
     if 'Function Name' in plan and plan['Function Name'].startswith(
             'crosstab'):
         try:
@@ -134,6 +139,24 @@ def _get_table_names_queries_from_plan(plan):
             queries.extend(q)
 
     return table_names, queries
+
+
+def _get_function_names_from_sql(sql):
+    function_names = []
+
+    def _get_function_names(tokens):
+        for token in tokens:
+            if isinstance(token, sqlparse.sql.Function):
+                function_name = token.get_name()
+                if function_name not in function_names:
+                    function_names.append(function_name)
+            if hasattr(token, 'tokens'):
+                _get_function_names(token.tokens)
+
+    parsed = sqlparse.parse(sql)[0]
+    _get_function_names(parsed.tokens)
+
+    return function_names
 
 
 def _get_subquery_from_crosstab_call(ct):

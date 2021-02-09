@@ -668,7 +668,7 @@ def package_collaborator_create(context, data_dict):
 
     user = model.User.get(user_id)
     if not user:
-        raise NotAuthorized(_('Not allowed to add collaborators'))
+        raise NotFound(_('User not found'))
 
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
@@ -702,7 +702,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
     # get the schema
-    group_type = data_dict.get('type')
+    group_type = data_dict.get('type', 'organization' if is_org else 'group')
     group_plugin = lib_plugins.lookup_group_plugin(group_type)
     try:
         schema = group_plugin.form_to_db_schema_options({
@@ -822,7 +822,7 @@ def group_create(context, data_dict):
     :param image_url: the URL to an image to be displayed on the group's page
         (optional)
     :type image_url: string
-    :param type: the type of the group (optional),
+    :param type: the type of the group (optional, default: ``'group'``),
         :py:class:`~ckan.plugins.interfaces.IGroupForm` plugins
         associate themselves with different group types and provide custom
         group handling behaviour for these types
@@ -1607,6 +1607,9 @@ def api_token_create(context, data_dict):
     """
     model = context[u'model']
     user, name = _get_or_bust(data_dict, [u'user', u'name'])
+
+    if model.User.get(user) is None:
+        raise NotFound("User not found")
 
     _check_access(u'api_token_create', context, data_dict)
 

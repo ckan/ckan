@@ -7,7 +7,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -20,11 +20,10 @@ setup(
 
     description='''{{ cookiecutter.description }}''',
     long_description=long_description,
-    long_description_content_type='text/x-rst',
+    long_description_content_type="text/markdown",
 
     # The project's main homepage.
-    url='https://github.com/{{ cookiecutter.github_user_name }}/'\
-            '{{ cookiecutter.project }}',
+    url='https://github.com/{{ cookiecutter.github_user_name }}/{{ cookiecutter.project }}',
 
     # Author details
     author='''{{ cookiecutter.author }}''',
@@ -42,8 +41,7 @@ setup(
         'Development Status :: 4 - Beta',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: GNU Affero General Public License v3 or'\
-        'later (AGPLv3+)',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.

@@ -1065,6 +1065,29 @@ class TestResourceNew(object):
             )
 
 
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+class TestResourceDownload(object):
+
+    def test_resource_download_content_type(self, create_with_upload, app):
+
+        dataset = factories.Dataset()
+        resource = create_with_upload(
+            u"hello,world", u"file.csv",
+            package_id=dataset[u"id"]
+        )
+
+        assert resource[u"mimetype"] == u"text/csv"
+        url = url_for(
+            u"{}_resource.download".format(dataset[u"type"]),
+            id=dataset[u"id"],
+            resource_id=resource[u"id"],
+        )
+
+        response = app.get(url)
+
+        assert response.headers[u"Content-Type"] == u"text/csv"
+
+
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestResourceView(object):
@@ -1864,7 +1887,8 @@ class TestDatasetRead(object):
         assert response.headers['location'] == expected_url
 
     def test_redirect_also_with_activity_parameter(self, app):
-        dataset = factories.Dataset()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]

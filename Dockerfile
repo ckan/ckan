@@ -44,7 +44,8 @@ RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     virtualenv $CKAN_VENV && \
     ln -s $CKAN_VENV/bin/pip /usr/local/bin/ckan-pip &&\
-    ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
+    ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster &&\
+    ln -s $CKAN_VENV/bin/ckan /usr/local/bin/ckan
 
 # Setup CKAN
 ADD . $CKAN_VENV/src/ckan/
@@ -62,4 +63,4 @@ ENTRYPOINT ["/ckan-entrypoint.sh"]
 USER ckan
 EXPOSE 5000
 
-CMD ["ckan-paster","serve","/etc/ckan/production.ini"]
+CMD ["ckan","-c","/etc/ckan/production.ini", "run", "--host", "0.0.0.0"]

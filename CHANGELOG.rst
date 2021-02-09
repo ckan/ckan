@@ -9,6 +9,78 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.9.2 2021-02-10
+==================
+
+General notes:
+ * Note: To use PostgreSQL 12 on CKAN 2.9 you need to upgrade psycopg2 to at least 2.8.4 (more details in `#5796 <https://github.com/ckan/ckan/issues/5796>`_)
+
+
+Major features
+--------------
+
+- Add CLI commands for API Token management (`#5868
+  <https://github.com/ckan/ckan/pull/5868>`_)
+
+
+Bugfixes
+--------
+
+- Persist attributes in chained functions (`#5751 <https://github.com/ckan/ckan/pull/5751>`_)
+- Fix install documentation (`#5618 <https://github.com/ckan/ckan/pull/5618>`_)
+- Fix exception when passing limit to organization (`#5789 <https://github.com/ckan/ckan/pull/5789>`_)
+- Fix for adding directories from plugins if partially string matches existing values (`#5836 <https://github.com/ckan/ckan/pull/5836>`_)
+- Fix upload log activity sorting (`#5827 <https://github.com/ckan/ckan/pull/5827>`_)
+- Textview: escape text formats (`#5814 <https://github.com/ckan/ckan/pull/5814>`_)
+- Add allow_partial_update to fix losing users (`#5734 <https://github.com/ckan/ckan/pull/5734>`_)
+- Set default group_type to group in group_create (`#5693 <https://github.com/ckan/ckan/pull/5693>`_)
+- Use user performing the action on activity context on user_update (`#5743 <https://github.com/ckan/ckan/pull/5743>`_)
+- New block in nav links in user dashboard (`#5804 <https://github.com/ckan/ckan/pull/5804>`_)
+- Update references to DataPusher documentation
+- Fix JavaScript error on Edge (`#5782 <https://github.com/ckan/ckan/pull/5782>`_)
+- Fix error when deleting resource with missing datastore table (`#5757 <https://github.com/ckan/ckan/pull/5757>`_)
+- ensure HTTP_HOST is bytes under python2 (`#5714 <https://github.com/ckan/ckan/pull/5714>`_)
+- Don't set old_filename when updating groups (`#5707 <https://github.com/ckan/ckan/pull/5707>`_)
+- Filter activities from user at the database level (`#5698 <https://github.com/ckan/ckan/pull/5698>`_)
+- Fix user_list ordering (`#5667 <https://github.com/ckan/ckan/pull/5667>`_)
+- Allowlist for functions in datastore_search_sql (see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`)
+- Fix docker install (`#5381 <https://github.com/ckan/ckan/pull/5381>`_)
+- Fix Click requirement conflict (`#5539
+  <https://github.com/ckan/ckan/pull/5539>`_)
+- Return content-type header on downloads if mimetype is (`#5670
+  <https://github.com/ckan/ckan/pull/5670>`_)
+- Fix missing activities from UI when internal processes are run by ignored
+  users (`#5699 <https://github.com/ckan/ckan/pull/5699>`_)
+- Replace 'paster' occurrences with 'ckan' in docs (`#5700
+  <https://github.com/ckan/ckan/pull/5700>`_)
+- Include requirements files in Manifest (`#5726
+  <https://github.com/ckan/ckan/pull/5726>`_)
+- Fix order which plugins are returned by PluginImplementations changing
+  (`#5731 <https://github.com/ckan/ckan/pull/5731>`_)
+- Raise NotFound when creating a non-existing collaborator (`#5759
+  <https://github.com/ckan/ckan/pull/5759>`_)
+- Restore member edit page (`#5767 <https://github.com/ckan/ckan/pull/5767>`_)
+- Don't add --ckan-ini pytest option if already added (by pytest-ckan) (`#5774
+  <https://github.com/ckan/ckan/pull/5774>`_)
+- Update organization_show package limit docs (`#5784
+  <https://github.com/ckan/ckan/pull/5784>`_)
+- Solve encoding errors in changes templates (`#5785
+  <https://github.com/ckan/ckan/pull/5785>`_)
+
+
+Minor changes
+-------------
+
+- Add aria attribute and accessible screen reader text to the mobile nav
+  button. (`#5555 <https://github.com/ckan/ckan/pull/5555>`_)
+- Remove jinja2 blocks from robots.txt (`#5648
+  <https://github.com/ckan/ckan/pull/5648>`_)
+- Allow to run the development server using SSL (`#5825
+  <https://github.com/ckan/ckan/pull/5825>`_)
+- Update extension template, migrate tests to GitHub Actions (`#5797
+  <https://github.com/ckan/ckan/pull/5797>`_)
+
+
 v.2.9.1 2020-10-21
 ==================
 

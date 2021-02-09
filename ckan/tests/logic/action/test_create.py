@@ -1243,12 +1243,12 @@ class TestPackageMemberCreate(object):
                 'package_collaborator_create',
                 id=dataset['id'], user_id=user['id'], capacity=capacity)
 
-    def test_create_user_not_authorized(self):
+    def test_create_user_not_found(self):
         dataset = factories.Dataset()
         user = {'id': 'yyy'}
         capacity = 'editor'
 
-        with pytest.raises(logic.NotAuthorized):
+        with pytest.raises(logic.NotFound):
             helpers.call_action(
                 'package_collaborator_create',
                 id=dataset['id'], user_id=user['id'], capacity=capacity)

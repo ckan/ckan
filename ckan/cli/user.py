@@ -1,16 +1,16 @@
 # encoding: utf-8
 
 import logging
-import sys
-from pprint import pprint
-
 import six
 import click
 from six import text_type
 
 import ckan.logic as logic
 import ckan.plugins as plugin
+import ckan.model as model
 from ckan.cli import error_shout
+from ckan.common import json
+
 
 log = logging.getLogger(__name__)
 
@@ -142,3 +142,100 @@ def set_password(username):
     user.password = password
     model.repo.commit_and_remove()
     click.secho(u'Password updated!', fg=u'green', bold=True)
+
+
+@user.group()
+def token():
+    u"""Control API Tokens"""
+    pass
+
+
+@token.command(u"add", context_settings=dict(ignore_unknown_options=True))
+@click.argument(u"username")
+@click.argument(u"token_name")
+@click.argument(u"extras", type=click.UNPROCESSED, nargs=-1)
+@click.option(
+    u"--json",
+    metavar=u"EXTRAS",
+    type=json.loads,
+    default=u"{}",
+    help=u"Valid JSON object with additional fields for api_token_create",
+)
+def add_token(username, token_name, extras, json):
+    u"""Create new API Token for the given user.
+
+    Either arbitary numer of arguments in format `key=value` or --json
+    option containing encoded JSON object can be passed in order to
+    customize behavior of api_token_create action. When both privided,
+    `key=value` will have higher precedence and will replace
+    corresponding keys from --json object.
+
+    Example::
+
+      ckan user token add john_doe new_token x=y --json '{"prop": "value"}'
+
+    """
+    for chunk in extras:
+        try:
+            key, value = chunk.split(u"=")
+        except ValueError:
+            error_shout(
+                u"Extras must be passed in `key=value` format. Got: {}".format(
+                    chunk
+                )
+            )
+            raise click.Abort()
+        json[key] = value
+    json.update({u"user": username, u"name": token_name})
+    try:
+        token = plugin.toolkit.get_action(u"api_token_create")(
+            {u"ignore_auth": True}, json
+        )
+    except plugin.toolkit.ObjectNotFound as e:
+        error_shout(e)
+        raise click.Abort()
+    click.secho(u"API Token created:", fg=u"green")
+    click.echo(u"\t", nl=False)
+    click.echo(token[u"token"])
+
+
+@token.command(u"revoke")
+@click.argument(u"id")
+def revoke_token(id):
+    u"""Remove API Token with the given ID"""
+    if not model.ApiToken.revoke(id):
+        error_shout(u"API Token not found")
+        raise click.Abort()
+    click.secho(u"API Token has been revoked", fg=u"green")
+
+
+@token.command(u"list")
+@click.argument(u"username")
+def list_tokens(username):
+    u"""List all API Tokens for the given user"""
+    try:
+        tokens = plugin.toolkit.get_action(u"api_token_list")(
+            {u"ignore_auth": True}, {u"user": username}
+        )
+    except plugin.toolkit.ObjectNotFound as e:
+        error_shout(e)
+        raise click.Abort()
+    if not tokens:
+        click.secho(u"No tokens have been created for user yet", fg=u"red")
+        return
+    click.echo(u"Tokens([id] name - lastAccess):")
+
+    for token in tokens:
+        last_access = token[u"last_access"]
+        if last_access:
+            accessed = plugin.toolkit.h.date_str_to_datetime(
+                last_access
+            ).isoformat(u" ", u"seconds")
+
+        else:
+            accessed = u"Never"
+        click.echo(
+            u"\t[{id}] {name} - {accessed}".format(
+                name=token[u"name"], id=token[u"id"], accessed=accessed
+            )
+        )

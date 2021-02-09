@@ -1132,12 +1132,12 @@ class MembersGroupView(MethodView):
         g.roles = roles
         g.user_role = user_role
 
-        extra_vars = {
+        extra_vars.update({
             u"group_dict": group_dict,
             u"roles": roles,
             u"user_role": user_role,
             u"group_type": group_type
-        }
+        })
         return base.render(_replace_group_org(u'group/member_new.html'),
                            extra_vars)
 

@@ -12,8 +12,18 @@ _tests_test_request_context = None
 
 def pytest_addoption(parser):
     """Allow using custom config file during tests.
+
+    Catch the exception raised by pytest if  the ``--ckan-ini`` option was
+    already added by the external pytest-ckan package
     """
-    parser.addoption(u"--ckan-ini", action=u"store")
+    try:
+        parser.addoption(u"--ckan-ini", action=u"store")
+    except ValueError as e:
+        if all(x in str(e) for x in (
+                u"option names", u"ckan-ini", u"already added")):
+            pass
+        else:
+            raise
 
 
 def pytest_sessionstart(session):

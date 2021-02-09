@@ -23,7 +23,7 @@ static files, so before getting started on our CKAN theme we'll have to create
 an extension and plugin. For a detailed explanation of the steps below, see
 :doc:`/extensions/tutorial`.
 
-1. Use the ``paster create`` command to create an empty extension:
+1. Use the ``ckan create`` command to create an empty extension:
 
    .. parsed-literal::
 
@@ -58,7 +58,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
    .. parsed-literal::
 
-    $ ckan -c |ckan.ini| run --reload
+    $ ckan -c |ckan.ini| run
     Starting server in PID 13961.
     serving on 0.0.0.0:5000 view at http://127.0.0.1:5000
 
@@ -195,14 +195,14 @@ inside the ``home`` directory:
              index.html  <-- An empty file.
 
 If you now restart the development web server (kill the server using Ctrl-c,
-then run the ``paster serve`` command again) and reload the `CKAN front page`_
+then run the ``ckan run`` command again) and reload the `CKAN front page`_
 in your web browser, you should see an empty page, because we've replaced the
 template file for the front page with an empty file.
 
 
 .. note::
 
-   If you run ``paster serve`` with the ``--reload`` option, then it isn't
+   If you run ``ckan run`` without the ``-r(--disable-reloader)`` option, then it isn't
    usually necessary to restart the server after editing a Python file,
    a template file, your CKAN config file, or any other CKAN file. If you've
    added a new file or directory, however, you need to restart the server

@@ -179,7 +179,7 @@ msgstr "למשתמש {0} אין הרשאה לעדכן את המשאב {1}"
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:19
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:21
 msgid "CKAN Data API"
-msgstr "ה־API של נתוני CKAN"
+msgstr "ה־API של CKAN לנתונים"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:23
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:25
@@ -208,8 +208,7 @@ msgstr "נקודות קצה"
 msgid ""
 "The Data API can be accessed via the following actions of the CKAN action "
 "API."
-msgstr ""
-"ה-API של המידע יכול להתקבל באמצעות הפעולות הבאות של API פעולות של CKAN. "
+msgstr "אפשר לגשת ל־API של הנתונים דרך הפעולות הבאות של API הפעולות של CKAN."
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:44
