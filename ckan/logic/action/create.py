@@ -5,12 +5,10 @@
 import logging
 import random
 import re
-from socket import error as socket_error
 import datetime
+from socket import error as socket_error
 
 import six
-
-import ckan.common
 from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
@@ -27,11 +25,9 @@ import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
 import ckan.authz as authz
-
-from ckan.common import _, config
-
-# FIXME this looks nasty and should be shared better
+from ckan.common import _, config, asbool
 from ckan.logic.action.update import _update_package_relationship
+
 
 log = logging.getLogger(__name__)
 
@@ -448,7 +444,7 @@ def resource_create_default_resource_views(context, data_dict):
 
     dataset_dict = data_dict.get('package')
 
-    create_datastore_views = ckan.common.asbool(
+    create_datastore_views = asbool(
         data_dict.get('create_datastore_views', False))
 
     return ckan.lib.datapreview.add_views_to_resource(
@@ -485,7 +481,7 @@ def package_create_default_resource_views(context, data_dict):
 
     _check_access('package_create_default_resource_views', context, data_dict)
 
-    create_datastore_views = ckan.common.asbool(
+    create_datastore_views = asbool(
         data_dict.get('create_datastore_views', False))
 
     return ckan.lib.datapreview.add_views_to_dataset_resources(
@@ -517,21 +513,23 @@ def package_relationship_create(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     schema = context.get('schema') \
         or ckan.logic.schema.default_create_relationship_schema()
     api = context.get('api_version')
     ref_package_by = 'id' if api == 2 else 'name'
 
-    id, id2, rel_type = _get_or_bust(data_dict, ['subject', 'object', 'type'])
+    id1, id2, rel_type = _get_or_bust(data_dict, ['subject', 'object', 'type'])
     comment = data_dict.get('comment', u'')
 
-    pkg1 = model.Package.get(id)
+    pkg1 = model.Package.get(id1)
     pkg2 = model.Package.get(id2)
+
     if not pkg1:
-        raise NotFound('Subject package %r was not found.' % id)
+        raise NotFound(
+            _('Subject package {id1} was not found.').format(id1=id1))
     if not pkg2:
-        return NotFound('Object package %r was not found.' % id2)
+        raise NotFound(
+            _('Object package {id2} was not found.').format(id2=id2))
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -584,12 +582,14 @@ def member_create(context, data_dict=None):
 
     group = model.Group.get(group_id)
     if not group:
-        raise NotFound('Group was not found.')
+        raise NotFound(_('Group was not found.'))
 
     obj_class = ckan.logic.model_name_to_class(model, obj_type)
     obj = obj_class.get(obj_id)
     if not obj:
-        raise NotFound('%s was not found.' % obj_type.title())
+        raise NotFound(_('{obj_type} was not found.').format(
+            obj_type=obj_type.title())
+        )
 
     _check_access('member_create', context, data_dict)
 
@@ -1264,7 +1264,7 @@ def activity_create(context, activity_dict, **kw):
                         'ignore_auth must be passed in the context not as '
                         'a param')
 
-    if not ckan.common.asbool(
+    if not asbool(
             config.get('ckan.activity_streams_enabled', 'true')):
         return
 
@@ -1610,7 +1610,7 @@ def api_token_create(context, data_dict):
     user, name = _get_or_bust(data_dict, [u'user', u'name'])
 
     if model.User.get(user) is None:
-        raise NotFound("User not found")
+        raise NotFound(_('User not found'))
 
     _check_access(u'api_token_create', context, data_dict)
 

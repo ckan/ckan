@@ -8,7 +8,6 @@ import json
 import datetime
 import socket
 
-from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
 from six import string_types, text_type
@@ -27,8 +26,8 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
+from ckan.common import config, asbool, _
 
-from ckan.common import _
 
 log = logging.getLogger('ckan.logic')
 
@@ -922,18 +921,19 @@ def package_relationships_list(context, data_dict):
     model = context['model']
     api = context.get('api_version')
 
-    id = _get_or_bust(data_dict, "id")
+    id1 = _get_or_bust(data_dict, "id")
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
     ref_package_by = 'id' if api == 2 else 'name'
-    pkg1 = model.Package.get(id)
+    pkg1 = model.Package.get(id1)
     pkg2 = None
+
     if not pkg1:
-        raise NotFound('First package named in request was not found.')
+        raise NotFound(_('First package named in request was not found.'))
     if id2:
         pkg2 = model.Package.get(id2)
         if not pkg2:
-            raise NotFound('Second package named in address was not found.')
+            raise NotFound(_('Second package named in address was not found.'))
 
     if rel == 'relationships':
         rel = None
@@ -945,8 +945,10 @@ def package_relationships_list(context, data_dict):
     relationships = pkg1.get_relationships(with_package=pkg2, type=rel)
 
     if rel and not relationships:
-        raise NotFound('Relationship "%s %s %s" not found.'
-                       % (id, rel, id2))
+        raise NotFound(
+            _('Relationship "{id1} {rel} {id2}" not found.').format(
+                id1=id1, rel=rel, id2=id2
+            ))
 
     relationship_dicts = [
         rel.as_dict(pkg1, ref_package_by=ref_package_by)
@@ -3298,12 +3300,12 @@ def activity_data_show(context, data_dict):
     try:
         activity_data = activity['data']
     except KeyError:
-        raise NotFound('Could not find data in the activity')
+        raise NotFound(_('Could not find data in the activity'))
     if object_type:
         try:
             activity_data = activity_data[object_type]
         except KeyError:
-            raise NotFound('Could not find that object_type in the activity')
+            raise NotFound(_('Could not find that object_type in the activity'))
     return activity_data
 
 
@@ -3319,10 +3321,8 @@ def activity_diff(context, data_dict):
     :type diff_type: string
     '''
     import difflib
-    from pprint import pformat
 
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = _get_or_bust(data_dict, 'object_type')
     diff_type = data_dict.get('diff_type', 'unified')
@@ -3338,13 +3338,13 @@ def activity_diff(context, data_dict):
         .order_by(model.Activity.timestamp.desc()) \
         .first()
     if prev_activity is None:
-        raise NotFound('Previous activity for this object not found')
+        raise NotFound(_('Previous activity for this object not found'))
     activity_objs = [prev_activity, activity]
     try:
         objs = [activity_obj.data[object_type]
                 for activity_obj in activity_objs]
     except KeyError:
-        raise NotFound('Could not find object in the activity data')
+        raise NotFound(_('Could not find object in the activity data'))
     # convert each object dict to 'pprint'-style
     # and split into lines to suit difflib
     obj_lines = [json.dumps(obj, indent=2, sort_keys=True).split('\n')
@@ -3448,7 +3448,7 @@ def help_show(context, data_dict):
     try:
         function = logic.get_action(function_name)
     except KeyError:
-        raise NotFound('Action function not found')
+        raise NotFound(_('Action function not found'))
 
     return function.__doc__
 
@@ -3556,7 +3556,7 @@ def api_token_list(context, data_dict):
     _check_access(u'api_token_list', context, data_dict)
     user = model.User.get(id_or_name)
     if user is None:
-        raise NotFound("User not found")
+        raise NotFound(_('User not found'))
     tokens = model.Session.query(model.ApiToken).filter(
         model.ApiToken.user_id == user.id
     )

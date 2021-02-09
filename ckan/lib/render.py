@@ -1,18 +1,20 @@
 # encoding: utf-8
 
 import os
-import re
 import logging
 
-from ckan.common import config
+from ckan.common import config, _
+
 
 log = logging.getLogger(__name__)
 
 _template_info_cache = {}
 
+
 def reset_template_info_cache():
     '''Reset the template cache'''
     _template_info_cache.clear()
+
 
 def find_template(template_name):
     ''' looks through the possible template paths to find a template
@@ -22,11 +24,14 @@ def find_template(template_name):
         if os.path.exists(os.path.join(path, template_name.encode('utf-8'))):
             return os.path.join(path, template_name)
 
+
 def template_type(template_path):
     return 'jinja2'
 
+
 class TemplateNotFound(Exception):
     pass
+
 
 def template_info(template_name):
     ''' Returns the path and type for a template '''
@@ -37,7 +42,10 @@ def template_info(template_name):
 
     template_path = find_template(template_name)
     if not template_path:
-        raise TemplateNotFound('Template %s cannot be found' % template_name)
+        raise TemplateNotFound(
+            _('Template {template_name} cannot be found').format(
+                template_name=template_name
+            ))
     t_type = template_type(template_path)
 
     # if in debug mode we always want to search for templates so we

@@ -12,10 +12,8 @@ import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization as dictization
-import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.api_token as api_token
 from ckan import authz
-
 from ckan.common import _
 
 
@@ -49,7 +47,7 @@ def user_delete(context, data_dict):
     user = model.User.get(user_id)
 
     if user is None:
-        raise NotFound('User "{id}" was not found.'.format(id=user_id))
+        raise NotFound(_('User "{id}" was not found.').format(id=user_id))
 
     user.delete()
 
@@ -147,7 +145,7 @@ def dataset_purge(context, data_dict):
     pkg = model.Package.get(id)
     context['package'] = pkg
     if pkg is None:
-        raise NotFound('Dataset was not found')
+        raise NotFound(_('Dataset was not found'))
 
     _check_access('dataset_purge', context, data_dict)
 
@@ -267,22 +265,21 @@ def package_relationship_delete(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
-    id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
+    id1, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
-    pkg1 = model.Package.get(id)
+    pkg1 = model.Package.get(id1)
     pkg2 = model.Package.get(id2)
+
     if not pkg1:
-        raise NotFound('Subject package %r was not found.' % id)
+        raise NotFound(_('Subject package {id1} was not found.').format(id1=id1))
     if not pkg2:
-        return NotFound('Object package %r was not found.' % id2)
+        raise NotFound(_('Object package {id2} was not found.').format(id2=id2))
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
         raise NotFound
 
     relationship = existing_rels[0]
-    revisioned_details = 'Package Relationship: %s %s %s' % (id, rel, id2)
 
     context['relationship'] = relationship
     _check_access('package_relationship_delete', context, data_dict)
@@ -310,12 +307,14 @@ def member_delete(context, data_dict=None):
 
     group = model.Group.get(group_id)
     if not group:
-        raise NotFound('Group was not found.')
+        raise NotFound(_('Group was not found.'))
 
     obj_class = ckan.logic.model_name_to_class(model, obj_type)
     obj = obj_class.get(obj_id)
     if not obj:
-        raise NotFound('%s was not found.' % obj_type.title())
+        raise NotFound(_('{obj_type} was not found.').format(
+            obj_type=obj_type.title())
+        )
 
     _check_access('member_delete', context, data_dict)
 
@@ -370,7 +369,7 @@ def package_collaborator_delete(context, data_dict):
         filter(model.PackageMember.user_id == user.id).one_or_none()
     if not collaborator:
         raise NotFound(
-            'User {} is not a collaborator on this package'.format(user_id))
+            _('User {user_id} is not a collaborator on this package').format(user_id=user_id))
 
     model.Session.delete(collaborator)
     model.repo.commit()
@@ -397,9 +396,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
     if group is None:
-        raise NotFound('Group was not found.')
-
-    revisioned_details = 'Group: %s' % group.name
+        raise NotFound(_('Group was not found.'))
 
     if is_org:
         _check_access('organization_delete', context, data_dict)
@@ -469,6 +466,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
 
     model.repo.commit()
 
+
 def group_delete(context, data_dict):
     '''Delete a group.
 
@@ -479,6 +477,7 @@ def group_delete(context, data_dict):
 
     '''
     return _group_or_org_delete(context, data_dict)
+
 
 def organization_delete(context, data_dict):
     '''Delete an organization.
@@ -492,6 +491,7 @@ def organization_delete(context, data_dict):
 
     '''
     return _group_or_org_delete(context, data_dict, is_org=True)
+
 
 def _group_or_org_purge(context, data_dict, is_org=False):
     '''Purge a group or organization.
@@ -516,9 +516,9 @@ def _group_or_org_purge(context, data_dict, is_org=False):
     context['group'] = group
     if group is None:
         if is_org:
-            raise NotFound('Organization was not found')
+            raise NotFound(_('Organization was not found'))
         else:
-            raise NotFound('Group was not found')
+            raise NotFound(_('Group was not found'))
 
     if is_org:
         _check_access('organization_purge', context, data_dict)
@@ -557,6 +557,7 @@ def _group_or_org_purge(context, data_dict, is_org=False):
     group.purge()
     model.repo.commit_and_remove()
 
+
 def group_purge(context, data_dict):
     '''Purge a group.
 
@@ -575,6 +576,7 @@ def group_purge(context, data_dict):
 
     '''
     return _group_or_org_purge(context, data_dict, is_org=False)
+
 
 def organization_purge(context, data_dict):
     '''Purge an organization.
@@ -597,6 +599,7 @@ def organization_purge(context, data_dict):
     '''
     return _group_or_org_purge(context, data_dict, is_org=True)
 
+
 def task_status_delete(context, data_dict):
     '''Delete a task status.
 
@@ -618,6 +621,7 @@ def task_status_delete(context, data_dict):
 
     entity.delete()
     model.Session.commit()
+
 
 def vocabulary_delete(context, data_dict):
     '''Delete a tag vocabulary.
@@ -642,6 +646,7 @@ def vocabulary_delete(context, data_dict):
 
     vocab_obj.delete()
     model.repo.commit()
+
 
 def tag_delete(context, data_dict):
     '''Delete a tag.
@@ -699,6 +704,7 @@ def _unfollow(context, data_dict, schema, FollowerClass):
     follower_obj.delete()
     model.repo.commit()
 
+
 def unfollow_user(context, data_dict):
     '''Stop following a user.
 
@@ -709,6 +715,7 @@ def unfollow_user(context, data_dict):
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
+
 
 def unfollow_dataset(context, data_dict):
     '''Stop following a dataset.
@@ -758,6 +765,7 @@ def group_member_delete(context, data_dict=None):
     '''
     _check_access('group_member_delete',context, data_dict)
     return _group_or_org_member_delete(context, data_dict)
+
 
 def organization_member_delete(context, data_dict=None):
     '''Remove a user from an organization.

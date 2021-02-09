@@ -7,15 +7,14 @@ import datetime
 import time
 import json
 
-from ckan.common import config
-import ckan.common as converters
 import six
 from six import text_type
 
-import ckan.lib.helpers as h
+import ckan.common as converters
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema as schema_
+import ckan.lib.helpers as h
 import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
@@ -27,9 +26,8 @@ import ckan.lib.search as search
 import ckan.lib.uploader as uploader
 import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
+from ckan.common import _, request, config
 
-
-from ckan.common import _, request
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +59,6 @@ def resource_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
@@ -608,14 +605,14 @@ def package_relationship_update(context, data_dict):
     schema = context.get('schema') \
         or schema_.default_update_relationship_schema()
 
-    id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
+    id1, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
-    pkg1 = model.Package.get(id)
+    pkg1 = model.Package.get(id1)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound('Subject package %r was not found.' % id)
+        raise NotFound(_('Subject package {id1} was not found.').format(id1=id1))
     if not pkg2:
-        return NotFound('Object package %r was not found.' % id2)
+        return NotFound(_('Object package {id2} was not found.').format(id2=id2))
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -626,7 +623,7 @@ def package_relationship_update(context, data_dict):
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
-        raise NotFound('This relationship between the packages was not found.')
+        raise NotFound(_('This relationship between the packages was not found.'))
     entity = existing_rels[0]
     comment = data_dict.get('comment', u'')
     context['relationship'] = entity
@@ -642,7 +639,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context["group"] = group
     if group is None:
-        raise NotFound('Group was not found.')
+        raise NotFound(_('Group was not found.'))
 
     data_dict['type'] = group.type
 
@@ -819,7 +816,7 @@ def user_update(context, data_dict):
     user_obj = model.User.get(id)
     context['user_obj'] = user_obj
     if user_obj is None:
-        raise NotFound('User was not found.')
+        raise NotFound(_('User was not found.'))
 
     _check_access('user_update', context, data_dict)
 
@@ -890,7 +887,7 @@ def user_generate_apikey(context, data_dict):
     user_obj = model.User.get(id)
     context['user_obj'] = user_obj
     if user_obj is None:
-        raise NotFound('User was not found.')
+        raise NotFound(_('User was not found.'))
 
     # check permission
     _check_access('user_generate_apikey', context, data_dict)

@@ -1,20 +1,21 @@
 # encoding: utf-8
 
 from sqlalchemy.orm import relation
-from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
+from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
 
+import ckan  # this import is needed
+import ckan.model
+import ckan.lib.dictization
+import ckan.lib.maintain as maintain
+from ckan.common import _
 from ckan.model import (
     core,
     meta,
     types as _types,
     domain_object,
     vocabulary,
-    extension as _extension,
 )
-import ckan  # this import is needed
-import ckan.model
-import ckan.lib.dictization
-import ckan.lib.maintain as maintain
+
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
            'MAX_TAG_LENGTH', 'MIN_TAG_LENGTH']
@@ -129,8 +130,10 @@ class Tag(domain_object.DomainObject):
                 vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
                 if vocab is None:
                     # The user specified an invalid vocab.
-                    raise ckan.logic.NotFound("could not find vocabulary '%s'"
-                            % vocab_id_or_name)
+                    raise ckan.logic.NotFound(
+                        _("Could not find vocabulary '{vocab_id_or_name}'").format(
+                            vocab_id_or_name=vocab_id_or_name
+                        ))
             else:
                 vocab = None
             tag = Tag.by_name(tag_id_or_name, vocab=vocab)
@@ -191,8 +194,10 @@ class Tag(domain_object.DomainObject):
             vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
             if vocab is None:
                 # The user specified an invalid vocab.
-                raise ckan.logic.NotFound("could not find vocabulary '%s'"
-                        % vocab_id_or_name)
+                raise ckan.logic.NotFound(
+                    _("Could not find vocabulary '{vocab_id_or_name}'").format(
+                        vocab_id_or_name=vocab_id_or_name
+                    ))
             query = meta.Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
         else:
             query = meta.Session.query(Tag).filter(Tag.vocabulary_id == None)

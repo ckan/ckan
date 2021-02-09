@@ -5,9 +5,9 @@ import logging
 import re
 from collections import defaultdict
 
-from werkzeug.local import LocalProxy
 import six
 from six import string_types, text_type
+from werkzeug.local import LocalProxy
 
 import ckan.model as model
 import ckan.authz as authz
@@ -15,6 +15,7 @@ import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
 
 from ckan.common import _, c
+
 
 log = logging.getLogger(__name__)
 _validate = df.validate
@@ -439,8 +440,10 @@ def get_action(action):
     for name, func_list in six.iteritems(chained_actions):
         if name not in fetched_actions and name not in _actions:
             # nothing to override from plugins or core
-            raise NotFound('The action %r is not found for chained action' % (
-                name))
+            raise NotFound(
+                _('The action {name} is not found for chained action').format(
+                    name=name
+                ))
         for func in reversed(func_list):
             # try other plugins first, fall back to core
             prev_func = fetched_actions.get(name, _actions.get(name))
