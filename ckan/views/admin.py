@@ -2,7 +2,6 @@
 
 import logging
 
-from ckan.views.home import CACHE_PARAMETERS
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -13,6 +12,8 @@ import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
 from ckan.common import g, _, config, request
+from ckan.views.home import CACHE_PARAMETERS
+
 
 log = logging.getLogger(__name__)
 
@@ -137,21 +138,21 @@ class TrashView(MethodView):
         }
         self.messages = {
             u'confirm': {
-                u'all': u'Are you sure you want to purge everything?',
-                u'package': u'Are you sure you want to purge datasets?',
+                u'all': _(u'Are you sure you want to purge everything?'),
+                u'package': _(u'Are you sure you want to purge datasets?'),
                 u'organization':
-                    u'Are you sure you want to purge organizations?',
-                u'group': u'Are you sure you want to purge groups?'
+                    _(u'Are you sure you want to purge organizations?'),
+                u'group': _(u'Are you sure you want to purge groups?')
             },
             u'success': {
-                u'package': u'{number} datasets have been purged',
-                u'organization': u'{number} organizations have been purged',
-                u'group': u'{number} groups have been purged'
+                u'package': _(u'{number} datasets have been purged'),
+                u'organization': _(u'{number} organizations have been purged'),
+                u'group': _(u'{number} groups have been purged')
             },
             u'empty': {
-                u'package': u'There are no datasets to purge',
-                u'organization': u'There are no organizations to purge',
-                u'group': u'There are no groups to purge'
+                u'package': _(u'There are no datasets to purge'),
+                u'organization': _(u'There are no organizations to purge'),
+                u'group': _(u'There are no groups to purge')
             }
         }
 
@@ -173,31 +174,54 @@ class TrashView(MethodView):
 
         req_action = request.form.get(u'action')
         if req_action == u'all':
-            d = {
-                u'dataset_purge': self.deleted_packages,
-                u'group_purge': self.deleted_groups,
-                u'organization_purge': self.deleted_orgs
-            }
-            for action, deleted_entities in d.items():
-                for ent in deleted_entities:
-                    logic.get_action(action)({u'user': g.user},
-                                             {u'id': ent.id})
-                model.Session.remove()
-            h.flash_success(_(u'Massive purge complete'))
-
+            self.purge_all()
         elif req_action in (u'package', u'organization', u'group'):
-            entities = self.deleted_entities[req_action]
-            number = entities.count()
-            for ent in entities:
-                logic.get_action(ent.type + u'_purge')({u'user': g.user},
-                                                       {u'id': ent.id})
-            model.Session.remove()
-            h.flash_success(_(self.messages[u'success'][req_action].format(
-                number=number))
-            )
+            self.purge_entity(req_action)
         else:
             h.flash_error(_(u'Action not implemented.'))
         return h.redirect_to(u'admin.trash')
+
+    def purge_all(self):
+        actions = (u'dataset_purge', u'group_purge', u'organization_purge')
+        entities = (
+            self.deleted_packages,
+            self.deleted_groups,
+            self.deleted_orgs
+        )
+
+        for action, deleted_entities in zip(actions, entities):
+            for entity in deleted_entities:
+                logic.get_action(action)(
+                    {u'user': g.user}, {u'id': entity.id}
+                )
+            model.Session.remove()
+        h.flash_success(_(u'Massive purge complete'))
+
+    def purge_entity(self, ent_type):
+        entities = self.deleted_entities[ent_type]
+        number = entities.count()
+
+        for ent in entities:
+            logic.get_action(self._get_purge_action(ent_type))(
+                {u'user': g.user},
+                {u'id': ent.id}
+            )
+
+        model.Session.remove()
+        h.flash_success(self.messages[u'success'][ent_type].format(
+            number=number
+        ))
+
+    @staticmethod
+    def _get_purge_action(ent_type):
+        actions = {
+            "package": "dataset_purge",
+            "organization": "organization_purge",
+            "group": "group_purge",
+        }
+
+        return actions.get(ent_type)
+
 
 
 admin.add_url_rule(
