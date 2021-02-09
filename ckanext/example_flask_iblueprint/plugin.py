@@ -71,6 +71,21 @@ def helper_here():
     return render_template_string(html)
 
 
+def flask_request():
+    u'''A simple template with a helper that exists. Rendering with a helper
+    shouldn't raise an exception.'''
+
+    html = u'''<!DOCTYPE html>
+    <html>
+        <head>
+            <title>Hello from Flask</title>
+        </head>
+        <body> {{ request.params }} </body>
+    </html>'''
+
+    return render_template_string(html)
+
+
 class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
     u'''
     An example IBlueprint plugin to demonstrate Flask routing from an
@@ -100,6 +115,7 @@ class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
             (u'/hello', u'hello', override_flask_hello),
             (u'/helper_not_here', u'helper_not_here', helper_not_here),
             (u'/helper', u'helper_here', helper_here),
+            (u'/flask_request', u'flask_request', request_here),
         ]
         for rule in rules:
             blueprint.add_url_rule(*rule)
