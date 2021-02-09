@@ -13,6 +13,7 @@ recursive-include ckanext/*/templates *
 recursive-include ckanext/*/theme/public *
 recursive-include ckanext/*/theme/templates *
 include ckanext/datastore/set_permissions.sql
+include ckanext/datastore/allowed_functions.txt
 
 prune .git
 include CHANGELOG.txt

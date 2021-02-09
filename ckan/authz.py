@@ -113,8 +113,13 @@ class AuthFunctions:
                 else:
                     # fallback to chaining off the builtin auth function
                     prev_func = self._functions[name]
-                fetched_auth_functions[name] = (
-                    functools.partial(func, prev_func))
+
+                new_func = (functools.partial(func, prev_func))
+                # persisting attributes to the new partial function
+                for attribute, value in func.__dict__.iteritems():
+                    setattr(new_func, attribute, value)
+
+                fetched_auth_functions[name] = new_func
 
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
