@@ -223,7 +223,6 @@ class TrashView(MethodView):
         return actions.get(ent_type)
 
 
-
 admin.add_url_rule(
     u'/', view_func=index, methods=['GET'], strict_slashes=False
 )
