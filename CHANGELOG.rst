@@ -10,6 +10,10 @@ Changelog
 v.2.8.7 2021-02-10
 ==================
 
+General notes:
+* Note: To use PostgreSQL 12 on CKAN 2.8 you need to upgrade SQLAlchemy to 1.2.17 and vdm to 0.15 (more details in `#5796 <https://github.com/ckan/ckan/issues/5796>`_)
+
+
 Fixes:
 
 * Persist attributes in chained functions (`#5751 <https://github.com/ckan/ckan/pull/5751>`_)
