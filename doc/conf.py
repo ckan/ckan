@@ -295,7 +295,7 @@ def write_substitutions_file(**kwargs):
             f.write('.. |{name}| replace:: {substitution}\n'.format(
                     name=name, substitution=substitution))
 
-current_release_tag = get_current_release_tag()
+current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
@@ -305,8 +305,10 @@ is_supported = get_status_of_this_version() == 'supported'
 is_latest_version = version == latest_release_version
 
 write_substitutions_file(
-    latest_release_tag=current_release_tag,
-    latest_release_version=current_release_version,
+    current_release_tag=current_release_tag_value,
+    current_release_version=current_release_version,
+    latest_release_tag=latest_release_tag_value,
+    latest_release_version=latest_release_version,
     latest_package_name_precise=get_latest_package_name('precise'),
     latest_package_name_trusty=get_latest_package_name('trusty'),
     latest_package_name_xenial=get_latest_package_name('xenial'),

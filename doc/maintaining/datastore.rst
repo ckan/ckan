@@ -17,7 +17,7 @@ The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
 The DataStore is generally used alongside the
-`DataPusher <http://docs.ckan.org/projects/datapusher>`_, which will
+`DataPusher <https://github.com/ckan/datapusher>`_, which will
 automatically upload data to the DataStore from suitable files, whether
 uploaded to CKAN's FileStore or externally linked.
 
@@ -228,7 +228,11 @@ This task of automatically parsing and then adding data to the DataStore is
 performed by the `DataPusher`_, a service that runs asynchronously and can be installed
 alongside CKAN.
 
+<<<<<<< HEAD
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
+=======
+To install this please look at the docs here: https://github.com/ckan/datapusher
+>>>>>>> 4013dff64... Update references to DataPusher documentation
 
 
 .. _data_dictionary:

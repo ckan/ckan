@@ -24,7 +24,7 @@ String.prototype.queryStringToJSON = String.prototype.queryStringToJSON || funct
     // Do we have JSON string?
     try {
       return JSON.parse(decodeURIComponent(params));
-    } catch  {
+    } catch(error) {
       // We have a params string
       params = params.split(/\&(amp\;)?/);
     }

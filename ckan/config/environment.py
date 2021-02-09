@@ -287,7 +287,7 @@ def update_config():
         # The database is not initialised.  This is a bit dirty.  This occurs
         # when running tests.
         pass
-    except sqlalchemy.exc.InternalError:
+    except (sqlalchemy.exc.InternalError, sqlalchemy.exc.DBAPIError):
         # The database is not initialised.  Travis hits this
         pass
 

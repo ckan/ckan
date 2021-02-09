@@ -1,7 +1,12 @@
 # encoding: utf-8
+import re
+import mock
 
 import sqlalchemy.orm as orm
+from sqlalchemy.exc import ProgrammingError
 import nose
+from nose.plugins.skip import SkipTest
+
 
 from ckan.common import config
 import ckanext.datastore.helpers as datastore_helpers
@@ -119,6 +124,56 @@ class TestGetTables(object):
             'connection': self.Session.connection()
         }
         for case in test_cases:
-            eq_(sorted(datastore_helpers.get_table_names_from_sql(context,
-                                                                  case[0])),
+            eq_(
+                sorted(
+                    datastore_helpers.get_table_and_function_names_from_sql(
+                        context, case[0])[0]),
                 sorted(case[1]))
+
+
+class TestGetFunctions(object):
+    def test_get_function_names(self):
+
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        create_tables = [
+            u"CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
+            u"CREATE TABLE test_b (name text, subject_id text)",
+        ]
+        for create_table_sql in create_tables:
+            session.execute(create_table_sql)
+
+        test_cases = [
+            (u"SELECT max(id) from test_a", ["max"]),
+            (u"SELECT count(distinct(id)) FROM test_a", ["count", "distinct"]),
+            (u"SELECT trunc(avg(result),2) FROM test_a", ["trunc", "avg"]),
+            (u"SELECT query_to_xml('SELECT max(id) FROM test_a', true, true , '')", ["query_to_xml"]),
+            (u"select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
+        ]
+
+        context = {"connection": session.connection()}
+        for case in test_cases:
+            assert sorted(
+                datastore_helpers.get_table_and_function_names_from_sql(context, case[0])[1]
+            ) == sorted(case[1])
+
+    def test_get_function_names_custom_function(self):
+
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        create_tables = [
+            u"""CREATE FUNCTION add(integer, integer) RETURNS integer
+                AS 'select $1 + $2;'
+                    LANGUAGE SQL
+                        IMMUTABLE
+                            RETURNS NULL ON NULL INPUT;
+            """
+        ]
+        for create_table_sql in create_tables:
+            session.execute(create_table_sql)
+
+        context = {"connection": session.connection()}
+
+        sql = "SELECT add(1, 2);"
+
+        assert datastore_helpers.get_table_and_function_names_from_sql(context, sql)[1] == ["add"]

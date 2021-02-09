@@ -72,6 +72,11 @@ _UPSERT = 'upsert'
 _UPDATE = 'update'
 
 
+_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), u"..", "allowed_functions.txt"
+)
+
+
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError
 else:
@@ -1511,14 +1516,24 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
-        table_names = datastore_helpers.get_table_names_from_sql(context, sql)
+        get_names = datastore_helpers.get_table_and_function_names_from_sql
+        table_names, function_names = get_names(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
+        log.debug('Functions involved in input SQL: {0!r}'.format(
+            function_names))
 
         system_tables = [t for t in table_names if t.startswith('pg_')]
         if len(system_tables):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
+
+        for f in function_names:
+            if f not in backend.allowed_sql_functions:
+                raise toolkit.NotAuthorized({
+                    'permissions': [
+                        'Not authorized to call function {}'.format(f)]
+                })
 
         results = context['connection'].execute(sql)
 
@@ -1662,6 +1677,15 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         # Check whether users have disabled datastore_search_sql
         self.enable_sql_search = toolkit.asbool(
             self.config.get('ckan.datastore.sqlsearch.enabled', True))
+
+        if self.enable_sql_search:
+            allowed_sql_functions_file = self.config.get(
+                'ckan.datastore.sqlsearch.allowed_functions_file',
+                _SQL_FUNCTIONS_ALLOWLIST_FILE
+            )
+
+            with open(allowed_sql_functions_file, 'r') as f:
+                self.allowed_sql_functions = set(line.strip() for line in f)
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
