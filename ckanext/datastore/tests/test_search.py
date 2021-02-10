@@ -1626,6 +1626,39 @@ class TestDatastoreSQLFunctional(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_works_with_allowed_functions(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT upper(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_not_authorized_with_disallowed_functions(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = "SELECT query_to_xml('SELECT upper(author) from \"{}\"', true, true, '')".format(
+            resource["id"]
+        )
+        with pytest.raises(p.toolkit.NotAuthorized):
+            helpers.call_action("datastore_search_sql", sql=sql)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_invalid_statement(self):
         sql = "SELECT ** FROM foobar"
         with pytest.raises(
