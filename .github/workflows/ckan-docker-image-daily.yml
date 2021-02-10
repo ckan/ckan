@@ -74,3 +74,19 @@ jobs:
     - run: docker push cioos/ckan:$TAG
     - if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
       run: docker push cioos/ckan:latest
+    - if: github.event_name == 'pull_request' || github.event_name == 'repository_dispatch'
+      uses: mshick/add-pr-comment@v1
+        with:
+          message: Image has been pushed to [cioos/ckan](https://hub.docker.com/repository/docker/cioos/ckan) |
+            ## Testing Quick Start ## |
+            ### Pull image ### |
+            'sudo docker pull cioos/ckan:$TAG' or |
+            'sudo CKAN_TAG=$TAG docker-compose pull ckan' |
+            ### Remove Home Volume and Restart### |
+            ``` sudo docker-compose down |
+            sudo docker volume rm docker_ckan_home |
+            sudo docker-compose up -d ``` |
+            for full documentation see *TBD*
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]' # The user.login for temporary GitHub tokens
+          allow-repeats: false # This is the default
