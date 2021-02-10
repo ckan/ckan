@@ -154,7 +154,6 @@ def call_auth(auth_name, context, **kwargs):
         ``{'success': True}`` or ``{'success': False, msg: 'important error message'}``
         or just ``{'success': False}``
     :rtype: bool
-    :ret_dict: False
 
     """
     assert "user" in context, (
