@@ -77,4 +77,9 @@ ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/production.ini 
 
 chown -R ckan:ckan ${CKAN_VENV}/src/ckan/ckan/public/base/i18n
 
+# must touch log files on first startup if mouinting log volume as the files in
+# the container are masked by the mounted volume
+touch ${CKAN_VENV}/src/logs/ckan_access.log
+touch ${CKAN_VENV}/src/logs/ckan_default.log
+
 exec "$@"
