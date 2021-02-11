@@ -70,6 +70,7 @@ class TestTypeGetters(object):
                 is False
             )
 
+
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
 @pytest.mark.usefixtures("clean_datastore", "with_plugins")
 class TestGetTables(object):
@@ -196,8 +197,7 @@ class TestGetFunctions(object):
                      FROM test_a, test_b
                      WHERE test_a.subject_id = test_b.subject_id')
                      AS final_result(month text, subject_1 numeric,subject_2 numeric);""",
-            ['crosstab', 'final_result', 'extract', 'trunc', 'avg']
-            ),
+                ['crosstab', 'final_result', 'extract', 'trunc', 'avg']),
         ]
 
         context = {"connection": session.connection()}
