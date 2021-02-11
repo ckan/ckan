@@ -4,6 +4,7 @@ import pytest
 import ckan.plugins as p
 
 
+@pytest.mark.ckan_config("ckan.datastore.sqlsearch.enabled", None)
 def test_disabled_by_default():
     with p.use_plugin("datastore") as the_plugin:
         with pytest.raises(

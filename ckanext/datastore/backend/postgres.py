@@ -1575,9 +1575,11 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
-        table_names, function_names = datastore_helpers.get_table_and_function_names_from_sql(context, sql)
+        get_names = datastore_helpers.get_table_and_function_names_from_sql
+        table_names, function_names = get_names(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
-        log.debug('Functions involved in input SQL: {0!r}'.format(function_names))
+        log.debug('Functions involved in input SQL: {0!r}'.format(
+            function_names))
 
         if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized({
@@ -1588,7 +1590,8 @@ def search_sql(context, data_dict):
         for f in function_names:
             if f not in backend.allowed_sql_functions:
                 raise toolkit.NotAuthorized({
-                    'permissions': ['Not authorized to call function {}'.format(f)]
+                    'permissions': [
+                        'Not authorized to call function {}'.format(f)]
                 })
 
         results = context['connection'].execute(sql)
@@ -1724,7 +1727,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         if self.enable_sql_search:
             allowed_sql_functions_file = self.config.get(
-                'ckan.datastore.sqlsearch.allowed_functions_file', _SQL_FUNCTIONS_ALLOWLIST_FILE
+                'ckan.datastore.sqlsearch.allowed_functions_file',
+                _SQL_FUNCTIONS_ALLOWLIST_FILE
             )
 
             with open(allowed_sql_functions_file, 'r') as f:
