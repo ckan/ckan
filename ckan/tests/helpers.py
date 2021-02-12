@@ -151,7 +151,8 @@ def call_auth(auth_name, context, **kwargs):
     :type context: dict
 
     :returns: the 'success' value of the authorization check, e.g.
-        ``{'success': True}`` or ``{'success': False, msg: 'important error message'}``
+        ``{'success': True}`` or
+        ``{'success': False, msg: 'important error message'}``
         or just ``{'success': False}``
     :rtype: bool
 
