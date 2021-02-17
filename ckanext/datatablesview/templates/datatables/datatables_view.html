@@ -23,7 +23,12 @@
       {% endif %}
       data-fixed-header="true"
       data-fixed-columns="true"
-      data-dom='"Blifrtip"'
+      data-length-menu="{{ page_length_choices }}"
+      {% if top_pagination_controls %}
+        data-dom='"Blifrptip"'
+      {% else %}
+        data-dom='"Blifrtip"'
+      {% endif %}
       data-buttons='[
         {
           "extend": "colvis",
