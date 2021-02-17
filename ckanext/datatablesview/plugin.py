@@ -11,6 +11,7 @@ ignore_missing = toolkit.get_validator(u'ignore_missing')
 # see https://datatables.net/examples/advanced_init/length_menu.html
 DEFAULT_PAGE_LENGTH_CHOICES = [10, 25, 50, 100]
 
+
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
@@ -32,8 +33,11 @@ class DataTablesView(p.SingletonPlugin):
         template directory for the view
         '''
 
-        self.page_length_choices = config.get(u'ckan.datatables.page_length_choices', DEFAULT_PAGE_LENGTH_CHOICES)
-        self.top_pagination_controls = config.get(u'ckan.datatables.top_pagination_controls', False)
+        self.page_length_choices = config.get(
+            u'ckan.datatables.page_length_choices',
+            DEFAULT_PAGE_LENGTH_CHOICES)
+        self.top_pagination_controls = config.get(
+            u'ckan.datatables.top_pagination_controls', False)
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_resource(u'public', u'ckanext-datatablesview')
