@@ -27,7 +27,7 @@ def csv_writer(response, fields, name=None, bom=False):
         response.headers['Content-Type'] = b'text/csv; charset=utf-8'
         if name:
             response.headers['Content-disposition'] = (
-                'attachment; filename="{name}.csv"'.format(
+                u'attachment; filename="{name}.csv"'.format(
                     name=encode_rfc2231(name)))
     if bom:
         response.stream.write(BOM_UTF8)
@@ -53,7 +53,7 @@ def tsv_writer(response, fields, name=None, bom=False):
             b'text/tab-separated-values; charset=utf-8')
         if name:
             response.headers['Content-disposition'] = (
-                'attachment; filename="{name}.tsv"'.format(
+                u'attachment; filename="{name}.tsv"'.format(
                     name=encode_rfc2231(name)))
     if bom:
         response.stream.write(BOM_UTF8)
@@ -91,7 +91,7 @@ def json_writer(response, fields, name=None, bom=False):
             b'application/json; charset=utf-8')
         if name:
             response.headers['Content-disposition'] = (
-                'attachment; filename="{name}.json"'.format(
+                u'attachment; filename="{name}.json"'.format(
                     name=encode_rfc2231(name)))
     if bom:
         response.stream.write(BOM_UTF8)
@@ -135,12 +135,12 @@ def xml_writer(response, fields, name=None, bom=False):
             b'text/xml; charset=utf-8')
         if name:
             response.headers['Content-disposition'] = (
-                'attachment; filename="{name}.xml"'.format(
+                u'attachment; filename="{name}.xml"'.format(
                     name=encode_rfc2231(name)))
     if bom:
         response.stream.write(BOM_UTF8)
     response.stream.write(b'<data>\n')
-    yield XMLWriter(response.stream, [f['id'] for f in fields])
+    yield XMLWriter(response.stream, [f[u'id'] for f in fields])
     response.stream.write(b'</data>\n')
 
 
