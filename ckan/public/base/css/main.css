@@ -9364,6 +9364,22 @@ h4 small {
   transform: scale(0.53);
   margin: -14px 0 0 -14px;
 }
+.format-label[data-format=svg],
+.format-label[data-format*=svg] {
+  width: 60px;
+  height: 65px;
+  background-position: -2320px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=webp],
+.format-label[data-format*=webp] {
+  width: 60px;
+  height: 65px;
+  background-position: -2420px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
 [class^="icon-"],
 [class*=" icon-"] {
   display: inline-block;
