@@ -827,6 +827,47 @@ class BulkProcessView(MethodView):
         return h.redirect_to(u'{}.bulk_process'.format(group_type), id=id)
 
 
+def changes(id, group_type, is_organization):
+    '''
+    Shows the changes to an organization in one particular activity stream item.
+    '''
+    activity_id = id
+    context = {
+        u'model': model, u'session': model.Session,
+       u'user': g.user, u'auth_user_obj': g.userobj
+    }
+    try:
+        activity_diff = get_action(u'activity_diff')(
+            context, {u'id': activity_id, u'object_type': u'group',
+                      u'diff_type': u'html'}
+    except NotFound as e:
+        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
+       return base.abort(404, _(u'Activity not found'))
+    except NotAuthorized:
+        return base.abort(403, _(u'Unauthorized to view activity data'))
+
+     # 'group_dict' needs to go to the templates for page title & breadcrumbs.
+     # Use the current version of the package, in case the name/title have
+     # changed, and we need a link to it which works
+     group_id = activity_diff[u'activities'][1][u'data'][u'group'][u'id']
+     current_group_dict = get_action(u'organization_show')(context, {u'id': group_id})
+     group_activity_list = get_action(u'organization_activity_list')(
+         context, {
+             u'id': group_id,
+             u'limit': 100
+         }
+     )
+
+     return base.render(
+         u'package/organization_changes.html', {
+         u'activity_diffs': [activity_diff],
+         u'group_dict': current_group_dict,
+         u'pkg_activity_list': group_activity_list,
+         u'group_type': current_group_dict[u'type'],
+         }
+     )
+    
+            
 class CreateGroupView(MethodView):
     u'''Create group view '''
 
@@ -1200,7 +1241,8 @@ def register_group_plugin_rules(blueprint):
             u'/{0}/<id>'.format(action),
             methods=[u'GET', u'POST'],
             view_func=globals()[action])
-
+    blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
+            
 
 register_group_plugin_rules(group)
 register_group_plugin_rules(organization)
