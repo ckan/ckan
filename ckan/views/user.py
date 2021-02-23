@@ -298,7 +298,7 @@ class EditView(MethodView):
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
                 }
-                error_summary = {_(u'Old Password'): _(u'incorrect password')}
+                error_summary = {_(u'Old Password'): _(u'incorrect password')} if not g.userobj.sysadmin else {_(u'Sysadmin Password'): _(u'incorrect password')}
                 return self.get(id, data_dict, errors, error_summary)
 
         try:
