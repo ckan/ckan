@@ -40,7 +40,7 @@
       {# iterate through the list of activity diffs #}
       <hr>
       {% for i in range(activity_diffs|length) %}
-        {#% snippet "package/snippets/org_item.html", activity_diff=activity_diffs[i], pkg_dict=pkg_dict %#}
+        {% snippet "package/snippets/org_item.html", activity_diff=activity_diffs[i], pkg_dict=pkg_dict %}
 
         {# TODO: display metadata for more than most recent change #}
         {% if i == 0 %}
