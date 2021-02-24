@@ -1,30 +1,32 @@
 {% import 'macros/form.html' as form %}
 
+{% set default_group_type = h.default_group_type('organization') %}
+
 {% block package_basic_fields_title %}
-{{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target', 'class': 'form-control'}) }}
+  {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target', 'class': 'form-control'}) }}
 {% endblock %}
 
 {% block package_basic_fields_url %}
-{% set prefix = h.url_for('dataset.read', id='') %}
-{% set domain = h.url_for('dataset.read', id='', qualified=true) %}
-{% set domain = domain|replace("http://", "")|replace("https://", "") %}
-{% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>', 'class': 'form-control input-sm'} %}
+  {% set prefix = h.url_for('dataset.read', id='') %}
+  {% set domain = h.url_for('dataset.read', id='', qualified=true) %}
+  {% set domain = domain|replace("http://", "")|replace("https://", "") %}
+  {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>', 'class': 'form-control input-sm'} %}
 
   {{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
-  {% endblock %}
+{% endblock %}
 
-  {% block package_basic_fields_custom %}{% endblock %}
+{% block package_basic_fields_custom %}{% endblock %}
 
-  {% block package_basic_fields_description %}
+{% block package_basic_fields_description %}
   {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
-  {% endblock %}
+{% endblock %}
 
-  {% block package_basic_fields_tags %}
+{% block package_basic_fields_tags %}
   {% set tag_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
   {{ form.input('tag_string', id='field-tags', label=_('Tags'), placeholder=_('eg. economy, mental health, government'), value=data.tag_string, error=errors.tags, classes=['control-full'], attrs=tag_attrs) }}
-  {% endblock %}
+{% endblock %}
 
-  {% block package_basic_fields_license %}
+{% block package_basic_fields_license %}
   <div class="form-group">
     {% set error = errors.license_id %}
     <label class="control-label" for="field-license">{{ _("License") }}</label>
@@ -36,7 +38,7 @@
             {% set empty_license = _('Please select the license') %}
             <option value="">{{ empty_license }}</option>
             {% for license_id, license_desc in h.license_options(existing_license_id) %}
-            <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
+              <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
             {% endfor %}
           </select>
           {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
@@ -53,12 +55,12 @@
       </div>
     </div>
   </div>
-  {% endblock %}
+{% endblock %}
 
-  {% block package_basic_fields_org %}
+{% block package_basic_fields_org %}
   {# if we have a default group then this wants remembering #}
   {% if data.group_id %}
-  <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
+    <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
   {% endif %}
 
   {% set dataset_is_draft = data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
@@ -70,20 +72,20 @@
   {% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
 
   {% if show_organizations_selector and show_visibility_selector %}
-  <div data-module="dataset-visibility">
-    {% endif %}
+    <div data-module="dataset-visibility">
+  {% endif %}
 
-    {% if show_organizations_selector %}
+  {% if show_organizations_selector %}
     {% set existing_org = data.owner_org or data.group_id %}
     <div class="form-group control-medium">
-      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+      <label for="field-organizations" class="control-label">{{ h.humanize_entity_type('organization', default_group_type, 'default label') or _('Organization') }}</label>
       <div class="controls">
         <select id="field-organizations" name="owner_org" data-module="autocomplete">
           {% if h.check_config_permission('create_unowned_dataset') %}
-          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
+            <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ h.humanize_entity_type('organization', default_group_type, 'no label') or _('No Organization') }}</option>
           {% endif %}
           {% for organization in organizations_available %}
-          {# get out first org from users list only if there is not an existing org #}
+            {# get out first org from users list only if there is not an existing org #}
           {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
           <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.display_name }}</option>
           {% endfor %}

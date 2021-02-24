@@ -280,9 +280,19 @@ def search(package_type):
 
     facets = OrderedDict()
 
+    org_label = h.humanize_entity_type(
+        u'organization',
+        h.default_group_type(u'organization'),
+        u'facet label') or _(u'Organizations')
+
+    group_label = h.humanize_entity_type(
+        u'group',
+        h.default_group_type(u'group'),
+        u'facet label') or _(u'Groups')
+
     default_facet_titles = {
-        u'organization': _(u'Organizations'),
-        u'groups': _(u'Groups'),
+        u'organization': org_label,
+        u'groups': group_label,
         u'tags': _(u'Tags'),
         u'res_format': _(u'Formats'),
         u'license_id': _(u'Licenses'),
@@ -1303,10 +1313,12 @@ class CollaboratorEditView(MethodView):
         except NotAuthorized:
             message = _(u'Unauthorized to edit collaborators {}').format(id)
             return base.abort(401, _(message))
-        except NotFound:
-            return base.abort(404, _(u'Resource not found'))
+        except NotFound as e:
+            h.flash_error(_('User not found'))
+            return h.redirect_to(u'dataset.new_collaborator', id=id)
         except ValidationError as e:
             h.flash_error(e.error_summary)
+            return h.redirect_to(u'dataset.new_collaborator', id=id)
         else:
             h.flash_success(_(u'User added to collaborators'))
 

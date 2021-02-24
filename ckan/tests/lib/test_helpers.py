@@ -13,7 +13,7 @@ from ckan.common import config
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.exceptions
-from ckan.tests import helpers
+from ckan.tests import helpers, factories
 import ckan.lib.base as base
 
 
@@ -601,6 +601,60 @@ class TestBuildNavMain(object):
             '<li><a href="/about">About</a></li>'
         )
 
+    def test_active_in_flask_routes(self, test_request_context):
+        with test_request_context(u'/organization'):
+            menu = (
+                ("home.index", "Home"),
+                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("organization.index", "Organizations"),
+                ("group.index", "Groups"),
+                ("home.about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li><a href="/dataset/">Datasets</a></li>'
+                '<li class="active"><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_active_in_resource_controller(self, test_request_context):
+
+        dataset = factories.Dataset()
+        with test_request_context(u'/dataset/' + dataset['id']):
+            menu = (
+                ("home.index", "Home"),
+                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("organization.index", "Organizations"),
+                ("group.index", "Groups"),
+                ("home.about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
+        resource = factories.Resource(name="some_resource")
+        with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
+            menu = (
+                ("home.index", "Home"),
+                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("organization.index", "Organizations"),
+                ("group.index", "Groups"),
+                ("home.about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
     def test_legacy_pylon_routes(self):
         menu = (
             ("home", "Home"),
@@ -616,6 +670,61 @@ class TestBuildNavMain(object):
             '<li><a href="/group/">Groups</a></li>'
             '<li><a href="/about">About</a></li>'
         )
+
+    def test_active_in_legacy_pylon_routes(self, test_request_context):
+
+        with test_request_context(u'/organization'):
+            menu = (
+                ("home", "Home"),
+                ("search", "Datasets", ['dataset', 'resource']),
+                ("organizations_index", "Organizations"),
+                ("group_index", "Groups"),
+                ("about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li><a href="/dataset/">Datasets</a></li>'
+                '<li class="active"><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_active_in_resource_controller_legacy_pylon_routes(self, test_request_context):
+
+        dataset = factories.Dataset()
+        with test_request_context(u'/dataset/' + dataset['id']):
+            menu = (
+                ("home", "Home"),
+                ("search", "Datasets", ['dataset', 'resource']),
+                ("organizations_index", "Organizations"),
+                ("group_index", "Groups"),
+                ("about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
+        resource = factories.Resource(name="some_resource")
+        with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
+            menu = (
+                ("home", "Home"),
+                ("search", "Datasets", ['dataset', 'resource']),
+                ("organizations_index", "Organizations"),
+                ("group_index", "Groups"),
+                ("about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
 
     def test_dataset_navigation_legacy_routes(self):
         dataset_name = "test-dataset"

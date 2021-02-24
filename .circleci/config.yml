@@ -15,6 +15,7 @@ defaults:
 
       # Database Initialization
       ckan -c test-core-circle-ci.ini datastore set-permissions | psql --host=ckan-postgres --username=ckan
+      psql --host=ckan-postgres --username=ckan --dbname=${CKAN_DATASTORE_POSTGRES_DB} --command="CREATE extension tablefunc;"
       ckan -c test-core-circle-ci.ini db init
   install_deps: &install_deps
     run: |
@@ -86,34 +87,6 @@ defaults:
     image: redis:3
     name: ckan-redis
 jobs:
-  test-python-2:
-    docker:
-      - image: python:2-stretch
-        <<: *ckan_env
-      - <<: *pg_image
-      - <<: *redis_image
-
-    parallelism: 4
-
-    steps:
-      - checkout
-
-      - <<: *install_deps
-      - run: |
-          # Python Dependencies
-          pip install -r requirement-setuptools.txt
-          pip install -r requirements-py2.txt
-          pip install -r dev-requirements.txt
-          python setup.py develop
-          pip check
-      - <<: *init_environment
-      - <<: *run_tests
-      - store_test_results:
-          path: ~/junit
-      - <<: *start_test_server
-      - <<: *run_front_tests
-      - store_artifacts:
-          path: ~/project/cypress/screenshots
   test-python-3:
     docker:
       - image: python:3-stretch
@@ -149,5 +122,4 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - test-python-2
       - test-python-3

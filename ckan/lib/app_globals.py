@@ -17,6 +17,8 @@ from logic.schema import update_configuration_schema
 log = logging.getLogger(__name__)
 
 
+DEFAULT_MAIN_CSS_FILE = '/base/css/main.css'
+
 # mappings translate between config settings and globals because our naming
 # conventions are not well defined and/or implemented
 mappings = {
@@ -168,7 +170,8 @@ def reset():
         get_config_value(key)
 
     # custom styling
-    main_css = get_config_value('ckan.main_css', '/base/css/main.css')
+    main_css = get_config_value(
+        'ckan.main_css', DEFAULT_MAIN_CSS_FILE) or DEFAULT_MAIN_CSS_FILE
     set_main_css(main_css)
 
     if app_globals.site_logo:

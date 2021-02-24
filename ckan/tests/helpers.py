@@ -150,10 +150,11 @@ def call_auth(auth_name, context, **kwargs):
         e.g. ``{'user': 'fred', 'model': my_mock_model_object}``
     :type context: dict
 
-    :returns: the dict that the auth function returns, e.g.
-        ``{'success': True}`` or ``{'success': False, msg: '...'}``
+    :returns: the 'success' value of the authorization check, e.g.
+        ``{'success': True}`` or
+        ``{'success': False, msg: 'important error message'}``
         or just ``{'success': False}``
-    :rtype: dict
+    :rtype: bool
 
     """
     assert "user" in context, (

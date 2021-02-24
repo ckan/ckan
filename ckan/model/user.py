@@ -285,14 +285,14 @@ class User(core.StatefulObjectMixin,
         return query
 
     @classmethod
-    def user_ids_for_name_or_id(self, user_list=[]):
+    def user_ids_for_name_or_id(cls, user_list=[]):
         '''
         This function returns a list of ids from an input that can be a list of
         names or ids
         '''
-        query = meta.Session.query(self.id)
-        query = query.filter(or_(self.name.in_(user_list),
-                                 self.id.in_(user_list)))
+        query = meta.Session.query(cls.id)
+        query = query.filter(or_(cls.name.in_(user_list),
+                                 cls.id.in_(user_list)))
         return [user.id for user in query.all()]
 
 
