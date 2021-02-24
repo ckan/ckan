@@ -35,17 +35,16 @@ jobs:
     name: build ckan docker image
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      if: github.event_name == 'pull_request'
+    - if: github.event_name == 'pull_request'
+      name: Checkout with submodules
       uses: actions/checkout@v2
       with:
         ref: ${{ github.event.pull_request.head.sha }}
         submodules: 'recursive'
         fetch-depth: '0'
-
     - if: github.event_name != 'pull_request'
+      name: Checkout
       uses: actions/checkout@v2
-
     - if: github.event_name == 'repository_dispatch'
       run: |
         submod_name=$(echo ${{github.event.client_payload.submodule}} | cut -d/ -f2)
