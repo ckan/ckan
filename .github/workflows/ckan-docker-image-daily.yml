@@ -31,14 +31,21 @@ jobs:
 
       - run: docker run --rm -it lumir/remove-dockerhub-tag --user ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} cioos/ckan:$TAG
 
-  build:
+  build_ckan:
     name: build ckan docker image
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      if: github.event_name == 'pull_request'
+      uses: actions/checkout@v2
       with:
-          submodules: 'recursive'
-          fetch-depth: '0'
+        ref: ${{ github.event.pull_request.head.sha }}
+        submodules: 'recursive'
+        fetch-depth: '0'
+
+    - if: github.event_name != 'pull_request'
+      uses: actions/checkout@v2
+
     - if: github.event_name == 'repository_dispatch'
       run: |
         submod_name=$(echo ${{github.event.client_payload.submodule}} | cut -d/ -f2)
