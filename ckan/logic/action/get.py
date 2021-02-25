@@ -2416,7 +2416,7 @@ def status_show(context, data_dict):
     '''
 
     plugins = config.get('ckan.plugins') 
-    extensions = "" if plugins == None else plugins.split()
+    extensions = plugins.split() if plugins else [] 
 
     return {
         'site_title': config.get('ckan.site_title'),
