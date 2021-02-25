@@ -78,25 +78,52 @@ def ajax(resource_view_id):
         sort_list.append(cols[sort_by_num] + u' ' + sort_order)
         i += 1
 
-    response = datastore_search(
-        None, {
-            u"q": search_text,
-            u"resource_id": resource_view[u'resource_id'],
-            u"offset": offset,
-            u"limit": limit,
-            u"sort": u', '.join(sort_list),
-            u"filters": filters,
-        }
-    )
+    colsearch_dict = {}
+    while True:
+        if u'columns[%d][search][value]' % i not in request.form:
+            break
+        v = text_type(request.form[u'columns[%d][search][value]' % i])
+        if v:
+            k = text_type(request.form[u'columns[%d][name]' % i])
+            # append ':*' so we can do partial FTS searches
+            colsearch_dict[k] = v + u':*'
+        i += 1
 
-    return json.dumps({
+    if colsearch_dict:
+        search_text = colsearch_dict
+    else:
+        search_text = search_text + u':*' if search_text else ''
+
+    query_error = ''
+    try:
+        response = datastore_search(
+            None, {
+                u"q": search_text,
+                u"resource_id": resource_view[u'resource_id'],
+                u'plain': False,
+                u'language': u'simple',
+                u"offset": offset,
+                u"limit": limit,
+                u"sort": u', '.join(sort_list),
+                u"filters": filters,
+            }
+        )
+    except Exception:
+        query_error = _(u'Invalid search query... ') + search_text
+
+    dtdata = {
         u'draw': draw,
         u'iTotalRecords': unfiltered_response.get(u'total', 0),
         u'iTotalDisplayRecords': response.get(u'total', 0),
         u'aaData': [[text_type(row.get(colname, u''))
                      for colname in cols]
-                    for row in response[u'records']],
-    })
+                    for row in response[u'records']], 
+    }
+
+    if query_error:
+        dtdata[u'error'] = query_error
+
+    return json.dumps(dtdata)
 
 
 def filtered_download(resource_view_id):

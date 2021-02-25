@@ -1,3 +1,31 @@
 body {
   background: none;
 }
+
+/* Animation CSS */
+#target {
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  position: absolute;
+  top: calc(50% - 20px);
+  left: calc(50% - 20px);
+  background: #7d0;
+  box-shadow: inset 1px 1px 0 0 rgba(255, 255, 255, .2), inset -1px -1px 0 0 rgba(0, 0, 0, .05);
+}
+
+[class^="animated-"],
+[class*=" animated-"] {
+  animation-fill-mode: both;
+}
+
+@keyframes shake {
+  0%, 100% {transform: translateX(0);}
+  20%, 60% {transform: translateX(-6px);}
+  40%, 80% {transform: translateX(6px);}
+}
+
+.animated-shake {
+  animation: shake .4s;
+}
