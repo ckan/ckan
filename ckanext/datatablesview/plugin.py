@@ -33,12 +33,18 @@ class DataTablesView(p.SingletonPlugin):
         template directory for the view
         '''
 
-        self.page_length_choices = toolkit.aslist(config.get(u'ckan.datatables.page_length_choices', DEFAULT_PAGE_LENGTH_CHOICES))
+        self.page_length_choices = toolkit.aslist(
+            config.get(u'ckan.datatables.page_length_choices',
+                       DEFAULT_PAGE_LENGTH_CHOICES))
         self.page_length_choices = [int(i) for i in self.page_length_choices]
-        self.top_pagination_controls = toolkit.asbool(config.get(u'ckan.datatables.top_pagination_controls', False))
-        self.search_delay = toolkit.asint(config.get(u'ckan.datatables.search_delay', DEFAULT_SEARCH_DELAY))
-        self.state_saving = toolkit.asbool(config.get(u'ckan.datatables.state_saving', True))
-        self.data_dictionary_labels = toolkit.asbool(config.get(u'ckan.datatables.data_dictionary_labels', True))
+        self.top_pagination_controls = toolkit.asbool(
+            config.get(u'ckan.datatables.top_pagination_controls', False))
+        self.search_delay = toolkit.asint(
+            config.get(u'ckan.datatables.search_delay', DEFAULT_SEARCH_DELAY))
+        self.state_saving = toolkit.asbool(
+            config.get(u'ckan.datatables.state_saving', True))
+        self.data_dictionary_labels = toolkit.asbool(
+            config.get(u'ckan.datatables.data_dictionary_labels', True))
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_public_directory(config, u'public')

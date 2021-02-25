@@ -109,7 +109,7 @@ def ajax(resource_view_id):
             }
         )
     except Exception:
-        query_error = _(u'Invalid search query... ') + search_text
+        query_error = u'Invalid search query... ' + search_text
 
     dtdata = {
         u'draw': draw,
@@ -117,7 +117,7 @@ def ajax(resource_view_id):
         u'iTotalDisplayRecords': response.get(u'total', 0),
         u'aaData': [[text_type(row.get(colname, u''))
                      for colname in cols]
-                    for row in response[u'records']], 
+                    for row in response[u'records']],
     }
 
     if query_error:
