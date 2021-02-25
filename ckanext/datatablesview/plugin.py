@@ -12,6 +12,7 @@ ignore_missing = toolkit.get_validator(u'ignore_missing')
 DEFAULT_PAGE_LENGTH_CHOICES = '10 25 50 100'
 DEFAULT_SEARCH_DELAY = 500
 
+
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
