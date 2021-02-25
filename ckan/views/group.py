@@ -839,7 +839,7 @@ def changes(id, group_type, is_organization):
     try:
         activity_diff = get_action(u'activity_diff')(
             context, {u'id': activity_id, u'object_type': u'group',
-                      u'diff_type': u'html'}
+                      u'diff_type': u'html'})
     except NotFound as e:
         log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
        return base.abort(404, _(u'Activity not found'))
