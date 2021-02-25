@@ -18,7 +18,7 @@
           <th scope="col">{{ _('Label') }}</th>
         </tr>
       </thead>
-      {% for f in [{'id': '_id'}] + h.datastore_dictionary(resource.id) %}
+      {% for f in h.datastore_dictionary(resource.id) %}
         <tr>
           <td>
             <label class="checkbox">

@@ -1,0 +1,20 @@
+{
+    "emptyTable": "Lentelėje nėra duomenų",
+    "info": "Rodomi įrašai nuo _START_ iki _END_ iš _TOTAL_ įrašų",
+    "infoEmpty": "Rodomi įrašai nuo 0 iki 0 iš 0",
+    "infoFiltered": "(atrinkta iš _MAX_ įrašų)",
+    "infoThousands": " ",
+    "lengthMenu": "Rodyti _MENU_ įrašus",
+    "loadingRecords": "Įkeliama...",
+    "processing": "Apdorojama...",
+    "search": "Ieškoti:",
+    "thousands": " ",
+    "zeroRecords": "Įrašų nerasta",
+    "paginate": {
+        "first": "Pirmas",
+        "previous": "Ankstesnis",
+        "next": "Tolimesnis",
+        "last": "Paskutinis"
+    },
+    "searchPlaceholder": "Ieškoti"
+}

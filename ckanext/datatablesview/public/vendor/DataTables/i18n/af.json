@@ -1,0 +1,48 @@
+{
+    "infoFiltered": "(gefiltreer uit _MAX_ totaal inskrywings)",
+    "infoThousands": ",",
+    "lengthMenu": "uitstal _MENU_ inskrywings",
+    "loadingRecords": "laai...",
+    "paginate": {
+        "first": "eerste",
+        "last": "laaste",
+        "next": "volgende",
+        "previous": "vorige"
+    },
+    "aria": {
+        "sortAscending": ": aktiveer kolom om stygend te sorteer",
+        "sortDescending": ": aktiveer kolom om dalend te sorteer"
+    },
+    "autoFill": {
+        "cancel": "kanseleer"
+    },
+    "buttons": {
+        "collection": "Versameling",
+        "colvis": "Kolom sigbaarheid",
+        "colvisRestore": "Herstel sigbaarheid",
+        "copy": "Kopieer",
+        "copyTitle": "Kopieer na knipbord",
+        "csv": "CSV",
+        "excel": "Excel",
+        "pdf": "PDF",
+        "print": "Druk"
+    },
+    "emptyTable": "Geen data beskikbaar nie",
+    "info": "Wys _START_ tot _END_ uit _TOTAL_ inskrywings",
+    "infoEmpty": "Wys 0 tot 0 uit 0 inskrywings",
+    "processing": "besig...",
+    "search": "soek:",
+    "searchBuilder": {
+        "add": "Voeg by",
+        "clearAll": "Alles uitvee",
+        "condition": "Voorwaardes",
+        "data": "Data"
+    },
+    "select": [
+        "0",
+        "1",
+        "2"
+    ],
+    "thousands": "duisende",
+    "zeroRecords": "Geen gevind"
+}

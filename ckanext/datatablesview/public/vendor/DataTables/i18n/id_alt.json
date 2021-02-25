@@ -1,0 +1,48 @@
+{
+    "processing": "Sedang proses...",
+    "lengthMenu": "Tampilan _MENU_ entri",
+    "zeroRecords": "Tidak ditemukan data yang sesuai",
+    "info": "Tampilan _START_ sampai _END_ dari _TOTAL_ entri",
+    "infoEmpty": "Tampilan 0 hingga 0 dari 0 entri",
+    "infoFiltered": "(disaring dari _MAX_ entri keseluruhan)",
+    "search": "Cari:",
+    "paginate": {
+        "first": "Awal",
+        "previous": "Balik",
+        "next": "Lanjut",
+        "last": "Akhir"
+    },
+    "aria": {
+        "sortAscending": "urutkan ascending",
+        "sortDescending": "urutkan descending"
+    },
+    "autoFill": {
+        "cancel": "Batalkan",
+        "fill": "Isi semua sel dengan <i>%d<i><\/i><\/i>",
+        "fillHorizontal": "isi sel secara horizontal",
+        "fillVertical": "isi sel secara vertikal"
+    },
+    "buttons": {
+        "collection": "Koleksi <span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><\/span>",
+        "colvis": "Visibilitas kolom",
+        "colvisRestore": "Kembalikan visibilitas",
+        "copy": "Salin",
+        "copyKeys": "Tekan ctrl atau u2318 + C untuk menyalin tabel data ke papan klip sistem",
+        "copyTitle": "Salin ke Papan Klip",
+        "copySuccess": {
+            "1": "1 row berhasil disalin",
+            "_": "%d row berhasil disalin ke papan klip"
+        },
+        "csv": "CSV",
+        "excel": "Excel",
+        "pageLength": {
+            "-1": "Tampilkan semua row",
+            "1": "Tampilkan 1 row",
+            "_": "Tampilkan %d row"
+        },
+        "pdf": "PDF",
+        "print": "Cetak"
+    },
+    "decimal": ",",
+    "emptyTable": "Tidak ada data di tabel"
+}
