@@ -2414,6 +2414,10 @@ def status_show(context, data_dict):
     :rtype: dictionary
 
     '''
+
+    plugins = config.get('ckan.plugins') 
+    extensions = plugins.split() if plugins else [] 
+
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -2421,7 +2425,7 @@ def status_show(context, data_dict):
         'ckan_version': ckan.__version__,
         'error_emails_to': config.get('email_to'),
         'locale_default': config.get('ckan.locale_default'),
-        'extensions': config.get('ckan.plugins').split(),
+        'extensions': extensions,
     }
 
 
