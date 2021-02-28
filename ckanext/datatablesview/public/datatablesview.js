@@ -7,141 +7,322 @@ var run_query = function(params, format) {
   f.attr("value", format);
   form.append(f);
   form.submit();
-}
+};
 
+// create the yacdf column filters
+function initColFiters(searchdelaysetting) {
+    var dt = $('#dtprv').DataTable({retrieve: true});
+
+    var colspecs = [];
+    $('#dtprv thead tr:eq(0) th').each(function(index, item) {
+        var colspec = {};
+        if (index > 0) {
+            var coltype = $(item).data('type');
+            if (coltype === 'numeric') {
+                sort_as = 'num';
+            } else {
+                sort_as = 'alphaNum';
+            }
+
+            colspec = {
+                column_number: index,
+                filter_type: 'text',
+                sort_as: sort_as,
+                filter_delay: searchdelaysetting,
+                filter_reset_button_text: false
+            };
+            colspecs.push(colspec);
+        }
+    });
+
+    yadcf.init(dt, colspecs);
+
+    // we also need a small delay before 
+    // force aligning header widths with column widths
+    setTimeout(function() {
+        var dt = $('#dtprv').DataTable({retrieve: true});
+        dt.columns.adjust().draw();
+    }, 300);
+};
+
+// compile active filters for display in print and clipboard copy
+function filterinfo(dt, tableSearchText, colFilterText) {
+    const dtinfo = document.getElementById('dtprv_info');
+
+    var filtermsg = dtinfo.innerText;
+    var tablesearch = dt.search();
+
+    // add active filter info to messageTop
+    if (tablesearch) {
+        filtermsg = filtermsg + ' - <b>' + tableSearchText + ':</b> ' + tablesearch;
+    }
+    var colsearchflag = false;
+    var colsearchmsg = '';
+    dt.columns().every(function() {
+        var colsearch = this.search();
+        var colname = this.name();
+
+        if (colsearch) {
+            colsearchflag = true;
+            colsearchmsg = colsearchmsg + ' <b>' + colname + ':</b> ' + colsearch + ', ';
+        }
+    });
+    if (colsearchflag) {
+        filtermsg = filtermsg + '</br><b>' + colFilterText + ' - </b>' + colsearchmsg.slice(0, -2);
+    }
+    return filtermsg;
+};
+
+// Copy link to clipboard
+function copyLink(dt, deeplink, shareText, sharemsgText) {
+
+    var hiddenDiv = $('<div/>')
+        .css({
+            height: 1,
+            width: 1,
+            overflow: 'hidden',
+            position: 'fixed',
+            top: 0,
+            left: 0
+        });
+
+    var textarea = $('<textarea readonly/>')
+        .val(deeplink)
+        .appendTo(hiddenDiv);
+
+    // use copy execCommand to copy link to clipboard
+    if (document.queryCommandSupported('copy')) {
+        hiddenDiv.appendTo(dt.table().container());
+        textarea[0].focus();
+        textarea[0].select();
+
+        try {
+            var successful = document.execCommand('copy');
+            hiddenDiv.remove();
+
+            if (successful) {
+                dt.buttons.info(
+                    dt.i18n('buttons.copyTitle', shareText),
+                    dt.i18n('buttons.copySuccess', sharemsgText),
+                    2000
+                );
+                return;
+            }
+        } catch (t) {}
+    }
+};
+
+// main
 this.ckan.module('datatables_view', function (jQuery) {
   return {
     initialize: function() {
 
-      var datatable = $('#dtprv').DataTable({ "retrieve": true});
-      var printTitle = $('#dtprv').data('caption');
-      var tableSearchText = this._('TABLE SEARCH');
-      var colFilterText = this._('COLUMN FILTER/S');
+      const resourcename = $('#dtprv').data('resource-name');
+      var languagefile = $('#dtprv').data('languagefile');
+      const statesaveflag = $('#dtprv').data('state-save-flag');
+      const stateduration = $('#dtprv').data('state-duration');
+      const searchdelaysetting = $('#dtprv').data('search-delay-setting');
+      const resourceviewid = $('#dtprv').data('resource-view-id');
+      const responsiveflag = $('#dtprv').data('responsive-flag');
+      const pagelengthchoices = $('#dtprv').data('page-length-choices');
+      const toppaginationcontrols = $('#dtprv').data('top-pagination-controls');
+      const ajaxurl = $('#dtprv').data('ajaxurl');
+      const ckanfilters = $('#dtprv').data('ckanfilters');
 
-      // Adds download dropdown to buttons menu
-      datatable.button().add(2, {
-        text: '<i class="fa fa-download"></i>',
-        titleAttr: this._('Filtered download'),
-        autoClose: true,
-        extend: 'collection',
-        buttons: [{
-          text: 'CSV',
-          action: function (e, dt, button, config) {
-            var params = datatable.ajax.params();
-            params.visible = datatable.columns().visible().toArray();
-            run_query(params, 'csv');
-          }
-        }, {
-          text: 'TSV',
-          action: function (e, dt, button, config) {
-            var params = datatable.ajax.params();
-            params.visible = datatable.columns().visible().toArray();
-            run_query(params, 'tsv');
-          }
-        }, {
-          text: 'JSON',
-          action: function (e, dt, button, config) {
-            var params = datatable.ajax.params();
-            params.visible = datatable.columns().visible().toArray();
-            run_query(params, 'json');
-          }
-        }, {
-          text: 'XML',
-          action: function (e, dt, button, config) {
-            var params = datatable.ajax.params();
-            params.visible = datatable.columns().visible().toArray();
-            run_query(params, 'xml');
-          }
-        }]
-      });
+      // responsive mode not compatible with scrollX
+      var scrollXflag = true;
+      if ( responsiveflag ) {
+        scrollXflag = false;
+      }
 
-      // add reset button
-      // resets filters and saved state
-      datatable.button().add(null, {
-          text: '<i class=\"fa fa-repeat\"></i>',
-          titleAttr: this._('Reset'),
-          action: function(e, dt, node, config) {
-              datatable.state.clear();
-              window.location.reload();
+      var domsettings = 'lBifrtip';
+      if ( toppaginationcontrols ) {
+        domsettings = 'lpBifrtip';
+      }
+
+      // labels for showing active filters in clipboard copy & print
+      const tableSearchText = this._('TABLE SEARCH');
+      const colFilterText = '   ' + this._('COLUMN FILTER/S');
+
+      // labels for Sharing current view
+      const shareText = this._('Share current view');
+      const sharemsgText = this._('Copied deeplink to clipboard');
+
+      // en is the default language, no need to load i18n file
+      if (languagefile === '/vendor/DataTables/i18n/en.json') {
+        languagefile = '';
+      }
+
+      // initialize yadcf language defaults
+      yadcf.initDefaults({
+          language: {
+              select: this._('Select value'),
+              select_multi: this._('Select values'),
+              filter: this._('search'),
+              range: [this._('From'), this._('To')],
+              date: this._('Select a date')
           }
       });
 
-      // add print button
-      datatable.button().add(null, {
-          extend: 'print',
-          text: '<i class=\"fa fa-print\"></i>',
-          titleAttr: this._('Print'),
-          title: printTitle,
-          messageTop: function() {
-              const dtinfo = document.getElementById('dtprv_info');
-              var filtermsg = dtinfo.innerText;
-              var tablesearch = datatable.search();
-
-              // add active filter info to messageTop
-              if (tablesearch) {
-                  filtermsg = filtermsg + ' - <b>' + tableSearchText + ':</b> ' + tablesearch;
-              }
-              var colsearchflag = false;
-              var colsearchmsg = '';
-              datatable.columns().every(function() {
-                  var colsearch = this.search();
-                  var colname = this.name();
-
-                  if (colsearch) {
-                      colsearchflag = true;
-                      colsearchmsg = colsearchmsg + ' <b>' + colname + ':</b> ' + colsearch + ', ';
-                  }
-              });
-              if (colsearchflag) {
-                  filtermsg = filtermsg + '</br><b>' + colFilterText + ' - </b>' + colsearchmsg.slice(0, -2);
-              }
-              return filtermsg;
+      // init the datatable
+      var datatable = $('#dtprv').DataTable({
+          paging: true,
+          serverSide: true,
+          processing: true,
+          stateSave: statesaveflag,
+          stateDuration: stateduration,
+          searchDelay: searchdelaysetting,
+          mark: true,
+          deferRender: true,
+          keys: true,
+          select: {
+              style: "os",
+              blurable: true
           },
-          messageBottom: function() {
-              const dtinfo = document.getElementById('dtprv_info');
-              return dtinfo.innerText;
+          language: {
+              url: languagefile,
+              search: "&nbsp;",
+              searchPlaceholder: this._('search table'),
+              paginate: {
+                  previous: "&lt;",
+                  next: "&gt;"
+              }
           },
-          exportOptions: {
-              columns: ':visible',
-              format: {
-                  header: function(mDataProp, columnIdx) {
-                      var htmlText = '<span>' + mDataProp + '</span>';
-                      var jHtmlObject = jQuery(htmlText);
-                      jHtmlObject.find('div').remove();
-                      var newHtml = jHtmlObject.text();
-                      console.log('My header > ' + newHtml);
-                      return newHtml;
+          ajax: {
+              url: ajaxurl,
+              type: 'POST',
+              data: {
+                  "filters": ckanfilters
+              }
+          },
+          responsive: responsiveflag,
+          scrollX: scrollXflag,
+          scrollY: 60,
+          scrollResize: true,
+          scrollCollapse: true,
+          lengthMenu: pagelengthchoices,
+          dom: domsettings,
+          initComplete: function(settings, json) {
+            initColFiters(searchdelaysetting);
+          },
+          stateLoadParams: function(settings, data) {
+            // check the current url to see if we've got a state to restore from a deeplink
+            var url = new URL(window.location.href);
+            var state = url.searchParams.get("state");
+            if (state) {
+
+                // if so, try to base64 decode it and parse into object from a json
+                try {
+                    state = JSON.parse(atob(state));
+                    // now iterate over the object properties and assign any that
+                    // exist to the current loaded state (skipping "time")
+                    for (var k in state) {
+                        if (state.hasOwnProperty(k) && k != 'time') {
+                            data[k] = state[k];
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+
+                // doing this forces dt to access localstorage
+                // ensuring the deeplink is rendered properly
+                const api = new $.fn.dataTable.Api( settings );
+                const dtstate = api.state.loaded();
+            }
+          },
+          buttons: [{
+              extend: "copy",
+              text: '<i class="fa fa-files-o"></i>',
+              titleAttr: this._('Copy to clipboard'),
+              title: function() {
+                var filternohtml = filterinfo(datatable, tableSearchText, colFilterText).replace( /(<([^>]+)>)/ig, '');
+                return resourcename + ' - ' + filternohtml;
+              }
+          }, {
+              extend: "colvis",
+              text: '<i class="fa fa-eye-slash"></i>',
+              titleAttr: this._('Toggle column visibility'),
+              columns: ":gt(0)",
+              collectionLayout: "fixed four-column",
+              postfixButtons: [{
+                  extend: "colvisRestore",
+                  text: '<i class="fa fa-undo"></i> ' + this._('Restore visibility')
+              }, {
+                  extend: "colvisGroup",
+                  text: '<i class="fa fa-eye"></i> ' + this._('Show all'),
+                  show: ":hidden"
+              }, {
+                  extend: "colvisGroup",
+                  text: '<i class="fa fa-eye-slash"></i> ' + this._('Show none'),
+                  hide: ":visible"
+              }]
+          }, {
+              text: '<i class="fa fa-download"></i>',
+              titleAttr: this._('Filtered download'),
+              autoClose: true,
+              extend: 'collection',
+              buttons: [{
+                  text: 'CSV',
+                  action: function(e, dt, button, config) {
+                      var params = datatable.ajax.params();
+                      params.visible = datatable.columns().visible().toArray();
+                      run_query(params, 'csv');
                   }
+              }, {
+                  text: 'TSV',
+                  action: function(e, dt, button, config) {
+                      var params = datatable.ajax.params();
+                      params.visible = datatable.columns().visible().toArray();
+                      run_query(params, 'tsv');
+                  }
+              }, {
+                  text: 'JSON',
+                  action: function(e, dt, button, config) {
+                      var params = datatable.ajax.params();
+                      params.visible = datatable.columns().visible().toArray();
+                      run_query(params, 'json');
+                  }
+              }, {
+                  text: 'XML',
+                  action: function(e, dt, button, config) {
+                      var params = datatable.ajax.params();
+                      params.visible = datatable.columns().visible().toArray();
+                      run_query(params, 'xml');
+                  }
+              }]
+          }, {
+              text: '<i class="fa fa-repeat"></i>',
+              titleAttr: this._('Reset'),
+              action: function(e, dt, node, config) {
+                  dt.state.clear();
+                  window.location.reload();
               }
-          }
+          }, {
+              extend: 'print',
+              text: '<i class="fa fa-print"></i>',
+              titleAttr: this._('Print'),
+              title: resourcename,
+              messageTop: function() {
+                return filterinfo(datatable, tableSearchText, colFilterText);
+              }, 
+              messageBottom: function() {
+                return filterinfo(datatable, tableSearchText, colFilterText);
+              },
+              exportOptions: {
+                  columns: ':visible'
+              }
+          }, {
+              text: '<i class="fa fa-share"></i>',
+              titleAttr: this._('Share current view'),
+              action: function(e, dt, node, config) {
+                dt.state.save();
+                var sharelink = window.location.href + '?state=' + btoa(JSON.stringify(dt.state()));
+                copyLink(dt, sharelink, shareText, sharemsgText);
+              }
+          }]
       });
 
-      // add reset button to global search, like column filters
-      $("#dtprv_filter").append('<button id="dtprv_searchreset" class="yacdf-filter-reset-button " type="button" onclick="var dt=$(\'#dtprv\').DataTable();dt.search(\'\').draw();"><b>x</b></button>');
-
-      // create column filters
-      var colspecs = [];
-      var search_delay = $('#dtprv').data('search_delay');
-      $('th').each(function(index, item) {
-          var colspec = {};
-          if (index > 0) {
-              var coltype = $(item).data('type');
-              if (coltype === 'numeric') {
-                  sort_as = 'num';
-              } else {
-                  sort_as = 'alphaNum';
-              }
-
-              colspec = {
-                  "column_number": index,
-                  "filter_type": "text",
-                  "sort_as": sort_as,
-                  "filter_delay": search_delay
-              };
-              colspecs.push(colspec);
-          }
-      });
-      yadcf.init(datatable, colspecs);
   }
  }
 });

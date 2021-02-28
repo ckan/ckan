@@ -4,10 +4,10 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#dt/dt-1.10.23/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/cr-1.5.3/fc-3.3.2/fh-3.1.8/kt-2.6.1/r-2.2.7/sl-1.3.1
+ *   https://datatables.net/download/#dt/dt-1.10.23/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/kt-2.6.1/r-2.2.7/sl-1.3.1
  *
  * Included libraries:
- *   DataTables 1.10.23, Buttons 1.6.5, Column visibility 1.6.5, HTML5 export 1.6.5, Print view 1.6.5, ColReorder 1.5.3, FixedColumns 3.3.2, FixedHeader 3.1.8, KeyTable 2.6.1, Responsive 2.2.7, Select 1.3.1
+ *   DataTables 1.10.23, Buttons 1.6.5, Column visibility 1.6.5, HTML5 export 1.6.5, Print view 1.6.5, KeyTable 2.6.1, Responsive 2.2.7, Select 1.3.1
  */
 
 /*
@@ -55,19 +55,19 @@ table.dataTable thead .sorting_desc_disabled {
   background-position: center right;
 }
 table.dataTable thead .sorting {
-  background-image: url("../images/sort_both.png");
+  background-image: url("DataTables-1.10.23/images/sort_both.png");
 }
 table.dataTable thead .sorting_asc {
-  background-image: url("../images/sort_asc.png");
+  background-image: url("DataTables-1.10.23/images/sort_asc.png");
 }
 table.dataTable thead .sorting_desc {
-  background-image: url("../images/sort_desc.png");
+  background-image: url("DataTables-1.10.23/images/sort_desc.png");
 }
 table.dataTable thead .sorting_asc_disabled {
-  background-image: url("../images/sort_asc_disabled.png");
+  background-image: url("DataTables-1.10.23/images/sort_asc_disabled.png");
 }
 table.dataTable thead .sorting_desc_disabled {
-  background-image: url("../images/sort_desc_disabled.png");
+  background-image: url("DataTables-1.10.23/images/sort_desc_disabled.png");
 }
 table.dataTable tbody tr {
   background-color: #ffffff;
@@ -391,7 +391,6 @@ table.dataTable td {
   padding: 0 1em;
 }
 .dataTables_wrapper .dataTables_processing {
-  z-index: 5;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -543,7 +542,7 @@ input.dt-button {
   position: relative;
   display: inline-block;
   box-sizing: border-box;
-  margin-right: 0em;
+  margin-right: 0.333em;
   margin-bottom: 0.333em;
   padding: 0.5em 1em;
   border: 1px solid rgba(0, 0, 0, 0.3);
@@ -674,7 +673,7 @@ input.dt-button:focus:not(.disabled) {
 
 div.dt-buttons {
   position: relative;
-  float: right;
+  float: left;
 }
 div.dt-buttons.buttons-right {
   float: right;
@@ -854,64 +853,6 @@ a.dt-button.processing:after {
   -ms-animation: dtb-spinner 1500ms infinite linear;
   -webkit-animation: dtb-spinner 1500ms infinite linear;
   -moz-animation: dtb-spinner 1500ms infinite linear;
-}
-
-
-table.DTCR_clonedTable.dataTable {
-  position: absolute !important;
-  background-color: rgba(255, 255, 255, 0.7);
-  z-index: 202;
-}
-
-div.DTCR_pointer {
-  width: 1px;
-  background-color: #0259C4;
-  z-index: 201;
-}
-
-
-table.DTFC_Cloned thead,
-table.DTFC_Cloned tfoot {
-  background-color: white;
-}
-
-div.DTFC_Blocker {
-  background-color: white;
-}
-
-div.DTFC_LeftWrapper table.dataTable,
-div.DTFC_RightWrapper table.dataTable {
-  margin-bottom: 0;
-  z-index: 2;
-}
-div.DTFC_LeftWrapper table.dataTable.no-footer,
-div.DTFC_RightWrapper table.dataTable.no-footer {
-  border-bottom: none;
-}
-
-table.dataTable.display tbody tr.DTFC_NoData {
-  background-color: transparent;
-}
-
-
-table.fixedHeader-floating {
-  position: fixed !important;
-  background-color: white;
-}
-
-table.fixedHeader-floating.no-footer {
-  border-bottom-width: 0;
-}
-
-table.fixedHeader-locked {
-  position: absolute !important;
-  background-color: white;
-}
-
-@media print {
-  table.fixedHeader-floating {
-    display: none;
-  }
 }
 
 

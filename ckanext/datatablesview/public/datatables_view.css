@@ -2,6 +2,61 @@ body {
   background: none;
 }
 
+/* column name on top, filter on 2nd line */
+.yadcf-filter-wrapper {
+    display: block;
+}
+
+table.dataTable {
+	margin-left: 0px;
+}
+
+/* for dynamic resizing of datatable */
+#resize_wrapper {
+	position: absolute;
+	top: 0em;
+	left: 0.5em;
+	right: 0.5em;
+	bottom: 0em;
+}
+
+/* for webkit, blink browsers, use input type search cancel button */
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  cursor:pointer;
+  height: 12px;
+  width: 12px;
+  background-image: url('vendor/FontAwesome/images/times-circle-solid.svg');
+}
+
+/* right align datatable buttons */
+div.dt-buttons {
+  position: relative;
+  float: right;
+}
+
+/* tighten it up */
+button.dt-button {
+    margin-right: 0em;
+}
+
+/* for sorting controls */
+table.dataTable thead .sorting {
+  background-image: url("vendor/DataTables/images/sort_both.png");
+}
+table.dataTable thead .sorting_asc {
+  background-image: url("vendor/DataTables/images/sort_asc.png");
+}
+table.dataTable thead .sorting_desc {
+  background-image: url("vendor/DataTables/images/sort_desc.png");
+}
+table.dataTable thead .sorting_asc_disabled {
+  background-image: url("vendor/DataTables/images/sort_asc_disabled.png");
+}
+table.dataTable thead .sorting_desc_disabled {
+  background-image: url("vendor/DataTables/images/sort_desc_disabled.png");
+}
+
 /* Animation CSS */
 #target {
   box-sizing: border-box;

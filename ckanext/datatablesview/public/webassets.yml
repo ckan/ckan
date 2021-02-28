@@ -16,4 +16,5 @@ main-js:
     - vendor/DataTables/datatables.mark.js
     - vendor/DataTables/jquery.mark.js
     - vendor/DataTables/jquery.dataTables.yadcf.js
+    - vendor/DataTables/dataTables.scrollResize.js
     - datatablesview.js

@@ -1,84 +1,23 @@
 {% extends "base.html" %}
 
 {% block page %}
+<div id="resize_wrapper">
   <table id="dtprv"
       class="table display nowrap compact cell-border"
       data-module="datatables_view"
-      data-paging="true"
-      data-server-side="true"
-      data-processing="true"
-      {% if state_saving -%}
-        data-state-save="true"
-      {% endif -%}
-      data-search-delay="{{search_delay}}"
-      data-caption="{{ resource.name }}"
-      data-mark="true"
-      data-fixed-columns="true"
-      data-select='{
-        "style": "os",
-        "blurable": "true"
-      }'
-      data-language='{
-        {% if h.lang() != 'en' -%}
-            "url": "{{ h.url_for_static('i18n/' + h.lang() + '.json') }}",
-        {% endif -%}
-        "search": "&nbsp;",
-        "searchPlaceholder": "{{ _('Search Table') }}",
-        "paginate": {
-          "previous": "&lt;",
-          "next": "&gt;"
-        }
-      }'
-      data-ajax='{
-          "url": "{{ h.url_for(
-            'datatablesview.ajax',
-            resource_view_id=resource_view.id) }}",
-          "type": "POST",
-          "data": { "filters": "{{ request.args.get('filters', '')|e }}" }
-        }'
-      {% if resource_view.get('responsive') %}
-        data-responsive="true"
-        data-scroll-x="false"
-      {% else %}
-        data-responsive="false"
-        data-scroll-x="true"
-      {% endif %}
-      data-length-menu="{{ page_length_choices }}"
-      {% if top_pagination_controls -%}
-        data-dom='"lpBifrtip"'
-      {% else -%}
-        data-dom='"lBifrtip"'
-      {% endif -%}
-      data-buttons='[
-        {
-          "extend": "copy",
-          "text": "<i class=\"fa fa-files-o\"></i>",
-          "titleAttr": "{{ _('Copy to clipboard') }}",
-          "title": "{{ resource.name }}"
-        },
-        {
-          "extend": "colvis",
-          "text": "<i class=\"fa fa-eye-slash\"></i>",
-          "titleAttr": "{{ _('Toggle column visibility') }}",
-          "columns": ":gt(0)",
-          "collectionLayout": "fixed four-column",
-          "postfixButtons": [
-            {
-                "extend": "colvisRestore",
-                "text": "<i class=\"fa fa-undo\"></i> {{ _('Restore visibility') }}"
-            },
-            {
-                "extend": "colvisGroup",
-                "text": "<i class=\"fa fa-eye\"></i> {{ _('Show all') }}",
-                "show": ":hidden"
-            },
-            {
-                "extend": "colvisGroup",
-                "text": "<i class=\"fa fa-eye-slash\"></i> {{ _('Show none') }}",
-                "hide": ":visible"
-            }]
-        }]'
-      data-keys="true">
+      data-state-save-flag="{{ state_saving|lower }}"
+      data-state-duration="{{ state_duration }}"
+      data-search-delay-setting="{{ search_delay }}"
+      data-resource-name="{{ resource.name }}"
+      data-resource-view-id = "{{ resource_view.id }}"
+      data-languagefile="{{ h.url_for_static('vendor/DataTables/i18n/' + h.lang() + '.json') }}"
+      data-ajaxurl="{{ h.url_for('datatablesview.ajax',
+            resource_view_id=resource_view.id) }}"
+      data-ckanfilters="{{ request.args.get('filters', '')|e }}"
+      data-responsive-flag="{{ resource_view.get('responsive')|lower }}"
+      data-page-length-choices="{{ page_length_choices }}"
+      data-top-pagination-controls="{{ top_pagination_controls|lower }}"
+      >
     <thead>
       <tr>
         <th scope="col" data-searchable="false" data-name="_id" data-type="numeric">_id</th>
@@ -94,14 +33,13 @@
         {% endfor -%}
       </tr>
     </thead>
-    <tbody>
-    </tbody>
   </table>
   <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
                                                                   'datatablesview.filtered_download',
                                                                   resource_view_id=resource_view.id) -}}">
     <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e -}}" />
   </form>
+</div>
 {% endblock %}
 {% block styles %}
   {{ super() }}

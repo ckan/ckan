@@ -3878,7 +3878,10 @@ if (!Object.entries) {
 							}
 
 							var append_input = $("<input>", {
-								type: "text",
+								type: "search",
+                                results: 5,
+                                autosave: "true",
+                                onsearch: filterActionStr,
 								onkeydown: "yadcf.preventDefaultForEnter(event);",
 								id: "yadcf-filter-" + table_selector_jq_friendly + "-" + column_number,
 								class: "yadcf-filter " + columnObj.style_class,
