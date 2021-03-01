@@ -13,6 +13,7 @@ DEFAULT_PAGE_LENGTH_CHOICES = '10 25 50 100 500 1000'
 DEFAULT_SEARCH_DELAY = 500
 DEFAULT_STATE_DURATION = 7200
 
+
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
@@ -30,8 +31,8 @@ class DataTablesView(p.SingletonPlugin):
 
     def update_config(self, config):
         u'''
-        Set up the resource library, public directory and
-        template directory for the view
+        Load config and set up the resource library,
+        public directory and template directory for the view
         '''
 
         # https://datatables.net/reference/option/lengthMenu
