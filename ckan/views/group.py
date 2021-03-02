@@ -829,7 +829,7 @@ class BulkProcessView(MethodView):
 
 def changes(id, group_type, is_organization):
     '''
-    Shows the changes to an organization in one particular activity stream 
+    Shows the changes to an organization in one particular activity stream
     item.
     '''
     activity_id = id
@@ -851,7 +851,8 @@ def changes(id, group_type, is_organization):
     # Use the current version of the package, in case the name/title have
     # changed, and we need a link to it which works
     group_id = activity_diff[u'activities'][1][u'data'][u'group'][u'id']
-    current_group_dict = get_action(u'organization_show')(context, {u'id': group_id})
+    current_group_dict = get_action(u'organization_show')(
+        context, {u'id': group_id})
     group_activity_list = get_action(u'organization_activity_list')(
         context, {
             u'id': group_id,
@@ -867,8 +868,8 @@ def changes(id, group_type, is_organization):
             u'group_type': current_group_dict[u'type'],
         }
     )
-    
-            
+
+
 class CreateGroupView(MethodView):
     u'''Create group view '''
 
@@ -1243,7 +1244,7 @@ def register_group_plugin_rules(blueprint):
             methods=[u'GET', u'POST'],
             view_func=globals()[action])
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
-            
+
 
 register_group_plugin_rules(group)
 register_group_plugin_rules(organization)
