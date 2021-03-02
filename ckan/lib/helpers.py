@@ -2987,7 +2987,6 @@ def compare_group_dicts(old, new, old_activity_id):
 
     check_metadata_org_changes(change_list, old, new)
 
-
     # if the organization was updated but none of the fields we check were changed,
     # display a message stating that
     if len(change_list) == 0:
