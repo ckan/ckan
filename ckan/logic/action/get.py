@@ -1241,7 +1241,8 @@ def group_show(context, data_dict):
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the group's users
-         (optional, default: ``False``)
+         (optional, default: ``True`` if ``ckan.auth.public_user_details`` is ``True``
+         otherwise ``False``)
     :type include_users: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
@@ -1276,7 +1277,8 @@ def organization_show(context, data_dict):
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the organization's users
-         (optional, default: ``True``)
+         (optional, default: ``True`` if ``ckan.auth.public_user_details`` is ``True``
+         otherwise ``False``)
     :type include_users: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
