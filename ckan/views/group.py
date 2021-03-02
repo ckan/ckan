@@ -846,26 +846,26 @@ def changes(id, group_type, is_organization):
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to view activity data'))
 
-     # 'group_dict' needs to go to the templates for page title & breadcrumbs.
-     # Use the current version of the package, in case the name/title have
-     # changed, and we need a link to it which works
-     group_id = activity_diff[u'activities'][1][u'data'][u'group'][u'id']
-     current_group_dict = get_action(u'organization_show')(context, {u'id': group_id})
-     group_activity_list = get_action(u'organization_activity_list')(
-         context, {
-             u'id': group_id,
-             u'limit': 100
-         }
-     )
+    # 'group_dict' needs to go to the templates for page title & breadcrumbs.
+    # Use the current version of the package, in case the name/title have
+    # changed, and we need a link to it which works
+    group_id = activity_diff[u'activities'][1][u'data'][u'group'][u'id']
+    current_group_dict = get_action(u'organization_show')(context, {u'id': group_id})
+    group_activity_list = get_action(u'organization_activity_list')(
+        context, {
+            u'id': group_id,
+            u'limit': 100
+        }
+    )
 
-     return base.render(
-         u'package/organization_changes.html', {
-         u'activity_diffs': [activity_diff],
-         u'group_dict': current_group_dict,
-         u'pkg_activity_list': group_activity_list,
-         u'group_type': current_group_dict[u'type'],
-         }
-     )
+    return base.render(
+        u'package/organization_changes.html', {
+            u'activity_diffs': [activity_diff],
+            u'group_dict': current_group_dict,
+            u'pkg_activity_list': group_activity_list,
+            u'group_type': current_group_dict[u'type'],
+        }
+    )
     
             
 class CreateGroupView(MethodView):
