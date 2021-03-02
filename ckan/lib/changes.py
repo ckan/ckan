@@ -368,6 +368,7 @@ def check_metadata_changes(change_list, old, new):
 
     _extension_fields(change_list, old, new)
     _extra_fields(change_list, old, new)
+    
 
 def check_metadata_org_changes(change_list, old, new):
     '''
