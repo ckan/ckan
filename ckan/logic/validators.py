@@ -454,8 +454,9 @@ def tag_name_validator(value, context):
 
     tagname_match = re.compile('[\w \-.]*$', re.UNICODE)
     if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" must be alphanumeric '
-                        'characters or symbols: -_.') % (value))
+        raise Invalid(_('Tag "%s" can only contain alphanumeric '
+                        'characters, spaces (" "), hyphens ("-"), '
+                        'underscores ("_") or dots (".")') % (value))
     return value
 
 def tag_not_uppercase(value, context):
@@ -790,6 +791,12 @@ def if_empty_guess_format(key, data, errors, context):
         url = data.get(key[:-1] + ('url',), '')
         if not url:
             return
+
+        # Uploaded files have only the filename as url, so check scheme to determine if it's an actual url
+        parsed = urlparse(url)
+        if parsed.scheme and not parsed.path:
+            return
+
         mimetype, encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype

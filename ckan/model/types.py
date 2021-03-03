@@ -1,11 +1,10 @@
 # encoding: utf-8
 
-## IMPORTS FIXED
-import datetime
 import copy
 import uuid
 import simplejson as json
 
+from datetime import datetime
 from sqlalchemy import types
 from six import string_types, text_type
 
@@ -14,8 +13,10 @@ from ckan.model import meta
 __all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
            'JsonType', 'JsonDictType']
 
+
 def make_uuid():
     return text_type(uuid.uuid4())
+
 
 class UuidType(types.TypeDecorator):
     impl = types.Unicode
@@ -24,7 +25,6 @@ class UuidType(types.TypeDecorator):
         return text_type(value)
 
     def process_result_value(self, value, engine):
-        # return uuid.UUID(value)
         return value
 
     def copy(self):
@@ -32,7 +32,6 @@ class UuidType(types.TypeDecorator):
 
     @classmethod
     def default(cls):
-        # return uuid.uuid4()
         return text_type(uuid.uuid4())
 
 
@@ -46,17 +45,18 @@ class JsonType(types.TypeDecorator):
     impl = types.UnicodeText
 
     def process_bind_param(self, value, engine):
-        if value is None or value == {}: # ensure we stores nulls in db not json "null"
+        # ensure we stores nulls in db not json "null"
+        if value is None or value == {}:
             return None
-        else:
-            # ensure_ascii=False => allow unicode but still need to convert
-            return text_type(json.dumps(value, ensure_ascii=False))
+
+        # ensure_ascii=False => allow unicode but still need to convert
+        return text_type(json.dumps(value, ensure_ascii=False))
 
     def process_result_value(self, value, engine):
         if value is None:
             return {}
-        else:
-            return json.loads(value)
+
+        return json.loads(value)
 
     def copy(self):
         return JsonType(self.impl.length)
@@ -67,21 +67,24 @@ class JsonType(types.TypeDecorator):
     def copy_value(self, value):
         return copy.copy(value)
 
+
 class JsonDictType(JsonType):
 
     impl = types.UnicodeText
 
     def process_bind_param(self, value, engine):
-        if value is None or value == {}: # ensure we stores nulls in db not json "null"
+        # ensure we stores nulls in db not json "null"
+        if value is None or value == {}:
             return None
-        else:
-            if isinstance(value, string_types):
-                return text_type(value)
-            else:
-                return text_type(json.dumps(value, ensure_ascii=False))
+
+        if isinstance(value, string_types):
+            return text_type(value)
+
+        return text_type(json.dumps(value, ensure_ascii=False))
 
     def copy(self):
         return JsonDictType(self.impl.length)
+
 
 def iso_date_to_datetime_for_sqlite(datetime_or_iso_date_if_sqlite):
     # Because sqlite cannot store dates properly (see this:
@@ -90,8 +93,9 @@ def iso_date_to_datetime_for_sqlite(datetime_or_iso_date_if_sqlite):
     # to call this to convert it into a datetime type. When running on
     # postgres then you have a datetime anyway, so this function doesn't
     # do anything.
-    if meta.engine_is_sqlite() and isinstance(datetime_or_iso_date_if_sqlite, string_types):
-        return datetime.datetime.strptime(datetime_or_iso_date_if_sqlite,
-                                          '%Y-%m-%d %H:%M:%S.%f')
-    else:
-        return datetime_or_iso_date_if_sqlite
+    is_string = isinstance(datetime_or_iso_date_if_sqlite, string_types)
+    if meta.engine_is_sqlite() and is_string:
+        return datetime.strptime(datetime_or_iso_date_if_sqlite,
+                                 '%Y-%m-%d %H:%M:%S.%f')
+
+    return datetime_or_iso_date_if_sqlite

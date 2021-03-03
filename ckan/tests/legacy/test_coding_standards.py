@@ -361,7 +361,6 @@ class TestPep8(object):
         "ckan/model/term_translation.py",
         "ckan/model/test_user.py",
         "ckan/model/tracking.py",
-        "ckan/model/types.py",
         "ckan/model/user.py",
         "ckan/model/vocabulary.py",
         "ckan/authz.py",

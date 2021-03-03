@@ -460,6 +460,15 @@ class TestGroupList(object):
         assert len(group_list) == 1
         assert group_list[0] == group2["name"]
 
+    def test_group_list_limit_as_string(self):
+
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+
+        group_list = helpers.call_action("group_list", limit="1")
+
+        assert len(group_list) == 1
+
     def test_group_list_wrong_limit(self):
 
         with pytest.raises(logic.ValidationError):
@@ -734,10 +743,22 @@ class TestOrganizationList(object):
         results = helpers.call_action("organization_list")
         assert len(results) == 5  # i.e. configured limit
 
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    def test_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_default", 5)
+        results = helpers.call_action("organization_list", limit=2)
+        assert len(results) == 2
+
     def test_all_fields_limit_default(self):
         self._create_bulk_orgs("org_all_fields_default", 30)
         results = helpers.call_action("organization_list", all_fields=True)
         assert len(results) == 25  # i.e. default value
+
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_all_fields_max", "5")
+    def test_all_fields_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_all_fields_default", 5)
+        results = helpers.call_action("organization_list", all_fields=True, limit=2)
+        assert len(results) == 2
 
     @pytest.mark.ckan_config(
         "ckan.group_and_organization_list_all_fields_max", "5"

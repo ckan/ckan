@@ -7,6 +7,7 @@ import click
 
 from ckan.model import parse_db_config
 from ckan.common import config
+import ckan.logic as logic
 
 import ckanext.datastore as datastore_module
 from ckanext.datastore.backend.postgres import identifier
@@ -111,3 +112,69 @@ def _parse_db_config(config_key=u'sqlalchemy.url'):
         )
         raise click.Abort()
     return db_config
+
+
+@datastore.command(
+    u'purge',
+    short_help=u'purge orphaned resources from the datastore.'
+)
+def purge():
+    u'''Purge orphaned resources from the datastore using the datastore_delete
+    action, which drops tables when called without filters.'''
+
+    site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
+    context = {u'user': site_user[u'name']}
+
+    result = logic.get_action(u'datastore_search')(
+        context,
+        {u'resource_id': u'_table_metadata'}
+    )
+
+    resource_id_list = []
+    for record in result[u'records']:
+        try:
+            # ignore 'alias' records (views) as they are automatically
+            # deleted when the parent resource table is dropped
+            if record[u'alias_of']:
+                continue
+
+            # we need to do this to trigger resource_show auth function
+            site_user = logic.get_action(u'get_site_user')(
+                {u'ignore_auth': True}, {})
+            context = {u'user': site_user[u'name']}
+
+            logic.get_action(u'resource_show')(
+                context,
+                {u'id': record[u'name']}
+            )
+        except logic.NotFound:
+            resource_id_list.append(record[u'name'])
+            click.echo(u"Resource '%s' orphaned - queued for drop" %
+                       record[u'name'])
+        except KeyError:
+            continue
+
+    orphaned_table_count = len(resource_id_list)
+    click.echo(u'%d orphaned tables found.' % orphaned_table_count)
+
+    if not orphaned_table_count:
+        return
+
+    click.confirm(u'Proceed with purge?', abort=True)
+
+    # Drop the orphaned datastore tables. When datastore_delete is called
+    # without filters, it does a drop table cascade
+    drop_count = 0
+    for resource_id in resource_id_list:
+        logic.get_action(u'datastore_delete')(
+            context,
+            {u'resource_id': resource_id, u'force': True}
+        )
+        click.echo(u"Table '%s' dropped)" % resource_id)
+        drop_count += 1
+
+    click.echo(u'Dropped %s tables' % drop_count)
+
+
+def get_commands():
+    return (set_permissions, dump, purge)

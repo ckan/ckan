@@ -7,7 +7,7 @@
 alembic==1.0.0            # via -r requirements.in
 babel==2.7.0              # via -r requirements.in, flask-babel
 beaker==1.11.0            # via -r requirements.in
-bleach==3.1.4             # via -r requirements.in
+bleach==3.3.0             # via -r requirements.in
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
 click==7.1.2              # via -r requirements.in, flask, rq
@@ -21,17 +21,19 @@ flask==1.1.1              # via -r requirements.in, flask-babel, flask-multistat
 idna==2.10                # via requests
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.1            # via -r requirements.in, flask, flask-babel
-lxml==4.6.1               # via feedgen
+lxml==4.6.2               # via feedgen
 mako==1.1.3               # via alembic
 markdown==2.6.7           # via -r requirements.in
 markupsafe==1.1.1         # via jinja2, mako
 nose==1.3.7               # via pyutilib
+packaging==20.9           # via bleach
 passlib==1.7.3            # via -r requirements.in
 pathtools==0.1.2          # via watchdog
 pbr==5.5.1                # via sqlalchemy-migrate
 polib==1.0.7              # via -r requirements.in
 psycopg2==2.8.2           # via -r requirements.in
 pyjwt==1.7.1              # via -r requirements.in
+pyparsing==2.4.7          # via packaging
 pysolr==3.6.0             # via -r requirements.in
 python-dateutil==2.8.1    # via -r requirements.in, alembic, feedgen
 python-editor==1.0.4      # via alembic
@@ -50,7 +52,7 @@ simplejson==3.10.0        # via -r requirements.in
 six==1.15.0               # via bleach, python-dateutil, pyutilib, sqlalchemy-migrate
 sqlalchemy-migrate==0.12.0  # via -r requirements.in
 sqlalchemy==1.3.5         # via -r requirements.in, alembic, sqlalchemy-migrate
-sqlparse==0.2.2           # via -r requirements.in, sqlalchemy-migrate
+sqlparse==0.3.0           # via -r requirements.in, sqlalchemy-migrate
 tempita==0.5.2            # via sqlalchemy-migrate
 tzlocal==1.3              # via -r requirements.in
 unicodecsv==0.14.1        # via -r requirements.in

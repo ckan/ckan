@@ -420,6 +420,22 @@ class TestResourceCreate:
         assert mimetype
         assert mimetype == "text/csv"
 
+    def test_mimetype_by_url_without_path(self):
+        """
+        The mimetype should not be guessed from url if url contains only domain
+
+        """
+        context = {}
+        params = {
+            "package_id": factories.Dataset()["id"],
+            "url": "http://example.com",
+            "name": "A nice resource",
+        }
+        result = helpers.call_action("resource_create", context, **params)
+
+        mimetype = result.pop("mimetype")
+        assert mimetype is None
+
     def test_mimetype_by_user(self):
         """
         The mimetype is supplied by the user
@@ -1243,12 +1259,12 @@ class TestPackageMemberCreate(object):
                 'package_collaborator_create',
                 id=dataset['id'], user_id=user['id'], capacity=capacity)
 
-    def test_create_user_not_authorized(self):
+    def test_create_user_not_found(self):
         dataset = factories.Dataset()
         user = {'id': 'yyy'}
         capacity = 'editor'
 
-        with pytest.raises(logic.NotAuthorized):
+        with pytest.raises(logic.NotFound):
             helpers.call_action(
                 'package_collaborator_create',
                 id=dataset['id'], user_id=user['id'], capacity=capacity)
