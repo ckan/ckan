@@ -1,0 +1,134 @@
+{
+    "info": "Visar _START_ till _END_ av totalt _TOTAL_ rader",
+    "infoEmpty": "Visar 0 till 0 av totalt 0 rader",
+    "infoFiltered": "(filtrerade från totalt _MAX_ rader)",
+    "infoThousands": " ",
+    "lengthMenu": "Visa _MENU_ rader",
+    "loadingRecords": "Laddar …",
+    "processing": "Bearbetar …",
+    "search": "Sök:",
+    "zeroRecords": "Hittade inga matchande resultat",
+    "paginate": {
+        "first": "Första",
+        "last": "Sista",
+        "next": "Nästa",
+        "previous": "Föregående"
+    },
+    "aria": {
+        "sortAscending": ": aktivera för att sortera kolumnen i stigande ordning",
+        "sortDescending": ": aktivera för att sortera kolumnen i fallande ordning"
+    },
+    "autoFill": {
+        "cancel": "Avbryt",
+        "fill": "Fyll alla celler med <i>%d<\/i>",
+        "fillHorizontal": "Fyll celler horisontalt",
+        "fillVertical": "Fyll celler vertikalt"
+    },
+    "buttons": {
+        "collection": "Samling <span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><\/span>",
+        "colvis": "Kolumn synlighet",
+        "colvisRestore": "Återställ synlighet",
+        "copy": "Kopiera",
+        "copyKeys": "Tryck ctrl eller u2318 + C för att kopiera tabellens data till systemets Urklipp.  Tryck på det är meddelanden eller Escape för att avbryta.",
+        "copySuccess": {
+            "1": "Kopierade 1 rad till Urklipp",
+            "_": "Kopierade %ds rader till Urklipp"
+        },
+        "copyTitle": "Kopiera till Urklipp",
+        "csv": "CSV",
+        "excel": "Excel",
+        "pageLength": {
+            "-1": "Visa alla rader",
+            "1": "Visa 1 Rad",
+            "_": "Visa %d rader"
+        },
+        "pdf": "PDF",
+        "print": "Skriv ut"
+    },
+    "decimal": ",",
+    "emptyTable": "Tabellen innehåller ingen data",
+    "searchBuilder": {
+        "add": "Nytt Villkor",
+        "button": {
+            "0": "Avancerad sökning",
+            "_": "Avancerad sökning (%d)"
+        },
+        "clearAll": "Rensa",
+        "condition": "Villkor",
+        "conditions": {
+            "date": {
+                "after": "Efter",
+                "before": "Före",
+                "between": "Mellan",
+                "empty": "Tom",
+                "equals": "Lika med",
+                "not": "Inte",
+                "notBetween": "Inte Mellan",
+                "notEmpty": "Inte Tom"
+            },
+            "number": {
+                "between": "Mellan",
+                "empty": "Tom",
+                "equals": "Lika med",
+                "gt": "Större än",
+                "gte": "Större eller lika med",
+                "lt": "Mindre än",
+                "lte": "Mindre eller lika med",
+                "not": "Inte",
+                "notBetween": "Inte Mellan",
+                "notEmpty": "Inte Tom"
+            },
+            "string": {
+                "contains": "Innehåller",
+                "empty": "Tom",
+                "endsWith": "Slutar med",
+                "equals": "Lika med",
+                "not": "Inte",
+                "notEmpty": "Inte Tom",
+                "startsWith": "Börjar med"
+            },
+            "array": {
+                "equals": "Lika med",
+                "empty": "Tom",
+                "contains": "Innehåller",
+                "not": "Inte",
+                "notEmpty": "Inte Tom",
+                "without": "Utan"
+            }
+        },
+        "data": "Data",
+        "deleteTitle": "Ta bort filtreringsregel",
+        "logicAnd": "Och",
+        "logicOr": "Eller",
+        "title": {
+            "0": "Avancerad sökning",
+            "_": "Avancerad sökning (%d)"
+        },
+        "value": "Värde"
+    },
+    "searchPanes": {
+        "clearMessage": "Rensa",
+        "collapse": {
+            "0": "Sökrutor",
+            "_": "Sökrutor (%d)"
+        },
+        "count": "{total}",
+        "countFiltered": "{shown} ({total})",
+        "emptyPanes": "Sökrutor saknas",
+        "loadMessage": "Laddar Sökrutor...",
+        "title": "Aktiva Filter - %d"
+    },
+    "select": {
+        "1": "Rad %d markerad",
+        "_": "%d rader markerade",
+        "cells": {
+            "1": "1 cell markerad",
+            "_": "%d celler markerade"
+        },
+        "columns": {
+            "1": "1 kolumn markerad",
+            "_": "%d kolumner markerade"
+        }
+    },
+    "thousands": " "
+}
