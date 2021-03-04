@@ -761,7 +761,7 @@ def group_update(context, data_dict):
     You must be authorized to edit the group.
 
     Update methods may delete parameters not explicitly provided in the
-    data_dict if you want to edit only a specific attribute use `package_patch`
+    data_dict if you want to edit only a specific attribute use `group_patch`
     instead.
 
     Plugins may change the parameters of this function depending on the value
@@ -789,8 +789,8 @@ def organization_update(context, data_dict):
     You must be authorized to edit the organization.
 
     Update methods may delete parameters not explicitly provided in the
-    data_dict if you want to edit only a specific attribute use `package_patch`
-    instead.
+    data_dict if you want to edit only a specific attribute use
+    `organization_patch` instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
@@ -817,7 +817,7 @@ def user_update(context, data_dict):
     any user account. Can not modify exisiting user's name.
 
     Update methods may delete parameters not explicitly provided in the
-    data_dict if you want to edit only a specific attribute use `package_patch`
+    data_dict if you want to edit only a specific attribute use `user_patch`
     instead.
 
     For further parameters see
