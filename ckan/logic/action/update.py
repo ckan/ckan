@@ -50,6 +50,10 @@ def resource_update(context, data_dict):
     To update a resource you must be authorized to update the dataset that the
     resource belongs to.
 
+    Update methods may delete parameters not explicitly provided in the
+    data_dict if you want to edit only a specific attribute use `resource_patch`
+    instead.
+
     For further parameters see
     :py:func:`~ckan.logic.action.create.resource_create`.
 
@@ -217,6 +221,10 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
+
+    Update methods may delete parameters not explicitly provided in the
+    data_dict if you want to edit only a specific attribute use `package_patch`
+    instead.
 
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
@@ -752,6 +760,10 @@ def group_update(context, data_dict):
 
     You must be authorized to edit the group.
 
+    Update methods may delete parameters not explicitly provided in the
+    data_dict if you want to edit only a specific attribute use `package_patch`
+    instead.
+
     Plugins may change the parameters of this function depending on the value
     of the group's ``type`` attribute, see the
     :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
@@ -776,6 +788,10 @@ def organization_update(context, data_dict):
 
     You must be authorized to edit the organization.
 
+    Update methods may delete parameters not explicitly provided in the
+    data_dict if you want to edit only a specific attribute use `package_patch`
+    instead.
+
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
 
@@ -799,6 +815,10 @@ def user_update(context, data_dict):
 
     Normal users can only update their own user accounts. Sysadmins can update
     any user account. Can not modify exisiting user's name.
+
+    Update methods may delete parameters not explicitly provided in the
+    data_dict if you want to edit only a specific attribute use `package_patch`
+    instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.user_create`.
