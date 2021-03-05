@@ -147,6 +147,34 @@ maintain compatibility.
 Development Settings
 --------------------
 
+.. _ckan.devserver.host:
+
+ckan.devserver.host
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.host = 0.0.0.0
+
+Default value: localhost
+
+Host name to use when running the development server.
+
+
+.. _ckan.devserver.port:
+
+ckan.devserver.port
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.port = 5005
+
+Default value: 5000
+
+Port to use when running the development server.
+
+
 .. _ckan.devserver.threaded:
 
 ckan.devserver.threaded
