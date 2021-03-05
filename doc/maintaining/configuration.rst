@@ -310,6 +310,25 @@ This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
 
+.. _sqlalchemy.any:
+
+sqlalchemy.*
+^^^^^^^^^^^^
+
+Example::
+
+ sqlalchemy.pool_pre_ping=True
+ sqlalchemy.pool_size=10
+ sqlalchemy.max_overflow=20
+
+Custom sqlalchemy config parameters used to establish the main
+database connection.
+
+To get the list of all the available properties check the `SQLAlchemy documentation`_
+
+.. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+
+
 .. start_config-datastore-urls
 
 .. _ckan.datastore.write_url:

@@ -286,7 +286,7 @@ def update_config():
 
     # Enable pessimistic disconnect handling (added in SQLAlchemy 1.2)
     # to eliminate database errors due to stale pooled connections
-    config.setdefault('pool_pre_ping', True)
+    config.setdefault('sqlalchemy.pool_pre_ping', True)
 
     # Initialize SQLAlchemy
     engine = sqlalchemy.engine_from_config(config)
