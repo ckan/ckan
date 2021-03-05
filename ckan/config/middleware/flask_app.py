@@ -164,8 +164,6 @@ def make_flask_stack(conf):
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
-        log = logging.getLogger('werkzeug')
-        log.setLevel(logging.DEBUG)
 
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
