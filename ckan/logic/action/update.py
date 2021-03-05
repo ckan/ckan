@@ -79,8 +79,7 @@ def resource_update(context, data_dict):
     del context["resource"]
 
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
-        {'id': package_id})
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
         if p['id'] == id:
@@ -460,12 +459,8 @@ def package_revise(context, data_dict):
     if name_or_id is None:
         raise ValidationError({'match__id': _('Missing value')})
 
-    package_show_context = dict(
-        context,
-        return_type='dict',
-        for_update=True)
     orig = _get_action('package_show')(
-        package_show_context,
+        dict(context, for_update=True),
         {'id': name_or_id})
 
     pkg = package_show_context['package']  # side-effect of package_show
