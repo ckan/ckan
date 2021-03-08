@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import ckan.tests.helpers as helpers
 import ckan.plugins.toolkit as toolkit
 
 

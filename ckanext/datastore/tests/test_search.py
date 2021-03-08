@@ -3,7 +3,6 @@
 import json
 import pytest
 import sqlalchemy.orm as orm
-from six.moves.urllib.parse import urlencode
 
 import ckan.lib.create_test_data as ctd
 import ckan.logic as logic

@@ -1,6 +1,5 @@
 # encoding: utf-8
 import re
-import mock
 
 import pytest
 import sqlalchemy.orm as orm
