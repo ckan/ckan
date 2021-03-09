@@ -109,13 +109,15 @@ def ajax(resource_view_id):
         )
     except Exception:
         query_error = u'Invalid search query... ' + search_text
-        dtdata = { u'error': query_error }
+        dtdata = {u'error': query_error}
     else:
         data = []
         for row in response[u'records']:
-            record = {colname: text_type(row.get(colname, u'')) for colname in cols}
-            # the DT_RowId is used in DataTables to set an element id for each record
-            record['DT_RowId'] = 'row'+text_type(row.get(u'_id', u''))
+            record = {colname: text_type(row.get(colname, u''))
+                      for colname in cols}
+            # the DT_RowId is used in DT to set an element id for each record
+            record['DT_RowId'] = 'row' +
+                                 text_type(row.get(u'_id', u''))
             data.append(record)
 
         dtdata = {
@@ -124,6 +126,7 @@ def ajax(resource_view_id):
             u'recordsFiltered': response.get(u'total', 0),
             u'data': data
         }
+
     return json.dumps(dtdata)
 
 

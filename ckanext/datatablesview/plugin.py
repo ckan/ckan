@@ -11,7 +11,8 @@ ignore_missing = toolkit.get_validator(u'ignore_missing')
 # see https://datatables.net/examples/advanced_init/length_menu.html
 DEFAULT_PAGE_LENGTH_CHOICES = '25 50 100 500 1000'
 DEFAULT_SEARCH_DELAY = 500
-DEFAULT_STATE_DURATION = 7200 # 2 hours
+DEFAULT_STATE_DURATION = 7200  # 2 hours
+
 
 class DataTablesView(p.SingletonPlugin):
     u'''
@@ -49,7 +50,8 @@ class DataTablesView(p.SingletonPlugin):
                        DEFAULT_STATE_DURATION))
         self.data_dictionary_labels = toolkit.asbool(
             config.get(u'ckan.datatables.data_dictionary_labels', True))
-        self.default_view = config.get(u'ckan.datatables.default_view', 'table')
+        self.default_view = config.get(u'ckan.datatables.default_view',
+                                       'table')
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_public_directory(config, u'public')
