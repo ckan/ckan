@@ -1,44 +1,79 @@
 {% extends "base.html" %}
 
+{% block title %}{{ h.dataset_display_name(package)}}&mdash;{{ h.resource_display_name(resource)}} - {{ super() }}{% endblock %}
+{% block bodytag %}
+  {{ super() }}
+  class="dt-view"
+{% endblock %}
+
 {% block page %}
+{# pass the datadictionary to javascript, so we can init columns there #}
+{% set datadictionary = h.datastore_dictionary(resource.id) %}
+<script type=text/javascript>
+    var gdataDict = {{ datadictionary|tojson }}
+    var gresviewId = '{{ resource_view.id }}'
+</script>
+
 <div id="resize_wrapper">
-  <table id="dtprv"
+  <table id="dtprv" width="100%" style="width:100%"
       class="table display nowrap compact cell-border"
       data-module="datatables_view"
       data-state-save-flag="{{ state_saving|lower }}"
       data-state-duration="{{ state_duration }}"
       data-search-delay-setting="{{ search_delay }}"
-      data-resource-name="{{ resource.name }}"
-      data-resource-view-id = "{{ resource_view.id }}"
+      data-package-name="{{ package.name }}"
+      data-resource-name="{{ h.resource_display_name(resource) }}"
       data-languagefile="{{ h.url_for_static('vendor/DataTables/i18n/' + h.lang() + '.json') }}"
-      data-ajaxurl="{{ h.url_for('datatablesview.ajax',
-            resource_view_id=resource_view.id) }}"
+      data-ajaxurl="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
       data-ckanfilters="{{ request.args.get('filters', '')|e }}"
       data-responsive-flag="{{ resource_view.get('responsive')|lower }}"
       data-page-length-choices="{{ page_length_choices }}"
-      data-top-pagination-controls="{{ top_pagination_controls|lower }}"
-      >
+      data-resource-url="{{ h.url_for('resource.read', id=package.name, resource_id=resource.id ) }}">
     <thead>
       <tr>
-        <th scope="col" data-searchable="false" data-name="_id" data-type="numeric">_id</th>
-        {% for field in h.datastore_dictionary(resource.id) -%}
+        <th scope="col" data-name="_id" data-colidx="0" data-type="numeric">_id</th>
+        {% for field in datadictionary -%}
           {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
-            <th scope="col" data-name="{{field.id}}" data-type="{{field.type}}">
+            <th scope="col" data-name="{{field.id}}" data-colidx="{{ loop.index }}" data-type="{{field.type}}">
               {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
                 {{ field.info.label }}
               {%- else -%}
                 {{- field.id -}}   
-              {%- endif %}</th>
+              {%- endif %}
+              {%- if data_dictionary_labels and field.info is defined and (field.info.notes|length or field.info.label|length) -%}
+                &nbsp;<i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
+              {%- endif %}            
+            </th>
           {%- endif %}
         {% endfor -%}
+       <th id="_colspacer" scope="col" data-name="_colspacer" data-type="text">&nbsp;</th>
       </tr>
     </thead>
+    <tbody>
+    </tbody>
   </table>
   <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
                                                                   'datatablesview.filtered_download',
                                                                   resource_view_id=resource_view.id) -}}">
     <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e -}}" />
   </form>
+</div>
+
+{# we do this macro instead of the snippet because the snippet pollutes the output with comments/whitespaces which #}
+{# may be invisible for regular html, but not for tooltips #}
+{%- macro local_friendly_datetime(dt_obj) -%}
+   <span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(dt_obj, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
+    {{- h.render_datetime(dt_obj, with_hours=True) -}}
+   </span>
+{%- endmacro -%}
+
+{# we create tooltip here instead of javascript so we can leverage the automatic-local-datetime class date conversion CKAN does #}
+{% set res = resource %}
+<div id="dtv-resource-info" style="display: none;">
+  {{- _('Data last updated') }}: {{ local_friendly_datetime(res.last_modified) }}&#10;
+  {{- _('Metadata last updated') }}: {{ local_friendly_datetime(res.metadata_modified) }}&#10;
+  {{- _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
+  {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') }} ( {{ h.SI_number_span(res.size)|striptags }} )&#10;"
 </div>
 {% endblock %}
 {% block styles %}
