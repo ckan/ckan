@@ -4,7 +4,6 @@ main-css:
   contents:
     - vendor/DataTables/datatables.css
     - vendor/DataTables/datatables.mark.css
-    - vendor/DataTables/jquery.dataTables.yadcf.css
     - datatables_view.css
 main-js:
   output: ckanext-datatablesview/%(version)s_datatablesview.js
@@ -15,6 +14,5 @@ main-js:
     - vendor/DataTables/datatables.js
     - vendor/DataTables/datatables.mark.js
     - vendor/DataTables/jquery.mark.js
-    - vendor/DataTables/jquery.dataTables.yadcf.js
     - vendor/DataTables/dataTables.scrollResize.js
     - datatablesview.js
