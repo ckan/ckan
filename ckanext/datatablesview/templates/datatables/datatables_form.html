@@ -18,13 +18,23 @@
           <th scope="col">{{ _('Label') }}</th>
         </tr>
       </thead>
+        <tr>
+          <td>
+            <label class="checkbox">
+            <input type="checkbox"
+            name="show_fields"
+            id="field-show_fields_1" readonly onclick="return false"
+            value="_id" checked/>_id</label>
+          </td>
+          <td></td>
+        </tr>      
       {% for f in h.datastore_dictionary(resource.id) %}
         <tr>
           <td>
             <label class="checkbox">
             <input type="checkbox"
             name="show_fields"
-            id="field-show_fields_{{ loop.index }}"
+            id="field-show_fields_{{ loop.index + 1 }}"
             value="{{ f.id }}"
             {{ 'checked' if 'show_fields' not in data else
               'checked' if f.id in data.show_fields else '' }}
