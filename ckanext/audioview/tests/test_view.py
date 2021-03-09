@@ -1,11 +1,8 @@
 # encoding: utf-8
+import pytest
 
 from ckan.lib.helpers import url_for
 from ckan.tests import factories
-
-import ckan.plugins as p
-
-import pytest
 
 
 @pytest.mark.ckan_config('ckan.views.default_views', '')

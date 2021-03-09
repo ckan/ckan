@@ -6,7 +6,6 @@ import json
 import responses
 import six
 
-from ckan.tests.helpers import _get_test_app
 from ckan.common import config
 
 import ckan.model as model

@@ -3,7 +3,6 @@ import pytest
 import six
 import bs4
 
-import ckan.plugins.toolkit as tk
 import ckan.tests.factories as factories
 
 
