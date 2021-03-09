@@ -54,7 +54,7 @@ jobs:
         submod_full_path=$(echo "$submod_path/$submod_name")
         echo "SM_NAME=$submod_name" >> $GITHUB_ENV
         git config --file=.gitmodules submodule.$submod_full_path.branch '${{github.event.client_payload.head_ref}}'
-    # - run: git submodule sync
+    # - run: git submodule sync --recursive
     # - run: git submodule update --init --recursive --remote
     - run: cp ./contrib/docker/.env.template ./contrib/docker/.env
     - run: cp ./contrib/docker/production_root_url.ini ./contrib/docker/production.ini
@@ -100,7 +100,7 @@ jobs:
           ```
           sudo docker-compose down
           sudo docker volume rm docker_ckan_home
-          sudo docker-compose up -d
+          sudo CKAN_TAG=${{ env.TAG }} docker-compose up -d
           ```
           for full documentation see *TBD*
         repo-token: ${{ secrets.GITHUB_TOKEN }}
