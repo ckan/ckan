@@ -94,7 +94,6 @@ def ajax(resource_view_id):
     else:
         search_text = search_text + u':*' if search_text else ''
 
-    query_error = ''
     try:
         response = datastore_search(
             None, {
@@ -110,19 +109,21 @@ def ajax(resource_view_id):
         )
     except Exception:
         query_error = u'Invalid search query... ' + search_text
+        dtdata = { u'error': query_error }
+    else:
+        data = []
+        for row in response[u'records']:
+            record = {colname: text_type(row.get(colname, u'')) for colname in cols}
+            # the DT_RowId is used in DataTables to set an element id for each record
+            record['DT_RowId'] = 'row'+text_type(row.get(u'_id', u''))
+            data.append(record)
 
-    dtdata = {
-        u'draw': draw,
-        u'iTotalRecords': unfiltered_response.get(u'total', 0),
-        u'iTotalDisplayRecords': response.get(u'total', 0),
-        u'aaData': [[text_type(row.get(colname, u''))
-                     for colname in cols]
-                    for row in response[u'records']],
-    }
-
-    if query_error:
-        dtdata[u'error'] = query_error
-
+        dtdata = {
+            u'draw': draw,
+            u'recordsTotal': unfiltered_response.get(u'total', 0),
+            u'recordsFiltered': response.get(u'total', 0),
+            u'data': data
+        }
     return json.dumps(dtdata)
 
 
