@@ -3,6 +3,7 @@
     "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
     "infoEmpty": "Menampilkan 0 sampai 0 dari 0 entri",
     "infoFiltered": "(disaring dari _MAX_ entri keseluruhan)",
+    "infoThousands": "'",
     "lengthMenu": "Tampilkan _MENU_ entri",
     "loadingRecords": "Sedang memuat...",
     "processing": "Sedang memproses...",
@@ -64,116 +65,18 @@
             "0": "Cari Builder",
             "_": "Cari Builder (%d)"
         },
-        "value": "Nilai",
-        "conditions": {
-            "date": {
-                "after": "Setelah",
-                "before": "Sebelum",
-                "between": "Diantara",
-                "empty": "Kosong",
-                "equals": "Sama dengan",
-                "not": "Tidak sama",
-                "notBetween": "Tidak diantara",
-                "notEmpty": "Tidak kosong"
-            },
-            "number": {
-                "between": "Diantara",
-                "empty": "Kosong",
-                "equals": "Sama dengan",
-                "gt": "Lebih besar dari",
-                "gte": "Lebih besar atau sama dengan",
-                "lt": "Lebih kecil dari",
-                "lte": "Lebih kecil atau sama dengan",
-                "not": "Tidak sama",
-                "notBetween": "Tidak diantara",
-                "notEmpty": "Tidak kosong"
-            },
-            "string": {
-                "contains": "Berisi",
-                "empty": "Kosong",
-                "endsWith": "Diakhiri dengan",
-                "equals": "Sama Dengan",
-                "not": "Tidak sama",
-                "notEmpty": "Tidak kosong",
-                "startsWith": "Diawali dengan"
-            },
-            "array": {
-                "equals": "Sama dengan",
-                "empty": "Kosong",
-                "contains": "Berisi",
-                "not": "Tidak",
-                "notEmpty": "Tidak kosong",
-                "without": "Tanpa"
-            }
-        }
+        "value": "Nilai"
     },
     "searchPanes": {
         "clearMessage": "Bersihkan Semua",
+        "collapse": {
+            "0": "SearchPanes",
+            "_": "SearchPanes (%d)"
+        },
         "count": "{total}",
         "countFiltered": "{shown} ({total})",
-        "title": "Filter Aktif - %d",
-        "collapse": {
-            "0": "Panel Pencarian",
-            "_": "Panel Pencarian (%d)"
-        },
-        "emptyPanes": "Tidak Ada Panel Pencarian",
-        "loadMessage": "Memuat Panel Pencarian"
-    },
-    "infoThousands": ",",
-    "searchPlaceholder": "Masukkan kata kunci yang dicari",
-    "select": {
-        "1": "%d baris terpilih",
-        "_": "%d baris terpilih",
-        "cells": {
-            "1": "1 sel terpilih",
-            "_": "%d sel terpilih"
-        },
-        "columns": {
-            "1": "1 kolom terpilih",
-            "_": "%d kolom terpilih"
-        }
-    },
-    "datetime": {
-        "previous": "Sebelumnya",
-        "next": "Selanjutnya",
-        "hours": "Jam",
-        "minutes": "Menit",
-        "seconds": "Detik",
-        "unknown": "-",
-        "amPm": [
-            "am",
-            "pm"
-        ]
-    },
-    "editor": {
-        "close": "Tutup",
-        "create": {
-            "button": "Tambah",
-            "title": "Tambah entri baru",
-            "submit": "Tambah"
-        },
-        "edit": {
-            "button": "Ubah",
-            "title": "Ubah entri",
-            "submit": "Simpan"
-        },
-        "remove": {
-            "button": "Hapus",
-            "title": "Hapus",
-            "submit": "Hapus",
-            "confirm": {
-                "_": "Apakah Anda yakin untuk menghapus %d baris?",
-                "1": "Apakah Anda yakin untuk menghapus 1 baris?"
-            }
-        },
-        "error": {
-            "system": "Sistem terdapat error (<a target=\"\\\" rel=\"nofollow\" href=\"\\\">Informasi lebih lengkap<\/a>)."
-        },
-        "multi": {
-            "title": "Beberapa Nilai",
-            "info": "Item yang dipilih berisi nilai yang berbeda untuk input ini. Untuk mengedit dan mengatur semua item untuk input ini ke nilai yang sama, klik atau tekan di sini, jika tidak maka akan mempertahankan nilai masing-masing.",
-            "restore": "Batalkan Perubahan",
-            "noMulti": "Masukan ini dapat diubah satu per satu, tetapi bukan bagian dari grup."
-        }
+        "emptyPanes": "Tidak Ada SearchPanes",
+        "loadMessage": "Memuat SearchPanes",
+        "title": "Filter Aktif - %d"
     }
 }
