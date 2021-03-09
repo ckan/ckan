@@ -116,8 +116,7 @@ def ajax(resource_view_id):
             record = {colname: text_type(row.get(colname, u''))
                       for colname in cols}
             # the DT_RowId is used in DT to set an element id for each record
-            record['DT_RowId'] = 'row' +
-                                 text_type(row.get(u'_id', u''))
+            record['DT_RowId'] = 'row' + text_type(row.get(u'_id', u''))
             data.append(record)
 
         dtdata = {
