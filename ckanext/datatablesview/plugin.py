@@ -9,10 +9,9 @@ boolean_validator = toolkit.get_validator(u'boolean_validator')
 ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 # see https://datatables.net/examples/advanced_init/length_menu.html
-DEFAULT_PAGE_LENGTH_CHOICES = '10 25 50 100 500 1000'
+DEFAULT_PAGE_LENGTH_CHOICES = '25 50 100 500 1000'
 DEFAULT_SEARCH_DELAY = 500
-DEFAULT_STATE_DURATION = 7200
-
+DEFAULT_STATE_DURATION = 7200 # 2 hours
 
 class DataTablesView(p.SingletonPlugin):
     u'''
@@ -31,8 +30,8 @@ class DataTablesView(p.SingletonPlugin):
 
     def update_config(self, config):
         u'''
-        Load config and set up the resource library,
-        public directory and template directory for the view
+        Set up the resource library, public directory and
+        template directory for the view
         '''
 
         # https://datatables.net/reference/option/lengthMenu
@@ -40,8 +39,6 @@ class DataTablesView(p.SingletonPlugin):
             config.get(u'ckan.datatables.page_length_choices',
                        DEFAULT_PAGE_LENGTH_CHOICES))
         self.page_length_choices = [int(i) for i in self.page_length_choices]
-        self.top_pagination_controls = toolkit.asbool(
-            config.get(u'ckan.datatables.top_pagination_controls', False))
         self.search_delay = toolkit.asint(
             config.get(u'ckan.datatables.search_delay', DEFAULT_SEARCH_DELAY))
         self.state_saving = toolkit.asbool(
@@ -52,6 +49,7 @@ class DataTablesView(p.SingletonPlugin):
                        DEFAULT_STATE_DURATION))
         self.data_dictionary_labels = toolkit.asbool(
             config.get(u'ckan.datatables.data_dictionary_labels', True))
+        self.default_view = config.get(u'ckan.datatables.default_view', 'table')
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_public_directory(config, u'public')
@@ -65,11 +63,11 @@ class DataTablesView(p.SingletonPlugin):
 
     def setup_template_variables(self, context, data_dict):
         return {u'page_length_choices': self.page_length_choices,
-                u'top_pagination_controls': self.top_pagination_controls,
                 u'search_delay': self.search_delay,
                 u'state_saving': self.state_saving,
                 u'state_duration': self.state_duration,
-                u'data_dictionary_labels': self.data_dictionary_labels}
+                u'data_dictionary_labels': self.data_dictionary_labels,
+                u'default_view': self.default_view}
 
     def view_template(self, context, data_dict):
         return u'datatables/datatables_view.html'
