@@ -165,6 +165,11 @@ def download(package_type, id, resource_id, filename=None):
 
     try:
         rsc = get_action(u'resource_show')(context, {u'id': resource_id})
+        if rsc['package_id'] != id:
+            return base.abort(
+                    404,
+                    _(u'The resource found does not belong to the package.')
+                )
     except (NotFound, NotAuthorized):
         return base.abort(404, _(u'Resource not found'))
 

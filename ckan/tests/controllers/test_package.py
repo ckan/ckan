@@ -1087,6 +1087,22 @@ class TestResourceDownload(object):
 
         assert response.headers[u"Content-Type"] == u"text/csv"
 
+    def test_not_found_if_not_in_package(self, create_with_upload, app):
+        dataset = factories.Dataset()
+        resource = create_with_upload(
+            u"hello,world", u"file.csv",
+            package_id=dataset[u"id"]
+        )
+        dataset2 = factories.Dataset()
+
+        url = url_for(
+            u"{}_resource.download".format(dataset[u"type"]),
+            id=dataset2[u"id"],
+            resource_id=resource[u"id"],
+        )
+
+        response = app.get(url, status=404)
+
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
