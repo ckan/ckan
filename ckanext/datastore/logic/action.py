@@ -535,8 +535,8 @@ def datastore_search_sql(context, data_dict):
     Queries are only allowed if you have access to the all the CKAN resources
     in the query and send the appropriate authorization.
 
-    .. note:: This action is not available when
-        :ref:`ckan.datastore.sqlsearch.enabled` is set to false
+    .. note:: This action is not available by default and needs to be enabled
+        with the :ref:`ckan.datastore.sqlsearch.enabled` setting.
 
     .. note:: When source data columns (i.e. CSV) heading names are provided
         in all UPPERCASE you need to double quote them in the SQL select

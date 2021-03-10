@@ -3,42 +3,23 @@
     {% if change.method == "change" %}
 
       {{ _('Set author email of {pkg_link} to {new_author_email} (previously {old_author_email})').format(
-            pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-              pkg_url = h.url_for(controller='dataset',
-                                  action='read', id=change.pkg_id),
-              pkg_name = change.title
-            )|safe,
-            new_author_email = '<a href="{new_email_link}">{new_email}</a>'.format(
-              new_email_link = "mailto:" + change.new_author_email,
-              new_email = change.new_author_email
-            )|safe,
-            old_author_email = '<a href="{old_email_link}">{old_email}</a>'.format(
-              old_email_link = "mailto:" + change.old_author_email,
-              old_email = change.old_author_email
-            )|safe
-          )}}
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_author_email = h.link_to(change.new_author_email, "mailto:" + change.new_author_email),
+        old_author_email = h.link_to(change.old_author_email, "mailto:" + change.old_author_email)
+        )}}
 
     {% elif change.method == "add" %}
 
       {{ _('Set author email of {pkg_link} to {new_author_email}').format(
-          pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
-            pkg_name = change.title
-          )|safe,
-          new_author_email = '<a href="{new_email_link}">{new_email}</a>'.format(
-            new_email_link = "mailto:" + change.new_author_email,
-            new_email = change.new_author_email
-          )|safe
-      ) }}
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_author_email = h.link_to(change.new_author_email, "mailto:" + change.new_author_email)
+        ) }}
 
     {% elif change.method == "remove" %}
 
       {{ _('Removed author email from {pkg_link}').format(
-          pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
-            pkg_name = change.title
-          )|safe
-      )}}
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id)
+        )}}
 
     {% else %}
 

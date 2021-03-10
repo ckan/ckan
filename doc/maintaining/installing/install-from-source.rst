@@ -27,14 +27,14 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-jetty openjdk-8-jdk redis-server
+    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-tomcat openjdk-8-jdk redis-server
 
 .. note::
 
     For Python 2 (deprecated, but compatible with CKAN 2.9 and earlier), do
     this instead::
 
-        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+        sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-tomcat openjdk-8-jdk redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -123,12 +123,12 @@ b. Install the recommended ``setuptools`` version and up-to-date pip:
 
 c. Install the CKAN source code into your virtualenv.
 
-   To install the latest stable release of CKAN (CKAN |latest_release_version|),
+   To install the latest stable release of CKAN (CKAN |current_release_version|),
    run:
 
    .. parsed-literal::
 
-      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements]'
+      pip install -e 'git+\ |git_url|\@\ |current_release_tag|\#egg=ckan[requirements]'
 
    .. note::
 
@@ -136,7 +136,7 @@ c. Install the CKAN source code into your virtualenv.
 
       .. parsed-literal::
 
-         pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan[requirements-py2]'
+         pip install -e 'git+\ |git_url|\@\ |current_release_tag|\#egg=ckan[requirements-py2]'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of

@@ -10,7 +10,7 @@ the DataStore.
 When a resource is added to the DataStore, you get:
 
 * Automatic data previews on the resource's page, using the :ref:`Data Explorer extension <data-explorer>`
-* `The DataStore API`_: search, filter and update the data, without having to download
+* `The Data API`_: search, filter and update the data, without having to download
   and upload the entire data file
 
 The DataStore is integrated into the :doc:`CKAN API </api/index>` and
@@ -190,7 +190,7 @@ You can now delete the DataStore table with::
 
     curl -X POST http://127.0.0.1:5000/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}'
 
-To find out more about the DataStore API, see `The DataStore API`_.
+To find out more about the Data API, see `The Data API`_.
 
 
 ---------------------------------------------------
@@ -258,7 +258,7 @@ A number of parameters from :meth:`~ckanext.datastore.logic.action.datastore_sea
 
 
 -----------------
-The DataStore API
+The Data API
 -----------------
 
 The CKAN DataStore offers an API for reading, searching and filtering data without
@@ -284,10 +284,10 @@ associated CKAN resource. If data is stored in the DataStore, it will automatica
 previewed by the :ref:`recline preview extension <data-explorer>`.
 
 
-Making a DataStore API request
+Making a Data API request
 ==============================
 
-Making a DataStore API request is the same as making an Action API request: you
+Making a Data API request is the same as making an Action API request: you
 post a JSON dictionary in an HTTP POST request to an API URL, and the API also
 returns its response in a JSON dictionary. See the :doc:`/api/index` for details.
 

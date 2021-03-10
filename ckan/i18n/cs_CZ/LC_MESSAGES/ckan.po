@@ -6,6 +6,7 @@
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
 # Jiří Podhorecký, 2020
+# trendspotter <j.podhorecky@volny.cz>, 2020
 # 
 #, fuzzy
 msgid ""

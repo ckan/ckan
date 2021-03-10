@@ -8,7 +8,6 @@ from freezegun import freeze_time
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
-import ckan.plugins.toolkit as tk
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.lib.helpers import url_for

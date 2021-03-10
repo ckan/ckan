@@ -1131,6 +1131,7 @@ class MembersGroupView(MethodView):
         roles = _action(u'member_roles_list')(context, {
             u'group_type': group_type
         })
+        user_dict = {}
         if user:
             user_dict = get_action(u'user_show')(context, {u'id': user})
             user_role =\
@@ -1150,7 +1151,8 @@ class MembersGroupView(MethodView):
             u"group_dict": group_dict,
             u"roles": roles,
             u"user_role": user_role,
-            u"group_type": group_type
+            u"group_type": group_type,
+            u"user_dict": user_dict
         })
         return base.render(_replace_group_org(u'group/member_new.html'),
                            extra_vars)

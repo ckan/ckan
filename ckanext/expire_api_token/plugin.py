@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.api_token as api_token
-from ckan.logic import get_action
 
 
 def default_token_lifetime():
