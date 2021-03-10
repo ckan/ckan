@@ -45,7 +45,7 @@ To setup CKAN's FileStore with local file storage:
       ckan.storage_path = |storage_path|
 
 3. Set the permissions of your :ref:`ckan.storage_path` directory.
-   For example if you're running CKAN with Apache, then Apache's user
+   For example if you're running CKAN with Nginx, then the Nginx's user
    (``www-data`` on Ubuntu) must have read, write and execute permissions for
    the :ref:`ckan.storage_path`:
 
@@ -54,11 +54,11 @@ To setup CKAN's FileStore with local file storage:
      sudo chown www-data |storage_path|
      sudo chmod u+rwx |storage_path|
 
-4. Restart your web server, for example to restart Apache:
+4. Restart your web server, for example to restart uWSGI on a package install:
 
    .. parsed-literal::
 
-      |reload_apache|
+    sudo supervisorctl restart ckan-uwsgi:*
 
 
 -------------
@@ -95,7 +95,7 @@ To create a new resource and upload a file to it using the Python library
  requests.post('http://0.0.0.0:5000/api/action/resource_create',
                data={"package_id":"my_dataset"},
                headers={"X-CKAN-API-Key": "21a47217-6d7b-49c5-88f9-72ebd5a4d4bb"},
-               files=[('upload', file('/path/to/file/to/upload.csv'))])
+               files=[('upload', open('/path/to/file/to/upload.csv', 'rb'))])
 
 (Requests automatically sends a ``multipart-form-data`` heading when you use the
 ``files=`` parameter.)

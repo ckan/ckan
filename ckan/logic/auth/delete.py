@@ -166,3 +166,19 @@ def job_clear(context, data_dict):
 def job_cancel(context, data_dict):
     '''Cancel a background job. Only sysadmins.'''
     return {'success': False}
+
+
+def api_token_revoke(context, data_dict):
+    """Delete token.
+    """
+    if authz.auth_is_anon_user(context):
+        return {u'success': False}
+
+    model = context[u'model']
+    token = model.ApiToken.get(data_dict[u'jti'])
+
+    # Do not make distinction between absent keys and keys not owned
+    # by user in order to prevent accidential key discovery.
+    if token is None or token.owner.name != context[u'user']:
+        return {u'success': False}
+    return {u'success': True}

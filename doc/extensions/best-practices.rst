@@ -31,6 +31,8 @@ An extension can create its own tables in the CKAN database, but it should *not*
 write to core CKAN tables directly, add columns to core tables, or use foreign
 keys against core tables.
 
+.. _extensions db migrations:
+
 ------------------------------------------
 Use migrations when introducing new models
 ------------------------------------------
@@ -114,7 +116,7 @@ the name of your extension. For example:
   with the name of your extension. For example
   ``assets/example_theme_popover.js``:
 
-  .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+  .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/assets/example_theme_popover.js
 
 * The names of *API action functions* introduced by your extension should begin
   with the name of your extension. For example

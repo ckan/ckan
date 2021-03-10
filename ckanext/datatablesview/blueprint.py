@@ -78,29 +78,56 @@ def ajax(resource_view_id):
         sort_list.append(cols[sort_by_num] + u' ' + sort_order)
         i += 1
 
-    response = datastore_search(
-        None, {
-            u"q": search_text,
-            u"resource_id": resource_view[u'resource_id'],
-            u"offset": offset,
-            u"limit": limit,
-            u"sort": u', '.join(sort_list),
-            u"filters": filters,
-        }
-    )
+    colsearch_dict = {}
+    while True:
+        if u'columns[%d][search][value]' % i not in request.form:
+            break
+        v = text_type(request.form[u'columns[%d][search][value]' % i])
+        if v:
+            k = text_type(request.form[u'columns[%d][name]' % i])
+            # append ':*' so we can do partial FTS searches
+            colsearch_dict[k] = v + u':*'
+        i += 1
 
-    return json.dumps({
+    if colsearch_dict:
+        search_text = colsearch_dict
+    else:
+        search_text = search_text + u':*' if search_text else ''
+
+    query_error = ''
+    try:
+        response = datastore_search(
+            None, {
+                u"q": search_text,
+                u"resource_id": resource_view[u'resource_id'],
+                u'plain': False,
+                u'language': u'simple',
+                u"offset": offset,
+                u"limit": limit,
+                u"sort": u', '.join(sort_list),
+                u"filters": filters,
+            }
+        )
+    except Exception:
+        query_error = u'Invalid search query... ' + search_text
+
+    dtdata = {
         u'draw': draw,
         u'iTotalRecords': unfiltered_response.get(u'total', 0),
         u'iTotalDisplayRecords': response.get(u'total', 0),
         u'aaData': [[text_type(row.get(colname, u''))
                      for colname in cols]
                     for row in response[u'records']],
-    })
+    }
+
+    if query_error:
+        dtdata[u'error'] = query_error
+
+    return json.dumps(dtdata)
 
 
 def filtered_download(resource_view_id):
-    params = json.loads(request.params[u'params'])
+    params = json.loads(request.form[u'params'])
     resource_view = get_action(u'resource_view_show'
                                )(None, {
                                    u'id': resource_view_id
@@ -132,14 +159,14 @@ def filtered_download(resource_view_id):
 
     cols = [c for (c, v) in zip(cols, params[u'visible']) if v]
 
-    h.redirect_to(
+    return h.redirect_to(
         h.
         url_for(u'datastore.dump', resource_id=resource_view[u'resource_id']) +
         u'?' + urlencode({
             u'q': search_text,
             u'sort': u','.join(sort_list),
             u'filters': json.dumps(filters),
-            u'format': request.params[u'format'],
+            u'format': request.form[u'format'],
             u'fields': u','.join(cols),
         })
     )
@@ -151,5 +178,5 @@ datatablesview.add_url_rule(
 
 datatablesview.add_url_rule(
     u'/datatables/filtered-download/<resource_view_id>',
-    view_func=filtered_download
+    view_func=filtered_download, methods=[u'POST']
 )

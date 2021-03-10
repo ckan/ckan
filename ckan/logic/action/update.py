@@ -79,8 +79,7 @@ def resource_update(context, data_dict):
     del context["resource"]
 
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
-        {'id': package_id})
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
         if p['id'] == id:
@@ -373,28 +372,28 @@ def package_revise(context, data_dict):
                   is not "big.csv".
     :type match: dict
     :param filter: a list of string patterns of fields to remove from the
-                   current dataset. e.g. ``["-resources__1"]`` would remove the
-                   second resource, ``["+title", "+resources", "-*"]`` would
+                   current dataset. e.g. ``"-resources__1"`` would remove the
+                   second resource, ``"+title, +resources, -*"`` would
                    remove all fields at the dataset level except title and
                    all resources (default: ``[]``)
-    :type filter: list of string patterns
+    :type filter: comma-separated string patterns or list of string patterns
     :param update: a dict with values to update/create after filtering
                    e.g. ``{"resources": [{"description": "file here"}]}`` would
                    update the description for the first resource
     :type update: dict
     :param include: a list of string pattern of fields to include in response
-                    e.g. ``["-*"]`` to return nothing (default: ``[]`` all
+                    e.g. ``"-*"`` to return nothing (default: ``[]`` all
                     fields returned)
-    :type include: list of string patterns
+    :type include: comma-separated-string patterns or list of string patterns
 
-    ``match`` and ``update`` parameters may also be passed as path keys, using
+    ``match`` and ``update`` parameters may also be passed as "flattened keys", using
     either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
-    ``update__resource__1f9ab__description="file here"`` would set the
-    description of the resource with id starting with "1f9ab" to "file here", and
-    ``update__resource__1__description="file here"`` would do the same
-    on the second resource in the dataset.
+    ``update__resource__1f9ab__description="guidebook"`` would set the
+    description of the resource with id starting with "1f9ab" to "guidebook", and
+    ``update__resource__-1__description="guidebook"`` would do the same
+    on the last resource in the dataset.
 
-    The ``extend`` key can also be used on the update parameter to add
+    The ``extend`` suffix can also be used on the update parameter to add
     a new item to a list, e.g. ``update__resources__extend=[{"name": "new resource", "url": "https://example.com"}]``
     will add a new resource to the dataset with the provided ``name`` and ``url``.
 
@@ -407,9 +406,9 @@ def package_revise(context, data_dict):
 
     * Identical to above, but using flattened keys::
 
-        match__name "xyz"
-        match__notes "old notes"
-        update__notes "new notes"
+        match__name="xyz"
+        match__notes="old notes"
+        update__notes="new notes"
 
     * Replace all fields at dataset level only, keep resources (note: dataset id
       and type fields can't be deleted) ::
@@ -440,7 +439,7 @@ def package_revise(context, data_dict):
         update__resources__1492a={"name": "edits here", "url": "http://example.com"}
 
 
-    :returns: the updated dataset with fields filtered by include parameter
+    :returns: a dict containing 'package':the updated dataset with fields filtered by include parameter
     :rtype: dictionary
 
     '''
@@ -462,7 +461,6 @@ def package_revise(context, data_dict):
 
     package_show_context = dict(
         context,
-        return_type='dict',
         for_update=True)
     orig = _get_action('package_show')(
         package_show_context,
@@ -496,10 +494,18 @@ def package_revise(context, data_dict):
             model.Session.rollback()
             raise ValidationError([{'update': [de.error]}])
 
-    for k, v in sorted(data['update__'].items()):
-        dfunc.update_merge_string_key(orig, k, v)
+    # update __extend keys before __#__* so that files may be
+    # attached to newly added resources in the same call
+    try:
+        for k, v in sorted(
+                data['update__'].items(),
+                key=lambda s: s[0][-6] if s[0].endswith('extend') else s[0]):
+            dfunc.update_merge_string_key(orig, k, v)
+    except dfunc.DataError as de:
+        model.Session.rollback()
+        raise ValidationError([{k: [de.error]}])
 
-    _check_access('package_revise', context, orig)
+    _check_access('package_revise', context, {"update": orig})
 
     # future-proof return dict by putting package data under
     # "package". We will want to return activity info
@@ -647,7 +653,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    upload = uploader.get_uploader('group', group.image_url)
+    upload = uploader.get_uploader('group')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
 
@@ -815,6 +821,10 @@ def user_update(context, data_dict):
 
     _check_access('user_update', context, data_dict)
 
+    upload = uploader.get_uploader('user')
+    upload.update_data_dict(data_dict, 'image_url',
+                            'image_upload', 'clear_upload')
+
     data, errors = _validate(data_dict, schema, context)
     if errors:
         session.rollback()
@@ -841,6 +851,8 @@ def user_update(context, data_dict):
     _get_action('activity_create')(activity_create_context, activity_dict)
     # TODO: Also create an activity detail recording what exactly changed in
     # the user.
+
+    upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1202,6 +1214,17 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
+    # Handle Activity Stream for Bulk Operations
+    user = context['user']
+    user_obj = model.User.by_name(user)
+    if user_obj:
+        user_id = user_obj.id
+    else:
+        user_id = 'not logged in'
+    for dataset in datasets:
+        entity = model.Package.get(dataset)
+        activity = entity.activity_stream_item('changed', user_id)
+        model.Session.add(activity)
     model.Session.commit()
 
     # solr update here

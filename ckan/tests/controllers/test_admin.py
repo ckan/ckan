@@ -49,22 +49,8 @@ class TestConfig(object):
         reset_index_response = app.get("/")
         assert "Welcome - CKAN" in reset_index_response
 
-    def test_main_css_list(self, app, sysadmin_env):
-        """Style list contains pre-configured styles"""
-
-        STYLE_NAMES = ["Default", "Red", "Green", "Maroon", "Fuchsia"]
-
-        url = url_for(u"admin.config")
-        config_response = app.get(url, environ_overrides=sysadmin_env)
-        config_response_html = BeautifulSoup(config_response.body)
-        style_select_options = config_response_html.select(
-            "#field-ckan-main-css option"
-        )
-        for option in style_select_options:
-            assert option.string in STYLE_NAMES
-
     def test_main_css(self, app, sysadmin_env):
-        """Select a colour style"""
+        """Define a custom css file"""
 
         # current style
         index_response = app.get("/")
@@ -72,10 +58,10 @@ class TestConfig(object):
 
         url = url_for(u"admin.config")
         # set new style css
-        form = {"ckan.main_css": "/base/css/red.css", "save": ""}
+        form = {"ckan.main_css": "/base/css/main-rtl.css", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
-        assert "red.css" in resp or "red.min.css" in resp
+        assert "main-rtl.css" in resp or "main-rtl.min.css" in resp
         assert not helpers.body_contains(resp, "main.min.css")
 
     def test_tag_line(self, app, sysadmin_env):

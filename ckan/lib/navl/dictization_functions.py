@@ -405,7 +405,7 @@ def unflatten(data):
     '''
 
     unflattened = {}
-    convert_to_list = []
+    clean_lists = {}
 
     for flattend_key in sorted(data.keys(), key=flattened_order_key):
         current_pos = unflattened
@@ -414,14 +414,22 @@ def unflatten(data):
             try:
                 current_pos = current_pos[key]
             except IndexError:
-                new_pos = {}
-                current_pos.append(new_pos)
+                while True:
+                    new_pos = {}
+                    current_pos.append(new_pos)
+                    if key < len(current_pos):
+                        break
+                    # skipped list indexes need to be removed before returning
+                    clean_lists[id(current_pos)] = current_pos
                 current_pos = new_pos
             except KeyError:
                 new_pos = []
                 current_pos[key] = new_pos
                 current_pos = new_pos
         current_pos[flattend_key[-1]] = data[flattend_key]
+
+    for cl in clean_lists.values():
+        cl[:] = [i for i in cl if i]
 
     return unflattened
 
@@ -524,7 +532,7 @@ def resolve_string_key(data, string_key):
 
         try:
             index = int(k)
-            if index < 0 or index >= len(current):
+            if index < -len(current) or index >= len(current):
                 raise ValueError
         except ValueError:
             raise DataError('Unmatched key %s' % '__'.join(

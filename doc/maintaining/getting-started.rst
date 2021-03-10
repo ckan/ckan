@@ -46,9 +46,11 @@ Or, if you already have an existing user, you could promote him to a sysadmin:
 
    ckan -c |ckan.ini| sysadmin add seanh
 
-For a list of other command line commands for managing sysadmins, run::
+For a list of other command line commands for managing sysadmins, run:
 
- ckan -c |ckan.ini| sysadmin --help
+.. parsed-literal::
+
+   ckan -c |ckan.ini| sysadmin --help
 
 Read the :doc:`/sysadmin-guide` to learn what you can do as a
 CKAN sysadmin.
@@ -61,18 +63,27 @@ Creating test data
 
 It can be handy to have some test data to start with, to quickly check that
 everything works. You can add a standard set of test data to your site from the
-command line with the ``create-test-data`` command:
+command line with the following ``seed`` commands:
 
 .. parsed-literal::
 
-   ckan -c |ckan.ini| create-test-data
+   ckan -c |ckan.ini| seed basic
+   ckan -c |ckan.ini| seed family
+   ckan -c |ckan.ini| seed gov
+   ckan -c |ckan.ini| seed hierarchy
+   ckan -c |ckan.ini| seed search
+   ckan -c |ckan.ini| seed translations
+   ckan -c |ckan.ini| seed user
+   ckan -c |ckan.ini| seed vocabs
 
 If you later want to delete this test data and start again with an empty
 database, you can use the :ref:`db clean <db clean>` command.
 
-For a list of other command line commands for creating tests data, run::
+For a short description of these seed subcommands for creating test data, run:
 
- ckan -c |ckan.ini| create-test-data --help
+.. parsed-literal::
+
+   ckan -c |ckan.ini| seed --help
 
 -----------
 Config file
@@ -90,11 +101,11 @@ text editor. For example, to change the title of your site you would find the
 Make sure the line is not commented-out (lines in the config file that begin
 with ``#`` are considered comments, so if there's a ``#`` at the start of a
 line you've edited, delete it), save the file, and then restart your web server
-for the changes to take effect. For example, if using Apache on Ubuntu:
+for the changes to take effect. For example, if using a CKAN package install:
 
 .. parsed-literal::
 
-   |reload_apache|
+   |restart_uwsgi|
 
 For full documentation of CKAN's config file and all the options you can set,
 see :doc:`configuration`.

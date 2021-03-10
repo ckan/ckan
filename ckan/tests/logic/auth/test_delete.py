@@ -131,6 +131,51 @@ def test_sysadmin_user_can_clear():
     assert response
 
 
+class TestApiToken(object):
+    def test_anon_is_not_allowed_to_revoke_tokens(self):
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(
+                u"api_token_revoke",
+                {u"user": None, u"model": model}
+            )
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_auth_user_is_allowed_to_revoke_tokens(self):
+        user = factories.User()
+        token = model.ApiToken(user[u"id"])
+        model.Session.add(token)
+        model.Session.commit()
+
+        helpers.call_auth(u"api_token_revoke", {
+            u"model": model,
+            u"user": user[u"name"]
+        }, jti=token.id)
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_auth_user_is_allowed_to_revoke_unowned_tokens(self):
+        owner = factories.User()
+        not_owner = factories.User()
+        token = model.ApiToken(owner[u"id"])
+        model.Session.add(token)
+        model.Session.commit()
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(u"api_token_revoke", {
+                u"model": model,
+                u"user": not_owner[u"name"]
+            }, jti=token.id)
+
+    @pytest.mark.usefixtures(u"clean_db")
+    def test_auth_user_is_allowed_to_revoke_unexisting_tokens(self):
+        user = factories.User()
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(u"api_token_revoke", {
+                u"model": model,
+                u"user": user[u"name"]
+            }, jti='not-exists')
+
+
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDeleteAuth(object):

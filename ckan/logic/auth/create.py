@@ -255,6 +255,14 @@ def member_create(context, data_dict):
         return {'success': True}
 
 
+def api_token_create(context, data_dict):
+    """Create new token for current user.
+    """
+    user = context['model'].User.get(data_dict['user'])
+    return {'success': user.name == context['user']}
+
+
+
 def package_collaborator_create(context, data_dict):
     '''Checks if a user is allowed to add collaborators to a dataset
 

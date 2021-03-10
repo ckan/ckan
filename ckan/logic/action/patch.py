@@ -107,7 +107,8 @@ def group_patch(context, data_dict):
     patched = dict(group_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _update.group_update(context, patched)
+    return _update.group_update(
+        dict(context, allow_partial_update=True), patched)
 
 
 def organization_patch(context, data_dict):
@@ -137,4 +138,35 @@ def organization_patch(context, data_dict):
     patched = dict(organization_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _update.organization_update(context, patched)
+    return _update.organization_update(
+        dict(context, allow_partial_update=True), patched)
+
+
+def user_patch(context, data_dict):
+    '''Patch a user
+
+    :param id: the id or name of the user
+    :type id: string
+
+    The difference between the update and patch methods is that the patch will
+    perform an update of the provided parameters, while leaving all other
+    parameters unchanged, whereas the update methods deletes all parameters
+    not explicitly provided in the data_dict
+    '''
+    _check_access('user_patch', context, data_dict)
+
+    show_context = {
+        'model': context['model'],
+        'session': context['session'],
+        'user': context['user'],
+        'auth_user_obj': context['auth_user_obj'],
+    }
+
+    user_dict = _get_action('user_show')(
+        show_context,
+        {'id': _get_or_bust(data_dict, 'id')})
+
+    patched = dict(user_dict)
+    patched.pop('display_name', None)
+    patched.update(data_dict)
+    return _update.user_update(context, patched)

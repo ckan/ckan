@@ -1,8 +1,10 @@
 {% extends "package/read_base.html" %}
 {% import 'macros/form.html' as form %}
 
+{% set default_group_type = h.default_group_type('group') %}
+
 {% block primary_content_inner %}
-  <h2 class="hide-heading">{{ _('Groups') }}</h2>
+  <h2 class="hide-heading">{{ h.humanize_entity_type('group', default_group_type, 'page title') or _('Groups') }}</h2>
 
   {% if group_dropdown %}
     <form class="add-to-group" method="post">
@@ -20,7 +22,7 @@
       {% snippet 'group/snippets/group_list.html', groups=pkg_dict.groups %}
     </form>
   {% else %}
-    <p class="empty">{{ _('There are no groups associated with this dataset') }}</p>
+    <p class="empty">{{ h.humanize_entity_type('group', default_group_type, 'no associated label') or _('There are no groups associated with this dataset') }}</p>
   {% endif %}
 
 {% endblock %}

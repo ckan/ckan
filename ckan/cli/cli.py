@@ -36,6 +36,12 @@ from ckan.cli import seed
 
 log = logging.getLogger(__name__)
 
+_no_config_commands = [
+    [u'config-tool'],
+    [u'generate', u'config'],
+    [u'generate', u'extension'],
+]
+
 
 class CkanCommand(object):
 
@@ -83,18 +89,20 @@ def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
 
 def _init_ckan_config(ctx, param, value):
     is_help = u'--help' in sys.argv
-    no_config = len(sys.argv) > 1 and sys.argv[1] in (
-        u'generate', u'config-tool')
+    no_config = False
+    if len(sys.argv) > 1:
+        for cmd in _no_config_commands:
+            if sys.argv[1:len(cmd) + 1] == cmd:
+                no_config = True
+                break
+    if no_config or is_help:
+        return
 
     try:
         ctx.obj = CkanCommand(value)
     except CkanConfigurationException as e:
-        # Some commands don't require the config loaded
-        if no_config or is_help:
-            return
-        else:
-            log.warn(u'Configuration not loaded: %s', e)
-            raise click.Abort()
+        p.toolkit.error_shout(e)
+        raise click.Abort()
 
     if six.PY2:
         ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app

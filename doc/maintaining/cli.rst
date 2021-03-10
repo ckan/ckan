@@ -57,16 +57,16 @@ to execute. Most commands have their own subcommands and options.
   environment variable. You will no longer need to use --config= or -c to
   tell ckan where the config file is:
 
-  
+
 .. parsed-literal::
 
  export CKAN_INI=\ |ckan.ini|
 
 .. note::
 
-  Deprecated usage: You can run the ckan command in the same directory as the
-  CKAN config file when the config file is named 'development.ini'. You will
-  not be required to use --config or -c in this case. This usage is deprecated
+  You can run the ckan command in the same directory as the
+  CKAN config file when the config file is named 'ckan.ini'. You will
+  not be required to use --config or -c in this case. For backwards compatibility, the config file can be also named 'development.ini', but this usage is deprecated
   and will be phased out in a future CKAN release.
 
 .. parsed-literal::
@@ -133,19 +133,7 @@ Running ckan commands provided by extensions
 
 **If you're trying to run a CKAN command provided by an extension** that you've
 installed and you're getting an error like **Command 'foo' not known** even
-though you've activated your virtualenv and changed to the ckan directory, this
-is because you need to run the extension's ckan commands from the extension's
-source directory not CKAN's source directory. For example:
-
-.. parsed-literal::
-
- |activate|
- cd |virtualenv|/src/ckanext-spatial
- ckan -c |ckan.ini| foo
-
-This should not be necessary when using the pre-installed extensions that come
-with CKAN.
-
+though you've activated your virtualenv, make sure that you have added the relevant plugin to the :ref:`ckan.plugins` setting in the ini file.
 
 Wrong config file path
 ======================
@@ -184,10 +172,10 @@ less              Compile all root less documents into their CSS counterparts
 minify            Create minified versions of the given Javascript and CSS files.
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
-profile           Code speed profiler
+profile           Code speed profiler.
+run               Start Development server.
 search-index      Creates a search index for all datasets
 seed              Create test data in the database.
-server            Start Development server.
 sysadmin          Gives sysadmin rights to a named user.
 tracking          Update tracking statistics.
 translation       Translation helper functions
@@ -253,7 +241,7 @@ Usage
  ckan dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
 
 
-datastore: Perform commands to set up the datastore
+datastore: Perform commands in the datastore
 ===================================================
 
 Make sure that the datastore URLs are set properly before you run these commands.
@@ -264,6 +252,7 @@ Usage
 
  ckan datastore set-permissions  - generate SQL for permission configuration
  ckan datastore dump             - dump a datastore resource
+ ckan datastore purge            - purge orphaned datastore resources
 
 
 db: Manage databases
@@ -448,7 +437,7 @@ Usage
 .. parsed-literal::
 
  ckan minify [--clean] PATH     - remove any minified files in the path
- 
+
 .. parsed-literal::
 
  ckan -c |ckan.ini| minify ckan/public/base
@@ -492,6 +481,19 @@ The result is saved in profile.data.search. To view the profile in runsnakerun::
    runsnakerun ckan.data.search.profile
 
 You may need to install the cProfile python module.
+
+
+run: Start Development server
+==================================
+
+Usage
+
+.. parsed-literal::
+
+ ckan run --host (-h)                  - Set Host
+ ckan run --port (-p)                  - Set Port
+ ckan run --disable-reloader (-r)      - Use reloader
+
 
 
 search-index: Search index commands
@@ -579,18 +581,6 @@ Examples
 .. parsed-literal::
 
  ckan -c |ckan.ini| seed basic
-
-
-server: Start Development server
-==================================
-
-Usage
-
-.. parsed-literal::
-
- ckan server --host (-h)          - Set Host
- ckan server --port (-p)          - Set Port
- ckan server --reloader (-r)      - Use reloader
 
 
 sysadmin: Give sysadmin rights

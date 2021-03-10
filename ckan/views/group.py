@@ -43,16 +43,15 @@ lookup_group_blueprint = lib_plugins.lookup_group_blueprints
 is_org = False
 
 
-def _index_template(group_type):
-    return lookup_group_plugin(group_type).index_template()
-
-
-def _group_form(group_type=None):
-    return lookup_group_plugin(group_type).group_form()
-
-
-def _form_to_db_schema(group_type=None):
-    return lookup_group_plugin(group_type).form_to_db_schema()
+def _get_group_template(template_type, group_type=None):
+    group_plugin = lookup_group_plugin(group_type)
+    method = getattr(group_plugin, template_type)
+    try:
+        return method(group_type)
+    except TypeError as err:
+        if u'takes 1' not in str(err) and u'takes exactly 1' not in str(err):
+            raise
+        return method()
 
 
 def _db_to_form_schema(group_type=None):
@@ -66,38 +65,6 @@ def _setup_template_variables(context, data_dict, group_type=None):
         data_dict[u'type'] = group_type
     return lookup_group_plugin(group_type).\
         setup_template_variables(context, data_dict)
-
-
-def _new_template(group_type):
-    return lookup_group_plugin(group_type).new_template()
-
-
-def _about_template(group_type):
-    return lookup_group_plugin(group_type).about_template()
-
-
-def _read_template(group_type):
-    return lookup_group_plugin(group_type).read_template()
-
-
-def _history_template(group_type):
-    return lookup_group_plugin(group_type).history_template()
-
-
-def _edit_template(group_type):
-    return lookup_group_plugin(group_type).edit_template()
-
-
-def _activity_template(group_type):
-    return lookup_group_plugin(group_type).activity_template()
-
-
-def _admins_template(group_type):
-    return lookup_group_plugin(group_type).admins_template()
-
-
-def _bulk_process_template(group_type):
-    return lookup_group_plugin(group_type).bulk_process_template()
 
 
 def _replace_group_org(string):
@@ -213,7 +180,8 @@ def index(group_type, is_organization):
         h.flash_error(msg)
         extra_vars["page"] = h.Page([], 0)
         extra_vars["group_type"] = group_type
-        return base.render(_index_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template(u'index_template', group_type), extra_vars)
 
     data_dict_page_results = {
         u'all_fields': True,
@@ -239,7 +207,8 @@ def index(group_type, is_organization):
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
     g.page = extra_vars["page"]
-    return base.render(_index_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template(u'index_template', group_type), extra_vars)
 
 
 def _read(id, limit, group_type):
@@ -293,7 +262,7 @@ def _read(id, limit, group_type):
     def drill_down_url(**by):
         return h.add_url_param(
             alternative_url=None,
-            controller=u'group',
+            controller=group_type,
             action=u'read',
             extras=dict(id=g.group_dict.get(u'name')),
             new_params=by)
@@ -331,9 +300,19 @@ def _read(id, limit, group_type):
 
     facets = OrderedDict()
 
+    org_label = h.humanize_entity_type(
+        u'organization',
+        h.default_group_type(u'organization'),
+        u'facet label') or _(u'Organizations')
+
+    group_label = h.humanize_entity_type(
+        u'group',
+        h.default_group_type(u'group'),
+        u'facet label') or _(u'Groups')
+
     default_facet_titles = {
-        u'organization': _(u'Organizations'),
-        u'groups': _(u'Groups'),
+        u'organization': org_label,
+        u'groups': group_label,
         u'tags': _(u'Tags'),
         u'res_format': _(u'Formats'),
         u'license_id': _(u'Licenses')
@@ -479,7 +458,9 @@ def read(group_type, is_organization, id=None, limit=20):
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
 
-    return base.render(_read_template(g.group_dict['type']), extra_vars)
+    return base.render(
+        _get_group_template(u'read_template', g.group_dict['type']),
+        extra_vars)
 
 
 def activity(id, group_type, is_organization, offset=0):
@@ -522,7 +503,8 @@ def activity(id, group_type, is_organization, offset=0):
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
     extra_vars["id"] = id
-    return base.render(_activity_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template(u'activity_template', group_type), extra_vars)
 
 
 def about(id, group_type, is_organization):
@@ -542,7 +524,8 @@ def about(id, group_type, is_organization):
     extra_vars = {u"group_dict": group_dict,
                   u"group_type": group_type}
 
-    return base.render(_about_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template(u'about_template', group_type), extra_vars)
 
 
 def members(id, group_type, is_organization):
@@ -712,7 +695,9 @@ def admins(id, group_type, is_organization):
         u"admins": admins
     }
 
-    return base.render(_admins_template(group_dict['type']), extra_vars)
+    return base.render(
+        _get_group_template(u'admins_template', group_dict['type']),
+        extra_vars)
 
 
 class BulkProcessView(MethodView):
@@ -766,7 +751,9 @@ class BulkProcessView(MethodView):
             u'group_type': group_type
         }
 
-        return base.render(_bulk_process_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template(u'bulk_process_template', group_type),
+            extra_vars)
 
     def post(self, id, group_type, is_organization, data=None):
         set_org(is_organization)
@@ -780,7 +767,12 @@ class BulkProcessView(MethodView):
             group_dict = _action(u'group_show')(context, data_dict)
             group = context['group']
         except NotFound:
-            base.abort(404, _(u'Group not found'))
+            group_label = h.humanize_entity_type(
+                u'organization' if is_organization else u'group',
+                group_type,
+                u'default label') or _(
+                    u'Organization' if is_organization else u'Group')
+            base.abort(404, _(u'{} not found'.format(group_label)))
         except NotAuthorized:
             base.abort(403,
                        _(u'User %r not authorized to edit %s') % (g.user, id))
@@ -915,7 +907,7 @@ class CreateGroupView(MethodView):
         _setup_template_variables(
             context, data, group_type=group_type)
         form = base.render(
-            _group_form(group_type=group_type), extra_vars)
+            _get_group_template(u'group_form', group_type), extra_vars)
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -923,7 +915,8 @@ class CreateGroupView(MethodView):
         g.form = form
 
         extra_vars["form"] = form
-        return base.render(_new_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template(u'new_template', group_type), extra_vars)
 
 
 class EditGroupView(MethodView):
@@ -1001,7 +994,8 @@ class EditGroupView(MethodView):
         }
 
         _setup_template_variables(context, data, group_type=group_type)
-        form = base.render(_group_form(group_type), extra_vars)
+        form = base.render(
+            _get_group_template(u'group_form', group_type), extra_vars)
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -1013,7 +1007,7 @@ class EditGroupView(MethodView):
 
         extra_vars["form"] = form
         return base.render(
-            _edit_template(group_type), extra_vars)
+            _get_group_template(u'edit_template', group_type), extra_vars)
 
 
 class DeleteGroupView(MethodView):
@@ -1036,13 +1030,12 @@ class DeleteGroupView(MethodView):
         context = self._prepare(id)
         try:
             _action(u'group_delete')(context, {u'id': id})
-            if group_type == u'organization':
-                h.flash_notice(_(u'Organization has been deleted.'))
-            elif group_type == u'group':
-                h.flash_notice(_(u'Group has been deleted.'))
-            else:
-                h.flash_notice(
-                    _(u'%s has been deleted.') % _(group_type.capitalize()))
+            group_label = h.humanize_entity_type(
+                u'group',
+                group_type,
+                u'has been deleted') or _(u'Group')
+            h.flash_notice(
+                _(u'%s has been deleted.') % _(group_label))
             group_dict = _action(u'group_show')(context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
@@ -1138,6 +1131,7 @@ class MembersGroupView(MethodView):
         roles = _action(u'member_roles_list')(context, {
             u'group_type': group_type
         })
+        user_dict = {}
         if user:
             user_dict = get_action(u'user_show')(context, {u'id': user})
             user_role =\
@@ -1153,12 +1147,13 @@ class MembersGroupView(MethodView):
         g.roles = roles
         g.user_role = user_role
 
-        extra_vars = {
+        extra_vars.update({
             u"group_dict": group_dict,
             u"roles": roles,
             u"user_role": user_role,
-            u"group_type": group_type
-        }
+            u"group_type": group_type,
+            u"user_dict": user_dict
+        })
         return base.render(_replace_group_org(u'group/member_new.html'),
                            extra_vars)
 

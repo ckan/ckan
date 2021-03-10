@@ -44,6 +44,8 @@ def owner_org_validator(key, data, errors, context):
     model = context['model']
     user = context['user']
     user = model.User.get(user)
+    package = context.get('package')
+
     if value == '':
         if not authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('An organization must be provided'))
@@ -52,7 +54,6 @@ def owner_org_validator(key, data, errors, context):
     if (authz.check_config_permission('allow_dataset_collaborators')
             and not authz.check_config_permission('allow_collaborators_to_change_owner_org')):
 
-        package = context.get('package')
         if package and user and not user.sysadmin:
             is_collaborator = authz.user_is_collaborator_on_dataset(
                 user.id, package.id, ['admin', 'editor'])
@@ -70,10 +71,14 @@ def owner_org_validator(key, data, errors, context):
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    if not context.get(u'ignore_auth', False) and not(user.sysadmin or
-           authz.has_user_permission_for_group_or_org(
-               group_id, user.name, 'create_dataset')):
-        raise Invalid(_('You cannot add a dataset to this organization'))
+
+    if not package or (package and package.owner_org != group_id):
+        # This is a new dataset or we are changing the organization
+        if not context.get(u'ignore_auth', False) and not(user.sysadmin or
+               authz.has_user_permission_for_group_or_org(
+                   group_id, user.name, 'create_dataset')):
+            raise Invalid(_('You cannot add a dataset to this organization'))
+
     data[key] = group_id
 
 
@@ -124,7 +129,7 @@ def natural_number_validator(value, context):
 def is_positive_integer(value, context):
     value = int_validator(value, context)
     if value < 1:
-        raise Invalid(_('Must be a postive integer'))
+        raise Invalid(_('Must be a positive integer'))
     return value
 
 def boolean_validator(value, context):
@@ -449,8 +454,9 @@ def tag_name_validator(value, context):
 
     tagname_match = re.compile('[\w \-.]*$', re.UNICODE)
     if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" must be alphanumeric '
-                        'characters or symbols: -_.') % (value))
+        raise Invalid(_('Tag "%s" can only contain alphanumeric '
+                        'characters, spaces (" "), hyphens ("-"), '
+                        'underscores ("_") or dots (".")') % (value))
     return value
 
 def tag_not_uppercase(value, context):
@@ -783,6 +789,14 @@ def if_empty_guess_format(key, data, errors, context):
     # if resource_id then an update
     if (not value or value is Missing) and not resource_id:
         url = data.get(key[:-1] + ('url',), '')
+        if not url:
+            return
+
+        # Uploaded files have only the filename as url, so check scheme to determine if it's an actual url
+        parsed = urlparse(url)
+        if parsed.scheme and not parsed.path:
+            return
+
         mimetype, encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype
@@ -935,9 +949,8 @@ def email_is_unique(key, data, errors, context):
                 return
 
     raise Invalid(
-                _('The email address \'{email}\' \
-                    belongs to a registered user.').
-                        format(email=data[key]))
+        _('The email address \'{email}\' belongs to a registered user.').format(email=data[key]))
+
 
 def one_of(list_of_value):
     ''' Checks if the provided value is present in a list '''

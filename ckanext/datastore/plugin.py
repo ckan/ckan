@@ -6,7 +6,6 @@ from six import string_types
 
 import ckan.plugins as p
 import ckan.logic as logic
-import ckan.model as model
 from ckan.model.core import State
 
 import ckanext.datastore.helpers as datastore_helpers
@@ -145,9 +144,10 @@ class DatastorePlugin(p.SingletonPlugin):
             if res.extras.get('datastore_active') is True]
 
         for res in deleted:
-            self.backend.delete(context, {
-                'resource_id': res.id,
-            })
+            if self.backend.resource_exists(res.id):
+                self.backend.delete(context, {
+                    'resource_id': res.id,
+                })
             res.extras['datastore_active'] = False
             res_query.filter_by(id=res.id).update(
                 {'extras': res.extras}, synchronize_session=False)

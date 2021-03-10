@@ -8,11 +8,13 @@ import pytest
 from six import text_type
 from six.moves import xrange
 
+from ckan import model
 import ckan.logic as logic
 import ckan.logic.schema as schema
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+import ckan.plugins.toolkit as tk
 from ckan import __version__
 from ckan.lib.search.common import SearchError
 
@@ -119,7 +121,7 @@ class TestPackageShow(object):
                 u"created": u"2019-05-24T15:52:30.123456",
                 u"description": u"Just another test organization.",
                 u"id": u"<SOME-UUID>",
-                u"image_url": u"http://placekitten.com/g/200/100",
+                u"image_url": u"https://placekitten.com/g/200/100",
                 u"is_organization": True,
                 u"name": u"test_org_num",
                 u"state": u"active",
@@ -341,7 +343,6 @@ class TestGroupList(object):
         assert "datasets" not in group_list[0]
 
     def _create_bulk_groups(self, name, count):
-        from ckan import model
 
         groups = [
             model.Group(name="{}_{}".format(name, i)) for i in range(count)
@@ -458,6 +459,15 @@ class TestGroupList(object):
 
         assert len(group_list) == 1
         assert group_list[0] == group2["name"]
+
+    def test_group_list_limit_as_string(self):
+
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+
+        group_list = helpers.call_action("group_list", limit="1")
+
+        assert len(group_list) == 1
 
     def test_group_list_wrong_limit(self):
 
@@ -733,10 +743,22 @@ class TestOrganizationList(object):
         results = helpers.call_action("organization_list")
         assert len(results) == 5  # i.e. configured limit
 
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    def test_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_default", 5)
+        results = helpers.call_action("organization_list", limit=2)
+        assert len(results) == 2
+
     def test_all_fields_limit_default(self):
         self._create_bulk_orgs("org_all_fields_default", 30)
         results = helpers.call_action("organization_list", all_fields=True)
         assert len(results) == 25  # i.e. default value
+
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_all_fields_max", "5")
+    def test_all_fields_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_all_fields_default", 5)
+        results = helpers.call_action("organization_list", all_fields=True, limit=2)
+        assert len(results) == 2
 
     @pytest.mark.ckan_config(
         "ckan.group_and_organization_list_all_fields_max", "5"
@@ -906,6 +928,87 @@ class TestUserList(object):
         assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user == user_a["name"]
+
+    def test_user_list_order_by_default(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        expected_names = [
+            u['name'] for u in [
+                users[3],  # Kathy Tillman
+                users[1],  # Max Hankins
+                users[2],  # morgan_w
+                users[0],  # Xander Bird
+            ]
+        ]
+
+        got_users = helpers.call_action('user_list')
+        got_names = [
+            u['name'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_names == expected_names
+
+    def test_user_list_order_by_fullname_only(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        expected_fullnames = sorted([u['fullname'] for u in users])
+
+        got_users = helpers.call_action('user_list', order_by='fullname')
+        got_fullnames = [
+            u['fullname'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_fullnames == expected_fullnames
+
+    def test_user_list_order_by_created_datasets(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        datasets = [
+            factories.Dataset(user=users[1]),
+            factories.Dataset(user=users[1])
+        ]
+        for dataset in datasets:
+            dataset["title"] = "Edited title"
+            helpers.call_action(
+                'package_update', context={'user': users[1]['name']}, **dataset
+            )
+        expected_names = [
+            u['name'] for u in [
+                users[0],  # 0 packages created
+                users[2],  # 0 packages created
+                users[1],  # 2 packages created
+            ]
+        ]
+
+        got_users = helpers.call_action(
+            'user_list', order_by='number_created_packages'
+        )
+        got_names = [
+            u['name'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_names == expected_names
+
+    def test_user_list_order_by_edits(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('user_list', order_by='edits')
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -3082,9 +3185,11 @@ class TestPackageActivityList(object):
         dataset = factories.Dataset()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=dataset["id"],
                 activity_type=None,
                 data=None,
@@ -3314,8 +3419,9 @@ class TestUserActivityList(object):
         assert activities[0]["data"]["group"]["title"] == org["title"]
 
     def _create_bulk_user_activities(self, count):
-        user = factories.User()
         from ckan import model
+
+        user = factories.User()
 
         objs = [
             model.Activity(
@@ -3531,9 +3637,11 @@ class TestGroupActivityList(object):
         group = factories.Group()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=group["id"],
                 activity_type=None,
                 data=None,
@@ -3762,9 +3870,11 @@ class TestOrganizationActivityList(object):
         org = factories.Organization()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=org["id"],
                 activity_type=None,
                 data=None,
@@ -3931,9 +4041,11 @@ class TestRecentlyChangedPackagesActivityList(object):
     def _create_bulk_package_activities(self, count):
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=None,
                 activity_type="new_package",
                 data=None,
@@ -4303,6 +4415,29 @@ class TestDashboardNewActivities(object):
             )
             == 15
         )
+
+
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
+
+    @pytest.mark.parametrize(u'num_tokens', [0, 1, 2, 5])
+    def test_token_list(self, num_tokens):
+        from ckan.lib.api_token import decode
+        user = factories.User()
+        ids = []
+        for _ in range(num_tokens):
+            data = helpers.call_action(u"api_token_create", context={
+                u"model": model,
+                u"user": user[u"name"]
+            }, user=user[u"name"], name=u"token-name")
+            token = data[u'token']
+            ids.append(decode(token)[u'jti'])
+
+        tokens = helpers.call_action(u"api_token_list", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"])
+        assert sorted([t[u"id"] for t in tokens]) == sorted(ids)
 
 
 @pytest.mark.usefixtures("clean_db")

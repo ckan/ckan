@@ -405,6 +405,8 @@ def default_user_schema(
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
         'state': [ignore_missing],
+        'image_url': [ignore_missing, unicode_safe],
+        'image_display_url': [ignore_missing, unicode_safe],
         'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
     }
 
@@ -790,6 +792,17 @@ def job_list_schema(ignore_missing, list_of_strings):
 def job_clear_schema(ignore_missing, list_of_strings):
     return {
         u'queues': [ignore_missing, list_of_strings],
+    }
+
+
+@validator_args
+def default_create_api_token_schema(
+        not_empty, unicode_safe,
+        ignore_missing, json_object, ignore_not_sysadmin):
+    return {
+        u'name': [not_empty, unicode_safe],
+        u'user': [not_empty, unicode_safe],
+        u'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
     }
 
 

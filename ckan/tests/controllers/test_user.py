@@ -841,3 +841,113 @@ class TestUser(object):
         )
 
         assert "Error sending the email" in response
+
+    def test_sysadmin_not_authorized(self, app):
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app.post(
+            url_for("user.sysadmin"),
+            data={'username': user['name'], 'status': '1'},
+            extra_environ=env,
+            status=403
+        )
+
+    def test_sysadmin_invalid_user(self, app):
+        user = factories.Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app.post(
+            url_for("user.sysadmin"),
+            data={'username': 'fred', 'status': '1'},
+            extra_environ=env,
+            status=404
+        )
+
+    def test_sysadmin_promote_success(self, app):
+        admin = factories.Sysadmin()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+
+        # create a normal user
+        user = factories.User(fullname='Alice')
+
+        # promote them
+        resp = app.post(
+            url_for("user.sysadmin"),
+            data={'username': user['name'], 'status': '1'},
+            extra_environ=env,
+            status=200
+        )
+        assert 'Promoted Alice to sysadmin' in resp.body
+
+        # now they are a sysadmin
+        userobj = model.User.get(user['id'])
+        assert userobj.sysadmin
+
+    def test_sysadmin_revoke_success(self, app):
+        admin = factories.Sysadmin()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+
+        # create another sysadmin
+        user = factories.Sysadmin(fullname='Bob')
+
+        # revoke their status
+        resp = app.post(
+            url_for("user.sysadmin"),
+            data={'username': user['name'], 'status': '0'},
+            extra_environ=env,
+            status=200
+        )
+        assert 'Revoked sysadmin permission from Bob' in resp.body
+
+        # now they are not a sysadmin any more
+        userobj = model.User.get(user['id'])
+        assert not userobj.sysadmin
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestUserImage(object):
+
+    def test_image_url_is_shown(self, app):
+
+        user = factories.User(image_url='https://example.com/mypic.png')
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'] == 'https://example.com/mypic.png'
+
+    def test_fallback_to_gravatar(self, app):
+
+        user = factories.User(image_url=None)
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'].startswith('//gravatar')
+
+    @pytest.mark.ckan_config('ckan.gravatar_default', 'disabled')
+    def test_fallback_to_placeholder_if_gravatar_disabled(self, app):
+
+        user = factories.User(image_url=None)
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'] == '/base/images/placeholder-user.png'

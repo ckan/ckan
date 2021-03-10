@@ -3,6 +3,7 @@
 import datetime
 import pytest
 import six
+import hashlib
 
 from ckan.common import config
 
@@ -57,53 +58,30 @@ class TestHelpers(object):
 
     def test_gravatar(self):
         email = "zephod@gmail.com"
-        expected = [
-            '<a href="https://gravatar.com/"',
-            '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"',
-            "</a>",
-        ]
-        # Hash the email address
-        import hashlib
+        expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"'
 
         email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
-        res = h.linked_gravatar(email_hash, 200, default="mm")
-        for e in expected:
-            assert e in res, (e, res)
+        res = h.gravatar(email_hash, 200, default="mm")
+        assert expected in res
 
     def test_gravatar_config_set_default(self):
         """Test when default gravatar is None, it is pulled from the config file"""
         email = "zephod@gmail.com"
         default = config.get("ckan.gravatar_default", "identicon")
-        expected = [
-            '<a href="https://gravatar.com/"',
-            '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
-            % default,
-            "</a>",
-        ]
-        # Hash the email address
-        import hashlib
-
+        expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"' % default
         email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
-        res = h.linked_gravatar(email_hash, 200)
-        for e in expected:
-            assert e in res, (e, res)
+        res = h.gravatar(email_hash, 200)
+        assert expected in res
 
     def test_gravatar_encodes_url_correctly(self):
         """Test when the default gravatar is a url, it gets urlencoded"""
         email = "zephod@gmail.com"
         default = "http://example.com/images/avatar.jpg"
-        expected = [
-            '<a href="https://gravatar.com/"',
-            '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"',
-            "</a>",
-        ]
-        # Hash the email address
-        import hashlib
+        expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"'
 
         email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
-        res = h.linked_gravatar(email_hash, 200, default=default)
-        for e in expected:
-            assert e in res, (e, res)
+        res = h.gravatar(email_hash, 200, default=default)
+        assert expected in res
 
     def test_parse_rfc_2822_no_timezone_specified(self):
         """

@@ -158,7 +158,7 @@ Example::
 
 Default value: False
 
-Controls, whether development server handle each request in a separate
+Controls whether the development server should handle each request in a separate
 thread.
 
 .. _ckan.devserver.multiprocess:
@@ -172,7 +172,7 @@ Example::
 
 Default value: 1
 
-If greater than 1 then handle each request in a new process up to this
+If greater than 1 then the development server will handle each request in a new process, up to this
 maximum number of concurrent processes.
 
 .. _ckan.devserver.watch_patterns:
@@ -186,8 +186,52 @@ Example::
 
 Default value: None
 
-A list of files the reloader should watch additionally to the
-modules. For example configuration files.
+A list of files the reloader should watch to restart the development server, in addition to the
+Python modules (for example configuration files)
+
+.. _ckan.devserver.ssl_cert:
+
+ckan.devserver.ssl_cert
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_cert = path/to/host.cert
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). You can generate a
+self-signed certificate and key (see :ref:`ckan.devserver.ssl_key`) running
+the following commands::
+
+    openssl genrsa 2048 > host.key
+    chmod 400 host.key
+    openssl req -new -x509 -nodes -sha256 -days 3650 -key host.key > host.cert
+
+After that you can run CKAN locally with SSL using this command::
+
+    ckan -c /path/to/ckan.ini run --ssl-cert=/path/to/host.cert --ssl-key=/path/to/host.key
+
+Alternatively, setting this option to ``adhoc`` will automatically generate a new
+certificate file (on each server reload, which means that you'll get a browser warning
+about the certificate on each reload).
+
+.. _ckan.devserver.ssl_key:
+
+ckan.devserver.ssl_key
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_key = path/to/host.key
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). See :ref:`ckan.devserver.ssl_cert`
+for more details. This option also supports the ``adhoc`` value, with the same caveat.
+
 
 Repoze.who Settings
 -------------------
@@ -356,12 +400,21 @@ ckan.datastore.sqlsearch.enabled
 
 Example::
 
- ckan.datastore.sqlsearch.enabled = False
+ ckan.datastore.sqlsearch.enabled = True
 
-Default value:  ``True``
+Default value:  ``False``
 
-This option allows you to disable the datastore_search_sql action function, and
-corresponding API endpoint if you do not wish it to be activated.
+This option allows you to enable the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` action function, and corresponding API endpoint.
+
+This action function has protections from abuse including:
+
+- parsing of the query to prevent unsafe functions from being called, see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`
+- parsing of the query to prevent multiple statements
+- prevention of data modification by using a read-only database role
+- use of ``explain`` to resolve tables accessed in the query to check against user permissions
+- use of a statement timeout to prevent queries from running indefinitely
+
+These protections offer some safety but are not designed to prevent all types of abuse. Depending on the sensitivity of private data in your datastore and the likelihood of abuse of your site you may choose to disable this action function or restrict its use with a :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin.
 
 .. _ckan.datastore.search.rows_default:
 
@@ -396,6 +449,30 @@ Specifically this limits:
 
 * ``datastore_search``'s ``limit`` parameter.
 * ``datastore_search_sql`` queries have this limit inserted.
+
+.. _ckan.datastore.sqlsearch.allowed_functions_file:
+
+ckan.datastore.sqlsearch.allowed_functions_file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlsearch.allowed_functions_file = /path/to/my_allowed_functions.txt
+
+Default value: File included in the source code at ``ckanext/datastore/allowed_functions.txt``.
+
+Allows to define the path to a text file listing the SQL functions that should be allowed to run
+on queries sent to the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` function
+(if enabled, see :ref:`ckan.datastore.sqlsearch.enabled`). Function names should be listed one on
+each line, eg::
+
+    abbrev
+    abs
+    abstime
+    ...
+
+
+
 
 Site Settings
 -------------
@@ -748,10 +825,10 @@ Example::
 Default value: ``False``
 
 
-Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
+Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default, collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
 
 
-.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assinged to.
+.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assigned to.
 
 .. _ckan.auth.allow_collaborators_to_change_owner_org:
 
@@ -767,10 +844,95 @@ Default value: ``False``
 
 Allows dataset collaborators to change the owner organization of the datasets they are collaborators on. Defaults to False, meaning that collaborators with role admin or editor can edit the dataset metadata but not the organization field.
 
+.. _ckan.auth.create_default_api_keys:
+
+ckan.auth.create_default_api_keys
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.create_default_api_keys = True
+
+Default value: ``False``
+
+
+Determines if a an API key should be automatically created for every user when creating a user account. If set to False (the default value), users can manually create an API token from their profile instead. See :ref:`api authentication`: for more details.
 
 
 .. end_config-authorization
 
+.. _config-api-tokens:
+
+API Token Settings
+------------------
+
+.. _api_token.nbytes:
+
+api_token.nbytes
+^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.nbytes = 20
+
+Default value: 32
+
+Number of bytes used to generate unique id for API Token.
+
+.. _api_token.jwt.encode.secret:
+
+api_token.jwt.encode.secret
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.encode.secret = file:/path/to/private/key
+
+Default value: same as ``beaker.session.secret`` config option with ``string:`` type.
+
+A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
+
+* for asymmetric algorithms: path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
+* for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+
+Value must have prefix, which defines its type. Supported prefixes are:
+
+* ``string:`` - Plain string, will be used as is.
+* ``file:`` - Path to file. Content of the file will be used as key.
+
+.. _api_token.jwt.decode.secret:
+
+api_token.jwt.decode.secret
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.decode.secret = file:/path/to/public/key.pub
+
+Default value: same as ``beaker.session.secret`` config option with ``string:`` type.
+
+A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
+
+* for asymmetric algorithms: path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
+* for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+
+Value must have prefix, which defines it's type. Supported prefixes are:
+
+* ``string:`` - Plain string, will be used as is.
+* ``file:`` - Path to file. Content of the file will be used as key.
+
+.. _api_token.jwt.algorithm:
+
+api_token.jwt.algorithm
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  api_token.jwt.algorithm = RS256
+
+Default value: ``HS256``
+
+Algorithm to sign the token with, e.g. "ES256", "RS256"
 
 Search Settings
 ---------------
@@ -1377,11 +1539,13 @@ ckan.gravatar_default
 
 Example::
 
-  ckan.gravatar_default = monsterid
+  ckan.gravatar_default = disabled
 
 Default value: ``identicon``
 
-This controls the default gravatar avatar, in case the user has none.
+This controls the default gravatar style. Gravatar is used by default when a user has not set a custom profile picture,
+but it can be turn completely off by setting this option to "disabled". In that case, a placeholder image will be shown
+instead, which can be customized overriding the ``templates/user/snippets/placeholder.html`` template.
 
 .. _ckan.debug_supress_header:
 
@@ -1465,9 +1629,9 @@ ckan.preview.text_formats
 
 Example::
 
- ckan.preview.text_formats = text plain
+ ckan.preview.text_formats = txt plain
 
-Default value: ``text plain text/plain``
+Default value: ``txt plain text/plain``
 
 Space-delimited list of plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
 
@@ -1660,6 +1824,42 @@ Example::
 Default value: ``2``
 
 The maximum in megabytes an image upload can be.
+
+
+Webassets Settings
+------------------
+
+.. _ckan.webassets.path:
+
+ckan.webassets.path
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.webassets.path = /var/lib/ckan/webassets
+
+Default value: ``webassets`` folder under the path specified by the
+:ref:`ckan.storage_path` option.
+
+In order to increase performance, static assets (CSS and JS files) included via an ``asset`` tag inside templates are compiled only once,
+when the asset is used for the first time. All subsequent requests to the
+asset will use the existing file. CKAN stores the compiled webassets in the file system, in the path specified by this config option.
+
+
+.. _ckan.webassets.use_x_sendfile:
+
+ckan.webassets.use_x_sendfile
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.webassets.use_x_sendfile = true
+
+Default value: ``false``
+
+When serving static files, if this setting is ``True``, the applicatin will set the ``X-Sendfile`` header instead of
+serving the files directly with Flask. This will increase performance when serving the assets, but it
+requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 
 
 DataPusher Settings

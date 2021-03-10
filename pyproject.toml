@@ -17,6 +17,11 @@ name = 'Major features'
 showcontent = true
 
 [[tool.towncrier.type]]
+directory = 'misc'
+name = 'Minor changes'
+showcontent = true
+
+[[tool.towncrier.type]]
 directory = 'bugfix'
 name = 'Bugfixes'
 showcontent = true
@@ -26,7 +31,5 @@ directory = 'removal'
 name = 'Removals and deprecations'
 showcontent = true
 
-[[tool.towncrier.type]]
-directory = 'misc'
-name = 'Minor changes'
-showcontent = true
+[tool.black]
+line-length = 79

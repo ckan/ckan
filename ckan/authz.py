@@ -114,8 +114,13 @@ class AuthFunctions:
                 else:
                     # fallback to chaining off the builtin auth function
                     prev_func = self._functions[name]
-                fetched_auth_functions[name] = (
-                    functools.partial(func, prev_func))
+                
+                new_func = (functools.partial(func, prev_func))
+                # persisting attributes to the new partial function
+                for attribute, value in six.iteritems(func.__dict__):
+                    setattr(new_func, attribute, value)
+                
+                fetched_auth_functions[name] = new_func
 
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
@@ -479,6 +484,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'allow_dataset_collaborators': False,
     'allow_admin_collaborators': False,
     'allow_collaborators_to_change_owner_org': False,
+    'create_default_api_keys': False,
 }
 
 

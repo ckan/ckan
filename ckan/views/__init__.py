@@ -8,6 +8,7 @@ from six.moves.urllib.parse import quote
 from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
+import ckan.lib.api_token as api_token
 from ckan.common import g, request, config, session
 from ckan.lib.helpers import redirect_to as redirect
 from ckan.lib.i18n import get_locales_from_config
@@ -138,12 +139,13 @@ def identify_user():
                                             u'Unknown IP Address')
 
     # Authentication plugins get a chance to run here break as soon as a user
-    # is identified.
-
+    # is identified or a response is returned
     authenticators = p.PluginImplementations(p.IAuthenticator)
     if authenticators:
         for item in authenticators:
-            item.identify()
+            response = item.identify()
+            if response:
+                return response
             try:
                 if g.user:
                     break
@@ -227,6 +229,9 @@ def _get_user_for_apikey():
     log.debug(u'Received API Key: %s' % apikey)
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()
+
+    if not user:
+        user = api_token.get_user_from_token(apikey)
     return user
 
 

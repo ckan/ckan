@@ -83,7 +83,7 @@ The uwsgi configuration file can be copied from the CKAN distribution:
 
     http            =  127.0.0.1:8080
     uid             =  www-data
-    guid            =  www-data
+    gid             =  www-data
     wsgi-file       =  /etc/ckan/default/wsgi.py
     virtualenv      =  /usr/lib/ckan/default
     module          =  wsgi:application
@@ -93,6 +93,7 @@ The uwsgi configuration file can be copied from the CKAN distribution:
     max-requests    =  5000
     vacuum          =  true
     callable        =  application  
+    strict          =  true
 
 
 -----------------------------------

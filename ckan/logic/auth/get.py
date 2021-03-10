@@ -434,6 +434,15 @@ def job_show(context, data_dict):
     return {'success': False}
 
 
+def api_token_list(context, data_dict):
+    """List all available tokens for current user.
+    """
+    user = context[u'model'].User.get(data_dict[u'user'])
+    success = user is not None and user.name == context[u'user']
+
+    return {u'success': success}
+
+
 def package_collaborator_list(context, data_dict):
     '''Checks if a user is allowed to list the collaborators from a dataset
 

@@ -34,18 +34,6 @@ do these sections:
 * 2. Install CKAN into a Python virtual environment
 * 6. Link to who.ini
 
-Deployment
-----------
-
-For web server deployments, to change from running CKAN under Python 2 to
-Python 3 you need to switch the mod_wsgi module:
-
-.. parsed-literal::
-
-    sudo apt-get remove libapache2-mod-wsgi
-    sudo apt-get install libapache2-mod-wsgi-py3
-    |reload_apache|
-
-.. note:: For more about deployment see:
+.. note:: For changes about CKAN deployment see:
  :doc:`/maintaining/installing/install-from-source` and specifically the changes
  with CKAN 2.9: :ref:`deployment-changes-for-ckan-2.9`.

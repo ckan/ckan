@@ -302,10 +302,7 @@ class TestPep8(object):
         "bin/running_stats.py",
         "ckan/__init__.py",
         "ckan/config/middleware.py",
-        "ckan/config/routing.py",
         "ckan/config/sp_config.py",
-        "ckan/controllers/admin.py",
-        "ckan/controllers/revision.py",
         "ckan/include/rcssmin.py",
         "ckan/include/rjsmin.py",
         "ckan/lib/app_globals.py",
@@ -364,7 +361,6 @@ class TestPep8(object):
         "ckan/model/term_translation.py",
         "ckan/model/test_user.py",
         "ckan/model/tracking.py",
-        "ckan/model/types.py",
         "ckan/model/user.py",
         "ckan/model/vocabulary.py",
         "ckan/authz.py",
@@ -423,7 +419,6 @@ class TestPep8(object):
         "ckanext/multilingual/plugin.py",
         "ckanext/stats/controller.py",
         "ckanext/stats/stats.py",
-        "ckanext/stats/tests/test_stats_plugin.py",
         "ckanext/test_tag_vocab_plugin.py",
         "ckanext/tests/plugin.py",
         "doc/conf.py",
@@ -678,7 +673,6 @@ class TestBadExceptions(object):
     # and so should be translated.
 
     NASTY_EXCEPTION_BLACKLIST_FILES = [
-        "ckan/controllers/user.py",
         "ckan/lib/mailer.py",
         "ckan/logic/action/create.py",
         "ckan/logic/action/delete.py",

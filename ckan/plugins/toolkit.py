@@ -50,6 +50,8 @@ class _Toolkit(object):
         'get_endpoint',
         # decorator for chained action
         'chained_action',
+        # decorator for chained helper
+        'chained_helper',
         # get navl schema converter
         'get_converter',
         # get navl schema validator
@@ -283,6 +285,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['literal'] = h.literal
         t['get_action'] = logic.get_action
         t['chained_action'] = logic.chained_action
+        t['chained_helper'] = h.chained_helper
         t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
@@ -408,7 +411,7 @@ content type, cookies, etc.
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, relative_path)
-        if absolute_path not in config.get(config_var, ''):
+        if absolute_path not in config.get(config_var, '').split(','):
             if config.get(config_var):
                 config[config_var] += ',' + absolute_path
             else:
