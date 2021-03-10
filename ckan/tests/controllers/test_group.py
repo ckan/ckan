@@ -1,10 +1,11 @@
 # encoding: utf-8
 
+import mock
 from bs4 import BeautifulSoup
 import pytest
 import six
 from ckan.lib.helpers import url_for
-
+import ckan.logic as logic
 import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
@@ -250,6 +251,24 @@ class TestGroupRead(object):
         # 200 == no redirect
         app.get(url_for("group.read", id=group["id"]), status=200)
 
+    def test_search_with_extra_params(self, app, monkeypatch):
+        group = factories.Group()
+        url = url_for('group.read', id=group['id'])
+        url += '?ext_a=1&ext_a=2&ext_b=3'
+        search_result = {
+            'count': 0,
+            'sort': "score desc, metadata_modified desc",
+            'facets': {},
+            'search_facets': {},
+            'results': []
+        }
+        search = mock.Mock(return_value=search_result)
+        logic._actions['package_search'] = search
+        app.get(url)
+        search.assert_called()
+        extras = search.call_args[0][1]['extras']
+        assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
+
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupDelete(object):
@@ -394,6 +413,25 @@ class TestGroupMembership(object):
 
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Member"
+
+    def test_membership_edit_page(self, app):
+        """If `user` parameter provided, render edit page."""
+        owner = factories.User(fullname="My Owner")
+        member = factories.User(fullname="My Fullname", name="my-user")
+        group = self._create_group(owner["name"], users=[
+            {'name': member['name'], 'capacity': 'admin'}
+        ])
+
+        env = {"REMOTE_USER": six.ensure_str(owner["name"])}
+        url = url_for("group.member_new", id=group["name"], user=member['name'])
+
+        response = app.get(url, environ_overrides=env)
+
+        page = BeautifulSoup(response.body)
+        assert page.select_one('.page-heading').text.strip() == 'Edit Member'
+        role_option = page.select_one('#role [selected]')
+        assert role_option and role_option.get('value') == 'admin'
+        assert page.select_one('#username').get('value') == member['name']
 
     def test_admin_add(self, app):
         """Admin can be added via add member page"""
@@ -605,7 +643,7 @@ class TestGroupSearch(object):
         index_response = app.get(url_for("group.index"))
         index_response_html = BeautifulSoup(index_response.body)
         grp_names = index_response_html.select(
-            "ul.media-grid " "li.media-item " "h3.media-heading"
+            "ul.media-grid " "li.media-item " "h2.media-heading"
         )
         grp_names = [n.string for n in grp_names]
 
@@ -625,7 +663,7 @@ class TestGroupSearch(object):
         )
         search_response_html = BeautifulSoup(search_response.body)
         grp_names = search_response_html.select(
-            "ul.media-grid " "li.media-item " "h3.media-heading"
+            "ul.media-grid " "li.media-item " "h2.media-heading"
         )
         grp_names = [n.string for n in grp_names]
 
@@ -647,7 +685,7 @@ class TestGroupSearch(object):
 
         search_response_html = BeautifulSoup(search_response.body)
         grp_names = search_response_html.select(
-            "ul.media-grid " "li.media-item " "h3.media-heading"
+            "ul.media-grid " "li.media-item " "h2.media-heading"
         )
         grp_names = [n.string for n in grp_names]
 

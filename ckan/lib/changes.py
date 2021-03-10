@@ -67,12 +67,12 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     new_resource_set = set()
     new_resource_dict = {}
 
-    for resource in old['resources']:
+    for resource in old.get(u'resources'):
         old_resource_set.add(resource['id'])
         old_resource_dict[resource['id']] = {
             key: value for (key, value) in resource.items() if key != u'id'}
 
-    for resource in new['resources']:
+    for resource in new.get(u'resources'):
         new_resource_set.add(resource['id'])
         new_resource_dict[resource['id']] = {
             key: value for (key, value) in resource.items() if key != u'id'}
@@ -82,9 +82,9 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     for resource_id in new_resources:
         change_list.append({u'type': u'new_resource',
                             u'pkg_id': new['id'],
-                            u'title': new['title'],
+                            u'title': new.get(u'title'),
                             u'resource_name':
-                            new_resource_dict[resource_id]['name'],
+                            new_resource_dict[resource_id].get(u'name'),
                             u'resource_id': resource_id})
 
     # get the IDs of resources that have been deleted between versions
@@ -92,10 +92,10 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     for resource_id in deleted_resources:
         change_list.append({u'type': u'delete_resource',
                             u'pkg_id': new['id'],
-                            u'title': new['title'],
+                            u'title': new.get(u'title'),
                             u'resource_id': resource_id,
                             u'resource_name':
-                            old_resource_dict[resource_id]['name'],
+                            old_resource_dict[resource_id].get(u'name'),
                             u'old_activity_id': old_activity_id})
 
     # now check the resources that are in both and see if any
@@ -105,93 +105,94 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         old_metadata = old_resource_dict[resource_id]
         new_metadata = new_resource_dict[resource_id]
 
-        if old_metadata['name'] != new_metadata['name']:
+        if old_metadata.get(u'name') != new_metadata.get(u'name'):
             change_list.append({u'type': u'resource_name',
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'old_pkg_id': old['id'],
                                 u'new_pkg_id': new['id'],
                                 u'resource_id': resource_id,
                                 u'old_resource_name':
-                                old_resource_dict[resource_id]['name'],
+                                old_resource_dict[resource_id].get(u'name'),
                                 u'new_resource_name':
-                                new_resource_dict[resource_id]['name'],
+                                new_resource_dict[resource_id].get(u'name'),
                                 u'old_activity_id': old_activity_id})
 
         # you can't remove a format, but if a resource's format isn't
         # recognized, it won't have one set
 
         # if a format was not originally set and the user set one
-        if not old_metadata['format'] and new_metadata['format']:
+        if not old_metadata.get(u'format') and new_metadata.get(u'format'):
             change_list.append({u'type': u'resource_format',
                                 u'method': u'add',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_resource_dict[resource_id]['name'],
-                                u'org_id': new['organization']['id']
-                                    if new['organization'] else u'',
-                                u'format': new_metadata['format']})
+                                new_resource_dict[resource_id].get(u'name'),
+                                u'org_id': new.get(u'organization')['id']
+                                    if new.get(u'organization') else u'',
+                                u'format': new_metadata.get(u'format')})
 
         # if both versions have a format but the format changed
-        elif old_metadata['format'] != new_metadata['format']:
+        elif old_metadata.get(u'format') != new_metadata.get(u'format'):
             change_list.append({u'type': u'resource_format',
                                 u'method': u'change',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_resource_dict[resource_id]['name'],
-                                u'org_id': new['organization']['id']
-                                    if new['organization'] else u'',
-                                u'old_format': old_metadata['format'],
-                                u'new_format': new_metadata['format']})
+                                new_resource_dict[resource_id].get(u'name'),
+                                u'org_id': new.get(u'organization')['id']
+                                    if new.get(u'organization') else u'',
+                                u'old_format': old_metadata.get(u'format'),
+                                u'new_format': new_metadata.get(u'format')})
 
         # if the description changed
-        if not old_metadata['description'] and \
-                new_metadata['description']:
+        if not old_metadata.get(u'description') and \
+                new_metadata.get(u'description'):
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'add',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_resource_dict[resource_id]['name'],
-                                u'new_desc': new_metadata['description']})
+                                new_resource_dict[resource_id].get(u'name'),
+                                u'new_desc': new_metadata.get(u'description')})
 
         # if there was a description but the user removed it
-        elif old_metadata['description'] and \
-                not new_metadata['description']:
+        elif old_metadata.get(u'description') and \
+                not new_metadata.get(u'description'):
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'remove',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_resource_dict[resource_id]['name']})
+                                new_resource_dict[resource_id].get(u'name')})
 
         # if both have descriptions but they are different
-        elif old_metadata['description'] != new_metadata['description']:
+        elif old_metadata.get(u'description') \
+                != new_metadata.get(u'description'):
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'change',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_resource_dict[resource_id]['name'],
-                                u'new_desc': new_metadata['description'],
-                                u'old_desc': old_metadata['description']})
+                                new_resource_dict[resource_id].get(u'name'),
+                                u'new_desc': new_metadata.get(u'description'),
+                                u'old_desc': old_metadata.get(u'description')})
 
         # check if the url changes (e.g. user uploaded a new file)
         # TODO: use regular expressions to determine the actual name of the
         # new and old files
-        if old_metadata['url'] != new_metadata['url']:
+        if old_metadata.get(u'url') != new_metadata.get(u'url'):
             change_list.append({u'type': u'new_file',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_metadata['name']})
+                                new_metadata.get(u'name')})
 
         # check any extra fields in the resource
         # remove default fields from these sets to make sure we only check
@@ -208,29 +209,29 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                 change_list.append({u'type': u'resource_extras',
                                     u'method': u'add_one_value',
                                     u'pkg_id': new['id'],
-                                    u'title': new['title'],
+                                    u'title': new.get(u'title'),
                                     u'resource_id': resource_id,
                                     u'resource_name':
-                                    new_metadata['name'],
+                                    new_metadata.get(u'name'),
                                     u'key': new_fields[0],
                                     u'value': new_metadata[new_fields[0]]})
             else:
                 change_list.append({u'type': u'resource_extras',
                                     u'method': u'add_one_no_value',
                                     u'pkg_id': new['id'],
-                                    u'title': new['title'],
+                                    u'title': new.get(u'title'),
                                     u'resource_id': resource_id,
                                     u'resource_name':
-                                    new_metadata['name'],
+                                    new_metadata.get(u'name'),
                                     u'key': new_fields[0]})
         elif len(new_fields) > 1:
             change_list.append({u'type': u'resource_extras',
                                 u'method': u'add_multiple',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_metadata['name'],
+                                new_metadata.get(u'name'),
                                 u'key_list': new_fields,
                                 u'value_list':
                                 [new_metadata[field] for field in new_fields]})
@@ -241,19 +242,19 @@ def check_resource_changes(change_list, old, new, old_activity_id):
             change_list.append({u'type': u'resource_extras',
                                 u'method': u'remove_one',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_metadata['name'],
+                                new_metadata.get(u'name'),
                                 u'key': deleted_fields[0]})
         elif len(deleted_fields) > 1:
             change_list.append({u'type': u'resource_extras',
                                 u'method': u'remove_multiple',
                                 u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_metadata['name'],
+                                new_metadata.get(u'name'),
                                 u'key_list': deleted_fields})
 
         # determine if any extra fields have been changed
@@ -267,10 +268,10 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                     change_list.append({u'type': u'resource_extras',
                                         u'method': u'change_value_with_old',
                                         u'pkg_id': new['id'],
-                                        u'title': new['title'],
+                                        u'title': new.get(u'title'),
                                         u'resource_id': resource_id,
                                         u'resource_name':
-                                        new_metadata['name'],
+                                        new_metadata.get(u'name'),
                                         u'key': field,
                                         u'old_value': old_metadata[field],
                                         u'new_value': new_metadata[field]})
@@ -278,20 +279,20 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                     change_list.append({u'type': u'resource_extras',
                                         u'method': u'change_value_no_old',
                                         u'pkg_id': new['id'],
-                                        u'title': new['title'],
+                                        u'title': new.get(u'title'),
                                         u'resource_id': resource_id,
                                         u'resource_name':
-                                        new_metadata['name'],
+                                        new_metadata.get(u'name'),
                                         u'key': field,
                                         u'new_value': new_metadata[field]})
                 elif not new_metadata[field]:
                     change_list.append({u'type': u'resource_extras',
                                         u'method': u'change_value_no_new',
                                         u'pkg_id': new['id'],
-                                        u'title': new['title'],
+                                        u'title': new.get(u'title'),
                                         u'resource_id': resource_id,
                                         u'resource_name':
-                                        new_metadata['name'],
+                                        new_metadata.get(u'name'),
                                         u'key': field})
 
 
@@ -301,65 +302,65 @@ def check_metadata_changes(change_list, old, new):
     (excluding resources) in change_list.
     '''
     # if the title has changed
-    if old['title'] != new['title']:
+    if old.get(u'title') != new.get(u'title'):
         _title_change(change_list, old, new)
 
     # if the owner organization changed
-    if old['owner_org'] != new['owner_org']:
+    if old.get(u'owner_org') != new.get(u'owner_org'):
         _org_change(change_list, old, new)
 
     # if the maintainer of the dataset changed
-    if old['maintainer'] != new['maintainer']:
+    if old.get(u'maintainer') != new.get(u'maintainer'):
         _maintainer_change(change_list, old, new)
 
     # if the maintainer email of the dataset changed
-    if old['maintainer_email'] != new['maintainer_email']:
+    if old.get(u'maintainer_email') != new.get(u'maintainer_email'):
         _maintainer_email_change(change_list, old, new)
 
     # if the author of the dataset changed
-    if old['author'] != new['author']:
+    if old.get(u'author') != new.get(u'author'):
         _author_change(change_list, old, new)
 
     # if the author email of the dataset changed
-    if old['author_email'] != new['author_email']:
+    if old.get(u'author_email') != new.get(u'author_email'):
         _author_email_change(change_list, old, new)
 
     # if the visibility of the dataset changed
-    if old['private'] != new['private']:
-        change_list.append({u'type': u'private', u'pkg_id': new['id'],
-                            u'title': new['title'],
+    if old.get(u'private') != new.get(u'private'):
+        change_list.append({u'type': u'private', u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
                             u'new':
-                            u'Private' if bool(new['private'])
+                            u'Private' if bool(new.get(u'private'))
                             else u'Public'})
 
     # if the description of the dataset changed
-    if old['notes'] != new['notes']:
+    if old.get(u'notes') != new.get(u'notes'):
         _notes_change(change_list, old, new)
 
     # make sets out of the tags for each dataset
-    old_tags = {tag['name'] for tag in old['tags']}
-    new_tags = {tag['name'] for tag in new['tags']}
+    old_tags = {tag.get(u'name') for tag in old.get(u'tags', [])}
+    new_tags = {tag.get(u'name') for tag in new.get(u'tags', [])}
     # if the tags have changed
     if old_tags != new_tags:
         _tag_change(change_list, new_tags, old_tags, new)
 
     # if the license has changed
-    if old['license_title'] != new['license_title']:
+    if old.get(u'license_title') != new.get(u'license_title'):
         _license_change(change_list, old, new)
 
     # if the name of the dataset has changed
     # this is only visible to the user via the dataset's URL,
     # so display the change using that
-    if old['name'] != new['name']:
+    if old.get(u'name') != new.get(u'name'):
         _name_change(change_list, old, new)
 
     # if the source URL (metadata value, not the actual URL of the dataset)
     # has changed
-    if old['url'] != new['url']:
+    if old.get(u'url') != new.get(u'url'):
         _url_change(change_list, old, new)
 
     # if the user-provided version has changed
-    if old['version'] != new['version']:
+    if old.get(u'version') != new.get(u'version'):
         _version_change(change_list, old, new)
 
     # check whether fields added by extensions or custom fields
@@ -374,9 +375,9 @@ def _title_change(change_list, old, new):
     Appends a summary of a change to a dataset's title between two versions
     (old and new) to change_list.
     '''
-    change_list.append({u'type': u'title', u'id': new['name'],
-                        u'new_title': new['title'],
-                        u'old_title': old['title']})
+    change_list.append({u'type': u'title', u'id': new.get(u'name'),
+                        u'new_title': new.get(u'title'),
+                        u'old_title': old.get(u'title')})
 
 
 def _org_change(change_list, old, new):
@@ -386,34 +387,35 @@ def _org_change(change_list, old, new):
     '''
 
     # if both versions belong to an organization
-    if old['owner_org'] and new['owner_org']:
+    if old.get(u'owner_org') and new.get(u'owner_org'):
         change_list.append({u'type': u'org',
                             u'method': u'change',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
-                            u'old_org_id': old['organization']['id'],
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'old_org_id': old.get(u'organization').get(u'id'),
                             u'old_org_title':
-                            old['organization']['title'],
-                            u'new_org_id': new['organization']['id'],
-                            u'new_org_title': new['organization']['title']})
+                            old.get(u'organization').get(u'title'),
+                            u'new_org_id': new.get(u'organization').get(u'id'),
+                            u'new_org_title':
+                                new.get(u'organization').get(u'title')})
     # if the dataset was not in an organization before and it is now
-    elif not old['owner_org'] and new['owner_org']:
+    elif not old.get(u'owner_org') and new.get(u'owner_org'):
         change_list.append({u'type': u'org',
                             u'method': u'add',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
-                            u'new_org_id': new['organization']['id'],
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'new_org_id': new.get(u'organization').get(u'id'),
                             u'new_org_title':
-                            new['organization']['title']})
+                            new.get(u'organization').get(u'title')})
     # if the user removed the organization
     else:
         change_list.append({u'type': u'org',
                             u'method': u'remove',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
-                            u'old_org_id': old['organization']['id'],
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'old_org_id': old.get(u'organization').get(u'id'),
                             u'old_org_title':
-                            old['organization']['title']})
+                            old.get(u'organization').get(u'title')})
 
 
 def _maintainer_change(change_list, old, new):
@@ -422,22 +424,22 @@ def _maintainer_change(change_list, old, new):
     versions (old and new) to change_list.
     '''
     # if the old dataset had a maintainer
-    if old['maintainer'] and new['maintainer']:
+    if old.get(u'maintainer') and new.get(u'maintainer'):
         change_list.append({u'type': u'maintainer', u'method': u'change',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'], u'new_maintainer':
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'), u'new_maintainer':
                             new['maintainer'], u'old_maintainer':
                             old['maintainer']})
     # if they removed the maintainer
-    elif not new['maintainer']:
+    elif not new.get(u'maintainer'):
         change_list.append({u'type': u'maintainer', u'pkg_id':
-                            new['id'], u'title': new['title'],
+                            new.get(u'id'), u'title': new.get(u'title'),
                             u'method': u'remove'})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'maintainer', u'pkg_id':
-                            new['id'], u'title': new['title'],
-                            u'new_maintainer': new['maintainer'],
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_maintainer': new.get(u'maintainer'),
                             u'method': u'add'})
 
 
@@ -447,23 +449,25 @@ def _maintainer_email_change(change_list, old, new):
     field between two versions (old and new) to change_list.
     '''
     # if the old dataset had a maintainer email
-    if old['maintainer_email'] and new['maintainer_email']:
+    if old.get(u'maintainer_email') and new.get(u'maintainer_email'):
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
-                            new['id'], u'title': new['title'],
-                            u'new_maintainer_email': new['maintainer_email'],
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_maintainer_email':
+                                new.get(u'maintainer_email'),
                             u'old_maintainer_email':
-                            old['maintainer_email'],
+                            old.get(u'maintainer_email'),
                             u'method': u'change'})
     # if they removed the maintainer email
-    elif not new['maintainer_email']:
+    elif not new.get(u'maintainer_email'):
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
-                            new['id'], u'title': new['title'],
+                            new.get(u'id'), u'title': new.get(u'title'),
                             u'method': u'remove'})
     # if there wasn't one there before e
     else:
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
-                            new['id'], u'title': new['title'],
-                            u'new_maintainer_email': new['maintainer_email'],
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_maintainer_email':
+                                new.get(u'maintainer_email'),
                             u'method': u'add'})
 
 
@@ -473,20 +477,21 @@ def _author_change(change_list, old, new):
     versions (old and new) to change_list.
     '''
     # if the old dataset had an author
-    if old['author'] and new['author']:
-        change_list.append({u'type': u'author', u'pkg_id': new['id'],
-                            u'title': new['title'], u'new_author':
-                            new['author'], u'old_author': old['author'],
+    if old.get(u'author') and new.get(u'author'):
+        change_list.append({u'type': u'author', u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'), u'new_author':
+                            new.get(u'author'), u'old_author':
+                                old.get(u'author'),
                             u'method': u'change'})
     # if they removed the author
-    elif not new['author']:
-        change_list.append({u'type': u'author', u'pkg_id': new['id'],
-                            u'title': new['title'], u'method': u'remove'})
+    elif not new.get(u'author'):
+        change_list.append({u'type': u'author', u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'), u'method': u'remove'})
     # if there wasn't one there before
     else:
-        change_list.append({u'type': u'author', u'pkg_id': new['id'],
-                            u'title': new['title'], u'new_author':
-                            new['author'], u'method': u'add'})
+        change_list.append({u'type': u'author', u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'), u'new_author':
+                            new.get(u'author'), u'method': u'add'})
 
 
 def _author_email_change(change_list, old, new):
@@ -494,22 +499,22 @@ def _author_email_change(change_list, old, new):
     Appends a summary of a change to a dataset's author e-mail address field
     between two versions (old and new) to change_list.
     '''
-    if old['author_email'] and new['author_email']:
+    if old.get(u'author_email') and new.get(u'author_email'):
         change_list.append({u'type': u'author_email', u'pkg_id':
-                            new['id'], u'title': new['title'],
-                            u'new_author_email': new['author_email'],
-                            u'old_author_email': old['author_email'],
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_author_email': new.get(u'author_email'),
+                            u'old_author_email': old.get(u'author_email'),
                             u'method': u'change'})
     # if they removed the author
-    elif not new['author_email']:
+    elif not new.get(u'author_email'):
         change_list.append({u'type': u'author_email', u'pkg_id':
-                            new['id'], u'title': new['title'],
+                            new.get(u'id'), u'title': new.get(u'title'),
                             u'method': u'remove'})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'author_email', u'pkg_id':
-                            new['id'], u'title': new['title'],
-                            u'new_author_email': new['author_email'],
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_author_email': new.get(u'author_email'),
                             u'method': u'add'})
 
 
@@ -519,20 +524,21 @@ def _notes_change(change_list, old, new):
     versions (old and new) to change_list.
     '''
     # if the old dataset had a description
-    if old['notes'] and new['notes']:
+    if old.get(u'notes') and new.get(u'notes'):
         change_list.append({u'type': u'notes', u'pkg_id':
-                            new['id'], u'title': new['title'],
-                            u'new_notes': new['notes'],
-                            u'old_notes': old['notes'],
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_notes': new.get(u'notes'),
+                            u'old_notes': old.get(u'notes'),
                             u'method': u'change'})
-    elif not new['notes']:
+    elif not new.get(u'notes'):
         change_list.append({u'type': u'notes', u'pkg_id':
-                            new['id'], u'title': new['title'],
+                            new.get(u'id'), u'title': new.get(u'title'),
                             u'method': u'remove'})
     else:
         change_list.append({u'type': u'notes', u'pkg_id':
-                            new['id'], u'title': new['title'],
-                            u'new_notes': new['notes'], u'method': u'add'})
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_notes': new.get(u'notes'),
+                            u'method': u'add'})
 
 
 def _tag_change(change_list, new_tags, old_tags, new):
@@ -544,25 +550,25 @@ def _tag_change(change_list, new_tags, old_tags, new):
     deleted_tags_list = list(deleted_tags)
     if len(deleted_tags) == 1:
         change_list.append({u'type': u'tags', u'method': u'remove_one',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
                             u'tag': deleted_tags_list[0]})
     elif len(deleted_tags) > 1:
         change_list.append({u'type': u'tags', u'method': u'remove_multiple',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
                             u'tags': deleted_tags_list})
 
     added_tags = new_tags - old_tags
     added_tags_list = list(added_tags)
     if len(added_tags) == 1:
         change_list.append({u'type': u'tags', u'method': u'add_one', u'pkg_id':
-                            new['id'], u'title': new['title'],
+                            new.get(u'id'), u'title': new.get(u'title'),
                             u'tag': added_tags_list[0]})
     elif len(added_tags) > 1:
         change_list.append({u'type': u'tags', u'method': u'add_multiple',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
                             u'tags': added_tags_list})
 
 
@@ -578,12 +584,12 @@ def _license_change(change_list, old, new):
         old_license_url = old['license_url']
     if u'license_url' in new and new['license_url']:
         new_license_url = new['license_url']
-    change_list.append({u'type': u'license', u'pkg_id': new['id'],
-                        u'title': new['title'],
+    change_list.append({u'type': u'license', u'pkg_id': new.get(u'id'),
+                        u'title': new.get(u'title'),
                         u'old_url': old_license_url,
                         u'new_url': new_license_url, u'new_title':
-                        new['license_title'], u'old_title':
-                        old['license_title']})
+                        new.get(u'license_title'), u'old_title':
+                        old.get(u'license_title')})
 
 
 def _name_change(change_list, old, new):
@@ -592,9 +598,9 @@ def _name_change(change_list, old, new):
     can be accessed at) between two versions (old and new) to
     change_list.
     '''
-    change_list.append({u'type': u'name', u'pkg_id': new['id'],
-                        u'title': new['title'], u'old_name':
-                        old['name'], u'new_name': new['name']})
+    change_list.append({u'type': u'name', u'pkg_id': new.get(u'id'),
+                        u'title': new.get(u'title'), u'old_name':
+                        old.get(u'name'), u'new_name': new.get(u'name')})
 
 
 def _url_change(change_list, old, new):
@@ -604,23 +610,23 @@ def _url_change(change_list, old, new):
     new) to change_list.
     '''
     # if both old and new versions have source URLs
-    if old['url'] and new['url']:
+    if old.get(u'url') and new.get(u'url'):
         change_list.append({u'type': u'url', u'method': u'change',
-                            u'pkg_id': new['id'], u'title':
-                            new['title'], u'new_url': new['url'],
-                            u'old_url': old['url']})
+                            u'pkg_id': new.get(u'id'), u'title':
+                            new.get(u'title'), u'new_url': new.get(u'url'),
+                            u'old_url': old.get(u'url')})
     # if the user removed the source URL
-    elif not new['url']:
+    elif not new.get(u'url'):
         change_list.append({u'type': u'url', u'method': u'remove',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
-                            u'old_url': old['url']})
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'old_url': old.get(u'url')})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'url', u'method': u'add',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
-                            u'new_url': new['url']})
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'new_url': new.get(u'url')})
 
 
 def _version_change(change_list, old, new):
@@ -630,23 +636,24 @@ def _version_change(change_list, old, new):
     and new) to change_list.
     '''
     # if both old and new versions have version numbers
-    if old['version'] and new['version']:
+    if old.get(u'version') and new.get(u'version'):
         change_list.append({u'type': u'version', u'method': u'change',
-                            u'pkg_id': new['id'], u'title':
-                            new['title'], u'old_version':
-                            old['version'], u'new_version':
-                            new['version']})
+                            u'pkg_id': new.get(u'id'), u'title':
+                            new.get(u'title'), u'old_version':
+                            old.get(u'version'), u'new_version':
+                            new.get(u'version')})
     # if the user removed the version number
-    elif not new['version']:
+    elif not new.get(u'version'):
         change_list.append({u'type': u'version', u'method': u'remove',
-                            u'pkg_id': new['id'],
-                            u'title': new['title']})
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'old_version': old.get(u'version')})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'version', u'method': u'add',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
-                            u'new_version': new['version']})
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'new_version': new.get(u'version')})
 
 
 def _extension_fields(change_list, old, new):
@@ -694,12 +701,12 @@ def _extension_fields(change_list, old, new):
     # if additional fields have been changed
     addl_fields_list = list(addl_fields)
     for field in addl_fields_list:
-        if old[field] != new[field]:
+        if old.get(field) != new.get(field):
             change_list.append({u'type': u'extension_fields',
-                                u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'pkg_id': new.get(u'id'),
+                                u'title': new.get(u'title'),
                                 u'key': field,
-                                u'value': new[field]})
+                                u'value': new.get(field)})
 
 
 def _extra_fields(change_list, old, new):
@@ -709,13 +716,13 @@ def _extra_fields(change_list, old, new):
     change_list.
     '''
     if u'extras' in new:
-        extra_fields_new = _extras_to_dict(new['extras'])
+        extra_fields_new = _extras_to_dict(new.get(u'extras'))
         extra_new_set = set(extra_fields_new.keys())
 
         # if the old version has extra fields, we need
         # to compare the new version's extras to the old ones
         if u'extras' in old:
-            extra_fields_old = _extras_to_dict(old['extras'])
+            extra_fields_old = _extras_to_dict(old.get(u'extras'))
             extra_old_set = set(extra_fields_old.keys())
 
             # if some fields were added
@@ -724,22 +731,22 @@ def _extra_fields(change_list, old, new):
                 if extra_fields_new[new_fields[0]]:
                     change_list.append({u'type': u'extra_fields',
                                         u'method': u'add_one_value',
-                                        u'pkg_id': new['id'],
-                                        u'title': new['title'],
+                                        u'pkg_id': new.get(u'id'),
+                                        u'title': new.get(u'title'),
                                         u'key': new_fields[0],
                                         u'value':
                                         extra_fields_new[new_fields[0]]})
                 else:
                     change_list.append({u'type': u'extra_fields',
                                         u'method': u'add_one_no_value',
-                                        u'pkg_id': new['id'],
-                                        u'title': new['title'],
+                                        u'pkg_id': new.get(u'id'),
+                                        u'title': new.get(u'title'),
                                         u'key': new_fields[0]})
             elif len(new_fields) > 1:
                 change_list.append({u'type': u'extra_fields',
                                     u'method': u'add_multiple',
-                                    u'pkg_id': new['id'],
-                                    u'title': new['title'],
+                                    u'pkg_id': new.get(u'id'),
+                                    u'title': new.get(u'title'),
                                     u'key_list': new_fields,
                                     u'value_list': extra_fields_new})
 
@@ -748,14 +755,14 @@ def _extra_fields(change_list, old, new):
             if len(deleted_fields) == 1:
                 change_list.append({u'type': u'extra_fields',
                                     u'method': u'remove_one',
-                                    u'pkg_id': new['id'],
-                                    u'title': new['title'],
+                                    u'pkg_id': new.get(u'id'),
+                                    u'title': new.get(u'title'),
                                     u'key': deleted_fields[0]})
             elif len(deleted_fields) > 1:
                 change_list.append({u'type': u'extra_fields',
                                     u'method': u'remove_multiple',
-                                    u'pkg_id': new['id'],
-                                    u'title': new['title'],
+                                    u'pkg_id': new.get(u'id'),
+                                    u'title': new.get(u'title'),
                                     u'key_list': deleted_fields})
 
             # if some existing fields were changed
@@ -767,8 +774,8 @@ def _extra_fields(change_list, old, new):
                         change_list.append({u'type': u'extra_fields',
                                             u'method':
                                             u'change_with_old_value',
-                                            u'pkg_id': new['id'],
-                                            u'title': new['title'],
+                                            u'pkg_id': new.get(u'id'),
+                                            u'title': new.get(u'title'),
                                             u'key': field,
                                             u'old_value':
                                             extra_fields_old[field],
@@ -777,8 +784,8 @@ def _extra_fields(change_list, old, new):
                     else:
                         change_list.append({u'type': u'extra_fields',
                                             u'method': u'change_no_old_value',
-                                            u'pkg_id': new['id'],
-                                            u'title': new['title'],
+                                            u'pkg_id': new.get(u'id'),
+                                            u'title': new.get(u'title'),
                                             u'key': field,
                                             u'new_value':
                                             extra_fields_new[field]})
@@ -791,23 +798,23 @@ def _extra_fields(change_list, old, new):
                 if extra_fields_new[new_fields[0]]:
                     change_list.append({u'type': u'extra_fields',
                                         u'method': u'add_one_value',
-                                        u'pkg_id': new['id'],
-                                        u'title': new['title'],
+                                        u'pkg_id': new.get(u'id'),
+                                        u'title': new.get(u'title'),
                                         u'key': new_fields[0],
                                         u'value':
                                         extra_fields_new[new_fields[0]]})
                 else:
                     change_list.append({u'type': u'extra_fields',
                                         u'method': u'add_one_no_value',
-                                        u'pkg_id': new['id'],
-                                        u'title': new['title'],
+                                        u'pkg_id': new.get(u'id'),
+                                        u'title': new.get(u'title'),
                                         u'key': new_fields[0]})
 
             elif len(new_fields) > 1:
                 change_list.append({u'type': u'extra_fields',
                                     u'method': u'add_multiple',
-                                    u'pkg_id': new['id'],
-                                    u'title': new['title'],
+                                    u'pkg_id': new.get(u'id'),
+                                    u'title': new.get(u'title'),
                                     u'key_list': new_fields,
                                     u'value_list': extra_fields_new})
 
@@ -816,12 +823,12 @@ def _extra_fields(change_list, old, new):
         if len(deleted_fields) == 1:
             change_list.append({u'type': u'extra_fields',
                                 u'method': u'remove_one',
-                                u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'pkg_id': new.get(u'id'),
+                                u'title': new.get(u'title'),
                                 u'key': deleted_fields[0]})
         elif len(deleted_fields) > 1:
             change_list.append({u'type': u'extra_fields',
                                 u'method': u'remove_multiple',
-                                u'pkg_id': new['id'],
-                                u'title': new['title'],
+                                u'pkg_id': new.get(u'id'),
+                                u'title': new.get(u'title'),
                                 u'key_list': deleted_fields})

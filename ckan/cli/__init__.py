@@ -1,12 +1,14 @@
 # encoding: utf-8
 
+import sys
 import os
 
 import click
 import logging
 from logging.config import fileConfig as loggingFileConfig
-from configparser import ConfigParser
+from six.moves.configparser import ConfigParser
 
+from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
 
@@ -74,21 +76,27 @@ def load_config(ini_path=None):
         config_source = u'$CKAN_INI'
     else:
         # deprecated method since CKAN 2.9
-        default_filename = u'development.ini'
-        filename = os.path.join(os.getcwd(), default_filename)
-        if not os.path.exists(filename):
+        default_filenames = [u'ckan.ini', u'development.ini']
+        filename = None
+        for default_filename in default_filenames:
+            check_file = os.path.join(os.getcwd(), default_filename)
+            if os.path.exists(check_file):
+                filename = check_file
+                break
+        if not filename:
             # give really clear error message for this common situation
-            msg = u'ERROR: You need to specify the CKAN config (.ini) '\
-                u'file path.'\
-                u'\nUse the --config parameter or set environment ' \
-                u'variable CKAN_INI or have {}\nin the current directory.' \
-                .format(default_filename)
-            exit(msg)
+            msg = u'''
+ERROR: You need to specify the CKAN config (.ini) file path.
+
+Use the --config parameter or set environment variable CKAN_INI
+or have one of {} in the current directory.'''
+            msg = msg.format(u', '.join(default_filenames))
+            raise CkanConfigurationException(msg)
 
     if not os.path.exists(filename):
         msg = u'Config file not found: %s' % filename
         msg += u'\n(Given by: %s)' % config_source
-        exit(msg)
+        raise CkanConfigurationException(msg)
 
     config_loader = CKANConfigLoader(filename)
     loggingFileConfig(filename)

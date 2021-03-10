@@ -44,7 +44,6 @@ ckan_deb/DEBIAN/prerm
 
 # node.js
 node_modules/
-package-lock.json
 
 # docker
 contrib/docker/.env

@@ -29,7 +29,7 @@ def validator_args(fn):
 def default_resource_schema(
         ignore_empty, unicode_safe, ignore, ignore_missing,
         remove_whitespace, if_empty_guess_format, clean_format, isodate,
-        int_validator, extras_unicode_convert, keep_extras):
+        int_validator, extras_valid_json, keep_extras):
     return {
         'id': [ignore_empty, unicode_safe],
         'package_id': [ignore],
@@ -52,7 +52,7 @@ def default_resource_schema(
         'cache_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
-        '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
+        '__extras': [ignore_missing, extras_valid_json, keep_extras],
     }
 
 
@@ -197,6 +197,7 @@ def default_show_package_schema(
         'mimetype': [],
         'cache_url': [],
         'name': [],
+        'description': [],
         'mimetype_inner': [],
         'resource_type': [],
         'url_type': [],
@@ -386,7 +387,7 @@ def default_user_schema(
         ignore_missing, unicode_safe, name_validator, user_name_validator,
         user_password_validator, user_password_not_empty, email_is_unique,
         ignore_not_sysadmin, not_empty, email_validator,
-        user_about_validator, ignore, boolean_validator):
+        user_about_validator, ignore, boolean_validator, json_object):
     return {
         'id': [ignore_missing, unicode_safe],
         'name': [
@@ -404,6 +405,9 @@ def default_user_schema(
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
         'state': [ignore_missing],
+        'image_url': [ignore_missing, unicode_safe],
+        'image_display_url': [ignore_missing, unicode_safe],
+        'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
     }
 
 
@@ -788,4 +792,40 @@ def job_list_schema(ignore_missing, list_of_strings):
 def job_clear_schema(ignore_missing, list_of_strings):
     return {
         u'queues': [ignore_missing, list_of_strings],
+    }
+
+
+@validator_args
+def default_create_api_token_schema(
+        not_empty, unicode_safe,
+        ignore_missing, json_object, ignore_not_sysadmin):
+    return {
+        u'name': [not_empty, unicode_safe],
+        u'user': [not_empty, unicode_safe],
+        u'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
+    }
+
+
+@validator_args
+def package_revise_schema(
+        ignore_missing, list_of_strings,
+        collect_prefix_validate, json_or_string,
+        json_list_or_string, dict_only):
+    return {
+        u'__before': [
+            collect_prefix_validate(
+                u'match__', u'json_or_string'),
+            collect_prefix_validate(
+                u'update__', u'json_or_string')],
+        u'match': [
+            ignore_missing, json_or_string, dict_only],
+        u'filter': [
+            ignore_missing, json_list_or_string, list_of_strings],
+        u'update': [
+            ignore_missing, json_or_string, dict_only],
+        u'include': [
+            ignore_missing, json_list_or_string, list_of_strings],
+        # collect_prefix moves values to these, always dicts:
+        u'match__': [],
+        u'update__': [],
     }

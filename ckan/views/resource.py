@@ -172,8 +172,12 @@ def download(package_type, id, resource_id, filename=None):
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
+        resp = flask.send_file(filepath)
+        if rsc.get('mimetype'):
+            resp.headers['Content-Type'] = rsc['mimetype']
         plugins.toolkit.signals.resource_download.send(resource_id)
-        return flask.send_file(filepath)
+        return resp
+
     elif u'url' not in rsc:
         return base.abort(404, _(u'No download is available'))
     return h.redirect_to(rsc[u'url'])

@@ -44,14 +44,14 @@
 }
 
 @media (min-width: @screen-sm-min) {
-    [role=main],
     .main {
         padding-top: 10px;
         background: @layoutBackgroundColor url("@{bgPath}");
     }
 }
 
-[role=main] {
+[role=main],
+.main {
     min-height: 350px;
 }
 
@@ -61,13 +61,13 @@
     border-top-width: 1px;
 }
 
-[role=main] .primary {
+.main .primary {
     position: relative;
     float: right;
     margin-left: 0; // Remove grid margin.
 }
 
-[role=main] .secondary {
+.main .secondary {
     padding: 0;
     z-index: 1;
     padding-right: 1px;
@@ -95,7 +95,7 @@
         .box-shadow(0);
         .border-radius(0);
     }
-    .js [role=main] .secondary .filters {
+    .js .main .secondary .filters {
         display: none;
         position: fixed;
         overflow: auto;
@@ -111,14 +111,14 @@
     .js body.filters-modal .secondary .filters {
         display: block;
     }
-    .js [role=main] .secondary .filters>div {
+    .js .main .secondary .filters>div {
         background-color: #fff;
         -webkit-border-radius: 4px;
         -moz-border-radius: 4px;
         border-radius: 4px;
         overflow: hidden;
     }
-    .js [role=main] .secondary .filters>div .module-footer {
+    .js .main .secondary .filters>div .module-footer {
         display: none;
     }
     .js body.filters-modal .secondary .filters .hide-filters {
@@ -205,7 +205,9 @@
             .border-radius(4px);
         }
     }
-    p {
+    .description {
+        word-wrap: break-word;
+        word-break: break-all;
         overflow: auto;
     }
     code {

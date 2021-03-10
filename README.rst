@@ -60,7 +60,7 @@ Contributing to CKAN
 --------------------
 
 For contributing to CKAN or its documentation, see
-`CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.rst>`_.
+`CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.md>`_.
 
 Mailing List
 ~~~~~~~~~~~~
@@ -85,7 +85,7 @@ If you've figured out how to do something with CKAN and want to document it for
 others, make a new page on the `CKAN wiki`_ and tell us about it on the
 ckan-dev mailing list or on Gitter.
 
-.. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
+.. _ckan-dev: https://groups.google.com/a/ckan.org/forum/#!forum/ckan-dev
 .. _#ckan: http://webchat.freenode.net/?channels=ckan
 .. _CKAN Wiki: https://github.com/ckan/ckan/wiki
 .. _CKAN chat on Gitter: https://gitter.im/ckan/chat

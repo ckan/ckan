@@ -38,7 +38,7 @@ The general form of a CKAN ``ckan`` command is:
 
 .. parsed-literal::
 
-   ckan --config=\ |ckan.ini| **command**
+ ckan --config=\ |ckan.ini| **command**
 
 The `` --config`` option tells CKAN where to find your config file, which it
 reads for example to know which database it should use. As you'll see in the
@@ -48,7 +48,7 @@ The config file (ckan.ini) will generally be located in the
 ``/etc/ckan/default/`` directory however it can be located in any directory on
 the host machine
 
-``command`` should be replaced with the name of the CKAN command that you wish
+**command** should be replaced with the name of the CKAN command that you wish
 to execute. Most commands have their own subcommands and options.
 
 .. note::
@@ -57,25 +57,28 @@ to execute. Most commands have their own subcommands and options.
   environment variable. You will no longer need to use --config= or -c to
   tell ckan where the config file is:
 
-  .. parsed-literal::
 
-     export CKAN_INI=\ |ckan.ini|
+.. parsed-literal::
+
+ export CKAN_INI=\ |ckan.ini|
 
 .. note::
 
-  Deprecated usage: You can run the ckan command in the same directory as the
-  CKAN config file when the config file is named 'development.ini'. You will
-  not be required to use --config or -c in this case. This usage is deprecated
+  You can run the ckan command in the same directory as the
+  CKAN config file when the config file is named 'ckan.ini'. You will
+  not be required to use --config or -c in this case. For backwards compatibility, the config file can be also named 'development.ini', but this usage is deprecated
   and will be phased out in a future CKAN release.
 
-  .. parsed-literal::
+.. parsed-literal::
 
-     cd |virtualenv|\/src/ckan; ckan command
+ cd |virtualenv|\/src/ckan; ckan command
 
 
 Commands and Subcommands
 
-   ckan -c |ckan.ini| user list
+.. parsed-literal::
+
+ ckan -c |ckan.ini| user list
 
 (Here ``user`` is the name of the CKAN command you're running, and ``list`` is
 a subcommand of ``user``.)
@@ -84,9 +87,11 @@ For a list of all available commands, see `CKAN Commands Reference`_.
 
 Each command has its own help text, which tells you what subcommands and
 options it has (if any). To print out a command's help text, run the command
-with the ``--help`` option, for example::
+with the ``--help`` option, for example:
 
-   ckan -c |ckan.ini| user --help
+.. parsed-literal::
+
+ ckan -c |ckan.ini| user --help
 
 
 -------------------------------
@@ -100,7 +105,7 @@ If you receive 'Permission Denied' error, try running ckan with sudo.
 
 .. parsed-literal::
 
-  sudo |virtualenv|/bin/ckan -c |ckan.ini| db clean
+ sudo |virtualenv|/bin/ckan -c |ckan.ini| db clean
 
 Virtualenv not activated, or not in ckan dir
 ============================================
@@ -111,8 +116,8 @@ the command:
 
 .. parsed-literal::
 
-   |activate|
-   cd |virtualenv|/src/ckan
+ |activate|
+ cd |virtualenv|/src/ckan
 
 Error messages such as the following are usually caused by forgetting to do
 this:
@@ -128,19 +133,7 @@ Running ckan commands provided by extensions
 
 **If you're trying to run a CKAN command provided by an extension** that you've
 installed and you're getting an error like **Command 'foo' not known** even
-though you've activated your virtualenv and changed to the ckan directory, this
-is because you need to run the extension's ckan commands from the extension's
-source directory not CKAN's source directory. For example:
-
-.. parsed-literal::
-
-   |activate|
-   cd |virtualenv|/src/ckanext-spatial
-   ckan -c |ckan.ini| foo
-
-This should not be necessary when using the pre-installed extensions that come
-with CKAN.
-
+though you've activated your virtualenv, make sure that you have added the relevant plugin to the :ref:`ckan.plugins` setting in the ini file.
 
 Wrong config file path
 ======================
@@ -179,10 +172,10 @@ less              Compile all root less documents into their CSS counterparts
 minify            Create minified versions of the given Javascript and CSS files.
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
-profile           Code speed profiler
+profile           Code speed profiler.
+run               Start Development server.
 search-index      Creates a search index for all datasets
 seed              Create test data in the database.
-server            Start Development server.
 sysadmin          Gives sysadmin rights to a named user.
 tracking          Update tracking statistics.
 translation       Translation helper functions
@@ -194,70 +187,85 @@ views             Create views on relevant resources
 asset: WebAssets commands
 ==================================
 
-Usage::
+Usage
 
-    ckan asset build            - Builds bundles, regardless of whether they are changed or not
-    ckan asset watch            - Start a daemon which monitors source files, and rebuilds bundles
-    ckan asset clean            - Will clear out the cache, which after a while can grow quite large
+.. parsed-literal::
+
+ ckan asset build            - Builds bundles, regardless of whether they are changed or not
+ ckan asset watch            - Start a daemon which monitors source files, and rebuilds bundles
+ ckan asset clean            - Will clear out the cache, which after a while can grow quite large
 
 
 config-tool: Tool for editing options in a CKAN config file
 ===========================================================
 
-Usage::
+Usage
 
-    ckan config-tool --section (-s)  - Section of the config file
-    ckan config-tool --edit (-e)     - Checks the option already exists in the config file
-    ckan config-tool --file (-f)     - Supply an options file to merge in
+.. parsed-literal::
 
-Examples::
+ ckan config-tool --section (-s)  - Section of the config file
+ ckan config-tool --edit (-e)     - Checks the option already exists in the config file
+ ckan config-tool --file (-f)     - Supply an options file to merge in
 
-      ckan config-tool |ckan.ini| sqlalchemy.url=123 'ckan.site_title=ABC'
-      ckan config-tool |ckan.ini| -s server:main -e port=8080
-      ckan config-tool |ckan.ini| -f custom_options.ini
+Examples
+
+.. parsed-literal::
+
+ ckan config-tool |ckan.ini| sqlalchemy.url=123 'ckan.site_title=ABC'
+ ckan config-tool |ckan.ini| -s server:main -e port=8080
+ ckan config-tool |ckan.ini| -f custom_options.ini
 
 
 datapusher: Perform commands in the datapusher
 ==============================================
 
-Usage::
+Usage
 
-    ckan datapusher resubmit    - Resubmit udated datastore resources
-    ckan datapusher submit      - Submits resources from package
+.. parsed-literal::
+
+ ckan datapusher resubmit    - Resubmit udated datastore resources
+ ckan datapusher submit      - Submits resources from package
 
 
 dataset: Manage datasets
 ========================
 
-Usage::
+Usage
 
-    ckan dataset DATASET_NAME|ID            - shows dataset properties
-    ckan dataset show DATASET_NAME|ID       - shows dataset properties
-    ckan dataset list                       - lists datasets
-    ckan dataset delete [DATASET_NAME|ID]   - changes dataset state to 'deleted'
-    ckan dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
+.. parsed-literal::
+
+ ckan dataset DATASET_NAME|ID            - shows dataset properties
+ ckan dataset show DATASET_NAME|ID       - shows dataset properties
+ ckan dataset list                       - lists datasets
+ ckan dataset delete [DATASET_NAME|ID]   - changes dataset state to 'deleted'
+ ckan dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
 
 
-datastore: Perform commands to set up the datastore
+datastore: Perform commands in the datastore
 ===================================================
 
 Make sure that the datastore URLs are set properly before you run these commands.
 
-Usage::
+Usage
 
-    ckan datastore set-permissions  - generate SQL for permission configuration
-    ckan datastore dump             - dump a datastore resource
+.. parsed-literal::
+
+ ckan datastore set-permissions  - generate SQL for permission configuration
+ ckan datastore dump             - dump a datastore resource
+ ckan datastore purge            - purge orphaned datastore resources
 
 
 db: Manage databases
 ====================
 
-ckan db clean               - Clean the database
-ckan db downgrade           - Downgrade the database
-ckan db duplicate_emails    - Check users email for duplicate
-ckan db init                - Initialize the database
-ckan db upgrade             - Upgrade the database
-ckan db version             - Returns current version of data schema
+.. parsed-literal::
+
+ ckan db clean               - Clean the database
+ ckan db downgrade           - Downgrade the database
+ ckan db duplicate_emails    - Check users email for duplicate
+ ckan db init                - Initialize the database
+ ckan db upgrade             - Upgrade the database
+ ckan db version             - Returns current version of data schema
 
 See :doc:`database-management`.
 
@@ -265,18 +273,22 @@ See :doc:`database-management`.
 front-end-build: Creates and minifies css and JavaScript files
 ==============================================================
 
-Usage::
+Usage
 
-    ckan front-end-build      - compile css and js
+.. parsed-literal::
+
+ ckan front-end-build      - compile css and js
 
 
 generate: Generate empty extension files to expand CKANs
 ========================================================
 
-Usage::
+Usage
 
-    ckan generate extension           - Create empty extension
-    ckan generate --output-dir (-o)   - Location to put the generated template
+.. parsed-literal::
+
+ ckan generate extension           - Create empty extension
+ ckan generate --output-dir (-o)   - Location to put the generated template
 
 
 .. _cli jobs:
@@ -284,43 +296,49 @@ Usage::
 jobs: Manage background jobs
 ============================
 
-ckan jobs cancel      - cancel a specific job.
-ckan jobs clear       - cancel all jobs.
-ckan jobs list        - list jobs.
-ckan jobs show        - show details about a specific job.
-ckan jobs test        - enqueue a test job.
-ckan jobs worker      - start a worker
+.. parsed-literal::
+
+ ckan jobs cancel      - cancel a specific job.
+ ckan jobs clear       - cancel all jobs.
+ ckan jobs list        - list jobs.
+ ckan jobs show        - show details about a specific job.
+ ckan jobs test        - enqueue a test job.
+ ckan jobs worker      - start a worker
 
 The ``jobs`` command can be used to manage :ref:`background jobs`.
 
 .. versionadded:: 2.7
 
-
 .. _cli jobs worker:
 
 Run a background job worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-::
 
-    ckan -c |ckan.ini| jobs worker [--burst] [QUEUES]
+.. parsed-literal::
+
+ ckan -c |ckan.ini| jobs worker [--burst] [QUEUES]
 
 Starts a worker that fetches job from the :ref:`job queues <background jobs
 queues>` and executes them. If no queue names are given then it listens to
 the default queue. This is equivalent to
 
-::
+.. parsed-literal::
 
-    ckan -c |ckan.ini| jobs worker default
+ ckan -c |ckan.ini| jobs worker default
 
 If queue names are given then the worker listens to those queues and only
-those::
+those:
 
-    ckan -c |ckan.ini| jobs worker my-custom-queue another-special-queue
+.. parsed-literal::
+
+ ckan -c |ckan.ini| jobs worker my-custom-queue another-special-queue
 
 Hence, if you want the worker to listen to the default queue and some others
-then you must list the default queue explicitly::
+then you must list the default queue explicitly
 
-    ckan -c |ckan.ini| jobs worker default my-custom-queue
+.. parsed-literal::
+
+ ckan -c |ckan.ini| jobs worker default my-custom-queue
 
 If the ``--burst`` option is given then the worker will exit as soon as all its
 queues are empty. Otherwise it will wait indefinitely until a new job is
@@ -336,9 +354,10 @@ enqueued (this is the default).
 
 List enqueued jobs
 ^^^^^^^^^^^^^^^^^^
-::
 
-    ckan -c |ckan.ini| jobs list [QUEUES]
+.. parsed-literal::
+
+ ckan -c |ckan.ini| jobs list [QUEUES]
 
 Lists the currently enqueued jobs from the given :ref:`job queues <background
 jobs queues>`. If no queue names are given then the jobs from all queues are
@@ -349,9 +368,10 @@ listed.
 
 Show details about a job
 ^^^^^^^^^^^^^^^^^^^^^^^^
-::
 
-    ckan -c |ckan.ini| jobs show ID
+.. parsed-literal::
+
+ ckan -c |ckan.ini| jobs show ID
 
 Shows details about the enqueued job with the given ID.
 
@@ -360,9 +380,10 @@ Shows details about the enqueued job with the given ID.
 
 Cancel a job
 ^^^^^^^^^^^^
-::
 
-    ckan -c |ckan.ini| jobs cancel ID
+.. parsed-literal::
+
+ ckan -c |ckan.ini| jobs cancel ID
 
 Cancels the enqueued job with the given ID. Jobs can only be canceled while
 they are enqueued. Once a worker has started executing a job it cannot be
@@ -373,9 +394,10 @@ aborted anymore.
 
 Clear job queues
 ^^^^^^^^^^^^^^^^
-::
 
-    ckan -c |ckan.ini| jobs clear [QUEUES]
+.. parsed-literal::
+
+ ckan -c |ckan.ini| jobs clear [QUEUES]
 
 Cancels all jobs on the given :ref:`job queues <background jobs queues>`. If no
 queues are given then *all* queues are cleared.
@@ -385,9 +407,10 @@ queues are given then *all* queues are cleared.
 
 Enqueue a test job
 ^^^^^^^^^^^^^^^^^^
-::
 
-    ckan -c |ckan.ini| jobs test [QUEUES]
+.. parsed-literal::
+
+ ckan -c |ckan.ini| jobs test [QUEUES]
 
 Enqueues a test job. If no :ref:`job queues <background jobs queues>` are given
 then the job is added to the default queue. If queue names are given then a
@@ -399,23 +422,27 @@ separate test job is added to each of the queues.
 less: Compile all root less documents into their CSS counterparts
 =================================================================
 
-Usage::
+Usage
 
-    less
+.. parsed-literal::
+
+ less
 
 
 minify: Create minified versions of the given Javascript and CSS files
 ======================================================================
 
-Usage::
+Usage
 
-    ckan minify [--clean] PATH    - remove any minified files in the path
+.. parsed-literal::
 
-    For example:
+ ckan minify [--clean] PATH     - remove any minified files in the path
 
-    ckan -c |ckan.ini| minify ckan/public/base
-    ckan -c |ckan.ini| minify ckan/public/base/css/*.css
-    ckan -c |ckan.ini| minify ckan/public/base/css/red.css
+.. parsed-literal::
+
+ ckan -c |ckan.ini| minify ckan/public/base
+ ckan -c |ckan.ini| minify ckan/public/base/css/\*.css
+ ckan -c |ckan.ini| minify ckan/public/base/css/red.css
 
 If the --clean option is provided any minified files will be removed.
 
@@ -423,9 +450,11 @@ If the --clean option is provided any minified files will be removed.
 notify: Send out modification notifications
 ===========================================
 
-Usage::
+Usage
 
-    ckan notify replay    - send out modification signals. In "replay" mode,
+.. parsed-literal::
+
+ ckan notify replay    - send out modification signals. In "replay" mode,
                        an update signal is sent for each dataset in the database.
 
 
@@ -441,9 +470,11 @@ profile: Code speed profiler
 Provide a ckan url and it will make the request and record how long each function call took in a file that can be read
 by runsnakerun.
 
-Usage::
+Usage
 
-   ckan profile URL
+.. parsed-literal::
+
+ ckan profile URL
 
 The result is saved in profile.data.search. To view the profile in runsnakerun::
 
@@ -452,16 +483,31 @@ The result is saved in profile.data.search. To view the profile in runsnakerun::
 You may need to install the cProfile python module.
 
 
+run: Start Development server
+==================================
+
+Usage
+
+.. parsed-literal::
+
+ ckan run --host (-h)                  - Set Host
+ ckan run --port (-p)                  - Set Port
+ ckan run --disable-reloader (-r)      - Use reloader
+
+
+
 search-index: Search index commands
 ===================================
 
-Usage::
+Usage
 
-    ckan search-index check                    - Check search index
-    ckan search-index clear                    - Clear the search index
-    ckan search-index rebuild                  - Rebuild search index
-    ckan search-index rebuild-fast             - Reindex with multiprocessing
-    ckan search-index show                     - Show index of a dataset
+.. parsed-literal::
+
+ ckan search-index check                    - Check search index
+ ckan search-index clear                    - Clear the search index
+ ckan search-index rebuild                  - Rebuild search index
+ ckan search-index rebuild-fast             - Reindex with multiprocessing
+ ckan search-index show                     - Show index of a dataset
 
 
 .. _rebuild search index:
@@ -471,76 +517,86 @@ search-index: Rebuild search index
 
 Rebuilds the search index. This is useful to prevent search indexes from getting out of sync with the main database.
 
-For example::
+For example
+
+.. parsed-literal::
 
  ckan -c |ckan.ini| search-index rebuild
 
 This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
-one dataset, you can provide a dataset name::
+one dataset, you can provide a dataset name
 
-    ckan -c |ckan.ini| search-index rebuild test-dataset-name
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild test-dataset-name
 
 Alternatively, you can use the `-o` or `--only-missing` option to only reindex datasets which are not
-already indexed::
+already indexed
 
-    ckan -c |ckan.ini| search-index rebuild -o
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild -o
 
 If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
-won't clear the index before starting rebuilding it::
+won't clear the index before starting rebuilding it
 
-    ckan -c |ckan.ini| search-index rebuild -r
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild -r
 
 There is also an option available which works like the refresh option but tries to use all processes on the
-computer to reindex faster::
+computer to reindex faster
 
-    ckan -c |ckan.ini| search-index rebuild_fast
+.. parsed-literal::
 
-There are other search related commands, mostly useful for debugging purposes::
+ ckan -c |ckan.ini| search-index rebuild_fast
 
-    ckan search-index check                  - checks for datasets not indexed
-    ckan search-index show DATASET_NAME      - shows index of a dataset
-    ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
+There are other search related commands, mostly useful for debugging purposes
+
+.. parsed-literal::
+
+ ckan search-index check                  - checks for datasets not indexed
+ ckan search-index show DATASET_NAME      - shows index of a dataset
+ ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
 
 
 seed: Create test data in the database
 ======================================
 
-Usage::
+Usage
 
-    basic           - annakarenina and warandpeace.
-    family          - package relationships data.
-    gov             - government style data.
-    hierarchy       - hierarchy of groups.
-    search          - realistic data to test search.
-    translations    - test translations of terms.
-    user            - create a user "tester" with api key "tester".
-    vocabs          - some test vocabularies.
+.. parsed-literal::
 
-Examples::
+ basic           - annakarenina and warandpeace.
+ family          - package relationships data.
+ gov             - government style data.
+ hierarchy       - hierarchy of groups.
+ search          - realistic data to test search.
+ translations    - test translations of terms.
+ user            - create a user "tester" with api key "tester".
+ vocabs          - some test vocabularies.
 
-      ckan -c |ckan.ini| seed basic
+Examples
 
+.. parsed-literal::
 
-server: Start Development server
-==================================
-
-Usage::
-
-    ckan server --host (-h)          - Set Host
-    ckan server --port (-p)          - Set Port
-    ckan server --reloader (-r)      - Use reloader
+ ckan -c |ckan.ini| seed basic
 
 
 sysadmin: Give sysadmin rights
 ==============================
 
-Usage::
+Usage
 
-    ckan sysadmin add       - convert user into a sysadmin
-    ckan sysadmin list      - list sysadmins
-    ckan sysadmin remove    - removes user from sysadmins
+.. parsed-literal::
 
-For example, to make a user called 'admin' into a sysadmin::
+ ckan sysadmin add       - convert user into a sysadmin
+ ckan sysadmin list      - list sysadmins
+ ckan sysadmin remove    - removes user from sysadmins
+
+For example, to make a user called 'admin' into a sysadmin
+
+.. parsed-literal::
 
  ckan -c |ckan.ini| sysadmin add admin
 
@@ -548,20 +604,24 @@ For example, to make a user called 'admin' into a sysadmin::
 tracking: Update tracking statistics
 ====================================
 
-Usage::
+Usage
 
-    ckan tracking update [start_date]       - update tracking stats
-    ckan tracking export FILE [start_date]  - export tracking stats to a csv file
+.. parsed-literal::
+
+ ckan tracking update [start_date]       - update tracking stats
+ ckan tracking export FILE [start_date]  - export tracking stats to a csv file
 
 
 translation: Translation helper functions
 =========================================
 
-Usage::
+Usage
 
-    ckan translation js          - generate the JavaScript translations
-    ckan translation mangle      - mangle the zh_TW translations for testing
-    ckan translation check-po    - check po files for common mistakes
+.. parsed-literal::
+
+ ckan translation js          - generate the JavaScript translations
+ ckan translation mangle      - mangle the zh_TW translations for testing
+ ckan translation check-po    - check po files for common mistakes
 
 .. note::
 
@@ -577,19 +637,25 @@ user: Create and manage users
 
 Lets you create, remove, list and manage users.
 
-Usage::
+Usage
 
-    ckan user add         - add new user
-    ckan user list        - list all users
-    ckan user remove      - remove user
-    ckan user setpass     - set password for the user
-    ckan user show        - show user
+.. parsed-literal::
 
-For example, to create a new user called 'admin'::
+ ckan user add         - add new user
+ ckan user list        - list all users
+ ckan user remove      - remove user
+ ckan user setpass     - set password for the user
+ ckan user show        - show user
+
+For example, to create a new user called 'admin'
+
+.. parsed-literal::
 
  ckan -c |ckan.ini| user add admin
 
-To delete the 'admin' user::
+To delete the 'admin' user
+
+.. parsed-literal::
 
  ckan -c |ckan.ini| user remove admin
 
@@ -597,13 +663,15 @@ To delete the 'admin' user::
 views: Create views on relevant resources
 =========================================
 
-Usage::
+Usage
 
-    ckan views clean      - permanently delete views for all types no...
-    ckan views clear      - permanently delete all views or the ones with...
-    ckan views create     - create views on relevant resources.
+.. parsed-literal::
 
-    ckan views --dataset (-d)        - Set Dataset
-    ckan views --no-default-filters
-    ckan views --search (-s)         - Set Search
-    ckan views --yes (-y)
+ ckan views clean      - permanently delete views for all types no...
+ ckan views clear      - permanently delete all views or the ones with...
+ ckan views create     - create views on relevant resources.
+
+ ckan views --dataset (-d)        - Set Dataset
+ ckan views --no-default-filters
+ ckan views --search (-s)         - Set Search
+ ckan views --yes (-y)

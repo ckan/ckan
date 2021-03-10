@@ -10,6 +10,7 @@ import inspect
 import sys
 
 from jinja2.exceptions import TemplateNotFound
+
 import six
 from flask import (
     render_template as flask_render_template,
@@ -27,7 +28,7 @@ from ckan.views import (identify_user,
                         check_session_cookie,
                         )
 from ckan.common import (c, request, config,
-                         session, is_flask_request)
+                         session, is_flask_request, asbool)
 
 
 if six.PY2:
@@ -146,6 +147,7 @@ def render(template_name, extra_vars=None, *pargs, **kwargs):
                                             *pargs, **kwargs)
         return cached_template(template_name, renderer)
 
+    _allow_caching()
     return flask_render_template(template_name, **extra_vars)
 
 
@@ -216,14 +218,10 @@ def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
     # Don't cache if we have set the __no_cache__ param in the query string.
     elif request.params.get('__no_cache__'):
         allow_cache = False
-    # Don't cache if we have extra vars containing data.
-    elif extra_vars:
-        for k, v in six.iteritems(extra_vars):
-            allow_cache = False
-            break
+    # Don't cache if caching is not enabled in config
+    elif not asbool(config.get('ckan.cache_enabled', False)):
+        allow_cache = False
 
-    # TODO: replicate this logic in Flask once we start looking at the
-    # rendering for the frontend controllers
     set_pylons_response_headers(allow_cache)
 
     if not allow_cache:
@@ -231,6 +229,44 @@ def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
         request.environ['__no_cache__'] = True
 
     return render_template
+
+
+def _allow_caching(cache_force=None):
+    # Caching Logic
+
+    allow_cache = True
+    # Force cache or not if explicit.
+    if cache_force is not None:
+        allow_cache = cache_force
+    # Do not allow caching of pages for logged in users/flash messages etc.
+    elif _is_valid_session_cookie_data():
+        allow_cache = False
+    # Tests etc.
+    elif 'REMOTE_USER' in request.environ:
+        allow_cache = False
+    # Don't cache if based on a non-cachable template used in this.
+    elif request.environ.get('__no_cache__'):
+        allow_cache = False
+    # Don't cache if we have set the __no_cache__ param in the query string.
+    elif request.params.get('__no_cache__'):
+        allow_cache = False
+    # Don't cache if caching is not enabled in config
+    elif not asbool(config.get('ckan.cache_enabled', False)):
+        allow_cache = False
+
+    if not allow_cache:
+        # Prevent any further rendering from being cached.
+        request.environ['__no_cache__'] = True
+
+
+def _is_valid_session_cookie_data():
+    is_valid_cookie_data = False
+    for key, value in session.items():
+        if not key.startswith(u'_') and value:
+            is_valid_cookie_data = True
+            break
+
+    return is_valid_cookie_data
 
 
 class ValidationException(Exception):

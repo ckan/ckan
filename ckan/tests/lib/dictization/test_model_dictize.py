@@ -559,7 +559,7 @@ class TestPackageDictize:
         expected_dict = {
             u"approval_status": u"approved",
             u"description": u"Just another test organization.",
-            u"image_url": u"http://placekitten.com/g/200/100",
+            u"image_url": u"https://placekitten.com/g/200/100",
             u"is_organization": True,
             u"name": u"test_package_dictize",
             u"state": u"active",

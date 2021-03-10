@@ -75,7 +75,17 @@ ckan.auth.create_user_via_web = true
 ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.auth.public_user_details = true
 ckan.auth.public_activity_stream_detail = true
+ckan.auth.allow_dataset_collaborators = false
+ckan.auth.create_default_api_keys = false
 
+## API Token Settings
+api_token.nbytes = 60
+api_token.jwt.encode.secret = string:$app_instance_secret
+api_token.jwt.decode.secret = string:$app_instance_secret
+api_token.jwt.algorithm = HS256
+
+## API Token: expire_api_token plugin
+expire_api_token.default_lifetime = 3600
 
 ## Search Settings
 
@@ -113,7 +123,7 @@ ckan.views.default_views = image_view text_view recline_view
 # Customize which text formats the text_view plugin will show
 #ckan.preview.json_formats = json
 #ckan.preview.xml_formats = xml rdf rdf+xml owl+xml atom rss
-#ckan.preview.text_formats = text plain text/plain
+#ckan.preview.text_formats = txt plain text/plain
 
 # Customize which image formats the image_view plugin will show
 #ckan.preview.image_formats = png jpeg jpg gif

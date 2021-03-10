@@ -33,30 +33,6 @@ def datetime2date(datetime_):
 class Stats(object):
 
     @classmethod
-    def top_rated_packages(cls, limit=10):
-        # NB Not using sqlalchemy as sqla 0.4 doesn't work using both group_by
-        # and apply_avg
-        package = table('package')
-        rating = table('rating')
-        sql = select(
-            [
-                package.c.id,
-                func.avg(rating.c.rating),
-                func.count(rating.c.rating)
-            ],
-            from_obj=[package.join(rating)]
-        ).where(and_(package.c.private == False, package.c.state == 'active')
-                ).group_by(package.c.id).order_by(
-                    func.avg(rating.c.rating).desc(),
-                    func.count(rating.c.rating).desc()
-                ).limit(limit)
-        res_ids = model.Session.execute(sql).fetchall()
-        res_pkgs = [(
-            model.Session.query(model.Package).get(text_type(pkg_id)), avg, num
-        ) for pkg_id, avg, num in res_ids]
-        return res_pkgs
-
-    @classmethod
     def largest_groups(cls, limit=10):
         member = table('member')
         package = table('package')

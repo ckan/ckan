@@ -6,7 +6,7 @@ import logging
 import random
 import re
 from socket import error as socket_error
-import string
+import datetime
 
 import six
 
@@ -23,9 +23,10 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
-import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
+import ckan.lib.api_token as api_token
+import ckan.authz as authz
 
 from ckan.common import _, config
 
@@ -42,6 +43,7 @@ _check_access = logic.check_access
 _get_action = logic.get_action
 ValidationError = logic.ValidationError
 NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
 _get_or_bust = logic.get_or_bust
 
 
@@ -287,9 +289,7 @@ def resource_create(context, data_dict):
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    pkg_dict = _get_action('package_show')(
-        dict(context, return_type='dict'),
-        {'id': package_id})
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
 
@@ -603,8 +603,8 @@ def member_create(context, data_dict=None):
                 member.table_id == user_obj.id and \
                 member.capacity == u'admin' and \
                 capacity != u'admin':
-            raise logic.NotAuthorized("Administrators cannot revoke their "
-                                      "own admin status")
+            raise NotAuthorized("Administrators cannot revoke their "
+                                "own admin status")
     else:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
@@ -619,6 +619,77 @@ def member_create(context, data_dict=None):
     return model_dictize.member_dictize(member, context)
 
 
+def package_collaborator_create(context, data_dict):
+    '''Make a user a collaborator in a dataset.
+
+    If the user is already a collaborator in the dataset then their
+    capacity will be updated.
+
+    Currently you must be an Admin on the dataset owner organization to
+    manage collaborators.
+
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :param user_id: the id or name of the user to add or edit
+    :type user_id: string
+    :param capacity: the capacity or role of the membership. Must be one of
+        "editor" or "member". Additionally
+        if :ref:`ckan.auth.allow_admin_collaborators` is set to True, "admin"
+        is also allowed.
+    :type capacity: string
+
+    :returns: the newly created (or updated) collaborator
+    :rtype: dictionary
+    '''
+
+    model = context['model']
+
+    package_id, user_id, capacity = _get_or_bust(
+        data_dict,
+        ['id', 'user_id', 'capacity']
+    )
+
+    allowed_capacities = authz.get_collaborator_capacities()
+    if capacity not in allowed_capacities:
+        raise ValidationError(
+            _('Role must be one of "{}"').format(', '.join(
+                allowed_capacities)))
+
+    _check_access('package_collaborator_create', context, data_dict)
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise NotFound(_('Dataset not found'))
+
+    user = model.User.get(user_id)
+    if not user:
+        raise NotFound(_('User not found'))
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
+
+    # Check if collaborator already exists
+    collaborator = model.Session.query(model.PackageMember). \
+        filter(model.PackageMember.package_id == package.id). \
+        filter(model.PackageMember.user_id == user.id).one_or_none()
+    if not collaborator:
+        collaborator = model.PackageMember(
+            package_id=package.id,
+            user_id=user.id)
+    collaborator.capacity = capacity
+    collaborator.modified = datetime.datetime.utcnow()
+    model.Session.add(collaborator)
+    model.repo.commit()
+
+    log.info('User {} added as collaborator in package {} ({})'.format(
+        user.name, package.id, capacity))
+
+    return model_dictize.member_dictize(collaborator, context)
+
+
 def _group_or_org_create(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
@@ -629,7 +700,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
     # get the schema
-    group_type = data_dict.get('type')
+    group_type = data_dict.get('type', 'organization' if is_org else 'group')
     group_plugin = lib_plugins.lookup_group_plugin(group_type)
     try:
         schema = group_plugin.form_to_db_schema_options({
@@ -749,7 +820,7 @@ def group_create(context, data_dict):
     :param image_url: the URL to an image to be displayed on the group's page
         (optional)
     :type image_url: string
-    :param type: the type of the group (optional),
+    :param type: the type of the group (optional, default: ``'group'``),
         :py:class:`~ckan.plugins.interfaces.IGroupForm` plugins
         associate themselves with different group types and provide custom
         group handling behaviour for these types
@@ -931,6 +1002,28 @@ def user_create(context, data_dict):
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
+    :param image_url: the URL to an image to be displayed on the group's page
+        (optional)
+    :type image_url: string
+    :param plugin_extras: private extra user data belonging to plugins.
+        Only sysadmin users may set this value. It should be a dict that can
+        be dumped into JSON, and plugins should namespace their extras with
+        the plugin name to avoid collisions with other plugins, eg::
+
+            {
+                "name": "test_user",
+                "email": "test@example.com",
+                "plugin_extras": {
+                    "my_plugin": {
+                        "private_extra": 1
+                    },
+                    "another_plugin": {
+                        "another_extra": True
+                    }
+                }
+            }
+    :type plugin_extras: dict
+
 
     :returns: the newly created user
     :rtype: dictionary
@@ -941,6 +1034,10 @@ def user_create(context, data_dict):
     session = context['session']
 
     _check_access('user_create', context, data_dict)
+
+    upload = uploader.get_uploader('user')
+    upload.update_data_dict(data_dict, 'image_url',
+                            'image_upload', 'clear_upload')
     data, errors = _validate(data_dict, schema, context)
 
     if errors:
@@ -971,6 +1068,8 @@ def user_create(context, data_dict):
     }
     logic.get_action('activity_create')(activity_create_context, activity_dict)
 
+    upload.upload(uploader.get_max_image_size())
+
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -982,7 +1081,15 @@ def user_create(context, data_dict):
     user_dictize_context = context.copy()
     user_dictize_context['keep_apikey'] = True
     user_dictize_context['keep_email'] = True
-    user_dict = model_dictize.user_dictize(user, user_dictize_context)
+
+    author_obj = model.User.get(context.get('user'))
+    include_plugin_extras = False
+    if author_obj:
+        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+    user_dict = model_dictize.user_dictize(
+        user, user_dictize_context,
+        include_plugin_extras=include_plugin_extras
+    )
 
     context['user_obj'] = user
     context['id'] = user.id
@@ -1193,7 +1300,8 @@ def tag_create(context, data_dict):
     :py:func:`~ckan.logic.action.update.package_update` function.)
 
     :param name: the name for the new tag, a string between 2 and 100
-        characters long containing only alphanumeric characters and ``-``,
+        characters long containing only alphanumeric characters,
+        spaces and the characters ``-``,
         ``_`` and ``.``, e.g. ``'Jazz'``
     :type name: string
     :param vocabulary_id: the id of the vocabulary that the new tag
@@ -1237,14 +1345,14 @@ def follow_user(context, data_dict):
 
     '''
     if 'user' not in context:
-        raise logic.NotAuthorized(_("You must be logged in to follow users"))
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
     session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(_("You must be logged in to follow users"))
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = (context.get('schema')
               or ckan.logic.schema.default_follow_user_schema())
@@ -1295,7 +1403,7 @@ def follow_dataset(context, data_dict):
     '''
 
     if 'user' not in context:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a dataset."))
 
     model = context['model']
@@ -1303,7 +1411,7 @@ def follow_dataset(context, data_dict):
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a dataset."))
 
     schema = (context.get('schema')
@@ -1436,7 +1544,7 @@ def follow_group(context, data_dict):
 
     '''
     if 'user' not in context:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a group."))
 
     model = context['model']
@@ -1444,7 +1552,7 @@ def follow_group(context, data_dict):
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized(
+        raise NotAuthorized(
             _("You must be logged in to follow a group."))
 
     schema = context.get('schema',
@@ -1475,3 +1583,55 @@ def follow_group(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_group_dictize(follower, context)
+
+
+def api_token_create(context, data_dict):
+    """Create new API Token for current user.
+
+    Apart from the `user` and `name` field that are required by
+    default implementation, there may be additional fields registered
+    by extensions.
+
+    :param user: name or id of the user who owns new API Token
+    :type user: string
+    :param name: distinctive name for API Token
+    :type name: string
+
+    :returns: Returns a dict with the key "token" containing the
+              encoded token value. Extensions can privide additional
+              fields via `add_extra` method of
+              :py:class:`~ckan.plugins.interfaces.IApiToken`
+    :rtype: dictionary
+
+    """
+    model = context[u'model']
+    user, name = _get_or_bust(data_dict, [u'user', u'name'])
+
+    if model.User.get(user) is None:
+        raise NotFound("User not found")
+
+    _check_access(u'api_token_create', context, data_dict)
+
+    schema = context.get(u'schema')
+    if not schema:
+        schema = api_token.get_schema()
+
+    validated_data_dict, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        raise ValidationError(errors)
+
+    token_obj = model_save.api_token_save(
+        {u'user': user, u'name': name}, context
+    )
+    model.Session.commit()
+    data = {
+        u'jti': token_obj.id,
+        u'iat': api_token.into_seconds(token_obj.created_at)
+    }
+
+    data = api_token.postprocess(data, token_obj.id, validated_data_dict)
+    token = api_token.encode(data)
+
+    result = api_token.add_extra({u'token': token})
+    return result

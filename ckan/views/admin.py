@@ -26,23 +26,6 @@ def _get_sysadmins():
 
 
 def _get_config_options():
-    styles = [{
-        u'text': u'Default',
-        u'value': u'/base/css/main.css'
-    }, {
-        u'text': u'Red',
-        u'value': u'/base/css/red.css'
-    }, {
-        u'text': u'Green',
-        u'value': u'/base/css/green.css'
-    }, {
-        u'text': u'Maroon',
-        u'value': u'/base/css/maroon.css'
-    }, {
-        u'text': u'Fuchsia',
-        u'value': u'/base/css/fuchsia.css'
-    }]
-
     homepages = [{
         u'value': u'1',
         u'text': (u'Introductory area, search, featured'
@@ -56,7 +39,7 @@ def _get_config_options():
         u'text': u'Search, introductory area and stats'
     }]
 
-    return dict(styles=styles, homepages=homepages)
+    return dict(homepages=homepages)
 
 
 def _get_config_items():
@@ -217,7 +200,9 @@ class TrashView(MethodView):
         return h.redirect_to(u'admin.trash')
 
 
-admin.add_url_rule(u'/', view_func=index, strict_slashes=False)
+admin.add_url_rule(
+    u'/', view_func=index, methods=['GET'], strict_slashes=False
+)
 admin.add_url_rule(u'/reset_config',
                    view_func=ResetConfigView.as_view(str(u'reset_config')))
 admin.add_url_rule(u'/config', view_func=ConfigView.as_view(str(u'config')))

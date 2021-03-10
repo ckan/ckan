@@ -30,8 +30,10 @@ from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.lib import uploader
+from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
-from ckan.config.middleware.common_middleware import TrackingMiddleware
+from ckan.config.middleware.common_middleware import (TrackingMiddleware,
+                                                      HostHeaderMiddleware)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins.toolkit as toolkit
@@ -43,6 +45,7 @@ from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
                         set_controller_and_action,
+                        set_cache_control_headers_for_response,
                         handle_i18n,
                         set_ckan_current_url,
                         )
@@ -207,7 +210,11 @@ def make_flask_stack(conf):
         return dict(ungettext=ungettext)
 
     # Babel
-    pairs = [(os.path.join(root, u'i18n'), 'ckan')] + [
+    _ckan_i18n_dir = i18n.get_ckan_i18n_dir()
+
+    pairs = [
+        (_ckan_i18n_dir, u'ckan')
+    ] + [
         (p.i18n_directory(), p.i18n_domain())
         for p in PluginImplementations(ITranslation)
     ]
@@ -322,6 +329,8 @@ def make_flask_stack(conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    # Prevent the host from request to be added to the new header location.
+    app = HostHeaderMiddleware(app)
     if six.PY3:
         app = I18nMiddleware(app)
 
@@ -346,14 +355,22 @@ def get_locale():
 
 
 def ckan_before_request():
-    u'''Common handler executed before all Flask requests'''
+    u'''
+    Common handler executed before all Flask requests
+
+    If a response is returned by any of the functions called (
+    currently ``identify_user()` only) any further processing of the
+    request will be stopped and that response will be returned.
+
+    '''
+    response = None
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
-    identify_user()
+    response = identify_user()
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
@@ -361,6 +378,8 @@ def ckan_before_request():
 
     set_ckan_current_url(request.environ)
     g.__timer = time.time()
+
+    return response
 
 
 def ckan_after_request(response):
@@ -374,6 +393,9 @@ def ckan_after_request(response):
 
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
+
+    # Set Cache Control headers
+    response = set_cache_control_headers_for_response(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']

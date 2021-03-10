@@ -1,0 +1,33 @@
+{
+    "processing": "Обработка на резултатите...",
+    "lengthMenu": "Показване на _MENU_ резултата",
+    "zeroRecords": "Няма намерени резултати",
+    "info": "Показване на резултати от _START_ до _END_ от общо _TOTAL_",
+    "infoEmpty": "Показване на резултати от 0 до 0 от общо 0",
+    "infoFiltered": "(филтрирани от общо _MAX_ резултата)",
+    "search": "Търсене:",
+    "paginate": {
+        "first": "Първа",
+        "previous": "Предишна",
+        "next": "Следваща",
+        "last": "Последна"
+    },
+    "aria": {
+        "sortAscending": "сортирай възходящо",
+        "sortDescending": "сортирай низходящо"
+    },
+    "autoFill": {
+        "cancel": "Oткажи",
+        "fill": "Попълни всички клетки с <i>%d<i><\/i><\/i>"
+    },
+    "buttons": {
+        "print": "Изпринти"
+    },
+    "searchBuilder": {
+        "add": "Добави",
+        "deleteTitle": "Изтрий критериите за търсене"
+    },
+    "searchPanes": {
+        "clearMessage": "Изтрий всички"
+    }
+}

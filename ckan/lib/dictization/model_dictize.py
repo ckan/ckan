@@ -11,7 +11,7 @@ The basic recipe is to call:
 
 which builds the dictionary by iterating over the table columns.
 '''
-
+import copy
 import six
 from six.moves.urllib.parse import urlsplit
 
@@ -482,7 +482,9 @@ def user_list_dictize(obj_list, context,
 def member_dictize(member, context):
     return d.table_dictize(member, context)
 
-def user_dictize(user, context, include_password_hash=False):
+def user_dictize(
+        user, context, include_password_hash=False,
+        include_plugin_extras=False):
 
     if context.get('with_capacity'):
         user, capacity = user
@@ -504,6 +506,7 @@ def user_dictize(user, context, include_password_hash=False):
     reset_key = result_dict.pop('reset_key', None)
     apikey = result_dict.pop('apikey', None)
     email = result_dict.pop('email', None)
+    plugin_extras = result_dict.pop('plugin_extras', None)
 
     if context.get('keep_email', False):
         result_dict['email'] = email
@@ -522,8 +525,23 @@ def user_dictize(user, context, include_password_hash=False):
         if include_password_hash:
             result_dict['password_hash'] = password_hash
 
+        if include_plugin_extras:
+            result_dict['plugin_extras'] = copy.deepcopy(
+                plugin_extras) if plugin_extras else plugin_extras
+
     model = context['model']
     session = model.Session
+
+    image_url = result_dict.get('image_url')
+    result_dict['image_display_url'] = image_url
+    if image_url and not image_url.startswith('http'):
+        # munge here should not have any effect, only doing it in case
+        # of potential vulnerability of dodgy api input.
+        image_url = munge.munge_filename_legacy(image_url)
+        result_dict['image_display_url'] = h.url_for_static(
+            'uploads/user/%s' % result_dict.get('image_url'),
+            qualified=True
+        )
 
     return result_dict
 
@@ -705,3 +723,20 @@ def resource_view_list_dictize(resource_views, context):
     for view in resource_views:
         resource_view_dicts.append(resource_view_dictize(view, context))
     return resource_view_dicts
+
+
+def api_token_dictize(api_token, context):
+    include_plugin_extras = context.get(u'include_plugin_extras', False)
+    result_dict = d.table_dictize(api_token, context)
+    plugin_extras = result_dict.pop(u'plugin_extras', None)
+    if include_plugin_extras:
+        result_dict[u'plugin_extras'] = copy.deepcopy(
+            plugin_extras) if plugin_extras else plugin_extras
+    return result_dict
+
+
+def api_token_list_dictize(tokens, context):
+    token_dicts = []
+    for token in tokens:
+        token_dicts.append(api_token_dictize(token, context))
+    return token_dicts

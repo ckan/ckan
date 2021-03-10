@@ -6,8 +6,6 @@ import mock
 import pytest
 import six
 
-from werkzeug.datastructures import FileStorage as FlaskFileStorage
-
 import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
@@ -15,37 +13,8 @@ import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import model
-from ckan.common import config
 
-from six import BytesIO
-from pyfakefs import fake_filesystem
 from freezegun import freeze_time
-
-try:
-    import __builtin__ as builtins
-except ImportError:
-    import builtins
-
-real_open = open
-fs = fake_filesystem.FakeFilesystem()
-fake_os = fake_filesystem.FakeOsModule(fs)
-fake_open = fake_filesystem.FakeFileOpen(fs)
-
-
-class FakeFileStorage(FlaskFileStorage):
-    content_type = None
-
-    def __init__(self, stream, filename):
-        self.stream = stream
-        self.filename = filename
-        self.name = "upload"
-
-
-def mock_open_if_open_fails(*args, **kwargs):
-    try:
-        return real_open(*args, **kwargs)
-    except (OSError, IOError):
-        return fake_open(*args, **kwargs)
 
 
 def datetime_from_string(s):
@@ -128,14 +97,14 @@ class TestUpdate(object):
             )
 
     def test_user_update_with_id_that_does_not_exist(self):
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         user_dict["id"] = "there's no user with this id"
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("user_update", **user_dict)
 
     def test_user_update_with_no_id(self):
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         assert "id" not in user_dict
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user_dict)
@@ -210,7 +179,7 @@ class TestUpdate(object):
         changed either.
 
         """
-        user_dict = factories.User.attributes()
+        user_dict = factories.User.attributes()()
         original_password = user_dict["password"]
         user_dict = factories.User(**user_dict)
 
@@ -274,7 +243,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.attributes()["password"],
+            password=factories.User.password,
             fullname="updated full name",
         )
 
@@ -322,7 +291,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.attributes()["password"],
+            password=factories.User.password,
             fullname="updated full name",
         )
 
@@ -340,7 +309,7 @@ class TestUpdate(object):
             "email": user["email"],
             # FIXME: We shouldn't have to put password here since we're not
             # updating it, but user_update sucks.
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         helpers.call_action("user_update", **params)
@@ -360,7 +329,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -371,13 +340,12 @@ class TestUpdate(object):
         API key."""
 
         user = factories.User()
-
         params = {
             "id": user["id"],
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -398,7 +366,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.attributes()["password"],
+            "password": factories.User.password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -497,25 +465,6 @@ class TestUpdate(object):
         assert (
             helpers.call_action("organization_show", id="unchanging")["type"]
             == "organization"
-        )
-
-    def test_update_group_cant_change_type(self):
-        user = factories.User()
-        context = {"user": user["name"]}
-        group = factories.Group(type="group", name="unchanging", user=user)
-
-        group = helpers.call_action(
-            "group_update",
-            context=context,
-            id=group["id"],
-            name="unchanging",
-            type="favouritecolour",
-        )
-
-        assert group["type"] == "group"
-        assert (
-            helpers.call_action("group_show", id="unchanging")["type"]
-            == "group"
         )
 
 
@@ -1032,21 +981,18 @@ class TestResourceUpdate(object):
 
         assert "datastore_active" not in res_returned
 
-    @helpers.change_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_url(self, monkeypatch):
-        """
-        The mimetype is guessed from the url
+    def test_mimetype_by_url(self, monkeypatch, tmpdir):
+        """The mimetype is guessed from the url
 
-        Real world usage would be externally linking the resource and the mimetype would
-        be guessed, based on the url
+        Real world usage would be externally linking the resource and
+        the mimetype would be guessed, based on the url
+
         """
         dataset = factories.Dataset()
         resource = factories.Resource(
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
+        monkeypatch.setattr(ckan.lib.uploader, "_storage_path", str(tmpdir))
         res_update = helpers.call_action(
             "resource_update",
             id=resource["id"],
@@ -1084,43 +1030,32 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert upd_mimetype == "text/plain"
 
-    @helpers.change_config("ckan.mimetype_guess", "file_contents")
-    @helpers.change_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_file(self, monkeypatch):
-        """
-        The mimetype is guessed from an uploaded file by the contents inside
+    @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
+    def test_mimetype_by_upload_by_file(self, create_with_upload):
+        """The mimetype is guessed from an uploaded file by the contents inside
 
-        Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
-        If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
+        Real world usage would be using the FileStore API or web UI
+        form to upload a file, that has no extension If the mimetype
+        can't be guessed by the url or filename, mimetype will be
+        guessed by the contents inside the file
+
         """
         dataset = factories.Dataset()
         resource = factories.Resource(
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
 
-        update_file = BytesIO()
-        update_file.write(six.ensure_binary(
-            """
+        content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        ))
-        update_resource = FakeFileStorage(
-            update_file, "update_test"
-        )
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
-        # Mock url_for as using a test request context interferes with the FS mocking
-        with mock.patch("ckan.lib.helpers.url_for"):
-            res_update = helpers.call_action(
-                "resource_update",
-                id=resource["id"],
-                url="http://localhost",
-                upload=update_resource,
-            )
+
+        res_update = create_with_upload(
+            content, "update_test", action="resource_update",
+            id=resource["id"], url="http://localhost",
+            package_id=dataset["id"])
 
         org_mimetype = resource.pop("mimetype")
         upd_mimetype = res_update.pop("mimetype")
@@ -1128,19 +1063,16 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert upd_mimetype == "text/plain"
 
-    @helpers.change_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_filename(self, monkeypatch):
-        """
-        The mimetype is guessed from an uploaded file with a filename
+    def test_mimetype_by_upload_by_filename(self, create_with_upload):
+        """The mimetype is guessed from an uploaded file with a filename
 
-        Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
-        If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
+        Real world usage would be using the FileStore API or web UI
+        form to upload a file, with a filename plus extension If
+        there's no url or the mimetype can't be guessed by the url,
+        mimetype will be guessed by the extension in the filename
+
         """
-        test_file = BytesIO()
-        test_file.write(six.ensure_binary(
-            """
+        content = """
         "info": {
             "title": "BC Data Catalogue API",
             "description": "This API provides information about datasets in the BC Data Catalogue.",
@@ -1157,41 +1089,22 @@ class TestResourceUpdate(object):
             "version": "3.0.0"
         }
         """
-        ))
-        test_resource = FakeFileStorage(
-            test_file, "test.json"
-        )
         dataset = factories.Dataset()
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
+        resource = create_with_upload(
+            content, 'test.json',
+            package_id=dataset['id'], url="http://localhost")
 
-        # Mock url_for as using a test request context interferes with the FS mocking
-        with mock.patch("ckan.lib.helpers.url_for"):
-            resource = factories.Resource(
-                package=dataset,
-                url="http://localhost",
-                name="Test",
-                upload=test_resource,
-            )
-
-        update_file = BytesIO()
-        update_file.write(six.ensure_binary(
-            """
+        content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        ))
-        update_resource = FakeFileStorage(
-            update_file, "update_test.csv"
-        )
-        with mock.patch("ckan.lib.helpers.url_for"):
-            res_update = helpers.call_action(
-                "resource_update",
-                id=resource["id"],
-                url="http://localhost",
-                upload=update_resource,
-            )
+
+        res_update = create_with_upload(
+            content, "update_test.csv", action="resource_update",
+            id=resource["id"], url="http://localhost",
+            package_id=dataset['id'])
 
         org_mimetype = resource.pop("mimetype")
         upd_mimetype = res_update.pop("mimetype")
@@ -1225,16 +1138,11 @@ class TestResourceUpdate(object):
 
         assert org_size < upd_size
 
-    @helpers.change_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_size_of_resource_by_upload(self, monkeypatch):
+    def test_size_of_resource_by_upload(self, create_with_upload):
+        """The size of the resource determined by the uploaded file
+
         """
-        The size of the resource determined by the uploaded file
-        """
-        test_file = BytesIO()
-        test_file.write(six.ensure_binary(
-            """
+        content = """
         "info": {
             "title": "BC Data Catalogue API",
             "description": "This API provides information about datasets in the BC Data Catalogue.",
@@ -1251,41 +1159,23 @@ class TestResourceUpdate(object):
             "version": "3.0.0"
         }
         """
-        ))
-        test_resource = FakeFileStorage(
-            test_file, "test.json"
-        )
+
         dataset = factories.Dataset()
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
 
-        # Mock url_for as using a test request context interferes with the FS mocking
-        with mock.patch("ckan.lib.helpers.url_for"):
-            resource = factories.Resource(
-                package=dataset,
-                url="http://localhost",
-                name="Test",
-                upload=test_resource,
-            )
+        resource = create_with_upload(
+            content, 'test.json',
+            package_id=dataset['id'], url="http://localhost")
 
-        update_file = BytesIO()
-        update_file.write(six.ensure_binary(
-            """
+        content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        ))
-        update_resource = FakeFileStorage(
-            update_file, "update_test.csv"
-        )
-        with mock.patch("ckan.lib.helpers.url_for"):
-            res_update = helpers.call_action(
-                "resource_update",
-                id=resource["id"],
-                url="http://localhost",
-                upload=update_resource,
-            )
+        res_update = create_with_upload(
+            content, "update_test.csv", action="resource_update",
+            id=resource["id"], url="http://localhost",
+            package_id=dataset["id"])
 
         org_size = int(resource.pop("size"))  # 669 bytes
         upd_size = int(res_update.pop("size"))  # 358 bytes
@@ -1572,6 +1462,62 @@ class TestUserUpdate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password != "pretend-this-is-a-valid-hash"
 
+    def test_user_update_image_url(self):
+        user = factories.User(image_url='user_image.jpg')
+        context = {"user": user["name"]}
+
+        user = helpers.call_action(
+            "user_update",
+            context=context,
+            id=user["name"],
+            email="test@example.com",
+            image_url="new_image_url.jpg",
+        )
+
+        assert user["image_url"] == "new_image_url.jpg"
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestGroupUpdate(object):
+    def test_group_update_image_url_field(self):
+        user = factories.User()
+        context = {"user": user["name"]}
+        group = factories.Group(
+            type="group",
+            name="testing",
+            user=user,
+            image_url='group_image.jpg')
+
+        group = helpers.call_action(
+            "group_update",
+            context=context,
+            id=group["id"],
+            name=group["name"],
+            type=group["type"],
+            image_url="new_image_url.jpg"
+        )
+
+        assert group["image_url"] == "new_image_url.jpg"
+
+    def test_group_update_cant_change_type(self):
+        user = factories.User()
+        context = {"user": user["name"]}
+        group = factories.Group(type="group", name="unchanging", user=user)
+
+        group = helpers.call_action(
+            "group_update",
+            context=context,
+            id=group["id"],
+            name="unchanging",
+            type="favouritecolour",
+        )
+
+        assert group["type"] == "group"
+        assert (
+            helpers.call_action("group_show", id="unchanging")["type"]
+            == "group"
+        )
+
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageOwnerOrgUpdate(object):
@@ -1689,6 +1635,10 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert not (dataset.private)
+        activities = helpers.call_action(
+            "organization_activity_list", id=org["id"]
+        )
+        assert activities[0]['activity_type'] == 'changed package'
 
     def test_bulk_delete(self):
 
@@ -1719,6 +1669,11 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert dataset.state == "deleted"
+
+        activities = helpers.call_action(
+            "organization_activity_list", id=org["id"]
+        )
+        assert activities[0]['activity_type'] == 'deleted package'
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1779,3 +1734,376 @@ class TestDashboardMarkActivitiesOld(object):
             ("new package", False),
             ("changed package", False),
         ]
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+class TestCollaboratorsUpdate(object):
+
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    def test_collaborators_can_update_resources(self, role):
+
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        user = factories.User()
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=role)
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        updated_resource = helpers.call_action(
+            'resource_update',
+            context=context,
+            id=resource['id'],
+            description='updated')
+
+        assert updated_resource['description'] == 'updated'
+
+    def test_collaborators_can_not_change_owner_org_by_default(self):
+
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        user = factories.User()
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        with pytest.raises(logic.ValidationError) as e:
+            helpers.call_action('package_update', context=context, **dataset)
+
+        assert e.value.error_dict['owner_org'] == [
+            'You cannot move this dataset to another organization']
+
+    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    def test_collaborators_can_change_owner_org_if_config_true(self):
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        user = factories.User()
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+
+        assert updated_dataset['owner_org'] == org2['id']
+
+    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    def test_editors_can_change_owner_org_even_if_collaborators(self):
+
+        user = factories.User()
+
+        org1 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='editor')
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        dataset['owner_org'] = org2['id']
+
+        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+
+        assert updated_dataset['owner_org'] == org2['id']
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestDatasetRevise(object):
+    def test_revise_description(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        response = helpers.call_action(
+            'package_revise',
+            match={'notes': 'old notes', 'name': 'xyz'},
+            update={'notes': 'new notes'},
+        )
+        assert response['package']['notes'] == 'new notes'
+
+    def test_revise_failed_match(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_revise',
+                match={'notes': 'wrong notes', 'name': 'xyz'},
+                update={'notes': 'new notes'},
+            )
+
+    def test_revise_description_flattened(self):
+        factories.Dataset(name='xyz', notes='old notes')
+        response = helpers.call_action(
+            'package_revise',
+            match__notes='old notes',
+            match__name='xyz',
+            update__notes='new notes',
+        )
+        assert response['package']['notes'] == 'new notes'
+
+    def test_revise_dataset_fields_only(self):
+        dataset = factories.Dataset(
+            name='xyz',
+            notes='old notes',
+            resources=[{'url': 'http://example.com'}])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            filter=[
+                '+resources',  # keep everything under resources
+                '-*',  # remove everything else
+            ],
+            update={'name': 'fresh-start', 'title': 'Fresh Start'},
+        )
+        assert response['package']['notes'] is None
+        assert response['package']['name'] == 'fresh-start'
+        assert response['package']['resources'][0]['url'] == 'http://example.com'
+
+    def test_revise_add_resource(self):
+        dataset = factories.Dataset()
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__extend=[{'name': 'new resource', 'url': 'http://example.com'}],
+        )
+        assert response['package']['resources'][0]['name'] == 'new resource'
+
+    def test_revise_resource_by_index(self):
+        dataset = factories.Dataset(resources=[{'url': 'http://example.com'}])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__0={'name': 'new name'},
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+
+    def test_revise_resource_by_id(self):
+        dataset = factories.Dataset(resources=[{
+            'id': '34a12bc-1420-cbad-1922',
+            'url': 'http://example.com',
+            'name': 'old name',
+        }])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            update__resources__34a12={'name': 'new name'},  # prefixes allowed >4 chars
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+
+    def test_revise_resource_replace_all(self):
+        dataset = factories.Dataset(resources=[{
+            'id': '34a12bc-1420-cbad-1922',
+            'url': 'http://example.com',
+            'name': 'old name',
+        }])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': dataset['id']},
+            filter=['+resources__34a12__id', '-resources__34a12__*'],
+            update__resources__34a12={'name': 'new name'},
+        )
+        assert response['package']['resources'][0]['name'] == 'new name'
+        assert response['package']['resources'][0]['url'] == ''
+
+    def test_revise_normal_user(self):
+        user = factories.User()
+        org = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        # make sure normal users can use package_revise
+        context = {'user': user['name'], 'ignore_auth': False}
+        ds = factories.Dataset(owner_org=org['id'])
+        response = helpers.call_action(
+            'package_revise',
+            match={'id': ds['id']},
+            update={'notes': 'new notes'},
+            context=context,
+        )
+        assert response['package']['notes'] == 'new notes'
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_stored_on_update_if_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+
+        updated_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert updated_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert updated_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+        plugin_extras_from_db = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras_from_db == {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2',
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # User edits themselves
+        context = {'user': user['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1'
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin_when_empty(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User()
+
+        user['plugin_extras'] = {
+            'plugin1': {
+                'key1': 'value1.2',
+                'key2': 'value2'
+            }
+        }
+
+        # User edits themselves
+        context = {'user': user['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_update', context=context, **user)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] is None
+
+    def test_nested_updates_are_reflected_in_db(self):
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        sysadmin = factories.Sysadmin()
+
+        context = {'user': sysadmin['name']}
+
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        user['plugin_extras']['plugin1']['key1'] = 'value2'
+
+        updated_user = helpers.call_action('user_update', context=context, **user)
+
+        assert updated_user['plugin_extras']['plugin1']['key1'] == 'value2'
+
+        # Hold on, partner
+
+        plugin_extras = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras['plugin1']['key1'] == 'value2'

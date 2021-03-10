@@ -47,12 +47,12 @@ entry_points = {
     'paste.app_install': [
         'main = ckan.config.install:CKANInstaller',
     ],
-    'paste.paster_command': [
-        'datastore = ckanext.datastore.commands:datastore_group',
-        'datapusher = ckanext.datapusher.cli:DatapusherCommand',
-    ],
     'console_scripts': [
         'ckan = ckan.cli.cli:ckan',
+    ],
+    'ckan.click_command': [
+        'datastore = ckanext.datastore.cli:datastore',
+        'datapusher = ckanext.datapusher.cli:datapusher',
     ],
     'paste.paster_create_template': [
         'ckanext = ckan.pastertemplates:CkanextTemplate',
@@ -78,6 +78,8 @@ entry_points = {
         'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
+        'expire_api_token = ckanext.expire_api_token.plugin:ExpireApiTokenPlugin',
+        'chained_functions = ckanext.chained_functions.plugin:ChainedFunctionsPlugin',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
         'datapusher=ckanext.datapusher.plugin:DatapusherPlugin',
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
@@ -108,6 +110,7 @@ entry_points = {
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
         'example_idatasetform_v5 = ckanext.example_idatasetform.plugin_v5:ExampleIDatasetFormPlugin',
         'example_idatasetform_v6 = ckanext.example_idatasetform.plugin_v6:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v7 = ckanext.example_idatasetform.plugin_v7:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
         'example_igroupform_v2 = ckanext.example_igroupform.plugin_v2:ExampleIGroupFormPlugin',
         'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
@@ -154,8 +157,11 @@ entry_points = {
         'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
         'example_idatastorebackend = ckanext.example_idatastorebackend.plugin:ExampleIDatastoreBackendPlugin',
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
+        'example_iapitoken = ckanext.example_iapitoken.plugin:ExampleIApiTokenPlugin',
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
         'example_isignal = ckanext.example_isignal.plugin:ExampleISignalPlugin',
+        'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
+        'example_humanizer = ckanext.example_humanizer.plugin:ExampleHumanizerPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
@@ -191,6 +197,16 @@ entry_points = {
     ],
 }
 
+extras_require = {}
+_extras_groups = [
+    ('requirements', 'requirements.txt'), ('requirements-py2', 'requirements-py2.txt'),
+    ('setuptools', 'requirement-setuptools.txt'), ('dev', 'dev-requirements.txt'),
+]
+
+for group, filepath in _extras_groups:
+    with open(os.path.join(HERE, filepath), 'r') as f:
+        extras_require[group] = f.readlines()
+
 setup(
     name='ckan',
     version=__version__,
@@ -225,12 +241,14 @@ setup(
     entry_points=entry_points,
     # setup.py test command needs a TestSuite so does not work with py.test
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
+    extras_require=extras_require,
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2 :: Only',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 )

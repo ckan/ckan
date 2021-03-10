@@ -630,15 +630,24 @@ class DefaultPermissionLabels(object):
     - everyone can read public datasets "public"
     - users can read their own drafts "creator-(user id)"
     - users can read datasets belonging to their orgs "member-(org id)"
+    - users can read datasets where they are collaborators "collaborator-(dataset id)"
     '''
     def get_dataset_labels(self, dataset_obj):
         if dataset_obj.state == u'active' and not dataset_obj.private:
             return [u'public']
 
-        if dataset_obj.owner_org:
-            return [u'member-%s' % dataset_obj.owner_org]
+        if ckan.authz.check_config_permission('allow_dataset_collaborators'):
+            # Add a generic label for all this dataset collaborators
+            labels = [u'collaborator-%s' % dataset_obj.id]
+        else:
+            labels = []
 
-        return [u'creator-%s' % dataset_obj.creator_user_id]
+        if dataset_obj.owner_org:
+            labels.append(u'member-%s' % dataset_obj.owner_org)
+        else:
+            labels.append(u'creator-%s' % dataset_obj.creator_user_id)
+
+        return labels
 
     def get_user_dataset_labels(self, user_obj):
         labels = [u'public']
@@ -650,4 +659,12 @@ class DefaultPermissionLabels(object):
         orgs = logic.get_action(u'organization_list_for_user')(
             {u'user': user_obj.id}, {u'permission': u'read'})
         labels.extend(u'member-%s' % o[u'id'] for o in orgs)
+
+        if ckan.authz.check_config_permission('allow_dataset_collaborators'):
+            # Add a label for each dataset this user is a collaborator of
+            datasets = logic.get_action('package_collaborator_list_for_user')(
+                {'ignore_auth': True}, {'id': user_obj.id})
+
+            labels.extend('collaborator-%s' % d['package_id'] for d in datasets)
+
         return labels

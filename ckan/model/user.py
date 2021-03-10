@@ -11,12 +11,21 @@ from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 from six import text_type
 
 from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
+from ckan.common import config, asbool
+
+
+def set_api_key():
+    if asbool(config.get('ckan.auth.create_default_api_keys', False)):
+        return _types.make_uuid()
+    return None
 
 
 user_table = Table('user', meta.metadata,
@@ -26,7 +35,7 @@ user_table = Table('user', meta.metadata,
         Column('password', types.UnicodeText),
         Column('fullname', types.UnicodeText),
         Column('email', types.UnicodeText),
-        Column('apikey', types.UnicodeText, default=_types.make_uuid),
+        Column('apikey', types.UnicodeText, default=set_api_key),
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
@@ -34,6 +43,8 @@ user_table = Table('user', meta.metadata,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
+        Column('image_url', types.UnicodeText),
+        Column('plugin_extras', MutableDict.as_mutable(JSONB))
         )
 
 
@@ -274,14 +285,14 @@ class User(core.StatefulObjectMixin,
         return query
 
     @classmethod
-    def user_ids_for_name_or_id(self, user_list=[]):
+    def user_ids_for_name_or_id(cls, user_list=[]):
         '''
         This function returns a list of ids from an input that can be a list of
         names or ids
         '''
-        query = meta.Session.query(self.id)
-        query = query.filter(or_(self.name.in_(user_list),
-                                 self.id.in_(user_list)))
+        query = meta.Session.query(cls.id)
+        query = query.filter(or_(cls.name.in_(user_list),
+                                 cls.id.in_(user_list)))
         return [user.id for user in query.all()]
 
 

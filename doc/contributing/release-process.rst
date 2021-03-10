@@ -264,7 +264,7 @@ Turn this file into a github issue with a checklist using this command::
 
      aws s3 cp python-ckan_2.5.0-precisebeta1_amd64.deb s3://packaging.ckan.org/build/python-ckan_2.5.0-precisebeta1_amd64.deb
 
-   Now the .deb files are available at http://packaging.ckan.org/build/ invite
+   Now the .deb files are available at https://packaging.ckan.org/build/ invite
    people on ckan-dev to test them.
 
 -------------------------
@@ -273,16 +273,13 @@ Leading up to the release
 
 #. Update the CHANGELOG.txt with the new version changes.
 
-   * Add the release date next to the version number
-   * Add the following notices at the top of the release, reflecting whether
-     updates in requirements, database or Solr schema are required or not::
-
-        Note: This version requires a requirements upgrade on source installations
-        Note: This version requires a database upgrade
-        Note: This version does not require a Solr schema upgrade
-
-   * Check the issue numbers on the commit messages for information about
-     the changes. The following gist has a script that uses the GitHub API to
+   * Check that all merged PRs have corresponding fragment inside
+     ``changes/`` folder. Name of every fragment is following format
+     ``{issue number}.{fragment type}``, where *issue number* is
+     GitHub issue id and *fragment type* is one of *migration*,
+     *removal*, *bugfix* or *misc* depending on change introduced by
+     PR.
+     The following gist has a script that uses the GitHub API to
      aid in getting the merged issues between releases:
 
         https://gist.github.com/amercader/4ec55774b9a625e815bf
@@ -290,6 +287,20 @@ Leading up to the release
      But dread found changed the first step slightly to get it to work::
 
         git log --pretty=format:%s --reverse --no-merges release-v2.4.2...release-v2.5.0 -- | grep -Pzo "^\[#\K[0-9]+" | sort -u -n > issues_2.5.txt
+
+     When all fragments are ready, make a test build::
+
+        towncrier --draft
+
+     And check output. If no problems identified, compile updated
+     changelog::
+
+        towncrier --yes
+
+     You'll be asked, whether it's ok to remove source fragments. Feel
+     free to answer "yes" - all changes will be automatically inserted
+     into changelog, so there is no sense in keeping those
+     files. Don't forget to commit changes afterwards.
 
 #. A week before the translations will be closed send a reminder email.
 
@@ -367,7 +378,7 @@ a release.
 #. Create and deploy the final deb package.
 
    Move it to the root of the
-   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   `publicly accessible folder <https://packaging.ckan.org/>`_ of
    the packaging server from the `/build` folder.
 
    Make sure to rename it so it follows the deb packages name convention::
@@ -408,6 +419,11 @@ a release.
    If you upload a bad package, then you can remove it from PyPI however you
    must use a new version number next time.
 
+#. Build new Docker images for the new version in the following repos:
+
+   * `openknowledge/docker-ckan <https://github.com/okfn/docker-ckan>`_ -> ``openknowledge/ckan-base:{Major:minor}`` and ``openknowledge/ckan-dev:{Major:minor}`` (ping @amercader for this one)
+   * `ckan/ckan-solr-dev <https://github.com/ckan/ckan-solr-dev>`_ -> ``ckan/ckan-solr-dev:{Major:minor}``
+   * `ckan/ckan-postgres-dev <https://github.com/ckan/ckan-postgres-dev>`_ -> ``ckan/ckan-postgres-dev:{Major:minor}``
 
 #. Enable the new version of the docs on Read the Docs.
 
@@ -514,7 +530,7 @@ Doing the patch releases
    Note that we drop the patch version and iteration number from the package name.
 
    Move it to the root of the
-   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   `publicly accessible folder <https://packaging.ckan.org/>`_ of
    the packaging server from the `/build` folder, replacing the existing file
    for this minor version.
 

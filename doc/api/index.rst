@@ -4,7 +4,7 @@
 API guide
 =========
 
-This section documents CKAN's API, for developers who want to write code that
+This section documents CKAN APIs, for developers who want to write code that
 interacts with CKAN sites and their data.
 
 CKAN's **Action API** is a powerful, RPC-style API that exposes all of CKAN's
@@ -70,10 +70,10 @@ Making an API request
 ---------------------
 
 To call the CKAN API, post a JSON dictionary in an HTTP POST request to one of
-CKAN's API URLs. The parameters for the API function should be given in the
+CKAN APIs URLs. The parameters for the API function should be given in the
 JSON dictionary. CKAN will also return its response in a JSON dictionary.
 
-One way to post a JSON dictionary to a URL is using the command-line 
+One way to post a JSON dictionary to a URL is using the command-line
 client `Curl <https://curl.haxx.se/>`_.  For example, to get a list of the names
 of all the datasets in the ``data-explorer`` group on demo.ckan.org, install
 curl and then call the ``group_list`` API function by running this command
@@ -231,7 +231,7 @@ you request::
 
 Version 3 is currently the only version of the Action API.
 
-We recommend that you specify the API number in your requests, because this
+We recommend that you specify the API version number in your requests, because this
 ensures that your API client will work across different sites running different
 version of CKAN (and will keep working on the same sites, when those sites
 upgrade to new versions of CKAN). Because the latest version of the API may
@@ -242,21 +242,36 @@ request that doesn't specify the API version number cannot be relied on.
 
 .. _api authentication:
 
----------------------------
-Authentication and API keys
----------------------------
+-----------------------------
+Authentication and API tokens
+-----------------------------
+
+.. warning:: Starting from CKAN 2.9, API tokens are the preferred way of authenticating API calls.
+    The old legacy API keys will still work but they will be removed in future versions so it is
+    recommended to switch to use API tokens. Read below for more details.
+
 
 Some API functions require authorization. The API uses the same authorization
 functions and configuration as the web interface, so if a user is authorized to
 do something in the web interface they'll be authorized to do it via the API as
 well.
 
-When calling an API function that requires authorization, you must authenticate
-yourself by providing your API key with your HTTP request. To find your API
-key, login to the CKAN site using its web interface and visit your user profile
-page.
+When calling an API function that requires authorization, you must
+authenticate yourself by providing an authentication key with your
+HTTP request. Starting from CKAN 2.9 the recommended mechanism to use are API tokens. These are
+encrypted keys that can be generated manually from the UI (User Profile > Manage > API tokens)
+or via the :py:func:`~ckan.logic.action.create.api_token_create` function. A user can create as many tokens as needed
+for different uses, and revoke one or multiple tokens at any time. In addition, enabling
+the ``expire_api_token`` core plugin allows to define the expiration timestamp for a token. 
 
-To provide your API key in an HTTP request, include it in either an
+Site maintainers can use :ref:`config-api-tokens` to configure the token generation.
+
+Legacy API keys (UUIDs that look like `ec5c0860-9e48-41f3-8850-4a7128b18df8`) are still supported,
+but its use is discouraged as they are not as secure as tokens and are limited to one per user.
+Support for legacy API keys will be removed in future CKAN versions.
+
+
+To provide your API token in an HTTP request, include it in either an
 ``Authorization`` or ``X-CKAN-API-Key`` header.  (The name of the HTTP header
 can be configured with the ``apikey_header_name`` option in your CKAN
 configuration file.)
@@ -264,9 +279,9 @@ configuration file.)
 For example, to ask whether or not you're currently following the user
 ``markw`` on demo.ckan.org using curl, run this command::
 
-    curl -H "Authorization: XXX"  https://demo.ckan.org/api/3/action/am_following_user?id=markw 
+    curl -H "Authorization: XXX"  https://demo.ckan.org/api/3/action/am_following_user?id=markw
 
-(Replacing ``XXX`` with your API key.)
+(Replacing ``XXX`` with your API token.)
 
 Or, to get the list of activities from your user dashboard on demo.ckan.org,
 run this Python code::
@@ -376,7 +391,7 @@ You can use the ``upload`` parameter of the
 new version of a resource file. This requires a ``multipart/form-data``
 request, with curl you can do this using the ``@file.csv``::
 
-    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_update  
+    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_update
 
 
 .. _api-reference:

@@ -15,6 +15,7 @@ from sqlalchemy import (
     text,
 )
 
+from ckan.common import config
 import ckan.model
 from ckan.model import meta
 from ckan.model import domain_object, types as _types
@@ -164,6 +165,9 @@ def user_activity_list(user_id, limit, offset):
 
     '''
     q = _user_activity_query(user_id, limit + offset)
+
+    q = _filter_activitites_from_users(q)
+
     return _activities_at_offset(q, limit, offset)
 
 
@@ -177,7 +181,8 @@ def _package_activity_query(package_id):
     return q
 
 
-def package_activity_list(package_id, limit, offset):
+def package_activity_list(
+        package_id, limit, offset, include_hidden_activity=False):
     '''Return the given dataset (package)'s public activity stream.
 
     Returns all activities about the given dataset, i.e. where the given
@@ -189,10 +194,14 @@ def package_activity_list(package_id, limit, offset):
 
     '''
     q = _package_activity_query(package_id)
+
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+
     return _activities_at_offset(q, limit, offset)
 
 
-def _group_activity_query(group_id):
+def _group_activity_query(group_id, include_hidden_activity=False):
     '''Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
@@ -242,10 +251,13 @@ def _group_activity_query(group_id):
         )
     )
 
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+
     return q
 
 
-def _organization_activity_query(org_id):
+def _organization_activity_query(org_id, include_hidden_activity=False):
     '''Return an SQLAlchemy query for all activities about org_id.
 
     Returns a query for all activities whose object is either the org itself
@@ -278,11 +290,14 @@ def _organization_activity_query(org_id):
             model.Activity.object_id == org_id
         )
     )
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
 
     return q
 
 
-def group_activity_list(group_id, limit, offset):
+def group_activity_list(group_id, limit, offset, include_hidden_activity=False):
+
     '''Return the given group's public activity stream.
 
     Returns activities where the given group or one of its datasets is the
@@ -293,11 +308,12 @@ def group_activity_list(group_id, limit, offset):
     etc.
 
     '''
-    q = _group_activity_query(group_id)
+    q = _group_activity_query(group_id, include_hidden_activity)
     return _activities_at_offset(q, limit, offset)
 
 
-def organization_activity_list(group_id, limit, offset):
+def organization_activity_list(
+        group_id, limit, offset, include_hidden_activity=False):
     '''Return the given org's public activity stream.
 
     Returns activities where the given org or one of its datasets is the
@@ -308,7 +324,7 @@ def organization_activity_list(group_id, limit, offset):
     etc.
 
     '''
-    q = _organization_activity_query(group_id)
+    q = _organization_activity_query(group_id, include_hidden_activity)
     return _activities_at_offset(q, limit, offset)
 
 
@@ -402,7 +418,11 @@ def dashboard_activity_list(user_id, limit, offset):
 
     '''
     q = _dashboard_activity_query(user_id, limit + offset)
+
+    q = _filter_activitites_from_users(q)
+
     return _activities_at_offset(q, limit, offset)
+
 
 def _changed_packages_activity_query():
     '''Return an SQLAlchemy query for all changed package activities.
@@ -425,4 +445,37 @@ def recently_changed_packages_activity_list(limit, offset):
 
     '''
     q = _changed_packages_activity_query()
+
+    q = _filter_activitites_from_users(q)
+
     return _activities_at_offset(q, limit, offset)
+
+
+def _filter_activitites_from_users(q):
+    '''
+    Adds a filter to an existing query object ot avoid activities from users
+    defined in :ref:`ckan.hide_activity_from_users` (defaults to the site user)
+    '''
+    users_to_avoid = _activity_stream_get_filtered_users()
+    if users_to_avoid:
+        q = q.filter(ckan.model.Activity.user_id.notin_(users_to_avoid))
+
+    return q
+
+
+def _activity_stream_get_filtered_users():
+    '''
+    Get the list of users from the :ref:`ckan.hide_activity_from_users` config
+    option and return a list of their ids. If the config is not specified,
+    returns the id of the site user.
+    '''
+    users = config.get('ckan.hide_activity_from_users')
+    if users:
+        users_list = users.split()
+    else:
+        from ckan.logic import get_action
+        context = {'ignore_auth': True}
+        site_user = get_action('get_site_user')(context)
+        users_list = [site_user.get('name')]
+
+    return ckan.model.User.user_ids_for_name_or_id(users_list)

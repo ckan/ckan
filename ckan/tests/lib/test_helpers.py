@@ -13,7 +13,7 @@ from ckan.common import config
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.exceptions
-from ckan.tests import helpers
+from ckan.tests import helpers, factories
 import ckan.lib.base as base
 
 
@@ -502,7 +502,7 @@ class TestGetDisplayTimezone(object):
         (
             datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
             {"with_seconds": True},
-            "April 13, 2008, 20:40:59 (UTC)",
+            "April 13, 2008 at 8:40:59 PM UTC",
         ),
         ("2008-04-13T20:40:20.123456", {}, "April 13, 2008"),
         (None, {}, ""),
@@ -511,6 +511,7 @@ class TestGetDisplayTimezone(object):
         ("2008-04-13T20:40:20.123456", {"date_format": "%%%Y"}, "%2008"),
     ],
 )
+@pytest.mark.usefixtures("with_request_context")
 def test_render_datetime(date, extra, exp):
     assert h.render_datetime(date, **extra) == exp
 
@@ -522,7 +523,7 @@ def test_render_datetime(date, extra, exp):
     [
         (
             datetime.datetime(2020, 2, 17, 11, 59, 30),
-            "Just now",
+            "30 seconds ago",
         ),
         (
             datetime.datetime(2020, 2, 17, 11, 59, 0),
@@ -558,11 +559,11 @@ def test_render_datetime(date, extra, exp):
         ),
         (
             datetime.datetime(2019, 1, 17, 12, 0, 0),
-            "over 1 year ago",
+            "1 year ago",
         ),
         (
             datetime.datetime(2015, 1, 17, 12, 0, 0),
-            "over 5 years ago",
+            "5 years ago",
         ),
     ]
 )
@@ -600,6 +601,60 @@ class TestBuildNavMain(object):
             '<li><a href="/about">About</a></li>'
         )
 
+    def test_active_in_flask_routes(self, test_request_context):
+        with test_request_context(u'/organization'):
+            menu = (
+                ("home.index", "Home"),
+                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("organization.index", "Organizations"),
+                ("group.index", "Groups"),
+                ("home.about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li><a href="/dataset/">Datasets</a></li>'
+                '<li class="active"><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_active_in_resource_controller(self, test_request_context):
+
+        dataset = factories.Dataset()
+        with test_request_context(u'/dataset/' + dataset['id']):
+            menu = (
+                ("home.index", "Home"),
+                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("organization.index", "Organizations"),
+                ("group.index", "Groups"),
+                ("home.about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
+        resource = factories.Resource(name="some_resource")
+        with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
+            menu = (
+                ("home.index", "Home"),
+                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("organization.index", "Organizations"),
+                ("group.index", "Groups"),
+                ("home.about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
     def test_legacy_pylon_routes(self):
         menu = (
             ("home", "Home"),
@@ -615,6 +670,61 @@ class TestBuildNavMain(object):
             '<li><a href="/group/">Groups</a></li>'
             '<li><a href="/about">About</a></li>'
         )
+
+    def test_active_in_legacy_pylon_routes(self, test_request_context):
+
+        with test_request_context(u'/organization'):
+            menu = (
+                ("home", "Home"),
+                ("search", "Datasets", ['dataset', 'resource']),
+                ("organizations_index", "Organizations"),
+                ("group_index", "Groups"),
+                ("about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li><a href="/dataset/">Datasets</a></li>'
+                '<li class="active"><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_active_in_resource_controller_legacy_pylon_routes(self, test_request_context):
+
+        dataset = factories.Dataset()
+        with test_request_context(u'/dataset/' + dataset['id']):
+            menu = (
+                ("home", "Home"),
+                ("search", "Datasets", ['dataset', 'resource']),
+                ("organizations_index", "Organizations"),
+                ("group_index", "Groups"),
+                ("about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
+
+        resource = factories.Resource(name="some_resource")
+        with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
+            menu = (
+                ("home", "Home"),
+                ("search", "Datasets", ['dataset', 'resource']),
+                ("organizations_index", "Organizations"),
+                ("group_index", "Groups"),
+                ("about", "About"),
+            )
+            assert h.build_nav_main(*menu) == (
+                '<li><a href="/">Home</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
+                '<li><a href="/about">About</a></li>'
+            )
 
     def test_dataset_navigation_legacy_routes(self):
         dataset_name = "test-dataset"
@@ -749,7 +859,7 @@ if six.PY2:
             return base.render("tests/helper_as_item.html")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivityListSelect(object):
     def test_simple(self):
         pkg_activity = {
@@ -762,7 +872,7 @@ class TestActivityListSelect(object):
         html = out[0]
         assert (
             str(html)
-            == '<option value="id1" >February 1, 2018, 10:58:59 (UTC)'
+            == '<option value="id1" >February 1, 2018 at 10:58:59 AM UTC'
             "</option>"
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup
@@ -778,7 +888,7 @@ class TestActivityListSelect(object):
         html = out[0]
         assert (
             str(html)
-            == '<option value="id1" selected>February 1, 2018, 10:58:59 (UTC)'
+            == '<option value="id1" selected>February 1, 2018 at 10:58:59 AM UTC'
             "</option>"
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup
@@ -793,3 +903,37 @@ class TestActivityListSelect(object):
 
         html = out[0]
         assert str(html).startswith(u'<option value="&#34;&gt;" >')
+
+
+class TestAddUrlParam(object):
+
+    @pytest.mark.parametrize(u'url,params,expected', [
+        (u'/dataset', {u'a': u'2'}, u'/dataset/?a=2'),
+        (u'/dataset?a=1', {u'a': u'2'}, u'/dataset/?a=1&a=2'),
+        (u'/dataset?a=1&a=3', {u'a': u'2'}, u'/dataset/?a=1&a=3&a=2'),
+        (u'/dataset?a=2', {u'a': u'2'}, u'/dataset/?a=2&a=2'),
+    ])
+    def test_new_param(self, test_request_context, url, params, expected):
+        with test_request_context(url):
+            assert h.add_url_param(new_params=params) == expected
+
+    def test_alternative_url(self, test_request_context):
+        with test_request_context(u'/dataset'):
+            assert h.add_url_param(u'/group') == u'/group'
+            assert h.add_url_param(
+                u'/group', new_params={'x': 'y'}) == u'/group?x=y'
+            assert h.add_url_param() == u'/dataset/'
+
+    @pytest.mark.parametrize(u'controller,action,extras', [
+        ('dataset', 'read', {'id': 'uuid'}),
+        ('dataset', 'search', {'q': '*:*'}),
+        ('organization', 'index', {}),
+        ('home', 'index', {'a': '1'}),
+        ('dashboard', 'index', {}),
+    ])
+    def test_controller_action(
+            self, test_request_context, controller, action, extras):
+        with test_request_context(u'/dataset/'):
+            assert h.add_url_param(
+                controller=controller, action=action, extras=extras
+            ) == h.url_for(controller + '.' + action, **extras)

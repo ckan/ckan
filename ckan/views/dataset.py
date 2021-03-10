@@ -7,6 +7,7 @@ from datetime import datetime
 
 from flask import Blueprint
 from flask.views import MethodView
+from werkzeug.datastructures import MultiDict
 from ckan.common import asbool
 
 import six
@@ -18,12 +19,14 @@ import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
+import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
 from ckan.views import LazyView
+
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -53,7 +56,13 @@ def _setup_template_variables(context, data_dict, package_type=None):
 
 def _get_pkg_template(template_type, package_type=None):
     pkg_plugin = lookup_package_plugin(package_type)
-    return getattr(pkg_plugin, template_type)()
+    method = getattr(pkg_plugin, template_type)
+    try:
+        return method(package_type)
+    except TypeError as err:
+        if u'takes 1' not in str(err) and u'takes exactly 1' not in str(err):
+            raise
+        return method()
 
 
 def _encode_params(params):
@@ -157,6 +166,41 @@ def _get_package_type(id):
     return None
 
 
+def _get_search_details():
+    fq = u''
+
+    # fields_grouped will contain a dict of params containing
+    # a list of values eg {u'tags':[u'tag1', u'tag2']}
+
+    fields = []
+    fields_grouped = {}
+    search_extras = MultiDict()
+
+    for (param, value) in request.args.items(multi=True):
+        if param not in [u'q', u'page', u'sort'] \
+                and len(value) and not param.startswith(u'_'):
+            if not param.startswith(u'ext_'):
+                fields.append((param, value))
+                fq += u' %s:"%s"' % (param, value)
+                if param not in fields_grouped:
+                    fields_grouped[param] = [value]
+                else:
+                    fields_grouped[param].append(value)
+            else:
+                search_extras.update({param: value})
+
+    search_extras = dict([
+        (k, v[0]) if len(v) == 1 else (k, v)
+        for k, v in search_extras.lists()
+    ])
+    return {
+        u'fields': fields,
+        u'fields_grouped': fields_grouped,
+        u'fq': fq,
+        u'search_extras': search_extras,
+    }
+
+
 def search(package_type):
     extra_vars = {}
 
@@ -200,89 +244,84 @@ def search(package_type):
     search_url_params = urlencode(_encode_params(params_nopage))
     extra_vars[u'search_url_params'] = search_url_params
 
+    details = _get_search_details()
+    extra_vars[u'fields'] = details[u'fields']
+    extra_vars[u'fields_grouped'] = details[u'fields_grouped']
+    fq = details[u'fq']
+    search_extras = details[u'search_extras']
+
+    context = {
+        u'model': model,
+        u'session': model.Session,
+        u'user': g.user,
+        u'for_view': True,
+        u'auth_user_obj': g.userobj
+    }
+
+    # Unless changed via config options, don't show other dataset
+    # types any search page. Potential alternatives are do show them
+    # on the default search page (dataset) or on one other search page
+    search_all_type = config.get(u'ckan.search.show_all_types', u'dataset')
+    search_all = False
+
     try:
-        # fields_grouped will contain a dict of params containing
-        # a list of values eg {u'tags':[u'tag1', u'tag2']}
+        # If the "type" is set to True or False, convert to bool
+        # and we know that no type was specified, so use traditional
+        # behaviour of applying this only to dataset type
+        search_all = asbool(search_all_type)
+        search_all_type = u'dataset'
+    # Otherwise we treat as a string representing a type
+    except ValueError:
+        search_all = True
 
-        extra_vars[u'fields'] = fields = []
-        extra_vars[u'fields_grouped'] = fields_grouped = {}
-        search_extras = {}
-        fq = u''
-        for (param, value) in request.args.items(multi=True):
-            if param not in [u'q', u'page', u'sort'] \
-                    and len(value) and not param.startswith(u'_'):
-                if not param.startswith(u'ext_'):
-                    fields.append((param, value))
-                    fq += u' %s:"%s"' % (param, value)
-                    if param not in fields_grouped:
-                        fields_grouped[param] = [value]
-                    else:
-                        fields_grouped[param].append(value)
-                else:
-                    search_extras[param] = value
+    if not search_all or package_type != search_all_type:
+        # Only show datasets of this particular type
+        fq += u' +dataset_type:{type}'.format(type=package_type)
 
-        context = {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'for_view': True,
-            u'auth_user_obj': g.userobj
-        }
+    facets = OrderedDict()
 
-        # Unless changed via config options, don't show other dataset
-        # types any search page. Potential alternatives are do show them
-        # on the default search page (dataset) or on one other search page
-        search_all_type = config.get(u'ckan.search.show_all_types', u'dataset')
-        search_all = False
+    org_label = h.humanize_entity_type(
+        u'organization',
+        h.default_group_type(u'organization'),
+        u'facet label') or _(u'Organizations')
 
-        try:
-            # If the "type" is set to True or False, convert to bool
-            # and we know that no type was specified, so use traditional
-            # behaviour of applying this only to dataset type
-            search_all = asbool(search_all_type)
-            search_all_type = u'dataset'
-        # Otherwise we treat as a string representing a type
-        except ValueError:
-            search_all = True
+    group_label = h.humanize_entity_type(
+        u'group',
+        h.default_group_type(u'group'),
+        u'facet label') or _(u'Groups')
 
-        if not search_all or package_type != search_all_type:
-            # Only show datasets of this particular type
-            fq += u' +dataset_type:{type}'.format(type=package_type)
+    default_facet_titles = {
+        u'organization': org_label,
+        u'groups': group_label,
+        u'tags': _(u'Tags'),
+        u'res_format': _(u'Formats'),
+        u'license_id': _(u'Licenses'),
+    }
 
-        facets = OrderedDict()
+    for facet in h.facets():
+        if facet in default_facet_titles:
+            facets[facet] = default_facet_titles[facet]
+        else:
+            facets[facet] = facet
 
-        default_facet_titles = {
-            u'organization': _(u'Organizations'),
-            u'groups': _(u'Groups'),
-            u'tags': _(u'Tags'),
-            u'res_format': _(u'Formats'),
-            u'license_id': _(u'Licenses'),
-        }
+    # Facet titles
+    for plugin in plugins.PluginImplementations(plugins.IFacets):
+        facets = plugin.dataset_facets(facets, package_type)
 
-        for facet in h.facets():
-            if facet in default_facet_titles:
-                facets[facet] = default_facet_titles[facet]
-            else:
-                facets[facet] = facet
-
-        # Facet titles
-        for plugin in plugins.PluginImplementations(plugins.IFacets):
-            facets = plugin.dataset_facets(facets, package_type)
-
-        extra_vars[u'facet_titles'] = facets
-        data_dict = {
-            u'q': q,
-            u'fq': fq.strip(),
-            u'facet.field': list(facets.keys()),
-            u'rows': limit,
-            u'start': (page - 1) * limit,
-            u'sort': sort_by,
-            u'extras': search_extras,
-            u'include_private': asbool(
-                config.get(u'ckan.search.default_include_private', True)
-            ),
-        }
-
+    extra_vars[u'facet_titles'] = facets
+    data_dict = {
+        u'q': q,
+        u'fq': fq.strip(),
+        u'facet.field': list(facets.keys()),
+        u'rows': limit,
+        u'start': (page - 1) * limit,
+        u'sort': sort_by,
+        u'extras': search_extras,
+        u'include_private': asbool(
+            config.get(u'ckan.search.default_include_private', True)
+        ),
+    }
+    try:
         query = get_action(u'package_search')(context, data_dict)
 
         extra_vars[u'sort_by_selected'] = query[u'sort']
@@ -1208,6 +1247,127 @@ def changes_multiple(package_type=None):
     )
 
 
+def collaborators_read(package_type, id):
+    context = {u'model': model, u'user': g.user}
+    data_dict = {u'id': id}
+
+    try:
+        check_access(u'package_collaborator_list', context, data_dict)
+        # needed to ckan_extend package/edit_base.html
+        pkg_dict = get_action(u'package_show')(context, data_dict)
+    except NotAuthorized:
+        message = _(u'Unauthorized to read collaborators {}').format(id)
+        return base.abort(401, message)
+    except NotFound:
+        return base.abort(404, _(u'Dataset not found'))
+
+    return base.render(u'package/collaborators/collaborators.html', {
+        u'pkg_dict': pkg_dict})
+
+
+def collaborator_delete(package_type, id, user_id):
+    context = {u'model': model, u'user': g.user}
+
+    try:
+        get_action(u'package_collaborator_delete')(context, {
+            u'id': id,
+            u'user_id': user_id
+        })
+    except NotAuthorized:
+        message = _(u'Unauthorized to delete collaborators {}').format(id)
+        return base.abort(401, _(message))
+    except NotFound as e:
+        return base.abort(404, _(e.message))
+
+    h.flash_success(_(u'User removed from collaborators'))
+
+    return h.redirect_to(u'dataset.collaborators_read', id=id)
+
+
+class CollaboratorEditView(MethodView):
+
+    def post(self, package_type, id):
+        context = {u'model': model, u'user': g.user}
+
+        try:
+            form_dict = logic.clean_dict(
+                dict_fns.unflatten(
+                    logic.tuplize_dict(
+                        logic.parse_params(request.form))))
+
+            user = get_action(u'user_show')(
+                context, {u'id': form_dict[u'username']}
+            )
+
+            data_dict = {
+                u'id': id,
+                u'user_id': user[u'id'],
+                u'capacity': form_dict[u'capacity']
+            }
+
+            get_action(u'package_collaborator_create')(
+                context, data_dict)
+
+        except dict_fns.DataError:
+            return base.abort(400, _(u'Integrity Error'))
+        except NotAuthorized:
+            message = _(u'Unauthorized to edit collaborators {}').format(id)
+            return base.abort(401, _(message))
+        except NotFound as e:
+            h.flash_error(_('User not found'))
+            return h.redirect_to(u'dataset.new_collaborator', id=id)
+        except ValidationError as e:
+            h.flash_error(e.error_summary)
+            return h.redirect_to(u'dataset.new_collaborator', id=id)
+        else:
+            h.flash_success(_(u'User added to collaborators'))
+
+        return h.redirect_to(u'dataset.collaborators_read', id=id)
+
+    def get(self, package_type, id):
+        context = {u'model': model, u'user': g.user}
+        data_dict = {u'id': id}
+
+        try:
+            check_access(u'package_collaborator_list', context, data_dict)
+            # needed to ckan_extend package/edit_base.html
+            pkg_dict = get_action(u'package_show')(context, data_dict)
+        except NotAuthorized:
+            message = u'Unauthorized to read collaborators {}'.format(id)
+            return base.abort(401, _(message))
+        except NotFound:
+            return base.abort(404, _(u'Resource not found'))
+
+        user = request.params.get(u'user_id')
+        user_capacity = u'member'
+
+        if user:
+            collaborators = get_action(u'package_collaborator_list')(
+                context, data_dict)
+            for c in collaborators:
+                if c[u'user_id'] == user:
+                    user_capacity = c[u'capacity']
+            user = get_action(u'user_show')(context, {u'id': user})
+
+        capacities = []
+        if authz.check_config_permission(u'allow_admin_collaborators'):
+            capacities.append({u'name': u'admin', u'value': u'admin'})
+        capacities.extend([
+            {u'name': u'editor', u'value': u'editor'},
+            {u'name': u'member', u'value': u'member'}
+        ])
+
+        extra_vars = {
+            u'capacities': capacities,
+            u'user_capacity': user_capacity,
+            u'user': user,
+            u'pkg_dict': pkg_dict,
+        }
+
+        return base.render(
+            u'package/collaborators/collaborator_new.html', extra_vars)
+
+
 # deprecated
 def history(package_type, id):
     return h.redirect_to(u'{}.activity'.format(package_type), id=id)
@@ -1257,6 +1417,24 @@ def register_dataset_plugin_rules(blueprint):
         )
 
     )
+
+    if authz.check_config_permission(u'allow_dataset_collaborators'):
+        blueprint.add_url_rule(
+            rule=u'/collaborators/<id>',
+            view_func=collaborators_read,
+            methods=['GET', ]
+        )
+
+        blueprint.add_url_rule(
+            rule=u'/collaborators/<id>/new',
+            view_func=CollaboratorEditView.as_view(str(u'new_collaborator')),
+            methods=[u'GET', u'POST', ]
+        )
+
+        blueprint.add_url_rule(
+            rule=u'/collaborators/<id>/delete/<user_id>',
+            view_func=collaborator_delete, methods=['POST', ]
+        )
 
 
 register_dataset_plugin_rules(dataset)

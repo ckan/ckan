@@ -7,98 +7,459 @@
 Changelog
 ---------
 
-v.2.9.0 TBA
+.. towncrier release notes start
+
+
+v.2.9.2 2021-02-10
 ==================
 
- * This version requires changes to the ``who.ini`` configuration file. If your
-   setup doesn't use the one bundled with this repo, you will have to manually
-   change the following lines::
+General notes:
+ * Note: To use PostgreSQL 12 on CKAN 2.9 you need to upgrade psycopg2 to at least 2.8.4 (more details in `#5796 <https://github.com/ckan/ckan/issues/5796>`_)
 
-        use = ckan.lib.auth_tkt:make_plugin
 
-   to::
+Major features
+--------------
 
-        use = ckan.lib.repoze_plugins.auth_tkt:make_plugin
+- Add CLI commands for API Token management (`#5868
+  <https://github.com/ckan/ckan/pull/5868>`_)
 
-   And also::
 
-        use = repoze.who.plugins.friendlyform:FriendlyFormPlugin
+Bugfixes
+--------
 
-   to::
+- Persist attributes in chained functions (`#5751 <https://github.com/ckan/ckan/pull/5751>`_)
+- Fix install documentation (`#5618 <https://github.com/ckan/ckan/pull/5618>`_)
+- Fix exception when passing limit to organization (`#5789 <https://github.com/ckan/ckan/pull/5789>`_)
+- Fix for adding directories from plugins if partially string matches existing values (`#5836 <https://github.com/ckan/ckan/pull/5836>`_)
+- Fix upload log activity sorting (`#5827 <https://github.com/ckan/ckan/pull/5827>`_)
+- Textview: escape text formats (`#5814 <https://github.com/ckan/ckan/pull/5814>`_)
+- Add allow_partial_update to fix losing users (`#5734 <https://github.com/ckan/ckan/pull/5734>`_)
+- Set default group_type to group in group_create (`#5693 <https://github.com/ckan/ckan/pull/5693>`_)
+- Use user performing the action on activity context on user_update (`#5743 <https://github.com/ckan/ckan/pull/5743>`_)
+- New block in nav links in user dashboard (`#5804 <https://github.com/ckan/ckan/pull/5804>`_)
+- Update references to DataPusher documentation
+- Fix JavaScript error on Edge (`#5782 <https://github.com/ckan/ckan/pull/5782>`_)
+- Fix error when deleting resource with missing datastore table (`#5757 <https://github.com/ckan/ckan/pull/5757>`_)
+- ensure HTTP_HOST is bytes under python2 (`#5714 <https://github.com/ckan/ckan/pull/5714>`_)
+- Don't set old_filename when updating groups (`#5707 <https://github.com/ckan/ckan/pull/5707>`_)
+- Filter activities from user at the database level (`#5698 <https://github.com/ckan/ckan/pull/5698>`_)
+- Fix user_list ordering (`#5667 <https://github.com/ckan/ckan/pull/5667>`_)
+- Allowlist for functions in datastore_search_sql (see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`)
+- Fix docker install (`#5381 <https://github.com/ckan/ckan/pull/5381>`_)
+- Fix Click requirement conflict (`#5539
+  <https://github.com/ckan/ckan/pull/5539>`_)
+- Return content-type header on downloads if mimetype is (`#5670
+  <https://github.com/ckan/ckan/pull/5670>`_)
+- Fix missing activities from UI when internal processes are run by ignored
+  users (`#5699 <https://github.com/ckan/ckan/pull/5699>`_)
+- Replace 'paster' occurrences with 'ckan' in docs (`#5700
+  <https://github.com/ckan/ckan/pull/5700>`_)
+- Include requirements files in Manifest (`#5726
+  <https://github.com/ckan/ckan/pull/5726>`_)
+- Fix order which plugins are returned by PluginImplementations changing
+  (`#5731 <https://github.com/ckan/ckan/pull/5731>`_)
+- Raise NotFound when creating a non-existing collaborator (`#5759
+  <https://github.com/ckan/ckan/pull/5759>`_)
+- Restore member edit page (`#5767 <https://github.com/ckan/ckan/pull/5767>`_)
+- Don't add --ckan-ini pytest option if already added (by pytest-ckan) (`#5774
+  <https://github.com/ckan/ckan/pull/5774>`_)
+- Update organization_show package limit docs (`#5784
+  <https://github.com/ckan/ckan/pull/5784>`_)
+- Solve encoding errors in changes templates (`#5785
+  <https://github.com/ckan/ckan/pull/5785>`_)
 
-        use = ckan.lib.repoze_plugins.friendly_form:FriendlyFormPlugin
 
- * When upgrading from previous CKAN versions, the Activity Stream needs a
-   migrate_package_activity.py running for displaying the history of dataset
-   changes. This can be performed while CKAN is running or stopped (whereas the
-   standard `paster db upgrade` migrations need CKAN to be stopped). Ideally it
-   is run before CKAN is upgraded, but it can be run afterwards. If running
-   previous versions or this version of CKAN, download and run
-   migrate_package_activity.py like this:
+Minor changes
+-------------
 
-     cd /usr/lib/ckan/default/src/ckan/
-     wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py
-     wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/revision_legacy_code.py
-     python migrate_package_activity.py -c /etc/ckan/production.ini
+- Add aria attribute and accessible screen reader text to the mobile nav
+  button. (`#5555 <https://github.com/ckan/ckan/pull/5555>`_)
+- Remove jinja2 blocks from robots.txt (`#5648
+  <https://github.com/ckan/ckan/pull/5648>`_)
+- Allow to run the development server using SSL (`#5825
+  <https://github.com/ckan/ckan/pull/5825>`_)
+- Update extension template, migrate tests to GitHub Actions (`#5797
+  <https://github.com/ckan/ckan/pull/5797>`_)
 
-   Future versions of CKAN are likely to need a slightly different procedure.
-   Full info about this migration is found here:
-   https://github.com/ckan/ckan/wiki/Migrate-package-activity
 
- * A full history of dataset changes is now displayed in the Activity Stream to
-   admins, and optionally to the public. By default this is enabled for new
-   installs, but disabled for sites which upgrade (just in case the history is
-   sensitive). When upgrading, open data CKANs are encouraged to make this
-   history open to the public, by setting this in production.ini:
-   ``ckan.auth.public_activity_stream_detail = true`` (#3972)
+v.2.9.1 2020-10-21
+==================
 
-Minor changes:
+General notes:
+ * Note: This version requires a database upgrade with ``ckan db upgrade`` (You should
+   always backup your database first)
 
- * For navl schemas, the 'default' validator no longer applies the default when
-   the value is False, 0, [] or {} (#4448)
- * If you've customized the schema for package_search, you'll need to add to it
-   the limiting of ``row``, as per default_package_search_schema now does (#4484)
- * Several logic functions now have new upper limits to how many items can be
-   returned, notably ``group_list``, ``organization_list`` when
-   ``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
-   These are all configurable. (#4484, #4562)
 
-Bugfixes:
+Bugfixes
+--------
 
- * Action function "datastore_search" would calculate the total, even if you
-   set include_total=False (#4448)
+- Restore `stats` extension with reduced functionality (`#5215
+  <https://github.com/ckan/ckan/pull/5215>`_)
+- Allow IAuthenticator methods to return responses (`#5259
+  <https://github.com/ckan/ckan/pull/5259>`_)
+- Emit activities when updating datasets in bulk (`#5479
+  <https://github.com/ckan/ckan/pull/5479>`_)
+- Catch IndexError from date parsing during dataset indexation (`#5535
+  <https://github.com/ckan/ckan/pull/5535>`_)
+- Remove foreign keys relationships in revision tables to avoid purge errors
+  (`#5542 <https://github.com/ckan/ckan/pull/5542>`_)
+- Fix fullscreen for resource webpageview (`#5552
+  <https://github.com/ckan/ckan/pull/5552>`_)
+- Fix skip to content link hiding on screen readers (`#5556
+  <https://github.com/ckan/ckan/pull/5556>`_)
+- Fix KeyErrors in change list detection (`#5562
+  <https://github.com/ckan/ckan/pull/5562>`_)
+- Fix instantiation of smtp on python 3.8 (`#5595
+  <https://github.com/ckan/ckan/pull/5595>`_)
+- Fix `unflatten` function and DataDictionary/package extras update bug (`#5611
+  <https://github.com/ckan/ckan/pull/5611>`_)
+- Fix managing resources by collaborators (`#5620
+  <https://github.com/ckan/ckan/pull/5620>`_)
+- package_revise: allow use by normal users (`#5637
+  <https://github.com/ckan/ckan/pull/5637>`_)
+- Fix reloader option on ckan run command (`#5639
+  <https://github.com/ckan/ckan/pull/5639>`_)
+- Allow config-tool to be used with an incomplete config file (`#5647
+  <https://github.com/ckan/ckan/pull/5647>`_)
 
-Removals and deprecations:
 
- * Revision and History UI is removed: `/revision/*` & `/dataset/{id}/history`
-   in favour of `/dataset/changes/` visible in the Activity Stream. (#3972)
- * Logic functions removed:
-   ``dashboard_activity_list_html`` ``organization_activity_list_html``
-   ``user_activity_list_html`` ``package_activity_list_html``
-   ``group_activity_list_html`` ``organization_activity_list_html``
-   ``recently_changed_packages_activity_list_html``
-   ``dashboard_activity_list_html`` ``activity_detail_list`` (#4627/#3972)
- * ``model.ActivityDetail`` is no longer used and will be removed in the next
-   CKAN release. (#3972)
- * ``c.action`` and ``c.controller`` variables should be avoided.
-   ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
-   returns tuple of two items(depending on request handler):
-   1. Flask blueprint name / Pylons controller name
-   2. Flask view name / Pylons action name
-   In some cases, Flask blueprints have names that are differs from their
-   Pylons equivalents. For example, 'package' controller is divided between
-   'dataset' and 'resource' blueprints. For such cases you may need to perform
-   additional check of returned value:
+Minor changes
+-------------
 
-   >>> if toolkit.get_endpoint()[0] in ['dataset', 'package']:
-   >>>     do_something()
+- Add aria attribute and accessible screen reader text to the mobile nav
+  button. (`#5555 <https://github.com/ckan/ckan/pull/5555>`_)
+- Remove jinja2 blocks from robots.txt (`#5648
+  <https://github.com/ckan/ckan/pull/5648>`_)
 
-   In this code snippet, will be called if current request is handled via Flask's
-   dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
-   Pylons package controller in CKAN<2.9
- * Extensions that add CLI commands should note the deprecation of
-   ``ckan.lib.cli.CkanCommand`` and all other helpers in ckan.lib.cli.
-   Extensions should instead implement CLIs using the new IClick interface.
+
+v.2.9.0 2020-08-05
+==================
+
+Migration notes
+---------------
+- This version does require a requirements upgrade on source installations
+- This version does require a database upgrade
+- This version does not require a Solr schema upgrade if you are already using the 2.8 schema,
+  but it is recommended to upgrade to the 2.9 Solr schema.
+- This version requires changes to the ``who.ini`` configuration file. If your
+  setup doesn't use the one bundled with this repo, you will have to manually
+  change the following lines::
+
+       use = ckan.lib.auth_tkt:make_plugin
+
+  to::
+
+       use = ckan.lib.repoze_plugins.auth_tkt:make_plugin
+
+  And also::
+
+       use = repoze.who.plugins.friendlyform:FriendlyFormPlugin
+
+  to::
+
+       use = ckan.lib.repoze_plugins.friendly_form:FriendlyFormPlugin
+
+  Otherwise, if you are using symbolinc link to ``who.ini`` under vcs, no
+  changes required. (`#4796 <https://github.com/ckan/ckan/pull/4796>`_)
+- All the static CSS/JS files must be bundled via a  `webassets.yml` file, as opposed
+  to the previously used, optional `resource.config` file. Check the `Assets documentation
+  <https://docs.ckan.org/en/latest/contributing/frontend/assets.html>`_
+  for more details. (`#4614 <https://github.com/ckan/ckan/pull/4614>`_)
+- When ``ckan.cache_enabled`` is set to ``False`` (default) all requests
+  include the ``Cache-control: private`` header. If ``ckan.cache_enabled`` is
+  set to ``True``, when the user is not logged in and there is no session data,
+  a ``Cache-Control: public`` header will be added. For all other requests the
+  ``Cache-control: private`` header will be added. Note that you will also need
+  to set the ``ckan.cache_expires`` config option to allow caching of requests.
+  (`#4781 <https://github.com/ckan/ckan/pull/4781>`_)
+- A full history of dataset changes is now displayed in the Activity Stream to
+  admins, and optionally to the public. By default this is enabled for new
+  installs, but disabled for sites which upgrade (just in case the history is
+  sensitive). When upgrading, open data CKANs are encouraged to make this
+  history open to the public, by setting this in production.ini:
+  ``ckan.auth.public_activity_stream_detail = true`` (`#3972
+  <https://github.com/ckan/ckan/pull/3972>`_)
+- When upgrading from previous CKAN versions, the Activity Stream needs a
+  migrate_package_activity.py running for displaying the history of dataset
+  changes. This can be performed while CKAN is running or stopped (whereas the
+  standard `paster db upgrade` migrations need CKAN to be stopped). Ideally it
+  is run before CKAN is upgraded, but it can be run afterwards. If running
+  previous versions or this version of CKAN, download and run
+  migrate_package_activity.py like this::
+
+    cd /usr/lib/ckan/default/src/ckan/
+    wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py
+    wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/revision_legacy_code.py
+    python migrate_package_activity.py -c /etc/ckan/production.ini
+
+  Future versions of CKAN are likely to need a slightly different procedure.
+  Full info about this migration is found here:
+  https://github.com/ckan/ckan/wiki/Migrate-package-activity (`#4784
+  <https://github.com/ckan/ckan/pull/4784>`_)
+- The :ref:`config_file` default name has been changed to ``ckan.ini`` across the documentation regardless of the environment. You can use any name including the legacy ``development.ini`` and ``production.ini`` but to keep in sync with the documentation is recommended to update the name.
+- The old `paster` CLI has been removed in favour of the new `ckan` command. In most cases the commands and subcommands syntax is the same, but the ``-c`` or ``--config`` parameter to point to the ini file needs to provided immediately after the `ckan` command, eg::
+
+        ckan -c /etc/ckan/default/ckan.ini sysadmin
+- The minimum PostgreSQL version required starting from this version is 9.5
+  (`#5458 <https://github.com/ckan/ckan/pull/5458>`_)
+
+
+Major features
+--------------
+
+- Python 3 support. CKAN nows supports Python 3.6, 3.7 and 3.8 (`Overview <https://github.com/ckan/ckan/projects/3>`_).
+  Check `this page <https://github.com/ckan/ckan/wiki/Python-3-migration-guide-for-extensions>`_ for support on how to
+  migrate existing extensions to Python 3.
+- Dataset collaborators: In addition to traditional organization-based
+  permissions, CKAN instances can also enable the dataset collaborators feature, which allows dataset-level authorization.
+  This provides  more granular control over who can access and modify datasets that belong to
+  an organization, or allows authorization setups not based on organizations. It works by
+  allowing users with appropriate permissions to give permissions to other users over individual
+  datasets, regardless of what organization they belong to. To learn more about how to enable it and
+  the different configuration options available, check the documentation on
+  :ref:`dataset_collaborators`. (`#5346 <https://github.com/ckan/ckan/pull/5346>`_)
+- API Tokens: an alternative to API keys. Tokens can be created and
+  removed on demand (check :ref:`api authentication`) and there is no
+  restriction on the maximum number of tokens per user. Consider using
+  tokens instead of API keys and create a separate token for each
+  use-case instead of sharing the same token between multiple
+  clients. By default API Tokens are JWT, but alternative formats can be implemented
+  using `ckan.plugins.interfaces.IApiToken` interface. (`#5146
+  <https://github.com/ckan/ckan/pull/5146>`_)
+- Safe dataset updates with ``package_revise``: This is a new API action for
+  safe concurrent changes
+  to datasets and resources. ``package_revise`` allows assertions about current
+  package metadata,
+  selective update and removal of fields at any level, and multiple file
+  uploads in a single call.
+  See the documentation at :py:func:`~ckan.logic.action.update.package_revise`
+  (`#4618 <https://github.com/ckan/ckan/pull/4618>`_)
+- Refactor frontend assets management to use `webassets
+  <https://webassets.readthedocs.io/en/latest/>`_, including support for :ref:`x-sendfile` (`#4614
+  <https://github.com/ckan/ckan/pull/4614>`_)
+- Users can now upload or link to custom profile pictures. By default, if a
+  user picture is not provided it will fall back to gravatar. Alternatively,
+  gravatar can be completely disabled by setting ``ckan.gravatar_default =
+  disabled``. In that case a placeholder image is shown instead, which can be
+  customized by overriding the ``templates/user/snippets/placeholder.html``
+  template. (`#5272 <https://github.com/ckan/ckan/pull/5272>`_)
+- Add `plugin_extras` field allowing extending User object for internal use
+  (`#5382 <https://github.com/ckan/ckan/pull/5382>`_)
+
+
+Minor changes
+-------------
+- New command for running database migrations from extensions. See :ref:`extensions db migrations` for details,
+  (`#5150 <https://github.com/ckan/ckan/pull/5150>`_)
+- For navl schemas, the 'default' validator no longer applies the default when
+  the value is False, 0, [] or {} (`#4448
+  <https://github.com/ckan/ckan/pull/4448>`_)
+- Use alembic instead of sqlalchemy-migrate for managing database migrations
+  (`#4450 <https://github.com/ckan/ckan/pull/4450>`_)
+- If you've customized the schema for package_search, you'll need to add to it
+  the limiting of ``row``, as per default_package_search_schema now does.
+  (`#4484 <https://github.com/ckan/ckan/pull/4484>`_)
+- Several logic functions now have new upper limits to how many items can be
+  returned, notably ``group_list``, ``organization_list`` when
+  ``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
+  These are all configurable. (`#4562
+  <https://github.com/ckan/ckan/pull/4562>`_)
+- Give users the option to define which page they want to be redirected
+  to after logging in via `ckan.route_after_login` config variable. (`#4770
+  <https://github.com/ckan/ckan/pull/4770>`_)
+- Add cache control headers to flask (`#4781
+  <https://github.com/ckan/ckan/pull/4781>`_)
+- Create recline_view on ods files by default (`#4936
+  <https://github.com/ckan/ckan/pull/4936>`_)
+- Replase nosetests with pytest (`#4996
+  <https://github.com/ckan/ckan/pull/4996>`_)
+- Make creating new tags in autocomplete module optional (`#5012
+  <https://github.com/ckan/ckan/pull/5012>`_)
+- Allow reply to emails (`#5024 <https://github.com/ckan/ckan/pull/5024>`_)
+- Improve and reorder resource_formats.json (`#5034
+  <https://github.com/ckan/ckan/pull/5034>`_)
+- Email unique validator (`#5100 <https://github.com/ckan/ckan/pull/5100>`_)
+- Preview for multimedia files (`#5103
+  <https://github.com/ckan/ckan/pull/5103>`_)
+- Allow extensions to define Click commands (`#5112
+  <https://github.com/ckan/ckan/pull/5112>`_)
+- Add organization and group purge (`#5127
+  <https://github.com/ckan/ckan/pull/5127>`_)
+- HTML emails (`#5132 <https://github.com/ckan/ckan/pull/5132>`_)
+- Unified workflow for creating/applying DB migrations from extensions (`#5150
+  <https://github.com/ckan/ckan/pull/5150>`_)
+- Use current package_type for urls (`#5189
+  <https://github.com/ckan/ckan/pull/5189>`_)
+- Werkzeug dev server improvements (`#5195
+  <https://github.com/ckan/ckan/pull/5195>`_)
+- Allow passing arguments to the RQ enqueue_call function (`#5208
+  <https://github.com/ckan/ckan/pull/5208>`_)
+- Add option to configure labels of next/prev page button and pager format.
+  (`#5223 <https://github.com/ckan/ckan/pull/5223>`_)
+- DevServer: threaded mode and extra files (`#5303
+  <https://github.com/ckan/ckan/pull/5303>`_)
+- Make default sorting configurable (`#5314
+  <https://github.com/ckan/ckan/pull/5314>`_)
+- Allow initial values in group form (`#5345
+  <https://github.com/ckan/ckan/pull/5345>`_)
+- Make ckan more accessible (`#5360 <https://github.com/ckan/ckan/pull/5360>`_)
+- Update date formatters (`#5376 <https://github.com/ckan/ckan/pull/5376>`_)
+- Allow multiple `ext_*` params in search views (`#5398
+  <https://github.com/ckan/ckan/pull/5398>`_)
+- Always 404 on non-existing user lookup (`#5464
+  <https://github.com/ckan/ckan/pull/5464>`_)
+
+Bugfixes
+--------
+
+- 500 error when calling `resource_search` by `last_modified` (`#4130
+  <https://github.com/ckan/ckan/pull/4130>`_)
+- Action function "datastore_search" would calculate the total, even if you set
+  ``include_total=False``. (`#4448 <https://github.com/ckan/ckan/pull/4448>`_)
+- Emails not sent from flask routes (`#4711
+  <https://github.com/ckan/ckan/pull/4711>`_)
+- Admin of organization can add himself as a member/editor to the
+  organization and lose admin rights (`#4821
+  <https://github.com/ckan/ckan/pull/4821>`_)
+- Error when posting empty array with type json using datastore_create (`#4826
+  <https://github.com/ckan/ckan/pull/4826>`_)
+- ValueError when you configure exception emails (`#4831
+  <https://github.com/ckan/ckan/pull/4831>`_)
+- Dataset counts incorrect on Groups listing (`#4987
+  <https://github.com/ckan/ckan/pull/4987>`_)
+- Fix broken layout in organization bulk_process (`#5147
+  <https://github.com/ckan/ckan/pull/5147>`_)
+- Index template with template path instead of numeric index (`#5172
+  <https://github.com/ckan/ckan/pull/5172>`_)
+- Add metadata_modified field to resource (`#5236
+  <https://github.com/ckan/ckan/pull/5236>`_)
+- Send the right URL of CKAN to datapusher (`#5281
+  <https://github.com/ckan/ckan/pull/5281>`_)
+- Multiline translation strings not translated (`#5339
+  <https://github.com/ckan/ckan/pull/5339>`_)
+- Allow repeaded params in h.add_url_param (`#5373
+  <https://github.com/ckan/ckan/pull/5373>`_)
+- Accept timestamps with seconds having less than 6 decimals (`#5417
+  <https://github.com/ckan/ckan/pull/5417>`_)
+- RTL css fixes (`#5420 <https://github.com/ckan/ckan/pull/5420>`_)
+- Prevent account presence exposure when `ckan.auth.public_user_details =
+  false` (`#5432 <https://github.com/ckan/ckan/pull/5432>`_)
+- `ckan.i18n_directory` config option ignored in Flask app. (`#5436
+  <https://github.com/ckan/ckan/pull/5436>`_)
+- Allow lists in resource extras (`#5453
+  <https://github.com/ckan/ckan/pull/5453>`_)
+
+
+Removals and deprecations
+-------------------------
+
+- Revision and History UI is removed: `/revision/*` & `/dataset/{id}/history`
+  in favour of `/dataset/changes/` visible in the Activity Stream.
+  ``model.ActivityDetail`` is no longer used and will be removed in the next
+  CKAN release. (`#3972 <https://github.com/ckan/ckan/pull/3972>`_)
+- ``c.action`` and ``c.controller`` variables should be avoided.
+  ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
+  returns tuple of two items(depending on request handler):
+  1. Flask blueprint name / Pylons controller name
+  2. Flask view name / Pylons action name
+  In some cases, Flask blueprints have names that are differs from their
+  Pylons equivalents. For example, 'package' controller is divided between
+  'dataset' and 'resource' blueprints. For such cases you may need to perform
+  additional check of returned value:
+
+  >>> if toolkit.get_endpoint()[0] in ['dataset', 'package']:
+  >>>     do_something()
+
+  In this code snippet, will be called if current request is handled via
+  Flask's
+  dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
+  Pylons package controller in CKAN<2.9 (`#4319
+  <https://github.com/ckan/ckan/pull/4319>`_)
+- The following logic functions have been removed (`#4627 <https://github.com/ckan/ckan/pull/4627>`_):
+  * ``dashboard_activity_list_html``
+  * ``organization_activity_list_html``
+  * ``user_activity_list_html``
+  * ``package_activity_list_html``
+  * ``group_activity_list_html``
+  * ``organization_activity_list_html``
+  * ``recently_changed_packages_activity_list_html``
+  * ``dashboard_activity_list_html``
+  * ``activity_detail_list``
+- Remove Bootstrap 2 templates (`#4779
+  <https://github.com/ckan/ckan/pull/4779>`_)
+- Extensions that add CLI commands should note the deprecation of
+  ``ckan.lib.cli.CkanCommand`` and all other helpers in ckan.lib.cli.
+  Extensions should instead implement CLIs using the new IClick interface.
+  (`#5112 <https://github.com/ckan/ckan/pull/5112>`_)
+- Remove paster CLI (`#5264 <https://github.com/ckan/ckan/pull/5264>`_)
+
+
+v.2.8.7 2021-02-10
+==================
+
+General notes:
+* Note: To use PostgreSQL 12 on CKAN 2.8 you need to upgrade SQLAlchemy to 1.2.17 and vdm to 0.15 (more details in `#5796 <https://github.com/ckan/ckan/issues/5796>`_)
+
+
+Fixes:
+
+* Persist attributes in chained functions (`#5751 <https://github.com/ckan/ckan/pull/5751>`_)
+* Fix install documentation (`#5618 <https://github.com/ckan/ckan/pull/5618>`_)
+* Fix exception when passing limit to organization (`#5789 <https://github.com/ckan/ckan/pull/5789>`_)
+* Fix for adding directories from plugins if partially string matches existing values (`#5836 <https://github.com/ckan/ckan/pull/5836>`_)
+* Fix upload log activity sorting (`#5827 <https://github.com/ckan/ckan/pull/5827>`_)
+* Textview: escape text formats (`#5814 <https://github.com/ckan/ckan/pull/5814>`_)
+* Add allow_partial_update to fix losing users (`#5734 <https://github.com/ckan/ckan/pull/5734>`_)
+* Set default group_type to group in group_create (`#5693 <https://github.com/ckan/ckan/pull/5693>`_)
+* Use user performing the action on activity context on user_update (`#5743 <https://github.com/ckan/ckan/pull/5743>`_)
+* New block in nav links in user dashboard (`#5804 <https://github.com/ckan/ckan/pull/5804>`_)
+* Update references to DataPusher documentation
+* Fix JavaScript error on Edge (`#5782 <https://github.com/ckan/ckan/pull/5782>`_)
+* Fix error when deleting resource with missing datastore table (`#5757 <https://github.com/ckan/ckan/pull/5757>`_)
+* ensure HTTP_HOST is bytes under python2 (`#5714 <https://github.com/ckan/ckan/pull/5714>`_)
+* Don't set old_filename when updating groups (`#5707 <https://github.com/ckan/ckan/pull/5707>`_)
+* Filter activities from user at the database level (`#5698 <https://github.com/ckan/ckan/pull/5698>`_)
+* Fix user_list ordering (`#5667 <https://github.com/ckan/ckan/pull/5667>`_)
+* Allowlist for functions in datastore_search_sql (see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`)
+
+
+v.2.8.6 2020-10-21
+==================
+
+Fixes:
+* Allow IAuthenticator methods to return responses (`#5259 <https://github.com/ckan/ckan/pull/5259>`_)
+* Fix skip to content link hiding on screen readers (`#5556 <https://github.com/ckan/ckan/pull/5556>`_)
+* Fix unflattening of dataset extras (`#5602 <https://github.com/ckan/ckan/pull/5611>`_)
+* Fix minified JS files in 2.7 (`#5557 <https://github.com/ckan/ckan/pull/5561>`_)
+* Send the right URL of CKAN to datapusher (`#5281 <https://github.com/ckan/ckan/pull/5281>`_)
+* Fix fullscreen for resource webpageview (`#5552 <https://github.com/ckan/ckan/pull/5552>`_)
+* PackageSearchIndex.index_package(): catch IndexError from date parsing (`#5535 <https://github.com/ckan/ckan/pull/5535>`_)
+* Fix collapsible menu in mobile view (`#5448 <https://github.com/ckan/ckan/pull/5448>`_)
+* Refactor query string parsing module
+
+v.2.8.5 2020-08-05
+==================
+
+Fixes:
+
+* Add RTL support (`#5413 <https://github.com/ckan/ckan/pull/5413>`_)
+* Fix UnicodeDecodeError on abort fucntion (`#4829 <https://github.com/ckan/ckan/pull/4829>`_)
+* Improve and reorder resource_formats.json (`#5034 <https://github.com/ckan/ckan/pull/5034>`_)
+* Allow passing arguments to the RQ enqueue_call function (`#5208 <https://github.com/ckan/ckan/pull/5208>`_)
+* Fix dashboard follower filter (`#5412 <https://github.com/ckan/ckan/pull/5412>`_)
+* Update dictionary.html for bs2 version (`#5365 <https://github.com/ckan/ckan/pull/5365>`_)
+* Prevent password reset exposing account presence (`#5431 <https://github.com/ckan/ckan/pull/5431>`_)
+* Add class dropdown to 'New view' menu (`#5470 <https://github.com/ckan/ckan/pull/5470>`_)
+* Update jQuery to 3.5.0 (`#5364 <https://github.com/ckan/ckan/pull/5364>`_)
+* Fix dashboard activity filter (`#5424 <https://github.com/ckan/ckan/pull/5424>`_)
+* Prevent account presence exposure when ckan.auth.public_user_details = false (`#5432 <https://github.com/ckan/ckan/pull/5432>`_)
+* Fix resource upload filename fetching in IE (`#5438 <https://github.com/ckan/ckan/pull/5438>`_)
+* Unflatten: allow nesting >1 level (`#5444 <https://github.com/ckan/ckan/pull/5444>`_)
+* Allow lists in resource extras (`#5453 <https://github.com/ckan/ckan/pull/5453>`_)
+* Only add error to tag_errors if not empty (`#5454 <https://github.com/ckan/ckan/pull/5454>`_)
+* Fix order_by param in user_list action (`#5342 <https://github.com/ckan/ckan/pull/5342>`_)
+* Fix for Resources validation errors display (`#5335 <https://github.com/ckan/ckan/pull/5335>`_)
+
 
 v.2.8.4 2020-04-15
 ==================
@@ -194,6 +555,7 @@ Fixes:
 * Fix i18n API encoding (`#4505 <https://github.com/ckan/ckan/issues/4505>`_)
 * Allow to defined legacy route mappings as a dict in config (`#4521 <https://github.com/ckan/ckan/issues/4521>`_)
 * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
+
 
 v.2.8.1 2018-07-25
 ==================
@@ -343,6 +705,69 @@ Changes and deprecations:
    of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised
    to specify this argument explicitly, as in future it'll become required.
  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
+
+
+v.2.7.10 2021-02-10
+===================
+
+Fixes:
+
+* Fix install documentation (`#5618 <https://github.com/ckan/ckan/pull/5618>`_)
+* Fix exception when passing limit to organization (`#5789 <https://github.com/ckan/ckan/pull/5789>`_)
+* Fix for adding directories from plugins if partially string matches existing values (`#5836 <https://github.com/ckan/ckan/pull/5836>`_)
+* Fix upload log activity sorting (`#5827 <https://github.com/ckan/ckan/pull/5827>`_)
+* Textview: escape text formats (`#5814 <https://github.com/ckan/ckan/pull/5814>`_)
+* Add allow_partial_update to fix losing users (`#5734 <https://github.com/ckan/ckan/pull/5734>`_)
+* Set default group_type to group in group_create (`#5693 <https://github.com/ckan/ckan/pull/5693>`_)
+* Use user performing the action on activity context on user_update (`#5743 <https://github.com/ckan/ckan/pull/5743>`_)
+* New block in nav links in user dashboard (`#5804 <https://github.com/ckan/ckan/pull/5804>`_)
+* Update references to DataPusher documentation
+* Fix JavaScript error on Edge (`#5782 <https://github.com/ckan/ckan/pull/5782>`_)
+* Fix error when deleting resource with missing datastore table (`#5757 <https://github.com/ckan/ckan/pull/5757>`_)
+* ensure HTTP_HOST is bytes under python2 (`#5714 <https://github.com/ckan/ckan/pull/5714>`_)
+* Don't set old_filename when updating groups (`#5707 <https://github.com/ckan/ckan/pull/5707>`_)
+* Filter activities from user at the database level (`#5698 <https://github.com/ckan/ckan/pull/5698>`_)
+* Fix user_list ordering (`#5667 <https://github.com/ckan/ckan/pull/5667>`_)
+* Allow list for functions in datastore_search_sql (see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`)
+
+
+v.2.7.9 2020-10-21
+==================
+
+Fixes:
+
+* Fix unflattening of dataset extras (`#5602 <https://github.com/ckan/ckan/pull/5611>`_)
+* Fix minified JS files in 2.7 (`#5557 <https://github.com/ckan/ckan/pull/5561>`_)
+* Send the right URL of CKAN to datapusher (`#5281 <https://github.com/ckan/ckan/pull/5281>`_)
+* Fix fullscreen for resource webpageview (`#5552 <https://github.com/ckan/ckan/pull/5552>`_)
+* PackageSearchIndex.index_package(): catch IndexError from date parsing (`#5535 <https://github.com/ckan/ckan/pull/5535>`_)
+* Fix collapsible menu in mobile view (`#5448 <https://github.com/ckan/ckan/pull/5448>`_)
+* Refactor query string parsing module
+
+
+v.2.7.8 2020-08-05
+==================
+
+Fixes:
+
+* Fix UnicodeDecodeError on abort fucntion (`#4829 <https://github.com/ckan/ckan/pull/4829>`_)
+* Improve and reorder resource_formats.json (`#5034 <https://github.com/ckan/ckan/pull/5034>`_)
+* Allow passing arguments to the RQ enqueue_call function (`#5208 <https://github.com/ckan/ckan/pull/5208>`_)
+* Fix dashboard follower filter (`#5412 <https://github.com/ckan/ckan/pull/5412>`_)
+* Update dictionary.html for bs2 version (`#5365 <https://github.com/ckan/ckan/pull/5365>`_)
+* Prevent password reset exposing account presence (`#5431 <https://github.com/ckan/ckan/pull/5431>`_)
+* Add class dropdown to 'New view' menu (`#5470 <https://github.com/ckan/ckan/pull/5470>`_)
+* Update jQuery to 3.5.0 (`#5364 <https://github.com/ckan/ckan/pull/5364>`_)
+* Fix dashboard activity filter (`#5424 <https://github.com/ckan/ckan/pull/5424>`_)
+* Prevent account presence exposure when ckan.auth.public_user_details = false (`#5432 <https://github.com/ckan/ckan/pull/5432>`_)
+* Fix resource upload filename fetching in IE (`#5438 <https://github.com/ckan/ckan/pull/5438>`_)
+* Unflatten: allow nesting >1 level (`#5444 <https://github.com/ckan/ckan/pull/5444>`_)
+* Allow lists in resource extras (`#5453 <https://github.com/ckan/ckan/pull/5453>`_)
+* Only add error to tag_errors if not empty (`#5454 <https://github.com/ckan/ckan/pull/5454>`_)
+* Fix order_by param in user_list action (`#5342 <https://github.com/ckan/ckan/pull/5342>`_)
+* Fix for Resources validation errors display (`#5335 <https://github.com/ckan/ckan/pull/5335>`_)
+
+
 
 v.2.7.7 2020-04-15
 ==================

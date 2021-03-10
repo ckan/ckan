@@ -2,6 +2,7 @@
 
 import logging
 from collections import defaultdict
+from pkg_resources import iter_entry_points
 
 import six
 import click
@@ -10,15 +11,14 @@ import sys
 import ckan.plugins as p
 import ckan.cli as ckan_cli
 from ckan.config.middleware import make_app
+from ckan.exceptions import CkanConfigurationException
 from ckan.cli import (
     config_tool,
     jobs,
-    datapusher,
     front_end_build,
     db, search_index, server,
     profile,
     asset,
-    datastore,
     sysadmin,
     translation,
     dataset,
@@ -36,6 +36,12 @@ from ckan.cli import seed
 
 log = logging.getLogger(__name__)
 
+_no_config_commands = [
+    [u'config-tool'],
+    [u'generate', u'config'],
+    [u'generate', u'extension'],
+]
+
 
 class CkanCommand(object):
 
@@ -46,24 +52,69 @@ class CkanCommand(object):
         self.app = make_app(self.config)
 
 
-def _init_ckan_config(ctx, param, value):
+def _get_commands_from_plugins(plugins):
+    for plugin in plugins:
+        for cmd in plugin.get_commands():
+            cmd._ckan_meta = {
+                u'name': plugin.name,
+                u'type': u'plugin'
+            }
+            yield cmd
 
-    # Some commands don't require the config loaded
-    if (len(sys.argv) > 1 and not value
-            and sys.argv[1] in (u'generate', u'config-tool')) \
-            or u'--help' in sys.argv:
+
+def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
+    registered_entries = {}
+    for entry in iter_entry_points(entry_point):
+        if entry.name in registered_entries:
+            p.toolkit.error_shout((
+                u'Attempt to override entry_point `{name}`.\n'
+                u'First encounter:\n\t{first!r}\n'
+                u'Second encounter:\n\t{second!r}\n'
+                u'Either uninstall one of mentioned extensions or update'
+                u' corresponding `setup.py` and re-install the extension.'
+            ).format(
+                name=entry.name,
+                first=registered_entries[entry.name].dist,
+                second=entry.dist))
+            raise click.Abort()
+        registered_entries[entry.name] = entry
+
+        cmd = entry.load()
+        cmd._ckan_meta = {
+            u'name': entry.name,
+            u'type': u'entry_point'
+        }
+        yield cmd
+
+
+def _init_ckan_config(ctx, param, value):
+    is_help = u'--help' in sys.argv
+    no_config = False
+    if len(sys.argv) > 1:
+        for cmd in _no_config_commands:
+            if sys.argv[1:len(cmd) + 1] == cmd:
+                no_config = True
+                break
+    if no_config or is_help:
         return
 
-    ctx.obj = CkanCommand(value)
+    try:
+        ctx.obj = CkanCommand(value)
+    except CkanConfigurationException as e:
+        p.toolkit.error_shout(e)
+        raise click.Abort()
+
     if six.PY2:
         ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
     else:
         ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
 
-    for plugin in p.PluginImplementations(p.IClick):
-        for cmd in plugin.get_commands():
-            cmd._ckanext = plugin.name
-            ctx.command.add_command(cmd)
+    for cmd in _get_commands_from_entry_point():
+        ctx.command.add_command(cmd)
+
+    plugins = p.PluginImplementations(p.IClick)
+    for cmd in _get_commands_from_plugins(plugins):
+        ctx.command.add_command(cmd)
 
 
 click_config_option = click.option(
@@ -78,30 +129,39 @@ click_config_option = click.option(
 
 
 class CustomGroup(click.Group):
-    def get_command(self, ctx, name):
-        cmd = super(CustomGroup, self).get_command(ctx, name)
-        if not cmd:
-            ctx.forward(self)
-            cmd = super(CustomGroup, self).get_command(ctx, name)
-        return cmd
+    _section_titles = {
+        u'plugin': u'Plugins',
+        u'entry_point': u'Entry points',
+    }
 
     def format_commands(self, ctx, formatter):
-        super(CustomGroup, self).format_commands(ctx, formatter)
-        ctx.invoke(self)
+        # Without any arguments click skips option callbacks.
+        self.parse_args(ctx, [u'help'])
 
-        ext_commands = defaultdict(list)
+        commands = []
+        ext_commands = defaultdict(lambda: defaultdict(list))
+
         for subcommand in self.list_commands(ctx):
             cmd = self.get_command(ctx, subcommand)
-            if cmd is None or not hasattr(cmd, u'_ckanext'):
+            if cmd is None:
                 continue
-
             help = cmd.short_help or u''
-            ext_commands[cmd._ckanext].append((subcommand, help))
-        if ext_commands:
-            with formatter.section(u'Plugins'):
-                for ext, rows in ext_commands.items():
-                    with formatter.section(ext):
-                        formatter.write_dl(rows)
+
+            meta = getattr(cmd, u'_ckan_meta', None)
+            if meta:
+                ext_commands[meta[u'type']][meta[u'name']].append(
+                    (subcommand, help))
+            else:
+                commands.append((subcommand, help))
+
+        if commands:
+            with formatter.section(u'Commands'):
+                formatter.write_dl(commands)
+
+        for section, group in ext_commands.items():
+            with formatter.section(self._section_titles.get(section, section)):
+                for _ext, rows in group.items():
+                    formatter.write_dl(rows)
 
 
 @click.group(cls=CustomGroup)
@@ -118,11 +178,9 @@ ckan.add_command(server.run)
 ckan.add_command(profile.profile)
 ckan.add_command(seed.seed)
 ckan.add_command(db.db)
-ckan.add_command(datapusher.datapusher)
 ckan.add_command(search_index.search_index)
 ckan.add_command(sysadmin.sysadmin)
 ckan.add_command(asset.asset)
-ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
 ckan.add_command(dataset.dataset)
 ckan.add_command(views.views)

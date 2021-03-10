@@ -233,7 +233,7 @@ class PackageTag(core.StatefulObjectMixin,
 
     @classmethod
     @maintain.deprecated()
-    def by_name(self, package_name, tag_name, vocab_id_or_name=None,
+    def by_name(cls, package_name, tag_name, vocab_id_or_name=None,
             autoflush=True):
         '''DEPRECATED (and broken - missing the join to Tag)
 

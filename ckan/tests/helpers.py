@@ -44,6 +44,8 @@ import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
 
+log = logging.getLogger(__name__)
+
 
 def reset_db():
     """Reset CKAN's database.
@@ -148,10 +150,11 @@ def call_auth(auth_name, context, **kwargs):
         e.g. ``{'user': 'fred', 'model': my_mock_model_object}``
     :type context: dict
 
-    :returns: the dict that the auth function returns, e.g.
-        ``{'success': True}`` or ``{'success': False, msg: '...'}``
+    :returns: the 'success' value of the authorization check, e.g.
+        ``{'success': True}`` or
+        ``{'success': False, msg: 'important error message'}``
         or just ``{'success': False}``
-    :rtype: dict
+    :rtype: bool
 
     """
     assert "user" in context, (
@@ -240,13 +243,22 @@ class CKANTestApp(object):
 
 class CKANTestClient(FlaskClient):
     def open(self, *args, **kwargs):
+        # extensions with support of CKAN<2.9 can use this parameter
+        # to make errors of webtest.TestApp more verbose. FlaskClient
+        # doesn't have anything similar, so we'll just drop this
+        # parameter for backward compatibility and ask for updating
+        # the code when possible.
+        if kwargs.pop('expect_errors', None):
+            log.warning(
+                '`expect_errors` parameter passed to `test_app.post` '
+                'has no effect. Remove it or pass conditionally, for '
+                'CKAN version prior 2.9.0.'
+            )
+
         status = kwargs.pop("status", None)
         extra_environ = kwargs.pop("extra_environ", None)
         if extra_environ:
             kwargs["environ_overrides"] = extra_environ
-        # params = kwargs.pop('params', None)
-        # if params:
-        # kwargs['query_string'] = params
 
         if args and isinstance(args[0], six.string_types):
             kwargs.setdefault("follow_redirects", True)

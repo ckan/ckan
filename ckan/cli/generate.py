@@ -2,35 +2,51 @@
 
 from __future__ import print_function
 import os
-import sys
+
+import alembic.command
 import click
+from alembic.config import Config as AlembicConfig
+
+import ckan
+from ckan.cli.db import _resolve_alembic_config
+import ckan.plugins.toolkit as tk
+
 import uuid
 import string
 import secrets
 from ckan.cli import error_shout
 
 
-@click.group(
-    name=u'generate',
-    short_help=u"Generate empty extension files to expand CKAN.",
-    invoke_without_command=True,
-)
+class CKANAlembicConfig(AlembicConfig):
+    def get_template_directory(self):
+        return os.path.join(os.path.dirname(ckan.__file__),
+                            u"../contrib/alembic")
+
+
+@click.group()
 def generate():
-    try:
-        from cookiecutter.main import cookiecutter
-    except ImportError:
-        error_shout(u"`cookiecutter` library is missing from import path.")
-        error_shout(u"Make sure you have dev-dependencies installed:")
-        error_shout(u"\tpip install -r dev-requirements.txt")
-        raise click.Abort()
+    """Scaffolding for regular development tasks.
+    """
+    pass
 
 
 @generate.command(name=u'extension', short_help=u"Create empty extension.")
-@click.option(u'-o', u'--output-dir', help=u"Location to put the generated "
-                                           u"template.",
+@click.option(u'-o',
+              u'--output-dir',
+              help=u"Location to put the generated "
+              u"template.",
               default=u'.')
 def extension(output_dir):
-    from cookiecutter.main import cookiecutter
+    """Generate empty extension files to expand CKAN.
+    """
+    try:
+        from cookiecutter.main import cookiecutter
+    except ImportError:
+        tk.error_shout(u"`cookiecutter` library is missing from import path.")
+        tk.error_shout(u"Make sure you have dev-dependencies installed:")
+        tk.error_shout(u"\tpip install -r dev-requirements.txt")
+        raise click.Abort()
+
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     os.chdir(cur_loc)
     os.chdir(u'../../contrib/cookiecutter/ckan_extension/')
@@ -57,25 +73,26 @@ def extension(output_dir):
                             default=u"CKAN")
 
     # Ensure one instance of 'CKAN' in keywords
-    keywords = keywords.strip().split()
-    keywords = [keyword for keyword in keywords
-                if keyword not in (u'ckan', u'CKAN')]
-    keywords.insert(0, u'CKAN')
+    keywords = [u"CKAN"] + [
+        k for k in keywords.strip().split() if k.lower() != u"ckan"
+    ]
     keywords = u' '.join(keywords)
 
     # Set short name and plugin class name
     project_short = name[8:].lower().replace(u'-', u'_')
     plugin_class_name = project_short.title().replace(u'_', u'') + u'Plugin'
 
-    context = {u"project": name,
-               u"description": description,
-               u"author": author,
-               u"author_email": email,
-               u"keywords": keywords,
-               u"github_user_name": github,
-               u"project_shortname": project_short,
-               u"plugin_class_name": plugin_class_name,
-               u"_source": u"cli"}
+    context = {
+        u"project": name,
+        u"description": description,
+        u"author": author,
+        u"author_email": email,
+        u"keywords": keywords,
+        u"github_user_name": github,
+        u"project_shortname": project_short,
+        u"plugin_class_name": plugin_class_name,
+        u"_source": u"cli"
+    }
 
     if output_dir == u'.':
         os.chdir(u'../../../..')
@@ -114,4 +131,36 @@ def make_config(output_path):
 
         except IOError as e:
             error_shout(e)
-            sys.exit(1)
+            raise click.Abort()
+
+
+@generate.command()
+@click.option(u"-p",
+              u"--plugin",
+              help=(u"Plugin's that requires migration"
+                    u"(name, used in `ckan.plugins` config section). "
+                    u"If not provided, core CKAN migration created instead."))
+@click.option(u"-m",
+              u"--message",
+              help=u"Message string to use with `revision`.")
+def migration(plugin, message):
+    """Create new alembic revision for DB migration.
+    """
+    import ckan.model
+    if not tk.config:
+        tk.error_shout(u'Config is not loaded')
+        raise click.Abort()
+    config = CKANAlembicConfig(_resolve_alembic_config(plugin))
+    migration_dir = os.path.dirname(config.config_file_name)
+    config.set_main_option(u"sqlalchemy.url",
+                           str(ckan.model.repo.metadata.bind.url))
+    config.set_main_option(u'script_location', migration_dir)
+
+    if not os.path.exists(os.path.join(migration_dir, u'script.py.mako')):
+        alembic.command.init(config, migration_dir)
+
+    rev = alembic.command.revision(config, message)
+    click.secho(
+        u"Revision file created. Now, you need to update it: \n\t{}".format(
+            rev.path),
+        fg=u"green")

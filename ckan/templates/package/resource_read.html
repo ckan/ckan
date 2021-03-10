@@ -20,7 +20,7 @@
 
 {% block pre_primary %}
   {% block resource %}
-    <section class="module module-resource">
+    <section class="module module-resource" role="complementary">
       {% block resource_inner %}
       <div class="module-content">
         <div class="actions">
@@ -46,7 +46,7 @@
                 </a>
                 {% block download_resource_button %}
                   {% if res.datastore_active %}
-                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-label="list of downloadable formats">
                     <span class="caret"></span>
                   </button>
                 <ul class="dropdown-menu">
@@ -195,14 +195,16 @@
               </tr>
               <tr>
                 <th scope="row">{{ _('Format') }}</th>
-                <td>{{ res.mimetype_inner or res.mimetype or res.format or _('unknown') }}</td>
+                <td>{{ res.format or res.mimetype_inner or res.mimetype or _('unknown') }}</td>
               </tr>
               <tr>
                 <th scope="row">{{ _('License') }}</th>
                 <td>{% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</td>
               </tr>
               {% for key, value in h.format_resource_items(res.items()) %}
-                <tr class="toggle-more"><th scope="row">{{ key }}</th><td>{{ value }}</td></tr>
+                {% if key not in ('created', 'metadata modified', 'last modified', 'format') %}
+                  <tr class="toggle-more"><th scope="row">{{ key | capitalize }}</th><td>{{ value }}</td></tr>
+                {% endif %}
               {% endfor %}
             </tbody>
           </table>

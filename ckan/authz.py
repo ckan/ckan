@@ -114,8 +114,13 @@ class AuthFunctions:
                 else:
                     # fallback to chaining off the builtin auth function
                     prev_func = self._functions[name]
-                fetched_auth_functions[name] = (
-                    functools.partial(func, prev_func))
+                
+                new_func = (functools.partial(func, prev_func))
+                # persisting attributes to the new partial function
+                for attribute, value in six.iteritems(func.__dict__):
+                    setattr(new_func, attribute, value)
+                
+                fetched_auth_functions[name] = new_func
 
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
@@ -225,10 +230,17 @@ def is_authorized(action, context, data_dict=None):
 
 # these are the permissions that roles have
 ROLE_PERMISSIONS = OrderedDict([
-    ('admin', ['admin']),
+    ('admin', ['admin', 'membership']),
     ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset', 'manage_group']),
     ('member', ['read', 'manage_group']),
 ])
+
+
+def get_collaborator_capacities():
+    if check_config_permission('allow_admin_collaborators'):
+        return ('admin', 'editor', 'member')
+    else:
+        return ('editor', 'member')
 
 
 def _trans_role_admin():
@@ -397,6 +409,64 @@ def get_user_id_for_username(user_name, allow_none=False):
     raise Exception('Not logged in user')
 
 
+def can_manage_collaborators(package_id, user_id):
+    '''
+    Returns True if a user is allowed to manage the collaborators of a given
+    dataset.
+
+    Currently a user can manage collaborators if:
+
+    1. Is an administrator of the organization the dataset belongs to
+    2. Is a collaborator with role "admin" (
+        assuming :ref:`ckan.auth.allow_admin_collaborators` is set to True)
+    3. Is the creator of the dataset and the dataset does not belong to an
+        organization (
+        requires :ref:`ckan.auth.create_dataset_if_not_in_organization`
+        and :ref:`ckan.auth.create_unowned_dataset`)
+    '''
+    pkg = model.Package.get(package_id)
+
+    owner_org = pkg.owner_org
+
+    if (not owner_org
+            and check_config_permission('create_dataset_if_not_in_organization')
+            and check_config_permission('create_unowned_dataset')
+            and pkg.creator_user_id == user_id):
+        # User is the creator of this unowned dataset
+        return True
+
+    if has_user_permission_for_group_or_org(
+            owner_org, user_id, 'membership'):
+        # User is an administrator of the organization the dataset belongs to
+        return True
+
+    # Check if user is a collaborator with admin role
+    return user_is_collaborator_on_dataset(user_id, pkg.id, 'admin')
+
+
+def user_is_collaborator_on_dataset(user_id, dataset_id, capacity=None):
+    '''
+    Returns True if the provided user is a collaborator on the provided
+    dataset.
+
+    If capacity is provided it restricts the check to the capacity
+    provided (eg `admin` or `editor`). Multiple capacities can be
+    provided passing a list
+
+    '''
+
+    q = model.Session.query(model.PackageMember) \
+        .filter(model.PackageMember.user_id == user_id) \
+        .filter(model.PackageMember.package_id == dataset_id)
+
+    if capacity:
+        if isinstance(capacity, six.string_types):
+            capacity = [capacity]
+        q = q.filter(model.PackageMember.capacity.in_(capacity))
+
+    return q.count() > 0
+
+
 CONFIG_PERMISSIONS_DEFAULTS = {
     # permission and default
     # these are prefixed with ckan.auth. in config to override
@@ -411,6 +481,10 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
     'public_activity_stream_detail': False,
+    'allow_dataset_collaborators': False,
+    'allow_admin_collaborators': False,
+    'allow_collaborators_to_change_owner_org': False,
+    'create_default_api_keys': False,
 }
 
 

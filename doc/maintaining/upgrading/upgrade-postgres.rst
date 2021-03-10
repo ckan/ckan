@@ -1,10 +1,10 @@
 ===========================================
-Upgrading Postgres for the CKAN 2.6 release
+Upgrading Postgres for the CKAN 2.9 release
 ===========================================
 
 
-CKAN 2.6 requires |postgres| to be of version 9.2 or later (previously it was
-8.4). This is a guide to doing the upgrade if necessary.
+CKAN 2.9 requires |postgres| to be of version 9.5 or newer. 
+This is a guide to doing the upgrade if necessary.
 
 What are CKAN's |postgres| connection settings?
 ===============================================
@@ -52,8 +52,8 @@ The version will look like this::
     (1 row)
 
 Ignoring the last number of the three, if your |postgres| version number is
-lower than 9.2 then you should upgrade |postgres| before you upgrade to CKAN
-2.5 or later.
+lower than 9.5 then you should upgrade |postgres| before you upgrade to CKAN
+2.9 or later.
 
 Upgrading
 =========
@@ -80,38 +80,39 @@ Upgrading
    ``postgresql-9.1``. If using ckanext-spatial then you will also have PostGIS
    too (e.g. ``postgresql-9.1-postgis``), which needs upgrading at the same time.
 
-#. Install the Postgres Apt repository, containing newer versions. This is for
-   Ubuntu 12.04 (Precise) - for other versions and more information, refer to:
-   http://www.postgresql.org/download/linux/ubuntu/ ::
+#. Install the Postgres Apt repository, containing newer versions. The PostgreSQL Apt Repository supports 
+   the current LTS versions of Ubuntu i.e.,20.04 - for other versions and more information, refer to: http://www.postgresql.org/download/linux/ubuntu/ ::
 
-     echo 'deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main' | sudo tee /etc/apt/sources.list.d/pgdg.list
+     sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
      wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
      sudo apt-get update
      aptitude search postgresql-9.
 
-   You should now see there are packages for postgresql-9.4 etc.
+   You should now see there are packages for postgresql-9.5 etc.
 
-#. Install the newer |postgres| version. It is suggested you pick the newest stable version (from those listed in the previous step). At the time of writing, 9.5 is listed but is actually still an alpha version, so instead we'll use 9.4::
+#. Install the newer |postgres| version. It is suggested you pick the newest stable version (from those listed in the previous step). Here we'll use 9.5, if you want a specific  version then change the version number below ::
 
-     sudo apt-get install postgresql-9.4
+     sudo apt-get install postgresql-9.5
 
    And if you need PostGIS::
 
-     sudo apt-get install postgresql-9.4-postgis
+     sudo apt-get install postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts
+     
+   Here we have install PostGIS 2.2, if you want a specific version then change the version number above.   
 
 #. If you have customized any |postgres| options, insert them into the new version's config files.
 
    You can probably just copy the authentication rules straight::
 
-     sudo cp /etc/postgresql/9.1/main/pg_hba.conf /etc/postgresql/9.4/main/pg_hba.conf
+     sudo cp /etc/postgresql/9.1/main/pg_hba.conf /etc/postgresql/9.5/main/pg_hba.conf
 
    And you should read through the differences in postgresql.conf. This is a handy way to do this whilst ignoring changes in the comment lines::
 
-     diff -u -B <(grep -vE '^\s*(#|$)' /etc/postgresql/9.1/main/postgresql.conf)  <(grep -vE '^\s*(#|$)' /etc/postgresql/9.4/main/postgresql.conf)
+     diff -u -B <(grep -vE '^\s*(#|$)' /etc/postgresql/9.1/main/postgresql.conf)  <(grep -vE '^\s*(#|$)' /etc/postgresql/9.5/main/postgresql.conf)
 
    Once you've finished your changes, restart both versions of |postgres|::
 
-     sudo /etc/init.d/postgresql restart 9.4
+     sudo /etc/init.d/postgresql restart 9.5
 
 #. Follow the instructions in :ref:`postgres-setup` to setup |postgres| with a user and database. Ensure your username, password and database name match those in your connection settings (see previous section.)
 
@@ -124,10 +125,8 @@ Upgrading
     |activate|
     cd |virtualenv|/src/ckan
 
-#. Stop your server to prevent further writes to the database (because those
-   changes would be lost)::
-
-     sudo service apache2 stop
+#. Stop your web server to prevent further writes to the database (because those
+   changes would be lost).
 
 #. Create a back-up of the database roles::
 
@@ -170,8 +169,8 @@ Upgrading
 
    .. parsed-literal::
 
-     sudo -u postgres pg_dump -Fc -b -v |database| > backup_ckan.sql
-     sudo -u postgres pg_dump -Fc -b -v |datastore| > backup_datastore.sql
+     sudo -u postgres pg_dump -Fc -b -v |database| > backup_ckan.dmp
+     sudo -u postgres pg_dump -Fc -b -v |datastore| > backup_datastore.dmp
 
    or remotely:
 
@@ -184,13 +183,13 @@ Upgrading
 
 #. Optional: If necessary, update the PostGIS objects (known as a 'hard upgrade'). Please refer to the `documentation <http://postgis.net/docs/postgis_installation.html#hard_upgrade>`_ if you find any issues. ::
 
-     perl /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis_restore.pl backup_ckan.sql > backup_ckan_postgis.sql
+     perl /usr/share/postgresql/9.5/contrib/postgis-2.2/postgis_restore.pl backup_ckan.sql > backup_ckan_postgis.sql
 
 #. Restore your |postgres| roles into the new |postgres| version cluster. If
-   you're not upgrading to |postgres| version 9.4, you'll need to change the
+   you're not upgrading to |postgres| version 9.5, you'll need to change the
    number in this psql command and future ones too. So::
 
-     sudo -u postgres psql --cluster 9.4/main -f backup_roles.sql
+     sudo -u postgres psql --cluster 9.5/main -f backup_roles.sql
 
    Expect there will be one error::
 
@@ -202,29 +201,34 @@ Upgrading
 
    .. parsed-literal::
 
-        sudo -u postgres createdb --cluster 9.4/main |database|
-        sudo -u postgres createdb --cluster 9.4/main |datastore|
+        sudo -u postgres createdb --cluster 9.5/main |database|
+        sudo -u postgres createdb --cluster 9.5/main |datastore|
 
 #. Optional: If necessary, enable PostGIS on the main database:
 
    .. parsed-literal::
 
-        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis.sql
-        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/spatial_ref_sys.sql
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE spatial_ref_sys OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.5/main -d |database| -f /usr/share/postgresql/9.5/contrib/postgis-2.2/postgis.sql
+        sudo -u postgres psql --cluster 9.5/main -d |database| -f /usr/share/postgresql/9.5/contrib/postgis-2.2/spatial_ref_sys.sql
+        sudo -u postgres psql --cluster 9.5/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.5/main -d |database| -c 'ALTER TABLE spatial_ref_sys OWNER TO ckan_default;'
 
    To check if PostGIS was properly installed:
 
    .. parsed-literal::
 
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c "SELECT postgis_full_version()"
+        sudo -u postgres psql --cluster 9.5/main -d |database| -c "SELECT postgis_full_version()"
 
 
 #. Now restore your databases::
 
-     sudo -u postgres psql --cluster 9.4/main -f backup_ckan.sql
-     sudo -u postgres psql --cluster 9.4/main -f backup_datastore.sql
+     sudo -u postgres pg_restore --cluster 9.5/main -Fc backup_ckan.dmp
+     sudo -u postgres pg_restore --cluster 9.5/main -Fc backup_datastore.dmp
+     
+     If you have create backup remotely in step 12 then:
+     
+     sudo -u postgres psql --cluster 9.5/main -f backup_ckan.sql
+     sudo -u postgres psql --cluster 9.5/main -f backup_datastore.sql
 
    .. note:
 
@@ -238,7 +242,7 @@ Upgrading
         sudo pg_createcluster --start 9.4 main --locale=en_US.UTF-8
 
 
-#. Tell CKAN to use the new |postgres| database by switching the |postgres| port number in the |production.ini|. First find the correct port::
+#. Tell CKAN to use the new |postgres| database by switching the |postgres| port number in the |ckan.ini|. First find the correct port::
 
      sudo pg_lsclusters
 
@@ -267,5 +271,7 @@ Upgrading
 #. Download the CKAN package for the new minor release you want to upgrade
    to (replace the version number with the relevant one)::
 
-    wget http://packaging.ckan.org/python-ckan_2.5_amd64.deb
+     On Ubuntu 16.04: wget https://packaging.ckan.org/python-ckan_2.9-xenial_amd64.deb
+     On Ubuntu 18.04: wget https://packaging.ckan.org/python-ckan_2.9-bionic_amd64.deb
+     On Ubuntu 20.04: wget https://packaging.ckan.org/python-ckan_2.9-py3-focal_amd64.deb (for Python 3)
 

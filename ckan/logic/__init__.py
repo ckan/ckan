@@ -79,7 +79,8 @@ class ValidationError(ActionError):
                     tag_errors.append(', '.join(error['name']))
                 except KeyError:
                     # e.g. if it is a vocabulary_id error
-                    tag_errors.append(error)
+                    if error:
+                        tag_errors.append(error)
             error_dict['tags'] = tag_errors
         self.error_dict = error_dict
         self._error_summary = error_summary
@@ -441,7 +442,11 @@ def get_action(action):
         for func in reversed(func_list):
             # try other plugins first, fall back to core
             prev_func = fetched_actions.get(name, _actions.get(name))
-            fetched_actions[name] = functools.partial(func, prev_func)
+            new_func = functools.partial(func, prev_func)
+            # persisting attributes to the new partial function
+            for attribute, value in six.iteritems(func.__dict__):
+                setattr(new_func, attribute, value)
+            fetched_actions[name] = new_func
 
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
