@@ -1,10 +1,9 @@
 Signals
 =======
 
-.. versionadded:: 2.9
 
-Starting from CKAN 2.9, CKAN comes with built-in signal support, powered by
-`blinker <https://pythonhosted.org/blinker/>`_.
+CKAN provides built-in signal support, powered by `blinker
+<https://pythonhosted.org/blinker/>`_.
 
 The same library is used by `Flask
 <https://flask.palletsprojects.com/en/1.1.x/signals/>`_ and anything
