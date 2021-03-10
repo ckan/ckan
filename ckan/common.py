@@ -18,12 +18,9 @@ from werkzeug.local import Local, LocalProxy
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
-import simplejson as json
-
 if six.PY2:
     import pylons
-    from pylons.i18n import (ugettext as pylons_ugettext,
-                             ungettext as pylons_ungettext)
+    from pylons.i18n import ungettext as pylons_ungettext
     from pylons import response
 
 current_app = flask.current_app

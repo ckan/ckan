@@ -3,7 +3,6 @@
 from pprint import pformat
 import pytest
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib import search
 from ckan import model
 from ckan.lib.dictization.model_dictize import package_dictize, group_dictize
 from ckan.logic.schema import (

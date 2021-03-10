@@ -2,14 +2,12 @@
 
 from __future__ import print_function
 
-import os
 import sys
 
 import click
 import paste.script
 import routes
 from paste.registry import Registry
-from paste.script.util.logging_config import fileConfig
 from six.moves import input
 from six.moves.urllib.parse import urlparse
 
@@ -18,7 +16,6 @@ from ckan.cli import load_config as _get_config
 import ckan.logic as logic
 import ckan.model as model
 from ckan.common import config
-from ckan.common import asbool
 import ckan.lib.maintain as maintain
 # This is a test Flask request context to be used internally.
 # Do not use it!

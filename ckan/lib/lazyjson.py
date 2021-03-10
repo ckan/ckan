@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 from simplejson import loads, RawJSON, dumps
-import six
 from six import text_type
 
 

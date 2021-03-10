@@ -5,16 +5,12 @@ import re
 
 import copy
 import pytest
-from six import text_type
-from six.moves import xrange
 
 from ckan import model
 import ckan.logic as logic
 import ckan.logic.schema as schema
-import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-import ckan.plugins.toolkit as tk
 from ckan import __version__
 from ckan.lib.search.common import SearchError
 

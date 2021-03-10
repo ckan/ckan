@@ -51,7 +51,6 @@ from babel.support import Translations
 import polib
 
 from ckan.common import config, is_flask_request, aslist
-import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 

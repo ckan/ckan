@@ -4,7 +4,6 @@ import datetime
 
 import mock
 import pytest
-import six
 
 import ckan
 import ckan.lib.app_globals as app_globals

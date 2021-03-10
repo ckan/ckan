@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import base64
-import hashlib
 import pytest
 import six
 from email.header import decode_header
@@ -12,7 +11,6 @@ import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
 import ckan.model as model
 import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 from ckan.common import config
 
 
