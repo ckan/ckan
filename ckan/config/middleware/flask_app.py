@@ -251,11 +251,12 @@ def make_flask_stack(conf, **app_conf):
         who_parser.remote_user_key
     )
 
-    try:
-        from ckanext.security.middleware import CSRFMiddleware
-        app = CSRFMiddleware(app, config)
-    except ImportError:
-        pass
+    if 'security' in config['ckan.plugins']:
+        try:
+            from ckanext.security.middleware import CSRFMiddleware
+            app = CSRFMiddleware(app, config)
+        except ImportError:
+            pass
     app = SessionMiddleware(app, config)
 
     # Update the main CKAN config object with the Flask specific keys
