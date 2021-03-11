@@ -50,9 +50,9 @@ def resource_update(context, data_dict):
     To update a resource you must be authorized to update the dataset that the
     resource belongs to.
 
-    Update methods may delete parameters not explicitly provided in the
-    data_dict if you want to edit only a specific attribute use `resource_patch`
-    instead.
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `resource_patch`
+        instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.resource_create`.
