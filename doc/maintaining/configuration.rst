@@ -1706,10 +1706,10 @@ Example::
 Default value: ``True``
 
 Enable or disable state saving. When enabled, DataTables view will store state information such as pagination position,
-page length, row selection/s, column visibility/ordering, filtering and sorting. When the end user reloads the page, the table's
-state will be altered to match what they had previously set up.
+page length, row selection/s, column visibility/ordering, filtering and sorting using the browser's localStorage.
+When the end user reloads the page, the table's state will be altered to match what they had previously set up.
 
-This also enables/disables the "Reset" and "Share current view" buttons. "Reset" clears the state. "Share current view" base-64 encodes
+This also enables/disables the "Reset" and "Share current view" buttons. "Reset" discards the saved state. "Share current view" base-64 encodes
 the state and passes it as a url parameter, acting like a "saved search" that can be used for embedding and sharing table searches.
 
 .. _ckan.datatables.state_duration:
