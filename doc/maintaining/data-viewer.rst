@@ -175,6 +175,37 @@ as Mapbox. Look below for an example to add to your configuration file::
     ckanext.spatial.common_map.subdomains = <subdomains>
 
 
+DataTables view
++++++++++++++++
+
+.. image:: /images/datatables_view.png
+
+View plugin: ``datatables_view``
+
+Displays a filterable, sortable, table view of structured data using the 
+DataTables_ jQuery plugin, with the following features.
+
+ * Search highlighting
+ * Column Filters
+ * Multi-column sorting
+ * Filtered Downloads
+ * Column Visibility control
+ * Copy to clipboard and Printing of row selection/s
+ * Drag-and-drop column reordering
+ * State Saving - saves search keywords, column order/visibility, row
+   selections and page settings between session, with the ability to share
+   saved searches.
+ * Data Dictionary Integration
+
+It is designed to allow users to quickly find an actionable subset of 
+the data they need from inside the resource view, without having to first
+download the dataset. It's also optimized for embedding datasets and
+saved searches on external sites - with a backlink to the portal and 
+automatic resizing.
+
+This plugin requires data to be in the DataStore.
+
+
 Text view
 +++++++++
 
@@ -278,6 +309,7 @@ the :py:class:`~ckan.plugins.interfaces.IResourceView` interface.
 
 
 .. _Recline: https://github.com/okfn/recline/
+.. _DataTables: https://datatables.net/
 .. _DataProxy: https://github.com/okfn/dataproxy
 .. _GeoJSON: http://geojson.org
 .. _Dashboard: https://github.com/ckan/ckanext-dashboard

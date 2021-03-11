@@ -1592,7 +1592,7 @@ default views are created.
 .. note:: You must have the relevant view plugins loaded on the ``ckan.plugins``
     setting to be able to create the default views, eg::
 
-        ckan.plugins = image_view webpage_view recline_grid_view ...
+        ckan.plugins = image_view webpage_view recline_grid_view datatables_view ...
 
         ckan.views.default_views = image_view webpage_view recline_grid_view
 
@@ -1664,6 +1664,98 @@ Custom URL to a self-hosted DataProxy instance. The DataProxy is an external ser
 JSON format to the Recline-based views when data is not on the DataStore. The main instance is deprecated and will
 be eventually shut down, so users that require it can host an instance themselves and use this configuration option
 to point Recline to it.
+
+
+.. _ckan.datatables.page_length_choices:
+
+ckan.datatables.page_length_choices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.page_length_choices = 25 50 100 500 1000 5000
+
+Default value: ``25 50 100 500 1000``
+
+Space-delimited list of the choices for the number of rows per page, with the lowest value being the default initial value.
+
+.. note:: On larger screens, DataTables view will attempt to fill the table with as many rows that can fit using the lowest closest choice.
+
+.. _ckan.datatables.search_delay:
+
+ckan.datatables.search_delay
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.search_delay = 1000
+
+Default value: ``500``
+
+The delay (in milliseconds) after a keypress before searching the table.
+
+.. _ckan.datatables.state_saving:
+
+ckan.datatables.state_saving
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.state_saving = False
+
+Default value: ``True``
+
+Enable or disable state saving. When enabled, DataTables view will store state information such as pagination position,
+page length, row selection/s, column visibility/ordering, filtering and sorting. When the end user reloads the page, the table's
+state will be altered to match what they had previously set up.
+
+This also enables/disables the "Reset" and "Share current view" buttons. "Reset" clears the state. "Share current view" base-64 encodes
+the state and passes it as a url parameter, acting like a "saved search" that can be used for embedding and sharing table searches.
+
+.. _ckan.datatables.state_duration:
+
+ckan.datatables.state_duration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.state_duration = 86400
+
+Default value: ``7200``
+
+Duration (in seconds) for which the saved state information is considered valid. After this period has elapsed, the table's state will
+be returned to the default, and the state cleared from the browser's localStorage.
+
+.. note:: The value ``0`` is a special value as it indicates that the state can be stored and retrieved indefinitely with no time limit. 
+
+.. _ckan.datatables.data_dictionary_labels:
+
+ckan.datatables.data_dictionary_labels
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.data_dictionary_labels = True
+
+Default value: ``True``
+
+Enable or disable data dictionary integration. When enabled, a column's data dictionary label will be used in the table header. A tooltip for each
+column with data dictionary information will also be integrated into the header. 
+
+.. _ckan.datatables.default_view:
+
+ckan.datatables.default_view
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.default_view = list
+
+Default value:  ``table``
+
+Indicates the default view mode of the DataTable (valid values: ``table`` or ``list``). Table view is the typical grid layout, with horizontal scrolling.
+List view is a responsive table, automatically hiding columns as required to fit the browser viewport. In addition, list view allows the user to view/copy and print
+the details of a specific row.
 
 .. end_resource-views
 
