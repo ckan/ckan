@@ -11,6 +11,7 @@ from six import text_type
 import pytest
 
 import ckan.lib.helpers as h
+import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers, factories
 import ckan.lib.base as base
