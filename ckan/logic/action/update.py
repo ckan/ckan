@@ -788,9 +788,9 @@ def organization_update(context, data_dict):
 
     You must be authorized to edit the organization.
 
-    Update methods may delete parameters not explicitly provided in the
-    data_dict if you want to edit only a specific attribute use
-    `organization_patch` instead.
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `organization_patch`
+        instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
