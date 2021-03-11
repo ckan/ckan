@@ -816,9 +816,9 @@ def user_update(context, data_dict):
     Normal users can only update their own user accounts. Sysadmins can update
     any user account. Can not modify exisiting user's name.
 
-    Update methods may delete parameters not explicitly provided in the
-    data_dict if you want to edit only a specific attribute use `user_patch`
-    instead.
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `user_patch`
+        instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.user_create`.
