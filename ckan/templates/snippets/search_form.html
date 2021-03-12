@@ -56,7 +56,7 @@
   {% block search_facets %}
     {% if facets %}
       <p class="filter-list">
-        {% for field in facets.fields %}
+        {% for field in facets.fields if field in facets.titles %}
           {% set search_facets_items = facets.search.get(field)['items'] %}
           <span class="facet">{{ facets.titles.get(field) }}:</span>
           {% for value in facets.fields[field] %}
