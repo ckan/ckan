@@ -79,6 +79,7 @@ def ajax(resource_view_id):
         i += 1
 
     colsearch_dict = {}
+    i = 0
     while True:
         if u'columns[%d][search][value]' % i not in request.form:
             break
@@ -90,7 +91,7 @@ def ajax(resource_view_id):
         i += 1
 
     if colsearch_dict:
-        search_text = colsearch_dict
+        search_text = json.dumps(colsearch_dict)
     else:
         search_text = search_text + u':*' if search_text else ''
 
@@ -162,11 +163,28 @@ def filtered_download(resource_view_id):
 
     cols = [c for (c, v) in zip(cols, params[u'visible']) if v]
 
+    colsearch_dict = {}
+    columns = params[u'columns']
+    for column in columns:
+        if column[u'search'][u'value']:
+            v = column[u'search'][u'value']
+            if v:
+                k = column[u'name']
+                # append ':*' so we can do partial FTS searches
+                colsearch_dict[k] = v + u':*'
+
+    if colsearch_dict:
+        search_text = json.dumps(colsearch_dict)
+    else:
+        search_text = search_text + u':*' if search_text else ''
+
     return h.redirect_to(
         h.
         url_for(u'datastore.dump', resource_id=resource_view[u'resource_id']) +
         u'?' + urlencode({
             u'q': search_text,
+            u'plain': False,
+            u'language': u'simple',
             u'sort': u','.join(sort_list),
             u'filters': json.dumps(filters),
             u'format': request.form[u'format'],
