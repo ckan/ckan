@@ -2,20 +2,20 @@
 
 {% block title %}{{ h.dataset_display_name(package)}}&mdash;{{ h.resource_display_name(resource)}} - {{ super() }}{% endblock %}
 {% block bodytag %}
-  {{ super() }}
+  {{- super() -}}
   class="dt-view"
-{% endblock %}
+{%- endblock -%}
 
-{% block page %}
-{# pass the datadictionary to javascript, so we can init columns there #}
-{% set datadictionary = h.datastore_dictionary(resource.id) %}
+{%- block page -%}
+{#- pass the datadictionary to javascript, so we can init columns there -#}
+{%- set datadictionary = h.datastore_dictionary(resource.id) -%}
 <script type=text/javascript>
     var gdataDict = {{ datadictionary|tojson }}
     var gresviewId = '{{ resource_view.id }}'
 </script>
 
 <div id="resize_wrapper">
-  <table id="dtprv" width="100%" style="width:100%"
+  <table id="dtprv" width="100%"
       class="table display nowrap compact cell-border"
       data-module="datatables_view"
       data-state-save-flag="{{ state_saving|lower }}"
@@ -31,10 +31,10 @@
       data-resource-url="{{ h.url_for('resource.read', id=package.name, resource_id=resource.id ) }}">
     <thead>
       <tr>
-        <th scope="col" data-name="_id" data-colidx="0" data-type="numeric">_id</th>
+        <th class="all" data-name="_id">_id</th>
         {% for field in datadictionary -%}
           {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
-            <th scope="col" data-name="{{field.id}}" data-colidx="{{ loop.index }}" data-type="{{field.type}}">
+            <th scope="col" data-name="{{field.id}}" data-type="{{field.type}}">
               {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
                 {{ field.info.label }}
               {%- else -%}
@@ -42,11 +42,22 @@
               {%- endif %}
               {%- if data_dictionary_labels and field.info is defined and (field.info.notes|length or field.info.label|length) -%}
                 &nbsp;<i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
-              {%- endif %}            
+              {%- endif -%}            
             </th>
           {%- endif %}
         {% endfor -%}
-       <th id="_colspacer" scope="col" data-name="_colspacer" data-type="text">&nbsp;</th>
+       <th id="_colspacer" class="none"></th>
+      </tr>
+      <tr>
+        <th><button id="refit-button" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
+        {% for field in datadictionary -%}
+          {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
+            <th id="cdx{{ loop.index }}" class="fhead">
+                {{- field.id -}}   
+            </th>
+          {% endif -%}
+        {% endfor -%}
+       <th id="_colspacerfilter" class="none" style="width:0px; display:none;"></th>
       </tr>
     </thead>
     <tbody>
@@ -59,25 +70,25 @@
   </form>
 </div>
 
-{# we do this macro instead of the snippet because the snippet pollutes the output with comments/whitespaces which #}
-{# may be invisible for regular html, but not for tooltips #}
+{#- we do this macro instead of the snippet because the snippet pollutes the output with comments/whitespaces which #}
+{# may be invisible for regular html, but not for tooltips -#}
 {%- macro local_friendly_datetime(dt_obj) -%}
    <span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(dt_obj, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
     {{- h.render_datetime(dt_obj, with_hours=True) -}}
    </span>
 {%- endmacro -%}
 
-{# we create tooltip here instead of javascript so we can leverage the automatic-local-datetime class date conversion CKAN does #}
-{% set res = resource %}
+{#- we create tooltip here instead of javascript so we can leverage the automatic-local-datetime class date conversion CKAN does -#}
+{%- set res = resource %}
 <div id="dtv-resource-info" style="display: none;">
   {{- _('Data last updated') }}: {{ local_friendly_datetime(res.last_modified) }}&#10;
-  {{- _('Metadata last updated') }}: {{ local_friendly_datetime(res.metadata_modified) }}&#10;
-  {{- _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
-  {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') }} ( {{ h.SI_number_span(res.size)|striptags }} )&#10;"
+  {{ _('Metadata last updated') }}: {{ local_friendly_datetime(res.metadata_modified) }}&#10;
+  {{ _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
+  {{ res.format or res.mimetype_inner or res.mimetype or _('unknown') }} ( {{ h.SI_number_span(res.size)|striptags }} )&#10;"
 </div>
-{% endblock %}
-{% block styles %}
-  {{ super() }}
+{%- endblock -%}
+{%- block styles -%}
+  {{- super() -}}
   {% asset 'ckanext-datatablesview/main-css' %}
   {% asset 'ckanext-datatablesview/main-js' %}
 {% endblock %}

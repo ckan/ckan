@@ -6,9 +6,13 @@ let gsavedPagelen
 let gsavedSelected
 // global var for current view mode (table/list)
 let gcurrentView = 'table'
-// global var for sort info
+// global var for sort info, global so we can show it in copy/print
 let gsortInfo = ''
+// global vars for filter info labels
+let gtableSearchText = ''
+let gcolFilterText = ''
 
+// HELPER FUNCTIONS
 const run_query = function (params, format) {
   const form = $('#filtered-datatables-download')
   const p = $('<input name="params" type="hidden"/>')
@@ -18,6 +22,8 @@ const run_query = function (params, format) {
   f.attr('value', format)
   form.append(f)
   form.submit()
+  p.remove()
+  f.remove()
 }
 
 // helper for setting expiring localstorage, ttl in secs
@@ -28,7 +34,7 @@ function setWithExpiry (key, value, ttl) {
   // as well as the time when it's supposed to expire
   const item = {
     value: value,
-    expiry: now.getTime() + ( ttl * 1000 )
+    expiry: ttl > 0 ? now.getTime() + (ttl * 1000) : 0
   }
   window.localStorage.setItem(key, JSON.stringify(item))
 }
@@ -40,10 +46,15 @@ function getWithExpiry (key) {
   if (!itemStr) {
     return null
   }
-  const item = JSON.parse(itemStr)
+  let item
+  try {
+    item = JSON.parse(itemStr)
+  } catch {
+    return null
+  }
   const now = new Date()
   // compare the expiry time of the item with the current time
-  if (now.getTime() > item.expiry) {
+  if (item.expiry && now.getTime() > item.expiry) {
     // If the item is expired, delete the item from storage
     // and return null
     window.localStorage.removeItem(key)
@@ -92,10 +103,13 @@ function copyModal (title) {
   $('#modalHeader').text(origHeaderText)
 }
 
-// force column auto text fit adjustment to kick in
+// force column auto width adjustment to kick in
 // used by "Autofit columns" button
 function fitColText () {
   const dt = $('#dtprv').DataTable({ retrieve: true })
+  if (gcurrentView === 'list') {
+    dt.responsive.recalc()
+  }
   dt.columns.adjust().draw(false)
 }
 
@@ -112,31 +126,38 @@ function validateId (id) {
 }
 
 // compile sort & active filters for display in print and clipboard copy
-function filterInfo (dt, tableSearchText, colFilterText) {
-  const dtinfo = document.getElementById('dtprv_info')
+function filterInfo (dt, noHtml = false, justFilterInfo = false) {
+  let filtermsg = justFilterInfo ? '' : document.getElementById('dtprv_info').innerText
 
-  let filtermsg = dtinfo.innerText
+  const selinfo = document.getElementsByClassName('select-info')[0]
+
+  if (selinfo !== undefined) {
+    filtermsg = filtermsg.replace(selinfo.innerText, ', ' + selinfo.innerText)
+  }
+
   const tablesearch = dt.search()
 
   // add active filter info to messageTop
   if (tablesearch) {
-    filtermsg = filtermsg + ' - <b>' + tableSearchText + ':</b> ' + tablesearch
-  }
-  let colsearchflag = false
-  let colsearchmsg = ''
-  dt.columns().every(function () {
-    const colsearch = this.search()
-    const colname = this.name()
+    filtermsg = filtermsg + '<br/> <b>' + gtableSearchText + ':</b> ' + tablesearch
+  } else {
+    let colsearchflag = false
+    let colsearchmsg = ''
+    dt.columns().every(function () {
+      const colsearch = this.search()
+      const colname = this.name()
 
-    if (colsearch) {
-      colsearchflag = true
-      colsearchmsg = colsearchmsg + ' <b>' + colname + ':</b> ' + colsearch + ', '
+      if (colsearch) {
+        colsearchflag = true
+        colsearchmsg = colsearchmsg + ' <b>' + colname + ':</b> ' + colsearch + ', '
+      }
+    })
+    if (colsearchflag) {
+      filtermsg = filtermsg + '<br/> <b>' + gcolFilterText + ' - </b>' + colsearchmsg.slice(0, -2)
     }
-  })
-  if (colsearchflag) {
-    filtermsg = filtermsg + '<br/><b>' + colFilterText + ' - </b>' + colsearchmsg.slice(0, -2)
   }
-  return filtermsg + '<br/>' + gsortInfo
+  filtermsg = justFilterInfo ? filtermsg : filtermsg + '<br/>' + gsortInfo
+  return noHtml ? filtermsg.replace(/(<([^>]+)>)/ig, '') : filtermsg
 };
 
 // Copy deeplink to clipboard
@@ -172,46 +193,37 @@ function copyLink (dt, deeplink, shareText, sharemsgText) {
   }
 }
 
-// main
+// helper for hiding search inputs for list/responsive mode
+function hideSearchInputs (columns) {
+  for (let i = 0; i < columns.length; i++) {
+    if (columns[i]) {
+      $('#cdx' + i).show()
+    } else {
+      $('#cdx' + i).hide()
+    }
+  }
+}
+
+// MAIN
 this.ckan.module('datatables_view', function (jQuery) {
   return {
     initialize: function () {
-      const resourcename = $('#dtprv').data('resource-name')
-      const languagefile = $('#dtprv').data('languagefile')
-      const statesaveflag = $('#dtprv').data('state-save-flag')
-      const stateduration = parseInt($('#dtprv').data('state-duration'))
-      const searchdelaysetting = parseInt($('#dtprv').data('search-delay-setting'))
-      const packagename = $('#dtprv').data('package-name')
-      const responsiveflag = $('#dtprv').data('responsive-flag')
-      const pagelengthchoices = $('#dtprv').data('page-length-choices')
-      const ajaxurl = $('#dtprv').data('ajaxurl')
-      const ckanfilters = $('#dtprv').data('ckanfilters')
-      const resourceurl = $('#dtprv').data('resource-url')
-      const defaultview = $('dtprv').data('default-view')
+      const that = this
 
-      const responsiveDetails = {
-        display: $.fn.dataTable.Responsive.display.modal({
-          header: function (row) {
-            // add clipboard and print controls to modal record display
-            return '<span id ="modalHeader" style="font-size:200%;font-weight:bold;">Details:</span><div class="dt-buttons">' +
-              '<button id="modalcopy-button" class="dt-button" title="Copy to clipboard" onclick="copyModal(\'' +
-              packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-files-o"></i></button>' +
-              '<button id="modalprint-button" class="dt-button" title="Print" onclick="printModal(\'' +
-              packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
-              '&nbsp;&nbsp;&nbsp;&nbsp;</div>'
-          }
-        }),
-        renderer: function (api, rowIdx, columns) {
-          const data = $.map(columns, function (col, i) {
-            return col.className !== 'none' ?
-                '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
-                '<td>' + col.title + ':' + '</td> ' +
-                '<td>' + col.data + '</td>' +
-                '</tr>' : ''
-          }).join('')
-          return data ? $('<table class="dtr-details" width="100%"/>').append(data) : false
-        }
-      }
+      // fetch parameters from template data attributes
+      const dtprv = $('#dtprv')
+      const resourcename = dtprv.data('resource-name')
+      const languagefile = dtprv.data('languagefile')
+      const statesaveflag = dtprv.data('state-save-flag')
+      const stateduration = parseInt(dtprv.data('state-duration'))
+      const searchdelaysetting = parseInt(dtprv.data('search-delay-setting'))
+      const packagename = dtprv.data('package-name')
+      const responsiveflag = dtprv.data('responsive-flag')
+      const pagelengthchoices = dtprv.data('page-length-choices')
+      const ajaxurl = dtprv.data('ajaxurl')
+      const ckanfilters = dtprv.data('ckanfilters')
+      const resourceurl = dtprv.data('resource-url')
+      const defaultview = dtprv.data('default-view')
 
       // get view mode setting from localstorage (table or list/responsive])
       const lastView = getWithExpiry('lastView')
@@ -226,13 +238,12 @@ this.ckan.module('datatables_view', function (jQuery) {
         gcurrentView = lastView
       }
 
-      // get col defns dynamically from data dictionary,
-      // init it with _id col defs
+      // get column definitions dynamically from data dictionary,
+      // init data structure with _id column definition
       const dynamicCols = [{
         data: '_id',
         searchable: false,
         type: 'num',
-        responsivePriority: 1,
         className: 'dt-body-right',
         width: gcurrentView === 'table' ? '28px' : '50px'
       }]
@@ -253,15 +264,8 @@ this.ckan.module('datatables_view', function (jQuery) {
       })
 
       // labels for showing active filters in clipboard copy & print
-      const tableSearchText = this._('TABLE SEARCH')
-      const colFilterText = '&nbsp;&nbsp;&nbsp;' + this._('COLUMN FILTER/S')
-
-      // labels for Sharing current view
-      const shareText = this._('Share current view')
-      const sharemsgText = this._('Copied deeplink to clipboard')
-
-      const colfitText = this._('Autofit columns')
-      const sortText = this._('Sort')
+      gtableSearchText = that._('TABLE FILTER')
+      gcolFilterText = that._('COLUMN FILTER/S') //'&nbsp;&nbsp;&nbsp;' + that._('COLUMN FILTER/S')
 
       let activelanguage = languagefile
       // en is the default language, no need to load i18n file
@@ -269,58 +273,80 @@ this.ckan.module('datatables_view', function (jQuery) {
         activelanguage = ''
       }
 
-      let fixedColumnSettings = { leftColumns: 1 }
-      let responsiveSettings = false
-      let orderCellsTopSettings = true
+      // settings if gcurrentView === table
+      let fixedColumnSetting = true
       let scrollXflag = true
+      let responsiveSettings = false
 
       if (gcurrentView === 'list') {
-        // responsive mode (aka list view) not compatible with scrollX & column filters
+        // we're in list view mode (aka responsive mode)
+        // not compatible with scrollX & fixedColumns
+        fixedColumnSetting = false
         scrollXflag = false
-        fixedColumnSettings = false
-        orderCellsTopSettings = false
+
+        // create _colspacer column to ensure display of green record detail button
         dynamicCols.push({
           data: '_colspacer',
           searchable: false,
-          className: 'none'
+          className: 'none',
+          defaultContent: ''
         })
+
+        // initialize settings for responsive mode (list view)
         responsiveSettings = {
-          details: responsiveDetails
+          details: {
+            display: $.fn.dataTable.Responsive.display.modal({
+              header: function (row) {
+                // add clipboard and print buttons to modal record display
+                return '<div id ="modalHeader"><span style="font-size:200%;font-weight:bold;">Details:</span><div class="dt-buttons">' +
+                  '<button id="modalcopy-button" class="dt-button" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
+                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-files-o"></i></button>' +
+                  '<button id="modalprint-button" class="dt-button" title="' + that._('Print') + '" onclick="printModal(\'' +
+                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
+                  '&nbsp;&nbsp;&nbsp;&nbsp;</div></div>'
+              }
+            }),
+            // render the Record Details in a modal dialog box
+            // do not render the _colspacer column, which has the 'none' class
+            // the none class in responsive mode forces the _colspacer column to be hidden
+            // guaranteeing the green display record button is always displayed, even for narrow tables
+            renderer: function (api, rowIdx, columns) {
+              const data = $.map(columns, function (col, i) {
+                return col.className !== 'none' ?
+                    '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+                    '<td>' + col.title + ':' + '</td> ' +
+                    '<td>' + col.data + '</td>' +
+                    '</tr>'
+                  : ''
+              }).join('')
+              return data ? $('<table class="dtr-details" width="100%"/>').append(data) : false
+            }
+          }
         }
       } else {
-        // table view
-        scrollXflag = true
+        // we're in table view mode
+        // remove _colspacer column/filter if it exists
         $('#_colspacer').remove()
-        fixedColumnSettings = true
-        orderCellsTopSettings = true
-        fixedColumnSettings = { leftColumns: 1 }
-
-        // create column filters
-        $('#dtprv thead tr').clone(true).appendTo('#dtprv thead')
-        $('#dtprv thead tr:eq(1) th').each(function (i) {
-          const title = $(this).text()
-          const colname = $(this).data('name')
-          if (i > 0) {
-            $(this).html('<input id="dtcol-' + validateId(title) + '-' + i +
-                  '" type="search" results="5" autosave="true" style="width:100%"/>')
-
-            $('input', this).on('keyup change search', function () {
-              const dt = $('#dtprv').DataTable({ retrieve: true })
-              const colSelector = colname + ':name'
-              if (dt.column(colSelector).search() !== this.value) {
-                dt
-                  .column(colSelector)
-                  .search(this.value)
-                  .draw()
-              }
-            })
-          } else {
-            // for the first column (_id), no col filter, but column width refit button
-            $(this).html('<button id="refit-button" title="' + colfitText +
-              '" onclick="fitColText()"><i class="fa fa-text-width"></i></button>')
-          }
-        })
+        $('#_colspacerfilter').remove()
       }
+
+      // create column filters
+      $('.fhead').each(function (i) {
+        const colname = this.textContent
+        $('<input id="dtcol-' + validateId(colname) + '-' + i +
+                '" class="fhead" type="search" results="5" autosave="true" style="width:100%"/>')
+          .appendTo($(this).empty())
+          .on('keyup change search', function () {
+            const dt = $('#dtprv').DataTable({ retrieve: true })
+            const colSelector = colname + ':name'
+            if (dt.column(colSelector).search() !== this.value) {
+              dt
+                .column(colSelector)
+                .search(this.value)
+                .draw()
+            }
+          })
+      })
 
       // init the datatable
       const datatable = $('#dtprv').DataTable({
@@ -333,9 +359,9 @@ this.ckan.module('datatables_view', function (jQuery) {
         colReorder: {
           fixedColumnsLeft: 1
         },
-        fixedColumns: fixedColumnSettings,
+        fixedColumns: fixedColumnSetting,
         autoWidth: true,
-        orderCellsTop: orderCellsTopSettings,
+        orderCellsTop: true,
         mark: true,
         keys: true,
         select: {
@@ -359,12 +385,14 @@ this.ckan.module('datatables_view', function (jQuery) {
         },
         responsive: responsiveSettings,
         scrollX: scrollXflag,
-        scrollY: 100,
+        scrollY: 600,
         scrollResize: true,
-        scrollCollapse: true,
+        scrollCollapse: false,
         lengthMenu: pagelengthchoices,
         dom: 'lBifrtp<"resourceinfo"><"sortinfo">',
         stateLoadParams: function (settings, data) {
+          // this callback is invoked whenever state info is loaded
+
           // check the current url to see if we've got a state to restore from a deeplink
           const url = new URL(window.location.href)
           let state = url.searchParams.get('state')
@@ -398,15 +426,17 @@ this.ckan.module('datatables_view', function (jQuery) {
             const col = data.columns[colIdx]
             if (typeof col !== 'undefined') {
               const colSearch = col.search
-
               if (colSearch.search) {
-                $("thead tr th[data-colidx='" + colIdx + "'] input").val(colSearch.search)
+                $('#cdx' + colIdx + ' input').val(colSearch.search)
               }
             }
           })
-          api.draw()
-        },
+          api.draw(false)
+        }, // end stateLoadParams
         stateSaveParams: function (settings, data) {
+          // this callback is invoked when saving state info
+
+          // let's also save page, pagelen and selected rows in state info
           data.page = this.api().page()
           data.pagelen = this.api().page.len()
           data.selected = this.api().rows({ selected: true })[0]
@@ -420,27 +450,49 @@ this.ckan.module('datatables_view', function (jQuery) {
             setWithExpiry('loadctr-' + gresviewId, lftflag + 1, stateduration)
             $('.resetButton').css('color', 'darkred')
           }
-        },
+        }, // end stateSaveParams
         initComplete: function (settings, json) {
-          // restore some data-dependent saved states now
-          // that data is loaded
+          // this callback is invoked by DataTables when table is fully rendered
+
+          const api = this.api()
+          // restore some data-dependent saved states now that data is loaded
           if (typeof gsavedPage !== 'undefined') {
-            this.api().page.len(gsavedPagelen)
-            this.api().page(gsavedPage)
-            this.api().draw(false)
+            api.page.len(gsavedPagelen)
+            api.page(gsavedPage)
           }
 
-          // save selected rows to state localstorage if defined
+          // restore selected rows from state
           if (typeof gsavedSelected !== 'undefined') {
-            this.api().rows(gsavedSelected).select()
+            api.rows(gsavedSelected).select()
           }
 
-          // add resourceinfo in footer
-          // very useful if this view is embedded
+          // add filterinfo by global search label
+          $('#dtprv_filter label').before('<i id="filterinfoicon" class="fa fa-info-circle" title="' +
+            filterInfo(datatable, true, true) + '"</i>&nbsp;')
+
+          // on mouseenter on Search info icon, update tooltip with filterinfo
+          $('#filterinfoicon').mouseenter(function () {
+            document.getElementById('filterinfoicon').title = filterInfo(datatable, true, true)
+          })
+
+          // on dblclick on Search info icon, clear all filters
+          $('#filterinfoicon').dblclick(function () {
+            datatable.search('')
+              .columns().search('')
+              .draw(false)
+            $('th.fhead input').val('')
+          })
+
+          // add resourceinfo in footer, very useful if this view is embedded
           const resourceInfo = document.getElementById('dtv-resource-info').innerText
           $('div.resourceinfo').html('<a href="' + resourceurl + '">' +
             packagename + '&mdash;' + resourcename +
             '</a> <i class="fa fa-info-circle" title="' + resourceInfo + '"</i>')
+
+          // if in list/responsive mode, hide search inputs for hidden columns
+          if (gcurrentView === 'list') {
+            hideSearchInputs(api.columns().responsiveHidden().toArray())
+          }
 
           // start showing page once everything is just about rendered
           // we need to make it visible now so smartsize works if needed
@@ -461,26 +513,24 @@ this.ckan.module('datatables_view', function (jQuery) {
           } else {
             // otherwise, do a smartsize check to fill up screen
             // if default pagelen is too low and there is available space
-            const currPageLen = this.api().page.len()
+            const currPageLen = api.page.len()
             if (json.recordsTotal > currPageLen) {
               const scrollBodyHeight = $('#resize_wrapper').height() - ($('.dataTables_scrollHead').height() * 2.75)
               const rowHeight = $('tr').first().height()
               // find nearest pagelen to fill display
-              const minPagelen = Math.floor(scrollBodyHeight / rowHeight)
-              if (currPageLen < minPagelen) {              
+              const minPageLen = Math.floor(scrollBodyHeight / rowHeight)
+              if (currPageLen < minPageLen) {
                 for (const pageLen of pagelengthchoices) {
-                  if (pageLen >= minPagelen) {
+                  if (pageLen >= minPageLen) {
+                    api.page.len(pageLen)
+                    api.ajax.reload()
+                    api.columns.adjust()
+                    window.localStorage.removeItem('loadctr-' + gresviewId)
+                    console.log('smart sized >' + minPageLen)
                     setTimeout(function () {
-                      const dt = $('#dtprv').DataTable()
-                      dt.page.len(pageLen)
-                      dt.ajax.reload()
-                      if (gcurrentView === 'list') {
-                        dt.responsive.rebuild()
-                        dt.responsive.recalc()
-                      }
-                      dt.columns.adjust().draw()
-                      window.localStorage.removeItem('loadctr-' + gresviewId)
-                      console.log('smart sized >' + minPagelen)
+                      const api = $('#dtprv').DataTable({ retrieve: true })
+                      api.draw(false)
+                      fitColText()
                     }, 100)
                     break
                   }
@@ -488,11 +538,11 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
           }
-        },
+        }, // end InitComplete
         buttons: [{
-          text: gcurrentView === 'table' ? '<i class="fa fa-list"></i>' : '<i class="fa fa-table"></i>',
-          titleAttr: this._('Table/List toggle'),
           name: 'viewToggleButton',
+          text: gcurrentView === 'table' ? '<i class="fa fa-list"></i>' : '<i class="fa fa-table"></i>',
+          titleAttr: that._('Table/List toggle'),
           action: function (e, dt, node, config) {
             if (gcurrentView === 'list') {
               dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>')
@@ -504,39 +554,63 @@ this.ckan.module('datatables_view', function (jQuery) {
               $('#dtprv').addClass('dt-responsive')
             }
             setWithExpiry('lastView', gcurrentView, stateduration)
+            window.localStorage.removeItem('loadctr-' + gresviewId)
+            dt.state.clear()
             window.location.reload()
           }
         }, {
           extend: 'copy',
           text: '<i class="fa fa-files-o"></i>',
-          titleAttr: this._('Copy to clipboard'),
+          titleAttr: that._('Copy to clipboard'),
           title: function () {
             // remove html tags from filterInfo msg
-            const filternohtml = filterInfo(datatable, tableSearchText,
-              colFilterText).replace(/(<([^>]+)>)/ig, '')
+            const filternohtml = filterInfo(datatable, true)
             return resourcename + ' - ' + filternohtml
+          },
+          exportOptions: {
+            columns: ':visible'
           }
         }, {
           extend: 'colvis',
           text: '<i class="fa fa-eye-slash"></i>',
-          titleAttr: this._('Toggle column visibility'),
+          titleAttr: that._('Toggle column visibility'),
           columns: ':gt(0)',
           collectionLayout: 'fixed four-column',
           postfixButtons: [{
             extend: 'colvisRestore',
-            text: '<i class="fa fa-undo"></i> ' + this._('Restore visibility')
+            text: '<i class="fa fa-undo"></i> ' + that._('Restore visibility')
           }, {
             extend: 'colvisGroup',
-            text: '<i class="fa fa-eye"></i> ' + this._('Show all'),
+            text: '<i class="fa fa-eye"></i> ' + that._('Show all'),
             show: ':hidden'
           }, {
             extend: 'colvisGroup',
-            text: '<i class="fa fa-eye-slash"></i> ' + this._('Show none'),
-            hide: ':visible'
+            text: '<i class="fa fa-eye-slash"></i> ' + that._('Show none'),
+            action: function () {
+              datatable.columns().every(function () {
+                if (this.index()) { // always show _id col, index 0
+                  this.visible(false)
+                }
+              })
+            }          
+          }, {
+            extend: 'colvisGroup',
+            text: '<i class="fa fa-filter"></i> ' + that._('Filtered'),
+            action: function () {
+              datatable.columns().every(function () {
+                if (this.index()) { // always show _id col, index 0
+                  if (this.search()) {
+                    this.visible(true)
+                  } else {
+                    this.visible(false)
+                  }
+                }
+              })
+            }
           }]
         }, {
           text: '<i class="fa fa-download"></i>',
-          titleAttr: this._('Filtered download'),
+          titleAttr: that._('Filtered download'),
           autoClose: true,
           extend: 'collection',
           buttons: [{
@@ -569,10 +643,10 @@ this.ckan.module('datatables_view', function (jQuery) {
             }
           }]
         }, {
-          text: '<i class="fa fa-repeat"></i>',
-          titleAttr: this._('Reset'),
-          className: 'resetButton',
           name: 'resetButton',
+          text: '<i class="fa fa-repeat"></i>',
+          titleAttr: that._('Reset'),
+          className: 'resetButton',
           action: function (e, dt, node, config) {
             dt.state.clear()
             $('.resetButton').css('color', 'black')
@@ -582,50 +656,83 @@ this.ckan.module('datatables_view', function (jQuery) {
         }, {
           extend: 'print',
           text: '<i class="fa fa-print"></i>',
-          titleAttr: this._('Print'),
+          titleAttr: that._('Print'),
           title: packagename + ' — ' + resourcename,
           messageTop: function () {
-            return filterInfo(datatable, tableSearchText, colFilterText)
+            return filterInfo(datatable)
           },
           messageBottom: function () {
-            return filterInfo(datatable, tableSearchText, colFilterText)
+            return filterInfo(datatable)
           },
           exportOptions: {
             columns: ':visible'
           }
         }, {
+          name: 'shareButton',          
           text: '<i class="fa fa-share"></i>',
-          titleAttr: this._('Share current view'),
-          name: 'shareButton',
+          titleAttr: that._('Share current view'),
           action: function (e, dt, node, config) {
             dt.state.save()
             const sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()))
-            copyLink(dt, sharelink, shareText, sharemsgText)
+            copyLink(dt, sharelink, that._('Share current view'), that._('Copied deeplink to clipboard'))
           }
         }]
       })
 
       if (!statesaveflag) {
-        // reset and deeplink share require state saving
+        // "Reset" & "Share current view" buttons require state saving
         // remove those buttons if state saving is off
         datatable.button('resetButton:name').remove()
         datatable.button('shareButton:name').remove()
       }
 
+      // EVENT HANDLERS
       // save state of table when row selection is changed
       datatable.on('select deselect', function () {
         datatable.state.save()
       })
 
-      // update sortinfo div in footer
+      // hide search inputs as needed in responsive/list mode when resizing
+      datatable.on('responsive-resize', function (e, datatable, columns) {
+        hideSearchInputs(columns)
+      })
+
+      // set column search background to gray when using global search
+      $('#dtprv_filter input').on('keyup change search', function () {
+        datatable.columns().search('').draw(false)
+        $('th.fhead input').css('background-color', '#e6e6e6')
+        $('#dtprv_filter input').css('background-color', 'transparent')
+      })
+
+      // set global search background to gray when using column search
+      $('th.fhead input').on('keyup change saerch', function () {
+        datatable.search('').draw(false)
+        $('#dtprv_filter input').css('background-color', '#e6e6e6')
+        $('th.fhead input').css('background-color', 'transparent')
+      })
+
+      // if no filter is active, make all search inputs background transparent
+      const observer = new MutationObserver (function (e) {
+        const infoText = document.getElementById('dtprv_info').innerText
+        if (!infoText.includes('(')) {
+          $('#dtprv_filter input').css('background-color', 'transparent')
+          $('th.fhead input').css('background-color', 'transparent')
+          document.getElementById('filterinfoicon').style.visibility = 'hidden'
+        } else {
+          document.getElementById('filterinfoicon').style.visibility = 'visible'
+        }
+      })
+      observer.observe(document.getElementById('dtprv_info'), {characterData: true, subtree: true, childList: true})
+
+      // update footer sortinfo when sorting
       datatable.on('order.dt', function () {
         const sortOrder = datatable.order()
         if (!sortOrder.length) {
           return
         }
-        gsortInfo = '<b>' + sortText + '</b>: '
+        gsortInfo = '<b>' + that._('Sort') + '</b>: '
         sortOrder.forEach((sortcol, idx) => {
-          const colText = $('#dtprv thead th:nth-child(' + (sortcol[0] + 1) + ')').text()
+          let colText = datatable.column(sortcol[0]).name()
           gsortInfo = gsortInfo + colText +
                     (sortcol[1] === 'asc' ? ' <i class="fa fa-caret-up"></i> ' : ' <i class="fa fa-caret-down"></i> ')
         })
@@ -634,10 +741,10 @@ this.ckan.module('datatables_view', function (jQuery) {
     }
   }
 })
-// end main
+// END MAIN
 
-// register column.name() datatables API helper using data-attributes
-// used by print to show active column filters
+// register column.name() DataTables API helper so we can refer to columns by name
+// instead of column index number
 $.fn.dataTable.Api.registerPlural('columns().names()', 'column().name()', function (setter) {
   return this.iterator('column', function (settings, column) {
     const col = settings.aoColumns[column]
@@ -674,7 +781,13 @@ $('#dtprv').on('error.dt', function (e, settings, techNote, message) {
   console.log('DataTables techNote: ', techNote)
   console.log('DataTables error msg: ', message)
 
-  // errors are mostly caused by invalid FTS queries. shake input
-  const shakeElement = $(':focus')
-  animateEl(shakeElement, 'shake')
+  if (techNote === 6) {
+    // possible misaligned column headers, refit columns
+    const api = new $.fn.dataTable.Api(settings)
+    api.column().adjust().draw(false)
+  } else {
+    // errors are mostly caused by invalid FTS queries. shake input
+    const shakeElement = $(':focus')
+    animateEl(shakeElement, 'shake')
+  }
 })
