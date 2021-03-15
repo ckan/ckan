@@ -3,16 +3,16 @@ body {
 }
 
 table {
-  width: none !important;
+  /*width: none !important;*/
   max-width: none !important;
 }
 
 /* so user does not see table being dynamically created */
-.dt-view { 
+body.dt-view { 
   visibility: hidden;
 }
 
-.dt-print-view {
+body.dt-print-view {
   visibility: visible;
 }
 
@@ -20,18 +20,37 @@ table.dataTable {
 	margin-left: 0px;
 }
 
+div.dataTables_scroll{
+  width: 100% !important;
+}
+
+#dtprv_processing {
+  z-index: 100;
+}
+
 /* make _id column darker */
-.DTFC_LeftBodyWrapper {
+div.DTFC_LeftBodyWrapper {
   filter: brightness(0.85);
+}
+
+/* make display record details header sticky */
+#modalHeader {
+    background-color: #f9f9f9;
+    position:sticky;
+    top:0;
+    width:100%;
+    z-index:11;  
 }
 
 /* for dynamic resizing of datatable */
 #resize_wrapper {
 	position: absolute;
-	top: 0em;
-	left: 0.5em;
-	right: 0.5em;
-	bottom: 0em;
+	top: 0.1em;
+	left: 0.1em;
+	right: 0.1em;
+	bottom: 0.1em;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
 #refit-button {
@@ -46,43 +65,20 @@ table.dataTable {
   white-space: nowrap;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.1);
+  z-index: 12;
 }
 
-#refit-button:hover {
-  text-decoration: none;
-}
-#refit-button:hover:not(.disabled) {
-  border: 1px solid #666;
-  background-color: rgba(0, 0, 0, 0.1);
-  /* Fallback */
-  background: -webkit-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  /* Chrome 10+, Saf5.1+, iOS 5+ */
-  background: -moz-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  /* FF3.6 */
-  background: -ms-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  /* IE10 */
-  background: -o-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  /* Opera 11.10+ */
-  background: linear-gradient(to bottom, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(153, 153, 153, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
-}
 
 div.resourceinfo {
-/*  display: block;
-  padding-top: 0.755em;
-  font-weight: bold;*/
-    display: inline-block;
-    /*float: right;*/
-/*  padding-bottom: 1em;**/
+  display: inline-block;
   font-weight: bold;
 }
 
 div.sortinfo {
   display: block;
-  /*padding-top: 0.755em;*/
 }
 
-.fa-info-circle {
+i.fa-info-circle {
   color: darkblue;
 }
 
@@ -111,10 +107,10 @@ table.dataTable thead .sorting {
   background-image: url("vendor/DataTables/images/sort_both.png");
 }
 table.dataTable thead .sorting_asc {
-  background-image: url("vendor/DataTables/images/sort_asc.png");
+  background-image: url("vendor/DataTables/images/sort_asc.png") !important;
 }
 table.dataTable thead .sorting_desc {
-  background-image: url("vendor/DataTables/images/sort_desc.png");
+  background-image: url("vendor/DataTables/images/sort_desc.png") !important;
 }
 table.dataTable thead .sorting_asc_disabled {
   background-image: url("vendor/DataTables/images/sort_asc_disabled.png");
