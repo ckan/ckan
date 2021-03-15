@@ -9,7 +9,7 @@ boolean_validator = toolkit.get_validator(u'boolean_validator')
 ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 # see https://datatables.net/examples/advanced_init/length_menu.html
-DEFAULT_PAGE_LENGTH_CHOICES = '25 50 100 500 1000'
+DEFAULT_PAGE_LENGTH_CHOICES = '20 50 100 500 1000'
 DEFAULT_SEARCH_DELAY = 500
 DEFAULT_STATE_DURATION = 7200  # 2 hours
 
