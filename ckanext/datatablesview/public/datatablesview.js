@@ -125,8 +125,8 @@ function validateId (id) {
   return id
 }
 
-// compile sort & active filters for display in print and clipboard copy
-function filterInfo (dt, noHtml = false, justFilterInfo = false) {
+// compile sort & active filters for display in print, clipboard copy & search tooltip
+function filterInfo (dt, noHtmlWrapped = false, justFilterInfo = false) {
   let filtermsg = justFilterInfo ? '' : document.getElementById('dtprv_info').innerText
 
   const selinfo = document.getElementsByClassName('select-info')[0]
@@ -157,7 +157,7 @@ function filterInfo (dt, noHtml = false, justFilterInfo = false) {
     }
   }
   filtermsg = justFilterInfo ? filtermsg : filtermsg + '<br/>' + gsortInfo
-  return noHtml ? filtermsg.replace(/(<([^>]+)>)/ig, '') : filtermsg
+  return noHtmlWrapped ? filtermsg.replace(/(<([^>]+)>)/ig, '').replace(/,/g, '\n') : filtermsg
 };
 
 // Copy deeplink to clipboard
@@ -379,6 +379,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         ajax: {
           url: ajaxurl,
           type: 'POST',
+          timeout: 60000,
           data: function (d) {
             d.filters = ckanfilters
           }
@@ -730,7 +731,8 @@ this.ckan.module('datatables_view', function (jQuery) {
         if (!sortOrder.length) {
           return
         }
-        gsortInfo = '<b>' + that._('Sort') + '</b>: '
+        gsortInfo = '<b>' + that._('Sort') + '</b> <i id="sortinfoicon" class="fa fa-info-circle" title="' +
+            that._('Press SHIFT key while clicking on\nsort control for multi-column sort') + '"</i>&nbsp;: '
         sortOrder.forEach((sortcol, idx) => {
           let colText = datatable.column(sortcol[0]).name()
           gsortInfo = gsortInfo + colText +
