@@ -188,20 +188,25 @@ DataTables_ jQuery plugin, with the following features.
  * Search highlighting
  * Column Filters
  * Multi-column sorting
+ * Two view modes (table/list). Table shows the data in a typical grid with
+   horizontal scrolling. List displays the data in a responsive mode, with
+   a Record Details view.
  * Filtered Downloads
  * Column Visibility control
- * Copy to clipboard and Printing of row selection/s
+ * Copy to clipboard and Printing of filtered results and row selection/s
  * Drag-and-drop column reordering
  * State Saving - saves search keywords, column order/visibility, row
    selections and page settings between session, with the ability to share
    saved searches.
  * Data Dictionary Integration
 
-It is designed to allow users to quickly find an actionable subset of 
+It is designed not only as a data viewer, but also as a simple ad-hoc report
+generator - allowing users to quickly find an actionable subset of
 the data they need from inside the resource view, without having to first
-download the dataset. It's also optimized for embedding datasets and
-saved searches on external sites - with a backlink to the portal and 
-automatic resizing.
+download the dataset.
+
+It's also optimized for embedding datasets and saved searches on external
+sites - with a backlink to the portal and automatic resizing.
 
 This plugin requires data to be in the DataStore.
 

@@ -1673,9 +1673,9 @@ ckan.datatables.page_length_choices
 
 Example::
 
- ckan.datatables.page_length_choices = 25 50 100 500 1000 5000
+ ckan.datatables.page_length_choices = 20 50 100 500 1000 5000
 
-Default value: ``25 50 100 500 1000``
+Default value: ``20 50 100 500 1000``
 
 Space-delimited list of the choices for the number of rows per page, with the lowest value being the default initial value.
 
