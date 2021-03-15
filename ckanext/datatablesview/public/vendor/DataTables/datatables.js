@@ -1,47 +1,27 @@
-<<<<<<< HEAD:ckanext/datatablesview/public/vendor/DataTables-1.10.25/js/jquery.dataTables.js
-/*! DataTables 1.10.25
- * ©2008-2021 SpryMedia Ltd - datatables.net/license
-||||||| parent of 2add118d2... Revamped DataTables View:ckanext/datatablesview/public/vendor/DataTables-1.10.15/js/jquery.dataTables.js
-/*! DataTables 1.10.15
- * ©2008-2017 SpryMedia Ltd - datatables.net/license
-=======
 /*
  * This combined file was created by the DataTables downloader builder:
  *   https://datatables.net/download
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#dt/dt-1.10.23/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.1
+ *   https://datatables.net/download/#dt/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.2
  *
  * Included libraries:
- *   DataTables 1.10.23, Buttons 1.6.5, Column visibility 1.6.5, HTML5 export 1.6.5, Print view 1.6.5, ColReorder 1.5.3, FixedColumns 3.3.2, KeyTable 2.6.1, Responsive 2.2.7, Select 1.3.1
+ *   DataTables 1.10.24, Buttons 1.7.0, Column visibility 1.7.0, HTML5 export 1.7.0, Print view 1.7.0, ColReorder 1.5.3, FixedColumns 3.3.2, KeyTable 2.6.1, Responsive 2.2.7, Select 1.3.2
  */
 
-/*! DataTables 1.10.23
- * ©2008-2020 SpryMedia Ltd - datatables.net/license
->>>>>>> 2add118d2... Revamped DataTables View:ckanext/datatablesview/public/vendor/DataTables/datatables.js
+/*! DataTables 1.10.24
+ * ©2008-2021 SpryMedia Ltd - datatables.net/license
  */
 
 /**
  * @summary     DataTables
  * @description Paginate, search and order HTML tables
-<<<<<<< HEAD:ckanext/datatablesview/public/vendor/DataTables-1.10.25/js/jquery.dataTables.js
- * @version     1.10.25
-||||||| parent of 2add118d2... Revamped DataTables View:ckanext/datatablesview/public/vendor/DataTables-1.10.15/js/jquery.dataTables.js
- * @version     1.10.15
-=======
- * @version     1.10.23
->>>>>>> 2add118d2... Revamped DataTables View:ckanext/datatablesview/public/vendor/DataTables/datatables.js
+ * @version     1.10.24
  * @file        jquery.dataTables.js
  * @author      SpryMedia Ltd
  * @contact     www.datatables.net
-<<<<<<< HEAD:ckanext/datatablesview/public/vendor/DataTables-1.10.25/js/jquery.dataTables.js
  * @copyright   Copyright 2008-2021 SpryMedia Ltd.
-||||||| parent of 2add118d2... Revamped DataTables View:ckanext/datatablesview/public/vendor/DataTables-1.10.15/js/jquery.dataTables.js
- * @copyright   Copyright 2008-2017 SpryMedia Ltd.
-=======
- * @copyright   Copyright 2008-2020 SpryMedia Ltd.
->>>>>>> 2add118d2... Revamped DataTables View:ckanext/datatablesview/public/vendor/DataTables/datatables.js
  *
  * This source file is free software, available under the following license:
  *   MIT license - http://datatables.net/license
@@ -1285,7 +1265,7 @@
 			
 				var tbody = $this.children('tbody');
 				if ( tbody.length === 0 ) {
-					tbody = $('<tbody/>').insertAfter(thead);
+					tbody = $('<tbody/>').appendTo($this);
 				}
 				oSettings.nTBody = tbody[0];
 			
@@ -2340,9 +2320,8 @@
 						}
 	
 						// Only a single match is needed for html type since it is
-						// bottom of the pile and very similar to string - but it
-						// must not be empty
-						if ( detectedType === 'html' && ! _empty(cache[k]) ) {
+						// bottom of the pile and very similar to string
+						if ( detectedType === 'html' ) {
 							break;
 						}
 					}
@@ -3447,10 +3426,9 @@
 	/**
 	 * Insert the required TR nodes into the table for display
 	 *  @param {object} oSettings dataTables settings object
-	 *  @param ajaxComplete true after ajax call to complete rendering
 	 *  @memberof DataTable#oApi
 	 */
-	function _fnDraw( oSettings, ajaxComplete )
+	function _fnDraw( oSettings )
 	{
 		/* Provide a pre-callback function which can be used to cancel the draw is false is returned */
 		var aPreDraw = _fnCallbackFire( oSettings, 'aoPreDrawCallback', 'preDraw', [oSettings] );
@@ -3499,9 +3477,8 @@
 		{
 			oSettings.iDraw++;
 		}
-		else if ( !oSettings.bDestroying && !ajaxComplete)
+		else if ( !oSettings.bDestroying && !_fnAjaxUpdate( oSettings ) )
 		{
-			_fnAjaxUpdate( oSettings );
 			return;
 		}
 	
@@ -4033,16 +4010,21 @@
 	 */
 	function _fnAjaxUpdate( settings )
 	{
-		settings.iDraw++;
-		_fnProcessingDisplay( settings, true );
+		if ( settings.bAjaxDataGet ) {
+			settings.iDraw++;
+			_fnProcessingDisplay( settings, true );
 	
-		_fnBuildAjax(
-			settings,
-			_fnAjaxParameters( settings ),
-			function(json) {
-				_fnAjaxUpdateDraw( settings, json );
-			}
-		);
+			_fnBuildAjax(
+				settings,
+				_fnAjaxParameters( settings ),
+				function(json) {
+					_fnAjaxUpdateDraw( settings, json );
+				}
+			);
+	
+			return false;
+		}
+		return true;
 	}
 	
 	
@@ -4195,12 +4177,14 @@
 		}
 		settings.aiDisplay = settings.aiDisplayMaster.slice();
 	
-		_fnDraw( settings, true );
+		settings.bAjaxDataGet = false;
+		_fnDraw( settings );
 	
 		if ( ! settings._bInitComplete ) {
 			_fnInitComplete( settings, json );
 		}
 	
+		settings.bAjaxDataGet = true;
 		_fnProcessingDisplay( settings, false );
 	}
 	
@@ -6129,7 +6113,7 @@
 		{
 			var col = columns[i];
 			var asSorting = col.asSorting;
-			var sTitle = col.ariaTitle || col.sTitle.replace( /<.*?>/g, "" );
+			var sTitle = col.sTitle.replace( /<.*?>/g, "" );
 			var th = col.nTh;
 	
 			// IE7 is throwing an error when setting these properties with jQuery's
@@ -9563,13 +9547,7 @@
 	 *  @type string
 	 *  @default Version number
 	 */
-<<<<<<< HEAD:ckanext/datatablesview/public/vendor/DataTables-1.10.25/js/jquery.dataTables.js
-	DataTable.version = "1.10.25";
-||||||| parent of 2add118d2... Revamped DataTables View:ckanext/datatablesview/public/vendor/DataTables-1.10.15/js/jquery.dataTables.js
-	DataTable.version = "1.10.15";
-=======
-	DataTable.version = "1.10.23";
->>>>>>> 2add118d2... Revamped DataTables View:ckanext/datatablesview/public/vendor/DataTables/datatables.js
+	DataTable.version = "1.10.24";
 
 	/**
 	 * Private data store, containing all of the settings objects that are
@@ -13651,6 +13629,13 @@
 		"sAjaxDataProp": null,
 	
 		/**
+		 * Note if draw should be blocked while getting data
+		 *  @type boolean
+		 *  @default true
+		 */
+		"bAjaxDataGet": true,
+	
+		/**
 		 * The last jQuery XHR object that was used for server-side data gathering.
 		 * This can be used for working with the XHR information in one of the
 		 * callbacks
@@ -13986,7 +13971,7 @@
 		 *
 		 *  @type string
 		 */
-		build:"dt/dt-1.10.23/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.1",
+		build:"dt/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.2",
 	
 	
 		/**
@@ -15080,11 +15065,6 @@
 						decimal+(d - intPart).toFixed( precision ).substring( 2 ):
 						'';
 	
-					// If zero, then can't have a negative prefix
-					if (intPart === 0 && parseFloat(floatPart) === 0) {
-						negative = '';
-					}
-	
 					return negative + (prefix||'') +
 						intPart.toString().replace(
 							/\B(?=(\d{3})+(?!\d))/g, thousands
@@ -15419,8 +15399,8 @@
 }));
 
 
-/*! Buttons for DataTables 1.6.5
- * ©2016-2020 SpryMedia Ltd - datatables.net/license
+/*! Buttons for DataTables 1.7.0
+ * ©2016-2021 SpryMedia Ltd - datatables.net/license
  */
 
 (function( factory ){
@@ -16006,7 +15986,7 @@ $.extend( Buttons.prototype, {
 		}
 
 		// Make sure that the button is available based on whatever requirements
-		// it has. For example, Flash buttons require Flash
+		// it has. For example, PDF button require pdfmake
 		if ( config.available && ! config.available( dt, config ) ) {
 			return false;
 		}
@@ -16885,6 +16865,41 @@ Buttons.buttonSelector = function ( insts, selector )
 	return ret;
 };
 
+/**
+ * Default function used for formatting output data.
+ * @param {*} str Data to strip
+ */
+Buttons.stripData = function ( str, config ) {
+	if ( typeof str !== 'string' ) {
+		return str;
+	}
+
+	// Always remove script tags
+	str = str.replace( /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '' );
+
+	// Always remove comments
+	str = str.replace( /<!\-\-.*?\-\->/g, '' );
+
+	if ( config.stripHtml ) {
+		str = str.replace( /<[^>]*>/g, '' );
+	}
+
+	if ( config.trim ) {
+		str = str.replace( /^\s+|\s+$/g, '' );
+	}
+
+	if ( config.stripNewlines ) {
+		str = str.replace( /\n/g, ' ' );
+	}
+
+	if ( config.decodeEntities ) {
+		_exportTextarea.innerHTML = str;
+		str = _exportTextarea.value;
+	}
+
+	return str;
+};
+
 
 /**
  * Buttons defaults. For full documentation, please refer to the docs/option
@@ -16906,10 +16921,7 @@ Buttons.defaults = {
 			className: ''
 		},
 		button: {
-			// Flash buttons will not work with `<button>` in IE - it has to be `<a>`
-			tag: 'ActiveXObject' in window ?
-				'a' :
-				'button',
+			tag: 'button',
 			className: 'dt-button',
 			active: 'active',
 			disabled: 'disabled'
@@ -16926,7 +16938,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '1.6.5';
+Buttons.version = '1.7.0';
 
 
 $.extend( _dtButtons, {
@@ -16957,47 +16969,53 @@ $.extend( _dtButtons, {
 		if ( _dtButtons.copyHtml5 ) {
 			return 'copyHtml5';
 		}
-		if ( _dtButtons.copyFlash && _dtButtons.copyFlash.available( dt, conf ) ) {
-			return 'copyFlash';
-		}
 	},
 	csv: function ( dt, conf ) {
-		// Common option that will use the HTML5 or Flash export buttons
 		if ( _dtButtons.csvHtml5 && _dtButtons.csvHtml5.available( dt, conf ) ) {
 			return 'csvHtml5';
 		}
-		if ( _dtButtons.csvFlash && _dtButtons.csvFlash.available( dt, conf ) ) {
-			return 'csvFlash';
-		}
 	},
 	excel: function ( dt, conf ) {
-		// Common option that will use the HTML5 or Flash export buttons
 		if ( _dtButtons.excelHtml5 && _dtButtons.excelHtml5.available( dt, conf ) ) {
 			return 'excelHtml5';
 		}
-		if ( _dtButtons.excelFlash && _dtButtons.excelFlash.available( dt, conf ) ) {
-			return 'excelFlash';
-		}
 	},
 	pdf: function ( dt, conf ) {
-		// Common option that will use the HTML5 or Flash export buttons
 		if ( _dtButtons.pdfHtml5 && _dtButtons.pdfHtml5.available( dt, conf ) ) {
 			return 'pdfHtml5';
-		}
-		if ( _dtButtons.pdfFlash && _dtButtons.pdfFlash.available( dt, conf ) ) {
-			return 'pdfFlash';
 		}
 	},
 	pageLength: function ( dt ) {
 		var lengthMenu = dt.settings()[0].aLengthMenu;
-		var vals = Array.isArray( lengthMenu[0] ) ? lengthMenu[0] : lengthMenu;
-		var lang = Array.isArray( lengthMenu[0] ) ? lengthMenu[1] : lengthMenu;
+		var vals = [];
+		var lang = [];
 		var text = function ( dt ) {
 			return dt.i18n( 'buttons.pageLength', {
 				"-1": 'Show all rows',
 				_:    'Show %d rows'
 			}, dt.page.len() );
 		};
+
+		// Support for DataTables 1.x 2D array
+		if (Array.isArray( lengthMenu[0] )) {
+			vals = lengthMenu[0];
+			lang = lengthMenu[1];
+		}
+		else {
+			for (var i=0 ; i<lengthMenu.length ; i++) {
+				var option = lengthMenu[i];
+
+				// Support for DataTables 2 object in the array
+				if ($.isPlainObject(option)) {
+					vals.push(option.value);
+					lang.push(option.label);
+				}
+				else {
+					vals.push(option);
+					lang.push(option);
+				}
+			}
+		}
 
 		return {
 			extend: 'collection',
@@ -17401,9 +17419,6 @@ var _message = function ( dt, option, position )
 
 
 
-
-
-
 var _exportTextarea = $('<textarea/>')[0];
 var _exportData = function ( dt, inOpts )
 {
@@ -17421,49 +17436,17 @@ var _exportData = function ( dt, inOpts )
 		trim:           true,
 		format:         {
 			header: function ( d ) {
-				return strip( d );
+				return Buttons.stripData( d, config );
 			},
 			footer: function ( d ) {
-				return strip( d );
+				return Buttons.stripData( d, config );
 			},
 			body: function ( d ) {
-				return strip( d );
+				return Buttons.stripData( d, config );
 			}
 		},
 		customizeData: null
 	}, inOpts );
-
-	var strip = function ( str ) {
-		if ( typeof str !== 'string' ) {
-			return str;
-		}
-
-		// Always remove script tags
-		str = str.replace( /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '' );
-
-		// Always remove comments
-		str = str.replace( /<!\-\-.*?\-\->/g, '' );
-
-		if ( config.stripHtml ) {
-			str = str.replace( /<([^>'"]*('[^']*'|"[^"]*")?)*>/g, '' );
-		}
-
-		if ( config.trim ) {
-			str = str.replace( /^\s+|\s+$/g, '' );
-		}
-
-		if ( config.stripNewlines ) {
-			str = str.replace( /\n/g, ' ' );
-		}
-
-		if ( config.decodeEntities ) {
-			_exportTextarea.innerHTML = str;
-			str = _exportTextarea.value;
-		}
-
-		return str;
-	};
-
 
 	var header = dt.columns( config.columns ).indexes().map( function (idx) {
 		var el = dt.column( idx ).header();
@@ -25149,12 +25132,11 @@ Responsive.display = {
 
 			if ( options && options.header ) {
 				$('div.dtr-modal-content').prepend(
-					//'<h2>'+options.header( row )+'</h2>'
-					options.header ( row )
+					options.header( row )
 				);
 			}
 		};
-	}	
+	}
 };
 
 
@@ -25446,19 +25428,19 @@ return Responsive;
 }));
 
 
-/*! Select for DataTables 1.3.1
- * 2015-2019 SpryMedia Ltd - datatables.net/license/mit
+/*! Select for DataTables 1.3.2
+ * 2015-2021 SpryMedia Ltd - datatables.net/license/mit
  */
 
 /**
  * @summary     Select for DataTables
  * @description A collection of API methods, events and buttons for DataTables
  *   that provides selection options of the items in a DataTable
- * @version     1.3.1
+ * @version     1.3.2
  * @file        dataTables.select.js
  * @author      SpryMedia Ltd (www.sprymedia.co.uk)
  * @contact     datatables.net/forums
- * @copyright   Copyright 2015-2019 SpryMedia Ltd.
+ * @copyright   Copyright 2015-2021 SpryMedia Ltd.
  *
  * This source file is free software, available under the following license:
  *   MIT license - http://datatables.net/license/mit
@@ -25502,7 +25484,7 @@ var DataTable = $.fn.dataTable;
 // Version information for debugger
 DataTable.select = {};
 
-DataTable.select.version = '1.3.1';
+DataTable.select.version = '1.3.2';
 
 DataTable.select.init = function ( dt ) {
 	var ctx = dt.settings()[0];
@@ -25826,7 +25808,7 @@ function enableMouseSelection ( dt )
 			}
 
 			var ctx = dt.settings()[0];
-			var wrapperClass = $.trim(dt.settings()[0].oClasses.sWrapper).replace(/ +/g, '.');
+			var wrapperClass = dt.settings()[0].oClasses.sWrapper.trim().replace(/ +/g, '.');
 
 			// Ignore clicks inside a sub-table
 			if ( $(e.target).closest('div.'+wrapperClass)[0] != dt.table().container() ) {
@@ -26008,7 +25990,12 @@ function init ( ctx ) {
 
 	// On Ajax reload we want to reselect all rows which are currently selected,
 	// if there is an rowId (i.e. a unique value to identify each row with)
-	api.on( 'preXhr.dt.dtSelect', function () {
+	api.on( 'preXhr.dt.dtSelect', function (e, settings) {
+		if (settings !== api.settings()[0]) {
+			// Not triggered by our DataTable!
+			return;
+		}
+
 		// note that column selection doesn't need to be cached and then
 		// reselected, as they are already selected
 		var rows = api.rows( { selected: true } ).ids( true ).filter( function ( d ) {
@@ -26044,6 +26031,8 @@ function init ( ctx ) {
 
 	// Clean up and release
 	api.on( 'destroy.dtSelect', function () {
+		api.rows({selected: true}).deselect();
+
 		disableMouseSelection( api );
 		api.off( '.dtSelect' );
 	} );
@@ -26285,7 +26274,7 @@ apiRegister( 'select.toggleable()', function ( flag ) {
 } );
 
 apiRegister( 'select.info()', function ( flag ) {
-	if ( info === undefined ) {
+	if ( flag === undefined ) {
 		return this.context[0]._select.info;
 	}
 
@@ -26423,7 +26412,7 @@ apiRegisterPlural( 'cells().select()', 'cell().select()', function ( select ) {
 	} );
 
 	this.iterator( 'table', function ( ctx, i ) {
-		eventTrigger( api, 'select', [ 'cell', api[i] ], true );
+		eventTrigger( api, 'select', [ 'cell', api.cells(api[i]).indexes().toArray() ], true );
 	} );
 
 	return this;
@@ -26435,6 +26424,7 @@ apiRegisterPlural( 'rows().deselect()', 'row().deselect()', function () {
 
 	this.iterator( 'row', function ( ctx, idx ) {
 		ctx.aoData[ idx ]._select_selected = false;
+		ctx._select_lastCell = null;
 		$( ctx.aoData[ idx ].nTr ).removeClass( ctx._select.className );
 	} );
 

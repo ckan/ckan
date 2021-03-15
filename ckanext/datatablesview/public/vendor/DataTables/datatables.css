@@ -4,10 +4,10 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#dt/dt-1.10.23/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.1
+ *   https://datatables.net/download/#dt/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.2
  *
  * Included libraries:
- *   DataTables 1.10.23, Buttons 1.6.5, Column visibility 1.6.5, HTML5 export 1.6.5, Print view 1.6.5, ColReorder 1.5.3, FixedColumns 3.3.2, KeyTable 2.6.1, Responsive 2.2.7, Select 1.3.1
+ *   DataTables 1.10.24, Buttons 1.7.0, Column visibility 1.7.0, HTML5 export 1.7.0, Print view 1.7.0, ColReorder 1.5.3, FixedColumns 3.3.2, KeyTable 2.6.1, Responsive 2.2.7, Select 1.3.2
  */
 
 /*
@@ -55,19 +55,19 @@ table.dataTable thead .sorting_desc_disabled {
   background-position: center right;
 }
 table.dataTable thead .sorting {
-  background-image: url("DataTables-1.10.23/images/sort_both.png");
+  background-image: url("DataTables-1.10.24/images/sort_both.png");
 }
 table.dataTable thead .sorting_asc {
-  background-image: url("DataTables-1.10.23/images/sort_asc.png");
+  background-image: url("DataTables-1.10.24/images/sort_asc.png") !important;
 }
 table.dataTable thead .sorting_desc {
-  background-image: url("DataTables-1.10.23/images/sort_desc.png");
+  background-image: url("DataTables-1.10.24/images/sort_desc.png") !important;
 }
 table.dataTable thead .sorting_asc_disabled {
-  background-image: url("DataTables-1.10.23/images/sort_asc_disabled.png");
+  background-image: url("DataTables-1.10.24/images/sort_asc_disabled.png");
 }
 table.dataTable thead .sorting_desc_disabled {
-  background-image: url("DataTables-1.10.23/images/sort_desc_disabled.png");
+  background-image: url("DataTables-1.10.24/images/sort_desc_disabled.png");
 }
 table.dataTable tbody tr {
   background-color: #ffffff;
@@ -564,7 +564,7 @@ input.dt-button {
   background: -o-linear-gradient(top, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
   /* Opera 11.10+ */
   background: linear-gradient(to bottom, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(230, 230, 230, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="rgba(230, 230, 230, 0.1)", EndColorStr="rgba(0, 0, 0, 0.1)");
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -598,7 +598,7 @@ input.dt-button.active:not(.disabled) {
   background: -o-linear-gradient(top, rgba(179, 179, 179, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
   /* Opera 11.10+ */
   background: linear-gradient(to bottom, rgba(179, 179, 179, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(179, 179, 179, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="rgba(179, 179, 179, 0.1)", EndColorStr="rgba(0, 0, 0, 0.1)");
   box-shadow: inset 1px 1px 3px #999999;
 }
 button.dt-button:active:not(.disabled):hover:not(.disabled), button.dt-button.active:not(.disabled):hover:not(.disabled),
@@ -620,7 +620,7 @@ input.dt-button.active:not(.disabled):hover:not(.disabled) {
   background: -o-linear-gradient(top, rgba(128, 128, 128, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
   /* Opera 11.10+ */
   background: linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(128, 128, 128, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="rgba(128, 128, 128, 0.1)", EndColorStr="rgba(0, 0, 0, 0.1)");
 }
 button.dt-button:hover,
 div.dt-button:hover,
@@ -644,7 +644,7 @@ input.dt-button:hover:not(.disabled) {
   background: -o-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
   /* Opera 11.10+ */
   background: linear-gradient(to bottom, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(153, 153, 153, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="rgba(153, 153, 153, 0.1)", EndColorStr="rgba(0, 0, 0, 0.1)");
 }
 button.dt-button:focus:not(.disabled),
 div.dt-button:focus:not(.disabled),
@@ -664,7 +664,7 @@ input.dt-button:focus:not(.disabled) {
   background: -o-linear-gradient(top, #d1e2f7 0%, #79ace9 100%);
   /* Opera 11.10+ */
   background: linear-gradient(to bottom, #d1e2f7 0%, #79ace9 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#d1e2f7', EndColorStr='#79ace9');
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="#d1e2f7", EndColorStr="#79ace9");
 }
 
 .dt-button embed {
@@ -730,7 +730,7 @@ div.dt-button-collection a.dt-button.active:not(.disabled) {
   background: -o-linear-gradient(top, #f0f0f0 0%, #dadada 100%);
   /* Opera 11.10+ */
   background: linear-gradient(to bottom, #f0f0f0 0%, #dadada 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#f0f0f0', EndColorStr='#dadada');
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="#f0f0f0", EndColorStr="#dadada");
   box-shadow: inset 1px 1px 3px #666;
 }
 div.dt-button-collection.fixed {
@@ -843,7 +843,7 @@ a.dt-button.processing:after {
   margin: -8px 0 0 -8px;
   box-sizing: border-box;
   display: block;
-  content: ' ';
+  content: " ";
   border: 2px solid #282828;
   border-radius: 50%;
   border-left-color: transparent;
@@ -1088,6 +1088,7 @@ div.dtr-modal div.dtr-modal-background {
 }
 
 
+@charset "UTF-8";
 table.dataTable tbody > tr.selected,
 table.dataTable tbody > tr > .selected {
   background-color: #B0BED9;
@@ -1166,7 +1167,7 @@ table.dataTable tbody th.select-checkbox:after {
 }
 table.dataTable tbody td.select-checkbox:before,
 table.dataTable tbody th.select-checkbox:before {
-  content: ' ';
+  content: " ";
   margin-top: -6px;
   margin-left: -6px;
   border: 1px solid black;
@@ -1174,11 +1175,20 @@ table.dataTable tbody th.select-checkbox:before {
 }
 table.dataTable tr.selected td.select-checkbox:after,
 table.dataTable tr.selected th.select-checkbox:after {
-  content: '\2714';
-  margin-top: -11px;
-  margin-left: -4px;
+  content: "✓";
+  font-size: 20px;
+  margin-top: -19px;
+  margin-left: -6px;
   text-align: center;
   text-shadow: 1px 1px #B0BED9, -1px -1px #B0BED9, 1px -1px #B0BED9, -1px 1px #B0BED9;
+}
+table.dataTable.compact tbody td.select-checkbox:before,
+table.dataTable.compact tbody th.select-checkbox:before {
+  margin-top: -12px;
+}
+table.dataTable.compact tr.selected td.select-checkbox:after,
+table.dataTable.compact tr.selected th.select-checkbox:after {
+  margin-top: -16px;
 }
 
 div.dataTables_wrapper span.select-info,
@@ -1188,7 +1198,7 @@ div.dataTables_wrapper span.select-item {
 
 @media screen and (max-width: 640px) {
   div.dataTables_wrapper span.select-info,
-  div.dataTables_wrapper span.select-item {
+div.dataTables_wrapper span.select-item {
     margin-left: 0;
     display: block;
   }
