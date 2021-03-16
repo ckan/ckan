@@ -44,7 +44,7 @@ module to use, including:
   each other, if they really need to.
 
 * Bootstrap's JavaScript features, see the
-  `Bootstrap docs <https://getbootstrap.com/docs/3.4/javascript/>`_
+  `Bootstrap docs <https://getbootstrap.com/docs/3.4/javascript/>`__
   for details.
 
 * The standard |javascript| ``window`` object. Using ``window`` in CKAN
