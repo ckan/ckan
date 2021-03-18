@@ -34,14 +34,26 @@
         <th class="all" data-name="_id">_id</th>
         {% for field in datadictionary -%}
           {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
-            <th scope="col" data-name="{{field.id}}" data-type="{{field.type}}">
+            <th scope="col">
               {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
                 {{ field.info.label }}
-              {%- else -%}
-                {{- field.id -}}   
+              {%- else %}
+                {{- field.id -}}
               {%- endif %}
-              {%- if data_dictionary_labels and field.info is defined and (field.info.notes|length or field.info.label|length) -%}
-                &nbsp;<i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
+
+              {#- if there is a column configuration JSON in the data dictionary description, suppress it #}
+              {#- from displaying as a tooltip #}
+              {%- set ns = namespace() %}
+              {%- set ns.notes = h.markdown_extract(field.info.notes, 300) %}
+              {%- set ns.displaynotes = ns.notes %}
+              {%- set noteslist = ns.notes|list %}
+              {%- for notechar in noteslist %}
+                {%- if notechar == '{' %}
+                  {%- set ns.displaynotes = ns.notes|truncate(loop.index - 1, True, '', 0) %}
+                {%- endif %}
+              {%- endfor %}
+              {%- if data_dictionary_labels and field.info is defined and (ns.displaynotes|length or field.info.label|length) -%}
+                &nbsp;<i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ ns.displaynotes }}"></i>
               {%- endif -%}            
             </th>
           {%- endif %}
