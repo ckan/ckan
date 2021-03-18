@@ -11,8 +11,10 @@ let gsortInfo = ''
 // global vars for filter info labels
 let gtableSearchText = ''
 let gcolFilterText = ''
+let gdatatableReady = false
 
 // HELPER FUNCTIONS
+// helper for filtered downloads
 const run_query = function (params, format) {
   const form = $('#filtered-datatables-download')
   const p = $('<input name="params" type="hidden"/>')
@@ -126,7 +128,7 @@ function validateId (id) {
 }
 
 // compile sort & active filters for display in print, clipboard copy & search tooltip
-function filterInfo (dt, noHtmlWrapped = false, justFilterInfo = false) {
+function filterInfo (dt, noHtml = false, justFilterInfo = false, wrapped = false) {
   let filtermsg = justFilterInfo ? '' : document.getElementById('dtprv_info').innerText
 
   const selinfo = document.getElementsByClassName('select-info')[0]
@@ -157,7 +159,9 @@ function filterInfo (dt, noHtmlWrapped = false, justFilterInfo = false) {
     }
   }
   filtermsg = justFilterInfo ? filtermsg : filtermsg + '<br/>' + gsortInfo
-  return noHtmlWrapped ? filtermsg.replace(/(<([^>]+)>)/ig, '').replace(/,/g, '\n') : filtermsg
+  filtermsg = noHtml ? filtermsg.replace(/(<([^>]+)>)/ig, '') : filtermsg
+  filtermsg = wrapped ? filtermsg.replace(/,/g, '\n') : filtermsg
+  return filtermsg
 };
 
 // Copy deeplink to clipboard
@@ -204,6 +208,33 @@ function hideSearchInputs (columns) {
   }
 }
 
+// helper for setting up filterObserver
+function initFilterObserver () {
+  // if no filter is active, make all search inputs background transparent & turn off filter tooltip
+  // this is less expensive than querying the DT api to check global filter and each column
+  // separately for filter status. Here, we're checking if an open parenthesis is in the filter info,
+  // which indicates that there is a filter active, regardless of language
+  // (e.g. "4 of 1000 entries (filtered from...)")
+  const filterObserver = new MutationObserver (function (e) {
+    const infoText = document.getElementById('dtprv_info').innerText
+    if (!infoText.includes('(')) {
+      $('#dtprv_filter input').css('background-color', 'transparent')
+      $('th.fhead input').css('background-color', 'transparent')
+      document.getElementById('filterinfoicon').style.visibility = 'hidden'
+    } else {
+      document.getElementById('filterinfoicon').style.visibility = 'visible'
+    }
+  })
+  try {
+    filterObserver.observe(document.getElementById('dtprv_info'), { characterData: true, subtree: true, childList: true })
+  } catch (e) {}
+}
+
+// helper for wrapping text
+const wordWrap = (s, w) => s.replace(
+  new RegExp(`(?![^\\n]{1,${w}}$)([^\\n]{1,${w}})\\s`, 'g'), '$1<br/> '
+)
+
 // MAIN
 this.ckan.module('datatables_view', function (jQuery) {
   return {
@@ -233,7 +264,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         } else {
           gcurrentView = defaultview
         }
-        setWithExpiry('lastView', gcurrentView, stateduration)
+        setWithExpiry('lastView', gcurrentView, 0)
       } else {
         gcurrentView = lastView
       }
@@ -248,6 +279,11 @@ this.ckan.module('datatables_view', function (jQuery) {
         width: gcurrentView === 'table' ? '28px' : '50px'
       }]
 
+      // allow data publisher to explicitly configure column definition by using
+      // these whitelisted keys in a JSON at the end of the column description
+      // see https://datatables.net/reference/option/columnDefs options for details
+      const allowedKeys = ['type', 'width', 'className', 'contentPadding', 'orderable', 'wordwrap']
+
       gdataDict.forEach((colDefn, idx) => {
         let dtType
         switch (colDefn.type) {
@@ -260,7 +296,31 @@ this.ckan.module('datatables_view', function (jQuery) {
           default:
             dtType = 'string'
         }
-        dynamicCols.push({ data: colDefn.id, type: dtType })
+        let colDict = { name: colDefn.id, data: colDefn.id, type: dtType }
+        let extraColDefnDict = {}
+        // check if there are any datatables JSON col defns in the column description
+        if (colDefn?.info?.notes) {
+          const extraColDefn = colDefn.info.notes.match(/\{.*?\}$/)
+          if (extraColDefn) {
+            try {
+              extraColDefnDict = JSON.parse(extraColDefn[0])
+            } catch (e) {
+              extraColDefnDict = {}
+            }
+          }
+        }
+        const filteredDict = allowedKeys.reduce((obj, key) => ({ ...obj, [key]: extraColDefnDict[key] }), {})
+        if (Number.isInteger(filteredDict?.width)) {
+          filteredDict.width = filteredDict.width + 'em'
+        }
+        if (Number.isInteger(filteredDict?.wordwrap)) {
+          filteredDict.render = function(data, type, row) {
+            data = wordWrap(data, filteredDict.wordwrap)
+            return data
+          }
+        }
+        colDict = Object.assign({}, colDict, filteredDict)
+        dynamicCols.push(colDict)
       })
 
       // labels for showing active filters in clipboard copy & print
@@ -333,8 +393,9 @@ this.ckan.module('datatables_view', function (jQuery) {
       // create column filters
       $('.fhead').each(function (i) {
         const colname = this.textContent
-        $('<input id="dtcol-' + validateId(colname) + '-' + i +
-                '" class="fhead" type="search" results="5" autosave="true" style="width:100%"/>')
+        const colid = 'dtcol-' + validateId(colname) + '-' + i
+        $('<input id="' + colid + '" name="' + colid + '" autosave="' + colid +
+                '" class="fhead" type="search" results="10" autocomplete="on" style="width:100%"/>')
           .appendTo($(this).empty())
           .on('keyup change search', function () {
             const dt = $('#dtprv').DataTable({ retrieve: true })
@@ -353,6 +414,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         paging: true,
         serverSide: true,
         processing: true,
+        deferRender: true,
         stateSave: statesaveflag,
         stateDuration: stateduration,
         searchDelay: searchdelaysetting,
@@ -420,6 +482,8 @@ this.ckan.module('datatables_view', function (jQuery) {
 
           // save selected rows settings
           gsavedSelected = data.selected
+          // save view mode
+          setWithExpiry('lastView', data.viewmode, 0)
 
           // restore values of column filters
           const api = new $.fn.dataTable.Api(settings)
@@ -441,6 +505,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           data.page = this.api().page()
           data.pagelen = this.api().page.len()
           data.selected = this.api().rows({ selected: true })[0]
+          data.viewmode = gcurrentView
 
           // shade the reset button darkred if there is a saved state
           const lftflag = parseInt(getWithExpiry('loadctr-' + gresviewId))
@@ -454,7 +519,6 @@ this.ckan.module('datatables_view', function (jQuery) {
         }, // end stateSaveParams
         initComplete: function (settings, json) {
           // this callback is invoked by DataTables when table is fully rendered
-
           const api = this.api()
           // restore some data-dependent saved states now that data is loaded
           if (typeof gsavedPage !== 'undefined') {
@@ -468,12 +532,12 @@ this.ckan.module('datatables_view', function (jQuery) {
           }
 
           // add filterinfo by global search label
-          $('#dtprv_filter label').before('<i id="filterinfoicon" class="fa fa-info-circle" title="' +
-            filterInfo(datatable, true, true) + '"</i>&nbsp;')
+          $('#dtprv_filter label').before('<i id="filterinfoicon" class="fa fa-info-circle"</i>&nbsp;')
 
           // on mouseenter on Search info icon, update tooltip with filterinfo
-          $('#filterinfoicon').mouseenter(function () {
-            document.getElementById('filterinfoicon').title = filterInfo(datatable, true, true)
+          $('#filterinfoicon').mouseenter(function() {
+            document.getElementById('filterinfoicon').title = filterInfo(datatable, true, true, true) +
+              '\n' + that._('Double-click to reset filters')
           })
 
           // on dblclick on Search info icon, clear all filters
@@ -506,7 +570,7 @@ this.ckan.module('datatables_view', function (jQuery) {
             // we need to reload to get the deeplink active
             // to init localstorage
             if (!getWithExpiry('deeplink_firsttime')) {
-              setWithExpiry('deeplink_firsttime', true, stateduration)
+              setWithExpiry('deeplink_firsttime', true, 3)
               setTimeout(function () {
                 window.location.reload()
               }, 200)
@@ -517,7 +581,7 @@ this.ckan.module('datatables_view', function (jQuery) {
             const currPageLen = api.page.len()
             if (json.recordsTotal > currPageLen) {
               const scrollBodyHeight = $('#resize_wrapper').height() - ($('.dataTables_scrollHead').height() * 2.75)
-              const rowHeight = $('tr').first().height()
+              const rowHeight = $('tbody tr').first().height()
               // find nearest pagelen to fill display
               const minPageLen = Math.floor(scrollBodyHeight / rowHeight)
               if (currPageLen < minPageLen) {
@@ -539,6 +603,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
           }
+          gdatatableReady = true
         }, // end InitComplete
         buttons: [{
           name: 'viewToggleButton',
@@ -554,7 +619,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               gcurrentView = 'list'
               $('#dtprv').addClass('dt-responsive')
             }
-            setWithExpiry('lastView', gcurrentView, stateduration)
+            setWithExpiry('lastView', gcurrentView, 0)
             window.localStorage.removeItem('loadctr-' + gresviewId)
             dt.state.clear()
             window.location.reload()
@@ -700,30 +765,29 @@ this.ckan.module('datatables_view', function (jQuery) {
 
       // set column search background to gray when using global search
       $('#dtprv_filter input').on('keyup change search', function () {
+        if (!gdatatableReady) { return }
         datatable.columns().search('').draw(false)
         $('th.fhead input').css('background-color', '#e6e6e6')
         $('#dtprv_filter input').css('background-color', 'transparent')
       })
 
       // set global search background to gray when using column search
-      $('th.fhead input').on('keyup change saerch', function () {
+      $('th.fhead input').on('keyup change search', function () {
+        if (!gdatatableReady) { return }
         datatable.search('').draw(false)
         $('#dtprv_filter input').css('background-color', '#e6e6e6')
         $('th.fhead input').css('background-color', 'transparent')
       })
 
-      // if no filter is active, make all search inputs background transparent
-      const observer = new MutationObserver (function (e) {
-        const infoText = document.getElementById('dtprv_info').innerText
-        if (!infoText.includes('(')) {
-          $('#dtprv_filter input').css('background-color', 'transparent')
-          $('th.fhead input').css('background-color', 'transparent')
-          document.getElementById('filterinfoicon').style.visibility = 'hidden'
-        } else {
-          document.getElementById('filterinfoicon').style.visibility = 'visible'
-        }
+      // a language file has been loaded asynch
+      // this only happens when a non-english language is
+      // being used by DT
+      datatable.on('i18n', function () {
+        // and we need to 
+        setTimeout(initFilterObserver(), 100)
       })
-      observer.observe(document.getElementById('dtprv_info'), {characterData: true, subtree: true, childList: true})
+
+      initFilterObserver()
 
       // update footer sortinfo when sorting
       datatable.on('order.dt', function () {
@@ -731,8 +795,8 @@ this.ckan.module('datatables_view', function (jQuery) {
         if (!sortOrder.length) {
           return
         }
-        gsortInfo = '<b>' + that._('Sort') + '</b> <i id="sortinfoicon" class="fa fa-info-circle" title="' +
-            that._('Press SHIFT key while clicking on\nsort control for multi-column sort') + '"</i>&nbsp;: '
+        gsortInfo = '<b> ' + that._('Sort') + '</b> <i id="sortinfoicon" class="fa fa-info-circle" title="' +
+            that._('Press SHIFT key while clicking on\nsort control for multi-column sort') + '"</i> : '
         sortOrder.forEach((sortcol, idx) => {
           let colText = datatable.column(sortcol[0]).name()
           gsortInfo = gsortInfo + colText +
@@ -786,7 +850,7 @@ $('#dtprv').on('error.dt', function (e, settings, techNote, message) {
   if (techNote === 6) {
     // possible misaligned column headers, refit columns
     const api = new $.fn.dataTable.Api(settings)
-    api.column().adjust().draw(false)
+    api.columns.adjust().draw(false)
   } else {
     // errors are mostly caused by invalid FTS queries. shake input
     const shakeElement = $(':focus')
