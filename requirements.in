@@ -6,7 +6,6 @@ Beaker==1.11.0
 bleach==3.3.0
 click==7.1.2
 dominate==2.4.0
-fanstatic==1.1
 feedgen==0.9.0
 Flask==1.1.1
 Flask-Babel==1.0.0

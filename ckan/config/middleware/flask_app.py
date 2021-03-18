@@ -21,7 +21,6 @@ from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
 from ckan.common import asbool
-from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
@@ -267,33 +266,6 @@ def make_flask_stack(conf):
     # Start other middleware
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
-
-    # Fanstatic
-    fanstatic_enable_rollup = asbool(
-        conf.get('fanstatic_enable_rollup', False))
-    if debug:
-        fanstatic_config = {
-            'versioning': True,
-            'recompute_hashes': True,
-            'minified': False,
-            'bottom': True,
-            'bundle': False,
-            'rollup': fanstatic_enable_rollup,
-        }
-    else:
-        fanstatic_config = {
-            'versioning': True,
-            'recompute_hashes': False,
-            'minified': True,
-            'bottom': True,
-            'bundle': True,
-            'rollup': fanstatic_enable_rollup,
-        }
-
-    if root_path:
-        root_path = re.sub('/{{LANG}}', '', root_path)
-        fanstatic_config['base_url'] = root_path
-    app = Fanstatic(app, **fanstatic_config)
 
     for plugin in PluginImplementations(IMiddleware):
         try:
