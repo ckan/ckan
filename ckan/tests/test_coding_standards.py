@@ -257,7 +257,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/config/middleware/__init__.py",
     u"ckan/config/middleware/common_middleware.py",
     u"ckan/config/middleware/flask_app.py",
-    u"ckan/config/middleware/pylons_app.py",
     u"ckan/exceptions.py",
     u"ckan/i18n/check_po_files.py",
     u"ckan/lib/activity_streams.py",

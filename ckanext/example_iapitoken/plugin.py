@@ -8,7 +8,6 @@ from datetime import datetime
 
 import ckan.plugins as p
 import ckan.model as model
-from ckan.logic import get_action
 
 
 class ExampleIApiTokenPlugin(p.SingletonPlugin):
