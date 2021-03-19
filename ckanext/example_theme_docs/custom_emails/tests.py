@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import os
-import pytest
 
 from ckan import plugins
 import ckan.model as model
@@ -11,7 +10,6 @@ from ckan.lib.base import render_jinja2
 from ckan.common import config
 
 from ckan.tests.lib.test_mailer import MailerBase
-import ckan.tests.helpers as helpers
 
 
 class TestExampleCustomEmailsPlugin(MailerBase):

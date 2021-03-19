@@ -10,10 +10,13 @@ from ckan.common import config
 
 log = logging.getLogger(__name__)
 
+DEFAULT_HOST = "localhost"
+DEFAULT_PORT = 5000
+
 
 @click.command(u"run", short_help=u"Start development server")
-@click.option(u"-H", u"--host", default=u"localhost", help=u"Set host")
-@click.option(u"-p", u"--port", default=5000, help=u"Set port")
+@click.option(u"-H", u"--host", help=u"Host name")
+@click.option(u"-p", u"--port", help=u"Port number")
 @click.option(u"-r", u"--disable-reloader", is_flag=True,
               help=u"Disable reloader")
 @click.option(
@@ -70,6 +73,14 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
             ssl_context = (ssl_cert, ssl_key)
     else:
         ssl_context = None
+
+    host = host or config.get('ckan.devserver.host', DEFAULT_HOST)
+    port = port or config.get('ckan.devserver.port', DEFAULT_PORT)
+    try:
+        port = int(port)
+    except ValueError:
+        tk.error_shout(u"Server port must be an integer, not {}".format(port))
+        raise click.Abort()
 
     log.info(u"Running CKAN on {scheme}://{host}:{port}".format(
         scheme='https' if ssl_context else 'http', host=host, port=port))

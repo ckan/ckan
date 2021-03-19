@@ -17,14 +17,15 @@
 # With debug mode enabled, a visitor to your site could execute malicious commands.
 debug = false
 
-[server:main]
-use = egg:Paste#http
-host = 0.0.0.0
-port = 5000
-
 [app:main]
 use = egg:ckan
-full_stack = true
+
+## Development settings
+ckan.devserver.host = localhost
+ckan.devserver.port = 5000
+
+
+## Session settings
 cache_dir = /tmp/%(ckan.site_id)s/
 beaker.session.key = ckan
 

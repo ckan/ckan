@@ -158,6 +158,52 @@ class TestDatastoreDump(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_csv_file_extension(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(
+            u"/datastore/dump/{0}?limit=1&format=csv".format(
+                resource["id"]
+            )
+        )
+
+        attachment_filename = res.headers['Content-disposition']
+
+        expected_attch_filename = 'attachment; filename="{0}.csv"'.format(
+            resource['id'])
+
+        assert attachment_filename == expected_attch_filename
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_tsv(self, app):
         resource = factories.Resource()
         data = {
@@ -204,6 +250,52 @@ class TestDatastoreDump(object):
             u'{""moo"": ""moo""}]"\n'
         )
         assert content == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_tsv_file_extension(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(
+            "/datastore/dump/{0}?limit=1&format=tsv".format(
+                str(resource["id"])
+            )
+        )
+
+        attachment_filename = res.headers['Content-disposition']
+
+        expected_attch_filename = 'attachment; filename="{0}.tsv"'.format(
+            resource['id'])
+
+        assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -265,6 +357,52 @@ class TestDatastoreDump(object):
             ]
         }
         assert content == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_json_file_extension(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(
+            "/datastore/dump/{0}?limit=1&format=json".format(
+                resource["id"]
+            )
+        )
+
+        attachment_filename = res.headers['Content-disposition']
+
+        expected_attch_filename = 'attachment; filename="{0}.json"'.format(
+            resource['id'])
+
+        assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -330,6 +468,52 @@ class TestDatastoreDump(object):
             u"</data>\n"
         )
         assert content == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_xml_file_extension(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(
+            "/datastore/dump/{0}?limit=1&format=xml".format(
+                str(resource["id"])
+            )
+        )
+
+        attachment_filename = res.headers['Content-disposition']
+
+        expected_attch_filename = 'attachment; filename="{0}.xml"'.format(
+            resource['id'])
+
+        assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "3")
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -475,7 +659,10 @@ class TestDatastoreDump(object):
 
 
 def get_csv_record_values(response_body):
-    return [int(record.split(",")[1]) for record in six.ensure_text(response_body).split()[1:]]
+    return [
+        int(record.split(",")[1]) for record in six.ensure_text(
+            response_body).split()[1:]
+    ]
 
 
 def get_json_record_values(response_body):
