@@ -11,7 +11,6 @@ import sqlalchemy as sa
 from webob.request import FakeCGIBody
 
 from ckan.common import config
-from ckan.lib.i18n import get_locales_from_config
 
 
 class RootPathMiddleware(object):

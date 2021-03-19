@@ -18,7 +18,6 @@ into plugins-toolkit.rst manually before running Sphinx).
 
 '''
 import inspect
-import types
 
 import ckan.plugins.toolkit as toolkit
 

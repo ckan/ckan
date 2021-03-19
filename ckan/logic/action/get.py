@@ -2417,8 +2417,8 @@ def status_show(context, data_dict):
 
     '''
 
-    plugins = config.get('ckan.plugins') 
-    extensions = plugins.split() if plugins else [] 
+    plugins = config.get('ckan.plugins')
+    extensions = plugins.split() if plugins else []
 
     return {
         'site_title': config.get('ckan.site_title'),
@@ -3325,7 +3325,6 @@ def activity_diff(context, data_dict):
     :type diff_type: string
     '''
     import difflib
-    from pprint import pformat
 
     model = context['model']
     user = context['user']

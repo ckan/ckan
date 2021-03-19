@@ -76,7 +76,6 @@ class Package(core.StatefulObjectMixin,
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
-        from ckan import model
         super(Package, self).__init__(**kw)
 
     @classmethod

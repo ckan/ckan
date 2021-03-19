@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from sqlalchemy.orm import relation
-from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
+from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
 
 from ckan.model import (
     core,
@@ -9,7 +9,6 @@ from ckan.model import (
     types as _types,
     domain_object,
     vocabulary,
-    extension as _extension,
 )
 import ckan  # this import is needed
 import ckan.model
