@@ -19,7 +19,7 @@ from ckan.lib.search.common import (
     )
 from ckan.lib.search.index import PackageSearchIndex, NoopSearchIndex
 from ckan.lib.search.query import (
-    TagSearchQuery, ResourceSearchQuery, PackageSearchQuery
+    TagSearchQuery, ResourceSearchQuery, PackageSearchQuery, QueryOptions
 )
 
 
