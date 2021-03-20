@@ -3,7 +3,6 @@ body {
 }
 
 table {
-  /*width: none !important;*/
   max-width: none !important;
 }
 
@@ -35,11 +34,11 @@ div.DTFC_LeftBodyWrapper {
 
 /* make display record details header sticky */
 #modalHeader {
-    background-color: #f9f9f9;
-    position:sticky;
-    top:0;
-    width:100%;
-    z-index:11;  
+  background-color: #f9f9f9;
+  position:sticky;
+  top:0;
+  width:100%;
+  z-index:11;  
 }
 
 /* for dynamic resizing of datatable */
@@ -53,29 +52,37 @@ div.DTFC_LeftBodyWrapper {
   max-height: 100vh;
 }
 
-#refit-button {
-  position: relative;
-  display: inline;
-  box-sizing: border-box;
-  padding: 0.2em 0.5em;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  border-radius: 2px;
-  cursor: pointer;
-  color: black;
-  white-space: nowrap;
-  overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.1);
-  z-index: 12;
+.dataTables_length{
+  display:inline;
+}
+
+#dtprv_filter {
+  text-align: right;
+  display: inline-flex;
+  float: right;
+  margin-top: -1.4em;
 }
 
 
+/*.dataTables_info{
+  padding-top: 4px !important;
+}*/
+
+#filterinfoicon {
+  margin-top: 0.4em;
+}
+
 div.resourceinfo {
-  display: inline-block;
+  display: inline;
   font-weight: bold;
 }
 
 div.sortinfo {
   display: block;
+}
+
+#dtprv_paginate {
+  margin-top: -2.5em;
 }
 
 i.fa-info-circle {
@@ -102,41 +109,39 @@ button.dt-button {
     margin-right: 0em;
 }
 
-/* for sorting controls */
-table.dataTable thead .sorting {
-  background-image: url("vendor/DataTables/images/sort_both.png");
+div.dt-button-collection.fixed.four-column {
+  margin-left: 0px;
 }
-table.dataTable thead .sorting_asc {
-  background-image: url("vendor/DataTables/images/sort_asc.png") !important;
+
+div.dt-button-background {
+  background: rgba(0, 0, 0, 0.7);
+  /* Fallback */
+  background: -ms-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* IE10 Consumer Preview */
+  background: -moz-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* Firefox */
+  background: -o-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* Opera */
+  background: -webkit-gradient(radial, center center, 0, center center, 497, color-stop(0, rgba(0, 0, 0, 0.3)), color-stop(1, rgba(0, 0, 0, 0.7)));
+  /* Webkit (Safari/Chrome 10) */
+  background: -webkit-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* Webkit (Chrome 11+) */
+  background: radial-gradient(ellipse farthest-corner at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* W3C Markup, IE10 Release Preview */
 }
-table.dataTable thead .sorting_desc {
-  background-image: url("vendor/DataTables/images/sort_desc.png") !important;
-}
-table.dataTable thead .sorting_asc_disabled {
-  background-image: url("vendor/DataTables/images/sort_asc_disabled.png");
-}
-table.dataTable thead .sorting_desc_disabled {
-  background-image: url("vendor/DataTables/images/sort_desc_disabled.png");
+
+div.dt-button-collection.fixed {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-65%, -20%);
 }
 
 
-div.dt-button-collection {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 80px;
-  margin-top: 3px;
-  padding: 8px 8px 4px 8px;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  background-color: white;
-  overflow: hidden;
-  z-index: 2002;
-  border-radius: 5px;
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
-  box-sizing: border-box;
+.table-striped > tbody > tr.selected > td,
+.table-striped > tbody > tr.selected > th {
+background-color: #0275d8; /* change #A9D0F5 by the color of your preference */
 }
-
 
 /* Animation CSS */
 #target {
