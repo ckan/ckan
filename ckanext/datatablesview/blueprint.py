@@ -8,6 +8,7 @@ from six import text_type
 from ckan.common import json
 from ckan.lib.helpers import decode_view_request_filters
 from ckan.plugins.toolkit import get_action, request, h
+import re
 
 datatablesview = Blueprint(u'datatablesview', __name__)
 
@@ -89,6 +90,8 @@ def ajax(resource_view_id):
         v = text_type(request.form[u'columns[%d][search][value]' % i])
         if v:
             k = text_type(request.form[u'columns[%d][name]' % i])
+            # replace non-alphanumeric characters with FTS wildcard (_)
+            v = re.sub('[^0-9a-zA-Z\-]+', '_', v)
             # append ':*' so we can do partial FTS searches
             colsearch_dict[k] = v + u':*'
         i += 1
@@ -96,7 +99,7 @@ def ajax(resource_view_id):
     if colsearch_dict:
         search_text = json.dumps(colsearch_dict)
     else:
-        search_text = search_text + u':*' if search_text else ''
+        search_text = re.sub('[^0-9a-zA-Z\-]+', '_', search_text) + u':*' if search_text else u''
 
     try:
         response = datastore_search(
@@ -173,13 +176,15 @@ def filtered_download(resource_view_id):
             v = column[u'search'][u'value']
             if v:
                 k = column[u'name']
+                # replace non-alphanumeric characters with FTS wildcard (_)
+                v = re.sub('[^0-9a-zA-Z\-]+', '_', v)
                 # append ':*' so we can do partial FTS searches
                 colsearch_dict[k] = v + u':*'
 
     if colsearch_dict:
         search_text = json.dumps(colsearch_dict)
     else:
-        search_text = search_text + u':*' if search_text else ''
+        search_text = re.sub('[^0-9a-zA-Z\-]+', '_', search_text) + u':*' if search_text else ''
 
     return h.redirect_to(
         h.
