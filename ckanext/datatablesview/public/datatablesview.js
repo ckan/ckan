@@ -11,7 +11,9 @@ let gsortInfo = ''
 // global vars for filter info labels
 let gtableSearchText = ''
 let gcolFilterText = ''
-let gdatatableReady = false
+
+let datatable
+const gisFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1
 
 // HELPER FUNCTIONS
 // helper for filtered downloads
@@ -180,21 +182,25 @@ function copyLink (dt, deeplink, shareText, sharemsgText) {
     .val(deeplink)
     .appendTo(hiddenDiv)
 
+  // save & deselect rows, so we copy the link, not the rows
+  const selectedRows = dt.rows({ selected: true })[0]
+  dt.rows().deselect()
+
+  hiddenDiv.appendTo(dt.table().container())
+  textarea[0].focus()
+  textarea[0].select()
+
+  hiddenDiv.appendTo(dt.table().container())
+  textarea[0].focus()
+  textarea[0].select()
   // use copy execCommand to copy link to clipboard
-  if (document.queryCommandSupported('copy')) {
-    hiddenDiv.appendTo(dt.table().container())
-    textarea[0].focus()
-    textarea[0].select()
+  const successful = document.execCommand('copy')
+  hiddenDiv.remove()
 
-    try {
-      const successful = document.execCommand('copy')
-      hiddenDiv.remove()
-
-      if (successful) {
-        dt.buttons.info(shareText, sharemsgText, 2000)
-      }
-    } catch (t) {}
+  if (successful) {
+    dt.buttons.info(shareText, sharemsgText, 2000)
   }
+  dt.rows(selectedRows).select()
 }
 
 // helper for hiding search inputs for list/responsive mode
@@ -215,7 +221,7 @@ function initFilterObserver () {
   // separately for filter status. Here, we're checking if an open parenthesis is in the filter info,
   // which indicates that there is a filter active, regardless of language
   // (e.g. "4 of 1000 entries (filtered from...)")
-  const filterObserver = new MutationObserver (function (e) {
+  const filterObserver = new MutationObserver(function (e) {
     const infoText = document.getElementById('dtprv_info').innerText
     if (!infoText.includes('(')) {
       $('#dtprv_filter input').css('background-color', 'transparent')
@@ -247,7 +253,6 @@ this.ckan.module('datatables_view', function (jQuery) {
       const languagefile = dtprv.data('languagefile')
       const statesaveflag = dtprv.data('state-save-flag')
       const stateduration = parseInt(dtprv.data('state-duration'))
-      const searchdelaysetting = parseInt(dtprv.data('search-delay-setting'))
       const packagename = dtprv.data('package-name')
       const responsiveflag = dtprv.data('responsive-flag')
       const pagelengthchoices = dtprv.data('page-length-choices')
@@ -314,7 +319,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           filteredDict.width = filteredDict.width + 'em'
         }
         if (Number.isInteger(filteredDict?.wordwrap)) {
-          filteredDict.render = function(data, type, row) {
+          filteredDict.render = function (data, type, row) {
             data = wordWrap(data, filteredDict.wordwrap)
             return data
           }
@@ -325,7 +330,7 @@ this.ckan.module('datatables_view', function (jQuery) {
 
       // labels for showing active filters in clipboard copy & print
       gtableSearchText = that._('TABLE FILTER')
-      gcolFilterText = that._('COLUMN FILTER/S') //'&nbsp;&nbsp;&nbsp;' + that._('COLUMN FILTER/S')
+      gcolFilterText = that._('COLUMN FILTER/S')
 
       let activelanguage = languagefile
       // en is the default language, no need to load i18n file
@@ -334,14 +339,12 @@ this.ckan.module('datatables_view', function (jQuery) {
       }
 
       // settings if gcurrentView === table
-      let fixedColumnSetting = true
       let scrollXflag = true
       let responsiveSettings = false
 
       if (gcurrentView === 'list') {
         // we're in list view mode (aka responsive mode)
-        // not compatible with scrollX & fixedColumns
-        fixedColumnSetting = false
+        // not compatible with scrollX
         scrollXflag = false
 
         // create _colspacer column to ensure display of green record detail button
@@ -358,10 +361,10 @@ this.ckan.module('datatables_view', function (jQuery) {
             display: $.fn.dataTable.Responsive.display.modal({
               header: function (row) {
                 // add clipboard and print buttons to modal record display
-                return '<div id ="modalHeader"><span style="font-size:200%;font-weight:bold;">Details:</span><div class="dt-buttons">' +
-                  '<button id="modalcopy-button" class="dt-button" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
+                return '<div id ="modalHeader"><span style="font-size:200%;font-weight:bold;">Details:</span><div class="dt-buttons btn-group">' +
+                  '<button id="modalcopy-button" class="btn btn-default" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
                   packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-files-o"></i></button>' +
-                  '<button id="modalprint-button" class="dt-button" title="' + that._('Print') + '" onclick="printModal(\'' +
+                  '<button id="modalprint-button" class="btn btn-default" title="' + that._('Print') + '" onclick="printModal(\'' +
                   packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
                   '&nbsp;&nbsp;&nbsp;&nbsp;</div></div>'
               }
@@ -372,8 +375,8 @@ this.ckan.module('datatables_view', function (jQuery) {
             // guaranteeing the green display record button is always displayed, even for narrow tables
             renderer: function (api, rowIdx, columns) {
               const data = $.map(columns, function (col, i) {
-                return col.className !== 'none' ?
-                    '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+                return col.className !== 'none'
+                  ? '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
                     '<td>' + col.title + ':' + '</td> ' +
                     '<td>' + col.data + '</td>' +
                     '</tr>'
@@ -392,40 +395,45 @@ this.ckan.module('datatables_view', function (jQuery) {
 
       // create column filters
       $('.fhead').each(function (i) {
-        const colname = this.textContent
+        const thecol = this
+        const colname = thecol.textContent
         const colid = 'dtcol-' + validateId(colname) + '-' + i
         $('<input id="' + colid + '" name="' + colid + '" autosave="' + colid +
-                '" class="fhead" type="search" results="10" autocomplete="on" style="width:100%"/>')
-          .appendTo($(this).empty())
-          .on('keyup change search', function () {
-            const dt = $('#dtprv').DataTable({ retrieve: true })
+                '" class="fhead form-control input-sm" type="search" results="10" autocomplete="on" style="width:100%"/>')
+          .appendTo($(thecol).empty())
+          .on('keyup search', function (event) {
             const colSelector = colname + ':name'
-            if (dt.column(colSelector).search() !== this.value) {
-              dt
+            // Firefox doesn't do clearing of input when ESC is pressed
+            if (gisFirefox && event.keyCode === 27) {
+              this.value = ''
+            }
+            //  only do column search on enter or clearing of input
+            if (event.keyCode === 13 || (this.value === '' && datatable.column(colSelector).search() !== '')) {
+              datatable
                 .column(colSelector)
                 .search(this.value)
-                .draw()
+                .draw(false)
             }
           })
       })
 
       // init the datatable
-      const datatable = $('#dtprv').DataTable({
+      datatable = $('#dtprv').DataTable({
         paging: true,
         serverSide: true,
         processing: true,
         deferRender: true,
         stateSave: statesaveflag,
         stateDuration: stateduration,
-        searchDelay: searchdelaysetting,
         colReorder: {
           fixedColumnsLeft: 1
         },
-        fixedColumns: fixedColumnSetting,
         autoWidth: true,
         orderCellsTop: true,
         mark: true,
-        keys: true,
+        // Firefox messes up clipboard copy & deeplink share
+        // with key extension clipboard support on. Turn it off
+        keys: gisFirefox ? { clipboard: false } : true,
         select: {
           style: 'os',
           blurable: true
@@ -452,7 +460,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         scrollResize: true,
         scrollCollapse: false,
         lengthMenu: pagelengthchoices,
-        dom: 'lBifrtp<"resourceinfo"><"sortinfo">',
+        dom: 'lBifrt<"resourceinfo"><"sortinfo">p',
         stateLoadParams: function (settings, data) {
           // this callback is invoked whenever state info is loaded
 
@@ -535,7 +543,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           $('#dtprv_filter label').before('<i id="filterinfoicon" class="fa fa-info-circle"</i>&nbsp;')
 
           // on mouseenter on Search info icon, update tooltip with filterinfo
-          $('#filterinfoicon').mouseenter(function() {
+          $('#filterinfoicon').mouseenter(function () {
             document.getElementById('filterinfoicon').title = filterInfo(datatable, true, true, true) +
               '\n' + that._('Double-click to reset filters')
           })
@@ -559,6 +567,21 @@ this.ckan.module('datatables_view', function (jQuery) {
             hideSearchInputs(api.columns().responsiveHidden().toArray())
           }
 
+          // only do table search on enter key, or clearing of input
+          const tableSearchInput = $('#dtprv_filter label input')
+          tableSearchInput.unbind()
+          tableSearchInput.bind('keyup search', function (event) {
+            // Firefox doesn't do clearing of input when ESC is pressed
+            if (gisFirefox && event.keyCode === 27) {
+              this.value = ''
+            }
+            if (event.keyCode === 13 || (tableSearchInput.val() === '' && datatable.search() !== '')) {
+              datatable
+                .search(this.value)
+                .draw()
+            }
+          })
+
           // start showing page once everything is just about rendered
           // we need to make it visible now so smartsize works if needed
           document.getElementsByClassName('dt-view')[0].style.visibility = 'visible'
@@ -570,7 +593,7 @@ this.ckan.module('datatables_view', function (jQuery) {
             // we need to reload to get the deeplink active
             // to init localstorage
             if (!getWithExpiry('deeplink_firsttime')) {
-              setWithExpiry('deeplink_firsttime', true, 3)
+              setWithExpiry('deeplink_firsttime', true, 4)
               setTimeout(function () {
                 window.location.reload()
               }, 200)
@@ -603,7 +626,6 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
           }
-          gdatatableReady = true
         }, // end InitComplete
         buttons: [{
           name: 'viewToggleButton',
@@ -658,7 +680,7 @@ this.ckan.module('datatables_view', function (jQuery) {
                   this.visible(false)
                 }
               })
-            }          
+            }
           }, {
             extend: 'colvisGroup',
             text: '<i class="fa fa-filter"></i> ' + that._('Filtered'),
@@ -734,7 +756,7 @@ this.ckan.module('datatables_view', function (jQuery) {
             columns: ':visible'
           }
         }, {
-          name: 'shareButton',          
+          name: 'shareButton',
           text: '<i class="fa fa-share"></i>',
           titleAttr: that._('Share current view'),
           action: function (e, dt, node, config) {
@@ -763,27 +785,10 @@ this.ckan.module('datatables_view', function (jQuery) {
         hideSearchInputs(columns)
       })
 
-      // set column search background to gray when using global search
-      $('#dtprv_filter input').on('keyup change search', function () {
-        if (!gdatatableReady) { return }
-        datatable.columns().search('').draw(false)
-        $('th.fhead input').css('background-color', '#e6e6e6')
-        $('#dtprv_filter input').css('background-color', 'transparent')
-      })
-
-      // set global search background to gray when using column search
-      $('th.fhead input').on('keyup change search', function () {
-        if (!gdatatableReady) { return }
-        datatable.search('').draw(false)
-        $('#dtprv_filter input').css('background-color', '#e6e6e6')
-        $('th.fhead input').css('background-color', 'transparent')
-      })
-
       // a language file has been loaded asynch
-      // this only happens when a non-english language is
-      // being used by DT
+      // this only happens when a non-english language is loaded
       datatable.on('i18n', function () {
-        // and we need to 
+        // and we need to ensure Filter Observer is in place
         setTimeout(initFilterObserver(), 100)
       })
 
@@ -798,9 +803,11 @@ this.ckan.module('datatables_view', function (jQuery) {
         gsortInfo = '<b> ' + that._('Sort') + '</b> <i id="sortinfoicon" class="fa fa-info-circle" title="' +
             that._('Press SHIFT key while clicking on\nsort control for multi-column sort') + '"</i> : '
         sortOrder.forEach((sortcol, idx) => {
-          let colText = datatable.column(sortcol[0]).name()
+          const colText = datatable.column(sortcol[0]).name()
           gsortInfo = gsortInfo + colText +
-                    (sortcol[1] === 'asc' ? ' <i class="fa fa-caret-up"></i> ' : ' <i class="fa fa-caret-down"></i> ')
+                      (sortcol[1] === 'asc'
+                        ? ' <span class="glyphicon glyphicon-sort-by-attributes"></span> '
+                        : ' <span class="glyphicon glyphicon-sort-by-attributes-alt"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
       })
@@ -826,7 +833,7 @@ $.fn.dataTable.Api.registerPlural('columns().names()', 'column().name()', functi
 
 // shake animation
 function animateEl (element, animation, complete) {
-  if (!element instanceof jQuery || !$(element).length || !animation) return null
+  if (!(element instanceof jQuery) || !$(element).length || !animation) return null
 
   if (element.data('animating')) {
     element.removeClass(element.data('animating')).data('animating', null)
