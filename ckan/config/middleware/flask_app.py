@@ -14,6 +14,8 @@ from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
 
 import six
+import webob
+
 from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
@@ -62,6 +64,16 @@ class I18nMiddleware(object):
 
         handle_i18n(environ)
         return self.app(environ, start_response)
+
+
+class RepozeAdapterMiddleware(object):
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        request = webob.Request(environ)
+        response = request.get_response(self.app)
+        return response(environ, start_response)
 
 
 class CKANBabel(Babel):
@@ -263,6 +275,7 @@ def make_flask_stack(conf):
         }
         config['routes.named_routes'].update(route)
 
+    app = RepozeAdapterMiddleware(app)
     # Start other middleware
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
