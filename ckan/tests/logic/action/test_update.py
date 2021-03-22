@@ -1208,7 +1208,7 @@ class TestResourceUpdate(object):
         assert "extras" not in resource
         assert "someotherkey" not in resource
 
-    @helpers.change_config(
+    @pytest.mark.ckan_config(
         "ckan.views.default_views", "image_view recline_view"
     )
     def test_resource_format_update(self):

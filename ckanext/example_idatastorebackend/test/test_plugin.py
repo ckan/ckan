@@ -44,8 +44,8 @@ class TestExampleIDatastoreBackendPlugin():
             with pytest.raises(AssertionError):
                 DatastoreBackend.set_active_backend(config)
 
-    @helpers.change_config(u"ckan.datastore.write_url", u"sqlite://x")
-    @helpers.change_config(u"ckan.datastore.read_url", u"sqlite://x")
+    @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
+    @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
     def test_sqlite_engine(self):
         DatastoreBackend.set_active_backend(config)
         assert isinstance(
@@ -53,8 +53,8 @@ class TestExampleIDatastoreBackendPlugin():
             DatastoreExampleSqliteBackend,
         )
 
-    @helpers.change_config(u"ckan.datastore.write_url", u"sqlite://x")
-    @helpers.change_config(u"ckan.datastore.read_url", u"sqlite://x")
+    @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
+    @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
     @patch(class_to_patch + u"._get_engine")
     def test_backend_functionality(self, get_engine):
         engine = get_engine()
