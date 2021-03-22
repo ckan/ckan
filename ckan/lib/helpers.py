@@ -1621,10 +1621,24 @@ def user_image(user_id, size=100):
     gravatar_default = config.get('ckan.gravatar_default', 'identicon')
 
     if user_dict['image_display_url']:
+        try:
+            parsed_url = urlparse(
+                user_dict['image_display_url'],
+                allow_fragments=False),
+            )
+            parsed_url = parsed_url._replace(
+                path=quote(parsed_url.path, '/'),
+                query=quote(parsed_url.query, '=&'),
+                params='',
+                fragment='',
+            )
+        except ValueError:
+            return ''
+
         return literal('''<img src="{url}"
                        class="user-image"
                        width="{size}" height="{size}" alt="{alt}" />'''.format(
-            url=user_dict['image_display_url'],
+            url=urlunparse(parsed_url),
             size=size,
             alt=user_dict['name']
         ))
