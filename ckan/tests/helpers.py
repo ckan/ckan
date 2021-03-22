@@ -256,8 +256,7 @@ class CKANTestClient(FlaskClient):
             )
 
         status = kwargs.pop("status", None)
-        # REMOTE_USER is required by repoze.who
-        extra_environ = kwargs.pop("extra_environ", {'REMOTE_USER': ''})
+        extra_environ = kwargs.pop("extra_environ", None)
         if extra_environ:
             kwargs["environ_overrides"] = extra_environ
 
