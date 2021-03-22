@@ -275,7 +275,6 @@ def make_flask_stack(conf):
         }
         config['routes.named_routes'].update(route)
 
-    app = RepozeAdapterMiddleware(app)
     # Start other middleware
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
@@ -293,7 +292,7 @@ def make_flask_stack(conf):
     who_parser.parse(open(conf['who.config_file']))
 
     app = PluggableAuthenticationMiddleware(
-        app,
+        RepozeAdapterMiddleware(app),
         who_parser.identifiers,
         who_parser.authenticators,
         who_parser.challengers,
