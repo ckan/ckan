@@ -67,6 +67,20 @@ class I18nMiddleware(object):
 
 
 class RepozeAdapterMiddleware(object):
+    """When repoze.who interrupts requrests for anonymous user because of
+    insufficient permission, it closes requrest stream and make an
+    attempt to return response to user as quick as possible. But when
+    werkzeug sees POST request with some payload it tries to parse
+    request data and it leads to BadRequests(400), because there is no
+    way to parse closed request stream. This middlewary just
+    reproduces part of internal Fanstatic bevavior: don't drop request
+    stream while response is written to the client.
+
+    The middleware only requred because of repoze.who and it should be
+    removed as soon as PluggableAuthenticationMiddlewary is replaced
+    with some alternative solution.
+
+    """
     def __init__(self, app):
         self.app = app
 
