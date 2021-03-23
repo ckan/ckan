@@ -1609,6 +1609,29 @@ def gravatar(email_hash, size=100, default=None):
 
 
 @core_helper
+def sanitize_url(url):
+    '''
+    Return a sanitized version of a user-provided url for use in an
+    <a href> or <img src> attribute, e.g.:
+
+    <a href="{{ h.sanitize_url(user_link) }}">
+
+    On parsing errors an empty string will be returned
+    '''
+    try:
+        parsed_url = urlparse(url, allow_fragments=False)
+        parsed_url = parsed_url._replace(
+            path=quote(unquote(parsed_url.path), '/'),
+            query=quote(unquote(parsed_url.query), '=&'),
+            params='',
+            fragment='',
+        )
+        return urlunparse(parsed_url)
+    except ValueError:
+        return ''
+
+
+@core_helper
 def user_image(user_id, size=100):
     try:
         user_dict = logic.get_action('user_show')(
@@ -1621,24 +1644,10 @@ def user_image(user_id, size=100):
     gravatar_default = config.get('ckan.gravatar_default', 'identicon')
 
     if user_dict['image_display_url']:
-        try:
-            parsed_url = urlparse(
-                user_dict['image_display_url'],
-                allow_fragments=False),
-            )
-            parsed_url = parsed_url._replace(
-                path=quote(parsed_url.path, '/'),
-                query=quote(parsed_url.query, '=&'),
-                params='',
-                fragment='',
-            )
-        except ValueError:
-            return ''
-
         return literal('''<img src="{url}"
                        class="user-image"
                        width="{size}" height="{size}" alt="{alt}" />'''.format(
-            url=urlunparse(parsed_url),
+            url=sanitize_url(user_dict['image_display_url']),
             size=size,
             alt=user_dict['name']
         ))
