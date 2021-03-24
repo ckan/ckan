@@ -507,7 +507,7 @@ def activity(id, group_type, is_organization, offset=0):
         _get_group_template(u'activity_template', group_type), extra_vars)
 
 
-def changes(id, group_type=None, is_organization):
+def changes(id, group_type, is_organization):
     '''
     Shows the changes to an organization in one particular activity stream item.
     '''
