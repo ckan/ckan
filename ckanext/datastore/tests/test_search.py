@@ -1538,6 +1538,40 @@ class TestDatastoreSQLLegacyTests(object):
             assert res_dict["success"] is False
             assert res_dict["error"]["__type"] == "Authorization Error"
 
+    def test_allowed_functions_are_case_insensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT UpPeR(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    def test_quoted_allowed_functions_are_case_sensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT count(*) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+        sql = 'SELECT CoUnT(*) from "{}"'.format(
+            resource["id"]
+        )
+        assert_raises(p.toolkit.NotAuthorized,
+            helpers.call_action, "datastore_search_sql", sql=sql)
+
 
 class TestDatastoreSQLFunctional(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
