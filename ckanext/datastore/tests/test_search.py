@@ -1656,6 +1656,8 @@ class TestDatastoreSQLFunctional(object):
         with pytest.raises(p.toolkit.NotAuthorized):
             helpers.call_action("datastore_search_sql", sql=sql)
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_allowed_functions_are_case_insensitive(self):
         resource = factories.Resource()
         data = {
@@ -1670,6 +1672,8 @@ class TestDatastoreSQLFunctional(object):
         )
         helpers.call_action("datastore_search_sql", sql=sql)
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_quoted_allowed_functions_are_case_sensitive(self):
         resource = factories.Resource()
         data = {
