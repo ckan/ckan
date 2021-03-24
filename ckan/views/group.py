@@ -520,11 +520,11 @@ def changes(id, group_type=None, is_organization):
         activity_diff = get_action(u'activity_diff')(
             context, {u'id': activity_id, u'object_type': u'group',
                       u'diff_type': u'html'})
-        except NotFound as e:
-            log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
-            return base.abort(404, _(u'Activity not found'))
-        except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to view activity data'))
+    except NotFound as e:
+        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
+        return base.abort(404, _(u'Activity not found'))
+    except NotAuthorized:
+        return base.abort(403, _(u'Unauthorized to view activity data'))
 
     # 'group_dict' needs to go to the templates for page title & breadcrumbs.
     # Use the current version of the package, in case the name/title have
