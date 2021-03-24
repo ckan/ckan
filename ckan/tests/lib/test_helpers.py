@@ -904,3 +904,16 @@ class TestAddUrlParam(object):
             assert h.add_url_param(
                 controller=controller, action=action, extras=extras
             ) == h.url_for(controller + '.' + action, **extras)
+
+
+def test_sanitize_url():
+    assert h.sanitize_url(
+        'http://example.com/some-path/to_a/file.jpg'
+    ) == 'http://example.com/some-path/to_a/file.jpg'
+    assert h.sanitize_url(
+        'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+    ) == 'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+    assert h.sanitize_url(
+        'http://éxàmple.com/some:path/to+a/fil[e].jpg'
+    ) == 'http://éxàmple.côm/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
+    assert h.sanitize_url('http://bad host/path') == ''

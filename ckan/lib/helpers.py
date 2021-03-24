@@ -1608,6 +1608,9 @@ def gravatar(email_hash, size=100, default=None):
                    )
 
 
+_PLAUSIBLE_HOST_IDNA = re.compile(r'^[-\w.:\[\]]*$')
+
+
 @core_helper
 def sanitize_url(url):
     '''
@@ -1616,15 +1619,23 @@ def sanitize_url(url):
 
     <a href="{{ h.sanitize_url(user_link) }}">
 
-    On parsing errors an empty string will be returned
+    Sanitizing urls is tricky. This is a best-effort to produce something
+    valid from the sort of text users might paste into a web form, not
+    intended to cover all possible valid edge-case urls.
+
+    On parsing errors an empty string will be returned.
     '''
     try:
-        parsed_url = urlparse(url, allow_fragments=False)
+        parsed_url = urlparse(url)
+        if not _PLAUSIBLE_HOST_IDNA.match(parsed_url.netloc.encode('idna')):
+            return ''
+        # quote with allowed characters from https://www.ietf.org/rfc/rfc3986.txt
         parsed_url = parsed_url._replace(
-            path=quote(unquote(parsed_url.path), '/'),
-            query=quote(unquote(parsed_url.query), '=&'),
-            params='',
-            fragment='',
+            scheme=quote(unquote(parsed_url.scheme), '+'),
+            path=quote(unquote(parsed_url.path), "/"),
+            query=quote(unquote(parsed_url.query), "?/&="),
+            params=quote(unquote(parsed_url.params), "?/&="),
+            fragment=quote(unquote(parsed_url.fragment), "?/&="),
         )
         return urlunparse(parsed_url)
     except ValueError:
