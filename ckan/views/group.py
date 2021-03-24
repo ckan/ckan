@@ -510,7 +510,8 @@ def activity(id, group_type, is_organization, offset=0):
 
 def changes(id, group_type, is_organization):
     '''
-    Shows the changes to an organization in one particular activity stream item.
+    Shows the changes to an organization in one particular activity stream
+    item.
     '''
     activity_id = id
     context = {
@@ -531,7 +532,8 @@ def changes(id, group_type, is_organization):
     # Use the current version of the package, in case the name/title have
     # changed, and we need a link to it which works
     group_id = activity_diff[u'activities'][1][u'data'][u'group'][u'id']
-    current_group_dict = get_action(u'organization_show')(context, {u'id': group_id})
+    current_group_dict = get_action(u'organization_show')(
+        context, {u'id': group_id})
     group_activity_list = get_action(u'organization_activity_list')(
         context, {
             u'id': group_id,
@@ -556,7 +558,7 @@ def changes_multiple(is_organization, group_type=None):
     activity diffs for the changes in the given version range, then
     re-renders organization_changes.html with the list.
     '''
-   
+
     new_id = h.get_request_param(u'new_id')
     old_id = h.get_request_param(u'old_id')
 
@@ -616,7 +618,8 @@ def changes_multiple(is_organization, group_type=None):
             current_id = activity_diff['activities'][0]['id']
 
     group_id = diff_list[0][u'activities'][1][u'data'][u'group'][u'id']
-    current_group_dict = get_action(u'organization_show')(context, {u'id': group_id})
+    current_group_dict = get_action(u'organization_show')(
+        context, {u'id': group_id})
     group_activity_list = get_action(u'organization_activity_list')(context, {
         u'id': group_id,
         u'limit': 100})
@@ -1325,8 +1328,9 @@ def register_group_plugin_rules(blueprint):
             methods=[u'GET', u'POST'],
             view_func=globals()[action])
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
-    blueprint.add_url_rule(u'/organization.changes_multiple', view_func=changes_multiple)
-     
+    blueprint.add_url_rule(u'/organization.changes_multiple',
+        view_func=changes_multiple)
+ 
 
 register_group_plugin_rules(group)
 register_group_plugin_rules(organization)
