@@ -1588,7 +1588,10 @@ def search_sql(context, data_dict):
         context['check_access'](table_names)
 
         for f in function_names:
-            if f not in backend.allowed_sql_functions:
+            for name_variant in [f.lower(), '"{}"'.format(f)]:
+                if name_variant in backend.allowed_sql_functions:
+                    break
+            else:
                 raise toolkit.NotAuthorized({
                     'permissions': [
                         'Not authorized to call function {}'.format(f)]
@@ -1731,8 +1734,21 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 _SQL_FUNCTIONS_ALLOWLIST_FILE
             )
 
+            def format_entry(line):
+                '''Prepare an entry from the 'allowed_functions' file
+                to be used in the whitelist.
+
+                Leading and trailing whitespace is removed, and the
+                entry is lowercased unless enclosed in "double quotes".
+                '''
+                entry = line.strip()
+                if not entry.startswith('"'):
+                    entry = entry.lower()
+                return entry
+
             with open(allowed_sql_functions_file, 'r') as f:
-                self.allowed_sql_functions = set(line.strip() for line in f)
+                self.allowed_sql_functions = set(format_entry(line)
+                                                 for line in f)
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
