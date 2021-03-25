@@ -40,7 +40,7 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
         # Register this plugin's assets directory with CKAN.
         # Here, 'assets' is the path to the webassets directory
         # (relative to this plugin.py file), and 'example_theme' is the name
-        # that we'll use to refer to this fanstatic directory from CKAN
+        # that we'll use to refer to this assets directory from CKAN
         # templates.
         toolkit.add_resource(u'assets', u'example_theme')
 

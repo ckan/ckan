@@ -13,7 +13,6 @@ chardet==3.0.4            # via requests
 click==7.1.2              # via -r requirements.in, flask, rq
 decorator==4.4.2          # via sqlalchemy-migrate
 dominate==2.4.0           # via -r requirements.in
-fanstatic==1.1            # via -r requirements.in
 feedgen==0.9.0            # via -r requirements.in
 flask-babel==1.0.0        # via -r requirements.in
 flask-multistatic==1.0    # via -r requirements.in
@@ -46,7 +45,6 @@ repoze.who==2.3           # via -r requirements.in
 requests==2.24.0          # via -r requirements.in, pysolr
 routes==1.13              # via -r requirements.in
 rq==1.0                   # via -r requirements.in
-shutilwhich==1.1.0        # via fanstatic
 simplejson==3.10.0        # via -r requirements.in
 six==1.15.0               # via bleach, python-dateutil, pyutilib, sqlalchemy-migrate
 sqlalchemy-migrate==0.12.0  # via -r requirements.in
@@ -59,7 +57,7 @@ urllib3==1.25.11          # via requests
 watchdog==1.0.2           # via werkzeug
 webassets==0.12.1         # via -r requirements.in
 webencodings==0.5.1       # via bleach
-webob==1.8.6              # via fanstatic, repoze.who
+webob==1.8.6              # via repoze.who
 werkzeug[watchdog]==1.0.0  # via -r requirements.in, flask
 zope.interface==4.7.2     # via -r requirements.in, repoze.who
 

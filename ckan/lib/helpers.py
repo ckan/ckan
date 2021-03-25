@@ -2137,45 +2137,6 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
 
 @core_helper
-def include_resource(resource):
-    import ckan.lib.fanstatic_resources as fanstatic_resources
-    r = getattr(fanstatic_resources, resource)
-    r.need()
-
-
-@core_helper
-def urls_for_resource(resource):
-    ''' Returns a list of urls for the resource specified.  If the resource
-    is a group or has dependencies then there can be multiple urls.
-
-    NOTE: This is for special situations only and is not the way to generally
-    include resources.  It is advised not to use this function.'''
-    import ckan.lib.fanstatic_resources as fanstatic_resources
-
-    r = getattr(fanstatic_resources, resource)
-    resources = list(r.resources)
-    core = fanstatic_resources.fanstatic_extensions.core
-    f = core.get_needed()
-    lib = r.library
-    root_path = f.library_url(lib)
-
-    resources = core.sort_resources(resources)
-    if f._bundle:
-        resources = core.bundle_resources(resources)
-    out = []
-    for resource in resources:
-        if isinstance(resource, core.Bundle):
-            paths = [resource.relpath for resource in resource.resources()]
-            relpath = ';'.join(paths)
-            relpath = core.BUNDLE_PREFIX + relpath
-        else:
-            relpath = resource.relpath
-
-        out.append('%s/%s' % (root_path, relpath))
-    return out
-
-
-@core_helper
 def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
