@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import six
-import mock
+import unittest.mock as mock
 import pytest
 
 from ckan import authz as auth

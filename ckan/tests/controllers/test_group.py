@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-import mock
+import unittest.mock as mock
 from bs4 import BeautifulSoup
 import pytest
 import six

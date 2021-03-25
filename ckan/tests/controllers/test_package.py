@@ -2,7 +2,7 @@
 
 from bs4 import BeautifulSoup
 from werkzeug.routing import BuildError
-import mock
+import unittest.mock as mock
 
 from ckan.lib.helpers import url_for
 import pytest

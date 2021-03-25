@@ -7,7 +7,7 @@ import warnings
 import copy
 import decimal
 import fractions
-import mock
+import unittest.mock as mock
 import pytest
 
 import ckan.lib.navl.dictization_functions as df

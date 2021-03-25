@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 
-from mock import patch, Mock, call
+from unittest.mock import patch, Mock, call
 import pytest
 
 from ckan.common import config
