@@ -10,7 +10,7 @@ feedgen==0.9.0
 Flask==1.1.1
 Flask-Babel==1.0.0
 flask-multistatic==1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 PyJWT==1.7.1
 Markdown==3.3.3
 passlib==1.7.3
