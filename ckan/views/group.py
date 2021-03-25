@@ -1328,9 +1328,10 @@ def register_group_plugin_rules(blueprint):
             methods=[u'GET', u'POST'],
             view_func=globals()[action])
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
-    blueprint.add_url_rule(u'/organization.changes_multiple',
+    blueprint.add_url_rule(
+        u'/organization.changes_multiple',
         view_func=changes_multiple)
- 
+
 
 register_group_plugin_rules(group)
 register_group_plugin_rules(organization)
