@@ -379,11 +379,11 @@ def check_metadata_org_changes(change_list, old, new):
     if old.get(u'title') != new.get(u'title'):
         _title_change(change_list, old, new)
 
-   # if the description of the organization changed
+    # if the description of the organization changed
     if old.get(u'description') != new.get(u'description'):
         _description_change(change_list, old, new)
 
-   # if the image URL has changed
+    # if the image URL has changed
     if old.get(u'image_url') != new.get(u'image_url'):
         _image_url_change(change_list, old, new)
 
@@ -851,7 +851,7 @@ def _extra_fields(change_list, old, new):
                                 u'title': new.get(u'title'),
                                 u'key_list': deleted_fields})
 
-        
+  
 def _description_change(change_list, old, new):
     '''
     Appends a summary of a change to a organization's description between two
