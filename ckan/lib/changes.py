@@ -851,7 +851,7 @@ def _extra_fields(change_list, old, new):
                                 u'title': new.get(u'title'),
                                 u'key_list': deleted_fields})
 
-  
+
 def _description_change(change_list, old, new):
     '''
     Appends a summary of a change to a organization's description between two
