@@ -2967,6 +2967,35 @@ def compare_pkg_dicts(old, new, old_activity_id):
 
 
 @core_helper
+def compare_group_dicts(old, new, old_activity_id):
+    '''
+    Takes two package dictionaries that represent consecutive versions of
+    the same organization and returns a list of detailed & formatted summaries
+    of the changes between the two versions. old and new are the two package
+    dictionaries. The function assumes that both dictionaries will have
+    all of the default package dictionary keys, and also checks for fields
+    added by extensions and extra fields added by the user in the web
+    interface.
+
+    Returns a list of dictionaries, each of which corresponds to a change
+    to the dataset made in this revision. The dictionaries each contain a
+    string indicating the type of change made as well as other data necessary
+    to form a detailed summary of the change.
+    '''
+    from ckan.lib.changes import check_metadata_org_changes
+    change_list = []
+
+    check_metadata_org_changes(change_list, old, new)
+
+    # if the organization was updated but none of the fields we check
+    # were changed, display a message stating that
+    if len(change_list) == 0:
+        change_list.append({u'type': 'no_change'})
+
+    return change_list
+
+
+@core_helper
 def activity_list_select(pkg_activity_list, current_activity_id):
     '''
     Builds an HTML formatted list of options for the select lists
