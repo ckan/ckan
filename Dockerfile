@@ -1,32 +1,24 @@
 # See CKAN docs on installation from Docker Compose on usage
-FROM debian:stretch
+FROM python:3.7.0-alpine
 MAINTAINER Open Knowledge
 
 # Install required system packages
-RUN apt-get -q -y update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade \
-    && apt-get -q -y install \
-        python-dev \
-        python-pip \
-        python-virtualenv \
-        python-wheel \
+RUN apk update \
+    && apk upgrade \
+    && apk add  --no-cache \
         python3-dev \
-        python3-pip \
-        python3-virtualenv \
-        python3-wheel \
-        libpq-dev \
+        musl-dev \
         libxml2-dev \
         libxslt-dev \
-        libgeos-dev \
-        libssl-dev \
         libffi-dev \
+        libmagic \
         postgresql-client \
-        build-essential \
-        git-core \
+        postgresql-dev \
+        git \
         vim \
         wget \
-    && apt-get -q clean \
-    && rm -rf /var/lib/apt/lists/*
+        curl \
+        gcc
 
 # Define environment variables
 ENV CKAN_HOME /usr/lib/ckan
@@ -38,21 +30,23 @@ ENV CKAN_STORAGE_PATH=/var/lib/ckan
 ARG CKAN_SITE_URL
 
 # Create ckan user
-RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
+RUN addgroup -g 900 -S ckan && \
+    adduser -S -u 900 -G ckan -D -h $CKAN_HOME -s /bin/false ckan
 
 # Setup virtual environment for CKAN
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
-    virtualenv $CKAN_VENV && \
-    ln -s $CKAN_VENV/bin/pip /usr/local/bin/ckan-pip &&\
-    ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster &&\
-    ln -s $CKAN_VENV/bin/ckan /usr/local/bin/ckan
+    python -m venv $CKAN_VENV
+#    ln -s $CKAN_VENV/bin/pip /usr/local/bin/pip
+#    ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster &&\
+#    ln -s $CKAN_VENV/bin/ckan /usr/local/bin/ckan && \
+#    ls -lha $CKAN_VENV/bin
 
 # Setup CKAN
-ADD . $CKAN_VENV/src/ckan/
-RUN ckan-pip install -U pip && \
-    ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
-    ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements-py2.txt && \
-    ckan-pip install -e $CKAN_VENV/src/ckan/ && \
+COPY . $CKAN_VENV/src/ckan/
+RUN pip install -U pip && \
+    pip install --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
+    pip install --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
+    pip install -e $CKAN_VENV/src/ckan/ && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
