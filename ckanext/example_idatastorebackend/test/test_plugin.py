@@ -20,7 +20,7 @@ class_to_patch = (
 
 
 @pytest.mark.ckan_config(u"ckan.plugins",
-                         u"datastore example_idatastorebackend")
+                         u"example_idatastorebackend datastore")
 @pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"app")
 class TestExampleIDatastoreBackendPlugin():
 
