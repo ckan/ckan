@@ -83,7 +83,16 @@ class PluginImplementations(ExtensionPoint):
 
         iterator = super(PluginImplementations, self).__iter__()
 
-        return reversed(list(iterator))
+        plugin_lookup = {pf.name: pf for pf in iterator}
+
+        plugins_in_config = config.get('ckan.plugins', '').split()
+
+        ordered_plugins = []
+        for pc in plugins_in_config:
+            if pc in plugin_lookup:
+                ordered_plugins.append(plugin_lookup[pc])
+
+        return iter(ordered_plugins)
 
 
 class PluginNotFoundException(Exception):
