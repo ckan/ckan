@@ -2,6 +2,7 @@ body {
   background: none;
 }
 
+/* this is important for DataTables to do column sizing properly */
 table {
   max-width: none !important;
 }
@@ -11,6 +12,7 @@ body.dt-view {
   visibility: hidden;
 }
 
+/* we need to do this as the dt-print-view is cloned from dt-view */
 body.dt-print-view {
   visibility: visible;
 }
@@ -23,11 +25,42 @@ div.dataTables_scroll{
   width: 100% !important;
 }
 
+/* processing message should hover over table and be visible */
 #dtprv_processing {
   z-index: 100;
 }
 
-/* make _id column darker */
+/* for table header, don't wrap */
+table.dataTable th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* clip content if it will overrun column width */
+table.dataTable td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* but show the data on hover */
+table.dataTable td:hover {
+   white-space: normal;
+   word-break: break-all;
+   overflow: visible;
+   text-overflow: visible;
+}
+
+/* when ellipsis_length === 0, wrap to column name width */
+table.dataTable td.wrapcell {
+   white-space: normal !important;
+   word-break: normal !important;
+   text-overflow: clip !important;
+}
+
+
+/* make _id column darker ala Excel */
 div.DTFC_LeftBodyWrapper {
   filter: brightness(0.85);
 }
@@ -41,7 +74,7 @@ div.DTFC_LeftBodyWrapper {
   z-index:11;  
 }
 
-/* for dynamic resizing of datatable */
+/* for dynamic resizing of datatable, needed for scrollresize */
 #resize_wrapper {
 	position: absolute;
 	top: 0.1em;
@@ -52,6 +85,7 @@ div.DTFC_LeftBodyWrapper {
   max-height: 100vh;
 }
 
+/* fine-tune positioning of various info elements for Bootstrap */
 .dataTables_length{
   display:inline;
 }
@@ -62,11 +96,6 @@ div.DTFC_LeftBodyWrapper {
   float: right;
   margin-top: -1.4em;
 }
-
-
-/*.dataTables_info{
-  padding-top: 4px !important;
-}*/
 
 #filterinfoicon {
   margin-top: 0.4em;
@@ -137,10 +166,39 @@ div.dt-button-collection.fixed {
   transform: translate(-65%, -20%);
 }
 
-
 .table-striped > tbody > tr.selected > td,
 .table-striped > tbody > tr.selected > th {
-background-color: #0275d8; /* change #A9D0F5 by the color of your preference */
+background-color: #0275d8;
+}
+
+/* for zooming thumbnails on hover */
+.zoomthumb {
+-webkit-transition: all 0.3s ease-in-out;    
+-moz-transition: all 0.3s ease-in-out;    
+transition: all 0.3s ease-in-out;     
+cursor: -webkit-zoom-in;      
+cursor: -moz-zoom-in;      
+cursor: zoom-in;  
+}     
+
+.zoomthumb:hover,
+.zoomthumb:active,   
+.zoomthumb:focus {
+/**adjust scale to desired size, 
+add browser prefixes**/
+-ms-transform: scale(2.5);    
+-moz-transform: scale(2.5);  
+-webkit-transform: scale(2.5);  
+-o-transform: scale(2.5);  
+transform: scale(2.5);    
+position:relative;      
+z-index:100;
+}
+
+.zoomthumb img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* Animation CSS */
