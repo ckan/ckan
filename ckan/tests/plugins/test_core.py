@@ -19,3 +19,19 @@ def test_plugins_order_in_pluginimplementations():
             u"example_idatasetform_v3"
         ]
     )
+
+
+@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.ckan_config(
+    u"ckan.plugins",
+    u"example_idatasetform_v1 example_idatasetform_v3 example_idatasetform_v2")
+def test_plugins_order_in_pluginimplementations_2():
+
+    assert (
+        [plugin.name for plugin in p.PluginImplementations(p.IDatasetForm)] ==
+        [
+            u"example_idatasetform_v1",
+            u"example_idatasetform_v3",
+            u"example_idatasetform_v2"
+        ]
+    )
