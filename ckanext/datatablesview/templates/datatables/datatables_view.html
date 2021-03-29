@@ -9,20 +9,23 @@
 {%- block page -%}
 {#- pass the datadictionary to javascript, so we can init columns there -#}
 {%- set datadictionary = h.datastore_dictionary(resource.id) -%}
+{%- set nbspval = "&nbsp;"|safe -%}
 <script type=text/javascript>
-    var gdataDict = {{ datadictionary|tojson }}
-    var gresviewId = '{{ resource_view.id }}'
+    const gdataDict = {{ datadictionary|tojson }}
+    const gresviewId = '{{ resource_view.id }}'
 </script>
 
 <div id="resize_wrapper">
   <table id="dtprv" width="100%"
-      class="table display nowrap compact cell-border"
+      class="table table-striped table-bordered table-condensed table-hover"
       data-module="datatables_view"
       data-state-save-flag="{{ state_saving|lower }}"
       data-state-duration="{{ state_duration }}"
-      data-search-delay-setting="{{ search_delay }}"
+      data-ellipsis-length="{{ resource_view.ellipsis_length if resource_view.ellipsis_length is defined else ellipsis_length }}"
+      data-date-format="{{ resource_view.date_format  if resource_view.date_format is defined else date_format }}"
       data-package-name="{{ package.name }}"
       data-resource-name="{{ h.resource_display_name(resource) }}"
+      data-languagecode="{{ h.lang() }}"
       data-languagefile="{{ h.url_for_static('vendor/DataTables/i18n/' + h.lang() + '.json') }}"
       data-ajaxurl="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
       data-ckanfilters="{{ request.args.get('filters', '')|e }}"
@@ -35,33 +38,22 @@
         {% for field in datadictionary -%}
           {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
             <th scope="col">
-              {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
-                {{ field.info.label }}
-              {%- else %}
-                {{- field.id -}}
-              {%- endif %}
-
-              {#- if there is a column configuration JSON in the data dictionary description, suppress it #}
-              {#- from displaying as a tooltip #}
-              {%- set ns = namespace() %}
-              {%- set ns.notes = h.markdown_extract(field.info.notes, 300) %}
-              {%- set ns.displaynotes = ns.notes %}
-              {%- set noteslist = ns.notes|list %}
-              {%- for notechar in noteslist %}
-                {%- if notechar == '{' %}
-                  {%- set ns.displaynotes = ns.notes|truncate(loop.index - 1, True, '', 0) %}
-                {%- endif %}
-              {%- endfor %}
-              {%- if data_dictionary_labels and field.info is defined and (ns.displaynotes|length or field.info.label|length) -%}
-                &nbsp;<i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ ns.displaynotes }}"></i>
-              {%- endif -%}            
-            </th>
+            {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
+              {{ field.info.label|replace(" ", nbspval) }}
+            {%- else -%}
+              {{ field.id|replace(" ", nbspval) }}
+            {%- endif -%}
+            &nbsp;
+            {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length)-%}            
+              <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
+            {%- endif -%}
+            &nbsp;</th>
           {%- endif %}
         {% endfor -%}
-       <th id="_colspacer" class="none"></th>
+       <th id="_colspacer">colspacer</th>
       </tr>
       <tr>
-        <th><button id="refit-button" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
+        <th><button id="refit-button" class="btn btn-default" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
         {% for field in datadictionary -%}
           {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
             <th id="cdx{{ loop.index }}" class="fhead">
@@ -69,7 +61,7 @@
             </th>
           {% endif -%}
         {% endfor -%}
-       <th id="_colspacerfilter" class="none" style="width:0px; display:none;"></th>
+       <th id="_colspacerfilter" class="none"></th>
       </tr>
     </thead>
     <tbody>
