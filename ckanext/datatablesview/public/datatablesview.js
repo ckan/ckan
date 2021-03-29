@@ -14,6 +14,9 @@ let gcolFilterText = ''
 
 let datatable
 const gisFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1
+let gsearchMode = ''
+let gstartTime = 0
+let gelaspedTime
 
 // HELPER FUNCTIONS
 // helper for filtered downloads
@@ -139,12 +142,10 @@ function filterInfo (dt, noHtml = false, justFilterInfo = false, wrapped = false
     filtermsg = filtermsg.replace(selinfo.innerText, ', ' + selinfo.innerText)
   }
 
-  const tablesearch = dt.search()
-
   // add active filter info to messageTop
-  if (tablesearch) {
-    filtermsg = filtermsg + '<br/> <b>' + gtableSearchText + ':</b> ' + tablesearch
-  } else {
+  if (gsearchMode === 'table') {
+    filtermsg = filtermsg + '<br/> <b>' + gtableSearchText + ':</b> ' + dt.search()
+  } else if (gsearchMode === 'column') {
     let colsearchflag = false
     let colsearchmsg = ''
     dt.columns().every(function () {
@@ -153,17 +154,17 @@ function filterInfo (dt, noHtml = false, justFilterInfo = false, wrapped = false
 
       if (colsearch) {
         colsearchflag = true
-        colsearchmsg = colsearchmsg + ' <b>' + colname + ':</b> ' + colsearch + ', '
+        colsearchmsg = colsearchmsg + ' <b>' + colname + ':</b><br/>' + colsearch + ', '
       }
     })
     if (colsearchflag) {
-      filtermsg = filtermsg + '<br/> <b>' + gcolFilterText + ' - </b>' + colsearchmsg.slice(0, -2)
+      filtermsg = filtermsg + '<br/> <b>' + gcolFilterText + ': <br/></b>' + colsearchmsg.slice(0, -2)
     }
   }
   filtermsg = justFilterInfo ? filtermsg : filtermsg + '<br/>' + gsortInfo
   filtermsg = noHtml ? filtermsg.replace(/(<([^>]+)>)/ig, '') : filtermsg
   filtermsg = wrapped ? filtermsg.replace(/,/g, '\n') : filtermsg
-  return filtermsg
+  return filtermsg.trim()
 };
 
 // Copy deeplink to clipboard
@@ -212,6 +213,7 @@ function hideSearchInputs (columns) {
       $('#cdx' + i).hide()
     }
   }
+  $('#_colspacerfilter').hide()
 }
 
 // helper for setting up filterObserver
@@ -236,10 +238,35 @@ function initFilterObserver () {
   } catch (e) {}
 }
 
-// helper for wrapping text
-const wordWrap = (s, w) => s.replace(
-  new RegExp(`(?![^\\n]{1,${w}}$)([^\\n]{1,${w}})\\s`, 'g'), '$1<br/> '
-)
+// helper for converting links in text into clickable links
+const linkify = (input) => {
+  let text = input
+  const linksFound = text.match(/(\b(www|https?)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig)
+  const links = []
+  if (linksFound != null) {
+    if (linksFound.length === 1 && input.match(/\.(jpeg|jpg|gif|png|svg|apng|webp|avif)$/)) {
+      // the whole text is just one link and its a picture, create a thumbnail
+      text = '<div class="thumbnail zoomthumb"><a href="' + linksFound[0] + '" target="_blank"><img src="' + linksFound[0] + '"></a></div>'
+      return text
+    }
+    for (let i = 0; i < linksFound.length; i++) {
+      links.push('<a href="' + linksFound[i] + '" target="_blank">' + linksFound[i] + '</a>')
+      text = text.split(linksFound[i]).map(item => { return item }).join(links[i])
+    }
+    return text
+  } else {
+    return input
+  }
+}
+
+// helper to protect against uncontrolled HTML input
+const esc = function (t) {
+  return t
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
 
 // MAIN
 this.ckan.module('datatables_view', function (jQuery) {
@@ -250,9 +277,12 @@ this.ckan.module('datatables_view', function (jQuery) {
       // fetch parameters from template data attributes
       const dtprv = $('#dtprv')
       const resourcename = dtprv.data('resource-name')
+      const languagecode = dtprv.data('languagecode')
       const languagefile = dtprv.data('languagefile')
       const statesaveflag = dtprv.data('state-save-flag')
       const stateduration = parseInt(dtprv.data('state-duration'))
+      const ellipsislength = parseInt(dtprv.data('ellipsis-length'))
+      const dateformat = dtprv.data('date-format').trim()
       const packagename = dtprv.data('package-name')
       const responsiveflag = dtprv.data('responsive-flag')
       const pagelengthchoices = dtprv.data('page-length-choices')
@@ -284,47 +314,53 @@ this.ckan.module('datatables_view', function (jQuery) {
         width: gcurrentView === 'table' ? '28px' : '50px'
       }]
 
-      // allow data publisher to explicitly configure column definition by using
-      // these whitelisted keys in a JSON at the end of the column description
-      // see https://datatables.net/reference/option/columnDefs options for details
-      const allowedKeys = ['type', 'width', 'className', 'contentPadding', 'orderable', 'wordwrap']
-
       gdataDict.forEach((colDefn, idx) => {
-        let dtType
+        const colDict = { name: colDefn.id, data: colDefn.id, contentPadding: 'MM' }
         switch (colDefn.type) {
           case 'numeric':
-            dtType = 'num'
+            colDict.type = 'num'
             break
           case 'timestamp':
-            dtType = 'date'
+          case 'timestamptz':
+            colDict.type = 'date'
+            if (dateformat.toUpperCase() !== 'NONE') {
+              colDict.render = $.fn.dataTable.render.moment(window.moment.ISO_8601, dateformat, languagecode)
+            }
             break
           default:
-            dtType = 'string'
-        }
-        let colDict = { name: colDefn.id, data: colDefn.id, type: dtType }
-        let extraColDefnDict = {}
-        // check if there are any datatables JSON col defns in the column description
-        if (colDefn?.info?.notes) {
-          const extraColDefn = colDefn.info.notes.match(/\{.*?\}$/)
-          if (extraColDefn) {
-            try {
-              extraColDefnDict = JSON.parse(extraColDefn[0])
-            } catch (e) {
-              extraColDefnDict = {}
+            colDict.type = 'html'
+            if (ellipsislength) {
+              colDict.render = function (data, type, row, meta) {
+                // Order, search and type get the original data
+                if (type !== 'display') {
+                  return data
+                }
+                if (typeof data !== 'number' && typeof data !== 'string') {
+                  return data
+                }
+                data = data.toString() // cast numbers
+                const linkifiedData = linkify(data)
+                // if there are no http links, see if we need to apply ellipsis truncation logic
+                if (linkifiedData === data) {
+                  if (data.length <= ellipsislength) {
+                    return data
+                  }
+                  const shortened = data.substr(0, ellipsislength - 1)
+                  return '<span class="ellipsis" title="' + esc(data) + '">' + shortened + '&#8230;</span>'
+                } else {
+                  // there are links
+                  const strippedData = linkifiedData.replace(/(<([^>]+)>)/gi, '')
+                  if (strippedData.length <= ellipsislength) {
+                    return linkifiedData
+                  }
+                  const shortened = linkifiedData.substr(0, ellipsislength - 1)
+                  return '<span class="ellipsis" title="' + esc(strippedData) + '">' + shortened + '&#8230;</span>'
+                }
+              }
+            } else {
+              colDict.className = 'wrapcell'
             }
-          }
         }
-        const filteredDict = allowedKeys.reduce((obj, key) => ({ ...obj, [key]: extraColDefnDict[key] }), {})
-        if (Number.isInteger(filteredDict?.width)) {
-          filteredDict.width = filteredDict.width + 'em'
-        }
-        if (Number.isInteger(filteredDict?.wordwrap)) {
-          filteredDict.render = function (data, type, row) {
-            data = wordWrap(data, filteredDict.wordwrap)
-            return data
-          }
-        }
-        colDict = Object.assign({}, colDict, filteredDict)
         dynamicCols.push(colDict)
       })
 
@@ -339,17 +375,19 @@ this.ckan.module('datatables_view', function (jQuery) {
       }
 
       // settings if gcurrentView === table
+      let fixedColumnSetting = true
       let scrollXflag = true
       let responsiveSettings = false
 
       if (gcurrentView === 'list') {
         // we're in list view mode (aka responsive mode)
         // not compatible with scrollX
+        fixedColumnSetting = false
         scrollXflag = false
 
         // create _colspacer column to ensure display of green record detail button
         dynamicCols.push({
-          data: '_colspacer',
+          data: '',
           searchable: false,
           className: 'none',
           defaultContent: ''
@@ -413,6 +451,7 @@ this.ckan.module('datatables_view', function (jQuery) {
                 .column(colSelector)
                 .search(this.value)
                 .draw(false)
+              gsearchMode = 'column'
             }
           })
       })
@@ -422,12 +461,12 @@ this.ckan.module('datatables_view', function (jQuery) {
         paging: true,
         serverSide: true,
         processing: true,
-        deferRender: true,
         stateSave: statesaveflag,
         stateDuration: stateduration,
         colReorder: {
           fixedColumnsLeft: 1
         },
+        fixedColumns: fixedColumnSetting,
         autoWidth: true,
         orderCellsTop: true,
         mark: true,
@@ -456,7 +495,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         },
         responsive: responsiveSettings,
         scrollX: scrollXflag,
-        scrollY: 600,
+        scrollY: 400,
         scrollResize: true,
         scrollCollapse: false,
         lengthMenu: pagelengthchoices,
@@ -545,7 +584,8 @@ this.ckan.module('datatables_view', function (jQuery) {
           // on mouseenter on Search info icon, update tooltip with filterinfo
           $('#filterinfoicon').mouseenter(function () {
             document.getElementById('filterinfoicon').title = filterInfo(datatable, true, true, true) +
-              '\n' + that._('Double-click to reset filters')
+              '\n' + (gelaspedTime / 1000).toFixed(2) + ' ' + that._('seconds') + '\n' +
+              that._('Double-click to reset filters')
           })
 
           // on dblclick on Search info icon, clear all filters
@@ -579,6 +619,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               datatable
                 .search(this.value)
                 .draw()
+              gsearchMode = 'table'
             }
           })
 
@@ -656,7 +697,8 @@ this.ckan.module('datatables_view', function (jQuery) {
             return resourcename + ' - ' + filternohtml
           },
           exportOptions: {
-            columns: ':visible'
+            columns: ':visible',
+            orthogonal: 'sort'
           }
         }, {
           extend: 'colvis',
@@ -753,7 +795,8 @@ this.ckan.module('datatables_view', function (jQuery) {
             return filterInfo(datatable)
           },
           exportOptions: {
-            columns: ':visible'
+            columns: ':visible',
+            stripHtml: false
           }
         }, {
           name: 'shareButton',
@@ -775,6 +818,16 @@ this.ckan.module('datatables_view', function (jQuery) {
       }
 
       // EVENT HANDLERS
+      // called before making AJAX request
+      datatable.on('preXhr', function (e, settings, data) {
+        gstartTime = performance.now()
+      })
+
+      // called after getting an AJAX response from CKAN
+      datatable.on('xhr', function (e, settings, json, xhr) {
+        gelaspedTime = performance.now() - gstartTime
+      })
+
       // save state of table when row selection is changed
       datatable.on('select deselect', function () {
         datatable.state.save()
@@ -795,7 +848,7 @@ this.ckan.module('datatables_view', function (jQuery) {
       initFilterObserver()
 
       // update footer sortinfo when sorting
-      datatable.on('order.dt', function () {
+      datatable.on('order', function () {
         const sortOrder = datatable.order()
         if (!sortOrder.length) {
           return
@@ -817,7 +870,7 @@ this.ckan.module('datatables_view', function (jQuery) {
 // END MAIN
 
 // register column.name() DataTables API helper so we can refer to columns by name
-// instead of column index number
+// instead of just column index number
 $.fn.dataTable.Api.registerPlural('columns().names()', 'column().name()', function (setter) {
   return this.iterator('column', function (settings, column) {
     const col = settings.aoColumns[column]
