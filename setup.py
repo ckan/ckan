@@ -68,7 +68,6 @@ entry_points = {
         'solr = ckan.lib.search.solr_backend:SolrSearchBackend',
     ],
     'ckan.plugins': [
-        'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
         'stats = ckanext.stats.plugin:StatsPlugin',
         'publisher_form = ckanext.publisher_form.forms:PublisherForm',
         'publisher_dataset_form = ckanext.publisher_form.forms:PublisherDatasetForm',
@@ -162,6 +161,7 @@ entry_points = {
         'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
     ],
     'ckan.system_plugins': [
+        'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
     ],
     'ckan.test_plugins': [
