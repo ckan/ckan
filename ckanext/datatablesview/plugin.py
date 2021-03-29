@@ -6,11 +6,14 @@ from ckanext.datatablesview import blueprint
 
 default = toolkit.get_validator(u'default')
 boolean_validator = toolkit.get_validator(u'boolean_validator')
+natural_number_validator = toolkit.get_validator(u'natural_number_validator')
 ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 # see https://datatables.net/examples/advanced_init/length_menu.html
 DEFAULT_PAGE_LENGTH_CHOICES = '20 50 100 500 1000'
 DEFAULT_STATE_DURATION = 7200  # 2 hours
+DEFAULT_ELLIPSIS_LENGTH = 100
+DEFAULT_DATE_FORMAT = 'llll'  # see Moment.js cheatsheet https://devhints.io/moment
 
 
 class DataTablesView(p.SingletonPlugin):
@@ -47,9 +50,13 @@ class DataTablesView(p.SingletonPlugin):
                        DEFAULT_STATE_DURATION))
         self.data_dictionary_labels = toolkit.asbool(
             config.get(u'ckan.datatables.data_dictionary_labels', True))
+        self.ellipsis_length = toolkit.asint(
+            config.get(u'ckan.datatables.ellipsis_length',
+                       DEFAULT_ELLIPSIS_LENGTH))
+        self.date_format = config.get(u'ckan.datatables.date_format',
+                       DEFAULT_DATE_FORMAT)
         self.default_view = config.get(u'ckan.datatables.default_view',
                                        'table')
-
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_public_directory(config, u'public')
         toolkit.add_resource(u'public', u'ckanext-datatablesview')
@@ -65,6 +72,8 @@ class DataTablesView(p.SingletonPlugin):
                 u'state_saving': self.state_saving,
                 u'state_duration': self.state_duration,
                 u'data_dictionary_labels': self.data_dictionary_labels,
+                u'ellipsis_length': self.ellipsis_length,
+                u'date_format': self.date_format,
                 u'default_view': self.default_view}
 
     def view_template(self, context, data_dict):
@@ -81,8 +90,11 @@ class DataTablesView(p.SingletonPlugin):
             u'icon': u'table',
             u'requires_datastore': True,
             u'default_title': p.toolkit._(u'Table'),
+            u'preview_enabled': False,
             u'schema': {
                 u'responsive': [default(False), boolean_validator],
+                u'ellipsis_length': [default(self.ellipsis_length), natural_number_validator],
+                u'date_format': [default(self.date_format)],
                 u'show_fields': [ignore_missing],
                 u'filterable': [default(True), boolean_validator],
             }
