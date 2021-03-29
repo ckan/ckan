@@ -85,12 +85,19 @@ class PluginImplementations(ExtensionPoint):
 
         plugin_lookup = {pf.name: pf for pf in iterator}
 
-        plugins_in_config = config.get('ckan.plugins', '').split()
+        plugins_in_config = (
+            config.get('ckan.plugins', '').split() + find_system_plugins())
 
         ordered_plugins = []
         for pc in plugins_in_config:
             if pc in plugin_lookup:
                 ordered_plugins.append(plugin_lookup[pc])
+                plugin_lookup.pop(pc)
+
+        if plugin_lookup:
+            # Any oustanding plugin not in the ini file (ie system ones),
+            # add to the end of the iterator
+            ordered_plugins.extend(plugin_lookup.values())
 
         return iter(ordered_plugins)
 
