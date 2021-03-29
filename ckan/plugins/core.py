@@ -161,12 +161,6 @@ def load_all():
     unload_all()
 
     plugins = config.get('ckan.plugins', '').split() + find_system_plugins()
-    # Add the synchronous search plugin, unless already loaded or
-    # explicitly disabled
-    if 'synchronous_search' not in plugins and \
-            asbool(config.get('ckan.search.automatic_indexing', True)):
-        log.debug('Loading the synchronous search plugin')
-        plugins.append('synchronous_search')
 
     load(*plugins)
 
