@@ -13,7 +13,8 @@ ignore_missing = toolkit.get_validator(u'ignore_missing')
 DEFAULT_PAGE_LENGTH_CHOICES = '20 50 100 500 1000'
 DEFAULT_STATE_DURATION = 7200  # 2 hours
 DEFAULT_ELLIPSIS_LENGTH = 100
-DEFAULT_DATE_FORMAT = 'llll'  # see Moment.js cheatsheet https://devhints.io/moment
+# see Moment.js cheatsheet https://devhints.io/moment
+DEFAULT_DATE_FORMAT = 'llll'
 
 
 class DataTablesView(p.SingletonPlugin):
@@ -54,7 +55,7 @@ class DataTablesView(p.SingletonPlugin):
             config.get(u'ckan.datatables.ellipsis_length',
                        DEFAULT_ELLIPSIS_LENGTH))
         self.date_format = config.get(u'ckan.datatables.date_format',
-                       DEFAULT_DATE_FORMAT)
+                                      DEFAULT_DATE_FORMAT)
         self.default_view = config.get(u'ckan.datatables.default_view',
                                        'table')
         toolkit.add_template_directory(config, u'templates')
@@ -93,7 +94,8 @@ class DataTablesView(p.SingletonPlugin):
             u'preview_enabled': False,
             u'schema': {
                 u'responsive': [default(False), boolean_validator],
-                u'ellipsis_length': [default(self.ellipsis_length), natural_number_validator],
+                u'ellipsis_length': [default(self.ellipsis_length),
+                                     natural_number_validator],
                 u'date_format': [default(self.date_format)],
                 u'show_fields': [ignore_missing],
                 u'filterable': [default(True), boolean_validator],
