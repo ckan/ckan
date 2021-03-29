@@ -88,7 +88,7 @@ def ajax(resource_view_id):
         if v:
             k = text_type(request.form[u'columns[%d][name]' % i])
             # replace non-alphanumeric characters with FTS wildcard (_)
-            v = re.sub('[^0-9a-zA-Z\-]+', '_', v)
+            v = re.sub(r'[^0-9a-zA-Z\-]+', '_', v)
             # append ':*' so we can do partial FTS searches
             colsearch_dict[k] = v + u':*'
         i += 1
@@ -96,7 +96,8 @@ def ajax(resource_view_id):
     if colsearch_dict:
         search_text = json.dumps(colsearch_dict)
     else:
-        search_text = re.sub('[^0-9a-zA-Z\-]+', '_', search_text) + u':*' if search_text else u''
+        search_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
+                             search_text) + u':*' if search_text else u''
 
     try:
         response = datastore_search(
@@ -174,28 +175,29 @@ def filtered_download(resource_view_id):
             if v:
                 k = column[u'name']
                 # replace non-alphanumeric characters with FTS wildcard (_)
-                v = re.sub('[^0-9a-zA-Z\-]+', '_', v)
+                v = re.sub(r'[^0-9a-zA-Z\-]+', '_', v)
                 # append ':*' so we can do partial FTS searches
                 colsearch_dict[k] = v + u':*'
 
     if colsearch_dict:
         search_text = json.dumps(colsearch_dict)
     else:
-        search_text = re.sub('[^0-9a-zA-Z\-]+', '_', search_text) + u':*' if search_text else ''
+        search_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
+                             search_text) + u':*' if search_text else ''
 
     return h.redirect_to(
-        h.
-        url_for(u'datastore.dump', resource_id=resource_view[u'resource_id']) +
-        u'?' + urlencode({
-            u'q': search_text,
-            u'plain': False,
-            u'language': u'simple',
-            u'sort': u','.join(sort_list),
-            u'filters': json.dumps(filters),
-            u'format': request.form[u'format'],
-            u'fields': u','.join(cols),
-        })
-    )
+        h.url_for(
+            u'datastore.dump',
+            resource_id=resource_view[u'resource_id']) + u'?' + urlencode(
+            {
+                u'q': search_text,
+                u'plain': False,
+                u'language': u'simple',
+                u'sort': u','.join(sort_list),
+                u'filters': json.dumps(filters),
+                u'format': request.form[u'format'],
+                u'fields': u','.join(cols),
+            }))
 
 
 datatablesview.add_url_rule(
