@@ -283,6 +283,7 @@ this.ckan.module('datatables_view', function (jQuery) {
       const stateduration = parseInt(dtprv.data('state-duration'))
       const ellipsislength = parseInt(dtprv.data('ellipsis-length'))
       const dateformat = dtprv.data('date-format').trim()
+      const formatdateflag = dateformat.toUpperCase() === 'NONE' ? false : true
       const packagename = dtprv.data('package-name')
       const responsiveflag = dtprv.data('responsive-flag')
       const pagelengthchoices = dtprv.data('page-length-choices')
@@ -323,7 +324,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           case 'timestamp':
           case 'timestamptz':
             colDict.type = 'date'
-            if (dateformat.toUpperCase() !== 'NONE') {
+            if (formatdateflag) {
               colDict.render = $.fn.dataTable.render.moment(window.moment.ISO_8601, dateformat, languagecode)
             }
             break
@@ -436,8 +437,11 @@ this.ckan.module('datatables_view', function (jQuery) {
         const thecol = this
         const colname = thecol.textContent
         const colid = 'dtcol-' + validateId(colname) + '-' + i
-        $('<input id="' + colid + '" name="' + colid + '" autosave="' + colid +
-                '" class="fhead form-control input-sm" type="search" results="10" autocomplete="on" style="width:100%"/>')
+        const coltype = $(thecol).data('type')
+        const placeholderText = formatdateflag && coltype.substr(0, 9) === 'timestamp' ? ' placeholder="yyyy-mm-dd"' : ''  
+        $('<input id="' + colid + '" name="' + colid + '" autosave="' + colid + '"' +
+                placeholderText +
+                ' class="fhead form-control input-sm" type="search" results="10" autocomplete="on" style="width:100%"/>')
           .appendTo($(thecol).empty())
           .on('keyup search', function (event) {
             const colSelector = colname + ':name'
@@ -698,7 +702,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           },
           exportOptions: {
             columns: ':visible',
-            orthogonal: 'sort'
+            orthogonal: 'filter'
           }
         }, {
           extend: 'colvis',
