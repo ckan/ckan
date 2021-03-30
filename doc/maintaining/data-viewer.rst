@@ -199,6 +199,11 @@ DataTables_ jQuery plugin, with the following features.
    selections and page settings between session, with the ability to share
    saved searches.
  * Data Dictionary Integration
+ * Automatic "linkification" of URLs
+ * Automatic creation of zoomable thumbnails when a cell only contains a URL 
+   to an image.
+ * Available automatic, locale-aware date formatting to convert raw ISO-8601
+   timestamps to a user-friendly date format 
 
 It is designed not only as a data viewer, but also as a simple ad-hoc report
 generator - allowing users to quickly find an actionable subset of
