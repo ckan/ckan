@@ -1681,19 +1681,6 @@ Space-delimited list of the choices for the number of rows per page, with the lo
 
 .. note:: On larger screens, DataTables view will attempt to fill the table with as many rows that can fit using the lowest closest choice.
 
-.. _ckan.datatables.search_delay:
-
-ckan.datatables.search_delay
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.datatables.search_delay = 1000
-
-Default value: ``500``
-
-The delay (in milliseconds) after a keypress before searching the table.
-
 .. _ckan.datatables.state_saving:
 
 ckan.datatables.state_saving
@@ -1742,6 +1729,39 @@ Default value: ``True``
 Enable or disable data dictionary integration. When enabled, a column's data dictionary label will be used in the table header. A tooltip for each
 column with data dictionary information will also be integrated into the header. 
 
+.. _ckan.datatables.ellipsis_length:
+
+ckan.datatables.ellipsis_length
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.ellipsis_length = 100
+
+Default value: ``100``
+
+The maximum number of characters to show in a cell before it is truncated. An ellipsis (...) will be added at the truncation point and the
+full text of the cell will be available as a tooltip. This value can be overridden at the resource level when configuring a DataTables resource view.
+
+.. note:: The value ``0`` is a special value as it indicates that the column's width will be determined by the column name, and cell content will word-wrap.
+
+.. _ckan.datatables.date_format:
+
+ckan.datatables.date_format
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.date_format = lll
+
+Default value: ``llll``
+
+The `moment.js date format
+<https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/>`_ to use to convert raw timestamps to a user-friendly date format using CKAN's current
+locale language code. This value can be overridden at the resource level when configuring a DataTables resource view.
+
+.. note:: The value ``NONE`` is a special value as it indicates that no date formatting will be applied and the raw ISO-8601 timestamp will be displayed.
+
 .. _ckan.datatables.default_view:
 
 ckan.datatables.default_view
@@ -1754,8 +1774,8 @@ Example::
 Default value:  ``table``
 
 Indicates the default view mode of the DataTable (valid values: ``table`` or ``list``). Table view is the typical grid layout, with horizontal scrolling.
-List view is a responsive table, automatically hiding columns as required to fit the browser viewport. In addition, list view allows the user to view/copy and print
-the details of a specific row.
+List view is a responsive table, automatically hiding columns as required to fit the browser viewport. In addition, list view allows the user to view, copy and print
+the details of a specific row. This value can be overridden at the resource level when configuring a DataTables resource view.
 
 .. end_resource-views
 
