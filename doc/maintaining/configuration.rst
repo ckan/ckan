@@ -1732,7 +1732,7 @@ column with data dictionary information will also be integrated into the header.
 .. _ckan.datatables.ellipsis_length:
 
 ckan.datatables.ellipsis_length
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
@@ -1748,11 +1748,11 @@ full text of the cell will be available as a tooltip. This value can be overridd
 .. _ckan.datatables.date_format:
 
 ckan.datatables.date_format
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.datatables.date_format = lll
+ ckan.datatables.date_format = YYYY-MM-DD dd ww
 
 Default value: ``llll``
 
