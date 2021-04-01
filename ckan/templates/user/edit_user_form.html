@@ -9,7 +9,7 @@
         <legend>{{ _('Change details') }}</legend>
         {{ form.input('name', label=_('Username'), id='field-username', value=data.name, error=errors.name, classes=['control-medium'], attrs={'readonly': '', 'class': 'form-control'}) }}
 
-        {{ form.input('fullname', label=_('Full name'), id='field-fullname', value=data.fullname, error=errors.fullname, placeholder=_('eg. Joe Bloggs'), classes=['control-medium']) }}
+        {{ form.input('fullname', label=_('Displayed name'), id='field-fullname', value=data.fullname, error=errors.fullname, placeholder=_('eg. Joe Bloggs'), classes=['control-medium']) }}
 
         {{ form.input('email', label=_('Email'), id='field-email', type='email', value=data.email, error=errors.email, placeholder=_('eg. joe@example.com'), classes=['control-medium'], is_required=true) }}
 

@@ -4602,6 +4602,10 @@ msgid "Full name"
 msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:10
+msgid "Displayed name"
+msgstr ""
+
+#: ckan/templates/user/edit_user_form.html:10
 msgid "eg. Joe Bloggs"
 msgstr ""
 
@@ -4752,6 +4756,10 @@ msgstr ""
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
+msgstr ""
+
+#: ckan/templates/user/new_user_form.html:6
+msgid "Displayed Name"
 msgstr ""
 
 #: ckan/templates/user/new_user_form.html:27
