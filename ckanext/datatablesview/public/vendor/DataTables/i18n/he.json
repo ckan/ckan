@@ -12,17 +12,5 @@
         "previous": "קודם",
         "next": "הבא",
         "last": "אחרון"
-    },
-    "searchPanes": {
-        "clearMessage": "איפוס מסננים",
-        "collapse": {
-            "0": "מסנני חיפוש",
-            "_": "מסנני חיפוש (%d)"
-        },
-        "count": "ספירה",
-        "emptyPanes": "אין מסנני חיפוש",
-        "loadMessage": "מסנני חיפוש בטעינה",
-        "title": "מסננים פעילים - %d"
-    },
-    "searchPlaceholder": "חיפוש..."
+    }
 }
