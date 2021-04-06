@@ -515,8 +515,8 @@ def changes(id, group_type, is_organization):
     '''
     activity_id = id
     context = {
-       u'model': model, u'session': model.Session,
-       u'user': g.user, u'auth_user_obj': g.userobj
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
     }
     try:
         activity_diff = get_action(u'activity_diff')(
