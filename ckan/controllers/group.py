@@ -288,7 +288,7 @@ class GroupController(base.BaseController):
             c.fields = []
             search_extras = {}
             c.fields_grouped = {}
-            fq_list = []
+            fq_list = [fq]
             query_params = request.params.mixed()
             for (param, value) in query_params.iteritems():
                 if param in ('q', 'page', 'sort') or not value:
