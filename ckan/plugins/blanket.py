@@ -16,17 +16,17 @@ requirements:
    - ``ckanext.ext.helpers`` for ``ITemplateHelpers``
    - ``ckanext.ext.logic.auth`` for ``IAuthFunctions``
    - ``ckanext.ext.logic.action`` for ``IActions``
+   - ``ckanext.ext.logic.validators`` for ``IValidators``
    - ``ckanext.ext.views`` for ``IBlueprint``
    - ``ckanext.ext.cli`` for ``IClick``
-   - ``ckanext.ext.validators`` for ``IValidators``
 
 Available groups are:
   - ``tk.blanket.helpers``: implemets ``ITemplateHelpers``
   - ``tk.blanket.auth``: implemets ``IAuthFunctions``
   - ``tk.blanket.action``: implemets ``IActions``
+  - ``tk.blanket.validator``: implemets ``IValidators``
   - ``tk.blanket.blueprint``: implemets ``IBlueprint``
   - ``tk.blanket.cli``: implemets ``IClick``
-  - ``tk.blanket.validator``: implemets ``IValidators``
 
 Example::
 
@@ -179,7 +179,7 @@ _mapping = {
     ),
     Blanket.cli: BlanketMapping(u"cli", u"get_commands", p.IClick),
     Blanket.validator: BlanketMapping(
-        u"validators", u"get_validators", p.IValidators
+        u"logic.validators", u"get_validators", p.IValidators
     ),
 }
 
