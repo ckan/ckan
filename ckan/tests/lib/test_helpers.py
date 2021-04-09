@@ -917,3 +917,11 @@ def test_sanitize_url():
         'http://éxàmple.com/some:path/to+a/fil[e].jpg'
     ) == 'http://éxàmple.côm/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
     assert h.sanitize_url('http://bad host/path') == ''
+    assert h.sanitize_url(
+        'http://x/things" onerror=alert(document.domain)>'
+    ) == 'http://x/things%22%20onerror%3Dalert%28document.domain%29%3E'
+    assert h.sanitize_url(
+        h.sanitize_url(
+            'http://éxàmple.com/some:path/to+a/fil[e].jpg'
+        )
+    ) == h.sanitize_url('http://éxàmple.com/some:path/to+a/fil[e].jpg')
