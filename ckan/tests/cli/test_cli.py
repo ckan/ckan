@@ -5,6 +5,7 @@ import os
 
 from ckan.cli.cli import ckan
 from ckan.cli import CKANConfigLoader
+from ckan.exceptions import CkanConfigurationException
 
 
 def test_without_args(cli):
@@ -112,17 +113,24 @@ def test_ckan_config_loader_parse_two_files():
     assert conf[u'global_conf'][u'debug'] == u'false'
 
 
-def test_recursive_loading():
+def test_chain_loading():
     """Load chains of config files via `use = config:...`.
-
-    Make sure we still remember main config file.
-    If there are circular dependencies, don't fall into infinite recursion.
     """
     filename = os.path.join(
         os.path.dirname(__file__), u'data', u'test-one.ini')
     conf = CKANConfigLoader(filename).get_config()
-
     assert conf[u'__file__'] == filename
     assert conf[u'key1'] == u'one'
     assert conf[u'key2'] == u'two'
     assert conf[u'key3'] == u'three'
+
+
+def test_recursive_loading():
+    """ Make sure we still remember main config file.
+
+    If there are circular dependencies, make sure the user knows about it.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-one-recursive.ini')
+    with pytest.raises(CkanConfigurationException):
+        CKANConfigLoader(filename).get_config()
