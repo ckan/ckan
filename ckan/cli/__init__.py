@@ -51,7 +51,7 @@ class CKANConfigLoader(object):
 
         self._update_config()
 
-        loaded_files = {use_config_path}
+        loaded_files = [use_config_path]
 
         while True:
             schema, path = self.parser.get(self.section, u'use').split(u':')
@@ -60,8 +60,12 @@ class CKANConfigLoader(object):
                     os.path.dirname(os.path.abspath(use_config_path)), path)
                 # Avoid circular references
                 if use_config_path in loaded_files:
-                    break
-                loaded_files.add(use_config_path)
+                    chain = ' -> '.join(loaded_files + [use_config_path])
+                    raise CkanConfigurationException(
+                        'Circular dependency located in '
+                        f'the configuration chain: {chain}'
+                    )
+                loaded_files.append(use_config_path)
 
                 self._read_config_file(use_config_path)
                 self._update_config()
