@@ -117,3 +117,30 @@ class TestI18nURLs(object):
                 assert option["selected"] == "selected"
             else:
                 assert not option.has_attr("selected")
+
+    def test_redirects_legacy_locales(self, app):
+        locales_mapping = [
+            ('zh_TW', 'zh_Hant_TW'),
+            ('zh_CN', 'zh_Hans_CN'),
+        ]
+
+        for locale in locales_mapping:
+
+            legacy_locale = locale[0]
+            new_locale = locale[1]
+
+            response = app.get(f'/{legacy_locale}/', follow_redirects=False)
+
+            assert response.status_code == 308
+            assert (
+                response.headers['Location'] ==
+                f'http://test.ckan.net/{new_locale}'
+            )
+
+            response = app.get(f'/{legacy_locale}/dataset', follow_redirects=False)
+
+            assert response.status_code == 308
+            assert (
+                response.headers['Location'] ==
+                f'http://test.ckan.net/{new_locale}/dataset'
+            )
