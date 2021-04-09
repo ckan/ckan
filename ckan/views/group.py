@@ -1036,7 +1036,6 @@ class DeleteGroupView(MethodView):
                 u'has been deleted') or _(u'Group')
             h.flash_notice(
                 _(u'%s has been deleted.') % _(group_label))
-            group_dict = _action(u'group_show')(context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         except NotFound:
@@ -1046,8 +1045,6 @@ class DeleteGroupView(MethodView):
             return h.redirect_to(u'organization.read', id=id)
 
             return h.redirect_to(u'{}.read'.format(group_type), id=id)
-        # TODO: Remove
-        g.group_dict = group_dict
 
         return h.redirect_to(u'{}.index'.format(group_type))
 
