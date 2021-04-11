@@ -2,7 +2,7 @@
 
 import datetime
 import re
-
+import logging
 import requests
 
 from ckan.common import config
@@ -13,7 +13,7 @@ from six import text_type, string_types
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
 
-log = __import__('logging').getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class License(object):

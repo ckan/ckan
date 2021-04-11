@@ -2,6 +2,8 @@
 
 import functools
 import sys
+import inspect
+import importlib
 
 from collections import defaultdict, OrderedDict
 from logging import getLogger
@@ -18,6 +20,14 @@ from ckan.common import _, g
 import ckan.lib.maintain as maintain
 
 log = getLogger(__name__)
+
+
+def get_local_public_functions(module):
+    return inspect.getmembers(
+        module,
+        lambda func: (inspect.isfunction(func) and
+                      inspect.getmodule(func) is module and
+                      not func.__name__.startswith('_')))
 
 
 class AuthFunctions:
@@ -50,39 +60,33 @@ class AuthFunctions:
         return getattr(func, 'chained_auth_function', False)
 
     def _build(self):
-        ''' Gather the auth functions.
+        '''Gather the auth functions.
 
-        First get the default ones in the ckan/logic/auth directory Rather than
-        writing them out in full will use __import__ to load anything from
-        ckan.auth that looks like it might be an authorisation function'''
+        First get the default ones in the ckan/logic/auth directory
+        Rather than writing them out in full will use
+        importlib.import_module to load anything from ckan.auth that
+        looks like it might be an authorisation function
+
+        '''
 
         module_root = 'ckan.logic.auth'
 
         for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
-            module_path = '%s.%s' % (module_root, auth_module_name,)
-            try:
-                module = __import__(module_path)
-            except ImportError:
-                log.debug('No auth module for action "%s"' % auth_module_name)
-                continue
+            module = importlib.import_module(
+                '.' + auth_module_name, module_root)
 
-            for part in module_path.split('.')[1:]:
-                module = getattr(module, part)
-
-            for key, v in module.__dict__.items():
-                if not key.startswith('_'):
-                    # Whitelist all auth functions defined in
-                    # logic/auth/get.py as not requiring an authorized user,
-                    # as well as ensuring that the rest do. In both cases, do
-                    # nothing if a decorator has already been used to define
-                    # the behaviour
-                    if not hasattr(v, 'auth_allow_anonymous_access'):
-                        if auth_module_name == 'get':
-                            v.auth_allow_anonymous_access = True
-                        else:
-                            v.auth_allow_anonymous_access = False
-                    self._functions[key] = v
-
+            for key, v in get_local_public_functions(module):
+                # Whitelist all auth functions defined in
+                # logic/auth/get.py as not requiring an authorized user,
+                # as well as ensuring that the rest do. In both cases, do
+                # nothing if a decorator has already been used to define
+                # the behaviour
+                if not hasattr(v, 'auth_allow_anonymous_access'):
+                    if auth_module_name == 'get':
+                        v.auth_allow_anonymous_access = True
+                    else:
+                        v.auth_allow_anonymous_access = False
+                self._functions[key] = v
         # Then overwrite them with any specific ones in the plugins:
         resolved_auth_function_plugins = {}
         fetched_auth_functions = {}
@@ -114,12 +118,12 @@ class AuthFunctions:
                 else:
                     # fallback to chaining off the builtin auth function
                     prev_func = self._functions[name]
-                
+
                 new_func = (functools.partial(func, prev_func))
                 # persisting attributes to the new partial function
                 for attribute, value in six.iteritems(func.__dict__):
                     setattr(new_func, attribute, value)
-                
+
                 fetched_auth_functions[name] = new_func
 
         # Use the updated ones in preference to the originals.
