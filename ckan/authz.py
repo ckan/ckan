@@ -22,12 +22,17 @@ import ckan.lib.maintain as maintain
 log = getLogger(__name__)
 
 
-def get_local_public_functions(module):
+def get_local_functions(module, include_private=False):
+    """Return list of (name, func) tuples.
+
+    Filters out all non-callables and all the items that were
+    imported.
+    """
     return inspect.getmembers(
         module,
         lambda func: (inspect.isfunction(func) and
                       inspect.getmodule(func) is module and
-                      not func.__name__.startswith('_')))
+                      (include_private or not func.__name__.startswith('_'))))
 
 
 class AuthFunctions:
@@ -75,7 +80,7 @@ class AuthFunctions:
             module = importlib.import_module(
                 '.' + auth_module_name, module_root)
 
-            for key, v in get_local_public_functions(module):
+            for key, v in get_local_functions(module):
                 # Whitelist all auth functions defined in
                 # logic/auth/get.py as not requiring an authorized user,
                 # as well as ensuring that the rest do. In both cases, do
@@ -87,6 +92,7 @@ class AuthFunctions:
                     else:
                         v.auth_allow_anonymous_access = False
                 self._functions[key] = v
+
         # Then overwrite them with any specific ones in the plugins:
         resolved_auth_function_plugins = {}
         fetched_auth_functions = {}

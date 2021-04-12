@@ -583,8 +583,7 @@ class TestActionAuth(object):
             ]:
                 module_path = "%s.%s" % (module_root, auth_module_name)
                 module = importlib.import_module(module_path)
-                members = inspect.getmembers(
-                    module, lambda f: authz.is_local_public_function(f, module))
+                members = authz.get_local_functions(module)
                 for key, v in members:
                     name = "%s: %s" % (auth_module_name, key)
                     fns[name] = v

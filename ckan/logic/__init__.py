@@ -401,7 +401,7 @@ def get_action(action):
     for action_module_name in ['get', 'create', 'update', 'delete', 'patch']:
         module = importlib.import_module(
             '.' + action_module_name, 'ckan.logic.action')
-        for k, v in authz.get_local_public_functions(module):
+        for k, v in authz.get_local_functions(module):
             _actions[k] = v
             # Whitelist all actions defined in logic/action/get.py as
             # being side-effect free.
@@ -706,5 +706,5 @@ def _import_module_functions(module_path):
     module = importlib.import_module(module_path)
     return {
         k: v
-        for k, v in authz.get_local_public_functions(module)
+        for k, v in authz.get_local_functions(module)
     }
