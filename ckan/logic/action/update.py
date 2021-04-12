@@ -110,11 +110,21 @@ def resource_update(context, data_dict):
     resource = _get_action('resource_show')(context, {'id': id})
 
     if old_resource_format != resource['format']:
-        _get_action('resource_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
-            {'package': updated_pkg_dict,
-             'resource': resource})
+        context_views = {
+            'model': context['model'],
+            'user': context['user'],
+            'ignore_auth': True
+            }
+        views = _get_action('resource_view_list')(context_views, {
+            'id': resource['id']
+        })
+        for view in views:
+            _get_action('resource_view_delete')(context_views, {
+            'id': view['id']
+            })
+        _get_action('resource_create_default_resource_views')(context_views, {
+            'package': updated_pkg_dict, 'resource': resource
+            })
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_update(context, resource)
