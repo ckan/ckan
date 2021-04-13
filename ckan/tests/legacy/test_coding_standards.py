@@ -362,7 +362,6 @@ class TestPep8(object):
         "ckan/model/user.py",
         "ckan/model/vocabulary.py",
         "ckan/authz.py",
-        "ckan/pastertemplates/__init__.py",
         "ckan/poo.py",
         "ckan/rating.py",
         "ckan/templates_legacy/home/__init__.py",
