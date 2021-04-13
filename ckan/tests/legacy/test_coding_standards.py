@@ -303,8 +303,6 @@ class TestPep8(object):
         "ckan/__init__.py",
         "ckan/config/middleware.py",
         "ckan/config/sp_config.py",
-        "ckan/include/rcssmin.py",
-        "ckan/include/rjsmin.py",
         "ckan/lib/app_globals.py",
         "ckan/lib/cli.py",
         "ckan/lib/create_test_data.py",
