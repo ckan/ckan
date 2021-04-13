@@ -54,9 +54,6 @@ entry_points = {
         'datastore = ckanext.datastore.cli:datastore',
         'datapusher = ckanext.datapusher.cli:datapusher',
     ],
-    'paste.paster_create_template': [
-        'ckanext = ckan.pastertemplates:CkanextTemplate',
-    ],
     'ckan.forms': [
         'standard = ckan.forms.package:get_standard_fieldset',
         'package = ckan.forms.package:get_standard_fieldset',

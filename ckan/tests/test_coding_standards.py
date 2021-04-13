@@ -427,7 +427,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/model/types.py",
     u"ckan/model/user.py",
     u"ckan/model/vocabulary.py",
-    u"ckan/pastertemplates/__init__.py",
     u"ckan/plugins/core.py",
     u"ckan/plugins/toolkit.py",
     u"ckan/plugins/toolkit_sphinx_extension.py",
