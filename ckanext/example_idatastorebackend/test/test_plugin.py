@@ -1,10 +1,9 @@
 # encoding: utf-8
 
 
-from mock import patch, Mock, call
+from unittest.mock import patch, Mock, call
 import pytest
 
-import ckan.plugins as plugins
 from ckan.common import config
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers

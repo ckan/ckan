@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from routes.mapper import SubMapper
 from six import text_type
 
 import ckan.plugins as plugins

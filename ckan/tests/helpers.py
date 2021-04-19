@@ -32,7 +32,7 @@ from flask.testing import Client as FlaskClient
 from flask.wrappers import Response
 from click.testing import CliRunner
 import pytest
-import mock
+import unittest.mock as mock
 import rq
 import six
 

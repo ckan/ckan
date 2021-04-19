@@ -2,7 +2,7 @@
 """Unit tests for ckan/logic/action/update.py."""
 import datetime
 
-import mock
+import unittest.mock as mock
 import pytest
 import six
 

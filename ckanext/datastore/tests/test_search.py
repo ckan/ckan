@@ -3,7 +3,6 @@
 import json
 import pytest
 import sqlalchemy.orm as orm
-from six.moves.urllib.parse import urlencode
 
 import ckan.lib.create_test_data as ctd
 import ckan.logic as logic
@@ -1652,6 +1651,44 @@ class TestDatastoreSQLFunctional(object):
         helpers.call_action("datastore_create", **data)
 
         sql = "SELECT query_to_xml('SELECT upper(author) from \"{}\"', true, true, '')".format(
+            resource["id"]
+        )
+        with pytest.raises(p.toolkit.NotAuthorized):
+            helpers.call_action("datastore_search_sql", sql=sql)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_allowed_functions_are_case_insensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT UpPeR(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_quoted_allowed_functions_are_case_sensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT count(*) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+        sql = 'SELECT CoUnT(*) from "{}"'.format(
             resource["id"]
         )
         with pytest.raises(p.toolkit.NotAuthorized):
