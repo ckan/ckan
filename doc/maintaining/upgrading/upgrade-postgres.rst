@@ -271,7 +271,6 @@ Upgrading
 #. Download the CKAN package for the new minor release you want to upgrade
    to (replace the version number with the relevant one)::
 
-     On Ubuntu 16.04: wget https://packaging.ckan.org/python-ckan_2.9-xenial_amd64.deb
      On Ubuntu 18.04: wget https://packaging.ckan.org/python-ckan_2.9-bionic_amd64.deb
      On Ubuntu 20.04: wget https://packaging.ckan.org/python-ckan_2.9-py3-focal_amd64.deb (for Python 3)
 
