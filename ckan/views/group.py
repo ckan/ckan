@@ -542,7 +542,7 @@ def changes(id, group_type, is_organization):
     )
 
     return base.render(
-        u'organization/organization_changes.html', {
+        u'organization/changes.html', {
             u'activity_diffs': [activity_diff],
             u'group_dict': current_group_dict,
             u'group_activity_list': group_activity_list,
@@ -625,7 +625,7 @@ def changes_multiple(is_organization, group_type=None):
         u'limit': 100})
 
     return base.render(
-        u'organization/organization_changes.html', {
+        u'organization/changes.html', {
             u'activity_diffs': diff_list,
             u'group_dict': current_group_dict,
             u'group_activity_list': group_activity_list,

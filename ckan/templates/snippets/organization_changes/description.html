@@ -3,35 +3,23 @@
     {% if change.method == "change" %}
 
       {{ _('Updated description of {pkg_link} from <br class="line-height2"><blockquote>{old_description}</blockquote> to <br class="line-height2"><blockquote>{new_description}</blockquote>').format(
-              pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-                pkg_url = h.url_for(controller='organization',
-                                    action='read', id=change.pkg_id),
-                pkg_name = change.title
-              )|safe,
-              old_description = change.old_description,
-              new_description = change.new_description
+        pkg_link = h.nav_link(change.title, named_route='organization.read', id=change.pkg_id),
+        old_description = change.old_description,
+        new_description = change.new_description
         ) }}
 
     {% elif change.method == "add" %}
 
       {{ _('Updated description of {pkg_link} to <br class="line-height2"><blockquote>{new_description}</blockquote>').format(
-              pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-                pkg_url = h.url_for(controller='organization',
-                                    action='read', id=change.pkg_id),
-                pkg_name = change.title
-              )|safe,
-              new_description = change.new_description
-          ) }}
+        pkg_link = h.nav_link(change.title, named_route='organization.read', id=change.pkg_id),
+        new_description = change.new_description
+        ) }}
 
     {% elif change.method == "remove" %}
 
       {{ _('Removed description from {pkg_link}').format(
-            pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-              pkg_url = h.url_for(controller='organization',
-                                  action='read', id=change.pkg_id),
-              pkg_name = change.title
-            )|safe
-          ) }}
+        pkg_link = h.nav_link(change.title, named_route='organization.read', id=change.pkg_id)
+        ) }}
 
     {% else %}
 
