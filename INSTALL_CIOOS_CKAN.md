@@ -810,17 +810,17 @@ Exporting volumes on windows does not work so another option for copying files t
 
 ```bash
 cd ~/ckan/contrib/docker
-docker cp -r src/ckanext-cioos_theme/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-googleanalyticsbasic/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-cioos_harvest/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-harvest/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-spatial/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/pycsw/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-scheming/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-repeating/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-composite/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-fluent/ ckan:/usr/lib/ckan/venv/src/
-docker cp -r src/ckanext-dcat/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-cioos_theme/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-googleanalyticsbasic/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-cioos_harvest/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-harvest/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-spatial/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/pycsw/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-scheming/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-repeating/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-composite/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-fluent/ ckan:/usr/lib/ckan/venv/src/
+docker cp src/ckanext-dcat/ ckan:/usr/lib/ckan/venv/src/
 docker cp src/cioos-siooc-schema/cioos-siooc_schema.json ckan:/usr/lib/ckan/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
 docker cp src/cioos-siooc-schema/organization.json ckan:/usr/lib/ckan/venv/src/ckanext-scheming/ckanext/scheming/organization.json
 docker cp src/cioos-siooc-schema/ckan_license.json ckan:/usr/lib/ckan/venv/src/ckanext-scheming/ckanext/scheming/ckan_license.json
