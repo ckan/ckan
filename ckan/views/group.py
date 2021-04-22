@@ -532,9 +532,9 @@ def changes(id, group_type, is_organization):
     # Use the current version of the package, in case the name/title have
     # changed, and we need a link to it which works
     group_id = activity_diff[u'activities'][1][u'data'][u'group'][u'id']
-    current_group_dict = get_action(u'organization_show')(
+    current_group_dict = get_action(group_type + u'_show')(
         context, {u'id': group_id})
-    group_activity_list = get_action(u'organization_activity_list')(
+    group_activity_list = get_action(group_type + u'_activity_list')(
         context, {
             u'id': group_id,
             u'limit': 100
@@ -556,7 +556,7 @@ def changes_multiple(is_organization, group_type=None):
     Called when a user specifies a range of versions they want to look at
     changes between. Verifies that the range is valid and finds the set of
     activity diffs for the changes in the given version range, then
-    re-renders organization_changes.html with the list.
+    re-renders changes.html with the list.
     '''
 
     new_id = h.get_request_param(u'new_id')
@@ -618,9 +618,9 @@ def changes_multiple(is_organization, group_type=None):
             current_id = activity_diff['activities'][0]['id']
 
     group_id = diff_list[0][u'activities'][1][u'data'][u'group'][u'id']
-    current_group_dict = get_action(u'organization_show')(
+    current_group_dict = get_action(group_type + u'_show')(
         context, {u'id': group_id})
-    group_activity_list = get_action(u'organization_activity_list')(context, {
+    group_activity_list = get_action(group_type + u'_activity_list')(context, {
         u'id': group_id,
         u'limit': 100})
 
