@@ -75,8 +75,9 @@
             {% if is_activity_archive %}
               <div id="activity-archive-notice" class="alert alert-danger">
                 {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
-                You're currently viewing an old version of this dataset. To see the
-                current version, click <a href="{{ url }}">here</a>.
+                You're currently viewing an old version of this dataset.
+                Resource files may not match the old version of the data.
+                To see the current version, click <a href="{{ url }}">here</a>.
                 {% endtrans %}
               </div>
             {% endif %}
