@@ -293,7 +293,7 @@ def test_email_validator_with_valid_value():
 
         call_validator(valid_value)
 
-    
+
 def test_strip_value_with_valid_value():
     valid_values = [
         " test@example.com",
