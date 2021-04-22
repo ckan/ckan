@@ -22,7 +22,7 @@ taken to use this setup in production.
 --------------
 1. Environment
 --------------
-This tutorial was tested on Ubuntu 16.04 LTS.
+This tutorial was tested on Ubuntu 20.04 LTS.
 The hosts can be local environments or cloud VMs. It is assumed that the user has direct access
 (via terminal / ssh) to the systems and root permissions.
 

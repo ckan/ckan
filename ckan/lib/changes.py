@@ -370,6 +370,24 @@ def check_metadata_changes(change_list, old, new):
     _extra_fields(change_list, old, new)
 
 
+def check_metadata_org_changes(change_list, old, new):
+    '''
+    Compares two versions of a organization and records the changes between
+    them in change_list.
+    '''
+    # if the title has changed
+    if old.get(u'title') != new.get(u'title'):
+        _title_change(change_list, old, new)
+
+    # if the description of the organization changed
+    if old.get(u'description') != new.get(u'description'):
+        _description_change(change_list, old, new)
+
+    # if the image URL has changed
+    if old.get(u'image_url') != new.get(u'image_url'):
+        _image_url_change(change_list, old, new)
+
+
 def _title_change(change_list, old, new):
     '''
     Appends a summary of a change to a dataset's title between two versions
@@ -832,3 +850,53 @@ def _extra_fields(change_list, old, new):
                                 u'pkg_id': new.get(u'id'),
                                 u'title': new.get(u'title'),
                                 u'key_list': deleted_fields})
+
+
+def _description_change(change_list, old, new):
+    '''
+    Appends a summary of a change to a organization's description between two
+    versions (old and new) to change_list.
+    '''
+
+    # if the old organization had a description
+    if old.get(u'description') and new.get(u'description'):
+        change_list.append({u'type': u'description', u'pkg_id':
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_description': new.get(u'description'),
+                            u'old_description': old.get(u'description'),
+                            u'method': u'change'})
+    elif not new.get(u'description'):
+        change_list.append({u'type': u'description', u'pkg_id':
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'method': u'remove'})
+    else:
+        change_list.append({u'type': u'description', u'pkg_id':
+                            new.get(u'id'), u'title': new.get(u'title'),
+                            u'new_description': new.get(u'description'),
+                            u'method': u'add'})
+
+
+def _image_url_change(change_list, old, new):
+    '''
+    Appends a summary of a change to a organization's image URL between two
+    versions (old and new) to change_list.
+    '''
+    # if both old and new versions have image  URLs
+    if old.get(u'image_url') and new.get(u'image_url'):
+        change_list.append({u'type': u'image_url', u'method': u'change',
+                            u'pkg_id': new.get(u'id'), u'title':
+                            new.get(u'title'), u'new_image_url':
+                            new.get(u'image_url'), u'old_image_url':
+                            old.get(u'image_url')})
+    # if the user removed the image URL
+    elif not new.get(u'image_url'):
+        change_list.append({u'type': u'image_url', u'method': u'remove',
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'old_image_url': old.get(u'image_url')})
+    # if there wasn't one there before
+    else:
+        change_list.append({u'type': u'image_url', u'method': u'add',
+                            u'pkg_id': new.get(u'id'),
+                            u'title': new.get(u'title'),
+                            u'new_image_url': new.get(u'image_url')})

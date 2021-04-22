@@ -8,6 +8,12 @@
     <br />
     <span class="date">
       {{ h.time_ago_from_timestamp(activity.timestamp) }}
+      {% if can_show_activity_detail %}
+	      &nbsp;|&nbsp;
+        <a href="{{ h.url_for('organization.changes', id=activity.id) }}">
+          {{ _('Changes') }}
+        </a>
+      {% endif %}
     </span>
   </p>
 </li>
