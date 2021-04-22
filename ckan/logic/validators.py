@@ -883,6 +883,11 @@ email_pattern = re.compile(
                         )
 
 
+def strip_value(value):
+    '''Trims the Whitespace'''
+    return value.strip()
+
+
 def email_validator(value, context):
     '''Validate email input '''
 
