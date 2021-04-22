@@ -293,6 +293,25 @@ def test_email_validator_with_valid_value():
 
         call_validator(valid_value)
 
+    
+def test_strip_value_with_valid_value():
+    valid_values = [
+        " test@example.com",
+        "  test@example.com",
+        "test@example.com ",
+        "test@example.com  ",
+        " test@example.com ",
+        "  test@example.com  ",
+    ]
+
+    for valid_value in valid_values:
+
+        @returns_arg
+        def call_validator(*args, **kwargs):
+            return validators.strip_value(*args, **kwargs)
+
+        call_validator(valid_value)
+
 
 def test_name_validator_with_valid_value():
     """If given a valid string name_validator() should do nothing and
