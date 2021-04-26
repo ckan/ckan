@@ -306,11 +306,7 @@ def test_strip_value_with_valid_value():
 
     for valid_value in valid_values:
 
-        @returns_arg
-        def call_validator(*args):
-            return validators.strip_value(*args)
-
-        call_validator(valid_value)
+        assert validators.strip_value(valid_value) == "test@example.com"
 
 
 def test_name_validator_with_valid_value():
