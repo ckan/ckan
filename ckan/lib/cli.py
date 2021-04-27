@@ -30,7 +30,7 @@ _cli_test_request_context = None
 #    Otherwise loggers get disabled.
 
 
-@maintain.deprecated('Use @maintain.deprecated instead')
+@maintain.deprecated('Use @maintain.deprecated instead', since="2.9.0")
 def deprecation_warning(message=None):
     '''
     DEPRECATED
@@ -45,7 +45,7 @@ def deprecation_warning(message=None):
     sys.stderr.write(u'\n')
 
 
-@maintain.deprecated()
+@maintain.deprecated(since='2.9.0')
 def error(msg):
     '''
     DEPRECATED
@@ -58,7 +58,8 @@ def error(msg):
     sys.exit(1)
 
 
-@maintain.deprecated('Use model.parse_db_config directly instead')
+@maintain.deprecated('Use model.parse_db_config directly instead',
+                     since='2.9.0')
 def _parse_db_config(config_key=u'sqlalchemy.url'):
     '''Deprecated'''
     db_config = model.parse_db_config(config_key)
@@ -70,7 +71,8 @@ def _parse_db_config(config_key=u'sqlalchemy.url'):
 
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
 ## Written by Trent Mick
-@maintain.deprecated('Instead you can probably use click.confirm()')
+@maintain.deprecated('Instead you can probably use click.confirm()',
+                     since='2.9.0')
 def query_yes_no(question, default="yes"):
     """DEPRECATED
 
@@ -164,7 +166,7 @@ def load_config(config, load_site_user=True):
 
 
 @maintain.deprecated('Instead use ckan.cli.cli.CkanCommand or extensions '
-                     'should use IClick')
+                     'should use IClick', since='2.9.0')
 def paster_click_group(summary):
     '''DEPRECATED
 

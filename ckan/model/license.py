@@ -62,7 +62,7 @@ class License(object):
 
     @maintain.deprecated("License.__getitem__() is deprecated and will be "
                          "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
+                         "please use attribute access.", since="2.4.0")
     def __getitem__(self, key):
         '''NB This method is deprecated and will be removed in a future version
         of CKAN. Instead, please use attribute access.
@@ -77,7 +77,7 @@ class License(object):
 
     @maintain.deprecated("License.as_dict() is deprecated and will be "
                          "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
+                         "please use attribute access.", since="2.4.0")
     def as_dict(self):
         '''NB This method is deprecated and will be removed in a future version
         of CKAN. Instead, please use attribute access.
