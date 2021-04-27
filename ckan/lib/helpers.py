@@ -1003,7 +1003,7 @@ def subnav_link(text, action, **kwargs):
 @core_helper
 @maintain.deprecated('h.subnav_named_route is deprecated please '
                      'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter', sine='2.0.0')
+                     'route_name as a named parameter', since='2.0.0')
 def subnav_named_route(text, named_route, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
