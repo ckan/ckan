@@ -932,6 +932,14 @@ sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index 
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester reindex --config=/etc/ckan/production.ini
 ```
 
+### change selinux permissions on web folders
+to allow access to the docs folder and all files by apache for example you can make an immediate change using the following
+
+```bash
+chcon -Rt httpd_sys_rw_content_t docs
+chcon -Rt httpd_sys_rw_content_t docs/*
+```
+
 ## Customize interface
 
 Now that you have ckan running you can customize the interface via the admin config page. Go to <http://localhost:5000/ckan-admin/config> and configure some of the site options.
