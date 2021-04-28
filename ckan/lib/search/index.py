@@ -241,7 +241,8 @@ class PackageSearchIndex(SearchIndex):
                         # The date field was empty, so dateutil filled it with
                         # the default bogus date
                         value = None
-                except (ValueError, IndexError):
+                except (IndexError, TypeError, ValueError):
+                    log.error('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
                     continue
             new_dict[key] = value
         pkg_dict = new_dict
