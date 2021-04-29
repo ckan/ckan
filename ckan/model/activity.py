@@ -225,8 +225,7 @@ def _group_activity_query(group_id, include_hidden_activity=False):
     ).outerjoin(
         model.Package,
         and_(
-            or_(model.Package.id == model.Member.table_id,
-                model.Package.owner_org == group_id),
+            model.Package.id == model.Member.table_id,
             model.Package.private == False,
         )
     ).filter(
