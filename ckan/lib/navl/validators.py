@@ -15,6 +15,11 @@ Invalid = df.Invalid
 def identity_converter(key, data, errors, context):
     return
 
+
+def string(value):
+    return str(value)
+
+
 def keep_extras(key, data, errors, context):
 
     extras = data.pop(key, {})
