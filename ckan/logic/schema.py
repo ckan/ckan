@@ -412,15 +412,15 @@ def default_user_schema(
 
 @validator_args
 def user_new_form_schema(
-        string, user_both_passwords_entered,
+        unicode_safe, user_both_passwords_entered,
         user_password_validator, user_passwords_match,
         email_is_unique):
     schema = default_user_schema()
 
     schema['email'] = [email_is_unique]
-    schema['password1'] = [string, user_both_passwords_entered,
+    schema['password1'] = [unicode_safe, user_both_passwords_entered,
                            user_password_validator, user_passwords_match]
-    schema['password2'] = [string]
+    schema['password2'] = [unicode_safe]
 
     return schema
 
@@ -468,9 +468,9 @@ def default_generate_apikey_user_schema(
 
 @validator_args
 def default_user_invite_schema(
-        not_empty, string):
+        not_empty, unicode_safe):
     return {
-        'email': [not_empty, string],
+        'email': [not_empty, unicode_safe],
         'group_id': [not_empty],
         'role': [not_empty],
     }

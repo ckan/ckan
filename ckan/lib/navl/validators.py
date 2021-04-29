@@ -16,10 +16,6 @@ def identity_converter(key, data, errors, context):
     return
 
 
-def string(value):
-    return str(value)
-
-
 def keep_extras(key, data, errors, context):
 
     extras = data.pop(key, {})
@@ -80,7 +76,7 @@ def ignore(key, data, errors, context):
     raise StopOnError
 
 def default(default_value):
-    '''When key is missing or value is an empty string or None, replace it with
+    '''When key is missing or value is an empty strisng or None, replace it with
     a default value'''
 
     def callable(key, data, errors, context):
