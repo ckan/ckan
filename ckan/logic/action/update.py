@@ -999,9 +999,10 @@ def term_translation_update(context, data_dict):
 
     _check_access('term_translation_update', context, data_dict)
 
-    schema = {'term': [validators.not_empty, text_type],
-              'term_translation': [validators.not_empty, text_type],
-              'lang_code': [validators.not_empty, text_type]}
+    schema = {'term': [validators.not_empty, validators.unicode_safe],
+              'term_translation': [
+                  validators.not_empty, validators.unicode_safe],
+              'lang_code': [validators.not_empty, validators.unicode_safe]}
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
