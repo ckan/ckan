@@ -220,8 +220,12 @@ def augment_data(data, schema):
 
 
 def convert(converter, key, converted_data, errors, context):
-    signature = inspect.signature(converter)
-    nargs = len(signature.parameters)
+    try:
+        nargs = converter.__code__.co_argcount
+    except AttributeError:
+        raise TypeError(
+            f"{converter.__name__} cannot be used as validator "
+            "because it is not a user-defined function")
     if nargs == 1:
         params = (converted_data.get(key),)
     elif nargs == 2:
@@ -230,7 +234,8 @@ def convert(converter, key, converted_data, errors, context):
         params = (key, converted_data, errors, context)
     else:
         raise TypeError(
-            f"Wrong number of arguments(expected 1, 2 or 4): {nargs}")
+            "Wrong number of arguments for "
+            f"{converter.__name__}(expected 1, 2 or 4): {nargs}")
     try:
         value = converter(*params)
         # 4-args version sets value internally
