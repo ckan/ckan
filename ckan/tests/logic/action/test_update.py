@@ -274,10 +274,13 @@ class TestUpdate(object):
         user = factories.User()
 
         # A mock validator method, it doesn't do anything but it records what
-        # params it gets called with and how many times. We are using lambda
+        # params it gets called with and how many times. We are using function
         # instead of MagicMock, because validator must have __code__ attribute
         calls = []
-        mock_validator = lambda v: calls.append(v) or v
+
+        def mock_validator(v):
+            calls.append(v)
+            return v
 
         # Build a custom schema by taking the default schema and adding our
         # mock method to its 'id' field.
