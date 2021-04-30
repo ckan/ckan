@@ -89,20 +89,23 @@ def get_table_and_function_names_from_sql(context, sql):
     table_names = []
     function_names = []
 
-    def _get_table_names_from_plan(plan):
+    def _parse_query_plan(plan):
 
         table_names = []
+        function_names = []
 
         if plan.get('Relation Name'):
             table_names.append(plan['Relation Name'])
+        if 'Function Name' in plan:
+            function_names.append(plan['Function Name'])
 
         if 'Plans' in plan:
             for child_plan in plan['Plans']:
-                table_name = _get_table_names_from_plan(child_plan)
-                if table_name:
-                    table_names.extend(table_name)
+                t, f = _parse_query_plan(child_plan)
+                table_names.extend(t)
+                function_names.extend(f)
 
-        return table_names
+        return table_names, function_names
 
     function_names.extend(_get_function_names_from_sql(sql))
 
@@ -116,7 +119,10 @@ def get_table_and_function_names_from_sql(context, sql):
             query_plan = result['QUERY PLAN']
         plan = query_plan[0]['Plan']
 
-        table_names.extend(_get_table_names_from_plan(plan))
+        t, f = _parse_query_plan(plan)
+
+        table_names.extend(t)
+        function_names = list(set(function_names) | set(f))
 
     except ValueError:
         log.error('Could not parse query plan')
