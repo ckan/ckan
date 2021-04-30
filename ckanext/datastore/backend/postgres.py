@@ -1896,7 +1896,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         trans = context['connection'].begin()
         try:
-            # check if table already existes
+            # check if table already exists
             context['connection'].execute(
                 u'SET LOCAL statement_timeout TO {0}'.format(timeout))
             result = context['connection'].execute(
@@ -1990,45 +1990,116 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     #     pass
 
     def resource_fields(self, id):
-        def _type_lookup(t):
-            if t in ['numeric', 'integer']:
-                return 'number'
-            if t.startswith('timestamp'):
-                return "date"
-            return "text"
 
-        info = {'schema': {}, 'meta': {}}
+        info = {'meta': {}, 'fields': []}
 
-        schema_results = None
-        meta_results = None
         try:
-            schema_sql = sqlalchemy.text(u'''
-                SELECT column_name, data_type
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE table_name = :resource_id;
-            ''')
-            schema_results = self._get_read_engine().execute(
-                schema_sql, resource_id=id)
-            for row in schema_results.fetchall():
-                k = row[0]
-                v = row[1]
-                if k.startswith('_'):  # Skip internal rows
-                    continue
-                info['schema'][k] = _type_lookup(v)
+            engine = self._get_read_engine()
 
-            # We need to make sure the resource_id is a valid resource_id
-            # before we use it like this, we have done that above.
-            meta_sql = sqlalchemy.text(u'''
-                SELECT count(_id) FROM "{0}";
-            '''.format(id))
-            meta_results = self._get_read_engine().execute(
-                meta_sql, resource_id=id)
+            # resource id for deferencing aliases
+            info['meta']['id'] = id
+
+            # count of rows in table
+            meta_sql = sqlalchemy.text(
+                u'SELECT count(_id) FROM "{0}"'.format(id))
+            meta_results = engine.execute(meta_sql)
             info['meta']['count'] = meta_results.fetchone()[0]
-        finally:
-            if schema_results:
-                schema_results.close()
-            if meta_results:
-                meta_results.close()
+
+            # table_type - BASE TABLE, VIEW, FOREIGN TABLE, MATVIEW
+            tabletype_sql = sqlalchemy.text(u'''
+                SELECT table_type FROM INFORMATION_SCHEMA.TABLES
+                WHERE table_name = '{0}'
+                '''.format(id))
+            tabletype_results = engine.execute(tabletype_sql)
+            info['meta']['table_type'] = tabletype_results.fetchone()[0]
+            # MATERIALIZED VIEWS show as BASE TABLE, so
+            # we check pg_matviews
+            matview_sql = sqlalchemy.text(u'''
+                SELECT count(*) FROM pg_matviews
+                WHERE matviewname = '{0}'
+                '''.format(id))
+            matview_results = engine.execute(matview_sql)
+            if matview_results.fetchone()[0]:
+                info['meta']['table_type'] = 'MATERIALIZED VIEW'
+
+            # SIZE - size of table in bytes
+            size_sql = sqlalchemy.text(
+                u"SELECT pg_relation_size('{0}')".format(id))
+            size_results = engine.execute(size_sql)
+            info['meta']['size'] = size_results.fetchone()[0]
+
+            # DB_SIZE - size of database in bytes
+            dbsize_sql = sqlalchemy.text(
+                u"SELECT pg_database_size(current_database())".format(id))
+            dbsize_results = engine.execute(dbsize_sql)
+            info['meta']['db_size'] = dbsize_results.fetchone()[0]
+
+            # IDXSIZE - size of all indices for table in bytes
+            idxsize_sql = sqlalchemy.text(
+                u"SELECT pg_indexes_size('{0}')".format(id))
+            idxsize_results = engine.execute(idxsize_sql)
+            info['meta']['idx_size'] = idxsize_results.fetchone()[0]
+
+            # all the aliases for this resource
+            alias_sql = sqlalchemy.text(u'''
+                SELECT name FROM "_table_metadata" WHERE alias_of = '{0}'
+            '''.format(id))
+            alias_results = engine.execute(alias_sql)
+            aliases = []
+            for alias in alias_results.fetchall():
+                aliases.append(alias[0])
+            info['meta']['aliases'] = aliases
+
+            # get the data dictionary for the resource
+            data_dictionary = datastore_helpers.datastore_dictionary(id)
+
+            schema_sql = sqlalchemy.text(u'''
+                SELECT
+                f.attname AS column_name,
+                pg_catalog.format_type(f.atttypid,f.atttypmod) AS native_type,
+                f.attnotnull AS notnull,
+                i.relname as index_name,
+                CASE
+                    WHEN i.oid<>0 THEN True
+                    ELSE False
+                END AS is_index,
+                CASE
+                    WHEN p.contype = 'u' THEN True
+                    WHEN p.contype = 'p' THEN True
+                    ELSE False
+                END AS uniquekey
+                FROM pg_attribute f
+                JOIN pg_class c ON c.oid = f.attrelid
+                JOIN pg_type t ON t.oid = f.atttypid
+                LEFT JOIN pg_constraint p ON p.conrelid = c.oid
+                          AND f.attnum = ANY (p.conkey)
+                LEFT JOIN pg_index AS ix ON f.attnum = ANY(ix.indkey)
+                          AND c.oid = f.attrelid AND c.oid = ix.indrelid
+                LEFT JOIN pg_class AS i ON ix.indexrelid = i.oid
+                WHERE c.relkind = 'r'::char
+                      AND c.relname = '{0}'
+                      AND f.attnum > 0
+                ORDER BY c.relname,f.attnum;
+            '''.format(id))
+            schema_results = engine.execute(schema_sql)
+            schemainfo = {}
+            for row in schema_results.fetchall():
+                colname = row.column_name
+                if colname.startswith('_'):  # Skip internal rows
+                    continue
+                colinfo = {'native_type': row.native_type,
+                           'notnull': row.notnull,
+                           'index_name': row.index_name,
+                           'is_index': row.is_index,
+                           'uniquekey': row.uniquekey}
+                schemainfo[colname] = colinfo
+
+            for field in data_dictionary:
+                field.update({'schema': schemainfo[field['id']]})
+                info['fields'].append(field)
+
+        except Exception:
+            pass
         return info
 
     def get_all_ids(self):

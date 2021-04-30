@@ -11,23 +11,5 @@
         "previous": "Предишна",
         "next": "Следваща",
         "last": "Последна"
-    },
-    "aria": {
-        "sortAscending": "сортирай възходящо",
-        "sortDescending": "сортирай низходящо"
-    },
-    "autoFill": {
-        "cancel": "Oткажи",
-        "fill": "Попълни всички клетки с <i>%d<i><\/i><\/i>"
-    },
-    "buttons": {
-        "print": "Изпринти"
-    },
-    "searchBuilder": {
-        "add": "Добави",
-        "deleteTitle": "Изтрий критериите за търсене"
-    },
-    "searchPanes": {
-        "clearMessage": "Изтрий всички"
     }
 }

@@ -14,8 +14,8 @@ wiki page.
 
 **For Python 3 installations, the minimum Python version required is 3.6**
 
+* **Ubuntu 20.04** includes **Python 3.8** as part of its distribution
 * **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
-* **Ubuntu 16.04** includes **Python 3.5** as part of its distribution
 
 From source is also the right installation method for developers who want to
 work on CKAN.

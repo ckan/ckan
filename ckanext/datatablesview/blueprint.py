@@ -7,6 +7,7 @@ from six import text_type
 
 from ckan.common import json
 from ckan.plugins.toolkit import get_action, request, h
+import re
 
 datatablesview = Blueprint(u'datatablesview', __name__)
 
@@ -79,22 +80,25 @@ def ajax(resource_view_id):
         i += 1
 
     colsearch_dict = {}
+    i = 0
     while True:
         if u'columns[%d][search][value]' % i not in request.form:
             break
         v = text_type(request.form[u'columns[%d][search][value]' % i])
         if v:
             k = text_type(request.form[u'columns[%d][name]' % i])
+            # replace non-alphanumeric characters with FTS wildcard (_)
+            v = re.sub(r'[^0-9a-zA-Z\-]+', '_', v)
             # append ':*' so we can do partial FTS searches
             colsearch_dict[k] = v + u':*'
         i += 1
 
     if colsearch_dict:
-        search_text = colsearch_dict
+        search_text = json.dumps(colsearch_dict)
     else:
-        search_text = search_text + u':*' if search_text else ''
+        search_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
+                             search_text) + u':*' if search_text else u''
 
-    query_error = ''
     try:
         response = datastore_search(
             None, {
@@ -110,18 +114,22 @@ def ajax(resource_view_id):
         )
     except Exception:
         query_error = u'Invalid search query... ' + search_text
+        dtdata = {u'error': query_error}
+    else:
+        data = []
+        for row in response[u'records']:
+            record = {colname: text_type(row.get(colname, u''))
+                      for colname in cols}
+            # the DT_RowId is used in DT to set an element id for each record
+            record['DT_RowId'] = 'row' + text_type(row.get(u'_id', u''))
+            data.append(record)
 
-    dtdata = {
-        u'draw': draw,
-        u'iTotalRecords': unfiltered_response.get(u'total', 0),
-        u'iTotalDisplayRecords': response.get(u'total', 0),
-        u'aaData': [[text_type(row.get(colname, u''))
-                     for colname in cols]
-                    for row in response[u'records']],
-    }
-
-    if query_error:
-        dtdata[u'error'] = query_error
+        dtdata = {
+            u'draw': draw,
+            u'recordsTotal': unfiltered_response.get(u'total', 0),
+            u'recordsFiltered': response.get(u'total', 0),
+            u'data': data
+        }
 
     return json.dumps(dtdata)
 
@@ -159,17 +167,37 @@ def filtered_download(resource_view_id):
 
     cols = [c for (c, v) in zip(cols, params[u'visible']) if v]
 
+    colsearch_dict = {}
+    columns = params[u'columns']
+    for column in columns:
+        if column[u'search'][u'value']:
+            v = column[u'search'][u'value']
+            if v:
+                k = column[u'name']
+                # replace non-alphanumeric characters with FTS wildcard (_)
+                v = re.sub(r'[^0-9a-zA-Z\-]+', '_', v)
+                # append ':*' so we can do partial FTS searches
+                colsearch_dict[k] = v + u':*'
+
+    if colsearch_dict:
+        search_text = json.dumps(colsearch_dict)
+    else:
+        search_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
+                             search_text) + u':*' if search_text else ''
+
     return h.redirect_to(
-        h.
-        url_for(u'datastore.dump', resource_id=resource_view[u'resource_id']) +
-        u'?' + urlencode({
-            u'q': search_text,
-            u'sort': u','.join(sort_list),
-            u'filters': json.dumps(filters),
-            u'format': request.form[u'format'],
-            u'fields': u','.join(cols),
-        })
-    )
+        h.url_for(
+            u'datastore.dump',
+            resource_id=resource_view[u'resource_id']) + u'?' + urlencode(
+            {
+                u'q': search_text,
+                u'plain': False,
+                u'language': u'simple',
+                u'sort': u','.join(sort_list),
+                u'filters': json.dumps(filters),
+                u'format': request.form[u'format'],
+                u'fields': u','.join(cols),
+            }))
 
 
 datatablesview.add_url_rule(
