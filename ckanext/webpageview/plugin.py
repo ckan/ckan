@@ -6,6 +6,7 @@ import ckan.plugins as p
 
 log = logging.getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
+unicode_safe = p.toolkit.get_validator('unicode_safe')
 
 
 class WebPageView(p.SingletonPlugin):
@@ -20,7 +21,7 @@ class WebPageView(p.SingletonPlugin):
     def info(self):
         return {'name': 'webpage_view',
                 'title': p.toolkit._('Website'),
-                'schema': {'page_url': [ignore_empty, text_type]},
+                'schema': {'page_url': [ignore_empty, unicode_safe]},
                 'iframed': False,
                 'icon': 'link',
                 'always_available': True,

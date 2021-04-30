@@ -274,8 +274,10 @@ class TestUpdate(object):
         user = factories.User()
 
         # A mock validator method, it doesn't do anything but it records what
-        # params it gets called with and how many times.
-        mock_validator = mock.MagicMock()
+        # params it gets called with and how many times. We are using lambda
+        # instead of MagicMock, because validator must have __code__ attribute
+        calls = []
+        mock_validator = lambda v: calls.append(v) or v
 
         # Build a custom schema by taking the default schema and adding our
         # mock method to its 'id' field.
@@ -294,6 +296,7 @@ class TestUpdate(object):
             password=factories.User.password,
             fullname="updated full name",
         )
+        assert calls == [user['id']]
 
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
