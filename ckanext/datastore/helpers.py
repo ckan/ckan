@@ -110,9 +110,7 @@ def get_table_and_function_names_from_sql(context, sql):
             table_names.extend(t)
             queries.extend(q)
 
-            for plan_function in f:
-                if plan_function not in function_names:
-                    function_names.append(plan_function)
+            function_names = list(set(function_names) | set(f))
 
         except ValueError:
             log.error('Could not parse query plan')
@@ -123,7 +121,7 @@ def get_table_and_function_names_from_sql(context, sql):
 
 def _parse_query_plan(plan):
     '''
-    Given a Postgres Queqry Plan object (parsed from the output of an EXPLAIN
+    Given a Postgres Query Plan object (parsed from the output of an EXPLAIN
     query), returns a tuple with three items:
 
     * A list of tables involved
