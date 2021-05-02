@@ -16,7 +16,7 @@ let datatable
 const gisFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1
 let gsearchMode = ''
 let gstartTime = 0
-let gelaspedTime
+let gelapsedTime
 
 // HELPER FUNCTIONS
 // helper for filtered downloads
@@ -218,7 +218,7 @@ function hideSearchInputs (columns) {
 
 // helper for setting up filterObserver
 function initFilterObserver () {
-  // if no filter is active, make all search inputs background transparent & turn off filter tooltip
+  // if no filter is active, toggle filter tooltip as required
   // this is less expensive than querying the DT api to check global filter and each column
   // separately for filter status. Here, we're checking if an open parenthesis is in the filter info,
   // which indicates that there is a filter active, regardless of language
@@ -226,8 +226,6 @@ function initFilterObserver () {
   const filterObserver = new MutationObserver(function (e) {
     const infoText = document.getElementById('dtprv_info').innerText
     if (!infoText.includes('(')) {
-      $('#dtprv_filter input').css('background-color', 'transparent')
-      $('th.fhead input').css('background-color', 'transparent')
       document.getElementById('filterinfoicon').style.visibility = 'hidden'
     } else {
       document.getElementById('filterinfoicon').style.visibility = 'visible'
@@ -472,6 +470,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               datatable
                 .column(colSelector)
                 .search(this.value)
+                .page(0)
                 .draw(false)
               gsearchMode = 'column'
             }
@@ -606,7 +605,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           // on mouseenter on Search info icon, update tooltip with filterinfo
           $('#filterinfoicon').mouseenter(function () {
             document.getElementById('filterinfoicon').title = filterInfo(datatable, true, true, true) +
-              '\n' + (gelaspedTime / 1000).toFixed(2) + ' ' + that._('seconds') + '\n' +
+              '\n' + (gelapsedTime / 1000).toFixed(2) + ' ' + that._('seconds') + '\n' +
               that._('Double-click to reset filters')
           })
 
@@ -847,7 +846,7 @@ this.ckan.module('datatables_view', function (jQuery) {
 
       // called after getting an AJAX response from CKAN
       datatable.on('xhr', function (e, settings, json, xhr) {
-        gelaspedTime = window.performance.now() - gstartTime
+        gelapsedTime = window.performance.now() - gstartTime
       })
 
       // save state of table when row selection is changed
@@ -860,7 +859,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         hideSearchInputs(columns)
       })
 
-      // a language file has been loaded asynch
+      // a language file has been loaded async
       // this only happens when a non-english language is loaded
       datatable.on('i18n', function () {
         // and we need to ensure Filter Observer is in place
