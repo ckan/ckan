@@ -5,7 +5,7 @@
 #    pip-compile --output-file=requirements.txt requirements.in
 #
 alembic==1.0.0            # via -r requirements.in
-babel==2.7.0              # via -r requirements.in, flask-babel
+babel==2.9.1              # via -r requirements.in, flask-babel
 beaker==1.11.0            # via -r requirements.in
 bleach==3.3.0             # via -r requirements.in
 certifi==2020.12.5        # via requests
