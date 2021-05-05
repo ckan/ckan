@@ -18,7 +18,9 @@
       {{ _("Embed") }}
     </a>
   </div>
-  <p class="desc">{{ h.render_markdown(resource_view['description']) }}</p>
+  {% block description %}
+    <p class="desc">{{ h.render_markdown(resource_view['description']) }}</p>
+  {% endblock %}
     <div class="m-top ckanext-datapreview">
       {% if not to_preview and h.resource_view_is_filterable(resource_view) %}
         {% snippet 'package/snippets/resource_view_filters.html', resource=resource %}
