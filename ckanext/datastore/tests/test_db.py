@@ -106,7 +106,7 @@ class TestCreateIndexes(object):
         resource_id = 'resource_id'
         data_dict = {
             'resource_id': resource_id,
-            'lang': 'french',
+            'language': 'french',
         }
 
         db.create_indexes(context, data_dict)

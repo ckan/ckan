@@ -394,7 +394,7 @@ def _where_clauses(data_dict, fields_types):
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
         elif isinstance(q, dict):
-            lang = _fts_lang(data_dict.get('lang'))
+            lang = _fts_lang(data_dict.get('language'))
             for field, value in q.iteritems():
                 if field not in fields_types:
                     continue
@@ -416,7 +416,7 @@ def _where_clauses(data_dict, fields_types):
 
 def _textsearch_query(data_dict):
     q = data_dict.get('q')
-    lang = _fts_lang(data_dict.get('lang'))
+    lang = _fts_lang(data_dict.get('language'))
 
     if not q:
         return '', ''
@@ -580,7 +580,7 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     default_fts_lang = config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
-    fts_lang = data_dict.get('lang', default_fts_lang)
+    fts_lang = data_dict.get('language', default_fts_lang)
 
     # create full-text search indexes
     def to_tsvector(x):
