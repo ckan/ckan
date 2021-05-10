@@ -10,7 +10,7 @@ from ckan.common import config
 
 log = logging.getLogger(__name__)
 
-DEFAULT_HOST = "localhost"
+DEFAULT_HOST = u"localhost"
 DEFAULT_PORT = 5000
 
 
@@ -74,8 +74,8 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
     else:
         ssl_context = None
 
-    host = host or config.get('ckan.devserver.host', DEFAULT_HOST)
-    port = port or config.get('ckan.devserver.port', DEFAULT_PORT)
+    host = host or config.get(u'ckan.devserver.host', DEFAULT_HOST)
+    port = port or config.get(u'ckan.devserver.port', DEFAULT_PORT)
     try:
         port = int(port)
     except ValueError:

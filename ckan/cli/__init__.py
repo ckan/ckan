@@ -60,10 +60,10 @@ class CKANConfigLoader(object):
                     os.path.dirname(os.path.abspath(use_config_path)), path)
                 # Avoid circular references
                 if use_config_path in loaded_files:
-                    chain = ' -> '.join(loaded_files + [use_config_path])
+                    chain = u' -> '.join(loaded_files + [use_config_path])
                     raise CkanConfigurationException(
-                        'Circular dependency located in '
-                        'the configuration chain: {}'.format(chain)
+                        u'Circular dependency located in '
+                        u'the configuration chain: {}'.format(chain)
                     )
                 loaded_files.append(use_config_path)
 

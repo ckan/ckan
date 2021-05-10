@@ -98,13 +98,13 @@ for locale in locales_mapping:
     new_locale = locale[1]
 
     home.add_url_rule(
-        '/{}/'.format(legacy_locale),
+        u'/{}/'.format(legacy_locale),
         view_func=redirect_locale,
         defaults={u'target_locale': new_locale}
     )
 
     home.add_url_rule(
-        '/{}/<path:path>'.format(legacy_locale),
+        u'/{}/<path:path>'.format(legacy_locale),
         view_func=redirect_locale,
         defaults={u'target_locale': new_locale}
     )
