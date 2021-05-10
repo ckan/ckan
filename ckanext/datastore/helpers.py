@@ -129,7 +129,6 @@ def _parse_query_plan(plan):
     * A list of function names involved
     '''
 
-
     table_names = []
     queries = []
     functions = []
