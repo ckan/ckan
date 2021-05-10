@@ -2735,7 +2735,7 @@ def resource_formats():
                 os.path.dirname(os.path.realpath(ckan.config.__file__)),
                 'resource_formats.json'
             )
-        with open(format_file_path) as format_file:
+        with open(format_file_path, encoding='utf-8') as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
             except ValueError as e:
