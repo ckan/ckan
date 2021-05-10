@@ -26,7 +26,8 @@ assert_in = nose.tools.assert_in
 class TestDatastoreSearchNewTest(object):
     @classmethod
     def setup_class(cls):
-        p.load('datastore')
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
 
     @classmethod
     def teardown_class(cls):
@@ -133,7 +134,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -1141,3 +1143,38 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             res_dict = json.loads(res.body)
             assert res_dict['success'] is False
             assert res_dict['error']['__type'] == 'Authorization Error'
+
+    def test_allowed_functions_are_case_insensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT UpPeR(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    def test_quoted_allowed_functions_are_case_sensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT count(*) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+        sql = 'SELECT CoUnT(*) from "{}"'.format(
+            resource["id"]
+        )
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action, "datastore_search_sql", sql=sql)
