@@ -63,7 +63,7 @@ class CKANConfigLoader(object):
                     chain = ' -> '.join(loaded_files + [use_config_path])
                     raise CkanConfigurationException(
                         'Circular dependency located in '
-                        f'the configuration chain: {chain}'
+                        'the configuration chain: {}'.format(chain)
                     )
                 loaded_files.append(use_config_path)
 
