@@ -287,6 +287,7 @@ class TestGroupDelete(object):
             data={"delete": ""},
             extra_environ=initial_data["user_env"],
         )
+        assert response.status_code == 200
         group = helpers.call_action(
             "group_show", id=initial_data["group"]["id"]
         )
@@ -300,6 +301,7 @@ class TestGroupDelete(object):
             data={"delete": ""},
             extra_environ=extra_environ,
         )
+        assert response.status_code == 200
         group = helpers.call_action(
             "group_show", id=initial_data["group"]["id"]
         )
