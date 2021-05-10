@@ -16,6 +16,12 @@ jquery:
   contents:
     - jquery.js
 
+qs:
+  filters: rjsmin
+  output: vendor/%(version)s_qs.js
+  contents:
+    - qs.js
+
 vendor:
   filters: rjsmin
   output: vendor/%(version)s_vendor.js
@@ -27,7 +33,6 @@ vendor:
     - jed.js
     - moment-with-locales.js
     - select2/select2.js
-    - qs.js
 
 bootstrap:
   filters: rjsmin
