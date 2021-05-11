@@ -1042,8 +1042,6 @@ class DeleteGroupView(MethodView):
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
             h.flash_error(e.error_dict['message'])
-            return h.redirect_to(u'organization.read', id=id)
-
             return h.redirect_to(u'{}.read'.format(group_type), id=id)
 
         return h.redirect_to(u'{}.index'.format(group_type))
