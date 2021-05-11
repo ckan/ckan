@@ -229,6 +229,14 @@ code will check for and attempt to use them in this order:
    which passes values into these callables and converts expected exceptions
    into :py:exc:`ckan.plugins.toolkit.Invalid`.
 
+   Example::
+
+     def int_validator(value):
+         try:
+             return int(value)
+         except ValueError:
+             raise Invalid(f"Invalid literal for integer: {value}")
+
 
 ``validator(value)``
 ^^^^^^^^^^^^^^^^^^^^

@@ -2,7 +2,6 @@
 
 import copy
 import json
-import inspect
 
 import six
 from six import text_type
