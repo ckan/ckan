@@ -1567,6 +1567,25 @@ class TestSearch(object):
         assert len(ds_titles) == 1
         assert "Dataset One" in ds_titles
 
+    @pytest.mark.ckan_config('ckan.datasets_per_page', 1)
+    def test_repeatable_params(self, app):
+        """Searching for datasets returns expected results."""
+
+        factories.Dataset(name="dataset-one", title="Test Dataset One")
+        factories.Dataset(name="dataset-two", title="Test Dataset Two")
+
+        search_url = url_for("dataset.search", title=['Test', 'Dataset'])
+        search_results = app.get(search_url)
+        html = BeautifulSoup(search_results.data)
+        links = html.select('.pagination a')
+        # first, second and "Next" pages
+        assert len(links) == 3
+
+        params = [set(urlparse(a['href']).query.split('&')) for a in links]
+        for group in params:
+            assert 'title=Test' in group
+            assert 'title=Dataset' in group
+
     def test_search_page_no_results(self, app):
         """Search with non-returning phrase returns no results."""
 
