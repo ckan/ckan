@@ -637,6 +637,7 @@ class GroupController(base.BaseController):
                     h.flash_notice(_('%s has been deleted.')
                                    % _(group_type.capitalize()))
                 h.redirect_to(group_type + '_index')
+            c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(403, _('Unauthorized to delete group %s') % '')
         except NotFound:
