@@ -387,6 +387,10 @@ def check_metadata_org_changes(change_list, old, new):
     if old.get(u'image_url') != new.get(u'image_url'):
         _image_url_change(change_list, old, new)
 
+    # check whether fields added by custom fields
+    # (in the "extras" field) have been changed
+    _extra_fields_org(change_list, old, new)
+
 
 def _title_change(change_list, old, new):
     '''
@@ -900,3 +904,128 @@ def _image_url_change(change_list, old, new):
                             u'pkg_id': new.get(u'id'),
                             u'title': new.get(u'title'),
                             u'new_image_url': new.get(u'image_url')})
+
+
+def _extra_fields_org(change_list, old, new):
+    '''
+    Checks whether a user has added, removed, or changed any extra fields
+    from the web interface (or API?) and appends a summary of each change to
+    change_list.
+    '''
+    if u'extras' in new:
+        extra_fields_new = _extras_to_dict(new.get(u'extras'))
+        extra_new_set = set(extra_fields_new.keys())
+
+        # if the old version has extra fields, we need
+        # to compare the new version's extras to the old ones
+        if u'extras' in old:
+            extra_fields_old = _extras_to_dict(old.get(u'extras'))
+            extra_old_set = set(extra_fields_old.keys())
+
+            # if some fields were added
+            new_fields = list(extra_new_set - extra_old_set)
+            if len(new_fields) == 1:
+                if extra_fields_new[new_fields[0]]:
+                    change_list.append({u'type': u'extra_fields',
+                                        u'method': u'add_one_value',
+                                        u'pkg_id': new.get(u'id'),
+                                        u'title': new.get(u'title'),
+                                        u'key': new_fields[0],
+                                        u'value':
+                                        extra_fields_new[new_fields[0]]})
+                else:
+                    change_list.append({u'type': u'extra_fields',
+                                        u'method': u'add_one_no_value',
+                                        u'pkg_id': new.get(u'id'),
+                                        u'title': new.get(u'title'),
+                                        u'key': new_fields[0]})
+            elif len(new_fields) > 1:
+                change_list.append({u'type': u'extra_fields',
+                                    u'method': u'add_multiple',
+                                    u'pkg_id': new.get(u'id'),
+                                    u'title': new.get(u'title'),
+                                    u'key_list': new_fields,
+                                    u'value_list': extra_fields_new})
+
+            # if some fields were deleted
+            deleted_fields = list(extra_old_set - extra_new_set)
+            if len(deleted_fields) == 1:
+                change_list.append({u'type': u'extra_fields',
+                                    u'method': u'remove_one',
+                                    u'pkg_id': new.get(u'id'),
+                                    u'title': new.get(u'title'),
+                                    u'key': deleted_fields[0]})
+            elif len(deleted_fields) > 1:
+                change_list.append({u'type': u'extra_fields',
+                                    u'method': u'remove_multiple',
+                                    u'pkg_id': new.get(u'id'),
+                                    u'title': new.get(u'title'),
+                                    u'key_list': deleted_fields})
+
+            # if some existing fields were changed
+            # list of extra fields in both the old and new versions
+            extra_fields = list(extra_new_set.intersection(extra_old_set))
+            for field in extra_fields:
+                if extra_fields_old[field] != extra_fields_new[field]:
+                    if extra_fields_old[field]:
+                        change_list.append({u'type': u'extra_fields',
+                                            u'method':
+                                            u'change_with_old_value',
+                                            u'pkg_id': new.get(u'id'),
+                                            u'title': new.get(u'title'),
+                                            u'key': field,
+                                            u'old_value':
+                                            extra_fields_old[field],
+                                            u'new_value':
+                                            extra_fields_new[field]})
+                    else:
+                        change_list.append({u'type': u'extra_fields',
+                                            u'method': u'change_no_old_value',
+                                            u'pkg_id': new.get(u'id'),
+                                            u'title': new.get(u'title'),
+                                            u'key': field,
+                                            u'new_value':
+                                            extra_fields_new[field]})
+
+        # if the old version didn't have an extras field,
+        # the user could only have added a field (not changed or deleted)
+        else:
+            new_fields = list(extra_new_set)
+            if len(new_fields) == 1:
+                if extra_fields_new[new_fields[0]]:
+                    change_list.append({u'type': u'extra_fields',
+                                        u'method': u'add_one_value',
+                                        u'pkg_id': new.get(u'id'),
+                                        u'title': new.get(u'title'),
+                                        u'key': new_fields[0],
+                                        u'value':
+                                        extra_fields_new[new_fields[0]]})
+                else:
+                    change_list.append({u'type': u'extra_fields',
+                                        u'method': u'add_one_no_value',
+                                        u'pkg_id': new.get(u'id'),
+                                        u'title': new.get(u'title'),
+                                        u'key': new_fields[0]})
+
+            elif len(new_fields) > 1:
+                change_list.append({u'type': u'extra_fields',
+                                    u'method': u'add_multiple',
+                                    u'pkg_id': new.get(u'id'),
+                                    u'title': new.get(u'title'),
+                                    u'key_list': new_fields,
+                                    u'value_list': extra_fields_new})
+
+    elif u'extras' in old:
+        deleted_fields = _extras_to_dict(old['extras']).keys()
+        if len(deleted_fields) == 1:
+            change_list.append({u'type': u'extra_fields',
+                                u'method': u'remove_one',
+                                u'pkg_id': new.get(u'id'),
+                                u'title': new.get(u'title'),
+                                u'key': deleted_fields[0]})
+        elif len(deleted_fields) > 1:
+            change_list.append({u'type': u'extra_fields',
+                                u'method': u'remove_multiple',
+                                u'pkg_id': new.get(u'id'),
+                                u'title': new.get(u'title'),
+                                u'key_list': deleted_fields})
