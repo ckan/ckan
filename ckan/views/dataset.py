@@ -223,7 +223,8 @@ def search(package_type):
     limit = int(config.get(u'ckan.datasets_per_page', 20))
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.args.items(multi=True) if k != u'page']
+    params_nopage = [(k, v) for k, v in request.args.items(multi=True)
+                     if k != u'page']
 
     extra_vars[u'drill_down_url'] = drill_down_url
     extra_vars[u'remove_field'] = partial(remove_field, package_type)
