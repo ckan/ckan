@@ -120,6 +120,7 @@ def _get_engine_from_url(connection_url):
     engine = _engines.get(connection_url)
     if not engine:
         extras = {'url': connection_url}
+        config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
         engine = sqlalchemy.engine_from_config(config,
                                                'ckan.datastore.sqlalchemy.',
                                                **extras)
