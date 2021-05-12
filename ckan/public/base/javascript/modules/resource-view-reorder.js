@@ -3,8 +3,7 @@
 this.ckan.module('resource-view-reorder', function($) {
   return {
     options: {
-      id: false,
-      labelText: 'Reorder resource view'
+      id: false
     },
     template: {
       title: '<h1></h1>',
@@ -38,7 +37,7 @@ this.ckan.module('resource-view-reorder', function($) {
     initialize: function() {
       jQuery.proxyAll(this, /_on/);
 
-      var labelText = this._(this.options.labelText);
+      var labelText = this._('Reorder resource view');
       this.html_title = $(this.template.title)
         .text(labelText)
         .insertBefore(this.el)

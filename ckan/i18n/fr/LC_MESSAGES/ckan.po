@@ -2114,6 +2114,10 @@ msgstr "Ajouter un filtre"
 msgid "Select a field"
 msgstr "Sélectionnez un champ"
 
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:41
+msgid "Reorder resource view"
+msgstr "Réorganiser la vue des ressources"
+
 #: ckan/public-bs2/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.min.js:2
