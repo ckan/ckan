@@ -94,8 +94,6 @@ def package_delete(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
 
-        item.after_delete(context, data_dict)
-
     entity.delete()
 
     dataset_memberships = model.Session.query(model.Member).filter(
@@ -122,6 +120,9 @@ def package_delete(context, data_dict):
         session.add(activity)
 
     model.repo.commit()
+
+    for item in plugins.PluginImplementations(plugins.IPackageController):
+        item.after_delete(context, data_dict)
 
 
 def dataset_purge(context, data_dict):
@@ -206,10 +207,10 @@ def resource_delete(context, data_dict):
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
+    model.repo.commit()
+
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_delete(context, pkg_dict.get('resources', []))
-
-    model.repo.commit()
 
 
 def resource_view_delete(context, data_dict):
