@@ -514,6 +514,7 @@ def changes(id, group_type, is_organization):
     item.
     '''
     set_org(is_organization)
+    extra_vars = {}
     activity_id = id
     context = {
         u'model': model, u'session': model.Session,
@@ -542,14 +543,14 @@ def changes(id, group_type, is_organization):
         }
     )
 
-    return base.render(_replace_group_org(
-        u'group/changes.html'), {
-            u'activity_diffs': [activity_diff],
-            u'group_dict': current_group_dict,
-            u'group_activity_list': group_activity_list,
-            u'group_type': current_group_dict[u'type'],
-        }
-    )
+    extra_vars = {
+        u'activity_diffs': [activity_diff],
+        u'group_dict': current_group_dict,
+        u'group_activity_list': group_activity_list,
+        u'group_type': current_group_dict[u'type'],
+    }
+
+    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
 
 
 def changes_multiple(is_organization, group_type=None):
@@ -560,6 +561,7 @@ def changes_multiple(is_organization, group_type=None):
     re-renders changes.html with the list.
     '''
     set_org(is_organization)
+    extra_vars = {}
     new_id = h.get_request_param(u'new_id')
     old_id = h.get_request_param(u'old_id')
 
@@ -625,14 +627,14 @@ def changes_multiple(is_organization, group_type=None):
         u'id': group_id,
         u'limit': 100})
 
-    return base.render(_replace_group_org(
-        u'group/changes.html'), {
-            u'activity_diffs': diff_list,
-            u'group_dict': current_group_dict,
-            u'group_activity_list': group_activity_list,
-            u'group_type': current_group_dict[u'type'],
-        }
-    )
+    extra_vars = {
+        u'activity_diffs': diff_list,
+        u'group_dict': current_group_dict,
+        u'group_activity_list': group_activity_list,
+        u'group_type': current_group_dict[u'type'],
+    }
+
+    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
 
 
 def about(id, group_type, is_organization):
