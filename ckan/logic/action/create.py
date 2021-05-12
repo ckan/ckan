@@ -380,7 +380,7 @@ def resource_view_create(context, data_dict):
                 .format(res_id=resource_id)
              })
     pkg_dict = _get_action('package_show')(
-        dict(context, return_type='dict'),
+        {k:v for (k,v) in context.items() if k !='schema'},
         {'id': resource.package_id})
 
     if 'package_id' in data_dict.keys():
