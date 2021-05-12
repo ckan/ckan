@@ -513,6 +513,7 @@ def changes(id, group_type, is_organization):
     Shows the changes to an organization in one particular activity stream
     item.
     '''
+    set_org(is_organization)
     activity_id = id
     context = {
         u'model': model, u'session': model.Session,
@@ -541,8 +542,8 @@ def changes(id, group_type, is_organization):
         }
     )
 
-    return base.render(
-        u'organization/changes.html', {
+    return base.render(_replace_group_org(
+        u'group/changes.html'), {
             u'activity_diffs': [activity_diff],
             u'group_dict': current_group_dict,
             u'group_activity_list': group_activity_list,
@@ -558,7 +559,7 @@ def changes_multiple(is_organization, group_type=None):
     activity diffs for the changes in the given version range, then
     re-renders changes.html with the list.
     '''
-
+    set_org(is_organization)
     new_id = h.get_request_param(u'new_id')
     old_id = h.get_request_param(u'old_id')
 
@@ -624,8 +625,8 @@ def changes_multiple(is_organization, group_type=None):
         u'id': group_id,
         u'limit': 100})
 
-    return base.render(
-        u'organization/changes.html', {
+    return base.render(_replace_group_org(
+        u'group/changes.html'), {
             u'activity_diffs': diff_list,
             u'group_dict': current_group_dict,
             u'group_activity_list': group_activity_list,
@@ -1329,7 +1330,7 @@ def register_group_plugin_rules(blueprint):
             view_func=globals()[action])
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(
-        u'/organization.changes_multiple',
+        u'/changes_multiple',
         view_func=changes_multiple)
 
 
