@@ -20,11 +20,6 @@ from flask_babel import (gettext as flask_ugettext,
 
 import simplejson as json
 
-if six.PY2:
-    import pylons
-    from pylons.i18n import (ugettext as pylons_ugettext,
-                             ungettext as pylons_ungettext)
-    from pylons import response
 
 current_app = flask.current_app
 
@@ -117,14 +112,6 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-        if six.PY2:
-            try:
-                pylons.config.clear()
-                # Pylons set this default itself
-                pylons.config[u'lang'] = None
-            except TypeError:
-                pass
-
     def __setitem__(self, key, value):
         self.store[key] = value
         try:
@@ -132,24 +119,12 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-        if six.PY2:
-            try:
-                pylons.config[key] = value
-            except TypeError:
-                pass
-
     def __delitem__(self, key):
         del self.store[key]
         try:
             del flask.current_app.config[key]
         except RuntimeError:
             pass
-
-        if six.PY2:
-            try:
-                del pylons.config[key]
-            except TypeError:
-                pass
 
 
 def _get_request():
