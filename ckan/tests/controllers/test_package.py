@@ -278,7 +278,8 @@ class TestPackageNew(object):
         assert pkg.owner_org is not None
         # edit package page response
         url = url_for("dataset.edit", id=pkg.id)
-        pkg_edit_response = app.post(url=url, extra_environ=env, data={"owner_org": ""}, follow_redirects=False)
+        pkg_edit_response = app.post(url=url, extra_environ=env, data={
+                                     "owner_org": ""}, follow_redirects=False)
 
         post_edit_pkg = model.Package.by_name(u"my-dataset")
         assert post_edit_pkg.owner_org is None
@@ -803,7 +804,8 @@ class TestPackageDelete(object):
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]), status=403
         )
-        assert helpers.body_contains(response, "Unauthorized to delete package")
+        assert helpers.body_contains(
+            response, "Unauthorized to delete package")
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
         assert "active" == deleted["state"]
@@ -823,7 +825,8 @@ class TestPackageDelete(object):
 
         )
         assert 403 == response.status_code
-        assert helpers.body_contains(response, "Unauthorized to delete package")
+        assert helpers.body_contains(
+            response, "Unauthorized to delete package")
 
     def test_confirm_cancel_delete(self, app):
         """Test confirmation of deleting datasets
@@ -842,7 +845,8 @@ class TestPackageDelete(object):
         )
         assert 200 == response.status_code
         message = "Are you sure you want to delete dataset - {name}?"
-        assert helpers.body_contains(response, message.format(name=dataset["title"]))
+        assert helpers.body_contains(
+            response, message.format(name=dataset["title"]))
 
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]), extra_environ=env,
@@ -1192,7 +1196,8 @@ class TestResourceView(object):
             view_id=resource_view["id"],
         )
         response = app.get(url)
-        assert helpers.body_contains(response, "Some <strong>Markdown</strong>")
+        assert helpers.body_contains(
+            response, "Some <strong>Markdown</strong>")
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1368,7 +1373,8 @@ class TestResourceDelete(object):
             ),
             status=403,
         )
-        assert helpers.body_contains(response, "Unauthorized to delete package")
+        assert helpers.body_contains(
+            response, "Unauthorized to delete package")
 
     def test_logged_in_users_cannot_delete_resources_they_do_not_own(
         self, app
@@ -1394,7 +1400,8 @@ class TestResourceDelete(object):
 
         )
         assert 403 == response.status_code
-        assert helpers.body_contains(response, "Unauthorized to delete package")
+        assert helpers.body_contains(
+            response, "Unauthorized to delete package")
 
     def test_sysadmins_can_delete_any_resource(self, app):
         owner_org = factories.Organization()
@@ -1439,7 +1446,8 @@ class TestResourceDelete(object):
         )
         assert 200 == response.status_code
         message = "Are you sure you want to delete resource - {name}?"
-        assert helpers.body_contains(response, message.format(name=resource["name"]))
+        assert helpers.body_contains(
+            response, message.format(name=resource["name"]))
 
         response = app.post(
             url_for(
@@ -1883,7 +1891,8 @@ class TestDatasetRead(object):
             follow_redirects=False
         )
         # redirect replaces the ID with the name in the URL
-        expected_url = url_for("dataset.read", id=dataset["name"], _external=True)
+        expected_url = url_for(
+            "dataset.read", id=dataset["name"], _external=True)
         assert response.headers['location'] == expected_url
 
     def test_redirect_also_with_activity_parameter(self, app):
@@ -1901,7 +1910,8 @@ class TestDatasetRead(object):
             extra_environ=env,
             follow_redirects=False
         )
-        expected_path = url_for("dataset.read", id=dataset["name"], _external=True, activity_id=activity.id)
+        expected_path = url_for(
+            "dataset.read", id=dataset["name"], _external=True, activity_id=activity.id)
         assert response.headers['location'] == expected_path
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
@@ -2298,12 +2308,13 @@ class TestCollaborators(object):
         sysadmin = factories.Sysadmin()
 
         env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
-        response = app.get(url=url_for('dataset.edit', id=dataset['name']), extra_environ=env)
+        response = app.get(url=url_for(
+            'dataset.edit', id=dataset['name']), extra_environ=env)
         assert 'Collaborators' not in response
 
         # Route not registered
         with pytest.raises(BuildError):
-                url = url_for('dataset.collaborators_read', id=dataset['name'])
+            url = url_for('dataset.collaborators_read', id=dataset['name'])
         app.get(
             '/dataset/collaborators/{}'.format(dataset['name']), extra_environ=env, status=404)
 
@@ -2313,7 +2324,8 @@ class TestCollaborators(object):
         sysadmin = factories.Sysadmin()
 
         env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
-        response = app.get(url=url_for('dataset.edit', id=dataset['name']), extra_environ=env)
+        response = app.get(url=url_for(
+            'dataset.edit', id=dataset['name']), extra_environ=env)
         assert 'Collaborators' in response
 
         # Route registered
