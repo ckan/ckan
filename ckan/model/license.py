@@ -38,10 +38,6 @@ class License(object):
                     *list(int(item) for item in re.split(r'[^\d]', value)))
                 self._data[key] = value
             elif isinstance(value, str):
-                if six.PY2:
-                    # Convert str to unicode
-                    # (keeps Pylons and SQLAlchemy happy).
-                    value = six.ensure_text(value)
                 self._data[key] = value
 
     def __getattr__(self, name):
@@ -121,7 +117,7 @@ class LicenseRegister(object):
                 LicenseCreativeCommonsNonCommercial(),
                 LicenseOtherNonCommercial(),
                 LicenseOtherClosed(),
-                ]
+            ]
             self._create_license_list(default_license_list)
 
     def load_licenses(self, license_url):
@@ -133,10 +129,12 @@ class LicenseRegister(object):
                 response = requests.get(license_url)
                 license_data = response.json()
         except requests.RequestException as e:
-            msg = "Couldn't get the licenses file {}: {}".format(license_url, e)
+            msg = "Couldn't get the licenses file {}: {}".format(
+                license_url, e)
             raise Exception(msg)
         except ValueError as e:
-            msg = "Couldn't parse the licenses file {}: {}".format(license_url, e)
+            msg = "Couldn't parse the licenses file {}: {}".format(
+                license_url, e)
             raise Exception(msg)
         for license in license_data:
             if isinstance(license, string_types):
@@ -147,7 +145,8 @@ class LicenseRegister(object):
 
     def _create_license_list(self, license_data, license_url=''):
         if isinstance(license_data, dict):
-            self.licenses = [License(entity) for entity in license_data.values()]
+            self.licenses = [License(entity)
+                             for entity in license_data.values()]
         elif isinstance(license_data, list):
             self.licenses = [License(entity) for entity in license_data]
         else:
@@ -231,6 +230,7 @@ class DefaultLicense(dict):
             out[key] = text_type(getattr(self, key))
         return out
 
+
 class LicenseNotSpecified(DefaultLicense):
     id = "notspecified"
     is_generic = True
@@ -238,6 +238,7 @@ class LicenseNotSpecified(DefaultLicense):
     @property
     def title(self):
         return _("License not specified")
+
 
 class LicenseOpenDataCommonsPDDL(DefaultLicense):
     domain_data = True
@@ -249,6 +250,7 @@ class LicenseOpenDataCommonsPDDL(DefaultLicense):
     def title(self):
         return _("Open Data Commons Public Domain Dedication and License (PDDL)")
 
+
 class LicenseOpenDataCommonsOpenDatabase(DefaultLicense):
     domain_data = True
     id = "odc-odbl"
@@ -259,6 +261,7 @@ class LicenseOpenDataCommonsOpenDatabase(DefaultLicense):
     def title(self):
         return _("Open Data Commons Open Database License (ODbL)")
 
+
 class LicenseOpenDataAttribution(DefaultLicense):
     domain_data = True
     id = "odc-by"
@@ -268,6 +271,7 @@ class LicenseOpenDataAttribution(DefaultLicense):
     @property
     def title(self):
         return _("Open Data Commons Attribution License")
+
 
 class LicenseCreativeCommonsZero(DefaultLicense):
     domain_content = True
@@ -280,6 +284,7 @@ class LicenseCreativeCommonsZero(DefaultLicense):
     def title(self):
         return _("Creative Commons CCZero")
 
+
 class LicenseCreativeCommonsAttribution(DefaultLicense):
     id = "cc-by"
     od_conformance = 'approved'
@@ -288,6 +293,7 @@ class LicenseCreativeCommonsAttribution(DefaultLicense):
     @property
     def title(self):
         return _("Creative Commons Attribution")
+
 
 class LicenseCreativeCommonsAttributionShareAlike(DefaultLicense):
     domain_content = True
@@ -299,14 +305,17 @@ class LicenseCreativeCommonsAttributionShareAlike(DefaultLicense):
     def title(self):
         return _("Creative Commons Attribution Share-Alike")
 
+
 class LicenseGNUFreeDocument(DefaultLicense):
     domain_content = True
     id = "gfdl"
     od_conformance = 'approved'
     url = "http://www.opendefinition.org/licenses/gfdl"
+
     @property
     def title(self):
         return _("GNU Free Documentation License")
+
 
 class LicenseOtherOpen(DefaultLicense):
     domain_content = True
@@ -318,6 +327,7 @@ class LicenseOtherOpen(DefaultLicense):
     def title(self):
         return _("Other (Open)")
 
+
 class LicenseOtherPublicDomain(DefaultLicense):
     domain_content = True
     id = "other-pd"
@@ -328,6 +338,7 @@ class LicenseOtherPublicDomain(DefaultLicense):
     def title(self):
         return _("Other (Public Domain)")
 
+
 class LicenseOtherAttribution(DefaultLicense):
     domain_content = True
     id = "other-at"
@@ -337,6 +348,7 @@ class LicenseOtherAttribution(DefaultLicense):
     @property
     def title(self):
         return _("Other (Attribution)")
+
 
 class LicenseOpenGovernment(DefaultLicense):
     domain_content = True
@@ -350,6 +362,7 @@ class LicenseOpenGovernment(DefaultLicense):
         # CS: bad_spelling ignore
         return _("UK Open Government Licence (OGL)")
 
+
 class LicenseCreativeCommonsNonCommercial(DefaultLicense):
     id = "cc-nc"
     url = "http://creativecommons.org/licenses/by-nc/2.0/"
@@ -358,6 +371,7 @@ class LicenseCreativeCommonsNonCommercial(DefaultLicense):
     def title(self):
         return _("Creative Commons Non-Commercial (Any)")
 
+
 class LicenseOtherNonCommercial(DefaultLicense):
     id = "other-nc"
     is_generic = True
@@ -365,6 +379,7 @@ class LicenseOtherNonCommercial(DefaultLicense):
     @property
     def title(self):
         return _("Other (Non-Commercial)")
+
 
 class LicenseOtherClosed(DefaultLicense):
     id = "other-closed"
