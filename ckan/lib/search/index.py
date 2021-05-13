@@ -31,10 +31,8 @@ log = logging.getLogger(__name__)
 
 TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
-if six.PY2:
-    KEY_CHARS = string.digits + string.letters + "_-"
-else:
-    KEY_CHARS = string.digits + string.ascii_letters + "_-"
+
+KEY_CHARS = string.digits + string.ascii_letters + "_-"
 
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description",
@@ -42,7 +40,9 @@ RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description"
 RELATIONSHIP_TYPES = PackageRelationship.types
 
 # Regular expression used to strip invalid XML characters
-_illegal_xml_chars_re = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+_illegal_xml_chars_re = re.compile(
+    u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+
 
 def escape_xml_illegal_chars(val, replacement=''):
     '''
@@ -99,7 +99,10 @@ class SearchIndex(object):
         """ Return a list of entity IDs in the index. """
         raise NotImplemented
 
-class NoopSearchIndex(SearchIndex): pass
+
+class NoopSearchIndex(SearchIndex):
+    pass
+
 
 class PackageSearchIndex(SearchIndex):
     def remove_dict(self, pkg_dict):
@@ -128,7 +131,7 @@ class PackageSearchIndex(SearchIndex):
                 package_plugin, {'model': model, 'session': model.Session},
                 pkg_dict, schema, 'package_show')
             pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
-                cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
+                                                         cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
 
         pkg_dict['data_dict'] = data_dict_json
 
@@ -189,9 +192,9 @@ class PackageSearchIndex(SearchIndex):
         # if there is an owner_org we want to add this to groups for index
         # purposes
         if pkg_dict.get('organization'):
-           pkg_dict['organization'] = pkg_dict['organization']['name']
+            pkg_dict['organization'] = pkg_dict['organization']['name']
         else:
-           pkg_dict['organization'] = None
+            pkg_dict['organization'] = None
 
         # tracking
         if not tracking_summary:
@@ -206,22 +209,26 @@ class PackageSearchIndex(SearchIndex):
                            ('url', 'res_url'),
                            ('resource_type', 'res_type')]
         resource_extras = [(e, 'res_extras_' + e) for e
-                            in model.Resource.get_extra_columns()]
+                           in model.Resource.get_extra_columns()]
         # flatten the structure for indexing:
         for resource in pkg_dict.get('resources', []):
             for (okey, nkey) in resource_fields + resource_extras:
-                pkg_dict[nkey] = pkg_dict.get(nkey, []) + [resource.get(okey, u'')]
+                pkg_dict[nkey] = pkg_dict.get(
+                    nkey, []) + [resource.get(okey, u'')]
         pkg_dict.pop('resources', None)
 
         rel_dict = collections.defaultdict(list)
         subjects = pkg_dict.pop("relationships_as_subject", [])
         objects = pkg_dict.pop("relationships_as_object", [])
         for rel in objects:
-            type = model.PackageRelationship.forward_to_reverse_type(rel['type'])
-            rel_dict[type].append(model.Package.get(rel['subject_package_id']).name)
+            type = model.PackageRelationship.forward_to_reverse_type(
+                rel['type'])
+            rel_dict[type].append(model.Package.get(
+                rel['subject_package_id']).name)
         for rel in subjects:
             type = rel['type']
-            rel_dict[type].append(model.Package.get(rel['object_package_id']).name)
+            rel_dict[type].append(model.Package.get(
+                rel['object_package_id']).name)
         for key, value in six.iteritems(rel_dict):
             if key not in pkg_dict:
                 pkg_dict[key] = value
@@ -250,7 +257,8 @@ class PackageSearchIndex(SearchIndex):
                         # the default bogus date
                         value = None
                 except (IndexError, TypeError, ValueError):
-                    log.error('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
+                    log.error('%r: %r value of %r is not a valid date',
+                              pkg_dict['id'], key, value)
                     continue
             new_dict[key] = value
         pkg_dict = new_dict
@@ -281,7 +289,8 @@ class PackageSearchIndex(SearchIndex):
 
         # add a unique index_id to avoid conflicts
         import hashlib
-        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.get('ckan.site_id')))).hexdigest()
+        pkg_dict['index_id'] = hashlib.md5(
+            six.b('%s%s' % (pkg_dict['id'], config.get('ckan.site_id')))).hexdigest()
 
         for item in PluginImplementations(IPackageController):
             pkg_dict = item.before_index(pkg_dict)
@@ -293,7 +302,7 @@ class PackageSearchIndex(SearchIndex):
         labels = lib_plugins.get_permission_labels()
         dataset = model.Package.get(pkg_dict['id'])
         pkg_dict['permission_labels'] = labels.get_dataset_labels(
-            dataset) if dataset else [] # TestPackageSearchIndex-workaround
+            dataset) if dataset else []  # TestPackageSearchIndex-workaround
 
         # send to solr:
         try:
@@ -304,16 +313,18 @@ class PackageSearchIndex(SearchIndex):
             conn.add(docs=[pkg_dict], commit=commit)
         except pysolr.SolrError as e:
             msg = 'Solr returned an error: {0}'.format(
-                e.args[0][:1000] # limit huge responses
+                e.args[0][:1000]  # limit huge responses
             )
             raise SearchIndexError(msg)
         except socket.error as e:
-            err = 'Could not connect to Solr using {0}: {1}'.format(conn.url, str(e))
+            err = 'Could not connect to Solr using {0}: {1}'.format(
+                conn.url, str(e))
             log.error(err)
             raise SearchIndexError(err)
 
         commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
-        log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
+        log.debug('Updated index for %s [%s]' % (
+            pkg_dict.get('name'), commit_debug_msg))
 
     def commit(self):
         try:
@@ -326,7 +337,8 @@ class PackageSearchIndex(SearchIndex):
     def delete_package(self, pkg_dict):
         conn = make_connection()
         query = "+%s:%s AND +(id:\"%s\" OR name:\"%s\") AND +site_id:\"%s\"" % \
-                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.get('ckan.site_id'))
+                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'),
+                 pkg_dict.get('id'), config.get('ckan.site_id'))
         try:
             commit = asbool(config.get('ckan.search.solr_commit', 'true'))
             conn.delete(q=query, commit=commit)
