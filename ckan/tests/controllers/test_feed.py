@@ -8,8 +8,6 @@ from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.plugins as plugins
-if six.PY2:
-    from webhelpers.feedgenerator import GeoAtom1Feed
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -30,7 +28,8 @@ class TestFeeds(object):
         offset = url_for(u"feeds.general")
         res = app.get(offset)
 
-        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
+        assert helpers.body_contains(
+            res, u"<title>{0}</title>".format(dataset["title"]))
 
     def test_group_atom_feed_works(self, app):
         group = factories.Group()
@@ -38,7 +37,8 @@ class TestFeeds(object):
         offset = url_for(u"feeds.group", id=group["name"])
         res = app.get(offset)
 
-        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
+        assert helpers.body_contains(
+            res, u"<title>{0}</title>".format(dataset["title"]))
 
     def test_organization_atom_feed_works(self, app):
         group = factories.Organization()
@@ -46,7 +46,8 @@ class TestFeeds(object):
         offset = url_for(u"feeds.organization", id=group["name"])
         res = app.get(offset)
 
-        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
+        assert helpers.body_contains(
+            res, u"<title>{0}</title>".format(dataset["title"]))
 
     def test_custom_atom_feed_works(self, app):
         dataset1 = factories.Dataset(
@@ -63,9 +64,11 @@ class TestFeeds(object):
 
         res = app.get(offset, query_string=params)
 
-        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset1["title"]))
+        assert helpers.body_contains(
+            res, u"<title>{0}</title>".format(dataset1["title"]))
 
-        assert not helpers.body_contains(res, u'<title">{0}</title>'.format(dataset2["title"]))
+        assert not helpers.body_contains(
+            res, u'<title">{0}</title>'.format(dataset2["title"]))
 
 
 @pytest.mark.skipif(six.PY3, reason="Relies on webhelpers")
