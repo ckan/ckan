@@ -159,9 +159,6 @@ class _Toolkit(object):
         from ckan.lib import mailer
 
         import ckan.common as converters
-        if six.PY2:
-            import ckan.lib.cli as old_cli
-            import pylons
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -322,21 +319,6 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
-
-        if six.PY2:
-            t['response'] = pylons.response
-            self.docstring_overrides['response'] = '''
-The Pylons response object.
-
-Pylons uses this object to generate the HTTP response it returns to the web
-browser. It has attributes like the HTTP status code, the response headers,
-content type, cookies, etc.
-
-'''
-            t['BaseController'] = base.BaseController
-            # TODO: Sort these out
-            t['CkanCommand'] = old_cli.CkanCommand
-            t['load_config'] = old_cli.load_config
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
