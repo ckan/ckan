@@ -53,11 +53,6 @@ from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
 
-if six.PY2:
-    from pylons import url as _pylons_default_url
-    from routes import redirect_to as _routes_redirect_to
-    from routes import url_for as _routes_default_url_for
-
 
 log = logging.getLogger(__name__)
 
@@ -262,13 +257,8 @@ def get_site_protocol_and_host():
     site_url = config.get('ckan.site_url', None)
     if site_url is not None:
         parsed_url = urlparse(site_url)
-        if six.PY2:
-            return (
-                parsed_url.scheme.encode('utf-8'),
-                parsed_url.netloc.encode('utf-8')
-            )
-        else:
-            return (parsed_url.scheme, parsed_url.netloc)
+
+        return (parsed_url.scheme, parsed_url.netloc)
     return (None, None)
 
 
@@ -292,15 +282,6 @@ def _get_auto_flask_context():
     from ckan.tests.pytest_ckan.ckan_setup import _tests_test_request_context
     if _tests_test_request_context:
         return _tests_test_request_context
-
-    if six.PY2:
-
-        from ckan.lib.cli import _cli_test_request_context
-
-        # We are outside a web request. This is a CLI command. A test request
-        # context was created when setting it up
-        if _cli_test_request_context:
-            return _cli_test_request_context
 
 
 @core_helper
@@ -367,11 +348,7 @@ def url_for(*args, **kw):
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
-        if six.PY2:
-            # If it doesn't succeed, fallback to the Pylons router
-            my_url = _url_for_pylons(*args, **kw)
-        else:
-            raise
+        raise
     finally:
         if _auto_flask_context:
             _auto_flask_context.pop()
@@ -1669,7 +1646,7 @@ def get_page_number(params, key='page', default=1):
     except ValueError:
         import ckan.lib.base as base
         base.abort(400, ('"{key}" parameter must be a positive integer'
-                   .format(key=key)))
+                         .format(key=key)))
 
     return p
 
