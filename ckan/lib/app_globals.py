@@ -22,7 +22,7 @@ DEFAULT_MAIN_CSS_FILE = '/base/css/main.css'
 # mappings translate between config settings and globals because our naming
 # conventions are not well defined and/or implemented
 mappings = {
-#   'config_key': 'globals_key',
+    #   'config_key': 'globals_key',
 }
 
 
@@ -36,10 +36,10 @@ app_globals_from_config_details = {
     'ckan.site_about': {},
     'ckan.site_intro_text': {},
     'ckan.site_custom_css': {},
-    'ckan.favicon': {}, # default gets set in config.environment.py
+    'ckan.favicon': {},  # default gets set in config.environment.py
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
-        # has been setup in load_environment():
+    # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_delimiter': {'default': '-'},
@@ -57,22 +57,23 @@ app_globals_from_config_details = {
     'ckan.plugins': {'type': 'split'},
 
     # bool
-    'debug': {'default': 'false', 'type' : 'bool'},
-    'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
-    'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
+    'debug': {'default': 'false', 'type': 'bool'},
+    'ckan.debug_supress_header': {'default': 'false', 'type': 'bool'},
+    'ckan.legacy_templates': {'default': 'false', 'type': 'bool'},
+    'ckan.tracking_enabled': {'default': 'false', 'type': 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
     'ckan.activity_list_limit': {'default': '30', 'type': 'int'},
     'ckan.user_list_limit': {'default': '20', 'type': 'int'},
     'search.facets.default': {'default': '10', 'type': 'int',
-                             'name': 'facets_default_number'},
+                              'name': 'facets_default_number'},
 }
 
 
 # A place to store the origional config options of we override them
 _CONFIG_CACHE = {}
+
 
 def set_main_css(css_file):
     ''' Sets the main_css.  The css_file must be of the form file.css '''
@@ -139,11 +140,7 @@ def reset():
             value = None
         config_value = config.get(key)
         # sort encodeings if needed
-        if isinstance(config_value, str) and six.PY2:
-            try:
-                config_value = six.ensure_text(config_value)
-            except UnicodeDecodeError:
-                config_value = config_value.decode('latin-1')
+
         # we want to store the config the first time we get here so we can
         # reset them if needed
         if key not in _CONFIG_CACHE:
