@@ -210,6 +210,20 @@ entry_points = {
     ],
 }
 
+extras_require = {}
+_extras_groups = [
+    ('requirements', 'requirements.txt'),
+    ('setuptools', 'requirement-setuptools.txt'),
+    ('dev', 'dev-requirements.txt'),
+]
+
+for group, filepath in _extras_groups:
+    with open(os.path.join(HERE, filepath), 'r') as f:
+        extras_require[group] = f.readlines()
+
+# this is used to fix an incompatiblity with readthedocs dependencies
+extras_require['readthedocs'] = ["Jinja2>=2.3"]
+
 setup(
     name='ckan',
     version=__version__,
@@ -253,8 +267,5 @@ setup(
         'Programming Language :: Python :: 2 :: Only',
         'Programming Language :: Python :: 2.7',
     ],
-    # this is used to fix an incompatiblity with readthedocs dependencies
-    extras_require={
-        "readthedocs":  ["Jinja2>=2.3"],
-    }
+    extras_require=extras_require
 )
