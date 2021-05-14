@@ -237,7 +237,7 @@ def redirect_to(*args, **kw):
         return _routes_redirect_to(_url)
 
 
-@maintain.deprecated('h.url is deprecated please use h.url_for')
+@maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
 @core_helper
 def url(*args, **kw):
     '''
@@ -917,7 +917,8 @@ def link_to(label, url, **attrs):
 
 
 @maintain.deprecated(u'h.submit is deprecated. '
-                     u'Use h.literal(<markup or dominate.tags>) instead.')
+                     u'Use h.literal(<markup or dominate.tags>) instead.',
+                     since=u'2.9.0')
 @core_helper
 def submit(name, value=None, id=None, **attrs):
     """Create a submit field.
@@ -980,7 +981,7 @@ def nav_link_pylons(text, *args, **kwargs):
 @core_helper
 @maintain.deprecated('h.nav_named_link is deprecated please '
                      'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter')
+                     'route_name as a named parameter', since='2.0.0')
 def nav_named_link(text, named_route, **kwargs):
     '''Create a link for a named route.
     Deprecated in ckan 2.0 '''
@@ -991,7 +992,7 @@ def nav_named_link(text, named_route, **kwargs):
 @maintain.deprecated('h.subnav_link is deprecated please '
                      'use h.nav_link\nNOTE: if action is passed as the second '
                      'parameter make sure it is passed as a named parameter '
-                     'eg. `action=\'my_action\'')
+                     'eg. `action=\'my_action\'', since='2.0.0')
 def subnav_link(text, action, **kwargs):
     '''Create a link for a named route.
     Deprecated in ckan 2.0 '''
@@ -1002,7 +1003,7 @@ def subnav_link(text, action, **kwargs):
 @core_helper
 @maintain.deprecated('h.subnav_named_route is deprecated please '
                      'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter')
+                     'route_name as a named parameter', since='2.0.0')
 def subnav_named_route(text, named_route, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
@@ -1320,7 +1321,7 @@ def unselected_facet_items(facet, limit=10):
 
 @core_helper
 @maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be '
-                     'removed.')
+                     'removed.', since="2.0.0")
 def get_facet_title(name):
     '''Deprecated in ckan 2.0 '''
     # if this is set in the config use this
@@ -1417,7 +1418,8 @@ def check_access(action, data_dict=None):
 @maintain.deprecated("helpers.get_action() is deprecated and will be removed "
                      "in a future version of CKAN. Instead, please use the "
                      "extra_vars param to render() in your controller to pass "
-                     "results from action functions to your templates.")
+                     "results from action functions to your templates.",
+                     since="2.3.0")
 def get_action(action_name, data_dict=None):
     '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
     if data_dict is None:

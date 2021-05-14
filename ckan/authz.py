@@ -114,12 +114,12 @@ class AuthFunctions:
                 else:
                     # fallback to chaining off the builtin auth function
                     prev_func = self._functions[name]
-                
+
                 new_func = (functools.partial(func, prev_func))
                 # persisting attributes to the new partial function
                 for attribute, value in six.iteritems(func.__dict__):
                     setattr(new_func, attribute, value)
-                
+
                 fetched_auth_functions[name] = new_func
 
         # Use the updated ones in preference to the originals.
@@ -523,7 +523,7 @@ def check_config_permission(permission):
     return value
 
 
-@maintain.deprecated('Use auth_is_loggedin_user instead')
+@maintain.deprecated('Use auth_is_loggedin_user instead', since="2.2.0")
 def auth_is_registered_user():
     '''
     This function is deprecated, please use the auth_is_loggedin_user instead
