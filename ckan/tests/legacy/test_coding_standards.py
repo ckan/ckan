@@ -19,6 +19,7 @@ are legitimate reasons for the failure.
 from __future__ import print_function
 import inspect
 import itertools
+import importlib
 import os
 import re
 import sys
@@ -568,6 +569,7 @@ class TestActionAuth(object):
     @classmethod
     def process(cls):
         def get_functions(module_root):
+            import ckan.authz as authz
             fns = {}
             for auth_module_name in [
                 "get",
@@ -577,22 +579,11 @@ class TestActionAuth(object):
                 "patch",
             ]:
                 module_path = "%s.%s" % (module_root, auth_module_name)
-                try:
-                    module = __import__(module_path)
-                except ImportError:
-                    print('No auth module for action "%s"' % auth_module_name)
-
-                for part in module_path.split(".")[1:]:
-                    module = getattr(module, part)
-
-                for key, v in module.__dict__.items():
-                    if not hasattr(v, "__call__"):
-                        continue
-                    if v.__module__ != module_path:
-                        continue
-                    if not key.startswith("_"):
-                        name = "%s: %s" % (auth_module_name, key)
-                        fns[name] = v
+                module = importlib.import_module(module_path)
+                members = authz.get_local_functions(module)
+                for key, v in members:
+                    name = "%s: %s" % (auth_module_name, key)
+                    fns[name] = v
             return fns
 
         cls.actions = get_functions("logic.action")

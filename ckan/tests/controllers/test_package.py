@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from werkzeug.routing import BuildError
 import unittest.mock as mock
 
+import ckan.authz as authz
 from ckan.lib.helpers import url_for
 import pytest
 import six
@@ -55,16 +56,18 @@ class TestPackageNew(object):
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
     @pytest.mark.ckan_config("ckan.auth.user_create_organizations", "false")
-    @mock.patch("ckan.logic.auth.create.package_create")
     def test_needs_organization_but_no_organizations_no_button(
-        self, mock_p_create, app
+        self, monkeypatch, app
     ):
         """ Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is not allowed to create an
         organization they should be told to ask the admin but no link should be
         presented. Note: This cannot happen with the default ckan and requires
         a plugin to overwrite the package_create behavior"""
-        mock_p_create.return_value = {"success": True}
+        authz._AuthFunctions.get('package_create')
+        monkeypatch.setitem(
+            authz._AuthFunctions._functions, 'package_create',
+            lambda *args: {'success': True})
 
         user = factories.User()
 
