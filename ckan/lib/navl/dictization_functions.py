@@ -2,9 +2,8 @@
 
 import copy
 import json
-
 import six
-from six import text_type
+
 from ckan.common import config, _
 
 

@@ -8,7 +8,6 @@ Create Date: 2018-09-04 18:49:18.307804
 """
 import datetime
 from alembic import op
-import sqlalchemy as sa
 from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'f9bf3d5c4b4d'

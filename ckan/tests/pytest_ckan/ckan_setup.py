@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import six
-
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
 

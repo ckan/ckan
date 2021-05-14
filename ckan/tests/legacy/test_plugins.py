@@ -4,7 +4,6 @@
 Tests for plugin loading via PCA
 """
 import pytest
-from pyutilib.component.core import PluginGlobals
 from ckan.common import config
 
 import ckan.logic as logic

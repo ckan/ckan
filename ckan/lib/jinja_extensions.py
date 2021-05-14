@@ -10,7 +10,6 @@ from jinja2 import ext
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists, escape
 from jinja2 import Environment
-from jinja2 import FileSystemBytecodeCache
 
 from six import text_type
 from six.moves import xrange

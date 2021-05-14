@@ -5,9 +5,8 @@ from six.moves.urllib.parse import quote
 import pytest
 from dominate.util import escape
 
-import ckan.lib.search as search
 from ckan.tests.legacy.functional.api.base import ApiTestCase, Api3TestCase
-from ckan.tests.legacy import setup_test_search_index, CreateTestData
+from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.tests.helpers import body_contains
 

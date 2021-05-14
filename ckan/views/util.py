@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-import re
-
 from flask import Blueprint
 
 import ckan.lib.base as base

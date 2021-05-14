@@ -339,8 +339,6 @@ class FunctionalTestBase(object):
 
     @classmethod
     def setup_class(cls):
-        import ckan.plugins as p
-
         # Make a copy of the Pylons config, so we can restore it in teardown.
         cls._original_config = dict(config)
         cls._apply_config_changes(config)

@@ -9,7 +9,7 @@ import tzlocal
 from babel import Locale
 from six import text_type
 import pytest
-from ckan.common import config
+
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.exceptions
