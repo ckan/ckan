@@ -232,9 +232,9 @@ class TrashView(MethodView):
     @staticmethod
     def _get_purge_action(ent_type):
         actions = {
-            "package": "dataset_purge",
-            "organization": "organization_purge",
-            "group": "group_purge",
+            u"package": u"dataset_purge",
+            u"organization": u"organization_purge",
+            u"group": u"group_purge",
         }
 
         return actions.get(ent_type)
