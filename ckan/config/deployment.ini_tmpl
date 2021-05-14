@@ -92,6 +92,7 @@ expire_api_token.default_lifetime = 3600
 
 ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
+solr_timeout = 60
 
 
 ## Redis Settings

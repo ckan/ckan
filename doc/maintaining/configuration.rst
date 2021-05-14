@@ -1018,6 +1018,17 @@ Optionally, ``solr_user`` and ``solr_password`` can also be configured to specif
 
 .. _ckan.search.automatic_indexing:
 
+solr_timeout
+^^^^^^^^^^^^
+
+Example::
+
+ solr_timeout = 120
+
+Default value:  ``60``
+
+The option defines the timeout in seconds until giving up on a request. Raising this value might help you if you encounter a timeout exception.
+
 ckan.search.automatic_indexing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
