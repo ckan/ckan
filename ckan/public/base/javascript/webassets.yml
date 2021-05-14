@@ -49,7 +49,6 @@ ckan:
     - modules/activity-stream.js
     - modules/dashboard.js
     - modules/resource-view-embed.js
-    - view-filters.js
     - modules/resource-view-filters-form.js
     - modules/resource-view-filters.js
     - modules/table-toggle-more.js
@@ -67,3 +66,12 @@ tracking:
       - vendor/jquery
   contents:
     - tracking.js
+
+view-filters:
+  output: base/%(version)s_view-filters.js
+  extra:
+    preload:
+      - vendor/jquery
+      - vendor/qs
+  contents:
+    - view-filters.js
