@@ -17,7 +17,12 @@ CKAN datasets, and can do custom validation of these fields.
 .. seealso::
 
    In this tutorial we are assuming that you have read the
-   :doc:`/extensions/tutorial`
+   :doc:`/extensions/tutorial`.
+
+   You may also want to check the [ckanext-scheming](https://github.com/ckan/ckanext-scheming) 
+   extension, as it will allow metadata schema configuration using a YAML or JSON 
+   schema description, replete with custom validation and template snippets for 
+   editing and display.
 
 CKAN schemas and validation
 ---------------------------
