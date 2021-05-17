@@ -1158,20 +1158,17 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     if asbool(data_dict.get('include_datasets', False)):
         packages_field = 'datasets'
-    elif asbool(data_dict.get('include_dataset_count', True)):
+    elif asbool(data_dict.get('include_dataset_count', False)):
         packages_field = 'dataset_count'
     else:
         packages_field = None
 
     try:
-        include_tags = asbool(data_dict.get('include_tags', True))
-        if asbool(config.get('ckan.auth.public_user_details', True)):
-            include_users = asbool(data_dict.get('include_users', True))
-        else:
-            include_users = asbool(data_dict.get('include_users', False))
-        include_groups = asbool(data_dict.get('include_groups', True))
-        include_extras = asbool(data_dict.get('include_extras', True))
-        include_followers = asbool(data_dict.get('include_followers', True))
+        include_tags = asbool(data_dict.get('include_tags', False))
+        include_users = asbool(data_dict.get('include_users', False))
+        include_groups = asbool(data_dict.get('include_groups', False))
+        include_extras = asbool(data_dict.get('include_extras', False))
+        include_followers = asbool(data_dict.get('include_followers', False))
     except ValueError:
         raise logic.ValidationError(_('Parameter is not an bool'))
 
@@ -1235,23 +1232,22 @@ def group_show(context, data_dict):
          (optional, default: ``False``)
     :type include_datasets: bool
     :param include_dataset_count: include the full package_count
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_dataset_count: bool
     :param include_extras: include the group's extra fields
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_extras: bool
     :param include_users: include the group's users
-         (optional, default: ``True`` if ``ckan.auth.public_user_details`` is ``True``
-         otherwise ``False``)
+         (optional, default: ``False``)
     :type include_users: bool
     :param include_groups: include the group's sub groups
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_groups: bool
     :param include_tags: include the group's tags
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_tags: bool
     :param include_followers: include the group's number of followers
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_followers: bool
 
     :rtype: dictionary
