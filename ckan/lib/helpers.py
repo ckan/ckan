@@ -8,6 +8,7 @@ available to Controllers. This module is available to templates as 'h'.
 import email.utils
 import datetime
 import logging
+import numbers
 import re
 import os
 import pytz
@@ -383,6 +384,14 @@ def url_for(*args, **kw):
     return _local_url(my_url, locale=locale, **kw)
 
 
+def _coerce_for_querystring(value):
+    if value is None:
+        return 'null'
+    if isinstance(value, numbers.Number):
+        return str(value)
+    return value
+
+
 def _url_for_flask(*args, **kw):
     '''Build a URL using the Flask router
 
@@ -442,10 +451,18 @@ def _url_for_flask(*args, **kw):
                     if isinstance(val, (list, tuple)):
                         for value in val:
                             query_args.append(
-                                u'{}={}'.format(quote(key), quote(value)))
+                                u'{}={}'.format(
+                                    quote(_coerce_for_querystring(key)),
+                                    quote(_coerce_for_querystring(value))
+                                )
+                            )
                     else:
                         query_args.append(
-                            u'{}={}'.format(quote(key), quote(val)))
+                            u'{}={}'.format(
+                                quote(_coerce_for_querystring(key)),
+                                quote(_coerce_for_querystring(val))
+                            )
+                        )
                 my_url += '&'.join(query_args)
         else:
             raise
