@@ -6,6 +6,7 @@ from itertools import count
 import re
 import mimetypes
 import json
+import urlparse
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -680,7 +681,6 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
 
 def url_validator(key, data, errors, context):
     ''' Checks that the provided value (if it is present) is a valid URL '''
-    import urlparse
     import string
 
     url = data.get(key, None)
@@ -758,6 +758,14 @@ def if_empty_guess_format(key, data, errors, context):
     # if resource_id then an update
     if (not value or value is Missing) and not resource_id:
         url = data.get(key[:-1] + ('url',), '')
+        if not url:
+            return
+
+        # Uploaded files have only the filename as url, so check scheme to determine if it's an actual url
+        parsed = urlparse.urlparse(url)
+        if parsed.scheme and not parsed.path:
+            return
+
         mimetype, encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype

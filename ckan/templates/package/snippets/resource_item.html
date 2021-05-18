@@ -18,11 +18,11 @@
   {% block resource_item_explore %}
   {% if not url_is_edit %}
   <div class="dropdown btn-group">
-    <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+    <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
       <i class="fa fa-share"></i>
       {{ _('Explore') }}
       <span class="caret"></span>
-    </a>
+    </button>
     <ul class="dropdown-menu">
       {% block resource_item_explore_links %}
       <li>

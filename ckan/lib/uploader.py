@@ -6,6 +6,7 @@ import datetime
 import logging
 import magic
 import mimetypes
+from six.moves.urllib.parse import urlparse
 
 import ckan.lib.munge as munge
 import ckan.logic as logic
@@ -25,6 +26,8 @@ def get_uploader(upload_to, old_filename=None):
     upload = None
     for plugin in plugins.PluginImplementations(plugins.IUploader):
         upload = plugin.get_uploader(upload_to, old_filename)
+        if upload:
+            break
 
     # default uploader
     if upload is None:
@@ -38,6 +41,8 @@ def get_resource_uploader(data_dict):
     upload = None
     for plugin in plugins.PluginImplementations(plugins.IUploader):
         upload = plugin.get_resource_uploader(data_dict)
+        if upload:
+            break
 
     # default uploader
     if upload is None:
@@ -203,7 +208,7 @@ class ResourceUpload(object):
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
 
-        if config_mimetype_guess == 'file_ext':
+        if url and config_mimetype_guess == 'file_ext' and urlparse(url).path:
             self.mimetype = mimetypes.guess_type(url)[0]
 
         if isinstance(upload_field_storage, cgi.FieldStorage):
