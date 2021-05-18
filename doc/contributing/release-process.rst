@@ -264,7 +264,7 @@ Turn this file into a github issue with a checklist using this command::
 
      aws s3 cp python-ckan_2.5.0-precisebeta1_amd64.deb s3://packaging.ckan.org/build/python-ckan_2.5.0-precisebeta1_amd64.deb
 
-   Now the .deb files are available at http://packaging.ckan.org/build/ invite
+   Now the .deb files are available at https://packaging.ckan.org/build/ invite
    people on ckan-dev to test them.
 
 -------------------------
@@ -378,7 +378,7 @@ a release.
 #. Create and deploy the final deb package.
 
    Move it to the root of the
-   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   `publicly accessible folder <https://packaging.ckan.org/>`_ of
    the packaging server from the `/build` folder.
 
    Make sure to rename it so it follows the deb packages name convention::
@@ -530,7 +530,7 @@ Doing the patch releases
    Note that we drop the patch version and iteration number from the package name.
 
    Move it to the root of the
-   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   `publicly accessible folder <https://packaging.ckan.org/>`_ of
    the packaging server from the `/build` folder, replacing the existing file
    for this minor version.
 

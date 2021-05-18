@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from flask import Blueprint, abort
+from flask import Blueprint, abort, redirect
 
 import ckan.model as model
 import ckan.logic as logic
@@ -72,9 +72,39 @@ def about():
     return base.render(u'home/about.html', extra_vars={})
 
 
+def redirect_locale(target_locale, path=None):
+    if path:
+        target = u'/{}/{}'.format(target_locale, path)
+    else:
+        target = u'/{}'.format(target_locale)
+    return redirect(target, code=308)
+
+
 util_rules = [
     (u'/', index),
     (u'/about', about)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)
+
+locales_mapping = [
+    (u'zh_TW', u'zh_Hant_TW'),
+    (u'zh_CN', u'zh_Hans_CN'),
+]
+
+for locale in locales_mapping:
+
+    legacy_locale = locale[0]
+    new_locale = locale[1]
+
+    home.add_url_rule(
+        u'/{}/'.format(legacy_locale),
+        view_func=redirect_locale,
+        defaults={u'target_locale': new_locale}
+    )
+
+    home.add_url_rule(
+        u'/{}/<path:path>'.format(legacy_locale),
+        view_func=redirect_locale,
+        defaults={u'target_locale': new_locale}
+    )

@@ -1,84 +1,3 @@
-/**
- * Return a new JSON object of the old string.
- * Turns:
- *      file.js?a=1&amp;b.c=3.0&b.d=four&a_false_value=false&a_null_value=null
- * Into:
- *      {"a":1,"b":{"c":3,"d":"four"},"a_false_value":false,"a_null_value":null}
- * @version 1.1.0
- * @date July 16, 2010
- * @since 1.0.0, June 30, 2010
- * @package jquery-sparkle {@link http://balupton.com/projects/jquery-sparkle}
- * @author Benjamin "balupton" Lupton {@link http://balupton.com}
- * @copyright (c) 2009-2010 Benjamin Arthur Lupton {@link http://balupton.com}
- * @license MIT License {@link http://creativecommons.org/licenses/MIT/}
- */
-String.prototype.queryStringToJSON = String.prototype.queryStringToJSON || function ( )
-{   // Turns a params string or url into an array of params
-    // Prepare
-    var params = String(this);
-    // Remove url if need be
-    params = params.substring(params.indexOf('?')+1);
-    // params = params.substring(params.indexOf('#')+1);
-    // Change + to %20, the %20 is fixed up later with the decode
-    params = params.replace(/\+/g, '%20');
-    // Do we have JSON string?
-    try {
-      return JSON.parse(decodeURIComponent(params));
-    } catch(error) {
-      // We have a params string
-      params = params.split(/\&(amp\;)?/);
-    }
-    var json = {};
-    // We have params
-    for ( var i = 0, n = params.length; i < n; ++i )
-    {
-        // Adjust
-        var param = params[i] || null;
-        if ( param === null ) { continue; }
-        param = param.split('=');
-        if ( param === null ) { continue; }
-        // ^ We now have "var=blah" into ["var","blah"]
-
-        // Get
-        var key = param[0] || null;
-        if ( key === null ) { continue; }
-        if ( typeof param[1] === 'undefined' ) { continue; }
-        var value = param[1];
-        // ^ We now have the parts
-
-        // Fix
-        key = decodeURIComponent(key);
-        value = decodeURIComponent(value);
-
-        // Set
-        var keys = key.split('.');
-        if ( keys.length === 1 )
-        {   // Simple
-            json[key] = value;
-        }
-        else
-        {   // Advanced (Recreating an object)
-            // eg ?a.b.c=test -> {"a": {"b": {"c": "test}}}
-
-          var setNestedKey = function(obj, path, value) {
-            if (path.length === 1) {
-              obj[path] = value
-              return
-            }
-            if (typeof obj[path[0]] === 'undefined') {
-              obj[path[0]] = {}
-            }
-            return setNestedKey(obj[path[0]], path.slice(1), value)
-          }
-
-          setNestedKey(json, keys, value);
-
-        }
-        // ^ We now have the parts added to your JSON object
-    }
-    return json;
-};
-
 this.ckan = this.ckan || {};
 this.ckan.views = this.ckan.views || {};
 
@@ -153,7 +72,7 @@ this.ckan.views.filters = (function (queryString) {
   function _redirectTo(url) {
     var urlBase = url.split('?')[0],
         urlQueryString = url.split('?')[1] || '',
-        defaultParams = urlQueryString.queryStringToJSON(),
+        defaultParams = Qs.parse(urlQueryString, { ignoreQueryPrefix: true }),
         queryString = _encodedParams(defaultParams),
         destinationUrl;
 
@@ -205,7 +124,7 @@ this.ckan.views.filters = (function (queryString) {
 
   function _initialize(queryString) {
     // The filters are in format 'field:value|field:value|field:value'
-    var searchParams = queryString.queryStringToJSON();
+    var searchParams = Qs.parse(queryString, { ignoreQueryPrefix: true });
 
     if (searchParams.filters) {
       var filters = {},

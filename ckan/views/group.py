@@ -246,7 +246,8 @@ def _read(id, limit, group_type):
     page = h.get_page_number(request.params)
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.params.items() if k != u'page']
+    params_nopage = [(k, v) for k, v in request.params.items(multi=True)
+                     if k != u'page']
     sort_by = request.params.get(u'sort', None)
 
     def search_url(params):
@@ -1022,18 +1023,13 @@ class DeleteGroupView(MethodView):
             else:
                 h.flash_notice(
                     _(u'%s has been deleted.') % _(group_type.capitalize()))
-            group_dict = _action(u'group_show')(context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
             h.flash_error(e.error_dict['message'])
-            return h.redirect_to(u'organization.read', id=id)
-
             return h.redirect_to(u'{}.read'.format(group_type), id=id)
-        # TODO: Remove
-        g.group_dict = group_dict
 
         return h.redirect_to(u'{}.index'.format(group_type))
 
