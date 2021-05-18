@@ -103,6 +103,7 @@ class TestHelpersUrlFor(BaseUrlFor):
                 {"qualified": True, "locale": "de"},
                 "http://example.com/de/dataset/my_dataset",
             ),
+            ({"__no_cache__": True}, "/dataset/my_dataset?__no_cache__=True"),
         ],
     )
     def test_url_for_default(self, extra, exp):
@@ -159,6 +160,52 @@ class TestHelpersUrlFor(BaseUrlFor):
         expected = "/my/custom/path/_debug_toolbar/static/test.js"
         url = url_for('_debug_toolbar.static', filename='test.js')
         assert url == expected
+
+    @pytest.mark.parametrize(
+        "extra,exp",
+        [
+            ({"param": "foo"}, "/dataset/my_dataset?param=foo"),
+            ({"param": 27}, "/dataset/my_dataset?param=27"),
+            ({"param": 27.3}, "/dataset/my_dataset?param=27.3"),
+            ({"param": True}, "/dataset/my_dataset?param=True"),
+            ({"param": None}, "/dataset/my_dataset?param=null"),
+        ],
+    )
+    def test_url_for_string_route_with_query_param_valid(self, extra, exp):
+        generated_url = h.url_for("/dataset/my_dataset", **extra)
+        assert generated_url == exp
+
+    @pytest.mark.parametrize(
+        "extra",
+        [
+            {"param": {}},
+            {"param": object()}
+        ]
+    )
+    def test_url_for_string_route_with_query_param_invalid(self, extra):
+        with pytest.raises(TypeError):
+            h.url_for("/dataset/my_dataset", **extra)
+
+    def test_url_for_string_route_with_list_query_params_valid(self):
+        generated_url = h.url_for(
+            "/dataset/my_dataset",
+            multi=['foo', 27, 27.3, True, None]
+        )
+        assert (
+            generated_url ==
+            "/dataset/my_dataset?multi=foo&multi=27&multi=27.3&multi=True&multi=null"
+        )
+
+    @pytest.mark.parametrize(
+        "extra",
+        [
+            {"param": [{}]},
+            {"param": [object()]}
+        ]
+    )
+    def test_url_for_string_route_with_list_query_params_invalid(self, extra):
+        with pytest.raises(TypeError):
+            h.url_for("/dataset/my_dataset", **extra)
 
 
 class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
