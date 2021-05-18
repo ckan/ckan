@@ -7,6 +7,26 @@
 Changelog
 ---------
 
+
+v.2.8.8 2021-05-19
+==================
+
+* Fix Chinese locales (`#4413 <https://github.com/ckan/ckan/pull/4413>`_)
+* Allow installation of requirements without any additional actions using pip (`#5408 <https://github.com/ckan/ckan/pull/5408>`_)
+* Include requirements files in Manifest (`#5726 <https://github.com/ckan/ckan/pull/5726>`_)
+* Dockerfile: pin pip version (`#5929 <https://github.com/ckan/ckan/pull/5929>`_)
+* Allow uploaders to only override asset / resource uploading (`#6088 <https://github.com/ckan/ckan/pull/6088>`_)
+* Catch TypeError from invalid thrown by dateutils (`#6085 <https://github.com/ckan/ckan/pull/6085>`_)
+* Display proper message when sysadmin password is incorect (`#5911 <https://github.com/ckan/ckan/pull/5911>`_)
+* Use external library to parse view filter params
+* Fix auth error when deleting a group/org (`#6006 <https://github.com/ckan/ckan/pull/6006>`_)
+* Fix datastore_search language parameter (`#5974 <https://github.com/ckan/ckan/pull/5974>`_)
+* make SQL function whitelist case-insensitive unless quoted (`#5969 <https://github.com/ckan/ckan/pull/5969>`_)
+* Fix Explore button not working (`#3720 <https://github.com/ckan/ckan/pull/3720>`_)
+* remove unused var in task_status_update (`#5861 <https://github.com/ckan/ckan/pull/5861>`_)
+* Prevent guessing format and mimetype from resource urls without path (`#5852 <https://github.com/ckan/ckan/pull/5852>`_)
+
+
 v.2.8.7 2021-02-10
 ==================
 
