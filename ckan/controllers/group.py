@@ -682,12 +682,6 @@ class GroupController(base.BaseController):
 
         data_dict = {'id': id}
         try:
-            check_access('group_edit_permissions', context, data_dict)
-        except NotAuthorized:
-            abort(403,
-                  _('User %r not authorized to edit members of %s') % (c.user,
-                                                                       id))
-        try:
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
             )
