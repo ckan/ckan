@@ -13,9 +13,6 @@ import re
 
 import six
 
-if six.PY2:
-    import paste.script.command
-
 
 def simple_conv_specs(s):
     '''Return the simple Python string conversion specifiers in the string s.
@@ -51,18 +48,6 @@ def replacement_fields(s):
     '''
     repl_fields_re = re.compile(r'\{[^\}]*\}')
     return sorted(repl_fields_re.findall(s))
-
-
-if six.PY2:
-    class CheckPoFiles(paste.script.command.Command):
-
-        usage = "[FILE] ..."
-        group_name = 'ckan'
-        summary = 'Check po files for common mistakes'
-        parser = paste.script.command.Command.standard_parser(verbose=True)
-
-        def command(self):
-            check_po_files(self.args)
 
 
 def check_po_files(paths):

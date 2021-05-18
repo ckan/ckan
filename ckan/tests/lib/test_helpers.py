@@ -811,21 +811,6 @@ class TestHelpersPlugin(p.SingletonPlugin):
         return _map
 
 
-if six.PY2:
-    class TestHelperController(p.toolkit.BaseController):
-        def broken_helper_as_attribute(self):
-            return base.render("tests/broken_helper_as_attribute.html")
-
-        def broken_helper_as_item(self):
-            return base.render("tests/broken_helper_as_item.html")
-
-        def helper_as_attribute(self):
-            return base.render("tests/helper_as_attribute.html")
-
-        def helper_as_item(self):
-            return base.render("tests/helper_as_item.html")
-
-
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivityListSelect(object):
     def test_simple(self):

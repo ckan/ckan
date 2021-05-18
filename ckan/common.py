@@ -20,11 +20,6 @@ from flask_babel import (gettext as flask_ugettext,
 
 import simplejson as json
 
-if six.PY2:
-    import pylons
-    from pylons.i18n import ungettext as pylons_ungettext
-    from pylons import response
-
 current_app = flask.current_app
 
 
@@ -110,19 +105,10 @@ class CKANConfig(MutableMapping):
 
     def clear(self):
         self.store.clear()
-
         try:
             flask.current_app.config.clear()
         except RuntimeError:
             pass
-
-        if six.PY2:
-            try:
-                pylons.config.clear()
-                # Pylons set this default itself
-                pylons.config[u'lang'] = None
-            except TypeError:
-                pass
 
     def __setitem__(self, key, value):
         self.store[key] = value
@@ -131,24 +117,12 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-        if six.PY2:
-            try:
-                pylons.config[key] = value
-            except TypeError:
-                pass
-
     def __delitem__(self, key):
         del self.store[key]
         try:
             del flask.current_app.config[key]
         except RuntimeError:
             pass
-
-        if six.PY2:
-            try:
-                del pylons.config[key]
-            except TypeError:
-                pass
 
 
 def _get_request():
@@ -169,7 +143,6 @@ class CKANRequest(LocalProxy):
     `is_flask_request`) and at the same time provide all objects methods to be
     able to interact with them transparently.
     '''
-
     @property
     def params(self):
         u''' Special case as Pylons' request.params is used all over the place.

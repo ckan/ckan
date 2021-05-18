@@ -2324,12 +2324,8 @@ class TestCollaborators(object):
         assert 'Collaborators' not in response
 
         # Route not registered
-        if six.PY2:
+        with pytest.raises(BuildError):
             url = url_for('dataset.collaborators_read', id=dataset['name'])
-            assert url.startswith('dataset.collaborators_read')
-        else:
-            with pytest.raises(BuildError):
-                url = url_for('dataset.collaborators_read', id=dataset['name'])
         app.get(
             '/dataset/collaborators/{}'.format(dataset['name']), extra_environ=env, status=404)
 

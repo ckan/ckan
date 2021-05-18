@@ -54,11 +54,6 @@ from ckan.common import config, is_flask_request, aslist
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 
-if six.PY2:
-    from pylons import i18n as pylons_i18n
-    import pylons
-
-
 log = logging.getLogger(__name__)
 
 # Default Portuguese language to Brazilian territory, since

@@ -8,8 +8,6 @@ from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.plugins as plugins
-if six.PY2:
-    from webhelpers.feedgenerator import GeoAtom1Feed
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")

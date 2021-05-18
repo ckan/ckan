@@ -31,13 +31,6 @@ from ckan.common import (c, request, config,
                          session, is_flask_request, asbool)
 
 
-if six.PY2:
-    from pylons.controllers import WSGIController
-    from pylons.controllers.util import abort as _abort
-    from pylons.templating import cached_template, pylons_globals
-    from ckan.common import response
-
-
 log = logging.getLogger(__name__)
 
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
@@ -271,43 +264,3 @@ def _is_valid_session_cookie_data():
 
 class ValidationException(Exception):
     pass
-
-
-if six.PY2:
-    class BaseController(WSGIController):
-        '''Base class for CKAN controller classes to inherit from.
-
-        '''
-        repo = model.repo
-        log = logging.getLogger(__name__)
-
-        def __before__(self, action, **params):
-            c.__timer = time.time()
-            app_globals.app_globals._check_uptodate()
-
-            identify_user()
-
-            i18n.handle_request(request, c)
-
-        def __call__(self, environ, start_response):
-            """Invoke the Controller"""
-            # WSGIController.__call__ dispatches to the Controller method
-            # the request is routed to. This routing information is
-            # available in environ['pylons.routes_dict']
-
-            try:
-                res = WSGIController.__call__(self, environ, start_response)
-            finally:
-                model.Session.remove()
-
-            check_session_cookie(response)
-
-            return res
-
-        def __after__(self, action, **params):
-
-            set_cors_headers_for_response(response)
-
-            r_time = time.time() - c.__timer
-            url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
-            log.info(' %s render time %.3f seconds' % (url, r_time))
