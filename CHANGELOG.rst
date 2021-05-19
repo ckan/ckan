@@ -785,7 +785,7 @@ Fixes:
 * Fix datastore_search language parameter (`#5974 <https://github.com/ckan/ckan/pull/5974>`_)
 * make SQL function whitelist case-insensitive unless quoted (`#5969 <https://github.com/ckan/ckan/pull/5969>`_)
 * Fix Explore button not working (`#3720 <https://github.com/ckan/ckan/pull/3720>`_)
-* "New view" button fix (`#4260 <https://github.com/ckan/ckan/pull/4260>`_)
+* "New view" button fix (`#4260 <https://github.com/ckan/ckan/issues/4260>`_)
 * remove unused var in task_status_update (`#5861 <https://github.com/ckan/ckan/pull/5861>`_)
 * Prevent guessing format and mimetype from resource urls without path (`#5852 <https://github.com/ckan/ckan/pull/5852>`_)
 

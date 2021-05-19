@@ -1632,7 +1632,8 @@ def sanitize_url(url):
         netloc = parsed_url.netloc.encode('idna').decode('ascii')
         if not _PLAUSIBLE_HOST_IDNA.match(netloc):
             return ''
-        # quote with allowed characters from https://www.ietf.org/rfc/rfc3986.txt
+        # quote with allowed characters from
+        # https://www.ietf.org/rfc/rfc3986.txt
         parsed_url = parsed_url._replace(
             scheme=quote(unquote(parsed_url.scheme), '+'),
             path=quote(unquote(parsed_url.path), "/"),
