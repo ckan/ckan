@@ -1610,6 +1610,41 @@ def gravatar(email_hash, size=100, default=None):
                    )
 
 
+_PLAUSIBLE_HOST_IDNA = re.compile(r'^[-\w.:\[\]]*$')
+
+
+@core_helper
+def sanitize_url(url):
+    '''
+    Return a sanitized version of a user-provided url for use in an
+    <a href> or <img src> attribute, e.g.:
+
+    <a href="{{ h.sanitize_url(user_link) }}">
+
+    Sanitizing urls is tricky. This is a best-effort to produce something
+    valid from the sort of text users might paste into a web form, not
+    intended to cover all possible valid edge-case urls.
+
+    On parsing errors an empty string will be returned.
+    '''
+    try:
+        parsed_url = urlparse(url)
+        netloc = parsed_url.netloc.encode('idna').decode('ascii')
+        if not _PLAUSIBLE_HOST_IDNA.match(netloc):
+            return ''
+        # quote with allowed characters from https://www.ietf.org/rfc/rfc3986.txt
+        parsed_url = parsed_url._replace(
+            scheme=quote(unquote(parsed_url.scheme), '+'),
+            path=quote(unquote(parsed_url.path), "/"),
+            query=quote(unquote(parsed_url.query), "?/&="),
+            params=quote(unquote(parsed_url.params), "?/&="),
+            fragment=quote(unquote(parsed_url.fragment), "?/&="),
+        )
+        return urlunparse(parsed_url)
+    except ValueError:
+        return ''
+
+
 @core_helper
 def user_image(user_id, size=100):
     try:
@@ -1626,7 +1661,7 @@ def user_image(user_id, size=100):
         return literal('''<img src="{url}"
                        class="user-image"
                        width="{size}" height="{size}" alt="{alt}" />'''.format(
-            url=user_dict['image_display_url'],
+            url=sanitize_url(user_dict['image_display_url']),
             size=size,
             alt=user_dict['name']
         ))
