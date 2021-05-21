@@ -30,32 +30,14 @@ def is_flask_request():
     '''
     if six.PY3:
         return True
-    try:
-        pylons.request.environ
-        pylons_request_available = True
-    except TypeError:
-        pylons_request_available = False
-
-    return (flask.request and
-            (flask.request.environ.get(u'ckan.app') == u'flask_app' or
-             not pylons_request_available))
 
 
 def streaming_response(
         data, mimetype=u'application/octet-stream', with_context=False):
     iter_data = iter(data)
-    if is_flask_request():
-        # Removal of context variables for pylon's app is prevented
-        # inside `pylons_app.py`. It would be better to decide on the fly
-        # whether we need to preserve context, but it won't affect performance
-        # in any visible way and we are going to get rid of pylons anyway.
-        # Flask allows to do this in easy way.
-        if with_context:
-            iter_data = flask.stream_with_context(iter_data)
-        resp = flask.Response(iter_data, mimetype=mimetype)
-    else:
-        response.app_iter = iter_data
-        resp = response.headers['Content-type'] = mimetype
+    if with_context:
+        iter_data = flask.stream_with_context(iter_data)
+    resp = flask.Response(iter_data, mimetype=mimetype)
     return resp
 
 
@@ -67,10 +49,7 @@ _ = ugettext
 
 
 def ungettext(*args, **kwargs):
-    if is_flask_request():
-        return flask_ungettext(*args, **kwargs)
-    else:
-        return pylons_ungettext(*args, **kwargs)
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -126,10 +105,7 @@ class CKANConfig(MutableMapping):
 
 
 def _get_request():
-    if is_flask_request():
-        return flask.request
-    else:
-        return pylons.request
+    return flask.request
 
 
 class CKANRequest(LocalProxy):
@@ -156,17 +132,11 @@ class CKANRequest(LocalProxy):
 
 
 def _get_c():
-    if is_flask_request():
-        return flask.g
-    else:
-        return pylons.c
+    return flask.g
 
 
 def _get_session():
-    if is_flask_request():
-        return flask.session
-    else:
-        return pylons.session
+    return flask.session
 
 
 local = Local()

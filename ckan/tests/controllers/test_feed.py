@@ -102,9 +102,6 @@ class TestCustomFeedPlugin:
 class MockFeedPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFeed)
 
-    def get_feed_class(self):
-        return GeoAtom1Feed
-
     def get_item_additional_fields(self, dataset_dict):
         extras = {e["key"]: e["value"] for e in dataset_dict["extras"]}
 

@@ -217,23 +217,6 @@ def get_identifier_from_locale_class(locale):
          locale.variant))
 
 
-def _set_lang(lang):
-    ''' Allows a custom i18n directory to be specified.
-    Creates a fake config file to pass to pylons.i18n.set_lang, which
-    sets the Pylons root path to desired i18n_directory.
-    This is needed as Pylons will only look for an i18n directory in
-    the application root.'''
-    i18n_dir = get_ckan_i18n_dir()
-    if i18n_dir:
-        fake_config = {'pylons.paths': {
-            'root': os.path.dirname(i18n_dir.rstrip('/'))
-        }, 'pylons.package': config['pylons.package']}
-        pylons_i18n.set_lang(
-            lang, pylons_config=fake_config, class_=Translations)
-    else:
-        pylons_i18n.set_lang(lang, class_=Translations)
-
-
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
@@ -255,23 +238,6 @@ def handle_request(request, tmpl_context):
 
     tmpl_context.language = lang
     return lang
-
-
-def _add_extra_translations(dirname, locales, domain):
-    translator = Translations.load(dirname=dirname, locales=locales,
-                                   domain=domain)
-    try:
-        pylons.translator.merge(translator)
-    except AttributeError:
-        # this occurs when an extension has 'en' translations that
-        # replace the default strings. As set_lang has not been run,
-        # pylons.translation is the NullTranslation, so we have to
-        # replace the StackedObjectProxy ourselves manually.
-        environ = pylons.request.environ
-        environ['pylons.pylons'].translator = translator
-        if 'paste.registry' in environ:
-            environ['paste.registry'].replace(pylons.translator,
-                                              translator)
 
 
 def get_lang():
