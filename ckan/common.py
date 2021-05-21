@@ -35,9 +35,16 @@ def is_flask_request():
 def streaming_response(
         data, mimetype=u'application/octet-stream', with_context=False):
     iter_data = iter(data)
-    if with_context:
-        iter_data = flask.stream_with_context(iter_data)
-    resp = flask.Response(iter_data, mimetype=mimetype)
+    if is_flask_request():
+        # Removal of context variables for pylon's app is prevented
+        # inside `pylons_app.py`. It would be better to decide on the fly
+        # whether we need to preserve context, but it won't affect performance
+        # in any visible way and we are going to get rid of pylons anyway.
+        # Flask allows to do this in easy way.
+        if with_context:
+            iter_data = flask.stream_with_context(iter_data)
+        resp = flask.Response(iter_data, mimetype=mimetype)
+
     return resp
 
 
@@ -49,7 +56,8 @@ _ = ugettext
 
 
 def ungettext(*args, **kwargs):
-    return flask_ungettext(*args, **kwargs)
+    if is_flask_request():
+        return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -105,7 +113,8 @@ class CKANConfig(MutableMapping):
 
 
 def _get_request():
-    return flask.request
+    if is_flask_request():
+        return flask.request
 
 
 class CKANRequest(LocalProxy):
@@ -132,11 +141,13 @@ class CKANRequest(LocalProxy):
 
 
 def _get_c():
-    return flask.g
+    if is_flask_request():
+        return flask.g
 
 
 def _get_session():
-    return flask.session
+    if is_flask_request():
+        return flask.session
 
 
 local = Local()

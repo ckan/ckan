@@ -227,6 +227,8 @@ def redirect_to(*args, **kw):
 
     if is_flask_request():
         return _flask_redirect(_url)
+    else:
+        return _routes_redirect_to(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
@@ -1590,7 +1592,14 @@ def pager_url(page, partial=None, **kwargs):
     pargs = []
     if is_flask_request():
         pargs.append(request.endpoint)
-
+        # FIXME: add `id` param to kwargs if it really required somewhere
+    else:
+        routes_dict = _pylons_default_url.environ['pylons.routes_dict']
+        kwargs['controller'] = routes_dict['controller']
+        kwargs['action'] = routes_dict['action']
+        if routes_dict.get('id'):
+            kwargs['id'] = routes_dict['id']
+    kwargs['page'] = page
     return url_for(*pargs, **kwargs)
 
 

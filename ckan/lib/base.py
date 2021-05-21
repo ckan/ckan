@@ -55,7 +55,8 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     if detail and status_code != 503:
         h.flash_error(detail)
 
-    flask_abort(status_code, detail)
+    if is_flask_request():
+        flask_abort(status_code, detail)
 
 
 def render_snippet(*template_names, **kw):
