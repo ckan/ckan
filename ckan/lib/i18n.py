@@ -224,18 +224,6 @@ def handle_request(request, tmpl_context):
     if lang != 'en':
         set_lang(lang)
 
-    for plugin in PluginImplementations(ITranslation):
-        if lang in plugin.i18n_locales():
-            _add_extra_translations(plugin.i18n_directory(), lang,
-                                    plugin.i18n_domain())
-
-    extra_directory = config.get('ckan.i18n.extra_directory')
-    extra_domain = config.get('ckan.i18n.extra_gettext_domain')
-    extra_locales = aslist(config.get('ckan.i18n.extra_locales'))
-    if extra_directory and extra_domain and extra_locales:
-        if lang in extra_locales:
-            _add_extra_translations(extra_directory, lang, extra_domain)
-
     tmpl_context.language = lang
     return lang
 
@@ -253,8 +241,6 @@ def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
         language_code = config.get('ckan.locale_default', 'en')
-    if language_code != 'en':
-        _set_lang(language_code)
 
 
 def _get_js_translation_entries(filename):
