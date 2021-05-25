@@ -1155,20 +1155,21 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     group = model.Group.get(id)
     context['group'] = group
-
-    if asbool(data_dict.get('include_datasets', False)):
+    all_fields = asbool(data_dict.get('all_fields', False))
+    if asbool(data_dict.get('include_datasets', all_fields)):
         packages_field = 'datasets'
-    elif asbool(data_dict.get('include_dataset_count', False)):
+    elif asbool(data_dict.get('include_dataset_count', all_fields)):
         packages_field = 'dataset_count'
     else:
         packages_field = None
 
     try:
-        include_tags = asbool(data_dict.get('include_tags', False))
-        include_users = asbool(data_dict.get('include_users', False))
-        include_groups = asbool(data_dict.get('include_groups', False))
-        include_extras = asbool(data_dict.get('include_extras', False))
-        include_followers = asbool(data_dict.get('include_followers', False))
+        include_tags = asbool(data_dict.get('include_tags', all_fields))
+        include_users = asbool(data_dict.get('include_users', all_fields))
+        include_groups = asbool(data_dict.get('include_groups', all_fields))
+        include_extras = asbool(data_dict.get('include_extras', all_fields))
+        include_followers = asbool(
+            data_dict.get('include_followers', all_fields))
     except ValueError:
         raise logic.ValidationError(_('Parameter is not an bool'))
 
@@ -1228,6 +1229,10 @@ def group_show(context, data_dict):
 
     :param id: the id or name of the group
     :type id: string
+    :param all_fields: return group dictionaries including include_* options.
+        If any of include_* options is passed as ``Flase`` when ``all_fields`` is ``True``, will exclude that options.  
+        (optional, default: ``False``)
+    :type all_fields: bool   
     :param include_datasets: include a truncated list of the group's datasets
          (optional, default: ``False``)
     :type include_datasets: bool
@@ -1263,27 +1268,31 @@ def organization_show(context, data_dict):
 
     :param id: the id or name of the organization
     :type id: string
+    :param all_fields: return organization dictionaries including include_* options.
+        If any of include_* options is passed as ``Flase`` when ``all_fields`` is ``True``, will exclude that options.  
+        (optional, default: ``False``)
+    :type all_fields: bool
     :param include_datasets: include a truncated list of the org's datasets
          (optional, default: ``False``)
     :type include_datasets: bool
     :param include_dataset_count: include the full package_count
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_dataset_count: bool
     :param include_extras: include the organization's extra fields
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_extras: bool
     :param include_users: include the organization's users
          (optional, default: ``True`` if ``ckan.auth.public_user_details`` is ``True``
          otherwise ``False``)
     :type include_users: bool
     :param include_groups: include the organization's sub groups
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_groups: bool
     :param include_tags: include the organization's tags
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_tags: bool
     :param include_followers: include the organization's number of followers
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_followers: bool
 
 

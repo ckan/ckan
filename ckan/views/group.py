@@ -402,7 +402,7 @@ def _get_group_dict(id, group_type):
     try:
         return _action(u'group_show')(context, {
             u'id': id,
-            u'include_datasets': False
+            u'include_dataset_count': True
         })
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))

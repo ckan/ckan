@@ -976,7 +976,7 @@ class TestGroupCreate(object):
         )
 
         shown = helpers.call_action(
-            "organization_show", context=context, id="test-organization"
+            "organization_show", context=context, id="test-organization", all_fields=True
         )
 
         assert sorted(created.keys()) == sorted(shown.keys())
@@ -991,7 +991,8 @@ class TestOrganizationCreate(object):
         context = {"user": user["name"], "ignore_auth": True}
 
         org = helpers.call_action(
-            "organization_create", context=context, name="test-organization"
+            "organization_create", context=context, name="test-organization",
+            include_dataset_count=True,
         )
 
         assert len(org["users"]) == 1
@@ -1035,7 +1036,7 @@ class TestOrganizationCreate(object):
         )
 
         shown = helpers.call_action(
-            "organization_show", context=context, id="test-organization"
+            "organization_show", context=context, id="test-organization", all_fields=True
         )
 
         assert sorted(created.keys()) == sorted(shown.keys())
@@ -1052,6 +1053,7 @@ class TestOrganizationCreate(object):
             context=context,
             name="test-organization",
             type=custom_org_type,
+            include_dataset_count=True
         )
 
         assert len(org["users"]) == 1
