@@ -48,44 +48,15 @@ class TestDictizationError(object):
         err_obj = Invalid("Some ascii error")
         assert str(err_obj) == "Invalid: 'Some ascii error'"
 
-    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
-    def test_unicode_error(self):
-        err_obj = Invalid("Some ascii error")
-        assert text_type(err_obj) == u"Invalid: 'Some ascii error'"
-
     def test_repr_error(self):
         err_obj = Invalid("Some ascii error")
         assert repr(err_obj) == "<Invalid 'Some ascii error'>"
 
     # Error msgs should be ascii, but let's just see what happens for unicode
 
-    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
-    def test_str_unicode_error(self):
-        err_obj = Invalid(u"Some unicode \xa3 error")
-        assert str(err_obj) == "Invalid: u'Some unicode \\xa3 error'"
-
-    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
-    def test_unicode_unicode_error(self):
-        err_obj = Invalid(u"Some unicode \xa3 error")
-        assert text_type(err_obj) == "Invalid: u'Some unicode \\xa3 error'"
-
-    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
-    def test_repr_unicode_error(self):
-        err_obj = Invalid(u"Some unicode \xa3 error")
-        assert repr(err_obj) == "<Invalid u'Some unicode \\xa3 error'>"
-
     def test_str_blank(self):
         err_obj = Invalid("")
         assert str(err_obj) == "Invalid"
-
-    @pytest.mark.skipif(six.PY3, reason="Skip unicode checks in Py3")
-    def test_unicode_blank(self):
-        err_obj = Invalid("")
-        assert text_type(err_obj) == u"Invalid"
-
-    def test_repr_blank(self):
-        err_obj = Invalid("")
-        assert repr(err_obj) == "<Invalid>"
 
 
 class TestCheckDict(object):
