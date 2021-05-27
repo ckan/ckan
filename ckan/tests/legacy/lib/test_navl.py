@@ -345,6 +345,39 @@ def test_simple():
     assert errors == {"numbers": [{"code": [u"Missing value"]}]}
 
 
+def test_error_list_position():
+    data = {
+        "name": "fred",
+        "numbers": [
+            {"number": "432423432", "code": "+44"},
+            {"number": "13221312"},
+            {"number": "432423432", "code": "+44"},
+            {"number": "13221312"},
+            {"number": "432423432", "code": "+44"},
+        ],
+    }
+
+    schema = {
+        "name": [not_empty],
+        "numbers": {
+            "number": [convert_int],
+            "code": [not_empty],
+            "__extras": [ignore],
+        },
+    }
+
+    converted_data, errors = validate(data, schema)
+
+    assert errors == {"numbers": [
+            {},
+            {"code": [u"Missing value"]},
+            {},
+            {"code": [u"Missing value"]},
+            {},
+        ]
+    }
+
+
 def test_simple_converter_types():
     schema = {
         "name": [not_empty, unicode_safe],
