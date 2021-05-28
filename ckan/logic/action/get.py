@@ -2534,6 +2534,11 @@ def package_activity_list(context, data_dict):
         NB Only sysadmins may set include_hidden_activity to true.
         (default: false)
     :type include_hidden_activity: bool
+    :param include_activity_types: A list of activity types to include in the response
+    :type include_activity_types: list
+
+    :param exclude_activity_types: A list of activity types to exclude from the response
+    :type exclude_activity_types: list
 
     :rtype: list of dictionaries
 
@@ -2542,6 +2547,9 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
+    include_activity_types = data_dict.pop('include_activity_types', None)
+    exclude_activity_types = data_dict.pop('exclude_activity_types', None)
+    
     _check_access('package_activity_list', context, data_dict)
 
     model = context['model']
@@ -2557,6 +2565,8 @@ def package_activity_list(context, data_dict):
     activity_objects = model.activity.package_activity_list(
         package.id, limit=limit, offset=offset,
         include_hidden_activity=include_hidden_activity,
+        include_activity_types=include_activity_types,
+        exclude_activity_types=exclude_activity_types
     )
 
     return model_dictize.activity_list_dictize(
