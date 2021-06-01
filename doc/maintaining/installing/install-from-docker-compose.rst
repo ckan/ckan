@@ -174,7 +174,7 @@ a. Configure datastore database
 
 With running CKAN containers, execute the built-in setup script against the ``db`` container::
 
-    docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/production.ini | docker exec -i db psql -U ckan
+    docker exec ckan /usr/local/bin/ckan -c /etc/ckan/production.ini datastore set-permissions | docker exec -i db psql -U ckan
 
 The script pipes in the output of ``paster ckan set-permissions`` - however,
 as this output can change in future versions of CKAN, we set the permissions directly.
