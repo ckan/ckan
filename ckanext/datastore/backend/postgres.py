@@ -383,7 +383,8 @@ def _where_clauses(data_dict, fields_types):
 
     # add full-text search where clause
     q = data_dict.get('q')
-    if q:
+    full_text = data_dict.get('full_text')
+    if q and not full_text:
         if isinstance(q, string_types):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
@@ -406,40 +407,101 @@ def _where_clauses(data_dict, fields_types):
                         identifier(field),
                         query_field)
                 clauses.append((clause_str,))
+    elif (full_text and not q):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
+        
+    elif full_text and isinstance(q, dict):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
+        ## update clauses with q dict
+        _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses)
+
+    elif full_text and isinstance(q, string_types):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
 
     return clauses
 
 
-def _textsearch_query(lang, q, plain):
+def _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses):
+    lang = _fts_lang(data_dict.get('language'))
+    for field, value in six.iteritems(q):
+        if field not in fields_types:
+            continue
+        query_field = _ts_query_alias(field)
+
+        ftyp = fields_types[field]
+        if not datastore_helpers.should_fts_index_field_type(ftyp):
+            clause_str = u'_full_text @@ {0}'.format(query_field)
+            clauses.append((clause_str,))
+
+        clause_str = (
+            u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
+                literal_string(lang),
+                identifier(field),
+                query_field)
+        clauses.append((clause_str,))
+
+
+def _textsearch_query(lang, q, plain, full_text):
     u'''
     :param lang: language for to_tsvector
     :param q: string to search _full_text or dict to search columns
     :param plain: True to use plainto_tsquery, False for to_tsquery
+    :param full_text: string to search _full_text
 
     return (query, rank_columns) based on passed text/dict query
     rank_columns is a {alias: statement} dict where alias is "rank" for
     _full_text queries, and "rank <column-name>" for column search
     '''
-    if not q:
+    if not (q or full_text):
         return '', {}
 
     statements = []
     rank_columns = {}
-    if isinstance(q, string_types):
-        query, rank = _build_query_and_rank_statements(
-            lang, q, plain)
-        statements.append(query)
-        rank_columns[u'rank'] = rank
-    elif isinstance(q, dict):
-        for field, value in six.iteritems(q):
+    if q and not full_text:
+        if isinstance(q, string_types):
             query, rank = _build_query_and_rank_statements(
-                lang, value, plain, field)
+                lang, q, plain)
             statements.append(query)
-            rank_columns[u'rank ' + field] = rank
+            rank_columns[u'rank'] = rank
+        elif isinstance(q, dict):
+            for field, value in six.iteritems(q):
+                query, rank = _build_query_and_rank_statements(
+                    lang, value, plain, field)
+                statements.append(query)
+                rank_columns[u'rank ' + field] = rank
+    elif full_text and not q:
+        _update_rank_statements_and_columns(
+            statements, rank_columns,lang, full_text, plain
+        )
+    elif full_text and isinstance(q, dict):
+        _update_rank_statements_and_columns(statements, rank_columns,lang, full_text, plain)
+        for field, value in six.iteritems(q):
+            _update_rank_statements_and_columns(
+                statements, rank_columns,lang, value, plain, field
+            )
+    elif full_text and isinstance(q, string_types):
+        _update_rank_statements_and_columns(
+            statements, rank_columns,lang, full_text, plain
+        )
 
     statements_str = ', ' + ', '.join(statements)
     return statements_str, rank_columns
 
+def _update_rank_statements_and_columns(statements, rank_columns,lang, query, plain, field=None):
+    query, rank = _build_query_and_rank_statements(
+                    lang, query, plain, field)
+    
+    statements.append(query)
+    if field:
+        rank_columns[u'rank ' + field] = rank
+    else:
+        rank_columns[u'rank'] = rank
 
 def _build_query_and_rank_statements(lang, query, plain, field=None):
     query_alias = _ts_query_alias(field)
@@ -1792,13 +1854,18 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         ts_query, rank_columns = _textsearch_query(
             _fts_lang(data_dict.get('language')),
             data_dict.get('q'),
-            data_dict.get('plain', True))
+            data_dict.get('plain', True),
+            data_dict.get('full_text'))
         # mutate parameter to add rank columns for _result_fields
         for rank_alias in rank_columns:
             fields_types[rank_alias] = u'float'
-
-        if fields:
+        fts_q = data_dict.get('full_text')
+        if fields and not fts_q:
             field_ids = datastore_helpers.get_list(fields)
+        elif fields and fts_q:
+            field_ids = datastore_helpers.get_list(fields)
+            all_field_ids = list(fields_types.keys())
+            field_ids = all_field_ids + [x for x in field_ids if x not in all_field_ids]
         else:
             field_ids = fields_types.keys()
 
@@ -1811,7 +1878,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             fields_types,
             rank_columns)
         where = _where_clauses(data_dict, fields_types)
-
         select_cols = []
         records_format = data_dict.get(u'records_format')
         for field_id in field_ids:
