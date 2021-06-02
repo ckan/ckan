@@ -628,7 +628,7 @@ def default_activity_list_schema(
         limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
     schema['include_hidden_activity'] = [
         ignore_missing, ignore_not_sysadmin, boolean_validator]
-    schema['include_activity_types'] = [ignore_missing, list_of_strings]
+    schema['activity_types'] = [ignore_missing, list_of_strings]
     schema['exclude_activity_types'] = [ignore_missing, list_of_strings]
     return schema
 

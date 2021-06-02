@@ -183,10 +183,10 @@ def _package_activity_query(package_id):
 
 def package_activity_list(
         package_id, limit, offset, include_hidden_activity=False,
-        include_activity_types=None, exclude_activity_types=None):
+        activity_types=None, exclude_activity_types=None):
     '''Return the given dataset (package)'s public activity stream.
 
-    include_activity_types, exclude_activity_types: Optional. list of strings for activity types
+    activity_types, exclude_activity_types: Optional. list of strings for activity types
 
     Returns all activities about the given dataset, i.e. where the given
     dataset is the object of the activity, e.g.:
@@ -201,8 +201,8 @@ def package_activity_list(
     if not include_hidden_activity:
         q = _filter_activitites_from_users(q)
 
-    if include_activity_types:
-        q = _filter_activitites_from_type(q, include=True, types=include_activity_types)
+    if activity_types:
+        q = _filter_activitites_from_type(q, include=True, types=activity_types)
     elif exclude_activity_types:
         q = _filter_activitites_from_type(q, include=False, types=exclude_activity_types)
 

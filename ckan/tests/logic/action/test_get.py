@@ -3209,7 +3209,7 @@ class TestPackageActivityList(object):
         activities_new = helpers.call_action(
             "package_activity_list",
             id=id,
-            include_activity_types=['new package']
+            activity_types=['new package']
         )
         assert len(activities_new) == 2
 
@@ -3223,7 +3223,7 @@ class TestPackageActivityList(object):
         activities_delete = helpers.call_action(
             "package_activity_list",
             id=id,
-            include_activity_types=['deleted package']
+            activity_types=['deleted package']
         )
         assert len(activities_delete) == 1
 
