@@ -5,7 +5,7 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 18.04 (Python 3) or 20.04 (Python 3) 64-bit**. If
+and easiest way to install CKAN, but it requires **Ubuntu 18.04 (Python 2) or 20.04 (Python 3 or Python 2) 64-bit**. If
 you're not using any of these Ubuntu versions, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
