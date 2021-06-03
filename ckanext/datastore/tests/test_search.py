@@ -2084,7 +2084,7 @@ class TestDatastoreSearchRecordsFormat(object):
         assert len(result["records"]) == 2
         assert len(set(ranks_from)) == 1
         assert len(set(ranks)) == 2
-    
+
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_fts_on_field_calculates_ranks_when_q_string_and_fulltext_is_given(self):
@@ -2107,7 +2107,7 @@ class TestDatastoreSearchRecordsFormat(object):
         ranks = [r["rank"] for r in result["records"]]
         assert len(result["records"]) == 2
         assert len(set(ranks)) == 2
-    
+
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_fts_on_field_calculates_ranks_when_full_text_is_given(self):
