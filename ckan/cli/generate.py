@@ -23,7 +23,7 @@ class CKANAlembicConfig(AlembicConfig):
                             u"../contrib/alembic")
 
 
-@click.group()
+@click.group(short_help=u"Scaffolding for regular development tasks.")
 def generate():
     """Scaffolding for regular development tasks.
     """
