@@ -117,18 +117,20 @@ def duplicate_emails():
         .filter(model.User.email != u"") \
         .order_by(model.User.email).all()
 
-    if not q:
-        log.info(u"No duplicate emails found")
+    duplicates_found = False
     try:
         for k, grp in groupby(q, lambda x: x[0]):
             users = [user[1] for user in grp]
             if len(users) > 1:
+                duplicates_found = True
                 s = u"{} appears {} time(s). Users: {}"
                 click.secho(
                     s.format(k, len(users), u", ".join(users)),
                     fg=u"green", bold=True)
     except Exception as e:
         tk.error_shout(e)
+    if not duplicates_found:
+        click.secho(u"No duplicate emails found", fg=u"green")
 
 
 def _version_hash_to_ordinal(version):
