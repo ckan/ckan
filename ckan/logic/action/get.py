@@ -2551,7 +2551,7 @@ def package_activity_list(context, data_dict):
     exclude_activity_types = data_dict.pop('exclude_activity_types', None)
 
     if activity_types is not None and exclude_activity_types is not None:
-        raise Exception('You can\'t use activity_types and exclude_activity_types at the same time' )
+        raise ValidationError({'activity_types': ['Cannot be used together with `exclude_filters']})
 
     _check_access('package_activity_list', context, data_dict)
 

@@ -3196,6 +3196,15 @@ class TestPackageActivityList(object):
         model.repo.commit_and_remove()
         return dataset["id"]
 
+    def test_error_bad_search(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "package_activity_list",
+                id=id,
+                activity_types=['new package'],
+                exclude_activity_types=['deleted package']
+            )
+
     def test_activity_types_filter(self):
         types = [
             'new package',
