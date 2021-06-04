@@ -341,7 +341,11 @@ class UserController(base.BaseController):
             config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
-        return render('user/edit.html')
+        return render('user/edit.html', extra_vars={
+                'user_dict': c.user_dict,
+                'form': c.form,
+            }
+        )
 
     def _save_edit(self, id, context):
         try:
