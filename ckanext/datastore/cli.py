@@ -21,6 +21,7 @@ def datastore():
     """
     pass
 
+
 @datastore.command(
     u'set-permissions',
     short_help=u'Generate SQL for permission configuration.'
