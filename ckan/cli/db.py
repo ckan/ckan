@@ -31,7 +31,6 @@ def init():
     """
     log.info(u"Initialize the Database")
     try:
-        import ckan.model as model
         model.repo.init_db()
     except Exception as e:
         tk.error_shout(e)
@@ -48,7 +47,6 @@ def clean():
     """Clean the database.
     """
     try:
-        import ckan.model as model
         model.repo.clean_db()
     except Exception as e:
         tk.error_shout(e)
@@ -172,7 +170,6 @@ def _resolve_alembic_config(plugin):
 
 @contextlib.contextmanager
 def _repo_for_plugin(plugin):
-    import ckan.model as model
     original = model.repo._alembic_ini
     model.repo._alembic_ini = _resolve_alembic_config(plugin)
     try:
