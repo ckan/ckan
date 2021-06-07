@@ -101,3 +101,18 @@ class TestCreateWithUpload(object):
         assert resource[u"url_type"] == u"upload"
         assert resource[u"format"] == u"TXT"
         assert resource[u"size"] == 11
+
+
+class TestMigrateDbFor(object):
+    @pytest.mark.ckan_config(u"ckan.plugins", u"example_database_migrations")
+    @pytest.mark.usefixtures(u"clean_db", u"with_plugins")
+    def test_migrations_applied(self, migrate_db_for):
+        import ckan.model as model
+        has_table = model.Session.bind.has_table
+        assert not has_table(u"example_database_migrations_x")
+        assert not has_table(u"example_database_migrations_y")
+
+        migrate_db_for(u"example_database_migrations")
+
+        assert has_table(u"example_database_migrations_x")
+        assert has_table(u"example_database_migrations_y")

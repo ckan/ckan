@@ -153,6 +153,7 @@ entry_points = {
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
         'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
         'example_humanizer = ckanext.example_humanizer.plugin:ExampleHumanizerPlugin',
+        'example_database_migrations = ckanext.example_database_migrations.plugin:ExampleDatabaseMigrationsPlugin',
     ],
     'ckan.system_plugins': [
         'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
