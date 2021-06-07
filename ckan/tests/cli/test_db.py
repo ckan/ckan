@@ -77,3 +77,11 @@ class TestMigrations:
         db._run_migrations(
             u'example_database_migrations', version="-1", forward=False)
         self.check_upgrade(False, False, "base")
+
+    def test_pending_list(self):
+        assert db._get_pending_plugins() == {"example_database_migrations": 2}
+        db._run_migrations(
+            u'example_database_migrations', version="+1", forward=True)
+        assert db._get_pending_plugins() == {"example_database_migrations": 1}
+        db._run_migrations(u'example_database_migrations')
+        assert db._get_pending_plugins() == {}
