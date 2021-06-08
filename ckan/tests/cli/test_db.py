@@ -8,11 +8,19 @@ import ckanext.example_database_migrations.plugin as example_plugin
 
 import ckan.model as model
 import ckan.cli.db as db
-from ckan.cli.cli import ckan
+
+
+@pytest.fixture
+def remove_extra_tables():
+    # `clean_db` just removes data leaving tables intact. Thus we have to
+    # downgrade database because we don't need those extra tables in the
+    # following tests.
+    yield
+    db._run_migrations(u'example_database_migrations', None, False)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_database_migrations")
-@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "remove_extra_tables")
 class TestMigrations:
 
     def test_path_to_alembic_config(self):
@@ -79,6 +87,8 @@ class TestMigrations:
         self.check_upgrade(False, False, "base")
 
     def test_pending_list(self):
+        db._run_migrations(u'example_database_migrations', None, False)
+
         assert db._get_pending_plugins() == {"example_database_migrations": 2}
         db._run_migrations(
             u'example_database_migrations', version="+1", forward=True)

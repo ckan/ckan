@@ -104,15 +104,15 @@ class TestCreateWithUpload(object):
 
 
 class TestMigrateDbFor(object):
-    @pytest.mark.ckan_config(u"ckan.plugins", u"example_database_migrations")
-    @pytest.mark.usefixtures(u"clean_db", u"with_plugins")
+    @pytest.mark.ckan_config("ckan.plugins", "example_database_migrations")
+    @pytest.mark.usefixtures("with_plugins", "clean_db")
     def test_migrations_applied(self, migrate_db_for):
         import ckan.model as model
         has_table = model.Session.bind.has_table
-        assert not has_table(u"example_database_migrations_x")
-        assert not has_table(u"example_database_migrations_y")
+        assert not has_table("example_database_migrations_x")
+        assert not has_table("example_database_migrations_y")
 
-        migrate_db_for(u"example_database_migrations")
+        migrate_db_for("example_database_migrations")
 
-        assert has_table(u"example_database_migrations_x")
-        assert has_table(u"example_database_migrations_y")
+        assert has_table("example_database_migrations_x")
+        assert has_table("example_database_migrations_y")
