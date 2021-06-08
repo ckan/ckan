@@ -114,9 +114,9 @@ def _get_pending_plugins():
     return pending
 
 
-def _run_migrations(plugin, version='head', forward=True):
+def _run_migrations(plugin, version="head", forward=True):
     if not version:
-        version = 'head' if forward else 'base'
+        version = "head" if forward else "base"
     with _repo_for_plugin(plugin) as repo:
         if forward:
             repo.upgrade_db(version)
