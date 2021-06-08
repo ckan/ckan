@@ -191,7 +191,7 @@ entry_points = {
 
 extras_require = {}
 _extras_groups = [
-    ('requirements', 'requirements.txt'), ('requirements-py2', 'requirements-py2.txt'),
+    ('requirements', 'requirements.txt'),
     ('setuptools', 'requirement-setuptools.txt'), ('dev', 'dev-requirements.txt'),
 ]
 
