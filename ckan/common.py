@@ -22,8 +22,7 @@ import simplejson as json
 
 if six.PY2:
     import pylons
-    from pylons.i18n import (ugettext as pylons_ugettext,
-                             ungettext as pylons_ungettext)
+    from pylons.i18n import ungettext as pylons_ungettext
     from pylons import response
 
 current_app = flask.current_app

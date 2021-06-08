@@ -18,44 +18,5 @@
     "aria": {
         "sortAscending": ": seti kulainisha sanjari kwa mtindo wa upandaji",
         "sortDescending": ": seti kulainisha sanjari kwa mtindo wa mteremko"
-    },
-    "autoFill": {
-        "cancel": "Ghairi",
-        "fill": "Jaza",
-        "fillHorizontal": "Jaza kwa usawa",
-        "fillVertical": "Jaza kwa wima",
-        "info": "Maelezo"
-    },
-    "buttons": {
-        "collection": "Makusanyiko",
-        "colvis": "Muonekano wa safu",
-        "colvisRestore": "Rejesha muonekano",
-        "copy": "Nakili",
-        "copySuccess": {
-            "1": "Safu moja imenakili ",
-            "_": "Safu %ds zimenakiliwa kwenye clipboard"
-        },
-        "copyTitle": "Nakili kwenye Clipboard",
-        "csv": "CSV",
-        "excel": "Excel",
-        "pageLength": {
-            "-1": "Onyesha safu zote",
-            "1": "Onyesha safu moja",
-            "_": "Onyesha safu %d"
-        },
-        "pdf": "PDF",
-        "print": "Chapisha"
-    },
-    "decimal": ".",
-    "searchBuilder": {
-        "add": "Weka Sharti",
-        "clearAll": "Ondoa zote",
-        "condition": "Sharti",
-        "data": "Data",
-        "deleteTitle": "Futa sheria ya kuchuja",
-        "leftTitle": "Vigezo vya zamani",
-        "logicAnd": "Pamoja na",
-        "logicOr": "Au",
-        "value": "Thamani"
     }
 }

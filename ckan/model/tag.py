@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from sqlalchemy.orm import relation
-from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
+from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
 
 from ckan.model import (
     core,
@@ -9,7 +9,6 @@ from ckan.model import (
     types as _types,
     domain_object,
     vocabulary,
-    extension as _extension,
 )
 import ckan  # this import is needed
 import ckan.model
@@ -138,7 +137,7 @@ class Tag(domain_object.DomainObject):
         # Todo: Make sure tag names can't be changed to look like tag IDs?
 
     @classmethod
-    @maintain.deprecated()
+    @maintain.deprecated(since="2.9.0")
     def search_by_name(cls, search_term, vocab_id_or_name=None):
         '''DEPRECATED
 
@@ -232,7 +231,7 @@ class PackageTag(core.StatefulObjectMixin,
         return s.encode('utf8')
 
     @classmethod
-    @maintain.deprecated()
+    @maintain.deprecated(since="2.9.0")
     def by_name(cls, package_name, tag_name, vocab_id_or_name=None,
             autoflush=True):
         '''DEPRECATED (and broken - missing the join to Tag)

@@ -100,8 +100,6 @@ Turn this file into a github issue with a checklist using this command::
         git commit -am "Rebuild CSS"
         git push
 
-   There will be a final front-end build before the actual release.
-
 #. Update beta.ckan.org to run new branch.
 
    The beta staging site
@@ -331,10 +329,10 @@ Leading up to the release
 #. A week before the actual release, announce the upcoming release(s).
 
    Send an email to the
-   `ckan-announce mailing list <http://lists.okfn.org/mailman/listinfo/ckan-announce>`_,
+   `ckan-announce mailing list <https://groups.google.com/a/ckan.org/g/ckan-announce>`_,
    so CKAN instance maintainers can be aware of the upcoming releases. List any
    patch releases that will be also available. Here's an `example
-   <https://lists.okfn.org/pipermail/ckan-announce/2015-July/000013.html>`_ email.
+   <https://groups.google.com/a/ckan.org/g/ckan-announce/c/BcDR7Guzb44>`_ email.
 
 -----------------------
 Doing the final release
@@ -346,13 +344,6 @@ a release.
 #. Run the most thorough tests::
 
         pytest --ckan-ini=test-core.ini ckan/tests
-
-#. Do a final build of the front-end, add the generated files to the repo and
-   commit the changes::
-
-        ckan -c |ckan.ini| front-end-build
-        git add ckan ckanext
-        git commit -am "Rebuild front-end"
 
 #. Review the CHANGELOG to check it is complete.
 
@@ -444,8 +435,8 @@ a release.
 
    CKAN blog here: <http://ckan.org/wp-admin>`_
 
-   * `Example blog <http://ckan.org/2015/07/22/ckan-2-4-release-and-patch-releases/>`_
-   * `Example email <https://lists.okfn.org/pipermail/ckan-dev/2015-July/009141.html>`_
+   * `Example blog <https://ckan.org/2021/02/10/new-patch-releases-available-upgrade-now-your-ckan-site/>`_
+   * `Example email <https://groups.google.com/a/ckan.org/g/ckan-announce/c/BcDR7Guzb44>`_
 
    Tweet from @CKANproject
 
@@ -499,14 +490,6 @@ Preparing patch releases
 ------------------------
 Doing the patch releases
 ------------------------
-
-#. If there have been any CSS or JS changes, rebuild the front-end.
-
-   Rebuild the front-end, add new files and commit with::
-
-        ckan -c |ckan.ini| front-end-build
-        git add ckan ckanext
-        git commit -am "Rebuild front-end"
 
 #. Review the CHANGELOG to check it is complete.
 

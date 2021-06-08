@@ -140,20 +140,13 @@ class TestBuildJSTranslations(object):
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
 @pytest.mark.usefixtures(u"with_plugins")
-class TestI18nFlaskAndPylons(object):
+class TestI18nFlask(object):
     def test_translation_works_on_flask_and_pylons(self, app):
         resp = app.get(u"/flask_translated")
         assert six.ensure_text(resp.data) == six.text_type(u"Dataset")
 
         resp = app.get(u"/es/flask_translated")
         assert six.ensure_text(resp.data) == six.text_type(u"Conjunto de datos")
-
-        if six.PY2:
-            resp = app.get(u"/pylons_translated")
-            assert six.ensure_text(resp.data) == six.text_type(u"Groups")
-
-            resp = app.get(u"/es/pylons_translated")
-            assert six.ensure_text(resp.data) == six.text_type(u"Grupos")
 
     @pytest.mark.ckan_config(u"ckan.i18n_directory", I18N_DUMMY_DIR)
     def test_config_i18n_directory(self, app):
@@ -162,10 +155,3 @@ class TestI18nFlaskAndPylons(object):
 
         resp = app.get(u"/es/flask_translated")
         assert six.ensure_text(resp.data) == six.text_type(u"Foo baz 123")
-
-        if six.PY2:
-            resp = app.get(u"/pylons_translated")
-            assert six.ensure_text(resp.data) == six.text_type(u"Groups")
-
-            resp = app.get(u"/es/pylons_translated")
-            assert six.ensure_text(resp.data) == six.text_type(u"Bar Buz 321")

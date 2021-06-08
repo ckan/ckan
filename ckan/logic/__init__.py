@@ -4,6 +4,9 @@ import inspect
 import functools
 import logging
 import re
+import importlib
+import inspect
+
 from collections import defaultdict
 
 from werkzeug.utils import import_string
@@ -391,27 +394,21 @@ def get_action(action):
         if action not in _actions:
             raise KeyError("Action '%s' not found" % action)
         return _actions.get(action)
-    # Otherwise look in all the plugins to resolve all possible
-    # First get the default ones in the ckan/logic/action directory
-    # Rather than writing them out in full will use import
+    # Otherwise look in all the plugins to resolve all possible First
+    # get the default ones in the ckan/logic/action directory Rather
+    # than writing them out in full will use importlib.import_module
     # to load anything from ckan.logic.action that looks like it might
     # be an action
     for action_module_name in ['get', 'create', 'update', 'delete', 'patch']:
-        module_path = 'ckan.logic.action.' + action_module_name
-        module = import_string(module_path)
-        for k, v in inspect.getmembers(module, inspect.isfunction):
-            if k.startswith('_'):
-                continue
-            # Only load functions from the action module or already
-            # replaced functions.
-            if (v.__module__ == module_path or hasattr(v, '__replaced')):
-                _actions[k] = v
-
-                # Whitelist all actions defined in logic/action/get.py as
-                # being side-effect free.
-                if action_module_name == 'get' and \
-                   not hasattr(v, 'side_effect_free'):
-                    v.side_effect_free = True
+        module = importlib.import_module(
+            '.' + action_module_name, 'ckan.logic.action')
+        for k, v in authz.get_local_functions(module):
+            _actions[k] = v
+            # Whitelist all actions defined in logic/action/get.py as
+            # being side-effect free.
+            if action_module_name == 'get' and \
+               not hasattr(v, 'side_effect_free'):
+                v.side_effect_free = True
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
@@ -490,12 +487,6 @@ def get_action(action):
 
                 return result
             return wrapped
-
-        # If we have been called multiple times for example during tests then
-        # we need to make sure that we do not rewrap the actions.
-        if hasattr(_action, '__replaced'):
-            _actions[action_name] = _action.__replaced
-            continue
 
         fn = make_wrapped(_action, action_name)
         # we need to mirror the docstring
@@ -713,16 +704,8 @@ def model_name_to_class(model_module, model_name):
 
 def _import_module_functions(module_path):
     '''Import a module and get the functions and return them in a dict'''
-    functions_dict = {}
-    module = __import__(module_path)
-    for part in module_path.split('.')[1:]:
-        module = getattr(module, part)
-    for k, v in module.__dict__.items():
-
-        try:
-            if v.__module__ != module_path:
-                continue
-            functions_dict[k] = v
-        except AttributeError:
-            pass
-    return functions_dict
+    module = importlib.import_module(module_path)
+    return {
+        k: v
+        for k, v in authz.get_local_functions(module)
+    }

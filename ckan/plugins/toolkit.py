@@ -401,10 +401,7 @@ content type, cookies, etc.
         assert config_var in ('extra_template_paths', 'extra_public_paths')
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
-        # TODO: starting from python 3.5, `inspect.stack` returns list
-        # of named tuples `FrameInfo`. Don't forget to remove
-        # `getframeinfo` wrapper after migration.
-        filename = inspect.getframeinfo(inspect.stack()[2][0]).filename
+        filename = inspect.stack()[2].filename
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, relative_path)
@@ -435,17 +432,11 @@ content type, cookies, etc.
         # TODO: starting from python 3.5, `inspect.stack` returns list
         # of named tuples `FrameInfo`. Don't forget to remove
         # `getframeinfo` wrapper after migration.
-        filename = inspect.getframeinfo(inspect.stack()[1][0]).filename
+        filename = inspect.stack()[1].filename
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, path)
         create_library(name, absolute_path)
-
-        import six
-        if six.PY2:
-            # TODO: remove next two lines after dropping Fanstatic support
-            import ckan.lib.fanstatic_resources
-            ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
     def _add_ckan_admin_tabs(cls, config, route_name, tab_label,

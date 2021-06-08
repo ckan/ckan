@@ -237,7 +237,7 @@ def redirect_to(*args, **kw):
         return _routes_redirect_to(_url)
 
 
-@maintain.deprecated('h.url is deprecated please use h.url_for')
+@maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
 @core_helper
 def url(*args, **kw):
     '''
@@ -917,7 +917,8 @@ def link_to(label, url, **attrs):
 
 
 @maintain.deprecated(u'h.submit is deprecated. '
-                     u'Use h.literal(<markup or dominate.tags>) instead.')
+                     u'Use h.literal(<markup or dominate.tags>) instead.',
+                     since=u'2.9.0')
 @core_helper
 def submit(name, value=None, id=None, **attrs):
     """Create a submit field.
@@ -980,7 +981,7 @@ def nav_link_pylons(text, *args, **kwargs):
 @core_helper
 @maintain.deprecated('h.nav_named_link is deprecated please '
                      'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter')
+                     'route_name as a named parameter', since='2.0.0')
 def nav_named_link(text, named_route, **kwargs):
     '''Create a link for a named route.
     Deprecated in ckan 2.0 '''
@@ -991,7 +992,7 @@ def nav_named_link(text, named_route, **kwargs):
 @maintain.deprecated('h.subnav_link is deprecated please '
                      'use h.nav_link\nNOTE: if action is passed as the second '
                      'parameter make sure it is passed as a named parameter '
-                     'eg. `action=\'my_action\'')
+                     'eg. `action=\'my_action\'', since='2.0.0')
 def subnav_link(text, action, **kwargs):
     '''Create a link for a named route.
     Deprecated in ckan 2.0 '''
@@ -1002,7 +1003,7 @@ def subnav_link(text, action, **kwargs):
 @core_helper
 @maintain.deprecated('h.subnav_named_route is deprecated please '
                      'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter')
+                     'route_name as a named parameter', since='2.0.0')
 def subnav_named_route(text, named_route, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
@@ -1320,7 +1321,7 @@ def unselected_facet_items(facet, limit=10):
 
 @core_helper
 @maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be '
-                     'removed.')
+                     'removed.', since="2.0.0")
 def get_facet_title(name):
     '''Deprecated in ckan 2.0 '''
     # if this is set in the config use this
@@ -1417,7 +1418,8 @@ def check_access(action, data_dict=None):
 @maintain.deprecated("helpers.get_action() is deprecated and will be removed "
                      "in a future version of CKAN. Instead, please use the "
                      "extra_vars param to render() in your controller to pass "
-                     "results from action functions to your templates.")
+                     "results from action functions to your templates.",
+                     since="2.3.0")
 def get_action(action_name, data_dict=None):
     '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
     if data_dict is None:
@@ -1608,6 +1610,42 @@ def gravatar(email_hash, size=100, default=None):
                    )
 
 
+_PLAUSIBLE_HOST_IDNA = re.compile(r'^[-\w.:\[\]]*$')
+
+
+@core_helper
+def sanitize_url(url):
+    '''
+    Return a sanitized version of a user-provided url for use in an
+    <a href> or <img src> attribute, e.g.:
+
+    <a href="{{ h.sanitize_url(user_link) }}">
+
+    Sanitizing urls is tricky. This is a best-effort to produce something
+    valid from the sort of text users might paste into a web form, not
+    intended to cover all possible valid edge-case urls.
+
+    On parsing errors an empty string will be returned.
+    '''
+    try:
+        parsed_url = urlparse(url)
+        netloc = parsed_url.netloc.encode('idna').decode('ascii')
+        if not _PLAUSIBLE_HOST_IDNA.match(netloc):
+            return ''
+        # quote with allowed characters from
+        # https://www.ietf.org/rfc/rfc3986.txt
+        parsed_url = parsed_url._replace(
+            scheme=quote(unquote(parsed_url.scheme), '+'),
+            path=quote(unquote(parsed_url.path), "/"),
+            query=quote(unquote(parsed_url.query), "?/&="),
+            params=quote(unquote(parsed_url.params), "?/&="),
+            fragment=quote(unquote(parsed_url.fragment), "?/&="),
+        )
+        return urlunparse(parsed_url)
+    except ValueError:
+        return ''
+
+
 @core_helper
 def user_image(user_id, size=100):
     try:
@@ -1624,7 +1662,7 @@ def user_image(user_id, size=100):
         return literal('''<img src="{url}"
                        class="user-image"
                        width="{size}" height="{size}" alt="{alt}" />'''.format(
-            url=user_dict['image_display_url'],
+            url=sanitize_url(user_dict['image_display_url']),
             size=size,
             alt=user_dict['name']
         ))
@@ -2134,45 +2172,6 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
-
-
-@core_helper
-def include_resource(resource):
-    import ckan.lib.fanstatic_resources as fanstatic_resources
-    r = getattr(fanstatic_resources, resource)
-    r.need()
-
-
-@core_helper
-def urls_for_resource(resource):
-    ''' Returns a list of urls for the resource specified.  If the resource
-    is a group or has dependencies then there can be multiple urls.
-
-    NOTE: This is for special situations only and is not the way to generally
-    include resources.  It is advised not to use this function.'''
-    import ckan.lib.fanstatic_resources as fanstatic_resources
-
-    r = getattr(fanstatic_resources, resource)
-    resources = list(r.resources)
-    core = fanstatic_resources.fanstatic_extensions.core
-    f = core.get_needed()
-    lib = r.library
-    root_path = f.library_url(lib)
-
-    resources = core.sort_resources(resources)
-    if f._bundle:
-        resources = core.bundle_resources(resources)
-    out = []
-    for resource in resources:
-        if isinstance(resource, core.Bundle):
-            paths = [resource.relpath for resource in resource.resources()]
-            relpath = ';'.join(paths)
-            relpath = core.BUNDLE_PREFIX + relpath
-        else:
-            relpath = resource.relpath
-
-        out.append('%s/%s' % (root_path, relpath))
-    return out
 
 
 @core_helper
@@ -2774,7 +2773,7 @@ def resource_formats():
                 os.path.dirname(os.path.realpath(ckan.config.__file__)),
                 'resource_formats.json'
             )
-        with open(format_file_path) as format_file:
+        with open(format_file_path, encoding='utf-8') as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
             except ValueError as e:
@@ -2960,6 +2959,35 @@ def compare_pkg_dicts(old, new, old_activity_id):
 
     # if the dataset was updated but none of the fields we check were changed,
     # display a message stating that
+    if len(change_list) == 0:
+        change_list.append({u'type': 'no_change'})
+
+    return change_list
+
+
+@core_helper
+def compare_group_dicts(old, new, old_activity_id):
+    '''
+    Takes two package dictionaries that represent consecutive versions of
+    the same organization and returns a list of detailed & formatted summaries
+    of the changes between the two versions. old and new are the two package
+    dictionaries. The function assumes that both dictionaries will have
+    all of the default package dictionary keys, and also checks for fields
+    added by extensions and extra fields added by the user in the web
+    interface.
+
+    Returns a list of dictionaries, each of which corresponds to a change
+    to the dataset made in this revision. The dictionaries each contain a
+    string indicating the type of change made as well as other data necessary
+    to form a detailed summary of the change.
+    '''
+    from ckan.lib.changes import check_metadata_org_changes
+    change_list = []
+
+    check_metadata_org_changes(change_list, old, new)
+
+    # if the organization was updated but none of the fields we check
+    # were changed, display a message stating that
     if len(change_list) == 0:
         change_list.append({u'type': 'no_change'})
 

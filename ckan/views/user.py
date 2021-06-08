@@ -298,7 +298,9 @@ class EditView(MethodView):
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
                 }
-                error_summary = {_(u'Old Password'): _(u'incorrect password')}
+                error_summary = {_(u'Old Password'): _(u'incorrect password')}\
+                    if not g.userobj.sysadmin \
+                    else {_(u'Sysadmin Password'): _(u'incorrect password')}
                 return self.get(id, data_dict, errors, error_summary)
 
         try:
@@ -663,14 +665,18 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(u'home.index')
+                return h.redirect_to(config.get(
+                    u'ckan.user_reset_landing_page',
+                    u'home.index'))
 
         # always tell the user it succeeded, because otherwise we reveal
         # which accounts exist or not
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(u'home.index')
+        return h.redirect_to(config.get(
+            u'ckan.user_reset_landing_page',
+            u'home.index'))
 
     def get(self):
         self._prepare()
@@ -738,7 +744,9 @@ class PerformResetView(MethodView):
                 username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(u'home.index')
+            return h.redirect_to(config.get(
+                u'ckan.user_reset_landing_page',
+                u'home.index'))
         except logic.NotAuthorized:
             h.flash_error(_(u'Unauthorized to edit user %s') % id)
         except logic.NotFound:

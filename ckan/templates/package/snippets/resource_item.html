@@ -9,7 +9,7 @@
 
   Example:
 
-    {% snippet "package/snippets/resource_item.html", res=resource, pkg_dict=pkg_dict, can_edit=True, url_is_edit=False %}
+    {% snippet "package/snippets/resource_item.html", res=resource, pkg=pkg, can_edit=True, url_is_edit=False %}
 
 #}
 {% set url_action = pkg.type ~ ('_resource.edit' if url_is_edit and can_edit else '_resource.read') %}

@@ -6,7 +6,7 @@
       {{ _('Changed the license of {pkg_link} to {new_link} (previously {old_link})').format(
 
         pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
-        new_link = h.link_to(change.new_title, change.new_url)
+        new_link = h.link_to(change.new_title, change.new_url),
         old_link = h.link_to(change.old_title, change.old_url)
         ) }}
 
@@ -15,7 +15,7 @@
 
       {{ _('Changed the license of {pkg_link} to {new_link} (previously {old_title})').format(
         pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
-        new_link = h.link_to(change.new_title, change.new_url)
+        new_link = h.link_to(change.new_title, change.new_url),
         old_title = change.old_title
         ) }}
 

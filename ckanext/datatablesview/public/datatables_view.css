@@ -2,22 +2,120 @@ body {
   background: none;
 }
 
-/* column name on top, filter on 2nd line */
-.yadcf-filter-wrapper {
-    display: block;
+/* this is important for DataTables to do column sizing properly */
+table {
+  max-width: none !important;
+}
+
+/* so user does not see table being dynamically created */
+body.dt-view { 
+  visibility: hidden;
+}
+
+/* we need to do this as the dt-print-view is cloned from dt-view */
+body.dt-print-view {
+  visibility: visible;
 }
 
 table.dataTable {
 	margin-left: 0px;
 }
 
-/* for dynamic resizing of datatable */
+div.dataTables_scroll{
+  width: 100% !important;
+}
+
+/* processing message should hover over table and be visible */
+#dtprv_processing {
+  z-index: 100;
+}
+
+/* for table header, don't wrap */
+table.dataTable th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* clip content if it will overrun column width */
+table.dataTable td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* but show the data on hover */
+table.dataTable td:hover {
+   white-space: break-spaces;  /* normal; */
+   word-break: break-all;
+   overflow: visible;
+   text-overflow: visible;
+}
+
+/* when ellipsis_length === 0, wrap to column name width */
+table.dataTable td.wrapcell {
+   white-space: normal !important;
+   word-break: normal !important;
+   text-overflow: clip !important;
+}
+
+
+/* make _id column darker ala Excel */
+div.DTFC_LeftBodyWrapper {
+  filter: brightness(0.85);
+}
+
+/* make display record details header sticky */
+#modalHeader {
+  background-color: #f9f9f9;
+  position:sticky;
+  top:0;
+  width:100%;
+  z-index:11;  
+}
+
+/* for dynamic resizing of datatable, needed for scrollresize */
 #resize_wrapper {
 	position: absolute;
-	top: 0em;
-	left: 0.5em;
-	right: 0.5em;
-	bottom: 0em;
+	top: 0.1em;
+	left: 0.1em;
+	right: 0.1em;
+	bottom: 0.1em;
+  max-width: 100vw;
+  max-height: 100vh;
+}
+
+/* fine-tune positioning of various info elements for Bootstrap */
+.dataTables_length{
+  display:inline;
+}
+
+#dtprv_filter {
+  text-align: right;
+  display: inline-flex;
+  float: right;
+  margin-top: -1.4em;
+}
+
+#filterinfoicon {
+  margin-top: 0.4em;
+}
+
+div.resourceinfo {
+  display: inline;
+  font-weight: bold;
+}
+
+div.sortinfo {
+  display: block;
+}
+
+#dtprv_paginate {
+  margin-top: -2.5em;
+}
+
+i.fa-info-circle {
+  color: darkblue;
 }
 
 /* for webkit, blink browsers, use input type search cancel button */
@@ -40,21 +138,67 @@ button.dt-button {
     margin-right: 0em;
 }
 
-/* for sorting controls */
-table.dataTable thead .sorting {
-  background-image: url("vendor/DataTables/images/sort_both.png");
+div.dt-button-collection.fixed.four-column {
+  margin-left: 0px;
 }
-table.dataTable thead .sorting_asc {
-  background-image: url("vendor/DataTables/images/sort_asc.png");
+
+div.dt-button-background {
+  background: rgba(0, 0, 0, 0.7);
+  /* Fallback */
+  background: -ms-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* IE10 Consumer Preview */
+  background: -moz-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* Firefox */
+  background: -o-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* Opera */
+  background: -webkit-gradient(radial, center center, 0, center center, 497, color-stop(0, rgba(0, 0, 0, 0.3)), color-stop(1, rgba(0, 0, 0, 0.7)));
+  /* Webkit (Safari/Chrome 10) */
+  background: -webkit-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* Webkit (Chrome 11+) */
+  background: radial-gradient(ellipse farthest-corner at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  /* W3C Markup, IE10 Release Preview */
 }
-table.dataTable thead .sorting_desc {
-  background-image: url("vendor/DataTables/images/sort_desc.png");
+
+div.dt-button-collection.fixed {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-65%, -20%);
 }
-table.dataTable thead .sorting_asc_disabled {
-  background-image: url("vendor/DataTables/images/sort_asc_disabled.png");
+
+.table-striped > tbody > tr.selected > td,
+.table-striped > tbody > tr.selected > th {
+background-color: #0275d8;
 }
-table.dataTable thead .sorting_desc_disabled {
-  background-image: url("vendor/DataTables/images/sort_desc_disabled.png");
+
+/* for zooming thumbnails on hover */
+.zoomthumb {
+-webkit-transition: all 0.3s ease-in-out;    
+-moz-transition: all 0.3s ease-in-out;    
+transition: all 0.3s ease-in-out;     
+cursor: -webkit-zoom-in;      
+cursor: -moz-zoom-in;      
+cursor: zoom-in;  
+}     
+
+.zoomthumb:hover,
+.zoomthumb:active,   
+.zoomthumb:focus {
+/**adjust scale to desired size, 
+add browser prefixes**/
+-ms-transform: scale(2.5);    
+-moz-transform: scale(2.5);  
+-webkit-transform: scale(2.5);  
+-o-transform: scale(2.5);  
+transform: scale(2.5);    
+position:relative;      
+z-index:100;
+}
+
+.zoomthumb img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* Animation CSS */

@@ -2,14 +2,12 @@
 
 from __future__ import print_function
 
-import os
 import sys
 
 import click
 import paste.script
 import routes
 from paste.registry import Registry
-from paste.script.util.logging_config import fileConfig
 from six.moves import input
 from six.moves.urllib.parse import urlparse
 
@@ -18,7 +16,6 @@ from ckan.cli import load_config as _get_config
 import ckan.logic as logic
 import ckan.model as model
 from ckan.common import config
-from ckan.common import asbool
 import ckan.lib.maintain as maintain
 # This is a test Flask request context to be used internally.
 # Do not use it!
@@ -30,7 +27,7 @@ _cli_test_request_context = None
 #    Otherwise loggers get disabled.
 
 
-@maintain.deprecated('Use @maintain.deprecated instead')
+@maintain.deprecated('Use @maintain.deprecated instead', since="2.9.0")
 def deprecation_warning(message=None):
     '''
     DEPRECATED
@@ -45,7 +42,7 @@ def deprecation_warning(message=None):
     sys.stderr.write(u'\n')
 
 
-@maintain.deprecated()
+@maintain.deprecated(since='2.9.0')
 def error(msg):
     '''
     DEPRECATED
@@ -58,7 +55,8 @@ def error(msg):
     sys.exit(1)
 
 
-@maintain.deprecated('Use model.parse_db_config directly instead')
+@maintain.deprecated('Use model.parse_db_config directly instead',
+                     since='2.9.0')
 def _parse_db_config(config_key=u'sqlalchemy.url'):
     '''Deprecated'''
     db_config = model.parse_db_config(config_key)
@@ -70,7 +68,8 @@ def _parse_db_config(config_key=u'sqlalchemy.url'):
 
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
 ## Written by Trent Mick
-@maintain.deprecated('Instead you can probably use click.confirm()')
+@maintain.deprecated('Instead you can probably use click.confirm()',
+                     since='2.9.0')
 def query_yes_no(question, default="yes"):
     """DEPRECATED
 
@@ -164,7 +163,7 @@ def load_config(config, load_site_user=True):
 
 
 @maintain.deprecated('Instead use ckan.cli.cli.CkanCommand or extensions '
-                     'should use IClick')
+                     'should use IClick', since='2.9.0')
 def paster_click_group(summary):
     '''DEPRECATED
 

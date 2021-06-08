@@ -33,3 +33,17 @@ showcontent = true
 
 [tool.black]
 line-length = 79
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::sqlalchemy.exc.SADeprecationWarning",
+    "ignore::sqlalchemy.exc.SAWarning",
+    "ignore::DeprecationWarning"
+]
+markers = [
+    "ckan_config: patch configuration used by other fixtures via (key, value) pair.",
+    "ckan_pytest: test case that is explicitely was rewriten from `nose` style"
+]
+
+testpaths = ["ckan", "ckanext"]
+addopts = "--strict-markers  --pdbcls=IPython.terminal.debugger:TerminalPdb"
