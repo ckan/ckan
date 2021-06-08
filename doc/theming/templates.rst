@@ -23,13 +23,8 @@ static files, so before getting started on our CKAN theme we'll have to create
 an extension and plugin. For a detailed explanation of the steps below, see
 :doc:`/extensions/tutorial`.
 
-1. Use the ``paster create`` command to create an empty extension:
-
-   .. parsed-literal::
-
-      |activate|
-      cd |virtualenv|/src
-      paster --plugin=ckan create -t ckanext |extension_dir|
+1. Use the ``ckan generate extension`` command as per the
+:doc:`/extensions/tutorial`.
 
 2. Create the file |plugin.py| with the following contents:
 
@@ -49,7 +44,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
     cd |extension_dir|
     python setup.py develop
 
-5. Add the plugin to the ``ckan.plugins`` setting in your |development.ini|
+5. Add the plugin to the ``ckan.plugins`` setting in your |ckan.ini|
    file::
 
     ckan.plugins = stats text_view recline_view example_theme
@@ -58,7 +53,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
    .. parsed-literal::
 
-    $ paster serve --reload |development.ini|
+    $ ckan -c |ckan.ini| run
     Starting server in PID 13961.
     serving on 0.0.0.0:5000 view at http://127.0.0.1:5000
 
@@ -139,7 +134,7 @@ This new code does a few things:
 
 Now, let's customize the CKAN front page. We first need to discover which
 template file CKAN uses to render the front page, so we can replace it.
-Set :ref:`debug` to ``true`` in your |development.ini| file::
+Set :ref:`debug` to ``true`` in your |ckan.ini| file::
 
     [DEFAULT]
 
@@ -195,14 +190,14 @@ inside the ``home`` directory:
              index.html  <-- An empty file.
 
 If you now restart the development web server (kill the server using Ctrl-c,
-then run the ``paster serve`` command again) and reload the `CKAN front page`_
+then run the ``ckan run`` command again) and reload the `CKAN front page`_
 in your web browser, you should see an empty page, because we've replaced the
 template file for the front page with an empty file.
 
 
 .. note::
 
-   If you run ``paster serve`` with the ``--reload`` option, then it isn't
+   If you run ``ckan run`` without the ``-r(--disable-reloader)`` option, then it isn't
    usually necessary to restart the server after editing a Python file,
    a template file, your CKAN config file, or any other CKAN file. If you've
    added a new file or directory, however, you need to restart the server
@@ -683,8 +678,8 @@ There are two places to look for CSS classes available in CKAN:
    provided by Bootstrap is available to use in CKAN.
 
 2. CKAN's development primer page, which can be found on any CKAN site at
-   ``/development/primer.html``, for example
-   `demo.ckan.org/development/primer.html <http://demo.ckan.org/development/primer.html>`_.
+   ``/testing/primer``, for example
+   `demo.ckan.org/testing/primer <http://demo.ckan.org/testing/primer>`_.
 
    The primer page demonstrates many of the HTML and CSS elements available in
    CKAN, and by viewing the source of the page you can see what HTML tags and

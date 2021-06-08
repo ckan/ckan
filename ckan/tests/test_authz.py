@@ -1,8 +1,11 @@
 # encoding: utf-8
 
+import six
+import unittest.mock as mock
 import pytest
 
 from ckan import authz as auth
+from ckan.tests import factories
 
 _check = auth.check_config_permission
 
@@ -47,3 +50,38 @@ def test_roles_that_cascade_to_sub_groups_is_a_list():
     assert sorted(_check("roles_that_cascade_to_sub_groups")) == sorted(
         ["admin", "editor"]
     )
+
+
+@pytest.mark.skipif(six.PY3, reason='Only relevant to py2')
+@mock.patch('paste.registry.TypeError')
+def test_get_user_outside_web_request_py2(mock_TypeError):
+    auth._get_user('example')
+    assert mock_TypeError.called
+
+
+@pytest.mark.skipif(six.PY2, reason='Only relevant to py3')
+@mock.patch('flask.globals.RuntimeError')
+def test_get_user_outside_web_request_py3(mock_RuntimeError):
+    auth._get_user('example')
+    assert mock_RuntimeError.called
+
+
+@pytest.mark.usefixtures('with_request_context', 'clean_db')
+def test_get_user_inside_web_request_returns_user_obj():
+    user = factories.User()
+    assert auth._get_user(user['name']).name == user['name']
+
+
+@pytest.mark.usefixtures('with_request_context')
+def test_get_user_inside_web_request_not_found():
+
+    assert auth._get_user('example') is None
+
+
+@pytest.mark.usefixtures('with_request_context', 'app')
+def test_no_attributes_set_on_imported_auth_members():
+    import ckan.logic.auth.get as auth_get
+    import ckan.plugins.toolkit as tk
+    tk.check_access('site_read', {})
+    assert hasattr(auth_get.package_show, 'auth_allow_anonymous_access')
+    assert not hasattr(auth_get.config, 'auth_allow_anonymous_access')

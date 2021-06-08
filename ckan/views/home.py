@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from flask import Blueprint, abort
+from flask import Blueprint, abort, redirect
 
 import ckan.model as model
 import ckan.logic as logic
@@ -45,9 +45,19 @@ def index():
         g.package_count = query['count']
         g.datasets = query['results']
 
+        org_label = h.humanize_entity_type(
+            u'organization',
+            h.default_group_type(u'organization'),
+            u'facet label') or _(u'Organizations')
+
+        group_label = h.humanize_entity_type(
+            u'group',
+            h.default_group_type(u'group'),
+            u'facet label') or _(u'Groups')
+
         g.facet_titles = {
-            u'organization': _(u'Organizations'),
-            u'groups': _(u'Groups'),
+            u'organization': org_label,
+            u'groups': group_label,
             u'tags': _(u'Tags'),
             u'res_format': _(u'Formats'),
             u'license': _(u'Licenses'),
@@ -72,9 +82,36 @@ def about():
     return base.render(u'home/about.html', extra_vars={})
 
 
+def redirect_locale(target_locale, path=None):
+    target = f'/{target_locale}/{path}' if path else f'/{target_locale}'
+    return redirect(target, code=308)
+
+
 util_rules = [
     (u'/', index),
     (u'/about', about)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)
+
+locales_mapping = [
+    ('zh_TW', 'zh_Hant_TW'),
+    ('zh_CN', 'zh_Hans_CN'),
+]
+
+for locale in locales_mapping:
+
+    legacy_locale = locale[0]
+    new_locale = locale[1]
+
+    home.add_url_rule(
+        f'/{legacy_locale}/',
+        view_func=redirect_locale,
+        defaults={'target_locale': new_locale}
+    )
+
+    home.add_url_rule(
+        f'/{legacy_locale}/<path:path>',
+        view_func=redirect_locale,
+        defaults={'target_locale': new_locale}
+    )

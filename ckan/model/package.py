@@ -4,10 +4,9 @@ import datetime
 import logging
 
 from sqlalchemy.sql import and_, or_
-from sqlalchemy import orm
-from sqlalchemy import types, Column, Table
-from ckan.common import config
+from sqlalchemy import orm, types, Column, Table, ForeignKey
 
+from ckan.common import config
 from ckan.model import (
     meta,
     core,
@@ -17,12 +16,12 @@ from ckan.model import (
     activity,
     extension,
 )
-
 import ckan.lib.maintain as maintain
+
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['Package', 'package_table',
+__all__ = ['Package', 'package_table', 'PackageMember', 'package_member_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
            'PACKAGE_VERSION_MAX_LENGTH',
            ]
@@ -32,20 +31,22 @@ PACKAGE_NAME_MAX_LENGTH = 100
 PACKAGE_NAME_MIN_LENGTH = 2
 PACKAGE_VERSION_MAX_LENGTH = 100
 
-## Our Domain Object Tables
+
+# Our Domain Object Tables
 package_table = Table('package', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
                nullable=False, unique=True),
-        Column('title', types.UnicodeText),
-        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH)),
-        Column('url', types.UnicodeText),
-        Column('author', types.UnicodeText),
-        Column('author_email', types.UnicodeText),
-        Column('maintainer', types.UnicodeText),
-        Column('maintainer_email', types.UnicodeText),
-        Column('notes', types.UnicodeText),
-        Column('license_id', types.UnicodeText),
+        Column('title', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH),
+               doc='remove_if_not_provided'),
+        Column('url', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('author', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('author_email', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('maintainer', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
+        Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
         Column('type', types.UnicodeText, default=u'dataset'),
         Column('owner_org', types.UnicodeText),
         Column('creator_user_id', types.UnicodeText),
@@ -53,6 +54,16 @@ package_table = Table('package', meta.metadata,
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
+)
+
+
+package_member_table = Table(
+    'package_member',
+    meta.metadata,
+    Column('package_id', ForeignKey('package.id'), primary_key=True),
+    Column('user_id', ForeignKey('user.id'), primary_key = True),
+    Column('capacity', types.UnicodeText, nullable=False),
+    Column('modified', types.DateTime, default=datetime.datetime.utcnow),
 )
 
 
@@ -65,7 +76,6 @@ class Package(core.StatefulObjectMixin,
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
-        from ckan import model
         super(Package, self).__init__(**kw)
 
     @classmethod
@@ -74,14 +84,17 @@ class Package(core.StatefulObjectMixin,
         return meta.Session.query(cls).filter(cls.name.contains(text_query.lower()))
 
     @classmethod
-    def get(cls, reference):
+    def get(cls, reference, for_update=False):
         '''Returns a package object referenced by its id or name.'''
         if not reference:
             return None
 
-        pkg = meta.Session.query(cls).get(reference)
+        q = meta.Session.query(cls)
+        if for_update:
+            q = q.with_for_update()
+        pkg = q.get(reference)
         if pkg == None:
-            pkg = cls.by_name(reference)
+            pkg = cls.by_name(reference, for_update=for_update)
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
 
@@ -367,7 +380,8 @@ class Package(core.StatefulObjectMixin,
 
     @property
     @maintain.deprecated('`is_private` attriute of model.Package is ' +
-                         'deprecated and should not be used.  Use `private`')
+                         'deprecated and should not be used.  Use `private`',
+                         since="2.1.0")
     def is_private(self):
         """
         DEPRECATED in 2.1
@@ -398,25 +412,6 @@ class Package(core.StatefulObjectMixin,
             groupcaps = zip( groups,caps )
             groups = [g[0] for g in groupcaps if g[1] == capacity]
         return groups
-
-    @staticmethod
-    def get_fields(core_only=False, fields_to_ignore=None):
-        '''Returns a list of the properties of a package.
-        @param core_only - limit it to fields actually in the package table and
-                           not those on related objects, such as tags & extras.
-        @param fields_to_ignore - a list of names of fields to not return if
-                           present.
-        '''
-        # ['id', 'name', 'title', 'version', 'url', 'author', 'author_email', 'maintainer', 'maintainer_email', 'notes', 'license_id', 'state']
-        fields = Package.revisioned_fields()
-        if not core_only:
-            fields += ['resources', 'tags', 'groups', 'extras', 'relationships']
-
-        if fields_to_ignore:
-            for field in fields_to_ignore:
-                fields.remove(field)
-
-        return fields
 
     def activity_stream_item(self, activity_type, user_id):
         import ckan.model
@@ -519,7 +514,7 @@ class Package(core.StatefulObjectMixin,
             meta.Session.add(rating)
 
     @property
-    @maintain.deprecated()
+    @maintain.deprecated(since="2.9.0")
     def extras_list(self):
         '''DEPRECATED in 2.9
 
@@ -530,6 +525,10 @@ class Package(core.StatefulObjectMixin,
         return meta.Session.query(PackageExtra) \
             .filter_by(package_id=self.id) \
             .all()
+
+
+class PackageMember(domain_object.DomainObject):
+    pass
 
 
 class RatingValueException(Exception):
@@ -562,3 +561,5 @@ meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
     order_by=tag.package_tag_table.c.id,
     extension=[extension.PluginMapperExtension()],
     )
+
+meta.mapper(PackageMember, package_member_table)

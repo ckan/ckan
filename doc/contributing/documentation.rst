@@ -383,14 +383,14 @@ of a file, etc.) in one place and then reuse it many times.
 
 You define the value once like this::
 
-    .. |production.ini| replace:: /etc/ckan/default/production.ini
+    .. |ckan.ini| replace:: /etc/ckan/default/ckan.ini
 
 and then reuse it like this::
 
-   Now open your |production.ini| file.
+   Now open your |ckan.ini| file.
 
-``|production.ini|`` will be replaced with the full value
-``/etc/ckan/default/production.ini``.
+``|ckan.ini|`` will be replaced with the full value
+``/etc/ckan/default/ckan.ini``.
 
 Substitutions can also be useful for achieving consistent spelling and
 capitalization of names like |restructuredtext|, |postgres|, |nginx|, etc.

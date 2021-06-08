@@ -9,10 +9,15 @@ There are three ways to install CKAN:
 #. Install from source
 #. Install from Docker Compose
 
-From package is the quickest and easiest way to install CKAN, but it requires
-Ubuntu 16.04 64-bit 64-bit. **You should install CKAN from package if**:
+CKAN 2.9 supports Python 3.6 or higher and Python 2.7. The next version of CKAN
+will support Python 3 only.
 
-* You want to install CKAN on an Ubuntu 16.04, 64-bit server, *and*
+Installing from package is the quickest and easiest way to install CKAN, but it requires
+Ubuntu 18.04 64-bit or Ubuntu 20.04 64-bit. 
+
+**You should install CKAN from package if**:
+
+* You want to install CKAN on an Ubuntu 18.04 or 20.04, 64-bit server, *and*
 * You only want to run one CKAN website per server
 
 See :doc:`install-from-package`.
@@ -20,7 +25,7 @@ See :doc:`install-from-package`.
 **You should install CKAN from source if**:
 
 * You want to install CKAN on a 32-bit computer, *or*
-* You want to install CKAN on a different version of Ubuntu, not 16.04, *or*
+* You want to install CKAN on a different version of Ubuntu, not 18.04 or 20.04, *or*
 * You want to install CKAN on another operating system (eg. RHEL, CentOS, OS X), *or*
 * You want to run multiple CKAN websites on the same server, *or*
 * You want to install CKAN for development

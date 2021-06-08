@@ -13,7 +13,7 @@
       <input aria-label="{% block header_site_search_label %}{{ placeholder }}{% endblock %}" id="field-giant-search" type="text" class="form-control input-lg" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
       {% block search_input_button %}
       <span class="input-group-btn">
-        <button class="btn btn-default btn-lg" type="submit" value="search">
+        <button class="btn btn-default btn-lg" type="submit" value="search" aria-label="{{_('Submit')}}">
           <i class="fa fa-search"></i>
         </button>
       </span>
@@ -47,7 +47,7 @@
 
   {% block search_title %}
     {% if not error %}
-      <h2>{% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}</h2>
+      <h1>{% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}</h1>
     {% else %}
       <h2>Error</h2>
     {% endif %}

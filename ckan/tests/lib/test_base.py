@@ -2,9 +2,7 @@
 
 import six
 import pytest
-import ckan.tests.helpers as helpers
 
-import ckan.plugins as p
 import ckan.tests.factories as factories
 
 
@@ -418,3 +416,57 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
     assert "Access-Control-Allow-Origin" not in response_headers
     assert "Access-Control-Allow-Methods" not in response_headers
     assert "Access-Control-Allow-Headers" not in response_headers
+
+
+@pytest.mark.ckan_config('ckan.cache_enabled', 'false')
+def test_cache_control_in_when_cache_is_not_enabled(app):
+    request_headers = {}
+    response = app.get('/', headers=request_headers)
+    response_headers = dict(response.headers)
+
+    assert 'Cache-Control' in response_headers
+    assert response_headers['Cache-Control'] == 'private'
+
+
+@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
+def test_cache_control_when_cache_enabled(app):
+    request_headers = {}
+    response = app.get('/', headers=request_headers)
+    response_headers = dict(response.headers)
+
+    assert 'Cache-Control' in response_headers
+    assert 'public' in response_headers['Cache-Control']
+
+
+@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache_expires', 300)
+def test_cache_control_max_age_when_cache_enabled(app):
+    request_headers = {}
+    response = app.get('/', headers=request_headers)
+    response_headers = dict(response.headers)
+
+    assert 'Cache-Control' in response_headers
+    assert 'public' in response_headers['Cache-Control']
+    assert 'max-age=300' in response_headers['Cache-Control']
+
+
+@pytest.mark.ckan_config('ckan.cache_enabled', None)
+def test_cache_control_when_cache_is_not_set_in_config(app):
+    request_headers = {}
+    response = app.get('/', headers=request_headers)
+    response_headers = dict(response.headers)
+
+    assert 'Cache-Control' in response_headers
+    assert response_headers['Cache-Control'] == 'private'
+
+
+@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
+def test_cache_control_while_logged_in(app):
+    user = factories.User()
+    env = {'REMOTE_USER': user['name'].encode('ascii')}
+    request_headers = {}
+    response = app.get('/', headers=request_headers, extra_environ=env)
+    response_headers = dict(response.headers)
+
+    assert 'Cache-Control' in response_headers
+    assert response_headers['Cache-Control'] == 'private'

@@ -50,17 +50,17 @@ class ConfigOption(click.ParamType):
 def config_tool(config_filepath, options, section, edit, merge_filepath):
     u'''Tool for editing options in a CKAN config file
 
-    paster config-tool <default.ini> <key>=<value> [<key>=<value> ...]
+    ckan config-tool <default.ini> <key>=<value> [<key>=<value> ...]
 
-    paster config-tool <default.ini> -f <custom_options.ini>
+    ckan config-tool <default.ini> -f <custom_options.ini>
 
     Examples:
 
-      paster config-tool default.ini sqlalchemy.url=123 'ckan.site_title=ABC'
+      ckan config-tool default.ini sqlalchemy.url=123 'ckan.site_title=ABC'
 
-      paster config-tool default.ini -s server:main -e port=8080
+      ckan config-tool default.ini -s server:main -e port=8080
 
-      paster config-tool default.ini -f custom_options.ini
+      ckan config-tool default.ini -f custom_options.ini
     '''
 
     if merge_filepath:

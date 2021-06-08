@@ -66,7 +66,7 @@ See :ref:`avoid name clashes`.
 A |javascript| module should have a docstring at the top of the file, briefly
 documentating what the module does and what options it takes. For example:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v17_popover/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v17_popover/assets/example_theme_popover.js
    :language: javascript
 
 

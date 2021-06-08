@@ -25,7 +25,7 @@
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
       {% elif status.task_info.error is mapping %}
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error.message }}
-        {% for error_key, error_value in status.task_info.error.iteritems() %}
+        {% for error_key, error_value in status.task_info.error.items() %}
           {% if error_key != "message" and error_value %}
             <br>
             <strong>{{ error_key }}</strong>:
@@ -61,7 +61,7 @@
   {% if status.status and status.task_info and show_table %}
     <h3>{{ _('Upload Log') }}</h3>
     <ul class="activity">
-      {% for item in status.task_info.logs %}
+      {% for item in status.task_info.logs|sort(attribute='timestamp') %}
         {% set icon = 'ok' if item.level == 'INFO' else 'exclamation' %}
         {% set class = ' failure' if icon == 'exclamation' else ' success' %}
         {% set popover_content = 'test' %}
@@ -73,7 +73,7 @@
             {% endfor %}
             <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
               {{ h.time_ago_from_timestamp(item.timestamp) }}
-              <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.iteritems() %}<dt>{{ key }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
+              <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.items() %}<dt>{{ key }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
             </span>
           </p>
         </li>

@@ -110,7 +110,6 @@ def register_package_plugins():
                 raise ValueError("An existing IDatasetForm is "
                                  "already associated with the package type "
                                  "'%s'" % package_type)
-
             _package_plugins[package_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
@@ -147,7 +146,12 @@ def register_package_blueprints(app):
                 dataset.import_name,
                 url_prefix='/{}'.format(package_type),
                 url_defaults={'package_type': package_type})
+            if hasattr(plugin, 'prepare_dataset_blueprint'):
+                dataset_blueprint = plugin.prepare_dataset_blueprint(
+                    package_type,
+                    dataset_blueprint)
             register_dataset_plugin_rules(dataset_blueprint)
+
             app.register_blueprint(dataset_blueprint)
 
             resource_blueprint = Blueprint(
@@ -155,6 +159,10 @@ def register_package_blueprints(app):
                 resource.import_name,
                 url_prefix=u'/{}/<id>/resource'.format(package_type),
                 url_defaults={u'package_type': package_type})
+            if hasattr(plugin, 'prepare_resource_blueprint'):
+                resource_blueprint = plugin.prepare_resource_blueprint(
+                    package_type,
+                    resource_blueprint)
             dataset_resource_rules(resource_blueprint)
             app.register_blueprint(resource_blueprint)
             log.debug(
@@ -260,8 +268,12 @@ def register_group_blueprints(app):
             blueprint = Blueprint(group_type,
                                   group.import_name,
                                   url_prefix='/{}'.format(group_type),
-                                  url_defaults={u'group_type': group_type,
-                                                u'is_organization': is_organization})
+                                  url_defaults={
+                                      u'group_type': group_type,
+                                      u'is_organization': is_organization})
+            if hasattr(plugin, 'prepare_group_blueprint'):
+                blueprint = plugin.prepare_group_blueprint(
+                    group_type, blueprint)
             register_group_plugin_rules(blueprint)
             app.register_blueprint(blueprint)
 
@@ -611,15 +623,24 @@ class DefaultPermissionLabels(object):
     - everyone can read public datasets "public"
     - users can read their own drafts "creator-(user id)"
     - users can read datasets belonging to their orgs "member-(org id)"
+    - users can read datasets where they are collaborators "collaborator-(dataset id)"
     '''
     def get_dataset_labels(self, dataset_obj):
         if dataset_obj.state == u'active' and not dataset_obj.private:
             return [u'public']
 
-        if dataset_obj.owner_org:
-            return [u'member-%s' % dataset_obj.owner_org]
+        if ckan.authz.check_config_permission('allow_dataset_collaborators'):
+            # Add a generic label for all this dataset collaborators
+            labels = [u'collaborator-%s' % dataset_obj.id]
+        else:
+            labels = []
 
-        return [u'creator-%s' % dataset_obj.creator_user_id]
+        if dataset_obj.owner_org:
+            labels.append(u'member-%s' % dataset_obj.owner_org)
+        else:
+            labels.append(u'creator-%s' % dataset_obj.creator_user_id)
+
+        return labels
 
     def get_user_dataset_labels(self, user_obj):
         labels = [u'public']
@@ -631,4 +652,12 @@ class DefaultPermissionLabels(object):
         orgs = logic.get_action(u'organization_list_for_user')(
             {u'user': user_obj.id}, {u'permission': u'read'})
         labels.extend(u'member-%s' % o[u'id'] for o in orgs)
+
+        if ckan.authz.check_config_permission('allow_dataset_collaborators'):
+            # Add a label for each dataset this user is a collaborator of
+            datasets = logic.get_action('package_collaborator_list_for_user')(
+                {'ignore_auth': True}, {'id': user_obj.id})
+
+            labels.extend('collaborator-%s' % d['package_id'] for d in datasets)
+
         return labels

@@ -15,13 +15,14 @@ import tzlocal
 import pprint
 import copy
 import uuid
+import functools
 
-from paste.deploy import converters
+from collections import defaultdict
 
 import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import config, is_flask_request
+from ckan.common import asbool, config, is_flask_request
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
@@ -139,6 +140,17 @@ def core_helper(f, name=None):
     return f
 
 
+def _is_chained_helper(func):
+    return getattr(func, 'chained_helper', False)
+
+
+def chained_helper(func):
+    """Decorator function allowing helper functions to be chained.
+    """
+    func.chained_helper = True
+    return func
+
+
 def _datestamp_to_datetime(datetime_):
     ''' Converts a datestamp to a datetime.  If a datetime is provided it
     just gets returned.
@@ -225,7 +237,7 @@ def redirect_to(*args, **kw):
         return _routes_redirect_to(_url)
 
 
-@maintain.deprecated('h.url is deprecated please use h.url_for')
+@maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
 @core_helper
 def url(*args, **kw):
     '''
@@ -797,6 +809,10 @@ def _link_active(kwargs):
 
 
 def _link_active_pylons(kwargs):
+    highlight_controllers = kwargs.get('highlight_controllers', [])
+    if highlight_controllers and c.controller in highlight_controllers:
+        return True
+
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split()
     return (c.controller == kwargs.get('controller')
@@ -805,8 +821,13 @@ def _link_active_pylons(kwargs):
 
 def _link_active_flask(kwargs):
     blueprint, endpoint = p.toolkit.get_endpoint()
-    return(kwargs.get('controller') == blueprint and
-           kwargs.get('action') == endpoint)
+
+    highlight_controllers = kwargs.get('highlight_controllers', [])
+    if highlight_controllers and blueprint in highlight_controllers:
+        return True
+
+    return (kwargs.get('controller') == blueprint and
+            kwargs.get('action') == endpoint)
 
 
 def _link_to(text, *args, **kwargs):
@@ -895,25 +916,14 @@ def link_to(label, url, **attrs):
     return literal(dom_tags.a(label, **attrs))
 
 
-@core_helper
-def file(name, value=None, id=None, **attrs):
-    """Create a file upload field.
-
-    If you are using file uploads then you will also need to set the
-    multipart option for the form.
-
-    Example::
-
-        >>> file('myfile')
-        literal(u'<input id="myfile" name="myfile" type="file" />')
-
-    """
-    return literal(_input_tag(u"file", name, value, id, **attrs))
-
-
+@maintain.deprecated(u'h.submit is deprecated. '
+                     u'Use h.literal(<markup or dominate.tags>) instead.',
+                     since=u'2.9.0')
 @core_helper
 def submit(name, value=None, id=None, **attrs):
     """Create a submit field.
+
+    Deprecated: Use h.literal(<markup or dominate.tags>) instead.
     """
     return literal(_input_tag(u"submit", name, value, id, **attrs))
 
@@ -971,7 +981,7 @@ def nav_link_pylons(text, *args, **kwargs):
 @core_helper
 @maintain.deprecated('h.nav_named_link is deprecated please '
                      'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter')
+                     'route_name as a named parameter', since='2.0.0')
 def nav_named_link(text, named_route, **kwargs):
     '''Create a link for a named route.
     Deprecated in ckan 2.0 '''
@@ -982,7 +992,7 @@ def nav_named_link(text, named_route, **kwargs):
 @maintain.deprecated('h.subnav_link is deprecated please '
                      'use h.nav_link\nNOTE: if action is passed as the second '
                      'parameter make sure it is passed as a named parameter '
-                     'eg. `action=\'my_action\'')
+                     'eg. `action=\'my_action\'', since='2.0.0')
 def subnav_link(text, action, **kwargs):
     '''Create a link for a named route.
     Deprecated in ckan 2.0 '''
@@ -993,7 +1003,7 @@ def subnav_link(text, action, **kwargs):
 @core_helper
 @maintain.deprecated('h.subnav_named_route is deprecated please '
                      'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter')
+                     'route_name as a named parameter', since='2.0.0')
 def subnav_named_route(text, named_route, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
@@ -1002,17 +1012,25 @@ def subnav_named_route(text, named_route, **kwargs):
 
 @core_helper
 def build_nav_main(*args):
-    ''' build a set of menu items.
+    """Build a set of menu items.
 
-    args: tuples of (menu type, title) eg ('login', _('Login'))
-    outputs <li><a href="...">title</a></li>
-    '''
+    Outputs ``<li><a href="...">title</a></li>``
+
+    :param args: tuples of (menu type, title) eg ('login', _('Login')).
+        Third item specifies controllers which should be used to
+        mark link as active.
+        Fourth item specifies auth function to check permissions against.
+    :type args: tuple[str, str, Optional[list], Optional[str]]
+
+    :rtype: str
+    """
     output = ''
     for item in args:
-        menu_item, title = item[:2]
-        if len(item) == 3 and not check_access(item[2]):
+        menu_item, title, highlight_controllers = (list(item) + [None] * 3)[:3]
+        if len(item) == 4 and not check_access(item[3]):
             continue
-        output += _make_menu_item(menu_item, title)
+        output += _make_menu_item(menu_item, title,
+                                  highlight_controllers=highlight_controllers)
     return output
 
 
@@ -1114,6 +1132,9 @@ def _make_menu_item(menu_item, title, **kw):
     item = copy.copy(_menu_items[menu_item])
     item.update(kw)
     active = _link_active(item)
+
+    # Remove highlight controllers so that they won't appear in generated urls.
+    item.pop('highlight_controllers', False)
     needed = item.pop('needed')
     for need in needed:
         if need not in kw:
@@ -1126,8 +1147,70 @@ def _make_menu_item(menu_item, title, **kw):
 
 
 @core_helper
-def default_group_type():
-    return str(config.get('ckan.default.group_type', 'group'))
+def default_group_type(type_='group'):
+    """Get default group/organization type for using site-wide.
+    """
+    return str(config.get('ckan.default.{}_type'.format(type_), type_))
+
+
+@core_helper
+def humanize_entity_type(entity_type, object_type, purpose):
+    """Convert machine-readable representation of package/group type into
+    human-readable form.
+
+    Returns capitalized `entity_type` with all underscores converted
+    into spaces.
+
+    Example::
+
+      >>> humanize_entity_type('group', 'custom_group', 'add link')
+      'Add Custom Group'
+      >>> humanize_entity_type('group', 'custom_group', 'breadcrumb')
+      'Custom Groups'
+      >>> humanize_entity_type('group', 'custom_group', 'not real purpuse')
+      'Custom Group'
+
+    """
+    if entity_type == object_type:
+        return  # use the default text included in template
+
+    log.debug(
+        u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
+    templates = {
+        u'add link': _(u"Add {object_type}"),
+        u'breadcrumb': _(u"{object_type}s"),
+        u'content tab': _(u"{object_type}s"),
+        u'create label': _(u"Create {object_type}"),
+        u'create title': _(u"Create {object_type}"),
+        u'delete confirmation': _(
+            u'Are you sure you want to delete this {object_type}?'),
+        u'description placeholder': _(
+            u"A little information about my {object_type}..."),
+        u'edit label': _(u"Edit {object_type}"),
+        u'facet label': _(u"{object_type}s"),
+        u'form label': _(u"{object_type} Form"),
+        u'main nav': _(u"{object_type}s"),
+        u'my label': _(u"My {object_type}s"),
+        u'name placeholder': _(u"My {object_type}"),
+        u'no any objects': _(
+            u"There are currently no {object_type}s for this site"),
+        u'no associated label': _(
+            u'There are no {object_type}s associated with this dataset'),
+        u'no description': _(
+            u'There is no description for this {object_type}'),
+        u'no label': _(u"No {object_type}"),
+        u'page title': _(u"{object_type}s"),
+        u'save label': _(u"Save {object_type}"),
+        u'search placeholder': _(u'Search {object_type}s...'),
+        u'you not member': _(u'You are not a member of any {object_type}s.'),
+        u'update label': _(u"Update {object_type}"),
+    }
+
+    type_label = object_type.replace(u"_", u" ").capitalize()
+    if purpose not in templates:
+        return type_label
+
+    return templates[purpose].format(object_type=type_label)
 
 
 @core_helper
@@ -1238,7 +1321,7 @@ def unselected_facet_items(facet, limit=10):
 
 @core_helper
 @maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be '
-                     'removed.')
+                     'removed.', since="2.0.0")
 def get_facet_title(name):
     '''Deprecated in ckan 2.0 '''
     # if this is set in the config use this
@@ -1246,8 +1329,18 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'organization': _('Organizations'),
-                    'groups': _('Groups'),
+    org_label = humanize_entity_type(
+        u'organization',
+        default_group_type(u'organization'),
+        u'facet label') or _(u'Organizations')
+
+    group_label = humanize_entity_type(
+        u'group',
+        default_group_type(u'group'),
+        u'facet label') or _(u'Groups')
+
+    facet_titles = {'organization': _(org_label),
+                    'groups': _(group_label),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
                     'license': _('Licenses'), }
@@ -1268,11 +1361,6 @@ def _url_with_params(url, params):
     params = [(k, v.encode('utf-8') if isinstance(v, string_types) else str(v))
               for k, v in params]
     return url + u'?' + urlencode(params)
-
-
-def _search_url(params):
-    url = url_for('dataset.search')
-    return _url_with_params(url, params)
 
 
 @core_helper
@@ -1330,7 +1418,8 @@ def check_access(action, data_dict=None):
 @maintain.deprecated("helpers.get_action() is deprecated and will be removed "
                      "in a future version of CKAN. Instead, please use the "
                      "extra_vars param to render() in your controller to pass "
-                     "results from action functions to your templates.")
+                     "results from action functions to your templates.",
+                     since="2.3.0")
 def get_action(action_name, data_dict=None):
     '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
     if data_dict is None:
@@ -1353,8 +1442,8 @@ def linked_user(user, maxlength=0, avatar=20):
             displayname = displayname[:maxlength] + '...'
 
         return literal(u'{icon} {link}'.format(
-            icon=gravatar(
-                email_hash=user.email_hash,
+            icon=user_image(
+                user.id,
                 size=avatar
             ),
             link=link_to(
@@ -1502,15 +1591,6 @@ def dict_list_reduce(list_, key, unique=True):
     return new_list
 
 
-@core_helper
-def linked_gravatar(email_hash, size=100, default=None):
-    return literal(
-        '<a href="https://gravatar.com/" target="_blank" ' +
-        'title="%s" alt="">' % _('Update your avatar at gravatar.com') +
-        '%s</a>' % gravatar(email_hash, size, default)
-    )
-
-
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
                             'wavatar', 'retro']
 
@@ -1525,9 +1605,73 @@ def gravatar(email_hash, size=100, default=None):
         default = quote(default, safe='')
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
-        class="gravatar" width="%s" height="%s" alt="Gravatar" />'''
+        class="user-image" width="%s" height="%s" alt="Gravatar" />'''
                    % (email_hash, size, default, size, size)
                    )
+
+
+_PLAUSIBLE_HOST_IDNA = re.compile(r'^[-\w.:\[\]]*$')
+
+
+@core_helper
+def sanitize_url(url):
+    '''
+    Return a sanitized version of a user-provided url for use in an
+    <a href> or <img src> attribute, e.g.:
+
+    <a href="{{ h.sanitize_url(user_link) }}">
+
+    Sanitizing urls is tricky. This is a best-effort to produce something
+    valid from the sort of text users might paste into a web form, not
+    intended to cover all possible valid edge-case urls.
+
+    On parsing errors an empty string will be returned.
+    '''
+    try:
+        parsed_url = urlparse(url)
+        netloc = parsed_url.netloc.encode('idna').decode('ascii')
+        if not _PLAUSIBLE_HOST_IDNA.match(netloc):
+            return ''
+        # quote with allowed characters from
+        # https://www.ietf.org/rfc/rfc3986.txt
+        parsed_url = parsed_url._replace(
+            scheme=quote(unquote(parsed_url.scheme), '+'),
+            path=quote(unquote(parsed_url.path), "/"),
+            query=quote(unquote(parsed_url.query), "?/&="),
+            params=quote(unquote(parsed_url.params), "?/&="),
+            fragment=quote(unquote(parsed_url.fragment), "?/&="),
+        )
+        return urlunparse(parsed_url)
+    except ValueError:
+        return ''
+
+
+@core_helper
+def user_image(user_id, size=100):
+    try:
+        user_dict = logic.get_action('user_show')(
+            {'ignore_auth': True},
+            {'id': user_id}
+        )
+    except logic.NotFound:
+        return ''
+
+    gravatar_default = config.get('ckan.gravatar_default', 'identicon')
+
+    if user_dict['image_display_url']:
+        return literal('''<img src="{url}"
+                       class="user-image"
+                       width="{size}" height="{size}" alt="{alt}" />'''.format(
+            url=sanitize_url(user_dict['image_display_url']),
+            size=size,
+            alt=user_dict['name']
+        ))
+    elif gravatar_default == 'disabled':
+        return snippet(
+            'user/snippets/placeholder.html',
+            size=size, user_name=user_dict['display_name'])
+    else:
+        return gravatar(user_dict['email_hash'], size, gravatar_default)
 
 
 @core_helper
@@ -1652,13 +1796,14 @@ def date_str_to_datetime(date_str):
 
     # Extract seconds and microseconds
     if len(time_tuple) >= 6:
-        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
+        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d+))?$',
                      time_tuple[5])
         if not m:
             raise ValueError('Unable to parse %s as seconds.microseconds' %
                              time_tuple[5])
         seconds = int(m.groupdict().get('seconds'))
-        microseconds = int(m.groupdict(0).get('microseconds'))
+        microseconds = int((str(m.groupdict(0).get('microseconds')) +
+                            '00000')[0:6])
         time_tuple = time_tuple[:5] + [seconds, microseconds]
 
     return datetime.datetime(*list(int(item) for item in time_tuple))
@@ -1774,12 +1919,14 @@ def dataset_display_name(package_or_package_dict):
 def dataset_link(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         name = package_or_package_dict['name']
+        type_ = package_or_package_dict.get('type', 'dataset')
     else:
         name = package_or_package_dict.name
+        type_ = package_or_package_dict.type
     text = dataset_display_name(package_or_package_dict)
     return link_to(
         text,
-        url_for('dataset.read', id=name)
+        url_for('{}.read'.format(type_), id=name)
     )
 
 
@@ -1801,17 +1948,17 @@ def resource_display_name(resource_dict):
 
 
 @core_helper
-def resource_link(resource_dict, package_id):
+def resource_link(resource_dict, package_id, package_type='dataset'):
     text = resource_display_name(resource_dict)
-    url = url_for('resource.read',
+    url = url_for('{}_resource.read'.format(package_type),
                   id=package_id,
                   resource_id=resource_dict['id'])
     return link_to(text, url)
 
 
 @core_helper
-def tag_link(tag):
-    url = url_for('dataset.search', tags=tag['name'])
+def tag_link(tag, package_type='dataset'):
+    url = url_for('{}.search'.format(package_type), tags=tag['name'])
     return link_to(tag.get('title', tag['name']), url)
 
 
@@ -1972,12 +2119,11 @@ def add_url_param(alternative_url=None, controller=None, action=None,
         (k, v) for k, v in params_items
         if k != 'page'
     ]
-    params = set(params_nopage)
     if new_params:
-        params |= set(new_params.items())
+        params_nopage += list(new_params.items())
     if alternative_url:
-        return _url_with_params(alternative_url, params)
-    return _create_url_with_params(params=params, controller=controller,
+        return _url_with_params(alternative_url, params_nopage)
+    return _create_url_with_params(params=params_nopage, controller=controller,
                                    action=action, extras=extras)
 
 
@@ -2026,45 +2172,6 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
-
-
-@core_helper
-def include_resource(resource):
-    import ckan.lib.fanstatic_resources as fanstatic_resources
-    r = getattr(fanstatic_resources, resource)
-    r.need()
-
-
-@core_helper
-def urls_for_resource(resource):
-    ''' Returns a list of urls for the resource specified.  If the resource
-    is a group or has dependencies then there can be multiple urls.
-
-    NOTE: This is for special situations only and is not the way to generally
-    include resources.  It is advised not to use this function.'''
-    import ckan.lib.fanstatic_resources as fanstatic_resources
-
-    r = getattr(fanstatic_resources, resource)
-    resources = list(r.resources)
-    core = fanstatic_resources.fanstatic_extensions.core
-    f = core.get_needed()
-    lib = r.library
-    root_path = f.library_url(lib)
-
-    resources = core.sort_resources(resources)
-    if f._bundle:
-        resources = core.bundle_resources(resources)
-    out = []
-    for resource in resources:
-        if isinstance(resource, core.Bundle):
-            paths = [resource.relpath for resource in resource.resources()]
-            relpath = ';'.join(paths)
-            relpath = core.BUNDLE_PREFIX + relpath
-        else:
-            relpath = resource.relpath
-
-        out.append('%s/%s' % (root_path, relpath))
-    return out
 
 
 @core_helper
@@ -2376,7 +2483,7 @@ def resource_preview(resource, package):
     data_dict = {'resource': resource, 'package': package}
 
     if datapreview.get_preview_plugin(data_dict, return_first=True):
-        url = url_for('resource.datapreview',
+        url = url_for('{}_resource.datapreview'.format(package['type']),
                       resource_id=resource['id'], id=package['id'],
                       qualified=True)
     else:
@@ -2454,7 +2561,10 @@ def resource_view_get_fields(resource):
         'limit': 0,
         'include_total': False,
     }
-    result = logic.get_action('datastore_search')({}, data)
+    try:
+        result = logic.get_action('datastore_search')({}, data)
+    except logic.NotFound:
+        return []
 
     fields = [field['id'] for field in result.get('fields', [])]
 
@@ -2663,7 +2773,7 @@ def resource_formats():
                 os.path.dirname(os.path.realpath(ckan.config.__file__)),
                 'resource_formats.json'
             )
-        with open(format_file_path) as format_file:
+        with open(format_file_path, encoding='utf-8') as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
             except ValueError as e:
@@ -2780,7 +2890,7 @@ core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
 core_helper(literal)
 # Useful additions from the paste library.
-core_helper(converters.asbool)
+core_helper(asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
 core_helper(include_asset)
@@ -2795,9 +2905,25 @@ def load_plugin_helpers():
 
     helper_functions.clear()
     helper_functions.update(_builtin_functions)
+    chained_helpers = defaultdict(list)
 
-    for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
-        helper_functions.update(plugin.get_helpers())
+    for plugin in p.PluginImplementations(p.ITemplateHelpers):
+        for name, func in plugin.get_helpers().items():
+            if _is_chained_helper(func):
+                chained_helpers[name].append(func)
+            else:
+                helper_functions[name] = func
+    for name, func_list in chained_helpers.items():
+        if name not in helper_functions:
+            raise logic.NotFoud(
+                u'The helper %r is not found for chained helper' % (name))
+        for func in reversed(func_list):
+            new_func = functools.partial(
+                func, helper_functions[name])
+            # persisting attributes to the new partial function
+            for attribute, value in six.iteritems(func.__dict__):
+                setattr(new_func, attribute, value)
+            helper_functions[name] = new_func
 
 
 @core_helper
@@ -2840,6 +2966,35 @@ def compare_pkg_dicts(old, new, old_activity_id):
 
 
 @core_helper
+def compare_group_dicts(old, new, old_activity_id):
+    '''
+    Takes two package dictionaries that represent consecutive versions of
+    the same organization and returns a list of detailed & formatted summaries
+    of the changes between the two versions. old and new are the two package
+    dictionaries. The function assumes that both dictionaries will have
+    all of the default package dictionary keys, and also checks for fields
+    added by extensions and extra fields added by the user in the web
+    interface.
+
+    Returns a list of dictionaries, each of which corresponds to a change
+    to the dataset made in this revision. The dictionaries each contain a
+    string indicating the type of change made as well as other data necessary
+    to form a detailed summary of the change.
+    '''
+    from ckan.lib.changes import check_metadata_org_changes
+    change_list = []
+
+    check_metadata_org_changes(change_list, old, new)
+
+    # if the organization was updated but none of the fields we check
+    # were changed, display a message stating that
+    if len(change_list) == 0:
+        change_list.append({u'type': 'no_change'})
+
+    return change_list
+
+
+@core_helper
 def activity_list_select(pkg_activity_list, current_activity_id):
     '''
     Builds an HTML formatted list of options for the select lists
@@ -2863,3 +3018,59 @@ def activity_list_select(pkg_activity_list, current_activity_id):
         ))
 
     return select_list
+
+
+@core_helper
+def get_collaborators(package_id):
+    '''Return the collaborators list for a dataset
+
+    Returns a list of tuples with the user id and the capacity
+    '''
+    context = {'ignore_auth': True, 'user': g.user}
+    data_dict = {'id': package_id}
+    _collaborators = logic.get_action('package_collaborator_list')(
+        context, data_dict)
+
+    collaborators = []
+
+    for collaborator in _collaborators:
+        collaborators.append((
+            collaborator['user_id'],
+            collaborator['capacity']
+        ))
+
+    return collaborators
+
+
+@core_helper
+def can_update_owner_org(package_dict, user_orgs=None):
+
+    if not package_dict.get('id') or not package_dict.get('owner_org'):
+        # We are either creating a dataset or it is an unowned dataset.
+        # In both cases we defer to the other auth settings
+        return True
+
+    if not user_orgs:
+        user_orgs = organizations_available('create_dataset')
+
+    if package_dict['owner_org'] in [o['id'] for o in user_orgs]:
+        # Admins and editors of the current org can change it
+        return True
+
+    collaborators_can_change_owner_org = authz.check_config_permission(
+        'allow_collaborators_to_change_owner_org')
+
+    user = model.User.get(c.user)
+
+    if (user
+            and authz.check_config_permission('allow_dataset_collaborators')
+            and collaborators_can_change_owner_org
+            and user.id in [
+                co[0] for co in get_collaborators(package_dict['id'])
+            ]):
+
+        # User is a collaborator and changing the owner_org is allowed via
+        # config
+        return True
+
+    return False

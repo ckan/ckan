@@ -306,7 +306,7 @@ class TestAction(object):
         sysadmin_user_dict = {
             "id": self.sysadmin_user.id,
             "fullname": "Updated sysadmin user full name",
-            "email": "me@test.org",
+            "email": "sys@test.org",
             "about": "Updated sysadmin user about",
         }
 

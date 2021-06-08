@@ -13,6 +13,17 @@ this.ckan.module('confirm-action', function (jQuery) {
        */
       content: '',
 
+      /* By default confirm-action creates a new form and submit it
+       * But you can use closest to el form by setting data-module-with-data=true
+       *
+       *     <a href="..."
+       *        data-module="confirm-action"
+       *        data-module-with-data=true>
+       *     {{ _('Save') }}
+       *     </a>
+       */
+      withData: '',
+
       /* This is part of the old i18n system and is kept for backwards-
        * compatibility for templates which set the content via the
        * `i18n.content` attribute instead of via the `content` attribute
@@ -83,6 +94,12 @@ this.ckan.module('confirm-action', function (jQuery) {
         action: this.el.attr('href'),
         method: 'POST'
       });
+
+      // use parent to el form if data-module-with-data == true
+      if (this.options.withData) {
+        var form = this.el.closest('form');
+      }
+
       form.appendTo('body').submit();
     },
 

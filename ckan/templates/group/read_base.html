@@ -1,9 +1,9 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ _('Groups') }}{% endblock %}
+{% block subtitle %}{{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Groups'), named_route=group_type+'.index' %}</li>
+  <li>{% link_for h.humanize_entity_type('group', group_type, 'breadcrumb') or _('Groups'), named_route=group_type+'.index' %}</li>
   <li class="active">{% link_for group_dict.display_name|truncate(35), named_route=group_type+'.read', id=group_dict.name %}</li>
 {% endblock %}
 

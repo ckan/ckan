@@ -11,7 +11,6 @@ import sqlalchemy
 
 from six.moves.urllib.parse import urlparse
 
-import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.plugins as lib_plugins
@@ -40,7 +39,7 @@ log = logging.getLogger(__name__)
 warnings.simplefilter('ignore', UserWarning)
 
 
-def load_environment(global_conf, app_conf):
+def load_environment(conf):
     """
     Configure the Pylons environment via the ``pylons.config`` object. This
     code should only need to be run once.
@@ -76,14 +75,14 @@ def load_environment(global_conf, app_conf):
         find_controller._old_find_controller = find_controller_generic
         PylonsApp.find_controller = find_controller
 
-    os.environ['CKAN_CONFIG'] = global_conf['__file__']
+    os.environ['CKAN_CONFIG'] = conf['__file__']
 
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     valid_base_public_folder_names = ['public']
-    static_files = app_conf.get('ckan.base_public_folder', 'public')
-    app_conf['ckan.base_public_folder'] = static_files
+    static_files = conf.get('ckan.base_public_folder', 'public')
+    conf['ckan.base_public_folder'] = static_files
 
     if static_files not in valid_base_public_folder_names:
         raise CkanConfigurationException(
@@ -98,13 +97,12 @@ def load_environment(global_conf, app_conf):
                  templates=[])
 
     # Initialize main CKAN config object
-    config.update(global_conf)
-    config.update(app_conf)
+    config.update(conf)
 
     if six.PY2:
         # Initialize Pylons own config object
         pylons_config.init_app(
-            global_conf, app_conf, package='ckan', paths=paths)
+            conf['global_conf'], conf, package='ckan', paths=paths)
 
         # Update the main CKAN config object with the Pylons specific stuff,
         # as it is quite hard to keep them separated. This should be removed
@@ -236,22 +234,10 @@ def update_config():
                              config.get('solr_password'))
     search.check_solr_schema_version()
 
-    if six.PY2:
-        routes_map = routing.make_map()
-
     lib_plugins.reset_package_plugins()
     lib_plugins.register_package_plugins()
     lib_plugins.reset_group_plugins()
     lib_plugins.register_group_plugins()
-
-    if six.PY2:
-        config['routes.map'] = routes_map
-        # The RoutesMiddleware needs its mapper updating if it exists
-        if 'routes.middleware' in config:
-            config['routes.middleware'].mapper = routes_map
-        # routes.named_routes is a CKAN thing
-        config['routes.named_routes'] = routing.named_routes
-        config['pylons.app_globals'] = app_globals.app_globals
 
     # initialise the globals
     app_globals.app_globals._init()
@@ -291,6 +277,7 @@ def update_config():
             **jinja_extensions.get_jinja_env_options())
         env.install_gettext_callables(_, ungettext, newstyle=True)
         # custom filters
+        env.policies['ext.i18n.trimmed'] = True
         env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
         config['pylons.app_globals'].jinja_env = env
 
@@ -299,7 +286,7 @@ def update_config():
 
     # Enable pessimistic disconnect handling (added in SQLAlchemy 1.2)
     # to eliminate database errors due to stale pooled connections
-    config.setdefault('pool_pre_ping', True)
+    config.setdefault('sqlalchemy.pool_pre_ping', True)
 
     # Initialize SQLAlchemy
     engine = sqlalchemy.engine_from_config(config)

@@ -51,7 +51,6 @@ from babel.support import Translations
 import polib
 
 from ckan.common import config, is_flask_request, aslist
-import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 
@@ -71,6 +70,15 @@ _CKAN_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), u'..'))
 
 # Output directory for generated JavaScript translations
 _JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, u'public', u'base', u'i18n')
+
+
+def get_ckan_i18n_dir():
+    path = config.get(
+        u'ckan.i18n_directory', os.path.join(_CKAN_DIR, u'i18n'))
+    if os.path.isdir(os.path.join(path, u'i18n')):
+        path = os.path.join(path, u'i18n')
+
+    return path
 
 
 def get_locales_from_config():
@@ -101,11 +109,7 @@ def _get_locales():
     locale_order = config.get('ckan.locale_order', '').split()
 
     locales = ['en']
-    if config.get('ckan.i18n_directory'):
-        i18n_path = os.path.join(config.get('ckan.i18n_directory'), 'i18n')
-    else:
-        i18n_path = os.path.dirname(ckan.i18n.__file__)
-
+    i18n_path = get_ckan_i18n_dir()
     # For every file in the ckan i18n directory see if babel can understand
     # the locale. If yes, add it to the available locales
     for locale in os.listdir(i18n_path):
@@ -224,9 +228,11 @@ def _set_lang(lang):
     sets the Pylons root path to desired i18n_directory.
     This is needed as Pylons will only look for an i18n directory in
     the application root.'''
-    if config.get('ckan.i18n_directory'):
-        fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
-                       'pylons.package': config['pylons.package']}
+    i18n_dir = get_ckan_i18n_dir()
+    if i18n_dir:
+        fake_config = {'pylons.paths': {
+            'root': os.path.dirname(i18n_dir.rstrip('/'))
+        }, 'pylons.package': config['pylons.package']}
         pylons_i18n.set_lang(
             lang, pylons_config=fake_config, class_=Translations)
     else:
@@ -359,9 +365,7 @@ def build_js_translations():
     strings that are actually used in JS files.
     '''
     log.debug(u'Generating JavaScript translations')
-    ckan_i18n_dir = config.get(u'ckan.i18n_directory',
-                               os.path.join(_CKAN_DIR, u'i18n'))
-
+    ckan_i18n_dir = get_ckan_i18n_dir()
     # Collect all language codes (an extension might add support for a
     # language that isn't supported by CKAN core, yet).
     langs = set()

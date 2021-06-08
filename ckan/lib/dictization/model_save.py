@@ -15,7 +15,6 @@ log = logging.getLogger(__name__)
 
 
 def resource_dict_save(res_dict, context):
-
     model = context["model"]
     session = context["session"]
 
@@ -36,37 +35,24 @@ def resource_dict_save(res_dict, context):
     if res_dict.get('url') and res_dict.get('url_type') == u'upload':
         res_dict['url'] = res_dict['url'].rsplit('/')[-1]
 
-    # Resource extras not submitted will be removed from the existing extras
-    # dict
-    new_extras = {}
-    for key, value in six.iteritems(res_dict):
-        if isinstance(value, list):
-            continue
-        if key in ('extras', 'revision_timestamp', 'tracking_summary'):
-            continue
-        if key in fields:
-            if isinstance(getattr(obj, key), datetime.datetime):
-                if isinstance(value, string_types):
-                    db_value = getattr(obj, key).isoformat()
-                else:
-                    db_value = getattr(obj, key)
-                if  db_value == value:
-                    continue
-                if key == 'last_modified' and not new:
-                    obj.url_changed = True
-            if key == 'url' and not new and obj.url != value:
-                obj.url_changed = True
-            setattr(obj, key, value)
-        else:
-            # resources save extras directly onto the object, instead
-            # of in a separate extras field like packages and groups
-            new_extras[key] = value
+    # unconditionally ignored fields
+    res_dict.pop('extras', None)
+    res_dict.pop('revision_timestamp', None)
+    res_dict.pop('tracking_summary', None)
 
+    changed, skipped = obj.from_dict(res_dict)
+
+    if 'url' in changed or ('last_modified' in changed and not new):
+        obj.url_changed = True
+
+    if changed or obj.extras != skipped:
+        obj.metadata_modified = datetime.datetime.utcnow()
     obj.state = u'active'
-    obj.extras = new_extras
+    obj.extras = skipped
 
     session.add(obj)
     return obj
+
 
 def package_resource_list_save(res_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
@@ -132,7 +118,7 @@ def package_extras_save(extra_dicts, pkg, context):
     #deleted
     for key in set(old_extras.keys()) - set(new_extras.keys()):
         extra = old_extras[key]
-        extra.delete()
+        session.delete(extra)
 
 
 def package_tag_list_save(tag_dicts, package, context):
@@ -437,7 +423,12 @@ def user_dict_save(user_dict, context):
     if 'password' in user_dict and not len(user_dict['password']):
         del user_dict['password']
 
-    user = d.table_dict_save(user_dict, User, context)
+    user = d.table_dict_save(
+        user_dict,
+        User,
+        context,
+        extra_attrs=['_password'],  # for setting password_hash directly
+    )
 
     return user
 
@@ -607,3 +598,14 @@ def resource_view_dict_save(data_dict, context):
 
 
     return d.table_dict_save(data_dict, model.ResourceView, context)
+
+
+def api_token_save(data_dict, context):
+    model = context[u"model"]
+    return d.table_dict_save(
+        {
+            u"user_id": model.User.get(data_dict['user']).id,
+            u"name": data_dict[u"name"]
+        },
+        model.ApiToken, context
+    )

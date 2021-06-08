@@ -31,6 +31,52 @@ An extension can create its own tables in the CKAN database, but it should *not*
 write to core CKAN tables directly, add columns to core tables, or use foreign
 keys against core tables.
 
+.. _extensions db migrations:
+
+------------------------------------------
+Use migrations when introducing new models
+------------------------------------------
+
+Any new model provided by extension must use migration script for
+creating and updating relevant tables. As well as core tables,
+extensions should provide :ref:`revisioned workflow <db migrations>`
+for reproducing correct state of DB. There are few convenient tools
+available in CKAN for this purpose:
+
+* New migration script can be created via CLI interface::
+
+    ckan generate migration -p PLUGIN_NAME -m 'MIGRATION MESSAGE'
+
+  One should take care and use actual plugin's name, not extension
+  name instead of `PLUGIN_NAME`. This may become important when an
+  extension provides multiple plugins, which contain migration
+  scripts. If those scripts should be applied independently(i.e.,
+  there is no sense in particular migrations, unless specific plugin
+  is enabled), ``-p/--plugin`` option gives you enough
+  control. Otherwise, if extenson named `ckanext-ext` contains just
+  single plugin `ext`, command for new migration will look like `ckan
+  generate migration -p ext`.
+
+  Migration scripts are created under
+  `EXTENSION_ROOT/ckanext/EXTENSION_NAME/migration/PLUGIN_NAME/versions`. Once
+  created, migration script contains empty `upgrade` and `downgrade`
+  function, which need to be updated according to desired
+  changes. More details abailable in `Alembic
+  <https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-script>`_
+  documentation.
+
+
+* Apply migration script with::
+
+    ckan db upgrade -p PLUGIN_NAME
+
+  This command will check current state of DB and apply only required
+  migrations, so it's idempotent.
+
+
+* Revert changes introduced by plugin's migration scripts with::
+
+    ckan db downgrade -p PLUGIN_NAME
 
 -------------------------------------------------------
 Implement each plugin class in a separate Python module
@@ -68,9 +114,9 @@ the name of your extension. For example:
 
 * The names of *JavaScript modules* introduced by your extension should begin
   with the name of your extension. For example
-  ``fanstatic/example_theme_popover.js``:
+  ``assets/example_theme_popover.js``:
 
-  .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+  .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/assets/example_theme_popover.js
 
 * The names of *API action functions* introduced by your extension should begin
   with the name of your extension. For example
@@ -114,14 +160,14 @@ All user-visible strings should be internationalized, see
 Add third party libraries to requirements.txt
 ---------------------------------------------
 
-If your extension requires third party libraries, rather than 
+If your extension requires third party libraries, rather than
 adding them to ``setup.py``, they should be added
 to ``requirements.txt``, which can be installed with::
 
   pip install -r requirements.txt
 
-To prevent accidental breakage of your extension through backwards-incompatible 
-behaviour of newer versions of your dependencies, their versions should be pinned, 
+To prevent accidental breakage of your extension through backwards-incompatible
+behaviour of newer versions of your dependencies, their versions should be pinned,
 such as::
 
   requests==2.7.0
@@ -140,7 +186,6 @@ migrate them after an update. These modifications should not be performed
 automatically when the extension is loaded, since this can lead to `dead-locks
 and other problems`_.
 
-Instead, create a :doc:`paster command </maintaining/paster>` which can be run separately.
+Instead, create a :doc:`ckan command </maintaining/cli>` which can be run separately.
 
 .. _dead-locks and other problems: https://github.com/ckan/ideas-and-roadmap/issues/164
-

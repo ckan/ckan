@@ -7,7 +7,7 @@ import warnings
 import copy
 import decimal
 import fractions
-import mock
+import unittest.mock as mock
 import pytest
 
 import ckan.lib.navl.dictization_functions as df
@@ -16,6 +16,7 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckan.tests.lib.navl.test_validators as t
+import ckan.logic as logic
 
 
 def returns_arg(function):
@@ -160,6 +161,58 @@ def adds_message_to_errors_dict(error_message):
     return decorator
 
 
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_with_existed_value(app):
+    with app.flask_app.test_request_context():
+        user1 = factories.User(username="user01", email="user01@email.com")
+
+        # try to create new user with occupied email
+        with pytest.raises(logic.ValidationError):
+            factories.User(username="new_user", email="user01@email.com")
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_email_unchanged(app):
+    with app.flask_app.test_request_context():
+        user = factories.User(username="user01", email="user01@email.com")
+
+        # try to update user1 and leave email unchanged
+        old_email = "user01@email.com"
+
+        helpers.call_action("user_update", **user)
+        updated_user = model.User.get(user["id"])
+
+        assert updated_user.email == old_email
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_email_new(app):
+    with app.flask_app.test_request_context():
+        user = factories.User(username="user01", email="user01@email.com")
+
+        # try to update user1 email to unoccupied one
+        new_email = "user_new@email.com"
+        user["email"] = new_email
+
+        helpers.call_action("user_update", **user)
+        updated_user = model.User.get(user["id"])
+
+        assert updated_user.email == new_email
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_to_existed_email(app):
+    with app.flask_app.test_request_context():
+        user1 = factories.User(username="user01", email="user01@email.com")
+        user2 = factories.User(username="user02", email="user02@email.com")
+
+        # try to update user1 email to existed one
+        user1["email"] = user2["email"]
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("user_update", **user1)
+
+
 def test_name_validator_with_invalid_value():
     """If given an invalid value name_validator() should do raise Invalid.
 
@@ -239,6 +292,21 @@ def test_email_validator_with_valid_value():
             return validators.email_validator(*args, **kwargs)
 
         call_validator(valid_value)
+
+
+def test_strip_value_with_valid_value():
+    valid_values = [
+        " test@example.com",
+        "  test@example.com",
+        "test@example.com ",
+        "test@example.com  ",
+        " test@example.com ",
+        "  test@example.com  ",
+    ]
+
+    for valid_value in valid_values:
+
+        assert validators.strip_value(valid_value) == "test@example.com"
 
 
 def test_name_validator_with_valid_value():
@@ -380,6 +448,8 @@ def test_if_empty_guess_format():
                 "id": "fake_resource_id",
                 "format": "",
             },
+            {"url": "http://example.com", "format": ""},
+            {"url": "my.csv", "format": ""}
         ],
     }
     data = df.flatten_dict(data)
@@ -411,6 +481,18 @@ def test_if_empty_guess_format():
         key=("resources", 3, "format"), data=new_data, errors={}, context={}
     )
     assert new_data[("resources", 3, "format")] == ""
+
+    new_data = copy.deepcopy(data)
+    call_validator(
+        key=("resources", 4, "format"), data=new_data, errors={}, context={}
+    )
+    assert new_data[("resources", 4, "format")] == ""
+
+    new_data = copy.deepcopy(data)
+    call_validator(
+        key=("resources", 5, "format"), data=new_data, errors={}, context={}
+    )
+    assert new_data[("resources", 5, "format")] == "text/csv"
 
 
 def test_clean_format():

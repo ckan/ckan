@@ -24,8 +24,10 @@ class _Toolkit(object):
         '_',
         # i18n translation (plural form)
         'ungettext',
-        # template context
+        # template context (deprecated)
         'c',
+        # Flask global object
+        'g',
         # template helpers
         'h',
         # http request object
@@ -48,6 +50,8 @@ class _Toolkit(object):
         'get_endpoint',
         # decorator for chained action
         'chained_action',
+        # decorator for chained helper
+        'chained_helper',
         # get navl schema converter
         'get_converter',
         # get navl schema validator
@@ -203,6 +207,8 @@ Mark a string to be localized as follows::
         t['c'] = common.c
         self.docstring_overrides['c'] = '''The Pylons template context object.
 
+[Deprecated]: Use ``toolkit.g`` instead.
+
 This object is used to pass request-specific information to different parts of
 the code in a thread-safe way (so that variables from different requests being
 executed at the same time don't get confused with each other).
@@ -212,6 +218,32 @@ available throughout the template and application code, and are local to the
 current request.
 
 '''
+
+        t['g'] = common.g
+        self.docstring_overrides['g'] = '''The Flask global object.
+
+This object is used to pass request-specific information to different parts of
+the code in a thread-safe way (so that variables from different requests being
+executed at the same time don't get confused with each other).
+
+Any attributes assigned to :py:attr:`~ckan.plugins.toolkit.g` are
+available throughout the template and application code, and are local to the
+current request (Note that ``g`` won't be available on templates rendered
+by old endpoints served by Pylons).
+
+It is a bad pattern to pass variables to the templates using the ``g`` object.
+Pass them explicitly from the view functions as ``extra_vars``, eg::
+
+    return toolkit.render(
+        'myext/package/read.html',
+        extra_vars={
+            u'some_var': some_value,
+            u'some_other_var': some_other_value,
+        }
+    )
+
+'''
+
         t['h'] = h.helper_functions
         t['request'] = common.request
         self.docstring_overrides['request'] = '''The Pylons request object.
@@ -247,6 +279,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['literal'] = h.literal
         t['get_action'] = logic.get_action
         t['chained_action'] = logic.chained_action
+        t['chained_helper'] = h.chained_helper
         t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
@@ -364,14 +397,11 @@ content type, cookies, etc.
         assert config_var in ('extra_template_paths', 'extra_public_paths')
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
-        # TODO: starting from python 3.5, `inspect.stack` returns list
-        # of named tuples `FrameInfo`. Don't forget to remove
-        # `getframeinfo` wrapper after migration.
-        filename = inspect.getframeinfo(inspect.stack()[2][0]).filename
+        filename = inspect.stack()[2].filename
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, relative_path)
-        if absolute_path not in config.get(config_var, ''):
+        if absolute_path not in config.get(config_var, '').split(','):
             if config.get(config_var):
                 config[config_var] += ',' + absolute_path
             else:
@@ -398,17 +428,11 @@ content type, cookies, etc.
         # TODO: starting from python 3.5, `inspect.stack` returns list
         # of named tuples `FrameInfo`. Don't forget to remove
         # `getframeinfo` wrapper after migration.
-        filename = inspect.getframeinfo(inspect.stack()[1][0]).filename
+        filename = inspect.stack()[1].filename
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, path)
         create_library(name, absolute_path)
-
-        import six
-        if six.PY2:
-            # TODO: remove next two lines after dropping Fanstatic support
-            import ckan.lib.fanstatic_resources
-            ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
     def _add_ckan_admin_tabs(cls, config, route_name, tab_label,

@@ -4,7 +4,8 @@ import logging
 from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
-from six import text_type
+from six import text_type, ensure_str
+import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
@@ -56,8 +57,7 @@ def _extra_template_variables(context, data_dict):
     try:
         user_dict = logic.get_action(u'user_show')(context, data_dict)
     except logic.NotFound:
-        h.flash_error(_(u'Not authorized to see this page'))
-        return
+        base.abort(404, _(u'User not found'))
     except logic.NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
@@ -123,11 +123,8 @@ def index():
 
 
 def me():
-    if g.user:
-        route = config.get(u'ckan.route_after_login', u'dashboard.index')
-    else:
-        route = u'user.login'
-    return h.redirect_to(route)
+    return h.redirect_to(
+        config.get(u'ckan.route_after_login', u'dashboard.index'))
 
 
 def read(id):
@@ -152,6 +149,90 @@ def read(id):
     if extra_vars is None:
         return h.redirect_to(u'user.login')
     return base.render(u'user/read.html', extra_vars)
+
+
+class ApiTokenView(MethodView):
+    def get(self, id, data=None, errors=None, error_summary=None):
+        context = {
+            u'model': model,
+            u'session': model.Session,
+            u'user': g.user,
+            u'auth_user_obj': g.userobj,
+            u'for_view': True,
+            u'include_plugin_extras': True
+        }
+        try:
+            tokens = logic.get_action(u'api_token_list')(
+                context, {u'user': id}
+            )
+        except logic.NotAuthorized:
+            base.abort(403, _(u'Unauthorized to view API tokens.'))
+
+        data_dict = {
+            u'id': id,
+            u'user_obj': g.userobj,
+            u'include_datasets': True,
+            u'include_num_followers': True
+        }
+
+        extra_vars = _extra_template_variables(context, data_dict)
+        if extra_vars is None:
+            return h.redirect_to(u'user.login')
+        extra_vars[u'tokens'] = tokens
+        extra_vars.update({
+            u'data': data,
+            u'errors': errors,
+            u'error_summary': error_summary
+        })
+        return base.render(u'user/api_tokens.html', extra_vars)
+
+    def post(self, id):
+        context = {u'model': model}
+
+        data_dict = logic.clean_dict(
+            dictization_functions.unflatten(
+                logic.tuplize_dict(logic.parse_params(request.form))))
+
+        data_dict[u'user'] = id
+        try:
+            token = logic.get_action(u'api_token_create')(
+                context,
+                data_dict
+            )[u'token']
+        except logic.NotAuthorized:
+            base.abort(403, _(u'Unauthorized to create API tokens.'))
+        except logic.ValidationError as e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.get(id, data_dict, errors, error_summary)
+
+        copy_btn = dom_tags.button(dom_tags.i(u'', {
+            u'class': u'fa fa-copy'
+        }), {
+            u'type': u'button',
+            u'class': u'btn btn-default btn-xs',
+            u'data-module': u'copy-into-buffer',
+            u'data-module-copy-value': ensure_str(token)
+        })
+        h.flash_success(
+            _(
+                u"API Token created: <code style=\"word-break:break-all;\">"
+                u"{token}</code> {copy}<br>"
+                u"Make sure to copy it now, "
+                u"you won't be able to see it again!"
+            ).format(token=ensure_str(token), copy=copy_btn),
+            True
+        )
+        return h.redirect_to(u'user.api_tokens', id=id)
+
+
+def api_token_revoke(id, jti):
+    context = {u'model': model}
+    try:
+        logic.get_action(u'api_token_revoke')(context, {u'jti': jti})
+    except logic.NotAuthorized:
+        base.abort(403, _(u'Unauthorized to revoke API tokens.'))
+    return h.redirect_to(u'user.api_tokens', id=id)
 
 
 class EditView(MethodView):
@@ -192,6 +273,11 @@ class EditView(MethodView):
             data_dict = logic.clean_dict(
                 dictization_functions.unflatten(
                     logic.tuplize_dict(logic.parse_params(request.form))))
+            data_dict.update(logic.clean_dict(
+                dictization_functions.unflatten(
+                    logic.tuplize_dict(logic.parse_params(request.files))))
+            )
+
         except dictization_functions.DataError:
             base.abort(400, _(u'Integrity Error'))
         data_dict.setdefault(u'activity_streams_email_notifications', False)
@@ -212,7 +298,9 @@ class EditView(MethodView):
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
                 }
-                error_summary = {_(u'Old Password'): _(u'incorrect password')}
+                error_summary = {_(u'Old Password'): _(u'incorrect password')}\
+                    if not g.userobj.sysadmin \
+                    else {_(u'Sysadmin Password'): _(u'incorrect password')}
                 return self.get(id, data_dict, errors, error_summary)
 
         try:
@@ -251,10 +339,6 @@ class EditView(MethodView):
             base.abort(404, _(u'User not found'))
         user_obj = context.get(u'user_obj')
 
-        if not (authz.is_sysadmin(g.user) or g.user == user_obj.name):
-            msg = _(u'User %s not authorized to edit %s') % (g.user, id)
-            base.abort(403, msg)
-
         errors = errors or {}
         vars = {
             u'data': data,
@@ -268,7 +352,6 @@ class EditView(MethodView):
             u'user': g.user
         }, data_dict)
 
-        extra_vars[u'is_myself'] = True
         extra_vars[u'show_email_notifications'] = asbool(
             config.get(u'ckan.activity_streams_email_notifications'))
         vars.update(extra_vars)
@@ -299,6 +382,11 @@ class RegisterView(MethodView):
             data_dict = logic.clean_dict(
                 dictization_functions.unflatten(
                     logic.tuplize_dict(logic.parse_params(request.form))))
+            data_dict.update(logic.clean_dict(
+                dictization_functions.unflatten(
+                    logic.tuplize_dict(logic.parse_params(request.files)))
+            ))
+
         except dictization_functions.DataError:
             base.abort(400, _(u'Integrity Error'))
 
@@ -363,7 +451,9 @@ class RegisterView(MethodView):
 def login():
     # Do any plugin login stuff
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
-        item.login()
+        response = item.login()
+        if response:
+            return response
 
     extra_vars = {}
     if g.user:
@@ -394,7 +484,10 @@ def logged_in():
 def logout():
     # Do any plugin logout stuff
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
-        item.logout()
+        response = item.logout()
+        if response:
+            return response
+
     url = h.url_for(u'user.logged_out_page')
     return h.redirect_to(
         _get_repoze_handler(u'logout_handler_path') + u'?came_from=' + url,
@@ -570,14 +663,18 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(u'home.index')
+                return h.redirect_to(config.get(
+                    u'ckan.user_reset_landing_page',
+                    u'home.index'))
 
         # always tell the user it succeeded, because otherwise we reveal
         # which accounts exist or not
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(u'home.index')
+        return h.redirect_to(config.get(
+            u'ckan.user_reset_landing_page',
+            u'home.index'))
 
     def get(self):
         self._prepare()
@@ -643,7 +740,9 @@ class PerformResetView(MethodView):
             mailer.create_reset_key(context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(u'home.index')
+            return h.redirect_to(config.get(
+                u'ckan.user_reset_landing_page',
+                u'home.index'))
         except logic.NotAuthorized:
             h.flash_error(_(u'Unauthorized to edit user %s') % id)
         except logic.NotFound:
@@ -683,7 +782,7 @@ def follow(id):
     except logic.ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
-    except logic.NotAuthorized as e:
+    except (logic.NotFound, logic.NotAuthorized) as e:
         h.flash_error(e.message)
     return h.redirect_to(u'user.read', id=id)
 
@@ -703,12 +802,11 @@ def unfollow(id):
         h.flash_success(
             _(u'You are no longer following {0}').format(
                 user_dict[u'display_name']))
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        error_message = e.message
-        h.flash_error(error_message)
     except logic.ValidationError as e:
         error_message = (e.error_summary or e.message or e.error_dict)
         h.flash_error(error_message)
+    except (logic.NotFound, logic.NotAuthorized) as e:
+        h.flash_error(e.message)
     return h.redirect_to(u'user.read', id=id)
 
 
@@ -728,6 +826,42 @@ def followers(id):
     except logic.NotAuthorized:
         base.abort(403, _(u'Unauthorized to view followers %s') % u'')
     return base.render(u'user/followers.html', extra_vars)
+
+
+def sysadmin():
+    username = request.form.get(u'username')
+    status = asbool(request.form.get(u'status'))
+
+    try:
+        context = {
+            u'model': model,
+            u'session': model.Session,
+            u'user': g.user,
+            u'auth_user_obj': g.userobj,
+        }
+        data_dict = {u'id': username, u'sysadmin': status}
+        user = logic.get_action(u'user_patch')(context, data_dict)
+    except logic.NotAuthorized:
+        return base.abort(
+            403,
+            _(u'Not authorized to promote user to sysadmin')
+        )
+    except logic.NotFound:
+        return base.abort(404, _(u'User not found'))
+
+    if status:
+        h.flash_success(
+            _(u'Promoted {} to sysadmin'.format(user[u'display_name']))
+        )
+    else:
+        h.flash_success(
+            _(
+                u'Revoked sysadmin permission from {}'.format(
+                    user[u'display_name']
+                )
+            )
+        )
+    return h.redirect_to(u'admin.index')
 
 
 user.add_url_rule(u'/', view_func=index, strict_slashes=False)
@@ -766,3 +900,11 @@ user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)
+user.add_url_rule(
+    u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
+)
+user.add_url_rule(
+    u'/<id>/api-tokens/<jti>/revoke', view_func=api_token_revoke,
+    methods=(u'POST',)
+)
+user.add_url_rule(rule=u'/sysadmin', view_func=sysadmin, methods=['POST'])

@@ -35,6 +35,12 @@ flatten_to_string_key = logic.flatten_to_string_key
 log = logging.getLogger(__name__)
 
 resource = Blueprint(
+    u'dataset_resource',
+    __name__,
+    url_prefix=u'/dataset/<id>/resource',
+    url_defaults={u'package_type': u'dataset'}
+)
+prefixed_resource = Blueprint(
     u'resource',
     __name__,
     url_prefix=u'/dataset/<id>/resource',
@@ -166,7 +172,11 @@ def download(package_type, id, resource_id, filename=None):
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
-        return flask.send_file(filepath)
+        resp = flask.send_file(filepath)
+        if rsc.get('mimetype'):
+            resp.headers['Content-Type'] = rsc['mimetype']
+        return resp
+
     elif u'url' not in rsc:
         return base.abort(404, _(u'No download is available'))
     return h.redirect_to(rsc[u'url'])
@@ -205,7 +215,7 @@ class CreateView(MethodView):
         if not data_provided and save_action != u"go-dataset-complete":
             if save_action == u'go-dataset':
                 # go to final stage of adddataset
-                return h.redirect_to(u'dataset.edit', id=id)
+                return h.redirect_to(u'{}.edit'.format(package_type), id=id)
             # see if we have added any resources
             try:
                 data_dict = get_action(u'package_show')(context, {u'id': id})
@@ -231,7 +241,7 @@ class CreateView(MethodView):
                 dict(context, allow_state_change=True),
                 dict(data_dict, state=u'active')
             )
-            return h.redirect_to(u'dataset.read', id=id)
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         data[u'package_id'] = id
         try:
@@ -261,16 +271,19 @@ class CreateView(MethodView):
                 dict(context, allow_state_change=True),
                 dict(data_dict, state=u'active')
             )
-            return h.redirect_to(u'dataset.read', id=id)
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
         elif save_action == u'go-dataset':
             # go to first stage of add dataset
-            return h.redirect_to(u'dataset.edit', id=id)
+            return h.redirect_to(u'{}.edit'.format(package_type), id=id)
         elif save_action == u'go-dataset-complete':
 
-            return h.redirect_to(u'dataset.read', id=id)
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
         else:
             # add more resources
-            return h.redirect_to(u'resource.new', id=id)
+            return h.redirect_to(
+                u'{}_resource.new'.format(package_type),
+                id=id
+            )
 
     def get(
         self, package_type, id, data=None, errors=None, error_summary=None
@@ -366,7 +379,10 @@ class EditView(MethodView):
             )
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to edit this resource'))
-        return h.redirect_to(u'resource.read', id=id, resource_id=resource_id)
+        return h.redirect_to(
+            u'{}_resource.read'.format(package_type),
+            id=id, resource_id=resource_id
+        )
 
     def get(
         self,
@@ -396,7 +412,8 @@ class EditView(MethodView):
         resource = resource_dict
         # set the form action
         form_action = h.url_for(
-            u'resource.edit', resource_id=resource_id, id=id
+            u'{}_resource.edit'.format(package_type),
+            resource_id=resource_id, id=id
         )
         if not data:
             data = resource_dict
@@ -441,7 +458,8 @@ class DeleteView(MethodView):
     def post(self, package_type, id, resource_id):
         if u'cancel' in request.form:
             return h.redirect_to(
-                u'resource.edit', resource_id=resource_id, id=id
+                u'{}_resource.edit'.format(package_type),
+                resource_id=resource_id, id=id
             )
         context = self._prepare(id)
 
@@ -450,9 +468,12 @@ class DeleteView(MethodView):
             h.flash_notice(_(u'Resource has been deleted.'))
             pkg_dict = get_action(u'package_show')(None, {u'id': id})
             if pkg_dict[u'state'].startswith(u'draft'):
-                return h.redirect_to(u'resource.new', id=id)
+                return h.redirect_to(
+                    u'{}_resource.new'.format(package_type),
+                    id=id
+                )
             else:
-                return h.redirect_to(u'dataset.read', id=id)
+                return h.redirect_to(u'{}.read'.format(package_type), id=id)
         except NotAuthorized:
             return base.abort(
                 403,
@@ -681,7 +702,8 @@ class EditResourceViewView(MethodView):
         else:
             if not to_preview:
                 return h.redirect_to(
-                    u'resource.views', id=id, resource_id=resource_id
+                    u'{}_resource.views'.format(package_type),
+                    id=id, resource_id=resource_id
                 )
         extra_vars[u'data'] = data
         extra_vars[u'to_preview'] = to_preview
@@ -949,3 +971,4 @@ def register_dataset_plugin_rules(blueprint):
 
 
 register_dataset_plugin_rules(resource)
+register_dataset_plugin_rules(prefixed_resource)

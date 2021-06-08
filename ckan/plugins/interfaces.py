@@ -39,6 +39,7 @@ __all__ = [
     u'IBlueprint',
     u'IPermissionLabels',
     u'IForkObserver',
+    u'IApiToken',
     u'IClick',
 ]
 
@@ -913,15 +914,15 @@ class IActions(Interface):
         Should return a dict, the keys being the name of the logic
         function and the values being the functions themselves.
 
-        By decorating a function with the `ckan.logic.side_effect_free`
+        By decorating a function with the ``ckan.logic.side_effect_free``
         decorator, the associated action will be made available to a GET
         request (as well as the usual POST request) through the Action API.
 
-        By decorating a function with 'ckan.plugins.toolkit.chained_action`,
+        By decorating a function with ``ckan.plugins.toolkit.chained_action``,
         the action will 'intercept' calls to an existing action function. This
         allows a plugin to modify the behaviour of an existing action function.
         Chained actions must be defined as
-        `action_function(original_action, context, data_dict)`, where the
+        ``action_function(original_action, context, data_dict)``, where the
         function's name matches the original action function it intercepts, the
         first parameter is the action function it intercepts (in the next
         plugin or in core ckan). The chained action may call the
@@ -1021,8 +1022,8 @@ class IAuthFunctions(Interface):
                 # NotAuthorized will be raised before reaching this function.
 
         By decorating a registered auth function with the
-        'ckan.plugins.toolkit.chained_auth_function` decorator you can create a
-        chain of auth checks that are completed when auth is requested. This
+        ``ckan.plugins.toolkit.chained_auth_function`` decorator you can create
+        a chain of auth checks that are completed when auth is requested. This
         chain starts with the last chained auth function to be registered and
         ends with the original auth function (or a non-chained plugin override
         version). Chained auth functions must accept an extra parameter,
@@ -1057,6 +1058,22 @@ class ITemplateHelpers(Interface):
 
         Function names should start with the name of the extension providing
         the function, to prevent name clashes between extensions.
+
+        By decorating a registered helper function with the
+        ``ckan.plugins.toolkit.chained_helper`` decorator you can
+        create a chain of helpers that are called in a sequence. This
+        chain starts with the first chained helper to be registered and
+        ends with the original helper (or a non-chained plugin
+        override version). Chained helpers must accept an extra
+        parameter, specifically the next helper in the chain, for
+        example::
+
+            helper(next_helper, *args, **kwargs).
+
+        The chained helper function may call the next_helper function,
+        optionally passing different values, handling exceptions,
+        returning different values and/or raising different exceptions
+        to the caller.
 
         '''
 
@@ -1196,7 +1213,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def new_template(self):
+    def new_template(self, package_type):
         u'''Return the path to the template for the new dataset page.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1206,7 +1223,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def read_template(self):
+    def read_template(self, package_type):
         u'''Return the path to the template for the dataset read page.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1223,7 +1240,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def edit_template(self):
+    def edit_template(self, package_type):
         u'''Return the path to the template for the dataset edit page.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1233,7 +1250,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def search_template(self):
+    def search_template(self, package_type):
         u'''Return the path to the template for use in the dataset search page.
 
         This template is used to render each dataset that is listed in the
@@ -1246,14 +1263,14 @@ class IDatasetForm(Interface):
 
         '''
 
-    def history_template(self):
+    def history_template(self, package_type):
         u'''
         .. warning:: This template is removed. The function exists for
             compatibility. It now returns None.
 
         '''
 
-    def resource_template(self):
+    def resource_template(self, package_type):
         u'''Return the path to the template for the resource read page.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1263,7 +1280,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def package_form(self):
+    def package_form(self, package_type):
         u'''Return the path to the template for the dataset form.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1273,7 +1290,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def resource_form(self):
+    def resource_form(self, package_type):
         u'''Return the path to the template for the resource form.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1312,6 +1329,41 @@ class IDatasetForm(Interface):
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
         '''
+
+    def prepare_dataset_blueprint(self, package_type, blueprint):
+        u'''Update or replace dataset blueprint for given package type.
+
+        Internally CKAN registers blueprint for every custom dataset
+        type. Before default routes added to this blueprint and it
+        registered inside application this method is called. It can be
+        used either for registration of the view function under new
+        path or under existing path(like `/new`), in which case this
+        new function will be used instead of default one.
+
+        Note, this blueprint has prefix `/{package_type}`.
+
+        :rtype: flask.Blueprint
+
+        '''
+        return blueprint
+
+    def prepare_resource_blueprint(self, package_type, blueprint):
+        u'''Update or replace resource blueprint for given package type.
+
+        Internally CKAN registers separate resource blueprint for
+        every custom dataset type. Before default routes added to this
+        blueprint and it registered inside application this method is
+        called. It can be used either for registration of the view
+        function under new path or under existing path(like `/new`),
+        in which case this new function will be used instead of
+        default one.
+
+        Note, this blueprint has prefix `/{package_type}/<id>/resource`.
+
+        :rtype: flask.Blueprint
+
+        '''
+        return blueprint
 
 
 class IGroupForm(Interface):
@@ -1383,39 +1435,39 @@ class IGroupForm(Interface):
 
     # Hooks for customising the GroupController's behaviour          ##########
     # TODO: flesh out the docstrings a little more
-    def new_template(self):
+    def new_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the 'new' page. Uses the default_group_type configuration
         option to determine which plugin to use the template from.
         '''
 
-    def index_template(self):
+    def index_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the index page. Uses the default_group_type configuration
         option to determine which plugin to use the template from.
         '''
 
-    def read_template(self):
+    def read_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the read page
         '''
 
-    def history_template(self):
+    def history_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the history page
         '''
 
-    def edit_template(self):
+    def edit_template(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered for the edit page
         '''
 
-    def group_form(self):
+    def group_form(self, group_type):
         u'''
         Returns a string representing the location of the template to be
         rendered.  e.g. ``group/new_group_form.html``.
@@ -1476,6 +1528,24 @@ class IGroupForm(Interface):
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
         '''
+
+    def prepare_group_blueprint(self, group_type, blueprint):
+        u'''Update or replace group blueprint for given group type.
+
+        Internally CKAN registers separate blueprint for
+        every custom group type. Before default routes added to this
+        blueprint and it registered inside application this method is
+        called. It can be used either for registration of the view
+        function under new path or under existing path(like `/new`),
+        in which case this new function will be used instead of
+        default one.
+
+        Note, this blueprint has prefix `/{group_type}`.
+
+        :rtype: flask.Blueprint
+
+        '''
+        return blueprint
 
     # End of hooks ############################################################
 
@@ -1597,24 +1667,67 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''Allows custom authentication methods to be integrated into CKAN.'''
+    u'''Allows custom authentication methods to be integrated into CKAN.
+
+        All interface methods except for the ``abort()`` one support
+        returning a Flask response object. This can be used for instance to
+        issue redirects or set cookies in the response. If a response object
+        is returned there will be no further processing of the current request
+        and that response will be returned. This can be used by plugins to:
+
+        * Issue a redirect::
+
+            def identify(self):
+
+                return toolkit.redirect_to('myplugin.custom_endpoint')
+
+        * Set or clear cookies (or headers)::
+
+            from Flask import make_response
+
+            def identify(self)::
+
+                response = make_response(toolkit.render('my_page.html'))
+                response.set_cookie(cookie_name, expires=0)
+
+                return response
+
+    '''
 
     def identify(self):
         u'''Called to identify the user.
 
         If the user is identified then it should set:
 
-         - c.user: The id of the user
-         - c.userobj: The actual user object (this may be removed as a
-           requirement in a later release so that access to the model is not
-           required)
+         - g.user: The name of the user
+         - g.userobj: The actual user object
+
+        Alternatively, plugins can return a response object in order to prevent
+        the default CKAN authorization flow. See
+        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
+        for more details.
+
         '''
 
     def login(self):
-        u'''Called at login.'''
+        u'''Called before the login starts (that is before asking the user for
+        user name and a password in the default authentication).
+
+        Plugins can return a response object to prevent the default CKAN
+        authorization flow. See
+        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
+        for more details.
+        '''
 
     def logout(self):
-        u'''Called at logout.'''
+        u'''Called before the logout starts (that is before clicking the logout
+        button in the default authentication).
+
+        Plugins can return a response object to prevent the default CKAN
+        authorization flow. See
+        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
+        for more details.
+        '''
 
     def abort(self, status_code, detail, headers, comment):
         u'''Called on abort.  This allows aborts due to authorization issues
@@ -1729,7 +1842,10 @@ class IBlueprint(Interface):
     u'''Register an extension as a Flask Blueprint.'''
 
     def get_blueprint(self):
-        u'''Return a Flask Blueprint object to be registered by the app.'''
+        u'''
+        Return either a single Flask Blueprint object or a list of Flask
+        Blueprint objects to be registered by the app.
+        '''
 
 
 class IPermissionLabels(Interface):
@@ -1780,6 +1896,141 @@ class IForkObserver(Interface):
         u'''
         Called shortly before the CKAN process is forked.
         '''
+
+
+class IApiToken(Interface):
+    """Extend functionality of API Tokens.
+
+    This interface is unstable and new methods may be
+    introduced in future. Always use `inherit=True` when implementing
+    it.
+
+    Example::
+
+        p.implements(p.IApiToken, inherit=True)
+
+
+    """
+
+    def create_api_token_schema(self, schema):
+        u'''Return the schema for validating new API tokens.
+
+        :param schema: a dictionary mapping api_token dict keys to lists of
+          validator and converter functions to be applied to those
+          keys
+        :type schema: dict
+
+        :returns: a dictionary mapping api_token dict keys to lists of
+          validator and converter functions to be applied to those
+          keys
+        :rtype: dict
+
+        '''
+        return schema
+
+    def decode_api_token(self, encoded, **kwargs):
+        """Make an attempt to decode API Token provided in request.
+
+        Decode token if it possible and return dictionary with
+        mandatory `jti` key(token id for DB lookup) and optional
+        additional items, which will be used further in
+        `preprocess_api_token`.
+
+        :param encoded: API Token provided in request
+        :type encoded: str
+
+        :param kwargs: any additional parameters that can be added
+            in future or by plugins. Current implementation won't pass
+            any additional fields, but plugins may use this feature, passing
+            JWT `aud` or `iss` claims, for example
+        :type kwargs: dict
+
+        :returns: dictionary with all the decoded fields or None
+        :rtype: dict | None
+
+        """
+        return None
+
+    def encode_api_token(self, data, **kwargs):
+        """Make an attempt to encode API Token.
+
+        Encode token if it possible and return string, that will be
+        shown to user.
+
+        :param data: dictionary, containing all postprocessed data
+        :type data: dict
+
+        :param kwargs: any additional parameters that can be added
+            in future or by plugins. Current implementation won't pass
+            any additional fields, but plugins may use this feature, passing
+            JWT `aud` or `iss` claims, for example
+        :type kwargs: dict
+
+        :returns: token as encodes string or None
+        :rtype: str | None
+
+        """
+        return None
+
+    def preprocess_api_token(self, data):
+        """Handle additional info from API Token.
+
+        Allows decoding or extracting any kind of additional
+        information from API Token, before it used for fetching
+        current user from database.
+
+        :param data: dictionary with all fields that were previously
+            created in `postprocess_api_token` (potentially
+            modified by some other plugin already.)
+        :type data: dict
+
+        :returns: dictionary that will be passed into other
+            plugins and, finally, used for fetching User instance
+        :rtype: dict
+
+        """
+        return data
+
+    def postprocess_api_token(self, data, jti, data_dict):
+        """Encode additional information into API Token.
+
+        Allows passing any kind of additional information into API
+        Token or performing side effects, before it shown to user.
+
+        :param data: dictionary representing newly
+            generated API Token. May be already modified by some
+            plugin.
+        :type data: dict
+
+        :param jti: Id of the token
+        :type jti: str
+
+        :param data_dict: data used for token creation.
+        :type data_dict: dict
+
+        :returns: dictionary with fields that will be encoded into
+            final API Token
+        :rtype: dict
+
+        """
+        return data
+
+    def add_extra_fields(self, data_dict):
+        """Provide additional information alongside with API Token.
+
+        Any extra information that is not itself a part of a token,
+        but can extend its functionality(for example, refresh token)
+        is registered here.
+
+        :param data_dict: dictionary that will bre returned from
+            `api_token_create` API call.
+        :type data_dict: dict
+
+        :returns: dictionary with token and optional set of extra fields.
+        :rtype: dict
+
+        """
+        return data_dict
 
 
 class IClick(Interface):

@@ -1,0 +1,45 @@
+<button class="accordion-item" data-toggle="collapse" data-target="#{{ ent_type }}">
+	{% if ent_type == "package" %} <i class='fa fa-sitemap'></i>
+	{% elif ent_type == 'group' %} <i class='fa fa-group'></i>
+	{% else %} <i class="fa fa-building-o"></i>
+	{% endif %}
+  {% if ent_type == 'package' %}
+    {{ _('Deleted datasets') }}
+  {% elif ent_type == 'organization' %}
+    {{ _('Deleted organizations') }}
+  {% elif ent_type == 'group' %}
+    {{ _('Deleted groups') }}
+  {% endif %}
+</button>
+
+<!-- expanded by default to prevent problems with disabled js -->
+<div id="{{ ent_type }}" class="entities collapse in">
+	{% set truncate = truncate or 180 %}
+	{% set truncate_title = truncate_title or 80 %}
+	<ul class="{{ ent_type }}-list">
+    {% for entity in entities %}
+      {% set title = entity.title or entity.name %}
+        <li>
+          {{ h.link_to(h.truncate(title, truncate_title), h.url_for(entity.type + '.read', id=entity.name)) }}
+        </li>
+      {% else %}
+      <p>
+        {{ _(messages.empty[ent_type]) }}
+      </p>
+    {% endfor %}
+  </ul>
+
+<!-- show button only if there is entity to purge -->
+  {% if entities.first() %}
+    <form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-{{ ent_type }}">
+      <input type="hidden" name="action" value="{{ent_type}}">
+      <a href="{{ h.url_for('admin.trash', name=ent_type) }}" 
+         class="btn btn-danger purge-all"
+         data-module="confirm-action"
+         data-module-with-data=true
+         data-module-content="{{ _(messages.confirm[ent_type]) }}">
+        {{ _('Purge') }}
+      </a>
+    </form>
+  {% endif %}
+</div>

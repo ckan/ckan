@@ -70,7 +70,7 @@ def dump(resource_id):
     try:
         dump_to(
             resource_id,
-            response.stream,
+            response,
             fmt=data[u'format'],
             offset=data[u'offset'],
             limit=data.get(u'limit'),

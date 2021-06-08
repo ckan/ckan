@@ -16,7 +16,7 @@ respectively.
 #. Download the CKAN package for the new minor release you want to upgrade
    to (replace the version number with the relevant one)::
 
-    wget http://packaging.ckan.org/python-ckan_2.1_amd64.deb
+    wget https://packaging.ckan.org/python-ckan_2.1_amd64.deb
 
 #. Install the package with the following command::
 
@@ -86,9 +86,9 @@ respectively.
    See :ref:`rebuild search index` for details of the
    ``ckan search-index rebuild`` command.
 
-#. Finally, restart Apache and Nginx:
+#. Finally, restart the web server and Nginx, eg for a CKAN package install running uWSGI:
 
    .. parsed-literal::
 
-    |restart_apache|
+    |restart_uwsgi|
     sudo service nginx restart

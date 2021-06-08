@@ -5,12 +5,10 @@ import re
 
 import copy
 import pytest
-from six import text_type
-from six.moves import xrange
 
+from ckan import model
 import ckan.logic as logic
 import ckan.logic.schema as schema
-import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import __version__
@@ -72,6 +70,7 @@ class TestPackageShow(object):
         replace_number_suffix(dataset2, "name")
         replace_datetime(dataset2, "metadata_created")
         replace_datetime(dataset2, "metadata_modified")
+        replace_datetime(dataset2['resources'][0], "metadata_modified")
         replace_uuid(dataset2["groups"][0], "id")
         replace_number_suffix(dataset2["groups"][0], "name")
         replace_number_suffix(dataset2["groups"][0], "title")
@@ -118,7 +117,7 @@ class TestPackageShow(object):
                 u"created": u"2019-05-24T15:52:30.123456",
                 u"description": u"Just another test organization.",
                 u"id": u"<SOME-UUID>",
-                u"image_url": u"http://placekitten.com/g/200/100",
+                u"image_url": u"https://placekitten.com/g/200/100",
                 u"is_organization": True,
                 u"name": u"test_org_num",
                 u"state": u"active",
@@ -134,11 +133,12 @@ class TestPackageShow(object):
                     u"cache_last_updated": None,
                     u"cache_url": None,
                     u"created": u"2019-05-24T15:52:30.123456",
-                    u"description": u"",
+                    u"description": None,
                     u"format": u"PNG",
                     u"hash": u"",
                     u"id": u"<SOME-UUID>",
                     u"last_modified": None,
+                    u"metadata_modified": u"2019-05-24T15:52:30.123456",
                     u"mimetype": None,
                     u"mimetype_inner": None,
                     u"name": u"Image num",
@@ -287,6 +287,29 @@ class TestGroupList(object):
 
         assert group_list == ["bb", "aa"]
 
+    def test_group_list_sort_default(self):
+
+        factories.Group(name="zz", title="aa")
+        factories.Group(name="yy", title="bb")
+
+        group_list = helpers.call_action(
+            "group_list"
+        )
+
+        assert group_list == ['zz', 'yy']
+
+    @pytest.mark.ckan_config("ckan.default_group_sort", "name")
+    def test_group_list_sort_from_config(self):
+
+        factories.Group(name="zz", title="aa")
+        factories.Group(name="yy", title="bb")
+
+        group_list = helpers.call_action(
+            "group_list"
+        )
+
+        assert group_list == ['yy', 'zz']
+
     def eq_expected(self, expected_dict, result_dict):
         superfluous_keys = set(result_dict) - set(expected_dict)
         assert not superfluous_keys, "Did not expect key: %s" % " ".join(
@@ -316,7 +339,6 @@ class TestGroupList(object):
         assert "datasets" not in group_list[0]
 
     def _create_bulk_groups(self, name, count):
-        from ckan import model
 
         groups = [
             model.Group(name="{}_{}".format(name, i)) for i in range(count)
@@ -402,33 +424,46 @@ class TestGroupList(object):
         group1 = factories.Group()
         group2 = factories.Group()
         group3 = factories.Group()
+        group_names = [g["name"] for g in [group1, group2, group3]]
 
         group_list = helpers.call_action("group_list", limit=1)
 
         assert len(group_list) == 1
-        assert group_list[0] == group1["name"]
+        assert group_list[0] == sorted(group_names)[0]
 
     def test_group_list_offset(self):
 
         group1 = factories.Group()
         group2 = factories.Group()
         group3 = factories.Group()
+        group_names = [g["name"] for g in [group1, group2, group3]]
 
         group_list = helpers.call_action("group_list", offset=2)
 
         assert len(group_list) == 1
-        assert group_list[0] == group3["name"]
+        # group list returns sorted result. This is not necessarily
+        # order of creation
+        assert group_list[0] == sorted(group_names)[2]
 
     def test_group_list_limit_and_offset(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
-        group3 = factories.Group()
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+        group3 = factories.Group(name='cc')
 
         group_list = helpers.call_action("group_list", offset=1, limit=1)
 
         assert len(group_list) == 1
         assert group_list[0] == group2["name"]
+
+    def test_group_list_limit_as_string(self):
+
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+
+        group_list = helpers.call_action("group_list", limit="1")
+
+        assert len(group_list) == 1
 
     def test_group_list_wrong_limit(self):
 
@@ -704,10 +739,22 @@ class TestOrganizationList(object):
         results = helpers.call_action("organization_list")
         assert len(results) == 5  # i.e. configured limit
 
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    def test_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_default", 5)
+        results = helpers.call_action("organization_list", limit=2)
+        assert len(results) == 2
+
     def test_all_fields_limit_default(self):
         self._create_bulk_orgs("org_all_fields_default", 30)
         results = helpers.call_action("organization_list", all_fields=True)
         assert len(results) == 25  # i.e. default value
+
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_all_fields_max", "5")
+    def test_all_fields_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_all_fields_default", 5)
+        results = helpers.call_action("organization_list", all_fields=True, limit=2)
+        assert len(results) == 2
 
     @pytest.mark.ckan_config(
         "ckan.group_and_organization_list_all_fields_max", "5"
@@ -877,6 +924,87 @@ class TestUserList(object):
         assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user == user_a["name"]
+
+    def test_user_list_order_by_default(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        expected_names = [
+            u['name'] for u in [
+                users[3],  # Kathy Tillman
+                users[1],  # Max Hankins
+                users[2],  # morgan_w
+                users[0],  # Xander Bird
+            ]
+        ]
+
+        got_users = helpers.call_action('user_list')
+        got_names = [
+            u['name'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_names == expected_names
+
+    def test_user_list_order_by_fullname_only(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        expected_fullnames = sorted([u['fullname'] for u in users])
+
+        got_users = helpers.call_action('user_list', order_by='fullname')
+        got_fullnames = [
+            u['fullname'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_fullnames == expected_fullnames
+
+    def test_user_list_order_by_created_datasets(self):
+        default_user = helpers.call_action('get_site_user', ignore_auth=True)
+
+        users = [
+            factories.User(fullname="Xander Bird", name="bird_x"),
+            factories.User(fullname="Max Hankins", name="hankins_m"),
+            factories.User(fullname="Kathy Tillman", name="tillman_k"),
+        ]
+        datasets = [
+            factories.Dataset(user=users[1]),
+            factories.Dataset(user=users[1])
+        ]
+        for dataset in datasets:
+            dataset["title"] = "Edited title"
+            helpers.call_action(
+                'package_update', context={'user': users[1]['name']}, **dataset
+            )
+        expected_names = [
+            u['name'] for u in [
+                users[0],  # 0 packages created
+                users[2],  # 0 packages created
+                users[1],  # 2 packages created
+            ]
+        ]
+
+        got_users = helpers.call_action(
+            'user_list', order_by='number_created_packages'
+        )
+        got_names = [
+            u['name'] for u in got_users if u['name'] != default_user['name']
+        ]
+
+        assert got_names == expected_names
+
+    def test_user_list_order_by_edits(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('user_list', order_by='edits')
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1335,6 +1463,19 @@ class TestPackageSearch(object):
 
         result_names = [result["name"] for result in search_result["results"]]
         assert result_names == [u"test2", u"test1", u"test0"]
+
+    @pytest.mark.ckan_config("ckan.search.default_package_sort", "metadata_created asc")
+    def test_sort_default_from_config(self):
+        factories.Dataset(name="test0")
+        factories.Dataset(name="test1")
+        factories.Dataset(name="test2")
+
+        search_result = helpers.call_action(
+            "package_search"
+        )
+
+        result_names = [result["name"] for result in search_result["results"]]
+        assert result_names == [u"test0", u"test1", u"test2"]
 
     def test_package_search_on_resource_name(self):
         """
@@ -3036,13 +3177,81 @@ class TestPackageActivityList(object):
         )
         assert [activity["activity_type"] for activity in activities] == []
 
+    def _create_bulk_types_activities(self, types):
+        dataset = factories.Dataset()
+        from ckan import model
+
+        user = factories.User()
+
+        objs = [
+            model.Activity(
+                user_id=user['id'],
+                object_id=dataset["id"],
+                activity_type=activity_type,
+                data=None,
+            )
+            for activity_type in types
+        ]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return dataset["id"]
+
+    def test_error_bad_search(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "package_activity_list",
+                id=id,
+                activity_types=['new package'],
+                exclude_activity_types=['deleted package']
+            )
+
+    def test_activity_types_filter(self):
+        types = [
+            'new package',
+            'changed package',
+            'deleted package',
+            'changed package',
+            'new package'
+        ]
+        id = self._create_bulk_types_activities(types)
+
+        activities_new = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            activity_types=['new package']
+        )
+        assert len(activities_new) == 2
+
+        activities_not_new = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            exclude_activity_types=['new package']
+        )
+        assert len(activities_not_new) == 3
+
+        activities_delete = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            activity_types=['deleted package']
+        )
+        assert len(activities_delete) == 1
+
+        activities_not_deleted = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            exclude_activity_types=['deleted package']
+        )
+        assert len(activities_not_deleted) == 4
+
     def _create_bulk_package_activities(self, count):
         dataset = factories.Dataset()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=dataset["id"],
                 activity_type=None,
                 data=None,
@@ -3272,8 +3481,9 @@ class TestUserActivityList(object):
         assert activities[0]["data"]["group"]["title"] == org["title"]
 
     def _create_bulk_user_activities(self, count):
-        user = factories.User()
         from ckan import model
+
+        user = factories.User()
 
         objs = [
             model.Activity(
@@ -3489,9 +3699,11 @@ class TestGroupActivityList(object):
         group = factories.Group()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=group["id"],
                 activity_type=None,
                 data=None,
@@ -3720,9 +3932,11 @@ class TestOrganizationActivityList(object):
         org = factories.Organization()
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=org["id"],
                 activity_type=None,
                 data=None,
@@ -3889,9 +4103,11 @@ class TestRecentlyChangedPackagesActivityList(object):
     def _create_bulk_package_activities(self, count):
         from ckan import model
 
+        user = factories.User()
+
         objs = [
             model.Activity(
-                user_id=None,
+                user_id=user['id'],
                 object_id=None,
                 activity_type="new_package",
                 data=None,
@@ -4184,14 +4400,44 @@ class TestDashboardNewActivities(object):
         user = factories.User()
         another_user = factories.Sysadmin()
         group = factories.Group(user=user)
+        helpers.call_action(
+            "follow_group", context={"user": user["name"]}, **group
+        )
         _clear_activities()
         dataset = factories.Dataset(
             groups=[{"name": group["name"]}], user=another_user
         )
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
-            "follow_dataset", context={"user": user["name"]}, **dataset
+            "package_update", context={"user": another_user["name"]}, **dataset
         )
+
+        activities = helpers.call_action(
+            "dashboard_activity_list", context={"user": user["id"]}
+        )
+        assert [
+            (activity["activity_type"], activity["is_new"])
+            for activity in activities[::-1]
+        ] == [("new package", True), ("changed package", True)]
+        assert (
+            helpers.call_action(
+                "dashboard_new_activities_count", context={"user": user["id"]}
+            )
+            == 2
+        )
+
+    def test_activities_on_a_dataset_in_a_followed_org(self):
+        user = factories.User()
+        another_user = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        helpers.call_action(
+            "follow_group", context={"user": user["name"]}, **org
+        )
+        _clear_activities()
+        dataset = factories.Dataset(
+            owner_org=org['id'], user=another_user
+        )
+        dataset["title"] = "Dataset with changed title"
         helpers.call_action(
             "package_update", context={"user": another_user["name"]}, **dataset
         )
@@ -4261,3 +4507,338 @@ class TestDashboardNewActivities(object):
             )
             == 15
         )
+
+
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
+
+    @pytest.mark.parametrize(u'num_tokens', [0, 1, 2, 5])
+    def test_token_list(self, num_tokens):
+        from ckan.lib.api_token import decode
+        user = factories.User()
+        ids = []
+        for _ in range(num_tokens):
+            data = helpers.call_action(u"api_token_create", context={
+                u"model": model,
+                u"user": user[u"name"]
+            }, user=user[u"name"], name=u"token-name")
+            token = data[u'token']
+            ids.append(decode(token)[u'jti'])
+
+        tokens = helpers.call_action(u"api_token_list", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"])
+        assert sorted([t[u"id"] for t in tokens]) == sorted(ids)
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+def test_package_collaborator_list_when_config_disabled():
+
+    dataset = factories.Dataset()
+
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action(
+            'package_collaborator_list',
+            id=dataset['id'])
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+class TestPackageMemberList(object):
+
+    def test_list(self):
+
+        dataset = factories.Dataset()
+        user1 = factories.User()
+        capacity1 = 'editor'
+        user2 = factories.User()
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user1['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user2['id'], capacity=capacity2)
+
+        members = helpers.call_action(
+            'package_collaborator_list',
+            id=dataset['id'])
+
+        assert len(members) == 2
+
+        assert members[0]['package_id'] == dataset['id']
+        assert members[0]['user_id'] == user1['id']
+        assert members[0]['capacity'] == capacity1
+
+        assert members[1]['package_id'] == dataset['id']
+        assert members[1]['user_id'] == user2['id']
+        assert members[1]['capacity'] == capacity2
+
+    def test_list_with_capacity(self):
+
+        dataset = factories.Dataset()
+        user1 = factories.User()
+        capacity1 = 'editor'
+        user2 = factories.User()
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user1['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user2['id'], capacity=capacity2)
+
+        members = helpers.call_action(
+            'package_collaborator_list',
+            id=dataset['id'], capacity='member')
+
+        assert len(members) == 1
+
+        assert members[0]['package_id'] == dataset['id']
+        assert members[0]['user_id'] == user2['id']
+        assert members[0]['capacity'] == capacity2
+
+    def test_list_dataset_not_found(self):
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_collaborator_list',
+                id='xxx')
+
+    def test_list_wrong_capacity(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_collaborator_list',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_list_for_user(self):
+
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+        user = factories.User()
+        capacity1 = 'editor'
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset1['id'], user_id=user['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset2['id'], user_id=user['id'], capacity=capacity2)
+
+        datasets = helpers.call_action(
+            'package_collaborator_list_for_user',
+            id=user['id'])
+
+        assert len(datasets) == 2
+
+        assert datasets[0]['package_id'] == dataset1['id']
+        assert datasets[0]['capacity'] == capacity1
+
+        assert datasets[1]['package_id'] == dataset2['id']
+        assert datasets[1]['capacity'] == capacity2
+
+    def test_list_for_user_with_capacity(self):
+
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+        user = factories.User()
+        capacity1 = 'editor'
+        capacity2 = 'member'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset1['id'], user_id=user['id'], capacity=capacity1)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset2['id'], user_id=user['id'], capacity=capacity2)
+
+        datasets = helpers.call_action(
+            'package_collaborator_list_for_user',
+            id=user['id'], capacity='editor')
+
+        assert len(datasets) == 1
+
+        assert datasets[0]['package_id'] == dataset1['id']
+        assert datasets[0]['capacity'] == capacity1
+
+    def test_list_for_user_user_not_found(self):
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                'package_collaborator_list_for_user',
+                id='xxx')
+
+    def test_list_for_user_wrong_capacity(self):
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_collaborator_list_for_user',
+                id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures('clean_db', 'clean_index')
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+class TestCollaboratorsSearch(object):
+
+    def test_search_results_editor(self):
+
+        org = factories.Organization()
+        dataset1 = factories.Dataset(
+            name='test1', private=True, owner_org=org['id'])
+        dataset2 = factories.Dataset(name='test2')
+
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False
+        }
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*', include_private=True
+        )
+
+        assert results['count'] == 1
+        assert results['results'][0]['id'] == dataset2['id']
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset1['id'], user_id=user['id'], capacity='editor')
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True,
+            sort='name asc'
+        )
+
+        assert results['count'] == 2
+
+        assert results['results'][0]['id'] == dataset1['id']
+        assert results['results'][1]['id'] == dataset2['id']
+
+    def test_search_results_member(self):
+
+        org = factories.Organization()
+        dataset1 = factories.Dataset(
+            name='test1', private=True, owner_org=org['id'])
+        dataset2 = factories.Dataset(name='test2')
+
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False
+        }
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True
+        )
+
+        assert results['count'] == 1
+        assert results['results'][0]['id'] == dataset2['id']
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset1['id'], user_id=user['id'], capacity='member')
+
+        results = helpers.call_action(
+            'package_search',
+            context=context,
+            q='*:*',
+            include_private=True,
+            sort='name asc'
+        )
+
+        assert results['count'] == 2
+
+        assert results['results'][0]['id'] == dataset1['id']
+        assert results['results'][1]['id'] == dataset2['id']
+
+
+@pytest.mark.usefixtures('clean_db', 'with_request_context')
+class TestResourceSearch(object):
+    def test_required_fields(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('resource_search')
+        helpers.call_action('resource_search', query='name:*')
+
+    def test_base_search(self):
+        factories.Resource(name='one')
+        factories.Resource(name='two')
+        result = helpers.call_action('resource_search', query="name:three")
+        assert not result['count']
+
+        result = helpers.call_action('resource_search', query="name:one")
+        assert result['count'] == 1
+
+        result = helpers.call_action('resource_search', query="name:")
+        assert result['count'] == 2
+
+    def test_date_search(self):
+        res = factories.Resource()
+        result = helpers.call_action(
+            'resource_search', query="created:" + res['created'])
+        assert result['count'] == 1
+
+    def test_number_search(self):
+        factories.Resource(size=10)
+        result = helpers.call_action('resource_search', query="size:10")
+        assert result['count'] == 1
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_returned_if_sysadmin_and_include_plugin_extras_only(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user = factories.User(
+            plugin_extras={
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        )
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1'
+            }
+        }
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'])
+
+        assert 'plugin_extras' not in user
+
+        context = {'user': user['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+
+        assert 'plugin_extras' not in user

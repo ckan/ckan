@@ -1,5 +1,7 @@
 {% extends "package/base.html" %}
 
+{% set default_group_type = h.default_group_type('group') %}
+
 {% block subtitle %}{{ h.dataset_display_name(pkg) }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block head_extras -%}
@@ -12,15 +14,15 @@
 {% block content_action %}
   {% if not is_activity_archive %}
     {% if h.check_access('package_update', {'id':pkg.id }) %}
-      {% link_for _('Manage'), named_route='dataset.edit', id=pkg.name, class_='btn btn-default', icon='wrench' %}
+      {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-default', icon='wrench' %}
     {% endif %}
   {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon('dataset.read', _('Dataset'), id=pkg.id if is_activity_archive else pkg.name, icon='sitemap') }}
-  {{ h.build_nav_icon('dataset.groups', _('Groups'), id=pkg.id if is_activity_archive else pkg.name, icon='users') }}
-  {{ h.build_nav_icon('dataset.activity', _('Activity Stream'), id=pkg.id if is_activity_archive else pkg.name, icon='clock-o') }}
+  {{ h.build_nav_icon(dataset_type ~ '.read', _('Dataset'), id=pkg.id if is_activity_archive else pkg.name, icon='sitemap') }}
+  {{ h.build_nav_icon(dataset_type ~ '.groups', h.humanize_entity_type('group', default_group_type, 'content tab') or _('Groups'), id=pkg.id if is_activity_archive else pkg.name, icon='users') }}
+  {{ h.build_nav_icon(dataset_type ~ '.activity', _('Activity Stream'), id=pkg.id if is_activity_archive else pkg.name, icon='clock-o') }}
 {% endblock %}
 
 {% block secondary_content %}

@@ -250,5 +250,5 @@ Now in our other module 'user-favorite-counter' we can listen for this.
 Unit Tests
 ----------
 
-Every module has unit tests. These use Mocha, Chai and Sinon to assert
+Every module has unit tests. These use Cypress to assert
 the expected functionality of the module.

@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-from ckan.common import config
 
 from ckan.plugins.toolkit import get_validator, Invalid
 from ckan import plugins

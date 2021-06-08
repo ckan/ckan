@@ -2,80 +2,27 @@
 
 import datetime
 import pytz
-from babel import numbers
 
-import ckan.lib.i18n as i18n
+from flask_babel import (
+    format_number,
+    format_datetime,
+    format_date,
+    format_timedelta
+)
 
-from ckan.common import _, ungettext
-
-
-##################################################
-#                                                #
-#              Month translations                #
-#                                                #
-##################################################
-
-def _month_jan():
-    return _('January')
-
-
-def _month_feb():
-    return _('February')
-
-
-def _month_mar():
-    return _('March')
-
-
-def _month_apr():
-    return _('April')
-
-
-def _month_may():
-    return _('May')
-
-
-def _month_june():
-    return _('June')
-
-
-def _month_july():
-    return _('July')
-
-
-def _month_aug():
-    return _('August')
-
-
-def _month_sept():
-    return _('September')
-
-
-def _month_oct():
-    return _('October')
-
-
-def _month_nov():
-    return _('November')
-
-
-def _month_dec():
-    return _('December')
-
-
-# _MONTH_FUNCTIONS provides an easy way to get a localised month via
-# _MONTH_FUNCTIONS[month]() where months are zero based ie jan = 0, dec = 11
-_MONTH_FUNCTIONS = [_month_jan, _month_feb, _month_mar, _month_apr,
-                   _month_may, _month_june, _month_july, _month_aug,
-                   _month_sept, _month_oct, _month_nov, _month_dec]
+from ckan.common import _
 
 
 def localised_nice_date(datetime_, show_date=False, with_hours=False,
-                        with_seconds=False):
+                        with_seconds=False, format=None):
     ''' Returns a friendly localised unicode representation of a datetime.
     e.g. '31 minutes ago'
          '1 day ago'
          'April 24, 2013'  (show_date=True)
+         'October 25, 2017, 16:03 (UTC)' (show_date=True, with_hours=True)
+         'Apr 3, 2020, 4:00:31 PM' (
+                 show_date=True, with_hours=True, format='medium')
+         'April 03, 20' (show_date=True, format='MMMM dd, YY')
 
     :param datetime_: The date to format
     :type datetime_: datetime
@@ -85,87 +32,34 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
     :type with_hours: bool
     :param with_seconds: should the `hours:mins:seconds` be shown for dates
     :type with_seconds: bool
+    :param format: override format of datetime representation using babel
+        date/time pattern syntax of predefined pattern.
+    :type format: str
+
 
     :rtype: sting
     '''
-
-    def months_between(date1, date2):
-        if date1 > date2:
-            date1, date2 = date2, date1
-        m1 = date1.year * 12 + date1.month
-        m2 = date2.year * 12 + date2.month
-        months = m2 - m1
-        if date1.day > date2.day:
-            months -= 1
-        elif date1.day == date2.day:
-            seconds1 = date1.hour * 3600 + date1.minute + date1.second
-            seconds2 = date2.hour * 3600 + date2.minute + date2.second
-            if seconds1 > seconds2:
-                months -= 1
-        return months
-
+    if datetime_.tzinfo is None:
+        datetime_ = datetime_.replace(tzinfo=pytz.utc)
     if not show_date:
         now = datetime.datetime.now(pytz.utc)
-        if datetime_.tzinfo is None:
-            datetime_ = datetime_.replace(tzinfo=pytz.utc)
-
-        date_diff = now - datetime_
-        days = date_diff.days
-        if days < 1 and now > datetime_:
-            # less than one day
-            seconds = date_diff.seconds
-            if seconds < 3600:
-                # less than one hour
-                if seconds < 60:
-                    return _('Just now')
-                else:
-                    return ungettext('{mins} minute ago', '{mins} minutes ago',
-                                     seconds / 60).format(mins=seconds / 60)
-            else:
-                return ungettext('{hours} hour ago', '{hours} hours ago',
-                                 seconds / 3600).format(hours=seconds / 3600)
-        # more than one day
-        months = months_between(datetime_, now)
-
-        if months < 1:
-            return ungettext('{days} day ago', '{days} days ago',
-                             days).format(days=days)
-        if months < 13:
-            return ungettext('{months} month ago', '{months} months ago',
-                             months).format(months=months)
-        return ungettext('over {years} year ago', 'over {years} years ago',
-                         months / 12).format(years=months / 12)
-
-    # actual date
-    details = {
-        'sec': int(datetime_.second),
-        'min': datetime_.minute,
-        'hour': datetime_.hour,
-        'day': datetime_.day,
-        'year': datetime_.year,
-        'month': _MONTH_FUNCTIONS[datetime_.month - 1](),
-        'timezone': datetime_.tzname(),
-    }
+        date_diff = datetime_ - now
+        if abs(date_diff) < datetime.timedelta(seconds=1):
+            return _('Just now')
+        return format_timedelta(date_diff, add_direction=True)
 
     if with_seconds:
-        return (
-            # Example output: `April 24, 2013, 10:45:21 (Europe/Zurich)`
-            _('{month} {day}, {year}, {hour:02}:{min:02}:{sec:02} ({timezone})') \
-            .format(**details))
+        return format_datetime(datetime_, format or 'long')
     elif with_hours:
-        return (
-            # Example output: `April 24, 2013, 10:45 (Europe/Zurich)`
-            _('{month} {day}, {year}, {hour:02}:{min:02} ({timezone})') \
-            .format(**details))
+        fmt_str = "MMMM d, YYYY, HH:mm (z)"
+        return format_datetime(datetime_, format or fmt_str)
     else:
-        return (
-            # Example output: `April 24, 2013`
-            _('{month} {day}, {year}').format(**details))
+        return format_date(datetime_, format or 'long')
 
 
 def localised_number(number):
     ''' Returns a localised unicode representation of number '''
-    return numbers.format_number(number, locale=i18n.get_lang())
+    return format_number(number)
 
 
 def localised_filesize(number):
@@ -173,7 +67,7 @@ def localised_filesize(number):
     etc '''
     def rnd(number, divisor):
         # round to 1 decimal place
-        return localised_number(float(number * 10 / divisor) / 10)
+        return localised_number(float(number * 10 // divisor) / 10)
 
     if number < 1024:
         return _('{bytes} bytes').format(bytes=localised_number(number))
@@ -193,7 +87,7 @@ def localised_SI_number(number):
 
     def rnd(number, divisor):
         # round to 1 decimal place
-        return localised_number(float(number * 10 / divisor) / 10)
+        return localised_number(float(number * 10 // divisor) / 10)
 
     if number < 1000:
         return _('{n}').format(n=localised_number(number))

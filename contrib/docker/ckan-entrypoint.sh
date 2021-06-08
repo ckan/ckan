@@ -37,11 +37,12 @@ set_environment () {
 }
 
 write_config () {
-  ckan-paster make-config --no-interactive ckan "$CONFIG"
+  echo "Generating config at ${CONFIG}..."
+  ckan generate config "$CONFIG"
 }
 
 # Wait for PostgreSQL
-while ! pg_isready -h db -U postgres; do
+while ! pg_isready -h db -U ckan; do
   sleep 1;
 done
 
@@ -68,5 +69,5 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
 fi
 
 set_environment
-ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
+ckan --config "$CONFIG" db init
 exec "$@"

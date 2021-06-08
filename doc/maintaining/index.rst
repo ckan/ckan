@@ -12,7 +12,7 @@ installing, upgrading and configuring CKAN and its features and extensions.
    upgrading/index
    getting-started
    database-management
-   paster
+   cli
    authorization
    data-viewer
    filestore

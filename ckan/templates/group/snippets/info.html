@@ -19,8 +19,10 @@
     {% endblock %}
     {% block description %}
     {% if group.description %}
-      <p>
+      <p class="description">
         {{ h.markdown_extract(group.description, 180) }}
+      </p>
+      <p class="read-more">
         {% link_for _('read more'), named_route='group.about', id=group.name %}
       </p>
     {% endif %}

@@ -2,6 +2,7 @@
 
 import warnings
 import logging
+import os
 import re
 from time import sleep
 from os.path import splitext
@@ -31,10 +32,12 @@ from ckan.model.system import (
 )
 from ckan.model.package import (
     Package,
+    PackageMember,
     PACKAGE_NAME_MIN_LENGTH,
     PACKAGE_NAME_MAX_LENGTH,
     PACKAGE_VERSION_MAX_LENGTH,
     package_table,
+    package_member_table,
 )
 from ckan.model.tag import (
     Tag,
@@ -122,6 +125,9 @@ from ckan.model.domain_object import (
 from ckan.model.dashboard import (
     Dashboard,
 )
+from ckan.model.api_token import (
+    ApiToken,
+)
 
 import ckan.migration
 from ckan.common import config
@@ -155,8 +161,10 @@ def init_model(engine):
 
 
 class Repository():
-    _repo_path, _dot_repo_name = splitext(ckan.migration.__name__)
-    migrate_repository = _repo_path + ':' + _dot_repo_name[1:]
+    _alembic_ini = os.path.join(
+        os.path.dirname(ckan.migration.__file__),
+        u"alembic.ini"
+    )
 
     # note: tables_created value is not sustained between instantiations
     #       so only useful for tests. The alternative is to use
@@ -256,12 +264,9 @@ class Repository():
 
     def setup_migration_version_control(self):
         self.reset_alembic_output()
-        alembic_config = AlembicConfig()
+        alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
-            "script_location", self.migrate_repository
-        )
-        alembic_config.set_main_option(
-            "sqlalchemy.url", str(self.metadata.bind.url)
+            "sqlalchemy.url", config.get("sqlalchemy.url")
         )
         try:
             sqlalchemy_migrate_version = self.metadata.bind.execute(

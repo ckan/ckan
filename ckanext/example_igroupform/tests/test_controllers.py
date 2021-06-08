@@ -2,9 +2,9 @@
 
 import pytest
 import six
+import bs4
 from ckan.lib.helpers import url_for
 
-import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
@@ -221,3 +221,63 @@ class TestGroupControllerEdit_DefaultGroupType(object):
         env, response, group_name = _get_group_edit_page(app, group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
+
+
+@pytest.mark.ckan_config("ckan.plugins", u"example_igroupform_v2")
+@pytest.mark.usefixtures(
+    "with_plugins", "with_request_context"
+)
+class TestGroupBlueprintPreparations(object):
+    def test_additional_routes_are_registered(self, app):
+        resp = app.get("/fancy_type/fancy-route", status=200)
+        assert resp.body == u'Hello, fancy_type'
+
+    def test_existing_routes_are_replaced(self, app):
+        resp = app.get("/fancy_type/new", status=200)
+        assert resp.body == u'Hello, new fancy_type'
+
+    @pytest.mark.usefixtures(u'clean_db', u'clean_index')
+    def test_existing_routes_are_untouched(self, app):
+        resp = app.get("/fancy_type", status=200)
+        page = bs4.BeautifulSoup(resp.body)
+        links = [
+            a['href'] for a in page.select(".breadcrumb a")
+        ]
+        assert links == ['/', '/fancy_type/']
+
+
+@pytest.mark.ckan_config("ckan.plugins", u"example_igroupform")
+@pytest.mark.usefixtures(
+    "with_plugins", "with_request_context", "clean_db"
+)
+class TestCustomGroupBlueprint(object):
+    def test_group_listing_labels(self, app):
+        resp = app.get("/grup", status=200)
+        page = bs4.BeautifulSoup(resp.body)
+        links = page.select(".breadcrumb a")
+        assert [a["href"] for a in links] == ["/", "/grup/"]
+        assert links[-1].text == "Grups"
+        assert page.head.title.text.startswith("Grups")
+
+    def test_group_creation_labels(self, app):
+        user = factories.User()
+        env = {"REMOTE_USER": user["name"]}
+
+        resp = app.get("/grup", status=200, extra_environ=env)
+        page = bs4.BeautifulSoup(resp.body)
+        btn = page.select_one('.page_primary_action .btn')
+        assert btn.text.strip() == 'Add Grup'
+
+        resp = app.get("/grup/new", status=200, extra_environ=env)
+        page = bs4.BeautifulSoup(resp.body)
+        assert page.select_one('.page-heading').text.strip() == 'Create Grup'
+        assert page.select_one(
+            '.form-actions .btn').text.strip() == 'Create Grup'
+
+    @pytest.mark.ckan_config('ckan.default.group_type', 'grup')
+    def test_default_group_type(self, app):
+        resp = app.get("/", status=200)
+        page = bs4.BeautifulSoup(resp.body)
+        link = page.select_one('.masthead .nav a[href="/grup/"]')
+        assert link
+        assert link.text == 'Grups'

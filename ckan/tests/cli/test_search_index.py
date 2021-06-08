@@ -45,9 +45,9 @@ class TestSearchIndex(object):
         search_result = helpers.call_action(u'package_search', q=u"package")
         assert search_result[u'count'] == 1
 
-        # Rebuild index and make sure all dataset are there
+        # Restore removed dataset and make sure all dataset are there
         result = cli.invoke(ckan,
-                            [u'search-index', u'rebuild'])
+                            [u'search-index', u'rebuild', dataset[u'id']])
         assert not result.exit_code
         search_result = helpers.call_action(u'package_search', q=u"package")
         assert search_result[u'count'] == 2

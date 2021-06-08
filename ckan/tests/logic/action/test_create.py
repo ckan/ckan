@@ -2,50 +2,20 @@
 """Unit tests for ckan/logic/action/create.py.
 
 """
-import cgi
-import mock
+import datetime
+import unittest.mock as mock
 import pytest
-import six
-
-from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan
 import ckan.logic as logic
 import ckan.model as model
-import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
 
-from six import string_types, StringIO, BytesIO
+from six import string_types
 
-from pyfakefs import fake_filesystem
-
-try:
-    import __builtin__ as builtins
-except ImportError:
-    import builtins
-
-real_open = open
-fs = fake_filesystem.FakeFilesystem()
-fake_os = fake_filesystem.FakeOsModule(fs)
-fake_open = fake_filesystem.FakeFileOpen(fs)
-
-
-class FakeFileStorage(FlaskFileStorage):
-    content_type = None
-
-    def __init__(self, stream, filename):
-        self.stream = stream
-        self.filename = filename
-        self.name = "upload"
-
-
-def mock_open_if_open_fails(*args, **kwargs):
-    try:
-        return real_open(*args, **kwargs)
-    except (OSError, IOError):
-        return fake_open(*args, **kwargs)
+from freezegun import freeze_time
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -88,7 +58,8 @@ class TestUserInvite(object):
         rand.return_value.choice.side_effect = "TestPassword1" * 3
 
         for _ in range(3):
-            invited_user = self._invite_user_to_group(email="same@email.com")
+            invited_user = self._invite_user_to_group(
+                email="same{}@email.com".format(_))
             assert invited_user is not None, invited_user
 
     @mock.patch("ckan.lib.mailer.send_invite")
@@ -428,15 +399,12 @@ class TestResourceCreate:
 
         assert not stored_resource["url"]
 
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_url(self, monkeypatch):
-        """
-        The mimetype is guessed from the url
+    def test_mimetype_by_url(self, monkeypatch, tmpdir):
+        """The mimetype is guessed from the url
 
-        Real world usage would be externally linking the resource and the mimetype would
-        be guessed, based on the url
+        Real world usage would be externally linking the resource and
+        the mimetype would be guessed, based on the url
+
         """
         context = {}
         params = {
@@ -444,13 +412,29 @@ class TestResourceCreate:
             "url": "http://localhost/data.csv",
             "name": "A nice resource",
         }
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
+        monkeypatch.setattr(ckan.lib.uploader, "_storage_path", str(tmpdir))
         result = helpers.call_action("resource_create", context, **params)
 
         mimetype = result.pop("mimetype")
 
         assert mimetype
         assert mimetype == "text/csv"
+
+    def test_mimetype_by_url_without_path(self):
+        """
+        The mimetype should not be guessed from url if url contains only domain
+
+        """
+        context = {}
+        params = {
+            "package_id": factories.Dataset()["id"],
+            "url": "http://example.com",
+            "name": "A nice resource",
+        }
+        result = helpers.call_action("resource_create", context, **params)
+
+        mimetype = result.pop("mimetype")
+        assert mimetype is None
 
     def test_mimetype_by_user(self):
         """
@@ -471,20 +455,16 @@ class TestResourceCreate:
         mimetype = result.pop("mimetype")
         assert mimetype == "application/csv"
 
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_filename(self, monkeypatch):
-        """
-        The mimetype is guessed from an uploaded file with a filename
+    def test_mimetype_by_upload_by_filename(self, create_with_upload):
+        """The mimetype is guessed from an uploaded file with a filename
 
-        Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
-        If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
-        """
+        Real world usage would be using the FileStore API or web UI
+        form to upload a file, with a filename plus extension If
+        there's no url or the mimetype can't be guessed by the url,
+        mimetype will be guessed by the extension in the filename
 
-        test_file = BytesIO()
-        test_file.write(six.ensure_binary(
-            """
+        """
+        content = """
         "info": {
             "title": "BC Data Catalogue API",
             "description": "This API provides information about datasets in the BC Data Catalogue.",
@@ -501,98 +481,62 @@ class TestResourceCreate:
             "version": "3.0.0"
         }
         """
-        ))
-        test_resource = FakeFileStorage(test_file, "test.json")
 
-        context = {}
-        params = {
-            "package_id": factories.Dataset()["id"],
-            "url": "http://data",
-            "name": "A nice resource",
-            "upload": test_resource,
-        }
-
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
-        # Mock url_for as using a test request context interferes with the FS mocking
-
-        with mock.patch("ckan.lib.helpers.url_for"):
-            result = helpers.call_action("resource_create", context, **params)
-
+        result = create_with_upload(
+            content, 'test.json', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
         mimetype = result.pop("mimetype")
 
         assert mimetype
         assert mimetype == "application/json"
 
     @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_mimetype_by_upload_by_file(self, monkeypatch):
-        """
-        The mimetype is guessed from an uploaded file by the contents inside
+    def test_mimetype_by_upload_by_file(self, create_with_upload):
+        """The mimetype is guessed from an uploaded file by the contents inside
 
-        Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
-        If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
+        Real world usage would be using the FileStore API or web UI
+        form to upload a file, that has no extension If the mimetype
+        can't be guessed by the url or filename, mimetype will be
+        guessed by the contents inside the file
+
         """
 
-        test_file = BytesIO()
-        test_file.write(six.ensure_binary(
-            """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        content = """
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm,\
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, \
+        Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        ))
-        test_resource = FakeFileStorage(test_file, "test.csv")
-
-        context = {}
-        params = {
-            "package_id": factories.Dataset()["id"],
-            "url": "http://data",
-            "name": "A nice resource",
-            "upload": test_resource,
-        }
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
-        # Mock url_for as using a test request context interferes with the FS mocking
-        with mock.patch("ckan.lib.helpers.url_for"):
-            result = helpers.call_action("resource_create", context, **params)
+        result = create_with_upload(
+            content, 'test.csv', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
 
         mimetype = result.pop("mimetype")
 
         assert mimetype
         assert mimetype == "text/plain"
 
-    @pytest.mark.ckan_config("ckan.storage_path", "/doesnt_exist")
-    @mock.patch.object(ckan.lib.uploader, "os", fake_os)
-    @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    def test_size_of_resource_by_upload(self, monkeypatch):
+    def test_size_of_resource_by_upload(self, create_with_upload):
         """
         The size of the resource determined by the uploaded file
         """
 
-        test_file = BytesIO()
-        test_file.write(six.ensure_binary(
-            """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        content = """
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm,\
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, \
+        Normal mm
         SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
-        ))
-        test_resource = FakeFileStorage(test_file, "test.csv")
-
-        context = {}
-        params = {
-            "package_id": factories.Dataset()["id"],
-            "url": "http://data",
-            "name": "A nice resource",
-            "upload": test_resource,
-        }
-        monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
-        # Mock url_for as using a test request context interferes with the FS mocking
-        with mock.patch("ckan.lib.helpers.url_for"):
-            result = helpers.call_action("resource_create", context, **params)
+        result = create_with_upload(
+            content, 'test.csv', url="http://data",
+            package_id=factories.Dataset()[u"id"]
+        )
 
         size = result.pop("size")
 
@@ -627,6 +571,8 @@ class TestResourceCreate:
             package_id=dataset["id"],
             somekey="somevalue",  # this is how to do resource extras
             extras={u"someotherkey": u"alt234"},  # this isnt
+            subobject={u'hello': u'there'},  # JSON objects supported
+            sublist=[1, 2, 3],  # JSON lists suppoted
             format=u"plain text",
             url=u"http://datahub.io/download/",
         )
@@ -634,12 +580,58 @@ class TestResourceCreate:
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
+        assert resource["subobject"] == {u"hello": u"there"}
+        assert resource["sublist"] == [1, 2, 3]
         resource = helpers.call_action("package_show", id=dataset["id"])[
             "resources"
         ][0]
         assert resource["somekey"] == "somevalue"
         assert "extras" not in resource
         assert "someotherkey" not in resource
+        assert resource["subobject"] == {u"hello": u"there"}
+        assert resource["sublist"] == [1, 2, 3]
+
+    @freeze_time('2020-02-25 12:00:00')
+    def test_metadata_modified_is_set_to_utcnow_when_created(self):
+        context = {}
+        params = {
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+        result = helpers.call_action("resource_create", context, **params)
+
+        assert (result['metadata_modified'] ==
+                datetime.datetime.utcnow().isoformat())
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    def test_collaborators_can_create_resources(self, role):
+
+        org1 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org1['id'])
+
+        user = factories.User()
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=role)
+
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+
+        }
+
+        created_resource = helpers.call_action(
+            'resource_create',
+            context=context,
+            package_id=dataset['id'],
+            name='created by collaborator',
+            url='https://example.com')
+
+        assert created_resource['name'] == 'created by collaborator'
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1175,3 +1167,203 @@ class TestFollowUser(object):
         assert [activity["activity_type"] for activity in activities] == []
         # A follow creates no Activity, since:
         # https://github.com/ckan/ckan/pull/317
+
+
+@pytest.mark.usefixtures(u"clean_db")
+class TestApiToken(object):
+
+    def test_token_created(self):
+        from ckan.lib.api_token import decode
+        user = factories.User()
+        data = helpers.call_action(u"api_token_create", context={
+            u"model": model,
+            u"user": user[u"name"]
+        }, user=user[u"name"], name=u"token-name")
+        token = data[u'token']
+        jti = decode(token)[u'jti']
+        res = model.ApiToken.get(jti)
+        assert res.user_id == user[u"id"]
+        assert res.last_access is None
+        assert res.id == jti
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+def test_create_package_collaborator_when_config_disabled():
+
+    dataset = factories.Dataset()
+    user = factories.User()
+    capacity = 'editor'
+
+    with pytest.raises(logic.ValidationError):
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+class TestPackageMemberCreate(object):
+
+    def test_create(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        member = helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        assert member['package_id'] == dataset['id']
+        assert member['user_id'] == user['id']
+        assert member['capacity'] == capacity
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+    def test_update(self):
+
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'editor'
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'], user_id=user['id'], capacity='member')
+
+        assert model.Session.query(model.PackageMember).count() == 1
+
+        assert model.Session.query(model.PackageMember).one().capacity == 'member'
+
+    def test_create_wrong_capacity(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        capacity = 'unknown'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_create_dataset_not_found(self):
+        dataset = {'id': 'xxx'}
+        user = factories.User()
+        capacity = 'editor'
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+    def test_create_user_not_found(self):
+        dataset = factories.Dataset()
+        user = {'id': 'yyy'}
+        capacity = 'editor'
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                'package_collaborator_create',
+                id=dataset['id'], user_id=user['id'], capacity=capacity)
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserPluginExtras(object):
+
+    def test_stored_on_create_if_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user_dict = {
+            'name': 'test-user',
+            'email': 'test@example.com',
+            'password': '12345678',
+            'plugin_extras': {
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_create', context=context, **user_dict)
+
+        assert created_user['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+        user_dict = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user_dict['plugin_extras'] == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+        plugin_extras_from_db = model.Session.execute(
+            'SELECT plugin_extras FROM "user" WHERE id=:id',
+            {'id': created_user['id']}
+        ).first().values()[0]
+
+        assert plugin_extras_from_db == {
+            'plugin1': {
+                'key1': 'value1',
+            }
+        }
+
+    def test_ignored_on_create_if_non_sysadmin(self):
+
+        author = factories.User()
+        sysadmin = factories.Sysadmin()
+
+        user_dict = {
+            'name': 'test-user',
+            'email': 'test@example.com',
+            'password': '12345678',
+            'plugin_extras': {
+                'plugin1': {
+                    'key1': 'value1'
+                }
+            }
+        }
+
+        # helpers.call_action sets 'ignore_auth' to True by default
+        context = {'user': author['name'], 'ignore_auth': False}
+
+        created_user = helpers.call_action(
+            'user_create', context=context, **user_dict)
+
+        assert 'plugin_extras' not in created_user
+
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        user = helpers.call_action(
+            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+
+        assert user['plugin_extras'] is None
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserImageUrl(object):
+
+    def test_upload_picture(self):
+
+        params = {
+            'name': 'test_user',
+            'email': 'test@example.com',
+            'password': '12345678',
+            'image_url': 'https://example.com/mypic.png',
+        }
+
+        user_dict = helpers.call_action('user_create', {}, **params)
+
+        assert user_dict['image_url'] == 'https://example.com/mypic.png'
+        assert user_dict['image_display_url'] == 'https://example.com/mypic.png'

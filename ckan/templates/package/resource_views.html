@@ -4,7 +4,7 @@
 {% block subtitle %}{{ _('View') }} {{ g.template_title_delimiter }} {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block page_primary_action %}
-  <div class="btn-group">
+  <div class="dropdown btn-group">
     <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
       <i class="fa fa-plus-square"></i>
       {{ _('New view') }}
@@ -12,7 +12,7 @@
     </a>
     <ul class="dropdown-menu">
       {% for option in h.get_allowed_view_types(resource, pkg_dict)  %}
-        {% set url = h.url_for('resource.edit_view', id=pkg_dict.name, resource_id=resource.id, view_type=option[0]) %}
+        {% set url = h.url_for(pkg_dict.type ~ '_resource.edit_view', id=pkg_dict.name, resource_id=resource.id, view_type=option[0]) %}
         <li><a href="{{ url }}"><i class="fa fa-{{ option[2] }}"></i> {{ option[1] }}</a></li>
       {% endfor %}
     </ul>

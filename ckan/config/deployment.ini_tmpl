@@ -17,25 +17,26 @@
 # With debug mode enabled, a visitor to your site could execute malicious commands.
 debug = false
 
-[server:main]
-use = egg:Paste#http
-host = 0.0.0.0
-port = 5000
-
 [app:main]
 use = egg:ckan
-full_stack = true
+
+## Development settings
+ckan.devserver.host = localhost
+ckan.devserver.port = 5000
+
+
+## Session settings
 cache_dir = /tmp/%(ckan.site_id)s/
 beaker.session.key = ckan
 
 # This is the secret token that the beaker library uses to hash the cookie sent
-# to the client. `paster make-config` generates a unique value for this each
+# to the client. `ckan generate config` generates a unique value for this each
 # time it generates a config file.
-beaker.session.secret = ${app_instance_secret}
+beaker.session.secret = $app_instance_secret
 
-# `paster make-config` generates a unique value for this each time it generates
+# `ckan generate config` generates a unique value for this each time it generates
 # a config file.
-app_instance_uuid = ${app_instance_uuid}
+app_instance_uuid = $app_instance_uuid
 
 # repoze.who config
 who.config_file = %(here)s/who.ini
@@ -75,12 +76,23 @@ ckan.auth.create_user_via_web = true
 ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.auth.public_user_details = true
 ckan.auth.public_activity_stream_detail = true
+ckan.auth.allow_dataset_collaborators = false
+ckan.auth.create_default_api_keys = false
 
+## API Token Settings
+api_token.nbytes = 60
+api_token.jwt.encode.secret = string:$app_instance_secret
+api_token.jwt.decode.secret = string:$app_instance_secret
+api_token.jwt.algorithm = HS256
+
+## API Token: expire_api_token plugin
+expire_api_token.default_lifetime = 3600
 
 ## Search Settings
 
 ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
+solr_timeout = 60
 
 
 ## Redis Settings
@@ -113,7 +125,7 @@ ckan.views.default_views = image_view text_view recline_view
 # Customize which text formats the text_view plugin will show
 #ckan.preview.json_formats = json
 #ckan.preview.xml_formats = xml rdf rdf+xml owl+xml atom rss
-#ckan.preview.text_formats = text plain text/plain
+#ckan.preview.text_formats = txt plain text/plain
 
 # Customize which image formats the image_view plugin will show
 #ckan.preview.image_formats = png jpeg jpg gif
@@ -201,7 +213,7 @@ ckan.jobs.timeout = 180
 
 ## Logging configuration
 [loggers]
-keys = root, ckan, ckanext
+keys = root, ckan, ckanext, werkzeug
 
 [handlers]
 keys = console
@@ -212,6 +224,12 @@ keys = generic
 [logger_root]
 level = WARNING
 handlers = console
+
+[logger_werkzeug]
+level = WARNING
+handlers = console
+qualname = werkzeug
+propagate = 0
 
 [logger_ckan]
 level = INFO

@@ -1,11 +1,14 @@
-style:
-  output: ckanext-{{cookiecutter.project_shortname}}/%(version)s-style.css
-  filters: cssrewrite
-  contents:
-    - style.css
+# {{ cookiecutter.project_shortname }}-js:
+#   filter: rjsmin
+#   output: ckanext-{{ cookiecutter.project_shortname }}/%(version)s-{{ cookiecutter.project_shortname }}.js
+#   contents:
+#     - js/{{ cookiecutter.project_shortname }}.js
+#   extra:
+#     preload:
+#       - base/main
 
-script:
-  filters: rjsmin
-  output: ckanext-{{cookiecutter.project_shortname}}/%(version)s-script.js
-  contents:
-    - script.js
+# {{ cookiecutter.project_shortname }}-css:
+#   filter: cssrewrite
+#   output: ckanext-{{ cookiecutter.project_shortname }}/%(version)s-{{ cookiecutter.project_shortname }}.css
+#   contents:
+#     - css/{{ cookiecutter.project_shortname }}.css

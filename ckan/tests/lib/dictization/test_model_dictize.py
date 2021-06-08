@@ -6,9 +6,8 @@ import pytest
 
 from ckan.lib.dictization import model_dictize, model_save
 from ckan import model
-from ckan.lib import search
 
-from ckan.tests import helpers, factories
+from ckan.tests import factories
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
@@ -559,7 +558,7 @@ class TestPackageDictize:
         expected_dict = {
             u"approval_status": u"approved",
             u"description": u"Just another test organization.",
-            u"image_url": u"http://placekitten.com/g/200/100",
+            u"image_url": u"https://placekitten.com/g/200/100",
             u"is_organization": True,
             u"name": u"test_package_dictize",
             u"state": u"active",

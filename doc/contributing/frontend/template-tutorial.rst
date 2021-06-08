@@ -74,7 +74,7 @@ it is useful to provide additional actions that a related to the page.
 ::
 
     {% block breadcrumb_content %}
-      <li class="active">{% link_for _('Viewing Dataset'), named_route='dataset.read', id=pkg.id %}</li>
+      <li class="active">{% link_for _('Viewing Dataset'), named_route=pkg.type ~ '.read', id=pkg.id %}</li>
     {% endblock %}
 
     {% block actions_content %}

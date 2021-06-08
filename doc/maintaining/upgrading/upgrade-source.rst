@@ -34,16 +34,20 @@ CKAN release you're upgrading to:
    If you have any CKAN extensions installed from source, you may need to
    checkout newer versions of the extensions at this point as well. Refer to
    the documentation for each extension.
-   
+
    As of CKAN 2.6 branch naming has changed. See :doc:`/contributing/release-process`
    for naming conventions. Specific patches and minor versions can be checked-out
-   using tags. 
+   using tags.
 
 #. Update CKAN's dependencies:
 
    ::
 
      pip install --upgrade -r requirements.txt
+
+   .. note::
+
+     For Python 2 replace `requirements.txt` with `requirements-py2.txt`
 
 #. Register any new or updated plugins:
 
@@ -72,17 +76,17 @@ CKAN release you're upgrading to:
 
    .. parsed-literal::
 
-    paster search-index rebuild -r --config=\ |development.ini|
+    ckan -c /path/to/ckan.ini search-index rebuild -r --config=\ |ckan.ini|
 
    See :ref:`rebuild search index` for details of the
    ``ckan search-index rebuild`` command.
 
 #. Finally, restart your web server. For example if you have deployed CKAN
-   using the Apache web server on Ubuntu linux, run this command:
+   using a package install, run this command:
 
    .. parsed-literal::
 
-    |reload_apache|
+    |restart_uwsgi|
 
 #. You're done!
 

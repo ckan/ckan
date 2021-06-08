@@ -6,9 +6,9 @@
     <h3 class="heading">{{ _("Search data") }}</h3>
     <div class="search-input form-group search-giant">
       <input aria-label="{% block header_site_search_label %}{{ _('Search datasets') }}{% endblock %}" id="field-main-search" type="text" class="form-control" name="q" value="" autocomplete="off" placeholder="{% block search_placeholder %}{{ placeholder }}{% endblock %}" />
-      <button type="submit">
+      <button type="submit" aria-labelledby="search-label">
         <i class="fa fa-search"></i>
-        <span class="sr-only">{{ _('Search') }}</span>
+        <span class="sr-only" id="search-label">{{ _('Search') }}</span>
       </button>
     </div>
   </form>

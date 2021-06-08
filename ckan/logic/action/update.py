@@ -19,7 +19,7 @@ import ckan.logic.schema as schema_
 import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
-import ckan.lib.navl.dictization_functions
+import ckan.lib.navl.dictization_functions as dfunc
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 # Define some shortcuts
 # Ensure they are module-private so that they don't get loaded as available
 # actions in the action API.
-_validate = ckan.lib.navl.dictization_functions.validate
+_validate = dfunc.validate
 _get_action = logic.get_action
 _check_access = logic.check_access
 NotFound = logic.NotFound
@@ -49,6 +49,10 @@ def resource_update(context, data_dict):
 
     To update a resource you must be authorized to update the dataset that the
     resource belongs to.
+
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `resource_patch`
+        instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.resource_create`.
@@ -79,8 +83,7 @@ def resource_update(context, data_dict):
     del context["resource"]
 
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
-        {'id': package_id})
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
         if p['id'] == id:
@@ -97,31 +100,16 @@ def resource_update(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
-    upload = uploader.get_resource_uploader(data_dict)
-
-    if 'mimetype' not in data_dict:
-        if hasattr(upload, 'mimetype'):
-            data_dict['mimetype'] = upload.mimetype
-
-    if 'size' not in data_dict and 'url_type' in data_dict:
-        if hasattr(upload, 'filesize'):
-            data_dict['size'] = upload.filesize
-
     pkg_dict['resources'][n] = data_dict
 
     try:
-        context['defer_commit'] = True
         context['use_cache'] = False
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
-        context.pop('defer_commit')
     except ValidationError as e:
         try:
-            raise ValidationError(e.error_dict['resources'][-1])
+            raise ValidationError(e.error_dict['resources'][n])
         except (KeyError, IndexError):
             raise ValidationError(e.error_dict)
-
-    upload.upload(id, uploader.get_max_resource_size())
-    model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})
 
@@ -233,6 +221,10 @@ def package_update(context, data_dict):
     You must be authorized to edit the dataset and the groups that it belongs
     to.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `package_patch`
+        instead.
+
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
     the result, and then call ``package_update()`` with it.
@@ -255,7 +247,6 @@ def package_update(context, data_dict):
     '''
     model = context['model']
     session = context['session']
-    user = context['user']
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
@@ -264,11 +255,14 @@ def package_update(context, data_dict):
     if pkg is None:
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
+
+    # immutable fields
     data_dict["id"] = pkg.id
     data_dict['type'] = pkg.type
 
     _check_access('package_update', context, data_dict)
 
+    user = context['user']
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     if 'schema' in context:
@@ -288,6 +282,21 @@ def package_update(context, data_dict):
                 # Old plugins do not support passing the schema so we need
                 # to ensure they still work.
                 package_plugin.check_data_dict(data_dict)
+
+    resource_uploads = []
+    for resource in data_dict.get('resources', []):
+        # file uploads/clearing
+        upload = uploader.get_resource_uploader(resource)
+
+        if 'mimetype' not in resource:
+            if hasattr(upload, 'mimetype'):
+                resource['mimetype'] = upload.mimetype
+
+        if 'size' not in resource and 'url_type' in resource:
+            if hasattr(upload, 'filesize'):
+                resource['size'] = upload.filesize
+
+        resource_uploads.append(upload)
 
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_update')
@@ -316,9 +325,11 @@ def package_update(context, data_dict):
 
     # Needed to let extensions know the new resources ids
     model.Session.flush()
-    if data.get('resources'):
-        for index, resource in enumerate(data['resources']):
-            resource['id'] = pkg.resources[index].id
+    for index, (resource, upload) in enumerate(
+            zip(data.get('resources', []), resource_uploads)):
+        resource['id'] = pkg.resources[index].id
+
+        upload.upload(resource['id'], uploader.get_max_resource_size())
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
@@ -352,6 +363,169 @@ def package_update(context, data_dict):
             else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
+
+
+def package_revise(context, data_dict):
+    '''Revise a dataset (package) selectively with match, filter and
+    update parameters.
+
+    You must be authorized to edit the dataset and the groups that it belongs
+    to.
+
+    :param match: a dict containing "id" or "name" values of the dataset
+                  to update, all values provided must match the current
+                  dataset values or a ValidationError will be raised. e.g.
+                  ``{"name": "my-data", "resources": {["name": "big.csv"]}}``
+                  would abort if the my-data dataset's first resource name
+                  is not "big.csv".
+    :type match: dict
+    :param filter: a list of string patterns of fields to remove from the
+                   current dataset. e.g. ``"-resources__1"`` would remove the
+                   second resource, ``"+title, +resources, -*"`` would
+                   remove all fields at the dataset level except title and
+                   all resources (default: ``[]``)
+    :type filter: comma-separated string patterns or list of string patterns
+    :param update: a dict with values to update/create after filtering
+                   e.g. ``{"resources": [{"description": "file here"}]}`` would
+                   update the description for the first resource
+    :type update: dict
+    :param include: a list of string pattern of fields to include in response
+                    e.g. ``"-*"`` to return nothing (default: ``[]`` all
+                    fields returned)
+    :type include: comma-separated-string patterns or list of string patterns
+
+    ``match`` and ``update`` parameters may also be passed as "flattened keys", using
+    either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
+    ``update__resource__1f9ab__description="guidebook"`` would set the
+    description of the resource with id starting with "1f9ab" to "guidebook", and
+    ``update__resource__-1__description="guidebook"`` would do the same
+    on the last resource in the dataset.
+
+    The ``extend`` suffix can also be used on the update parameter to add
+    a new item to a list, e.g. ``update__resources__extend=[{"name": "new resource", "url": "https://example.com"}]``
+    will add a new resource to the dataset with the provided ``name`` and ``url``.
+
+    Usage examples:
+
+    * Change description in dataset, checking for old description::
+
+        match={"notes": "old notes", "name": "xyz"}
+        date={"notes": "new notes"}
+
+    * Identical to above, but using flattened keys::
+
+        match__name="xyz"
+        match__notes="old notes"
+        update__notes="new notes"
+
+    * Replace all fields at dataset level only, keep resources (note: dataset id
+      and type fields can't be deleted) ::
+
+        match={"id": "1234abc-1420-cbad-1922"}
+        filter=["+resources", "-*"]
+        update={"name": "fresh-start", "title": "Fresh Start"}
+
+    * Add a new resource (__extend on flattened key)::
+
+        match={"id": "abc0123-1420-cbad-1922"}
+        update__resources__extend=[{"name": "new resource", "url": "http://example.com"}]
+
+    * Update a resource by its index::
+
+        match={"name": "my-data"}
+        update__resources__0={"name": "new name, first resource"}
+
+    * Update a resource by its id (provide at least 5 characters)::
+
+        match={"name": "their-data"}
+        update__resources__19cfad={"description": "right one for sure"}
+
+    * Replace all fields of a resource::
+
+        match={"id": "34a12bc-1420-cbad-1922"}
+        filter=["+resources__1492a__id", "-resources__1492a__*"]
+        update__resources__1492a={"name": "edits here", "url": "http://example.com"}
+
+
+    :returns: a dict containing 'package':the updated dataset with fields filtered by include parameter
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+
+    schema = schema_.package_revise_schema()
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    name_or_id = (
+        data['match__'].get('id') or
+        data.get('match', {}).get('id') or
+        data['match__'].get('name') or
+        data.get('match', {}).get('name'))
+    if name_or_id is None:
+        raise ValidationError({'match__id': _('Missing value')})
+
+    package_show_context = dict(
+        context,
+        for_update=True)
+    orig = _get_action('package_show')(
+        package_show_context,
+        {'id': name_or_id})
+
+    pkg = package_show_context['package']  # side-effect of package_show
+
+    unmatched = []
+    if 'match' in data:
+        unmatched.extend(dfunc.check_dict(orig, data['match']))
+
+    for k, v in sorted(data['match__'].items()):
+        unmatched.extend(dfunc.check_string_key(orig, k, v))
+
+    if unmatched:
+        model.Session.rollback()
+        raise ValidationError([{'match': [
+            '__'.join(str(p) for p in unm)
+            for unm in unmatched
+        ]}])
+
+    if 'filter' in data:
+        orig_id = orig['id']
+        dfunc.filter_glob_match(orig, data['filter'])
+        orig['id'] = orig_id
+
+    if 'update' in data:
+        try:
+            dfunc.update_merge_dict(orig, data['update'])
+        except dfunc.DataError as de:
+            model.Session.rollback()
+            raise ValidationError([{'update': [de.error]}])
+
+    # update __extend keys before __#__* so that files may be
+    # attached to newly added resources in the same call
+    try:
+        for k, v in sorted(
+                data['update__'].items(),
+                key=lambda s: s[0][-6] if s[0].endswith('extend') else s[0]):
+            dfunc.update_merge_string_key(orig, k, v)
+    except dfunc.DataError as de:
+        model.Session.rollback()
+        raise ValidationError([{k: [de.error]}])
+
+    _check_access('package_revise', context, {"update": orig})
+
+    # future-proof return dict by putting package data under
+    # "package". We will want to return activity info
+    # on update or "nothing changed" status once possible
+    rval = {
+        'package': _get_action('package_update')(
+            dict(context, package=pkg),
+            orig)}
+    if 'include' in data_dict:
+        dfunc.filter_glob_match(rval, data_dict['include'])
+    return rval
+
 
 def package_resource_reorder(context, data_dict):
     '''Reorder resources against datasets.  If only partial resource ids are
@@ -487,7 +661,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    upload = uploader.get_uploader('group', group.image_url)
+    upload = uploader.get_uploader('group')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
 
@@ -584,6 +758,10 @@ def group_update(context, data_dict):
 
     You must be authorized to edit the group.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `group_patch`
+        instead.
+
     Plugins may change the parameters of this function depending on the value
     of the group's ``type`` attribute, see the
     :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
@@ -607,6 +785,10 @@ def organization_update(context, data_dict):
     '''Update a organization.
 
     You must be authorized to edit the organization.
+
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `organization_patch`
+        instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
@@ -632,6 +814,10 @@ def user_update(context, data_dict):
     Normal users can only update their own user accounts. Sysadmins can update
     any user account. Can not modify exisiting user's name.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `user_patch`
+        instead.
+
     For further parameters see
     :py:func:`~ckan.logic.action.create.user_create`.
 
@@ -654,6 +840,10 @@ def user_update(context, data_dict):
         raise NotFound('User was not found.')
 
     _check_access('user_update', context, data_dict)
+
+    upload = uploader.get_uploader('user')
+    upload.update_data_dict(data_dict, 'image_url',
+                            'image_upload', 'clear_upload')
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -682,9 +872,19 @@ def user_update(context, data_dict):
     # TODO: Also create an activity detail recording what exactly changed in
     # the user.
 
+    upload.upload(uploader.get_max_image_size())
+
     if not context.get('defer_commit'):
         model.repo.commit()
-    return model_dictize.user_dictize(user, context)
+
+    author_obj = model.User.get(context.get('user'))
+    include_plugin_extras = False
+    if author_obj:
+        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+    user_dict = model_dictize.user_dictize(
+        user, context, include_plugin_extras=include_plugin_extras)
+
+    return user_dict
 
 
 def user_generate_apikey(context, data_dict):
@@ -750,7 +950,6 @@ def task_status_update(context, data_dict):
     session = model.Session
     context['session'] = session
 
-    user = context['user']
     id = data_dict.get("id")
     schema = context.get('schema') or schema_.default_task_status_schema()
 
@@ -820,9 +1019,10 @@ def term_translation_update(context, data_dict):
 
     _check_access('term_translation_update', context, data_dict)
 
-    schema = {'term': [validators.not_empty, text_type],
-              'term_translation': [validators.not_empty, text_type],
-              'lang_code': [validators.not_empty, text_type]}
+    schema = {'term': [validators.not_empty, validators.unicode_safe],
+              'term_translation': [
+                  validators.not_empty, validators.unicode_safe],
+              'lang_code': [validators.not_empty, validators.unicode_safe]}
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -1034,6 +1234,17 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
+    # Handle Activity Stream for Bulk Operations
+    user = context['user']
+    user_obj = model.User.by_name(user)
+    if user_obj:
+        user_id = user_obj.id
+    else:
+        user_id = 'not logged in'
+    for dataset in datasets:
+        entity = model.Package.get(dataset)
+        activity = entity.activity_stream_item('changed', user_id)
+        model.Session.add(activity)
     model.Session.commit()
 
     # solr update here

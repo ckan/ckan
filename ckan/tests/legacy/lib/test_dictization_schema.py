@@ -3,7 +3,6 @@
 from pprint import pformat
 import pytest
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib import search
 from ckan import model
 from ckan.lib.dictization.model_dictize import package_dictize, group_dictize
 from ckan.logic.schema import (
@@ -25,7 +24,7 @@ class TestBasicDictize(object):
         for key, value in list(dict.items()):
             if key.endswith("id") and key != "license_id":
                 dict.pop(key)
-            if key == "created":
+            if key in ("created", "metadata_modified"):
                 dict.pop(key)
 
             if isinstance(value, list):
@@ -234,7 +233,7 @@ class TestBasicDictize(object):
             assert "name" in errors
             error_message = errors["name"][0]
             assert data["name"] in error_message, error_message
-            assert "must be alphanumeric" in error_message
+            assert "can only contain alphanumeric characters" in error_message
 
     def test_7_tag_schema_disallows_whitespace_other_than_spaces(self):
         """Asserts whitespace characters, such as tabs, are not allowed."""
@@ -248,4 +247,4 @@ class TestBasicDictize(object):
             assert "name" in errors
             error_message = errors["name"][0]
             assert data["name"] in error_message, error_message
-            assert "must be alphanumeric" in error_message
+            assert "can only contain alphanumeric characters" in error_message

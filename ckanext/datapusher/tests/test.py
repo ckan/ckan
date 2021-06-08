@@ -11,6 +11,7 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
+from ckan.tests import factories
 import ckanext.datastore.backend.postgres as db
 from ckan.common import config
 from ckanext.datastore.tests.helpers import set_url_type
@@ -286,3 +287,70 @@ class TestDatastoreCreate(object):
             data["result_url"]
             == "https://ckan.example.com/api/3/action/datapusher_hook"
         )
+
+    @responses.activate
+    @pytest.mark.ckan_config(
+        "ckan.datapusher.callback_url_base", "https://ckan.example.com"
+    )
+    @pytest.mark.ckan_config(
+        "ckan.datapusher.url", "http://datapusher.ckan.org"
+    )
+    @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_create_resource_hooks(self, app):
+
+        responses.add(
+            responses.POST,
+            "http://datapusher.ckan.org/job",
+            content_type="application/json",
+            body=json.dumps({"job_id": "foo", "job_key": "barloco"}),
+        )
+        responses.add_passthru(config["solr_url"])
+
+        dataset = factories.Dataset()
+        resource = tests.call_action_api(
+            app,
+            "resource_create",
+            apikey=self.sysadmin_user.apikey,
+            package_id=dataset['id'],
+            format='CSV',
+        )
+
+    @responses.activate
+    @pytest.mark.ckan_config(
+        "ckan.datapusher.callback_url_base", "https://ckan.example.com"
+    )
+    @pytest.mark.ckan_config(
+        "ckan.datapusher.url", "http://datapusher.ckan.org"
+    )
+    @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_update_resource_url_hooks(self, app):
+
+        responses.add(
+            responses.POST,
+            "http://datapusher.ckan.org/job",
+            content_type="application/json",
+            body=json.dumps({"job_id": "foo", "job_key": "barloco"}),
+        )
+        responses.add_passthru(config["solr_url"])
+
+        dataset = factories.Dataset()
+        resource = tests.call_action_api(
+            app,
+            "resource_create",
+            apikey=self.sysadmin_user.apikey,
+            package_id=dataset['id'],
+            url='http://example.com/old.csv',
+            format='CSV',
+        )
+
+        resource = tests.call_action_api(
+            app,
+            "resource_update",
+            apikey=self.sysadmin_user.apikey,
+            id=resource['id'],
+            url='http://example.com/new.csv',
+            format='CSV',
+        )
+        assert resource

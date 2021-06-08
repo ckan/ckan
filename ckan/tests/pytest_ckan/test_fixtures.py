@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 import pytest
+from six.moves.urllib.parse import urlparse
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 from ckan.common import config
+from ckan.tests import factories
 
 
 def test_ckan_config_fixture(ckan_config):
@@ -61,3 +65,39 @@ class TestClassLevelConfig(object):
 
     def test_ckan_config_mark_second(self, ckan_config):
         assert ckan_config[u"some.new.config"] == u"exists"
+
+
+class TestCreateWithUpload(object):
+
+    def test_create_organization(self, create_with_upload, ckan_config):
+        user = factories.User()
+        context = {
+            u"user": user["name"]
+        }
+        org = create_with_upload(
+            b"\0\0\0", u"image.png",
+            context=context,
+            action=u"organization_create",
+            upload_field_name=u"image_upload",
+            name=u"test-org"
+        )
+        image_path = os.path.join(
+            ckan_config[u"ckan.storage_path"],
+            u'storage',
+            urlparse(org[u'image_display_url']).path.lstrip(u"/")
+        )
+
+        assert os.path.isfile(image_path)
+        with open(image_path, u"rb") as image:
+            content = image.read()
+            assert content == b"\0\0\0"
+
+    def test_create_resource(self, create_with_upload):
+        dataset = factories.Dataset()
+        resource = create_with_upload(
+            u"hello world", u"file.txt",
+            package_id=dataset[u'id']
+        )
+        assert resource[u"url_type"] == u"upload"
+        assert resource[u"format"] == u"TXT"
+        assert resource[u"size"] == 11

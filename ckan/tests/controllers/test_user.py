@@ -1,5 +1,5 @@
 # encoding: utf-8
-import mock
+import unittest.mock as mock
 import pytest
 import six
 from bs4 import BeautifulSoup
@@ -155,9 +155,10 @@ class TestUser(object):
         assert "/my/prefix/user/logout" in logout_response.headers['location']
 
     def test_not_logged_in_dashboard(self, app):
-
         for route in ["index", "organizations", "datasets", "groups"]:
-            app.get(url=url_for(u"dashboard.{}".format(route)), status=403)
+            response = app.get(url=url_for(u"dashboard.{}".format(route)), follow_redirects=False)
+            assert response.status_code == 302
+            assert "user/login" in response.headers['location']
 
     def test_own_datasets_show_up_on_user_dashboard(self, app):
         user = factories.User()
@@ -232,6 +233,13 @@ class TestUser(object):
         assert user.about == "new about"
         assert user.activity_streams_email_notifications
 
+    def test_edit_user_as_wrong_user(self, app):
+        user = factories.User(password="TestPassword1")
+        other_user = factories.User(password="TestPassword2")
+
+        env = {"REMOTE_USER": six.ensure_str(other_user["name"])}
+        response = app.get(url_for("user.edit", id=user['name']), extra_environ=env, status=403)
+
     def test_email_change_without_password(self, app):
 
         user = factories.User()
@@ -258,6 +266,21 @@ class TestUser(object):
             "name": user['name'],
         })
         assert "Profile updated" in response
+
+    def test_email_change_on_existed_email(self, app):
+        user1 = factories.User(email='existed@email.com')
+        user2 = factories.User()
+        env = {"REMOTE_USER": six.ensure_str(user2["name"])}
+
+        response = app.post(url=url_for("user.edit"), extra_environ=env, data={
+            "email": "existed@email.com",
+            "save": "",
+            "old_password": "RandomPassword123",
+            "password1": "",
+            "password2": "",
+            "name": user2['name'],
+        })
+        assert 'belongs to a registered user' in response
 
     def test_edit_user_logged_in_username_change(self, app):
 
@@ -406,7 +429,7 @@ class TestUser(object):
         follow_url = url_for(controller="user", action="follow", id="not-here")
         response = app.post(follow_url, extra_environ=env)
 
-        assert "You're already logged in" in response.body
+        assert response.status_code == 404
 
     def test_user_unfollow(self, app):
 
@@ -452,10 +475,11 @@ class TestUser(object):
         user_one = factories.User()
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
-        unfollow_url = url_for("user.unfollow", id="not-here")
-        unfollow_response = app.post(
-            unfollow_url, extra_environ=env, follow_redirects=False, status=302
-        )
+        unfollow_url = url_for(
+            controller="user", action="unfollow", id="not-here")
+        response = app.post(unfollow_url, extra_environ=env)
+
+        assert response.status_code == 404
 
     def test_user_follower_list(self, app):
         """Following users appear on followers list page."""
@@ -769,22 +793,6 @@ class TestUser(object):
         assert "A reset link has been emailed to you" in response
         assert send_reset_link.call_args[0][0].id == user["id"]
 
-    @mock.patch("ckan.lib.mailer.send_reset_link")
-    def test_request_reset_when_duplicate_emails(self, send_reset_link, app):
-        user_a = factories.User(email="me@example.com")
-        user_b = factories.User(email="me@example.com")
-
-        offset = url_for("user.request_reset")
-        response = app.post(
-            offset, data=dict(user="me@example.com")
-        )
-
-        assert "A reset link has been emailed to you" in response
-        emailed_users = [
-            call[0][0].name for call in send_reset_link.call_args_list
-        ]
-        assert sorted(emailed_users) == sorted([user_a["name"], user_b["name"]])
-
     def test_request_reset_without_param(self, app):
 
         offset = url_for("user.request_reset")
@@ -833,3 +841,113 @@ class TestUser(object):
         )
 
         assert "Error sending the email" in response
+
+    def test_sysadmin_not_authorized(self, app):
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app.post(
+            url_for("user.sysadmin"),
+            data={'username': user['name'], 'status': '1'},
+            extra_environ=env,
+            status=403
+        )
+
+    def test_sysadmin_invalid_user(self, app):
+        user = factories.Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app.post(
+            url_for("user.sysadmin"),
+            data={'username': 'fred', 'status': '1'},
+            extra_environ=env,
+            status=404
+        )
+
+    def test_sysadmin_promote_success(self, app):
+        admin = factories.Sysadmin()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+
+        # create a normal user
+        user = factories.User(fullname='Alice')
+
+        # promote them
+        resp = app.post(
+            url_for("user.sysadmin"),
+            data={'username': user['name'], 'status': '1'},
+            extra_environ=env,
+            status=200
+        )
+        assert 'Promoted Alice to sysadmin' in resp.body
+
+        # now they are a sysadmin
+        userobj = model.User.get(user['id'])
+        assert userobj.sysadmin
+
+    def test_sysadmin_revoke_success(self, app):
+        admin = factories.Sysadmin()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+
+        # create another sysadmin
+        user = factories.Sysadmin(fullname='Bob')
+
+        # revoke their status
+        resp = app.post(
+            url_for("user.sysadmin"),
+            data={'username': user['name'], 'status': '0'},
+            extra_environ=env,
+            status=200
+        )
+        assert 'Revoked sysadmin permission from Bob' in resp.body
+
+        # now they are not a sysadmin any more
+        userobj = model.User.get(user['id'])
+        assert not userobj.sysadmin
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestUserImage(object):
+
+    def test_image_url_is_shown(self, app):
+
+        user = factories.User(image_url='https://example.com/mypic.png')
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'] == 'https://example.com/mypic.png'
+
+    def test_fallback_to_gravatar(self, app):
+
+        user = factories.User(image_url=None)
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'].startswith('//gravatar')
+
+    @pytest.mark.ckan_config('ckan.gravatar_default', 'disabled')
+    def test_fallback_to_placeholder_if_gravatar_disabled(self, app):
+
+        user = factories.User(image_url=None)
+
+        url = url_for('user.read', id=user['name'])
+
+        res = app.get(url, extra_environ={'REMOTE_USER': user['name']})
+
+        res_html = BeautifulSoup(res.data)
+        user_images = res_html.select('img.user-image')
+
+        assert len(user_images) == 2    # Logged in header + profile pic
+        for img in user_images:
+            assert img.attrs['src'] == '/base/images/placeholder-user.png'
