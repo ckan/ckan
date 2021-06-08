@@ -1,19 +1,19 @@
 import click
 
-__all__ = ['{{cookiecutter.project_shortname}}']
 
-
-@click.group()
+@click.group(short_help="{{cookiecutter.project_shortname}} CLI.")
 def {{cookiecutter.project_shortname}}():
     """{{cookiecutter.project_shortname}} CLI.
     """
     pass
 
+
 @{{cookiecutter.project_shortname}}.command()
-def command():
+@click.argument("name", default="{{cookiecutter.project_shortname}}")
+def command(name):
     """Docs.
     """
-    click.echo('Hello, {{cookiecutter.project_shortname}}!')
+    click.echo("Hello, {name}!".format(name=name))
 
 
 def get_commands():

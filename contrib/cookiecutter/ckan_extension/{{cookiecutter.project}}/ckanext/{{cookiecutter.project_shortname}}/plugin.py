@@ -3,9 +3,9 @@ import ckan.plugins.toolkit as toolkit
 
 # import ckanext.{{cookiecutter.project_shortname}}.logic.action as action
 # import ckanext.{{cookiecutter.project_shortname}}.logic.auth as auth
+# import ckanext.{{cookiecutter.project_shortname}}.logic.validators as validators
 # import ckanext.{{cookiecutter.project_shortname}}.cli as cli
 # import ckanext.{{cookiecutter.project_shortname}}.helpers as helpers
-# import ckanext.{{cookiecutter.project_shortname}}.validators as validators
 # import ckanext.{{cookiecutter.project_shortname}}.views as views
 
 
@@ -21,10 +21,9 @@ class {{ cookiecutter.plugin_class_name }}(plugins.SingletonPlugin):
     # IConfigurer
 
     def update_config(self, config_):
-        toolkit.add_template_directory(config_, 'templates')
-        toolkit.add_public_directory(config_, 'public')
-        toolkit.add_resource('assets',
-            '{{ cookiecutter.project_shortname }}')
+        toolkit.add_template_directory(config_, "templates")
+        toolkit.add_public_directory(config_, "public")
+        toolkit.add_resource("assets", "{{ cookiecutter.project_shortname }}")
 
     # IAuthFunctions
 

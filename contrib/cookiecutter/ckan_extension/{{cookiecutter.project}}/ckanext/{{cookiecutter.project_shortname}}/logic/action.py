@@ -1,19 +1,20 @@
 import ckan.plugins.toolkit as tk
+import ckanext.{{cookiecutter.project_shortname}}.logic.schema as schema
 
-__all__ = ['{{cookiecutter.project_shortname}}_get_sum']
 
-
+@tk.side_effect_free
 def {{cookiecutter.project_shortname}}_get_sum(context, data_dict):
-    tk.check_access('{{cookiecutter.project_shortname}}_get_sum', context, data_dict)
-    left, right = tk.get_or_bust(data_dict, ['left', 'right'])
-    try:
-        result = tk.asint(left) + tk.asint(right)
-    except ValueError as e:
-        raise tk.ValidationError(e)
+    tk.check_access("{{cookiecutter.project_shortname}}_get_sum", context, data_dict)
+    data, errors = tk.navl_validate(
+        data_dict, schema.{{cookiecutter.project_shortname}}_get_sum(), context)
+
+    if errors:
+        raise tk.ValidationError(errors)
+
     return {
-        'left': left,
-        'right': right,
-        'sum': result
+        "left": data["left"],
+        "right": data["right"],
+        "sum": data["left"] + data["right"]
     }
 
 
