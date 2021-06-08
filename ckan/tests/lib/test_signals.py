@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import mock
+from unittest import mock
 import pytest
 
 import ckan.plugins.toolkit as tk
@@ -8,7 +8,6 @@ import ckan.lib.mailer as mailer
 import ckan.model as model
 
 from ckan.tests import factories
-from ckan.views.user import _get_repoze_handler
 from ckan.lib.helpers import url_for
 
 
