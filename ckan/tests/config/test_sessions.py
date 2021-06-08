@@ -113,15 +113,3 @@ class FlashMessagePlugin(p.SingletonPlugin):
             action=u"flash_message_action",
         )
         return _map
-
-
-if six.PY2:
-    class PylonsAddFlashMessageController(p.toolkit.BaseController):
-        def flash_message_action(self):
-            u"""Pylons view to render flash messages in a template."""
-            return pylons_render(u"tests/flash_messages.html")
-
-        def add_flash_message_redirect(self):
-            # Adds a flash message and redirects to flask view
-            h.flash_success(u"This is a success message populated by Pylons")
-            return h.redirect_to(u"/flask_view_flash_message")
