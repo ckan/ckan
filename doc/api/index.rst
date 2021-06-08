@@ -387,11 +387,11 @@ Uploading a new version of a resource file
 ==========================================
 
 You can use the ``upload`` parameter of the
-:py:func:`~ckan.logic.action.update.resource_update` function to upload a
+:py:func:`~ckan.logic.action.patch.resource_patch` function to upload a
 new version of a resource file. This requires a ``multipart/form-data``
 request, with curl you can do this using the ``@file.csv``::
 
-    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_update
+    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_patch
 
 
 .. _api-reference:
