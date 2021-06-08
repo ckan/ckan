@@ -6,7 +6,6 @@ from six import string_types
 
 import ckan.plugins as p
 import ckan.logic as logic
-import ckan.model as model
 from ckan.model.core import State
 
 import ckanext.datastore.helpers as datastore_helpers
@@ -218,6 +217,11 @@ class DatastorePlugin(p.SingletonPlugin):
                                                              non_negative=True)
             if is_positive_int:
                 del data_dict['offset']
+
+        full_text = data_dict.get('full_text')
+        if full_text:
+            if isinstance(full_text, string_types):
+                del data_dict['full_text']
 
         return data_dict
 

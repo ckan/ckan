@@ -14,8 +14,8 @@ wiki page.
 
 **For Python 3 installations, the minimum Python version required is 3.6**
 
+* **Ubuntu 20.04** includes **Python 3.8** as part of its distribution
 * **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
-* **Ubuntu 16.04** includes **Python 3.5** as part of its distribution
 
 From source is also the right installation method for developers who want to
 work on CKAN.
@@ -44,7 +44,7 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v3.6 or newer (or v2.7) <https://www.python.org/getit/>`_
+Python                 `The Python programming language, v3.6 or newer <https://www.python.org/getit/>`_
 |postgres|             `The PostgreSQL database system, v9.5 or newer <https://www.postgresql.org/docs/9.5/libpq.html>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <https://pip.pypa.io/en/stable/>`_
@@ -104,14 +104,6 @@ a. Create a Python `virtual environment <https://virtualenv.pypa.io/en/latest/>`
 
        |activate|
 
-.. note::
-
-    For Python 2 then replace the `python3 -m venv` command with:
-
-    .. parsed-literal::
-
-        virtualenv --python=/usr/bin/python2.7 --no-site-packages |virtualenv|
-        |activate|
 
 b. Install the recommended ``setuptools`` version and up-to-date pip:
 
@@ -129,13 +121,6 @@ c. Install the CKAN source code into your virtualenv.
 
       pip install -e 'git+\ |git_url|\@\ |current_release_tag|\#egg=ckan[requirements]'
 
-   .. note::
-
-      For Python 2 replace the last fragment with `requirements-py2`
-
-      .. parsed-literal::
-
-         pip install -e 'git+\ |git_url|\@\ |current_release_tag|\#egg=ckan[requirements-py2]'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of

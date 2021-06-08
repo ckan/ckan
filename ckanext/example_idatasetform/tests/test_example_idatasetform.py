@@ -3,16 +3,13 @@
 import pytest
 import six
 import bs4
-from ckan.common import config
 
 from ckan.lib.helpers import url_for
 
-import ckan.model as model
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckanext.example_idatasetform as idf
-import ckan.lib.search
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")

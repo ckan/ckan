@@ -3,7 +3,7 @@
 
 """
 
-import mock
+import unittest.mock as mock
 import pytest
 from six import string_types
 

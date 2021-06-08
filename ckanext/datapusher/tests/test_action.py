@@ -2,7 +2,7 @@
 
 import datetime
 
-import mock
+import unittest.mock as mock
 import pytest
 from ckan.logic import _actions
 

@@ -9,7 +9,6 @@ import ckan.lib.app_globals as app_globals
 
 import ckan.model as model
 import ckan.logic as logic
-import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 
 

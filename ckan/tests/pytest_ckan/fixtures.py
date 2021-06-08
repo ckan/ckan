@@ -38,7 +38,6 @@ import rq
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan.tests.helpers as test_helpers
-import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli

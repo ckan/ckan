@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import pytest
-import mock
+import unittest.mock as mock
 
 import ckan.model as model
 

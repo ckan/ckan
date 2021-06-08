@@ -15,6 +15,7 @@ defaults:
 
       # Database Initialization
       ckan -c test-core-circle-ci.ini datastore set-permissions | psql --host=ckan-postgres --username=ckan
+      psql --host=ckan-postgres --username=ckan --dbname=${CKAN_DATASTORE_POSTGRES_DB} --command="CREATE extension tablefunc;"
       ckan -c test-core-circle-ci.ini db init
   install_deps: &install_deps
     run: |

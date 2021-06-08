@@ -289,9 +289,7 @@ def resource_create(context, data_dict):
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    pkg_dict = _get_action('package_show')(
-        dict(context, return_type='dict'),
-        {'id': package_id})
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
 
@@ -1608,6 +1606,9 @@ def api_token_create(context, data_dict):
     """
     model = context[u'model']
     user, name = _get_or_bust(data_dict, [u'user', u'name'])
+
+    if model.User.get(user) is None:
+        raise NotFound("User not found")
 
     _check_access(u'api_token_create', context, data_dict)
 
