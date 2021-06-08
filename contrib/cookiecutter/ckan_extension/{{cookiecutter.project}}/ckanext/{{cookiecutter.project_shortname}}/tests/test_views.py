@@ -2,7 +2,7 @@
 
 import pytest
 
-import ckanext.{{ cookiecutter.project_shortname }}.validators as validators
+import ckanext.{{cookiecutter.project_shortname}}.validators as validators
 
 
 import ckan.plugins.toolkit as tk

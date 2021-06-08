@@ -9,5 +9,6 @@ def {{cookiecutter.project_shortname}}_required(value):
 
 def get_validators():
     return {
-        "{{cookiecutter.project_shortname}}_required": {{cookiecutter.project_shortname}}_required,
+        "{{cookiecutter.project_shortname}}_required": {{
+            cookiecutter.project_shortname}}_required,
     }

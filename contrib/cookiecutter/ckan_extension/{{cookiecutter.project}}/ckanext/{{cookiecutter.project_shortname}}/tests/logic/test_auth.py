@@ -15,4 +15,5 @@ def test_{{cookiecutter.project_shortname}}_get_sum():
         "user": user["name"],
         "model": model
     }
-    assert test_helpers.call_auth("{{cookiecutter.project_shortname}}_get_sum", context=context)
+    assert test_helpers.call_auth(
+        "{{cookiecutter.project_shortname}}_get_sum", context=context)
