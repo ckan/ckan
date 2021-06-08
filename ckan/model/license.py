@@ -38,10 +38,6 @@ class License(object):
                     *list(int(item) for item in re.split(r'[^\d]', value)))
                 self._data[key] = value
             elif isinstance(value, str):
-                if six.PY2:
-                    # Convert str to unicode
-                    # (keeps Pylons and SQLAlchemy happy).
-                    value = six.ensure_text(value)
                 self._data[key] = value
 
     def __getattr__(self, name):
