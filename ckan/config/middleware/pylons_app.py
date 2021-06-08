@@ -133,13 +133,12 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
         who_parser.remote_user_key
     )
 
-    # Disabling CSRF Middleware for now
-    # if 'security' in config['ckan.plugins']:
-    #     try:
-    #         from ckanext.security.middleware import CSRFMiddleware
-    #         app = CSRFMiddleware(app, config)
-    #     except ImportError:
-    #         pass
+    if 'security' in config['ckan.plugins']:
+        try:
+            from ckanext.security.middleware import CSRFMiddleware
+            app = CSRFMiddleware(app, config)
+        except ImportError:
+            pass
     app = SessionMiddleware(app, config)
 
     # Establish the Registry for this application
