@@ -3177,6 +3177,72 @@ class TestPackageActivityList(object):
         )
         assert [activity["activity_type"] for activity in activities] == []
 
+    def _create_bulk_types_activities(self, types):
+        dataset = factories.Dataset()
+        from ckan import model
+
+        user = factories.User()
+
+        objs = [
+            model.Activity(
+                user_id=user['id'],
+                object_id=dataset["id"],
+                activity_type=activity_type,
+                data=None,
+            )
+            for activity_type in types
+        ]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return dataset["id"]
+
+    def test_error_bad_search(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "package_activity_list",
+                id=id,
+                activity_types=['new package'],
+                exclude_activity_types=['deleted package']
+            )
+
+    def test_activity_types_filter(self):
+        types = [
+            'new package',
+            'changed package',
+            'deleted package',
+            'changed package',
+            'new package'
+        ]
+        id = self._create_bulk_types_activities(types)
+
+        activities_new = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            activity_types=['new package']
+        )
+        assert len(activities_new) == 2
+
+        activities_not_new = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            exclude_activity_types=['new package']
+        )
+        assert len(activities_not_new) == 3
+
+        activities_delete = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            activity_types=['deleted package']
+        )
+        assert len(activities_delete) == 1
+
+        activities_not_deleted = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            exclude_activity_types=['deleted package']
+        )
+        assert len(activities_not_deleted) == 4
+
     def _create_bulk_package_activities(self, count):
         dataset = factories.Dataset()
         from ckan import model

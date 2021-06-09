@@ -182,8 +182,11 @@ def _package_activity_query(package_id):
 
 
 def package_activity_list(
-        package_id, limit, offset, include_hidden_activity=False):
+        package_id, limit, offset, include_hidden_activity=False,
+        activity_types=None, exclude_activity_types=None):
     '''Return the given dataset (package)'s public activity stream.
+
+    activity_types, exclude_activity_types: Optional. list of strings for activity types
 
     Returns all activities about the given dataset, i.e. where the given
     dataset is the object of the activity, e.g.:
@@ -197,6 +200,11 @@ def package_activity_list(
 
     if not include_hidden_activity:
         q = _filter_activitites_from_users(q)
+
+    if activity_types:
+        q = _filter_activitites_from_type(q, include=True, types=activity_types)
+    elif exclude_activity_types:
+        q = _filter_activitites_from_type(q, include=False, types=exclude_activity_types)
 
     return _activities_at_offset(q, limit, offset)
 
@@ -452,7 +460,7 @@ def recently_changed_packages_activity_list(limit, offset):
 
 def _filter_activitites_from_users(q):
     '''
-    Adds a filter to an existing query object ot avoid activities from users
+    Adds a filter to an existing query object to avoid activities from users
     defined in :ref:`ckan.hide_activity_from_users` (defaults to the site user)
     '''
     users_to_avoid = _activity_stream_get_filtered_users()
@@ -461,6 +469,17 @@ def _filter_activitites_from_users(q):
 
     return q
 
+def _filter_activitites_from_type(q, types, include=True):
+    '''
+    Adds a filter to an existing query object to include or exclude (include=False)
+    activities based on a list of types
+    '''
+    if include:
+        q = q.filter(ckan.model.Activity.activity_type.in_(types))
+    else:
+        q = q.filter(ckan.model.Activity.activity_type.notin_(types))
+
+    return q
 
 def _activity_stream_get_filtered_users():
     '''

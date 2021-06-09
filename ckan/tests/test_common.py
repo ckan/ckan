@@ -15,10 +15,7 @@ from ckan.common import (
 )
 from ckan.tests import helpers
 
-if six.PY2:
-    import pylons
-else:
-    pylons = None
+pylons = None
 
 
 def test_del_works():

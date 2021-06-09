@@ -218,6 +218,11 @@ class DatastorePlugin(p.SingletonPlugin):
             if is_positive_int:
                 del data_dict['offset']
 
+        full_text = data_dict.get('full_text')
+        if full_text:
+            if isinstance(full_text, string_types):
+                del data_dict['full_text']
+
         return data_dict
 
     def datastore_delete(self, context, data_dict, fields_types, query_dict):

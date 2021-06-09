@@ -31,10 +31,7 @@ log = logging.getLogger(__name__)
 
 TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
-if six.PY2:
-    KEY_CHARS = string.digits + string.letters + "_-"
-else:
-    KEY_CHARS = string.digits + string.ascii_letters + "_-"
+KEY_CHARS = string.digits + string.ascii_letters + "_-"
 
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description",

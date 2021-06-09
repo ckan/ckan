@@ -54,11 +54,6 @@ from ckan.common import config, is_flask_request, aslist
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 
-if six.PY2:
-    from pylons import i18n as pylons_i18n
-    import pylons
-
-
 log = logging.getLogger(__name__)
 
 # Default Portuguese language to Brazilian territory, since
@@ -222,23 +217,6 @@ def get_identifier_from_locale_class(locale):
          locale.variant))
 
 
-def _set_lang(lang):
-    ''' Allows a custom i18n directory to be specified.
-    Creates a fake config file to pass to pylons.i18n.set_lang, which
-    sets the Pylons root path to desired i18n_directory.
-    This is needed as Pylons will only look for an i18n directory in
-    the application root.'''
-    i18n_dir = get_ckan_i18n_dir()
-    if i18n_dir:
-        fake_config = {'pylons.paths': {
-            'root': os.path.dirname(i18n_dir.rstrip('/'))
-        }, 'pylons.package': config['pylons.package']}
-        pylons_i18n.set_lang(
-            lang, pylons_config=fake_config, class_=Translations)
-    else:
-        pylons_i18n.set_lang(lang, class_=Translations)
-
-
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
@@ -246,37 +224,8 @@ def handle_request(request, tmpl_context):
     if lang != 'en':
         set_lang(lang)
 
-    for plugin in PluginImplementations(ITranslation):
-        if lang in plugin.i18n_locales():
-            _add_extra_translations(plugin.i18n_directory(), lang,
-                                    plugin.i18n_domain())
-
-    extra_directory = config.get('ckan.i18n.extra_directory')
-    extra_domain = config.get('ckan.i18n.extra_gettext_domain')
-    extra_locales = aslist(config.get('ckan.i18n.extra_locales'))
-    if extra_directory and extra_domain and extra_locales:
-        if lang in extra_locales:
-            _add_extra_translations(extra_directory, lang, extra_domain)
-
     tmpl_context.language = lang
     return lang
-
-
-def _add_extra_translations(dirname, locales, domain):
-    translator = Translations.load(dirname=dirname, locales=locales,
-                                   domain=domain)
-    try:
-        pylons.translator.merge(translator)
-    except AttributeError:
-        # this occurs when an extension has 'en' translations that
-        # replace the default strings. As set_lang has not been run,
-        # pylons.translation is the NullTranslation, so we have to
-        # replace the StackedObjectProxy ourselves manually.
-        environ = pylons.request.environ
-        environ['pylons.pylons'].translator = translator
-        if 'paste.registry' in environ:
-            environ['paste.registry'].replace(pylons.translator,
-                                              translator)
 
 
 def get_lang():
@@ -292,8 +241,6 @@ def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
         language_code = config.get('ckan.locale_default', 'en')
-    if language_code != 'en':
-        _set_lang(language_code)
 
 
 def _get_js_translation_entries(filename):
