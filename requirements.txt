@@ -11,6 +11,7 @@ bleach==3.3.0             # via -r requirements.in
 certifi==2021.5.30        # via requests
 chardet==4.0.0            # via requests
 click==7.1.2              # via -r requirements.in, flask, rq
+blinker==1.4              # via -r requirements.in
 dominate==2.4.0           # via -r requirements.in
 feedgen==0.9.0            # via -r requirements.in
 flask-babel==1.0.0        # via -r requirements.in

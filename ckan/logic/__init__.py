@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import inspect
 import functools
 import logging
 import re
@@ -8,7 +9,7 @@ import inspect
 
 from collections import defaultdict
 
-from werkzeug.local import LocalProxy
+from werkzeug.utils import import_string
 import six
 from six import string_types, text_type
 
@@ -483,6 +484,7 @@ def get_action(action):
                         context['__auth_audit'].pop()
                 except IndexError:
                     pass
+
                 return result
             return wrapped
 
@@ -493,7 +495,6 @@ def get_action(action):
         if getattr(_action, 'side_effect_free', False):
             fn.side_effect_free = True
         _actions[action_name] = fn
-
     return _actions.get(action)
 
 

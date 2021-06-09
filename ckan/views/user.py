@@ -657,6 +657,8 @@ class RequestResetView(MethodView):
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above
                 mailer.send_reset_link(user_obj)
+                plugins.toolkit.signals.request_password_reset.send(
+                    user_obj.name, user=user_obj)
             except mailer.MailerException as e:
                 # SMTP is not configured correctly or the server is
                 # temporarily unavailable
@@ -738,6 +740,8 @@ class PerformResetView(MethodView):
             user_dict[u'state'] = model.State.ACTIVE
             logic.get_action(u'user_update')(context, user_dict)
             mailer.create_reset_key(context[u'user_obj'])
+            plugins.toolkit.signals.perform_password_reset.send(
+                username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
             return h.redirect_to(config.get(

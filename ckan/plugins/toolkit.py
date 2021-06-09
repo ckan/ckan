@@ -116,6 +116,8 @@ class _Toolkit(object):
         'mail_recipient',
         # Email a user
         'mail_user',
+        # Collection of signals
+        'signals',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -150,6 +152,7 @@ class _Toolkit(object):
         import ckan.lib.helpers as h
         import ckan.cli as cli
         import ckan.lib.plugins as lib_plugins
+        import ckan.lib.signals as signals
         import ckan.common as common
         from ckan.exceptions import (
             CkanVersionException,
@@ -319,6 +322,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
+        t['signals'] = signals
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
