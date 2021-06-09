@@ -28,7 +28,7 @@ from ckan.views import (identify_user,
                         check_session_cookie,
                         )
 from ckan.common import (c, request, config,
-                         session, is_flask_request, asbool)
+                         session, asbool)
 
 
 log = logging.getLogger(__name__)
@@ -55,8 +55,7 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     if detail and status_code != 503:
         h.flash_error(detail)
 
-    if is_flask_request():
-        flask_abort(status_code, detail)
+    flask_abort(status_code, detail)
 
 
 def render_snippet(*template_names, **kw):
