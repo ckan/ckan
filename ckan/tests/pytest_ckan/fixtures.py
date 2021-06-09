@@ -280,7 +280,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
 
         def test_uploaded_resource(create_with_upload):
             dataset = factories.Dataset()
-            resource = make_resource(
+            resource = create_with_upload(
                 "hello world", "file.txt", url="http://data",
                 package_id=dataset["id"])
             assert resource["url_type"] == "upload"

@@ -45,7 +45,7 @@ msgstr ""
 #: ckan/views/resource.py:402 ckan/views/resource.py:479 ckan/views/resource.py:496
 #: ckan/views/resource.py:545 ckan/views/resource.py:590 ckan/views/resource.py:643
 #: ckan/views/resource.py:842 ckan/views/resource.py:920
-#: ckanext/datapusher/blueprint.py:45 ckanext/datastore/blueprint.py:115
+#: ckanext/datapusher/views.py:45 ckanext/datastore/blueprint.py:115
 #: ckanext/resourceproxy/blueprint.py:37
 msgid "Resource not found"
 msgstr ""
@@ -57,7 +57,7 @@ msgstr ""
 #: ckan/controllers/user.py:597 ckan/controllers/user.py:668
 #: ckan/views/dashboard.py:21 ckan/views/dashboard.py:28 ckan/views/dataset.py:215
 #: ckan/views/group.py:146 ckan/views/user.py:62 ckan/views/user.py:87
-#: ckan/views/user.py:110 ckan/views/user.py:569 ckanext/datapusher/blueprint.py:56
+#: ckan/views/user.py:110 ckan/views/user.py:569 ckanext/datapusher/views.py:56
 msgid "Not authorized to see this page"
 msgstr ""
 
@@ -4947,4 +4947,3 @@ msgstr ""
 #: ckan/views/util.py:26
 msgid "Redirecting to external site is not allowed."
 msgstr ""
-
