@@ -245,7 +245,6 @@ def convert(converter, key, converted_data, errors, context):
         return
 
 
-
 def _remove_blank_keys(schema):
 
     schema_copy = copy.copy(schema)
