@@ -278,6 +278,8 @@ def datastore_upsert(context, data_dict):
         ))
 
     result = backend.upsert(context, data_dict)
+    p.toolkit.signals.datastore_upsert.send(resource_id, records=records)
+
     result.pop('id', None)
     result.pop('connection_url', None)
 
@@ -404,7 +406,8 @@ def datastore_delete(context, data_dict):
         ))
 
     result = backend.delete(context, data_dict)
-
+    p.toolkit.signals.datastore_delete.send(
+        res_id, result=result, data_dict=data_dict)
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])
 
@@ -446,6 +449,10 @@ def datastore_search(context, data_dict):
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},
               it'll search on each specific field (optional)
     :type q: string or dictionary
+    :param full_text: full text query. It search on all fields on each row.
+                      This should be used in replace of ``q`` when performing
+                      string search accross all fields
+    :type full_text: string
     :param distinct: return only distinct rows (optional, default: false)
     :type distinct: bool
     :param plain: treat as plain text query (optional, default: true)

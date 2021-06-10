@@ -19,31 +19,17 @@ from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
 import simplejson as json
-
-if six.PY2:
-    import pylons
-    from pylons.i18n import ungettext as pylons_ungettext
-    from pylons import response
+import ckan.lib.maintain as maintain
 
 current_app = flask.current_app
 
 
+@maintain.deprecated('All web requests are served by Flask', since="2.10.0")
 def is_flask_request():
     u'''
-    A centralized way to determine whether we are in the context of a
-    request being served by Flask or Pylons
+    This function is deprecated. All CKAN requests are now served by Flask
     '''
-    if six.PY3:
-        return True
-    try:
-        pylons.request.environ
-        pylons_request_available = True
-    except TypeError:
-        pylons_request_available = False
-
-    return (flask.request and
-            (flask.request.environ.get(u'ckan.app') == u'flask_app' or
-             not pylons_request_available))
+    return True
 
 
 def streaming_response(
@@ -58,9 +44,7 @@ def streaming_response(
         if with_context:
             iter_data = flask.stream_with_context(iter_data)
         resp = flask.Response(iter_data, mimetype=mimetype)
-    else:
-        response.app_iter = iter_data
-        resp = response.headers['Content-type'] = mimetype
+
     return resp
 
 
@@ -72,10 +56,7 @@ _ = ugettext
 
 
 def ungettext(*args, **kwargs):
-    if is_flask_request():
-        return flask_ungettext(*args, **kwargs)
-    else:
-        return pylons_ungettext(*args, **kwargs)
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -110,19 +91,10 @@ class CKANConfig(MutableMapping):
 
     def clear(self):
         self.store.clear()
-
         try:
             flask.current_app.config.clear()
         except RuntimeError:
             pass
-
-        if six.PY2:
-            try:
-                pylons.config.clear()
-                # Pylons set this default itself
-                pylons.config[u'lang'] = None
-            except TypeError:
-                pass
 
     def __setitem__(self, key, value):
         self.store[key] = value
@@ -131,12 +103,6 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-        if six.PY2:
-            try:
-                pylons.config[key] = value
-            except TypeError:
-                pass
-
     def __delitem__(self, key):
         del self.store[key]
         try:
@@ -144,18 +110,9 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-        if six.PY2:
-            try:
-                del pylons.config[key]
-            except TypeError:
-                pass
-
 
 def _get_request():
-    if is_flask_request():
-        return flask.request
-    else:
-        return pylons.request
+    return flask.request
 
 
 class CKANRequest(LocalProxy):
@@ -169,7 +126,6 @@ class CKANRequest(LocalProxy):
     `is_flask_request`) and at the same time provide all objects methods to be
     able to interact with them transparently.
     '''
-
     @property
     def params(self):
         u''' Special case as Pylons' request.params is used all over the place.
@@ -183,17 +139,11 @@ class CKANRequest(LocalProxy):
 
 
 def _get_c():
-    if is_flask_request():
-        return flask.g
-    else:
-        return pylons.c
+    return flask.g
 
 
 def _get_session():
-    if is_flask_request():
-        return flask.session
-    else:
-        return pylons.session
+    return flask.session
 
 
 local = Local()

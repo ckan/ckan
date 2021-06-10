@@ -947,8 +947,7 @@ def task_status_update(context, data_dict):
 
     '''
     model = context['model']
-    session = model.Session
-    context['session'] = session
+    session = context['session']
 
     id = data_dict.get("id")
     schema = context.get('schema') or schema_.default_task_status_schema()

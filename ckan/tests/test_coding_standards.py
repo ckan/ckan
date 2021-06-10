@@ -26,10 +26,7 @@ FILESYSTEM_ENCODING = text_type(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 
-if six.PY2:
-    HERE = os.path.abspath(os.path.dirname(__file__.decode(FILESYSTEM_ENCODING)))
-else:
-    HERE = os.path.abspath(os.path.dirname(__file__))
+HERE = os.path.abspath(os.path.dirname(__file__))
 
 PROJECT_ROOT = os.path.normpath(os.path.join(HERE, u"..", u".."))
 
@@ -679,26 +676,3 @@ _STRING_LITERALS_WHITELIST = [
     u"doc/conf.py",
     u"setup.py",
 ]
-
-
-@pytest.mark.skipif(six.PY3, reason=u"")
-def test_string_literals_are_prefixed():
-    u"""
-    Test that string literals are prefixed by ``u``, ``b`` or ``ur``.
-
-    See http://docs.ckan.org/en/latest/contributing/unicode.html.
-    """
-    errors = []
-    for abs_path, rel_path in walk_python_files():
-        if rel_path in _STRING_LITERALS_WHITELIST:
-            continue
-        problems = find_unprefixed_string_literals(abs_path)
-        if problems:
-            errors.append((rel_path, problems))
-    if errors:
-        lines = [u"Unprefixed string literals:"]
-        for filename, problems in errors:
-            lines.append(u"  " + filename)
-            for line_no, col_no in problems:
-                lines.append(u"    line {}, column {}".format(line_no, col_no))
-        raise AssertionError(u"\n".join(lines))

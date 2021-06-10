@@ -134,10 +134,7 @@ def _add_ctx_object(ctx, path=None):
         p.toolkit.error_shout(e)
         ctx.abort()
 
-    if six.PY2:
-        ctx.meta["flask_app"] = ctx.obj.app.apps["flask_app"]._wsgi_app
-    else:
-        ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
+    ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
 
 
 def _add_external_commands(ctx):

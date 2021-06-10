@@ -22,7 +22,7 @@ from collections import defaultdict
 import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import asbool, config, is_flask_request
+from ckan.common import asbool, config
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
@@ -52,12 +52,6 @@ from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
-
-if six.PY2:
-    from pylons import url as _pylons_default_url
-    from routes import redirect_to as _routes_redirect_to
-    from routes import url_for as _routes_default_url_for
-
 
 log = logging.getLogger(__name__)
 
@@ -231,10 +225,7 @@ def redirect_to(*args, **kw):
     if _url.startswith('/'):
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
-    if is_flask_request():
-        return _flask_redirect(_url)
-    else:
-        return _routes_redirect_to(_url)
+    return _flask_redirect(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
@@ -262,13 +253,7 @@ def get_site_protocol_and_host():
     site_url = config.get('ckan.site_url', None)
     if site_url is not None:
         parsed_url = urlparse(site_url)
-        if six.PY2:
-            return (
-                parsed_url.scheme.encode('utf-8'),
-                parsed_url.netloc.encode('utf-8')
-            )
-        else:
-            return (parsed_url.scheme, parsed_url.netloc)
+        return (parsed_url.scheme, parsed_url.netloc)
     return (None, None)
 
 
@@ -292,15 +277,6 @@ def _get_auto_flask_context():
     from ckan.tests.pytest_ckan.ckan_setup import _tests_test_request_context
     if _tests_test_request_context:
         return _tests_test_request_context
-
-    if six.PY2:
-
-        from ckan.lib.cli import _cli_test_request_context
-
-        # We are outside a web request. This is a CLI command. A test request
-        # context was created when setting it up
-        if _cli_test_request_context:
-            return _cli_test_request_context
 
 
 @core_helper
@@ -367,11 +343,7 @@ def url_for(*args, **kw):
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
-        if six.PY2:
-            # If it doesn't succeed, fallback to the Pylons router
-            my_url = _url_for_pylons(*args, **kw)
-        else:
-            raise
+        raise
     finally:
         if _auto_flask_context:
             _auto_flask_context.pop()
@@ -462,32 +434,6 @@ def _url_for_flask(*args, **kw):
                              parts.query, parts.fragment))
 
     return my_url
-
-
-def _url_for_pylons(*args, **kw):
-    '''Build a URL using the Pylons (Routes) router
-
-    This function should not be called directly, use ``url_for`` instead
-    '''
-
-    # We need to provide protocol and host to get full URLs, get them from
-    # ckan.site_url
-    if kw.pop('_external', None):
-        kw['qualified'] = True
-    if kw.get('qualified'):
-        kw['protocol'], kw['host'] = get_site_protocol_and_host()
-
-    # The Pylons API routes require a slask on the version number for some
-    # reason
-    if kw.get('controller') == 'api' and kw.get('ver'):
-        if (isinstance(kw['ver'], int) or
-                not kw['ver'].startswith('/')):
-            kw['ver'] = '/%s' % kw['ver']
-
-    if args:
-        args = (six.ensure_str(args[0]), ) + args[1:]
-    # Try to build the URL with routes.url_for
-    return _routes_default_url_for(*args, **kw)
 
 
 @core_helper
@@ -802,10 +748,7 @@ def are_there_flash_messages():
 
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
-    if is_flask_request():
-        return _link_active_flask(kwargs)
-    else:
-        return _link_active_pylons(kwargs)
+    return _link_active_flask(kwargs)
 
 
 def _link_active_pylons(kwargs):
@@ -936,10 +879,7 @@ def nav_link(text, *args, **kwargs):
     :param condition: if ``False`` then no link is returned
 
     '''
-    if is_flask_request():
-        return nav_link_flask(text, *args, **kwargs)
-    else:
-        return nav_link_pylons(text, *args, **kwargs)
+    return nav_link_flask(text, *args, **kwargs)
 
 
 def nav_link_flask(text, *args, **kwargs):
@@ -1245,8 +1185,7 @@ def get_facet_items_dict(
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        params_items = request.params.items(multi=True) \
-            if is_flask_request() else request.params.items()
+        params_items = request.params.items(multi=True)
         if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
@@ -1283,8 +1222,7 @@ def has_more_facets(facet, search_facets, limit=None, exclude_active=False):
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        params_items = request.params.items(multi=True) \
-            if is_flask_request() else request.params.items()
+        params_items = request.params.items(multi=True)
         if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
@@ -1677,15 +1615,7 @@ def user_image(user_id, size=100):
 @core_helper
 def pager_url(page, partial=None, **kwargs):
     pargs = []
-    if is_flask_request():
-        pargs.append(request.endpoint)
-        # FIXME: add `id` param to kwargs if it really required somewhere
-    else:
-        routes_dict = _pylons_default_url.environ['pylons.routes_dict']
-        kwargs['controller'] = routes_dict['controller']
-        kwargs['action'] = routes_dict['action']
-        if routes_dict.get('id'):
-            kwargs['id'] = routes_dict['id']
+    pargs.append(request.endpoint)
     kwargs['page'] = page
     return url_for(*pargs, **kwargs)
 
@@ -2113,8 +2043,7 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     instead.
     '''
 
-    params_items = request.params.items(multi=True) \
-        if is_flask_request() else request.params.items()
+    params_items = request.params.items(multi=True)
     params_nopage = [
         (k, v) for k, v in params_items
         if k != 'page'
@@ -2152,8 +2081,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     else:
         keys = key
 
-    params_items = request.params.items(multi=True) \
-        if is_flask_request() else request.params.items()
+    params_items = request.params.items(multi=True)
     params_nopage = [
         (k, v) for k, v in params_items
         if k != 'page'

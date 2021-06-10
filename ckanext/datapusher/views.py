@@ -13,6 +13,10 @@ from ckan.common import _
 datapusher = Blueprint(u'datapusher', __name__)
 
 
+def get_blueprints():
+    return [datapusher]
+
+
 class ResourceDataView(MethodView):
 
     def post(self, id, resource_id):

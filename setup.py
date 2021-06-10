@@ -151,6 +151,7 @@ entry_points = {
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
         'example_iapitoken = ckanext.example_iapitoken.plugin:ExampleIApiTokenPlugin',
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
+        'example_isignal = ckanext.example_isignal.plugin:ExampleISignalPlugin',
         'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
         'example_humanizer = ckanext.example_humanizer.plugin:ExampleHumanizerPlugin',
     ],
@@ -191,7 +192,7 @@ entry_points = {
 
 extras_require = {}
 _extras_groups = [
-    ('requirements', 'requirements.txt'), ('requirements-py2', 'requirements-py2.txt'),
+    ('requirements', 'requirements.txt'),
     ('setuptools', 'requirement-setuptools.txt'), ('dev', 'dev-requirements.txt'),
 ]
 

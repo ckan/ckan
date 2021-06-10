@@ -1049,7 +1049,7 @@ def user_create(context, data_dict):
         data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
-
+    plugins.toolkit.signals.user_created.send(user.name, user=user)
     # Flush the session to cause user.id to be initialised, because
     # activity_create() (below) needs it.
     session.flush()
