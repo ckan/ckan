@@ -342,7 +342,7 @@ def test_simple():
 
     converted_data, errors = validate(data, schema)
 
-    assert errors == {"numbers": [{"code": [u"Missing value"]}]}
+    assert errors == {"numbers": [{"code": [u"Missing value"]}, {}]}
 
 
 def test_error_list_position():
