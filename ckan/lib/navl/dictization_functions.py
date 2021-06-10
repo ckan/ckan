@@ -245,18 +245,15 @@ def convert(converter, key, converted_data, errors, context):
         return
 
 
+
 def _remove_blank_keys(schema):
 
-    schema_copy = copy.deepcopy(schema)
-
-    for key, value in schema_copy.items():
-        if len(value) and isinstance(value[0], dict):
+    for key, value in schema.items():
+        if isinstance(value[0], dict):
             for item in value:
-                if not item:
-                    value.remove(item)
                 _remove_blank_keys(item)
-        if not any(value):
-            schema.pop(key)
+            if not any(value):
+                schema.pop(key)
 
     return schema
 
@@ -290,6 +287,17 @@ def validate(data, schema, context=None):
     errors_unflattened = unflatten(errors)
 
     # remove validators that passed
+    dicts_to_process = [errors_unflattened]
+    while dicts_to_process:
+        dict_to_process = dicts_to_process.pop()
+        dict_to_process_copy = copy.deepcopy(dict_to_process)
+        for key, value in dict_to_process_copy.items():
+            if not value:
+                dict_to_process.pop(key)
+                continue
+            if isinstance(value[0], dict):
+                dicts_to_process.extend(value)
+
     _remove_blank_keys(errors_unflattened)
 
     return converted_data, errors_unflattened
