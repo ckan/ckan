@@ -24,14 +24,12 @@ import ckan.lib.maintain as maintain
 current_app = flask.current_app
 
 
-@maintain.deprecated('All requests are Flask request', since="2.10.0")
+@maintain.deprecated('All web requests are served by Flask', since="2.10.0")
 def is_flask_request():
     u'''
-    This function is deprecated. There is know use for it
-    since ckan is now fully python 3.* dependent.
+    This function is deprecated. All CKAN requests are now served by Flask
     '''
-    if six.PY3:
-        return True
+    return True
 
 
 def streaming_response(
