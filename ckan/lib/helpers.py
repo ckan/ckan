@@ -372,14 +372,6 @@ def url_for(*args, **kw):
     return _local_url(my_url, locale=locale, **kw)
 
 
-def _coerce_for_querystring(value):
-    if value is None:
-        return 'null'
-    if isinstance(value, numbers.Number):
-        return str(value)
-    return value
-
-
 def _url_for_flask(*args, **kw):
     '''Build a URL using the Flask router
 
@@ -433,24 +425,29 @@ def _url_for_flask(*args, **kw):
             kw.pop('host', None)
             kw.pop('protocol', None)
             if kw:
-                my_url += '?'
                 query_args = []
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
+                            if value is None:
+                                continue
                             query_args.append(
                                 u'{}={}'.format(
-                                    quote(_coerce_for_querystring(key)),
-                                    quote(_coerce_for_querystring(value))
+                                    quote(str(key)),
+                                    quote(str(value))
                                 )
                             )
                     else:
+                        if val is None:
+                            continue
                         query_args.append(
                             u'{}={}'.format(
-                                quote(_coerce_for_querystring(key)),
-                                quote(_coerce_for_querystring(val))
+                                quote(str(key)),
+                                quote(str(val))
                             )
                         )
+                if query_args:
+                    my_url += '?'
                 my_url += '&'.join(query_args)
         else:
             raise
