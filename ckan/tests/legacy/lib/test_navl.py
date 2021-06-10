@@ -347,6 +347,7 @@ def test_simple():
 def test_error_list_position():
     data = {
         "name": "fred",
+        "cats": [{"name": "rita"}, {"name": "otis"}],
         "numbers": [
             {"number": "432423432", "code": "+44"},
             {"number": "13221312"},
@@ -358,6 +359,9 @@ def test_error_list_position():
 
     schema = {
         "name": [not_empty],
+        "cats": {
+            "name": [not_empty],
+        },
         "numbers": {
             "number": [convert_int],
             "code": [not_empty],
@@ -367,13 +371,14 @@ def test_error_list_position():
 
     converted_data, errors = validate(data, schema)
 
-    assert errors == {"numbers": [
-            {},
-            {"code": [u"Missing value"]},
-            {},
-            {"code": [u"Missing value"]},
-            {},
-        ]
+    assert errors == {
+            "numbers": [
+                {},
+                {"code": [u"Missing value"]},
+                {},
+                {"code": [u"Missing value"]},
+                {},
+            ]
     }
 
 
