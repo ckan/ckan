@@ -254,7 +254,6 @@ def convert(converter, key, converted_data, errors, context):
         return
 
 
-
 def _remove_blank_keys(schema):
 
     for key, value in schema.items():
