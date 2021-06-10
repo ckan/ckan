@@ -23,24 +23,6 @@ class TestWithFlashPlugin:
         res = app.get(url)
         assert body_contains(res, u"This is a success message populated by Flask")
 
-    @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
-    def test_flash_populated_in_pylons_action_redirect_to_flask(self, app):
-        u"""
-        Flash store is populated by pylons action is accessible by Flask view.
-        """
-        res = app.get(u"/pylons_add_flash_message_redirect_view")
-
-        assert body_contains(res, u"This is a success message populated by Pylons")
-
-    @pytest.mark.skipif(six.PY3, reason=u"There is no pylons app in Py3")
-    def test_flash_populated_in_flask_view_redirect_to_pylons(self, app):
-        u"""
-        Flash store is populated by flask view is accessible by pylons action.
-        """
-        res = app.get(u"/flask_add_flash_message_redirect_pylons")
-
-        assert body_contains(res, u"This is a success message populated by Flask")
-
 
 class FlashMessagePlugin(p.SingletonPlugin):
     u"""

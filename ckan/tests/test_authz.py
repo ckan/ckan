@@ -52,13 +52,6 @@ def test_roles_that_cascade_to_sub_groups_is_a_list():
     )
 
 
-@pytest.mark.skipif(six.PY3, reason='Only relevant to py2')
-@mock.patch('paste.registry.TypeError')
-def test_get_user_outside_web_request_py2(mock_TypeError):
-    auth._get_user('example')
-    assert mock_TypeError.called
-
-
 @pytest.mark.skipif(six.PY2, reason='Only relevant to py3')
 @mock.patch('flask.globals.RuntimeError')
 def test_get_user_outside_web_request_py3(mock_RuntimeError):

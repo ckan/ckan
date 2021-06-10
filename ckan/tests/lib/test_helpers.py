@@ -745,37 +745,6 @@ class TestBuildNavMain(object):
         )
 
 
-@pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
-@pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
-@pytest.mark.usefixtures("with_plugins")
-class TestHelperException(object):
-
-    def test_helper_exception_non_existing_helper_as_attribute(self, app):
-        """Calling a non-existing helper on `h` raises a HelperException."""
-        app.get("/broken_helper_as_attribute", status=500)
-
-    def test_helper_exception_non_existing_helper_as_item(self, app):
-        """Calling a non-existing helper on `h` raises a HelperException."""
-
-        app.get("/broken_helper_as_item", status=500)
-
-    def test_helper_existing_helper_as_attribute(self, app):
-        """Calling an existing helper on `h` doesn't raises a
-        HelperException."""
-
-        res = app.get("/helper_as_attribute")
-
-        assert helpers.body_contains(res, "My lang is: en")
-
-    def test_helper_existing_helper_as_item(self, app):
-        """Calling an existing helper on `h` doesn't raises a
-        HelperException."""
-
-        res = app.get("/helper_as_item")
-
-        assert helpers.body_contains(res, "My lang is: en")
-
-
 class TestHelpersPlugin(p.SingletonPlugin):
 
     p.implements(p.IRoutes, inherit=True)

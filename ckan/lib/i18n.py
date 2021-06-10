@@ -50,7 +50,7 @@ from babel.core import (LOCALE_ALIASES,
 from babel.support import Translations
 import polib
 
-from ckan.common import config, is_flask_request, aslist
+from ckan.common import config, aslist
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 
@@ -231,10 +231,8 @@ def handle_request(request, tmpl_context):
 def get_lang():
     ''' Returns the current language. Based on babel.i18n.get_lang but
     works when set_lang has not been run (i.e. still in English). '''
-    if is_flask_request():
-        from ckan.config.middleware.flask_app import get_locale
-        return get_locale()
-    return 'en'
+    from ckan.config.middleware.flask_app import get_locale
+    return get_locale()
 
 
 def set_lang(language_code):

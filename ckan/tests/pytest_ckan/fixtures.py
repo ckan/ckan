@@ -224,13 +224,12 @@ def mail_server(monkeypatch):
 def with_test_worker(monkeypatch):
     """Worker that doesn't create forks.
     """
-    if six.PY3:
-        monkeypatch.setattr(
-            rq.Worker, u"main_work_horse", rq.SimpleWorker.main_work_horse
-        )
-        monkeypatch.setattr(
-            rq.Worker, u"execute_job", rq.SimpleWorker.execute_job
-        )
+    monkeypatch.setattr(
+        rq.Worker, u"main_work_horse", rq.SimpleWorker.main_work_horse
+    )
+    monkeypatch.setattr(
+        rq.Worker, u"execute_job", rq.SimpleWorker.execute_job
+    )
     yield
 
 

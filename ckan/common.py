@@ -19,17 +19,17 @@ from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
 import simplejson as json
+import ckan.lib.maintain as maintain
 
 current_app = flask.current_app
 
 
+@maintain.deprecated('All web requests are served by Flask', since="2.10.0")
 def is_flask_request():
     u'''
-    A centralized way to determine whether we are in the context of a
-    request being served by Flask or Pylons
+    This function is deprecated. All CKAN requests are now served by Flask
     '''
-    if six.PY3:
-        return True
+    return True
 
 
 def streaming_response(
@@ -56,8 +56,7 @@ _ = ugettext
 
 
 def ungettext(*args, **kwargs):
-    if is_flask_request():
-        return flask_ungettext(*args, **kwargs)
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -113,8 +112,7 @@ class CKANConfig(MutableMapping):
 
 
 def _get_request():
-    if is_flask_request():
-        return flask.request
+    return flask.request
 
 
 class CKANRequest(LocalProxy):
@@ -141,13 +139,11 @@ class CKANRequest(LocalProxy):
 
 
 def _get_c():
-    if is_flask_request():
-        return flask.g
+    return flask.g
 
 
 def _get_session():
-    if is_flask_request():
-        return flask.session
+    return flask.session
 
 
 local = Local()
