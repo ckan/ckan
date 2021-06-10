@@ -168,44 +168,24 @@ class TestHelpersUrlFor(BaseUrlFor):
             ({"param": 27}, "/dataset/my_dataset?param=27"),
             ({"param": 27.3}, "/dataset/my_dataset?param=27.3"),
             ({"param": True}, "/dataset/my_dataset?param=True"),
-            ({"param": None}, "/dataset/my_dataset?param=null"),
+            ({"param": None}, "/dataset/my_dataset"),
+            ({"param": {}}, "/dataset/my_dataset?param=%7B%7D"),
         ],
     )
-    def test_url_for_string_route_with_query_param_valid(self, extra, exp):
-        generated_url = h.url_for("/dataset/my_dataset", **extra)
-        assert generated_url == exp
-
-    @pytest.mark.parametrize(
-        "extra",
-        [
-            {"param": {}},
-            {"param": object()}
-        ]
-    )
-    def test_url_for_string_route_with_query_param_invalid(self, extra):
-        with pytest.raises(TypeError):
-            h.url_for("/dataset/my_dataset", **extra)
-
-    def test_url_for_string_route_with_list_query_params_valid(self):
-        generated_url = h.url_for(
-            "/dataset/my_dataset",
-            multi=['foo', 27, 27.3, True, None]
-        )
+    def test_url_for_string_route_with_query_param(self, extra, exp):
         assert (
-            generated_url ==
-            "/dataset/my_dataset?multi=foo&multi=27&multi=27.3&multi=True&multi=null"
+            h.url_for("/dataset/my_dataset", **extra) ==
+            h.url_for("dataset.read", id="my_dataset", **extra) ==
+            exp
         )
 
-    @pytest.mark.parametrize(
-        "extra",
-        [
-            {"param": [{}]},
-            {"param": [object()]}
-        ]
-    )
-    def test_url_for_string_route_with_list_query_params_invalid(self, extra):
-        with pytest.raises(TypeError):
-            h.url_for("/dataset/my_dataset", **extra)
+    def test_url_for_string_route_with_list_query_param(self):
+        extra = {'multi': ['foo', 27, 27.3, True, None]}
+        assert (
+            h.url_for("/dataset/my_dataset", **extra) ==
+            h.url_for("dataset.read", id="my_dataset", **extra) ==
+            "/dataset/my_dataset?multi=foo&multi=27&multi=27.3&multi=True"
+        )
 
 
 class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
