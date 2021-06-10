@@ -245,6 +245,22 @@ def convert(converter, key, converted_data, errors, context):
         return
 
 
+def _remove_blank_keys(schema):
+
+    schema_copy = copy.deepcopy(schema)
+
+    for key, value in schema_copy.items():
+        if len(value) and isinstance(value[0], dict):
+            for item in value:
+                if not item:
+                    value.remove(item)
+                _remove_blank_keys(item)
+        if not any(value):
+            schema.pop(key)
+
+    return schema
+
+
 def validate(data, schema, context=None):
     '''Validate an unflattened nested dict against a schema.'''
     context = context or {}
@@ -271,12 +287,10 @@ def validate(data, schema, context=None):
             if key not in converted_data:
                 converted_data[key] = []
 
-    # remove validators that passed
-    for key in list(errors.keys()):
-        if not errors[key]:
-            del errors[key]
-
     errors_unflattened = unflatten(errors)
+
+    # remove validators that passed
+    _remove_blank_keys(errors_unflattened)
 
     return converted_data, errors_unflattened
 
