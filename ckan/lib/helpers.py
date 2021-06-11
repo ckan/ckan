@@ -8,7 +8,6 @@ available to Controllers. This module is available to templates as 'h'.
 import email.utils
 import datetime
 import logging
-import numbers
 import re
 import os
 import pytz
