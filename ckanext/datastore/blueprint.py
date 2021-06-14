@@ -46,6 +46,7 @@ def dump_schema():
         u'format': [default(u'csv'), one_of(DUMP_FORMATS)],
         u'bom': [default(False), boolean_validator],
         u'filters': [ignore_missing, json_validator],
+        u'full_text': [ignore_missing, unicode_or_json_validator],
         u'q': [ignore_missing, unicode_or_json_validator],
         u'distinct': [ignore_missing, boolean_validator],
         u'plain': [ignore_missing, boolean_validator],
@@ -81,7 +82,7 @@ def dump(resource_id):
                 for k, v in data.items()
                 if k in [
                     u'filters', u'q', u'distinct', u'plain', u'language',
-                    u'fields'
+                    u'fields', u'full_text'
                 ]
             },
         )
