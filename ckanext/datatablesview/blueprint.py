@@ -46,7 +46,7 @@ def ajax(resource_view_id):
                                })
 
     draw = int(request.form[u'draw'])
-    search_text = text_type(request.form[u'search[value]'])
+    full_text = text_type(request.form[u'search[value]'])
     offset = int(request.form[u'start'])
     limit = int(request.form[u'length'])
     view_filters = resource_view.get(u'filters', {})
@@ -94,26 +94,29 @@ def ajax(resource_view_id):
         i += 1
 
     if colsearch_dict:
-        search_text = json.dumps(colsearch_dict)
+        q = json.dumps(colsearch_dict)
     else:
-        search_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
-                             search_text) + u':*' if search_text else u''
+        q = u''
+
+    full_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
+                             full_text) + u':*' if full_text else u''
 
     try:
         response = datastore_search(
             None, {
-                u"q": search_text,
+                u'q': q,
+                u'full_text': full_text,
                 u"resource_id": resource_view[u'resource_id'],
                 u'plain': False,
                 u'language': u'simple',
-                u"offset": offset,
-                u"limit": limit,
-                u"sort": u', '.join(sort_list),
-                u"filters": filters,
+                u'offset': offset,
+                u'limit': limit,
+                u'sort': u', '.join(sort_list),
+                u'filters': filters,
             }
         )
     except Exception:
-        query_error = u'Invalid search query... ' + search_text
+        query_error = u'Invalid search... full_text: %s q: %s' % (full_text, q)
         dtdata = {u'error': query_error}
     else:
         data = []
@@ -141,7 +144,7 @@ def filtered_download(resource_view_id):
                                    u'id': resource_view_id
                                })
 
-    search_text = text_type(params[u'search'][u'value'])
+    full_text = text_type(params[u'search'][u'value'])
     view_filters = resource_view.get(u'filters', {})
     user_filters = text_type(params[u'filters'])
     filters = merge_filters(view_filters, user_filters)
@@ -180,17 +183,20 @@ def filtered_download(resource_view_id):
                 colsearch_dict[k] = v + u':*'
 
     if colsearch_dict:
-        search_text = json.dumps(colsearch_dict)
+        q = json.dumps(colsearch_dict)
     else:
-        search_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
-                             search_text) + u':*' if search_text else ''
+        q = u''
+
+    full_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
+                             full_text) + u':*' if full_text else ''
 
     return h.redirect_to(
         h.url_for(
             u'datastore.dump',
             resource_id=resource_view[u'resource_id']) + u'?' + urlencode(
             {
-                u'q': search_text,
+                u'q': q,
+                u'full_text': full_text,
                 u'plain': False,
                 u'language': u'simple',
                 u'sort': u','.join(sort_list),
