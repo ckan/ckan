@@ -158,6 +158,67 @@ class TestDatastoreDump(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_fulltext_and_fields(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+                {
+                    u"b\xfck": "1984",
+                    "author": "george orwell",
+                    "nested": {"c": "d"},
+                    u"characters": [u"Winston Smith", u"Julia", u"Big Brother"],
+                    "random_letters": [],
+                },
+                {
+                    u"b\xfck": "the brothers karmazov",
+                    "author": "fyodor dostoyevsky",
+                    "nested": {"y": "z"},
+                    u"characters": [u"Alyosha", u"Fyodor", u"Pavel", u"Dmitri", u"Ivan"],
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        response = app.get(
+            u"/datastore/dump/{0}?full_text=brother&fields=nested,author".format(
+                resource["id"]
+            )
+        )
+        content = six.ensure_text(response.data)
+
+        expected_content = (
+            u"nested,author\r\n"
+            u'"{""c"": ""d""}",george orwell\n'
+            u'"{""y"": ""z""}",fyodor dostoyevsky\n'
+        )
+        assert content == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_csv_file_extension(self, app):
         resource = factories.Resource()
         data = {
