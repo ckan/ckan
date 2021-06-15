@@ -493,7 +493,7 @@ def read(package_type, id):
             **request.args,
             'id': pkg_dict['name'],
             'activity_id': activity_id
-            }
+        }
         return h.redirect_to(h.url_for(u'{}.read'.format(package_type),
                              **kwargs))
 
