@@ -115,7 +115,7 @@ class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
             (u'/hello', u'hello', override_flask_hello),
             (u'/helper_not_here', u'helper_not_here', helper_not_here),
             (u'/helper', u'helper_here', helper_here),
-            (u'/flask_request', u'flask_request', request_here),
+            (u'/flask_request', u'flask_request', flask_request),
         ]
         for rule in rules:
             blueprint.add_url_rule(*rule)
