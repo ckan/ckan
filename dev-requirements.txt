@@ -12,7 +12,7 @@ pycodestyle==2.5.0
 pip-tools==5.1.2
 Sphinx==1.8.5
 sphinx-rtd-theme==0.4.3
-cookiecutter==1.7.2
+cookiecutter==1.7.3
 
 pytest==6.2.2
 pytest-split-tests==1.0.9
