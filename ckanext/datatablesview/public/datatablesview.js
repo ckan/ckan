@@ -14,7 +14,6 @@ let gcolFilterText = ''
 
 let datatable
 const gisFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1
-let gsearchMode = ''
 let gstartTime = 0
 let gelapsedTime
 
@@ -143,24 +142,26 @@ function filterInfo (dt, noHtml = false, justFilterInfo = false, wrapped = false
   }
 
   // add active filter info to messageTop
-  if (gsearchMode === 'table') {
-    filtermsg = filtermsg + '<br/> <b>' + gtableSearchText + ':</b> ' + dt.search()
-  } else if (gsearchMode === 'column') {
-    let colsearchflag = false
-    let colsearchmsg = ''
-    dt.columns().every(function () {
-      const colsearch = this.search()
-      const colname = this.name()
-
-      if (colsearch) {
-        colsearchflag = true
-        colsearchmsg = colsearchmsg + ' <b>' + colname + ':</b><br/>' + colsearch + ', '
-      }
-    })
-    if (colsearchflag) {
-      filtermsg = filtermsg + '<br/> <b>' + gcolFilterText + ': <br/></b>' + colsearchmsg.slice(0, -2)
-    }
+  const tablefilter = dt.search()
+  if (tablefilter) {
+    filtermsg = filtermsg + '<br/> <b>' + gtableSearchText + ':</b> ' + tablefilter
   }
+  let colsearchmsg = ''
+  dt.columns().every(function () {
+    const colsearch = this.search()
+    const colname = this.name()
+
+    if (colsearch) {
+      colsearchmsg = colsearchmsg + ' <b>' + colname + ':</b> ' + colsearch + ', <br/>'
+    }
+  })
+  if (colsearchmsg) {
+    if (noHtml && tablefilter) {
+      filtermsg = filtermsg + '\n'
+    }
+    filtermsg = filtermsg + '<br/> <b>' + gcolFilterText + ': <br/></b>' + colsearchmsg.slice(0, -7)
+  }
+
   filtermsg = justFilterInfo ? filtermsg : filtermsg + '<br/>' + gsortInfo
   filtermsg = noHtml ? filtermsg.replace(/(<([^>]+)>)/ig, '') : filtermsg
   filtermsg = wrapped ? filtermsg.replace(/,/g, '\n') : filtermsg
@@ -472,7 +473,6 @@ this.ckan.module('datatables_view', function (jQuery) {
                 .search(this.value)
                 .page(0)
                 .draw(false)
-              gsearchMode = 'column'
             }
           })
       })
@@ -640,7 +640,6 @@ this.ckan.module('datatables_view', function (jQuery) {
               datatable
                 .search(this.value)
                 .draw()
-              gsearchMode = 'table'
             }
           })
 
