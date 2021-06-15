@@ -13,6 +13,7 @@ recursive-include ckanext/*/templates *
 recursive-include ckanext/*/theme/public *
 recursive-include ckanext/*/theme/templates *
 include ckanext/datastore/set_permissions.sql
+include ckanext/datastore/allowed_functions.txt
 
 prune .git
 include CHANGELOG.txt
@@ -20,3 +21,6 @@ include ckan/migration/migrate.cfg
 include ckan/migration/README
 recursive-include ckan/migration/versions *.sql
 include requirement-setuptools.txt
+include requirements.txt
+include requirements-py2.txt
+include dev-requirements.txt

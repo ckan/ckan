@@ -50,15 +50,9 @@ from babel.core import (LOCALE_ALIASES,
 from babel.support import Translations
 import polib
 
-from ckan.common import config, is_flask_request, aslist
-import ckan.i18n
+from ckan.common import config, aslist
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
-
-if six.PY2:
-    from pylons import i18n as pylons_i18n
-    import pylons
-
 
 log = logging.getLogger(__name__)
 
@@ -71,6 +65,15 @@ _CKAN_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), u'..'))
 
 # Output directory for generated JavaScript translations
 _JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, u'public', u'base', u'i18n')
+
+
+def get_ckan_i18n_dir():
+    path = config.get(
+        u'ckan.i18n_directory', os.path.join(_CKAN_DIR, u'i18n'))
+    if os.path.isdir(os.path.join(path, u'i18n')):
+        path = os.path.join(path, u'i18n')
+
+    return path
 
 
 def get_locales_from_config():
@@ -101,11 +104,7 @@ def _get_locales():
     locale_order = config.get('ckan.locale_order', '').split()
 
     locales = ['en']
-    if config.get('ckan.i18n_directory'):
-        i18n_path = os.path.join(config.get('ckan.i18n_directory'), 'i18n')
-    else:
-        i18n_path = os.path.dirname(ckan.i18n.__file__)
-
+    i18n_path = get_ckan_i18n_dir()
     # For every file in the ckan i18n directory see if babel can understand
     # the locale. If yes, add it to the available locales
     for locale in os.listdir(i18n_path):
@@ -218,21 +217,6 @@ def get_identifier_from_locale_class(locale):
          locale.variant))
 
 
-def _set_lang(lang):
-    ''' Allows a custom i18n directory to be specified.
-    Creates a fake config file to pass to pylons.i18n.set_lang, which
-    sets the Pylons root path to desired i18n_directory.
-    This is needed as Pylons will only look for an i18n directory in
-    the application root.'''
-    if config.get('ckan.i18n_directory'):
-        fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
-                       'pylons.package': config['pylons.package']}
-        pylons_i18n.set_lang(
-            lang, pylons_config=fake_config, class_=Translations)
-    else:
-        pylons_i18n.set_lang(lang, class_=Translations)
-
-
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
@@ -240,54 +224,21 @@ def handle_request(request, tmpl_context):
     if lang != 'en':
         set_lang(lang)
 
-    for plugin in PluginImplementations(ITranslation):
-        if lang in plugin.i18n_locales():
-            _add_extra_translations(plugin.i18n_directory(), lang,
-                                    plugin.i18n_domain())
-
-    extra_directory = config.get('ckan.i18n.extra_directory')
-    extra_domain = config.get('ckan.i18n.extra_gettext_domain')
-    extra_locales = aslist(config.get('ckan.i18n.extra_locales'))
-    if extra_directory and extra_domain and extra_locales:
-        if lang in extra_locales:
-            _add_extra_translations(extra_directory, lang, extra_domain)
-
     tmpl_context.language = lang
     return lang
-
-
-def _add_extra_translations(dirname, locales, domain):
-    translator = Translations.load(dirname=dirname, locales=locales,
-                                   domain=domain)
-    try:
-        pylons.translator.merge(translator)
-    except AttributeError:
-        # this occurs when an extension has 'en' translations that
-        # replace the default strings. As set_lang has not been run,
-        # pylons.translation is the NullTranslation, so we have to
-        # replace the StackedObjectProxy ourselves manually.
-        environ = pylons.request.environ
-        environ['pylons.pylons'].translator = translator
-        if 'paste.registry' in environ:
-            environ['paste.registry'].replace(pylons.translator,
-                                              translator)
 
 
 def get_lang():
     ''' Returns the current language. Based on babel.i18n.get_lang but
     works when set_lang has not been run (i.e. still in English). '''
-    if is_flask_request():
-        from ckan.config.middleware.flask_app import get_locale
-        return get_locale()
-    return 'en'
+    from ckan.config.middleware.flask_app import get_locale
+    return get_locale()
 
 
 def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
         language_code = config.get('ckan.locale_default', 'en')
-    if language_code != 'en':
-        _set_lang(language_code)
 
 
 def _get_js_translation_entries(filename):
@@ -359,9 +310,7 @@ def build_js_translations():
     strings that are actually used in JS files.
     '''
     log.debug(u'Generating JavaScript translations')
-    ckan_i18n_dir = config.get(u'ckan.i18n_directory',
-                               os.path.join(_CKAN_DIR, u'i18n'))
-
+    ckan_i18n_dir = get_ckan_i18n_dir()
     # Collect all language codes (an extension might add support for a
     # language that isn't supported by CKAN core, yet).
     langs = set()

@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import os
-import re
 import logging
 
 from ckan.common import config

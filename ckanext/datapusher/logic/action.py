@@ -61,17 +61,15 @@ def datapusher_submit(context, data_dict):
 
     datapusher_url = config.get('ckan.datapusher.url')
 
-    site_url = h.url_for('/', qualified=True)
-
     callback_url_base = config.get('ckan.datapusher.callback_url_base')
     if callback_url_base:
+        site_url = callback_url_base
         callback_url = urljoin(
             callback_url_base.rstrip('/'), '/api/3/action/datapusher_hook')
     else:
+        site_url = h.url_for('/', qualified=True)
         callback_url = h.url_for(
             '/api/3/action/datapusher_hook', qualified=True)
-
-    user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
 
     for plugin in p.PluginImplementations(interfaces.IDataPusher):
         upload = plugin.can_upload(res_id)
@@ -119,7 +117,14 @@ def datapusher_submit(context, data_dict):
         pass
 
     context['ignore_auth'] = True
+    # Use local session for task_status_update, so it can commit its own
+    # results without messing up with the parent session that contains pending
+    # updats of dataset/resource/etc.
+    context['session'] = context['model'].meta.create_local_session()
     p.toolkit.get_action('task_status_update')(context, task)
+
+    site_user = p.toolkit.get_action(
+        'get_site_user')({'ignore_auth': True}, {})
 
     try:
         r = requests.post(
@@ -128,7 +133,7 @@ def datapusher_submit(context, data_dict):
                 'Content-Type': 'application/json'
             },
             data=json.dumps({
-                'api_key': user['apikey'],
+                'api_key': site_user['apikey'],
                 'job_type': 'push_to_datastore',
                 'result_url': callback_url,
                 'metadata': {
@@ -151,9 +156,11 @@ def datapusher_submit(context, data_dict):
         raise p.toolkit.ValidationError(error)
 
     except requests.exceptions.HTTPError as e:
-        m = 'An Error occurred while sending the job: {0}'.format(e.message)
+        m = 'An Error occurred while sending the job: {0}'.format(str(e))
         try:
             body = e.response.json()
+            if body.get('error'):
+                m += ' ' + body['error']
         except ValueError:
             body = e.response.text
         error = {'message': m,

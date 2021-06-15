@@ -28,11 +28,16 @@ def search_index():
                    u'ensures that changes are immediately available on the'
                    u'search, but slows significantly the process. Default'
                    u'is false.')
-def rebuild(verbose, force, refresh, only_missing, quiet, commit_each):
+@click.argument(u'package_id', required=False)
+def rebuild(
+        verbose, force, refresh, only_missing, quiet, commit_each, package_id
+):
     u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
     try:
-        rebuild(only_missing=only_missing,
+
+        rebuild(package_id,
+                only_missing=only_missing,
                 force=force,
                 refresh=refresh,
                 defer_commit=(not commit_each),
@@ -85,12 +90,12 @@ def rebuild_fast():
         from ckan.lib.search import rebuild
         rebuild(package_ids=ids)
 
-    def chunks(l, n):
-        u""" Yield n successive chunks from l."""
-        newn = int(len(l) / n)
+    def chunks(list_, n):
+        u""" Yield n successive chunks from list_"""
+        newn = int(len(list_) / n)
         for i in range(0, n - 1):
-            yield l[i * newn:i * newn + newn]
-        yield l[n * newn - newn:]
+            yield list_[i * newn:i * newn + newn]
+        yield list_[n * newn - newn:]
 
     processes = []
 

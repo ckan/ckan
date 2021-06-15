@@ -1,9 +1,9 @@
 # encoding: utf-8
 
 from ckan import model
-import ckan.lib.search as search
+
 import pytest
-from ckan.tests.legacy import CreateTestData, setup_test_search_index
+from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy.lib import check_search_results
 import json
 

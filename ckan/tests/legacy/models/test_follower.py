@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import pytest
 import ckan.model as model
 import ckan.lib.create_test_data as ctd
 
@@ -93,7 +92,7 @@ class TestUserFollowingDataset(FollowerClassesTests):
         deleted_dataset.save()
 
     @classmethod
-    def _create_dataset(self, name):
+    def _create_dataset(cls, name):
         CreateTestData.create_arbitrary({"name": name})
         return model.Package.get(name)
 
@@ -122,7 +121,7 @@ class TestUserFollowingGroup(FollowerClassesTests):
         deleted_group.save()
 
     @classmethod
-    def _create_group(self, name):
+    def _create_group(cls, name):
         group = model.Group(name)
         group.save()
         return group

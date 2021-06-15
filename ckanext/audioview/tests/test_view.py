@@ -1,11 +1,8 @@
 # encoding: utf-8
+import pytest
 
 from ckan.lib.helpers import url_for
 from ckan.tests import factories
-
-import ckan.plugins as p
-
-import pytest
 
 
 @pytest.mark.ckan_config('ckan.views.default_views', '')
@@ -23,7 +20,7 @@ def test_view_shown_on_resource_page_with_audio_url(app):
         view_type='audio_view',
         audio_url='http://example.wav')
 
-    url = url_for('resource.read',
+    url = url_for('{}_resource.read'.format(dataset['type']),
                   id=dataset['name'], resource_id=resource['id'])
 
     response = app.get(url)

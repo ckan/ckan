@@ -70,28 +70,34 @@ def should_fts_index_field_type(field_type):
     return field_type.lower() in ['tsvector', 'text', 'number']
 
 
-def get_table_names_from_sql(context, sql):
-    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table names
+def get_table_and_function_names_from_sql(context, sql):
+    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and
+    function names
 
     It performs an EXPLAIN query against the provided SQL, and parses
-    the output recusively looking for "Relation Name".
+    the output recusively.
 
     Note that this requires Postgres 9.x.
 
     :param context: a CKAN context dict. It must contain a 'connection' key
         with the current DB connection.
     :type context: dict
-    :param sql: the SQL statement to parse for table names
+    :param sql: the SQL statement to parse for table and function names
     :type sql: string
 
-    :rtype: list of strings
+    :rtype: a tuple with two list of strings, one for table and one for
+    function names
     '''
 
     queries = [sql]
     table_names = []
+    function_names = []
 
     while queries:
         sql = queries.pop()
+
+        function_names.extend(_get_function_names_from_sql(sql))
+
         result = context['connection'].execute(
             'EXPLAIN (VERBOSE, FORMAT JSON) {0}'.format(
                 six.ensure_str(sql))).fetchone()
@@ -100,40 +106,72 @@ def get_table_names_from_sql(context, sql):
             query_plan = json.loads(result['QUERY PLAN'])
             plan = query_plan[0]['Plan']
 
-            t, q = _get_table_names_queries_from_plan(plan)
+            t, q, f = _parse_query_plan(plan)
             table_names.extend(t)
             queries.extend(q)
+
+            function_names = list(set(function_names) | set(f))
 
         except ValueError:
             log.error('Could not parse query plan')
             raise
 
-    return table_names
+    return table_names, function_names
 
 
-def _get_table_names_queries_from_plan(plan):
+def _parse_query_plan(plan):
+    '''
+    Given a Postgres Query Plan object (parsed from the output of an EXPLAIN
+    query), returns a tuple with three items:
+
+    * A list of tables involved
+    * A list of remaining queries to parse
+    * A list of function names involved
+    '''
 
     table_names = []
     queries = []
+    functions = []
 
     if plan.get('Relation Name'):
         table_names.append(plan['Relation Name'])
-
-    if 'Function Name' in plan and plan['Function Name'].startswith(
-            'crosstab'):
-        try:
-            queries.append(_get_subquery_from_crosstab_call(
-                plan['Function Call']))
-        except ValueError:
-            table_names.append('_unknown_crosstab_sql')
+    if 'Function Name' in plan:
+        if plan['Function Name'].startswith(
+                'crosstab'):
+            try:
+                queries.append(_get_subquery_from_crosstab_call(
+                    plan['Function Call']))
+            except ValueError:
+                table_names.append('_unknown_crosstab_sql')
+        else:
+            functions.append(plan['Function Name'])
 
     if 'Plans' in plan:
         for child_plan in plan['Plans']:
-            t, q = _get_table_names_queries_from_plan(child_plan)
+            t, q, f = _parse_query_plan(child_plan)
             table_names.extend(t)
             queries.extend(q)
+            functions.extend(f)
 
-    return table_names, queries
+    return table_names, queries, functions
+
+
+def _get_function_names_from_sql(sql):
+    function_names = []
+
+    def _get_function_names(tokens):
+        for token in tokens:
+            if isinstance(token, sqlparse.sql.Function):
+                function_name = token.get_name()
+                if function_name not in function_names:
+                    function_names.append(function_name)
+            if hasattr(token, 'tokens'):
+                _get_function_names(token.tokens)
+
+    parsed = sqlparse.parse(sql)[0]
+    _get_function_names(parsed.tokens)
+
+    return function_names
 
 
 def _get_subquery_from_crosstab_call(ct):

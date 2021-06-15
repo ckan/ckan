@@ -7,6 +7,7 @@ from collections import OrderedDict
 import six
 from six import string_types
 from six.moves.urllib.parse import urlencode
+from datetime import datetime
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -18,8 +19,12 @@ import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
 from ckan.common import g, config, request, _
+from ckan.views.home import CACHE_PARAMETERS
+from ckan.views.dataset import _get_search_details
+
 from flask import Blueprint
 from flask.views import MethodView
+
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -39,16 +44,15 @@ lookup_group_blueprint = lib_plugins.lookup_group_blueprints
 is_org = False
 
 
-def _index_template(group_type):
-    return lookup_group_plugin(group_type).index_template()
-
-
-def _group_form(group_type=None):
-    return lookup_group_plugin(group_type).group_form()
-
-
-def _form_to_db_schema(group_type=None):
-    return lookup_group_plugin(group_type).form_to_db_schema()
+def _get_group_template(template_type, group_type=None):
+    group_plugin = lookup_group_plugin(group_type)
+    method = getattr(group_plugin, template_type)
+    try:
+        return method(group_type)
+    except TypeError as err:
+        if u'takes 1' not in str(err) and u'takes exactly 1' not in str(err):
+            raise
+        return method()
 
 
 def _db_to_form_schema(group_type=None):
@@ -62,38 +66,6 @@ def _setup_template_variables(context, data_dict, group_type=None):
         data_dict[u'type'] = group_type
     return lookup_group_plugin(group_type).\
         setup_template_variables(context, data_dict)
-
-
-def _new_template(group_type):
-    return lookup_group_plugin(group_type).new_template()
-
-
-def _about_template(group_type):
-    return lookup_group_plugin(group_type).about_template()
-
-
-def _read_template(group_type):
-    return lookup_group_plugin(group_type).read_template()
-
-
-def _history_template(group_type):
-    return lookup_group_plugin(group_type).history_template()
-
-
-def _edit_template(group_type):
-    return lookup_group_plugin(group_type).edit_template()
-
-
-def _activity_template(group_type):
-    return lookup_group_plugin(group_type).activity_template()
-
-
-def _admins_template(group_type):
-    return lookup_group_plugin(group_type).admins_template()
-
-
-def _bulk_process_template(group_type):
-    return lookup_group_plugin(group_type).bulk_process_template()
 
 
 def _replace_group_org(string):
@@ -209,7 +181,8 @@ def index(group_type, is_organization):
         h.flash_error(msg)
         extra_vars["page"] = h.Page([], 0)
         extra_vars["group_type"] = group_type
-        return base.render(_index_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template(u'index_template', group_type), extra_vars)
 
     data_dict_page_results = {
         u'all_fields': True,
@@ -235,7 +208,8 @@ def index(group_type, is_organization):
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
     g.page = extra_vars["page"]
-    return base.render(_index_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template(u'index_template', group_type), extra_vars)
 
 
 def _read(id, limit, group_type):
@@ -273,7 +247,8 @@ def _read(id, limit, group_type):
     page = h.get_page_number(request.params)
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.params.items() if k != u'page']
+    params_nopage = [(k, v) for k, v in request.params.items(multi=True)
+                     if k != u'page']
     sort_by = request.params.get(u'sort', None)
 
     def search_url(params):
@@ -289,7 +264,7 @@ def _read(id, limit, group_type):
     def drill_down_url(**by):
         return h.add_url_param(
             alternative_url=None,
-            controller=u'group',
+            controller=group_type,
             action=u'read',
             extras=dict(id=g.group_dict.get(u'name')),
             new_params=by)
@@ -313,64 +288,68 @@ def _read(id, limit, group_type):
         params.append((u'page', page))
         return search_url(params)
 
+    details = _get_search_details()
+    extra_vars[u'fields'] = details[u'fields']
+    extra_vars[u'fields_grouped'] = details[u'fields_grouped']
+    fq += details[u'fq']
+    search_extras = details[u'search_extras']
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.fields = extra_vars[u'fields']
+    g.fields_grouped = extra_vars[u'fields_grouped']
+
+    facets = OrderedDict()
+
+    org_label = h.humanize_entity_type(
+        u'organization',
+        h.default_group_type(u'organization'),
+        u'facet label') or _(u'Organizations')
+
+    group_label = h.humanize_entity_type(
+        u'group',
+        h.default_group_type(u'group'),
+        u'facet label') or _(u'Groups')
+
+    default_facet_titles = {
+        u'organization': org_label,
+        u'groups': group_label,
+        u'tags': _(u'Tags'),
+        u'res_format': _(u'Formats'),
+        u'license_id': _(u'Licenses')
+    }
+
+    for facet in h.facets():
+        if facet in default_facet_titles:
+            facets[facet] = default_facet_titles[facet]
+        else:
+            facets[facet] = facet
+
+    # Facet titles
+    facets = _update_facet_titles(facets, group_type)
+
+    extra_vars["facet_titles"] = facets
+
+    data_dict = {
+        u'q': q,
+        u'fq': fq,
+        u'include_private': True,
+        u'facet.field': list(facets.keys()),
+        u'rows': limit,
+        u'sort': sort_by,
+        u'start': (page - 1) * limit,
+        u'extras': search_extras
+    }
+
+    context_ = dict((k, v) for (k, v) in context.items() if k != u'schema')
     try:
-        extra_vars["fields"] = fields = []
-        extra_vars["fields_grouped"] = fields_grouped = {}
-        search_extras = {}
-        for (param, value) in request.params.items():
-            if param not in [u'q', u'page', u'sort'] \
-                    and len(value) and not param.startswith(u'_'):
-                if not param.startswith(u'ext_'):
-                    fields.append((param, value))
-                    fq += u' %s: "%s"' % (param, value)
-                    if param not in fields_grouped:
-                        fields_grouped[param] = [value]
-                    else:
-                        fields_grouped[param].append(value)
-                else:
-                    search_extras[param] = value
-
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.fields = fields
-        g.fields_grouped = fields_grouped
-
-        facets = OrderedDict()
-
-        default_facet_titles = {
-            u'organization': _(u'Organizations'),
-            u'groups': _(u'Groups'),
-            u'tags': _(u'Tags'),
-            u'res_format': _(u'Formats'),
-            u'license_id': _(u'Licenses')
-        }
-
-        for facet in h.facets():
-            if facet in default_facet_titles:
-                facets[facet] = default_facet_titles[facet]
-            else:
-                facets[facet] = facet
-
-        # Facet titles
-        _update_facet_titles(facets, group_type)
-
-        extra_vars["facet_titles"] = facets
-
-        data_dict = {
-            u'q': q,
-            u'fq': fq,
-            u'include_private': True,
-            u'facet.field': list(facets.keys()),
-            u'rows': limit,
-            u'sort': sort_by,
-            u'start': (page - 1) * limit,
-            u'extras': search_extras
-        }
-
-        context_ = dict((k, v) for (k, v) in context.items() if k != u'schema')
         query = get_action(u'package_search')(context_, data_dict)
-
+    except search.SearchError as se:
+        log.error(u'Group search error: %r', se.args)
+        extra_vars["query_error"] = True
+        extra_vars["page"] = h.Page(collection=[])
+    else:
         extra_vars["page"] = h.Page(
             collection=query['results'],
             page=page,
@@ -394,11 +373,6 @@ def _read(id, limit, group_type):
 
         extra_vars["sort_by_selected"] = sort_by
 
-    except search.SearchError as se:
-        log.error(u'Group search error: %r', se.args)
-        extra_vars["query_error"] = True
-        extra_vars["page"] = h.Page(collection=[])
-
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
@@ -413,6 +387,7 @@ def _read(id, limit, group_type):
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
         facets = plugin.group_facets(facets, group_type, None)
+    return facets
 
 
 def _get_group_dict(id, group_type):
@@ -485,7 +460,9 @@ def read(group_type, is_organization, id=None, limit=20):
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
 
-    return base.render(_read_template(g.group_dict['type']), extra_vars)
+    return base.render(
+        _get_group_template(u'read_template', g.group_dict['type']),
+        extra_vars)
 
 
 def activity(id, group_type, is_organization, offset=0):
@@ -528,7 +505,137 @@ def activity(id, group_type, is_organization, offset=0):
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
     extra_vars["id"] = id
-    return base.render(_activity_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template(u'activity_template', group_type), extra_vars)
+
+
+def changes(id, group_type, is_organization):
+    '''
+    Shows the changes to an organization in one particular activity stream
+    item.
+    '''
+    set_org(is_organization)
+    extra_vars = {}
+    activity_id = id
+    context = {
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
+    }
+    try:
+        activity_diff = get_action(u'activity_diff')(
+            context, {u'id': activity_id, u'object_type': u'group',
+                      u'diff_type': u'html'})
+    except NotFound as e:
+        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
+        return base.abort(404, _(u'Activity not found'))
+    except NotAuthorized:
+        return base.abort(403, _(u'Unauthorized to view activity data'))
+
+    # 'group_dict' needs to go to the templates for page title & breadcrumbs.
+    # Use the current version of the package, in case the name/title have
+    # changed, and we need a link to it which works
+    group_id = activity_diff[u'activities'][1][u'data'][u'group'][u'id']
+    current_group_dict = get_action(group_type + u'_show')(
+        context, {u'id': group_id})
+    group_activity_list = get_action(group_type + u'_activity_list')(
+        context, {
+            u'id': group_id,
+            u'limit': 100
+        }
+    )
+
+    extra_vars = {
+        u'activity_diffs': [activity_diff],
+        u'group_dict': current_group_dict,
+        u'group_activity_list': group_activity_list,
+        u'group_type': current_group_dict[u'type'],
+    }
+
+    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
+
+
+def changes_multiple(is_organization, group_type=None):
+    '''
+    Called when a user specifies a range of versions they want to look at
+    changes between. Verifies that the range is valid and finds the set of
+    activity diffs for the changes in the given version range, then
+    re-renders changes.html with the list.
+    '''
+    set_org(is_organization)
+    extra_vars = {}
+    new_id = h.get_request_param(u'new_id')
+    old_id = h.get_request_param(u'old_id')
+
+    context = {
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
+    }
+
+    # check to ensure that the old activity is actually older than
+    # the new activity
+    old_activity = get_action(u'activity_show')(context, {
+        u'id': old_id,
+        u'include_data': False})
+    new_activity = get_action(u'activity_show')(context, {
+        u'id': new_id,
+        u'include_data': False})
+
+    old_timestamp = old_activity[u'timestamp']
+    new_timestamp = new_activity[u'timestamp']
+
+    t1 = datetime.strptime(old_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
+    t2 = datetime.strptime(new_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
+
+    time_diff = t2 - t1
+    # if the time difference is negative, just return the change that put us
+    # at the more recent ID we were just looking at
+    # TODO: do something better here - go back to the previous page,
+    # display a warning that the user can't look at a sequence where
+    # the newest item is older than the oldest one, etc
+    if time_diff.total_seconds() < 0:
+        return changes(h.get_request_param(u'current_new_id'))
+
+    done = False
+    current_id = new_id
+    diff_list = []
+
+    while not done:
+        try:
+            activity_diff = get_action(u'activity_diff')(
+                context, {
+                    u'id': current_id,
+                    u'object_type': u'group',
+                    u'diff_type': u'html'})
+        except NotFound as e:
+            log.info(
+                u'Activity not found: {} - {}'.format(str(e), current_id)
+            )
+            return base.abort(404, _(u'Activity not found'))
+        except NotAuthorized:
+            return base.abort(403, _(u'Unauthorized to view activity data'))
+
+        diff_list.append(activity_diff)
+
+        if activity_diff['activities'][0]['id'] == old_id:
+            done = True
+        else:
+            current_id = activity_diff['activities'][0]['id']
+
+    group_id = diff_list[0][u'activities'][1][u'data'][u'group'][u'id']
+    current_group_dict = get_action(group_type + u'_show')(
+        context, {u'id': group_id})
+    group_activity_list = get_action(group_type + u'_activity_list')(context, {
+        u'id': group_id,
+        u'limit': 100})
+
+    extra_vars = {
+        u'activity_diffs': diff_list,
+        u'group_dict': current_group_dict,
+        u'group_activity_list': group_activity_list,
+        u'group_type': current_group_dict[u'type'],
+    }
+
+    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
 
 
 def about(id, group_type, is_organization):
@@ -548,7 +655,8 @@ def about(id, group_type, is_organization):
     extra_vars = {u"group_dict": group_dict,
                   u"group_type": group_type}
 
-    return base.render(_about_template(group_type), extra_vars)
+    return base.render(
+        _get_group_template(u'about_template', group_type), extra_vars)
 
 
 def members(id, group_type, is_organization):
@@ -718,7 +826,9 @@ def admins(id, group_type, is_organization):
         u"admins": admins
     }
 
-    return base.render(_admins_template(group_dict['type']), extra_vars)
+    return base.render(
+        _get_group_template(u'admins_template', group_dict['type']),
+        extra_vars)
 
 
 class BulkProcessView(MethodView):
@@ -772,7 +882,9 @@ class BulkProcessView(MethodView):
             u'group_type': group_type
         }
 
-        return base.render(_bulk_process_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template(u'bulk_process_template', group_type),
+            extra_vars)
 
     def post(self, id, group_type, is_organization, data=None):
         set_org(is_organization)
@@ -786,7 +898,12 @@ class BulkProcessView(MethodView):
             group_dict = _action(u'group_show')(context, data_dict)
             group = context['group']
         except NotFound:
-            base.abort(404, _(u'Group not found'))
+            group_label = h.humanize_entity_type(
+                u'organization' if is_organization else u'group',
+                group_type,
+                u'default label') or _(
+                    u'Organization' if is_organization else u'Group')
+            base.abort(404, _(u'{} not found'.format(group_label)))
         except NotAuthorized:
             base.abort(403,
                        _(u'User %r not authorized to edit %s') % (g.user, id))
@@ -899,7 +1016,14 @@ class CreateGroupView(MethodView):
         extra_vars = {}
         set_org(is_organization)
         context = self._prepare()
-        data = data or {}
+        data = data or clean_dict(
+            dict_fns.unflatten(
+                tuplize_dict(
+                    parse_params(request.args, ignore_keys=CACHE_PARAMETERS)
+                )
+            )
+        )
+
         if not data.get(u'image_url', u'').startswith(u'http'):
             data.pop(u'image_url', None)
         errors = errors or {}
@@ -914,7 +1038,7 @@ class CreateGroupView(MethodView):
         _setup_template_variables(
             context, data, group_type=group_type)
         form = base.render(
-            _group_form(group_type=group_type), extra_vars)
+            _get_group_template(u'group_form', group_type), extra_vars)
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -922,7 +1046,8 @@ class CreateGroupView(MethodView):
         g.form = form
 
         extra_vars["form"] = form
-        return base.render(_new_template(group_type), extra_vars)
+        return base.render(
+            _get_group_template(u'new_template', group_type), extra_vars)
 
 
 class EditGroupView(MethodView):
@@ -985,13 +1110,10 @@ class EditGroupView(MethodView):
         context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
         try:
-            old_data = _action(u'group_show')(context, data_dict)
-            grouptitle = old_data.get(u'title')
-            groupname = old_data.get(u'name')
-            data = data or old_data
+            group_dict = _action(u'group_show')(context, data_dict)
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
-        group_dict = data
+        data = data or group_dict
         errors = errors or {}
         extra_vars = {
             u'data': data,
@@ -1003,19 +1125,20 @@ class EditGroupView(MethodView):
         }
 
         _setup_template_variables(context, data, group_type=group_type)
-        form = base.render(_group_form(group_type), extra_vars)
+        form = base.render(
+            _get_group_template(u'group_form', group_type), extra_vars)
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
-        g.grouptitle = grouptitle
-        g.groupname = groupname
+        g.grouptitle = group_dict.get(u'title')
+        g.groupname = group_dict.get(u'name')
         g.data = data
         g.group_dict = group_dict
 
         extra_vars["form"] = form
         return base.render(
-            _edit_template(group_type), extra_vars)
+            _get_group_template(u'edit_template', group_type), extra_vars)
 
 
 class DeleteGroupView(MethodView):
@@ -1038,25 +1161,19 @@ class DeleteGroupView(MethodView):
         context = self._prepare(id)
         try:
             _action(u'group_delete')(context, {u'id': id})
-            if group_type == u'organization':
-                h.flash_notice(_(u'Organization has been deleted.'))
-            elif group_type == u'group':
-                h.flash_notice(_(u'Group has been deleted.'))
-            else:
-                h.flash_notice(
-                    _(u'%s has been deleted.') % _(group_type.capitalize()))
-            group_dict = _action(u'group_show')(context, {u'id': id})
+            group_label = h.humanize_entity_type(
+                u'group',
+                group_type,
+                u'has been deleted') or _(u'Group')
+            h.flash_notice(
+                _(u'%s has been deleted.') % _(group_label))
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
             h.flash_error(e.error_dict['message'])
-            return h.redirect_to(u'organization.read', id=id)
-
             return h.redirect_to(u'{}.read'.format(group_type), id=id)
-        # TODO: Remove
-        g.group_dict = group_dict
 
         return h.redirect_to(u'{}.index'.format(group_type))
 
@@ -1140,6 +1257,7 @@ class MembersGroupView(MethodView):
         roles = _action(u'member_roles_list')(context, {
             u'group_type': group_type
         })
+        user_dict = {}
         if user:
             user_dict = get_action(u'user_show')(context, {u'id': user})
             user_role =\
@@ -1155,12 +1273,13 @@ class MembersGroupView(MethodView):
         g.roles = roles
         g.user_role = user_role
 
-        extra_vars = {
+        extra_vars.update({
             u"group_dict": group_dict,
             u"roles": roles,
             u"user_role": user_role,
-            u"group_type": group_type
-        }
+            u"group_type": group_type,
+            u"user_dict": user_dict
+        })
         return base.render(_replace_group_org(u'group/member_new.html'),
                            extra_vars)
 
@@ -1207,6 +1326,10 @@ def register_group_plugin_rules(blueprint):
             u'/{0}/<id>'.format(action),
             methods=[u'GET', u'POST'],
             view_func=globals()[action])
+    blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
+    blueprint.add_url_rule(
+        u'/changes_multiple',
+        view_func=changes_multiple)
 
 
 register_group_plugin_rules(group)

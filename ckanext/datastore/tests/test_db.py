@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-import mock
+import unittest.mock as mock
 import pytest
 import sqlalchemy.exc
 
@@ -90,7 +90,7 @@ class TestCreateIndexes(object):
         connection = mock.MagicMock()
         context = {"connection": connection}
         resource_id = "resource_id"
-        data_dict = {"resource_id": resource_id, "lang": "french"}
+        data_dict = {"resource_id": resource_id, "language": "french"}
 
         db.create_indexes(context, data_dict)
 

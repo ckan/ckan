@@ -2,6 +2,8 @@
 
 import functools
 import sys
+import inspect
+import importlib
 
 from collections import defaultdict, OrderedDict
 from logging import getLogger
@@ -13,11 +15,24 @@ from ckan.common import asbool
 
 import ckan.plugins as p
 import ckan.model as model
-from ckan.common import _, c
+from ckan.common import _, g
 
 import ckan.lib.maintain as maintain
 
 log = getLogger(__name__)
+
+
+def get_local_functions(module, include_private=False):
+    """Return list of (name, func) tuples.
+
+    Filters out all non-callables and all the items that were
+    imported.
+    """
+    return inspect.getmembers(
+        module,
+        lambda func: (inspect.isfunction(func) and
+                      inspect.getmodule(func) is module and
+                      (include_private or not func.__name__.startswith('_'))))
 
 
 class AuthFunctions:
@@ -50,38 +65,33 @@ class AuthFunctions:
         return getattr(func, 'chained_auth_function', False)
 
     def _build(self):
-        ''' Gather the auth functions.
+        '''Gather the auth functions.
 
-        First get the default ones in the ckan/logic/auth directory Rather than
-        writing them out in full will use __import__ to load anything from
-        ckan.auth that looks like it might be an authorisation function'''
+        First get the default ones in the ckan/logic/auth directory
+        Rather than writing them out in full will use
+        importlib.import_module to load anything from ckan.auth that
+        looks like it might be an authorisation function
+
+        '''
 
         module_root = 'ckan.logic.auth'
 
         for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
-            module_path = '%s.%s' % (module_root, auth_module_name,)
-            try:
-                module = __import__(module_path)
-            except ImportError:
-                log.debug('No auth module for action "%s"' % auth_module_name)
-                continue
+            module = importlib.import_module(
+                '.' + auth_module_name, module_root)
 
-            for part in module_path.split('.')[1:]:
-                module = getattr(module, part)
-
-            for key, v in module.__dict__.items():
-                if not key.startswith('_'):
-                    # Whitelist all auth functions defined in
-                    # logic/auth/get.py as not requiring an authorized user,
-                    # as well as ensuring that the rest do. In both cases, do
-                    # nothing if a decorator has already been used to define
-                    # the behaviour
-                    if not hasattr(v, 'auth_allow_anonymous_access'):
-                        if auth_module_name == 'get':
-                            v.auth_allow_anonymous_access = True
-                        else:
-                            v.auth_allow_anonymous_access = False
-                    self._functions[key] = v
+            for key, v in get_local_functions(module):
+                # Whitelist all auth functions defined in
+                # logic/auth/get.py as not requiring an authorized user,
+                # as well as ensuring that the rest do. In both cases, do
+                # nothing if a decorator has already been used to define
+                # the behaviour
+                if not hasattr(v, 'auth_allow_anonymous_access'):
+                    if auth_module_name == 'get':
+                        v.auth_allow_anonymous_access = True
+                    else:
+                        v.auth_allow_anonymous_access = False
+                self._functions[key] = v
 
         # Then overwrite them with any specific ones in the plugins:
         resolved_auth_function_plugins = {}
@@ -114,8 +124,13 @@ class AuthFunctions:
                 else:
                     # fallback to chaining off the builtin auth function
                     prev_func = self._functions[name]
-                fetched_auth_functions[name] = (
-                    functools.partial(func, prev_func))
+
+                new_func = (functools.partial(func, prev_func))
+                # persisting attributes to the new partial function
+                for attribute, value in six.iteritems(func.__dict__):
+                    setattr(new_func, attribute, value)
+
+                fetched_auth_functions[name] = new_func
 
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
@@ -143,19 +158,26 @@ def is_sysadmin(username):
 
 
 def _get_user(username):
-    ''' Try to get the user from c, if possible, and fallback to using the DB '''
+    '''
+    Try to get the user from g, if possible.
+    If not fallback to using the DB
+    '''
     if not username:
         return None
     # See if we can get the user without touching the DB
     try:
-        if c.userobj and c.userobj.name == username:
-            return c.userobj
+        if g.userobj and g.userobj.name == username:
+            return g.userobj
     except AttributeError:
-        # c.userobj not set
+        # g.userobj not set
         pass
     except TypeError:
-        # c is not available
+        # c is not available (py2)
         pass
+    except RuntimeError:
+        # g is not available (py3)
+        pass
+
     # Get user from the DB
     return model.User.get(username)
 
@@ -218,10 +240,17 @@ def is_authorized(action, context, data_dict=None):
 
 # these are the permissions that roles have
 ROLE_PERMISSIONS = OrderedDict([
-    ('admin', ['admin']),
+    ('admin', ['admin', 'membership']),
     ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset', 'manage_group']),
     ('member', ['read', 'manage_group']),
 ])
+
+
+def get_collaborator_capacities():
+    if check_config_permission('allow_admin_collaborators'):
+        return ('admin', 'editor', 'member')
+    else:
+        return ('editor', 'member')
 
 
 def _trans_role_admin():
@@ -382,18 +411,70 @@ def has_user_permission_for_some_org(user_name, permission):
 def get_user_id_for_username(user_name, allow_none=False):
     ''' Helper function to get user id '''
     # first check if we have the user object already and get from there
-    try:
-        if c.userobj and c.userobj.name == user_name:
-            return c.userobj.id
-    except (TypeError, AttributeError):
-        # c is not available
-        pass
-    user = model.User.get(user_name)
+    user = _get_user(user_name)
     if user:
         return user.id
     if allow_none:
         return None
     raise Exception('Not logged in user')
+
+
+def can_manage_collaborators(package_id, user_id):
+    '''
+    Returns True if a user is allowed to manage the collaborators of a given
+    dataset.
+
+    Currently a user can manage collaborators if:
+
+    1. Is an administrator of the organization the dataset belongs to
+    2. Is a collaborator with role "admin" (
+        assuming :ref:`ckan.auth.allow_admin_collaborators` is set to True)
+    3. Is the creator of the dataset and the dataset does not belong to an
+        organization (
+        requires :ref:`ckan.auth.create_dataset_if_not_in_organization`
+        and :ref:`ckan.auth.create_unowned_dataset`)
+    '''
+    pkg = model.Package.get(package_id)
+
+    owner_org = pkg.owner_org
+
+    if (not owner_org
+            and check_config_permission('create_dataset_if_not_in_organization')
+            and check_config_permission('create_unowned_dataset')
+            and pkg.creator_user_id == user_id):
+        # User is the creator of this unowned dataset
+        return True
+
+    if has_user_permission_for_group_or_org(
+            owner_org, user_id, 'membership'):
+        # User is an administrator of the organization the dataset belongs to
+        return True
+
+    # Check if user is a collaborator with admin role
+    return user_is_collaborator_on_dataset(user_id, pkg.id, 'admin')
+
+
+def user_is_collaborator_on_dataset(user_id, dataset_id, capacity=None):
+    '''
+    Returns True if the provided user is a collaborator on the provided
+    dataset.
+
+    If capacity is provided it restricts the check to the capacity
+    provided (eg `admin` or `editor`). Multiple capacities can be
+    provided passing a list
+
+    '''
+
+    q = model.Session.query(model.PackageMember) \
+        .filter(model.PackageMember.user_id == user_id) \
+        .filter(model.PackageMember.package_id == dataset_id)
+
+    if capacity:
+        if isinstance(capacity, six.string_types):
+            capacity = [capacity]
+        q = q.filter(model.PackageMember.capacity.in_(capacity))
+
+    return q.count() > 0
 
 
 CONFIG_PERMISSIONS_DEFAULTS = {
@@ -410,6 +491,10 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
     'public_activity_stream_detail': False,
+    'allow_dataset_collaborators': False,
+    'allow_admin_collaborators': False,
+    'allow_collaborators_to_change_owner_org': False,
+    'create_default_api_keys': False,
 }
 
 
@@ -448,7 +533,7 @@ def check_config_permission(permission):
     return value
 
 
-@maintain.deprecated('Use auth_is_loggedin_user instead')
+@maintain.deprecated('Use auth_is_loggedin_user instead', since="2.2.0")
 def auth_is_registered_user():
     '''
     This function is deprecated, please use the auth_is_loggedin_user instead
@@ -458,7 +543,7 @@ def auth_is_registered_user():
 def auth_is_loggedin_user():
     ''' Do we have a logged in user '''
     try:
-        context_user = c.user
+        context_user = g.user
     except TypeError:
         context_user = None
     return bool(context_user)

@@ -1,17 +1,11 @@
 # encoding: utf-8
 
-import os
+import pytest
 
-from ckan.tests.legacy import url_for
 
-from ckanext.stats.tests import StatsFixture
-
-class TestStatsPlugin(StatsFixture):
-
-    def test_01_config(self):
-        from ckan.common import config
-        paths = config['extra_public_paths']
-        publicdir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-            'public')
-        assert paths.startswith(publicdir), (publicdir, paths)
-
+@pytest.mark.ckan_config(u'ckan.plugins', u'stats')
+@pytest.mark.usefixtures(u'with_plugins')
+class TestStatsPlugin(object):
+    def test_stats_available(self, app):
+        resp = app.get(u'/stats')
+        assert resp.status_code == 200

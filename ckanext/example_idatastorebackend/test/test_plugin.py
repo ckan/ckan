@@ -1,10 +1,9 @@
 # encoding: utf-8
 
 
-from mock import patch, Mock, call
+from unittest.mock import patch, Mock, call
 import pytest
 
-import ckan.plugins as plugins
 from ckan.common import config
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -20,15 +19,10 @@ class_to_patch = (
 )
 
 
-class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
-    def setup(self):
-        super(ExampleIDatastoreBackendPlugin, self).setup()
-        plugins.load(u"datastore")
-        plugins.load(u"example_idatastorebackend")
-
-    def teardown(self):
-        plugins.unload(u"example_idatastorebackend")
-        plugins.unload(u"datastore")
+@pytest.mark.ckan_config(u"ckan.plugins",
+                         u"example_idatastorebackend datastore")
+@pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"app")
+class TestExampleIDatastoreBackendPlugin():
 
     def test_backends_correctly_registered(self):
         DatastoreBackend.register_backends()
@@ -50,8 +44,8 @@ class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
             with pytest.raises(AssertionError):
                 DatastoreBackend.set_active_backend(config)
 
-    @helpers.change_config(u"ckan.datastore.write_url", u"sqlite://x")
-    @helpers.change_config(u"ckan.datastore.read_url", u"sqlite://x")
+    @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
+    @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
     def test_sqlite_engine(self):
         DatastoreBackend.set_active_backend(config)
         assert isinstance(
@@ -59,8 +53,8 @@ class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
             DatastoreExampleSqliteBackend,
         )
 
-    @helpers.change_config(u"ckan.datastore.write_url", u"sqlite://x")
-    @helpers.change_config(u"ckan.datastore.read_url", u"sqlite://x")
+    @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
+    @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
     @patch(class_to_patch + u"._get_engine")
     def test_backend_functionality(self, get_engine):
         engine = get_engine()
@@ -85,7 +79,7 @@ class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
             records=records,
         )
         # check, create and 3 inserts
-        assert 5 == execute.call_count
+        assert 4 == execute.call_count
         insert_query = u'INSERT INTO "{0}"(a) VALUES(?)'.format(res["id"])
         execute.assert_has_calls(
             [
@@ -104,7 +98,7 @@ class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
         fetchall.return_value = records
         helpers.call_action(u"datastore_search", resource_id=res["id"])
         execute.assert_called_with(
-            u'SELECT * FROM "{0}" LIMIT 10'.format(res["id"])
+            u'SELECT * FROM "{0}" LIMIT 100'.format(res["id"])
         )
 
         execute.reset_mock()

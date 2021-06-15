@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-from ckan.common import config
 
 import ckan.model as model
 import ckan.plugins as p
@@ -31,7 +30,7 @@ class BaseTestReclineViewBase(object):
         assert not self.p.can_view(data_dict)
 
     def test_title_description_iframe_shown(self, app):
-        url = h.url_for('resource.read',
+        url = h.url_for('{}_resource.read'.format(self.package.type),
                         id=self.package.name, resource_id=self.resource_id)
         result = app.get(url)
         assert self.resource_view['title'] in result
@@ -87,7 +86,7 @@ class TestReclineViewDatastoreOnly(object):
 
         resource_id = result['resource_id']
 
-        url = h.url_for('resource.read',
+        url = h.url_for('{}_resource.read'.format(dataset['type']),
                         id=dataset['id'], resource_id=resource_id)
 
         result = app.get(url)

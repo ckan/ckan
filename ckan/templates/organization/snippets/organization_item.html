@@ -19,11 +19,11 @@ Example:
     <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-responsive media-image">
   {% endblock %}
   {% block title %}
-    <h3 class="media-heading">{{ organization.display_name }}</h3>
+    <h2 class="media-heading">{{ organization.display_name }}</h2>
   {% endblock %}
   {% block description %}
     {% if organization.description %}
-      <p>{{ h.markdown_extract(organization.description, extract_length=80) }}</p>
+      <p class="media-description">{{ h.markdown_extract(organization.description, extract_length=80) }}</p>
     {% endif %}
   {% endblock %}
   {% block datasets %}

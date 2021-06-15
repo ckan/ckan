@@ -4,60 +4,79 @@ import os
 
 import click
 import logging
-from configparser import ConfigParser
+from logging.config import fileConfig as loggingFileConfig
+from six.moves.configparser import ConfigParser
 
+from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
 
 
 class CKANConfigLoader(object):
     def __init__(self, filename):
-        self.filename = filename = filename.strip()
+        self.config_file = filename.strip()
+        self.config = dict()
         self.parser = ConfigParser()
         self.section = u'app:main'
-        self.read_config_files(filename)
-
-        defaults = {
-            u'here': os.path.dirname(os.path.abspath(filename)),
-            u'__file__': os.path.abspath(filename)
-        }
+        defaults = {u'__file__': os.path.abspath(self.config_file)}
         self._update_defaults(defaults)
-
-    def read_config_files(self, filename):
-        '''
-        Read and parses a config file. If the config file has
-        'use=config:<filename>' then it parses both files. Automatically
-        applies interpolation if needed.
-        '''
-        self.parser.read(filename)
-
-        schema, path = self.parser.get(self.section, u'use').split(u':')
-        if schema == u'config':
-            path = os.path.join(
-                os.path.dirname(os.path.abspath(filename)), path)
-            self.parser.read([path, filename])
+        self._create_config_object()
 
     def _update_defaults(self, new_defaults):
         for key, value in new_defaults.items():
             self.parser._defaults[key] = value
 
-    def get_config(self):
-        global_conf = self.parser.defaults().copy()
-        local_conf = {}
+    def _read_config_file(self, filename):
+        defaults = {u'here': os.path.dirname(os.path.abspath(filename))}
+        self._update_defaults(defaults)
+        self.parser.read(filename)
+
+    def _update_config(self):
         options = self.parser.options(self.section)
-
         for option in options:
-            if option in global_conf:
-                continue
-            local_conf[option] = self.parser.get(self.section, option)
+            if option not in self.config or option in self.parser.defaults():
+                value = self.parser.get(self.section, option)
+                self.config[option] = value
+                if option in self.parser.defaults():
+                    self.config[u'global_conf'][option] = value
 
-        return CKANLoaderContext(global_conf, local_conf)
+    def _create_config_object(self):
+        use_config_path = self.config_file
+        self._read_config_file(use_config_path)
 
+        # # The global_config key is to keep compatibility with Pylons.
+        # # It can be safely removed when the Flask migration is completed.
+        self.config[u'global_conf'] = self.parser.defaults().copy()
 
-class CKANLoaderContext(object):
-    def __init__(self, global_conf, local_conf):
-        self.global_conf = global_conf
-        self.local_conf = local_conf
+        self._update_config()
+
+        loaded_files = [use_config_path]
+
+        while True:
+            schema, path = self.parser.get(self.section, u'use').split(u':')
+            if schema == u'config':
+                use_config_path = os.path.join(
+                    os.path.dirname(os.path.abspath(use_config_path)), path)
+                # Avoid circular references
+                if use_config_path in loaded_files:
+                    chain = ' -> '.join(loaded_files + [use_config_path])
+                    raise CkanConfigurationException(
+                        'Circular dependency located in '
+                        f'the configuration chain: {chain}'
+                    )
+                loaded_files.append(use_config_path)
+
+                self._read_config_file(use_config_path)
+                self._update_config()
+            else:
+                break
+        log.debug(
+            u'Loaded configuration from the following files: %s',
+            loaded_files
+        )
+
+    def get_config(self):
+        return self.config.copy()
 
 
 def error_shout(exception):
@@ -74,23 +93,31 @@ def load_config(ini_path=None):
         filename = os.environ.get(u'CKAN_INI')
         config_source = u'$CKAN_INI'
     else:
-        default_filename = u'development.ini'
-        filename = os.path.join(os.getcwd(), default_filename)
-        if not os.path.exists(filename):
+        # deprecated method since CKAN 2.9
+        default_filenames = [u'ckan.ini', u'development.ini']
+        filename = None
+        for default_filename in default_filenames:
+            check_file = os.path.join(os.getcwd(), default_filename)
+            if os.path.exists(check_file):
+                filename = check_file
+                break
+        if not filename:
             # give really clear error message for this common situation
-            msg = u'ERROR: You need to specify the CKAN config (.ini) '\
-                u'file path.'\
-                u'\nUse the --config parameter or set environment ' \
-                u'variable CKAN_INI or have {}\nin the current directory.' \
-                .format(default_filename)
-            exit(msg)
+            msg = u'''
+ERROR: You need to specify the CKAN config (.ini) file path.
+
+Use the --config parameter or set environment variable CKAN_INI
+or have one of {} in the current directory.'''
+            msg = msg.format(u', '.join(default_filenames))
+            raise CkanConfigurationException(msg)
 
     if not os.path.exists(filename):
         msg = u'Config file not found: %s' % filename
         msg += u'\n(Given by: %s)' % config_source
-        exit(msg)
+        raise CkanConfigurationException(msg)
 
     config_loader = CKANConfigLoader(filename)
+    loggingFileConfig(filename)
     log.info(u'Using configuration file {}'.format(filename))
 
     return config_loader.get_config()

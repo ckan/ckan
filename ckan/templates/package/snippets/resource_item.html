@@ -9,10 +9,10 @@
 
   Example:
 
-    {% snippet "package/snippets/resource_item.html", res=resource, pkg_dict=pkg_dict, can_edit=True, url_is_edit=False %}
+    {% snippet "package/snippets/resource_item.html", res=resource, pkg=pkg, can_edit=True, url_is_edit=False %}
 
 #}
-{% set url_action = 'resource.edit' if url_is_edit and can_edit else 'resource.read' %}
+{% set url_action = pkg.type ~ ('_resource.edit' if url_is_edit and can_edit else '_resource.read') %}
 {% set url = h.url_for(url_action, id=pkg.id if is_activity_archive else pkg.name, resource_id=res.id, **({'activity_id': request.args['activity_id']} if 'activity_id' in request.args else {})) %}
 
 <li class="resource-item" data-id="{{ res.id }}">
@@ -65,7 +65,7 @@
       {% endif %}
       {% if can_edit %}
       <li>
-        <a href="{{ h.url_for('resource.edit', id=pkg.name, resource_id=res.id) }}">
+        <a href="{{ h.url_for(pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id) }}">
           <i class="fa fa-pencil-square-o"></i>
           {{ _('Edit') }}
         </a>

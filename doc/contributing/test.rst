@@ -27,7 +27,7 @@ Install additional dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some additional dependencies are needed to run the tests. Make sure you've
-created a config file at |development.ini|, then activate your
+created a config file at |ckan.ini|, then activate your
 virtual environment:
 
 .. parsed-literal::
@@ -56,10 +56,11 @@ Create test databases:
 
 Set the permissions::
 
-    paster datastore set-permissions -c test-core.ini | sudo -u postgres psql
+    ckan -c test-core.ini datastore set-permissions | sudo -u postgres psql
 
-This database connection is specified in the ``test-core.ini`` file by the
-``sqlalchemy.url`` parameter.
+When the tests run they will use these databases, because in ``test-core.ini``
+they are specified in the ``sqlalchemy.url`` and ``ckan.datastore.write_url``
+connection strings.
 
 You should also make sure that the :ref:`Redis database <ckan_redis_url>`
 configured in ``test-core.ini`` is different from your production database.
@@ -74,13 +75,13 @@ Configure Solr Multi-core
 The tests assume that Solr is configured 'multi-core', whereas the default
 Solr set-up is often 'single-core'. You can ask Solr for its cores status::
 
-    curl -s 'http://127.0.0.1:8983/solr/admin/cores?action=STATUS' |python -c 'import sys;import xml.dom.minidom;s=sys.stdin.read();print xml.dom.minidom.parseString(s).toprettyxml()'
+    curl -s 'http://127.0.0.1:8983/solr/admin/cores?action=STATUS' |python -c 'import sys;import xml.dom.minidom;s=sys.stdin.read();print(xml.dom.minidom.parseString(s).toprettyxml())'
 
 Each core will be within a child from the ``<lst name="status"`` element, and contain a ``<str name="instanceDir">`` element.
 
 You can also tell from your ckan config (assuming ckan is working)::
 
-    grep solr_url /etc/ckan/default/production.ini
+    grep solr_url |ckan.ini|
     # single-core: solr_url = http://127.0.0.1:8983/solr
     # multi-core:  solr_url = http://127.0.0.1:8983/solr/ckan
 
@@ -109,7 +110,7 @@ To enable multi-core:
 
        sudo service jetty restart
 
-6. Edit your main ckan config (e.g. |development.ini|) and adjust the solr_url to match::
+6. Edit your main ckan config (e.g. |ckan.ini|) and adjust the solr_url to match::
 
        solr_url = http://127.0.0.1:8983/solr/ckan
 
@@ -142,9 +143,10 @@ OperationalError
 
 SolrError
 =========
+::
 
-``SolrError: Solr responded with an error (HTTP 404): [Reason: None]
-<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type" /><title>Error 404 NOT_FOUND</title></head><body><h2>HTTP ERROR 404</h2><p>Problem accessing /solr/ckan/select/. Reason:<pre>    NOT_FOUND</pre></p><hr /><i><small>Powered by Jetty://</small></i>``
+    SolrError: Solr responded with an error (HTTP 404): [Reason: None]
+    <html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type" /><title>Error 404 NOT_FOUND</title></head><body><h2>HTTP ERROR 404</h2><p>Problem accessing /solr/ckan/select/. Reason:<pre>    NOT_FOUND</pre></p><hr /><i><small>Powered by Jetty://</small></i>``
 
 This means your solr_url is not corresponding with your SOLR. When running tests, it is usually easiest to change your set-up to match the default solr_url in test-core.ini. Often this means switching to multi-core - see :ref:`solr-multi-core`.
 
@@ -160,24 +162,22 @@ JavaScript).
 Automated JavaScript tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The JS tests are written using the Mocha_ test framework and run via
-PhantomJS_. First you need to install the necessary packages::
+The JS tests are written using the Cypress_ test framework. First you need to install the necessary packages::
 
     sudo apt-get install npm nodejs-legacy
-    sudo npm install -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1
+    sudo npm install
 
-.. _Mocha: https://mochajs.org/
-.. _PhantomJS: http://phantomjs.org//ckan
+.. _Cypress: https://www.cypress.io/
 
 To run the tests, make sure that a test server is running::
 
     . /usr/lib/ckan/default/bin/activate
-    paster serve test-core.ini
+    ckan -c |ckan.ini| run
 
 Once the test server is running switch to another terminal and execute the
 tests::
 
-    mocha-phantomjs http://localhost:5000/base/test/index.html
+    npx cypress run
 
 ~~~~~~~~~~~~
 Manual tests

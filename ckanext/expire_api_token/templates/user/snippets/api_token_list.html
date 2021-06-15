@@ -1,0 +1,16 @@
+{% ckan_extends %}
+
+{% block head_cells %}
+  {{ super() }}
+  <th scope="col">{{ _('Expires at') }}</th>
+{% endblock head_cells %}
+
+{% block token_cells %}
+  {{ super() }}
+  <td>
+    {% with extras = token.plugin_extras.expire_api_token|default(None) %}
+      {{ h.render_datetime(extras.exp, with_hours=True, with_seconds=True) }}
+    {% endwith  %}
+  </td>
+
+{% endblock token_cells %}

@@ -3,7 +3,7 @@
 {%- block page -%}
 
   {% block skip %}
-    <div class="hide"><a href="#content">{{ _('Skip to content') }}</a></div>
+    <div class="sr-only sr-only-focusable"><a href="#content">{{ _('Skip to content') }}</a></div>
   {% endblock %}
 
   {#
@@ -17,7 +17,7 @@
 
   {# The content block allows you to replace the content of the page if needed #}
   {%- block content %}
-    {% block maintag %}<div role="main">{% endblock %}
+    {% block maintag %}<div class="main">{% endblock %}
       <div id="content" class="container">
         {% block main_content %}
           {% block flash %}
@@ -33,7 +33,7 @@
           {% endblock %}
 
           {% block toolbar %}
-            <div class="toolbar">
+            <div class="toolbar" role="navigation" aria-label="{{ _('Breadcrumb') }}">
               {% block breadcrumb %}
                 {% if self.breadcrumb_content() | trim %}
                   <ol class="breadcrumb">
@@ -72,7 +72,7 @@
             {% endblock %}
 
             {% block primary %}
-              <div class="primary col-sm-9 col-xs-12">
+              <div class="primary col-sm-9 col-xs-12" role="main">
                 {#
                 The primary_content block can be used to add content to the page.
                 This is the main block that is likely to be used within a template.

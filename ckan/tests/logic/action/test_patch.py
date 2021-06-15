@@ -70,6 +70,30 @@ class TestPatch(object):
         assert group2["name"] == "economy"
         assert group2["description"] == "somethingnew"
 
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    def test_group_patch_updating_single_field_when_public_user_details_is_false(self):
+        user = factories.User()
+        group = factories.Group(
+            name="economy", description="some test now", user=user
+        )
+
+        group = helpers.call_action(
+            "group_patch",
+            id=group["id"],
+            description="somethingnew",
+            context={"user": user["name"]},
+        )
+
+        assert group["name"] == "economy"
+        assert group["description"] == "somethingnew"
+
+        group2 = helpers.call_action("group_show", id=group["id"], include_users=True)
+
+        assert group2["name"] == "economy"
+        assert group2["description"] == "somethingnew"
+        assert len(group2["users"]) == 1
+        assert group2["users"][0]["name"] == user["name"]
+
     def test_group_patch_preserve_datasets(self):
         user = factories.User()
         group = factories.Group(
@@ -121,3 +145,50 @@ class TestPatch(object):
 
         assert organization2["name"] == "economy"
         assert organization2["description"] == "somethingnew"
+
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    def test_organization_patch_updating_single_field_when_public_user_details_is_false(self):
+        user = factories.User()
+        organization = factories.Organization(
+            name="economy", description="some test now", user=user
+        )
+
+        organization = helpers.call_action(
+            "organization_patch",
+            id=organization["id"],
+            description="somethingnew",
+            context={"user": user["name"]},
+        )
+
+        assert organization["name"] == "economy"
+        assert organization["description"] == "somethingnew"
+
+        organization2 = helpers.call_action(
+            "organization_show", id=organization["id"], include_users=True
+        )
+
+        assert organization2["name"] == "economy"
+        assert organization2["description"] == "somethingnew"
+        assert len(organization2["users"]) == 1
+        assert organization2["users"][0]["name"] == user["name"]
+
+    def test_user_patch_updating_single_field(self):
+        user = factories.User(
+            fullname="Mr. Test User",
+            about="Just another test user.",
+        )
+
+        user = helpers.call_action(
+            "user_patch",
+            id=user["id"],
+            about="somethingnew",
+            context={"user": user["name"]},
+        )
+
+        assert user["fullname"] == "Mr. Test User"
+        assert user["about"] == "somethingnew"
+
+        user2 = helpers.call_action("user_show", id=user["id"])
+
+        assert user2["fullname"] == "Mr. Test User"
+        assert user2["about"] == "somethingnew"

@@ -625,14 +625,15 @@ class Page(BasePage):
     def pager(self, *args, **kwargs):
         with tags.div(cls=u"pagination-wrapper") as wrapper:
             tags.ul(u"$link_previous ~2~ $link_next", cls=u"pagination")
-        kwargs.update(
+        params = dict(
             format=text_type(wrapper),
             symbol_previous=u"«",
             symbol_next=u"»",
             curpage_attr={u"class": u"active"},
             link_attr={},
         )
-        return super(Page, self).pager(*args, **kwargs)
+        params.update(kwargs)
+        return super(Page, self).pager(*args, **params)
 
     # Put each page link into a <li> (for Bootstrap to style it)
 

@@ -24,7 +24,7 @@ Enabling Page View Tracking
 To enable page view tracking:
 
 1. Set :ref:`ckan.tracking_enabled` to true in the ``[app:main]`` section of your
-   CKAN configuration file (e.g. ``development.ini`` or ``production.ini``)::
+   CKAN configuration file (e.g. |ckan.ini|)::
 
     [app:main]
     ckan.tracking_enabled = true
@@ -36,19 +36,21 @@ To enable page view tracking:
 
    For operations based on the tracking data CKAN uses a summarised version of
    the data, not the raw tracking data that is recorded "live" as page views
-   happen. The ``paster tracking update`` and ``paster search-index rebuild``
+   happen. The ``ckan tracking update`` and ``ckan search-index rebuild``
    commands need to be run periodicially to update this tracking summary data.
 
    You can setup a cron job to run these commands. On most UNIX systems you can
    setup a cron job by running ``crontab -e`` in a shell to edit your crontab
    file, and adding a line to the file to specify the new job. For more
    information run ``man crontab`` in a shell. For example, here is a crontab
-   line to update the tracking data and rebuild the search index hourly::
+   line to update the tracking data and rebuild the search index hourly:
 
-    @hourly /usr/lib/ckan/bin/paster --plugin=ckan tracking update -c /etc/ckan/production.ini && /usr/lib/ckan/bin/paster --plugin=ckan search-index rebuild -r -c /etc/ckan/production.ini
+   .. parsed-literal::
+
+    @hourly ckan -c |ckan.ini| tracking update  && ckan -c |ckan.ini| search-index rebuild -r
 
    Replace ``/usr/lib/ckan/bin/`` with the path to the ``bin`` directory of the
-   virtualenv that you've installed CKAN into, and replace ``/etc/ckan/production.ini``
+   virtualenv that you've installed CKAN into, and replace '|ckan.ini|'
    with the path to your CKAN configuration file.
 
    The ``@hourly`` can be replaced with ``@daily``, ``@weekly`` or
@@ -73,7 +75,7 @@ its number of views in the last 14 days, the ``total`` count is all of its
 tracked views (including recent ones).
 
 You can also export tracking data for all datasets to a CSV file using the
-``paster tracking export`` command. For details, run ``paster tracking -h``.
+``ckan tracking export`` command. For details, run ``ckan tracking -h``.
 
 .. note::
 

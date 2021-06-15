@@ -1,10 +1,9 @@
 # encoding: utf-8
 
-from ckan.lib.helpers import url_for
-from ckan.tests import helpers, factories
-
-import ckan.plugins as p
 import pytest
+
+from ckan.lib.helpers import url_for
+from ckan.tests import factories
 
 
 @pytest.mark.ckan_config('ckan.views.default_views', '')
@@ -22,7 +21,7 @@ def test_view_shown_on_resource_page_with_video_url(app):
         view_type='video_view',
         video_url='https://example/video.mp4')
 
-    url = url_for('resource.read',
+    url = url_for('{}_resource.read'.format(dataset['type']),
                   id=dataset['name'], resource_id=resource['id'])
 
     response = app.get(url)

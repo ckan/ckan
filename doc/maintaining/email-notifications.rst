@@ -22,7 +22,7 @@ notifications for a CKAN site, a sysadmin must:
    simulates an HTTP-request. For example, here is a crontab line to send out
    CKAN email notifications hourly::
 
-    @hourly echo '{}' | /usr/lib/ckan/bin/paster --plugin=ckan post -c /etc/ckan/production.ini /api/action/send_email_notifications > /dev/null
+    @hourly echo '{}' | ckan post -c |ckan.ini| /api/action/send_email_notifications > /dev/null
 
    The ``@hourly`` can be replaced with ``@daily``, ``@weekly`` or ``@monthly``.
 
@@ -86,9 +86,9 @@ notifications for a CKAN site, a sysadmin must:
 
 
 6. You need to restart the web server for the new configuration to take effect.
-   For example, if you are using Apache on Ubuntu, run this command in a
+   For example, if you are using a CKAN package install, run this command in a
    shell:
 
    .. parsed-literal::
 
-      |reload_apache|
+      |restart_uwsgi|

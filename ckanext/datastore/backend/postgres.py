@@ -73,6 +73,10 @@ _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
 
+_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), u"..", "allowed_functions.txt"
+)
+
 
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError
@@ -379,13 +383,14 @@ def _where_clauses(data_dict, fields_types):
 
     # add full-text search where clause
     q = data_dict.get('q')
-    if q:
+    full_text = data_dict.get('full_text')
+    if q and not full_text:
         if isinstance(q, string_types):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
         elif isinstance(q, dict):
-            lang = _fts_lang(data_dict.get('lang'))
+            lang = _fts_lang(data_dict.get('language'))
             for field, value in six.iteritems(q):
                 if field not in fields_types:
                     continue
@@ -402,39 +407,103 @@ def _where_clauses(data_dict, fields_types):
                         identifier(field),
                         query_field)
                 clauses.append((clause_str,))
+    elif (full_text and not q):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
+
+    elif full_text and isinstance(q, dict):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
+        # update clauses with q dict
+        _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses)
+
+    elif full_text and isinstance(q, string_types):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
 
     return clauses
 
 
-def _textsearch_query(lang, q, plain):
+def _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses):
+    lang = _fts_lang(data_dict.get('language'))
+    for field, value in six.iteritems(q):
+        if field not in fields_types:
+            continue
+        query_field = _ts_query_alias(field)
+
+        ftyp = fields_types[field]
+        if not datastore_helpers.should_fts_index_field_type(ftyp):
+            clause_str = u'_full_text @@ {0}'.format(query_field)
+            clauses.append((clause_str,))
+
+        clause_str = (
+            u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
+                literal_string(lang),
+                identifier(field),
+                query_field)
+        clauses.append((clause_str,))
+
+
+def _textsearch_query(lang, q, plain, full_text):
     u'''
     :param lang: language for to_tsvector
     :param q: string to search _full_text or dict to search columns
     :param plain: True to use plainto_tsquery, False for to_tsquery
+    :param full_text: string to search _full_text
 
     return (query, rank_columns) based on passed text/dict query
     rank_columns is a {alias: statement} dict where alias is "rank" for
     _full_text queries, and "rank <column-name>" for column search
     '''
-    if not q:
+    if not (q or full_text):
         return '', {}
 
     statements = []
     rank_columns = {}
-    if isinstance(q, string_types):
-        query, rank = _build_query_and_rank_statements(
-            lang, q, plain)
-        statements.append(query)
-        rank_columns[u'rank'] = rank
-    elif isinstance(q, dict):
-        for field, value in six.iteritems(q):
+    if q and not full_text:
+        if isinstance(q, string_types):
             query, rank = _build_query_and_rank_statements(
-                lang, value, plain, field)
+                lang, q, plain)
             statements.append(query)
-            rank_columns[u'rank ' + field] = rank
+            rank_columns[u'rank'] = rank
+        elif isinstance(q, dict):
+            for field, value in six.iteritems(q):
+                query, rank = _build_query_and_rank_statements(
+                    lang, value, plain, field)
+                statements.append(query)
+                rank_columns[u'rank ' + field] = rank
+    elif full_text and not q:
+        _update_rank_statements_and_columns(
+            statements, rank_columns, lang, full_text, plain
+        )
+    elif full_text and isinstance(q, dict):
+        _update_rank_statements_and_columns(
+            statements, rank_columns, lang, full_text, plain)
+        for field, value in six.iteritems(q):
+            _update_rank_statements_and_columns(
+                statements, rank_columns, lang, value, plain, field
+            )
+    elif full_text and isinstance(q, string_types):
+        _update_rank_statements_and_columns(
+            statements, rank_columns, lang, full_text, plain
+        )
 
     statements_str = ', ' + ', '.join(statements)
     return statements_str, rank_columns
+
+
+def _update_rank_statements_and_columns(
+        statements, rank_columns, lang, query, plain, field=None):
+    query, rank = _build_query_and_rank_statements(
+        lang, query, plain, field)
+    statements.append(query)
+    if field:
+        rank_columns[u'rank ' + field] = rank
+    else:
+        rank_columns[u'rank'] = rank
 
 
 def _build_query_and_rank_statements(lang, query, plain, field=None):
@@ -569,7 +638,7 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     default_fts_lang = config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
-    fts_lang = data_dict.get('lang', default_fts_lang)
+    fts_lang = data_dict.get('language', default_fts_lang)
 
     # create full-text search indexes
     def to_tsvector(x):
@@ -676,7 +745,7 @@ def _insert_links(data_dict, limit, offset):
     # get the url from the request
     try:
         urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
-    except (KeyError, TypeError):
+    except (KeyError, TypeError, RuntimeError):
         return  # no links required for local actions
 
     # change the offset in the url
@@ -1571,14 +1640,27 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
-        table_names = datastore_helpers.get_table_names_from_sql(context, sql)
+        get_names = datastore_helpers.get_table_and_function_names_from_sql
+        table_names, function_names = get_names(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
+        log.debug('Functions involved in input SQL: {0!r}'.format(
+            function_names))
 
         if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
         context['check_access'](table_names)
+
+        for f in function_names:
+            for name_variant in [f.lower(), '"{}"'.format(f)]:
+                if name_variant in backend.allowed_sql_functions:
+                    break
+            else:
+                raise toolkit.NotAuthorized({
+                    'permissions': [
+                        'Not authorized to call function {}'.format(f)]
+                })
 
         results = context['connection'].execute(sql)
 
@@ -1709,7 +1791,29 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         # Check whether users have disabled datastore_search_sql
         self.enable_sql_search = toolkit.asbool(
-            self.config.get('ckan.datastore.sqlsearch.enabled', True))
+            self.config.get('ckan.datastore.sqlsearch.enabled', False))
+
+        if self.enable_sql_search:
+            allowed_sql_functions_file = self.config.get(
+                'ckan.datastore.sqlsearch.allowed_functions_file',
+                _SQL_FUNCTIONS_ALLOWLIST_FILE
+            )
+
+            def format_entry(line):
+                '''Prepare an entry from the 'allowed_functions' file
+                to be used in the whitelist.
+
+                Leading and trailing whitespace is removed, and the
+                entry is lowercased unless enclosed in "double quotes".
+                '''
+                entry = line.strip()
+                if not entry.startswith('"'):
+                    entry = entry.lower()
+                return entry
+
+            with open(allowed_sql_functions_file, 'r') as f:
+                self.allowed_sql_functions = set(format_entry(line)
+                                                 for line in f)
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
@@ -1751,15 +1855,22 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         fields = data_dict.get('fields')
 
         ts_query, rank_columns = _textsearch_query(
-            _fts_lang(data_dict.get('lang')),
+            _fts_lang(data_dict.get('language')),
             data_dict.get('q'),
-            data_dict.get('plain', True))
+            data_dict.get('plain', True),
+            data_dict.get('full_text'))
         # mutate parameter to add rank columns for _result_fields
         for rank_alias in rank_columns:
             fields_types[rank_alias] = u'float'
-
-        if fields:
+        fts_q = data_dict.get('full_text')
+        if fields and not fts_q:
             field_ids = datastore_helpers.get_list(fields)
+        elif fields and fts_q:
+            field_ids = datastore_helpers.get_list(fields)
+            all_field_ids = list(fields_types.keys())
+            field_intersect = [x for x in field_ids
+                               if x not in all_field_ids]
+            field_ids = all_field_ids + field_intersect
         else:
             field_ids = fields_types.keys()
 
@@ -1772,7 +1883,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             fields_types,
             rank_columns)
         where = _where_clauses(data_dict, fields_types)
-
         select_cols = []
         records_format = data_dict.get(u'records_format')
         for field_id in field_ids:
@@ -1857,7 +1967,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         trans = context['connection'].begin()
         try:
-            # check if table already existes
+            # check if table already exists
             context['connection'].execute(
                 u'SET LOCAL statement_timeout TO {0}'.format(timeout))
             result = context['connection'].execute(
@@ -1951,45 +2061,116 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     #     pass
 
     def resource_fields(self, id):
-        def _type_lookup(t):
-            if t in ['numeric', 'integer']:
-                return 'number'
-            if t.startswith('timestamp'):
-                return "date"
-            return "text"
 
-        info = {'schema': {}, 'meta': {}}
+        info = {'meta': {}, 'fields': []}
 
-        schema_results = None
-        meta_results = None
         try:
-            schema_sql = sqlalchemy.text(u'''
-                SELECT column_name, data_type
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE table_name = :resource_id;
-            ''')
-            schema_results = self._get_read_engine().execute(
-                schema_sql, resource_id=id)
-            for row in schema_results.fetchall():
-                k = row[0]
-                v = row[1]
-                if k.startswith('_'):  # Skip internal rows
-                    continue
-                info['schema'][k] = _type_lookup(v)
+            engine = self._get_read_engine()
 
-            # We need to make sure the resource_id is a valid resource_id
-            # before we use it like this, we have done that above.
-            meta_sql = sqlalchemy.text(u'''
-                SELECT count(_id) FROM "{0}";
-            '''.format(id))
-            meta_results = self._get_read_engine().execute(
-                meta_sql, resource_id=id)
+            # resource id for deferencing aliases
+            info['meta']['id'] = id
+
+            # count of rows in table
+            meta_sql = sqlalchemy.text(
+                u'SELECT count(_id) FROM "{0}"'.format(id))
+            meta_results = engine.execute(meta_sql)
             info['meta']['count'] = meta_results.fetchone()[0]
-        finally:
-            if schema_results:
-                schema_results.close()
-            if meta_results:
-                meta_results.close()
+
+            # table_type - BASE TABLE, VIEW, FOREIGN TABLE, MATVIEW
+            tabletype_sql = sqlalchemy.text(u'''
+                SELECT table_type FROM INFORMATION_SCHEMA.TABLES
+                WHERE table_name = '{0}'
+                '''.format(id))
+            tabletype_results = engine.execute(tabletype_sql)
+            info['meta']['table_type'] = tabletype_results.fetchone()[0]
+            # MATERIALIZED VIEWS show as BASE TABLE, so
+            # we check pg_matviews
+            matview_sql = sqlalchemy.text(u'''
+                SELECT count(*) FROM pg_matviews
+                WHERE matviewname = '{0}'
+                '''.format(id))
+            matview_results = engine.execute(matview_sql)
+            if matview_results.fetchone()[0]:
+                info['meta']['table_type'] = 'MATERIALIZED VIEW'
+
+            # SIZE - size of table in bytes
+            size_sql = sqlalchemy.text(
+                u"SELECT pg_relation_size('{0}')".format(id))
+            size_results = engine.execute(size_sql)
+            info['meta']['size'] = size_results.fetchone()[0]
+
+            # DB_SIZE - size of database in bytes
+            dbsize_sql = sqlalchemy.text(
+                u"SELECT pg_database_size(current_database())".format(id))
+            dbsize_results = engine.execute(dbsize_sql)
+            info['meta']['db_size'] = dbsize_results.fetchone()[0]
+
+            # IDXSIZE - size of all indices for table in bytes
+            idxsize_sql = sqlalchemy.text(
+                u"SELECT pg_indexes_size('{0}')".format(id))
+            idxsize_results = engine.execute(idxsize_sql)
+            info['meta']['idx_size'] = idxsize_results.fetchone()[0]
+
+            # all the aliases for this resource
+            alias_sql = sqlalchemy.text(u'''
+                SELECT name FROM "_table_metadata" WHERE alias_of = '{0}'
+            '''.format(id))
+            alias_results = engine.execute(alias_sql)
+            aliases = []
+            for alias in alias_results.fetchall():
+                aliases.append(alias[0])
+            info['meta']['aliases'] = aliases
+
+            # get the data dictionary for the resource
+            data_dictionary = datastore_helpers.datastore_dictionary(id)
+
+            schema_sql = sqlalchemy.text(u'''
+                SELECT
+                f.attname AS column_name,
+                pg_catalog.format_type(f.atttypid,f.atttypmod) AS native_type,
+                f.attnotnull AS notnull,
+                i.relname as index_name,
+                CASE
+                    WHEN i.oid<>0 THEN True
+                    ELSE False
+                END AS is_index,
+                CASE
+                    WHEN p.contype = 'u' THEN True
+                    WHEN p.contype = 'p' THEN True
+                    ELSE False
+                END AS uniquekey
+                FROM pg_attribute f
+                JOIN pg_class c ON c.oid = f.attrelid
+                JOIN pg_type t ON t.oid = f.atttypid
+                LEFT JOIN pg_constraint p ON p.conrelid = c.oid
+                          AND f.attnum = ANY (p.conkey)
+                LEFT JOIN pg_index AS ix ON f.attnum = ANY(ix.indkey)
+                          AND c.oid = f.attrelid AND c.oid = ix.indrelid
+                LEFT JOIN pg_class AS i ON ix.indexrelid = i.oid
+                WHERE c.relkind = 'r'::char
+                      AND c.relname = '{0}'
+                      AND f.attnum > 0
+                ORDER BY c.relname,f.attnum;
+            '''.format(id))
+            schema_results = engine.execute(schema_sql)
+            schemainfo = {}
+            for row in schema_results.fetchall():
+                colname = row.column_name
+                if colname.startswith('_'):  # Skip internal rows
+                    continue
+                colinfo = {'native_type': row.native_type,
+                           'notnull': row.notnull,
+                           'index_name': row.index_name,
+                           'is_index': row.is_index,
+                           'uniquekey': row.uniquekey}
+                schemainfo[colname] = colinfo
+
+            for field in data_dictionary:
+                field.update({'schema': schemainfo[field['id']]})
+                info['fields'].append(field)
+
+        except Exception:
+            pass
         return info
 
     def get_all_ids(self):

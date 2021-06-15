@@ -28,7 +28,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
                         u', '.join(record.keys()),
                         u', '.join(['?'] * len(record.keys()))
                     ),
-                    record.values()
+                    list(record.values())
                 )
             pass
 

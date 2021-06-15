@@ -157,19 +157,19 @@ def test_tag_name_validation():
         ("a", [u"Tag TAG length is less than minimum 2"]),
         (
             "  ,leading comma",
-            [u"Tag TAG must be alphanumeric characters or symbols: -_."],
+            [u"Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
         ),
         (
             "trailing comma,",
-            [u"Tag TAG must be alphanumeric characters or symbols: -_."],
+            [u"Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
         ),
         (
             "empty,,tag",
-            [u"Tag TAG must be alphanumeric characters or symbols: -_."],
+            [u"Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
         ),
         (
             'quote"character',
-            [u"Tag TAG must be alphanumeric characters or symbols: -_."],
+            [u"Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
         ),
         ("p" * 101, [u"Tag TAG length is more than maximum 100"]),
     )

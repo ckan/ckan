@@ -12,7 +12,7 @@ import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization as dictization
-import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.api_token as api_token
 from ckan import authz
 
 from ckan.common import _
@@ -58,6 +58,11 @@ def user_delete(context, data_dict):
     for membership in user_memberships:
         membership.delete()
 
+    datasets_where_user_is_collaborator = model.Session.query(model.PackageMember).filter(
+            model.PackageMember.user_id == user.id).all()
+    for collaborator in datasets_where_user_is_collaborator:
+        collaborator.delete()
+
     model.repo.commit()
 
 
@@ -98,6 +103,11 @@ def package_delete(context, data_dict):
 
     for membership in dataset_memberships:
         membership.delete()
+
+    dataset_collaborators = model.Session.query(model.PackageMember).filter(
+        model.PackageMember.package_id == id).all()
+    for collaborator in dataset_collaborators:
+        collaborator.delete()
 
     # Create activity
     if not entity.private:
@@ -316,6 +326,57 @@ def member_delete(context, data_dict=None):
     if member:
         member.delete()
         model.repo.commit()
+
+
+def package_collaborator_delete(context, data_dict):
+    '''Remove a collaborator from a dataset.
+
+    Currently you must be an Admin on the dataset owner organization to
+    manage collaborators.
+
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :param user_id: the id or name of the user to remove
+    :type user_id: string
+
+    '''
+
+    model = context['model']
+
+    package_id, user_id = _get_or_bust(
+        data_dict,
+        ['id', 'user_id']
+    )
+
+    _check_access('package_collaborator_delete', context, data_dict)
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError(_('Dataset collaborators not enabled'))
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise NotFound(_('Package not found'))
+
+    user = model.User.get(user_id)
+    if not user:
+        raise NotFound(_('User not found'))
+
+    collaborator = model.Session.query(model.PackageMember).\
+        filter(model.PackageMember.package_id == package.id).\
+        filter(model.PackageMember.user_id == user.id).one_or_none()
+    if not collaborator:
+        raise NotFound(
+            'User {} is not a collaborator on this package'.format(user_id))
+
+    model.Session.delete(collaborator)
+    model.repo.commit()
+
+    log.info('User {} removed as collaborator from package {}'.format(
+        user_id, package.id))
+
 
 def _group_or_org_delete(context, data_dict, is_org=False):
     '''Delete a group.
@@ -768,3 +829,30 @@ def job_cancel(context, data_dict):
         log.info(u'Cancelled background job {}'.format(id))
     except KeyError:
         raise NotFound
+
+
+def api_token_revoke(context, data_dict):
+    """Delete API Token.
+
+    :param string token: Token to remove(required if `jti` not specified).
+    :param string jti: Id of the token to remove(overrides `token` if specified).
+
+    .. versionadded:: 3.0
+    """
+    jti = data_dict.get(u'jti')
+    if not jti:
+        token = _get_or_bust(data_dict, u'token')
+        decoders = plugins.PluginImplementations(plugins.IApiToken)
+        for plugin in decoders:
+            data = plugin.decode_api_token(token)
+            if data:
+                break
+        else:
+            data = api_token.decode(token)
+
+        if data:
+            jti = data.get(u'jti')
+
+    _check_access(u'api_token_revoke', context, {u'jti': jti})
+    model = context[u'model']
+    model.ApiToken.revoke(jti)

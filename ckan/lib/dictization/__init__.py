@@ -4,7 +4,6 @@ import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
 
-import six
 from six import text_type
 from ckan.model.core import State
 
@@ -115,7 +114,7 @@ def get_unique_constraints(table, context):
 
     return list_of_constraints
 
-def table_dict_save(table_dict, ModelClass, context):
+def table_dict_save(table_dict, ModelClass, context, extra_attrs=()):
     '''Given a dict and a model class, update or create a sqlalchemy object.
     This will use an existing object if "id" is supplied OR if any unique
     constraints are met. e.g supplying just a tag name will get out that tag obj.
@@ -148,10 +147,10 @@ def table_dict_save(table_dict, ModelClass, context):
     if not obj:
         obj = ModelClass()
 
-    for key, value in six.iteritems(table_dict):
-        if isinstance(value, list):
-            continue
-        setattr(obj, key, value)
+    obj.from_dict(table_dict)
+    for a in extra_attrs:
+        if a in table_dict:
+            setattr(obj, a, table_dict[a])
 
     session.add(obj)
 

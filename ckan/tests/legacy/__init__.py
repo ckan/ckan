@@ -12,7 +12,6 @@ setuptools.
 import os
 from unittest import TestCase
 
-from functools import wraps
 import pytest
 
 from ckan.common import config
@@ -23,7 +22,6 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 import ckan.lib.helpers as h
 import ckan.model as model
-from ckan.common import json
 import ckan.tests.helpers as helpers
 
 

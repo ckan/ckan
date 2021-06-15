@@ -38,7 +38,7 @@ appearance of CKAN pages by developing your own CKAN themes.
    We also recommend familiarizing yourself with:
 
    * `Jinja2 templates <http://jinja.pocoo.org/docs/templates/>`_
-   * `Bootstrap <http://getbootstrap.com/2.3.2/>`_
+   * `Bootstrap <https://getbootstrap.com/docs/3.4/>`__
    * `jQuery <http://jquery.com/>`_
 
 .. note::
@@ -47,7 +47,7 @@ appearance of CKAN pages by developing your own CKAN themes.
     CKAN theme is Bootstrap 3. For backwards compatibility, Bootstrap 2 templates
     will be included in CKAN core for a few versions, but they will be eventually
     removed so you are encouraged to update your custom theme to use Bootstrap 3.
-    You can select which set of templates to use (Bootstrap 3 or 2) by using the 
+    You can select which set of templates to use (Bootstrap 3 or 2) by using the
     :ref:`ckan.base_public_folder` and :ref:`ckan.base_templates_folder`
     configuration options.
 
@@ -58,7 +58,7 @@ appearance of CKAN pages by developing your own CKAN themes.
    templates
    static-files
    css
-   fanstatic
+   webassets
    javascript
    best-practices
    jinja-tags

@@ -3,36 +3,18 @@
 import flask
 import pytest
 import six
-from mock import patch
-from pyfakefs import fake_filesystem
+from unittest.mock import patch
 from ckan.lib.helpers import url_for
 
 from six.moves.urllib.parse import urlparse
 import ckan.lib.uploader
 import ckan.model as model
-import ckan.plugins as plugins
-from ckan.common import config
+
 import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 import ckanext.example_iuploader.plugin as plugin
 
-try:
-    import __builtin__ as builtins
-except ImportError:
-    import builtins
 
-real_open = open
-fs = fake_filesystem.FakeFilesystem()
-fake_os = fake_filesystem.FakeOsModule(fs)
-fake_open = fake_filesystem.FakeFileOpen(fs)
 CONTENT = "data"
-
-
-def mock_open_if_open_fails(*args, **kwargs):
-    try:
-        return real_open(*args, **kwargs)
-    except (OSError, IOError):
-        return fake_open(*args, **kwargs)
 
 
 # Uses a fake filesystem for the uploads to be stored.
@@ -44,14 +26,13 @@ def mock_open_if_open_fails(*args, **kwargs):
 @pytest.mark.ckan_config("ckan.plugins", "example_iuploader")
 @pytest.mark.ckan_config("ckan.webassets.path", "/tmp/webassets")
 @pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
-@patch.object(ckan.lib.uploader, "os", fake_os)
 @patch.object(flask, "send_file", side_effect=[CONTENT])
-@patch.object(config["pylons.h"], "uploads_enabled", return_value=True)
-@patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
 def test_resource_download_iuploader_called(
-        mock_uploads_enabled, send_file, app, monkeypatch
+        send_file, app, monkeypatch, tmpdir, ckan_config
 ):
-    monkeypatch.setattr(builtins, 'open', mock_open_if_open_fails)
+    monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
+
     user = factories.User()
     env = {"REMOTE_USER": six.ensure_str(user["name"])}
     url = url_for("dataset.new")
@@ -62,7 +43,8 @@ def test_resource_download_iuploader_called(
         "save": "",
         "_ckan_phase": 1
     }
-    response = app.post(url, data=form, environ_overrides=env, follow_redirects=False)
+    response = app.post(
+        url, data=form, environ_overrides=env, follow_redirects=False)
     location = response.headers['location']
     location = urlparse(location)._replace(scheme='', netloc='').geturl()
 
@@ -80,7 +62,7 @@ def test_resource_download_iuploader_called(
             "save": "go-metadata",
             "upload": ("README.rst", CONTENT)
         })
-    assert mock_get_path.call_count == 1
+    assert mock_get_path.call_count == 3
     assert isinstance(mock_get_path.call_args[0][0], plugin.ResourceUpload)
     pkg = model.Package.by_name(dataset_name)
     assert mock_get_path.call_args[0][1] == pkg.resources[0].id
