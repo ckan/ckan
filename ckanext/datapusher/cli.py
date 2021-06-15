@@ -29,16 +29,17 @@ def confirm(yes):
     click.confirm(question, abort=True)
 
 
-@click.group()
+@click.group(short_help=u"Perform commands in the datapusher.")
 def datapusher():
-    u'''Perform commands in the datapusher.
-    '''
+    """Perform commands in the datapusher.
+    """
+    pass
 
 
 @datapusher.command()
 @requires_confirmation
 def resubmit(yes):
-    u'''Resubmit udated datastore resources.
+    u'''Resubmit updated datastore resources.
     '''
     confirm(yes)
 

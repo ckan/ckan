@@ -2,7 +2,7 @@
 
 import datetime
 import re
-
+import logging
 import requests
 
 from ckan.common import config
@@ -13,7 +13,7 @@ from six import text_type, string_types
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
 
-log = __import__('logging').getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class License(object):
@@ -38,10 +38,6 @@ class License(object):
                     *list(int(item) for item in re.split(r'[^\d]', value)))
                 self._data[key] = value
             elif isinstance(value, str):
-                if six.PY2:
-                    # Convert str to unicode
-                    # (keeps Pylons and SQLAlchemy happy).
-                    value = six.ensure_text(value)
                 self._data[key] = value
 
     def __getattr__(self, name):
@@ -62,7 +58,7 @@ class License(object):
 
     @maintain.deprecated("License.__getitem__() is deprecated and will be "
                          "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
+                         "please use attribute access.", since="2.4.0")
     def __getitem__(self, key):
         '''NB This method is deprecated and will be removed in a future version
         of CKAN. Instead, please use attribute access.
@@ -77,7 +73,7 @@ class License(object):
 
     @maintain.deprecated("License.as_dict() is deprecated and will be "
                          "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
+                         "please use attribute access.", since="2.4.0")
     def as_dict(self):
         '''NB This method is deprecated and will be removed in a future version
         of CKAN. Instead, please use attribute access.

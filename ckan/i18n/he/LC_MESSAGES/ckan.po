@@ -575,7 +575,7 @@ msgstr "לא ניתן לטעון את התצוגה"
 #: ckanext/reclineview/theme/public/recline_view.js:81
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "DataStore returned an error"
-msgstr " ה־DataStore (מאגר הנתונים) החזיר שגיאה"
+msgstr "חנות הנתונים (DataStore) החזירה שגיאה"
 
 #: ckanext/reclineview/theme/public/recline_view.js:83
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
@@ -1154,7 +1154,7 @@ msgstr "תצורת מהדורה שגויה: %r"
 
 #: ckan/controllers/package.py:414 ckan/views/dataset.py:512
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
-msgstr "אין תמיכה בהצגת סדרות נתונים מסוג „{package_type}” ({file_!r})."
+msgstr "אין תמיכה בהצגת ערכות נתונים מסוג „{package_type}” ({file_!r})."
 
 #: ckan/controllers/package.py:453 ckan/controllers/package.py:842
 #: ckan/controllers/package.py:943 ckan/controllers/package.py:991
@@ -1369,7 +1369,7 @@ msgid ""
 "help"
 msgstr ""
 "שליחת ההודעה בדוא״ל נכשלה. נא לנסות שוב מאוחר יותר או ליצור קשר עם הנהלת "
-"המערכת לקבלת עזרה"
+"המערכת לקבלת עזרה."
 
 #: ckan/controllers/user.py:500 ckan/views/user.py:664
 msgid ""
@@ -1862,7 +1862,7 @@ msgstr "התפקיד חייב להיות אחד מתוך „{}”"
 
 #: ckan/logic/action/create.py:671
 msgid "Not allowed to add collaborators"
-msgstr "אין הרשאה להוסיף משתתפים"
+msgstr "אין הרשאה להוסיף שותפים"
 
 #: ckan/logic/action/create.py:674 ckan/logic/action/delete.py:358
 #: ckan/logic/action/get.py:268 ckan/logic/action/get.py:311

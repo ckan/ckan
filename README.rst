@@ -51,7 +51,7 @@ If you find a potential security vulnerability please email security@ckan.org,
 rather than creating a public issue on GitHub.
 
 .. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan
-.. _archives: https://www.google.com/search?q=%22%5Bckan-dev%5D%22+site%3Alists.okfn.org.
+.. _archives: https://groups.google.com/a/ckan.org/g/ckan-dev
 .. _GitHub Issues: https://github.com/ckan/ckan/issues
 .. _CKAN chat on Gitter: https://gitter.im/ckan/chat
 
@@ -60,7 +60,7 @@ Contributing to CKAN
 --------------------
 
 For contributing to CKAN or its documentation, see
-`CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.rst>`_.
+`CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.md>`_.
 
 Mailing List
 ~~~~~~~~~~~~

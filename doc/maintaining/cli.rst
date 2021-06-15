@@ -57,7 +57,7 @@ to execute. Most commands have their own subcommands and options.
   environment variable. You will no longer need to use --config= or -c to
   tell ckan where the config file is:
 
-  
+
 .. parsed-literal::
 
  export CKAN_INI=\ |ckan.ini|
@@ -126,7 +126,7 @@ this:
   tried to run)
 * **The program 'ckan' is currently not installed**
 * **Command not found: ckan**
-* **ImportError: No module named fanstatic** (or other ``ImportError``\ s)
+* **ImportError: No module named webassets** (or other ``ImportError``\ s)
 
 Running ckan commands provided by extensions
 ==============================================
@@ -165,17 +165,15 @@ datapusher        Perform commands in the datapusher.
 dataset           Manage datasets.
 datastore         Perform commands to set up the datastore.
 db                Perform various tasks on the database.
-front-end-build   Creates and minifies css and JavaScript files
 generate          Generate empty extension files to expand CKAN
 jobs              Manage background jobs
 less              Compile all root less documents into their CSS counterparts
-minify            Create minified versions of the given Javascript and CSS files.
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
-profile           Code speed profiler
+profile           Code speed profiler.
+run               Start Development server.
 search-index      Creates a search index for all datasets
 seed              Create test data in the database.
-server            Start Development server.
 sysadmin          Gives sysadmin rights to a named user.
 tracking          Update tracking statistics.
 translation       Translation helper functions
@@ -241,7 +239,7 @@ Usage
  ckan dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
 
 
-datastore: Perform commands to set up the datastore
+datastore: Perform commands in the datastore
 ===================================================
 
 Make sure that the datastore URLs are set properly before you run these commands.
@@ -252,6 +250,7 @@ Usage
 
  ckan datastore set-permissions  - generate SQL for permission configuration
  ckan datastore dump             - dump a datastore resource
+ ckan datastore purge            - purge orphaned datastore resources
 
 
 db: Manage databases
@@ -267,16 +266,6 @@ db: Manage databases
  ckan db version             - Returns current version of data schema
 
 See :doc:`database-management`.
-
-
-front-end-build: Creates and minifies css and JavaScript files
-==============================================================
-
-Usage
-
-.. parsed-literal::
-
- ckan front-end-build      - compile css and js
 
 
 generate: Generate empty extension files to expand CKANs
@@ -428,24 +417,6 @@ Usage
  less
 
 
-minify: Create minified versions of the given Javascript and CSS files
-======================================================================
-
-Usage
-
-.. parsed-literal::
-
- ckan minify [--clean] PATH     - remove any minified files in the path
- 
-.. parsed-literal::
-
- ckan -c |ckan.ini| minify ckan/public/base
- ckan -c |ckan.ini| minify ckan/public/base/css/\*.css
- ckan -c |ckan.ini| minify ckan/public/base/css/red.css
-
-If the --clean option is provided any minified files will be removed.
-
-
 notify: Send out modification notifications
 ===========================================
 
@@ -480,6 +451,19 @@ The result is saved in profile.data.search. To view the profile in runsnakerun::
    runsnakerun ckan.data.search.profile
 
 You may need to install the cProfile python module.
+
+
+run: Start Development server
+==================================
+
+Usage
+
+.. parsed-literal::
+
+ ckan run --host (-h)                  - Set Host
+ ckan run --port (-p)                  - Set Port
+ ckan run --disable-reloader (-r)      - Use reloader
+
 
 
 search-index: Search index commands
@@ -567,18 +551,6 @@ Examples
 .. parsed-literal::
 
  ckan -c |ckan.ini| seed basic
-
-
-server: Start Development server
-==================================
-
-Usage
-
-.. parsed-literal::
-
- ckan server --host (-h)          - Set Host
- ckan server --port (-p)          - Set Port
- ckan server --reloader (-r)      - Use reloader
 
 
 sysadmin: Give sysadmin rights

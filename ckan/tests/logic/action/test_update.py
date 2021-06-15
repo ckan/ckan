@@ -2,9 +2,8 @@
 """Unit tests for ckan/logic/action/update.py."""
 import datetime
 
-import mock
+import unittest.mock as mock
 import pytest
-import six
 
 import ckan
 import ckan.lib.app_globals as app_globals
@@ -274,8 +273,13 @@ class TestUpdate(object):
         user = factories.User()
 
         # A mock validator method, it doesn't do anything but it records what
-        # params it gets called with and how many times.
-        mock_validator = mock.MagicMock()
+        # params it gets called with and how many times. We are using function
+        # instead of MagicMock, because validator must have __code__ attribute
+        calls = []
+
+        def mock_validator(v):
+            calls.append(v)
+            return v
 
         # Build a custom schema by taking the default schema and adding our
         # mock method to its 'id' field.
@@ -294,6 +298,7 @@ class TestUpdate(object):
             password=factories.User.password,
             fullname="updated full name",
         )
+        assert calls == [user['id']]
 
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
@@ -465,25 +470,6 @@ class TestUpdate(object):
         assert (
             helpers.call_action("organization_show", id="unchanging")["type"]
             == "organization"
-        )
-
-    def test_update_group_cant_change_type(self):
-        user = factories.User()
-        context = {"user": user["name"]}
-        group = factories.Group(type="group", name="unchanging", user=user)
-
-        group = helpers.call_action(
-            "group_update",
-            context=context,
-            id=group["id"],
-            name="unchanging",
-            type="favouritecolour",
-        )
-
-        assert group["type"] == "group"
-        assert (
-            helpers.call_action("group_show", id="unchanging")["type"]
-            == "group"
         )
 
 
@@ -1227,7 +1213,7 @@ class TestResourceUpdate(object):
         assert "extras" not in resource
         assert "someotherkey" not in resource
 
-    @helpers.change_config(
+    @pytest.mark.ckan_config(
         "ckan.views.default_views", "image_view recline_view"
     )
     def test_resource_format_update(self):
@@ -1480,6 +1466,62 @@ class TestUserUpdate(object):
 
         user_obj = model.User.get(user["id"])
         assert user_obj.password != "pretend-this-is-a-valid-hash"
+
+    def test_user_update_image_url(self):
+        user = factories.User(image_url='user_image.jpg')
+        context = {"user": user["name"]}
+
+        user = helpers.call_action(
+            "user_update",
+            context=context,
+            id=user["name"],
+            email="test@example.com",
+            image_url="new_image_url.jpg",
+        )
+
+        assert user["image_url"] == "new_image_url.jpg"
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestGroupUpdate(object):
+    def test_group_update_image_url_field(self):
+        user = factories.User()
+        context = {"user": user["name"]}
+        group = factories.Group(
+            type="group",
+            name="testing",
+            user=user,
+            image_url='group_image.jpg')
+
+        group = helpers.call_action(
+            "group_update",
+            context=context,
+            id=group["id"],
+            name=group["name"],
+            type=group["type"],
+            image_url="new_image_url.jpg"
+        )
+
+        assert group["image_url"] == "new_image_url.jpg"
+
+    def test_group_update_cant_change_type(self):
+        user = factories.User()
+        context = {"user": user["name"]}
+        group = factories.Group(type="group", name="unchanging", user=user)
+
+        group = helpers.call_action(
+            "group_update",
+            context=context,
+            id=group["id"],
+            name="unchanging",
+            type="favouritecolour",
+        )
+
+        assert group["type"] == "group"
+        assert (
+            helpers.call_action("group_show", id="unchanging")["type"]
+            == "group"
+        )
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")

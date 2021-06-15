@@ -3,38 +3,26 @@
     {% if change.method == "remove_one" %}
 
       {{ _('Removed tag {tag_link} from {pkg_link}').format(
-            tag_link = '<a href="{tag_url}">{tag}</a>'.format(
-              tag_url = h.url_for(controller='dataset', action='search') +
-              "?tags=" + change.tag,
-              tag = change.tag
-            )|safe,
-            pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-              pkg_url = h.url_for(controller='dataset',
-                                  action='read', id=change.pkg_id),
-              pkg_name = change.title
-            )|safe
-      ) }}
+        tag_link = '<a href="{tag_url}">{tag}</a>'.format(
+          tag_url = h.url_for(controller='dataset', action='search') +
+          "?tags=" + change.tag,
+          tag = change.tag
+        )|safe,
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        ) }}
 
     {% elif change.method == "remove_multiple" %}
 
       {{ _('Removed the following tags from {pkg_link}').format(
-            pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-              pkg_url = h.url_for(controller='dataset',
-                                  action='read', id=change.pkg_id),
-              pkg_name = change.title
-            )|safe
-      )|safe }}
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        )|safe }}
 
       <ul>
         {% for item in change.tags %}
           <li>
             {{ _('{tag_link}').format(
-              tag_link = '<a href="{tag_url}">{tag}</a>'.format(
-                tag_url = h.url_for(controller='dataset', action='search') +
-                "?tags=" + item,
-                tag = item
-              )|safe
-            )}}
+              tag_link = h.nav_link(item, named_route='dataset.search', tags=item),
+              )}}
           </li>
         {% endfor %}
       </ul>
@@ -42,38 +30,22 @@
     {% elif change.method == "add_one" %}
 
       {{ _('Added tag {tag_link} to {pkg_link}').format(
-          tag_link = '<a href="{tag_url}">{tag}</a>'.format(
-            tag_url = h.url_for(controller='dataset', action='search') +
-            "?tags=" + change.tag,
-            tag = change.tag
-          )|safe,
-          pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-            pkg_url = h.url_for(controller='dataset',
-                                action='read', id=change.pkg_id),
-            pkg_name = change.title
-          )|safe
-      ) }}
+        tag_link = h.nav_link(change.tag, named_route='dataset.search', tags=change.tag),
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        ) }}
 
     {% elif change.method == "add_multiple" %}
 
       {{ _('Added the following tags to {pkg_link}').format(
-        pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
-          pkg_url = h.url_for(controller='dataset',
-                              action='read', id=change.pkg_id),
-          pkg_name = change.title
-        )|safe
-      ) }}
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        ) }}
       <ul>
         {% for item in change.tags %}
           <li>
             {# TODO: figure out which controller to actually use here #}
             {{ _('{tag_link}').format(
-              tag_link = '<a href="{tag_url}">{tag}</a>'.format(
-                tag_url = h.url_for(controller='dataset', action='search') +
-                "?tags=" + item,
-                tag = item
-              )|safe
-            )}}
+              tag_link = h.nav_link(item, named_route='dataset.search', tags=item),
+              )}}
           </li>
         {% endfor %}
       </ul>

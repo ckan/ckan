@@ -50,6 +50,10 @@ def resource_update(context, data_dict):
     To update a resource you must be authorized to update the dataset that the
     resource belongs to.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `resource_patch`
+        instead.
+
     For further parameters see
     :py:func:`~ckan.logic.action.create.resource_create`.
 
@@ -79,8 +83,7 @@ def resource_update(context, data_dict):
     del context["resource"]
 
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
-        {'id': package_id})
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
         if p['id'] == id:
@@ -217,6 +220,10 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
+
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `package_patch`
+        instead.
 
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
@@ -462,7 +469,6 @@ def package_revise(context, data_dict):
 
     package_show_context = dict(
         context,
-        return_type='dict',
         for_update=True)
     orig = _get_action('package_show')(
         package_show_context,
@@ -655,7 +661,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    upload = uploader.get_uploader('group', group.image_url)
+    upload = uploader.get_uploader('group')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
 
@@ -752,6 +758,10 @@ def group_update(context, data_dict):
 
     You must be authorized to edit the group.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `group_patch`
+        instead.
+
     Plugins may change the parameters of this function depending on the value
     of the group's ``type`` attribute, see the
     :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
@@ -776,6 +786,10 @@ def organization_update(context, data_dict):
 
     You must be authorized to edit the organization.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `organization_patch`
+        instead.
+
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
 
@@ -799,6 +813,10 @@ def user_update(context, data_dict):
 
     Normal users can only update their own user accounts. Sysadmins can update
     any user account. Can not modify exisiting user's name.
+
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `user_patch`
+        instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.user_create`.
@@ -929,10 +947,8 @@ def task_status_update(context, data_dict):
 
     '''
     model = context['model']
-    session = model.Session
-    context['session'] = session
+    session = context['session']
 
-    user = context['user']
     id = data_dict.get("id")
     schema = context.get('schema') or schema_.default_task_status_schema()
 
@@ -1002,9 +1018,10 @@ def term_translation_update(context, data_dict):
 
     _check_access('term_translation_update', context, data_dict)
 
-    schema = {'term': [validators.not_empty, text_type],
-              'term_translation': [validators.not_empty, text_type],
-              'lang_code': [validators.not_empty, text_type]}
+    schema = {'term': [validators.not_empty, validators.unicode_safe],
+              'term_translation': [
+                  validators.not_empty, validators.unicode_safe],
+              'lang_code': [validators.not_empty, validators.unicode_safe]}
 
     data, errors = _validate(data_dict, schema, context)
     if errors:

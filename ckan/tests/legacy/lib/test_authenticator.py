@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import ckan
 import pytest
 import ckan.lib.create_test_data as ctd
 import ckan.lib.authenticator as authenticator

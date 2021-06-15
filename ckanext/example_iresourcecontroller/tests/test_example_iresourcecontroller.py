@@ -5,14 +5,9 @@
 """
 import pytest
 
-from ckan.common import config
-
-import ckan.model as model
-
 import ckan.plugins
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckanext.example_iresourcecontroller import plugin
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_iresourcecontroller")

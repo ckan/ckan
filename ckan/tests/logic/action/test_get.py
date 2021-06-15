@@ -5,16 +5,12 @@ import re
 
 import copy
 import pytest
-from six import text_type
-from six.moves import xrange
 
 from ckan import model
 import ckan.logic as logic
 import ckan.logic.schema as schema
-import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-import ckan.plugins.toolkit as tk
 from ckan import __version__
 from ckan.lib.search.common import SearchError
 
@@ -460,6 +456,15 @@ class TestGroupList(object):
         assert len(group_list) == 1
         assert group_list[0] == group2["name"]
 
+    def test_group_list_limit_as_string(self):
+
+        group1 = factories.Group(name='aa')
+        group2 = factories.Group(name='bb')
+
+        group_list = helpers.call_action("group_list", limit="1")
+
+        assert len(group_list) == 1
+
     def test_group_list_wrong_limit(self):
 
         with pytest.raises(logic.ValidationError):
@@ -734,10 +739,22 @@ class TestOrganizationList(object):
         results = helpers.call_action("organization_list")
         assert len(results) == 5  # i.e. configured limit
 
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    def test_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_default", 5)
+        results = helpers.call_action("organization_list", limit=2)
+        assert len(results) == 2
+
     def test_all_fields_limit_default(self):
         self._create_bulk_orgs("org_all_fields_default", 30)
         results = helpers.call_action("organization_list", all_fields=True)
         assert len(results) == 25  # i.e. default value
+
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_all_fields_max", "5")
+    def test_all_fields_limit_with_custom_max_limit(self):
+        self._create_bulk_orgs("org_all_fields_default", 5)
+        results = helpers.call_action("organization_list", all_fields=True, limit=2)
+        assert len(results) == 2
 
     @pytest.mark.ckan_config(
         "ckan.group_and_organization_list_all_fields_max", "5"
@@ -3160,6 +3177,72 @@ class TestPackageActivityList(object):
         )
         assert [activity["activity_type"] for activity in activities] == []
 
+    def _create_bulk_types_activities(self, types):
+        dataset = factories.Dataset()
+        from ckan import model
+
+        user = factories.User()
+
+        objs = [
+            model.Activity(
+                user_id=user['id'],
+                object_id=dataset["id"],
+                activity_type=activity_type,
+                data=None,
+            )
+            for activity_type in types
+        ]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return dataset["id"]
+
+    def test_error_bad_search(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "package_activity_list",
+                id=id,
+                activity_types=['new package'],
+                exclude_activity_types=['deleted package']
+            )
+
+    def test_activity_types_filter(self):
+        types = [
+            'new package',
+            'changed package',
+            'deleted package',
+            'changed package',
+            'new package'
+        ]
+        id = self._create_bulk_types_activities(types)
+
+        activities_new = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            activity_types=['new package']
+        )
+        assert len(activities_new) == 2
+
+        activities_not_new = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            exclude_activity_types=['new package']
+        )
+        assert len(activities_not_new) == 3
+
+        activities_delete = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            activity_types=['deleted package']
+        )
+        assert len(activities_delete) == 1
+
+        activities_not_deleted = helpers.call_action(
+            "package_activity_list",
+            id=id,
+            exclude_activity_types=['deleted package']
+        )
+        assert len(activities_not_deleted) == 4
+
     def _create_bulk_package_activities(self, count):
         dataset = factories.Dataset()
         from ckan import model
@@ -4317,14 +4400,44 @@ class TestDashboardNewActivities(object):
         user = factories.User()
         another_user = factories.Sysadmin()
         group = factories.Group(user=user)
+        helpers.call_action(
+            "follow_group", context={"user": user["name"]}, **group
+        )
         _clear_activities()
         dataset = factories.Dataset(
             groups=[{"name": group["name"]}], user=another_user
         )
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
-            "follow_dataset", context={"user": user["name"]}, **dataset
+            "package_update", context={"user": another_user["name"]}, **dataset
         )
+
+        activities = helpers.call_action(
+            "dashboard_activity_list", context={"user": user["id"]}
+        )
+        assert [
+            (activity["activity_type"], activity["is_new"])
+            for activity in activities[::-1]
+        ] == [("new package", True), ("changed package", True)]
+        assert (
+            helpers.call_action(
+                "dashboard_new_activities_count", context={"user": user["id"]}
+            )
+            == 2
+        )
+
+    def test_activities_on_a_dataset_in_a_followed_org(self):
+        user = factories.User()
+        another_user = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        helpers.call_action(
+            "follow_group", context={"user": user["name"]}, **org
+        )
+        _clear_activities()
+        dataset = factories.Dataset(
+            owner_org=org['id'], user=another_user
+        )
+        dataset["title"] = "Dataset with changed title"
         helpers.call_action(
             "package_update", context={"user": another_user["name"]}, **dataset
         )

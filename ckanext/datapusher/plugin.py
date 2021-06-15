@@ -6,7 +6,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-import ckanext.datapusher.blueprint as blueprint
+import ckanext.datapusher.views as views
 import ckanext.datapusher.helpers as helpers
 import ckanext.datapusher.logic.action as action
 import ckanext.datapusher.logic.auth as auth
@@ -86,7 +86,6 @@ class DatapusherPlugin(p.SingletonPlugin):
         self._submit_to_datapusher(resource_dict)
 
     def _submit_to_datapusher(self, resource_dict):
-
         context = {
             u'model': model,
             u'ignore_auth': True,
@@ -163,4 +162,4 @@ class DatapusherPlugin(p.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        return blueprint.datapusher
+        return views.get_blueprints()

@@ -14,6 +14,8 @@ from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
 
 import six
+import webob
+
 from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
@@ -21,7 +23,6 @@ from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
 from ckan.common import asbool
-from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
@@ -63,6 +64,30 @@ class I18nMiddleware(object):
 
         handle_i18n(environ)
         return self.app(environ, start_response)
+
+
+class RepozeAdapterMiddleware(object):
+    """When repoze.who interrupts requrests for anonymous user because of
+    insufficient permission, it closes requrest stream and make an
+    attempt to return response to user as quick as possible. But when
+    werkzeug sees POST request with some payload it tries to parse
+    request data and it leads to BadRequests(400), because there is no
+    way to parse closed request stream. This middlewary just
+    reproduces part of internal Fanstatic bevavior: don't drop request
+    stream while response is written to the client.
+
+    The middleware only requred because of repoze.who and it should be
+    removed as soon as PluggableAuthenticationMiddlewary is replaced
+    with some alternative solution.
+
+    """
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        request = webob.Request(environ)
+        response = request.get_response(self.app)
+        return response(environ, start_response)
 
 
 class CKANBabel(Babel):
@@ -163,9 +188,6 @@ def make_flask_stack(conf):
 
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
-
-        log = logging.getLogger('werkzeug')
-        log.setLevel(logging.DEBUG)
 
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
@@ -272,33 +294,6 @@ def make_flask_stack(conf):
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 
-    # Fanstatic
-    fanstatic_enable_rollup = asbool(
-        conf.get('fanstatic_enable_rollup', False))
-    if debug:
-        fanstatic_config = {
-            'versioning': True,
-            'recompute_hashes': True,
-            'minified': False,
-            'bottom': True,
-            'bundle': False,
-            'rollup': fanstatic_enable_rollup,
-        }
-    else:
-        fanstatic_config = {
-            'versioning': True,
-            'recompute_hashes': False,
-            'minified': True,
-            'bottom': True,
-            'bundle': True,
-            'rollup': fanstatic_enable_rollup,
-        }
-
-    if root_path:
-        root_path = re.sub('/{{LANG}}', '', root_path)
-        fanstatic_config['base_url'] = root_path
-    app = Fanstatic(app, **fanstatic_config)
-
     for plugin in PluginImplementations(IMiddleware):
         try:
             app = plugin.make_error_log_middleware(app, config)
@@ -312,7 +307,7 @@ def make_flask_stack(conf):
     who_parser.parse(open(conf['who.config_file']))
 
     app = PluggableAuthenticationMiddleware(
-        app,
+        RepozeAdapterMiddleware(app),
         who_parser.identifiers,
         who_parser.authenticators,
         who_parser.challengers,
@@ -332,11 +327,11 @@ def make_flask_stack(conf):
 
     # Prevent the host from request to be added to the new header location.
     app = HostHeaderMiddleware(app)
-    if six.PY3:
-        app = I18nMiddleware(app)
 
-        if asbool(config.get('ckan.tracking_enabled', 'false')):
-            app = TrackingMiddleware(app, config)
+    app = I18nMiddleware(app)
+
+    if asbool(config.get('ckan.tracking_enabled', 'false')):
+        app = TrackingMiddleware(app, config)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app

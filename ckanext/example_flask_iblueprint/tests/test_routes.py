@@ -3,7 +3,6 @@
 import pytest
 
 from ckan.exceptions import HelperError
-import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 
 

@@ -2,9 +2,9 @@
 
 from flask import Blueprint
 
-from ckan.plugins.toolkit import c, render
+from ckan.plugins.toolkit import render
 import ckanext.stats.stats as stats_lib
-import ckan.lib.helpers as h
+
 
 stats = Blueprint(u'stats', __name__)
 

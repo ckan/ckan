@@ -4,7 +4,6 @@ import six
 import pytest
 
 import ckan.tests.helpers as helpers
-import ckan.plugins as plugins
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")

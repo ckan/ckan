@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import datetime
 import pytest
 
 from ckan import model

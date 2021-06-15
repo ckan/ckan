@@ -791,6 +791,12 @@ def if_empty_guess_format(key, data, errors, context):
         url = data.get(key[:-1] + ('url',), '')
         if not url:
             return
+
+        # Uploaded files have only the filename as url, so check scheme to determine if it's an actual url
+        parsed = urlparse(url)
+        if parsed.scheme and not parsed.path:
+            return
+
         mimetype, encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype
@@ -877,6 +883,11 @@ email_pattern = re.compile(
                         )
 
 
+def strip_value(value):
+    '''Trims the Whitespace'''
+    return value.strip()
+
+
 def email_validator(value, context):
     '''Validate email input '''
 
@@ -925,20 +936,21 @@ def dict_only(value):
         raise Invalid(_('Must be a dict'))
     return value
 
+
 def email_is_unique(key, data, errors, context):
     '''Validate email is unique'''
     model = context['model']
     session = context['session']
 
     users = session.query(model.User) \
-            .filter(model.User.email == data[key]).all()
+        .filter(model.User.email == data[key]).all()
     # is there is no users with this email it's free
     if not users:
         return
     else:
         # allow user to update their own email
         for user in users:
-            if (user.name == data[("name",)]
+            if (user.name in [data[("name",)], data[("id",)]]
                     or user.id == data[("id",)]):
                 return
 

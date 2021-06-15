@@ -3,7 +3,7 @@
 
 """
 import datetime
-import mock
+import unittest.mock as mock
 import pytest
 
 import ckan
@@ -419,6 +419,22 @@ class TestResourceCreate:
 
         assert mimetype
         assert mimetype == "text/csv"
+
+    def test_mimetype_by_url_without_path(self):
+        """
+        The mimetype should not be guessed from url if url contains only domain
+
+        """
+        context = {}
+        params = {
+            "package_id": factories.Dataset()["id"],
+            "url": "http://example.com",
+            "name": "A nice resource",
+        }
+        result = helpers.call_action("resource_create", context, **params)
+
+        mimetype = result.pop("mimetype")
+        assert mimetype is None
 
     def test_mimetype_by_user(self):
         """

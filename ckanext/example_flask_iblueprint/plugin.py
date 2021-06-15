@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from flask import Blueprint
-from flask import render_template, render_template_string
+from flask import render_template_string
 
 import ckan.plugins as p
 

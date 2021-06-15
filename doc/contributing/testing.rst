@@ -317,7 +317,7 @@ code will always get another mock object back:
 
 .. code-block:: python
 
-    >>> import mock
+    >>> import unittest.mock as mock
     >>> my_mock = mock.MagicMock()
     >>> my_mock.foo
     <MagicMock name='mock.foo' id='56032400'>

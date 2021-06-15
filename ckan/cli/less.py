@@ -7,7 +7,6 @@ import os
 import six
 
 from ckan.common import config
-from ckan.cli import error_shout
 
 
 @click.command(

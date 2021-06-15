@@ -350,11 +350,18 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     if all_fields:
         # all_fields is really computationally expensive, so need a tight limit
-        max_limit = config.get(
-            'ckan.group_and_organization_list_all_fields_max', 25)
+        try:
+            max_limit = int(config.get(
+                'ckan.group_and_organization_list_all_fields_max', 25))
+        except ValueError:
+            max_limit = 25
     else:
-        max_limit = config.get('ckan.group_and_organization_list_max', 1000)
-    if limit is None or limit > max_limit:
+        try:
+            max_limit = int(config.get('ckan.group_and_organization_list_max', 1000))
+        except ValueError:
+            max_limit = 1000
+
+    if limit is None or int(limit) > max_limit:
         limit = max_limit
 
     # order_by deprecated in ckan 1.8
@@ -446,6 +453,9 @@ def _group_or_org_list(context, data_dict, is_org=False):
 def group_list(context, data_dict):
     '''Return a list of the names of the site's groups.
 
+    :param type: the type of group to list (optional, default: ``'group'``),
+        See docs for :py:class:`~ckan.plugins.interfaces.IGroupForm`
+    :type type: string
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
@@ -497,6 +507,10 @@ def group_list(context, data_dict):
 def organization_list(context, data_dict):
     '''Return a list of the names of the site's organizations.
 
+    :param type: the type of organization to list (optional,
+        default: ``'organization'``),
+        See docs for :py:class:`~ckan.plugins.interfaces.IGroupForm`
+    :type type: string
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
@@ -1227,7 +1241,8 @@ def group_show(context, data_dict):
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the group's users
-         (optional, default: ``False``)
+         (optional, default: ``True`` if ``ckan.auth.public_user_details`` is ``True``
+         otherwise ``False``)
     :type include_users: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
@@ -1262,7 +1277,8 @@ def organization_show(context, data_dict):
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the organization's users
-         (optional, default: ``True``)
+         (optional, default: ``True`` if ``ckan.auth.public_user_details`` is ``True``
+         otherwise ``False``)
     :type include_users: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
@@ -2400,6 +2416,10 @@ def status_show(context, data_dict):
     :rtype: dictionary
 
     '''
+
+    plugins = config.get('ckan.plugins')
+    extensions = plugins.split() if plugins else []
+
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -2407,7 +2427,7 @@ def status_show(context, data_dict):
         'ckan_version': ckan.__version__,
         'error_emails_to': config.get('email_to'),
         'locale_default': config.get('ckan.locale_default'),
-        'extensions': config.get('ckan.plugins').split(),
+        'extensions': extensions,
     }
 
 
@@ -2514,6 +2534,11 @@ def package_activity_list(context, data_dict):
         NB Only sysadmins may set include_hidden_activity to true.
         (default: false)
     :type include_hidden_activity: bool
+    :param activity_types: A list of activity types to include in the response
+    :type activity_types: list
+
+    :param exclude_activity_types: A list of activity types to exclude from the response
+    :type exclude_activity_types: list
 
     :rtype: list of dictionaries
 
@@ -2522,6 +2547,12 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
+    activity_types = data_dict.pop('activity_types', None)
+    exclude_activity_types = data_dict.pop('exclude_activity_types', None)
+
+    if activity_types is not None and exclude_activity_types is not None:
+        raise ValidationError({'activity_types': ['Cannot be used together with `exclude_activity_types']})
+
     _check_access('package_activity_list', context, data_dict)
 
     model = context['model']
@@ -2537,6 +2568,8 @@ def package_activity_list(context, data_dict):
     activity_objects = model.activity.package_activity_list(
         package.id, limit=limit, offset=offset,
         include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types,
+        exclude_activity_types=exclude_activity_types
     )
 
     return model_dictize.activity_list_dictize(
@@ -3305,7 +3338,6 @@ def activity_diff(context, data_dict):
     :type diff_type: string
     '''
     import difflib
-    from pprint import pformat
 
     model = context['model']
     user = context['user']
@@ -3541,7 +3573,8 @@ def api_token_list(context, data_dict):
     id_or_name = _get_or_bust(data_dict, u'user')
     _check_access(u'api_token_list', context, data_dict)
     user = model.User.get(id_or_name)
-
+    if user is None:
+        raise NotFound("User not found")
     tokens = model.Session.query(model.ApiToken).filter(
         model.ApiToken.user_id == user.id
     )

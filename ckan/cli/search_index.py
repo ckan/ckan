@@ -90,12 +90,12 @@ def rebuild_fast():
         from ckan.lib.search import rebuild
         rebuild(package_ids=ids)
 
-    def chunks(l, n):
-        u""" Yield n successive chunks from l."""
-        newn = int(len(l) / n)
+    def chunks(list_, n):
+        u""" Yield n successive chunks from list_"""
+        newn = int(len(list_) / n)
         for i in range(0, n - 1):
-            yield l[i * newn:i * newn + newn]
-        yield l[n * newn - newn:]
+            yield list_[i * newn:i * newn + newn]
+        yield list_[n * newn - newn:]
 
     processes = []
 

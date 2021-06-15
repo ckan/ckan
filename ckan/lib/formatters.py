@@ -2,7 +2,6 @@
 
 import datetime
 import pytz
-import six
 
 from flask_babel import (
     format_number,
