@@ -99,7 +99,7 @@ def ajax(resource_view_id):
         q = u''
 
     full_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
-                             full_text) + u':*' if full_text else u''
+                       full_text) + u':*' if full_text else u''
 
     try:
         response = datastore_search(
@@ -188,7 +188,7 @@ def filtered_download(resource_view_id):
         q = u''
 
     full_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
-                             full_text) + u':*' if full_text else ''
+                       full_text) + u':*' if full_text else ''
 
     return h.redirect_to(
         h.url_for(
