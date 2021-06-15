@@ -46,7 +46,7 @@ def dump_schema():
         u'format': [default(u'csv'), one_of(DUMP_FORMATS)],
         u'bom': [default(False), boolean_validator],
         u'filters': [ignore_missing, json_validator],
-        u'full_text': [ignore_missing, unicode_or_json_validator],
+        u'full_text': [ignore_missing, unicode_only],
         u'q': [ignore_missing, unicode_or_json_validator],
         u'distinct': [ignore_missing, boolean_validator],
         u'plain': [ignore_missing, boolean_validator],
