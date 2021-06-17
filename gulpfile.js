@@ -1,6 +1,6 @@
 const path = require("path");
 const { src, watch, dest, parallel } = require("gulp");
-const less = require("gulp-less");
+const sass = require("gulp-sass");
 const if_ = require("gulp-if");
 const sourcemaps = require("gulp-sourcemaps");
 const rename = require("gulp-rename");
@@ -17,18 +17,17 @@ const renamer = (path) => {
 
 const build = () =>
   src([
-    __dirname + "/ckan/public/base/less/main.less",
-    __dirname + "/ckan/public/base/less/main-rtl.less",
+    __dirname + "/ckan/public/base/scss/main.scss",
   ])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
-    .pipe(less())
+    .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))
     .pipe(rename(renamer))
     .pipe(dest(__dirname + "/ckan/public/base/css/"));
 
 const watchSource = () =>
   watch(
-    __dirname + "/ckan/public/base/less/**/*.less",
+    __dirname + "/ckan/public/base/scss/**/*.scss",
     { ignoreInitial: false },
     build
   );
@@ -43,9 +42,9 @@ const bootstrap = () =>
     dest(__dirname + "/ckan/public/base/vendor/bootstrap")
   );
 
-const bootstrapLess = () =>
-  src(__dirname + "/node_modules/bootstrap/less/**/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/bootstrap/less")
+const bootstrapScss = () =>
+  src(__dirname + "/node_modules/bootstrap-sass/assets/stylesheets/bootstrap/**/*").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/bootstrap/scss")
   );
 
 const moment = () =>
@@ -96,7 +95,7 @@ exports.watch = watchSource;
 exports.updateVendorLibs = parallel(
   jquery,
   bootstrap,
-  bootstrapLess,
+  bootstrapScss,
   moment,
   fontAwesomeCss,
   fontAwesomeFonts,
