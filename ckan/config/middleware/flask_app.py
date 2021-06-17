@@ -222,6 +222,7 @@ def make_flask_stack(conf):
     # Template context processors
     app.context_processor(helper_functions)
     app.context_processor(c_object)
+    app.context_processor(request_object)
 
     @app.context_processor
     def ungettext_alias():
@@ -412,6 +413,11 @@ def c_object():
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
     return dict(c=g)
+
+
+def request_object():
+    u"""Use CKANRequest object implicitly in templates"""
+    return dict(request=request)
 
 
 class CKAN_Rule(Rule):
