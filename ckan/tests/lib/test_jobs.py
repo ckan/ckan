@@ -66,13 +66,26 @@ class TestEnqueue(RQTestBase):
 
     def test_enqueue_queue(self):
         self.enqueue()
-        self.enqueue(queue=u'my_queue')
+        self.enqueue(queue=u"my_queue")
         all_jobs = self.all_jobs()
-        assert_equal(len(all_jobs), 2)
-        assert_equal(all_jobs[0].origin,
-                     jobs.add_queue_name_prefix(jobs.DEFAULT_QUEUE_NAME))
-        assert_equal(all_jobs[1].origin,
-                     jobs.add_queue_name_prefix(u'my_queue'))
+        assert len(all_jobs) == 2
+        assert sorted(job.origin for job in all_jobs) == sorted([
+            jobs.add_queue_name_prefix(jobs.DEFAULT_QUEUE_NAME),
+            jobs.add_queue_name_prefix(u"my_queue")
+        ])
+
+    def test_enqueue_timeout(self):
+        self.enqueue()
+        self.enqueue(rq_kwargs={u'timeout': 0})
+        self.enqueue(rq_kwargs={u'timeout': -1})
+        self.enqueue(rq_kwargs={u'timeout': 3600})
+        all_jobs = self.all_jobs()
+        assert_equal(len(all_jobs), 4)
+        assert len(all_jobs) == 4
+        assert all_jobs[0].timeout == 180
+        assert all_jobs[1].timeout == 180
+        assert all_jobs[2].timeout == -1
+        assert all_jobs[3].timeout == 3600
 
 
 class TestGetAllQueues(RQTestBase):

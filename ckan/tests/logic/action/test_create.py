@@ -491,6 +491,21 @@ class TestResourceCreate(object):
         assert mimetype
         assert_equals(mimetype, 'text/csv')
 
+    def test_mimetype_by_url_without_path(self):
+        """
+        The mimetype should not be guessed from url if url contains only domain
+        """
+        context = {}
+        params = {
+            "package_id": factories.Dataset()["id"],
+            "url": "http://example.com",
+            "name": "A nice resource",
+        }
+        result = helpers.call_action("resource_create", context, **params)
+
+        mimetype = result.pop("mimetype")
+        assert mimetype is None
+
     def test_mimetype_by_user(self):
         '''
         The mimetype is supplied by the user
@@ -657,22 +672,29 @@ class TestResourceCreate(object):
             user=user)
 
         resource = helpers.call_action(
-            'resource_create',
-            package_id=dataset['id'],
-            somekey='somevalue',  # this is how to do resource extras
-            extras={u'someotherkey': u'alt234'},  # this isnt
-            format=u'plain text',
-            url=u'http://datahub.io/download/',
+            "resource_create",
+            package_id=dataset["id"],
+            somekey="somevalue",  # this is how to do resource extras
+            extras={u"someotherkey": u"alt234"},  # this isnt
+            subobject={u'hello': u'there'},  # JSON objects supported
+            sublist=[1, 2, 3],  # JSON lists suppoted
+            format=u"plain text",
+            url=u"http://datahub.io/download/",
         )
 
-        assert_equals(resource['somekey'], 'somevalue')
-        assert 'extras' not in resource
-        assert 'someotherkey' not in resource
-        resource = helpers.call_action(
-            'package_show', id=dataset['id'])['resources'][0]
-        assert_equals(resource['somekey'], 'somevalue')
-        assert 'extras' not in resource
-        assert 'someotherkey' not in resource
+        assert resource["somekey"] == "somevalue"
+        assert "extras" not in resource
+        assert "someotherkey" not in resource
+        assert resource["subobject"] == {u"hello": u"there"}
+        assert resource["sublist"] == [1, 2, 3]
+        resource = helpers.call_action("package_show", id=dataset["id"])[
+            "resources"
+        ][0]
+        assert resource["somekey"] == "somevalue"
+        assert "extras" not in resource
+        assert "someotherkey" not in resource
+        assert resource["subobject"] == {u"hello": u"there"}
+        assert resource["sublist"] == [1, 2, 3]
 
 
 class TestMemberCreate(object):

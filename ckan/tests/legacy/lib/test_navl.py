@@ -235,6 +235,43 @@ def test_flatten():
     assert data == unflatten(flatten_dict(data))
 
 
+def test_flatten_deeper():
+    data = {
+        u"resources": [
+            {
+                u"subfields": [
+                    {
+                        u"test": u"hello",
+                    },
+                ],
+            },
+        ],
+    }
+
+    assert flatten_dict(data) == {
+        ("resources", 0, u"subfields", 0, u"test"): u"hello",
+    }, pformat(flatten_dict(data))
+
+    assert data == unflatten(flatten_dict(data)), pformat(
+        unflatten(flatten_dict(data)))
+
+
+def test_unflatten_regression():
+    fdata = {
+        (u"items", 0, u"name"): u"first",
+        (u"items", 0, u"value"): u"v1",
+        (u"items", 3, u"name"): u"second",
+        (u"items", 3, u"value"): u"v2",
+    }
+    expected = {
+        u"items": [
+            {u"name": u"first", u"value": u"v1"},
+            {u"name": u"second", u"value": u"v2"},
+        ],
+    }
+    assert unflatten(fdata) == expected, pformat(unflatten(fdata))
+
+
 def test_simple():
     schema = {
         "name": [not_empty],

@@ -12,6 +12,7 @@ import tempfile
 
 from nose.tools import eq_, ok_
 
+from ckan.common import config
 from ckan.lib import i18n
 import ckan.plugins as p
 from ckan import plugins
@@ -21,6 +22,7 @@ from ckan.tests import helpers
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 I18N_DIR = os.path.join(HERE, u'_i18n_build_js_translations')
+I18N_DUMMY_DIR = os.path.join(HERE, u"_i18n_dummy_es")
 
 
 class TestJSTranslationsPlugin(plugins.SingletonPlugin, DefaultTranslation):
@@ -175,3 +177,43 @@ class TestI18nFlaskAndPylons(object):
 
             if p.plugin_loaded(u'test_routing_plugin'):
                 p.unload(u'test_routing_plugin')
+
+    def test_i18n_directory(self):
+        orig_i18n_directory = config.get(u'ckan.i18n_directory')
+        config[u'ckan.i18n_directory'] = I18N_DUMMY_DIR
+
+        try:
+            app = helpers._get_test_app()
+            if not p.plugin_loaded(u'test_routing_plugin'):
+                p.load(u'test_routing_plugin')
+            try:
+                plugin = p.get_plugin(u'test_routing_plugin')
+                app.flask_app.register_extension_blueprint(
+                    plugin.get_blueprint())
+
+                resp = app.get(u'/pylons_translated')
+
+                eq_(resp.body, u'Groups')
+
+                resp = app.get(u'/es/pylons_translated')
+
+                eq_(resp.body, u'Bar Buz 321')
+
+                resp = app.get(u'/flask_translated')
+
+                eq_(resp.body, u'Dataset')
+
+                resp = app.get(u'/es/flask_translated')
+
+                eq_(resp.body, u'Foo baz 123')
+
+            finally:
+
+                if p.plugin_loaded(u'test_routing_plugin'):
+                    p.unload(u'test_routing_plugin')
+        finally:
+            # restore original setting
+            if orig_i18n_directory is None:
+                del config[u'ckan.i18n_directory']
+            else:
+                config[u'ckan.i18n_directory'] = orig_i18n_directory
