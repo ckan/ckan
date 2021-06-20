@@ -2,7 +2,7 @@
 
 {% import 'macros/form.html' as form %}
 
-{% set user = user_dict %}
+{% set user = g.user_dict %}
 
 {% block subtitle %}{{ _('Edit Member') if user else _('Add Member') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
