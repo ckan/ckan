@@ -48,7 +48,7 @@
             td {
                 height: 11px;
                 padding: 0;
-                background-image: url("${imagePath}/table-seperator.png");
+                background-image: url("#{$imagePath}/table-seperator.png");
             }
         }
     }
