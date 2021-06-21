@@ -58,6 +58,12 @@ class User(core.StatefulObjectMixin,
         return meta.Session.query(cls).filter_by(email=email).all()
 
     @classmethod
+    def by_username_or_email(cls, name_or_email):
+        return meta.Session.query(cls).filter(or_(
+            cls.name == name_or_email,
+            cls.email == name_or_email)).first()
+
+    @classmethod
     def get(cls, user_reference):
         query = meta.Session.query(cls).autoflush(False)
         query = query.filter(or_(cls.name == user_reference,

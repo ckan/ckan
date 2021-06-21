@@ -19,7 +19,7 @@ class UsernamePasswordAuthenticator(object):
             return None
 
         login = identity['login']
-        user = User.by_name(login) or User.by_email(login)[0]
+        user = User.by_username_or_email(login)
 
         if user is None:
             log.debug('Login failed - username or email %r not found', login)
