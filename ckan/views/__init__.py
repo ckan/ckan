@@ -93,11 +93,13 @@ def identify_user():
                                             u'Unknown IP Address')
 
     # Authentication plugins get a chance to run here break as soon as a user
-    # is identified.
+    # is identified or a response is returned
     authenticators = p.PluginImplementations(p.IAuthenticator)
     if authenticators:
         for item in authenticators:
-            item.identify()
+            response = item.identify()
+            if response:
+                return response
             try:
                 if g.user:
                     break

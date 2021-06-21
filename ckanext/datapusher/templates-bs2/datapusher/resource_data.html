@@ -61,7 +61,7 @@
   {% if status.status and status.task_info and show_table %}
     <h3>{{ _('Upload Log') }}</h3>
     <ul class="activity">
-      {% for item in status.task_info.logs %}
+      {% for item in status.task_info.logs|sort(attribute='timestamp') %}
         {% set icon = 'ok' if item.level == 'INFO' else 'exclamation' %}
         {% set class = ' failure' if icon == 'exclamation' else ' success' %}
         {% set popover_content = 'test' %}

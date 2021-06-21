@@ -31,13 +31,6 @@ jobs:
       - run: |
           # OS Dependencies
           apt update
-          case $CIRCLE_NODE_INDEX in
-            $NODE_TESTS_CONTAINER)
-            curl -sL https://deb.nodesource.com/setup_10.x | bash -
-            apt install -y nodejs
-            npm install mocha-phantomjs@3.5.0 phantomjs@~1.9.1
-            ;;
-          esac
           apt install -y postgresql-client solr-jetty openjdk-8-jdk
 
           # Python Dependencies
@@ -76,24 +69,6 @@ jobs:
           esac
       - store_test_results:
           path: ~/junit
-
-      # Tests Frontend, only in one container
-      - run:
-          command: |
-            case $CIRCLE_NODE_INDEX in
-              $NODE_TESTS_CONTAINER) paster serve test-core-circle-ci.ini
-              ;;
-            esac
-          background: true
-      - run:
-          command: |
-            case $CIRCLE_NODE_INDEX in
-              $NODE_TESTS_CONTAINER)
-                sleep 5
-                /root/project/node_modules/mocha-phantomjs/bin/mocha-phantomjs \
-                  http://localhost:5000/base/test/index.html
-              ;;
-            esac
 
 workflows:
   version: 2

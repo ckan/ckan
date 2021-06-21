@@ -315,7 +315,9 @@ class TestValidators(object):
              'format': df.Missing},
             {'url': 'http://fakedomain/my.pdf', 'format': 'pdf'},
             {'url': 'http://fakedomain/my.pdf',
-             'id': 'fake_resource_id', 'format': ''}
+             'id': 'fake_resource_id', 'format': ''},
+            {"url": "http://example.com", "format": ""},
+            {"url": "my.csv", "format": ""},
         ]}
         data = df.flatten_dict(data)
 
@@ -342,6 +344,16 @@ class TestValidators(object):
         call_validator(key=('resources', 3, 'format'), data=new_data,
                        errors={}, context={})
         assert new_data[('resources', 3, 'format')] == ''
+
+        new_data = copy.deepcopy(data)
+        call_validator(key=('resources', 4, 'format'), data=new_data,
+                       errors={}, context={})
+        assert new_data[('resources', 4, 'format')] == ''
+
+        new_data = copy.deepcopy(data)
+        call_validator(key=('resources', 5, 'format'), data=new_data,
+                       errors={}, context={})
+        assert new_data[('resources', 5, 'format')] == 'text/csv'
 
     def test_clean_format(self):
         format = validators.clean_format('csv')
