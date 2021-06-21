@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import logging
-from collections import defaultdict
 import datetime
 
 from six import string_types, text_type

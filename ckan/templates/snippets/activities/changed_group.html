@@ -6,8 +6,14 @@
       group=ah.group(activity)
     )|safe }}
     <br />
-    <span class="date">
+    <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
       {{ h.time_ago_from_timestamp(activity.timestamp) }}
+      {% if can_show_activity_detail %}
+	      &nbsp;|&nbsp;
+        <a href="{{ h.url_for('group.changes', id=activity.id) }}">
+          {{ _('Changes') }}
+        </a>
+      {% endif %}
     </span>
   </p>
 </li>

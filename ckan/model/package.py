@@ -76,7 +76,6 @@ class Package(core.StatefulObjectMixin,
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
-        from ckan import model
         super(Package, self).__init__(**kw)
 
     @classmethod
@@ -381,7 +380,8 @@ class Package(core.StatefulObjectMixin,
 
     @property
     @maintain.deprecated('`is_private` attriute of model.Package is ' +
-                         'deprecated and should not be used.  Use `private`')
+                         'deprecated and should not be used.  Use `private`',
+                         since="2.1.0")
     def is_private(self):
         """
         DEPRECATED in 2.1
@@ -514,7 +514,7 @@ class Package(core.StatefulObjectMixin,
             meta.Session.add(rating)
 
     @property
-    @maintain.deprecated()
+    @maintain.deprecated(since="2.9.0")
     def extras_list(self):
         '''DEPRECATED in 2.9
 

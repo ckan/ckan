@@ -38,7 +38,7 @@ appearance of CKAN pages by developing your own CKAN themes.
    We also recommend familiarizing yourself with:
 
    * `Jinja2 templates <http://jinja.pocoo.org/docs/templates/>`_
-   * `Bootstrap <http://getbootstrap.com/2.3.2/>`_
+   * `Bootstrap <https://getbootstrap.com/docs/3.4/>`__
    * `jQuery <http://jquery.com/>`_
 
 .. note::

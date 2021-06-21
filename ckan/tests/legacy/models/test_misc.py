@@ -1,8 +1,5 @@
 # encoding: utf-8
 
-import pytest
-from ckan.tests.legacy import CreateTestData
-import ckan.model as model
 from ckan.model.misc import escape_sql_like_special_characters
 
 _sql_escape = escape_sql_like_special_characters

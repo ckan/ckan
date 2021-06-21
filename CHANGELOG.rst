@@ -9,6 +9,56 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.9.3 2021-05-19
+==================
+
+Bugfixes
+--------
+
+- Fix Chinese locales. Note that the URLs for the `zh_CN` and `zh_TW` locales
+  have changed but there are redirects in place, eg
+  http://localhost:5000/zh_CN/dataset ->
+  http://localhost:5000/zh_Hans_CN/dataset (`#6008
+  <https://github.com/ckan/ckan/pull/6008>`_)
+- Fix performance bottleneck in activity queries (`#6028
+  <https://github.com/ckan/ckan/pull/6028>`_)
+- Keep repeatable facets inside pagination links (`#6084
+  <https://github.com/ckan/ckan/pull/6084>`_)
+- Ensure order of plugins in PluginImplementations (`#5965 <https://github.com/ckan/ckan/pull/5965>`_)
+- Fix for Datastore file dump extension (`#5593  <https://github.com/ckan/ckan/pull/5593>`_)
+- Allow package activity migration on py3 (`#5930 <https://github.com/ckan/ckan/pull/5930>`_)
+- Fix TemplateSyntaxError in snippets/changes/license.html (`#5972 <https://github.com/ckan/ckan/pull/5972>`_)
+- Remove hardcoded logging level (`#5941 <https://github.com/ckan/ckan/pull/5941>`_)
+- Include extra files into ckanext distribution (`#5995 <https://github.com/ckan/ckan/pull/5995>`_)
+- Fix db init in docker as the directory is not empty (`#6027 <https://github.com/ckan/ckan/pull/6027>`_)
+- Fix sqlalchemy configuration, add doc (`#5932 <https://github.com/ckan/ckan/pull/5932>`_)
+- Fix issue with purging custom entity types (`#5859 <https://github.com/ckan/ckan/pull/5859>`_)
+- Only load view filters on templates that need them
+- Sanitize user image url
+- Allow installation of requirements without any additional actions using pip (`#5408 <https://github.com/ckan/ckan/pull/5408>`_)
+- Include requirements files in Manifest (`#5726 <https://github.com/ckan/ckan/pull/5726>`_)
+- Dockerfile: pin pip version (`#5929 <https://github.com/ckan/ckan/pull/5929>`_)
+- Allow uploaders to only override asset / resource uploading (`#6088 <https://github.com/ckan/ckan/pull/6088>`_)
+- Catch TypeError from invalid thrown by dateutils (`#6085 <https://github.com/ckan/ckan/pull/6085>`_)
+- Display proper message when sysadmin password is incorect (`#5911 <https://github.com/ckan/ckan/pull/5911>`_)
+- Use external library to parse view filter params
+- Fix auth error when deleting a group/org (`#6006 <https://github.com/ckan/ckan/pull/6006>`_)
+- Fix datastore_search language parameter (`#5974 <https://github.com/ckan/ckan/pull/5974>`_)
+- make SQL function whitelist case-insensitive unless quoted (`#5969 <https://github.com/ckan/ckan/pull/5969>`_)
+- Fix Explore button not working (`#3720 <https://github.com/ckan/ckan/pull/3720>`_)
+- remove unused var in task_status_update (`#5861 <https://github.com/ckan/ckan/pull/5861>`_)
+- Prevent guessing format and mimetype from resource urls without path (`#5852 <https://github.com/ckan/ckan/pull/5852>`_)
+- Multiple documentation improvements
+
+
+Minor changes
+-------------
+
+- Support for setting host and port on the ini file (`#5939 <https://github.com/ckan/ckan/pull/5939>`_)
+- Allow to set path to INI file in the WSGI script (`#5987  <https://github.com/ckan/ckan/pull/5987>`_)
+- Allow multi-level config inheritance (`#6000
+  <https://github.com/ckan/ckan/pull/6000>`_)
+
 
 v.2.9.2 2021-02-10
 ==================
@@ -393,6 +443,23 @@ Removals and deprecations
   (`#5112 <https://github.com/ckan/ckan/pull/5112>`_)
 - Remove paster CLI (`#5264 <https://github.com/ckan/ckan/pull/5264>`_)
 
+v.2.8.8 2021-05-19
+==================
+
+* Fix Chinese locales (`#4413 <https://github.com/ckan/ckan/pull/4413>`_)
+* Allow installation of requirements without any additional actions using pip (`#5408 <https://github.com/ckan/ckan/pull/5408>`_)
+* Include requirements files in Manifest (`#5726 <https://github.com/ckan/ckan/pull/5726>`_)
+* Dockerfile: pin pip version (`#5929 <https://github.com/ckan/ckan/pull/5929>`_)
+* Allow uploaders to only override asset / resource uploading (`#6088 <https://github.com/ckan/ckan/pull/6088>`_)
+* Catch TypeError from invalid thrown by dateutils (`#6085 <https://github.com/ckan/ckan/pull/6085>`_)
+* Display proper message when sysadmin password is incorect (`#5911 <https://github.com/ckan/ckan/pull/5911>`_)
+* Use external library to parse view filter params
+* Fix auth error when deleting a group/org (`#6006 <https://github.com/ckan/ckan/pull/6006>`_)
+* Fix datastore_search language parameter (`#5974 <https://github.com/ckan/ckan/pull/5974>`_)
+* make SQL function whitelist case-insensitive unless quoted (`#5969 <https://github.com/ckan/ckan/pull/5969>`_)
+* Fix Explore button not working (`#3720 <https://github.com/ckan/ckan/pull/3720>`_)
+* remove unused var in task_status_update (`#5861 <https://github.com/ckan/ckan/pull/5861>`_)
+* Prevent guessing format and mimetype from resource urls without path (`#5852 <https://github.com/ckan/ckan/pull/5852>`_)
 
 v.2.8.7 2021-02-10
 ==================
@@ -706,6 +773,21 @@ Changes and deprecations:
    to specify this argument explicitly, as in future it'll become required.
  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
 
+v.2.7.11 2021-05-19
+===================
+
+Fixes:
+
+* Allow uploaders to only override asset / resource uploading (`#6088 <https://github.com/ckan/ckan/pull/6088>`_)
+* Catch TypeError from invalid thrown by dateutils (`#6085 <https://github.com/ckan/ckan/pull/6085>`_)
+* Use external library to parse view filter params
+* Fix auth error when deleting a group/org (`#6006 <https://github.com/ckan/ckan/pull/6006>`_)
+* Fix datastore_search language parameter (`#5974 <https://github.com/ckan/ckan/pull/5974>`_)
+* make SQL function whitelist case-insensitive unless quoted (`#5969 <https://github.com/ckan/ckan/pull/5969>`_)
+* Fix Explore button not working (`#3720 <https://github.com/ckan/ckan/pull/3720>`_)
+* "New view" button fix (`#4260 <https://github.com/ckan/ckan/issues/4260>`_)
+* remove unused var in task_status_update (`#5861 <https://github.com/ckan/ckan/pull/5861>`_)
+* Prevent guessing format and mimetype from resource urls without path (`#5852 <https://github.com/ckan/ckan/pull/5852>`_)
 
 v.2.7.10 2021-02-10
 ===================

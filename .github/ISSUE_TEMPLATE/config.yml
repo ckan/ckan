@@ -9,6 +9,6 @@ contact_links:
   - name: Security Issues
     url: mailto:security@ckan.org
     about: Please report any security related vulnerabilities here.
-  - name: Ideas Repository
-    url: https://github.com/ckan/ideas
-    about: For new feature requests or discussion, please create an issue on the ideas repository.
+  - name: Ideas and Discussion
+    url: https://github.com/ckan/ckan/discussions
+    about: For new feature requests or discussion, please create use the discussion forum.

@@ -7,9 +7,7 @@ from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.tests.legacy import url_for
-from ckan.tests import helpers
 import pytest
-from ckan.common import json
 
 
 class TestUserApi(ControllerTestCase):

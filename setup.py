@@ -54,9 +54,6 @@ entry_points = {
         'datastore = ckanext.datastore.cli:datastore',
         'datapusher = ckanext.datapusher.cli:datapusher',
     ],
-    'paste.paster_create_template': [
-        'ckanext = ckan.pastertemplates:CkanextTemplate',
-    ],
     'ckan.forms': [
         'standard = ckan.forms.package:get_standard_fieldset',
         'package = ckan.forms.package:get_standard_fieldset',
@@ -68,16 +65,11 @@ entry_points = {
         'solr = ckan.lib.search.solr_backend:SolrSearchBackend',
     ],
     'ckan.plugins': [
-        'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
         'stats = ckanext.stats.plugin:StatsPlugin',
-        'publisher_form = ckanext.publisher_form.forms:PublisherForm',
-        'publisher_dataset_form = ckanext.publisher_form.forms:PublisherDatasetForm',
         'multilingual_dataset = ckanext.multilingual.plugin:MultilingualDataset',
         'multilingual_group = ckanext.multilingual.plugin:MultilingualGroup',
         'multilingual_tag = ckanext.multilingual.plugin:MultilingualTag',
         'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',
-        'organizations = ckanext.organizations.forms:OrganizationForm',
-        'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
         'expire_api_token = ckanext.expire_api_token.plugin:ExpireApiTokenPlugin',
         'chained_functions = ckanext.chained_functions.plugin:ChainedFunctionsPlugin',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
@@ -135,7 +127,7 @@ entry_points = {
         'example_theme_v12_extra_public_dir = ckanext.example_theme_docs.v12_extra_public_dir.plugin:ExampleThemePlugin',
         'example_theme_v13_custom_css = ckanext.example_theme_docs.v13_custom_css.plugin:ExampleThemePlugin',
         'example_theme_v14_more_custom_css = ckanext.example_theme_docs.v14_more_custom_css.plugin:ExampleThemePlugin',
-        'example_theme_v15_fanstatic = ckanext.example_theme_docs.v15_fanstatic.plugin:ExampleThemePlugin',
+        'example_theme_v15_webassets = ckanext.example_theme_docs.v15_webassets.plugin:ExampleThemePlugin',
         'example_theme_v16_initialize_a_javascript_module = ckanext.example_theme_docs.v16_initialize_a_javascript_module.plugin:ExampleThemePlugin',
         'example_theme_v17_popover = ckanext.example_theme_docs.v17_popover.plugin:ExampleThemePlugin',
         'example_theme_v18_snippet_api = ckanext.example_theme_docs.v18_snippet_api.plugin:ExampleThemePlugin',
@@ -143,7 +135,7 @@ entry_points = {
         'example_theme_v19_02_error_handling = ckanext.example_theme_docs.v19_02_error_handling.plugin:ExampleThemePlugin',
         'example_theme_v20_pubsub = ckanext.example_theme_docs.v20_pubsub.plugin:ExampleThemePlugin',
         'example_theme_v21_custom_jquery_plugin = ckanext.example_theme_docs.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
-        'example_theme_v22_fanstatic_and_webassets = ckanext.example_theme_docs.v22_fanstatic_and_webassets.plugin:ExampleThemePlugin',
+        'example_theme_v22_webassets = ckanext.example_theme_docs.v22_webassets.plugin:ExampleThemePlugin',
         'example_theme_custom_config_setting = ckanext.example_theme_docs.custom_config_setting.plugin:ExampleThemePlugin',
         'example_theme_custom_emails = ckanext.example_theme_docs.custom_emails.plugin:ExampleCustomEmailsPlugin',
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
@@ -166,10 +158,12 @@ entry_points = {
         'example_blanket_blueprint = ckanext.example_blanket_implementation.plugin:ExampleBlanketBlueprintPlugin',
         'example_blanket_cli = ckanext.example_blanket_implementation.plugin:ExampleBlanketCliPlugin',
         'example_blanket_validator = ckanext.example_blanket_implementation.plugin:ExampleBlanketValidatorPlugin',
+        'example_isignal = ckanext.example_isignal.plugin:ExampleISignalPlugin',
         'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
         'example_humanizer = ckanext.example_humanizer.plugin:ExampleHumanizerPlugin',
     ],
     'ckan.system_plugins': [
+        'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
     ],
     'ckan.test_plugins': [
@@ -205,7 +199,7 @@ entry_points = {
 
 extras_require = {}
 _extras_groups = [
-    ('requirements', 'requirements.txt'), ('requirements-py2', 'requirements-py2.txt'),
+    ('requirements', 'requirements.txt'),
     ('setuptools', 'requirement-setuptools.txt'), ('dev', 'dev-requirements.txt'),
 ]
 
@@ -247,6 +241,7 @@ setup(
     entry_points=entry_points,
     # setup.py test command needs a TestSuite so does not work with py.test
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
+    python_requires=">=3.6",
     extras_require=extras_require,
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers

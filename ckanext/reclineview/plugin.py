@@ -210,7 +210,7 @@ class ReclineMapView(ReclineViewBase):
 
     datastore_fields = []
 
-    datastore_field_latlon_types = ['numeric']
+    datastore_field_latlon_types = ['numeric', 'text']
 
     datastore_field_geojson_types = ['text']
 

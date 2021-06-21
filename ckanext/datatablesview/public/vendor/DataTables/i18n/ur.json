@@ -11,19 +11,5 @@
         "previous": "پچہلا",
         "next": "اگلا",
         "last": "آخري"
-    },
-    "aria": {
-        "sortAscending": "چڑھائی ترتیب دیں",
-        "sortDescending": "نزولی ترتیب دیں"
-    },
-    "autoFill": {
-        "cancel": "منسوخ کریں",
-        "fill": "بھرنا",
-        "fillHorizontal": "افقی پر کریں",
-        "fillVertical": "عمودی کو بھرنے کے",
-        "info": "معلومات"
-    },
-    "buttons": {
-        "collection": "جمع"
     }
 }

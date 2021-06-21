@@ -1658,6 +1658,44 @@ class TestDatastoreSQLFunctional(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_allowed_functions_are_case_insensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT UpPeR(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_quoted_allowed_functions_are_case_sensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT count(*) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+        sql = 'SELECT CoUnT(*) from "{}"'.format(
+            resource["id"]
+        )
+        with pytest.raises(p.toolkit.NotAuthorized):
+            helpers.call_action("datastore_search_sql", sql=sql)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_invalid_statement(self):
         sql = "SELECT ** FROM foobar"
         with pytest.raises(
@@ -2020,3 +2058,74 @@ class TestDatastoreSearchRecordsFormat(object):
             {u"id": u"rank txt", u"type": u"float"},
         ]
         assert r["records"][:7] == u"aaac,0."
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_fts_on_field_calculates_ranks_specific_field_and_all_fields(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [
+                {"from": "Brazil", "to": "Brazil"},
+                {"from": "Brazil", "to": "Italy"},
+            ],
+        }
+        result = helpers.call_action("datastore_create", **data)
+        search_data = {
+            "resource_id": resource["id"],
+            "fields": "from, rank from",
+            "full_text": "Brazil",
+            "q": {"from": "Brazil"},
+        }
+        result = helpers.call_action("datastore_search", **search_data)
+        ranks_from = [r["rank from"] for r in result["records"]]
+        ranks = [r["rank"] for r in result["records"]]
+        assert len(result["records"]) == 2
+        assert len(set(ranks_from)) == 1
+        assert len(set(ranks)) == 2
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_fts_on_field_calculates_ranks_when_q_string_and_fulltext_is_given(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [
+                {"from": "Brazil", "to": "Brazil"},
+                {"from": "Brazil", "to": "Italy"},
+            ],
+        }
+        result = helpers.call_action("datastore_create", **data)
+        search_data = {
+            "resource_id": resource["id"],
+            "full_text": "Brazil",
+            "q": "Brazil",
+        }
+        result = helpers.call_action("datastore_search", **search_data)
+        ranks = [r["rank"] for r in result["records"]]
+        assert len(result["records"]) == 2
+        assert len(set(ranks)) == 2
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_fts_on_field_calculates_ranks_when_full_text_is_given(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [
+                {"from": "Brazil", "to": "Brazil"},
+                {"from": "Brazil", "to": "Italy"},
+            ],
+        }
+        result = helpers.call_action("datastore_create", **data)
+        search_data = {
+            "resource_id": resource["id"],
+            "full_text": "Brazil",
+        }
+        result = helpers.call_action("datastore_search", **search_data)
+        ranks = [r["rank"] for r in result["records"]]
+        assert len(result["records"]) == 2
+        assert len(set(ranks)) == 2

@@ -16,10 +16,5 @@
     "aria": {
         "sortAscending": ": 升冪排列",
         "sortDescending": ": 降冪排列"
-    },
-    "select": {
-        "1": "%d 列已選擇",
-        "2": "%d 列已選擇",
-        "_": "%d 列已選擇"
     }
 }

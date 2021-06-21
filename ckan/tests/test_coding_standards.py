@@ -26,10 +26,7 @@ FILESYSTEM_ENCODING = text_type(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 
-if six.PY2:
-    HERE = os.path.abspath(os.path.dirname(__file__.decode(FILESYSTEM_ENCODING)))
-else:
-    HERE = os.path.abspath(os.path.dirname(__file__))
+HERE = os.path.abspath(os.path.dirname(__file__))
 
 PROJECT_ROOT = os.path.normpath(os.path.join(HERE, u"..", u".."))
 
@@ -257,7 +254,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/config/middleware/__init__.py",
     u"ckan/config/middleware/common_middleware.py",
     u"ckan/config/middleware/flask_app.py",
-    u"ckan/config/middleware/pylons_app.py",
     u"ckan/exceptions.py",
     u"ckan/i18n/check_po_files.py",
     u"ckan/lib/activity_streams.py",
@@ -275,8 +271,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/lib/dictization/model_save.py",
     u"ckan/lib/email_notifications.py",
     u"ckan/lib/extract.py",
-    u"ckan/lib/fanstatic_extensions.py",
-    u"ckan/lib/fanstatic_resources.py",
     u"ckan/lib/formatters.py",
     u"ckan/lib/hash.py",
     u"ckan/lib/helpers.py",
@@ -430,7 +424,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/model/types.py",
     u"ckan/model/user.py",
     u"ckan/model/vocabulary.py",
-    u"ckan/pastertemplates/__init__.py",
     u"ckan/plugins/core.py",
     u"ckan/plugins/toolkit.py",
     u"ckan/plugins/toolkit_sphinx_extension.py",
@@ -647,7 +640,7 @@ _STRING_LITERALS_WHITELIST = [
     u"ckanext/example_theme_docs/v12_extra_public_dir/plugin.py",
     u"ckanext/example_theme_docs/v13_custom_css/plugin.py",
     u"ckanext/example_theme_docs/v14_more_custom_css/plugin.py",
-    u"ckanext/example_theme_docs/v15_fanstatic/plugin.py",
+    u"ckanext/example_theme_docs/v15_webassets/plugin.py",
     u"ckanext/example_theme_docs/v16_initialize_a_javascript_module/plugin.py",
     u"ckanext/example_theme_docs/v17_popover/plugin.py",
     u"ckanext/example_theme_docs/v18_snippet_api/plugin.py",
@@ -683,26 +676,3 @@ _STRING_LITERALS_WHITELIST = [
     u"doc/conf.py",
     u"setup.py",
 ]
-
-
-@pytest.mark.skipif(six.PY3, reason=u"")
-def test_string_literals_are_prefixed():
-    u"""
-    Test that string literals are prefixed by ``u``, ``b`` or ``ur``.
-
-    See http://docs.ckan.org/en/latest/contributing/unicode.html.
-    """
-    errors = []
-    for abs_path, rel_path in walk_python_files():
-        if rel_path in _STRING_LITERALS_WHITELIST:
-            continue
-        problems = find_unprefixed_string_literals(abs_path)
-        if problems:
-            errors.append((rel_path, problems))
-    if errors:
-        lines = [u"Unprefixed string literals:"]
-        for filename, problems in errors:
-            lines.append(u"  " + filename)
-            for line_no, col_no in problems:
-                lines.append(u"    line {}, column {}".format(line_no, col_no))
-        raise AssertionError(u"\n".join(lines))

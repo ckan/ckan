@@ -32,7 +32,7 @@ from flask.testing import Client as FlaskClient
 from flask.wrappers import Response
 from click.testing import CliRunner
 import pytest
-import mock
+import unittest.mock as mock
 import rq
 import six
 
@@ -203,10 +203,7 @@ class CKANTestApp(object):
     @property
     def flask_app(self):
         if not self._flask_app:
-            if six.PY2:
-                self._flask_app = self.app.apps["flask_app"]._wsgi_app
-            else:
-                self._flask_app = self.app._wsgi_app
+            self._flask_app = self.app._wsgi_app
         return self._flask_app
 
     def __init__(self, app):
@@ -291,10 +288,7 @@ def _get_test_app():
     """
     config["ckan.legacy_templates"] = False
     config["testing"] = True
-    if six.PY2:
-        app = ckan.config.middleware.make_app(config)
-    else:
-        app = ckan.config.middleware.make_app(config)
+    app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
 
     return app
@@ -339,8 +333,6 @@ class FunctionalTestBase(object):
 
     @classmethod
     def setup_class(cls):
-        import ckan.plugins as p
-
         # Make a copy of the Pylons config, so we can restore it in teardown.
         cls._original_config = dict(config)
         cls._apply_config_changes(config)
