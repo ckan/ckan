@@ -63,7 +63,7 @@ def recut():
                       infile=setup_template,
                       context={'cookiecutter': context},
                       env=env)
-    if asbool(context['include_examples']):
+    if not asbool(context['include_examples']):
         remove_code_examples(os.path.join(destination, 'ckanext', short_name))
 
 
