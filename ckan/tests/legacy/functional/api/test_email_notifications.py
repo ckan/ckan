@@ -6,10 +6,9 @@ import pytest
 import ckan.model as model
 import ckan.tests.legacy as tests
 import ckan.tests.helpers as helpers
-from ckan.tests.legacy import TestController as ControllerTestCase
 
 
-class TestEmailNotifications(ControllerTestCase):
+class TestEmailNotifications(object):
     @classmethod
     def setup_class(cls):
         model.repo.rebuild_db()
@@ -223,7 +222,7 @@ class TestEmailNotifications(ControllerTestCase):
 
 
 # It's just easier to separate these tests into their own test class.
-class TestEmailNotificationsUserPreference(ControllerTestCase):
+class TestEmailNotificationsUserPreference(object):
     """Tests for the email notifications (on/off) user preference."""
 
     @classmethod
@@ -514,7 +513,7 @@ class TestEmailNotificationsIniSetting(object):
         assert len(mail_server.get_smtp_messages()) == 0
 
 
-class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
+class TestEmailNotificationsSinceIniSetting(object):
     """Tests for the ckan.email_notifications_since config setting."""
 
     @classmethod

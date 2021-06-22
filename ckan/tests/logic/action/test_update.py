@@ -12,7 +12,7 @@ import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import model
-
+from ckan.lib.navl.dictization_functions import DataError
 from freezegun import freeze_time
 
 
@@ -2112,3 +2112,74 @@ class TestUserPluginExtras(object):
         ).first().values()[0]
 
         assert plugin_extras['plugin1']['key1'] == 'value2'
+
+
+class TestVocabularyUpdate(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_no_real_update(self):
+        vocab = factories.Vocabulary()
+        updated = helpers.call_action("vocabulary_update", id=vocab["id"])
+        assert vocab == updated
+
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], name=vocab["name"])
+        assert vocab == updated
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_update_name(self):
+        vocab = factories.Vocabulary(name="old_name")
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], name="new_name")
+        assert updated["name"] == "new_name"
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_add_tags(self):
+        vocab = factories.Vocabulary(name="old_name")
+        assert vocab["tags"] == []
+
+        tags = [{"name": "new test tag one"}, {"name": "new test tag two"}]
+
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], tags=tags)
+        assert {t["name"] for t in updated["tags"]} == {t["name"] for t in tags}
+
+        tags.append({"name": "new test tag three"},)
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], tags=tags)
+        assert {t["name"] for t in updated["tags"]} == {t["name"] for t in tags}
+
+    def test_non_existing(self):
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("vocabulary_update", id="not-a-real-vocab")
+
+    def test_missing_id(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_update")
+
+    @pytest.mark.parametrize("tags", [
+    ])
+    @pytest.mark.usefixtures("clean_db")
+    def test_with_bad_tags(self, tags):
+        vocab = factories.Vocabulary()
+        for tags in [
+                [{"id": "xxx"}, {"name": "foo"}],
+                [{"name": "foo"}, {"name": None}],
+                [{"name": "foo"}, {"name": ""}],
+                [{"name": "foo"}, {"name": "f"}],
+                [{"name": "f" * 200}, {"name": "foo"}],
+                [{"name": "Invalid!"}, {"name": "foo"}],
+        ]:
+            with pytest.raises(logic.ValidationError):
+                helpers.call_action("vocabulary_update", id=vocab['id'], tags=tags)
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_with_no_tags(self):
+        vocab = factories.Vocabulary()
+        with pytest.raises(DataError):
+            helpers.call_action("vocabulary_update", id=vocab["id"], tags=None)
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_clen_tags(self):
+        vocab = factories.Vocabulary(tags=[{"name": "foo"}])
+        updated = helpers.call_action("vocabulary_update", id=vocab["id"], tags=[])
+        assert updated["tags"] == []

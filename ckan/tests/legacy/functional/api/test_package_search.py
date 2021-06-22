@@ -7,11 +7,10 @@ from dominate.util import escape
 
 from ckan.tests.legacy.functional.api.base import ApiTestCase, Api3TestCase
 from ckan.tests.legacy import CreateTestData
-from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.tests.helpers import body_contains
 
 
-class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
+class PackageSearchApiTestCase(ApiTestCase):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index):
         CreateTestData.create()
@@ -106,7 +105,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert body_contains(res, "'filter_by_downloadable'")
 
 
-class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
+class LegacyOptionsTestCase(ApiTestCase):
     """Here are tests with URIs in the syntax they were in
     for API v1 and v2."""
 

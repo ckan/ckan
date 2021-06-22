@@ -3,8 +3,10 @@
 
 """
 import datetime
+import operator
 import unittest.mock as mock
 import pytest
+
 
 import ckan
 import ckan.logic as logic
@@ -12,7 +14,7 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
-
+from ckan.lib.navl.dictization_functions import DataError
 from six import string_types
 
 from freezegun import freeze_time
@@ -1094,6 +1096,18 @@ class TestUserCreate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password != "pretend-this-is-a-valid-hash"
 
+    def test_user_create_basic_fields(self):
+        email = "test@example.com"
+        user = helpers.call_action(
+            "user_create",
+            email=email,
+            name="test",
+            password="required",
+        )
+        assert user["email"] == email
+        assert user["name"] == "test"
+        assert "password" not in user
+
 
 def _clear_activities():
     from ckan import model
@@ -1367,3 +1381,113 @@ class TestUserImageUrl(object):
 
         assert user_dict['image_url'] == 'https://example.com/mypic.png'
         assert user_dict['image_display_url'] == 'https://example.com/mypic.png'
+
+
+class TestVocabularyCreate(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_basic(self):
+        name = "My cool vocab"
+        vocab = helpers.call_action("vocabulary_create", name=name)
+        obj = model.Vocabulary.get(name)
+        assert obj.id == vocab["id"]
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_with_tags(self):
+        name = "foobar"
+        tags = [
+            {"name": "foo"},
+            {"name": "bar"}
+        ]
+        helpers.call_action("vocabulary_create", name=name, tags=tags)
+        vocab = helpers.call_action("vocabulary_show", id=name)
+        assert vocab["name"] == name
+        assert len(vocab["tags"]) == 2
+        for tag in vocab["tags"]:
+            assert tag["vocabulary_id"] == vocab["id"]
+            assert tag["name"] in {"foo", "bar"}
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_with_empty_tags(self):
+        resp = helpers.call_action("vocabulary_create", name="foobar", tags=[])
+        assert resp["tags"] == []
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_with_existing_name(self):
+        helpers.call_action("vocabulary_create", name="foobar", tags=[])
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_create", name="foobar", tags=[])
+
+    @pytest.mark.parametrize("tags", [
+        [{"id": "xxx"}, {"name": "foo"}],
+        [{"name": "foo"}, {"name": None}],
+        [{"name": "foo"}, {"name": ""}],
+        [{"name": "foo"}, {"name": "f"}],
+        [{"name": "f" * 200}, {"name": "foo"}],
+        [{"name": "Invalid!"}, {"name": "foo"}],
+    ])
+    def test_with_bad_tags(self, tags):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_create", name="foobar", tags=tags)
+
+    def test_with_no_tags(self):
+        with pytest.raises(DataError):
+            helpers.call_action("vocabulary_create", name="foobar", tags=None)
+
+    def test_id_not_allowed(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_create", name="foobar", id="xxx")
+
+    def test_no_name(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_create")
+
+    @pytest.mark.parametrize("name", (None, "", "a", "foobar" * 100))
+    def test_invalid_name(self, name):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_create", name=name)
+
+
+class TestTagCreate:
+    @pytest.mark.usefixtures("clean_db")
+    def test_add_tag_to_vocab(self):
+        vocab = factories.Vocabulary(tags=[{"name": "foo"}])
+        assert set(map(operator.itemgetter("name"), vocab["tags"])) == {"foo"}
+        helpers.call_action("tag_create", name="bar", vocabulary_id=vocab["id"])
+
+        vocab = helpers.call_action("vocabulary_show", id=vocab["id"])
+        assert set(map(operator.itemgetter("name"), vocab["tags"])) == {"foo", "bar"}
+
+    def test_no_vocab(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("tag_create", name="bar")
+
+    def test_does_not_exist(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("tag_create", name="bar", vocabulary_id="not-a-real-id")
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_duplicate(self):
+        vocab = factories.Vocabulary(tags=[{"name": "foo"}])
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("tag_create", name="foo", vocabulary_id=vocab["id"])
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_id_not_allowed(self):
+        vocab = factories.Vocabulary()
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "tag_create", name="foo", id="xxx", vocabulary_id=vocab["id"])
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_name_is_required(self):
+        vocab = factories.Vocabulary()
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "tag_create", vocabulary_id=vocab["id"])
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_invalid_name(self):
+        vocab = factories.Vocabulary()
+        for name in ("Not a valid tag name!", "", None):
+            with pytest.raises(logic.ValidationError):
+                helpers.call_action("tag_create", name=name, vocabulary_id=vocab["id"])

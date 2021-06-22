@@ -15,8 +15,49 @@ from ckan.tests import factories
 from ckan.lib import uploader as ckan_uploader
 
 
+@pytest.mark.parametrize("ver, expected, status", [
+    (0, 1, 404), (1, 1, 200), (2, 2, 200), (3, 3, 200), (4, 1, 404)
+])
+def test_get_api_version(ver, expected, status, app):
+    resp = app.get(url_for("api.get_api", ver=str(ver)), status=status)
+    if status == 200:
+        assert resp.json["version"] == expected
+
+
+def test_readonly_is_get_able_with_normal_url_params(app):
+    """Test that a read-only action is GET-able
+
+    Picks an action within `get.py` and checks that it works if it's
+    invoked with a http GET request.  The action's data_dict is
+    populated from the url parameters.
+    """
+    params = {"q": "russian"}
+    resp = app.get(
+        url_for("api.action", logic_function="package_search", ver=3),
+        params=params, status=200)
+
+
+def test_sideeffect_action_is_not_get_able(app):
+    """Test that a non-readonly action is not GET-able.
+
+    Picks an action outside of `get.py`, and checks that it 400s if an
+    attempt to invoke with a http GET request is made.
+    """
+    data_dict = {"type": "dataset", "name": "a-name"}
+    resp = app.get(
+        url_for("api.action", logic_function="package_create", ver=3),
+        json=data_dict, status=400)
+    msg = (
+        "Bad request - JSON Error: Invalid request."
+        " Please use POST method for your request"
+    )
+    assert msg in resp
+
+
+
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestApiController(object):
+
     def test_resource_create_upload_file(
             self, app, monkeypatch, tmpdir, ckan_config):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
@@ -273,3 +314,19 @@ class TestApiController(object):
         assert sorted(res_dict["result"]) == sorted(
             [dataset1["name"], dataset2["name"]]
         )
+
+    @pytest.mark.parametrize("incomplete, expected", [
+        (None, set()),
+        ("", set()),
+        ("cs", {"csv"}),
+        ("on", {"json"}),
+        ("s", {"csv", "json"}),
+        ("xls", set()),
+    ])
+    def test_format_autocomplete(self, incomplete, expected, app):
+        factories.Resource(format='CSV')
+        factories.Resource(format='JSON')
+
+        resp = app.get(url_for("api.format_autocomplete", ver=2, incomplete=incomplete))
+        result = {res["Format"] for res in resp.json["ResultSet"]["Result"]}
+        assert result == expected

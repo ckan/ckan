@@ -1931,6 +1931,44 @@ class TestPackageAutocompleteWithDatasetForm(object):
         assert query["results"][0]["extras"][0]["value"] == "foo"
 
 
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+class TestUserAutocomplete(object):
+    def test_autocomplete(self):
+        factories.Sysadmin(name="autocompletesysadmin")
+        factories.User(name="autocompleteuser")
+        result = helpers.call_action("user_autocomplete", q="sysadmin")
+        assert len(result) == 1
+        user = result.pop()
+        assert set(user.keys()) == set(["id", "name", "fullname"])
+        assert user["name"] == u"autocompletesysadmin"
+
+    def test_autocomplete_multiple(self):
+        factories.Sysadmin(name="autocompletesysadmin")
+        factories.User(name="autocompleteuser")
+        result = helpers.call_action("user_autocomplete", q="compl")
+        assert len(result) == 2
+
+    def test_autocomplete_limit(self):
+        factories.Sysadmin(name="autocompletesysadmin")
+        factories.User(name="autocompleteuser")
+        result = helpers.call_action("user_autocomplete", q="compl", limit=1)
+        assert len(result) == 1
+
+
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+class TestFormatAutocomplete:
+    def test_missing_param(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("format_autocomplete")
+
+    def test_autocomplete(self):
+        result = helpers.call_action("format_autocomplete", q="cs")
+        assert result == []
+        factories.Resource(format="CSV")
+        result = helpers.call_action("format_autocomplete", q="cs")
+        assert result == ["csv"]
+
+
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestBadLimitQueryParameters(object):
     """test class for #1258 non-int query parameters cause 500 errors

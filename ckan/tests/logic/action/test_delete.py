@@ -139,12 +139,38 @@ class TestDeleteTags(object):
         # There is not a lot of call for it, but in theory there could be
         # unicode in the ActionError error message, so ensure that comes
         # through in NotFound as unicode.
-        try:
+        with pytest.raises(logic.NotFound) as e:
             helpers.call_action("tag_delete", id=u"Delta symbol: \u0394")
-        except logic.NotFound as e:
-            assert u"Delta symbol: \u0394" in text_type(e)
-        else:
-            assert 0, "Should have raised NotFound"
+        assert u"Delta symbol: \u0394" in e.value.message
+
+    def test_no_id(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("tag_delete")
+
+    def test_does_not_exist(self):
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("tag_delete", id="not-a-real-id")
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_vocab_does_not_exist(self):
+        vocab = factories.Vocabulary(tags=[{"name": "testtag"}])
+        tag = vocab["tags"][0]
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("tag_delete", id=tag["id"], vocabulary_id="not-a-real-id")
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_tag(self):
+        pkg = factories.Dataset(tags=[{"name": "foo"}, {"name": "bar"}])
+        assert len(pkg["tags"]) == 2
+        tags =  {t["name"] for t in pkg["tags"]}
+        assert set(helpers.call_action("tag_list")) == tags
+
+        for tag in pkg["tags"]:
+            helpers.call_action("tag_delete", id=tag["id"])
+
+        assert helpers.call_action("tag_list") == []
+        pkg = helpers.call_action("package_show", id=pkg["id"])
+        assert pkg["tags"] == []
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -728,3 +754,21 @@ def test_package_delete_removes_collaborations():
     helpers.call_action(u"package_delete", context, **params)
 
     assert len(helpers.call_action('package_collaborator_list_for_user', id=user['id'])) == 0
+
+
+class TestVocabularyDelete(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_basic(self):
+        vocab = factories.Vocabulary()
+        helpers.call_action("vocabulary_delete", id=vocab["id"])
+
+        assert helpers.call_action("vocabulary_list") == []
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_not_existing(self):
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("vocabulary_delete", id="does-not-exist")
+
+    def test_no_id(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_delete")
