@@ -44,9 +44,7 @@ def test_user_delete_redirects_to_user_index(app):
     res = app.post(url, extra_environ=extra_environ, follow_redirects=False)
 
     assert user.is_deleted(), user
-    assert res.headers["Location"].startswith(
-        redirect_url
-    )
+    assert res.headers["Location"].startswith(redirect_url)
 
 
 def test_user_delete_by_unauthorized_user(app):

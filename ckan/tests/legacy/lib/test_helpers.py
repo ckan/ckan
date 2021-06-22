@@ -68,7 +68,10 @@ class TestHelpers(object):
         """Test when default gravatar is None, it is pulled from the config file"""
         email = "zephod@gmail.com"
         default = config.get("ckan.gravatar_default", "identicon")
-        expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"' % default
+        expected = (
+            '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
+            % default
+        )
         email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
         res = h.gravatar(email_hash, 200)
         assert expected in res

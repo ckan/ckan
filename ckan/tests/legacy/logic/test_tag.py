@@ -17,7 +17,10 @@ class TestAction(object):
     def test_08_user_create_not_authorized(self, app):
         res = app.post(
             "/api/action/user_create",
-            json={"name": "test_create_from_action_api", "password": "testpass"},
+            json={
+                "name": "test_create_from_action_api",
+                "password": "testpass",
+            },
             status=StatusCodes.STATUS_403_ACCESS_DENIED,
         )
         res_obj = json.loads(res.body)
@@ -340,7 +343,9 @@ class TestAction(object):
             ]
         )
 
-        res = app.post("/api/action/tag_autocomplete", json={"q": u"lower case"})
+        res = app.post(
+            "/api/action/tag_autocomplete", json={"q": u"lower case"}
+        )
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert "MIX of CAPITALS and LOWER case" in res_obj["result"], res_obj[

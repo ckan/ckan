@@ -9,8 +9,7 @@ import json
 
 
 class TestSearchOverallWithSynchronousIndexing(object):
-    """Repeat test from test_package_search with synchronous indexing
-    """
+    """Repeat test from test_package_search with synchronous indexing"""
 
     @pytest.fixture(autouse=True)
     def setup_class(self, clean_db, clean_index):

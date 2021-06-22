@@ -158,14 +158,13 @@ class TestApiController(object):
         )
 
     def test_tag_autocomplete(self, app):
-        factories.Dataset(tags=[{"name": "rivers"}])
+        factories.Dataset(tags=[{"name": "rivers ア"}])
         url = url_for(controller="api", action="tag_autocomplete", ver="/2")
         assert url == "/api/2/util/tag/autocomplete"
 
-        response = app.get(url=url, query_string={"incomplete": u"rive"}, status=200)
+        response = app.get(url=url, query_string={"incomplete": u"rs ア"}, status=200)
 
-        results = json.loads(response.body)
-        assert results == {"ResultSet": {"Result": [{"Name": "rivers"}]}}
+        assert response.json == {"ResultSet": {"Result": [{"Name": "rivers ア"}]}}
         assert (
             response.headers["Content-Type"]
             == "application/json;charset=utf-8"

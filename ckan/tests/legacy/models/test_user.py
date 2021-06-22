@@ -128,7 +128,7 @@ class TestUserGroups:
 
 class TestUser2(object):
     """
-        This class was originally in ckan/model/test_user.py
+    This class was originally in ckan/model/test_user.py
     """
 
     @pytest.fixture(autouse=True)

@@ -194,20 +194,24 @@ class TestPackageForm(TestPackageBase):
             if return_url_param:
                 offset_params["return_to"] = return_url_param
             offset = url_for(named_route, **offset_params)
-            res = app.post(offset, extra_environ=extra_environ, data={
-                "name": new_name,
-                "save": ""
-            }, follow_redirects=False)
+            res = app.post(
+                offset,
+                extra_environ=extra_environ,
+                data={"name": new_name, "save": ""},
+                follow_redirects=False,
+            )
 
             assert not "Error" in res, res
-            redirected_to = res.headers['location']
+            redirected_to = res.headers["location"]
 
             expected_redirect_url = expected_redirect.replace(
                 "<NAME>", new_name
             )
-            assert redirected_to == expected_redirect_url, (
-                "Redirected to %s but should have been %s"
-                % (redirected_to, expected_redirect_url)
+            assert (
+                redirected_to == expected_redirect_url
+            ), "Redirected to %s but should have been %s" % (
+                redirected_to,
+                expected_redirect_url,
             )
         finally:
             # revert name change or pkg creation
@@ -373,10 +377,12 @@ class TestEdit(TestPackageForm):
 
         # edit the package
         self.offset = url_for("dataset.edit", id=self.editpkg_name)
-        res = app.post(self.offset, extra_environ=self.extra_environ_admin, data={
-            "save": "",
-            "title": "New Title"
-        }, follow_redirects=False)
+        res = app.post(
+            self.offset,
+            extra_environ=self.extra_environ_admin,
+            data={"save": "", "title": "New Title"},
+            follow_redirects=False,
+        )
 
         # check relationship still exists
         rels = model.Package.by_name(self.editpkg_name).get_relationships()
@@ -431,10 +437,12 @@ class TestNew:
         plugin = plugins.get_plugin("test_package_controller_plugin")
         offset = url_for("dataset.new")
         new_name = u"plugged"
-        res = app.post(offset, extra_environ=env_user, data={
-            "name": new_name,
-            "save": ""
-        }, follow_redirects=False)
+        res = app.post(
+            offset,
+            extra_environ=env_user,
+            data={"name": new_name, "save": ""},
+            follow_redirects=False,
+        )
         assert plugin.calls["edit"] == 0, plugin.calls
         assert plugin.calls["create"] == 1, plugin.calls
 
@@ -444,10 +452,12 @@ class TestNew:
         plugin = plugins.get_plugin("test_package_controller_plugin")
         offset = url_for("dataset.new")
         new_name = u"plugged2"
-        res = app.post(offset, extra_environ=env_user, data={
-            "name": new_name,
-            "save": ""
-        }, follow_redirects=False)
+        res = app.post(
+            offset,
+            extra_environ=env_user,
+            data={"name": new_name, "save": ""},
+            follow_redirects=False,
+        )
         assert plugin.calls["after_update"] == 0, plugin.calls
         assert plugin.calls["after_create"] == 1, plugin.calls
 
@@ -463,10 +473,14 @@ class TestNew:
             new_package_name = u"new-package-missing-solr"
 
             offset = url_for("dataset.new")
-            res = app.post(offset, extra_environ=env_user,  data={
-                "save": "",
-                "name": new_package_name,
-            })
+            res = app.post(
+                offset,
+                extra_environ=env_user,
+                data={
+                    "save": "",
+                    "name": new_package_name,
+                },
+            )
             assert "Unable to add package to search index" in res, res
         finally:
             SolrSettings.init(solr_url)

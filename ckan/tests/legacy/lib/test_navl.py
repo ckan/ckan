@@ -270,7 +270,8 @@ def test_flatten_deeper():
     }, pformat(flatten_dict(data))
 
     assert data == unflatten(flatten_dict(data)), pformat(
-        unflatten(flatten_dict(data)))
+        unflatten(flatten_dict(data))
+    )
 
 
 def test_unflatten_regression():

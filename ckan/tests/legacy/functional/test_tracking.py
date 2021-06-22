@@ -88,9 +88,7 @@ class TestTracking(object):
         date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(
             "%Y-%m-%d"
         )
-        tracking.update_all(
-            engine=ckan.model.meta.engine, start_date=date
-        )
+        tracking.update_all(engine=ckan.model.meta.engine, start_date=date)
 
     def _rebuild_search_index(self):
         """Rebuild CKAN's search index.
@@ -100,6 +98,7 @@ class TestTracking(object):
 
         """
         from ckan.lib.search import rebuild
+
         rebuild()
 
     def test_package_with_0_views(self, app):
@@ -577,9 +576,7 @@ class TestTracking(object):
         import ckan.model
 
         f = tempfile.NamedTemporaryFile()
-        export_tracking(
-            engine=ckan.model.meta.engine, output_filename=f.name
-        )
+        export_tracking(engine=ckan.model.meta.engine, output_filename=f.name)
         lines = [line for line in csv.DictReader(open(f.name, "r"))]
         return lines
 

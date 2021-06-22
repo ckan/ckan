@@ -121,7 +121,9 @@ class TestAction(object):
         assert "private_dataset" not in res
 
         # def test_02_package_autocomplete_match_name(self):
-        res = app.post("/api/action/package_autocomplete", json={"q": "war", "limit": 5})
+        res = app.post(
+            "/api/action/package_autocomplete", json={"q": "war", "limit": 5}
+        )
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert res_obj["result"][0]["name"] == "warandpeace"
@@ -130,7 +132,9 @@ class TestAction(object):
         assert res_obj["result"][0]["match_displayed"] == "warandpeace"
 
         # def test_02_package_autocomplete_match_title(self):
-        res = app.post("/api/action/package_autocomplete", json={"q": "won", "limit": 5})
+        res = app.post(
+            "/api/action/package_autocomplete", json={"q": "won", "limit": 5}
+        )
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert res_obj["result"][0]["name"] == "warandpeace"
@@ -485,9 +489,7 @@ class TestAction(object):
 
         # def test_17_bad_action(self):
         # Empty query
-        res = app.post(
-            "/api/action/bad_action_name", json={}, status=400
-        )
+        res = app.post("/api/action/bad_action_name", json={}, status=400)
         res_obj = json.loads(res.body)
         assert (
             res_obj == u"Bad request - Action name not known: bad_action_name"
@@ -729,18 +731,21 @@ class TestAction(object):
 
         # def test_31_bad_request_format(self):
         res = app.post(
-            "/api/action/package_list", json=six.ensure_str("not a dict"), status=400
+            "/api/action/package_list",
+            json=six.ensure_str("not a dict"),
+            status=400,
         )
 
         assert (
             "Bad request - JSON Error: Request data JSON decoded to "
         ) in res
-        assert (
-            "'not a dict' but it needs to be a dictionary."
-        ) in res
+        assert ("'not a dict' but it needs to be a dictionary.") in res
         # def test_31_bad_request_format_not_json(self):
         res = app.post(
-            "/api/action/package_list", data="=1", status=400, content_type="application/json"
+            "/api/action/package_list",
+            data="=1",
+            status=400,
+            content_type="application/json",
         )
         assert body_contains(
             res, "Bad request - JSON Error: Error decoding JSON data."
@@ -922,7 +927,11 @@ class TestActionTermTranslation(object):
 
         res = app.post(
             "/api/action/term_translation_update",
-            json={"term": "moo", "term_translation": "moomoo", "lang_code": "fr"},
+            json={
+                "term": "moo",
+                "term_translation": "moomoo",
+                "lang_code": "fr",
+            },
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=200,
         )
@@ -931,7 +940,11 @@ class TestActionTermTranslation(object):
 
         res = app.post(
             "/api/action/term_translation_update",
-            json={"term": "moo", "term_translation": "moomoo", "lang_code": "en"},
+            json={
+                "term": "moo",
+                "term_translation": "moomoo",
+                "lang_code": "en",
+            },
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
             status=200,
         )
@@ -948,7 +961,9 @@ class TestActionTermTranslation(object):
         assert json.loads(res.body)["success"]
         # sort the result since the order is not important and is implementation
         # dependent
-        assert sorted(json.loads(res.body)["result"], key=dict.items) == sorted(
+        assert sorted(
+            json.loads(res.body)["result"], key=dict.items
+        ) == sorted(
             [
                 {
                     u"lang_code": u"fr",
@@ -960,30 +975,33 @@ class TestActionTermTranslation(object):
                     u"term": u"moo",
                     u"term_translation": u"moomoo",
                 },
-            ], key=dict.items
-        ), json.loads(res.body)
+            ],
+            key=dict.items,
+        ), json.loads(
+            res.body
+        )
 
     def test_2_update_many(self, app):
 
-        data  = {
-                "data": [
-                    {
-                        "term": "many",
-                        "term_translation": "manymoo",
-                        "lang_code": "fr",
-                    },
-                    {
-                        "term": "many",
-                        "term_translation": "manymoo",
-                        "lang_code": "en",
-                    },
-                    {
-                        "term": "many",
-                        "term_translation": "manymoomoo",
-                        "lang_code": "en",
-                    },
-                ]
-            }
+        data = {
+            "data": [
+                {
+                    "term": "many",
+                    "term_translation": "manymoo",
+                    "lang_code": "fr",
+                },
+                {
+                    "term": "many",
+                    "term_translation": "manymoo",
+                    "lang_code": "en",
+                },
+                {
+                    "term": "many",
+                    "term_translation": "manymoomoo",
+                    "lang_code": "en",
+                },
+            ]
+        }
         res = app.post(
             "/api/action/term_translation_update_many",
             json=data,
@@ -1004,7 +1022,9 @@ class TestActionTermTranslation(object):
 
         # sort the result since the order is not important and is implementation
         # dependent
-        assert sorted(json.loads(res.body)["result"], key=dict.items) == sorted(
+        assert sorted(
+            json.loads(res.body)["result"], key=dict.items
+        ) == sorted(
             [
                 {
                     u"lang_code": u"fr",
@@ -1016,8 +1036,11 @@ class TestActionTermTranslation(object):
                     u"term": u"many",
                     u"term_translation": u"manymoomoo",
                 },
-            ], key=dict.items
-        ), json.loads(res.body)
+            ],
+            key=dict.items,
+        ), json.loads(
+            res.body
+        )
 
 
 class MockPackageSearchPlugin(SingletonPlugin):
@@ -1088,7 +1111,10 @@ class TestSearchPluginInterface(object):
     def test_search_plugin_interface_search(self, app):
         avoid = "Tolstoy"
 
-        res = app.post("/api/action/package_search", json={"q": "*:*", "extras": {"ext_avoid": avoid}})
+        res = app.post(
+            "/api/action/package_search",
+            json={"q": "*:*", "extras": {"ext_avoid": avoid}},
+        )
 
         results_dict = json.loads(res.body)["result"]
         for result in results_dict["results"]:
@@ -1097,7 +1123,10 @@ class TestSearchPluginInterface(object):
         assert results_dict["count"] == 1
 
     def test_search_plugin_interface_abort(self, app):
-        res = app.post("/api/action/package_search", json={"q": "*:*", "extras": {"ext_abort": True}})
+        res = app.post(
+            "/api/action/package_search",
+            json={"q": "*:*", "extras": {"ext_abort": True}},
+        )
 
         # Check that the query was aborted and no results returned
         res_dict = json.loads(res.body)["result"]
@@ -1126,9 +1155,12 @@ class TestSearchPluginInterface(object):
         assert body_contains(res, "string_not_found_in_rest_of_template")
 
         res = app.get("/dataset?q=")
-        assert six.ensure_str(res.body).count(
-            "string_not_found_in_rest_of_template"
-        ) == 2
+        assert (
+            six.ensure_str(res.body).count(
+                "string_not_found_in_rest_of_template"
+            )
+            == 2
+        )
 
 
 class TestBulkActions(object):
