@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from __future__ import print_function
 import os
 
 import alembic.command
@@ -42,9 +41,9 @@ def extension(output_dir):
     try:
         from cookiecutter.main import cookiecutter
     except ImportError:
-        tk.error_shout(u"`cookiecutter` library is missing from import path.")
-        tk.error_shout(u"Make sure you have dev-dependencies installed:")
-        tk.error_shout(u"\tpip install -r dev-requirements.txt")
+        error_shout(u"`cookiecutter` library is missing from import path.")
+        error_shout(u"Make sure you have dev-dependencies installed:")
+        error_shout(u"\tpip install -r dev-requirements.txt")
         raise click.Abort()
 
     cur_loc = os.path.dirname(os.path.abspath(__file__))
@@ -58,7 +57,7 @@ def extension(output_dir):
         name = click.prompt(u"Extension's name",
                             default=u"must begin 'ckanext-'")
         if not name.startswith(u"ckanext-"):
-            print(u"ERROR: Project name must start with 'ckanext-' > {}\n"
+            error_shout(u"ERROR: Project name must start with 'ckanext-' > {}\n"
                   .format(name))
         else:
             break
@@ -101,7 +100,7 @@ def extension(output_dir):
     cookiecutter(template_loc, no_input=True, extra_context=context,
                  output_dir=output_dir)
 
-    print(u"\nWritten: {}/{}".format(output_dir, name))
+    click.echo(u"\nWritten: {}/{}".format(output_dir, name))
 
 
 @generate.command(name=u'config',
@@ -148,7 +147,7 @@ def migration(plugin, message):
     """
     import ckan.model
     if not tk.config:
-        tk.error_shout(u'Config is not loaded')
+        error_shout(u'Config is not loaded')
         raise click.Abort()
     config = CKANAlembicConfig(_resolve_alembic_config(plugin))
     migration_dir = os.path.dirname(config.config_file_name)

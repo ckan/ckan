@@ -745,7 +745,7 @@ class TestBuildNavMain(object):
         )
 
 
-class TestHelpersPlugin(p.SingletonPlugin):
+class HelpersTestPlugin(p.SingletonPlugin):
 
     p.implements(p.IRoutes, inherit=True)
 
