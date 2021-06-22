@@ -675,6 +675,9 @@ class TestDatasetUpdate(object):
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestSendEmailNotifications(object):
+    # TODO: this action doesn't do much. Maybe it well be better to move tests
+    # into lib.email_notifications eventually
+
     def check_email(self, email, address, name, subject):
         assert email[1] == "info@test.ckan.net"
         assert email[2] == [address]

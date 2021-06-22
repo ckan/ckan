@@ -1118,69 +1118,182 @@ def _clear_activities():
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-class TestFollowDataset(object):
-    def test_no_activity(self, app):
-
+class TestFollowCommon(object):
+    def test_validation(self):
         user = factories.User()
-        dataset = factories.Dataset(user=user)
+        unfollow_actions = ("unfollow_user", "unfollow_dataset", "unfollow_group")
+        follow_actions = ("follow_user", "follow_dataset", "follow_group")
+        count_actions = ("user_follower_count", "dataset_follower_count", "group_follower_count")
+        list_actions = ("user_follower_list", "dataset_follower_list", "group_follower_list")
+        my_actions = ("am_following_dataset", "am_following_user", "am_following_group")
+        for action in follow_actions + unfollow_actions + count_actions + list_actions + my_actions:
+            for object_id in ("bad id", "     ", 3, 35.7, "xxx", None, ""):
+                with pytest.raises(logic.ValidationError):
+                    context = {"user": user["name"]}
+                    helpers.call_action(action, context, id=object_id)
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestFollowDataset(object):
+    def test_auth(self):
+        user = factories.User()
+        dataset = factories.Dataset()
+        context = {"user": "", "ignore_auth": False}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action("follow_dataset", context, id=dataset["id"])
+        context = {"user": user["name"], "ignore_auth": False}
+        helpers.call_action("follow_dataset", context, id=dataset["id"])
+
+    def test_no_activity(self, app):
+        user = factories.User()
+        dataset = factories.Dataset()
         _clear_activities()
         helpers.call_action(
-            "follow_dataset", context={"user": user["name"]}, **dataset
+            "follow_dataset", context={"user": user["name"]}, id=dataset["id"]
         )
+        assert not helpers.call_action("user_activity_list", id=user["id"])
 
-        activities = helpers.call_action("user_activity_list", id=user["id"])
-        assert [activity["activity_type"] for activity in activities] == []
-        # A follow creates no Activity, since:
-        # https://github.com/ckan/ckan/pull/317
+    def test_follow_dataset(self):
+        user = factories.User()
+        dataset = factories.Dataset()
+        context = {"user": user["name"]}
+        assert helpers.call_action("dataset_follower_count", id=dataset["id"]) == 0
+        assert helpers.call_action("dataset_follower_list", id=dataset["id"]) == []
+        assert not helpers.call_action("am_following_dataset", context, id=dataset["id"])
+
+        helpers.call_action("follow_dataset", context, id=dataset["id"])
+        assert helpers.call_action("dataset_follower_count", id=dataset["id"]) == 1
+        assert [u["name"] for u in helpers.call_action("dataset_follower_list", id=dataset["id"])] == [user["name"]]
+        assert helpers.call_action("am_following_dataset", context, id=dataset["id"])
+
+        helpers.call_action("unfollow_dataset", context, id=dataset["id"])
+        assert helpers.call_action("dataset_follower_count", id=dataset["id"]) == 0
+        assert helpers.call_action("dataset_follower_list", id=dataset["id"]) == []
+        assert not helpers.call_action("am_following_dataset", context, id=dataset["id"])
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestFollowGroup(object):
+    def test_auth(self):
+        user = factories.User()
+        group = factories.Group()
+        context = {"user": "", "ignore_auth": False}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action("follow_group", context, id=group["id"])
+        context = {"user": user["name"], "ignore_auth": False}
+        helpers.call_action("follow_group", context, id=group["id"])
+
     def test_no_activity(self, app):
         user = factories.User()
-        group = factories.Group(user=user)
+        group = factories.Group()
         _clear_activities()
         helpers.call_action(
             "follow_group", context={"user": user["name"]}, **group
         )
+        assert not helpers.call_action("user_activity_list", id=user["id"])
 
-        activities = helpers.call_action("user_activity_list", id=user["id"])
-        assert [activity["activity_type"] for activity in activities] == []
-        # A follow creates no Activity, since:
-        # https://github.com/ckan/ckan/pull/317
+    def test_follow_group(self):
+        user = factories.User()
+        group = factories.Group()
+        context = {"user": user["name"]}
+        assert helpers.call_action("group_follower_count", id=group["id"]) == 0
+        assert helpers.call_action("group_follower_list", id=group["id"]) == []
+        assert not helpers.call_action("am_following_group", context, id=group["id"])
+
+        helpers.call_action("follow_group", context, id=group["id"])
+        assert helpers.call_action("group_follower_count", id=group["id"]) == 1
+        assert [u["name"] for u in helpers.call_action("group_follower_list", id=group["id"])] == [user["name"]]
+        assert helpers.call_action("am_following_group", context, id=group["id"])
+
+        helpers.call_action("unfollow_group", context, id=group["id"])
+        assert helpers.call_action("group_follower_count", id=group["id"]) == 0
+        assert helpers.call_action("group_follower_list", id=group["id"]) == []
+        assert not helpers.call_action("am_following_group", context, id=group["id"])
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestFollowOrganization(object):
+    def test_auth(self):
+        user = factories.User()
+        organization = factories.Organization()
+        context = {"user": "", "ignore_auth": False}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action("follow_group", context, id=organization["id"])
+        context = {"user": user["name"], "ignore_auth": False}
+        helpers.call_action("follow_group", context, id=organization["id"])
+
     def test_no_activity(self, app):
         user = factories.User()
-        org = factories.Organization(user=user)
+        org = factories.Organization()
         _clear_activities()
         helpers.call_action(
             "follow_group", context={"user": user["name"]}, **org
         )
+        assert not helpers.call_action("user_activity_list", id=user["id"])
 
-        activities = helpers.call_action("user_activity_list", id=user["id"])
-        assert [activity["activity_type"] for activity in activities] == []
-        # A follow creates no Activity, since:
-        # https://github.com/ckan/ckan/pull/317
+    def test_follow_organization(self):
+        user = factories.User()
+        group = factories.Organization()
+        context = {"user": user["name"]}
+        assert helpers.call_action("group_follower_count", id=group["id"]) == 0
+        assert helpers.call_action("group_follower_list", id=group["id"]) == []
+        assert not helpers.call_action("am_following_group", context, id=group["id"])
+
+        helpers.call_action("follow_group", context, id=group["id"])
+        assert helpers.call_action("group_follower_count", id=group["id"]) == 1
+        assert [u["name"] for u in helpers.call_action("group_follower_list", id=group["id"])] == [user["name"]]
+        assert helpers.call_action("am_following_group", context, id=group["id"])
+
+        helpers.call_action("unfollow_group", context, id=group["id"])
+        assert helpers.call_action("group_follower_count", id=group["id"]) == 0
+        assert helpers.call_action("group_follower_list", id=group["id"]) == []
+        assert not helpers.call_action("am_following_group", context, id=group["id"])
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestFollowUser(object):
-    def test_no_activity(self, app):
+    def test_auth(self):
+        user = factories.User()
+        second_user = factories.User()
 
+        context = {"user": "", "ignore_auth": False}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action("follow_user", context, id=second_user["id"])
+        context = {"user": user["name"], "ignore_auth": False}
+        helpers.call_action("follow_user", context, id=second_user["id"])
+
+    def test_cannot_follow_myself(self):
+        user = factories.User()
+        context = {"user": user["name"]}
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("follow_user", context, id=user["id"])
+
+    def test_no_activity(self, app):
         user = factories.User()
         user2 = factories.User()
         _clear_activities()
         helpers.call_action(
             "follow_user", context={"user": user["name"]}, **user2
         )
+        assert not helpers.call_action("user_activity_list", id=user["id"])
 
-        activities = helpers.call_action("user_activity_list", id=user["id"])
-        assert [activity["activity_type"] for activity in activities] == []
-        # A follow creates no Activity, since:
-        # https://github.com/ckan/ckan/pull/317
+    def test_follow_user(self):
+        user = factories.User()
+        another_user = factories.User()
+        context = {"user": user["name"]}
+        assert helpers.call_action("user_follower_count", id=another_user["id"]) == 0
+        assert helpers.call_action("user_follower_list", id=another_user["id"]) == []
+        assert not helpers.call_action("am_following_user", context, id=another_user["id"])
+
+        helpers.call_action("follow_user", context, id=another_user["id"])
+        assert helpers.call_action("user_follower_count", id=another_user["id"]) == 1
+        assert [u["name"] for u in helpers.call_action("user_follower_list", id=another_user["id"])] == [user["name"]]
+        assert helpers.call_action("am_following_user", context, id=another_user["id"])
+
+        helpers.call_action("unfollow_user", context, id=another_user["id"])
+        assert helpers.call_action("user_follower_count", id=another_user["id"]) == 0
+        assert helpers.call_action("user_follower_list", id=another_user["id"]) == []
+        assert not helpers.call_action("am_following_user", context, id=another_user["id"])
 
 
 @pytest.mark.usefixtures(u"clean_db")

@@ -1,12 +1,5 @@
 # encoding: utf-8
 
-"""Tests for the ckan.lib.email_notifications module.
-
-Note that email_notifications is used by an action function, so most of the
-tests for the module are done by testing the action function in
-ckan.test.functional.api. This test module contains some additional unit tests.
-
-"""
 import datetime
 
 import pytest
