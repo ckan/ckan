@@ -1,6 +1,7 @@
 # encoding: utf-8
 """Unit tests for ckan/logic/action/update.py."""
 import datetime
+import time
 
 import unittest.mock as mock
 import pytest
@@ -672,22 +673,97 @@ class TestDatasetUpdate(object):
         assert updated_dataset == dataset["id"]
 
 
-@pytest.mark.usefixtures("with_request_context")
-class TestUpdateSendEmailNotifications(object):
-    @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", True)
-    @mock.patch("ckan.logic.action.update.request")
-    def test_calling_through_paster_doesnt_validates_auth(self, mock_request):
-        mock_request.environ.get.return_value = True
-        helpers.call_action("send_email_notifications")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestSendEmailNotifications(object):
+    def check_email(self, email, address, name, subject):
+        assert email[1] == "info@test.ckan.net"
+        assert email[2] == [address]
+        encoded_subject = "Subject: =?utf-8?q?{subject}".format(
+            subject=subject.replace(" ", "_")
+        )
+        assert encoded_subject in email[3]
+        # TODO: Check that body contains link to dashboard and email prefs.
 
-    @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", True)
-    @mock.patch("ckan.logic.action.update.request")
-    def test_not_calling_through_paster_validates_auth(self, mock_request):
-        mock_request.environ.get.return_value = False
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_action(
-                "send_email_notifications", context={"ignore_auth": False}
-            )
+    def test_fresh_setupnotifications(self, mail_server):
+        helpers.call_action("send_email_notifications")
+        assert len(mail_server.get_smtp_messages()) == 0, "Notification came out of nowhere"
+
+    def test_single_notification(self, mail_server):
+        pkg = factories.Dataset()
+        user = factories.User(activity_streams_email_notifications=True)
+        helpers.call_action("follow_dataset", {"user": user["name"]}, id=pkg["id"])
+        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action("send_email_notifications")
+        messages = mail_server.get_smtp_messages()
+        assert len(messages) == 1
+        self.check_email(
+            messages[0],
+            user["email"],
+            user["name"],
+            "1 new activity from CKAN",
+        )
+
+    def test_multiple_notifications(self, mail_server):
+        pkg = factories.Dataset()
+        user = factories.User(activity_streams_email_notifications=True)
+        helpers.call_action("follow_dataset", {"user": user["name"]}, id=pkg["id"])
+        for i in range(3):
+            helpers.call_action("package_update", id=pkg["id"], notes=f"updated {i} times")
+        helpers.call_action("send_email_notifications")
+        messages = mail_server.get_smtp_messages()
+        assert len(messages) == 1
+        self.check_email(
+            messages[0],
+            user["email"],
+            user["name"],
+            "3 new activities from CKAN",
+        )
+
+    def test_no_notifications_if_dashboard_visited(self, mail_server):
+        pkg = factories.Dataset()
+        user = factories.User(activity_streams_email_notifications=True)
+        helpers.call_action("follow_dataset", {"user": user["name"]}, id=pkg["id"])
+        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        new_activities_count = helpers.call_action("dashboard_new_activities_count", {"user": user["name"]}, id=pkg["id"])
+        assert new_activities_count == 1
+
+        helpers.call_action("dashboard_mark_activities_old", {"user": user["name"]}, id=pkg["id"])
+        helpers.call_action("send_email_notifications")
+        messages = mail_server.get_smtp_messages()
+        assert len(messages) == 0
+
+    def test_notifications_disabled_by_default(self):
+        user = factories.User()
+        assert not user["activity_streams_email_notifications"]
+
+    def test_no_emails_when_notifications_disabled(self, mail_server):
+        pkg = factories.Dataset()
+        user = factories.User()
+        helpers.call_action("follow_dataset", {"user": user["name"]}, id=pkg["id"])
+        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action("send_email_notifications")
+        messages = mail_server.get_smtp_messages()
+        assert len(messages) == 0
+        new_activities_count = helpers.call_action("dashboard_new_activities_count", {"user": user["name"]}, id=pkg["id"])
+        assert new_activities_count == 1
+
+    @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", False)
+    def test_send_email_notifications_feature_disabled(self, mail_server):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("send_email_notifications")
+        messages = mail_server.get_smtp_messages()
+        assert len(messages) == 0
+
+    @pytest.mark.ckan_config("ckan.email_notifications_since", ".000001")
+    def test_email_notifications_since(self, mail_server):
+        pkg = factories.Dataset()
+        user = factories.User(activity_streams_email_notifications=True)
+        helpers.call_action("follow_dataset", {"user": user["name"]}, id=pkg["id"])
+        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        time.sleep(0.01)
+        helpers.call_action("send_email_notifications")
+        messages = mail_server.get_smtp_messages()
+        assert len(messages) == 0
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
