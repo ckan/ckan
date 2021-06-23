@@ -12,6 +12,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
 from ckan.tests import factories
+from ckan.tests.helpers import call_action
 import ckanext.datastore.backend.postgres as db
 from ckan.common import config
 from ckanext.datastore.tests.helpers import set_url_type
@@ -50,9 +51,7 @@ class TestDatastoreCreate(object):
         assert "resource_id" in res_dict["result"]
         assert len(model.Package.get("annakarenina").resources) == 3
 
-        res = tests.call_action_api(
-            app, "resource_show", id=res_dict["result"]["resource_id"]
-        )
+        res = call_action("resource_show", id=res_dict["result"]["resource_id"])
         assert res["url"].endswith("/datastore/dump/" + res["id"]), res
 
     @responses.activate
@@ -70,12 +69,8 @@ class TestDatastoreCreate(object):
 
         package = model.Package.get("annakarenina")
 
-        tests.call_action_api(
-            app,
-            "datastore_create",
-            apikey=self.sysadmin_user.apikey,
-            resource=dict(package_id=package.id, url="demo.ckan.org"),
-        )
+        call_action("datastore_create",
+                    resource=dict(package_id=package.id, url="demo.ckan.org"))
 
         assert len(package.resources) == 3, len(package.resources)
         resource = package.resources[2]
@@ -100,10 +95,8 @@ class TestDatastoreCreate(object):
         package = model.Package.get("annakarenina")
         resource = package.resources[0]
 
-        tests.call_action_api(
-            app,
+        call_action(
             "datapusher_submit",
-            apikey=self.sysadmin_user.apikey,
             resource_id=resource.id,
             ignore_hash=True,
         )
@@ -197,8 +190,7 @@ class TestDatastoreCreate(object):
 
         assert res_dict["success"] is True
 
-        task = tests.call_action_api(
-            app,
+        task = call_action(
             "task_status_show",
             entity_id=resource.id,
             task_type="datapusher",
@@ -207,8 +199,7 @@ class TestDatastoreCreate(object):
 
         assert task["state"] == "success", task
 
-        task = tests.call_action_api(
-            app,
+        task = call_action(
             "task_status_show",
             entity_id=resource.id,
             task_type="datapusher",
@@ -272,10 +263,8 @@ class TestDatastoreCreate(object):
         )
         responses.add_passthru(config["solr_url"])
 
-        tests.call_action_api(
-            app,
+        call_action(
             "datapusher_submit",
-            apikey=self.sysadmin_user.apikey,
             resource_id=resource.id,
             ignore_hash=True,
         )
@@ -306,10 +295,8 @@ class TestDatastoreCreate(object):
         responses.add_passthru(config["solr_url"])
 
         dataset = factories.Dataset()
-        resource = tests.call_action_api(
-            app,
+        resource = call_action(
             "resource_create",
-            apikey=self.sysadmin_user.apikey,
             package_id=dataset['id'],
             format='CSV',
         )
@@ -334,19 +321,15 @@ class TestDatastoreCreate(object):
         responses.add_passthru(config["solr_url"])
 
         dataset = factories.Dataset()
-        resource = tests.call_action_api(
-            app,
+        resource = call_action(
             "resource_create",
-            apikey=self.sysadmin_user.apikey,
             package_id=dataset['id'],
             url='http://example.com/old.csv',
             format='CSV',
         )
 
-        resource = tests.call_action_api(
-            app,
+        resource = call_action(
             "resource_update",
-            apikey=self.sysadmin_user.apikey,
             id=resource['id'],
             url='http://example.com/new.csv',
             format='CSV',

@@ -503,11 +503,10 @@ class TestDatastoreSearchLegacyTests(object):
         assert res_dict["success"] is True
 
         # Make an organization, because private datasets must belong to one.
-        self.organization = tests.call_action_api(
-            app,
+        self.organization = helpers.call_action(
             "organization_create",
+            {"user": self.sysadmin_user.name},
             name="test_org",
-            apikey=self.sysadmin_user.apikey,
         )
 
         self.expected_records = [
@@ -1377,11 +1376,10 @@ class TestDatastoreSQLLegacyTests(object):
         assert res_dict["success"] is True
 
         # Make an organization, because private datasets must belong to one.
-        self.organization = tests.call_action_api(
-            app,
+        self.organization = helpers.call_action(
             "organization_create",
+            {"user": self.sysadmin_user.name},
             name="test_org",
-            apikey=self.sysadmin_user.apikey,
         )
 
         self.expected_records = [
