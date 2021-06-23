@@ -23,8 +23,6 @@ class TestDatastoreCreate(object):
 
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index, test_request_context):
-        if not tests.is_datastore_supported():
-            pytest.skip("Datastore not supported")
         ctd.CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
         self.normal_user = model.User.get("annafan")

@@ -38,9 +38,6 @@ class TestInterace(object):
 
     @pytest.fixture(autouse=True)
     def setup_class(self, clean_db, test_request_context):
-        if not tests.is_datastore_supported():
-            pytest.skip("Datastore not supported")
-
         resource = factories.Resource(url_type="datastore")
         self.dataset = factories.Dataset(resources=[resource])
         with test_request_context():

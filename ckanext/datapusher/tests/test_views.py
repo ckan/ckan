@@ -11,9 +11,6 @@ from ckan.logic import _actions
 @pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
 @pytest.mark.usefixtures(u"clean_db", u"with_plugins", u"with_request_context")
 def test_resource_data(app, monkeypatch):
-    if not tests.is_datastore_supported():
-        pytest.skip(u"Datastore not supported")
-
     user = factories.User()
     dataset = factories.Dataset(creator_user_id=user["id"])
     resource = factories.Resource(
