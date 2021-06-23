@@ -142,7 +142,7 @@ class TestSimple(object):
             [
                 {"name": u"pkga", "title": u"The Parent"},
                 {"name": u"pkgb", "title": u"The Child"},
-                {"name": u"pkgc", "title": u"The Child\s Child"},
+                {"name": u"pkgc", "title": r"The Child\s Child"},
             ]
         )
         pkga = model.Package.by_name(u"pkga")

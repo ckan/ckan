@@ -174,7 +174,7 @@ def make_changes(input_lines, new_sections, changes):
                 write_option(option)
             write_option('')
             log.debug('Created option %s = "%s" (NEW section "%s")',
-                  option.key, option.value, section)
+                      option.key, option.value, section)
 
     for line in input_lines:
         # leave blank lines alone
@@ -209,11 +209,11 @@ def make_changes(input_lines, new_sections, changes):
             if existing_option.id in options_already_edited:
                 if not existing_option.is_commented_out:
                     log.debug('Commented out repeat of %s (section "%s")',
-                          key, section)
+                              key, section)
                     existing_option.comment_out()
                 else:
                     log.debug('Left commented out repeat of %s (section "%s")',
-                          key, section)
+                              key, section)
             elif not existing_option.is_commented_out and \
                     updated_option.is_commented_out:
                 changes_made = 'Commented out %s (section "%s")' % \

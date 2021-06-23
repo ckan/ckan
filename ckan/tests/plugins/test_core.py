@@ -9,6 +9,7 @@ import ckan.plugins as plugins
 from ckan.plugins.core import find_system_plugins
 from ckan.tests import factories
 
+
 def _make_calls(*args):
     out = []
     for arg in args:
@@ -44,7 +45,6 @@ class FooBarImpl(object):
     plugins.implements(IBar)
 
 
-
 @pytest.mark.usefixtures(u"with_plugins")
 @pytest.mark.ckan_config(
     u"ckan.plugins",
@@ -75,6 +75,7 @@ def test_plugins_order_in_pluginimplementations_matches_config():
             u"example_idatasetform_v2"
         ]
     )
+
 
 def test_implemented_by():
     assert IFoo.implemented_by(FooImpl)

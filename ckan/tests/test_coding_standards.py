@@ -61,6 +61,7 @@ def walk_python_files(ext=".py"):
             rel_name = os.path.join(rel_root, filename)
             yield abs_name, rel_name
 
+
 def output_errors(filename, errors):
     out = [""]
     out.append("-" * len(filename))
@@ -175,6 +176,7 @@ def cs_filter(f, filter_, ignore_comment_lines=True):
         out.append(line)
         count += 1
     return out
+
 
 class TestImportStar(object):
     """Find files using from xxx import *"""

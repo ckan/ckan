@@ -22,7 +22,6 @@ __all__ = [
 ]
 
 
-
 def is_search_supported():
     is_supported_db = not model.engine_is_sqlite()
     return is_supported_db

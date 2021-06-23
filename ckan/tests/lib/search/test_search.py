@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
+
 import os
-import json
 import pytest
 
 import ckan.config as config
@@ -41,9 +42,8 @@ def get_data():
         "name": "council-owned-litter-bins",
         "extras": [
             {"key": "spatial-reference-system", "value": "test-spatial"},
-        ]
+        ],
     }
-
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -80,7 +80,10 @@ def test_03_update_package_from_dict():
 
     assert query.run({"q": ""})["count"] == 2
     assert query.run({"q": "spatial"})["count"] == 1
-    assert query.run({"q": "spatial"})["results"][0] == "council-owned-litter-bins"
+    assert (
+        query.run({"q": "spatial"})["results"][0]
+        == "council-owned-litter-bins"
+    )
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")

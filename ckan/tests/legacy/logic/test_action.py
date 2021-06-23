@@ -323,7 +323,7 @@ class TestAction(object):
 
         res_obj = json.loads(res.body)
         assert "/api/3/action/help_show?name=user_update" in res_obj["help"]
-        assert res_obj["success"] == True
+        assert res_obj["success"]
         result = res_obj["result"]
         assert result["id"] == self.normal_user.id
         assert result["name"] == self.normal_user.name
@@ -333,7 +333,7 @@ class TestAction(object):
         assert "created" in result
         assert "display_name" in result
         assert "number_created_packages" in result
-        assert not "password" in result
+        assert "password" not in result
 
         # Sysadmin users can update themselves
         res = app.post(
@@ -344,7 +344,7 @@ class TestAction(object):
 
         res_obj = json.loads(res.body)
         assert "/api/3/action/help_show?name=user_update" in res_obj["help"]
-        assert res_obj["success"] == True
+        assert res_obj["success"]
         result = res_obj["result"]
         assert result["id"] == self.sysadmin_user.id
         assert result["name"] == self.sysadmin_user.name
@@ -360,7 +360,7 @@ class TestAction(object):
 
         res_obj = json.loads(res.body)
         assert "/api/3/action/help_show?name=user_update" in res_obj["help"]
-        assert res_obj["success"] == True
+        assert res_obj["success"]
         result = res_obj["result"]
         assert result["id"] == self.normal_user.id
         assert result["name"] == self.normal_user.name
@@ -674,7 +674,7 @@ class TestAction(object):
             extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
         )
         task_status_delete = json.loads(res.body)
-        assert task_status_delete["success"] == True
+        assert task_status_delete["success"]
 
         # def test_26_resource_show(self):
         pkg = model.Package.get("annakarenina")
@@ -772,9 +772,9 @@ class TestAction(object):
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
-        ## Due to the side-effect of previously run tests, there may be extra
-        ## resources in the results.  So just check that each found Resource
-        ## matches the search criteria
+        # Due to the side-effect of previously run tests, there may be extra
+        # resources in the results.  So just check that each found Resource
+        # matches the search criteria
         assert count > 0
         for resource in result:
             assert "index" in resource["description"].lower()
@@ -785,9 +785,9 @@ class TestAction(object):
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
-        ## Due to the side-effect of previously run tests, there may be extra
-        ## resources in the results.  So just check that each found Resource
-        ## matches the search criteria
+        # Due to the side-effect of previously run tests, there may be extra
+        # resources in the results.  So just check that each found Resource
+        # matches the search criteria
         assert count > 0
         for resource in result:
             assert "index" in resource["description"].lower()
@@ -814,9 +814,9 @@ class TestAction(object):
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
-        ## Due to the side-effect of previously run tests, there may be extra
-        ## resources in the results.  So just check that each found Resource
-        ## matches the search criteria
+        # Due to the side-effect of previously run tests, there may be extra
+        # resources in the results.  So just check that each found Resource
+        # matches the search criteria
         assert count > 0
         for resource in result:
             assert "index" in resource["description"].lower()
@@ -830,9 +830,9 @@ class TestAction(object):
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
-        ## Due to the side-effect of previously run tests, there may be extra
-        ## resources in the results.  So just check that each found Resource
-        ## matches the search criteria
+        # Due to the side-effect of previously run tests, there may be extra
+        # resources in the results.  So just check that each found Resource
+        # matches the search criteria
         assert count > 0
         for resource in result:
             assert "index" in resource["description"].lower()

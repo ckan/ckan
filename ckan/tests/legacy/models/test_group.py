@@ -94,10 +94,21 @@ class TestGroup(object):
         return set([group.name for group in results])
 
 
-name_set_from_dicts = lambda groups: set([group["name"] for group in groups])
-name_set_from_group_tuple = lambda tuples: set([t[1] for t in tuples])
-name_set_from_groups = lambda groups: set([group.name for group in groups])
-names_from_groups = lambda groups: [group.name for group in groups]
+def name_set_from_dicts(groups):
+    return set([group["name"] for group in groups])
+
+
+def name_set_from_group_tuple(tuples):
+    return set([t[1] for t in tuples])
+
+
+def name_set_from_groups(groups):
+    return set([group.name for group in groups])
+
+
+def names_from_groups(groups):
+    return [group.name for group in groups]
+
 
 group_type = "organization"
 

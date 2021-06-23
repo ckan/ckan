@@ -51,7 +51,8 @@ class TestDatastoreCreate(object):
         assert "resource_id" in res_dict["result"]
         assert len(model.Package.get("annakarenina").resources) == 3
 
-        res = call_action("resource_show", id=res_dict["result"]["resource_id"])
+        res = call_action("resource_show",
+                          id=res_dict["result"]["resource_id"])
         assert res["url"].endswith("/datastore/dump/" + res["id"]), res
 
     @responses.activate

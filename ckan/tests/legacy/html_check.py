@@ -32,7 +32,11 @@ class HtmlCheckMethods(object):
         return self.named_div("primary", html)
 
     def strip_tags(self, res):
-        """Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace."""
+        """
+        Call strip_tags on a TestResponse object to strip
+        any and all HTML and normalise whitespace.
+
+        """
         if not isinstance(res, string_types):
             res = six.ensure_text(res.data)
         return Stripper().strip(res)
@@ -42,7 +46,7 @@ class HtmlCheckMethods(object):
         tag and all its subtags & data which contains all the of the
         html_to_find"""
         named_element_re = re.compile(
-            "(<(%(tag)s\w*).*?(>.*?</%(tag)s)?>)" % {"tag": tag_name}
+            r"(<(%(tag)s\w*).*?(>.*?</%(tag)s)?>)" % {"tag": tag_name}
         )
         html_str = self._get_html_from_res(html)
         self._check_html(
@@ -55,7 +59,7 @@ class HtmlCheckMethods(object):
         html_to_find"""
         if not hasattr(self, "tag_and_data_re"):
             self.tag_and_data_re = re.compile(
-                "(<(?P<tagname>\w*)[^>]*>[^<]*?</(?P=tagname)>)"
+                r"(<(?P<tagname>\w*)[^>]*>[^<]*?</(?P=tagname)>)"
             )
             # matches "<tag stuff> stuff </tag>"
         self._check_html(self.tag_and_data_re, html, html_to_find)

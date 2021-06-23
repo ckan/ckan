@@ -57,8 +57,9 @@ def extension(output_dir):
         name = click.prompt(u"Extension's name",
                             default=u"must begin 'ckanext-'")
         if not name.startswith(u"ckanext-"):
-            error_shout(u"ERROR: Project name must start with 'ckanext-' > {}\n"
-                  .format(name))
+            error_shout(
+                u"ERROR: Project name must start with 'ckanext-' > {}\n"
+                .format(name))
         else:
             break
 

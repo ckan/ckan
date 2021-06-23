@@ -77,7 +77,7 @@ def test_apikey(app):
     # not logged in
     offset = url_for("user.read", id=username)
     res = app.get(offset)
-    assert not "API key" in res
+    assert "API key" not in res
 
     offset = url_for("user.read", id="okfntest")
     res = app.get(offset, extra_environ={"REMOTE_USER": "okfntest"})

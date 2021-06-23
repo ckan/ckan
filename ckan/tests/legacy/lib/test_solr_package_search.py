@@ -60,9 +60,9 @@ class TestQuery:
             "q": u'tags:"with greek omega \u03a9"'
         }
         assert convert({"title": "Seymour: An Introduction"}) == {
-            "q": 'title:"Seymour\: An Introduction"'
+            "q": r'title:"Seymour\: An Introduction"'
         }
-        assert convert({"title": "Pop!"}) == {"q": "title:Pop\!"}
+        assert convert({"title": "Pop!"}) == {"q": r"title:Pop\!"}
 
         with pytest.raises(search.SearchError):
             convert({"tags": {"tolstoy": 1}})

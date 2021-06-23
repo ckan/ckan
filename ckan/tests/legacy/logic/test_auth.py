@@ -87,7 +87,9 @@ def test_only_sysadmins_can_delete_users():
 
 @pytest.mark.usefixtures("clean_db", "auth_config", "with_request_context")
 def test_auth_deleted_users_are_always_unauthorized():
-    always_success = lambda x, y: {"success": True}
+    def always_success(x, y):
+        return {"success": True}
+
     authz._AuthFunctions._build()
     authz._AuthFunctions._functions["always_success"] = always_success
     username = "deleted_user"
@@ -128,7 +130,7 @@ class TestAuthOrgs(object):
         call_api("package_create", dataset, user, 403)
 
     def _update_datasets(self, user, call_api):
-        ##editor/admin should be able to update dataset
+        # editor/admin should be able to update dataset
         dataset = {"id": "org_editor_dataset", "title": "test"}
         call_api("package_update", dataset, user, 200)
         # editor/admin tries to change owner org
@@ -215,7 +217,7 @@ class TestAuthOrgs(object):
         }
         call_api("organization_member_create", member, "sysadmin")
 
-        ## admin user should be able to add users now
+        # admin user should be able to add users now
         member = {
             "username": "org_editor",
             "role": "editor",
@@ -223,7 +225,7 @@ class TestAuthOrgs(object):
         }
         call_api("organization_member_create", member, "org_admin")
 
-        ## editor should not be able to approve others as editors
+        # editor should not be able to approve others as editors
         member = {
             "username": "editor_wannabe",
             "role": "editor",
@@ -513,7 +515,7 @@ class TestAuthGroups(object):
         }
         call_api("group_member_create", member, "sysadmin")
 
-        ## admin user should be able to add users now
+        # admin user should be able to add users now
         member = {
             "username": "org_editor",
             "role": "editor",
@@ -521,7 +523,7 @@ class TestAuthGroups(object):
         }
         call_api("group_member_create", member, "org_admin")
 
-        ## editor should not be able to approve others as editors
+        # editor should not be able to approve others as editors
         member = {
             "username": "org_editor_wannabe",
             "role": "editor",

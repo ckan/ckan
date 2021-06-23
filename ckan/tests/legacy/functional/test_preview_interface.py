@@ -2,7 +2,7 @@
 
 import pytest
 import ckan.lib.helpers as h
-import ckan.logic as l
+import ckan.logic as logic
 import ckan.model as model
 import ckan.lib.create_test_data as create_test_data
 import ckan.plugins as plugins
@@ -50,13 +50,13 @@ class TestPluggablePreviews:
 
         # no preview for type "ümlaut", should not fail
         resource_dict["format"] = u"ümlaut"
-        l.action.update.resource_update(context, resource_dict)
+        logic.action.update.resource_update(context, resource_dict)
 
         result = app.get(preview_url, status=409)
         assert "No preview" in result.body, result.body
 
         resource_dict["format"] = "mock"
-        l.action.update.resource_update(context, resource_dict)
+        logic.action.update.resource_update(context, resource_dict)
 
         # there should be a preview for type "json"
         preview_url = self.preview_url

@@ -1,9 +1,10 @@
-import datetime
+# -*- coding: utf-8 -*-
+
 import pytest
 import ckan.model as model
-from ckan.common import config
 import ckan.lib.search as search
 import ckan.tests.factories as factories
+
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestTagQuery(object):

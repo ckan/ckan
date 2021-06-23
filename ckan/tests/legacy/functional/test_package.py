@@ -45,7 +45,7 @@ class TestPackageForm(TestPackageBase):
     """Inherit this in tests for these form testing methods"""
 
     def _check_package_read(self, res, **params):
-        assert not "Error" in res, res
+        assert "Error" not in res, res
         assert u"%s - Datasets" % params["title"] in res, res
         main_res = self.main_div(res)
         main_div = main_res
@@ -201,7 +201,7 @@ class TestPackageForm(TestPackageBase):
                 follow_redirects=False,
             )
 
-            assert not "Error" in res, res
+            assert "Error" not in res, res
             redirected_to = res.headers["location"]
 
             expected_redirect_url = expected_redirect.replace(

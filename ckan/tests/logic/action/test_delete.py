@@ -162,7 +162,7 @@ class TestDeleteTags(object):
     def test_delete_tag(self):
         pkg = factories.Dataset(tags=[{"name": "foo"}, {"name": "bar"}])
         assert len(pkg["tags"]) == 2
-        tags =  {t["name"] for t in pkg["tags"]}
+        tags = {t["name"] for t in pkg["tags"]}
         assert set(helpers.call_action("tag_list")) == tags
 
         for tag in pkg["tags"]:

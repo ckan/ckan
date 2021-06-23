@@ -43,7 +43,7 @@ class TestAction(object):
         )
         res_obj = json.loads(res.body)
         assert "/api/3/action/help_show?name=user_create" in res_obj["help"]
-        assert res_obj["success"] == True
+        assert res_obj["success"]
         result = res_obj["result"]
         assert result["name"] == user_dict["name"]
         assert result["about"] == user_dict["about"]
@@ -51,7 +51,7 @@ class TestAction(object):
         assert "created" in result
         assert "display_name" in result
         assert "number_created_packages" in result
-        assert not "password" in result
+        assert "password" not in result
 
     def test_15a_tag_search_with_empty_query(self, app):
         for q in ("missing", None, "", "  "):
@@ -163,7 +163,7 @@ class TestAction(object):
         # Empty query
         res = app.post("/api/action/tag_autocomplete", json={})
         res_obj = json.loads(res.body)
-        assert res_obj["success"] == True
+        assert res_obj["success"]
         assert res_obj["result"] == []
         assert (
             "/api/3/action/help_show?name=tag_autocomplete" in res_obj["help"]
@@ -172,7 +172,7 @@ class TestAction(object):
         # Normal query
         res = app.post("/api/action/tag_autocomplete", json={"q": "r"})
         res_obj = json.loads(res.body)
-        assert res_obj["success"] == True
+        assert res_obj["success"]
         assert res_obj["result"] == ["russian", "tolerance"]
         assert (
             "/api/3/action/help_show?name=tag_autocomplete" in res_obj["help"]

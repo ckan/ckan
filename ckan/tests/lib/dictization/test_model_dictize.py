@@ -359,9 +359,12 @@ class TestPackageDictize:
             ("%s=%s" % (k, result_dict[k]) for k in superfluous_keys)
         )
         for key in expected_dict:
-            assert expected_dict[key] == result_dict[key], (
-                "%s=%s should be %s"
-                % (key, result_dict[key], expected_dict[key])
+            assert (
+                expected_dict[key] == result_dict[key]
+            ), "%s=%s should be %s" % (
+                key,
+                result_dict[key],
+                expected_dict[key],
             )
 
     def test_package_dictize_basic(self):
@@ -692,10 +695,8 @@ class TestActivityDictize(object):
         assert dictized["data"] == {"package": {"title": dataset["title"]}}
 
 
-
 @pytest.mark.usefixtures("clean_db")
 class TestPackageSchema(object):
-
     def remove_changable_columns(self, dict):
         for key, value in list(dict.items()):
             if key.endswith("id") and key != "license_id":
@@ -868,6 +869,7 @@ class TestPackageSchema(object):
                 {"id": [u"Missing value"]},
             ]
         }, pformat(errors)
+
 
 class TestTagSchema:
     def test_tag_schema_allows_spaces(self):

@@ -4,10 +4,23 @@ import pytest
 from pprint import pformat
 from six import text_type
 from ckan.lib.navl.dictization_functions import (
-    validate, Invalid, check_dict, resolve_string_key, DataError,
-    check_string_key, filter_glob_match, update_merge_dict, update_merge_string_key,
-    flatten_schema, get_all_key_combinations, make_full_schema, flatten_dict,
-    unflatten, missing, augment_data, _validate,
+    validate,
+    Invalid,
+    check_dict,
+    resolve_string_key,
+    DataError,
+    check_string_key,
+    filter_glob_match,
+    update_merge_dict,
+    update_merge_string_key,
+    flatten_schema,
+    get_all_key_combinations,
+    make_full_schema,
+    flatten_dict,
+    unflatten,
+    missing,
+    augment_data,
+    _validate,
 )
 
 from ckan.lib.navl.validators import (
@@ -76,233 +89,218 @@ class TestCheckDict(object):
     def test_exact(self):
         assert (
             check_dict(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                {'a': [{'b': 'c'}], 'd': 'e'})
-            == [])
+                {"a": [{"b": "c"}], "d": "e"}, {"a": [{"b": "c"}], "d": "e"}
+            )
+            == []
+        )
 
     def test_child(self):
         assert (
-            check_dict(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                {'a': [{'b': 'c'}]})
-            == [])
+            check_dict({"a": [{"b": "c"}], "d": "e"}, {"a": [{"b": "c"}]})
+            == []
+        )
 
     def test_parent(self):
-        assert (
-            check_dict(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                {'d': 'e'})
-            == [])
+        assert check_dict({"a": [{"b": "c"}], "d": "e"}, {"d": "e"}) == []
 
     def test_all_wrong(self):
         assert (
             check_dict(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                {'q': [{'b': 'c'}], 'a': [{'z': 'x'}], 'r': 'e'})
-            == [('a', 0, 'z'), ('q',), ('r',)])
+                {"a": [{"b": "c"}], "d": "e"},
+                {"q": [{"b": "c"}], "a": [{"z": "x"}], "r": "e"},
+            )
+            == [("a", 0, "z"), ("q",), ("r",)]
+        )
 
     def test_list_expected(self):
-        assert (
-            check_dict(
-                {'a': [{'b': []}], 'd': 'e'},
-                {'a': [{'b': {}}]})
-            == [('a', 0, 'b')])
+        assert check_dict(
+            {"a": [{"b": []}], "d": "e"}, {"a": [{"b": {}}]}
+        ) == [("a", 0, "b")]
 
     def test_dict_expected(self):
-        assert (
-            check_dict(
-                {'a': [{'b': []}], 'd': 'e'},
-                {'a': [['b']]})
-            == [('a', 0)])
+        assert check_dict({"a": [{"b": []}], "d": "e"}, {"a": [["b"]]}) == [
+            ("a", 0)
+        ]
 
 
 class TestResolveStringKey(object):
     def test_dict_value(self):
-        assert (
-            resolve_string_key(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                'a__0__b')
-            == ('c', ('a', 0, 'b')))
+        assert resolve_string_key(
+            {"a": [{"b": "c"}], "d": "e"}, "a__0__b"
+        ) == ("c", ("a", 0, "b"))
 
     def test_list_value(self):
-        assert (
-            resolve_string_key(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                'a__0')
-            == ({'b': 'c'}, ('a', 0)))
+        assert resolve_string_key({"a": [{"b": "c"}], "d": "e"}, "a__0") == (
+            {"b": "c"},
+            ("a", 0),
+        )
 
     def test_bad_dict_value(self):
         with pytest.raises(DataError) as de:
-            resolve_string_key(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                'a__0__c')
-        assert de.value.error == 'Unmatched key a__0__c'
+            resolve_string_key({"a": [{"b": "c"}], "d": "e"}, "a__0__c")
+        assert de.value.error == "Unmatched key a__0__c"
 
     def test_bad_list_value(self):
         with pytest.raises(DataError) as de:
-            resolve_string_key(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                'a__1__c')
-        assert de.value.error == 'Unmatched key a__1'
+            resolve_string_key({"a": [{"b": "c"}], "d": "e"}, "a__1__c")
+        assert de.value.error == "Unmatched key a__1"
 
     def test_partial_id_key(self):
-        assert (
-            resolve_string_key(
-                {'a': [{'id': 'deadbeef', 'd': 'e'}]},
-                'a__deadb__d')
-            == ('e', ('a', 0, 'd')))
+        assert resolve_string_key(
+            {"a": [{"id": "deadbeef", "d": "e"}]}, "a__deadb__d"
+        ) == ("e", ("a", 0, "d"))
 
     def test_invalid_partial_id_key(self):
         with pytest.raises(DataError) as de:
             resolve_string_key(
-                {'a': [{'id': 'deadbeef', 'd': 'e'}]},
-                'a__dead__d')
-        assert de.value.error == 'Unmatched key a__dead'
+                {"a": [{"id": "deadbeef", "d": "e"}]}, "a__dead__d"
+            )
+        assert de.value.error == "Unmatched key a__dead"
 
 
 class TestCheckStringKey(object):
     def test_list_child(self):
         assert (
-            check_string_key(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                'a',
-                [{'b': 'c'}])
-            == [])
+            check_string_key({"a": [{"b": "c"}], "d": "e"}, "a", [{"b": "c"}])
+            == []
+        )
 
     def test_string_child(self):
-        assert (
-            check_string_key(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                'd',
-                'e')
-            == [])
+        assert check_string_key({"a": [{"b": "c"}], "d": "e"}, "d", "e") == []
 
     def test_all_wrong(self):
-        assert (
-            check_string_key(
-                {'t': {'a': [{'b': 'c'}], 'd': 'e'}},
-                't',
-                {'q': [{'b': 'c'}], 'a': [{'z': 'x'}], 'r': 'e'})
-            == [('t', 'a', 0, 'z'), ('t', 'q',), ('t', 'r',)])
+        assert check_string_key(
+            {"t": {"a": [{"b": "c"}], "d": "e"}},
+            "t",
+            {"q": [{"b": "c"}], "a": [{"z": "x"}], "r": "e"},
+        ) == [
+            ("t", "a", 0, "z"),
+            (
+                "t",
+                "q",
+            ),
+            (
+                "t",
+                "r",
+            ),
+        ]
 
     def test_child(self):
-        assert (
-            check_string_key(
-                {'a': [{'b': 'c'}], 'd': 'e'},
-                'a__0__b',
-                'z')
-            == [('a', 0, 'b')])
+        assert check_string_key(
+            {"a": [{"b": "c"}], "d": "e"}, "a__0__b", "z"
+        ) == [("a", 0, "b")]
 
     def test_list_expected(self):
-        assert (
-            check_string_key(
-                {'a': [{'b': []}], 'd': 'e'},
-                'a__0__b',
-                {})
-            == [('a', 0, 'b')])
+        assert check_string_key(
+            {"a": [{"b": []}], "d": "e"}, "a__0__b", {}
+        ) == [("a", 0, "b")]
 
     def test_dict_expected(self):
-        assert (
-            check_string_key(
-                {'a': [{'b': []}], 'd': 'e'},
-                'a__0',
-                ['b'])
-            == [('a', 0)])
+        assert check_string_key(
+            {"a": [{"b": []}], "d": "e"}, "a__0", ["b"]
+        ) == [("a", 0)]
 
 
 class TestFilterGlobMatch(object):
     def test_remove_leaves(self):
-        data = {'q': [{'b': 'c'}, {'z': 'x'}], 'r': 'e'}
-        filter_glob_match(data, ['q__0__b', 'q__1__z', 'r'])
-        assert data == {'q': [{}, {}]}
+        data = {"q": [{"b": "c"}, {"z": "x"}], "r": "e"}
+        filter_glob_match(data, ["q__0__b", "q__1__z", "r"])
+        assert data == {"q": [{}, {}]}
 
     def test_remove_list_item(self):
-        data = {'q': [{'b': 'c'}, {'z': 'x'}], 'r': 'e'}
-        filter_glob_match(data, ['q__0'])
-        assert data == {'q': [{'z': 'x'}], 'r': 'e'}
+        data = {"q": [{"b": "c"}, {"z": "x"}], "r": "e"}
+        filter_glob_match(data, ["q__0"])
+        assert data == {"q": [{"z": "x"}], "r": "e"}
 
     def test_protect_list_item(self):
-        data = {'q': [{'b': 'c'}, {'z': 'x'}], 'r': 'e'}
-        filter_glob_match(data, ['+q__1', 'q__*'])
-        assert data == {'q': [{'z': 'x'}], 'r': 'e'}
+        data = {"q": [{"b": "c"}, {"z": "x"}], "r": "e"}
+        filter_glob_match(data, ["+q__1", "q__*"])
+        assert data == {"q": [{"z": "x"}], "r": "e"}
 
     def test_protect_dict_key(self):
-        data = {'q': [{'b': 'c'}, {'z': 'x'}], 'r': 'e'}
-        filter_glob_match(data, ['+q', '*'])
-        assert data == {'q': [{'b': 'c'}, {'z': 'x'}]}
+        data = {"q": [{"b": "c"}, {"z": "x"}], "r": "e"}
+        filter_glob_match(data, ["+q", "*"])
+        assert data == {"q": [{"b": "c"}, {"z": "x"}]}
 
     def test_del_protect_del_dict(self):
-        data = {'q': 'b', 'c': 'z', 'r': 'e'}
-        filter_glob_match(data, ['q', '+*', 'r'])
-        assert data == {'c': 'z', 'r': 'e'}
+        data = {"q": "b", "c": "z", "r": "e"}
+        filter_glob_match(data, ["q", "+*", "r"])
+        assert data == {"c": "z", "r": "e"}
 
     def test_del_protect_del_list(self):
-        data = [{'id': 'hello'}, {'id': 'world'}, {'id': 'people'}]
-        filter_glob_match(data, ['world', '+*', 'hello'])
-        assert data == [{'id': 'hello'}, {'id': 'people'}]
+        data = [{"id": "hello"}, {"id": "world"}, {"id": "people"}]
+        filter_glob_match(data, ["world", "+*", "hello"])
+        assert data == [{"id": "hello"}, {"id": "people"}]
 
 
 class TestMergeDict(object):
     def test_deep(self):
-        data = {'a': [{'b': 'c'}], 'd': 'e'}
-        update_merge_dict(data, {'q': [{'b': 'c'}], 'a': [{'z': 'x'}], 'r': 'e'})
-        assert data == {'q': [{'b': 'c'}], 'a': [{'b': 'c', 'z': 'x'}], 'r': 'e', 'd': 'e'}
+        data = {"a": [{"b": "c"}], "d": "e"}
+        update_merge_dict(
+            data, {"q": [{"b": "c"}], "a": [{"z": "x"}], "r": "e"}
+        )
+        assert data == {
+            "q": [{"b": "c"}],
+            "a": [{"b": "c", "z": "x"}],
+            "r": "e",
+            "d": "e",
+        }
 
     def test_replace_child(self):
-        data = {'a': [{'b': 'c'}], 'd': 'e'}
-        update_merge_dict(data, {'a': [{'b': 'z'}]})
-        assert data == {'a': [{'b': 'z'}], 'd': 'e'}
+        data = {"a": [{"b": "c"}], "d": "e"}
+        update_merge_dict(data, {"a": [{"b": "z"}]})
+        assert data == {"a": [{"b": "z"}], "d": "e"}
 
     def test_replace_parent(self):
-        data = {'a': [{'b': 'c'}], 'd': 'e'}
-        update_merge_dict(data, {'d': 'd'})
-        assert data == {'a': [{'b': 'c'}], 'd': 'd'}
+        data = {"a": [{"b": "c"}], "d": "e"}
+        update_merge_dict(data, {"d": "d"})
+        assert data == {"a": [{"b": "c"}], "d": "d"}
 
     def test_simple_list(self):
-        data = {'a': ['q', 'w', 'e', 'r', 't']}
-        update_merge_dict(data, {'a': ['z', 'x', 'c']})
-        assert data == {'a': ['z', 'x', 'c', 'r', 't']}
+        data = {"a": ["q", "w", "e", "r", "t"]}
+        update_merge_dict(data, {"a": ["z", "x", "c"]})
+        assert data == {"a": ["z", "x", "c", "r", "t"]}
 
     def test_list_expected(self):
-        data = {'a': [{'b': []}], 'd': 'e'}
+        data = {"a": [{"b": []}], "d": "e"}
         with pytest.raises(DataError) as de:
-            update_merge_dict(data, {'a': [{'b': {}}]})
-        assert de.value.error == 'Expected list for a__0__b'
+            update_merge_dict(data, {"a": [{"b": {}}]})
+        assert de.value.error == "Expected list for a__0__b"
 
     def test_dict_expected(self):
-        data = {'a': [{'b': []}], 'd': 'e'}
+        data = {"a": [{"b": []}], "d": "e"}
         with pytest.raises(DataError) as de:
-            update_merge_dict(data, {'a': [['b']]})
-        assert de.value.error == 'Expected dict for a__0'
+            update_merge_dict(data, {"a": [["b"]]})
+        assert de.value.error == "Expected dict for a__0"
 
 
 class TestMergeStringKey(object):
     def test_replace_child(self):
-        data = {'a': [{'b': 'c'}], 'd': 'e'}
-        update_merge_string_key(data, 'a__0__b', 'z')
-        assert data == {'a': [{'b': 'z'}], 'd': 'e'}
+        data = {"a": [{"b": "c"}], "d": "e"}
+        update_merge_string_key(data, "a__0__b", "z")
+        assert data == {"a": [{"b": "z"}], "d": "e"}
 
     def test_replace_parent(self):
-        data = {'a': [{'b': 'c'}], 'd': 'e'}
-        update_merge_string_key(data, 'd', 'd')
-        assert data == {'a': [{'b': 'c'}], 'd': 'd'}
+        data = {"a": [{"b": "c"}], "d": "e"}
+        update_merge_string_key(data, "d", "d")
+        assert data == {"a": [{"b": "c"}], "d": "d"}
 
     def test_simple_list(self):
-        data = {'a': ['q', 'w', 'e', 'r', 't']}
-        update_merge_string_key(data, 'a__0', 'z')
-        assert data == {'a': ['z', 'w', 'e', 'r', 't']}
+        data = {"a": ["q", "w", "e", "r", "t"]}
+        update_merge_string_key(data, "a__0", "z")
+        assert data == {"a": ["z", "w", "e", "r", "t"]}
 
     def test_list_expected(self):
-        data = {'a': [{'b': []}], 'd': 'e'}
+        data = {"a": [{"b": []}], "d": "e"}
         with pytest.raises(DataError) as de:
-            update_merge_string_key(data, 'a__0__b', {})
-        assert de.value.error == 'Expected list for a__0__b'
+            update_merge_string_key(data, "a__0__b", {})
+        assert de.value.error == "Expected list for a__0__b"
 
     def test_dict_expected(self):
-        data = {'a': [{'b': []}], 'd': 'e'}
+        data = {"a": [{"b": []}], "d": "e"}
         with pytest.raises(DataError) as de:
-            update_merge_string_key(data, 'a__0', ['b'])
-        assert de.value.error == 'Expected dict for a__0'
+            update_merge_string_key(data, "a__0", ["b"])
+        assert de.value.error == "Expected dict for a__0"
 
 
 schema = {
@@ -332,7 +330,7 @@ data = {
     ("2", 1, "22"): "22 value 1",
     ("2", 1, "21", 0, "210"): "210 value 1,0",
     ("2", 1, "21", 1, "210"): "210 value 1,1",
-    ("2", 1, "21", 3, "210"): "210 value 1,3",  ##out of order sequence
+    ("2", 1, "21", 3, "210"): "210 value 1,3",  # out of order sequence
     ("4", 1, "30"): "30 value 1",  # junk key as no 4 and no subdict
     ("4",): "4 value",  # extra key 4
     #    ("2", 2, "21", 0, "210"): "210 value 2,0" #junk key as it does not have a parent
@@ -358,7 +356,6 @@ class TestDictization:
             ("__junk",): [identity_converter],
         }
 
-
     def test_get_key_combination(self):
 
         flattened_schema = flatten_schema(schema)
@@ -376,7 +373,6 @@ class TestDictization:
 
         # state = {}
         # make_flattened_schema(data, schema, state)
-
 
     def test_make_full_schema(self):
 
@@ -400,7 +396,6 @@ class TestDictization:
             [("4",), ("4", 1, "30")]
         )
 
-
     def test_augment_junk_and_extras(self):
 
         assert augment_data(data, schema) == {
@@ -417,7 +412,6 @@ class TestDictization:
             ("2", 1, "22"): "22 value 1",
             ("__extras",): {"4": "4 value"},
         }
-
 
     def test_identity_validation(self):
 
@@ -445,7 +439,6 @@ class TestDictization:
             }
         ), pformat(sorted(converted_data))
 
-
     def test_basic_errors(self):
         schema = {
             "__junk": [empty],
@@ -466,11 +459,12 @@ class TestDictization:
         converted_data, errors = validate_flattened(data, schema)
 
         assert errors == {
-            ("__junk",): [u"The input field [('4', 1, '30')] was not expected."],
+            ("__junk",): [
+                u"The input field [('4', 1, '30')] was not expected."
+            ],
             ("1",): [u"Missing value"],
             ("__extras",): [u"The input field __extras was not expected."],
         }, errors
-
 
     def test_flatten(self):
 
@@ -531,7 +525,6 @@ class TestDictization:
 
         assert data == unflatten(flatten_dict(data))
 
-
     def test_flatten_deeper(self):
         data = {
             u"resources": [
@@ -553,7 +546,6 @@ class TestDictization:
             unflatten(flatten_dict(data))
         )
 
-
     def test_unflatten_regression(self):
         fdata = {
             (u"items", 0, u"name"): u"first",
@@ -568,7 +560,6 @@ class TestDictization:
             ],
         }
         assert unflatten(fdata) == expected, pformat(unflatten(fdata))
-
 
     def test_simple(self):
         schema = {
@@ -624,7 +615,6 @@ class TestDictization:
         converted_data, errors = validate(data, schema)
 
         assert errors == {"numbers": [{"code": [u"Missing value"]}]}
-
 
     def test_simple_converter_types(self):
         schema = {

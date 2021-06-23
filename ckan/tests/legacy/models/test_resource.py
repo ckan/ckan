@@ -66,7 +66,7 @@ class TestResource:
         ), generated_dict_resource["alt_url"]
         assert generated_dict_resource["size"] == 200
 
-        ## check to see if extra descriptor deletes properly
+        # check to see if extra descriptor deletes properly
         del resource_0.extras[u"size"]
         assert resource_0.extras == {
             u"alt_url": u"http://alturl"

@@ -79,7 +79,6 @@ class TestRealUsersAuth(object):
         context = {"user": user["name"], "model": model}
         assert helpers.call_auth("package_create", context)
 
-
     @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
     @pytest.mark.ckan_config(
         "ckan.auth.create_dataset_if_not_in_organization", False
@@ -89,7 +88,6 @@ class TestRealUsersAuth(object):
         context = {"user": user["name"], "model": model}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("package_create", context)
-
 
     @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
