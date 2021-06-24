@@ -493,7 +493,7 @@ For example
 
  ckan -c |ckan.ini| search-index rebuild
 
-This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
+This default behaviour will clear and commit the index at thesame instance, and rebuild it with all datasets. If you want to rebuild it for only
 one dataset, you can provide a dataset name
 
 .. parsed-literal::
@@ -520,6 +520,12 @@ computer to reindex faster
 .. parsed-literal::
 
  ckan -c |ckan.ini| search-index rebuild_fast
+
+There is also an option to clear the whole index and then rebuild it with all dataset
+
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild -e --clear
 
 There are other search related commands, mostly useful for debugging purposes
 

@@ -4,10 +4,10 @@ import multiprocessing as mp
 
 import click
 import sqlalchemy as sa
-
+import sys
 import ckan.plugins.toolkit as tk
 
-
+print("IN SEARCH INDEX FILE")
 @click.group(name=u'search-index', short_help=u'Search index commands')
 @click.help_option(u'-h', u'--help')
 def search_index():
@@ -28,9 +28,11 @@ def search_index():
                    u'ensures that changes are immediately available on the'
                    u'search, but slows significantly the process. Default'
                    u'is false.')
+@click.option('-c', '--clear', help='Clear the index', is_flag=True)
 @click.argument(u'package_id', required=False)
 def rebuild(
-        verbose, force, refresh, only_missing, quiet, commit_each, package_id
+        verbose, force, refresh, only_missing, quiet, commit_each, package_id,
+        clear
 ):
     u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
@@ -41,7 +43,8 @@ def rebuild(
                 force=force,
                 refresh=refresh,
                 defer_commit=(not commit_each),
-                quiet=quiet)
+                quiet=quiet,
+                clear=clear)
     except Exception as e:
         tk.error_shout(e)
     if not commit_each:
@@ -50,6 +53,9 @@ def rebuild(
 
 @search_index.command(name=u'check', short_help=u'Check search index')
 def check():
+    sys.stdout.write("WORKING?")
+    sys.stdout.flush()
+    print("CHECKINGGGGGG")
     from ckan.lib.search import check
     check()
 
