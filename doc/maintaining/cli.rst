@@ -493,7 +493,7 @@ For example
 
  ckan -c |ckan.ini| search-index rebuild
 
-This default behaviour will clear and commit the index at thesame instance, and rebuild it with all datasets. If you want to rebuild it for only
+This default behaviour will clear and commit the index with thesame solr instance, and rebuild it with all datasets. If you want to rebuild it for only
 one dataset, you can provide a dataset name
 
 .. parsed-literal::
