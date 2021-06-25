@@ -485,7 +485,7 @@ def activity(id, offset=0):
     extra_vars = _extra_template_variables(context, data_dict)
 
     try:
-        g.user_activity_stream = logic.get_action(u'user_activity_list')(
+        extra_vars['activity_stream'] = logic.get_action(u'user_activity_list')(
             context, {
                 u'id': extra_vars[u'user_dict'][u'id'],
                 u'offset': offset
