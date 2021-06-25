@@ -114,7 +114,6 @@ def extension(output_dir):
     click.echo(u"\nWritten: {}/{}".format(output_dir, name))
 
 
-
 _code_examples = [
     "cli.py",
     "helpers.py",

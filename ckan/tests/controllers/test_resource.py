@@ -1,68 +1,94 @@
 # encoding: utf-8
 
-"""Functional tests for CKAN's builtin page view tracking feature."""
-
-import tempfile
 import csv
 import datetime
+from io import StringIO
 import pytest
-from ckan.lib.helpers import url_for
-import ckan.tests.legacy as tests
+import ckan.lib.helpers as h
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins as plugins
+import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.tests.factories as factories
+from ckan.tests.helpers import call_action
 
 
-@pytest.mark.usefixtures("clean_db")
-class TestTracking(object):
-    def _create_sysadmin(self, app):
-        """Create a sysadmin user.
-
-        Returns a tuple (sysadmin_user_object, api_key).
-
-        """
-        # You can't create a user via the api
-        # (ckan.auth.create_user_via_api = false is in test-core.ini) and you
-        # can't make your first sysadmin user via either the api or the web
-        # interface anyway, so access the model directly to make a sysadmin
-        # user.
-        import ckan.model as model
-
-        user = model.User(
-            name="joeadmin", email="joe@admin.net", password="joe rules"
+@pytest.mark.ckan_config(
+    "ckan.plugins", "test_resource_preview test_json_resource_preview"
+)
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+class TestPluggablePreviews:
+    def test_hook(self, app):
+        res = factories.Resource()
+        plugin = plugins.get_plugin("test_resource_preview")
+        plugin.calls.clear()
+        url = h.url_for(
+            "resource.datapreview", id=res["package_id"], resource_id=res["id"]
         )
-        user.sysadmin = True
-        model.Session.add(user)
-        model.repo.commit_and_remove()
-        return (
-            tests.call_action_api(app, "user_show", id=user.id),
-            user.apikey,
+        result = app.get(url, status=409)
+        assert "No preview" in result
+
+        # no preview for type "ümlaut", should not fail
+        res["format"] = u"ümlaut"
+        call_action("resource_update", **res)
+        result = app.get(url, status=409)
+        assert "No preview" in result
+
+        res["format"] = "mock"
+        call_action("resource_update", **res)
+
+        result = app.get(url, status=200)
+
+        assert "mock-preview" in result
+        assert "mock-preview.js" in result
+
+        assert plugin.calls["can_preview"] == 3
+        assert plugin.calls["setup_template_variables"] == 1
+        assert plugin.calls["preview_templates"] == 1
+
+        result = app.get(
+            h.url_for(
+                "resource.read", id=res["package_id"], resource_id=res["id"]
+            )
         )
+        assert 'data-module="data-viewer"' in result
+        assert "<iframe" in result
+        assert url in result
 
-    def _create_package(self, app, apikey, name="look_to_windward"):
-        """Create a package via the action api."""
 
-        return tests.call_action_api(
-            app, "package_create", apikey=apikey, name=name
-        )
+@pytest.fixture
+def export(tmp_path):
+    """Export CKAN's tracking data and return it.
 
-    def _create_resource(self, app, package, apikey):
-        """Create a resource via the action api."""
+    This simulates calling `paster tracking export` on the command line.
 
-        return tests.call_action_api(
-            app,
-            "resource_create",
-            apikey=apikey,
-            package_id=package["id"],
-            url="http://example.com",
-        )
+    """
+    # FIXME: Can this be done as more of a functional test where we
+    # actually test calling the command and passing the args? By calling
+    # the method directly, we're not testing the command-line parsing.
+    from ckan.cli.tracking import export_tracking
+    import ckan.model
 
-    def _post_to_tracking(
-        self, app, url, type_="page", ip="199.204.138.90", browser="firefox"
-    ):
-        """Post some data to /_tracking directly.
+    path = tmp_path / "report.csv"
 
-        This simulates what's supposed when you view a page with tracking
-        enabled (an ajax request posts to /_tracking).
+    def exporter():
+        export_tracking(engine=ckan.model.meta.engine, output_filename=path)
 
-        """
+        return list(csv.DictReader(path.open("r")))
+
+    return exporter
+
+
+@pytest.fixture
+def track(app):
+    """Post some data to /_tracking directly.
+
+    This simulates what's supposed when you view a page with tracking
+    enabled (an ajax request posts to /_tracking).
+
+    """
+
+    def func(url, type_="page", ip="199.204.138.90", browser="firefox"):
         params = {"url": url, "type": type_}
         extra_environ = {
             # The tracking middleware crashes if these aren't present.
@@ -73,42 +99,36 @@ class TestTracking(object):
         }
         app.post("/_tracking", params=params, extra_environ=extra_environ)
 
-    def _update_tracking_summary(self):
-        """Update CKAN's tracking summary data.
+    return func
 
-        This simulates calling `paster tracking update` on the command line.
 
-        """
-        # FIXME: Can this be done as more of a functional test where we
-        # actually test calling the command and passing the args? By calling
-        # the method directly, we're not testing the command-line parsing.
-        import ckan.cli.tracking as tracking
-        import ckan.model
+def update_tracking_summary():
+    """Update CKAN's tracking summary data.
 
-        date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(
-            "%Y-%m-%d"
-        )
-        tracking.update_all(engine=ckan.model.meta.engine, start_date=date)
+    This simulates calling `paster tracking update` on the command line.
 
-    def _rebuild_search_index(self):
-        """Rebuild CKAN's search index.
+    """
+    # FIXME: Can this be done as more of a functional test where we
+    # actually test calling the command and passing the args? By calling
+    # the method directly, we're not testing the command-line parsing.
+    import ckan.cli.tracking as tracking
+    import ckan.model
 
-        This simulates calling `paster search-index rebuild` on the command
-        line.
+    date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(
+        "%Y-%m-%d"
+    )
+    tracking.update_all(engine=ckan.model.meta.engine, start_date=date)
 
-        """
-        from ckan.lib.search import rebuild
 
-        rebuild()
-
+@pytest.mark.usefixtures("clean_db")
+class TestTracking(object):
     def test_package_with_0_views(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
+        package = factories.Dataset()
 
         # The API should return 0 recent views and 0 total views for the
         # unviewed package.
-        package = tests.call_action_api(
-            app, "package_show", id=package["name"], include_tracking=True
+        package = call_action(
+            "package_show", id=package["name"], include_tracking=True
         )
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
@@ -123,14 +143,13 @@ class TestTracking(object):
         )
 
     def test_resource_with_0_views(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+        package = factories.Dataset()
+        resource = factories.Resource(package_id=package["id"])
 
         # The package_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
-        package = tests.call_action_api(
-            app, "package_show", id=package["name"], include_tracking=True
+        package = call_action(
+            "package_show", id=package["name"], include_tracking=True
         )
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -148,8 +167,8 @@ class TestTracking(object):
 
         # The resource_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
-        resource = tests.call_action_api(
-            app, "resource_show", id=resource["id"], include_tracking=True
+        resource = call_action(
+            "resource_show", id=resource["id"], include_tracking=True
         )
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
@@ -163,18 +182,17 @@ class TestTracking(object):
             "total views"
         )
 
-    def test_package_with_one_view(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        self._create_resource(app, package, apikey)
+    def test_package_with_one_view(self, app, track):
+        package = factories.Dataset()
+        resource = factories.Resource(package_id=package["id"])
 
-        url = url_for("dataset.read", id=package["name"])
-        self._post_to_tracking(app, url)
+        url = h.url_for("dataset.read", id=package["name"])
+        track(url)
 
-        self._update_tracking_summary()
+        update_tracking_summary()
 
-        package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+        package = call_action(
+            "package_show", id=package["name"], include_tracking=True
         )
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
@@ -203,20 +221,18 @@ class TestTracking(object):
             "of the package's resources"
         )
 
-    def test_resource_with_one_preview(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
-
-        url = url_for(
+    def test_resource_with_one_preview(self, app, track):
+        package = factories.Dataset()
+        resource = factories.Resource(package_id=package["id"])
+        url = h.url_for(
             "resource.read", id=package["name"], resource_id=resource["id"]
         )
-        self._post_to_tracking(app, url)
+        track(url)
 
-        self._update_tracking_summary()
+        update_tracking_summary()
 
-        package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+        package = call_action(
+            "package_show", id=package["name"], include_tracking=True
         )
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -251,16 +267,14 @@ class TestTracking(object):
             "recent views"
         )
 
-    def test_resource_with_one_download(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+    def test_resource_with_one_download(self, app, track):
+        package = factories.Dataset()
+        resource = factories.Resource(package_id=package["id"])
 
-        self._post_to_tracking(app, resource["url"], type_="resource")
-        self._update_tracking_summary()
-
-        package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+        track(resource["url"], type_="resource")
+        update_tracking_summary()
+        package = call_action(
+            "package_show", id=package["name"], include_tracking=True
         )
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -282,8 +296,8 @@ class TestTracking(object):
         )
 
         # The resource_show() API should return the same result.
-        resource = tests.call_action_api(
-            app, "resource_show", id=resource["id"], include_tracking=True
+        resource = call_action(
+            "resource_show", id=resource["id"], include_tracking=True
         )
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
@@ -295,16 +309,15 @@ class TestTracking(object):
             "views"
         )
 
-    def test_view_page(self, app):
+    def test_view_page(self, app, track):
         # Visit the front page.
-        self._post_to_tracking(app, url="", type_="page")
+        track(url="", type_="page")
         # Visit the /organization page.
-        self._post_to_tracking(app, url="/organization", type_="page")
+        track(url="/organization", type_="page")
         # Visit the /about page.
-        self._post_to_tracking(app, url="/about", type_="page")
+        track(url="/about", type_="page")
 
-        self._update_tracking_summary()
-
+        update_tracking_summary()
         # There's no way to export page-view (as opposed to resource or
         # dataset) tracking summaries, eg. via the api or a paster command, the
         # only way we can check them is through the model directly.
@@ -326,22 +339,20 @@ class TestTracking(object):
                 tracking_summary.running_total == 0
             ), "running_total for a page is always 0"
 
-    def test_package_with_many_views(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        self._create_resource(app, package, apikey)
-
-        url = url_for("dataset.read", id=package["name"])
+    def test_package_with_many_views(self, app, track):
+        package = factories.Dataset()
+        resource = factories.Resource(package_id=package["id"])
+        url = h.url_for("dataset.read", id=package["name"])
 
         # View the package three times from different IPs.
-        self._post_to_tracking(app, url, ip="111.222.333.44")
-        self._post_to_tracking(app, url, ip="111.222.333.55")
-        self._post_to_tracking(app, url, ip="111.222.333.66")
+        track(url, ip="111.222.333.44")
+        track(url, ip="111.222.333.55")
+        track(url, ip="111.222.333.66")
 
-        self._update_tracking_summary()
+        update_tracking_summary()
 
-        package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+        package = call_action(
+            "package_show", id=package["name"], include_tracking=True
         )
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 3, (
@@ -364,23 +375,22 @@ class TestTracking(object):
             "package's resources"
         )
 
-    def test_resource_with_many_downloads(self, app):
-
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+    def test_resource_with_many_downloads(self, app, track):
+        package = factories.Dataset()
+        resource = factories.Resource(package_id=package["id"])
         url = resource["url"]
 
         # Download the resource three times from different IPs.
-        self._post_to_tracking(app, url, type_="resource", ip="111.222.333.44")
-        self._post_to_tracking(app, url, type_="resource", ip="111.222.333.55")
-        self._post_to_tracking(app, url, type_="resource", ip="111.222.333.66")
+        track(url, type_="resource", ip="111.222.333.44")
+        track(url, type_="resource", ip="111.222.333.55")
+        track(url, type_="resource", ip="111.222.333.66")
 
-        self._update_tracking_summary()
+        update_tracking_summary()
 
-        package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+        package = call_action(
+            "package_show", id=package["name"], include_tracking=True
         )
+
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
         tracking_summary = resource["tracking_summary"]
@@ -403,20 +413,18 @@ class TestTracking(object):
             "package's total views"
         )
 
-    def test_page_with_many_views(self, app):
+    def test_page_with_many_views(self, app, track):
 
         # View each page three times, from three different IPs.
         for ip in ("111.111.11.111", "222.222.22.222", "333.333.33.333"):
             # Visit the front page.
-            self._post_to_tracking(app, url="", type_="page", ip=ip)
+            track(url="", type_="page", ip=ip)
             # Visit the /organization page.
-            self._post_to_tracking(
-                app, url="/organization", type_="page", ip=ip
-            )
+            track(url="/organization", type_="page", ip=ip)
             # Visit the /about page.
-            self._post_to_tracking(app, url="/about", type_="page", ip=ip)
+            track(url="/about", type_="page", ip=ip)
 
-        self._update_tracking_summary()
+        update_tracking_summary()
 
         # There's no way to export page-view (as opposed to resource or
         # dataset) tracking summaries, eg. via the api or a paster command, the
@@ -440,26 +448,26 @@ class TestTracking(object):
                 "running_total for " "pages is always 0"
             )
 
-    def test_dataset_view_count_throttling(self, app):
+    def test_dataset_view_count_throttling(self, app, track):
         """If the same user visits the same dataset multiple times on the same
         day, only one view should get counted.
 
         """
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        self._create_resource(app, package, apikey)
-        url = url_for("dataset.read", id=package["name"])
+        package = factories.Dataset()
+        resource = factories.Resource(package_id=package["id"])
+        url = h.url_for("dataset.read", id=package["name"])
 
         # Visit the dataset three times from the same IP.
-        self._post_to_tracking(app, url)
-        self._post_to_tracking(app, url)
-        self._post_to_tracking(app, url)
+        track(url)
+        track(url)
+        track(url)
 
-        self._update_tracking_summary()
+        update_tracking_summary()
 
-        package = tests.call_action_api(
-            app, "package_show", id=package["id"], include_tracking=True
+        package = call_action(
+            "package_show", id=package["name"], include_tracking=True
         )
+
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
             "Repeat dataset views should " "not add to recent views " "count"
@@ -468,25 +476,23 @@ class TestTracking(object):
             "Repeat dataset views should " "not add to total views count"
         )
 
-    def test_resource_download_count_throttling(self, app):
+    def test_resource_download_count_throttling(self, app, track):
         """If the same user downloads the same resource multiple times on the
         same day, only one view should get counted.
 
         """
-
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+        package = factories.Dataset()
+        resource = factories.Resource(package_id=package["id"])
 
         # Download the resource three times from the same IP.
-        self._post_to_tracking(app, resource["url"], type_="resource")
-        self._post_to_tracking(app, resource["url"], type_="resource")
-        self._post_to_tracking(app, resource["url"], type_="resource")
+        track(resource["url"], type_="resource")
+        track(resource["url"], type_="resource")
+        track(resource["url"], type_="resource")
 
-        self._update_tracking_summary()
+        update_tracking_summary()
 
-        resource = tests.call_action_api(
-            app, "resource_show", id=resource["id"], include_tracking=True
+        resource = call_action(
+            "resource_show", id=resource["id"], include_tracking=True
         )
         tracking_summary = resource["tracking_summary"]
         assert (
@@ -496,32 +502,29 @@ class TestTracking(object):
             tracking_summary["total"] == 1
         ), "Repeat resource downloads should not add to total views count"
 
-    def test_sorting_datasets_by_recent_views(self, app, reset_index):
+    @pytest.mark.usefixtures("clean_index")
+    def test_sorting_datasets_by_recent_views(self, app, reset_index, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
-        reset_index()
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        self._create_package(app, apikey, name="consider_phlebas")
-        self._create_package(app, apikey, name="the_player_of_games")
-        self._create_package(app, apikey, name="use_of_weapons")
+        factories.Dataset(name="consider_phlebas")
+        factories.Dataset(name="the_player_of_games")
+        factories.Dataset(name="use_of_weapons")
 
-        url = url_for("dataset.read", id="consider_phlebas")
-        self._post_to_tracking(app, url)
+        url = h.url_for("dataset.read", id="consider_phlebas")
+        track(url)
 
-        url = url_for("dataset.read", id="the_player_of_games")
-        self._post_to_tracking(app, url, ip="111.11.111.111")
-        self._post_to_tracking(app, url, ip="222.22.222.222")
+        url = h.url_for("dataset.read", id="the_player_of_games")
+        track(url, ip="111.11.111.111")
+        track(url, ip="222.22.222.222")
 
-        url = url_for("dataset.read", id="use_of_weapons")
-        self._post_to_tracking(app, url, ip="111.11.111.111")
-        self._post_to_tracking(app, url, ip="222.22.222.222")
-        self._post_to_tracking(app, url, ip="333.33.333.333")
+        url = h.url_for("dataset.read", id="use_of_weapons")
+        track(url, ip="111.11.111.111")
+        track(url, ip="222.22.222.222")
+        track(url, ip="333.33.333.333")
 
-        self._update_tracking_summary()
+        update_tracking_summary()
 
-        response = tests.call_action_api(
-            app, "package_search", sort="views_recent desc"
-        )
+        response = call_action("package_search", sort="views_recent desc")
         assert response["count"] == 3
         assert response["sort"] == "views_recent desc"
         packages = response["results"]
@@ -529,33 +532,29 @@ class TestTracking(object):
         assert packages[1]["name"] == "the_player_of_games"
         assert packages[2]["name"] == "consider_phlebas"
 
-    def test_sorting_datasets_by_total_views(self, app, reset_index):
+    @pytest.mark.usefixtures("clean_index")
+    def test_sorting_datasets_by_total_views(self, app, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
-        reset_index()
+        factories.Dataset(name="consider_phlebas")
+        factories.Dataset(name="the_player_of_games")
+        factories.Dataset(name="use_of_weapons")
 
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        self._create_package(app, apikey, name="consider_phlebas")
-        self._create_package(app, apikey, name="the_player_of_games")
-        self._create_package(app, apikey, name="use_of_weapons")
+        url = h.url_for("dataset.read", id="consider_phlebas")
+        track(url)
 
-        url = url_for("dataset.read", id="consider_phlebas")
-        self._post_to_tracking(app, url)
+        url = h.url_for("dataset.read", id="the_player_of_games")
+        track(url, ip="111.11.111.111")
+        track(url, ip="222.22.222.222")
 
-        url = url_for("dataset.read", id="the_player_of_games")
-        self._post_to_tracking(app, url, ip="111.11.111.111")
-        self._post_to_tracking(app, url, ip="222.22.222.222")
+        url = h.url_for("dataset.read", id="use_of_weapons")
+        track(url, ip="111.11.111.111")
+        track(url, ip="222.22.222.222")
+        track(url, ip="333.33.333.333")
 
-        url = url_for("dataset.read", id="use_of_weapons")
-        self._post_to_tracking(app, url, ip="111.11.111.111")
-        self._post_to_tracking(app, url, ip="222.22.222.222")
-        self._post_to_tracking(app, url, ip="333.33.333.333")
+        update_tracking_summary()
 
-        self._update_tracking_summary()
-
-        response = tests.call_action_api(
-            app, "package_search", sort="views_total desc"
-        )
+        response = call_action("package_search", sort="views_total desc")
         assert response["count"] == 3
         assert response["sort"] == "views_total desc"
         packages = response["results"]
@@ -563,24 +562,7 @@ class TestTracking(object):
         assert packages[1]["name"] == "the_player_of_games"
         assert packages[2]["name"] == "consider_phlebas"
 
-    def _export_tracking_summary(self):
-        """Export CKAN's tracking data and return it.
-
-        This simulates calling `paster tracking export` on the command line.
-
-        """
-        # FIXME: Can this be done as more of a functional test where we
-        # actually test calling the command and passing the args? By calling
-        # the method directly, we're not testing the command-line parsing.
-        from ckan.cli.tracking import export_tracking
-        import ckan.model
-
-        f = tempfile.NamedTemporaryFile()
-        export_tracking(engine=ckan.model.meta.engine, output_filename=f.name)
-        lines = [line for line in csv.DictReader(open(f.name, "r"))]
-        return lines
-
-    def test_export(self, app):
+    def test_export(self, app, track, export):
         """`paster tracking export` should export tracking data for all
         datasets in CSV format.
 
@@ -588,25 +570,24 @@ class TestTracking(object):
         views.
 
         """
-        sysadmin_user, apikey = self._create_sysadmin(app)
+        admin = factories.Sysadmin()
 
-        # Create a couple of packages.
-        package_1 = self._create_package(app, apikey)
-        package_2 = self._create_package(app, apikey, name="another_package")
+        package_1 = factories.Dataset(user=admin)
+        package_2 = factories.Dataset(user=admin, name="another_package")
 
         # View the package_1 three times from different IPs.
-        url = url_for("dataset.read", id=package_1["name"])
-        self._post_to_tracking(app, url, ip="111.222.333.44")
-        self._post_to_tracking(app, url, ip="111.222.333.55")
-        self._post_to_tracking(app, url, ip="111.222.333.66")
+        url = h.url_for("dataset.read", id=package_1["name"])
+        track(url, ip="111.222.333.44")
+        track(url, ip="111.222.333.55")
+        track(url, ip="111.222.333.66")
 
         # View the package_2 twice from different IPs.
-        url = url_for("dataset.read", id=package_2["name"])
-        self._post_to_tracking(app, url, ip="111.222.333.44")
-        self._post_to_tracking(app, url, ip="111.222.333.55")
+        url = h.url_for("dataset.read", id=package_2["name"])
+        track(url, ip="111.222.333.44")
+        track(url, ip="111.222.333.55")
 
-        self._update_tracking_summary()
-        lines = self._export_tracking_summary()
+        update_tracking_summary()
+        lines = export()
 
         assert len(lines) == 2
         package_1_data = lines[0]
