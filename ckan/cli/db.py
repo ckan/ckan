@@ -3,6 +3,7 @@
 import inspect
 import logging
 import os
+import contextlib
 
 import click
 from itertools import groupby
@@ -11,6 +12,7 @@ import ckan.migration as migration_repo
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 import ckan.model as model
+from ckan.common import config
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +32,6 @@ def init():
     """
     log.info(u"Initialize the Database")
     try:
-        import ckan.model as model
         model.repo.init_db()
     except Exception as e:
         tk.error_shout(e)
@@ -47,7 +48,6 @@ def clean():
     """Clean the database.
     """
     try:
-        import ckan.model as model
         model.repo.clean_db()
     except Exception as e:
         tk.error_shout(e)
@@ -61,14 +61,8 @@ def clean():
 def upgrade(version, plugin):
     """Upgrade the database.
     """
-    try:
-        import ckan.model as model
-        model.repo._alembic_ini = _resolve_alembic_config(plugin)
-        model.repo.upgrade_db(version)
-    except Exception as e:
-        tk.error_shout(e)
-    else:
-        click.secho(u'Upgrading DB: SUCCESS', fg=u'green', bold=True)
+    _run_migrations(plugin, version)
+    click.secho(u'Upgrading DB: SUCCESS', fg=u'green', bold=True)
 
 
 @db.command()
@@ -77,14 +71,57 @@ def upgrade(version, plugin):
 def downgrade(version, plugin):
     """Downgrade the database.
     """
-    try:
-        import ckan.model as model
-        model.repo._alembic_ini = _resolve_alembic_config(plugin)
-        model.repo.downgrade_db(version)
-    except Exception as e:
-        tk.error_shout(e)
-    else:
-        click.secho(u'Downgrading DB: SUCCESS', fg=u'green', bold=True)
+    _run_migrations(plugin, version, False)
+    click.secho(u'Downgrading DB: SUCCESS', fg=u'green', bold=True)
+
+
+@db.command()
+@click.option("--apply", is_flag=True, help="Apply all pending migrations")
+def pending_migrations(apply):
+    """List all sources with unapplied migrations.
+    """
+    pending = _get_pending_plugins()
+    if not pending:
+        click.secho("All plugins are up-to-date", fg="green")
+    for plugin, n in sorted(pending.items()):
+        click.secho("{n} unapplied migrations for {p}".format(
+            p=click.style(plugin, bold=True),
+            n=click.style(str(n), bold=True)))
+        if apply:
+            _run_migrations(plugin)
+
+
+def _get_pending_plugins():
+    from alembic.command import history
+    plugins = [(plugin, state)
+               for plugin, state
+               in ((plugin, current_revision(plugin))
+                   for plugin in config['ckan.plugins'].split())
+               if state and not state.endswith('(head)')]
+    pending = {}
+    for plugin, current in plugins:
+        with _repo_for_plugin(plugin) as repo:
+            repo.setup_migration_version_control()
+            history(repo.alembic_config)
+            ahead = repo.take_alembic_output()
+            if current != 'base':
+                # The last revision in history describes step from void to the
+                # first revision. If we not on the `base`, we've already run
+                # this migration
+                ahead = ahead[:-1]
+            if ahead:
+                pending[plugin] = len(ahead)
+    return pending
+
+
+def _run_migrations(plugin, version="head", forward=True):
+    if not version:
+        version = "head" if forward else "base"
+    with _repo_for_plugin(plugin) as repo:
+        if forward:
+            repo.upgrade_db(version)
+        else:
+            repo.downgrade_db(version)
 
 
 @db.command()
@@ -92,11 +129,7 @@ def downgrade(version, plugin):
 def version(plugin):
     """Returns current version of data schema.
     """
-    import ckan.model as model
-    model.repo._alembic_ini = _resolve_alembic_config(plugin)
-    log.info(u"Returning current DB version")
-    model.repo.setup_migration_version_control()
-    current = model.repo.current_version()
+    current = current_revision(plugin)
     try:
         current = _version_hash_to_ordinal(current)
     except ValueError:
@@ -104,6 +137,12 @@ def version(plugin):
     click.secho(u'Current DB version: {}'.format(current),
                 fg=u'green',
                 bold=True)
+
+
+def current_revision(plugin):
+    with _repo_for_plugin(plugin) as repo:
+        repo.setup_migration_version_control()
+        return repo.current_version()
 
 
 @db.command(u"duplicate_emails", short_help=u"Check users email for duplicate")
@@ -169,3 +208,13 @@ def _resolve_alembic_config(plugin):
         import ckan.migration as _cm
         migration_dir = os.path.dirname(_cm.__file__)
     return os.path.join(migration_dir, u"alembic.ini")
+
+
+@contextlib.contextmanager
+def _repo_for_plugin(plugin):
+    original = model.repo._alembic_ini
+    model.repo._alembic_ini = _resolve_alembic_config(plugin)
+    try:
+        yield model.repo
+    finally:
+        model.repo._alembic_ini = original

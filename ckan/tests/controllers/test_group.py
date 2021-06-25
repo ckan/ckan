@@ -56,13 +56,6 @@ class TestGroupController(object):
             app.get(url=group_url)
 
 
-def _get_group_new_page(app):
-    user = factories.User()
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
-    response = app.get(url=url_for("group.new"), extra_environ=env)
-    return env, response
-
-
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
@@ -126,17 +119,6 @@ class TestGroupControllerNew(object):
         assert form.select_one('[name=title]')['value'] == "title"
         assert form.select_one('[name=name]')['value'] == "name"
         assert form.select_one('[name=description]').text == "description"
-
-
-def _get_group_edit_page(app, group_name=None):
-    user = factories.User()
-    if group_name is None:
-        group = factories.Group(user=user)
-        group_name = group["name"]
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
-    url = url_for("group.edit", id=group_name)
-    response = app.get(url=url, extra_environ=env)
-    return env, response, group_name
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
