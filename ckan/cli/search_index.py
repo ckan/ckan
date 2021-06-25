@@ -4,10 +4,9 @@ import multiprocessing as mp
 
 import click
 import sqlalchemy as sa
-import sys
 import ckan.plugins.toolkit as tk
 
-print("IN SEARCH INDEX FILE")
+
 @click.group(name=u'search-index', short_help=u'Search index commands')
 @click.help_option(u'-h', u'--help')
 def search_index():
@@ -53,9 +52,6 @@ def rebuild(
 
 @search_index.command(name=u'check', short_help=u'Check search index')
 def check():
-    sys.stdout.write("WORKING?")
-    sys.stdout.flush()
-    print("CHECKINGGGGGG")
     from ckan.lib.search import check
     check()
 

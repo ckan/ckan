@@ -54,7 +54,7 @@ def clear_index(defer_commit=True):
     conn = make_connection()
     query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
     try:
-        commit = not defer_commi
+        commit = not defer_commit
         conn.delete(q=query, commit=commit)
     except socket.error as e:
         err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
