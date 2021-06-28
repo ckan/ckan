@@ -3,114 +3,12 @@
 import json
 import pytest
 
-import ckan.authz as authz
-import ckan.logic as logic
 import ckan.model as model
-import ckan.tests.factories as factories
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic import get_action
-from ckan.tests.helpers import call_auth
-
-
-@pytest.fixture
-def auth_config(ckan_config, monkeypatch):
-    options = (
-        ("ckan.auth.anon_create_dataset", False),
-        ("ckan.auth.create_dataset_if_not_in_organization", False),
-        ("ckan.auth.user_create_groups", False),
-        ("ckan.auth.user_create_organizations", False),
-        ("ckan.auth.user_delete_groups", False),
-        ("ckan.auth.user_delete_organizations", False),
-        ("ckan.auth.create_unowned_dataset", False),
-        ("ckan.auth.create_user_via_api", False),
-        ("ckan.auth.create_user_via_web", True),
-        ("ckan.auth.roles_that_cascade_to_sub_groups", "admin"),
-    )
-    for key, value in options:
-        monkeypatch.setitem(ckan_config, key, value)
-
-
-@pytest.fixture
-def apikeys(clean_db):
-    admin_api = get_action("get_site_user")(
-        {"model": model, "ignore_auth": True}, {}
-    )["apikey"]
-    return {"sysadmin": str(admin_api), "random_key": "moo"}
-
-
-@pytest.fixture
-def call_api(app, apikeys):
-    def call(action, data, user, status=None):
-
-        res = app.post(
-            "/api/action/%s" % action,
-            json=data,
-            extra_environ={"Authorization": apikeys[user]},
-        )
-        if res.status_code != (status or 200):
-            error = res.json["error"]
-            raise AssertionError(
-                "Status was %s but should be %s. Error: %s"
-                % (res.status_code, status, error)
-            )
-        return res
-
-    return call
-
-
-@pytest.fixture
-def create_user(apikeys, call_api):
-    def create(name):
-        user = {
-            "name": name,
-            "password": "TestPassword1",
-            "email": "{}@moo.com".format(name),
-        }
-        res = call_api("user_create", user, "sysadmin", 200)
-        apikeys[name] = str(json.loads(res.body)["result"]["apikey"])
-
-    return create
-
-
-@pytest.mark.usefixtures("clean_db", "auth_config", "with_request_context")
-def test_only_sysadmins_can_delete_users():
-    user = factories.User()
-    sysadmin = factories.Sysadmin()
-
-    context = {"model": model, "user": user["name"]}
-    with pytest.raises(logic.NotAuthorized):
-        assert not call_auth("user_delete", context=context, id=user["id"])
-
-    context = {"model": model, "user": sysadmin["name"]}
-    assert call_auth("user_delete", context=context, id=user["id"])
-
-
-@pytest.mark.usefixtures("clean_db", "auth_config", "with_request_context")
-def test_auth_deleted_users_are_always_unauthorized():
-    def always_success(x, y):
-        return {"success": True}
-
-    authz._AuthFunctions._build()
-    authz._AuthFunctions._functions["always_success"] = always_success
-    username = "deleted_user"
-    user_obj = factories.User()
-    username = user_obj["name"]
-    user = model.User.get(username)
-    user.delete()
-    assert not authz.is_authorized_boolean(
-        "always_success", {"user": username}
-    )
-    del authz._AuthFunctions._functions["always_success"]
 
 
 class TestAuthOrgs(object):
-    @pytest.fixture(autouse=True)
-    def initial_data(self, create_user):
-        # actual roles assigned later
-        create_user("org_admin")
-        create_user("no_org")
-        create_user("org_editor")
-        create_user("editor_wannabe")
 
     def _add_datasets(self, user, call_api):
         # org admin/editor should be able to add dataset to org.
