@@ -764,7 +764,7 @@ def tag_list(context, data_dict):
     _check_access('tag_list', context, data_dict)
 
     if query:
-        tags, _ = _tag_search(context, data_dict)
+        tags, count = _tag_search(context, data_dict)
     else:
         tags = model.Tag.all(vocab_id_or_name)
 
@@ -1021,7 +1021,7 @@ def package_show(context, data_dict):
         else:
             schema = package_plugin.show_package_schema()
         if schema and context.get('validate', True):
-            package_dict, _ = lib_plugins.plugin_validate(
+            package_dict, errors = lib_plugins.plugin_validate(
                 package_plugin, context, package_dict, schema,
                 'package_show')
 
@@ -1199,7 +1199,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     if schema is None:
         schema = logic.schema.default_show_group_schema()
-    group_dict, _ = lib_plugins.plugin_validate(
+    group_dict, errors = lib_plugins.plugin_validate(
         group_plugin, context, group_dict, schema,
         'organization_show' if is_org else 'group_show')
     return group_dict
@@ -2254,7 +2254,7 @@ def tag_autocomplete(context, data_dict):
 
     '''
     _check_access('tag_autocomplete', context, data_dict)
-    matching_tags, _ = _tag_search(context, data_dict)
+    matching_tags, count = _tag_search(context, data_dict)
     if matching_tags:
         return [tag.name for tag in matching_tags]
     else:
