@@ -126,7 +126,7 @@ this:
   tried to run)
 * **The program 'ckan' is currently not installed**
 * **Command not found: ckan**
-* **ImportError: No module named fanstatic** (or other ``ImportError``\ s)
+* **ImportError: No module named webassets** (or other ``ImportError``\ s)
 
 Running ckan commands provided by extensions
 ==============================================
@@ -165,11 +165,9 @@ datapusher        Perform commands in the datapusher.
 dataset           Manage datasets.
 datastore         Perform commands to set up the datastore.
 db                Perform various tasks on the database.
-front-end-build   Creates and minifies css and JavaScript files
 generate          Generate empty extension files to expand CKAN
 jobs              Manage background jobs
 less              Compile all root less documents into their CSS counterparts
-minify            Create minified versions of the given Javascript and CSS files.
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
 profile           Code speed profiler.
@@ -264,20 +262,11 @@ db: Manage databases
  ckan db downgrade           - Downgrade the database
  ckan db duplicate_emails    - Check users email for duplicate
  ckan db init                - Initialize the database
+ ckan db pending-migrations  - List all sources with unapplied migrations.
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
 
 See :doc:`database-management`.
-
-
-front-end-build: Creates and minifies css and JavaScript files
-==============================================================
-
-Usage
-
-.. parsed-literal::
-
- ckan front-end-build      - compile css and js
 
 
 generate: Generate empty extension files to expand CKANs
@@ -427,24 +416,6 @@ Usage
 .. parsed-literal::
 
  less
-
-
-minify: Create minified versions of the given Javascript and CSS files
-======================================================================
-
-Usage
-
-.. parsed-literal::
-
- ckan minify [--clean] PATH     - remove any minified files in the path
-
-.. parsed-literal::
-
- ckan -c |ckan.ini| minify ckan/public/base
- ckan -c |ckan.ini| minify ckan/public/base/css/\*.css
- ckan -c |ckan.ini| minify ckan/public/base/css/red.css
-
-If the --clean option is provided any minified files will be removed.
 
 
 notify: Send out modification notifications

@@ -278,6 +278,8 @@ def datastore_upsert(context, data_dict):
         ))
 
     result = backend.upsert(context, data_dict)
+    p.toolkit.signals.datastore_upsert.send(resource_id, records=records)
+
     result.pop('id', None)
     result.pop('connection_url', None)
 
@@ -289,27 +291,57 @@ def datastore_upsert(context, data_dict):
 
 def datastore_info(context, data_dict):
     '''
-    Returns information about the data imported, such as column names
-    and types.
+    Returns detailed metadata about a resource.
 
-    :rtype: A dictionary describing the columns and their types.
-    :param id: Id of the resource we want info about
-    :type id: A UUID
+    :param resource_id: id or alias of the resource we want info about.
+    :type resource_id: string
+
+    **Results:**
+
+    :rtype: dictionary
+    :returns:
+        **meta**: resource metadata dictionary with the following keys:
+
+        - aliases - aliases (views) for the resource
+        - count - row count
+        - db_size - size of the datastore database (bytes)
+        - id - resource id (useful for dereferencing aliases)
+        - idx_size - size of all indices for the resource (bytes)
+        - size - size of resource (bytes)
+        - table_type - BASE TABLE, VIEW, FOREIGN TABLE or MATERIALIZED VIEW
+
+        **fields**: A list of dictionaries based on :ref:`fields`, with an
+        additional nested dictionary per field called **schema**, with the
+        following keys:
+
+        - native_type - native database data type
+        - index_name
+        - is_index
+        - notnull
+        - uniquekey
+
     '''
     backend = DatastoreBackend.get_active_backend()
 
-    p.toolkit.check_access('datastore_info', context, data_dict)
-
     resource_id = _get_or_bust(data_dict, 'id')
-    p.toolkit.get_action('resource_show')(context, {'id': resource_id})
-
     res_exists = backend.resource_exists(resource_id)
     if not res_exists:
-        raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(resource_id)
-        ))
+        alias_exists, real_id = backend.resource_id_from_alias(resource_id)
+        if not alias_exists:
+            raise p.toolkit.ObjectNotFound(p.toolkit._(
+                u'Resource/Alias "{0}" was not found.'.format(resource_id)
+            ))
+        else:
+            id = real_id
+    else:
+        id = resource_id
 
-    info = backend.resource_fields(resource_id)
+    data_dict['id'] = id
+    p.toolkit.check_access('datastore_info', context, data_dict)
+
+    p.toolkit.get_action('resource_show')(context, {'id': id})
+
+    info = backend.resource_fields(id)
 
     return info
 
@@ -374,7 +406,8 @@ def datastore_delete(context, data_dict):
         ))
 
     result = backend.delete(context, data_dict)
-
+    p.toolkit.signals.datastore_delete.send(
+        res_id, result=result, data_dict=data_dict)
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])
 
@@ -416,6 +449,10 @@ def datastore_search(context, data_dict):
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},
               it'll search on each specific field (optional)
     :type q: string or dictionary
+    :param full_text: full text query. It search on all fields on each row.
+                      This should be used in replace of ``q`` when performing
+                      string search accross all fields
+    :type full_text: string
     :param distinct: return only distinct rows (optional, default: false)
     :type distinct: bool
     :param plain: treat as plain text query (optional, default: true)
@@ -535,8 +572,8 @@ def datastore_search_sql(context, data_dict):
     Queries are only allowed if you have access to the all the CKAN resources
     in the query and send the appropriate authorization.
 
-    .. note:: This action is not available when
-        :ref:`ckan.datastore.sqlsearch.enabled` is set to false
+    .. note:: This action is not available by default and needs to be enabled
+        with the :ref:`ckan.datastore.sqlsearch.enabled` setting.
 
     .. note:: When source data columns (i.e. CSV) heading names are provided
         in all UPPERCASE you need to double quote them in the SQL select

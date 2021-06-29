@@ -17,6 +17,7 @@ from pprint import pformat
 from ckan.lib.navl.validators import (
     identity_converter,
     empty,
+    unicode_safe,
     not_empty,
     ignore_missing,
     default,
@@ -346,8 +347,8 @@ def test_simple():
 
 def test_simple_converter_types():
     schema = {
-        "name": [not_empty, text_type],
-        "age": [ignore_missing, int],
+        "name": [not_empty, unicode_safe],
+        "age": [ignore_missing, convert_int],
         "gender": [default("female")],
     }
 

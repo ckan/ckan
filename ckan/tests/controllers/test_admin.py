@@ -333,6 +333,30 @@ class TestTrashView(object):
         # One entity of each type in the list to purge
         assert entities_amount == 3
 
+    def test_trash_purge_custom_ds_type(self, app, sysadmin_env):
+        """Posting the trash view with 'deleted' datasets, purges the
+        datasets."""
+        factories.Dataset(state="deleted", type="custom_dataset")
+
+        # how many datasets before purge
+        pkgs_before_purge = model.Session.query(model.Package).count()
+        assert pkgs_before_purge == 1
+
+        trash_url = url_for("admin.trash")
+        response = app.post(
+            trash_url,
+            data={"action": "package"},
+            extra_environ=sysadmin_env,
+            status=200
+        )
+
+        # check for flash success msg
+        assert "datasets have been purged" in response.body
+
+        # how many datasets after purge
+        pkgs_after_purge = model.Session.query(model.Package).count()
+        assert pkgs_after_purge == 0
+
     def test_trash_purge_deleted_datasets(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
@@ -416,15 +440,16 @@ class TestTrashView(object):
     def test_trash_purge_all(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' entities and
         purge all button purges everything"""
-        factories.Dataset(state="deleted")
+        factories.Dataset(state="deleted", type="custom_dataset")
         factories.Group(state="deleted")
         factories.Organization(state="deleted")
+        factories.Organization(state="deleted", type="custom_org")
         factories.Organization()
 
         # how many entities before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
-        assert pkgs_before_purge + orgs_and_grps_before_purge == 4
+        assert pkgs_before_purge + orgs_and_grps_before_purge == 5
 
         trash_url = url_for("admin.trash")
         response = app.post(

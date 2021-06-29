@@ -4,7 +4,6 @@ import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
 
-import six
 from six import text_type
 from ckan.model.core import State
 

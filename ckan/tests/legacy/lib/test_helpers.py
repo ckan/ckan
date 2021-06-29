@@ -92,19 +92,6 @@ class TestHelpers(object):
         dt = h.parse_rfc_2822_date("Tue, 15 Nov 1994 12:45:26")
         assert dt.isoformat() == "1994-11-15T12:45:26+00:00"
 
-    @pytest.mark.skipif(six.PY3, reason="`email.utils` always assumes UTC")
-    def test_parse_rfc_2822_no_timezone_specified_assuming_local(self):
-        """
-        Parse "Tue, 15 Nov 1994 12:45:26" successfully.
-
-        Assuming it's local.
-        """
-        dt = h.parse_rfc_2822_date(
-            "Tue, 15 Nov 1994 12:45:26", assume_utc=False
-        )
-        assert dt.isoformat() == "1994-11-15T12:45:26"
-        assert dt.tzinfo is None
-
     def test_parse_rfc_2822_gmt_case(self):
         """
         Parse "Tue, 15 Nov 1994 12:45:26 GMT" successfully.

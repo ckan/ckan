@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-import mock
+import unittest.mock as mock
 from bs4 import BeautifulSoup
 import pytest
 import six
@@ -54,13 +54,6 @@ class TestGroupController(object):
             group_url = url_for("group.index", sort="title nope desc nope")
 
             app.get(url=group_url)
-
-
-def _get_group_new_page(app):
-    user = factories.User()
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
-    response = app.get(url=url_for("group.new"), extra_environ=env)
-    return env, response
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -126,17 +119,6 @@ class TestGroupControllerNew(object):
         assert form.select_one('[name=title]')['value'] == "title"
         assert form.select_one('[name=name]')['value'] == "name"
         assert form.select_one('[name=description]').text == "description"
-
-
-def _get_group_edit_page(app, group_name=None):
-    user = factories.User()
-    if group_name is None:
-        group = factories.Group(user=user)
-        group_name = group["name"]
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
-    url = url_for("group.edit", id=group_name)
-    response = app.get(url=url, extra_environ=env)
-    return env, response, group_name
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -287,6 +269,7 @@ class TestGroupDelete(object):
             data={"delete": ""},
             extra_environ=initial_data["user_env"],
         )
+        assert response.status_code == 200
         group = helpers.call_action(
             "group_show", id=initial_data["group"]["id"]
         )
@@ -300,6 +283,7 @@ class TestGroupDelete(object):
             data={"delete": ""},
             extra_environ=extra_environ,
         )
+        assert response.status_code == 200
         group = helpers.call_action(
             "group_show", id=initial_data["group"]["id"]
         )

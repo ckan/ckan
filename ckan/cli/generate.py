@@ -1,7 +1,9 @@
 # encoding: utf-8
 
 from __future__ import print_function
+import contextlib
 import os
+import shutil
 
 import alembic.command
 import click
@@ -23,7 +25,7 @@ class CKANAlembicConfig(AlembicConfig):
                             u"../contrib/alembic")
 
 
-@click.group()
+@click.group(short_help=u"Scaffolding for regular development tasks.")
 def generate():
     """Scaffolding for regular development tasks.
     """
@@ -82,6 +84,8 @@ def extension(output_dir):
     project_short = name[8:].lower().replace(u'-', u'_')
     plugin_class_name = project_short.title().replace(u'_', u'') + u'Plugin'
 
+    include_examples = int(click.confirm(
+        "Do you want to include code examples?"))
     context = {
         u"project": name,
         u"description": description,
@@ -91,7 +95,8 @@ def extension(output_dir):
         u"github_user_name": github,
         u"project_shortname": project_short,
         u"plugin_class_name": plugin_class_name,
-        u"_source": u"cli"
+        u"include_examples": include_examples,
+        u"_source": u"cli",
     }
 
     if output_dir == u'.':
@@ -101,7 +106,35 @@ def extension(output_dir):
     cookiecutter(template_loc, no_input=True, extra_context=context,
                  output_dir=output_dir)
 
+    if not include_examples:
+        remove_code_examples(
+            os.path.join(
+                output_dir, context["project"], "ckanext", project_short))
+
     print(u"\nWritten: {}/{}".format(output_dir, name))
+
+
+_code_examples = [
+    "cli.py",
+    "helpers.py",
+    "logic",
+    "views.py",
+    "tests/logic",
+    "tests/test_helpers.py",
+    "tests/test_views.py",
+]
+
+
+def remove_code_examples(root: str):
+    """Remove example files from extension's template.
+    """
+    for item in _code_examples:
+        path = os.path.join(root, item)
+        with contextlib.suppress(FileNotFoundError):
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
 
 
 @generate.command(name=u'config',

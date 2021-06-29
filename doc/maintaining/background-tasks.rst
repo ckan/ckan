@@ -297,7 +297,7 @@ synchronously instead of asynchronously:
 
 .. code-block:: python
 
-    import mock
+    import unittest.mock as mock
 
     from ckan.tests import helpers
 
@@ -431,4 +431,3 @@ Use that function as follows for enqueuing a job::
     compat_enqueue(u'my_extension.echofunction',
                    ckanext.my_extension.plugin.echo,
                    [u'Hello World'])
-

@@ -1,8 +1,6 @@
 # encoding: utf-8
 
 import ckan
-import ckan.lib.helpers as helpers
-import ckan.tests.helpers as h
 import ckan.lib.dictization.model_dictize as model_dictize
 import pytest
 

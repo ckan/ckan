@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "CKAN: The Open Source Data Portal Software ==========================================",
   "dependencies": {
+    "@highlightjs/cdn-assets": "^10.5.0",
     "blueimp-file-upload": "^10.8.0",
     "bootstrap": "^3.4.1",
     "font-awesome": "^4.7.0",

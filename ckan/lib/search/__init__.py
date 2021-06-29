@@ -5,10 +5,12 @@ import logging
 import sys
 import cgitb
 import warnings
+import base64
 import xml.dom.minidom
 
 import requests
 
+from ckan.common import asbool, config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
@@ -16,7 +18,7 @@ import ckan.logic as logic
 from ckan.lib.search.common import (
     SearchIndexError, SearchError, SearchQueryError,
     make_connection, is_available, SolrSettings
-)
+    )
 from ckan.lib.search.index import PackageSearchIndex, NoopSearchIndex
 from ckan.lib.search.query import (
     TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
@@ -117,7 +119,8 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
 
     def notify(self, entity, operation):
-        if not isinstance(entity, model.Package):
+        if (not isinstance(entity, model.Package) or
+                not asbool(config.get('ckan.search.automatic_indexing', True))):
             return
         if operation != model.domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(
@@ -257,7 +260,7 @@ def _get_schema_from_solr(file_offset):
     http_auth = None
     if solr_user is not None and solr_password is not None:
         http_auth = solr_user + ':' + solr_password
-        http_auth = 'Basic ' + http_auth.encode('base64').strip()
+        http_auth = 'Basic {}'.format(base64.b64encode(http_auth.encode('utf8')).strip())
 
     url = solr_url.strip('/') + file_offset
 

@@ -2,9 +2,7 @@
 
 import six
 import pytest
-import ckan.tests.helpers as helpers
 
-import ckan.plugins as p
 import ckan.tests.factories as factories
 
 
