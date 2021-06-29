@@ -207,6 +207,10 @@ class TestPackageShow(object):
         assert "new_field" not in dataset2
 
 
+
+
+
+
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupList(object):
     def test_group_list(self):
@@ -1265,6 +1269,22 @@ class TestCurrentPackageList(object):
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestPackageAutocomplete(object):
+    def test_package_autocomplete_match_name(self):
+        pkg = factories.Dataset(name="warandpeace")
+        result = helpers.call_action("package_autocomplete", q="war")
+        assert result[0]["name"] == pkg["name"]
+        assert result[0]["title"] == pkg["title"]
+        assert result[0]["match_field"] == "name"
+        assert result[0]["match_displayed"] == pkg["name"]
+
+    def test_package_autocomplete_match_title(self):
+        pkg = factories.Dataset(title="A Wonderful Story")
+        result = helpers.call_action("package_autocomplete", q="won")
+        assert result[0]["name"] == pkg["name"]
+        assert result[0]["title"] == pkg["title"]
+        assert result[0]["match_field"] == "title"
+        assert result[0]["match_displayed"] == f"A Wonderful Story ({pkg['name']})"
+
     def test_package_autocomplete_does_not_return_private_datasets(self):
 
         user = factories.User()
@@ -4843,6 +4863,19 @@ class TestResourceSearch(object):
         result = helpers.call_action('resource_search', query="size:10")
         assert result['count'] == 1
 
+    def test_resource_search_across_multiple_fields(self):
+        factories.Resource(description="indexed resource", format="json")
+        result = helpers.call_action('resource_search', query=["description:index", "format:json"])
+        assert result["count"] == 1
+        resource = result["results"][0]
+        assert "index" in resource["description"].lower()
+        assert "json" in resource["format"].lower()
+
+    def test_resource_search_test_percentage_is_escaped(self):
+        factories.Resource(description="indexed resource", format="json")
+        result = helpers.call_action('resource_search', query="description:index%")
+        assert result == {"count": 0, "results": []}
+
 
 @pytest.mark.usefixtures("clean_db")
 class TestUserPluginExtras(object):
@@ -4880,3 +4913,42 @@ class TestUserPluginExtras(object):
             'user_show', context=context, id=user['id'], include_plugin_extras=True)
 
         assert 'plugin_extras' not in user
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestGroupPackageShow:
+    def test_group_package_show(self):
+        group = factories.Group()
+        factories.Dataset()
+        pkg = factories.Dataset(groups=[{"id": group["id"]}])
+        group_packages = helpers.call_action("group_package_show", id=group["id"])
+        assert len(group_packages) == 1
+        assert group_packages[0]["name"] == pkg["name"]
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestGetSiteUser:
+    def test_get_site_user_not_authorized(self, ckan_config):
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("get_site_user", {"model": model, "user": ""})
+        site_id = ckan_config.get("ckan.site_id")
+        assert helpers.call_auth(
+            "get_site_user",
+            {"model": model, "user":"", "ignore_auth": True})
+
+
+@pytest.mark.usefixtures("clean_db", "clean_index")
+class TestPackageList:
+    def test_package_list(self, app):
+        pkg1 = factories.Dataset()
+        pkg2 = factories.Dataset()
+        packages = helpers.call_action("package_list")
+        assert len(packages) == 2
+        assert set(packages) == {pkg1["name"], pkg2["name"]}
+
+    def test_package_list_private(self):
+        org = factories.Organization()
+        pkg1 = factories.Dataset()
+        pkg2 = factories.Dataset(private=True, owner_org=org["id"])
+        packages = helpers.call_action("package_list")
+        assert packages == [pkg1["name"]]

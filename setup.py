@@ -184,7 +184,7 @@ entry_points = {
         'test_helpers_plugin = ckan.tests.lib.test_helpers:HelpersTestPlugin',
         'test_feed_plugin = ckan.tests.controllers.test_feed:MockFeedPlugin',
         'test_js_translations_plugin = ckan.tests.lib.test_i18n:JSTranslationsTestPlugin',
-        'legacy_mock_search_plugin = ckan.tests.legacy.logic.test_action:MockPackageSearchPlugin',
+        'mock_search_plugin = ckan.tests.logic.action.test_init:MockPackageSearchPlugin',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',

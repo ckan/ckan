@@ -61,7 +61,8 @@ class TestUserInvite(object):
 
         for _ in range(3):
             invited_user = self._invite_user_to_group(
-                email="same{}@email.com".format(_))
+                email="same{}@email.com".format(_)
+            )
             assert invited_user is not None, invited_user
 
     @mock.patch("ckan.lib.mailer.send_invite")
@@ -485,8 +486,10 @@ class TestResourceCreate:
         """
 
         result = create_with_upload(
-            content, 'test.json', url="http://data",
-            package_id=factories.Dataset()[u"id"]
+            content,
+            "test.json",
+            url="http://data",
+            package_id=factories.Dataset()[u"id"],
         )
         mimetype = result.pop("mimetype")
 
@@ -513,8 +516,10 @@ class TestResourceCreate:
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         result = create_with_upload(
-            content, 'test.csv', url="http://data",
-            package_id=factories.Dataset()[u"id"]
+            content,
+            "test.csv",
+            url="http://data",
+            package_id=factories.Dataset()[u"id"],
         )
 
         mimetype = result.pop("mimetype")
@@ -536,8 +541,10 @@ class TestResourceCreate:
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         result = create_with_upload(
-            content, 'test.csv', url="http://data",
-            package_id=factories.Dataset()[u"id"]
+            content,
+            "test.csv",
+            url="http://data",
+            package_id=factories.Dataset()[u"id"],
         )
 
         size = result.pop("size")
@@ -573,7 +580,7 @@ class TestResourceCreate:
             package_id=dataset["id"],
             somekey="somevalue",  # this is how to do resource extras
             extras={u"someotherkey": u"alt234"},  # this isnt
-            subobject={u'hello': u'there'},  # JSON objects supported
+            subobject={u"hello": u"there"},  # JSON objects supported
             sublist=[1, 2, 3],  # JSON lists suppoted
             format=u"plain text",
             url=u"http://datahub.io/download/",
@@ -593,7 +600,7 @@ class TestResourceCreate:
         assert resource["subobject"] == {u"hello": u"there"}
         assert resource["sublist"] == [1, 2, 3]
 
-    @freeze_time('2020-02-25 12:00:00')
+    @freeze_time("2020-02-25 12:00:00")
     def test_metadata_modified_is_set_to_utcnow_when_created(self):
         context = {}
         params = {
@@ -603,37 +610,42 @@ class TestResourceCreate:
         }
         result = helpers.call_action("resource_create", context, **params)
 
-        assert (result['metadata_modified'] ==
-                datetime.datetime.utcnow().isoformat())
+        assert (
+            result["metadata_modified"]
+            == datetime.datetime.utcnow().isoformat()
+        )
 
-    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
-    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
-    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
+    @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
+    @pytest.mark.parametrize("role", ["admin", "editor"])
     def test_collaborators_can_create_resources(self, role):
 
         org1 = factories.Organization()
-        dataset = factories.Dataset(owner_org=org1['id'])
+        dataset = factories.Dataset(owner_org=org1["id"])
 
         user = factories.User()
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity=role)
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity=role,
+        )
 
         context = {
-            'user': user['name'],
-            'ignore_auth': False,
-
+            "user": user["name"],
+            "ignore_auth": False,
         }
 
         created_resource = helpers.call_action(
-            'resource_create',
+            "resource_create",
             context=context,
-            package_id=dataset['id'],
-            name='created by collaborator',
-            url='https://example.com')
+            package_id=dataset["id"],
+            name="created by collaborator",
+            url="https://example.com",
+        )
 
-        assert created_resource['name'] == 'created by collaborator'
+        assert created_resource["name"] == "created by collaborator"
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -723,6 +735,32 @@ class TestMemberCreate(object):
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDatasetCreate(object):
+    def test_private_package(self):
+        org = factories.Organization()
+        with pytest.raises(logic.ValidationError):
+            pkg = helpers.call_action(
+                "package_create", name="random-name", private=True
+            )
+
+        pkg = helpers.call_action(
+            "package_create", owner_org=org["id"], name="random-name"
+        )
+        assert not pkg["private"]
+        pkg = helpers.call_action(
+            "package_create",
+            owner_org=org["id"],
+            name="random-name-2",
+            private=False,
+        )
+        assert not pkg["private"]
+        pkg = helpers.call_action(
+            "package_create",
+            owner_org=org["id"],
+            name="random-name-3",
+            private=True,
+        )
+        assert pkg["private"]
+
     def test_normal_user_cant_set_id(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": False}
@@ -1108,6 +1146,28 @@ class TestUserCreate(object):
         assert user["name"] == "test"
         assert "password" not in user
 
+    def test_user_create_parameters_missing(self):
+        with pytest.raises(logic.ValidationError) as err:
+            helpers.call_action("user_create")
+        assert err.value.error_dict == {
+            "email": ["Missing value"],
+            "name": ["Missing value"],
+            "password": ["Missing value"],
+        }
+
+    def test_user_create_wrong_password(self):
+        user_dict = {
+            "name": "test_create_from_action_api_2",
+            "email": "me@test.org",
+            "password": "tes",
+        }  # Too short
+
+        with pytest.raises(logic.ValidationError) as err:
+            helpers.call_action("user_create", **user_dict)
+        assert err.value.error_dict == {
+            "password": ["Your password must be 8 characters or longer"]
+        }
+
 
 def _clear_activities():
     from ckan import model
@@ -1121,12 +1181,34 @@ def _clear_activities():
 class TestFollowCommon(object):
     def test_validation(self):
         user = factories.User()
-        unfollow_actions = ("unfollow_user", "unfollow_dataset", "unfollow_group")
+        unfollow_actions = (
+            "unfollow_user",
+            "unfollow_dataset",
+            "unfollow_group",
+        )
         follow_actions = ("follow_user", "follow_dataset", "follow_group")
-        count_actions = ("user_follower_count", "dataset_follower_count", "group_follower_count")
-        list_actions = ("user_follower_list", "dataset_follower_list", "group_follower_list")
-        my_actions = ("am_following_dataset", "am_following_user", "am_following_group")
-        for action in follow_actions + unfollow_actions + count_actions + list_actions + my_actions:
+        count_actions = (
+            "user_follower_count",
+            "dataset_follower_count",
+            "group_follower_count",
+        )
+        list_actions = (
+            "user_follower_list",
+            "dataset_follower_list",
+            "group_follower_list",
+        )
+        my_actions = (
+            "am_following_dataset",
+            "am_following_user",
+            "am_following_group",
+        )
+        for action in (
+            follow_actions
+            + unfollow_actions
+            + count_actions
+            + list_actions
+            + my_actions
+        ):
             for object_id in ("bad id", "     ", 3, 35.7, "xxx", None, ""):
                 with pytest.raises(logic.ValidationError):
                     context = {"user": user["name"]}
@@ -1157,19 +1239,45 @@ class TestFollowDataset(object):
         user = factories.User()
         dataset = factories.Dataset()
         context = {"user": user["name"]}
-        assert helpers.call_action("dataset_follower_count", id=dataset["id"]) == 0
-        assert helpers.call_action("dataset_follower_list", id=dataset["id"]) == []
-        assert not helpers.call_action("am_following_dataset", context, id=dataset["id"])
+        assert (
+            helpers.call_action("dataset_follower_count", id=dataset["id"])
+            == 0
+        )
+        assert (
+            helpers.call_action("dataset_follower_list", id=dataset["id"])
+            == []
+        )
+        assert not helpers.call_action(
+            "am_following_dataset", context, id=dataset["id"]
+        )
 
         helpers.call_action("follow_dataset", context, id=dataset["id"])
-        assert helpers.call_action("dataset_follower_count", id=dataset["id"]) == 1
-        assert [u["name"] for u in helpers.call_action("dataset_follower_list", id=dataset["id"])] == [user["name"]]
-        assert helpers.call_action("am_following_dataset", context, id=dataset["id"])
+        assert (
+            helpers.call_action("dataset_follower_count", id=dataset["id"])
+            == 1
+        )
+        assert [
+            u["name"]
+            for u in helpers.call_action(
+                "dataset_follower_list", id=dataset["id"]
+            )
+        ] == [user["name"]]
+        assert helpers.call_action(
+            "am_following_dataset", context, id=dataset["id"]
+        )
 
         helpers.call_action("unfollow_dataset", context, id=dataset["id"])
-        assert helpers.call_action("dataset_follower_count", id=dataset["id"]) == 0
-        assert helpers.call_action("dataset_follower_list", id=dataset["id"]) == []
-        assert not helpers.call_action("am_following_dataset", context, id=dataset["id"])
+        assert (
+            helpers.call_action("dataset_follower_count", id=dataset["id"])
+            == 0
+        )
+        assert (
+            helpers.call_action("dataset_follower_list", id=dataset["id"])
+            == []
+        )
+        assert not helpers.call_action(
+            "am_following_dataset", context, id=dataset["id"]
+        )
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1198,17 +1306,26 @@ class TestFollowGroup(object):
         context = {"user": user["name"]}
         assert helpers.call_action("group_follower_count", id=group["id"]) == 0
         assert helpers.call_action("group_follower_list", id=group["id"]) == []
-        assert not helpers.call_action("am_following_group", context, id=group["id"])
+        assert not helpers.call_action(
+            "am_following_group", context, id=group["id"]
+        )
 
         helpers.call_action("follow_group", context, id=group["id"])
         assert helpers.call_action("group_follower_count", id=group["id"]) == 1
-        assert [u["name"] for u in helpers.call_action("group_follower_list", id=group["id"])] == [user["name"]]
-        assert helpers.call_action("am_following_group", context, id=group["id"])
+        assert [
+            u["name"]
+            for u in helpers.call_action("group_follower_list", id=group["id"])
+        ] == [user["name"]]
+        assert helpers.call_action(
+            "am_following_group", context, id=group["id"]
+        )
 
         helpers.call_action("unfollow_group", context, id=group["id"])
         assert helpers.call_action("group_follower_count", id=group["id"]) == 0
         assert helpers.call_action("group_follower_list", id=group["id"]) == []
-        assert not helpers.call_action("am_following_group", context, id=group["id"])
+        assert not helpers.call_action(
+            "am_following_group", context, id=group["id"]
+        )
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1237,17 +1354,26 @@ class TestFollowOrganization(object):
         context = {"user": user["name"]}
         assert helpers.call_action("group_follower_count", id=group["id"]) == 0
         assert helpers.call_action("group_follower_list", id=group["id"]) == []
-        assert not helpers.call_action("am_following_group", context, id=group["id"])
+        assert not helpers.call_action(
+            "am_following_group", context, id=group["id"]
+        )
 
         helpers.call_action("follow_group", context, id=group["id"])
         assert helpers.call_action("group_follower_count", id=group["id"]) == 1
-        assert [u["name"] for u in helpers.call_action("group_follower_list", id=group["id"])] == [user["name"]]
-        assert helpers.call_action("am_following_group", context, id=group["id"])
+        assert [
+            u["name"]
+            for u in helpers.call_action("group_follower_list", id=group["id"])
+        ] == [user["name"]]
+        assert helpers.call_action(
+            "am_following_group", context, id=group["id"]
+        )
 
         helpers.call_action("unfollow_group", context, id=group["id"])
         assert helpers.call_action("group_follower_count", id=group["id"]) == 0
         assert helpers.call_action("group_follower_list", id=group["id"]) == []
-        assert not helpers.call_action("am_following_group", context, id=group["id"])
+        assert not helpers.call_action(
+            "am_following_group", context, id=group["id"]
+        )
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1281,33 +1407,61 @@ class TestFollowUser(object):
         user = factories.User()
         another_user = factories.User()
         context = {"user": user["name"]}
-        assert helpers.call_action("user_follower_count", id=another_user["id"]) == 0
-        assert helpers.call_action("user_follower_list", id=another_user["id"]) == []
-        assert not helpers.call_action("am_following_user", context, id=another_user["id"])
+        assert (
+            helpers.call_action("user_follower_count", id=another_user["id"])
+            == 0
+        )
+        assert (
+            helpers.call_action("user_follower_list", id=another_user["id"])
+            == []
+        )
+        assert not helpers.call_action(
+            "am_following_user", context, id=another_user["id"]
+        )
 
         helpers.call_action("follow_user", context, id=another_user["id"])
-        assert helpers.call_action("user_follower_count", id=another_user["id"]) == 1
-        assert [u["name"] for u in helpers.call_action("user_follower_list", id=another_user["id"])] == [user["name"]]
-        assert helpers.call_action("am_following_user", context, id=another_user["id"])
+        assert (
+            helpers.call_action("user_follower_count", id=another_user["id"])
+            == 1
+        )
+        assert [
+            u["name"]
+            for u in helpers.call_action(
+                "user_follower_list", id=another_user["id"]
+            )
+        ] == [user["name"]]
+        assert helpers.call_action(
+            "am_following_user", context, id=another_user["id"]
+        )
 
         helpers.call_action("unfollow_user", context, id=another_user["id"])
-        assert helpers.call_action("user_follower_count", id=another_user["id"]) == 0
-        assert helpers.call_action("user_follower_list", id=another_user["id"]) == []
-        assert not helpers.call_action("am_following_user", context, id=another_user["id"])
+        assert (
+            helpers.call_action("user_follower_count", id=another_user["id"])
+            == 0
+        )
+        assert (
+            helpers.call_action("user_follower_list", id=another_user["id"])
+            == []
+        )
+        assert not helpers.call_action(
+            "am_following_user", context, id=another_user["id"]
+        )
 
 
 @pytest.mark.usefixtures(u"clean_db")
 class TestApiToken(object):
-
     def test_token_created(self):
         from ckan.lib.api_token import decode
+
         user = factories.User()
-        data = helpers.call_action(u"api_token_create", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"], name=u"token-name")
-        token = data[u'token']
-        jti = decode(token)[u'jti']
+        data = helpers.call_action(
+            u"api_token_create",
+            context={u"model": model, u"user": user[u"name"]},
+            user=user[u"name"],
+            name=u"token-name",
+        )
+        token = data[u"token"]
+        jti = decode(token)[u"jti"]
         res = model.ApiToken.get(jti)
         assert res.user_id == user[u"id"]
         assert res.last_access is None
@@ -1320,31 +1474,36 @@ def test_create_package_collaborator_when_config_disabled():
 
     dataset = factories.Dataset()
     user = factories.User()
-    capacity = 'editor'
+    capacity = "editor"
 
     with pytest.raises(logic.ValidationError):
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity=capacity)
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity=capacity,
+        )
 
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreate(object):
-
     def test_create(self):
 
         dataset = factories.Dataset()
         user = factories.User()
-        capacity = 'editor'
+        capacity = "editor"
 
         member = helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity=capacity)
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity=capacity,
+        )
 
-        assert member['package_id'] == dataset['id']
-        assert member['user_id'] == user['id']
-        assert member['capacity'] == capacity
+        assert member["package_id"] == dataset["id"]
+        assert member["user_id"] == user["id"]
+        assert member["capacity"] == capacity
 
         assert model.Session.query(model.PackageMember).count() == 1
 
@@ -1352,98 +1511,119 @@ class TestPackageMemberCreate(object):
 
         dataset = factories.Dataset()
         user = factories.User()
-        capacity = 'editor'
+        capacity = "editor"
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity=capacity)
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity=capacity,
+        )
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity='member')
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity="member",
+        )
 
         assert model.Session.query(model.PackageMember).count() == 1
 
-        assert model.Session.query(model.PackageMember).one().capacity == 'member'
+        assert (
+            model.Session.query(model.PackageMember).one().capacity == "member"
+        )
 
     def test_create_wrong_capacity(self):
         dataset = factories.Dataset()
         user = factories.User()
-        capacity = 'unknown'
+        capacity = "unknown"
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-                'package_collaborator_create',
-                id=dataset['id'], user_id=user['id'], capacity=capacity)
+                "package_collaborator_create",
+                id=dataset["id"],
+                user_id=user["id"],
+                capacity=capacity,
+            )
 
     def test_create_dataset_not_found(self):
-        dataset = {'id': 'xxx'}
+        dataset = {"id": "xxx"}
         user = factories.User()
-        capacity = 'editor'
+        capacity = "editor"
 
         with pytest.raises(logic.NotFound):
             helpers.call_action(
-                'package_collaborator_create',
-                id=dataset['id'], user_id=user['id'], capacity=capacity)
+                "package_collaborator_create",
+                id=dataset["id"],
+                user_id=user["id"],
+                capacity=capacity,
+            )
 
     def test_create_user_not_found(self):
         dataset = factories.Dataset()
-        user = {'id': 'yyy'}
-        capacity = 'editor'
+        user = {"id": "yyy"}
+        capacity = "editor"
 
         with pytest.raises(logic.NotFound):
             helpers.call_action(
-                'package_collaborator_create',
-                id=dataset['id'], user_id=user['id'], capacity=capacity)
+                "package_collaborator_create",
+                id=dataset["id"],
+                user_id=user["id"],
+                capacity=capacity,
+            )
 
 
 @pytest.mark.usefixtures("clean_db")
 class TestUserPluginExtras(object):
-
     def test_stored_on_create_if_sysadmin(self):
 
         sysadmin = factories.Sysadmin()
 
         user_dict = {
-            'name': 'test-user',
-            'email': 'test@example.com',
-            'password': '12345678',
-            'plugin_extras': {
-                'plugin1': {
-                    'key1': 'value1'
-                }
-            }
+            "name": "test-user",
+            "email": "test@example.com",
+            "password": "12345678",
+            "plugin_extras": {"plugin1": {"key1": "value1"}},
         }
 
         # helpers.call_action sets 'ignore_auth' to True by default
-        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        context = {"user": sysadmin["name"], "ignore_auth": False}
 
         created_user = helpers.call_action(
-            'user_create', context=context, **user_dict)
+            "user_create", context=context, **user_dict
+        )
 
-        assert created_user['plugin_extras'] == {
-            'plugin1': {
-                'key1': 'value1',
+        assert created_user["plugin_extras"] == {
+            "plugin1": {
+                "key1": "value1",
             }
         }
 
         user_dict = helpers.call_action(
-            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+            "user_show",
+            context=context,
+            id=created_user["id"],
+            include_plugin_extras=True,
+        )
 
-        assert user_dict['plugin_extras'] == {
-            'plugin1': {
-                'key1': 'value1',
+        assert user_dict["plugin_extras"] == {
+            "plugin1": {
+                "key1": "value1",
             }
         }
 
-        plugin_extras_from_db = model.Session.execute(
-            'SELECT plugin_extras FROM "user" WHERE id=:id',
-            {'id': created_user['id']}
-        ).first().values()[0]
+        plugin_extras_from_db = (
+            model.Session.execute(
+                'SELECT plugin_extras FROM "user" WHERE id=:id',
+                {"id": created_user["id"]},
+            )
+            .first()
+            .values()[0]
+        )
 
         assert plugin_extras_from_db == {
-            'plugin1': {
-                'key1': 'value1',
+            "plugin1": {
+                "key1": "value1",
             }
         }
 
@@ -1453,47 +1633,49 @@ class TestUserPluginExtras(object):
         sysadmin = factories.Sysadmin()
 
         user_dict = {
-            'name': 'test-user',
-            'email': 'test@example.com',
-            'password': '12345678',
-            'plugin_extras': {
-                'plugin1': {
-                    'key1': 'value1'
-                }
-            }
+            "name": "test-user",
+            "email": "test@example.com",
+            "password": "12345678",
+            "plugin_extras": {"plugin1": {"key1": "value1"}},
         }
 
         # helpers.call_action sets 'ignore_auth' to True by default
-        context = {'user': author['name'], 'ignore_auth': False}
+        context = {"user": author["name"], "ignore_auth": False}
 
         created_user = helpers.call_action(
-            'user_create', context=context, **user_dict)
+            "user_create", context=context, **user_dict
+        )
 
-        assert 'plugin_extras' not in created_user
+        assert "plugin_extras" not in created_user
 
-        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action(
-            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+            "user_show",
+            context=context,
+            id=created_user["id"],
+            include_plugin_extras=True,
+        )
 
-        assert user['plugin_extras'] is None
+        assert user["plugin_extras"] is None
 
 
 @pytest.mark.usefixtures("clean_db")
 class TestUserImageUrl(object):
-
     def test_upload_picture(self):
 
         params = {
-            'name': 'test_user',
-            'email': 'test@example.com',
-            'password': '12345678',
-            'image_url': 'https://example.com/mypic.png',
+            "name": "test_user",
+            "email": "test@example.com",
+            "password": "12345678",
+            "image_url": "https://example.com/mypic.png",
         }
 
-        user_dict = helpers.call_action('user_create', {}, **params)
+        user_dict = helpers.call_action("user_create", {}, **params)
 
-        assert user_dict['image_url'] == 'https://example.com/mypic.png'
-        assert user_dict['image_display_url'] == 'https://example.com/mypic.png'
+        assert user_dict["image_url"] == "https://example.com/mypic.png"
+        assert (
+            user_dict["image_display_url"] == "https://example.com/mypic.png"
+        )
 
 
 class TestVocabularyCreate(object):
@@ -1507,10 +1689,7 @@ class TestVocabularyCreate(object):
     @pytest.mark.usefixtures("clean_db")
     def test_with_tags(self):
         name = "foobar"
-        tags = [
-            {"name": "foo"},
-            {"name": "bar"}
-        ]
+        tags = [{"name": "foo"}, {"name": "bar"}]
         helpers.call_action("vocabulary_create", name=name, tags=tags)
         vocab = helpers.call_action("vocabulary_show", id=name)
         assert vocab["name"] == name
@@ -1530,14 +1709,17 @@ class TestVocabularyCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("vocabulary_create", name="foobar", tags=[])
 
-    @pytest.mark.parametrize("tags", [
-        [{"id": "xxx"}, {"name": "foo"}],
-        [{"name": "foo"}, {"name": None}],
-        [{"name": "foo"}, {"name": ""}],
-        [{"name": "foo"}, {"name": "f"}],
-        [{"name": "f" * 200}, {"name": "foo"}],
-        [{"name": "Invalid!"}, {"name": "foo"}],
-    ])
+    @pytest.mark.parametrize(
+        "tags",
+        [
+            [{"id": "xxx"}, {"name": "foo"}],
+            [{"name": "foo"}, {"name": None}],
+            [{"name": "foo"}, {"name": ""}],
+            [{"name": "foo"}, {"name": "f"}],
+            [{"name": "f" * 200}, {"name": "foo"}],
+            [{"name": "Invalid!"}, {"name": "foo"}],
+        ],
+    )
     def test_with_bad_tags(self, tags):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("vocabulary_create", name="foobar", tags=tags)
@@ -1565,10 +1747,15 @@ class TestTagCreate:
     def test_add_tag_to_vocab(self):
         vocab = factories.Vocabulary(tags=[{"name": "foo"}])
         assert set(map(operator.itemgetter("name"), vocab["tags"])) == {"foo"}
-        helpers.call_action("tag_create", name="bar", vocabulary_id=vocab["id"])
+        helpers.call_action(
+            "tag_create", name="bar", vocabulary_id=vocab["id"]
+        )
 
         vocab = helpers.call_action("vocabulary_show", id=vocab["id"])
-        assert set(map(operator.itemgetter("name"), vocab["tags"])) == {"foo", "bar"}
+        assert set(map(operator.itemgetter("name"), vocab["tags"])) == {
+            "foo",
+            "bar",
+        }
 
     def test_no_vocab(self):
         with pytest.raises(logic.ValidationError):
@@ -1576,31 +1763,37 @@ class TestTagCreate:
 
     def test_does_not_exist(self):
         with pytest.raises(logic.ValidationError):
-            helpers.call_action("tag_create", name="bar", vocabulary_id="not-a-real-id")
+            helpers.call_action(
+                "tag_create", name="bar", vocabulary_id="not-a-real-id"
+            )
 
     @pytest.mark.usefixtures("clean_db")
     def test_duplicate(self):
         vocab = factories.Vocabulary(tags=[{"name": "foo"}])
         with pytest.raises(logic.ValidationError):
-            helpers.call_action("tag_create", name="foo", vocabulary_id=vocab["id"])
+            helpers.call_action(
+                "tag_create", name="foo", vocabulary_id=vocab["id"]
+            )
 
     @pytest.mark.usefixtures("clean_db")
     def test_id_not_allowed(self):
         vocab = factories.Vocabulary()
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-                "tag_create", name="foo", id="xxx", vocabulary_id=vocab["id"])
+                "tag_create", name="foo", id="xxx", vocabulary_id=vocab["id"]
+            )
 
     @pytest.mark.usefixtures("clean_db")
     def test_name_is_required(self):
         vocab = factories.Vocabulary()
         with pytest.raises(logic.ValidationError):
-            helpers.call_action(
-                "tag_create", vocabulary_id=vocab["id"])
+            helpers.call_action("tag_create", vocabulary_id=vocab["id"])
 
     @pytest.mark.usefixtures("clean_db")
     def test_invalid_name(self):
         vocab = factories.Vocabulary()
         for name in ("Not a valid tag name!", "", None):
             with pytest.raises(logic.ValidationError):
-                helpers.call_action("tag_create", name=name, vocabulary_id=vocab["id"])
+                helpers.call_action(
+                    "tag_create", name=name, vocabulary_id=vocab["id"]
+                )

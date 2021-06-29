@@ -60,6 +60,17 @@ class TestDelete:
             id=resource['id'])
 
 
+@pytest.mark.usefixtures("clean_db")
+class TestDeleteResource(object):
+    def test_01_delete_resource(self, app):
+        res = factories.Resource()
+        pkg = helpers.call_action("package_show", id=res["package_id"])
+        assert len(pkg["resources"]) == 1
+        helpers.call_action("resource_delete", id=res["id"])
+        pkg = helpers.call_action("package_show", id=res["package_id"])
+        assert len(pkg["resources"]) == 0
+
+
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestDeleteResourceViews(object):
