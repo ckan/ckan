@@ -1221,34 +1221,6 @@ def unselected_facet_items(facet, limit=10):
 
 
 @core_helper
-@maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be '
-                     'removed.', since="2.0.0")
-def get_facet_title(name):
-    '''Deprecated in ckan 2.0 '''
-    # if this is set in the config use this
-    config_title = config.get('search.facets.%s.title' % name)
-    if config_title:
-        return config_title
-
-    org_label = humanize_entity_type(
-        u'organization',
-        default_group_type(u'organization'),
-        u'facet label') or _(u'Organizations')
-
-    group_label = humanize_entity_type(
-        u'group',
-        default_group_type(u'group'),
-        u'facet label') or _(u'Groups')
-
-    facet_titles = {'organization': _(org_label),
-                    'groups': _(group_label),
-                    'tags': _('Tags'),
-                    'res_format': _('Formats'),
-                    'license': _('Licenses'), }
-    return facet_titles.get(name, name.capitalize())
-
-
-@core_helper
 def get_param_int(name, default=10):
     try:
         return int(request.params.get(name, default))
