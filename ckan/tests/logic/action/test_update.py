@@ -2500,5 +2500,83 @@ class TestTaskStatusUpdate:
             "state": "test_state",
             "error": "test_error",
         }
-        task_status_updated = helpers.call_action("task_status_update", **task_status)
+        task_status_updated = helpers.call_action(
+            "task_status_update", **task_status
+        )
         helpers.call_action("task_status_delete", id=task_status_updated["id"])
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestTermTranslations:
+    def test_update_single(self, app):
+
+        data = {"term": "moo", "term_translation": "moo", "lang_code": "fr"}
+        helpers.call_action("term_translation_update", **data)
+        data = {
+            "term": "moo",
+            "term_translation": "moomoo",
+            "lang_code": "fr",
+        }
+        helpers.call_action("term_translation_update", **data)
+        data = {
+            "term": "moo",
+            "term_translation": "moomoo",
+            "lang_code": "en",
+        }
+        helpers.call_action("term_translation_update", **data)
+        result = helpers.call_action("term_translation_show", terms=["moo"])
+
+        assert sorted(result, key=dict.items) == sorted(
+            [
+                {
+                    "lang_code": "fr",
+                    "term": "moo",
+                    "term_translation": "moomoo",
+                },
+                {
+                    "lang_code": "en",
+                    "term": "moo",
+                    "term_translation": "moomoo",
+                },
+            ],
+            key=dict.items,
+        )
+
+    def test_2_update_many(self, app):
+
+        data = [
+            {
+                "term": "many",
+                "term_translation": "manymoo",
+                "lang_code": "fr",
+            },
+            {
+                "term": "many",
+                "term_translation": "manymoo",
+                "lang_code": "en",
+            },
+            {
+                "term": "many",
+                "term_translation": "manymoomoo",
+                "lang_code": "en",
+            },
+        ]
+        result = helpers.call_action("term_translation_update_many", data=data)
+        assert result["success"] == "3 rows updated"
+
+        result = helpers.call_action("term_translation_show", terms=["many"])
+        assert sorted(result, key=dict.items) == sorted(
+            [
+                {
+                    "lang_code": "fr",
+                    "term": "many",
+                    "term_translation": "manymoo",
+                },
+                {
+                    "lang_code": "en",
+                    "term": "many",
+                    "term_translation": "manymoomoo",
+                },
+            ],
+            key=dict.items,
+        )

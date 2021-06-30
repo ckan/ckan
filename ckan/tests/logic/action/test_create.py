@@ -1797,3 +1797,88 @@ class TestTagCreate:
                 helpers.call_action(
                     "tag_create", name=name, vocabulary_id=vocab["id"]
                 )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestMemberCreate:
+    def test_member_create_accepts_object_name_or_id(self):
+        org = factories.Organization()
+        package = factories.Dataset()
+        helpers.call_action(
+            "member_create",
+            object=package["id"],
+            id=org["id"],
+            object_type="package",
+            capacity="member",
+        )
+        helpers.call_action(
+            "member_create",
+            object=package["name"],
+            id=org["id"],
+            object_type="package",
+            capacity="member",
+        )
+
+    def test_member_create_raises_if_user_unauthorized_to_update_group(self):
+        org = factories.Organization()
+        pkg = factories.Dataset()
+        user = factories.User()
+        context = {"ignore_auth": False, "user": user["name"]}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "member_create",
+                context,
+                object=pkg["name"],
+                id=org["id"],
+                object_type="package",
+                capacity="member",
+            )
+
+    def test_member_create_raises_if_any_required_parameter_isnt_defined(self):
+        org = factories.Organization()
+        pkg = factories.Dataset()
+        data = dict(
+            object=pkg["name"],
+            id=org["id"],
+            object_type="package",
+            capacity="member",
+        )
+        for key in ["id", "object", "object_type"]:
+            payload = data.copy()
+            payload.pop(key)
+            with pytest.raises(logic.ValidationError):
+                helpers.call_action("member_create", **payload)
+
+    def test_member_create_raises_if_group_wasnt_found(self):
+        pkg = factories.Dataset()
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                "member_create",
+                object=pkg["name"],
+                id="not-real",
+                object_type="package",
+                capacity="member",
+            )
+
+    def test_member_create_raises_if_object_wasnt_found(self):
+        org = factories.Organization()
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                "member_create",
+                object="not-real",
+                id=org["id"],
+                object_type="package",
+                capacity="member",
+            )
+
+    def test_member_create_raises_if_object_type_is_invalid(self):
+        org = factories.Organization()
+        pkg = factories.Dataset()
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "member_create",
+                object=pkg["name"],
+                id=org["id"],
+                object_type="notvalid",
+                capacity="member",
+            )

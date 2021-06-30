@@ -4,8 +4,10 @@ import six
 import unittest.mock as mock
 import pytest
 
-from ckan import authz as auth
-from ckan.tests import factories
+from ckan import authz as auth, model, logic
+
+from ckan.tests import factories, helpers
+from ckan.lib.create_test_data import CreateTestData
 
 _check = auth.check_config_permission
 
@@ -78,3 +80,64 @@ def test_no_attributes_set_on_imported_auth_members():
     tk.check_access('site_read', {})
     assert hasattr(auth_get.package_show, 'auth_allow_anonymous_access')
     assert not hasattr(auth_get.config, 'auth_allow_anonymous_access')
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestAuthOrgHierarchy(object):
+    def test_parent_admin_auth(self):
+        user = factories.User()
+        parent = factories.Organization(users=[{"capacity":"admin", "name":user["name"]}])
+        child = factories.Organization()
+        helpers.call_action("member_create", id=child["id"], object=parent["id"], object_type="group", capacity="parent")
+        context = {"model": model, "user": user["name"]}
+        helpers.call_auth("organization_member_create", context, id=parent["id"])
+        helpers.call_auth("organization_member_create", context, id=child["id"])
+
+        helpers.call_auth("package_create", context, owner_org=parent["id"])
+        helpers.call_auth("package_create", context, owner_org=child["id"])
+
+    def test_child_admin_auth(self):
+        user = factories.User()
+        parent = factories.Organization()
+        child = factories.Organization(users=[{"capacity":"admin", "name":user["name"]}])
+        helpers.call_action("member_create", id=child["id"], object=parent["id"], object_type="group", capacity="parent")
+        context = {"model": model, "user": user["name"]}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("organization_member_create", context, id=parent["id"])
+        helpers.call_auth("organization_member_create", context, id=child["id"])
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("package_create", context, owner_org=parent["id"])
+        helpers.call_auth("package_create", context, owner_org=child["id"])
+
+
+    def test_parent_editor_auth(self):
+        user = factories.User()
+        parent = factories.Organization(users=[{"capacity":"editor", "name":user["name"]}])
+        child = factories.Organization()
+        helpers.call_action("member_create", id=child["id"], object=parent["id"], object_type="group", capacity="parent")
+        context = {"model": model, "user": user["name"]}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("organization_member_create", context, id=parent["id"])
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("organization_member_create", context, id=child["id"])
+
+        helpers.call_auth("package_create", context, owner_org=parent["id"])
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("package_create", context, owner_org=child["id"])
+
+
+    def test_child_editor_auth(self):
+        user = factories.User()
+        parent = factories.Organization()
+        child = factories.Organization(users=[{"capacity":"editor", "name":user["name"]}])
+        helpers.call_action("member_create", id=child["id"], object=parent["id"], object_type="group", capacity="parent")
+        context = {"model": model, "user": user["name"]}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("organization_member_create", context, id=parent["id"])
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("organization_member_create", context, id=child["id"])
+
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("package_create", context, owner_org=parent["id"])
+        helpers.call_auth("package_create", context, owner_org=child["id"])
