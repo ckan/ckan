@@ -86,14 +86,9 @@ entry_points = {
         'audio_view = ckanext.audioview.plugin:AudioView',
         'video_view = ckanext.videoview.plugin:VideoView',
         'webpage_view = ckanext.webpageview.plugin:WebPageView',
-        # FIXME: Remove deprecated resource previews below. You should use the
-        # versions as *_view instead.
-        'text_preview = ckanext.textview.plugin:TextView',
-        'recline_preview = ckanext.reclineview.plugin:ReclineView',
         'recline_grid = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph = ckanext.reclineview.plugin:ReclineGraphView',
         'recline_map = ckanext.reclineview.plugin:ReclineMapView',
-        # End of deprecated previews
         'example_itemplatehelpers = ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin',
         'example_idatasetform = ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin',
         'example_idatasetform_v1 = ckanext.example_idatasetform.plugin_v1:ExampleIDatasetFormPlugin',
@@ -171,8 +166,6 @@ entry_points = {
         'auth_plugin = tests.legacy.ckantestplugins:AuthPlugin',
         'test_group_plugin = tests.legacy.ckantestplugins:MockGroupControllerPlugin',
         'test_package_controller_plugin = tests.legacy.ckantestplugins:MockPackageControllerPlugin',
-        'test_resource_preview = tests.legacy.ckantestplugins:MockResourcePreviewExtension',
-        'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
         'example_datastore_deleted_with_count_plugin = ckanext.datastore.tests.test_chained_action:ExampleDataStoreDeletedWithCountPlugin',
         'example_data_store_search_sql_plugin = ckanext.datastore.tests.test_chained_auth_functions:ExampleDataStoreSearchSQLPlugin',

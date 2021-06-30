@@ -105,25 +105,18 @@
       {% block data_preview %}
       {% block resource_view %}
         {% block resource_view_nav %}
-          {% set resource_preview = h.resource_preview(resource, package) %}
           {% snippet "package/snippets/resource_views_list.html",
              views=resource_views,
              pkg=pkg,
              is_edit=false,
              view_id=current_resource_view['id'],
-             resource_preview=resource_preview,
              resource=resource,
              extra_class="nav-tabs nav-tabs-plain"
            %}
         {% endblock %}
           {% block resource_view_content %}
             <div class="resource-view">
-              {% set resource_preview = h.resource_preview(resource, package) %}
-              {% set views_created = res.has_views or resource_preview %}
-              {% if views_created %}
-                {% if resource_preview and not current_resource_view %}
-                  {{ h.resource_preview(resource, package) }}
-                {% else %}
+              {% if resource_views %}
                   {% for resource_view in resource_views %}
                     {% if resource_view == current_resource_view %}
                       {% snippet 'package/snippets/resource_view.html',
@@ -133,7 +126,6 @@
                        %}
                     {% endif %}
                   {% endfor %}
-                {% endif %}
               {% else %}
                 {# Views not created #}
                 <div class="data-viewer-info">
