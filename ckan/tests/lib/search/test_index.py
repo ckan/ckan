@@ -67,7 +67,7 @@ class TestSearchIndex(object):
 
         self.package_index.index_package(self.base_package_dict)
 
-        self.package_index.clear(defer_commit=False)
+        self.package_index.clear()
 
         response = self.solr_client.search(q="name:monkey", fq=self.fq)
         assert len(response) == 0

@@ -50,12 +50,11 @@ def escape_xml_illegal_chars(val, replacement=''):
     return _illegal_xml_chars_re.sub(replacement, val)
 
 
-def clear_index(defer_commit=True):
+def clear_index():
     conn = make_connection()
     query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
     try:
-        commit = not defer_commit
-        conn.delete(q=query, commit=commit)
+        conn.delete(q=query)
     except socket.error as e:
         err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
         log.error(err)
@@ -89,9 +88,9 @@ class SearchIndex(object):
         """ Delete an index entry uniquely identified by ``data``. """
         log.debug("NOOP Delete: %s" % ",".join(data.keys()))
 
-    def clear(self, defer_commit=True):
+    def clear(self):
         """ Delete the complete index. """
-        clear_index(defer_commit)
+        clear_index()
 
     def get_all_entity_ids(self):
         """ Return a list of entity IDs in the index. """

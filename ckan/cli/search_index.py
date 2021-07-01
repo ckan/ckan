@@ -17,7 +17,6 @@ def search_index():
 @click.option(u'-v', u'--verbose', is_flag=True)
 @click.option(u'-i', u'--force', is_flag=True,
               help=u'Ignore exceptions when rebuilding the index')
-@click.option(u'-r', u'--refresh', help=u'Refresh current index', is_flag=True)
 @click.option(u'-o', u'--only-missing',
               help=u'Index non indexed datasets only', is_flag=True)
 @click.option(u'-q', u'--quiet', help=u'Do not output index rebuild progress',
@@ -27,11 +26,11 @@ def search_index():
                    u'ensures that changes are immediately available on the'
                    u'search, but slows significantly the process. Default'
                    u'is false.')
-@click.option('-c', '--clear', help='Clear the index', is_flag=True)
+@click.option('-c', '--clear', help='Clear the index before reindexing',
+              is_flag=True)
 @click.argument(u'package_id', required=False)
 def rebuild(
-        verbose, force, refresh, only_missing, quiet, commit_each, package_id,
-        clear
+        verbose, force, only_missing, quiet, commit_each, package_id, clear
 ):
     u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
@@ -40,7 +39,6 @@ def rebuild(
         rebuild(package_id,
                 only_missing=only_missing,
                 force=force,
-                refresh=refresh,
                 defer_commit=(not commit_each),
                 quiet=quiet,
                 clear=clear)

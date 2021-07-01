@@ -493,7 +493,7 @@ For example
 
  ckan -c |ckan.ini| search-index rebuild
 
-This default behaviour will clear and commit the index with thesame solr instance, and rebuild it with all datasets. If you want to rebuild it for only
+This default behaviour will refresh the index keeping the existing indexed datasets and rebuild it with all datasets. If you want to rebuild it for only
 one dataset, you can provide a dataset name
 
 .. parsed-literal::
@@ -507,13 +507,6 @@ already indexed
 
  ckan -c |ckan.ini| search-index rebuild -o
 
-If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
-won't clear the index before starting rebuilding it
-
-.. parsed-literal::
-
- ckan -c |ckan.ini| search-index rebuild -r
-
 There is also an option available which works like the refresh option but tries to use all processes on the
 computer to reindex faster
 
@@ -521,11 +514,11 @@ computer to reindex faster
 
  ckan -c |ckan.ini| search-index rebuild_fast
 
-There is also an option to clear the whole index and then rebuild it with all dataset
+There is also an option to clear the whole index first and then rebuild it with all datasets:
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| search-index rebuild -e --clear
+ ckan -c |ckan.ini| search-index rebuild --clear
 
 There are other search related commands, mostly useful for debugging purposes
 
