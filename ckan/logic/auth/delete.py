@@ -116,8 +116,7 @@ def revision_delete(context, data_dict):
 
 def task_status_delete(context, data_dict):
     # sysadmins only
-    user = context['user']
-    return {'success': False, 'msg': _('User %s not authorized to delete task_status') % user}
+    return {'success': False}
 
 def vocabulary_delete(context, data_dict):
     # sysadmins only
