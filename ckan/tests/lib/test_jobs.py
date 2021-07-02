@@ -83,12 +83,11 @@ class TestEnqueue(RQTestBase):
         monkeypatch.setitem(ckan_config, u'ckan.jobs.timeout', 10)
         self.enqueue()
         all_jobs = self.all_jobs()
-        assert len(all_jobs) == 5
+        assert len(all_jobs) == 4
         assert all_jobs[0].timeout == 180
-        assert all_jobs[1].timeout == 180
-        assert all_jobs[2].timeout == -1
-        assert all_jobs[3].timeout == 3600
-        assert all_jobs[4].timeout == 10
+        assert all_jobs[1].timeout == -1
+        assert all_jobs[2].timeout == 3600
+        assert all_jobs[3].timeout == 10
 
 
 class TestGetAllQueues(RQTestBase):
