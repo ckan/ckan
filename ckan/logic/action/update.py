@@ -65,7 +65,6 @@ def resource_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
@@ -115,8 +114,7 @@ def resource_update(context, data_dict):
 
     if old_resource_format != resource['format']:
         _get_action('resource_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
+            {'model': context['model'], 'ignore_auth': True},
             {'package': updated_pkg_dict,
              'resource': resource})
 
