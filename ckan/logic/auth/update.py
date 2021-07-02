@@ -297,6 +297,6 @@ def bulk_update_delete(context, data_dict):
 def config_option_update(context, data_dict):
     '''Update the runtime-editable configuration options
 
-       Only sysdmins can do it
+       Only sysadmins can do it
     '''
     return {'success': False}
