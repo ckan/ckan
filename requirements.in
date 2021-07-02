@@ -9,7 +9,7 @@ click==7.1.2
 dominate==2.6.0
 feedgen==0.9.0
 Flask==1.1.4
-Flask-Babel==2.0.0
+Flask-Babel==1.0.0
 flask-multistatic==1.0
 Jinja2==2.11.3
 PyJWT==2.1.0

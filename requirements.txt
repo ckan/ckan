@@ -14,7 +14,7 @@ chardet==4.0.0            # via requests
 click==7.1.2              # via -r requirements.in, flask, rq
 dominate==2.6.0           # via -r requirements.in
 feedgen==0.9.0            # via -r requirements.in
-flask-babel==2.0.0        # via -r requirements.in
+flask-babel==1.0.0        # via -r requirements.in
 flask-multistatic==1.0    # via -r requirements.in
 flask==1.1.4              # via -r requirements.in, flask-babel, flask-multistatic
 idna==2.10                # via requests
@@ -57,3 +57,6 @@ webencodings==0.5.1       # via bleach
 webob==1.8.7              # via repoze.who
 werkzeug[watchdog]==1.0.1  # via -r requirements.in, flask
 zope.interface==4.7.2     # via -r requirements.in, repoze.who
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
