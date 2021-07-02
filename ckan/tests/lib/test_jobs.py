@@ -78,7 +78,6 @@ class TestEnqueue(RQTestBase):
 
     def test_enqueue_timeout(self, monkeypatch, ckan_config):
         self.enqueue()
-        self.enqueue(rq_kwargs={u'timeout': 0})
         self.enqueue(rq_kwargs={u'timeout': -1})
         self.enqueue(rq_kwargs={u'timeout': 3600})
         monkeypatch.setitem(ckan_config, u'ckan.jobs.timeout', 10)
