@@ -1,0 +1,31 @@
+{#
+Resource upload form field that allows switching between:
+  URL  <->  Unset  <->  File upload (when enabled)
+
+The "url" field is
+New uploaded files are saved as "upload", and "name" field is
+updated with the file name if not already set.
+
+When removing a file upload a special "clear_upload" field is passed
+
+data - resource form data fields
+errors - errors on resource form fields
+is_url - true if resource using url (not file upload)
+is_upload - true if resource using file upload (not url)
+is_upload_enabled - true if site supports file uploads
+url_label - label for url field
+upload_label - label for upload field
+placeholder - placeholder text for url field
+#}
+{% import "macros/form.html" as form %}
+
+<div class="resource-upload-field">
+  {{ form.input('url', label=url_label, id='field-resource-url', type='url', placeholder=placeholder, value=data.get('url'), error=errors.get('url'), classes=['control-full']) }}
+
+  {% if is_upload_enabled %}
+    {{ form.input('upload', label=upload_label, id='field-image-upload', type='file', placeholder='', value='', error='', classes=['control-full']) }}
+    {% if is_upload %}
+      {{ form.checkbox('clear_upload', label=_('Clear Upload'), id='field-clear-upload', value='true', error='') }}
+    {% endif %}
+  {% endif %}
+</div>
