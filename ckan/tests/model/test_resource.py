@@ -10,7 +10,7 @@ Resource = model.Resource
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-class TestReousrce(object):
+class TestResource(object):
     def test_edit_url(self):
         res_dict = factories.Resource(url="http://first")
         res = Resource.get(res_dict["id"])
