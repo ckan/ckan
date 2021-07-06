@@ -225,15 +225,6 @@ def user_generate_apikey(context, data_dict):
             ' {1}'.format(user, user_obj.id))}
 
 
-def revision_change_state(context, data_dict):
-    # FIXME currently only sysadmins can change state
-    user = context['user']
-    return {
-        'success': False,
-        'msg': _('User %s not authorized to change state of revision') % user
-    }
-
-
 def task_status_update(context, data_dict):
     # sysadmins only
     user = context['user']
@@ -306,6 +297,6 @@ def bulk_update_delete(context, data_dict):
 def config_option_update(context, data_dict):
     '''Update the runtime-editable configuration options
 
-       Only sysdmins can do it
+       Only sysadmins can do it
     '''
     return {'success': False}
