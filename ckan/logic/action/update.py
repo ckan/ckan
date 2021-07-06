@@ -65,7 +65,6 @@ def resource_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
