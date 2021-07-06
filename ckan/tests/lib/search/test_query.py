@@ -118,6 +118,7 @@ def resources_for_search():
         url=TestResourceQuery.ef, description="This is site ij.", package_id=pkg2["id"]
     )
 
+
 @pytest.mark.usefixtures("clean_db", "clean_index", "resources_for_search")
 class TestResourceQuery(object):
     ab = "http://site.com/a/b.txt"
@@ -346,7 +347,6 @@ class TestPackageQuery:
 
         result = search.query_for(model.Package).run({"q": u"first"})
         assert result["results"] == ["first"]
-
 
     def test_name_multiple_results(self):
         factories.Dataset(name="first-record")

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pytest
 import ckan.model as model
 import ckan.logic as logic

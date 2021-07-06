@@ -564,6 +564,7 @@ class TestFollower:
         "group_follower_list",
         "organization_follower_list",
     ]
+
     @pytest.mark.parametrize("func", functions)
     def test_anon_cannot_list_followers(self, func):
         context = {"user": "", "model": model}

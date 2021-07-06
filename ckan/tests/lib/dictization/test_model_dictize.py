@@ -592,6 +592,7 @@ def assert_equal_for_keys(dict1, dict2, *keys):
         )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestTagDictize(object):
     """Unit tests for the tag_dictize() function."""
 

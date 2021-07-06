@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pytest
 from ckan import logic, model
 import ckan.tests.factories as factories

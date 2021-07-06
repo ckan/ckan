@@ -6,10 +6,13 @@ import ckan.tests.factories as factories
 from ckan.lib.helpers import url_for
 
 
-@pytest.mark.usefixtures("clean_index", "clean_db")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 def test_package_search(app):
     group = factories.Group()
-    factories.Dataset.create_batch(51, groups=[{"name": group["name"]}])
+    all_numbers = [
+        dataset["name"].rsplit("_", 1)[-1]
+        for dataset in factories.Dataset.create_batch(51, groups=[{"name": group["name"]}])
+    ]
     resp = app.get(url_for("dataset.search", q=f"groups:{group['name']}"))
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
@@ -18,7 +21,7 @@ def test_package_search(app):
         link["href"].rsplit("_", 1)[-1]
         for link in page.select(".primary .dataset-heading a")
     ]
-    assert list(map(str, range(50, 30, -1))) == numbers
+    assert all_numbers[:-21:-1] == numbers
 
     resp = app.get(
         url_for("dataset.search", q=f"groups:{group['name']}", page=2)
@@ -30,13 +33,16 @@ def test_package_search(app):
         link["href"].rsplit("_", 1)[-1]
         for link in page.select(".primary .dataset-heading a")
     ]
-    assert list(map(str, range(30, 10, -1))) == numbers
+    assert all_numbers[-21:-41:-1] == numbers
 
 
-@pytest.mark.usefixtures("clean_index", "clean_db")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 def test_group_datasets_read(app):
     group = factories.Group()
-    factories.Dataset.create_batch(51, groups=[{"name": group["name"]}])
+    all_numbers = [
+        dataset["name"].rsplit("_", 1)[-1]
+        for dataset in factories.Dataset.create_batch(51, groups=[{"name": group["name"]}])
+    ]
     resp = app.get(
         url_for(controller="group", action="read", id=group["name"])
     )
@@ -48,7 +54,7 @@ def test_group_datasets_read(app):
         link["href"].rsplit("_", 1)[-1]
         for link in page.select(".primary .dataset-heading a")
     ]
-    assert list(map(str, range(50, 30, -1))) == numbers
+    assert all_numbers[:-21:-1] == numbers
 
     resp = app.get(
         url_for(controller="group", action="read", id=group["name"], page=2)
@@ -61,12 +67,16 @@ def test_group_datasets_read(app):
         link["href"].rsplit("_", 1)[-1]
         for link in page.select(".primary .dataset-heading a")
     ]
-    assert list(map(str, range(30, 10, -1))) == numbers
+    assert all_numbers[-21:-41:-1] == numbers
 
 
-@pytest.mark.usefixtures("clean_index", "clean_db")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 def test_group_index(app):
-    factories.Group.create_batch(22)
+    all_numbers = [
+        group["name"].rsplit("_", 1)[-1]
+        for group in factories.Group.create_batch(22)
+    ]
+
     resp = app.get(url_for("group.index"))
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
@@ -76,28 +86,7 @@ def test_group_index(app):
         for link in page.select(".primary .media-view")
     ]
 
-    assert [
-        "00",
-        "01",
-        "02",
-        "03",
-        "04",
-        "05",
-        "06",
-        "07",
-        "08",
-        "09",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18",
-        "19",
-    ] == numbers
+    assert all_numbers[:20] == numbers
 
     resp = app.get(url_for("group.index", page=2))
     page = BeautifulSoup(resp.data)
@@ -107,12 +96,15 @@ def test_group_index(app):
         link["href"].rsplit("_", 1)[-1]
         for link in page.select(".primary .media-view")
     ]
-    assert ["20", "21"] == numbers
+    assert all_numbers[20:] == numbers
 
 
-@pytest.mark.usefixtures("clean_index", "clean_db")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 def test_users_index(app):
-    factories.User.create_batch(21)
+    all_numbers = [
+        user["name"].rsplit("_", 1)[-1]
+        for user in factories.User.create_batch(21)
+    ]
     resp = app.get(url_for("user.index"))
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
@@ -125,27 +117,7 @@ def test_users_index(app):
         for link in page.select(".primary .user-list a")
     ][1:]
 
-    assert [
-        "00",
-        "01",
-        "02",
-        "03",
-        "04",
-        "05",
-        "06",
-        "07",
-        "08",
-        "09",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18",
-    ] == numbers
+    assert all_numbers[:19] == numbers
 
     resp = app.get(url_for("user.index", page=2))
     page = BeautifulSoup(resp.data)
@@ -156,4 +128,4 @@ def test_users_index(app):
         for link in page.select(".primary .user-list a")
     ]
 
-    assert ["19", "20"] == numbers
+    assert all_numbers[19:] == numbers
