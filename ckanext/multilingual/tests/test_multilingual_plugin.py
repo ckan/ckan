@@ -7,8 +7,7 @@ import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers as h
 import ckan.lib.create_test_data
 import ckan.model as model
-import ckan.tests.legacy.html_check
-from ckan.tests.helpers import _get_test_app, body_contains, call_action
+from ckan.tests.helpers import body_contains, call_action
 
 _create_test_data = ckan.lib.create_test_data
 ORG_NAME = "test_org"
@@ -51,9 +50,7 @@ def prepare(clean_db, clean_index, with_request_context):
 @pytest.mark.ckan_config(
     "ckan.plugins", "multilingual_dataset multilingual_group multilingual_tag"
 )
-class TestDatasetTermTranslation(
-    ckan.tests.legacy.html_check.HtmlCheckMethods
-):
+class TestDatasetTermTranslation:
     "Test the translation of datasets by the multilingual_dataset plugin."
 
     def test_user_read_translation(self, app):

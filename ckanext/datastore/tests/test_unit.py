@@ -1,8 +1,5 @@
 # encoding: utf-8
 
-import pytest
-
-import ckan.tests.legacy as tests
 import ckanext.datastore.backend.postgres as backend
 import ckanext.datastore.backend.postgres as db
 import ckanext.datastore.helpers as helpers

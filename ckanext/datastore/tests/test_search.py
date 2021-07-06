@@ -10,7 +10,6 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-import ckan.tests.legacy as tests
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract
 

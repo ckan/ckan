@@ -10,7 +10,6 @@ import sqlalchemy.orm as orm
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
-import ckan.tests.legacy as tests
 from ckan.tests import factories
 from ckan.tests.helpers import call_action
 import ckanext.datastore.backend.postgres as db

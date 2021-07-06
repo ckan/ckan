@@ -8,8 +8,7 @@ import ckan.tests.factories as factories
 Resource = model.Resource
 
 
-@pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db")
 class TestReousrce(object):
     def test_edit_url(self):
         res_dict = factories.Resource(url="http://first")
@@ -27,6 +26,8 @@ class TestReousrce(object):
         res = Resource.get(res_dict["id"])
         assert res.extras["newfield"] == "second"
 
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("with_plugins")
     def test_get_all_without_views_returns_all_resources_without_views(self):
         # Create resource with resource_view
         factories.ResourceView()
@@ -61,3 +62,27 @@ class TestReousrce(object):
         factories.Resource()
         factories.Resource()
         assert Resource.count() == 3
+
+    def test_package_deletion_does_not_delete_resources(self):
+        parent = factories.Dataset()
+        factories.Resource(package_id=parent["id"])
+        factories.Resource(package_id=parent["id"])
+
+        assert model.Resource.active().count() == 2
+
+        pkg = model.Package.get(parent["id"])
+        pkg.delete()
+        model.repo.commit_and_remove()
+
+        assert model.Resource.active().count() == 2
+
+    def test_package_purge_deletes_resources(self):
+        parent = factories.Dataset()
+        res1 = factories.Resource(package_id=parent["id"])
+        res2 = factories.Resource(package_id=parent["id"])
+
+        pkg = model.Package.get(parent["id"])
+        pkg.purge()
+        model.repo.commit_and_remove()
+
+        assert model.Resource.active().count() == 0

@@ -4,7 +4,6 @@ from unittest import mock
 import pytest
 
 import ckan.tests.factories as factories
-import ckan.tests.legacy as tests
 from ckan.logic import _actions
 
 

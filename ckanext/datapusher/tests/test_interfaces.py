@@ -8,7 +8,6 @@ import responses
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
-import ckan.tests.legacy as tests
 import ckanext.datapusher.interfaces as interfaces
 import ckanext.datastore.backend.postgres as db
 from ckan.tests import helpers, factories
