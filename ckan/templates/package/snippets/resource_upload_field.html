@@ -16,35 +16,43 @@ is_upload_enabled - true if site supports file uploads
 #}
 {% import "macros/form.html" as form %}
 
-<div class="resource-upload-field">
+<div class="resource-upload-field form-group">
   <input type="radio" id="resource-url-none" name="url_type" value="" {{
     'checked' if not data.url and not data.url_type else '' }}>
-  <label class="control-label select-type">{{ _('Data') }}</label>
-  <div class="form-group">
-  {#{% call form.input_block('upload', label=_('Data')) %}#}
-    {% block url_type_selection %}
+  <div class="select-type">
+    {% block url_type_select %}
+      <label class="control-label select-type">{{ _('Data') }}</label>
       {% if is_upload_enabled %}
-        <input type="radio" id="resource-url-upload" name="url_type" value="upload" {{
-          'checked' if is_upload else '' }}><label class="btn btn-default select-type" for="resource-url-upload"
+        <label class="btn btn-default select-type" for="resource-url-upload"
           title="{{ _('Upload a file on your computer') }}"><i
           class="fa fa-cloud-upload"></i>{{ _("Upload") }}</label>
-        <div class="url-type-upload controls">
-          <label class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
-          {{ form.input('upload', label='File', id='field-image-upload', type='file', placeholder='', value='', error='', classes=['control-full']) }}
-          {% if is_upload %}
-            {{ form.checkbox('clear_upload', label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=['']) }}
-          {% endif %}
-        </div>
       {% endif %}
-      <input type="radio" id="resource-url-link" name="url_type" value="link" {{
-        'checked' if is_url else '' }}><label class="btn btn-default select-type" for="resource-url-link"
+      <label class="btn btn-default select-type" for="resource-url-link"
         title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"><i
         class="fa fa-globe"></i>{{ _('Link') }}</label>
-      <div class="url-type-link controls">
-        <label class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
-        {{ form.input('url', label=_('URL'), id='field-resource-url', type='url', placeholder=placeholder, value=data.get('url'), error=errors.get('url'), classes=['control-full']) }}
-      </div>
     {% endblock %}
   </div>
-  {#{% endcall %}#}
+
+  {% if is_upload_enabled %}
+    <input type="radio" id="resource-url-upload" name="url_type" value="upload" {{
+      'checked' if is_upload else '' }}>
+    <div class="select-type">
+      {% block upload_controls %}
+        <label class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
+        {{ form.input('upload', label='File', id='field-image-upload', type='file', placeholder='', value='', error='', classes=['control-full']) }}
+        {% if is_upload %}
+          {{ form.checkbox('clear_upload', label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=['']) }}
+        {% endif %}
+      {% endblock %}
+    </div>
+  {% endif %}
+
+  <input type="radio" id="resource-url-link" name="url_type" value="link" {{
+    'checked' if is_url else '' }}>
+  <div class="select-type">
+    {% block link_controls %}
+      <label class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
+      {{ form.input('url', label=_('URL'), id='field-resource-url', type='url', placeholder=placeholder, value=data.get('url'), error=errors.get('url'), classes=['control-full']) }}
+    {% endblock %}
+  </div>
 </div>

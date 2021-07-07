@@ -15146,17 +15146,18 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
   table-layout: inherit;
   line-height: 1;
 }
-.resource-upload-field .select-type {
+.resource-upload-field > input[type="radio"] {
   display: none;
 }
-.resource-upload-field input[type="radio"] {
+.resource-upload-field > div.select-type {
+  position: relative;
   display: none;
+}
+.resource-upload-field > input[type="radio"]:checked + div.select-type {
+  display: block;
 }
 .resource-upload-field label.btn::after {
   content: "";
-}
-.resource-upload-field .controls {
-  position: relative;
 }
 .resource-upload-field .btn-remove-url {
   position: absolute;
@@ -15168,24 +15169,6 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
 }
 .resource-upload-field .btn-remove-url .icon-remove {
   margin-right: 0;
-}
-.resource-upload-field .url-type-link {
-  display: none;
-}
-.resource-upload-field .url-type-upload {
-  display: none;
-}
-.resource-upload-field input#resource-url-none:checked ~ .select-type {
-  display: inline-block;
-}
-.resource-upload-field input#resource-url-none:checked ~ div .select-type {
-  display: inline-block;
-}
-.resource-upload-field input#resource-url-upload:checked ~ .url-type-upload {
-  display: block;
-}
-.resource-upload-field input#resource-url-link:checked ~ .url-type-link {
-  display: block;
 }
 .dataset-item {
   border-bottom: 1px dotted #ddd;

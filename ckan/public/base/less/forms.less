@@ -757,20 +757,26 @@ select[data-module="autocomplete"] {
 }
 
 .resource-upload-field {
-    .select-type {
-      display: none;
+    > input[type="radio"] {
+        // hide the radio buttons we're using to show/hide select-type divs
+        display: none;
     }
 
-    input[type="radio"] {
-      display: none;
+    > div.select-type {
+        // remove buttons positioned relative to this element
+        position: relative;
+        // defaut select-type divs to hidden...
+        display: none;
+    }
+
+    > input[type="radio"]:checked + div.select-type {
+        // ...unless the radio button above is checked
+        display: block;
     }
 
     label.btn::after {
-      content: "";
-    }
-
-    .controls {
-        position: relative;
+        // our button labels don't need a ":" at the end of the content
+        content: "";
     }
 
     .btn-remove-url {
@@ -783,28 +789,5 @@ select[data-module="autocomplete"] {
         .icon-remove {
             margin-right: 0;
         }
-    }
-
-    .url-type-link {
-        display: none;
-    }
-
-    .url-type-upload {
-        display: none;
-    }
-
-    input#resource-url-none:checked ~ .select-type {
-        display: inline-block;
-    }
-    input#resource-url-none:checked ~ div .select-type {
-        display: inline-block;
-    }
-
-    input#resource-url-upload:checked ~ .url-type-upload {
-        display: block;
-    }
-
-    input#resource-url-link:checked ~ .url-type-link {
-        display: block;
     }
 }
