@@ -755,3 +755,56 @@ select[data-module="autocomplete"] {
     table-layout: inherit;
     line-height: 1;
 }
+
+.resource-upload-field {
+    .select-type {
+      display: none;
+    }
+
+    input[type="radio"] {
+      display: none;
+    }
+
+    label.btn::after {
+      content: "";
+    }
+
+    .controls {
+        position: relative;
+    }
+
+    .btn-remove-url {
+        position: absolute;
+        margin-right: 0;
+        top: 0;
+        right: @grid-gutter-width/6;
+        padding: 0 12px;
+        .border-radius(100px);
+        .icon-remove {
+            margin-right: 0;
+        }
+    }
+
+    .url-type-link {
+        display: none;
+    }
+
+    .url-type-upload {
+        display: none;
+    }
+
+    input#resource-url-none:checked ~ .select-type {
+        display: inline-block;
+    }
+    input#resource-url-none:checked ~ div .select-type {
+        display: inline-block;
+    }
+
+    input#resource-url-upload:checked ~ .url-type-upload {
+        display: block;
+    }
+
+    input#resource-url-link:checked ~ .url-type-link {
+        display: block;
+    }
+}
