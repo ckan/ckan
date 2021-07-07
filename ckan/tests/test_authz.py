@@ -83,7 +83,7 @@ def test_no_attributes_set_on_imported_auth_members():
     assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestAuthOrgHierarchy(object):
     def test_parent_admin_auth(self):
         user = factories.User()
