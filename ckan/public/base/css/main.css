@@ -8255,6 +8255,21 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
 .resource-upload-field .btn-remove-url .icon-remove {
   margin-right: 0;
 }
+.resource-upload-field input#field-clear-upload {
+  display: none;
+}
+.resource-upload-field input#field-clear-upload + div.upload-type {
+  display: block;
+}
+.resource-upload-field input#field-clear-upload ~ .upload-type {
+  display: none;
+}
+.resource-upload-field input#field-clear-upload:checked + div.upload-type {
+  display: none;
+}
+.resource-upload-field input#field-clear-upload:checked ~ .upload-type {
+  display: block;
+}
 .dataset-item {
   border-bottom: 1px dotted #ddd;
   padding-bottom: 20px;

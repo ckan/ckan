@@ -763,7 +763,7 @@ select[data-module="autocomplete"] {
     }
 
     > div.select-type {
-        // remove buttons positioned relative to this element
+        // "Remove" buttons should be positioned relative to this element
         position: relative;
         // defaut select-type divs to hidden...
         display: none;
@@ -775,11 +775,12 @@ select[data-module="autocomplete"] {
     }
 
     label.btn::after {
-        // our button labels don't need a ":" at the end of the content
+        // button labels don't need a ":" at the end of the content
         content: "";
     }
 
     .btn-remove-url {
+        // "Remove" buttons float right of the select-type div labels
         position: absolute;
         margin-right: 0;
         top: 0;
@@ -788,6 +789,29 @@ select[data-module="autocomplete"] {
         .border-radius(100px);
         .icon-remove {
             margin-right: 0;
+        }
+    }
+
+    input#field-clear-upload {
+        // checkbox shows/hides existing upload display and new upload input
+        display: none;
+
+        + div.upload-type {
+          display: block;
+        }
+
+        ~ .upload-type {
+          display: none;
+        }
+    }
+
+    input#field-clear-upload:checked {
+        + div.upload-type {
+          display: none;
+        }
+
+        ~ .upload-type {
+          display: block;
         }
     }
 }
