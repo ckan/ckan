@@ -16,7 +16,7 @@ is_upload_enabled - true if site supports file uploads
 #}
 {% import "macros/form.html" as form %}
 
-<div class="resource-upload-field form-group">
+<div data-module="resource-upload-field" class="resource-upload-field form-group">
   <input type="radio" id="resource-url-none" name="url_type" value="" {{
     'checked' if not data.url and not data.url_type else '' }}>
   <div class="select-type">
@@ -56,7 +56,7 @@ is_upload_enabled - true if site supports file uploads
           {% endif %}
           <div class="upload-type">
             <label class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
-            {{ form.input('upload', label=_('File'), id='field-image-upload', type='file', placeholder='', value='', error='', classes=['control-full']) }}
+            {{ form.input('upload', label=_('File'), id='field-resource-upload', type='file', placeholder='', value='', error='', classes=['control-full']) }}
           </div>
         {% endblock %}
       </div>
@@ -66,7 +66,7 @@ is_upload_enabled - true if site supports file uploads
       'checked' if is_url else '' }}>
     <div class="select-type">
       {% block link_controls %}
-        <label class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
+        <label id="resource-url-link-clear" class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
         {{ form.input('url', label=_('URL'), id='field-resource-url', type='url', placeholder=placeholder, value='' if is_upload else data.get('url'), error=errors.get('url'), classes=['control-full']) }}
       {% endblock %}
     </div>
