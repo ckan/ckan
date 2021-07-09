@@ -11,12 +11,11 @@ from ckan.tests.helpers import body_contains
 @pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
 @pytest.mark.usefixtures("with_request_context")
 class TestWithFlashPlugin:
-    def test_flash_populated_by_flask_redirect_to_flask(self, app):
+    def test_flash_success(self, app):
         """
-        Flash store is populated by Flask view is accessible by another Flask
-        view.
+        Test flash_success messages are rendered.
         """
-        url = "/flask_add_flash_message_redirect_to_flask"
+        url = "/flash_success_redirect"
         res = app.get(url)
         assert body_contains(res, "This is a success message populated by Flask")
 
@@ -33,24 +32,24 @@ class FlashMessagePlugin(p.SingletonPlugin):
         """Flask view that renders the flash message html template."""
         return render_template("tests/flash_messages.html")
 
-    def add_flash_message_view_redirect_to_flask(self):
-        """Add flash message, then redirect to Flask view to render it."""
+    def add_flash_success_message(self):
+        """Add flash message, then redirect to render it."""
         h.flash_success(u"This is a success message populated by Flask")
         return h.redirect_to(
             h.url_for("test_flash_plugin.flash_message_view")
         )
 
     def get_blueprint(self):
-        """Return Flask Blueprint object to be registered by the Flask app."""
+        """Return Flask Blueprint object."""
 
         # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
         # Add plugin url rules to Blueprint object
         rules = [
             (
-                "/flask_add_flash_message_redirect_to_flask",
-                "add_flash_message",
-                self.add_flash_message_view_redirect_to_flask,
+                "/flash_success_redirect",
+                "add_flash_success_message",
+                self.add_flash_success_message,
             ),
             (
                 "/flask_view_flash_message",
