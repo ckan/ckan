@@ -26,23 +26,3 @@ def template_type(template_path):
 
 class TemplateNotFound(Exception):
     pass
-
-def template_info(template_name):
-    ''' Returns the path and type for a template '''
-
-    if template_name in _template_info_cache:
-        t_data = _template_info_cache[template_name]
-        return t_data['template_path'], t_data['template_type']
-
-    template_path = find_template(template_name)
-    if not template_path:
-        raise TemplateNotFound('Template %s cannot be found' % template_name)
-    t_type = template_type(template_path)
-
-    # if in debug mode we always want to search for templates so we
-    # don't want to store it.
-    if not config.get('debug', False):
-        t_data = {'template_path' : template_path,
-                  'template_type' : t_type,}
-        _template_info_cache[template_name] = t_data
-    return template_path, t_type
