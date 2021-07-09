@@ -15010,34 +15010,6 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
   background-color: #faedcf;
   margin-right: 3px;
 }
-.resource-upload-field {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-  vertical-align: bottom;
-}
-.resource-upload-field label {
-  z-index: 0;
-}
-.resource-upload-field input {
-  filter: alpha(opacity=0);
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 1;
-  margin: 0;
-  border: solid transparent;
-  border-width: 100px 0 0 200px;
-  cursor: pointer;
-  direction: ltr;
-  -moz-transform: translate(-300px, 0) scale(4);
-}
-.resource-upload-field.loading {
-  display: inline-block;
-  background: url("../../../base/images/loading-spinner.gif") no-repeat center right;
-  padding-right: 5px;
-}
 .select2-container .select2-choice input,
 .select2-container-multi .select2-choices .select2-search-field:first-child input {
   font-size: 14px;
