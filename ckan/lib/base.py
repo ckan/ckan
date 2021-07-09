@@ -100,7 +100,7 @@ def render_jinja2(template_name, extra_vars):
     return template.render(**extra_vars)
 
 
-def render(template_name, extra_vars=None, *pargs, **kwargs):
+def render(template_name, extra_vars=None):
     '''Render a template and return the output.
 
     This is CKAN's main template rendering function.
@@ -109,19 +109,8 @@ def render(template_name, extra_vars=None, *pargs, **kwargs):
     :type template_name: str
     :params extra_vars: additional variables available in template
     :type extra_vars: dict
-    :params pargs: DEPRECATED
-    :type pargs: tuple
-    :params kwargs: DEPRECATED
-    :type kwargs: dict
 
     '''
-    if pargs or kwargs:
-        tb = inspect.getframeinfo(sys._getframe(1))
-        log.warning(
-            'Extra arguments to `base.render` are deprecated: ' +
-            '<{0.filename}:{0.lineno}>'.format(tb)
-        )
-
     if extra_vars is None:
         extra_vars = {}
 
