@@ -663,6 +663,7 @@ def flash_success(message, allow_html=False):
 
 @core_helper
 def get_flashed_messages(**kwargs):
+    '''Call Flask's built in get_flashed_messages'''
     return _flask_get_flashed_messages(**kwargs)
 
 
