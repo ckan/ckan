@@ -17,7 +17,15 @@ class TestWithFlashPlugin:
         """
         url = "/flash_success_redirect"
         res = app.get(url)
-        assert body_contains(res, "This is a success message populated by Flask")
+        assert body_contains(res, "This is a success message")
+
+    def test_flash_success_with_html(self, app):
+        """
+        Test flash_success messages are rendered.
+        """
+        url = "/flash_success_html_redirect"
+        res = app.get(url)
+        assert body_contains(res, "<h1> This is a success message with HTML</h1>")
 
 
 class FlashMessagePlugin(p.SingletonPlugin):
@@ -34,7 +42,14 @@ class FlashMessagePlugin(p.SingletonPlugin):
 
     def add_flash_success_message(self):
         """Add flash message, then redirect to render it."""
-        h.flash_success(u"This is a success message populated by Flask")
+        h.flash_success(u"This is a success message")
+        return h.redirect_to(
+            h.url_for("test_flash_plugin.flash_message_view")
+        )
+
+    def add_flash_success_message_with_html(self):
+        """Add flash message, then redirect to render it."""
+        h.flash_success(u"<h1> This is a success message with HTML</h1>", allow_html=True)
         return h.redirect_to(
             h.url_for("test_flash_plugin.flash_message_view")
         )
@@ -50,6 +65,11 @@ class FlashMessagePlugin(p.SingletonPlugin):
                 "/flash_success_redirect",
                 "add_flash_success_message",
                 self.add_flash_success_message,
+            ),
+            (
+                "/flash_success_html_redirect",
+                "add_flash_success_message_with_html",
+                self.add_flash_success_message_with_html,
             ),
             (
                 "/flask_view_flash_message",
