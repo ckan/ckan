@@ -1296,7 +1296,7 @@ def search_data(context, data_dict):
 
     query_dict = {
         'select': [],
-        'sort': [],
+        'sort': ['_id'],
         'where': []
     }
 
