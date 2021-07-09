@@ -24,6 +24,7 @@ from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config
 from flask import flash
+from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
@@ -658,6 +659,11 @@ def flash_success(message, allow_html=False):
     if allow_html:
         message = literal(message)
     flash(message, category='alert-success')
+
+
+@core_helper
+def get_flashed_messages(**kwargs):
+    return _flask_get_flashed_messages(**kwargs)
 
 
 def _link_active(kwargs):

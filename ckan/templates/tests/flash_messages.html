@@ -5,7 +5,7 @@
     </head>
     <body>
         Flash messages:
-        {% for category, message in get_flashed_messages(with_categories=true) %}
+        {% for category, message in h.get_flashed_messages(with_categories=true) %}
           <div>
             {{ category }}: {{ h.literal(message) }}
           </div>
