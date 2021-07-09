@@ -5,6 +5,7 @@ import six
 from bs4 import BeautifulSoup
 from unittest.mock import patch
 
+import ckan.authz as authz
 from ckan import model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
@@ -54,14 +55,14 @@ class TestOrganizationNew(object):
 
 @pytest.mark.usefixtures("with_request_context")
 class TestOrganizationList(object):
-    @patch(
-        "ckan.logic.auth.get.organization_list",
-        return_value={"success": False},
-    )
     @pytest.mark.usefixtures("clean_db")
     def test_error_message_shown_when_no_organization_list_permission(
-        self, mock_check_access, app
+        self, monkeypatch, app
     ):
+        authz._AuthFunctions.get('organization_list')
+        monkeypatch.setitem(
+            authz._AuthFunctions._functions, 'organization_list',
+            lambda *args: {'success': False})
         self.user = factories.User()
         self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization_list_url = url_for("organization.index")

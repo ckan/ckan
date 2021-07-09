@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import six
 import pytest
 import pytz
 from ckan.lib import formatters as f

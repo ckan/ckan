@@ -9,7 +9,7 @@ import tzlocal
 from babel import Locale
 from six import text_type
 import pytest
-from ckan.common import config
+
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.exceptions
@@ -745,37 +745,6 @@ class TestBuildNavMain(object):
         )
 
 
-@pytest.mark.skipif(six.PY3, reason="Pylons was removed in Py3")
-@pytest.mark.ckan_config("ckan.plugins", "test_helpers_plugin")
-@pytest.mark.usefixtures("with_plugins")
-class TestHelperException(object):
-
-    def test_helper_exception_non_existing_helper_as_attribute(self, app):
-        """Calling a non-existing helper on `h` raises a HelperException."""
-        app.get("/broken_helper_as_attribute", status=500)
-
-    def test_helper_exception_non_existing_helper_as_item(self, app):
-        """Calling a non-existing helper on `h` raises a HelperException."""
-
-        app.get("/broken_helper_as_item", status=500)
-
-    def test_helper_existing_helper_as_attribute(self, app):
-        """Calling an existing helper on `h` doesn't raises a
-        HelperException."""
-
-        res = app.get("/helper_as_attribute")
-
-        assert helpers.body_contains(res, "My lang is: en")
-
-    def test_helper_existing_helper_as_item(self, app):
-        """Calling an existing helper on `h` doesn't raises a
-        HelperException."""
-
-        res = app.get("/helper_as_item")
-
-        assert helpers.body_contains(res, "My lang is: en")
-
-
 class TestHelpersPlugin(p.SingletonPlugin):
 
     p.implements(p.IRoutes, inherit=True)
@@ -809,21 +778,6 @@ class TestHelpersPlugin(p.SingletonPlugin):
         )
 
         return _map
-
-
-if six.PY2:
-    class TestHelperController(p.toolkit.BaseController):
-        def broken_helper_as_attribute(self):
-            return base.render("tests/broken_helper_as_attribute.html")
-
-        def broken_helper_as_item(self):
-            return base.render("tests/broken_helper_as_item.html")
-
-        def helper_as_attribute(self):
-            return base.render("tests/helper_as_attribute.html")
-
-        def helper_as_item(self):
-            return base.render("tests/helper_as_item.html")
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -904,3 +858,24 @@ class TestAddUrlParam(object):
             assert h.add_url_param(
                 controller=controller, action=action, extras=extras
             ) == h.url_for(controller + '.' + action, **extras)
+
+
+def test_sanitize_url():
+    assert h.sanitize_url(
+        u'http://example.com/some-path/to_a/file.jpg'
+    ) == u'http://example.com/some-path/to_a/file.jpg'
+    assert h.sanitize_url(
+        u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+    assert h.sanitize_url(
+        u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
+    ) == u'http://éxàmple.com/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
+    assert h.sanitize_url('http://bad host/path') == ''
+    assert h.sanitize_url(
+        u'http://x/things" onerror=alert(document.domain)>'
+    ) == u'http://x/things%22%20onerror%3Dalert%28document.domain%29%3E'
+    assert h.sanitize_url(
+        h.sanitize_url(
+            u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
+        )
+    ) == h.sanitize_url(u'http://éxàmple.com/some:path/to+a/fil[e].jpg')

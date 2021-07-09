@@ -5,6 +5,7 @@ import logging
 import sys
 import cgitb
 import warnings
+import base64
 import xml.dom.minidom
 
 import requests
@@ -17,7 +18,7 @@ import ckan.logic as logic
 from ckan.lib.search.common import (
     SearchIndexError, SearchError, SearchQueryError,
     make_connection, is_available, SolrSettings
-)
+    )
 from ckan.lib.search.index import PackageSearchIndex, NoopSearchIndex
 from ckan.lib.search.query import (
     TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
@@ -137,8 +138,8 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
 
-def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
-            defer_commit=False, package_ids=None, quiet=False):
+def rebuild(package_id=None, only_missing=False, force=False, defer_commit=False,
+            package_ids=None, quiet=False, clear=False):
     '''
         Rebuilds the search index.
 
@@ -183,7 +184,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
         else:
             log.info('Rebuilding the whole index...')
             # When refreshing, the index is not previously cleared
-            if not refresh:
+            if clear:
                 package_index.clear()
 
         total_packages = len(package_ids)
@@ -259,7 +260,7 @@ def _get_schema_from_solr(file_offset):
     http_auth = None
     if solr_user is not None and solr_password is not None:
         http_auth = solr_user + ':' + solr_password
-        http_auth = 'Basic ' + http_auth.encode('base64').strip()
+        http_auth = 'Basic {}'.format(base64.b64encode(http_auth.encode('utf8')).strip())
 
     url = solr_url.strip('/') + file_offset
 

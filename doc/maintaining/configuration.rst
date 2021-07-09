@@ -1018,6 +1018,17 @@ Optionally, ``solr_user`` and ``solr_password`` can also be configured to specif
 
 .. _ckan.search.automatic_indexing:
 
+solr_timeout
+^^^^^^^^^^^^
+
+Example::
+
+ solr_timeout = 120
+
+Default value:  ``60``
+
+The option defines the timeout in seconds until giving up on a request. Raising this value might help you if you encounter a timeout exception.
+
 ckan.search.automatic_indexing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1760,7 +1771,7 @@ Default value: ``7200``
 Duration (in seconds) for which the saved state information is considered valid. After this period has elapsed, the table's state will
 be returned to the default, and the state cleared from the browser's localStorage.
 
-.. note:: The value ``0`` is a special value as it indicates that the state can be stored and retrieved indefinitely with no time limit. 
+.. note:: The value ``0`` is a special value as it indicates that the state can be stored and retrieved indefinitely with no time limit.
 
 .. _ckan.datatables.data_dictionary_labels:
 
@@ -1774,7 +1785,7 @@ Example::
 Default value: ``True``
 
 Enable or disable data dictionary integration. When enabled, a column's data dictionary label will be used in the table header. A tooltip for each
-column with data dictionary information will also be integrated into the header. 
+column with data dictionary information will also be integrated into the header.
 
 .. _ckan.datatables.ellipsis_length:
 
@@ -2103,6 +2114,19 @@ Default value: ``20``
 
 This controls the number of users to show in the Users list. By default, it shows 20 users.
 
+.. _ckan.user_reset_landing_page:
+
+ckan.user_reset_landing_page
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.user_reset_landing_page = dataset
+
+Default value: ``home.index``
+
+This controls the page where users will be sent after requesting a password reset.
+This is ordinarily the home page, but specific sites may prefer somewhere else.
 
 Activity Streams Settings
 -------------------------

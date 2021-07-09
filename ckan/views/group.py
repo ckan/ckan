@@ -247,14 +247,14 @@ def _read(id, limit, group_type):
     page = h.get_page_number(request.params)
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.params.items() if k != u'page']
+    params_nopage = [(k, v) for k, v in request.params.items(multi=True)
+                     if k != u'page']
     sort_by = request.params.get(u'sort', None)
 
     def search_url(params):
-        controller = lookup_group_controller(group_type)
         action = u'bulk_process' if getattr(
             g, u'action', u'') == u'bulk_process' else u'read'
-        url = h.url_for(u'.'.join([controller, action]), id=id)
+        url = h.url_for(u'.'.join([group_type, action]), id=id)
         params = [(k, v.encode(u'utf-8')
                    if isinstance(v, string_types) else str(v))
                   for k, v in params]
@@ -513,6 +513,8 @@ def changes(id, group_type, is_organization):
     Shows the changes to an organization in one particular activity stream
     item.
     '''
+    set_org(is_organization)
+    extra_vars = {}
     activity_id = id
     context = {
         u'model': model, u'session': model.Session,
@@ -541,14 +543,14 @@ def changes(id, group_type, is_organization):
         }
     )
 
-    return base.render(
-        u'organization/changes.html', {
-            u'activity_diffs': [activity_diff],
-            u'group_dict': current_group_dict,
-            u'group_activity_list': group_activity_list,
-            u'group_type': current_group_dict[u'type'],
-        }
-    )
+    extra_vars = {
+        u'activity_diffs': [activity_diff],
+        u'group_dict': current_group_dict,
+        u'group_activity_list': group_activity_list,
+        u'group_type': current_group_dict[u'type'],
+    }
+
+    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
 
 
 def changes_multiple(is_organization, group_type=None):
@@ -558,7 +560,8 @@ def changes_multiple(is_organization, group_type=None):
     activity diffs for the changes in the given version range, then
     re-renders changes.html with the list.
     '''
-
+    set_org(is_organization)
+    extra_vars = {}
     new_id = h.get_request_param(u'new_id')
     old_id = h.get_request_param(u'old_id')
 
@@ -624,14 +627,14 @@ def changes_multiple(is_organization, group_type=None):
         u'id': group_id,
         u'limit': 100})
 
-    return base.render(
-        u'organization/changes.html', {
-            u'activity_diffs': diff_list,
-            u'group_dict': current_group_dict,
-            u'group_activity_list': group_activity_list,
-            u'group_type': current_group_dict[u'type'],
-        }
-    )
+    extra_vars = {
+        u'activity_diffs': diff_list,
+        u'group_dict': current_group_dict,
+        u'group_activity_list': group_activity_list,
+        u'group_type': current_group_dict[u'type'],
+    }
+
+    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
 
 
 def about(id, group_type, is_organization):
@@ -1163,18 +1166,13 @@ class DeleteGroupView(MethodView):
                 u'has been deleted') or _(u'Group')
             h.flash_notice(
                 _(u'%s has been deleted.') % _(group_label))
-            group_dict = _action(u'group_show')(context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
             h.flash_error(e.error_dict['message'])
-            return h.redirect_to(u'organization.read', id=id)
-
             return h.redirect_to(u'{}.read'.format(group_type), id=id)
-        # TODO: Remove
-        g.group_dict = group_dict
 
         return h.redirect_to(u'{}.index'.format(group_type))
 
@@ -1329,7 +1327,7 @@ def register_group_plugin_rules(blueprint):
             view_func=globals()[action])
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(
-        u'/organization.changes_multiple',
+        u'/changes_multiple',
         view_func=changes_multiple)
 
 

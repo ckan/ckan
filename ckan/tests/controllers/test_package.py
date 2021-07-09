@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from werkzeug.routing import BuildError
 import unittest.mock as mock
 
+import ckan.authz as authz
 from ckan.lib.helpers import url_for
 import pytest
 import six
@@ -55,16 +56,18 @@ class TestPackageNew(object):
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
     @pytest.mark.ckan_config("ckan.auth.user_create_organizations", "false")
-    @mock.patch("ckan.logic.auth.create.package_create")
     def test_needs_organization_but_no_organizations_no_button(
-        self, mock_p_create, app
+        self, monkeypatch, app
     ):
         """ Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is not allowed to create an
         organization they should be told to ask the admin but no link should be
         presented. Note: This cannot happen with the default ckan and requires
         a plugin to overwrite the package_create behavior"""
-        mock_p_create.return_value = {"success": True}
+        authz._AuthFunctions.get('package_create')
+        monkeypatch.setitem(
+            authz._AuthFunctions._functions, 'package_create',
+            lambda *args: {'success': True})
 
         user = factories.User()
 
@@ -1567,6 +1570,25 @@ class TestSearch(object):
         assert len(ds_titles) == 1
         assert "Dataset One" in ds_titles
 
+    @pytest.mark.ckan_config('ckan.datasets_per_page', 1)
+    def test_repeatable_params(self, app):
+        """Searching for datasets returns expected results."""
+
+        factories.Dataset(name="dataset-one", title="Test Dataset One")
+        factories.Dataset(name="dataset-two", title="Test Dataset Two")
+
+        search_url = url_for("dataset.search", title=['Test', 'Dataset'])
+        search_results = app.get(search_url)
+        html = BeautifulSoup(search_results.data)
+        links = html.select('.pagination a')
+        # first, second and "Next" pages
+        assert len(links) == 3
+
+        params = [set(urlparse(a['href']).query.split('&')) for a in links]
+        for group in params:
+            assert 'title=Test' in group
+            assert 'title=Dataset' in group
+
     def test_search_page_no_results(self, app):
         """Search with non-returning phrase returns no results."""
 
@@ -2302,12 +2324,8 @@ class TestCollaborators(object):
         assert 'Collaborators' not in response
 
         # Route not registered
-        if six.PY2:
+        with pytest.raises(BuildError):
             url = url_for('dataset.collaborators_read', id=dataset['name'])
-            assert url.startswith('dataset.collaborators_read')
-        else:
-            with pytest.raises(BuildError):
-                url = url_for('dataset.collaborators_read', id=dataset['name'])
         app.get(
             '/dataset/collaborators/{}'.format(dataset['name']), extra_environ=env, status=404)
 

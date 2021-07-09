@@ -88,7 +88,10 @@
   {{- _('Data last updated') }}: {{ local_friendly_datetime(res.last_modified) }}&#10;
   {{- _('Metadata last updated') }}: {{ local_friendly_datetime(res.metadata_modified) }}&#10;
   {{- _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
-  {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') }} ( {{ h.SI_number_span(res.size)|striptags }} )&#10;"
+  {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') -}}&nbsp;
+  {%- if res.size|int != 0 -%}
+   ( {{ h.SI_number_span(res.size)|striptags }} )
+  {%- endif -%}
 </div>
 {%- endblock -%}
 {%- block styles -%}

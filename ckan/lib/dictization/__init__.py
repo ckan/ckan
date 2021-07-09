@@ -4,7 +4,6 @@ import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
 
-import six
 from six import text_type
 from ckan.model.core import State
 
@@ -30,9 +29,6 @@ def table_dictize(obj, context, **kw):
     '''Get any model object and represent it as a dict'''
 
     result_dict = {}
-
-    model = context["model"]
-    session = model.Session
 
     if isinstance(obj, RowProxy):
         fields = obj.keys()

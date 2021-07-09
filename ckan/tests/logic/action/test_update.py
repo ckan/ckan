@@ -4,7 +4,6 @@ import datetime
 
 import unittest.mock as mock
 import pytest
-import six
 
 import ckan
 import ckan.lib.app_globals as app_globals
@@ -274,8 +273,13 @@ class TestUpdate(object):
         user = factories.User()
 
         # A mock validator method, it doesn't do anything but it records what
-        # params it gets called with and how many times.
-        mock_validator = mock.MagicMock()
+        # params it gets called with and how many times. We are using function
+        # instead of MagicMock, because validator must have __code__ attribute
+        calls = []
+
+        def mock_validator(v):
+            calls.append(v)
+            return v
 
         # Build a custom schema by taking the default schema and adding our
         # mock method to its 'id' field.
@@ -294,6 +298,7 @@ class TestUpdate(object):
             password=factories.User.password,
             fullname="updated full name",
         )
+        assert calls == [user['id']]
 
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
@@ -1208,7 +1213,7 @@ class TestResourceUpdate(object):
         assert "extras" not in resource
         assert "someotherkey" not in resource
 
-    @helpers.change_config(
+    @pytest.mark.ckan_config(
         "ckan.views.default_views", "image_view recline_view"
     )
     def test_resource_format_update(self):

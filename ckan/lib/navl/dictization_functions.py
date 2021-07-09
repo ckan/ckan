@@ -2,9 +2,8 @@
 
 import copy
 import json
-
 import six
-from six import text_type
+
 from ckan.common import config, _
 
 
@@ -219,35 +218,27 @@ def augment_data(data, schema):
 
 
 def convert(converter, key, converted_data, errors, context):
-
     try:
-        value = converter(converted_data.get(key))
-        converted_data[key] = value
-        return
-    except TypeError as e:
-        # hack to make sure the type error was caused by the wrong
-        # number of arguments given.
-        if converter.__name__ not in str(e):
-            raise
-    except Invalid as e:
-        errors[key].append(e.error)
-        return
-
+        nargs = converter.__code__.co_argcount
+    except AttributeError:
+        raise TypeError(
+            f"{converter.__name__} cannot be used as validator "
+            "because it is not a user-defined function")
+    if nargs == 1:
+        params = (converted_data.get(key),)
+    elif nargs == 2:
+        params = (converted_data.get(key), context)
+    elif nargs == 4:
+        params = (key, converted_data, errors, context)
+    else:
+        raise TypeError(
+            "Wrong number of arguments for "
+            f"{converter.__name__}(expected 1, 2 or 4): {nargs}")
     try:
-        converter(key, converted_data, errors, context)
-        return
-    except Invalid as e:
-        errors[key].append(e.error)
-        return
-    except TypeError as e:
-        # hack to make sure the type error was caused by the wrong
-        # number of arguments given.
-        if converter.__name__ not in str(e):
-            raise
-
-    try:
-        value = converter(converted_data.get(key), context)
-        converted_data[key] = value
+        value = converter(*params)
+        # 4-args version sets value internally
+        if nargs != 4:
+            converted_data[key] = value
         return
     except Invalid as e:
         errors[key].append(e.error)

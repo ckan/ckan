@@ -54,7 +54,6 @@ Dictionary with search facets(or `c.search_facets` if not provided)
 		    {% block facet_list_heading %}
 			<h2 class="module-heading">
 			    <i class="fa fa-filter"></i>
-			    {% set title = title or h.get_facet_title(name) %}
 			    {{ title }}
 			</h2>
 		    {% endblock %}

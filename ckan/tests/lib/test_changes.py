@@ -5,7 +5,7 @@ import copy
 import pytest
 from ckan.lib.changes import check_metadata_changes, check_resource_changes
 from ckan.tests import helpers
-from ckan.tests.factories import Dataset, Organization, Group
+from ckan.tests.factories import Dataset, Organization
 
 
 def _new_pkg(new):

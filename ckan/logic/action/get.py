@@ -44,30 +44,10 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 _select = sqlalchemy.sql.select
-_aliased = sqlalchemy.orm.aliased
 _or_ = sqlalchemy.or_
 _and_ = sqlalchemy.and_
 _func = sqlalchemy.func
-_desc = sqlalchemy.desc
 _case = sqlalchemy.case
-_text = sqlalchemy.text
-
-
-def _activity_stream_get_filtered_users():
-    '''
-    Get the list of users from the :ref:`ckan.hide_activity_from_users` config
-    option and return a list of their ids. If the config is not specified,
-    returns the id of the site user.
-    '''
-    users = config.get('ckan.hide_activity_from_users')
-    if users:
-        users_list = users.split()
-    else:
-        context = {'model': model, 'ignore_auth': True}
-        site_user = logic.get_action('get_site_user')(context)
-        users_list = [site_user.get('name')]
-
-    return model.User.user_ids_for_name_or_id(users_list)
 
 
 def site_read(context, data_dict=None):
@@ -141,7 +121,6 @@ def current_package_list_with_resources(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
     limit = data_dict.get('limit')
     offset = data_dict.get('offset', 0)
     user = context['user']
@@ -2417,8 +2396,8 @@ def status_show(context, data_dict):
 
     '''
 
-    plugins = config.get('ckan.plugins') 
-    extensions = plugins.split() if plugins else [] 
+    plugins = config.get('ckan.plugins')
+    extensions = plugins.split() if plugins else []
 
     return {
         'site_title': config.get('ckan.site_title'),
@@ -2534,6 +2513,11 @@ def package_activity_list(context, data_dict):
         NB Only sysadmins may set include_hidden_activity to true.
         (default: false)
     :type include_hidden_activity: bool
+    :param activity_types: A list of activity types to include in the response
+    :type activity_types: list
+
+    :param exclude_activity_types: A list of activity types to exclude from the response
+    :type exclude_activity_types: list
 
     :rtype: list of dictionaries
 
@@ -2542,6 +2526,12 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
+    activity_types = data_dict.pop('activity_types', None)
+    exclude_activity_types = data_dict.pop('exclude_activity_types', None)
+
+    if activity_types is not None and exclude_activity_types is not None:
+        raise ValidationError({'activity_types': ['Cannot be used together with `exclude_activity_types']})
+
     _check_access('package_activity_list', context, data_dict)
 
     model = context['model']
@@ -2557,6 +2547,8 @@ def package_activity_list(context, data_dict):
     activity_objects = model.activity.package_activity_list(
         package.id, limit=limit, offset=offset,
         include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types,
+        exclude_activity_types=exclude_activity_types
     )
 
     return model_dictize.activity_list_dictize(
@@ -3257,7 +3249,6 @@ def activity_show(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     include_data = asbool(_get_or_bust(data_dict, 'include_data'))
 
@@ -3288,7 +3279,6 @@ def activity_data_show(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = data_dict.get('object_type')
 
@@ -3325,10 +3315,8 @@ def activity_diff(context, data_dict):
     :type diff_type: string
     '''
     import difflib
-    from pprint import pformat
 
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = _get_or_bust(data_dict, 'object_type')
     diff_type = data_dict.get('diff_type', 'unified')

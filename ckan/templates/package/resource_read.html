@@ -52,13 +52,13 @@
                 <ul class="dropdown-menu">
                   <li>
                     <a href="{{ h.url_for('datastore.dump', resource_id=res.id, bom=True) }}"
-                      target="_blank"><span>CSV</span></a>
+                      target="_blank" rel="noreferrer"><span>CSV</span></a>
                     <a href="{{ h.url_for('datastore.dump', resource_id=res.id, format='tsv', bom=True) }}"
-                      target="_blank"><span>TSV</span></a>
+                      target="_blank" rel="noreferrer"><span>TSV</span></a>
                     <a href="{{ h.url_for('datastore.dump', resource_id=res.id, format='json') }}"
-                      target="_blank"><span>JSON</span></a>
+                      target="_blank" rel="noreferrer"><span>JSON</span></a>
                     <a href="{{ h.url_for('datastore.dump', resource_id=res.id, format='xml') }}"
-                      target="_blank"><span>XML</span></a>
+                      target="_blank" rel="noreferrer"><span>XML</span></a>
                   </li>
                 </ul>
                   {% endif %}
@@ -75,8 +75,9 @@
             {% if is_activity_archive %}
               <div id="activity-archive-notice" class="alert alert-danger">
                 {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
-                You're currently viewing an old version of this dataset. To see the
-                current version, click <a href="{{ url }}">here</a>.
+                You're currently viewing an old version of this dataset.
+                Data files may not match the old version of the metadata.
+                <a href="{{ url }}">View the current version</a>.
                 {% endtrans %}
               </div>
             {% endif %}
@@ -96,7 +97,7 @@
             {% if not res.description and package.notes %}
               <h3>{{ _('Dataset description:') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-              <p>{% trans dataset=package.title, url=h.url_for(package.type ~ '.read', id=package.id if is_activity_archive else package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.id if is_activity_archive else package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
             {% endif %}
           </div>
         {% endblock %}

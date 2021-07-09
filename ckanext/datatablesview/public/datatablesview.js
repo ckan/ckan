@@ -16,7 +16,7 @@ let datatable
 const gisFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1
 let gsearchMode = ''
 let gstartTime = 0
-let gelaspedTime
+let gelapsedTime
 
 // HELPER FUNCTIONS
 // helper for filtered downloads
@@ -218,7 +218,7 @@ function hideSearchInputs (columns) {
 
 // helper for setting up filterObserver
 function initFilterObserver () {
-  // if no filter is active, make all search inputs background transparent & turn off filter tooltip
+  // if no filter is active, toggle filter tooltip as required
   // this is less expensive than querying the DT api to check global filter and each column
   // separately for filter status. Here, we're checking if an open parenthesis is in the filter info,
   // which indicates that there is a filter active, regardless of language
@@ -226,8 +226,6 @@ function initFilterObserver () {
   const filterObserver = new MutationObserver(function (e) {
     const infoText = document.getElementById('dtprv_info').innerText
     if (!infoText.includes('(')) {
-      $('#dtprv_filter input').css('background-color', 'transparent')
-      $('th.fhead input').css('background-color', 'transparent')
       document.getElementById('filterinfoicon').style.visibility = 'hidden'
     } else {
       document.getElementById('filterinfoicon').style.visibility = 'visible'
@@ -241,21 +239,21 @@ function initFilterObserver () {
 // helper for converting links in text into clickable links
 const linkify = (input) => {
   let text = input
-  const linksFound = text.match(/(\b(www|https?)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig)
+  const linksFound = text.match(/(\b(https?)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig)
   const links = []
   if (linksFound != null) {
     if (linksFound.length === 1 && input.match(/\.(jpeg|jpg|gif|png|svg|apng|webp|avif)$/)) {
       // the whole text is just one link and its a picture, create a thumbnail
       text = '<div class="thumbnail zoomthumb"><a href="' + linksFound[0] + '" target="_blank"><img src="' + linksFound[0] + '"></a></div>'
-      return text
+      return { text: text, links: linksFound }
     }
     for (let i = 0; i < linksFound.length; i++) {
       links.push('<a href="' + linksFound[i] + '" target="_blank">' + linksFound[i] + '</a>')
       text = text.split(linksFound[i]).map(item => { return item }).join(links[i])
     }
-    return text
+    return { text: text, links: linksFound }
   } else {
-    return input
+    return { text: input, links: [] }
   }
 }
 
@@ -283,7 +281,7 @@ this.ckan.module('datatables_view', function (jQuery) {
       const stateduration = parseInt(dtprv.data('state-duration'))
       const ellipsislength = parseInt(dtprv.data('ellipsis-length'))
       const dateformat = dtprv.data('date-format').trim()
-      const formatdateflag = dateformat.toUpperCase() === 'NONE' ? false : true
+      const formatdateflag = dateformat.toUpperCase() !== 'NONE'
       const packagename = dtprv.data('package-name')
       const responsiveflag = dtprv.data('responsive-flag')
       const pagelengthchoices = dtprv.data('page-length-choices')
@@ -330,36 +328,53 @@ this.ckan.module('datatables_view', function (jQuery) {
             break
           default:
             colDict.type = 'html'
-            if (ellipsislength) {
-              colDict.render = function (data, type, row, meta) {
-                // Order, search and type get the original data
-                if (type !== 'display') {
-                  return data
-                }
-                if (typeof data !== 'number' && typeof data !== 'string') {
-                  return data
-                }
-                data = data.toString() // cast numbers
-                const linkifiedData = linkify(data)
-                // if there are no http links, see if we need to apply ellipsis truncation logic
-                if (linkifiedData === data) {
-                  if (data.length <= ellipsislength) {
-                    return data
-                  }
-                  const shortened = data.substr(0, ellipsislength - 1)
-                  return '<span class="ellipsis" title="' + esc(data) + '">' + shortened + '&#8230;</span>'
-                } else {
-                  // there are links
-                  const strippedData = linkifiedData.replace(/(<([^>]+)>)/gi, '')
-                  if (strippedData.length <= ellipsislength) {
-                    return linkifiedData
-                  }
-                  const shortened = linkifiedData.substr(0, ellipsislength - 1)
-                  return '<span class="ellipsis" title="' + esc(strippedData) + '">' + shortened + '&#8230;</span>'
-                }
-              }
-            } else {
+            if (!ellipsislength) {
               colDict.className = 'wrapcell'
+            }
+            colDict.render = function (data, type, row, meta) {
+              // Order, search and type get the original data
+              if (type !== 'display') {
+                return data
+              }
+              if (typeof data !== 'number' && typeof data !== 'string') {
+                return data
+              }
+              data = data.toString() // cast numbers
+
+              const linkifiedData = linkify(data)
+              // if there are no http links, see if we need to apply ellipsis truncation logic
+              if (!linkifiedData.links) {
+                // no links, just do simple truncation if ellipsislength is defined
+                if (!ellipsislength || data.length <= ellipsislength) {
+                  return data
+                }
+                const shortened = data.substr(0, ellipsislength - 1).trimEnd()
+                return '<span class="ellipsis" title="' + esc(data) + '">' + shortened + '&#8230;</span>'
+              } else {
+                // there are links
+                const strippedData = linkifiedData.text.replace(/(<([^>]+)>)/gi, '')
+                if (!ellipsislength || strippedData.length <= ellipsislength) {
+                  return linkifiedData.text
+                }
+                let linkpos = ellipsislength
+                let lastpos = ellipsislength
+                let lastlink = ''
+                let addLen = 0
+                // check if truncation point is in the middle of a link
+                for (const aLink of linkifiedData.links) {
+                  linkpos = data.indexOf(aLink)
+                  if (linkpos + aLink.length >= ellipsislength) {
+                    // truncation point is in the middle of a link, truncate to where the link started
+                    break
+                  } else {
+                    addLen = addLen + lastlink.length ? (lastlink.length) + 31 : 0 // 31 is the number of other chars in the full anchor tag
+                    lastpos = linkpos
+                    lastlink = aLink
+                  }
+                }
+                const shortened = linkifiedData.text.substr(0, lastpos + addLen).trimEnd()
+                return '<span class="ellipsis" title="' + esc(strippedData) + '">' + shortened + '&#8230;</span>'
+              }
             }
         }
         dynamicCols.push(colDict)
@@ -411,14 +426,15 @@ this.ckan.module('datatables_view', function (jQuery) {
             // render the Record Details in a modal dialog box
             // do not render the _colspacer column, which has the 'none' class
             // the none class in responsive mode forces the _colspacer column to be hidden
-            // guaranteeing the green display record button is always displayed, even for narrow tables
+            // guaranteeing the blue record details button is always displayed, even for narrow tables
+            // also, when a column's content has been truncated with an ellipsis, show the untruncated content
             renderer: function (api, rowIdx, columns) {
               const data = $.map(columns, function (col, i) {
                 return col.className !== 'none'
                   ? '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
-                    '<td>' + col.title + ':' + '</td> ' +
-                    '<td>' + col.data + '</td>' +
-                    '</tr>'
+                    '<td>' + col.title + ':' + '</td><td>' +
+                    (col.data.startsWith('<span class="ellipsis"') ? col.data.substr(30, col.data.indexOf('">') - 30) : col.data) +
+                    '</td></tr>'
                   : ''
               }).join('')
               return data ? $('<table class="dtr-details" width="100%"/>').append(data) : false
@@ -454,6 +470,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               datatable
                 .column(colSelector)
                 .search(this.value)
+                .page(0)
                 .draw(false)
               gsearchMode = 'column'
             }
@@ -588,7 +605,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           // on mouseenter on Search info icon, update tooltip with filterinfo
           $('#filterinfoicon').mouseenter(function () {
             document.getElementById('filterinfoicon').title = filterInfo(datatable, true, true, true) +
-              '\n' + (gelaspedTime / 1000).toFixed(2) + ' ' + that._('seconds') + '\n' +
+              '\n' + (gelapsedTime / 1000).toFixed(2) + ' ' + that._('seconds') + '\n' +
               that._('Double-click to reset filters')
           })
 
@@ -824,12 +841,12 @@ this.ckan.module('datatables_view', function (jQuery) {
       // EVENT HANDLERS
       // called before making AJAX request
       datatable.on('preXhr', function (e, settings, data) {
-        gstartTime = performance.now()
+        gstartTime = window.performance.now()
       })
 
       // called after getting an AJAX response from CKAN
       datatable.on('xhr', function (e, settings, json, xhr) {
-        gelaspedTime = performance.now() - gstartTime
+        gelapsedTime = window.performance.now() - gstartTime
       })
 
       // save state of table when row selection is changed
@@ -842,7 +859,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         hideSearchInputs(columns)
       })
 
-      // a language file has been loaded asynch
+      // a language file has been loaded async
       // this only happens when a non-english language is loaded
       datatable.on('i18n', function () {
         // and we need to ensure Filter Observer is in place

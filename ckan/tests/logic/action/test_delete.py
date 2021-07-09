@@ -6,11 +6,9 @@ import pytest
 from six import text_type
 
 import ckan.lib.jobs as jobs
-import ckan.lib.search as search
 import ckan.lib.api_token as api_token
 import ckan.logic as logic
 import ckan.model as model
-import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 

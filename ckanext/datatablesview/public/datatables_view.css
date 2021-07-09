@@ -46,7 +46,7 @@ table.dataTable td {
 
 /* but show the data on hover */
 table.dataTable td:hover {
-   white-space: normal;
+   white-space: break-spaces;  /* normal; */
    word-break: break-all;
    overflow: visible;
    text-overflow: visible;
