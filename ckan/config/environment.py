@@ -238,10 +238,6 @@ def update_config():
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
 
-    # reset the template cache - we do this here so that when we load the
-    # environment it is clean
-    render.reset_template_info_cache()
-
     # clear other caches
     logic.clear_actions_cache()
     logic.clear_validators_cache()
