@@ -94,12 +94,6 @@ def render_snippet(*template_names, **kw):
         raise last_exc or TemplateNotFound
 
 
-def render_jinja2(template_name, extra_vars):
-    env = config['pylons.app_globals'].jinja_env
-    template = env.get_template(template_name)
-    return template.render(**extra_vars)
-
-
 def render(template_name, extra_vars=None):
     '''Render a template and return the output.
 
