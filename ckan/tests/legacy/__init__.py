@@ -335,10 +335,6 @@ def is_datastore_supported():
     return is_supported_db
 
 
-def clear_flash(res=None):
-    messages = h._flash.pop_messages()
-
-
 class StatusCodes:
     STATUS_200_OK = 200
     STATUS_201_CREATED = 201
