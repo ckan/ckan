@@ -18,6 +18,7 @@ class TestWithFlashPlugin:
         url = "/flash_success_redirect"
         res = app.get(url)
         assert body_contains(res, "This is a success message")
+        assert body_contains(res, 'alert-success')
 
     def test_flash_success_with_html(self, app):
         """
@@ -26,6 +27,7 @@ class TestWithFlashPlugin:
         url = "/flash_success_html_redirect"
         res = app.get(url)
         assert body_contains(res, "<h1> This is a success message with HTML</h1>")
+        assert body_contains(res, 'alert-success')
 
 
 class FlashMessagePlugin(p.SingletonPlugin):
