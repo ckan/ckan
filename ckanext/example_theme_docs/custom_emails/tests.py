@@ -6,7 +6,7 @@ from ckan import plugins
 import ckan.model as model
 import ckan.lib.mailer as mailer
 from ckan.tests import factories
-from ckan.lib.base import render_jinja2
+from ckan.lib.base import render
 from ckan.common import config
 
 from ckan.tests.lib.test_mailer import MailerBase
@@ -43,7 +43,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         assert len(msgs) == 1
         msg = msgs[0]
         extra_vars = {"site_title": config.get("ckan.site_title")}
-        expected = render_jinja2(
+        expected = render(
             "emails/reset_password_subject.txt", extra_vars
         )
         expected = expected.split("\n")[0]
@@ -63,7 +63,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         assert len(msgs) == 1
         msg = msgs[0]
         extra_vars = {"reset_link": mailer.get_reset_link(user_obj)}
-        expected = render_jinja2("emails/reset_password.txt", extra_vars)
+        expected = render("emails/reset_password.txt", extra_vars)
         body = self.get_email_body(msg[3])
         assert expected == body
         assert "**test**" in body
@@ -81,7 +81,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         extra_vars = {
             "site_title": config.get("ckan.site_title"),
         }
-        expected = render_jinja2("emails/invite_user_subject.txt", extra_vars)
+        expected = render("emails/invite_user_subject.txt", extra_vars)
         expected = expected.split("\n")[0]
 
         subject = self.get_email_subject(msg[3])
@@ -103,7 +103,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
             "user_name": user["name"],
             "site_title": config.get("ckan.site_title"),
         }
-        expected = render_jinja2("emails/invite_user.txt", extra_vars)
+        expected = render("emails/invite_user.txt", extra_vars)
         body = self.get_email_body(msg[3])
         assert expected == body
         assert "**test**" in body
