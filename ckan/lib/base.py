@@ -40,7 +40,7 @@ APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 def abort(status_code=None, detail='', headers=None, comment=None):
     '''Abort the current request immediately by returning an HTTP exception.
 
-    This is a wrapper for :py:func:`pylons.controllers.util.abort` that adds
+    This is a wrapper for :py:func:`flask.abort` that adds
     some CKAN custom behavior, including allowing
     :py:class:`~ckan.plugins.interfaces.IAuthenticator` plugins to alter the
     abort response, and showing flash messages in the web interface.
