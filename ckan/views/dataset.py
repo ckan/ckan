@@ -8,6 +8,7 @@ from datetime import datetime
 
 from flask import Blueprint
 from flask.views import MethodView
+from jinja2.exceptions import TemplateNotFound
 from werkzeug.datastructures import MultiDict
 from ckan.common import asbool
 
@@ -24,7 +25,6 @@ import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
-from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
 from ckan.views import LazyView
 
