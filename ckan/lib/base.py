@@ -5,29 +5,18 @@
 Provides the BaseController class for subclassing.
 """
 import logging
-import time
-import inspect
-import sys
 
 from jinja2.exceptions import TemplateNotFound
 
-import six
 from flask import (
     render_template as flask_render_template,
     abort as flask_abort
 )
 
-import ckan.lib.i18n as i18n
-import ckan.lib.render as render_
 import ckan.lib.helpers as h
-import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
-import ckan.model as model
-from ckan.views import (identify_user,
-                        set_cors_headers_for_response,
-                        check_session_cookie,
-                        )
-from ckan.common import (c, request, config,
+
+from ckan.common import (request, config,
                          session, asbool)
 
 
