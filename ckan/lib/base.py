@@ -165,7 +165,3 @@ def _is_valid_session_cookie_data():
             break
 
     return is_valid_cookie_data
-
-
-class ValidationException(Exception):
-    pass
