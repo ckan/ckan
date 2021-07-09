@@ -18,7 +18,6 @@ from flask import (
 )
 
 import ckan.lib.i18n as i18n
-import ckan.lib.render as render_
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
