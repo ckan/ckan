@@ -312,7 +312,6 @@ class TestPep8(object):
         "ckan/lib/dictization/model_save.py",
         "ckan/lib/email_notifications.py",
         "ckan/lib/hash.py",
-        "ckan/lib/help/flash_messages.py",
         "ckan/lib/jinja_extensions.py",
         "ckan/lib/jsonp.py",
         "ckan/lib/maintain.py",
