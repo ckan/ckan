@@ -64,7 +64,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "ckan"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
 
   solr:
     container_name: solr
