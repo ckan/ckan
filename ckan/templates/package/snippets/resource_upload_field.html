@@ -20,12 +20,13 @@ placeholder - placeholder text for url field
 #}
 {% import "macros/form.html" as form %}
 
+{% set first_button = 'resource-upload-button' if is_upload_enabled else 'resource-link-button' %}
 
 {% macro remove_button() %}
   <button type="button" class="btn btn-danger btn-remove-url"
     onclick="
       document.getElementById('resource-url-none').checked = true;
-      document.getElementById('{{ 'resource-upload-button' if is_upload_enabled else 'resource-link-button' }}').focus();
+      document.getElementById('{{ first_button }}').focus();
     ">{{ _('Remove') }}</button>
 {% endmacro %}
 
@@ -33,8 +34,9 @@ placeholder - placeholder text for url field
   <input type="radio" id="resource-url-none" name="url_type" value="" {{
     'checked' if not data.url and not data.url_type else '' }}>
   <div class="select-type">
-    <label class="control-label">{{ menu_label or _('Data') }}</label>
-    <div>
+    <label id="resource-menu-label" class="control-label"
+      >{{ menu_label or _('Data') }}</label>
+    <div role="group" aria-labelledby="resource-menu-label">
       {% block url_type_select %}
         {% if is_upload_enabled %}
           <button type="button" class="btn btn-default" id="resource-upload-button"
