@@ -643,7 +643,7 @@ def flash_notice(message, allow_html=False):
     if allow_html:
         message = Markup(message)
     else:
-        message=escape(message)
+        message = escape(message)
     flash(message, category='alert-info')
 
 
@@ -653,7 +653,7 @@ def flash_error(message, allow_html=False):
     if allow_html:
         message = Markup(message)
     else:
-        message=escape(message)
+        message = escape(message)
     flash(message, category='alert-error')
 
 
@@ -663,7 +663,7 @@ def flash_success(message, allow_html=False):
     if allow_html:
         message = Markup(message)
     else:
-        message=escape(message)
+        message = escape(message)
     flash(message, category='alert-success')
 
 
