@@ -20,6 +20,15 @@ placeholder - placeholder text for url field
 #}
 {% import "macros/form.html" as form %}
 
+
+{% macro remove_button() %}
+  <button type="button" class="btn btn-danger btn-remove-url"
+    onclick="
+      document.getElementById('resource-url-none').checked = true;
+      document.getElementById('{{ 'resource-upload-button' if is_upload_enabled else 'resource-link-button' }}').focus();
+    ">{{ _('Remove') }}</button>
+{% endmacro %}
+
 <div data-module="resource-upload-field" class="resource-upload-field form-group">
   <input type="radio" id="resource-url-none" name="url_type" value="" {{
     'checked' if not data.url and not data.url_type else '' }}>
@@ -28,13 +37,19 @@ placeholder - placeholder text for url field
     <div>
       {% block url_type_select %}
         {% if is_upload_enabled %}
-          <label class="btn btn-default" for="resource-url-upload"
-            title="{{ _('Upload a file on your computer') }}"><i
-            class="fa fa-cloud-upload"></i>{{ _("Upload") }}</label>
+          <button type="button" class="btn btn-default" id="resource-upload-button"
+            title="{{ _('Upload a file on your computer') }}"
+            onclick="
+              document.getElementById('resource-url-upload').checked = true;
+              document.getElementById('field-resource-upload').focus();
+            "><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
         {% endif %}
-        <label class="btn btn-default" for="resource-url-link"
-          title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"><i
-          class="fa fa-globe"></i>{{ _('Link') }}</label>
+        <button type="button" class="btn btn-default" id="resource-link-button"
+          title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"
+            onclick="
+              document.getElementById('resource-url-link').checked = true;
+              document.getElementById('field-resource-url').focus();
+            "><i class="fa fa-globe"></i>{{ _('Link') }}</button>
       {% endblock %}
     </div>
   </div>
@@ -49,8 +64,11 @@ placeholder - placeholder text for url field
             {# for existing uploads we show the file name in a readonly input box #}
             <input type="checkbox" id="field-clear-upload" value="true">
             <div class="upload-type">
-              <label class="btn btn-danger btn-remove-url" for="field-clear-upload"
-                >{{ _('Clear Upload') }}</label>
+              <button type="button" class="btn btn-danger btn-remove-url"
+                onclick="
+                  document.getElementById('field-clear-upload').checked = true;
+                  document.getElementById('field-resource-upload').focus();
+                ">{{ _('Clear Upload') }}</button>
               <label class="control-label">{{ upload_label or _('File') }}</label>
               <div class="controls">
                 {% set existing_name = data.get('url', '').split('/')[-1].split('?')[0].split('#')[0] %}
@@ -59,7 +77,7 @@ placeholder - placeholder text for url field
             </div>
           {% endif %}
           <div class="upload-type">
-            <label class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
+            {{ remove_button() }}
             {{ form.input(
               'upload',
               label=upload_label or _('File'),
@@ -75,7 +93,7 @@ placeholder - placeholder text for url field
       'checked' if is_url else '' }}>
     <div class="select-type">
       {% block link_controls %}
-        <label id="resource-url-link-clear" class="btn btn-danger btn-remove-url" for="resource-url-none">{{ _('Remove') }}</label>
+        {{ remove_button() }}
         {{ form.input(
           'url',
           label=url_label or _('URL'),
