@@ -2,11 +2,6 @@ this.ckan.module('resource-upload-field', function (jQuery) {
   var _nameIsDirty = !! $('input[name="name"]').val();
   return {
     initialize: function() {
-
-      $('#resource-url-link-clear').on('click', function() {
-        $('#field-resource-url').val('');
-      });
-
       $('input[name="name"]').on('change', function() {
         _nameIsDirty = true;
       });

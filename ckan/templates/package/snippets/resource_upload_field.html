@@ -22,11 +22,12 @@ placeholder - placeholder text for url field
 
 {% set first_button = 'resource-upload-button' if is_upload_enabled else 'resource-link-button' %}
 
-{% macro remove_button() %}
+{% macro remove_button(js='') %}
   <button type="button" class="btn btn-danger btn-remove-url"
     onclick="
       document.getElementById('resource-url-none').checked = true;
       document.getElementById('{{ first_button }}').focus();
+      {{ js }}
     ">{{ _('Remove') }}</button>
 {% endmacro %}
 
@@ -79,7 +80,8 @@ placeholder - placeholder text for url field
             </div>
           {% endif %}
           <div class="upload-type">
-            {{ remove_button() }}
+            {{ remove_button(
+              js="$('#field-resource-upload').replaceWith($('#field-resource-upload').val('').clone(true))") }}
             {{ form.input(
               'upload',
               label=upload_label or _('File'),
@@ -95,7 +97,8 @@ placeholder - placeholder text for url field
       'checked' if is_url else '' }}>
     <div class="select-type">
       {% block link_controls %}
-        {{ remove_button() }}
+        {{ remove_button(
+          js="$('#field-resource-url').val('')") }}
         {{ form.input(
           'url',
           label=url_label or _('URL'),
