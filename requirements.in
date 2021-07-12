@@ -33,4 +33,4 @@ tzlocal==2.1
 unicodecsv==0.14.1
 webassets==2.0
 Werkzeug[watchdog]==1.0.1
-zope.interface==4.7.2
+zope.interface==5.4.0
