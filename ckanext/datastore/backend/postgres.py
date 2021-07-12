@@ -1296,7 +1296,7 @@ def search_data(context, data_dict):
 
     query_dict = {
         'select': [],
-        'sort': ['_id'],
+        'sort': [],
         'where': []
     }
 
@@ -1318,6 +1318,9 @@ def search_data(context, data_dict):
         distinct = 'DISTINCT'
     else:
         distinct = ''
+
+    if not sort:
+        sort = ['_id']
 
     if sort:
         sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
