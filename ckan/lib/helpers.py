@@ -641,7 +641,9 @@ def get_rtl_css():
 def flash_notice(message, allow_html=False):
     ''' Show a flash message of type notice '''
     if allow_html:
-        message = literal(message)
+        message = Markup(message)
+    else:
+        message=escape(message)
     flash(message, category='alert-info')
 
 
@@ -649,7 +651,9 @@ def flash_notice(message, allow_html=False):
 def flash_error(message, allow_html=False):
     ''' Show a flash message of type error '''
     if allow_html:
-        message = literal(message)
+        message = Markup(message)
+    else:
+        message=escape(message)
     flash(message, category='alert-error')
 
 
@@ -657,7 +661,9 @@ def flash_error(message, allow_html=False):
 def flash_success(message, allow_html=False):
     ''' Show a flash message of type success '''
     if allow_html:
-        message = literal(message)
+        message = Markup(message)
+    else:
+        message=escape(message)
     flash(message, category='alert-success')
 
 
