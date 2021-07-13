@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from configparser import InterpolationMissingOptionError
 import pytest
 import os
 
@@ -114,6 +115,26 @@ def test_ckan_config_loader_parse_two_files():
     assert conf[u'global_conf'][u'__file__'] == filename
     assert conf[u'global_conf'][u'here'] == tpl_dir
     assert conf[u'global_conf'][u'debug'] == u'false'
+
+
+def test_ckan_env_vars_in_config(monkeypatch):
+    """CKAN_ prefixed environment variables can be used in config.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-env-var.ini')
+    monkeypatch.setenv("CKAN_TEST_ENV_VAR", "value")
+    conf = CKANConfigLoader(filename).get_config()
+    assert conf["var"] == "value"
+
+
+def test_other_env_vars_ignored(monkeypatch):
+    """Non-CKAN_ environment variables are ignored
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-no-env-var.ini')
+    monkeypatch.setenv("TEST_ENV_VAR", "value")
+    with pytest.raises(InterpolationMissingOptionError):
+        CKANConfigLoader(filename).get_config()
 
 
 def test_chain_loading():

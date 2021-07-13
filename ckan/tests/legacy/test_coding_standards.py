@@ -542,8 +542,6 @@ class TestActionAuth(object):
 
     AUTH_NO_ACTION_BLACKLIST = [
         "create: file_upload",
-        "delete: revision_delete",
-        "delete: revision_undelete",
         "get: activity_list",
         "get: group_list_available",
         "get: sysadmin",
@@ -552,7 +550,6 @@ class TestActionAuth(object):
         "update: group_change_state",
         "update: group_edit_permissions",
         "update: package_change_state",
-        "update: revision_change_state",
     ]
 
     ACTION_NO_DOC_STR_BLACKLIST = ["get: get_site_user"]
