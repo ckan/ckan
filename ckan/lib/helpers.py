@@ -139,7 +139,7 @@ def _is_chained_helper(func):
 
 
 def chained_helper(func):
-    """Decorator function allowing helper functions to be chained.
+    '''Decorator function allowing helper functions to be chained.
 
     This chain starts with the first chained helper to be registered and
     ends with the original helper (or a non-chained plugin override
@@ -166,7 +166,8 @@ def chained_helper(func):
 
     :returns: chained helper function
     :rtype: callable
-    """
+
+    '''
     func.chained_helper = True
     return func
 

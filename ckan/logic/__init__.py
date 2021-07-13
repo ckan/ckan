@@ -336,7 +336,7 @@ def chained_action(func):
 
     This allows a plugin to modify the behaviour of an existing action
     function. Chain action function must be defined as
-    ``action_function(original_action, context, data_dict)``where the
+    ``action_function(original_action, context, data_dict)`` where the
     first parameter will be set to the action function in the next plugin
     or in core ckan. The chained action may call the original_action
     function, optionally passing different values, handling exceptions,
@@ -357,6 +357,7 @@ def chained_action(func):
 
     :returns: chained action function
     :rtype: callable
+    
     '''
     func.chained_action = True
     return func
@@ -686,6 +687,7 @@ def chained_auth_function(func):
 
     :returns: chained authentication function
     :rtype: callable
+
     '''
     func.chained_auth_function = True
     return func
