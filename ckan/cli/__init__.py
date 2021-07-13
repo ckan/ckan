@@ -46,9 +46,6 @@ class CKANConfigLoader(object):
             if "%(here)s" in raw:
                 self.parser.set(self.section, option, value)
 
-            if option in self.parser.defaults():
-                self.config[u'global_conf'][option] = value
-
     def _unwrap_config_chain(self, filename):
         """Get all names of files in use-chain.
 
@@ -87,9 +84,6 @@ class CKANConfigLoader(object):
         chain = self._unwrap_config_chain(self.config_file)
         for filename in reversed(chain):
             self._read_config_file(filename)
-            # The global_config key is to keep compatibility with Pylons.  It
-            # can be safely removed when the Flask migration is completed.
-            self.config[u'global_conf'] = self.parser.defaults().copy()
             self._update_config()
         log.debug(
             u'Loaded configuration from the following files: %s',

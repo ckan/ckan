@@ -81,9 +81,7 @@ def test_ckan_config_loader_parse_file():
     with pytest.raises(KeyError):
         conf[u'host']
 
-    assert conf[u'global_conf'][u'__file__'] == filename
-    assert conf[u'global_conf'][u'here'] == tpl_dir
-    assert conf[u'global_conf'][u'debug'] == u'false'
+    assert conf['here'] == tpl_dir
 
 
 def test_ckan_config_loader_parse_two_files():
@@ -112,9 +110,7 @@ def test_ckan_config_loader_parse_two_files():
     with pytest.raises(KeyError):
         conf[u'host']
 
-    assert conf[u'global_conf'][u'__file__'] == filename
-    assert conf[u'global_conf'][u'here'] == extension_tpl_dir
-    assert conf[u'global_conf'][u'debug'] == u'true'
+    assert conf[u'here'] == extension_tpl_dir
 
 
 def test_ckan_env_vars_in_config(monkeypatch):
