@@ -17,7 +17,7 @@ Example:
         <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" class="img-responsive" width="200" height="125" alt="{{ group.name }}" />
       </a>
       <div class="media-content">
-        <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
+        <h3 class="media-heading"><a href="{{ url }}">{{ group.title or group.name }}</a></h3>
         {% if group.description %}
           <p>{{ h.markdown_extract(group.description, truncate) }}</p>
         {% endif %}

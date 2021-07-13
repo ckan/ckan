@@ -132,25 +132,6 @@ class Resource(core.StatefulObjectMixin,
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
 
-    @classmethod
-    def get_all_without_views(cls, formats=[]):
-        '''Returns all resources that have no resource views
-
-        :param formats: if given, returns only resources that have no resource
-            views and are in any of the received formats
-        :type formats: list
-
-        :rtype: list of ckan.model.Resource objects
-        '''
-        query = meta.Session.query(cls).outerjoin(ckan.model.ResourceView) \
-                    .filter(ckan.model.ResourceView.id == None)
-
-        if formats:
-            lowercase_formats = [f.lower() for f in formats]
-            query = query.filter(func.lower(cls.format).in_(lowercase_formats))
-
-        return query.all()
-
     def related_packages(self):
         return [self.package]
 

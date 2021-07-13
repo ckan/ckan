@@ -17,7 +17,7 @@ Markdown==3.3.3
 passlib==1.7.3
 polib==1.0.7
 psycopg2==2.8.2
-python-magic==0.4.15
+python-magic==0.4.24
 pysolr==3.6.0
 python-dateutil>=1.5.0
 pytz==2016.7
