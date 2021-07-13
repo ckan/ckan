@@ -60,7 +60,7 @@ Imports
 
   Most of the current CKAN code base imports just the modules and
   then accesses names with ``module.name``. This allows circular
-  imports in some cases and may still be necessary for exsiting
+  imports in some cases and may still be necessary for existing
   code, but is not recommended for new code.
 
 - Make all imports at the start of the file, after the module docstring.

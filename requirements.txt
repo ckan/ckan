@@ -34,7 +34,7 @@ pyparsing==2.4.7          # via packaging
 pysolr==3.6.0             # via -r requirements.in
 python-dateutil==2.8.1    # via -r requirements.in, alembic, feedgen
 python-editor==1.0.4      # via alembic
-python-magic==0.4.15      # via -r requirements.in
+python-magic==0.4.24      # via -r requirements.in
 pytz==2016.7              # via -r requirements.in, babel, flask-babel, tzlocal
 pyutilib==5.7.1           # via -r requirements.in
 pyyaml==5.4.1             # via -r requirements.in
