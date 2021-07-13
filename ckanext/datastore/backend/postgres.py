@@ -1319,6 +1319,9 @@ def search_data(context, data_dict):
     else:
         distinct = ''
 
+    if not sort and not distinct:
+        sort = ['_id']
+
     if sort:
         sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
     else:
