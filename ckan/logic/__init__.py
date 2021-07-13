@@ -353,6 +353,7 @@ def chained_action(func):
 
     :returns: chained action function
     :rtype: callable
+
     '''
     func.chained_action = True
     return func
