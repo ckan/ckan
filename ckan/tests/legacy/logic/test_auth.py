@@ -484,7 +484,7 @@ class TestAuthOrgHierarchy(object):
         # editor and admin users and parent groups, it will remove them. So
         # get the current list
         existing_org = get_action("organization_show")(
-            {"model": model, "ignore_auth": True}, {"id": org["id"]}
+            {"model": model, "ignore_auth": True}, {"id": org["id"], 'include_users': True}
         )
         org.update(existing_org)
 
@@ -537,7 +537,7 @@ class TestAuthGroups(object):
         package = {"name": "package_added_by_editor", "owner_org": "org"}
         call_api("package_create", package, "sysadmin")
 
-        res = call_api("group_show", {"id": "group_with_user"}, "org_admin")
+        res = call_api("group_show", {"id": "group_with_user", 'include_users': True}, "org_admin")
         group = json.loads(res.body)["result"]
         call_api("group_update", group, "no_group", 403)
         call_api("group_update", group, "org_admin")

@@ -482,10 +482,9 @@ class TestGroupShow(object):
         group = factories.Group(user=factories.User())
 
         group_dict = helpers.call_action(
-            "group_show", id=group["id"], include_datasets=True
+            "group_show", id=group["id"], all_fields=True
         )
 
-        group_dict.pop("packages", None)
         assert group_dict == group
 
     def test_group_show_error_not_found(self):
@@ -566,7 +565,7 @@ class TestGroupShow(object):
             )
 
         group_dict = helpers.call_action(
-            "group_show", id=group["id"], include_datasets=False
+            "group_show", id=group["id"], include_dataset_count=True
         )
 
         assert "packages" not in group_dict
@@ -771,10 +770,9 @@ class TestOrganizationShow(object):
         org = factories.Organization()
 
         org_dict = helpers.call_action(
-            "organization_show", id=org["id"], include_datasets=True
+            "organization_show", id=org["id"], all_fields=True
         )
 
-        org_dict.pop("packages", None)
         assert org_dict == org
 
     def test_organization_show_error_not_found(self):
@@ -947,7 +945,6 @@ class TestUserList(object):
         got_names = [
             u['name'] for u in got_users if u['name'] != default_user['name']
         ]
-
         assert got_names == expected_names
 
     def test_user_list_order_by_fullname_only(self):

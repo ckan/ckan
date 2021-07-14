@@ -101,14 +101,16 @@ class TestPatch(object):
         )
         factories.Dataset(groups=[{"name": group["name"]}])
 
-        group2 = helpers.call_action("group_show", id=group["id"])
+        group2 = helpers.call_action(
+            "group_show", id=group["id"], include_datasets=True)
         assert 1 == group2["package_count"]
 
         group = helpers.call_action(
             "group_patch", id=group["id"], context={"user": user["name"]}
         )
 
-        group3 = helpers.call_action("group_show", id=group["id"])
+        group3 = helpers.call_action(
+            "group_show", id=group["id"], include_datasets=True)
         assert 1 == group3["package_count"]
 
         group = helpers.call_action(
