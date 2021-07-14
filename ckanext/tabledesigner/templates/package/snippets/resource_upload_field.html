@@ -1,0 +1,21 @@
+{% ckan_extends %}
+
+{% block url_type_select %}
+  {{ super() }}
+  <button type="button" class="btn btn-default" id="resource-table-designer-button"
+    title="{{ _('Create a custom table for your data') }}"
+      onclick="
+        document.getElementById('resource-url-table-designer').checked = true;
+      "><i class="fa fa-paint-brush"></i>{{ _('Table Designer') }}</button>
+{% endblock %}
+
+{% block url_type_fields %}
+  {{ super() }}
+  <input type="radio" id="resource-url-table-designer" name="url_type" value="table_designer" {{
+    'checked' if data['url_type'] == 'table_designer' else '' }}>
+  <div class="select-type">
+    {{ remove_button() }}
+    <label>{{ _('Table Designer') }}</label>
+    <p>{{ _('Use the Data Dictionary tab to customize this table.') }}</p>
+  </div>
+{% endblock %}
