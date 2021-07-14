@@ -17,6 +17,8 @@ class CKANConfigLoader(object):
         self.config_file = filename.strip()
         self.config = dict()
         self.parser = ConfigParser()
+        # Preserve case in config keys
+        self.parser.optionxform = str
         self.section = u'app:main'
         defaults = dict(
             (k, v) for k, v in os.environ.items()
