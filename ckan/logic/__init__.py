@@ -335,7 +335,7 @@ def chained_action(func):
     '''Decorator function allowing action function to be chained.
 
     This allows a plugin to modify the behaviour of an existing action
-    function. Chain action function must be defined as
+    function. A Chained action function must be defined as
     ``action_function(original_action, context, data_dict)`` where the
     first parameter will be set to the action function in the next plugin
     or in core ckan. The chained action may call the original_action
