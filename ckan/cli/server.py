@@ -1,6 +1,8 @@
 # encoding: utf-8
 
+import glob
 import logging
+import itertools
 
 import click
 from werkzeug.serving import run_simple
@@ -49,9 +51,12 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
     config_extra_files = tk.aslist(
         config.get(u"ckan.devserver.watch_patterns")
     )
-    extra_files = list(extra_files) + [
-        config[u"__file__"]
-    ] + config_extra_files
+    extra_files = itertools.chain(
+        [config[u"__file__"]],
+        *[glob.glob(path, recursive=True)
+          for path
+          in list(extra_files) + config_extra_files]
+    )
 
     # Threads and processes
     threaded = threaded or tk.asbool(config.get(u"ckan.devserver.threaded"))
