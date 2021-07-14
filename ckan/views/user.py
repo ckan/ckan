@@ -570,14 +570,11 @@ def activity(id, offset=0):
         u'user_obj': g.userobj,
         u'include_num_followers': True
     }
-    try:
-        logic.check_access(u'user_show', context, data_dict)
-    except logic.NotAuthorized:
-        base.abort(403, _(u'Not authorized to see this page'))
 
     extra_vars = _extra_template_variables(context, data_dict)
 
     try:
+        logic.check_access(u'user_show', context, data_dict)
         extra_vars['user_activity_stream'] = \
             logic.get_action(u'user_activity_list')(
                 context, {
@@ -586,6 +583,9 @@ def activity(id, offset=0):
                 })
     except logic.ValidationError:
         base.abort(400)
+    except logic.NotAuthorized:
+        base.abort(403, _(u'Not authorized to see this page'))
+        
     extra_vars['id'] = id
 
     return base.render(u'user/activity_stream.html', extra_vars)

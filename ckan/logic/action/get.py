@@ -17,6 +17,7 @@ import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
+import ckan.lib.helpers as h
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
@@ -2469,6 +2470,11 @@ def user_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     data_dict['include_data'] = False
+
+    auth_user_obj_ = context['auth_user_obj']
+    if auth_user_obj_ is None or not auth_user_obj_.sysadmin:
+        data_dict['include_data'] = True
+
     _check_access('user_activity_list', context, data_dict)
 
     model = context['model']
@@ -2525,6 +2531,11 @@ def package_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     data_dict['include_data'] = False
+
+    org_member = h.user_in_org_or_group(context['package'].owner_org)
+    if not org_member:
+        data_dict['include_data'] = True
+
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
     activity_types = data_dict.pop('activity_types', None)
     exclude_activity_types = data_dict.pop('exclude_activity_types', None)
@@ -2586,6 +2597,11 @@ def group_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     data_dict = dict(data_dict, include_data=False)
+
+    group_member = h.user_in_org_or_group(data_dict.get('id'))
+    if not group_member:
+        data_dict['include_data'] = True
+
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
     _check_access('group_activity_list', context, data_dict)
 
@@ -2637,6 +2653,11 @@ def organization_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     data_dict['include_data'] = False
+
+    org_member = h.user_in_org_or_group(data_dict.get('id'))
+    if not org_member:
+        data_dict['include_data'] = True
+
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
     _check_access('organization_activity_list', context, data_dict)
 

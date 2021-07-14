@@ -474,15 +474,12 @@ def activity(id, group_type, is_organization, offset=0):
         u'user': g.user,
         u'for_view': True
     }
-    try:
-        group_dict = _get_group_dict(id, group_type)
-    except (NotFound, NotAuthorized):
-        base.abort(404, _(u'Group not found'))
 
     try:
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html
         # template to retrieve later.
+        group_dict = _get_group_dict(id, group_type)
         extra_vars["activity_stream"] = \
             _action(u'organization_activity_list'
                     if group_dict.get(u'is_organization')
@@ -494,6 +491,10 @@ def activity(id, group_type, is_organization, offset=0):
 
     except ValidationError as error:
         base.abort(400, error.message)
+    except NotFound:
+        base.abort(404, _('Group not found'))
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized to read activity stream for %s') % id)
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
