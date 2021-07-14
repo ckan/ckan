@@ -159,7 +159,7 @@ def chained_helper(func):
 
         @chained_helper
         def ckan_version(next_func, **kw):
-            
+
             return next_func(**kw)
 
     :param func: chained helper function
