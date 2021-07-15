@@ -1,6 +1,6 @@
 const path = require("path");
 const { src, watch, dest, parallel } = require("gulp");
-const sass = require("gulp-sass");
+const sass = require("gulp-sass")(require("node-sass"));
 const if_ = require("gulp-if");
 const sourcemaps = require("gulp-sourcemaps");
 const rename = require("gulp-rename");
