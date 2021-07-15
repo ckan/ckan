@@ -211,8 +211,6 @@ class CKANTestApp(object):
 
     def test_client(self, use_cookies=True):
         return CKANTestClient(self.app, CKANResponse, use_cookies=use_cookies)
-        self.flask_app.test_client_class = CKANTestClient
-        return self.flask_app.test_client()
 
     def options(self, url, *args, **kwargs):
         res = self.test_client().options(url, *args, **kwargs)

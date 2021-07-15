@@ -423,12 +423,11 @@ class TestPep8(object):
         "ckan/tests/legacy/models/test_resource.py",
         "contrib/cookiecutter/ckan_extension/"
         "{{cookiecutter.project}}/setup.py",
+        "contrib/cookiecutter/ckan_extension/"
+        "{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}/"
+        "plugin.py",
         "contrib/cookiecutter/ckan_extension/hooks/post_gen_project.py",
         "contrib/cookiecutter/ckan_extension/"
-        "{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}"
-        "/tests/test_plugin.py",
-        "contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}"
-        "/ckanext/{{cookiecutter.project_shortname}}/plugin.py",
         "ckan/tests/legacy/models/test_purge_revision.py",
         "ckan/tests/legacy/models/test_revision.py",
     ]
@@ -543,8 +542,6 @@ class TestActionAuth(object):
 
     AUTH_NO_ACTION_BLACKLIST = [
         "create: file_upload",
-        "delete: revision_delete",
-        "delete: revision_undelete",
         "get: activity_list",
         "get: group_list_available",
         "get: sysadmin",
@@ -553,7 +550,6 @@ class TestActionAuth(object):
         "update: group_change_state",
         "update: group_edit_permissions",
         "update: package_change_state",
-        "update: revision_change_state",
     ]
 
     ACTION_NO_DOC_STR_BLACKLIST = ["get: get_site_user"]

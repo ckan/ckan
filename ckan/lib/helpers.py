@@ -748,21 +748,6 @@ def are_there_flash_messages():
 
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
-    return _link_active_flask(kwargs)
-
-
-def _link_active_pylons(kwargs):
-    highlight_controllers = kwargs.get('highlight_controllers', [])
-    if highlight_controllers and c.controller in highlight_controllers:
-        return True
-
-    highlight_actions = kwargs.get('highlight_actions',
-                                   kwargs.get('action', '')).split()
-    return (c.controller == kwargs.get('controller')
-            and c.action in highlight_actions)
-
-
-def _link_active_flask(kwargs):
     blueprint, endpoint = p.toolkit.get_endpoint()
 
     highlight_controllers = kwargs.get('highlight_controllers', [])
@@ -879,10 +864,6 @@ def nav_link(text, *args, **kwargs):
     :param condition: if ``False`` then no link is returned
 
     '''
-    return nav_link_flask(text, *args, **kwargs)
-
-
-def nav_link_flask(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
     blueprint, endpoint = p.toolkit.get_endpoint()
@@ -898,56 +879,6 @@ def nav_link_flask(text, *args, **kwargs):
     else:
         link = ''
     return link
-
-
-def nav_link_pylons(text, *args, **kwargs):
-    if len(args) > 1:
-        raise Exception('Too many unnamed parameters supplied')
-    if args:
-        kwargs['controller'] = kwargs.get('controller')
-        log.warning('h.nav_link() please supply controller as a named '
-                    'parameter not a positional one')
-    named_route = kwargs.pop('named_route', '')
-    if kwargs.pop('condition', True):
-        if named_route:
-            link = _link_to(text, named_route, **kwargs)
-        else:
-            link = _link_to(text, **kwargs)
-    else:
-        link = ''
-    return link
-
-
-@core_helper
-@maintain.deprecated('h.nav_named_link is deprecated please '
-                     'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter', since='2.0.0')
-def nav_named_link(text, named_route, **kwargs):
-    '''Create a link for a named route.
-    Deprecated in ckan 2.0 '''
-    return nav_link(text, named_route=named_route, **kwargs)
-
-
-@core_helper
-@maintain.deprecated('h.subnav_link is deprecated please '
-                     'use h.nav_link\nNOTE: if action is passed as the second '
-                     'parameter make sure it is passed as a named parameter '
-                     'eg. `action=\'my_action\'', since='2.0.0')
-def subnav_link(text, action, **kwargs):
-    '''Create a link for a named route.
-    Deprecated in ckan 2.0 '''
-    kwargs['action'] = action
-    return nav_link(text, **kwargs)
-
-
-@core_helper
-@maintain.deprecated('h.subnav_named_route is deprecated please '
-                     'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter', since='2.0.0')
-def subnav_named_route(text, named_route, **kwargs):
-    '''Generate a subnav element based on a named route
-    Deprecated in ckan 2.0 '''
-    return nav_link(text, named_route=named_route, **kwargs)
 
 
 @core_helper
@@ -1178,8 +1109,9 @@ def get_facet_items_dict(
     if search_facets is None:
         search_facets = getattr(c, u'search_facets', None)
 
-    if not search_facets or not search_facets.get(
-            facet, {}).get('items'):
+    if not search_facets \
+       or not isinstance(search_facets, dict) \
+       or not search_facets.get(facet, {}).get('items'):
         return []
     facets = []
     for facet_item in search_facets.get(facet)['items']:
@@ -1227,7 +1159,7 @@ def has_more_facets(facet, search_facets, limit=None, exclude_active=False):
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    if c.search_facets_limits and limit is None:
+    if getattr(c, 'search_facets_limits', None) and limit is None:
         limit = c.search_facets_limits.get(facet)
     if limit is not None and len(facets) > limit:
         return True
@@ -1255,34 +1187,6 @@ def unselected_facet_items(facet, limit=10):
     '''
     return get_facet_items_dict(
         facet, c.search_facets, limit=limit, exclude_active=True)
-
-
-@core_helper
-@maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be '
-                     'removed.', since="2.0.0")
-def get_facet_title(name):
-    '''Deprecated in ckan 2.0 '''
-    # if this is set in the config use this
-    config_title = config.get('search.facets.%s.title' % name)
-    if config_title:
-        return config_title
-
-    org_label = humanize_entity_type(
-        u'organization',
-        default_group_type(u'organization'),
-        u'facet label') or _(u'Organizations')
-
-    group_label = humanize_entity_type(
-        u'group',
-        default_group_type(u'group'),
-        u'facet label') or _(u'Groups')
-
-    facet_titles = {'organization': _(org_label),
-                    'groups': _(group_label),
-                    'tags': _('Tags'),
-                    'res_format': _('Formats'),
-                    'license': _('Licenses'), }
-    return facet_titles.get(name, name.capitalize())
 
 
 @core_helper
@@ -1486,14 +1390,7 @@ def icon(name, alt=None, inline=True):
 
 @core_helper
 def resource_icon(res):
-    if False:
-        icon_name = 'page_white'
-        # if (res.is_404?): icon_name = 'page_white_error'
-        # also: 'page_white_gear'
-        # also: 'page_white_link'
-        return icon(icon_name)
-    else:
-        return icon(format_icon(res.get('format', '')))
+    return icon(format_icon(res.get('format', '')))
 
 
 @core_helper

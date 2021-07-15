@@ -283,7 +283,6 @@ def resource_create(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
@@ -515,7 +514,6 @@ def package_relationship_create(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     schema = context.get('schema') \
         or ckan.logic.schema.default_create_relationship_schema()
     api = context.get('api_version')
@@ -1348,7 +1346,6 @@ def follow_user(context, data_dict):
         raise NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -1407,7 +1404,6 @@ def follow_dataset(context, data_dict):
             _("You must be logged in to follow a dataset."))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -1451,7 +1447,6 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     # this needs to be after the repo.commit or else revisions break
     model = context['model']
     user = context['user']
-    session = context['session']
 
     schema = ckan.logic.schema.member_schema()
     data, errors = _validate(data_dict, schema, context)
@@ -1482,7 +1477,6 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     member_create_context = {
         'model': model,
         'user': user,
-        'session': session,
         'ignore_auth': context.get('ignore_auth'),
     }
     return logic.get_action('member_create')(member_create_context,
@@ -1548,7 +1542,6 @@ def follow_group(context, data_dict):
             _("You must be logged in to follow a group."))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
