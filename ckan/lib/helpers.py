@@ -139,8 +139,36 @@ def _is_chained_helper(func):
 
 
 def chained_helper(func):
-    """Decorator function allowing helper functions to be chained.
-    """
+    '''Decorator function allowing helper functions to be chained.
+
+    This chain starts with the first chained helper to be registered and
+    ends with the original helper (or a non-chained plugin override
+    version). Chained helpers must accept an extra parameter,
+    specifically the next helper in the chain, for example::
+
+            helper(next_helper, *args, **kwargs).
+
+    The chained helper function may call the next_helper function,
+    optionally passing different values, handling exceptions,
+    returning different values and/or raising different exceptions
+    to the caller.
+
+    Usage::
+
+        from ckan.plugins.toolkit import chained_helper
+
+        @chained_helper
+        def ckan_version(next_func, **kw):
+
+            return next_func(**kw)
+
+    :param func: chained helper function
+    :type func: callable
+
+    :returns: chained helper function
+    :rtype: callable
+
+    '''
     func.chained_helper = True
     return func
 
