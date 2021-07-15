@@ -51,7 +51,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
     if with_seconds:
         return format_datetime(datetime_, format or 'long')
     elif with_hours:
-        fmt_str = "MMMM d, YYYY, HH:mm (ZZZZ)"
+        fmt_str = "MMMM d, YYYY, HH:mm (z)"
         return format_datetime(datetime_, format or fmt_str, rebase=False)
     else:
         return format_date(datetime_, format or 'long')
