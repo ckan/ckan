@@ -14,8 +14,8 @@
     "gulp-sourcemaps": "^2.6.5",
     "jquery": "^3.6.0",
     "moment": "^2.29.1",
-    "node-sass": "^6.0.1",
-    "qs": "^6.10.1"
+    "qs": "^6.10.1",
+    "sass": "^1.35.2"
   },
   "devDependencies": {
     "axe-core": "^4.3.0",
