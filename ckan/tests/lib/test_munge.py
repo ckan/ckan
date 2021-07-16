@@ -19,7 +19,7 @@ from ckan.lib.munge import (
         ("bad spaces", "bad-spaces"),
         ("s", "s__"),  # too short
         ("random:other%character&", "randomothercharacter"),
-        ("u with umlaut \xfc", "u-with-umlaut-u"),
+        (u"u with umlaut \xfc", "u-with-umlaut-u"),
         (
             "2014-11-10 12:24:05.340603my_image.jpeg",
             "2014-11-10-122405.340603myimage.jpeg",
@@ -47,7 +47,7 @@ def test_munge_filename_legacy_pass(original, expected):
         ("bad spaces", "bad-spaces"),
         ("s", "s__"),  # too short
         ("random:other%character&", "randomothercharacter"),
-        ("u with umlaut \xfc", "u-with-umlaut-u"),
+        (u"u with umlaut \xfc", "u-with-umlaut-u"),
         (
             "2014-11-10 12:24:05.340603my_image.jpeg",
             "2014-11-10-122405.340603my_image.jpeg",
@@ -79,7 +79,7 @@ def test_munge_filename_pass(original, expected):
         ("bad spaces", "bad-spaces"),
         ("s", "s_"),  # too short
         ("random:other%character&", "random-othercharacter"),
-        ("u with umlaut \xfc", "u-with-umlaut-u"),
+        (u"u with umlaut \xfc", "u-with-umlaut-u"),
         ("2014-11-10 12:24:05.my_image", "2014-11-10-12-24-05-my_image"),
     ],
 )
@@ -98,7 +98,7 @@ def test_munge_name_pass(original, expected):
         ("some spaces  here    &here", "some-spaces-here-here"),
         ("s", "s_"),  # too short
         ("random:other%character&", "random-othercharacter"),
-        ("u with umlaut \xfc", "u-with-umlaut-u"),
+        (u"u with umlaut \xfc", "u-with-umlaut-u"),
         ("reallylong" * 12, "reallylong" * 9 + "reall"),
         ("reallylong" * 12 + " - 2012", "reallylong" * 9 + "-2012"),
         (
