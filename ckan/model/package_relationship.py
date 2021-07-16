@@ -41,17 +41,17 @@ class PackageRelationship(core.StatefulObjectMixin,
     # List of (type, corresponding_reverse_type)
     # e.g. (A "depends_on" B, B has a "dependency_of" A)
     # don't forget to add specs to Solr's schema.xml
-    types = [(u'depends_on', u'dependency_of'),
-             (u'derives_from', u'has_derivation'),
-             (u'links_to', u'linked_from'),
-             (u'child_of', u'parent_of'),
+    types = [('depends_on', 'dependency_of'),
+             ('derives_from', 'has_derivation'),
+             ('links_to', 'linked_from'),
+             ('child_of', 'parent_of'),
              ]
 
     types_printable = \
-            [(_(u'depends on %s'), _(u'is a dependency of %s')),
-             (_(u'derives from %s'), _(u'has derivation %s')),
-             (_(u'links to %s'), _(u'is linked from %s')),
-             (_(u'is a child of %s'), _(u'is a parent of %s')),
+            [(_('depends on %s'), _('is a dependency of %s')),
+             (_('derives from %s'), _('has derivation %s')),
+             (_('links to %s'), _('is linked from %s')),
+             (_('is a child of %s'), _('is a parent of %s')),
              ]
 
     inferred_types_printable = \
@@ -67,10 +67,10 @@ class PackageRelationship(core.StatefulObjectMixin,
     def as_dict(self, package=None, ref_package_by='id'):
         """Returns full relationship info as a dict from the point of view
         of the given package if specified.
-        e.g. {'subject':u'annakarenina',
-              'type':u'depends_on',
-              'object':u'warandpeace',
-              'comment':u'Since 1843'}"""
+        e.g. {'subject':'annakarenina',
+              'type':'depends_on',
+              'object':'warandpeace',
+              'comment':'Since 1843'}"""
         subject_pkg = self.subject
         object_pkg = self.object
         relationship_type = self.type
@@ -88,7 +88,7 @@ class PackageRelationship(core.StatefulObjectMixin,
     def as_tuple(self, package):
         '''Returns basic relationship info as a tuple from the point of view
         of the given package with the object package object.
-        e.g. rel.as_tuple(warandpeace) gives (u'depends_on', annakarenina)
+        e.g. rel.as_tuple(warandpeace) gives ('depends_on', annakarenina)
         meaning warandpeace depends_on annakarenina.'''
         assert isinstance(package, _package.Package), package
         if self.subject == package:

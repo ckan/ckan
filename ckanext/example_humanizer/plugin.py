@@ -9,11 +9,11 @@ class ExampleHumanizerPlugin(p.SingletonPlugin, p.toolkit.DefaultGroupForm):
 
     def get_helpers(self):
         return {
-            u'humanize_entity_type': humanize_entity_type
+            'humanize_entity_type': humanize_entity_type
         }
 
     def group_types(self):
-        return (u'custom_group',)
+        return ('custom_group',)
 
     def is_fallback(self):
         return False
@@ -21,8 +21,8 @@ class ExampleHumanizerPlugin(p.SingletonPlugin, p.toolkit.DefaultGroupForm):
 
 @p.toolkit.chained_helper
 def humanize_entity_type(next_helper, entity_type, object_type, purpose):
-    if purpose == u'add link':
-        tpl = p.toolkit._(u"Create new {object_type}")
-        type_label = object_type.replace(u"_", u" ").capitalize()
+    if purpose == 'add link':
+        tpl = p.toolkit._("Create new {object_type}")
+        type_label = object_type.replace("_", " ").capitalize()
         return tpl.format(object_type=type_label)
     return next_helper(entity_type, object_type, purpose)

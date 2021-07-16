@@ -134,7 +134,7 @@ class TestSearch(object):
             ["id", "package_id", "position", "size_extra"]
         )
         assert res_keys == expected_res_keys
-        pkg1 = model.Package.by_name(u"pkg1")
+        pkg1 = model.Package.by_name("pkg1")
         ab = pkg1.resources[0]
         assert res_dict["id"] == ab.id
         assert res_dict["package_id"] == pkg1.id

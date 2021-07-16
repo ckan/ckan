@@ -93,14 +93,14 @@ class TestPluginDatastoreSearch(object):
 
     def test_fts_rank_column_uses_lang_when_casting_to_tsvector(self):
         expected_select_content = (
-            u"to_tsvector('french', cast(\"country\" as text))"
+            "to_tsvector('french', cast(\"country\" as text))"
         )
         data_dict = {"q": {"country": "Brazil"}, "language": "french"}
         result = self._datastore_search(data_dict=data_dict, fields_types={})
         assert expected_select_content in result["select"][0]
 
     def test_adds_fts_on_full_text_field_when_q_is_a_string(self):
-        expected_where = [(u'_full_text @@ "query"',)]
+        expected_where = [('_full_text @@ "query"',)]
         data_dict = {"q": "foo"}
 
         result = self._datastore_search(data_dict=data_dict)
@@ -118,8 +118,8 @@ class TestPluginDatastoreSearch(object):
     def test_fts_where_clause_lang_uses_english_by_default(self):
         expected_where = [
             (
-                u"to_tsvector('english', cast(\"country\" as text))"
-                u' @@ "query country"',
+                "to_tsvector('english', cast(\"country\" as text))"
+                ' @@ "query country"',
             )
         ]
         data_dict = {"q": {"country": "Brazil"}}
@@ -135,8 +135,8 @@ class TestPluginDatastoreSearch(object):
     def test_fts_where_clause_lang_can_be_overwritten_by_config(self):
         expected_where = [
             (
-                u"to_tsvector('simple', cast(\"country\" as text))"
-                u' @@ "query country"',
+                "to_tsvector('simple', cast(\"country\" as text))"
+                ' @@ "query country"',
             )
         ]
         data_dict = {"q": {"country": "Brazil"}}
@@ -152,8 +152,8 @@ class TestPluginDatastoreSearch(object):
     def test_fts_where_clause_lang_can_be_overwritten_using_lang_param(self):
         expected_where = [
             (
-                u"to_tsvector('french', cast(\"country\" as text))"
-                u' @@ "query country"',
+                "to_tsvector('french', cast(\"country\" as text))"
+                ' @@ "query country"',
             )
         ]
         data_dict = {"q": {"country": "Brazil"}, "language": "french"}
@@ -173,8 +173,8 @@ class TestPluginDatastoreSearch(object):
         expected_where = [
             ('_full_text @@ "query country"',),
             (
-                u"to_tsvector('english', cast(\"country\" as text))"
-                u' @@ "query country"',
+                "to_tsvector('english', cast(\"country\" as text))"
+                ' @@ "query country"',
             ),
         ]
         data_dict = {"q": {"country": "Brazil"}, "language": "english"}

@@ -52,12 +52,12 @@ def replacement_fields(s):
 
 def check_po_files(paths):
     for path in paths:
-        print(u'Checking file {}'.format(path))
+        print('Checking file {}'.format(path))
         errors = check_po_file(path)
         if errors:
             for msgid, msgstr in errors:
                 print("Format specifiers don't match:")
-                print(u'    {0} -> {1}'.format(
+                print('    {0} -> {1}'.format(
                     msgid, msgstr.encode('ascii', 'replace')))
 
 

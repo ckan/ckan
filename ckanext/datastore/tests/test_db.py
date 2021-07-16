@@ -105,17 +105,17 @@ class TestCreateIndexes(object):
         cast=False,
         method="gist",
     ):
-        field = u'"{0}"'.format(field)
+        field = '"{0}"'.format(field)
         if cast:
-            field = u"cast({0} AS text)".format(field)
+            field = "cast({0} AS text)".format(field)
         if lang is not None:
             sql_str = (
-                u'ON "resource_id" '
-                u"USING {method}(to_tsvector('{lang}', {field}))"
+                'ON "resource_id" '
+                "USING {method}(to_tsvector('{lang}', {field}))"
             )
             sql_str = sql_str.format(method=method, lang=lang, field=field)
         else:
-            sql_str = u"USING {method}({field})".format(
+            sql_str = "USING {method}({field})".format(
                 method=method, field=field
             )
 
@@ -167,8 +167,8 @@ def test_upsert_with_insert_method_and_invalid_data(mock_get_fields_function):
 
 
 class TestGetAllResourcesIdsInDatastore(object):
-    @pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("with_plugins", "clean_db")
     def test_get_all_resources_ids_in_datastore(self):
         resource_in_datastore = factories.Resource()
         resource_not_in_datastore = factories.Resource()
@@ -186,7 +186,7 @@ def datastore_job(res_id, value):
     A background job that uses the Datastore.
     """
     app = helpers._get_test_app()
-    if not p.plugin_loaded(u"datastore"):
+    if not p.plugin_loaded("datastore"):
         p.load("datastore")
     data = {
         "resource_id": res_id,
@@ -202,8 +202,8 @@ class TestBackgroundJobs(helpers.RQTestBase):
     """
     Test correct interaction with the background jobs system.
     """
-    @pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
     def test_worker_datastore_access(self, app):
         """
         Test DataStore access from within a worker.

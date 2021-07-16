@@ -179,7 +179,7 @@ def body_contains(res, content):
 class CKANCliRunner(CliRunner):
     def invoke(self, *args, **kwargs):
         # prevent cli runner from str/bytes exceptions
-        kwargs.setdefault(u'complete_var', u'_CKAN_COMPLETE')
+        kwargs.setdefault('complete_var', '_CKAN_COMPLETE')
         return super(CKANCliRunner, self).invoke(*args, **kwargs)
 
 
@@ -371,7 +371,7 @@ class RQTestBase(object):
     """
 
     def setup(self):
-        u"""
+        """
         Delete all RQ queues and jobs.
         """
         # See https://github.com/nvie/rq/issues/731
@@ -382,7 +382,7 @@ class RQTestBase(object):
             redis_conn.delete(queue._key)
 
     def all_jobs(self):
-        u"""
+        """
         Get a list of all RQ jobs.
         """
         jobs = []
@@ -392,7 +392,7 @@ class RQTestBase(object):
         return jobs
 
     def enqueue(self, job=None, *args, **kwargs):
-        u"""
+        """
         Enqueue a test job.
         """
         if job is None:
@@ -454,8 +454,8 @@ def changed_config(key, value):
 
     Usage::
 
-        with changed_config(u'ckan.site_title', u'My Test CKAN'):
-            assert config[u'ckan.site_title'] == u'My Test CKAN'
+        with changed_config('ckan.site_title', 'My Test CKAN'):
+            assert config['ckan.site_title'] == 'My Test CKAN'
 
     .. seealso:: The decorator :py:func:`change_config`
     """
@@ -475,7 +475,7 @@ def recorded_logs(
     override_disabled=True,
     override_global_level=True,
 ):
-    u"""
+    """
     Context manager for recording log messages.
 
     :param logger: The logger to record messages from. Can either be a
@@ -512,9 +512,9 @@ def recorded_logs(
         logger = logging.getLogger(__name__)
 
         with recorded_logs(logger) as logs:
-            logger.info(u'Hello, world!')
+            logger.info('Hello, world!')
 
-        logs.assert_log(u'info', u'world')
+        logs.assert_log('info', 'world')
     """
     if logger is None:
         logger = logging.getLogger()
@@ -544,7 +544,7 @@ def recorded_logs(
 
 
 class RecordingLogHandler(logging.Handler):
-    u"""
+    """
     Log handler that records log messages for later inspection.
 
     You can inspect the recorded messages via the ``messages`` attribute
@@ -563,7 +563,7 @@ class RecordingLogHandler(logging.Handler):
         self.messages[record.levelname.lower()].append(record.getMessage())
 
     def assert_log(self, level, pattern, msg=None):
-        u"""
+        """
         Assert that a certain message has been logged.
 
         :param string pattern: A regex which the message has to match.
@@ -582,21 +582,21 @@ class RecordingLogHandler(logging.Handler):
                 return
         if not msg:
             if self.messages[level]:
-                lines = u"\n    ".join(self.messages[level])
+                lines = "\n    ".join(self.messages[level])
                 msg = (
-                    u'Pattern "{}" was not found in the log messages for '
-                    + u'level "{}":\n    {}'
+                    'Pattern "{}" was not found in the log messages for '
+                    + 'level "{}":\n    {}'
                 ).format(pattern, level, lines)
             else:
                 msg = (
-                    u'Pattern "{}" was not found in the log messages for '
-                    + u'level "{}" (no messages were recorded for that '
-                    + u"level)."
+                    'Pattern "{}" was not found in the log messages for '
+                    + 'level "{}" (no messages were recorded for that '
+                    + "level)."
                 ).format(pattern, level)
         raise AssertionError(msg)
 
     def clear(self):
-        u"""
+        """
         Clear all captured log messages.
         """
         self.messages = collections.defaultdict(list)

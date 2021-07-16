@@ -22,8 +22,8 @@ def _create_test_view(view_type):
     resource_id = package.resources[1].id
     resource_view = {'resource_id': resource_id,
                      'view_type': view_type,
-                     'title': u'Test View',
-                     'description': u'A nice test view'}
+                     'title': 'Test View',
+                     'description': 'A nice test view'}
     resource_view = plugins.toolkit.get_action('resource_view_create')(
         context, resource_view)
     return resource_view, package, resource_id

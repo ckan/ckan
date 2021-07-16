@@ -15,20 +15,20 @@ def extract(d, keys):
 
 
 def clear_db(Session):
-    drop_tables = u"""select 'drop table "' || tablename || '" cascade;'
+    drop_tables = """select 'drop table "' || tablename || '" cascade;'
                     from pg_tables where schemaname = 'public' """
     c = Session.connection()
     results = c.execute(drop_tables)
     for result in results:
         c.execute(result[0])
 
-    drop_functions_sql = u"""
+    drop_functions_sql = """
         SELECT 'drop function if exists ' || quote_ident(proname) || '();'
         FROM pg_proc
         INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid)
         WHERE ns.nspname = 'public' AND proname != 'populate_full_text_trigger'
         """
-    drop_functions = u"".join(r[0] for r in c.execute(drop_functions_sql))
+    drop_functions = "".join(r[0] for r in c.execute(drop_functions_sql))
     if drop_functions:
         c.execute(drop_functions)
 
@@ -78,7 +78,7 @@ def when_was_last_analyze(resource_id):
 
 
 class DatastoreFunctionalTestBase(FunctionalTestBase):
-    _load_plugins = (u"datastore",)
+    _load_plugins = ("datastore",)
 
     @classmethod
     def setup_class(cls):
@@ -88,15 +88,15 @@ class DatastoreFunctionalTestBase(FunctionalTestBase):
 
 
 class DatastoreLegacyTestBase(object):
-    u"""
+    """
     Tests that rely on data created in setup_class. No cleanup done between
     each test method. Not recommended for new tests.
     """
 
     @classmethod
     def setup_class(cls):
-        if not p.plugin_loaded(u"datastore"):
-            p.load(u"datastore")
+        if not p.plugin_loaded("datastore"):
+            p.load("datastore")
         reset_db()
         search.clear_all()
         engine = db.get_write_engine()
@@ -104,4 +104,4 @@ class DatastoreLegacyTestBase(object):
 
     @classmethod
     def teardown_class(cls):
-        p.unload(u"datastore")
+        p.unload("datastore")

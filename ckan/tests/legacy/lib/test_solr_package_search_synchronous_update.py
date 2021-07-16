@@ -73,7 +73,7 @@ class TestSearchOverallWithSynchronousIndexing(object):
         package = model.Package.by_name("council-owned-litter-bins")
 
         # update package
-        package.name = u"new_name"
+        package.name = "new_name"
         extra = model.PackageExtra(key="published_by", value="barrow")
         package._extras[extra.key] = extra
         model.repo.commit_and_remove()
@@ -83,7 +83,7 @@ class TestSearchOverallWithSynchronousIndexing(object):
 
         # update package again
         package = model.Package.by_name("new_name")
-        package.name = u"council-owned-litter-bins"
+        package.name = "council-owned-litter-bins"
         model.repo.commit_and_remove()
 
         check_search_results("", 3)

@@ -1006,7 +1006,7 @@ class TestFollow(object):
                         status=409,
                         id=id,
                     )
-                assert error["id"] == [u"Missing value"]
+                assert error["id"] == ["Missing value"]
 
         # def test_04_am_following_dataset_bad_apikey(self):
         for apikey in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
@@ -1292,7 +1292,7 @@ class TestFollowerDelete(object):
                         status=409,
                         id=id,
                     )
-                assert error["id"] == [u"Missing value"]
+                assert error["id"] == ["Missing value"]
 
     def _unfollow_user(self, follower_id, apikey, object_id, object_arg):
         """Test a user unfollowing a user via the API.

@@ -14,9 +14,9 @@ class TestResourceApi(ApiTestCase, ControllerTestCase):
         self.ab = "http://site.com/a/b.txt"
         self.cd = "http://site.com/c/d.txt"
         self.package_fixture_data = {
-            "name": u"testpkg",
+            "name": "testpkg",
             "title": "Some Title",
-            "url": u"http://blahblahblah.mydomain",
+            "url": "http://blahblahblah.mydomain",
             "resources": [
                 {
                     "url": self.ab,
@@ -36,7 +36,7 @@ class TestResourceApi(ApiTestCase, ControllerTestCase):
                 },
             ],
             "tags": ["russian", "novel"],
-            "license_id": u"gpl-3.0",
+            "license_id": "gpl-3.0",
             "extras": {
                 "national_statistic": "yes",
                 "geographic_coverage": "England, Wales",

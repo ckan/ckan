@@ -57,7 +57,7 @@ class HostHeaderMiddleware(object):
         self.app = app
 
     def __call__(self, environ, start_response):
-        path_info = environ[u'PATH_INFO']
+        path_info = environ['PATH_INFO']
         if path_info in ['/login_generic', '/user/login',
                          '/user/logout', '/user/logged_in',
                          '/user/logged_out']:

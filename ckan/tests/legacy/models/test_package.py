@@ -8,7 +8,7 @@ import ckan.model as model
 
 
 class TestPackage:
-    name = u"geodata"
+    name = "geodata"
 
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db):
@@ -23,7 +23,7 @@ class TestPackage:
         pkg1 = model.Package(name=self.name)
         model.Session.add(pkg1)
         pkg1.notes = notes
-        pkg1.license_id = u"odc-by"
+        pkg1.license_id = "odc-by"
         model.Session.commit()
         model.Session.remove()
 
@@ -45,8 +45,8 @@ class TestPackage:
 
 
 class TestPackageTagSearch:
-    orderedfirst = u"000-zzz"
-    tagname = u"russian-tag-we-will-delete"
+    orderedfirst = "000-zzz"
+    tagname = "russian-tag-we-will-delete"
 
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db):
@@ -54,41 +54,41 @@ class TestPackageTagSearch:
 
         # tag whose association will get deleted
         tag3 = model.Tag(name=self.tagname)
-        pkg = model.Package.by_name(u"annakarenina")
+        pkg = model.Package.by_name("annakarenina")
         pkg.add_tag(tag3)
         model.repo.commit_and_remove()
 
-        pkg = model.Package.by_name(u"annakarenina")
+        pkg = model.Package.by_name("annakarenina")
         pkg.remove_tag(tag3)
         # now do a tag for ordering
         tagordered = model.Tag(name=self.orderedfirst)
-        wap = model.Package.by_name(u"warandpeace")
+        wap = model.Package.by_name("warandpeace")
         # do them the wrong way round
         wap.add_tag(tagordered)
         pkg.add_tag(tagordered)
         model.repo.commit_and_remove()
 
     def test_0_deleted_package_tags(self):
-        pkg = model.Package.by_name(u"annakarenina")
+        pkg = model.Package.by_name("annakarenina")
         tag = model.Tag.by_name(self.tagname)
         assert len(pkg.get_tags()) == 4, len(pkg.get_tags())
         assert len(tag.packages) == 0
 
     def test_1_tag_search_1(self):
-        out = list(model.Tag.search_by_name(u"russian"))
+        out = list(model.Tag.search_by_name("russian"))
         assert len(out) == 2
         assert out[0].name == "russian"
 
     def test_1_tag_search_2(self):
-        out = list(model.Tag.search_by_name(u"us"))
+        out = list(model.Tag.search_by_name("us"))
         assert len(out) == 2
 
     def test_1_tag_search_3(self):
-        out = list(model.Tag.search_by_name(u"s"))
+        out = list(model.Tag.search_by_name("s"))
         assert len(out) == 3
 
     def test_alphabetical_ordering(self):
-        pkg = model.Package.by_name(u"annakarenina")
+        pkg = model.Package.by_name("annakarenina")
         tag = pkg.get_tags()[0]
         assert tag.name == self.orderedfirst
         assert tag.packages[0].name == "annakarenina", tag.packages

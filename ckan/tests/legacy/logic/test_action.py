@@ -18,15 +18,15 @@ import ckan.tests.factories as factories
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 
 
-def _add_basic_package(app, package_name=u"test_package", **kwargs):
+def _add_basic_package(app, package_name="test_package", **kwargs):
     package = {
         "name": package_name,
-        "title": u"A Novel By Tolstoy",
+        "title": "A Novel By Tolstoy",
         "resources": [
             {
-                "description": u"Full text.",
-                "format": u"plain text",
-                "url": u"http://datahub.io/download/",
+                "description": "Full text.",
+                "format": "plain text",
+                "url": "http://datahub.io/download/",
             }
         ],
     }
@@ -153,36 +153,36 @@ class TestAction(object):
 
         # Create a dataset without specifying visibility
         package_dict = {
-            "extras": [{"key": u"original media", "value": u'"book"'}],
-            "license_id": u"other-open",
+            "extras": [{"key": "original media", "value": '"book"'}],
+            "license_id": "other-open",
             "maintainer_email": None,
-            "name": u"annakarenina_vis",
-            "notes": u"Some test now",
+            "name": "annakarenina_vis",
+            "notes": "Some test now",
             "resources": [
                 {
-                    "alt_url": u"alt123",
-                    "description": u"Full text.",
-                    "extras": {u"alt_url": u"alt123", u"size": u"123"},
-                    "format": u"plain text",
-                    "hash": u"abc123",
+                    "alt_url": "alt123",
+                    "description": "Full text.",
+                    "extras": {"alt_url": "alt123", "size": "123"},
+                    "format": "plain text",
+                    "hash": "abc123",
                     "position": 0,
-                    "url": u"http://datahub.io/download/",
+                    "url": "http://datahub.io/download/",
                 },
                 {
-                    "alt_url": u"alt345",
-                    "description": u"Index of the novel",
-                    "extras": {u"alt_url": u"alt345", u"size": u"345"},
-                    "format": u"JSON",
-                    "hash": u"def456",
+                    "alt_url": "alt345",
+                    "description": "Index of the novel",
+                    "extras": {"alt_url": "alt345", "size": "345"},
+                    "format": "JSON",
+                    "hash": "def456",
                     "position": 1,
-                    "url": u"http://datahub.io/index.json",
+                    "url": "http://datahub.io/index.json",
                 },
             ],
-            "tags": [{"name": u"russian"}, {"name": u"tolstoy"}],
-            "title": u"A Novel By Tolstoy",
-            "url": u"http://datahub.io",
+            "tags": [{"name": "russian"}, {"name": "tolstoy"}],
+            "title": "A Novel By Tolstoy",
+            "url": "http://datahub.io",
             "owner_org": organization["id"],
-            "version": u"0.7a",
+            "version": "0.7a",
         }
         package_created = tests.call_action_api(
             app,
@@ -193,7 +193,7 @@ class TestAction(object):
         assert package_created["private"] is False
 
         # Create a new one, explicitly saying it is public
-        package_dict["name"] = u"annakareninanew_vis_public"
+        package_dict["name"] = "annakareninanew_vis_public"
         package_dict["private"] = False
 
         package_created_public = tests.call_action_api(
@@ -205,7 +205,7 @@ class TestAction(object):
         assert package_created_public["private"] is False
 
         # Create a new one, explicitly saying it is private
-        package_dict["name"] = u"annakareninanew_vis_private"
+        package_dict["name"] = "annakareninanew_vis_private"
         package_dict["private"] = True
 
         package_created_private = tests.call_action_api(
@@ -218,7 +218,7 @@ class TestAction(object):
 
         # def test_41_create_resource(self):
 
-        anna_id = model.Package.by_name(u"annakarenina").id
+        anna_id = model.Package.by_name("annakarenina").id
         resource = {"package_id": anna_id, "url": "http://new_url"}
         api_key = six.ensure_text(model.User.get("testsysadmin").apikey)
         res = app.post(
@@ -233,7 +233,7 @@ class TestAction(object):
 
         # def test_42_create_resource_with_error(self):
 
-        anna_id = model.Package.by_name(u"annakarenina").id
+        anna_id = model.Package.by_name("annakarenina").id
         resource = {
             "package_id": anna_id,
             "url": "new_url",
@@ -490,20 +490,20 @@ class TestAction(object):
         )
         res_obj = json.loads(res.body)
         assert (
-            res_obj == u"Bad request - Action name not known: bad_action_name"
+            res_obj == "Bad request - Action name not known: bad_action_name"
         )
 
         # def test_20_task_status_update(self):
-        package_created = _add_basic_package(app, u"test_task_status_update")
+        package_created = _add_basic_package(app, "test_task_status_update")
 
         task_status = {
             "entity_id": package_created["id"],
-            "entity_type": u"package",
-            "task_type": u"test_task",
-            "key": u"test_key",
-            "value": u"test_value",
-            "state": u"test_state",
-            "error": u"test_error",
+            "entity_type": "package",
+            "task_type": "test_task",
+            "key": "test_key",
+            "value": "test_value",
+            "state": "test_state",
+            "error": "test_error",
         }
         res = app.post(
             "/api/action/task_status_update",
@@ -517,7 +517,7 @@ class TestAction(object):
         assert task_status_updated == task_status
 
         task_status_updated["id"] = task_status_id
-        task_status_updated["value"] = u"test_value_2"
+        task_status_updated["value"] = "test_value_2"
         res = app.post(
             "/api/action/task_status_update",
             json=task_status_updated,
@@ -529,27 +529,27 @@ class TestAction(object):
 
         # def test_21_task_status_update_many(self):
         package_created = _add_basic_package(
-            app, u"test_task_status_update_many"
+            app, "test_task_status_update_many"
         )
         task_statuses = {
             "data": [
                 {
                     "entity_id": package_created["id"],
-                    "entity_type": u"package",
-                    "task_type": u"test_task",
-                    "key": u"test_task_1",
-                    "value": u"test_value_1",
-                    "state": u"test_state",
-                    "error": u"test_error",
+                    "entity_type": "package",
+                    "task_type": "test_task",
+                    "key": "test_task_1",
+                    "value": "test_value_1",
+                    "state": "test_state",
+                    "error": "test_error",
                 },
                 {
                     "entity_id": package_created["id"],
-                    "entity_type": u"package",
-                    "task_type": u"test_task",
-                    "key": u"test_task_2",
-                    "value": u"test_value_2",
-                    "state": u"test_state",
-                    "error": u"test_error",
+                    "entity_type": "package",
+                    "task_type": "test_task",
+                    "key": "test_task_2",
+                    "value": "test_value_2",
+                    "state": "test_state",
+                    "error": "test_error",
                 },
             ]
         }
@@ -596,16 +596,16 @@ class TestAction(object):
         )
 
         # def test_24_task_status_show(self):
-        package_created = _add_basic_package(app, u"test_task_status_show")
+        package_created = _add_basic_package(app, "test_task_status_show")
 
         task_status = {
             "entity_id": package_created["id"],
-            "entity_type": u"package",
-            "task_type": u"test_task",
-            "key": u"test_task_status_show",
-            "value": u"test_value",
-            "state": u"test_state",
-            "error": u"test_error",
+            "entity_type": "package",
+            "task_type": "test_task",
+            "key": "test_task_status_show",
+            "value": "test_value",
+            "state": "test_state",
+            "error": "test_error",
         }
         res = app.post(
             "/api/action/task_status_update",
@@ -648,16 +648,16 @@ class TestAction(object):
         )
 
         # def test_25_task_status_delete(self):
-        package_created = _add_basic_package(app, u"test_task_status_delete")
+        package_created = _add_basic_package(app, "test_task_status_delete")
 
         task_status = {
             "entity_id": package_created["id"],
-            "entity_type": u"package",
-            "task_type": u"test_task",
-            "key": u"test_task_status_delete",
-            "value": u"test_value",
-            "state": u"test_state",
-            "error": u"test_error",
+            "entity_type": "package",
+            "task_type": "test_task",
+            "key": "test_task_status_delete",
+            "value": "test_value",
+            "state": "test_state",
+            "error": "test_error",
         }
         res = app.post(
             "/api/action/task_status_update",
@@ -747,10 +747,10 @@ class TestAction(object):
         )
 
         # def test_32_get_domain_object(self):
-        anna = model.Package.by_name(u"annakarenina")
+        anna = model.Package.by_name("annakarenina")
         assert get_domain_object(model, anna.name).name == anna.name
         assert get_domain_object(model, anna.id).name == anna.name
-        group = model.Group.by_name(u"david")
+        group = model.Group.by_name("david")
         assert get_domain_object(model, group.name).name == group.name
         assert get_domain_object(model, group.id).name == group.name
 
@@ -951,14 +951,14 @@ class TestActionTermTranslation(object):
         assert sorted(json.loads(res.body)["result"], key=dict.items) == sorted(
             [
                 {
-                    u"lang_code": u"fr",
-                    u"term": u"moo",
-                    u"term_translation": u"moomoo",
+                    "lang_code": "fr",
+                    "term": "moo",
+                    "term_translation": "moomoo",
                 },
                 {
-                    u"lang_code": u"en",
-                    u"term": u"moo",
-                    u"term_translation": u"moomoo",
+                    "lang_code": "en",
+                    "term": "moo",
+                    "term_translation": "moomoo",
                 },
             ], key=dict.items
         ), json.loads(res.body)
@@ -1007,14 +1007,14 @@ class TestActionTermTranslation(object):
         assert sorted(json.loads(res.body)["result"], key=dict.items) == sorted(
             [
                 {
-                    u"lang_code": u"fr",
-                    u"term": u"many",
-                    u"term_translation": u"manymoo",
+                    "lang_code": "fr",
+                    "term": "many",
+                    "term_translation": "manymoo",
                 },
                 {
-                    u"lang_code": u"en",
-                    u"term": u"many",
-                    u"term_translation": u"manymoomoo",
+                    "lang_code": "en",
+                    "term": "many",
+                    "term_translation": "manymoomoo",
                 },
             ], key=dict.items
         ), json.loads(res.body)
@@ -1134,7 +1134,7 @@ class TestSearchPluginInterface(object):
 class TestBulkActions(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index, app, with_request_context):
-        factories.Sysadmin(apikey=u"sysadmin")
+        factories.Sysadmin(apikey="sysadmin")
 
         data_dict = "%s=1" % json.dumps({"name": "org"})
         org = factories.Organization(name="org")

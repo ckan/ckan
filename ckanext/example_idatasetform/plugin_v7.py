@@ -9,16 +9,16 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     p.implements(p.IDatasetForm)
 
     def update_config(self, config):
-        tk.add_template_directory(config, u'templates')
+        tk.add_template_directory(config, 'templates')
 
     def is_fallback(self):
         return False
 
     def package_types(self):
-        return [u'first', u'second']
+        return ['first', 'second']
 
     def read_template(self, package_type):
-        return u'{}/read.html'.format(package_type)
+        return '{}/read.html'.format(package_type)
 
     def new_template(self):
-        return [u'first/new.html', u'first/read.html']
+        return ['first/new.html', 'first/read.html']

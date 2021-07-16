@@ -34,19 +34,19 @@ class ExampleIApiTokenPlugin(p.SingletonPlugin):
         return json.loads(token)
 
     def postprocess_api_token(self, data, jti, data_dict):
-        data[u"jti"] = u"!" + jti + u"!"
+        data["jti"] = "!" + jti + "!"
         return data
 
     def preprocess_api_token(self, data):
         """Decode token. If it has `last_access` remove it.
         """
-        token = data[u"jti"][1:-1]
-        data[u"jti"] = token
+        token = data["jti"][1:-1]
+        data["jti"] = token
         obj = model.ApiToken.get(token)
         if obj.last_access:
             model.ApiToken.revoke(token)
         return data
 
     def add_extra_fields(self, data_dict):
-        data_dict[u"hello"] = u"world"
+        data_dict["hello"] = "world"
         return data_dict

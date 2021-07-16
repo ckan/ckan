@@ -7,13 +7,13 @@ import ckan.plugins as p
 
 
 def hello_plugin():
-    u'''A simple view function'''
-    return u'Hello World, this is served from an extension'
+    '''A simple view function'''
+    return 'Hello World, this is served from an extension'
 
 
 def override_flask_home():
-    u'''A simple replacement for the flash Home view function.'''
-    html = u'''<!DOCTYPE html>
+    '''A simple replacement for the flash Home view function.'''
+    html = '''<!DOCTYPE html>
 <html>
     <head>
         <title>Hello from Flask</title>
@@ -28,10 +28,10 @@ def override_flask_home():
 
 def helper_not_here():
 
-    u'''A simple template with a helper that doesn't exist. Rendering with a
+    '''A simple template with a helper that doesn't exist. Rendering with a
     helper that doesn't exist causes server error.'''
 
-    html = u'''<!DOCTYPE html>
+    html = '''<!DOCTYPE html>
     <html>
         <head>
             <title>Hello from Flask</title>
@@ -44,10 +44,10 @@ def helper_not_here():
 
 def helper_here():
 
-    u'''A simple template with a helper that exists. Rendering with a helper
+    '''A simple template with a helper that exists. Rendering with a helper
     shouldn't raise an exception.'''
 
-    html = u'''<!DOCTYPE html>
+    html = '''<!DOCTYPE html>
     <html>
         <head>
             <title>Hello from Flask</title>
@@ -59,10 +59,10 @@ def helper_here():
 
 
 def flask_request():
-    u'''A simple template with a helper that exists. Rendering with a helper
+    '''A simple template with a helper that exists. Rendering with a helper
     shouldn't raise an exception.'''
 
-    html = u'''<!DOCTYPE html>
+    html = '''<!DOCTYPE html>
     <html>
         <head>
             <title>Hello from Flask</title>
@@ -74,7 +74,7 @@ def flask_request():
 
 
 class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
-    u'''
+    '''
     An example IBlueprint plugin to demonstrate Flask routing from an
     extension.
     '''
@@ -85,21 +85,21 @@ class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
 
     def update_config(self, config):
         # Add extension templates directory
-        p.toolkit.add_template_directory(config, u'templates')
+        p.toolkit.add_template_directory(config, 'templates')
 
     def get_blueprint(self):
-        u'''Return a Flask Blueprint object to be registered by the app.'''
+        '''Return a Flask Blueprint object to be registered by the app.'''
 
         # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
-        blueprint.template_folder = u'templates'
+        blueprint.template_folder = 'templates'
         # Add plugin url rules to Blueprint object
         rules = [
-            (u'/hello_plugin', u'hello_plugin', hello_plugin),
-            (u'/', u'home', override_flask_home),
-            (u'/helper_not_here', u'helper_not_here', helper_not_here),
-            (u'/helper', u'helper_here', helper_here),
-            (u'/flask_request', u'flask_request', flask_request),
+            ('/hello_plugin', 'hello_plugin', hello_plugin),
+            ('/', 'home', override_flask_home),
+            ('/helper_not_here', 'helper_not_here', helper_not_here),
+            ('/helper', 'helper_here', helper_here),
+            ('/flask_request', 'flask_request', flask_request),
         ]
         for rule in rules:
             blueprint.add_url_rule(*rule)

@@ -9,7 +9,7 @@ from ckanext.datastore.tests.helpers import when_was_last_analyze
 
 
 def _search(resource_id):
-    return helpers.call_action(u"datastore_search", resource_id=resource_id)
+    return helpers.call_action("datastore_search", resource_id=resource_id)
 
 
 @pytest.mark.usefixtures("with_request_context")
@@ -19,7 +19,7 @@ class TestDatastoreUpsert(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_requires_auth(self):
-        resource = factories.Resource(url_type=u"datastore")
+        resource = factories.Resource(url_type="datastore")
         data = {
             "resource_id": resource["id"],
             "force": True,
@@ -40,14 +40,14 @@ class TestDatastoreUpsert(object):
                 **data
             )
         assert (
-            u"Action datastore_upsert requires an authenticated user"
+            "Action datastore_upsert requires an authenticated user"
             in str(context.value)
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_empty_fails(self):
-        resource = factories.Resource(url_type=u"datastore")
+        resource = factories.Resource(url_type="datastore")
         data = {
             "resource_id": resource["id"],
             "force": True,
@@ -63,7 +63,7 @@ class TestDatastoreUpsert(object):
         data = {}  # empty
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u"'Missing value'" in str(context.value)
+        assert "'Missing value'" in str(context.value)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -78,7 +78,7 @@ class TestDatastoreUpsert(object):
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
             ],
-            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+            "records": [{"id": "1", "book": "El Niño", "author": "Torres"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -87,7 +87,7 @@ class TestDatastoreUpsert(object):
             "force": True,
             "method": "upsert",
             "records": [
-                {"id": "1", "book": u"The boy", "author": u"F Torres"}
+                {"id": "1", "book": "The boy", "author": "F Torres"}
             ],
         }
         helpers.call_action("datastore_upsert", **data)
@@ -110,7 +110,7 @@ class TestDatastoreUpsert(object):
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
             ],
-            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+            "records": [{"id": "1", "book": "El Niño", "author": "Torres"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -119,15 +119,15 @@ class TestDatastoreUpsert(object):
             "force": True,
             "method": "upsert",
             "records": [
-                {"id": "2", "book": u"The boy", "author": u"F Torres"}
+                {"id": "2", "book": "The boy", "author": "F Torres"}
             ],
         }
         helpers.call_action("datastore_upsert", **data)
 
         search_result = _search(resource["id"])
         assert search_result["total"] == 2
-        assert search_result["records"][0]["book"] == u"El Niño"
-        assert search_result["records"][1]["book"] == u"The boy"
+        assert search_result["records"][0]["book"] == "El Niño"
+        assert search_result["records"][1]["book"] == "The boy"
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -142,7 +142,7 @@ class TestDatastoreUpsert(object):
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
             ],
-            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+            "records": [{"id": "1", "book": "El Niño", "author": "Torres"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -151,7 +151,7 @@ class TestDatastoreUpsert(object):
             "force": True,
             "method": "upsert",
             "records": [
-                {"id": "1", "book": u"The boy"}
+                {"id": "1", "book": "The boy"}
             ],  # not changing the author
         }
         helpers.call_action("datastore_upsert", **data)
@@ -168,9 +168,9 @@ class TestDatastoreUpsert(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": u"b\xfck",
+            "primary_key": "b\xfck",
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "nested", "type": "json"},
                 {"id": "characters", "type": "text[]"},
@@ -178,13 +178,13 @@ class TestDatastoreUpsert(object):
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                 },
@@ -192,7 +192,7 @@ class TestDatastoreUpsert(object):
                     "author": "adams",
                     "characters": ["Arthur", "Marvin"],
                     "nested": {"foo": "bar"},
-                    u"b\xfck": u"guide to the galaxy",
+                    "b\xfck": "guide to the galaxy",
                 },
             ],
         }
@@ -206,7 +206,7 @@ class TestDatastoreUpsert(object):
                     "author": "adams",
                     "characters": ["Bob", "Marvin"],
                     "nested": {"baz": 3},
-                    u"b\xfck": u"guide to the galaxy",
+                    "b\xfck": "guide to the galaxy",
                 }
             ],
         }
@@ -215,7 +215,7 @@ class TestDatastoreUpsert(object):
         search_result = _search(resource["id"])
         assert search_result["total"] == 3
         assert (
-            search_result["records"][0]["published"] == u"2005-03-01T00:00:00"
+            search_result["records"][0]["published"] == "2005-03-01T00:00:00"
         )  # i.e. stored in db as datetime
         assert search_result["records"][2]["author"] == "adams"
         assert search_result["records"][2]["characters"] == ["Bob", "Marvin"]
@@ -234,7 +234,7 @@ class TestDatastoreUpsert(object):
                 {"id": "bo%ok", "type": "text"},
                 {"id": "author", "type": "text"},
             ],
-            "records": [{"id": "1%", "bo%ok": u"El Niño", "author": "Torres"}],
+            "records": [{"id": "1%", "bo%ok": "El Niño", "author": "Torres"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -243,8 +243,8 @@ class TestDatastoreUpsert(object):
             "force": True,
             "method": "upsert",
             "records": [
-                {"id": "1%", "bo%ok": u"The % boy", "author": u"F Torres"},
-                {"id": "2%", "bo%ok": u"Gu%ide", "author": u"Adams"},
+                {"id": "1%", "bo%ok": "The % boy", "author": "F Torres"},
+                {"id": "2%", "bo%ok": "Gu%ide", "author": "Adams"},
             ],
         }
         helpers.call_action("datastore_upsert", **data)
@@ -275,11 +275,11 @@ class TestDatastoreUpsert(object):
             "resource_id": resource["id"],
             "force": True,
             "method": "upsert",
-            "records": [{"book": u"El Niño", "author": "Torres"}],  # no key
+            "records": [{"book": "El Niño", "author": "Torres"}],  # no key
         }
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u'fields "id" are missing' in str(context.value)
+        assert 'fields "id" are missing' in str(context.value)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -288,7 +288,7 @@ class TestDatastoreUpsert(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": u"id",
+            "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
                 {"id": "book", "type": "text"},
@@ -306,7 +306,7 @@ class TestDatastoreUpsert(object):
 
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u'fields "dummy" do not exist' in str(context.value)
+        assert 'fields "dummy" do not exist' in str(context.value)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -349,7 +349,7 @@ class TestDatastoreUpsert(object):
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
             ],
-            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+            "records": [{"id": "1", "book": "El Niño", "author": "Torres"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -388,7 +388,7 @@ class TestDatastoreUpsert(object):
             "records": [
                 {
                     "id": "1",
-                    "book": {"code": "A", "title": u"ñ"},
+                    "book": {"code": "A", "title": "ñ"},
                     "author": "tolstoy",
                 }
             ],
@@ -414,7 +414,7 @@ class TestDatastoreUpsert(object):
             "resource_id": resource["id"],
             "force": True,
             "method": "insert",
-            "records": [{"id": "1", "book": u"ñ", "author": "tolstoy"}],
+            "records": [{"id": "1", "book": "ñ", "author": "tolstoy"}],
         }
         helpers.call_action("datastore_upsert", **data)
 
@@ -423,19 +423,19 @@ class TestDatastoreUpsert(object):
     def test_dry_run(self):
         ds = factories.Dataset()
         table = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds["id"]},
-            fields=[{u"id": u"spam", u"type": u"text"}],
-            primary_key=u"spam",
+            "datastore_create",
+            resource={"package_id": ds["id"]},
+            fields=[{"id": "spam", "type": "text"}],
+            primary_key="spam",
         )
         helpers.call_action(
-            u"datastore_upsert",
+            "datastore_upsert",
             resource_id=table["resource_id"],
-            records=[{u"spam": u"SPAM"}, {u"spam": u"EGGS"}],
+            records=[{"spam": "SPAM"}, {"spam": "EGGS"}],
             dry_run=True,
         )
         result = helpers.call_action(
-            u"datastore_search", resource_id=table["resource_id"]
+            "datastore_search", resource_id=table["resource_id"]
         )
         assert result["records"] == []
 
@@ -444,21 +444,21 @@ class TestDatastoreUpsert(object):
     def test_dry_run_type_error(self):
         ds = factories.Dataset()
         table = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds["id"]},
-            fields=[{u"id": u"spam", u"type": u"numeric"}],
-            primary_key=u"spam",
+            "datastore_create",
+            resource={"package_id": ds["id"]},
+            fields=[{"id": "spam", "type": "numeric"}],
+            primary_key="spam",
         )
         try:
             helpers.call_action(
-                u"datastore_upsert",
+                "datastore_upsert",
                 resource_id=table["resource_id"],
-                records=[{u"spam": u"SPAM"}, {u"spam": u"EGGS"}],
+                records=[{"spam": "SPAM"}, {"spam": "EGGS"}],
                 dry_run=True,
             )
         except ValidationError as ve:
             assert ve.error_dict["records"] == [
-                u'invalid input syntax for type numeric: "SPAM"'
+                'invalid input syntax for type numeric: "SPAM"'
             ]
         else:
             assert 0, "error not raised"
@@ -468,10 +468,10 @@ class TestDatastoreUpsert(object):
     def test_dry_run_trigger_error(self):
         ds = factories.Dataset()
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"spamexception_trigger",
-            rettype=u"trigger",
-            definition=u"""
+            "datastore_function_create",
+            name="spamexception_trigger",
+            rettype="trigger",
+            definition="""
                 BEGIN
                 IF NEW.spam != 'spam' THEN
                     RAISE EXCEPTION '"%"? Yeeeeccch!', NEW.spam;
@@ -480,21 +480,21 @@ class TestDatastoreUpsert(object):
                 END;""",
         )
         table = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds["id"]},
-            fields=[{u"id": u"spam", u"type": u"text"}],
-            primary_key=u"spam",
-            triggers=[{u"function": u"spamexception_trigger"}],
+            "datastore_create",
+            resource={"package_id": ds["id"]},
+            fields=[{"id": "spam", "type": "text"}],
+            primary_key="spam",
+            triggers=[{"function": "spamexception_trigger"}],
         )
         try:
             helpers.call_action(
-                u"datastore_upsert",
+                "datastore_upsert",
                 resource_id=table["resource_id"],
-                records=[{u"spam": u"EGGS"}],
+                records=[{"spam": "EGGS"}],
                 dry_run=True,
             )
         except ValidationError as ve:
-            assert ve.error_dict["records"] == [u'"EGGS"? Yeeeeccch!']
+            assert ve.error_dict["records"] == ['"EGGS"? Yeeeeccch!']
         else:
             assert 0, "error not raised"
 
@@ -577,23 +577,23 @@ class TestDatastoreInsert(object):
             "resource_id": resource["id"],
             "force": True,
             "method": "insert",
-            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+            "records": [{"id": "1", "book": "El Niño", "author": "Torres"}],
         }
         helpers.call_action("datastore_upsert", **data)
 
         search_result = _search(resource["id"])
         assert search_result["total"] == 1
         assert search_result["fields"] == [
-            {u"id": "_id", u"type": "int"},
-            {u"id": u"id", u"type": u"text"},
-            {u"id": u"book", u"type": u"text"},
-            {u"id": u"author", u"type": u"text"},
+            {"id": "_id", "type": "int"},
+            {"id": "id", "type": "text"},
+            {"id": "book", "type": "text"},
+            {"id": "author", "type": "text"},
         ]
         assert search_result["records"][0] == {
-            u"book": u"El Ni\xf1o",
-            u"_id": 1,
-            u"id": u"1",
-            u"author": u"Torres",
+            "book": "El Ni\xf1o",
+            "_id": 1,
+            "id": "1",
+            "author": "Torres",
         }
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -603,7 +603,7 @@ class TestDatastoreInsert(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": u"id",
+            "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
                 {"id": "book", "type": "text"},
@@ -621,7 +621,7 @@ class TestDatastoreInsert(object):
 
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u'row "1" has extra keys "dummy"' in str(context.value)
+        assert 'row "1" has extra keys "dummy"' in str(context.value)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -647,14 +647,14 @@ class TestDatastoreInsert(object):
             "records": [
                 {
                     "id": "1",  # already exists
-                    "book": u"El Niño",
+                    "book": "El Niño",
                     "author": "Torres",
                 }
             ],
         }
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u"duplicate key value violates unique constraint" in str(
+        assert "duplicate key value violates unique constraint" in str(
             context.value
         )
 
@@ -670,20 +670,20 @@ class TestDatastoreUpdate(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": u"id",
+            "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
             ],
-            "records": [{"id": "1", "book": u"El Niño", "author": "Torres"}],
+            "records": [{"id": "1", "book": "El Niño", "author": "Torres"}],
         }
         helpers.call_action("datastore_create", **data)
 
         data = {
             "resource_id": resource["id"],
             "method": "update",
-            "records": [{"id": "1", "book": u"The boy"}],
+            "records": [{"id": "1", "book": "The boy"}],
         }
         helpers.call_action("datastore_upsert", **data)
 
@@ -699,9 +699,9 @@ class TestDatastoreUpdate(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": u"b\xfck",
+            "primary_key": "b\xfck",
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "nested", "type": "json"},
                 {"id": "characters", "type": "text[]"},
@@ -709,13 +709,13 @@ class TestDatastoreUpdate(object):
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                 },
@@ -723,7 +723,7 @@ class TestDatastoreUpdate(object):
                     "author": "adams",
                     "characters": ["Arthur", "Marvin"],
                     "nested": {"foo": "bar"},
-                    u"b\xfck": u"guide to the galaxy",
+                    "b\xfck": "guide to the galaxy",
                 },
             ],
         }
@@ -737,7 +737,7 @@ class TestDatastoreUpdate(object):
                     "author": "adams",
                     "characters": ["Bob", "Marvin"],
                     "nested": {"baz": 3},
-                    u"b\xfck": u"guide to the galaxy",
+                    "b\xfck": "guide to the galaxy",
                 }
             ],
         }
@@ -756,7 +756,7 @@ class TestDatastoreUpdate(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": u"id",
+            "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
                 {"id": "book", "type": "text"},
@@ -774,7 +774,7 @@ class TestDatastoreUpdate(object):
 
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u'fields "id" are missing' in str(context.value)
+        assert 'fields "id" are missing' in str(context.value)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -783,7 +783,7 @@ class TestDatastoreUpdate(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": u"id",
+            "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
                 {"id": "book", "type": "text"},
@@ -801,7 +801,7 @@ class TestDatastoreUpdate(object):
 
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u"key \"[\\'1\\']\" not found" in str(context.value)
+        assert "key \"[\\'1\\']\" not found" in str(context.value)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -810,7 +810,7 @@ class TestDatastoreUpdate(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": u"id",
+            "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
                 {"id": "book", "type": "text"},
@@ -828,4 +828,4 @@ class TestDatastoreUpdate(object):
 
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u'fields "dummy" do not exist' in str(context.value)
+        assert 'fields "dummy" do not exist' in str(context.value)

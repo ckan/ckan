@@ -5,7 +5,7 @@ import pytest
 import ckan.tests.factories as factories
 
 
-@pytest.fixture(scope=u"module", autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def cleanup(reset_db):
     """Reset DB only once, because there are no updates in this module, so
     thests won't become statefull.
@@ -14,7 +14,7 @@ def cleanup(reset_db):
 
 
 @pytest.mark.parametrize(
-    u"entity",
+    "entity",
     [
         factories.User,
         factories.Resource,
@@ -25,19 +25,19 @@ def cleanup(reset_db):
         factories.MockUser,
     ],
 )
-@pytest.mark.usefixtures(u"with_request_context")
+@pytest.mark.usefixtures("with_request_context")
 def test_id_uniqueness(entity):
     first, second = entity(), entity()
-    assert first[u"id"] != second[u"id"]
+    assert first["id"] != second["id"]
 
 
 # START-CONFIG-OVERRIDE
-@pytest.mark.ckan_config(u"ckan.plugins", u"image_view")
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_factory():
     resource_view1 = factories.ResourceView()
     resource_view2 = factories.ResourceView()
-    assert resource_view1[u"id"] != resource_view2[u"id"]
+    assert resource_view1["id"] != resource_view2["id"]
 
 
 # END-CONFIG-OVERRIDE
@@ -45,4 +45,4 @@ def test_resource_view_factory():
 
 def test_dataset_factory_allows_creation_by_anonymous_user():
     dataset = factories.Dataset(user=None)
-    assert dataset[u"creator_user_id"] is None
+    assert dataset["creator_user_id"] is None

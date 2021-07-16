@@ -165,13 +165,13 @@ def api_token_revoke(context, data_dict):
     """Delete token.
     """
     if authz.auth_is_anon_user(context):
-        return {u'success': False}
+        return {'success': False}
 
-    model = context[u'model']
-    token = model.ApiToken.get(data_dict[u'jti'])
+    model = context['model']
+    token = model.ApiToken.get(data_dict['jti'])
 
     # Do not make distinction between absent keys and keys not owned
     # by user in order to prevent accidential key discovery.
-    if token is None or token.owner.name != context[u'user']:
-        return {u'success': False}
-    return {u'success': True}
+    if token is None or token.owner.name != context['user']:
+        return {'success': False}
+    return {'success': True}

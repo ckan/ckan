@@ -11,16 +11,16 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = u'01afcadbd8c0'
-down_revision = u'0ffc0b277141'
+revision = '01afcadbd8c0'
+down_revision = '0ffc0b277141'
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.create_index(u'idx_package_resource_package_id', u'resource',
-                    [u'package_id'])
+    op.create_index('idx_package_resource_package_id', 'resource',
+                    ['package_id'])
 
 
 def downgrade():
-    op.drop_index(u'idx_package_resource_package_id')
+    op.drop_index('idx_package_resource_package_id')

@@ -28,7 +28,7 @@ class TestDatastoreDelete(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "aliases": u"b\xfck2",
+            "aliases": "b\xfck2",
             "fields": [
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
@@ -52,13 +52,13 @@ class TestDatastoreDelete(object):
         helpers.call_action("datastore_delete", **data)
 
         results = execute_sql(
-            u"select 1 from pg_views where viewname = %s", u"b\xfck2"
+            "select 1 from pg_views where viewname = %s", "b\xfck2"
         )
         assert results.rowcount == 0
 
         # check the table is gone
         results = execute_sql(
-            u"""SELECT table_name
+            """SELECT table_name
             FROM information_schema.tables
             WHERE table_name=%s;""",
             resource["id"],
@@ -135,7 +135,7 @@ class TestDatastoreDeleteLegacy(object):
         resource = model.Package.get("annakarenina").resources[0]
         self.data = {
             "resource_id": resource.id,
-            "aliases": u"b\xfck2",
+            "aliases": "b\xfck2",
             "fields": [
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
@@ -280,7 +280,7 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute('select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == "annakarenina"
@@ -302,7 +302,7 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute('select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == "annakarenina"
@@ -323,7 +323,7 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute('select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 0
         self.Session.remove()
@@ -409,32 +409,32 @@ class TestDatastoreFunctionDelete(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_delete(self):
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"test_nop",
-            rettype=u"trigger",
-            definition=u"BEGIN RETURN NEW; END;",
+            "datastore_function_create",
+            name="test_nop",
+            rettype="trigger",
+            definition="BEGIN RETURN NEW; END;",
         )
-        helpers.call_action(u"datastore_function_delete", name=u"test_nop")
+        helpers.call_action("datastore_function_delete", name="test_nop")
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_delete_nonexistant(self):
         try:
             helpers.call_action(
-                u"datastore_function_delete", name=u"test_not_there"
+                "datastore_function_delete", name="test_not_there"
             )
         except ValidationError as ve:
             assert ve.error_dict == {
-                u"name": [u"function test_not_there() does not exist"]
+                "name": ["function test_not_there() does not exist"]
             }
         else:
-            assert 0, u"no validation error"
+            assert 0, "no validation error"
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_delete_if_exists(self):
         helpers.call_action(
-            u"datastore_function_delete",
-            name=u"test_not_there_either",
+            "datastore_function_delete",
+            name="test_not_there_either",
             if_exists=True,
         )

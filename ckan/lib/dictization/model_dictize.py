@@ -117,7 +117,7 @@ def resource_dictize(res, context):
                                     filename=cleaned_name,
                                     qualified=True)
     elif resource['url'] and not urlsplit(url).scheme and not context.get('for_edit'):
-        resource['url'] = u'http://' + url.lstrip('/')
+        resource['url'] = 'http://' + url.lstrip('/')
     return resource
 
 
@@ -229,7 +229,7 @@ def package_dictize(pkg, context):
 
     # type
     # if null assign the default value to make searching easier
-    result_dict['type'] = pkg.type or u'dataset'
+    result_dict['type'] = pkg.type or 'dataset'
 
     # license
     if pkg.license and pkg.license.url:
@@ -429,15 +429,15 @@ def tag_dictize(tag, context, include_datasets=True):
     if include_datasets:
         query = search.PackageSearchQuery()
 
-        tag_query = u'+capacity:public '
+        tag_query = '+capacity:public '
         vocab_id = tag_dict.get('vocabulary_id')
 
         if vocab_id:
             model = context['model']
             vocab = model.Vocabulary.get(vocab_id)
-            tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
+            tag_query += '+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
         else:
-            tag_query += u'+tags:"{0}"'.format(tag.name)
+            tag_query += '+tags:"{0}"'.format(tag.name)
 
         q = {'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
 
@@ -726,11 +726,11 @@ def resource_view_list_dictize(resource_views, context):
 
 
 def api_token_dictize(api_token, context):
-    include_plugin_extras = context.get(u'include_plugin_extras', False)
+    include_plugin_extras = context.get('include_plugin_extras', False)
     result_dict = d.table_dictize(api_token, context)
-    plugin_extras = result_dict.pop(u'plugin_extras', None)
+    plugin_extras = result_dict.pop('plugin_extras', None)
     if include_plugin_extras:
-        result_dict[u'plugin_extras'] = copy.deepcopy(
+        result_dict['plugin_extras'] = copy.deepcopy(
             plugin_extras) if plugin_extras else plugin_extras
     return result_dict
 

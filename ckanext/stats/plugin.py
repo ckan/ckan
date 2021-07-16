@@ -9,7 +9,7 @@ log = getLogger(__name__)
 
 
 class StatsPlugin(p.SingletonPlugin):
-    u'''Stats plugin.'''
+    '''Stats plugin.'''
 
     p.implements(p.IConfigurer)
     p.implements(p.IBlueprint)
@@ -18,6 +18,6 @@ class StatsPlugin(p.SingletonPlugin):
         return blueprint.stats
 
     def update_config(self, config):
-        p.toolkit.add_template_directory(config, u'templates')
-        p.toolkit.add_public_directory(config, u'public')
-        p.toolkit.add_resource(u'public/ckanext/stats', u'ckanext_stats')
+        p.toolkit.add_template_directory(config, 'templates')
+        p.toolkit.add_public_directory(config, 'public')
+        p.toolkit.add_resource('public/ckanext/stats', 'ckanext_stats')

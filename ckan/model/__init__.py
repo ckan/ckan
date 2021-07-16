@@ -163,7 +163,7 @@ def init_model(engine):
 class Repository():
     _alembic_ini = os.path.join(
         os.path.dirname(ckan.migration.__file__),
-        u"alembic.ini"
+        "alembic.ini"
     )
 
     # note: tables_created value is not sustained between instantiations
@@ -270,7 +270,7 @@ class Repository():
         )
         try:
             sqlalchemy_migrate_version = self.metadata.bind.execute(
-                u'select version from migrate_version'
+                'select version from migrate_version'
             ).scalar()
         except ProgrammingError:
             sqlalchemy_migrate_version = 0
@@ -308,7 +308,7 @@ class Repository():
     def downgrade_db(self, version='base'):
         self.setup_migration_version_control()
         alembic_downgrade(self.alembic_config, version)
-        log.info(u'CKAN database version set to: %s', version)
+        log.info('CKAN database version set to: %s', version)
 
     def upgrade_db(self, version='head'):
         '''Upgrade db using sqlalchemy migrations.
@@ -316,10 +316,10 @@ class Repository():
         @param version: version to upgrade to (if None upgrade to latest)
         '''
         _assert_engine_msg = (
-            u'Database migration - only Postgresql engine supported (not %s).'
+            'Database migration - only Postgresql engine supported (not %s).'
         ) % meta.engine.name
         assert meta.engine.name in (
-            u'postgres', u'postgresql'
+            'postgres', 'postgresql'
         ), _assert_engine_msg
         self.setup_migration_version_control()
         version_before = self.current_version()
@@ -328,12 +328,12 @@ class Repository():
 
         if version_after != version_before:
             log.info(
-                u'CKAN database version upgraded: %s -> %s',
+                'CKAN database version upgraded: %s -> %s',
                 version_before,
                 version_after
             )
         else:
-            log.info(u'CKAN database version remains as: %s', version_after)
+            log.info('CKAN database version remains as: %s', version_after)
 
     def are_tables_created(self):
         meta.metadata = MetaData(self.metadata.bind)
@@ -352,8 +352,8 @@ def is_id(id_string):
     return bool(re.match(reg_ex, id_string))
 
 
-def parse_db_config(config_key=u'sqlalchemy.url'):
-    u''' Takes a config key for a database connection url and parses it into
+def parse_db_config(config_key='sqlalchemy.url'):
+    ''' Takes a config key for a database connection url and parses it into
     a dictionary. Expects a url like:
 
     'postgres://tester:pass@localhost/ckantest3'
@@ -362,11 +362,11 @@ def parse_db_config(config_key=u'sqlalchemy.url'):
     '''
     url = config[config_key]
     regex = [
-        u'^\\s*(?P<db_type>\\w*)', u'://', u'(?P<db_user>[^:]*)', u':?',
-        u'(?P<db_pass>[^@]*)', u'@', u'(?P<db_host>[^/:]*)', u':?',
-        u'(?P<db_port>[^/]*)', u'/', u'(?P<db_name>[\\w.-]*)'
+        '^\\s*(?P<db_type>\\w*)', '://', '(?P<db_user>[^:]*)', ':?',
+        '(?P<db_pass>[^@]*)', '@', '(?P<db_host>[^/:]*)', ':?',
+        '(?P<db_port>[^/]*)', '/', '(?P<db_name>[\\w.-]*)'
     ]
-    db_details_match = re.match(u''.join(regex), url)
+    db_details_match = re.match(''.join(regex), url)
     if not db_details_match:
         return
     return db_details_match.groupdict()

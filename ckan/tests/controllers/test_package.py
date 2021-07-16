@@ -89,7 +89,7 @@ class TestPackageNew(object):
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
-        pkg = model.Package.by_name(u"first-page-creates-draft")
+        pkg = model.Package.by_name("first-page-creates-draft")
         assert pkg.state == "draft"
 
     def test_resource_required(self, app, user_env):
@@ -123,8 +123,8 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"complete-package-with-one-resource")
-        assert pkg.resources[0].url == u"http://example.com/resource"
+        pkg = model.Package.by_name("complete-package-with-one-resource")
+        assert pkg.resources[0].url == "http://example.com/resource"
         assert pkg.state == "active"
 
     def test_complete_package_with_two_resources(self, app, user_env):
@@ -145,9 +145,9 @@ class TestPackageNew(object):
             "url": "http://example.com/resource1",
             "save": "go-metadata"
         })
-        pkg = model.Package.by_name(u"complete-package-with-two-resources")
-        assert pkg.resources[0].url == u"http://example.com/resource0"
-        assert pkg.resources[1].url == u"http://example.com/resource1"
+        pkg = model.Package.by_name("complete-package-with-two-resources")
+        assert pkg.resources[0].url == "http://example.com/resource0"
+        assert pkg.resources[1].url == "http://example.com/resource1"
         assert pkg.state == "active"
 
     # resource upload is tested in TestExampleIUploaderPlugin
@@ -199,7 +199,7 @@ class TestPackageNew(object):
             "save": "go-dataset"
         })
 
-        pkg = model.Package.by_name(u"previous-next-maintains-draft")
+        pkg = model.Package.by_name("previous-next-maintains-draft")
         assert pkg.state == "draft"
 
     def test_dataset_edit_org_dropdown_visible_to_normal_user_with_orgs_available(
@@ -232,7 +232,7 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"my-dataset")
+        pkg = model.Package.by_name("my-dataset")
         assert pkg.state == "active"
 
         # edit package page response
@@ -275,7 +275,7 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"my-dataset")
+        pkg = model.Package.by_name("my-dataset")
         assert pkg.state == "active"
         assert pkg.owner_org == org["id"]
         assert pkg.owner_org is not None
@@ -283,7 +283,7 @@ class TestPackageNew(object):
         url = url_for("dataset.edit", id=pkg.id)
         pkg_edit_response = app.post(url=url, extra_environ=env, data={"owner_org": ""}, follow_redirects=False)
 
-        post_edit_pkg = model.Package.by_name(u"my-dataset")
+        post_edit_pkg = model.Package.by_name("my-dataset")
         assert post_edit_pkg.owner_org is None
         assert post_edit_pkg.owner_org != org["id"]
 
@@ -313,12 +313,12 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"my-dataset")
+        pkg = model.Package.by_name("my-dataset")
         assert pkg.state == "active"
 
         # edit package response
         url = url_for(
-            "dataset.edit", id=model.Package.by_name(u"my-dataset").id
+            "dataset.edit", id=model.Package.by_name("my-dataset").id
         )
         pkg_edit_response = app.get(url=url, extra_environ=env)
         # A field with the correct id is in the response
@@ -358,7 +358,7 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"my-dataset")
+        pkg = model.Package.by_name("my-dataset")
         assert pkg.state == "active"
 
         # edit package page response
@@ -415,12 +415,12 @@ class TestPackageEdit(object):
         response = app.post(
             url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
             data={
-                "notes": u"edited description",
+                "notes": "edited description",
                 "save": ""
             }, follow_redirects=False
         )
         result = helpers.call_action("package_show", id=dataset["id"])
-        assert u"edited description" == result["notes"]
+        assert "edited description" == result["notes"]
 
     def test_organization_editor_can_edit(self, app):
         user = factories.User()
@@ -432,13 +432,13 @@ class TestPackageEdit(object):
         response = app.post(
             url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
             data={
-                "notes": u"edited description",
+                "notes": "edited description",
                 "save": ""
             }, follow_redirects=False
 
         )
         result = helpers.call_action("package_show", id=dataset["id"])
-        assert u"edited description" == result["notes"]
+        assert "edited description" == result["notes"]
 
     def test_organization_member_cannot_edit(self, app):
         user = factories.User()
@@ -738,9 +738,9 @@ class TestPackageRead(object):
         activity_detail = model.ActivityDetail(
             activity_id=activity.id,
             object_id=dataset["id"],
-            object_type=u"Package",
+            object_type="Package",
             activity_type=activity_type,
-            data={u"package": dataset_table_dict},
+            data={"package": dataset_table_dict},
         )
         model.Session.add(activity_detail)
         model.Session.flush()
@@ -949,7 +949,7 @@ class TestResourceNew(object):
         )
         result = helpers.call_action("package_show", id=dataset["id"])
         assert 1 == len(result["resources"])
-        assert u"test resource" == result["resources"][0]["name"]
+        assert "test resource" == result["resources"][0]["name"]
 
     def test_admin_can_add_new_resource(self, app):
         user = factories.User()
@@ -973,7 +973,7 @@ class TestResourceNew(object):
         )
         result = helpers.call_action("package_show", id=dataset["id"])
         assert 1 == len(result["resources"])
-        assert u"test resource" == result["resources"][0]["name"]
+        assert "test resource" == result["resources"][0]["name"]
 
     def test_member_cannot_add_new_resource(self, app):
         user = factories.User()
@@ -1075,20 +1075,20 @@ class TestResourceDownload(object):
 
         dataset = factories.Dataset()
         resource = create_with_upload(
-            u"hello,world", u"file.csv",
-            package_id=dataset[u"id"]
+            "hello,world", "file.csv",
+            package_id=dataset["id"]
         )
 
-        assert resource[u"mimetype"] == u"text/csv"
+        assert resource["mimetype"] == "text/csv"
         url = url_for(
-            u"{}_resource.download".format(dataset[u"type"]),
-            id=dataset[u"id"],
-            resource_id=resource[u"id"],
+            "{}_resource.download".format(dataset["type"]),
+            id=dataset["id"],
+            resource_id=resource["id"],
         )
 
         response = app.get(url)
 
-        assert response.headers[u"Content-Type"] == u"text/csv"
+        assert response.headers["Content-Type"] == "text/csv"
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
@@ -2227,9 +2227,9 @@ class TestActivity(object):
         activity_detail = model.ActivityDetail(
             activity_id=activity.id,
             object_id=dataset["id"],
-            object_type=u"Package",
+            object_type="Package",
             activity_type=activity_type,
-            data={u"package": dataset_table_dict},
+            data={"package": dataset_table_dict},
         )
         model.Session.add(activity_detail)
         model.Session.flush()

@@ -12,8 +12,8 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(ExampleIDatasetFormPlugin, self).create_package_schema()
         # our custom field
         schema.update({
-            u'custom_text': [tk.get_validator(u'ignore_missing'),
-                             tk.get_converter(u'convert_to_extras')]
+            'custom_text': [tk.get_validator('ignore_missing'),
+                             tk.get_converter('convert_to_extras')]
         })
         return schema
 
@@ -21,18 +21,18 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(ExampleIDatasetFormPlugin, self).update_package_schema()
         # our custom field
         schema.update({
-            u'custom_text': [tk.get_validator(u'ignore_missing'),
-                             tk.get_converter(u'convert_to_extras')]
+            'custom_text': [tk.get_validator('ignore_missing'),
+                             tk.get_converter('convert_to_extras')]
         })
         return schema
 
     def show_package_schema(self):
         schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
         schema.update({
-            u'custom_text': [tk.get_converter(u'convert_from_extras'),
-                             tk.get_validator(u'ignore_missing')],
-            u'custom_text_2': [tk.get_converter(u'convert_from_extras'),
-                               tk.get_validator(u'ignore_missing')],
+            'custom_text': [tk.get_converter('convert_from_extras'),
+                             tk.get_validator('ignore_missing')],
+            'custom_text_2': [tk.get_converter('convert_from_extras'),
+                               tk.get_validator('ignore_missing')],
         })
         return schema
 
@@ -44,4 +44,4 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     def package_types(self):
         # This plugin doesn't handle any special package types, it just
         # registers itself as the default (above).
-        return [u'fancy_type']
+        return ['fancy_type']

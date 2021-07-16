@@ -125,7 +125,7 @@ def test_only_configured_plugins_loaded():
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 def test_mapper_plugin_fired_on_insert():
     plugin = plugins.get_plugin("mapper_plugin")
-    CreateTestData.create_arbitrary([{"name": u"testpkg"}])
+    CreateTestData.create_arbitrary([{"name": "testpkg"}])
     assert plugin.calls == [
         ("before_insert", "testpkg"),
         ("after_insert", "testpkg"),
@@ -136,7 +136,7 @@ def test_mapper_plugin_fired_on_insert():
 @pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
 def test_mapper_plugin_fired_on_delete():
     plugin = plugins.get_plugin("mapper_plugin")
-    CreateTestData.create_arbitrary([{"name": u"testpkg"}])
+    CreateTestData.create_arbitrary([{"name": "testpkg"}])
     plugin.calls = []
     # remove this data
     user = factories.User()

@@ -437,10 +437,10 @@ def job_show(context, data_dict):
 def api_token_list(context, data_dict):
     """List all available tokens for current user.
     """
-    user = context[u'model'].User.get(data_dict[u'user'])
-    success = user is not None and user.name == context[u'user']
+    user = context['model'].User.get(data_dict['user'])
+    success = user is not None and user.name == context['user']
 
-    return {u'success': success}
+    return {'success': success}
 
 
 def package_collaborator_list(context, data_dict):

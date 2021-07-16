@@ -25,43 +25,43 @@ def test_name_validation():
         "annakarenina",
     )
     bad_names = (
-        ("", [u"Missing value"]),
+        ("", ["Missing value"]),
         (
             "blAh",
             [
-                u"Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
+                "Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
             ],
         ),
         (
             "a",
             [
-                u"Must be at least 2 characters long",
-                u"Name NAME length is less than minimum 2",
+                "Must be at least 2 characters long",
+                "Name NAME length is less than minimum 2",
             ],
         ),
         (
             "dot.in.name",
             [
-                u"Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
+                "Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
             ],
         ),
         (
-            u"unicode-\xe0",
+            "unicode-\xe0",
             [
-                u"Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
+                "Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
             ],
         ),
         (
             "percent%",
             [
-                u"Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
+                "Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
             ],
         ),
         (
             "p" * 101,
             [
-                u"Name must be a maximum of 100 characters long",
-                u"Name NAME length is more than maximum 100",
+                "Name must be a maximum of 100 characters long",
+                "Name NAME length is more than maximum 100",
             ],
         ),
     )
@@ -91,7 +91,7 @@ def test_version_validation():
 
     good_versions = ("1.0", "")
     bad_versions = (
-        ("p" * 101, [u"Version must be a maximum of 100 characters long"]),
+        ("p" * 101, ["Version must be a maximum of 100 characters long"]),
     )
 
     for package_version in good_versions:
@@ -147,31 +147,31 @@ def test_tag_name_validation():
         "ab1",
         "some-random-made-up-name",
         "has_underscore",
-        u"unicode-\xe0",
+        "unicode-\xe0",
         "dot.in.name",
         "multiple words",
-        u"with Greek omega \u03a9",
+        "with Greek omega \u03a9",
         "CAPITALS",
     )
     bad_names = (
-        ("a", [u"Tag TAG length is less than minimum 2"]),
+        ("a", ["Tag TAG length is less than minimum 2"]),
         (
             "  ,leading comma",
-            [u"Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
+            ["Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
         ),
         (
             "trailing comma,",
-            [u"Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
+            ["Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
         ),
         (
             "empty,,tag",
-            [u"Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
+            ["Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
         ),
         (
             'quote"character',
-            [u"Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
+            ["Tag TAG can only contain alphanumeric characters, spaces (\" \"), hyphens (\"-\"), underscores (\"_\") or dots (\".\")"],
         ),
-        ("p" * 101, [u"Tag TAG length is more than maximum 100"]),
+        ("p" * 101, ["Tag TAG length is more than maximum 100"]),
     )
 
     for tag_name in good_names:
@@ -205,9 +205,9 @@ def test_tag_string_parsing():
         assert tag_names == expected_tags
 
     # test whitespace chars are stripped
-    whitespace_characters = u"\t\n\r\f\v "
+    whitespace_characters = "\t\n\r\f\v "
     for ch in whitespace_characters:
-        tag = ch + u"tag name" + ch
+        tag = ch + "tag name" + ch
         data_dict = {"tag_string": tag}
         data, errors = validate(data_dict, schema, context)
-        assert data["tags"] == [{"name": u"tag name"}]
+        assert data["tags"] == [{"name": "tag name"}]

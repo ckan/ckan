@@ -74,7 +74,7 @@ def owner_org_validator(key, data, errors, context):
 
     if not package or (package and package.owner_org != group_id):
         # This is a new dataset or we are changing the organization
-        if not context.get(u'ignore_auth', False) and not(user.sysadmin or
+        if not context.get('ignore_auth', False) and not(user.sysadmin or
                authz.has_user_permission_for_group_or_org(
                    group_id, user.name, 'create_dataset')):
             raise Invalid(_('You cannot add a dataset to this organization'))
@@ -985,6 +985,6 @@ def extras_valid_json(extras, context):
         for extra, value in iteritems(extras):
             json.dumps(value)
     except ValueError as e:
-        raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
+        raise Invalid(_('Could not parse extra \'{name}\' as valid JSON').
                 format(name=extra))
     return extras

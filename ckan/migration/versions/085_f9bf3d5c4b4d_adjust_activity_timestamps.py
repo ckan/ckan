@@ -28,7 +28,7 @@ def upgrade():
         return
 
     connection = op.get_bind()
-    sql = u"update activity set timestamp = timestamp + (%s - %s);"
+    sql = "update activity set timestamp = timestamp + (%s - %s);"
     connection.execute(sql, utc_date, local_date)
 
 
@@ -42,5 +42,5 @@ def downgrade():
         return
 
     connection = op.get_bind()
-    sql = u"update activity set timestamp = timestamp - (%s - %s);"
+    sql = "update activity set timestamp = timestamp - (%s - %s);"
     connection.execute(sql, utc_date, local_date)

@@ -48,7 +48,7 @@ class TestPluggablePreviews(base.FunctionalTestCase):
         assert "No preview" in result.body, result.body
 
         # no preview for type "ümlaut", should not fail
-        resource_dict["format"] = u"ümlaut"
+        resource_dict["format"] = "ümlaut"
         l.action.update.resource_update(context, resource_dict)
 
         result = self.app.get(preview_url, status=409)

@@ -5,9 +5,9 @@ log = logging.getLogger(__name__)
 
 
 class State(object):
-    ACTIVE = u'active'
-    DELETED = u'deleted'
-    PENDING = u'pending'
+    ACTIVE = 'active'
+    DELETED = 'deleted'
+    PENDING = 'pending'
 
 
 class StatefulObjectMixin(object):

@@ -82,7 +82,7 @@ def timer(params):
                     value = args[param[1]]
                 else:
                     continue
-                params.append(u'%s=%r' % (param[0], value))
+                params.append('%s=%r' % (param[0], value))
             p = ', '.join(params)
             start = time.time()
             # call the function

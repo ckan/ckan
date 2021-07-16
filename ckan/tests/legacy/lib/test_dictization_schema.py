@@ -54,51 +54,51 @@ class TestBasicDictize(object):
 
         expected_data = {
             "extras": [
-                {"key": u"genre", "value": u"romantic novel"},
-                {"key": u"original media", "value": u"book"},
+                {"key": "genre", "value": "romantic novel"},
+                {"key": "original media", "value": "book"},
             ],
             "groups": [
-                {u"name": u"david", u"title": u"Dave's books"},
-                {u"name": u"roger", u"title": u"Roger's books"},
+                {"name": "david", "title": "Dave's books"},
+                {"name": "roger", "title": "Roger's books"},
             ],
-            "license_id": u"other-open",
-            "name": u"anna2",
-            "type": u"dataset",
-            "notes": u"Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n",
+            "license_id": "other-open",
+            "name": "anna2",
+            "type": "dataset",
+            "notes": "Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n",
             "private": False,
             "resources": [
                 {
-                    "alt_url": u"alt123",
-                    "description": u'Full text. Needs escaping: " Umlaut: \xfc',
-                    "format": u"plain text",
-                    "hash": u"abc123",
-                    "size_extra": u"123",
-                    "url": u"http://datahub.io/download/x=1&y=2",
+                    "alt_url": "alt123",
+                    "description": 'Full text. Needs escaping: " Umlaut: \xfc',
+                    "format": "plain text",
+                    "hash": "abc123",
+                    "size_extra": "123",
+                    "url": "http://datahub.io/download/x=1&y=2",
                 },
                 {
-                    "alt_url": u"alt345",
-                    "description": u"Index of the novel",
-                    "format": u"JSON",
-                    "hash": u"def456",
-                    "size_extra": u"345",
-                    "url": u"http://datahub.io/index.json",
+                    "alt_url": "alt345",
+                    "description": "Index of the novel",
+                    "format": "JSON",
+                    "hash": "def456",
+                    "size_extra": "345",
+                    "url": "http://datahub.io/index.json",
                 },
             ],
             "tags": [
-                {"name": u"Flexible \u30a1"},
-                {"name": u"russian"},
-                {"name": u"tolstoy"},
+                {"name": "Flexible \u30a1"},
+                {"name": "russian"},
+                {"name": "tolstoy"},
             ],
-            "title": u"A Novel By Tolstoy",
-            "url": u"http://datahub.io",
-            "version": u"0.7a",
+            "title": "A Novel By Tolstoy",
+            "url": "http://datahub.io",
+            "version": "0.7a",
         }
 
         assert converted_data == expected_data, pformat(converted_data)
         assert not errors, errors
 
         data = converted_data
-        data["name"] = u"annakarenina"
+        data["name"] = "annakarenina"
         data.pop("title")
         data["resources"][0]["url"] = "fsdfafasfsaf"
         data["resources"][1].pop("url")
@@ -107,7 +107,7 @@ class TestBasicDictize(object):
             data, default_create_package_schema(), self.context
         )
 
-        assert errors == {"name": [u"That URL is already in use."]}, pformat(
+        assert errors == {"name": ["That URL is already in use."]}, pformat(
             errors
         )
 
@@ -119,7 +119,7 @@ class TestBasicDictize(object):
         )
         assert errors == {
             "name": [
-                u"Must be purely lowercase alphanumeric (ascii) "
+                "Must be purely lowercase alphanumeric (ascii) "
                 "characters and these symbols: -_"
             ]
         }, pformat(errors)
@@ -144,13 +144,13 @@ class TestBasicDictize(object):
         )
 
         expected = {
-            "description": u"These are books that David likes.",
+            "description": "These are books that David likes.",
             "id": group.id,
-            "name": u"david",
+            "name": "david",
             "is_organization": False,
-            "type": u"group",
-            "image_url": u"",
-            "image_display_url": u"",
+            "type": "group",
+            "image_url": "",
+            "image_display_url": "",
             "packages": sorted(
                 [
                     {
@@ -166,8 +166,8 @@ class TestBasicDictize(object):
                 ],
                 key=lambda x: x["id"],
             ),
-            "title": u"Dave's books",
-            "approval_status": u"approved",
+            "title": "Dave's books",
+            "approval_status": "approved",
         }
 
         assert not errors
@@ -183,8 +183,8 @@ class TestBasicDictize(object):
         )
         assert errors == {
             "packages": [
-                {"id": [u"Not found: Dataset"]},
-                {"id": [u"Missing value"]},
+                {"id": ["Not found: Dataset"]},
+                {"id": ["Missing value"]},
             ]
         }, pformat(errors)
 
@@ -192,7 +192,7 @@ class TestBasicDictize(object):
         """Asserts that a tag name with space is valid"""
         ignored = ""
         data = {
-            "name": u"with space",
+            "name": "with space",
             "revision_timestamp": ignored,
             "state": ignored,
         }
@@ -203,7 +203,7 @@ class TestBasicDictize(object):
         """Asserts that a tag name with limited punctuation is valid"""
         ignored = ""
         data = {
-            "name": u".-_",
+            "name": ".-_",
             "revision_timestamp": ignored,
             "state": ignored,
         }
@@ -214,7 +214,7 @@ class TestBasicDictize(object):
         """Asserts that tag names can have capital letters"""
         ignored = ""
         data = {
-            "name": u"CAPITALS",
+            "name": "CAPITALS",
             "revision_timestamp": ignored,
             "state": ignored,
         }

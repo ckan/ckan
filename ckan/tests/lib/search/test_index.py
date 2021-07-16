@@ -96,8 +96,8 @@ class TestSearchIndex(object):
         pkg_dict = self.base_package_dict.copy()
         pkg_dict.update(
             {
-                "title": u"\u00c3a\u0001ltimo n\u00famero penguin",
-                "notes": u"\u00c3a\u0001ltimo n\u00famero penguin",
+                "title": "\u00c3a\u0001ltimo n\u00famero penguin",
+                "notes": "\u00c3a\u0001ltimo n\u00famero penguin",
             }
         )
         self.package_index.index_package(pkg_dict)
@@ -105,7 +105,7 @@ class TestSearchIndex(object):
         response = self.solr_client.search(q="name:monkey", fq=self.fq)
 
         assert len(response) == 1
-        assert response.docs[0]["title"] == u"\u00c3altimo n\u00famero penguin"
+        assert response.docs[0]["title"] == "\u00c3altimo n\u00famero penguin"
 
     def test_index_date_field(self):
 

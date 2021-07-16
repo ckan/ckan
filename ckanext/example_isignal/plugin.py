@@ -18,8 +18,8 @@ class ExampleISignalPlugin(p.SingletonPlugin):
 
     def get_signal_subscriptions(self):
         return {
-            p.toolkit.signals.ckanext.signal(u'isignal_number'): [
+            p.toolkit.signals.ckanext.signal('isignal_number'): [
                 x2,
-                {u'receiver': x10, u'sender': 10}
+                {'receiver': x10, 'sender': 10}
             ]
         }

@@ -30,14 +30,14 @@ CONTENT = "data"
 def test_resource_download_iuploader_called(
         send_file, app, monkeypatch, tmpdir, ckan_config
 ):
-    monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
+    monkeypatch.setitem(ckan_config, 'ckan.storage_path', str(tmpdir))
+    monkeypatch.setattr(ckan.lib.uploader, '_storage_path', str(tmpdir))
 
     user = factories.User()
     env = {"REMOTE_USER": six.ensure_str(user["name"])}
     url = url_for("dataset.new")
 
-    dataset_name = u"package_with_resource"
+    dataset_name = "package_with_resource"
     form = {
         "name": dataset_name,
         "save": "",
@@ -67,7 +67,7 @@ def test_resource_download_iuploader_called(
     pkg = model.Package.by_name(dataset_name)
     assert mock_get_path.call_args[0][1] == pkg.resources[0].id
 
-    assert pkg.resources[0].url_type == u"upload"
+    assert pkg.resources[0].url_type == "upload"
     assert pkg.state == "active"
     url = url_for(
         "resource.download", id=pkg.id, resource_id=pkg.resources[0].id

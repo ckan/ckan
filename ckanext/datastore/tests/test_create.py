@@ -22,7 +22,7 @@ from ckanext.datastore.tests.helpers import (
 @pytest.mark.usefixtures("with_request_context")
 class TestDatastoreCreateNewTests(object):
     def _has_index_on_field(self, resource_id, field):
-        sql = u"""
+        sql = """
             SELECT
                 relname
             FROM
@@ -35,7 +35,7 @@ class TestDatastoreCreateNewTests(object):
         return bool(results)
 
     def _get_index_names(self, resource_id):
-        sql = u"""
+        sql = """
             SELECT
                 i.relname AS index_name
             FROM
@@ -387,7 +387,7 @@ class TestDatastoreCreate(object):
         resource = model.Package.get("annakarenina").resources[0]
         data = {
             "resource_id": resource.id,
-            "aliases": u'foo"bar',
+            "aliases": 'foo"bar',
             "fields": [
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
@@ -405,7 +405,7 @@ class TestDatastoreCreate(object):
 
         data = {
             "resource_id": resource.id,
-            "aliases": u"fo%25bar",  # alias with percent
+            "aliases": "fo%25bar",  # alias with percent
             "fields": [
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
@@ -425,7 +425,7 @@ class TestDatastoreCreate(object):
     @pytest.mark.usefixtures("with_plugins")
     def test_create_duplicate_alias_name(self, app):
         resource = model.Package.get("annakarenina").resources[0]
-        data = {"resource_id": resource.id, "aliases": u"myalias"}
+        data = {"resource_id": resource.id, "aliases": "myalias"}
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
@@ -438,7 +438,7 @@ class TestDatastoreCreate(object):
 
         # try to create another table with the same alias
         resource = model.Package.get("annakarenina").resources[1]
-        data = {"resource_id": resource.id, "aliases": u"myalias"}
+        data = {"resource_id": resource.id, "aliases": "myalias"}
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
             "/api/action/datastore_create",
@@ -678,7 +678,7 @@ class TestDatastoreCreate(object):
     @pytest.mark.usefixtures("with_plugins")
     def test_create_basic(self, app):
         resource = model.Package.get("annakarenina").resources[0]
-        aliases = [u"great_list_of_books", u"another_list_of_b\xfcks"]
+        aliases = ["great_list_of_books", "another_list_of_b\xfcks"]
         ### Firstly test to see whether resource has no datastore table yet
         data = {"id": resource.id}
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
@@ -751,17 +751,17 @@ class TestDatastoreCreate(object):
             results = [
                 row
                 for row in c.execute(
-                    u'select * from "{0}"'.format(resource.id)
+                    'select * from "{0}"'.format(resource.id)
                 )
             ]
             results_alias = [
-                row for row in c.execute(u'select * from "{0}"'.format(alias))
+                row for row in c.execute('select * from "{0}"'.format(alias))
             ]
 
             assert results == results_alias
 
             sql = (
-                u"select * from _table_metadata "
+                "select * from _table_metadata "
                 "where alias_of=%s and name=%s"
             )
             results = c.execute(sql, resource.id, alias)
@@ -1079,13 +1079,13 @@ class TestDatastoreCreate(object):
         ]
 
         assert types == [
-            u"int4",
-            u"tsvector",
-            u"nested",
-            u"int4",
-            u"text",
-            u"timestamp",
-            u"float8",
+            "int4",
+            "tsvector",
+            "nested",
+            "int4",
+            "text",
+            "timestamp",
+            "float8",
         ], types
 
         assert results.rowcount == 3
@@ -1139,16 +1139,16 @@ class TestDatastoreCreate(object):
         ]
 
         assert types == [
-            u"int4",  # id
-            u"tsvector",  # fulltext
-            u"nested",  # author
-            u"int4",  # count
-            u"text",  # book
-            u"timestamp",  # date
-            u"float8",  # count2
-            u"text",  # extra
-            u"timestamp",  # date2
-            u"nested",  # count3
+            "int4",  # id
+            "tsvector",  # fulltext
+            "nested",  # author
+            "int4",  # count
+            "text",  # book
+            "timestamp",  # date
+            "float8",  # count2
+            "text",  # extra
+            "timestamp",  # date2
+            "nested",  # count3
         ], types
 
         ### fields resupplied in wrong order
@@ -1228,10 +1228,10 @@ class TestDatastoreFunctionCreate(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_nop_trigger(self):
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"test_nop",
-            rettype=u"trigger",
-            definition=u"BEGIN RETURN NEW; END;",
+            "datastore_function_create",
+            name="test_nop",
+            rettype="trigger",
+            definition="BEGIN RETURN NEW; END;",
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -1239,35 +1239,35 @@ class TestDatastoreFunctionCreate(object):
     def test_invalid_definition(self):
         with pytest.raises(ValidationError) as error:
             helpers.call_action(
-                u"datastore_function_create",
-                name=u"test_invalid_def",
-                rettype=u"trigger",
-                definition=u"HELLO WORLD",
+                "datastore_function_create",
+                name="test_invalid_def",
+                rettype="trigger",
+                definition="HELLO WORLD",
             )
         assert error.value.error_dict == {
-            u"definition": [u'syntax error at or near "HELLO"']
+            "definition": ['syntax error at or near "HELLO"']
         }
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_redefined_trigger(self):
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"test_redefined",
-            rettype=u"trigger",
-            definition=u"BEGIN RETURN NEW; END;",
+            "datastore_function_create",
+            name="test_redefined",
+            rettype="trigger",
+            definition="BEGIN RETURN NEW; END;",
         )
         with pytest.raises(ValidationError) as error:
             helpers.call_action(
-                u"datastore_function_create",
-                name=u"test_redefined",
-                rettype=u"trigger",
-                definition=u"BEGIN RETURN NEW; END;",
+                "datastore_function_create",
+                name="test_redefined",
+                rettype="trigger",
+                definition="BEGIN RETURN NEW; END;",
             )
         assert error.value.error_dict == {
-            u"name": [
-                u'function "test_redefined" already exists '
-                u"with same argument types"
+            "name": [
+                'function "test_redefined" already exists '
+                "with same argument types"
             ]
         }
 
@@ -1275,17 +1275,17 @@ class TestDatastoreFunctionCreate(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_redefined_with_or_replace_trigger(self):
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"test_replaceme",
-            rettype=u"trigger",
-            definition=u"BEGIN RETURN NEW; END;",
+            "datastore_function_create",
+            name="test_replaceme",
+            rettype="trigger",
+            definition="BEGIN RETURN NEW; END;",
         )
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"test_replaceme",
+            "datastore_function_create",
+            name="test_replaceme",
             or_replace=True,
-            rettype=u"trigger",
-            definition=u"BEGIN RETURN NEW; END;",
+            rettype="trigger",
+            definition="BEGIN RETURN NEW; END;",
         )
 
 
@@ -1299,15 +1299,15 @@ class TestDatastoreCreateTriggers(object):
         with pytest.raises(ValidationError) as error:
             with app.flask_app.test_request_context():
                 helpers.call_action(
-                    u"datastore_create",
-                    resource={u"package_id": ds["id"]},
-                    fields=[{u"id": u"spam", u"type": u"text"}],
-                    records=[{u"spam": u"SPAM"}, {u"spam": u"EGGS"}],
-                    triggers=[{u"function": u"no_such_trigger_function"}],
+                    "datastore_create",
+                    resource={"package_id": ds["id"]},
+                    fields=[{"id": "spam", "type": "text"}],
+                    records=[{"spam": "SPAM"}, {"spam": "EGGS"}],
+                    triggers=[{"function": "no_such_trigger_function"}],
                 )
         assert error.value.error_dict == {
-            u"triggers": [
-                u"function no_such_trigger_function() does not exist"
+            "triggers": [
+                "function no_such_trigger_function() does not exist"
             ]
         }
 
@@ -1317,10 +1317,10 @@ class TestDatastoreCreateTriggers(object):
         ds = factories.Dataset()
 
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"spamify_trigger",
-            rettype=u"trigger",
-            definition=u"""
+            "datastore_function_create",
+            name="spamify_trigger",
+            rettype="trigger",
+            definition="""
                 BEGIN
                 NEW.spam := 'spam spam ' || NEW.spam || ' spam';
                 RETURN NEW;
@@ -1329,19 +1329,19 @@ class TestDatastoreCreateTriggers(object):
 
         with app.flask_app.test_request_context():
             res = helpers.call_action(
-                u"datastore_create",
-                resource={u"package_id": ds["id"]},
-                fields=[{u"id": u"spam", u"type": u"text"}],
-                records=[{u"spam": u"SPAM"}, {u"spam": u"EGGS"}],
-                triggers=[{u"function": u"spamify_trigger"}],
+                "datastore_create",
+                resource={"package_id": ds["id"]},
+                fields=[{"id": "spam", "type": "text"}],
+                records=[{"spam": "SPAM"}, {"spam": "EGGS"}],
+                triggers=[{"function": "spamify_trigger"}],
             )
         assert helpers.call_action(
-            u"datastore_search",
-            fields=[u"spam"],
+            "datastore_search",
+            fields=["spam"],
             resource_id=res["resource_id"],
         )["records"] == [
-            {u"spam": u"spam spam SPAM spam"},
-            {u"spam": u"spam spam EGGS spam"},
+            {"spam": "spam spam SPAM spam"},
+            {"spam": "spam spam EGGS spam"},
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -1350,10 +1350,10 @@ class TestDatastoreCreateTriggers(object):
         ds = factories.Dataset()
 
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"more_spam_trigger",
-            rettype=u"trigger",
-            definition=u"""
+            "datastore_function_create",
+            name="more_spam_trigger",
+            rettype="trigger",
+            definition="""
                 BEGIN
                 NEW.spam := 'spam spam ' || NEW.spam || ' spam';
                 RETURN NEW;
@@ -1362,24 +1362,24 @@ class TestDatastoreCreateTriggers(object):
 
         with app.flask_app.test_request_context():
             res = helpers.call_action(
-                u"datastore_create",
-                resource={u"package_id": ds["id"]},
-                fields=[{u"id": u"spam", u"type": u"text"}],
-                triggers=[{u"function": u"more_spam_trigger"}],
+                "datastore_create",
+                resource={"package_id": ds["id"]},
+                fields=[{"id": "spam", "type": "text"}],
+                triggers=[{"function": "more_spam_trigger"}],
             )
             helpers.call_action(
-                u"datastore_upsert",
-                method=u"insert",
+                "datastore_upsert",
+                method="insert",
                 resource_id=res["resource_id"],
-                records=[{u"spam": u"BEANS"}, {u"spam": u"SPAM"}],
+                records=[{"spam": "BEANS"}, {"spam": "SPAM"}],
             )
         assert helpers.call_action(
-            u"datastore_search",
-            fields=[u"spam"],
+            "datastore_search",
+            fields=["spam"],
             resource_id=res["resource_id"],
         )["records"] == [
-            {u"spam": u"spam spam BEANS spam"},
-            {u"spam": u"spam spam SPAM spam"},
+            {"spam": "spam spam BEANS spam"},
+            {"spam": "spam spam SPAM spam"},
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -1388,10 +1388,10 @@ class TestDatastoreCreateTriggers(object):
         ds = factories.Dataset()
 
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"spamexception_trigger",
-            rettype=u"trigger",
-            definition=u"""
+            "datastore_function_create",
+            name="spamexception_trigger",
+            rettype="trigger",
+            definition="""
                 BEGIN
                 IF NEW.spam != 'spam' THEN
                     RAISE EXCEPTION '"%"? Yeeeeccch!', NEW.spam;
@@ -1402,13 +1402,13 @@ class TestDatastoreCreateTriggers(object):
         with pytest.raises(ValidationError) as error:
             with app.flask_app.test_request_context():
                 helpers.call_action(
-                    u"datastore_create",
-                    resource={u"package_id": ds["id"]},
-                    fields=[{u"id": u"spam", u"type": u"text"}],
-                    records=[{u"spam": u"spam"}, {u"spam": u"EGGS"}],
-                    triggers=[{u"function": u"spamexception_trigger"}],
+                    "datastore_create",
+                    resource={"package_id": ds["id"]},
+                    fields=[{"id": "spam", "type": "text"}],
+                    records=[{"spam": "spam"}, {"spam": "EGGS"}],
+                    triggers=[{"function": "spamexception_trigger"}],
                 )
-        assert error.value.error_dict == {u"records": [u'"EGGS"? Yeeeeccch!']}
+        assert error.value.error_dict == {"records": ['"EGGS"? Yeeeeccch!']}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1416,10 +1416,10 @@ class TestDatastoreCreateTriggers(object):
         ds = factories.Dataset()
 
         helpers.call_action(
-            u"datastore_function_create",
-            name=u"spamonly_trigger",
-            rettype=u"trigger",
-            definition=u"""
+            "datastore_function_create",
+            name="spamonly_trigger",
+            rettype="trigger",
+            definition="""
                 BEGIN
                 IF NEW.spam != 'spam' THEN
                     RAISE EXCEPTION '"%"? Yeeeeccch!', NEW.spam;
@@ -1429,18 +1429,18 @@ class TestDatastoreCreateTriggers(object):
         )
         with app.flask_app.test_request_context():
             res = helpers.call_action(
-                u"datastore_create",
-                resource={u"package_id": ds["id"]},
-                fields=[{u"id": u"spam", u"type": u"text"}],
-                triggers=[{u"function": u"spamonly_trigger"}],
+                "datastore_create",
+                resource={"package_id": ds["id"]},
+                fields=[{"id": "spam", "type": "text"}],
+                triggers=[{"function": "spamonly_trigger"}],
             )
             with pytest.raises(ValidationError) as error:
                 helpers.call_action(
-                    u"datastore_upsert",
-                    method=u"insert",
+                    "datastore_upsert",
+                    method="insert",
                     resource_id=res["resource_id"],
-                    records=[{u"spam": u"spam"}, {u"spam": u"BEANS"}],
+                    records=[{"spam": "spam"}, {"spam": "BEANS"}],
                 )
             assert error.value.error_dict == {
-                u"records": [u'"BEANS"? Yeeeeccch!']
+                "records": ['"BEANS"? Yeeeeccch!']
             }

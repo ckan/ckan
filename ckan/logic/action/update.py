@@ -633,7 +633,7 @@ def package_relationship_update(context, data_dict):
     if not existing_rels:
         raise NotFound('This relationship between the packages was not found.')
     entity = existing_rels[0]
-    comment = data_dict.get('comment', u'')
+    comment = data_dict.get('comment', '')
     context['relationship'] = entity
     return _update_package_relationship(entity, comment, context)
 
@@ -718,7 +718,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # When the user marks a group as deleted this comes through here as
     # a 'changed' group activity. We detect this and change it to a 'deleted'
     # activity.
-    if group.state == u'deleted':
+    if group.state == 'deleted':
         if session.query(ckan.model.Activity).filter_by(
                 object_id=group.id, activity_type='deleted').all():
             # A 'deleted group' activity for this group has already been
@@ -1361,7 +1361,7 @@ def config_option_update(context, data_dict):
         For details, check :doc:`/extensions/remote-config-update`.
 
     .. warning:: You should only add config options that you are comfortable
-        they can be edited during runtime, such as ones you've added in your
+        they can be edited during runtime, such as ones yo've added in your
         own extension, or have reviewed the use of in core CKAN.
 
     '''

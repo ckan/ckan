@@ -19,7 +19,7 @@ class CKANConfigLoader(object):
         self.parser = ConfigParser()
         # Preserve case in config keys
         self.parser.optionxform = str
-        self.section = u'app:main'
+        self.section = 'app:main'
         defaults = dict(
             (k, v) for k, v in os.environ.items()
             if k.startswith("CKAN_"))
@@ -32,7 +32,7 @@ class CKANConfigLoader(object):
             self.parser._defaults[key] = value
 
     def _read_config_file(self, filename):
-        defaults = {u'here': os.path.dirname(os.path.abspath(filename))}
+        defaults = {'here': os.path.dirname(os.path.abspath(filename))}
         self._update_defaults(defaults)
         self.parser.read(filename)
 
@@ -43,7 +43,7 @@ class CKANConfigLoader(object):
                 value = self.parser.get(self.section, option)
                 self.config[option] = value
                 if option in self.parser.defaults():
-                    self.config[u'global_conf'][option] = value
+                    self.config['global_conf'][option] = value
 
     def _create_config_object(self):
         use_config_path = self.config_file
@@ -51,15 +51,15 @@ class CKANConfigLoader(object):
 
         # # The global_config key is to keep compatibility with Pylons.
         # # It can be safely removed when the Flask migration is completed.
-        self.config[u'global_conf'] = self.parser.defaults().copy()
+        self.config['global_conf'] = self.parser.defaults().copy()
 
         self._update_config()
 
         loaded_files = [use_config_path]
 
         while True:
-            schema, path = self.parser.get(self.section, u'use').split(u':')
-            if schema == u'config':
+            schema, path = self.parser.get(self.section, 'use').split(':')
+            if schema == 'config':
                 use_config_path = os.path.join(
                     os.path.dirname(os.path.abspath(use_config_path)), path)
                 # Avoid circular references
@@ -76,7 +76,7 @@ class CKANConfigLoader(object):
             else:
                 break
         log.debug(
-            u'Loaded configuration from the following files: %s',
+            'Loaded configuration from the following files: %s',
             loaded_files
         )
 
@@ -85,21 +85,21 @@ class CKANConfigLoader(object):
 
 
 def error_shout(exception):
-    click.secho(str(exception), fg=u'red', err=True)
+    click.secho(str(exception), fg='red', err=True)
 
 
 def load_config(ini_path=None):
     if ini_path:
-        if ini_path.startswith(u'~'):
+        if ini_path.startswith('~'):
             ini_path = os.path.expanduser(ini_path)
         filename = os.path.abspath(ini_path)
-        config_source = u'-c parameter'
-    elif os.environ.get(u'CKAN_INI'):
-        filename = os.environ.get(u'CKAN_INI')
-        config_source = u'$CKAN_INI'
+        config_source = '-c parameter'
+    elif os.environ.get('CKAN_INI'):
+        filename = os.environ.get('CKAN_INI')
+        config_source = '$CKAN_INI'
     else:
         # deprecated method since CKAN 2.9
-        default_filenames = [u'ckan.ini', u'development.ini']
+        default_filenames = ['ckan.ini', 'development.ini']
         filename = None
         for default_filename in default_filenames:
             check_file = os.path.join(os.getcwd(), default_filename)
@@ -108,21 +108,21 @@ def load_config(ini_path=None):
                 break
         if not filename:
             # give really clear error message for this common situation
-            msg = u'''
+            msg = '''
 ERROR: You need to specify the CKAN config (.ini) file path.
 
 Use the --config parameter or set environment variable CKAN_INI
 or have one of {} in the current directory.'''
-            msg = msg.format(u', '.join(default_filenames))
+            msg = msg.format(', '.join(default_filenames))
             raise CkanConfigurationException(msg)
 
     if not os.path.exists(filename):
-        msg = u'Config file not found: %s' % filename
-        msg += u'\n(Given by: %s)' % config_source
+        msg = 'Config file not found: %s' % filename
+        msg += '\n(Given by: %s)' % config_source
         raise CkanConfigurationException(msg)
 
     config_loader = CKANConfigLoader(filename)
     loggingFileConfig(filename)
-    log.info(u'Using configuration file {}'.format(filename))
+    log.info('Using configuration file {}'.format(filename))
 
     return config_loader.get_config()

@@ -70,7 +70,7 @@ class TestPatch(object):
         assert group2["name"] == "economy"
         assert group2["description"] == "somethingnew"
 
-    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", "false")
     def test_group_patch_updating_single_field_when_public_user_details_is_false(self):
         user = factories.User()
         group = factories.Group(
@@ -146,7 +146,7 @@ class TestPatch(object):
         assert organization2["name"] == "economy"
         assert organization2["description"] == "somethingnew"
 
-    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", "false")
     def test_organization_patch_updating_single_field_when_public_user_details_is_false(self):
         user = factories.User()
         organization = factories.Organization(

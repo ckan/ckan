@@ -14,12 +14,12 @@ from ckan.cli import error_shout
 log = logging.getLogger(__name__)
 
 question = (
-    u"Data in any datastore resource that isn't in their source files "
-    u"(e.g. data added using the datastore API) will be permanently "
-    u"lost. Are you sure you want to proceed?"
+    "Data in any datastore resource that isn't in their source files "
+    "(e.g. data added using the datastore API) will be permanently "
+    "lost. Are you sure you want to proceed?"
 )
 requires_confirmation = click.option(
-    u'--yes', u'-y', is_flag=True, help=u'Always answer yes to questions'
+    '--yes', '-y', is_flag=True, help='Always answer yes to questions'
 )
 
 
@@ -29,7 +29,7 @@ def confirm(yes):
     click.confirm(question, abort=True)
 
 
-@click.group(short_help=u"Perform commands in the datapusher.")
+@click.group(short_help="Perform commands in the datapusher.")
 def datapusher():
     """Perform commands in the datapusher.
     """
@@ -39,7 +39,7 @@ def datapusher():
 @datapusher.command()
 @requires_confirmation
 def resubmit(yes):
-    u'''Resubmit updated datastore resources.
+    '''Resubmit updated datastore resources.
     '''
     confirm(yes)
 
@@ -48,10 +48,10 @@ def resubmit(yes):
 
 
 @datapusher.command()
-@click.argument(u'package', required=False)
+@click.argument('package', required=False)
 @requires_confirmation
 def submit(package, yes):
-    u'''Submits resources from package.
+    '''Submits resources from package.
 
     If no package ID/name specified, submits all resources from all
     packages.
@@ -59,44 +59,44 @@ def submit(package, yes):
     confirm(yes)
 
     if not package:
-        ids = tk.get_action(u'package_list')({
-            u'model': model,
-            u'ignore_auth': True
+        ids = tk.get_action('package_list')({
+            'model': model,
+            'ignore_auth': True
         }, {})
     else:
         ids = [package]
 
     for id in ids:
-        package_show = tk.get_action(u'package_show')
+        package_show = tk.get_action('package_show')
         try:
             pkg = package_show({
-                u'model': model,
-                u'ignore_auth': True
-            }, {u'id': id})
+                'model': model,
+                'ignore_auth': True
+            }, {'id': id})
         except Exception as e:
             error_shout(e)
-            error_shout(u"Package '{}' was not found".format(package))
+            error_shout("Package '{}' was not found".format(package))
             raise click.Abort()
-        if not pkg[u'resources']:
+        if not pkg['resources']:
             continue
-        resource_ids = [r[u'id'] for r in pkg[u'resources']]
+        resource_ids = [r['id'] for r in pkg['resources']]
         _submit(resource_ids)
 
 
 def _submit(resources):
-    click.echo(u'Submitting {} datastore resources'.format(len(resources)))
-    user = tk.get_action(u'get_site_user')({
-        u'model': model,
-        u'ignore_auth': True
+    click.echo('Submitting {} datastore resources'.format(len(resources)))
+    user = tk.get_action('get_site_user')({
+        'model': model,
+        'ignore_auth': True
     }, {})
-    datapusher_submit = tk.get_action(u'datapusher_submit')
+    datapusher_submit = tk.get_action('datapusher_submit')
     for id in resources:
-        click.echo(u'Submitting {}...'.format(id), nl=False)
+        click.echo('Submitting {}...'.format(id), nl=False)
         data_dict = {
-            u'resource_id': id,
-            u'ignore_hash': True,
+            'resource_id': id,
+            'ignore_hash': True,
         }
-        if datapusher_submit({u'user': user[u'name']}, data_dict):
-            click.echo(u'OK')
+        if datapusher_submit({'user': user['name']}, data_dict):
+            click.echo('OK')
         else:
-            click.echo(u'Fail')
+            click.echo('Fail')

@@ -9,7 +9,7 @@ if os.environ.get('CKAN_INI'):
     config_path = os.environ['CKAN_INI']
 else:
     config_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), u'ckan.ini')
+        os.path.dirname(os.path.abspath(__file__)), 'ckan.ini')
 
 if not os.path.exists(config_path):
     raise RuntimeError('CKAN config option not found: {}'.format(config_path))

@@ -6,7 +6,7 @@ import pytest
 import ckan.tests.helpers as helpers
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
+@pytest.mark.ckan_config("ckan.plugins", "example_iconfigurer")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestExampleIConfigurer(object):
     def test_template_renders(self, app):
@@ -30,7 +30,7 @@ class TestExampleIConfigurer(object):
         assert helpers.body_contains(response, "/ckan-admin/myext_config_two")
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
+@pytest.mark.ckan_config("ckan.plugins", "example_iconfigurer")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
     """Tests for helpers.build_extra_admin_nav method."""

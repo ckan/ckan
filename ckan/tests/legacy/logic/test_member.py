@@ -38,8 +38,8 @@ class TestMemberLogic(object):
         initial = self._member_create(self.pkgs[0].id, "package", "public")
         final = self._member_create(self.pkgs[0].id, "package", "private")
         assert initial["id"] == final["id"], [initial, final]
-        assert initial["capacity"] == u"public"
-        assert final["capacity"] == u"private"
+        assert initial["capacity"] == "public"
+        assert final["capacity"] == "private"
 
     def test_member_create_raises_if_user_unauthorized_to_update_group(self):
         ctx, dd = self._build_context(

@@ -39,7 +39,7 @@ RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description"
 RELATIONSHIP_TYPES = PackageRelationship.types
 
 # Regular expression used to strip invalid XML characters
-_illegal_xml_chars_re = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+_illegal_xml_chars_re = re.compile('[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
 
 def escape_xml_illegal_chars(val, replacement=''):
     '''
@@ -162,7 +162,7 @@ class PackageSearchIndex(SearchIndex):
             if tag.get('vocabulary_id'):
                 data = {'id': tag['vocabulary_id']}
                 vocab = logic.get_action('vocabulary_show')(context, data)
-                key = u'vocab_%s' % vocab['name']
+                key = 'vocab_%s' % vocab['name']
                 if key in pkg_dict:
                     pkg_dict[key].append(tag['name'])
                 else:
@@ -207,7 +207,7 @@ class PackageSearchIndex(SearchIndex):
         # flatten the structure for indexing:
         for resource in pkg_dict.get('resources', []):
             for (okey, nkey) in resource_fields + resource_extras:
-                pkg_dict[nkey] = pkg_dict.get(nkey, []) + [resource.get(okey, u'')]
+                pkg_dict[nkey] = pkg_dict.get(nkey, []) + [resource.get(okey, '')]
         pkg_dict.pop('resources', None)
 
         rel_dict = collections.defaultdict(list)

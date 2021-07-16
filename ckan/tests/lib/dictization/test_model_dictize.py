@@ -29,7 +29,7 @@ class TestGroupListDictize:
     def test_group_list_dictize_sorted(self):
         factories.Group(name="aa")
         factories.Group(name="bb")
-        group_list = [model.Group.get(u"bb"), model.Group.get(u"aa")]
+        group_list = [model.Group.get("bb"), model.Group.get("aa")]
         context = {"model": model, "session": model.Session}
 
         group_dicts = model_dictize.group_list_dictize(group_list, context)
@@ -41,7 +41,7 @@ class TestGroupListDictize:
     def test_group_list_dictize_reverse_sorted(self):
         factories.Group(name="aa")
         factories.Group(name="bb")
-        group_list = [model.Group.get(u"aa"), model.Group.get(u"bb")]
+        group_list = [model.Group.get("aa"), model.Group.get("bb")]
         context = {"model": model, "session": model.Session}
 
         group_dicts = model_dictize.group_list_dictize(
@@ -56,7 +56,7 @@ class TestGroupListDictize:
         factories.Group(name="bb")
         factories.Dataset(groups=[{"name": "aa"}, {"name": "bb"}])
         factories.Dataset(groups=[{"name": "bb"}])
-        group_list = [model.Group.get(u"bb"), model.Group.get(u"aa")]
+        group_list = [model.Group.get("bb"), model.Group.get("aa")]
         context = {"model": model, "session": model.Session}
 
         group_dicts = model_dictize.group_list_dictize(
@@ -120,7 +120,7 @@ class TestGroupListDictize:
     def test_group_list_dictize_including_groups(self):
         factories.Group(name="parent")
         factories.Group(name="child", groups=[{"name": "parent"}])
-        group_list = [model.Group.get(u"parent"), model.Group.get(u"child")]
+        group_list = [model.Group.get("parent"), model.Group.get("child")]
         context = {"model": model, "session": model.Session}
 
         child_dict, parent_dict = model_dictize.group_list_dictize(
@@ -382,7 +382,7 @@ class TestPackageDictize:
             "license_title": None,
             "maintainer": None,
             "maintainer_email": None,
-            "name": u"test_dataset_dictize",
+            "name": "test_dataset_dictize",
             "notes": "Some *description*",
             "num_resources": 0,
             "num_tags": 0,
@@ -392,10 +392,10 @@ class TestPackageDictize:
             "relationships_as_object": [],
             "relationships_as_subject": [],
             "resources": [],
-            "state": u"active",
+            "state": "active",
             "tags": [],
-            "title": u"Test Dataset",
-            "type": u"dataset",
+            "title": "Test Dataset",
+            "type": "dataset",
             "url": "http://example.com",
             "version": None,
         }
@@ -438,21 +438,21 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["resources"][0], resource, "name", "url")
         expected_dict = {
-            u"cache_last_updated": None,
-            u"cache_url": None,
-            u"description": u"Just another test resource.",
-            u"format": u"res_format",
-            u"hash": u"",
-            u"last_modified": None,
-            u"mimetype": None,
-            u"mimetype_inner": None,
-            u"name": u"test_pkg_dictize",
-            u"position": 0,
-            u"resource_type": None,
-            u"size": None,
-            u"state": u"active",
-            u"url": u"http://link.to.some.data",
-            u"url_type": None,
+            "cache_last_updated": None,
+            "cache_url": None,
+            "description": "Just another test resource.",
+            "format": "res_format",
+            "hash": "",
+            "last_modified": None,
+            "mimetype": None,
+            "mimetype_inner": None,
+            "name": "test_pkg_dictize",
+            "position": 0,
+            "resource_type": None,
+            "size": None,
+            "state": "active",
+            "url": "http://link.to.some.data",
+            "url_type": None,
         }
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
@@ -469,7 +469,7 @@ class TestPackageDictize:
 
         result = model_save.resource_dict_save(resource, context)
 
-        expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
+        expected_dict = {"url": "some_filename.csv", "url_type": "upload"}
         assert expected_dict["url"] == result.url
 
     def test_package_dictize_resource_upload_with_url_and_striped(self):
@@ -485,7 +485,7 @@ class TestPackageDictize:
 
         result = model_save.resource_dict_save(resource, context)
 
-        expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
+        expected_dict = {"url": "some_filename.csv", "url_type": "upload"}
         assert expected_dict["url"] == result.url
 
     def test_package_dictize_tags(self):
@@ -497,9 +497,9 @@ class TestPackageDictize:
 
         assert result["tags"][0]["name"] == "fish"
         expected_dict = {
-            "display_name": u"fish",
-            u"name": u"fish",
-            u"state": u"active",
+            "display_name": "fish",
+            "name": "fish",
+            "state": "active",
         }
         self.assert_equals_expected(expected_dict, result["tags"][0])
 
@@ -513,9 +513,9 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["extras"][0], extras_dict, "key", "value")
         expected_dict = {
-            u"key": u"latitude",
-            u"state": u"active",
-            u"value": u"54.6",
+            "key": "latitude",
+            "state": "active",
+            "value": "54.6",
         }
         self.assert_equals_expected(expected_dict, result["extras"][0])
 
@@ -531,17 +531,17 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["groups"][0], group, "name")
         expected_dict = {
-            u"approval_status": u"approved",
-            u"capacity": u"public",
-            u"description": u"A test description for this test group.",
-            "display_name": u"Test Group Dictize",
-            "image_display_url": u"",
-            u"image_url": u"",
-            u"is_organization": False,
-            u"name": u"test_group_dictize",
-            u"state": u"active",
-            u"title": u"Test Group Dictize",
-            u"type": u"group",
+            "approval_status": "approved",
+            "capacity": "public",
+            "description": "A test description for this test group.",
+            "display_name": "Test Group Dictize",
+            "image_display_url": "",
+            "image_url": "",
+            "is_organization": False,
+            "name": "test_group_dictize",
+            "state": "active",
+            "title": "Test Group Dictize",
+            "type": "group",
         }
         self.assert_equals_expected(expected_dict, result["groups"][0])
 
@@ -556,14 +556,14 @@ class TestPackageDictize:
         assert result["owner_org"] == org["id"]
         assert_equal_for_keys(result["organization"], org, "name")
         expected_dict = {
-            u"approval_status": u"approved",
-            u"description": u"Just another test organization.",
-            u"image_url": u"https://placekitten.com/g/200/100",
-            u"is_organization": True,
-            u"name": u"test_package_dictize",
-            u"state": u"active",
-            u"title": u"Test Organization",
-            u"type": u"organization",
+            "approval_status": "approved",
+            "description": "Just another test organization.",
+            "image_url": "https://placekitten.com/g/200/100",
+            "is_organization": True,
+            "name": "test_package_dictize",
+            "state": "active",
+            "title": "Test Organization",
+            "type": "organization",
         }
         self.assert_equals_expected(expected_dict, result["organization"])
 

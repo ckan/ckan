@@ -14,20 +14,20 @@ from ckanext.example_idatastorebackend.example_sqlite import (
 )
 
 class_to_patch = (
-    u"ckanext.example_idatastorebackend."
+    "ckanext.example_idatastorebackend."
     "example_sqlite.DatastoreExampleSqliteBackend"
 )
 
 
-@pytest.mark.ckan_config(u"ckan.plugins",
-                         u"example_idatastorebackend datastore")
-@pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"app")
+@pytest.mark.ckan_config("ckan.plugins",
+                         "example_idatastorebackend datastore")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "app")
 class TestExampleIDatastoreBackendPlugin():
 
     def test_backends_correctly_registered(self):
         DatastoreBackend.register_backends()
-        assert u"sqlite" in DatastoreBackend._backends
-        assert u"postgresql" in DatastoreBackend._backends
+        assert "sqlite" in DatastoreBackend._backends
+        assert "postgresql" in DatastoreBackend._backends
 
     def test_postgres_backend_with_standard_config(self):
         assert isinstance(
@@ -36,16 +36,16 @@ class TestExampleIDatastoreBackendPlugin():
 
     def test_inconsistent_engines_for_read_and_write(self):
         with helpers.changed_config(
-            u"ckan.datastore.write_url", u"sqlite://x"
+            "ckan.datastore.write_url", "sqlite://x"
         ):
             with pytest.raises(AssertionError):
                 DatastoreBackend.set_active_backend(config)
-        with helpers.changed_config(u"ckan.datastore.read_url", u"sqlite://x"):
+        with helpers.changed_config("ckan.datastore.read_url", "sqlite://x"):
             with pytest.raises(AssertionError):
                 DatastoreBackend.set_active_backend(config)
 
-    @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
-    @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
+    @pytest.mark.ckan_config("ckan.datastore.write_url", "sqlite://x")
+    @pytest.mark.ckan_config("ckan.datastore.read_url", "sqlite://x")
     def test_sqlite_engine(self):
         DatastoreBackend.set_active_backend(config)
         assert isinstance(
@@ -53,9 +53,9 @@ class TestExampleIDatastoreBackendPlugin():
             DatastoreExampleSqliteBackend,
         )
 
-    @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
-    @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
-    @patch(class_to_patch + u"._get_engine")
+    @pytest.mark.ckan_config("ckan.datastore.write_url", "sqlite://x")
+    @pytest.mark.ckan_config("ckan.datastore.read_url", "sqlite://x")
+    @patch(class_to_patch + "._get_engine")
     def test_backend_functionality(self, get_engine):
         engine = get_engine()
         execute = engine.execute
@@ -63,28 +63,28 @@ class TestExampleIDatastoreBackendPlugin():
         execute.reset_mock()
 
         DatastoreExampleSqliteBackend.resource_fields = Mock(
-            return_value={u"meta": {}, u"schema": {u"a": u"text"}}
+            return_value={"meta": {}, "schema": {"a": "text"}}
         )
         records = [
-            {u"a": u"x"},
-            {u"a": u"y"},
-            {u"a": u"z"},
+            {"a": "x"},
+            {"a": "y"},
+            {"a": "z"},
         ]
         DatastoreBackend.set_active_backend(config)
-        res = factories.Resource(url_type=u"datastore")
+        res = factories.Resource(url_type="datastore")
         helpers.call_action(
-            u"datastore_create",
+            "datastore_create",
             resource_id=res["id"],
-            fields=[{u"id": u"a"}],
+            fields=[{"id": "a"}],
             records=records,
         )
         # check, create and 3 inserts
         assert 4 == execute.call_count
-        insert_query = u'INSERT INTO "{0}"(a) VALUES(?)'.format(res["id"])
+        insert_query = 'INSERT INTO "{0}"(a) VALUES(?)'.format(res["id"])
         execute.assert_has_calls(
             [
                 call(
-                    u' CREATE TABLE IF NOT EXISTS "{0}"(a text);'.format(
+                    ' CREATE TABLE IF NOT EXISTS "{0}"(a text);'.format(
                         res["id"]
                     )
                 ),
@@ -96,22 +96,22 @@ class TestExampleIDatastoreBackendPlugin():
 
         execute.reset_mock()
         fetchall.return_value = records
-        helpers.call_action(u"datastore_search", resource_id=res["id"])
+        helpers.call_action("datastore_search", resource_id=res["id"])
         execute.assert_called_with(
-            u'SELECT * FROM "{0}" LIMIT 100'.format(res["id"])
+            'SELECT * FROM "{0}" LIMIT 100'.format(res["id"])
         )
 
         execute.reset_mock()
-        helpers.call_action(u"datastore_delete", resource_id=res["id"])
+        helpers.call_action("datastore_delete", resource_id=res["id"])
         # check delete
         execute.assert_called_with(
-            u'DROP TABLE IF EXISTS "{0}"'.format(res["id"])
+            'DROP TABLE IF EXISTS "{0}"'.format(res["id"])
         )
 
         execute.reset_mock()
-        helpers.call_action(u"datastore_info", id=res["id"])
+        helpers.call_action("datastore_info", id=res["id"])
         # check
-        c = u'''
+        c = '''
             select name from sqlite_master
             where type = "table" and name = "{0}"'''.format(
             res["id"]

@@ -48,16 +48,16 @@ class TestQuery:
         assert convert({"tags": ["with CAPITALS"]}) == {
             "q": 'tags:"with CAPITALS"'
         }
-        assert convert({"tags": [u"with greek omega \u03a9"]}) == {
-            "q": u'tags:"with greek omega \u03a9"'
+        assert convert({"tags": ["with greek omega \u03a9"]}) == {
+            "q": 'tags:"with greek omega \u03a9"'
         }
         assert convert({"tags": ["tolstoy"]}) == {"q": 'tags:"tolstoy"'}
         assert convert({"tags": "tolstoy"}) == {"q": 'tags:"tolstoy"'}
         assert convert({"tags": "more than one tolstoy"}) == {
             "q": 'tags:"more than one tolstoy"'
         }
-        assert convert({"tags": u"with greek omega \u03a9"}) == {
-            "q": u'tags:"with greek omega \u03a9"'
+        assert convert({"tags": "with greek omega \u03a9"}) == {
+            "q": 'tags:"with greek omega \u03a9"'
         }
         assert convert({"title": "Seymour: An Introduction"}) == {
             "q": 'title:"Seymour\: An Introduction"'
@@ -70,15 +70,15 @@ class TestQuery:
 
 class TestSearch(object):
     # 'penguin' is in all test search packages
-    q_all = u"penguin"
+    q_all = "penguin"
 
     @pytest.fixture(autouse=True)
     def setup_class(self, clean_db, clean_index):
         CreateTestData.create_search_test_data()
         # now remove a tag so we can test search with deleted tags
-        gils = model.Package.by_name(u"gils")
+        gils = model.Package.by_name("gils")
         # an existing tag used only by gils
-        self.tagname = u"registry"
+        self.tagname = "registry"
         idx = [t.name for t in gils.get_tags()].index(self.tagname)
         gils.remove_tag(gils.get_tags()[idx])
         model.repo.commit_and_remove()
@@ -100,33 +100,33 @@ class TestSearch(object):
 
     def test_1_name(self):
         # exact name
-        result = search.query_for(model.Package).run({"q": u"gils"})
+        result = search.query_for(model.Package).run({"q": "gils"})
         assert result["count"] == 1, result
         assert self._pkg_names(result) == "gils", result
 
     def test_1_name_multiple_results(self):
-        result = search.query_for(model.Package).run({"q": u"gov"})
+        result = search.query_for(model.Package).run({"q": "gov"})
         assert self._check_entity_names(
             result, ("us-gov-images", "usa-courts-gov")
         ), self._pkg_names(result)
         assert result["count"] == 4, self._pkg_names(result)
 
     def test_1_name_token(self):
-        result = search.query_for(model.Package).run({"q": u"name:gils"})
+        result = search.query_for(model.Package).run({"q": "name:gils"})
         assert self._pkg_names(result) == "gils", self._pkg_names(result)
-        result = search.query_for(model.Package).run({"q": u"title:gils"})
+        result = search.query_for(model.Package).run({"q": "title:gils"})
         assert not self._check_entity_names(result, ("gils")), self._pkg_names(
             result
         )
 
     def test_2_title(self):
         # exact title, one word
-        result = search.query_for(model.Package).run({"q": u"Opengov"})
+        result = search.query_for(model.Package).run({"q": "Opengov"})
 
         assert self._pkg_names(result) == "se-opengov", self._pkg_names(result)
         # multiple words
         result = search.query_for(model.Package).run(
-            {"q": u"Government Expenditure"}
+            {"q": "Government Expenditure"}
         )
         # uk-government-expenditure is the best match but all other results should be retured
         assert self._pkg_names(result).startswith(
@@ -134,7 +134,7 @@ class TestSearch(object):
         ), self._pkg_names(result)
         # multiple words wrong order
         result = search.query_for(model.Package).run(
-            {"q": u"Expenditure Government"}
+            {"q": "Expenditure Government"}
         )
         assert self._pkg_names(result).startswith(
             "uk-government-expenditure"
@@ -142,56 +142,56 @@ class TestSearch(object):
         # multiple words all should match government
 
         result = search.query_for(model.Package).run(
-            {"q": u"Expenditure Government China"}
+            {"q": "Expenditure Government China"}
         )
         assert len(result["results"]) == 1, self._pkg_names(result)
 
     def test_3_license(self):
         # this should result, but it is here to check that at least it does not error
         result = search.query_for(model.Package).run(
-            {"q": u'license:"OKD::Other (PublicsDomain)"'}
+            {"q": 'license:"OKD::Other (PublicsDomain)"'}
         )
         assert result["count"] == 0, result
 
     def test_quotation(self):
         # multiple words quoted
         result = search.query_for(model.Package).run(
-            {"q": u'"Government Expenditure"'}
+            {"q": '"Government Expenditure"'}
         )
         assert (
             self._pkg_names(result) == "uk-government-expenditure"
         ), self._pkg_names(result)
         # multiple words quoted wrong order
         result = search.query_for(model.Package).run(
-            {"q": u'"Expenditure Government"'}
+            {"q": '"Expenditure Government"'}
         )
         assert self._pkg_names(result) == "", self._pkg_names(result)
 
     def test_string_not_found(self):
-        result = search.query_for(model.Package).run({"q": u"randomthing"})
+        result = search.query_for(model.Package).run({"q": "randomthing"})
         assert self._pkg_names(result) == "", self._pkg_names(result)
 
     def test_tags_field(self):
-        result = search.query_for(model.Package).run({"q": u"country-sweden"})
+        result = search.query_for(model.Package).run({"q": "country-sweden"})
         assert self._check_entity_names(
             result, ["se-publications", "se-opengov"]
         ), self._pkg_names(result)
 
     def test_tags_field_split_word(self):
-        result = search.query_for(model.Package).run({"q": u"todo split"})
+        result = search.query_for(model.Package).run({"q": "todo split"})
         assert self._check_entity_names(
             result, ["us-gov-images"]
         ), self._pkg_names(result)
 
     def test_tags_field_with_capitals(self):
-        result = search.query_for(model.Package).run({"q": u"CAPITALS"})
+        result = search.query_for(model.Package).run({"q": "CAPITALS"})
         assert self._check_entity_names(
             result, ["se-publications"]
         ), self._pkg_names(result)
 
     def dont_test_tags_field_with_basic_unicode(self):
         result = search.query_for(model.Package).run(
-            {"q": u"greek omega \u03a9"}
+            {"q": "greek omega \u03a9"}
         )
         assert self._check_entity_names(
             result, ["se-publications"]
@@ -199,19 +199,19 @@ class TestSearch(object):
 
     def test_tags_token_simple(self):
         result = search.query_for(model.Package).run(
-            {"q": u"tags:country-sweden"}
+            {"q": "tags:country-sweden"}
         )
         assert self._check_entity_names(
             result, ["se-publications", "se-opengov"]
         ), self._pkg_names(result)
-        result = search.query_for(model.Package).run({"q": u"tags:wildlife"})
+        result = search.query_for(model.Package).run({"q": "tags:wildlife"})
         assert self._pkg_names(result) == "us-gov-images", self._pkg_names(
             result
         )
 
     def test_tags_token_with_multi_word_tag(self):
         result = search.query_for(model.Package).run(
-            {"q": u'tags:"todo split"'}
+            {"q": 'tags:"todo split"'}
         )
         assert self._check_entity_names(
             result, ["us-gov-images"]
@@ -219,18 +219,18 @@ class TestSearch(object):
 
     def test_tags_token_simple_with_deleted_tag(self):
         # registry has been deleted
-        result = search.query_for(model.Package).run({"q": u"tags:registry"})
+        result = search.query_for(model.Package).run({"q": "tags:registry"})
         assert self._pkg_names(result) == "", self._pkg_names(result)
 
     def test_tags_token_multiple(self):
         result = search.query_for(model.Package).run(
-            {"q": u"tags:country-sweden tags:format-pdf"}
+            {"q": "tags:country-sweden tags:format-pdf"}
         )
         assert self._pkg_names(result) == "se-publications", self._pkg_names(
             result
         )
         result = search.query_for(model.Package).run(
-            {"q": u'tags:"todo split" tags:war'}
+            {"q": 'tags:"todo split" tags:war'}
         )
         assert self._pkg_names(result) == "us-gov-images", self._pkg_names(
             result
@@ -238,19 +238,19 @@ class TestSearch(object):
 
     def test_tags_token_complicated(self):
         result = search.query_for(model.Package).run(
-            {"q": u"tags:country-sweden tags:somethingrandom"}
+            {"q": "tags:country-sweden tags:somethingrandom"}
         )
         assert self._pkg_names(result) == "", self._pkg_names(result)
 
     def test_tags_token_with_capitals(self):
-        result = search.query_for(model.Package).run({"q": u'tags:"CAPITALS"'})
+        result = search.query_for(model.Package).run({"q": 'tags:"CAPITALS"'})
         assert self._check_entity_names(
             result, ["se-publications"]
         ), self._pkg_names(result)
 
     def test_tags_token_with_punctuation(self):
         result = search.query_for(model.Package).run(
-            {"q": u'tags:"surprise."'}
+            {"q": 'tags:"surprise."'}
         )
         assert self._check_entity_names(
             result, ["se-publications"]
@@ -258,7 +258,7 @@ class TestSearch(object):
 
     def test_tags_token_with_basic_unicode(self):
         result = search.query_for(model.Package).run(
-            {"q": u'tags:"greek omega \u03a9"'}
+            {"q": 'tags:"greek omega \u03a9"'}
         )
         assert self._check_entity_names(
             result, ["se-publications"]
@@ -351,7 +351,7 @@ class TestSearch(object):
         assert fields == sorted_fields, repr(fields) + repr(sorted_fields)
 
     def test_search_notes_on(self):
-        result = search.query_for(model.Package).run({"q": u"restrictions"})
+        result = search.query_for(model.Package).run({"q": "restrictions"})
         pkgs = result["results"]
         count = result["count"]
         assert len(pkgs) == 2, pkgs
@@ -359,18 +359,18 @@ class TestSearch(object):
     def test_search_foreign_chars(self):
         result = search.query_for(model.Package).run({"q": "umlaut"})
         assert result["results"] == ["gils"], result["results"]
-        result = search.query_for(model.Package).run({"q": u"thumb"})
+        result = search.query_for(model.Package).run({"q": "thumb"})
         assert result["results"] == ["gils"], result["results"]
-        result = search.query_for(model.Package).run({"q": u"th\xfcmb"})
+        result = search.query_for(model.Package).run({"q": "th\xfcmb"})
         assert result["results"] == ["gils"], result["results"]
 
     def test_groups(self):
-        result = search.query_for(model.Package).run({"q": u"groups:random"})
+        result = search.query_for(model.Package).run({"q": "groups:random"})
         assert self._pkg_names(result) == "", self._pkg_names(result)
-        result = search.query_for(model.Package).run({"q": u"groups:ukgov"})
+        result = search.query_for(model.Package).run({"q": "groups:ukgov"})
         assert result["count"] == 4, self._pkg_names(result)
         result = search.query_for(model.Package).run(
-            {"q": u"groups:ukgov tags:us"}
+            {"q": "groups:ukgov tags:us"}
         )
         assert result["count"] == 2, self._pkg_names(result)
 
@@ -394,10 +394,10 @@ class TestSearchOverall(object):
         check_search_results("groups:roger", 1)
         check_search_results("groups:lenny", 0)
         check_search_results('tags:"russian"', 2)
-        check_search_results(u'tags:"Flexible \u30a1"', 2)
-        check_search_results(u"Flexible \u30a1", 2)
-        check_search_results(u"Flexible", 2)
-        check_search_results(u"flexible", 2)
+        check_search_results('tags:"Flexible \u30a1"', 2)
+        check_search_results("Flexible \u30a1", 2)
+        check_search_results("Flexible", 2)
+        check_search_results("flexible", 2)
 
 
 class TestGeographicCoverage(object):
@@ -451,10 +451,10 @@ class TestGeographicCoverage(object):
             assert expected_pkg in fields, expected_pkg
 
     def test_0_basic(self):
-        self._do_search(u"england", ["eng", "eng_ni", "uk", "gb"], 4)
-        self._do_search(u"northern ireland", ["eng_ni", "uk"], 2)
-        self._do_search(u"united kingdom", ["uk"], 1)
-        self._do_search(u"great britain", ["gb"], 1)
+        self._do_search("england", ["eng", "eng_ni", "uk", "gb"], 4)
+        self._do_search("northern ireland", ["eng_ni", "uk"], 2)
+        self._do_search("united kingdom", ["uk"], 1)
+        self._do_search("great britain", ["gb"], 1)
 
 
 class TestExtraFields(object):
@@ -480,8 +480,8 @@ class TestExtraFields(object):
             assert expected_pkg in fields, expected_pkg
 
     def test_0_basic(self):
-        self._do_search(u"bcd", "b", 1)
-        self._do_search(u'"cde abc"', "c", 1)
+        self._do_search("bcd", "b", 1)
+        self._do_search('"cde abc"', "c", 1)
 
     def test_1_extras_in_all_fields(self):
         response = search.query_for(model.Package).run({"q": "abc", "fl": "*"})
@@ -503,20 +503,20 @@ class TestRank(object):
         setup_test_search_index()
         init_data = [
             {
-                "name": u"test1-penguin-canary",
-                "title": u"penguin",
-                "tags": u"canary goose squirrel wombat wombat".split(),
+                "name": "test1-penguin-canary",
+                "title": "penguin",
+                "tags": "canary goose squirrel wombat wombat".split(),
             },
             {
-                "name": u"test2-squirrel-squirrel-canary-goose",
-                "title": u"squirrel goose",
-                "tags": u"penguin wombat".split(),
+                "name": "test2-squirrel-squirrel-canary-goose",
+                "title": "squirrel goose",
+                "tags": "penguin wombat".split(),
             },
         ]
         CreateTestData.create_arbitrary(init_data)
         self.pkg_names = [
-            u"test1-penguin-canary",
-            u"test2-squirrel-squirrel-canary-goose",
+            "test1-penguin-canary",
+            "test2-squirrel-squirrel-canary-goose",
         ]
 
     def _do_search(self, q, wanted_results):
@@ -528,10 +528,10 @@ class TestRank(object):
         assert wanted_results[1] == results[1], err
 
     def test_0_basic(self):
-        self._do_search(u"wombat", self.pkg_names)
-        self._do_search(u"squirrel", self.pkg_names[::-1])
-        self._do_search(u"canary", self.pkg_names)
+        self._do_search("wombat", self.pkg_names)
+        self._do_search("squirrel", self.pkg_names[::-1])
+        self._do_search("canary", self.pkg_names)
 
     def test_1_weighting(self):
-        self._do_search(u"penguin", self.pkg_names)
-        self._do_search(u"goose", self.pkg_names[::-1])
+        self._do_search("penguin", self.pkg_names)
+        self._do_search("goose", self.pkg_names[::-1])

@@ -10,76 +10,76 @@ import ckan.lib.helpers as h
 
 from ckan.common import g, config, _
 
-CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
+CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
 
-home = Blueprint(u'home', __name__)
+home = Blueprint('home', __name__)
 
 
 @home.before_request
 def before_request():
-    u'''set context and check authorization'''
+    '''set context and check authorization'''
     try:
         context = {
-            u'model': model,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj}
-        logic.check_access(u'site_read', context)
+            'model': model,
+            'user': g.user,
+            'auth_user_obj': g.userobj}
+        logic.check_access('site_read', context)
     except logic.NotAuthorized:
         abort(403)
 
 
 def index():
-    u'''display home page'''
+    '''display home page'''
     try:
-        context = {u'model': model, u'session': model.Session,
-                   u'user': g.user, u'auth_user_obj': g.userobj}
-        data_dict = {u'q': u'*:*',
-                     u'facet.field': h.facets(),
-                     u'rows': 4,
-                     u'start': 0,
-                     u'sort': u'view_recent desc',
-                     u'fq': u'capacity:"public"'}
-        query = logic.get_action(u'package_search')(context, data_dict)
+        context = {'model': model, 'session': model.Session,
+                   'user': g.user, 'auth_user_obj': g.userobj}
+        data_dict = {'q': '*:*',
+                     'facet.field': h.facets(),
+                     'rows': 4,
+                     'start': 0,
+                     'sort': 'view_recent desc',
+                     'fq': 'capacity:"public"'}
+        query = logic.get_action('package_search')(context, data_dict)
         g.search_facets = query['search_facets']
         g.package_count = query['count']
         g.datasets = query['results']
 
         org_label = h.humanize_entity_type(
-            u'organization',
-            h.default_group_type(u'organization'),
-            u'facet label') or _(u'Organizations')
+            'organization',
+            h.default_group_type('organization'),
+            'facet label') or _('Organizations')
 
         group_label = h.humanize_entity_type(
-            u'group',
-            h.default_group_type(u'group'),
-            u'facet label') or _(u'Groups')
+            'group',
+            h.default_group_type('group'),
+            'facet label') or _('Groups')
 
         g.facet_titles = {
-            u'organization': org_label,
-            u'groups': group_label,
-            u'tags': _(u'Tags'),
-            u'res_format': _(u'Formats'),
-            u'license': _(u'Licenses'),
+            'organization': org_label,
+            'groups': group_label,
+            'tags': _('Tags'),
+            'res_format': _('Formats'),
+            'license': _('Licenses'),
         }
 
     except search.SearchError:
         g.package_count = 0
 
     if g.userobj and not g.userobj.email:
-        url = h.url_for(controller=u'user', action=u'edit')
-        msg = _(u'Please <a href="%s">update your profile</a>'
-                u' and add your email address. ') % url + \
-            _(u'%s uses your email address'
-                u' if you need to reset your password.') \
-            % config.get(u'ckan.site_title')
+        url = h.url_for(controller='user', action='edit')
+        msg = _('Please <a href="%s">update your profile</a>'
+                ' and add your email address. ') % url + \
+            _('%s uses your email address'
+                ' if you need to reset your password.') \
+            % config.get('ckan.site_title')
         h.flash_notice(msg, allow_html=True)
-    return base.render(u'home/index.html', extra_vars={})
+    return base.render('home/index.html', extra_vars={})
 
 
 def about():
-    u''' display about page'''
-    return base.render(u'home/about.html', extra_vars={})
+    ''' display about page'''
+    return base.render('home/about.html', extra_vars={})
 
 
 def redirect_locale(target_locale, path=None):
@@ -88,8 +88,8 @@ def redirect_locale(target_locale, path=None):
 
 
 util_rules = [
-    (u'/', index),
-    (u'/about', about)
+    ('/', index),
+    ('/about', about)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)

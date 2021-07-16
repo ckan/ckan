@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-u"""
+"""
 Tests for ``ckan.lib.jobs``.
 """
 
@@ -24,17 +24,17 @@ from ckan.tests.helpers import (
 
 class TestQueueNamePrefixes(RQTestBase):
     def test_queue_name_prefix_contains_site_id(self):
-        prefix = jobs.add_queue_name_prefix(u"")
-        assert config[u"ckan.site_id"] in prefix
+        prefix = jobs.add_queue_name_prefix("")
+        assert config["ckan.site_id"] in prefix
 
     def test_queue_name_removal_with_prefix(self):
-        plain = u"foobar"
+        plain = "foobar"
         prefixed = jobs.add_queue_name_prefix(plain)
         assert jobs.remove_queue_name_prefix(prefixed) == plain
 
     def test_queue_name_removal_without_prefix(self):
         with pytest.raises(ValueError):
-            jobs.remove_queue_name_prefix(u"foobar")
+            jobs.remove_queue_name_prefix("foobar")
 
 
 class TestEnqueue(RQTestBase):
@@ -52,35 +52,35 @@ class TestEnqueue(RQTestBase):
 
     def test_enqueue_kwargs(self):
         self.enqueue()
-        self.enqueue(kwargs={u"foo": 1})
+        self.enqueue(kwargs={"foo": 1})
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 2
         assert len(all_jobs[0].kwargs) == 0
-        assert all_jobs[1].kwargs == {u"foo": 1}
+        assert all_jobs[1].kwargs == {"foo": 1}
 
     def test_enqueue_title(self):
         self.enqueue()
-        self.enqueue(title=u"Title")
+        self.enqueue(title="Title")
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 2
-        assert all_jobs[0].meta[u"title"] is None
-        assert all_jobs[1].meta[u"title"] == u"Title"
+        assert all_jobs[0].meta["title"] is None
+        assert all_jobs[1].meta["title"] == "Title"
 
     def test_enqueue_queue(self):
         self.enqueue()
-        self.enqueue(queue=u"my_queue")
+        self.enqueue(queue="my_queue")
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 2
         assert sorted(job.origin for job in all_jobs) == sorted([
             jobs.add_queue_name_prefix(jobs.DEFAULT_QUEUE_NAME),
-            jobs.add_queue_name_prefix(u"my_queue")
+            jobs.add_queue_name_prefix("my_queue")
         ])
 
     def test_enqueue_timeout(self, monkeypatch, ckan_config):
         self.enqueue()
-        self.enqueue(rq_kwargs={u'timeout': -1})
-        self.enqueue(rq_kwargs={u'timeout': 3600})
-        monkeypatch.setitem(ckan_config, u'ckan.jobs.timeout', 10)
+        self.enqueue(rq_kwargs={'timeout': -1})
+        self.enqueue(rq_kwargs={'timeout': 3600})
+        monkeypatch.setitem(ckan_config, 'ckan.jobs.timeout', 10)
         self.enqueue()
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 4
@@ -92,91 +92,91 @@ class TestEnqueue(RQTestBase):
 
 class TestGetAllQueues(RQTestBase):
     def test_foreign_queues_are_ignored(self):
-        u"""
+        """
         Test that foreign RQ-queues are ignored.
         """
         # Create queues for this CKAN instance
-        self.enqueue(queue=u"q1")
-        self.enqueue(queue=u"q2")
+        self.enqueue(queue="q1")
+        self.enqueue(queue="q2")
         # Create queue for another CKAN instance
-        with changed_config(u"ckan.site_id", u"some-other-ckan-instance"):
-            self.enqueue(queue=u"q2")
+        with changed_config("ckan.site_id", "some-other-ckan-instance"):
+            self.enqueue(queue="q2")
         # Create queue not related to CKAN
-        rq.Queue(u"q4").enqueue_call(jobs.test_job)
+        rq.Queue("q4").enqueue_call(jobs.test_job)
         all_queues = jobs.get_all_queues()
         names = {jobs.remove_queue_name_prefix(q.name) for q in all_queues}
-        assert names == {u"q1", u"q2"}
+        assert names == {"q1", "q2"}
 
 
 class TestGetQueue(RQTestBase):
     def test_get_queue_default_queue(self):
-        u"""
+        """
         Test that the default queue is returned if no queue is given.
         """
         q = jobs.get_queue()
         assert jobs.remove_queue_name_prefix(q.name) == jobs.DEFAULT_QUEUE_NAME
 
     def test_get_queue_other_queue(self):
-        u"""
+        """
         Test that a different queue can be given.
         """
-        q = jobs.get_queue(u"my_queue")
-        assert jobs.remove_queue_name_prefix(q.name) == u"my_queue"
+        q = jobs.get_queue("my_queue")
+        assert jobs.remove_queue_name_prefix(q.name) == "my_queue"
 
 
 class TestJobFromID(RQTestBase):
     def test_job_from_id_existing(self):
         job = self.enqueue()
         assert jobs.job_from_id(job.id) == job
-        job = self.enqueue(queue=u"my_queue")
+        job = self.enqueue(queue="my_queue")
         assert jobs.job_from_id(job.id) == job
 
     def test_job_from_id_not_existing(self):
         with pytest.raises(KeyError):
-            jobs.job_from_id(u"does-not-exist")
+            jobs.job_from_id("does-not-exist")
 
 
 class TestDictizeJob(RQTestBase):
     def test_dictize_job(self):
-        job = self.enqueue(title=u"Title", queue=u"my_queue")
+        job = self.enqueue(title="Title", queue="my_queue")
         d = jobs.dictize_job(job)
-        assert d[u"id"] == job.id
-        assert d[u"title"] == u"Title"
-        assert d[u"queue"] == u"my_queue"
-        dt = datetime.datetime.strptime(d[u"created"], u"%Y-%m-%dT%H:%M:%S")
+        assert d["id"] == job.id
+        assert d["title"] == "Title"
+        assert d["queue"] == "my_queue"
+        dt = datetime.datetime.strptime(d["created"], "%Y-%m-%dT%H:%M:%S")
         now = datetime.datetime.utcnow()
         assert abs((now - dt).total_seconds()) < 10
 
 
 def failing_job():
-    u"""
+    """
     A background job that fails.
     """
-    raise RuntimeError(u"JOB FAILURE")
+    raise RuntimeError("JOB FAILURE")
 
 
 def database_job(pkg_id, pkg_title):
-    u"""
+    """
     A background job that uses the PostgreSQL database.
 
     Appends ``pkg_title`` to the title of package ``pkg_id``.
     """
-    pkg_dict = call_action(u"package_show", id=pkg_id)
-    pkg_dict[u"title"] += pkg_title
-    pkg_dict = call_action(u"package_update", **pkg_dict)
+    pkg_dict = call_action("package_show", id=pkg_id)
+    pkg_dict["title"] += pkg_title
+    pkg_dict = call_action("package_update", **pkg_dict)
 
 
 class TestWorker(RQTestBase):
     def test_worker_logging_lifecycle(self):
-        u"""
+        """
         Test that a logger's lifecycle is logged.
         """
-        queue = u"my_queue"
+        queue = "my_queue"
         job = self.enqueue(queue=queue)
-        with recorded_logs(u"ckan.lib.jobs") as logs:
+        with recorded_logs("ckan.lib.jobs") as logs:
             worker = jobs.Worker([queue])
             worker.work(burst=True)
-        messages = logs.messages[u"info"]
+        messages = logs.messages["info"]
         # We expect 4 log messages: Worker start, job start, job end,
         # worker end.
         assert len(messages) == 4
@@ -189,7 +189,7 @@ class TestWorker(RQTestBase):
         assert worker.key in messages[3]
 
     def test_worker_exception_logging(self):
-        u"""
+        """
         Test that exceptions in a job are logged.
         """
         job = self.enqueue(failing_job)
@@ -201,23 +201,23 @@ class TestWorker(RQTestBase):
             return worker.perform_job(*args, **kwargs)
 
         worker.execute_job = execute_job
-        with recorded_logs(u"ckan.lib.jobs") as logs:
+        with recorded_logs("ckan.lib.jobs") as logs:
             worker.work(burst=True)
-        logs.assert_log(u"error", u"JOB FAILURE")
+        logs.assert_log("error", "JOB FAILURE")
 
     def test_worker_default_queue(self):
         self.enqueue()
-        self.enqueue(queue=u"my_queue")
+        self.enqueue(queue="my_queue")
         jobs.Worker().work(burst=True)
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 1
-        assert jobs.remove_queue_name_prefix(all_jobs[0].origin) == u"my_queue"
+        assert jobs.remove_queue_name_prefix(all_jobs[0].origin) == "my_queue"
 
     def test_worker_multiple_queues(self):
         self.enqueue()
-        self.enqueue(queue=u"queue1")
-        self.enqueue(queue=u"queue2")
-        jobs.Worker([u"queue1", u"queue2"]).work(burst=True)
+        self.enqueue(queue="queue1")
+        self.enqueue(queue="queue2")
+        jobs.Worker(["queue1", "queue2"]).work(burst=True)
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 1
         assert (
@@ -226,45 +226,45 @@ class TestWorker(RQTestBase):
         )
 
     def test_worker_database_access(self):
-        u"""
+        """
         Test database access from within the worker.
         """
         # See https://github.com/ckan/ckan/issues/3243
-        pkg_name = u"test-worker-database-access"
+        pkg_name = "test-worker-database-access"
         try:
-            pkg_dict = call_action(u"package_show", id=pkg_name)
+            pkg_dict = call_action("package_show", id=pkg_name)
         except NotFound:
-            pkg_dict = call_action(u"package_create", name=pkg_name)
-        pkg_dict[u"title"] = u"foo"
-        pkg_dict = call_action(u"package_update", **pkg_dict)
-        titles = u"1 2 3".split()
+            pkg_dict = call_action("package_create", name=pkg_name)
+        pkg_dict["title"] = "foo"
+        pkg_dict = call_action("package_update", **pkg_dict)
+        titles = "1 2 3".split()
         for title in titles:
-            self.enqueue(database_job, args=[pkg_dict[u"id"], title])
+            self.enqueue(database_job, args=[pkg_dict["id"], title])
         jobs.Worker().work(burst=True)
         # Aside from ensuring that the jobs succeeded, this also checks
         # that database access still works in the main process.
-        pkg_dict = call_action(u"package_show", id=pkg_name)
-        assert pkg_dict[u"title"] == u"foo" + u"".join(titles)
+        pkg_dict = call_action("package_show", id=pkg_name)
+        assert pkg_dict["title"] == "foo" + "".join(titles)
 
     def test_fork_within_a_transaction(self):
-        u"""
+        """
         Test forking a worker horse within a database transaction.
 
         The original instances should be unchanged but their session
         must be closed.
         """
-        pkg_name = u"test-fork-within-a-transaction"
+        pkg_name = "test-fork-within-a-transaction"
         pkg = model.Package.get(pkg_name)
         if not pkg:
             pkg = model.Package(name=pkg_name)
-        pkg.title = u"foo"
+        pkg.title = "foo"
         pkg.save()
-        pkg.title = u"bar"
-        self.enqueue(database_job, [pkg.id, u"foo"])
+        pkg.title = "bar"
+        self.enqueue(database_job, [pkg.id, "foo"])
         jobs.Worker().work(burst=True)
-        assert pkg.title == u"bar"  # Original instance is unchanged
+        assert pkg.title == "bar"  # Original instance is unchanged
         # The original session has been closed, `pkg.Session` uses the new
         # session in which `pkg` is not registered.
         assert pkg not in pkg.Session
         pkg = model.Package.get(pkg.id)  # Get instance from new session
-        assert pkg.title == u"foofoo"  # Worker only saw committed changes
+        assert pkg.title == "foofoo"  # Worker only saw committed changes

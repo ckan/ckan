@@ -61,4 +61,4 @@ class TestSolrSearch(object):
         result_names = sorted([r["name"] for r in results])
         if not result_names:
             pytest.xfail("No datasets found")
-        assert [u"se-opengov", u"se-publications"] == result_names
+        assert ["se-opengov", "se-publications"] == result_names

@@ -17,22 +17,22 @@ class MockRoutingPlugin(p.SingletonPlugin):
         blueprint = Blueprint(self.name, self.__module__)
 
         blueprint.add_url_rule(
-            u"/simple_flask", u"flask_plugin_view", flask_plugin_view
+            "/simple_flask", "flask_plugin_view", flask_plugin_view
         )
 
         blueprint.add_url_rule(
-            u"/flask_translated", u"flask_translated", flask_translated_view
+            "/flask_translated", "flask_translated", flask_translated_view
         )
 
         return blueprint
 
 
 def flask_plugin_view():
-    return u"Hello World, this is served from a Flask extension"
+    return "Hello World, this is served from a Flask extension"
 
 
 def flask_translated_view():
-    return _(u"Dataset")
+    return _("Dataset")
 
 
 @pytest.fixture
@@ -40,36 +40,36 @@ def patched_app(app):
     flask_app = app.flask_app
 
     def test_view():
-        return u"This was served from Flask"
+        return "This was served from Flask"
 
     flask_app.add_url_rule(
-        u"/flask_core", view_func=test_view, endpoint=u"flask_core.index"
+        "/flask_core", view_func=test_view, endpoint="flask_core.index"
     )
     return app
 
 
 def test_flask_core_route_is_served(patched_app):
-    res = patched_app.get(u"/")
+    res = patched_app.get("/")
     assert res.status_code == 200
 
-    res = patched_app.get(u"/flask_core")
-    assert six.ensure_text(res.data) == u"This was served from Flask"
+    res = patched_app.get("/flask_core")
+    assert six.ensure_text(res.data) == "This was served from Flask"
 
 
-@pytest.mark.ckan_config(u"SECRET_KEY", u"super_secret_stuff")
+@pytest.mark.ckan_config("SECRET_KEY", "super_secret_stuff")
 def test_secret_key_is_used_if_present(app):
-    assert app.flask_app.config[u"SECRET_KEY"] == u"super_secret_stuff"
+    assert app.flask_app.config["SECRET_KEY"] == "super_secret_stuff"
 
 
-@pytest.mark.ckan_config(u"SECRET_KEY", None)
+@pytest.mark.ckan_config("SECRET_KEY", None)
 def test_beaker_secret_is_used_by_default(app):
     assert (
-        app.flask_app.config[u"SECRET_KEY"] == config[u"beaker.session.secret"]
+        app.flask_app.config["SECRET_KEY"] == config["beaker.session.secret"]
     )
 
 
-@pytest.mark.ckan_config(u"SECRET_KEY", None)
-@pytest.mark.ckan_config(u"beaker.session.secret", None)
+@pytest.mark.ckan_config("SECRET_KEY", None)
+@pytest.mark.ckan_config("beaker.session.secret", None)
 def test_no_beaker_secret_crashes(make_app):
     # TODO: When Pylons is finally removed, we should test for
     # RuntimeError instead (thrown on `make_flask_stack`)

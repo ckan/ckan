@@ -14,52 +14,52 @@ DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 5000
 
 
-@click.command(u"run", short_help=u"Start development server")
-@click.option(u"-H", u"--host", help=u"Host name")
-@click.option(u"-p", u"--port", help=u"Port number")
-@click.option(u"-r", u"--disable-reloader", is_flag=True,
-              help=u"Disable reloader")
+@click.command("run", short_help="Start development server")
+@click.option("-H", "--host", help="Host name")
+@click.option("-p", "--port", help="Port number")
+@click.option("-r", "--disable-reloader", is_flag=True,
+              help="Disable reloader")
 @click.option(
-    u"-t", u"--threaded", is_flag=True,
-    help=u"Handle each request in a separate thread"
+    "-t", "--threaded", is_flag=True,
+    help="Handle each request in a separate thread"
 )
 @click.option(
-    u"--processes", type=int, default=0,
-    help=u"Maximum number of concurrent processes"
+    "--processes", type=int, default=0,
+    help="Maximum number of concurrent processes"
 )
 @click.option(
-    u"-e", u"--extra-files", multiple=True,
-    help=u"Additional files that should be watched for server reloading"
+    "-e", "--extra-files", multiple=True,
+    help="Additional files that should be watched for server reloading"
     " (you can provide multiple values)")
 @click.option(
-    u"-C", u"--ssl-cert", default=None,
-    help=u"Certificate file to use to enable SSL. Passing 'adhoc' will "
+    "-C", "--ssl-cert", default=None,
+    help="Certificate file to use to enable SSL. Passing 'adhoc' will "
     " automatically generate a new one (on each server reload).")
 @click.option(
-    u"-K", u"--ssl-key", default=None,
-    help=u"Key file to use to enable SSL. Passing 'adhoc' will "
+    "-K", "--ssl-key", default=None,
+    help="Key file to use to enable SSL. Passing 'adhoc' will "
     " automatically generate a new one (on each server reload).")
 @click.pass_context
 def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
         ssl_cert, ssl_key):
-    u"""Runs the Werkzeug development server"""
+    """Runs the Werkzeug development server"""
 
     # Reloading
     use_reloader = not disable_reloader
     config_extra_files = tk.aslist(
-        config.get(u"ckan.devserver.watch_patterns")
+        config.get("ckan.devserver.watch_patterns")
     )
     extra_files = list(extra_files) + [
-        config[u"__file__"]
+        config["__file__"]
     ] + config_extra_files
 
     # Threads and processes
-    threaded = threaded or tk.asbool(config.get(u"ckan.devserver.threaded"))
+    threaded = threaded or tk.asbool(config.get("ckan.devserver.threaded"))
     processes = processes or tk.asint(
-        config.get(u"ckan.devserver.multiprocess", 1)
+        config.get("ckan.devserver.multiprocess", 1)
     )
     if threaded and processes > 1:
-        tk.error_shout(u"Cannot have a multithreaded and multi process server")
+        tk.error_shout("Cannot have a multithreaded and multi process server")
         raise click.Abort()
 
     # SSL
@@ -79,10 +79,10 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
     try:
         port = int(port)
     except ValueError:
-        tk.error_shout(u"Server port must be an integer, not {}".format(port))
+        tk.error_shout("Server port must be an integer, not {}".format(port))
         raise click.Abort()
 
-    log.info(u"Running CKAN on {scheme}://{host}:{port}".format(
+    log.info("Running CKAN on {scheme}://{host}:{port}".format(
         scheme='https' if ssl_context else 'http', host=host, port=port))
 
     run_simple(

@@ -24,7 +24,7 @@ def create_country_codes():
         logging.info("Creating vocab 'country_codes'")
         data = {'name': 'country_codes'}
         vocab = tk.get_action('vocabulary_create')(context, data)
-        for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
+        for tag in ('uk', 'ie', 'de', 'fr', 'es'):
             logging.info(
                     "Adding tag {0} to vocab 'country_codes'".format(tag))
             data = {'name': tag, 'vocabulary_id': vocab['id']}

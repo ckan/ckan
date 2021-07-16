@@ -8,7 +8,7 @@ import ckan.plugins as p
 def test_disabled_by_default():
     with p.use_plugin("datastore") as the_plugin:
         with pytest.raises(
-            KeyError, match=u"Action 'datastore_search_sql' not found"
+            KeyError, match="Action 'datastore_search_sql' not found"
         ):
             p.toolkit.get_action("datastore_search_sql")
 
@@ -17,7 +17,7 @@ def test_disabled_by_default():
 def test_disable_sql_search():
     with p.use_plugin("datastore") as the_plugin:
         with pytest.raises(
-            KeyError, match=u"Action 'datastore_search_sql' not found"
+            KeyError, match="Action 'datastore_search_sql' not found"
         ):
             p.toolkit.get_action("datastore_search_sql")
 

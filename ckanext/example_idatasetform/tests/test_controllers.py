@@ -6,7 +6,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestPackageController(object):
 
@@ -14,4 +14,4 @@ class TestPackageController(object):
         dataset = factories.Dataset(custom_text="foo")
         dataset.update(custom_text='bar')
         resp = helpers.call_action('package_update', **dataset)
-        assert resp["custom_text"] == u"bar"
+        assert resp["custom_text"] == "bar"

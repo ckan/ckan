@@ -14,6 +14,6 @@ def test_index(app):
         url, status=403, extra_environ={"REMOTE_USER": "my-random-user-name"}
     )
     # now test real access
-    username = u"testsysadmin".encode("utf8")
+    username = "testsysadmin".encode("utf8")
     response = app.get(url, extra_environ={"REMOTE_USER": username})
     assert "Administration" in response, response

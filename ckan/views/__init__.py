@@ -17,14 +17,14 @@ import ckan.plugins as p
 import logging
 log = logging.getLogger(__name__)
 
-APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
-APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
+APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
+APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 
 class LazyView(object):
 
     def __init__(self, import_name, view_name=None):
-        self.__module__, self.__name__ = import_name.rsplit(u'.', 1)
+        self.__module__, self.__name__ = import_name.rsplit('.', 1)
         self.import_name = import_name
         self.view_name = view_name
 
@@ -40,51 +40,51 @@ class LazyView(object):
 
 
 def check_session_cookie(response):
-    u'''
+    '''
     The cookies for auth (auth_tkt) and session (ckan) are separate. This
     checks whether a user is logged in, and determines the validity of the
     session cookie, removing it if necessary.
     '''
     for cookie in request.cookies:
         # Remove the ckan session cookie if logged out.
-        if cookie == u'ckan' and not getattr(g, u'user', None):
+        if cookie == 'ckan' and not getattr(g, 'user', None):
             # Check session for valid data (including flash messages)
             is_valid_cookie_data = False
             for key, value in session.items():
-                if not key.startswith(u'_') and value:
+                if not key.startswith('_') and value:
                     is_valid_cookie_data = True
                     break
             if not is_valid_cookie_data:
                 if session.id:
-                    log.debug(u'No valid session data - deleting session')
-                    log.debug(u'Session: %r', session.items())
+                    log.debug('No valid session data - deleting session')
+                    log.debug('Session: %r', session.items())
                     session.delete()
                 else:
-                    log.debug(u'No session id - deleting session cookie')
+                    log.debug('No session id - deleting session cookie')
                     response.delete_cookie(cookie)
         # Remove auth_tkt repoze.who cookie if user not logged in.
-        elif cookie == u'auth_tkt' and not session.id:
+        elif cookie == 'auth_tkt' and not session.id:
             response.delete_cookie(cookie)
 
     return response
 
 
 def set_cors_headers_for_response(response):
-    u'''
+    '''
     Set up Access Control Allow headers if either origin_allow_all is True, or
     the request Origin is in the origin_whitelist.
     '''
-    if config.get(u'ckan.cors.origin_allow_all') \
-       and request.headers.get(u'Origin'):
+    if config.get('ckan.cors.origin_allow_all') \
+       and request.headers.get('Origin'):
 
         cors_origin_allowed = None
-        if asbool(config.get(u'ckan.cors.origin_allow_all')):
+        if asbool(config.get('ckan.cors.origin_allow_all')):
             cors_origin_allowed = b'*'
-        elif config.get(u'ckan.cors.origin_whitelist') and \
-                request.headers.get(u'Origin') \
-                in config[u'ckan.cors.origin_whitelist'].split(u' '):
+        elif config.get('ckan.cors.origin_whitelist') and \
+                request.headers.get('Origin') \
+                in config['ckan.cors.origin_whitelist'].split(' '):
             # set var to the origin to allow it.
-            cors_origin_allowed = request.headers.get(u'Origin')
+            cors_origin_allowed = request.headers.get('Origin')
 
         if cors_origin_allowed is not None:
             response.headers[b'Access-Control-Allow-Origin'] = \
@@ -100,15 +100,15 @@ def set_cors_headers_for_response(response):
 def set_cache_control_headers_for_response(response):
 
     # __no_cache__ should not be present when caching is allowed
-    allow_cache = u'__no_cache__' not in request.environ
+    allow_cache = '__no_cache__' not in request.environ
 
-    if u'Pragma' in response.headers:
+    if 'Pragma' in response.headers:
         del response.headers["Pragma"]
 
     if allow_cache:
         response.cache_control.public = True
         try:
-            cache_expire = int(config.get(u'ckan.cache_expires', 0))
+            cache_expire = int(config.get('ckan.cache_expires', 0))
             response.cache_control.max_age = cache_expire
             response.cache_control.must_revalidate = True
         except ValueError:
@@ -120,7 +120,7 @@ def set_cache_control_headers_for_response(response):
 
 
 def identify_user():
-    u'''Try to identify the user
+    '''Try to identify the user
     If the user is identified then:
       g.user = user name (unicode)
       g.userobj = user object
@@ -133,10 +133,10 @@ def identify_user():
     Note: Remember, when running under Pylons, `g` is the Pylons `c` object
     '''
     # see if it was proxied first
-    g.remote_addr = request.environ.get(u'HTTP_X_FORWARDED_FOR', u'')
+    g.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR', '')
     if not g.remote_addr:
-        g.remote_addr = request.environ.get(u'REMOTE_ADDR',
-                                            u'Unknown IP Address')
+        g.remote_addr = request.environ.get('REMOTE_ADDR',
+                                            'Unknown IP Address')
 
     # Authentication plugins get a chance to run here break as soon as a user
     # is identified or a response is returned
@@ -153,14 +153,14 @@ def identify_user():
                 continue
 
     # We haven't identified the user so try the default methods
-    if not getattr(g, u'user', None):
+    if not getattr(g, 'user', None):
         _identify_user_default()
 
     # If we have a user but not the userobj let's get the userobj. This means
     # that IAuthenticator extensions do not need to access the user model
     # directly.
     if g.user:
-        if not getattr(g, u'userobj', None) or inspect(g.userobj).expired:
+        if not getattr(g, 'userobj', None) or inspect(g.userobj).expired:
             g.userobj = model.User.by_name(g.user)
 
     # general settings
@@ -172,7 +172,7 @@ def identify_user():
 
 
 def _identify_user_default():
-    u'''
+    '''
     Identifies the user using two methods:
     a) If they logged into the web interface then repoze.who will
        set REMOTE_USER.
@@ -185,7 +185,7 @@ def _identify_user_default():
     # with an userid_checker, but that would mean another db access.
     # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
     # .plugins.sql )
-    g.user = six.ensure_text(request.environ.get(u'REMOTE_USER', u''))
+    g.user = six.ensure_text(request.environ.get('REMOTE_USER', ''))
     if g.user:
         g.userobj = model.User.by_name(g.user)
 
@@ -199,9 +199,9 @@ def _identify_user_default():
             # again to get the User object.
 
             ev = request.environ
-            if u'repoze.who.plugins' in ev:
-                pth = getattr(ev[u'repoze.who.plugins'][u'friendlyform'],
-                              u'logout_handler_path')
+            if 'repoze.who.plugins' in ev:
+                pth = getattr(ev['repoze.who.plugins']['friendlyform'],
+                              'logout_handler_path')
                 redirect(pth)
     else:
         g.userobj = _get_user_for_apikey()
@@ -212,21 +212,21 @@ def _identify_user_default():
 def _get_user_for_apikey():
     apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
                                     APIKEY_HEADER_NAME_DEFAULT)
-    apikey = request.headers.get(apikey_header_name, u'')
+    apikey = request.headers.get(apikey_header_name, '')
     if not apikey:
-        apikey = request.environ.get(apikey_header_name, u'')
+        apikey = request.environ.get(apikey_header_name, '')
     if not apikey:
         # For misunderstanding old documentation (now fixed).
-        apikey = request.environ.get(u'HTTP_AUTHORIZATION', u'')
+        apikey = request.environ.get('HTTP_AUTHORIZATION', '')
     if not apikey:
-        apikey = request.environ.get(u'Authorization', u'')
+        apikey = request.environ.get('Authorization', '')
         # Forget HTTP Auth credentials (they have spaces).
-        if u' ' in apikey:
-            apikey = u''
+        if ' ' in apikey:
+            apikey = ''
     if not apikey:
         return None
-    apikey = six.ensure_text(apikey, errors=u"ignore")
-    log.debug(u'Received API Key: %s' % apikey)
+    apikey = six.ensure_text(apikey, errors="ignore")
+    log.debug('Received API Key: %s' % apikey)
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()
 
@@ -240,7 +240,7 @@ def set_controller_and_action():
 
 
 def handle_i18n(environ=None):
-    u'''
+    '''
     Strips the locale code from the requested url
     (eg '/sk/about' -> '/about') and sets environ variables for the
     language selected:
@@ -251,38 +251,38 @@ def handle_i18n(environ=None):
     '''
     environ = environ or request.environ
     locale_list = get_locales_from_config()
-    default_locale = config.get(u'ckan.locale_default', u'en')
+    default_locale = config.get('ckan.locale_default', 'en')
 
     # We only update once for a request so we can keep
     # the language and original url which helps with 404 pages etc
-    if u'CKAN_LANG' not in environ:
-        path_parts = environ[u'PATH_INFO'].split(u'/')
+    if 'CKAN_LANG' not in environ:
+        path_parts = environ['PATH_INFO'].split('/')
         if len(path_parts) > 1 and path_parts[1] in locale_list:
-            environ[u'CKAN_LANG'] = path_parts[1]
-            environ[u'CKAN_LANG_IS_DEFAULT'] = False
+            environ['CKAN_LANG'] = path_parts[1]
+            environ['CKAN_LANG_IS_DEFAULT'] = False
             # rewrite url
             if len(path_parts) > 2:
-                environ[u'PATH_INFO'] = u'/'.join([u''] + path_parts[2:])
+                environ['PATH_INFO'] = '/'.join([''] + path_parts[2:])
             else:
-                environ[u'PATH_INFO'] = u'/'
+                environ['PATH_INFO'] = '/'
         else:
-            environ[u'CKAN_LANG'] = default_locale
-            environ[u'CKAN_LANG_IS_DEFAULT'] = True
+            environ['CKAN_LANG'] = default_locale
+            environ['CKAN_LANG_IS_DEFAULT'] = True
 
         set_ckan_current_url(environ)
 
 
 def set_ckan_current_url(environ):
     # Current application url
-    path_info = environ[u'PATH_INFO']
+    path_info = environ['PATH_INFO']
     # sort out weird encodings
     path_info = \
-        u'/'.join(quote(pce, u'') for pce in path_info.split(u'/'))
+        '/'.join(quote(pce, '') for pce in path_info.split('/'))
 
-    qs = environ.get(u'QUERY_STRING')
+    qs = environ.get('QUERY_STRING')
     if qs:
         # sort out weird encodings
-        qs = quote(qs, u'')
-        environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
+        qs = quote(qs, '')
+        environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
     else:
-        environ[u'CKAN_CURRENT_URL'] = path_info
+        environ['CKAN_CURRENT_URL'] = path_info

@@ -227,7 +227,7 @@ class PackageTag(core.StatefulObjectMixin,
             setattr(self, k, v)
 
     def __repr__(self):
-        s = u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
+        s = '<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
         return s.encode('utf8')
 
     @classmethod

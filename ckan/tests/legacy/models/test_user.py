@@ -20,14 +20,14 @@ class TestUser:
         )
 
     def test_0_basic(self):
-        out = model.User.by_name(u"brian")
-        assert out.name == u"brian"
+        out = model.User.by_name("brian")
+        assert out.name == "brian"
         assert len(out.apikey) == 36
         assert out.fullname == "Brian"
-        assert out.email == u"brian@brian.com"
+        assert out.email == "brian@brian.com"
 
-        out = model.User.by_name(u"sandra")
-        assert out.fullname == u"Sandra"
+        out = model.User.by_name("sandra")
+        assert out.fullname == "Sandra"
 
     def test_1_timestamp_any_existing(self):
         user = model.Session.query(model.User).first()
@@ -35,7 +35,7 @@ class TestUser:
 
     def test_2_timestamp_new(self):
         user = model.User()
-        name = u"xyz"
+        name = "xyz"
         user.name = name
         model.Session.add(user)
         model.repo.commit_and_remove()
@@ -44,11 +44,11 @@ class TestUser:
         assert len(str(out.created)) > 5, out.created
 
     def test_3_get(self):
-        out = model.User.get(u"brian")
-        assert out.fullname == u"Brian"
+        out = model.User.get("brian")
+        assert out.fullname == "Brian"
 
-        out = model.User.get(u"sandra")
-        assert out.fullname == u"Sandra"
+        out = model.User.get("sandra")
+        assert out.fullname == "Sandra"
 
     def test_is_deleted(self):
         user = CreateTestData._create_user_without_commit("a_user")
@@ -99,8 +99,8 @@ class TestUserGroups:
             [{"name": "testpkg"}], extra_user_names=["brian", "sandra"]
         )
         CreateTestData.create_groups([{"name": "grp1", "phone": "1234"}])
-        grp1 = model.Group.by_name(u"grp1")
-        brian = model.User.by_name(u"brian")
+        grp1 = model.Group.by_name("grp1")
+        brian = model.User.by_name("brian")
         model.Session.add(
             model.Member(
                 group=grp1,
@@ -112,7 +112,7 @@ class TestUserGroups:
         model.repo.commit_and_remove()
 
     def test_get_groups(self):
-        brian = model.User.by_name(u"brian")
+        brian = model.User.by_name("brian")
         groups = brian.get_groups()
         assert to_names(groups) == ["grp1"]
         assert groups[0].extras == {"phone": "1234"}
@@ -120,7 +120,7 @@ class TestUserGroups:
         # check cache works between sessions
         model.Session.expunge_all()
         # don't refresh brian user since this is how c.user works
-        # i.e. don't do this: brian = model.User.by_name(u'brian')
+        # i.e. don't do this: brian = model.User.by_name('brian')
         groups = brian.get_groups()
         assert to_names(groups) == ["grp1"]
         assert groups[0].extras == {"phone": "1234"}
@@ -137,10 +137,10 @@ class TestUser2(object):
 
     def test_number_of_administered_packages(self):
         model.User.by_name(
-            u"annafan"
+            "annafan"
         ).number_created_packages() == 1, "annafan should have created one package"
         model.User.by_name(
-            u"joeadmin"
+            "joeadmin"
         ).number_created_packages() == 0, "joeadmin shouldn't have created any packages"
 
     def test_search(self):

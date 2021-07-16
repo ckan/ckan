@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-u'''
+'''
 Asynchronous background jobs.
 
 Note that most job management functions are not available from this
@@ -36,7 +36,7 @@ import ckan.plugins as plugins
 
 log = logging.getLogger(__name__)
 
-DEFAULT_QUEUE_NAME = u'default'
+DEFAULT_QUEUE_NAME = 'default'
 DEFAULT_JOB_TIMEOUT = 180
 
 # RQ job queues. Do not use this directly, use ``get_queue`` instead.
@@ -44,7 +44,7 @@ _queues = {}
 
 
 def _connect():
-    u'''
+    '''
     Connect to Redis and tell RQ about it.
 
     Workaround for https://github.com/nvie/rq/issues/479.
@@ -55,15 +55,15 @@ def _connect():
 
 
 def _get_queue_name_prefix():
-    u'''
+    '''
     Get the queue name prefix.
     '''
     # This must be done at runtime since we need a loaded config
-    return u'ckan:{}:'.format(config[u'ckan.site_id'])
+    return 'ckan:{}:'.format(config['ckan.site_id'])
 
 
 def add_queue_name_prefix(name):
-    u'''
+    '''
     Prefix a queue name.
 
     .. seealso:: :py:func:`remove_queue_name_prefix`
@@ -72,7 +72,7 @@ def add_queue_name_prefix(name):
 
 
 def remove_queue_name_prefix(name):
-    u'''
+    '''
     Remove a queue name's prefix.
 
     :raises ValueError: if the given name is not prefixed.
@@ -81,12 +81,12 @@ def remove_queue_name_prefix(name):
     '''
     prefix = _get_queue_name_prefix()
     if not name.startswith(prefix):
-        raise ValueError(u'Queue name "{}" is not prefixed.'.format(name))
+        raise ValueError('Queue name "{}" is not prefixed.'.format(name))
     return name[len(prefix):]
 
 
 def get_all_queues():
-    u'''
+    '''
     Return all job queues currently in use.
 
     :returns: The queues.
@@ -101,7 +101,7 @@ def get_all_queues():
 
 
 def get_queue(name=DEFAULT_QUEUE_NAME):
-    u'''
+    '''
     Get a job queue.
 
     The job queue is initialized if that hasn't happened before.
@@ -119,7 +119,7 @@ def get_queue(name=DEFAULT_QUEUE_NAME):
     try:
         return _queues[fullname]
     except KeyError:
-        log.debug(u'Initializing background job queue "{}"'.format(name))
+        log.debug('Initializing background job queue "{}"'.format(name))
         redis_conn = _connect()
         queue = _queues[fullname] = rq.Queue(fullname, connection=redis_conn)
         return queue
@@ -127,7 +127,7 @@ def get_queue(name=DEFAULT_QUEUE_NAME):
 
 def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
             rq_kwargs=None):
-    u'''
+    '''
     Enqueue a job to be run in the background.
 
     :param function fn: Function to be executed in the background
@@ -157,23 +157,23 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
         kwargs = {}
     if rq_kwargs is None:
         rq_kwargs = {}
-    timeout = config.get(u'ckan.jobs.timeout', DEFAULT_JOB_TIMEOUT)
-    rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
+    timeout = config.get('ckan.jobs.timeout', DEFAULT_JOB_TIMEOUT)
+    rq_kwargs['timeout'] = rq_kwargs.get('timeout', timeout)
 
     job = get_queue(queue).enqueue_call(
         func=fn, args=args, kwargs=kwargs, **rq_kwargs)
-    job.meta[u'title'] = title
+    job.meta['title'] = title
     job.save()
-    msg = u'Added background job {}'.format(job.id)
+    msg = 'Added background job {}'.format(job.id)
     if title:
-        msg = u'{} ("{}")'.format(msg, title)
-    msg = u'{} to queue "{}"'.format(msg, queue)
+        msg = '{} ("{}")'.format(msg, title)
+    msg = '{} to queue "{}"'.format(msg, queue)
     log.info(msg)
     return job
 
 
 def job_from_id(id):
-    u'''
+    '''
     Look up an enqueued job by its ID.
 
     :param string id: The ID of the job.
@@ -186,11 +186,11 @@ def job_from_id(id):
     try:
         return Job.fetch(id, connection=_connect())
     except NoSuchJobError:
-        raise KeyError(u'There is no job with ID "{}".'.format(id))
+        raise KeyError('There is no job with ID "{}".'.format(id))
 
 
 def dictize_job(job):
-    u'''Convert a job to a dict.
+    '''Convert a job to a dict.
 
     In contrast to ``rq.job.Job.to_dict`` this function includes only
     the attributes that are relevant to our use case and promotes the
@@ -202,15 +202,15 @@ def dictize_job(job):
     :rtype: dict
     '''
     return {
-        u'id': job.id,
-        u'title': job.meta.get(u'title'),
-        u'created': job.created_at.strftime(u'%Y-%m-%dT%H:%M:%S'),
-        u'queue': remove_queue_name_prefix(job.origin),
+        'id': job.id,
+        'title': job.meta.get('title'),
+        'created': job.created_at.strftime('%Y-%m-%dT%H:%M:%S'),
+        'queue': remove_queue_name_prefix(job.origin),
     }
 
 
 def test_job(*args):
-    u'''Test job.
+    '''Test job.
 
     A test job for debugging purposes. Prints out any arguments it
     receives. Can be scheduled via ``paster jobs test``.
@@ -219,7 +219,7 @@ def test_job(*args):
 
 
 class Worker(rq.Worker):
-    u'''
+    '''
     CKAN-specific worker.
 
     Note that starting an instance of this class (via the ``work``
@@ -231,7 +231,7 @@ class Worker(rq.Worker):
     to the old session have to be re-fetched from the database.
     '''
     def __init__(self, queues=None, *args, **kwargs):
-        u'''
+        '''
         Constructor.
 
         Accepts the same arguments as the constructor of
@@ -250,8 +250,8 @@ class Worker(rq.Worker):
     def register_birth(self, *args, **kwargs):
         result = super(Worker, self).register_birth(*args, **kwargs)
         names = [remove_queue_name_prefix(n) for n in self.queue_names()]
-        names = u', '.join(u'"{}"'.format(n) for n in names)
-        log.info(u'Worker {} (PID {}) has started on queue(s) {} '.format(
+        names = ', '.join('"{}"'.format(n) for n in names)
+        log.info('Worker {} (PID {}) has started on queue(s) {} '.format(
                  self.key, self.pid, names))
         return result
 
@@ -265,29 +265,29 @@ class Worker(rq.Worker):
         # Note that this rolls back any non-committed changes in the session.
         # Both `Session` and `engine` automatically re-initialize themselve
         # when they are used the next time.
-        log.debug(u'Disposing database engine before fork')
+        log.debug('Disposing database engine before fork')
         meta.Session.remove()
         meta.engine.dispose()
 
         # The original implementation performs the actual fork
         queue = remove_queue_name_prefix(job.origin)
-        log.info(u'Worker {} starts job {} from queue "{}"'.format(
+        log.info('Worker {} starts job {} from queue "{}"'.format(
                  self.key, job.id, queue))
         for plugin in plugins.PluginImplementations(plugins.IForkObserver):
             plugin.before_fork()
         result = super(Worker, self).execute_job(job, *args, **kwargs)
-        log.info(u'Worker {} has finished job {} from queue "{}"'.format(
+        log.info('Worker {} has finished job {} from queue "{}"'.format(
                  self.key, job.id, queue))
 
         return result
 
     def register_death(self, *args, **kwargs):
         result = super(Worker, self).register_death(*args, **kwargs)
-        log.info(u'Worker {} (PID {}) has stopped'.format(self.key, self.pid))
+        log.info('Worker {} (PID {}) has stopped'.format(self.key, self.pid))
         return result
 
     def handle_exception(self, job, *exc_info):
-        log.exception(u'Job {} on worker {} raised an exception: {}'.format(
+        log.exception('Job {} on worker {} raised an exception: {}'.format(
                       job.id, self.key, exc_info[1]))
         return super(Worker, self).handle_exception(job, *exc_info)
 
@@ -305,9 +305,9 @@ class Worker(rq.Worker):
         try:
             meta.Session.remove()
         except Exception:
-            log.exception(u'Error while closing database session')
+            log.exception('Error while closing database session')
         try:
             meta.engine.dispose()
         except Exception:
-            log.exception(u'Error while disposing database engine')
+            log.exception('Error while disposing database engine')
         return result

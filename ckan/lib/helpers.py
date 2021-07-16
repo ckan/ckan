@@ -55,7 +55,7 @@ from markupsafe import Markup, escape
 
 log = logging.getLogger(__name__)
 
-DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
+DEFAULT_FACET_NAMES = 'organization groups tags res_format license_id'
 
 MARKDOWN_TAGS = set([
     'del', 'dd', 'dl', 'dt', 'h1', 'h2',
@@ -115,7 +115,7 @@ class literal(Markup):
     @classmethod
     def escape(cls, s):
         if s is None:
-            return Markup(u"")
+            return Markup("")
         return super(literal, cls).escape(s)
 
 
@@ -442,10 +442,10 @@ def _url_for_flask(*args, **kw):
                     if isinstance(val, (list, tuple)):
                         for value in val:
                             query_args.append(
-                                u'{}={}'.format(quote(key), quote(value)))
+                                '{}={}'.format(quote(key), quote(value)))
                     else:
                         query_args.append(
-                            u'{}={}'.format(quote(key), quote(val)))
+                            '{}={}'.format(quote(key), quote(val)))
                 my_url += '&'.join(query_args)
         else:
             raise
@@ -857,8 +857,8 @@ def _make_safe_id_component(idstring):
 def _input_tag(type, name, value=None, id=None, **attrs):
     attrs = _preprocess_dom_attrs(attrs)
     attrs.update(type=type, name=name, value=value)
-    if u"id" not in attrs:
-        attrs[u"id"] = id if id else _make_safe_id_component(name)
+    if "id" not in attrs:
+        attrs["id"] = id if id else _make_safe_id_component(name)
 
     return dom_tags.input(**attrs)
 
@@ -872,16 +872,16 @@ def link_to(label, url, **attrs):
     return literal(dom_tags.a(label, **attrs))
 
 
-@maintain.deprecated(u'h.submit is deprecated. '
-                     u'Use h.literal(<markup or dominate.tags>) instead.',
-                     since=u'2.9.0')
+@maintain.deprecated('h.submit is deprecated. '
+                     'Use h.literal(<markup or dominate.tags>) instead.',
+                     since='2.9.0')
 @core_helper
 def submit(name, value=None, id=None, **attrs):
     """Create a submit field.
 
     Deprecated: Use h.literal(<markup or dominate.tags>) instead.
     """
-    return literal(_input_tag(u"submit", name, value, id, **attrs))
+    return literal(_input_tag("submit", name, value, id, **attrs))
 
 
 @core_helper
@@ -1074,38 +1074,38 @@ def humanize_entity_type(entity_type, object_type, purpose):
         return  # use the default text included in template
 
     log.debug(
-        u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
+        'Humanize %s of type %s for %s', entity_type, object_type, purpose)
     templates = {
-        u'add link': _(u"Add {object_type}"),
-        u'breadcrumb': _(u"{object_type}s"),
-        u'content tab': _(u"{object_type}s"),
-        u'create label': _(u"Create {object_type}"),
-        u'create title': _(u"Create {object_type}"),
-        u'delete confirmation': _(
-            u'Are you sure you want to delete this {object_type}?'),
-        u'description placeholder': _(
-            u"A little information about my {object_type}..."),
-        u'edit label': _(u"Edit {object_type}"),
-        u'facet label': _(u"{object_type}s"),
-        u'form label': _(u"{object_type} Form"),
-        u'main nav': _(u"{object_type}s"),
-        u'my label': _(u"My {object_type}s"),
-        u'name placeholder': _(u"My {object_type}"),
-        u'no any objects': _(
-            u"There are currently no {object_type}s for this site"),
-        u'no associated label': _(
-            u'There are no {object_type}s associated with this dataset'),
-        u'no description': _(
-            u'There is no description for this {object_type}'),
-        u'no label': _(u"No {object_type}"),
-        u'page title': _(u"{object_type}s"),
-        u'save label': _(u"Save {object_type}"),
-        u'search placeholder': _(u'Search {object_type}s...'),
-        u'you not member': _(u'You are not a member of any {object_type}s.'),
-        u'update label': _(u"Update {object_type}"),
+        'add link': _("Add {object_type}"),
+        'breadcrumb': _("{object_type}s"),
+        'content tab': _("{object_type}s"),
+        'create label': _("Create {object_type}"),
+        'create title': _("Create {object_type}"),
+        'delete confirmation': _(
+            'Are you sure you want to delete this {object_type}?'),
+        'description placeholder': _(
+            "A little information about my {object_type}..."),
+        'edit label': _("Edit {object_type}"),
+        'facet label': _("{object_type}s"),
+        'form label': _("{object_type} Form"),
+        'main nav': _("{object_type}s"),
+        'my label': _("My {object_type}s"),
+        'name placeholder': _("My {object_type}"),
+        'no any objects': _(
+            "There are currently no {object_type}s for this site"),
+        'no associated label': _(
+            'There are no {object_type}s associated with this dataset'),
+        'no description': _(
+            'There is no description for this {object_type}'),
+        'no label': _("No {object_type}"),
+        'page title': _("{object_type}s"),
+        'save label': _("Save {object_type}"),
+        'search placeholder': _('Search {object_type}s...'),
+        'you not member': _('You are not a member of any {object_type}s.'),
+        'update label': _("Update {object_type}"),
     }
 
-    type_label = object_type.replace(u"_", u" ").capitalize()
+    type_label = object_type.replace("_", " ").capitalize()
     if purpose not in templates:
         return type_label
 
@@ -1135,7 +1135,7 @@ def get_facet_items_dict(
 
     '''
     if search_facets is None:
-        search_facets = getattr(c, u'search_facets', None)
+        search_facets = getattr(c, 'search_facets', None)
 
     if not search_facets \
        or not isinstance(search_facets, dict) \
@@ -1230,7 +1230,7 @@ def _url_with_params(url, params):
         return url
     params = [(k, v.encode('utf-8') if isinstance(v, string_types) else str(v))
               for k, v in params]
-    return url + u'?' + urlencode(params)
+    return url + '?' + urlencode(params)
 
 
 @core_helper
@@ -1269,7 +1269,7 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 @core_helper
 def check_access(action, data_dict=None):
-    if not getattr(g, u'user', None):
+    if not getattr(g, 'user', None):
         g.user = ''
     context = {'model': model,
                'user': g.user}
@@ -1311,7 +1311,7 @@ def linked_user(user, maxlength=0, avatar=20):
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return literal(u'{icon} {link}'.format(
+        return literal('{icon} {link}'.format(
             icon=user_image(
                 user.id,
                 size=avatar
@@ -2699,7 +2699,7 @@ def license_options(existing_license_id=None):
 def get_translated(data_dict, field):
     language = i18n.get_lang()
     try:
-        return data_dict[field + u'_translated'][language]
+        return data_dict[field + '_translated'][language]
     except KeyError:
         val = data_dict.get(field, '')
         return _(val) if val and isinstance(val, string_types) else val
@@ -2707,22 +2707,22 @@ def get_translated(data_dict, field):
 
 @core_helper
 def facets():
-    u'''Returns a list of the current facet names'''
-    return config.get(u'search.facets', DEFAULT_FACET_NAMES).split()
+    '''Returns a list of the current facet names'''
+    return config.get('search.facets', DEFAULT_FACET_NAMES).split()
 
 
 @core_helper
 def mail_to(email_address, name):
     email = escape(email_address)
     author = escape(name)
-    html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
+    html = Markup('<a href=mailto:{0}>{1}</a>'.format(email, author))
     return html
 
 
 @core_helper
 def radio(selected, id, checked):
     if checked:
-        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
+        return literal(('<input checked="checked" id="%s_%s" name="%s" \
             value="%s" type="radio">') % (selected, id, selected, id))
     return literal(('<input id="%s_%s" name="%s" \
         value="%s" type="radio">') % (selected, id, selected, id))
@@ -2769,7 +2769,7 @@ def load_plugin_helpers():
     for name, func_list in chained_helpers.items():
         if name not in helper_functions:
             raise logic.NotFoud(
-                u'The helper %r is not found for chained helper' % (name))
+                'The helper %r is not found for chained helper' % (name))
         for func in reversed(func_list):
             new_func = functools.partial(
                 func, helper_functions[name])
@@ -2813,7 +2813,7 @@ def compare_pkg_dicts(old, new, old_activity_id):
     # if the dataset was updated but none of the fields we check were changed,
     # display a message stating that
     if len(change_list) == 0:
-        change_list.append({u'type': 'no_change'})
+        change_list.append({'type': 'no_change'})
 
     return change_list
 
@@ -2842,7 +2842,7 @@ def compare_group_dicts(old, new, old_activity_id):
     # if the organization was updated but none of the fields we check
     # were changed, display a message stating that
     if len(change_list) == 0:
-        change_list.append({u'type': 'no_change'})
+        change_list.append({'type': 'no_change'})
 
     return change_list
 
@@ -2855,7 +2855,7 @@ def activity_list_select(pkg_activity_list, current_activity_id):
     '''
     select_list = []
     template = jinja2.Template(
-        u'<option value="{{activity_id}}" {{selected}}>'
+        '<option value="{{activity_id}}" {{selected}}>'
         '{{timestamp}}</option>',
         autoescape=True)
     for activity in pkg_activity_list:

@@ -26,14 +26,14 @@ current_app = flask.current_app
 
 @maintain.deprecated('All web requests are served by Flask', since="2.10.0")
 def is_flask_request():
-    u'''
+    '''
     This function is deprecated. All CKAN requests are now served by Flask
     '''
     return True
 
 
 def streaming_response(
-        data, mimetype=u'application/octet-stream', with_context=False):
+        data, mimetype='application/octet-stream', with_context=False):
     iter_data = iter(data)
     if is_flask_request():
         # Removal of context variables for pylon's app is prevented
@@ -60,7 +60,7 @@ def ungettext(*args, **kwargs):
 
 
 class CKANConfig(MutableMapping):
-    u'''Main CKAN configuration object
+    '''Main CKAN configuration object
 
     This is a dict-like object that also proxies any changes to the
     Flask and Pylons configuration objects.
@@ -116,7 +116,7 @@ def _get_request():
 
 
 class CKANRequest(LocalProxy):
-    u'''Common request object
+    '''Common request object
 
     This is just a wrapper around LocalProxy so we can handle some special
     cases for backwards compatibility.
@@ -128,7 +128,7 @@ class CKANRequest(LocalProxy):
     '''
     @property
     def params(self):
-        u''' Special case as Pylons' request.params is used all over the place.
+        ''' Special case as Pylons' request.params is used all over the place.
         All new code meant to be run just in Flask (eg views) should always
         use request.args
         '''
@@ -149,7 +149,7 @@ def _get_session():
 local = Local()
 
 # This a proxy to the bounded config object
-local(u'config')
+local('config')
 
 # Thread-local safe objects
 config = local.config = CKANConfig()
@@ -160,8 +160,8 @@ request = CKANRequest(_get_request)
 g = c = LocalProxy(_get_c)
 session = LocalProxy(_get_session)
 
-truthy = frozenset([u'true', u'yes', u'on', u'y', u't', u'1'])
-falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
+truthy = frozenset(['true', 'yes', 'on', 'y', 't', '1'])
+falsy = frozenset(['false', 'no', 'off', 'n', 'f', '0'])
 
 
 def asbool(obj):
@@ -172,7 +172,7 @@ def asbool(obj):
         elif obj in falsy:
             return False
         else:
-            raise ValueError(u"String is not true/false: {}".format(obj))
+            raise ValueError("String is not true/false: {}".format(obj))
     return bool(obj)
 
 
@@ -180,7 +180,7 @@ def asint(obj):
     try:
         return int(obj)
     except (TypeError, ValueError):
-        raise ValueError(u"Bad integer value: {}".format(obj))
+        raise ValueError("Bad integer value: {}".format(obj))
 
 
 def aslist(obj, sep=None, strip=True):

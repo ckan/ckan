@@ -37,7 +37,7 @@ class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
         self.samesite = samesite
 
     def _get_cookies(self, *args, **kwargs):
-        u'''
+        '''
         Override method in superclass to ensure HttpOnly is set appropriately.
         '''
         super_cookies = super(CkanAuthTktCookiePlugin, self). \
@@ -81,21 +81,21 @@ def make_plugin(secret=None,
 
     # ckan specifics:
     # Get secret from beaker setting if necessary
-    if secret is None or secret == u'somesecret':
-        secret = config[u'beaker.session.secret']
+    if secret is None or secret == 'somesecret':
+        secret = config['beaker.session.secret']
     # Session timeout and reissue time for auth cookie
-    if timeout is None and config.get(u'who.timeout'):
-        timeout = config.get(u'who.timeout')
-    if reissue_time is None and config.get(u'who.reissue_time'):
-        reissue_time = config.get(u'who.reissue_time')
+    if timeout is None and config.get('who.timeout'):
+        timeout = config.get('who.timeout')
+    if reissue_time is None and config.get('who.reissue_time'):
+        reissue_time = config.get('who.reissue_time')
     if timeout is not None and reissue_time is None:
         reissue_time = int(math.ceil(int(timeout) * 0.1))
     # Set httponly based on config value. Default is True
-    httponly = _bool(config.get(u'who.httponly', True))
+    httponly = _bool(config.get('who.httponly', True))
     # Set secure based on config value. Default is False
-    secure = _bool(config.get(u'who.secure', False))
+    secure = _bool(config.get('who.secure', False))
     # Set samesite based on config value. Default is lax
-    samesite = config.get(u'who.samesite', 'lax').lower()
+    samesite = config.get('who.samesite', 'lax').lower()
     if samesite == 'none' and not secure:
         raise ValueError(
             'SameSite=None requires the Secure attribute,'
@@ -103,13 +103,13 @@ def make_plugin(secret=None,
 
     # back to repoze boilerplate
     if (secret is None and secretfile is None):
-        raise ValueError(u"One of 'secret' or 'secretfile' must not be None.")
+        raise ValueError("One of 'secret' or 'secretfile' must not be None.")
     if (secret is not None and secretfile is not None):
-        raise ValueError(u"Specify only one of 'secret' or 'secretfile'.")
+        raise ValueError("Specify only one of 'secret' or 'secretfile'.")
     if secretfile:
         secretfile = os.path.abspath(os.path.expanduser(secretfile))
         if not os.path.exists(secretfile):
-            raise ValueError(u"No such 'secretfile': %s" % secretfile)
+            raise ValueError("No such 'secretfile': %s" % secretfile)
         secret = open(secretfile).read().strip()
     if timeout:
         timeout = int(timeout)

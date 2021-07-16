@@ -15,7 +15,7 @@ def pytest_addoption(parser):
     already added by the external pytest-ckan package
     """
     try:
-        parser.addoption(u"--ckan-ini", action=u"store")
+        parser.addoption("--ckan-ini", action="store")
     except ValueError as e:
         if str(e) == 'option names {\'--ckan-ini\'} already added':
             pass
@@ -51,8 +51,8 @@ def pytest_runtest_setup(item):
 
     """
     custom_config = [
-        mark.args for mark in item.iter_markers(name=u"ckan_config")
+        mark.args for mark in item.iter_markers(name="ckan_config")
     ]
 
     if custom_config:
-        item.fixturenames.append(u"ckan_config")
+        item.fixturenames.append("ckan_config")

@@ -13,7 +13,7 @@ def create_country_codes():
     except tk.ObjectNotFound:
         data = {'name': 'country_codes'}
         vocab = tk.get_action('vocabulary_create')(context, data)
-        for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
+        for tag in ('uk', 'ie', 'de', 'fr', 'es'):
             data = {'name': tag, 'vocabulary_id': vocab['id']}
             tk.get_action('tag_create')(context, data)
 

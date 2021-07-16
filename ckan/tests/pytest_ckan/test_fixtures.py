@@ -12,48 +12,48 @@ from ckan.tests import factories
 
 
 def test_ckan_config_fixture(ckan_config):
-    assert tk.asbool(ckan_config[u"testing"])
+    assert tk.asbool(ckan_config["testing"])
 
 
 def test_ckan_config_do_not_have_some_new_config(ckan_config):
-    assert u"some.new.config" not in ckan_config
+    assert "some.new.config" not in ckan_config
 
 
 # START-CONFIG-OVERRIDE
-@pytest.mark.ckan_config(u"some.new.config", u"exists")
+@pytest.mark.ckan_config("some.new.config", "exists")
 def test_ckan_config_mark(ckan_config):
-    assert ckan_config[u"some.new.config"] == u"exists"
+    assert ckan_config["some.new.config"] == "exists"
 
 
 # END-CONFIG-OVERRIDE
 
 
-@pytest.mark.ckan_config(u"some.new.config", u"exists")
-@pytest.mark.usefixtures(u"ckan_config")
+@pytest.mark.ckan_config("some.new.config", "exists")
+@pytest.mark.usefixtures("ckan_config")
 def test_ckan_config_mark_without_explicit_config_fixture():
-    assert config[u"some.new.config"] == u"exists"
+    assert config["some.new.config"] == "exists"
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"stats")
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "stats")
+@pytest.mark.usefixtures("with_plugins")
 def test_with_plugins_is_able_to_run_with_stats():
-    assert plugins.plugin_loaded(u"stats")
+    assert plugins.plugin_loaded("stats")
 
 
 class TestMethodLevelConfig(object):
     """Verify that config overrides work for individual methods.
     """
 
-    @pytest.mark.ckan_config(u"some.new.config", u"exists")
+    @pytest.mark.ckan_config("some.new.config", "exists")
     def test_ckan_config_mark_first(self, ckan_config):
-        assert ckan_config[u"some.new.config"] == u"exists"
+        assert ckan_config["some.new.config"] == "exists"
 
-    @pytest.mark.ckan_config(u"some.new.config", u"exists again")
+    @pytest.mark.ckan_config("some.new.config", "exists again")
     def test_ckan_config_mark_second(self, ckan_config):
-        assert ckan_config[u"some.new.config"] == u"exists again"
+        assert ckan_config["some.new.config"] == "exists again"
 
 
-@pytest.mark.ckan_config(u"some.new.config", u"exists")
+@pytest.mark.ckan_config("some.new.config", "exists")
 class TestClassLevelConfig(object):
 
     """Verify that config overrides applied for each method when applied
@@ -61,10 +61,10 @@ class TestClassLevelConfig(object):
     """
 
     def test_ckan_config_mark_first(self, ckan_config):
-        assert ckan_config[u"some.new.config"] == u"exists"
+        assert ckan_config["some.new.config"] == "exists"
 
     def test_ckan_config_mark_second(self, ckan_config):
-        assert ckan_config[u"some.new.config"] == u"exists"
+        assert ckan_config["some.new.config"] == "exists"
 
 
 class TestCreateWithUpload(object):
@@ -72,35 +72,35 @@ class TestCreateWithUpload(object):
     def test_create_organization(self, create_with_upload, ckan_config):
         user = factories.User()
         context = {
-            u"user": user["name"]
+            "user": user["name"]
         }
         org = create_with_upload(
-            b"\0\0\0", u"image.png",
+            b"\0\0\0", "image.png",
             context=context,
-            action=u"organization_create",
-            upload_field_name=u"image_upload",
-            name=u"test-org"
+            action="organization_create",
+            upload_field_name="image_upload",
+            name="test-org"
         )
         image_path = os.path.join(
-            ckan_config[u"ckan.storage_path"],
-            u'storage',
-            urlparse(org[u'image_display_url']).path.lstrip(u"/")
+            ckan_config["ckan.storage_path"],
+            'storage',
+            urlparse(org['image_display_url']).path.lstrip("/")
         )
 
         assert os.path.isfile(image_path)
-        with open(image_path, u"rb") as image:
+        with open(image_path, "rb") as image:
             content = image.read()
             assert content == b"\0\0\0"
 
     def test_create_resource(self, create_with_upload):
         dataset = factories.Dataset()
         resource = create_with_upload(
-            u"hello world", u"file.txt",
-            package_id=dataset[u'id']
+            "hello world", "file.txt",
+            package_id=dataset['id']
         )
-        assert resource[u"url_type"] == u"upload"
-        assert resource[u"format"] == u"TXT"
-        assert resource[u"size"] == 11
+        assert resource["url_type"] == "upload"
+        assert resource["format"] == "TXT"
+        assert resource["size"] == 11
 
 
 class TestMigrateDbFor(object):

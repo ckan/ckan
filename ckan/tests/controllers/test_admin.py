@@ -36,7 +36,7 @@ class TestConfig(object):
         index_response = app.get("/")
         assert "Welcome - CKAN" in index_response
 
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         # change site title
         form = {"ckan.site_title": "Test Site Title", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
@@ -56,7 +56,7 @@ class TestConfig(object):
         index_response = app.get("/")
         assert "main.css" in index_response or "main.min.css" in index_response
 
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         # set new style css
         form = {"ckan.main_css": "/base/css/main-rtl.css", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
@@ -70,7 +70,7 @@ class TestConfig(object):
         index_response = app.get("/")
         assert "Special Tagline" not in index_response
 
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         # set new tagline css
         form = {"ckan.site_description": "Special Tagline", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
@@ -79,7 +79,7 @@ class TestConfig(object):
         new_index_response = app.get("/")
         assert "Special Tagline" not in new_index_response
 
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         # remove logo
         form = {"ckan.site_logo": "", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
@@ -101,7 +101,7 @@ class TestConfig(object):
         assert "My special about text" not in about_response
 
         # set new about
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         form = {"ckan.site_about": "My special about text", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
@@ -122,7 +122,7 @@ class TestConfig(object):
         assert "My special intro text" not in intro_response
 
         # set new intro
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         form = {"ckan.site_intro_text": "My special intro text", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
@@ -142,7 +142,7 @@ class TestConfig(object):
         style_tag = intro_response_html.select("head style")
         assert len(style_tag) == 0
         # set new tagline css
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         form = {
             "ckan.site_custom_css": "body {background-color:red}",
             "save": "",
@@ -169,7 +169,7 @@ class TestConfig(object):
         assert "<!-- Snippet home/layout1.html start -->" in index_response
 
         # set new style css
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         form = {"ckan.homepage_style": "2", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
@@ -520,7 +520,7 @@ class TestAdminConfigUpdate(object):
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
 
-        url = url_for(u"admin.config")
+        url = url_for("admin.config")
         form = {"ckan.site_title": "My Updated Site Title", "save": ""}
         return app.post(url, data=form, environ_overrides=env)
 

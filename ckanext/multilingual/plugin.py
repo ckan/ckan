@@ -41,7 +41,7 @@ def translate_data_dict(data_dict):
         else:
             for item in value:
                 if isinstance(value, dict):
-                    if key == (u'organization',) and item == 'description':
+                    if key == ('organization',) and item == 'description':
                         terms.add(value[item])
                     else:
                         terms.add(item)
@@ -90,7 +90,7 @@ def translate_data_dict(data_dict):
                         value, value)
 
         elif isinstance(value, (int, long, dict)):
-            if key == (u'organization',):
+            if key == ('organization',):
                 translated_flattened[key] = translate_data_dict(value);
             else:
                 translated_flattened[key] = value

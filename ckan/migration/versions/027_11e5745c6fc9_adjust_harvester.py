@@ -21,7 +21,7 @@ table = 'harvested_document'
 def upgrade():
     if skip_based_on_legacy_engine_version(op, __name__):
         return
-    op.add_column(table, sa.Column('guid', sa.UnicodeText, server_default=u''))
+    op.add_column(table, sa.Column('guid', sa.UnicodeText, server_default=''))
     op.add_column(
         table,
         sa.Column(

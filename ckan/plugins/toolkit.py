@@ -237,8 +237,8 @@ Pass them explicitly from the view functions as ``extra_vars``, eg::
     return toolkit.render(
         'myext/package/read.html',
         extra_vars={
-            u'some_var': some_value,
-            u'some_other_var': some_other_value,
+            'some_var': some_value,
+            'some_other_var': some_other_value,
         }
     )
 

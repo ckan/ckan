@@ -41,7 +41,7 @@ def test_autocomplete_with_capital_letter_in_search_term(app):
     )
     res = app.get(offset)
     data = json.loads(res.body)
-    assert u"Flexible \u30a1" in data["ResultSet"]["Result"][0].values()
+    assert "Flexible \u30a1" in data["ResultSet"]["Result"][0].values()
 
 
 def test_autocomplete_with_space_in_search_term(app):
@@ -52,15 +52,15 @@ def test_autocomplete_with_space_in_search_term(app):
     )
     res = app.get(offset)
     data = json.loads(res.body)
-    assert u"Flexible \u30a1" in data["ResultSet"]["Result"][0].values()
+    assert "Flexible \u30a1" in data["ResultSet"]["Result"][0].values()
 
 
 def test_autocomplete_with_unicode_in_search_term(app):
     controller = "api"
     action = "tag_autocomplete"
     offset = url_for(
-        controller=controller, action=action, incomplete=u"ible \u30a1", ver=2
+        controller=controller, action=action, incomplete="ible \u30a1", ver=2
     )
     res = app.get(offset)
     data = json.loads(res.body)
-    assert u"Flexible \u30a1" in data["ResultSet"]["Result"][0].values()
+    assert "Flexible \u30a1" in data["ResultSet"]["Result"][0].values()

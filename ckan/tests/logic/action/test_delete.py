@@ -140,9 +140,9 @@ class TestDeleteTags(object):
         # unicode in the ActionError error message, so ensure that comes
         # through in NotFound as unicode.
         try:
-            helpers.call_action("tag_delete", id=u"Delta symbol: \u0394")
+            helpers.call_action("tag_delete", id="Delta symbol: \u0394")
         except logic.NotFound as e:
-            assert u"Delta symbol: \u0394" in text_type(e)
+            assert "Delta symbol: \u0394" in text_type(e)
         else:
             assert 0, "Should have raised NotFound"
 
@@ -469,80 +469,80 @@ class TestUserDelete(object):
     def test_user_delete(self):
         user = factories.User()
         context = {}
-        params = {u"id": user[u"id"]}
+        params = {"id": user["id"]}
 
-        helpers.call_action(u"user_delete", context, **params)
+        helpers.call_action("user_delete", context, **params)
 
         # It is still there but with state=deleted
-        user_obj = model.User.get(user[u"id"])
-        assert user_obj.state == u"deleted"
+        user_obj = model.User.get(user["id"])
+        assert user_obj.state == "deleted"
 
     def test_user_delete_but_user_doesnt_exist(self):
         context = {}
-        params = {u"id": "unknown"}
+        params = {"id": "unknown"}
 
         with pytest.raises(logic.NotFound):
-            helpers.call_action(u"user_delete", context, **params)
+            helpers.call_action("user_delete", context, **params)
 
     def test_user_delete_removes_memberships(self):
         user = factories.User()
         factories.Organization(
-            users=[{u"name": user[u"id"], u"capacity": u"admin"}]
+            users=[{"name": user["id"], "capacity": "admin"}]
         )
 
-        factories.Group(users=[{u"name": user[u"id"], u"capacity": u"admin"}])
+        factories.Group(users=[{"name": user["id"], "capacity": "admin"}])
 
         user_memberships = (
             model.Session.query(model.Member)
-            .filter(model.Member.table_id == user[u"id"])
+            .filter(model.Member.table_id == user["id"])
             .all()
         )
 
         assert len(user_memberships) == 2
 
-        assert [m.state for m in user_memberships] == [u"active", u"active"]
+        assert [m.state for m in user_memberships] == ["active", "active"]
 
         context = {}
-        params = {u"id": user[u"id"]}
+        params = {"id": user["id"]}
 
-        helpers.call_action(u"user_delete", context, **params)
+        helpers.call_action("user_delete", context, **params)
 
         user_memberships = (
             model.Session.query(model.Member)
-            .filter(model.Member.table_id == user[u"id"])
+            .filter(model.Member.table_id == user["id"])
             .all()
         )
 
         # Member objects are still there, but flagged as deleted
         assert len(user_memberships) == 2
 
-        assert [m.state for m in user_memberships] == [u"deleted", u"deleted"]
+        assert [m.state for m in user_memberships] == ["deleted", "deleted"]
 
     def test_user_delete_removes_memberships_when_using_name(self):
         user = factories.User()
         factories.Organization(
-            users=[{u"name": user[u"id"], u"capacity": u"admin"}]
+            users=[{"name": user["id"], "capacity": "admin"}]
         )
 
-        factories.Group(users=[{u"name": user[u"id"], u"capacity": u"admin"}])
+        factories.Group(users=[{"name": user["id"], "capacity": "admin"}])
 
         context = {}
-        params = {u"id": user[u"name"]}
+        params = {"id": user["name"]}
 
-        helpers.call_action(u"user_delete", context, **params)
+        helpers.call_action("user_delete", context, **params)
 
         user_memberships = (
             model.Session.query(model.Member)
-            .filter(model.Member.table_id == user[u"id"])
+            .filter(model.Member.table_id == user["id"])
             .all()
         )
 
         # Member objects are still there, but flagged as deleted
         assert len(user_memberships) == 2
 
-        assert [m.state for m in user_memberships] == [u"deleted", u"deleted"]
+        assert [m.state for m in user_memberships] == ["deleted", "deleted"]
 
-    @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+    @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
     def test_user_delete_removes_collaborations(self):
         user = factories.User()
         dataset = factories.Dataset()
@@ -553,9 +553,9 @@ class TestUserDelete(object):
         assert len(helpers.call_action('package_collaborator_list', id=dataset['id'])) == 1
 
         context = {}
-        params = {u"id": user[u"id"]}
+        params = {"id": user["id"]}
 
-        helpers.call_action(u"user_delete", context, **params)
+        helpers.call_action("user_delete", context, **params)
 
         assert len(helpers.call_action('package_collaborator_list', id=dataset['id'])) == 0
 
@@ -566,11 +566,11 @@ class TestJobClear(helpers.FunctionalRQTestBase):
         Test clearing all queues.
         """
         self.enqueue()
-        self.enqueue(queue=u"q")
-        self.enqueue(queue=u"q")
-        self.enqueue(queue=u"q")
-        queues = helpers.call_action(u"job_clear")
-        assert {jobs.DEFAULT_QUEUE_NAME, u"q"} == set(queues)
+        self.enqueue(queue="q")
+        self.enqueue(queue="q")
+        self.enqueue(queue="q")
+        queues = helpers.call_action("job_clear")
+        assert {jobs.DEFAULT_QUEUE_NAME, "q"} == set(queues)
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 0
 
@@ -579,17 +579,17 @@ class TestJobClear(helpers.FunctionalRQTestBase):
         Test clearing specific queues.
         """
         job1 = self.enqueue()
-        job2 = self.enqueue(queue=u"q1")
-        job3 = self.enqueue(queue=u"q1")
-        job4 = self.enqueue(queue=u"q2")
-        with helpers.recorded_logs(u"ckan.logic") as logs:
-            queues = helpers.call_action(u"job_clear", queues=[u"q1", u"q2"])
-        assert {u"q1", u"q2"} == set(queues)
+        job2 = self.enqueue(queue="q1")
+        job3 = self.enqueue(queue="q1")
+        job4 = self.enqueue(queue="q2")
+        with helpers.recorded_logs("ckan.logic") as logs:
+            queues = helpers.call_action("job_clear", queues=["q1", "q2"])
+        assert {"q1", "q2"} == set(queues)
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 1
         assert all_jobs[0] == job1
-        logs.assert_log(u"info", u"q1")
-        logs.assert_log(u"info", u"q2")
+        logs.assert_log("info", "q1")
+        logs.assert_log("info", "q2")
 
 
 class TestJobCancel(helpers.FunctionalRQTestBase):
@@ -597,67 +597,67 @@ class TestJobCancel(helpers.FunctionalRQTestBase):
         """
         Test cancelling an existing job.
         """
-        job1 = self.enqueue(queue=u"q")
-        job2 = self.enqueue(queue=u"q")
-        with helpers.recorded_logs(u"ckan.logic") as logs:
-            helpers.call_action(u"job_cancel", id=job1.id)
+        job1 = self.enqueue(queue="q")
+        job2 = self.enqueue(queue="q")
+        with helpers.recorded_logs("ckan.logic") as logs:
+            helpers.call_action("job_cancel", id=job1.id)
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 1
         assert all_jobs[0] == job2
         with pytest.raises(KeyError):
             jobs.job_from_id(job1.id)
-        logs.assert_log(u"info", re.escape(job1.id))
+        logs.assert_log("info", re.escape(job1.id))
 
     def test_not_existing_job(self):
         with pytest.raises(logic.NotFound):
-            helpers.call_action(u"job_cancel", id=u"does-not-exist")
+            helpers.call_action("job_cancel", id="does-not-exist")
 
 
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures("clean_db")
 class TestApiToken(object):
 
     def test_token_revoke(self):
         user = factories.User()
-        token = helpers.call_action(u"api_token_create", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"], name="token-name")['token']
-        token2 = helpers.call_action(u"api_token_create", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"], name="token-name-2")['token']
+        token = helpers.call_action("api_token_create", context={
+            "model": model,
+            "user": user["name"]
+        }, user=user["name"], name="token-name")['token']
+        token2 = helpers.call_action("api_token_create", context={
+            "model": model,
+            "user": user["name"]
+        }, user=user["name"], name="token-name-2")['token']
 
-        tokens = helpers.call_action(u"api_token_list", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        tokens = helpers.call_action("api_token_list", context={
+            "model": model,
+            "user": user["name"]
+        }, user=user["name"])
         assert len(tokens) == 2
 
-        helpers.call_action(u"api_token_revoke", context={
-            u"model": model,
-            u"user": user[u"name"]
+        helpers.call_action("api_token_revoke", context={
+            "model": model,
+            "user": user["name"]
         }, token=token)
 
-        tokens = helpers.call_action(u"api_token_list", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        tokens = helpers.call_action("api_token_list", context={
+            "model": model,
+            "user": user["name"]
+        }, user=user["name"])
         assert len(tokens) == 1
 
-        helpers.call_action(u"api_token_revoke", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, jti=api_token.decode(token2)[u'jti'])
+        helpers.call_action("api_token_revoke", context={
+            "model": model,
+            "user": user["name"]
+        }, jti=api_token.decode(token2)['jti'])
 
-        tokens = helpers.call_action(u"api_token_list", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        tokens = helpers.call_action("api_token_list", context={
+            "model": model,
+            "user": user["name"]
+        }, user=user["name"])
         assert len(tokens) == 0
 
 
 @pytest.mark.usefixtures("clean_db")
-@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", False)
 def test_delete_package_collaborator_when_config_disabled():
 
     dataset = factories.Dataset()
@@ -670,7 +670,7 @@ def test_delete_package_collaborator_when_config_disabled():
 
 
 @pytest.mark.usefixtures("clean_db")
-@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDelete(object):
 
     def test_delete(self):
@@ -711,7 +711,7 @@ class TestPackageMemberDelete(object):
 
 
 @pytest.mark.usefixtures("clean_db")
-@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_package_delete_removes_collaborations():
 
     user = factories.User()
@@ -723,8 +723,8 @@ def test_package_delete_removes_collaborations():
     assert len(helpers.call_action('package_collaborator_list_for_user', id=user['id'])) == 1
 
     context = {}
-    params = {u"id": dataset[u"id"]}
+    params = {"id": dataset["id"]}
 
-    helpers.call_action(u"package_delete", context, **params)
+    helpers.call_action("package_delete", context, **params)
 
     assert len(helpers.call_action('package_collaborator_list_for_user', id=user['id'])) == 0

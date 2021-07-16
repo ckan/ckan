@@ -131,7 +131,7 @@ def register_package_blueprints(app):
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         for package_type in plugin.package_types():
 
-            if package_type == u'dataset':
+            if package_type == 'dataset':
                 # The default routes are registered with the core
                 # 'dataset' blueprint
                 continue
@@ -153,21 +153,21 @@ def register_package_blueprints(app):
             register_dataset_plugin_rules(dataset_blueprint)
 
             toolkit.signals.register_blueprint.send(
-                u"dataset", blueprint=dataset_blueprint)
+                "dataset", blueprint=dataset_blueprint)
             app.register_blueprint(dataset_blueprint)
 
             resource_blueprint = Blueprint(
-                u'{}_resource'.format(package_type),
+                '{}_resource'.format(package_type),
                 resource.import_name,
-                url_prefix=u'/{}/<id>/resource'.format(package_type),
-                url_defaults={u'package_type': package_type})
+                url_prefix='/{}/<id>/resource'.format(package_type),
+                url_defaults={'package_type': package_type})
             if hasattr(plugin, 'prepare_resource_blueprint'):
                 resource_blueprint = plugin.prepare_resource_blueprint(
                     package_type,
                     resource_blueprint)
             dataset_resource_rules(resource_blueprint)
             toolkit.signals.register_blueprint.send(
-                u"resource", blueprint=resource_blueprint)
+                "resource", blueprint=resource_blueprint)
             app.register_blueprint(resource_blueprint)
             log.debug(
                 'Registered blueprints for custom dataset type \'{}\''.format(
@@ -260,7 +260,7 @@ def register_group_blueprints(app):
 
         for group_type in plugin.group_types():
 
-            if group_type in (u'group', u'organization'):
+            if group_type in ('group', 'organization'):
                 # The default routes are registered with the core
                 # 'group' or 'organization' blueprint
                 continue
@@ -273,14 +273,14 @@ def register_group_blueprints(app):
                                   group.import_name,
                                   url_prefix='/{}'.format(group_type),
                                   url_defaults={
-                                      u'group_type': group_type,
-                                      u'is_organization': is_organization})
+                                      'group_type': group_type,
+                                      'is_organization': is_organization})
             if hasattr(plugin, 'prepare_group_blueprint'):
                 blueprint = plugin.prepare_group_blueprint(
                     group_type, blueprint)
             register_group_plugin_rules(blueprint)
             toolkit.signals.register_blueprint.send(
-                u"organization" if is_organization else u"group",
+                "organization" if is_organization else "group",
                 blueprint=blueprint)
             app.register_blueprint(blueprint)
 
@@ -625,7 +625,7 @@ class DefaultTranslation(object):
 
 
 class DefaultPermissionLabels(object):
-    u'''
+    '''
     Default permissions for package_search/package_show:
     - everyone can read public datasets "public"
     - users can read their own drafts "creator-(user id)"
@@ -633,32 +633,32 @@ class DefaultPermissionLabels(object):
     - users can read datasets where they are collaborators "collaborator-(dataset id)"
     '''
     def get_dataset_labels(self, dataset_obj):
-        if dataset_obj.state == u'active' and not dataset_obj.private:
-            return [u'public']
+        if dataset_obj.state == 'active' and not dataset_obj.private:
+            return ['public']
 
         if ckan.authz.check_config_permission('allow_dataset_collaborators'):
             # Add a generic label for all this dataset collaborators
-            labels = [u'collaborator-%s' % dataset_obj.id]
+            labels = ['collaborator-%s' % dataset_obj.id]
         else:
             labels = []
 
         if dataset_obj.owner_org:
-            labels.append(u'member-%s' % dataset_obj.owner_org)
+            labels.append('member-%s' % dataset_obj.owner_org)
         else:
-            labels.append(u'creator-%s' % dataset_obj.creator_user_id)
+            labels.append('creator-%s' % dataset_obj.creator_user_id)
 
         return labels
 
     def get_user_dataset_labels(self, user_obj):
-        labels = [u'public']
+        labels = ['public']
         if not user_obj:
             return labels
 
-        labels.append(u'creator-%s' % user_obj.id)
+        labels.append('creator-%s' % user_obj.id)
 
-        orgs = logic.get_action(u'organization_list_for_user')(
-            {u'user': user_obj.id}, {u'permission': u'read'})
-        labels.extend(u'member-%s' % o[u'id'] for o in orgs)
+        orgs = logic.get_action('organization_list_for_user')(
+            {'user': user_obj.id}, {'permission': 'read'})
+        labels.extend('member-%s' % o['id'] for o in orgs)
 
         if ckan.authz.check_config_permission('allow_dataset_collaborators'):
             # Add a label for each dataset this user is a collaborator of

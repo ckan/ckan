@@ -33,7 +33,7 @@ class TestOrganizationNew(object):
             data={"save": "", "name": "saved"}
         )
         group = helpers.call_action("organization_show", id="saved")
-        assert group["title"] == u""
+        assert group["title"] == ""
         assert group["type"] == "organization"
         assert group["state"] == "active"
 
@@ -41,7 +41,7 @@ class TestOrganizationNew(object):
         response = app.post(
             url=url_for("organization.new"), extra_environ=user_env,
             data={
-                "name": u"all-fields-saved",
+                "name": "all-fields-saved",
                 "title": "Science",
                 "description": "Sciencey datasets",
                 "image_url": "http://example.com/image.png",
@@ -49,7 +49,7 @@ class TestOrganizationNew(object):
             }
         )
         group = helpers.call_action("organization_show", id="all-fields-saved")
-        assert group["title"] == u"Science"
+        assert group["title"] == "Science"
         assert group["description"] == "Sciencey datasets"
 
 
@@ -125,7 +125,7 @@ class TestOrganizationEdit(object):
         group = helpers.call_action(
             "organization_show", id=initial_data["organization"]["id"]
         )
-        assert group["title"] == u"Test Organization"
+        assert group["title"] == "Test Organization"
         assert group["type"] == "organization"
         assert group["state"] == "active"
 
@@ -136,7 +136,7 @@ class TestOrganizationEdit(object):
             ),
             extra_environ=initial_data["user_env"],
             data={
-                "name": u"all-fields-edited",
+                "name": "all-fields-edited",
                 "title": "Science",
                 "description": "Sciencey datasets",
                 "image_url": "http://example.com/image.png",
@@ -146,7 +146,7 @@ class TestOrganizationEdit(object):
         group = helpers.call_action(
             "organization_show", id=initial_data["organization"]["id"]
         )
-        assert group["title"] == u"Science"
+        assert group["title"] == "Science"
         assert group["description"] == "Sciencey datasets"
         assert group["image_url"] == "http://example.com/image.png"
 
@@ -647,7 +647,7 @@ class TestActivity(object):
         response = app.get(url, extra_environ=env, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
-        # Therefore you can't render the activity stream of that org. You'd
+        # Therefore you can't render the activity stream of that org. you'd
         # hope that organization_delete was the same as organization_update
         # state=deleted but they are not...
 

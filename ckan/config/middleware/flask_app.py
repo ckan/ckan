@@ -133,7 +133,7 @@ def make_flask_stack(conf):
         storage_folder = [os.path.join(storage, 'storage')]
 
     # Static files folders (core and extensions)
-    public_folder = config.get(u'ckan.base_public_folder')
+    public_folder = config.get('ckan.base_public_folder')
     app.static_folder = config.get(
         'extra_public_paths', ''
     ).split(',') + [os.path.join(root, public_folder)] + storage_folder
@@ -160,7 +160,7 @@ def make_flask_stack(conf):
     if not app.config.get('SECRET_KEY'):
         app.config['SECRET_KEY'] = config.get('beaker.session.secret')
     if not app.config.get('SECRET_KEY'):
-        raise RuntimeError(u'You must provide a value for the secret key'
+        raise RuntimeError('You must provide a value for the secret key'
                            ' with the SECRET_KEY config option')
 
     root_path = config.get('ckan.root_path', None)
@@ -226,7 +226,7 @@ def make_flask_stack(conf):
 
     @app.context_processor
     def ungettext_alias():
-        u'''
+        '''
         Provide `ungettext` as an alias of `ngettext` for backwards
         compatibility
         '''
@@ -236,7 +236,7 @@ def make_flask_stack(conf):
     _ckan_i18n_dir = i18n.get_ckan_i18n_dir()
 
     pairs = [
-        (_ckan_i18n_dir, u'ckan')
+        (_ckan_i18n_dir, 'ckan')
     ] + [
         (p.i18n_directory(), p.i18n_domain())
         for p in PluginImplementations(ITranslation)
@@ -244,9 +244,9 @@ def make_flask_stack(conf):
 
     i18n_dirs, i18n_domains = zip(*pairs)
 
-    app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
-    app.config[u'BABEL_DOMAIN'] = 'ckan'
-    app.config[u'BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
+    app.config['BABEL_DOMAIN'] = 'ckan'
+    app.config['BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
 
     babel = CKANBabel(app)
 
@@ -340,18 +340,18 @@ def make_flask_stack(conf):
 
 
 def get_locale():
-    u'''
+    '''
     Return the value of the `CKAN_LANG` key of the WSGI environ,
     set by the I18nMiddleware based on the URL.
     If no value is defined, it defaults to `ckan.locale_default` or `en`.
     '''
     return request.environ.get(
-        u'CKAN_LANG',
-        config.get(u'ckan.locale_default', u'en'))
+        'CKAN_LANG',
+        config.get('ckan.locale_default', 'en'))
 
 
 def ckan_before_request():
-    u'''
+    '''
     Common handler executed before all Flask requests
 
     If a response is returned by any of the functions called (
@@ -380,7 +380,7 @@ def ckan_before_request():
 
 
 def ckan_after_request(response):
-    u'''Common handler executed after all Flask requests'''
+    '''Common handler executed after all Flask requests'''
 
     # Dispose of the SQLALchemy session
     model.Session.remove()
@@ -403,27 +403,27 @@ def ckan_after_request(response):
 
 
 def helper_functions():
-    u'''Make helper functions (`h`) available to Flask templates'''
+    '''Make helper functions (`h`) available to Flask templates'''
     if not helpers.helper_functions:
         helpers.load_plugin_helpers()
     return dict(h=helpers.helper_functions)
 
 
 def c_object():
-    u'''
+    '''
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
     return dict(c=g)
 
 
 def request_object():
-    u"""Use CKANRequest object implicitly in templates"""
+    """Use CKANRequest object implicitly in templates"""
     return dict(request=request)
 
 
 class CKAN_Rule(Rule):
 
-    u'''Custom Flask url_rule_class.
+    '''Custom Flask url_rule_class.
 
     We use it to be able to flag routes defined in extensions as such
     '''
@@ -497,7 +497,7 @@ class CKANFlask(MultiStaticFlask):
         # Get the new blueprint rules
         bp_rules = itertools.chain.from_iterable(
             v for k, v in six.iteritems(self.url_map._rules_by_endpoint)
-            if k.startswith(u'{0}.'.format(blueprint.name))
+            if k.startswith('{0}.'.format(blueprint.name))
         )
 
         # This compare key will ensure the rule will be near the top.
@@ -508,7 +508,7 @@ class CKANFlask(MultiStaticFlask):
 
 
 def _register_core_blueprints(app):
-    u'''Register all blueprints defined in the `views` folder
+    '''Register all blueprints defined in the `views` folder
     '''
     def is_blueprint(mm):
         return isinstance(mm, Blueprint)
@@ -519,25 +519,25 @@ def _register_core_blueprints(app):
         module = loader.find_module(name).load_module(name)
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
-            log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+            log.debug('Registered core blueprint: {0!r}'.format(blueprint[0]))
 
 
 def _register_error_handler(app):
-    u'''Register error handler'''
+    '''Register error handler'''
 
     def error_handler(e):
         log.error(e, exc_info=sys.exc_info)
         if isinstance(e, HTTPException):
             extra_vars = {
-                u'code': e.code,
-                u'content': e.description,
-                u'name': e.name
+                'code': e.code,
+                'content': e.description,
+                'name': e.name
             }
 
             return base.render(
-                u'error_document_template.html', extra_vars), e.code
-        extra_vars = {u'code': [500], u'content': u'Internal server error'}
-        return base.render(u'error_document_template.html', extra_vars), 500
+                'error_document_template.html', extra_vars), e.code
+        extra_vars = {'code': [500], 'content': 'Internal server error'}
+        return base.render('error_document_template.html', extra_vars), 500
 
     for code in default_exceptions:
         app.register_error_handler(code, error_handler)

@@ -99,9 +99,9 @@ source_suffix = '.rst'
 master_doc = 'contents'
 
 # General information about the project.
-project = u'CKAN'
-project_short_name = u'CKAN'
-copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge Foundation</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
+project = 'CKAN'
+project_short_name = 'CKAN'
+copyright = '''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge Foundation</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
     href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
@@ -464,8 +464,8 @@ htmlhelp_basename = 'CKANdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('contents', 'CKAN.tex', u'CKAN documentation',
-   u'CKAN contributors', 'manual'),
+  ('contents', 'CKAN.tex', 'CKAN documentation',
+   'CKAN contributors', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

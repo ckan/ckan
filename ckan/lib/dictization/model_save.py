@@ -32,7 +32,7 @@ def resource_dict_save(res_dict, context):
     fields = [field.name for field in table.c]
 
     # Strip the full url for resources of type 'upload'
-    if res_dict.get('url') and res_dict.get('url_type') == u'upload':
+    if res_dict.get('url') and res_dict.get('url_type') == 'upload':
         res_dict['url'] = res_dict['url'].rsplit('/')[-1]
 
     # unconditionally ignored fields
@@ -47,7 +47,7 @@ def resource_dict_save(res_dict, context):
 
     if changed or obj.extras != skipped:
         obj.metadata_modified = datetime.datetime.utcnow()
-    obj.state = u'active'
+    obj.state = 'active'
     obj.extras = skipped
 
     session.add(obj)
@@ -64,8 +64,8 @@ def package_resource_list_save(res_dicts, package, context):
 
     obj_list = []
     for res_dict in res_dicts or []:
-        if not u'package_id' in res_dict or not res_dict[u'package_id']:
-            res_dict[u'package_id'] = package.id
+        if not 'package_id' in res_dict or not res_dict['package_id']:
+            res_dict['package_id'] = package.id
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
 
@@ -601,11 +601,11 @@ def resource_view_dict_save(data_dict, context):
 
 
 def api_token_save(data_dict, context):
-    model = context[u"model"]
+    model = context["model"]
     return d.table_dict_save(
         {
-            u"user_id": model.User.get(data_dict['user']).id,
-            u"name": data_dict[u"name"]
+            "user_id": model.User.get(data_dict['user']).id,
+            "name": data_dict["name"]
         },
         model.ApiToken, context
     )

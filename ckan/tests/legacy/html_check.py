@@ -15,10 +15,10 @@ class HtmlCheckMethods(object):
     def named_div(self, div_name, html):
         'strips html to just the <div id="DIV_NAME"> section'
         the_html = self._get_html_from_res(html)
-        start_div = the_html.find(u'<div id="%s"' % div_name)
-        end_div = the_html.find(u"<!-- #%s -->" % div_name)
+        start_div = the_html.find('<div id="%s"' % div_name)
+        end_div = the_html.find("<!-- #%s -->" % div_name)
         if end_div == -1:
-            end_div = the_html.find(u"<!-- /%s -->" % div_name)
+            end_div = the_html.find("<!-- /%s -->" % div_name)
         div_html = the_html[start_div:end_div]
         assert div_html
         return div_html
@@ -124,10 +124,10 @@ class Stripper(HTMLParser):
     """A simple helper class to cleanly strip HTML from a response."""
 
     def strip(self, html):
-        self.str = u""
+        self.str = ""
         self.feed(html)
         self.close()
-        return u" ".join(self.str.split())
+        return " ".join(self.str.split())
 
     def handle_data(self, data):
         self.str += data

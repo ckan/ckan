@@ -49,7 +49,7 @@ class DictizationError(Exception):
 
     def __unicode__(self):
         if hasattr(self, 'error') and self.error:
-            return u'{}: {}'.format(self.__class__.__name__, repr(self.error))
+            return '{}: {}'.format(self.__class__.__name__, repr(self.error))
         return self.__class__.__name__
 
     def __repr__(self):
@@ -372,27 +372,27 @@ def unflatten(data):
 
     e.g.
     >>> unflatten(
-      {('name',): u'testgrp4',
-       ('title',): u'',
-       ('description',): u'',
-       ('packages', 0, 'name'): u'testpkg',
-       ('packages', 1, 'name'): u'testpkg',
-       ('extras', 0, 'key'): u'packages',
-       ('extras', 0, 'value'): u'["testpkg"]',
-       ('extras', 1, 'key'): u'',
-       ('extras', 1, 'value'): u'',
-       ('state',): u'active'
-       ('save',): u'Save Changes',
-       ('cancel',): u'Cancel'})
-    {'name': u'testgrp4',
-     'title': u'',
-     'description': u'',
-     'packages': [{'name': u'testpkg'}, {'name': u'testpkg'}],
-     'extras': [{'key': u'packages', 'value': u'["testpkg"]'},
-                {'key': u'', 'value': u''}],
-     'state': u'active',
-     'save': u'Save Changes',
-     'cancel': u'Cancel'}
+      {('name',): 'testgrp4',
+       ('title',): '',
+       ('description',): '',
+       ('packages', 0, 'name'): 'testpkg',
+       ('packages', 1, 'name'): 'testpkg',
+       ('extras', 0, 'key'): 'packages',
+       ('extras', 0, 'value'): '["testpkg"]',
+       ('extras', 1, 'key'): '',
+       ('extras', 1, 'value'): '',
+       ('state',): 'active'
+       ('save',): 'Save Changes',
+       ('cancel',): 'Cancel'})
+    {'name': 'testgrp4',
+     'title': '',
+     'description': '',
+     'packages': [{'name': 'testpkg'}, {'name': 'testpkg'}],
+     'extras': [{'key': 'packages', 'value': '["testpkg"]'},
+                {'key': '', 'value': ''}],
+     'state': 'active',
+     'save': 'Save Changes',
+     'cancel': 'Cancel'}
     '''
 
     unflattened = {}

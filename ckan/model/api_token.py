@@ -12,23 +12,23 @@ import ckan.plugins.toolkit as tk
 from ckan.model import meta, User, DomainObject
 
 
-__all__ = [u"ApiToken", u"api_token_table"]
+__all__ = ["ApiToken", "api_token_table"]
 
 
 def _make_token():
-    nbytes = tk.asint(tk.config.get(u"api_token.nbytes", 32))
+    nbytes = tk.asint(tk.config.get("api_token.nbytes", 32))
     return token_urlsafe(nbytes)
 
 
 api_token_table = Table(
-    u"api_token",
+    "api_token",
     meta.metadata,
-    Column(u"id", types.UnicodeText, primary_key=True, default=_make_token),
-    Column(u"name", types.UnicodeText),
-    Column(u"user_id", types.UnicodeText, ForeignKey(u"user.id")),
-    Column(u"created_at", types.DateTime, default=datetime.datetime.utcnow),
-    Column(u"last_access", types.DateTime, nullable=True),
-    Column(u"plugin_extras", MutableDict.as_mutable(JSONB)),
+    Column("id", types.UnicodeText, primary_key=True, default=_make_token),
+    Column("name", types.UnicodeText),
+    Column("user_id", types.UnicodeText, ForeignKey("user.id")),
+    Column("created_at", types.DateTime, default=datetime.datetime.utcnow),
+    Column("last_access", types.DateTime, nullable=True),
+    Column("plugin_extras", MutableDict.as_mutable(JSONB)),
 )
 
 
@@ -71,8 +71,8 @@ meta.mapper(
     ApiToken,
     api_token_table,
     properties={
-        u"owner": orm.relation(
-            User, backref=orm.backref(u"api_tokens", cascade=u"all, delete")
+        "owner": orm.relation(
+            User, backref=orm.backref("api_tokens", cascade="all, delete")
         )
     },
 )

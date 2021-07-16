@@ -11,31 +11,31 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = u'9fadda785b07'
-down_revision = u'588d7cfb9a41'
+revision = '9fadda785b07'
+down_revision = '588d7cfb9a41'
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
     op.drop_constraint(
-        u'member_revision_continuity_id_fkey', u'member_revision')
+        'member_revision_continuity_id_fkey', 'member_revision')
     op.drop_constraint(
-        u'resource_revision_continuity_id_fkey', u'resource_revision')
+        'resource_revision_continuity_id_fkey', 'resource_revision')
     op.drop_constraint(
-        u'package_revision_continuity_id_fkey', u'package_revision')
+        'package_revision_continuity_id_fkey', 'package_revision')
 
 
 def downgrade():
     op.create_foreign_key(
-        u'member_revision_continuity_id_fkey', u'member_revision', u'member',
-        [u'continuity_id'], [u'id']
+        'member_revision_continuity_id_fkey', 'member_revision', 'member',
+        ['continuity_id'], ['id']
     )
     op.create_foreign_key(
-        u'resource_revision_continuity_id_fkey', u'resource_revision',
-        u'resource', [u'continuity_id'], [u'id']
+        'resource_revision_continuity_id_fkey', 'resource_revision',
+        'resource', ['continuity_id'], ['id']
     )
     op.create_foreign_key(
-        u'package_revision_continuity_id_fkey', u'package_revision',
-        u'package', [u'continuity_id'], [u'id']
+        'package_revision_continuity_id_fkey', 'package_revision',
+        'package', ['continuity_id'], ['id']
     )

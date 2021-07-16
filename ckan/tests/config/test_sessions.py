@@ -35,7 +35,7 @@ class FlashMessagePlugin(p.SingletonPlugin):
 
     def add_flash_message_view_redirect_to_flask(self):
         """Add flash message, then redirect to Flask view to render it."""
-        h.flash_success(u"This is a success message populated by Flask")
+        h.flash_success("This is a success message populated by Flask")
         return h.redirect_to(
             h.url_for("test_flash_plugin.flash_message_view")
         )

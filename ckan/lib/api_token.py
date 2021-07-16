@@ -13,11 +13,11 @@ from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
 
-_config_encode_secret = u"api_token.jwt.encode.secret"
-_config_decode_secret = u"api_token.jwt.decode.secret"
-_config_secret_fallback = u"beaker.session.secret"
+_config_encode_secret = "api_token.jwt.encode.secret"
+_config_decode_secret = "api_token.jwt.decode.secret"
+_config_secret_fallback = "beaker.session.secret"
 
-_config_algorithm = u"api_token.jwt.algorithm"
+_config_algorithm = "api_token.jwt.algorithm"
 
 
 def _get_plugins():
@@ -25,23 +25,23 @@ def _get_plugins():
 
 
 def _get_algorithm():
-    return config.get(_config_algorithm, u"HS256")
+    return config.get(_config_algorithm, "HS256")
 
 
 def _get_secret(encode):
     config_key = _config_encode_secret if encode else _config_decode_secret
     secret = config.get(config_key)
     if not secret:
-        secret = u"string:" + config.get(_config_secret_fallback, u"")
-    type_, value = secret.split(u":", 1)
-    if type_ == u"file":
-        with open(value, u"rb") as key_file:
+        secret = "string:" + config.get(_config_secret_fallback, "")
+    type_, value = secret.split(":", 1)
+    if type_ == "file":
+        with open(value, "rb") as key_file:
             value = key_file.read()
     if not value:
         raise CkanConfigurationException(
             (
-                u"Neither `{key}` nor `{fallback}` specified. "
-                u"Missing secret key is a critical security issue."
+                "Neither `{key}` nor `{fallback}` specified. "
+                "Missing secret key is a critical security issue."
             ).format(
                 key=config_key, fallback=_config_secret_fallback,
             )
@@ -82,7 +82,7 @@ def decode(encoded, **kwargs):
         except jwt.InvalidTokenError as e:
             # TODO: add signal for performing extra work, like removing
             # expired tokens
-            log.error(u"Cannot decode JWT token: %s", e)
+            log.error("Cannot decode JWT token: %s", e)
             data = None
     return data
 
@@ -118,9 +118,9 @@ def get_user_from_token(token, update_access_time=True):
     # token was created
     for plugin in reversed(list(_get_plugins())):
         data = plugin.preprocess_api_token(data)
-    if not data or u"jti" not in data:
+    if not data or "jti" not in data:
         return
-    token_obj = model.ApiToken.get(data[u"jti"])
+    token_obj = model.ApiToken.get(data["jti"])
     if not token_obj:
         return
     if update_access_time:

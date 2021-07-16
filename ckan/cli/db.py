@@ -16,10 +16,10 @@ from ckan.common import config
 
 log = logging.getLogger(__name__)
 
-applies_to_plugin = click.option(u"-p", u"--plugin", help=u"Affected plugin.")
+applies_to_plugin = click.option("-p", "--plugin", help="Affected plugin.")
 
 
-@click.group(short_help=u"Database management commands.")
+@click.group(short_help="Database management commands.")
 def db():
     """Database management commands.
     """
@@ -30,16 +30,16 @@ def db():
 def init():
     """Initialize the database.
     """
-    log.info(u"Initialize the Database")
+    log.info("Initialize the Database")
     try:
         model.repo.init_db()
     except Exception as e:
         tk.error_shout(e)
     else:
-        click.secho(u'Initialising DB: SUCCESS', fg=u'green', bold=True)
+        click.secho('Initialising DB: SUCCESS', fg='green', bold=True)
 
 
-PROMPT_MSG = u'This will delete all of your data!\nDo you want to continue?'
+PROMPT_MSG = 'This will delete all of your data!\nDo you want to continue?'
 
 
 @db.command()
@@ -52,27 +52,27 @@ def clean():
     except Exception as e:
         tk.error_shout(e)
     else:
-        click.secho(u'Cleaning DB: SUCCESS', fg=u'green', bold=True)
+        click.secho('Cleaning DB: SUCCESS', fg='green', bold=True)
 
 
 @db.command()
-@click.option(u'-v', u'--version', help=u'Migration version', default=u'head')
+@click.option('-v', '--version', help='Migration version', default='head')
 @applies_to_plugin
 def upgrade(version, plugin):
     """Upgrade the database.
     """
     _run_migrations(plugin, version)
-    click.secho(u'Upgrading DB: SUCCESS', fg=u'green', bold=True)
+    click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
 
 
 @db.command()
-@click.option(u'-v', u'--version', help=u'Migration version', default=u'base')
+@click.option('-v', '--version', help='Migration version', default='base')
 @applies_to_plugin
 def downgrade(version, plugin):
     """Downgrade the database.
     """
     _run_migrations(plugin, version, False)
-    click.secho(u'Downgrading DB: SUCCESS', fg=u'green', bold=True)
+    click.secho('Downgrading DB: SUCCESS', fg='green', bold=True)
 
 
 @db.command()
@@ -134,8 +134,8 @@ def version(plugin):
         current = _version_hash_to_ordinal(current)
     except ValueError:
         pass
-    click.secho(u'Current DB version: {}'.format(current),
-                fg=u'green',
+    click.secho('Current DB version: {}'.format(current),
+                fg='green',
                 bold=True)
 
 
@@ -145,15 +145,15 @@ def current_revision(plugin):
         return repo.current_version()
 
 
-@db.command(u"duplicate_emails", short_help=u"Check users email for duplicate")
+@db.command("duplicate_emails", short_help="Check users email for duplicate")
 def duplicate_emails():
-    u'''Check users email for duplicate'''
-    log.info(u"Searching for accounts with duplicate emails.")
+    '''Check users email for duplicate'''
+    log.info("Searching for accounts with duplicate emails.")
 
     q = model.Session.query(model.User.email,
                             model.User.name) \
-        .filter(model.User.state == u"active") \
-        .filter(model.User.email != u"") \
+        .filter(model.User.state == "active") \
+        .filter(model.User.email != "") \
         .order_by(model.User.email).all()
 
     duplicates_found = False
@@ -162,30 +162,30 @@ def duplicate_emails():
             users = [user[1] for user in grp]
             if len(users) > 1:
                 duplicates_found = True
-                s = u"{} appears {} time(s). Users: {}"
+                s = "{} appears {} time(s). Users: {}"
                 click.secho(
-                    s.format(k, len(users), u", ".join(users)),
-                    fg=u"green", bold=True)
+                    s.format(k, len(users), ", ".join(users)),
+                    fg="green", bold=True)
     except Exception as e:
         tk.error_shout(e)
     if not duplicates_found:
-        click.secho(u"No duplicate emails found", fg=u"green")
+        click.secho("No duplicate emails found", fg="green")
 
 
 def _version_hash_to_ordinal(version):
-    if u'base' == version:
+    if 'base' == version:
         return 0
     versions_dir = os.path.join(os.path.dirname(migration_repo.__file__),
-                                u'versions')
+                                'versions')
     versions = sorted(os.listdir(versions_dir))
 
     # latest version looks like `123abc (head)`
-    if version.endswith(u'(head)'):
-        return int(versions[-1].split(u'_')[0])
+    if version.endswith('(head)'):
+        return int(versions[-1].split('_')[0])
     for name in versions:
         if version in name:
-            return int(name.split(u'_')[0])
-    tk.error_shout(u'Version `{}` was not found in {}'.format(
+            return int(name.split('_')[0])
+    tk.error_shout('Version `{}` was not found in {}'.format(
         version, versions_dir))
 
 
@@ -193,21 +193,21 @@ def _resolve_alembic_config(plugin):
     if plugin:
         plugin_obj = p.get_plugin(plugin)
         if plugin_obj is None:
-            tk.error_shout(u"Plugin '{}' cannot be loaded.".format(plugin))
+            tk.error_shout("Plugin '{}' cannot be loaded.".format(plugin))
             raise click.Abort()
         plugin_dir = os.path.dirname(inspect.getsourcefile(type(plugin_obj)))
 
         # if there is `plugin` folder instead of single_file, find
         # plugin's parent dir
-        ckanext_idx = plugin_dir.rfind(u"/ckanext/") + 9
-        idx = plugin_dir.find(u"/", ckanext_idx)
+        ckanext_idx = plugin_dir.rfind("/ckanext/") + 9
+        idx = plugin_dir.find("/", ckanext_idx)
         if ~idx:
             plugin_dir = plugin_dir[:idx]
-        migration_dir = os.path.join(plugin_dir, u"migration", plugin)
+        migration_dir = os.path.join(plugin_dir, "migration", plugin)
     else:
         import ckan.migration as _cm
         migration_dir = os.path.dirname(_cm.__file__)
-    return os.path.join(migration_dir, u"alembic.ini")
+    return os.path.join(migration_dir, "alembic.ini")
 
 
 @contextlib.contextmanager

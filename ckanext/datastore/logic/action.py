@@ -151,7 +151,7 @@ def datastore_create(context, data_dict):
     for alias in aliases:
         if not datastore_helpers.is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
-                'alias': [u'"{0}" is not a valid alias name'.format(alias)]
+                'alias': ['"{0}" is not a valid alias name'.format(alias)]
             })
 
     try:
@@ -197,14 +197,14 @@ def datastore_run_triggers(context, data_dict):
     backend = DatastoreBackend.get_active_backend()
     connection = backend._get_write_engine().connect()
 
-    sql = sqlalchemy.text(u'''update {0} set _id=_id '''.format(
+    sql = sqlalchemy.text('''update {0} set _id=_id '''.format(
                           identifier(res_id)))
     try:
         results = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:
         message = six.ensure_text(err.args[0].split('\n')[0])
         raise p.toolkit.ValidationError({
-                u'records': [message.split(u') ', 1)[-1]]})
+                'records': [message.split(') ', 1)[-1]]})
     return results.rowcount
 
 
@@ -274,7 +274,7 @@ def datastore_upsert(context, data_dict):
     res_exists = backend.resource_exists(resource_id)
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(resource_id)
+            'Resource "{0}" was not found.'.format(resource_id)
         ))
 
     result = backend.upsert(context, data_dict)
@@ -329,7 +329,7 @@ def datastore_info(context, data_dict):
         alias_exists, real_id = backend.resource_id_from_alias(resource_id)
         if not alias_exists:
             raise p.toolkit.ObjectNotFound(p.toolkit._(
-                u'Resource/Alias "{0}" was not found.'.format(resource_id)
+                'Resource/Alias "{0}" was not found.'.format(resource_id)
             ))
         else:
             id = real_id
@@ -402,7 +402,7 @@ def datastore_delete(context, data_dict):
 
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(res_id)
+            'Resource "{0}" was not found.'.format(res_id)
         ))
 
     result = backend.delete(context, data_dict)
@@ -694,7 +694,7 @@ def _check_read_only(context, resource_id):
 
 @logic.validate(dsschema.datastore_function_create_schema)
 def datastore_function_create(context, data_dict):
-    u'''
+    '''
     Create a trigger function for use with datastore_create
 
     :param name: function name
@@ -720,7 +720,7 @@ def datastore_function_create(context, data_dict):
 
 @logic.validate(dsschema.datastore_function_delete_schema)
 def datastore_function_delete(context, data_dict):
-    u'''
+    '''
     Delete a trigger function
 
     :param name: function name

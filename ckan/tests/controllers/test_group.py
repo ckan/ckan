@@ -76,8 +76,8 @@ class TestGroupControllerNew(object):
         form = {"name": "saved", "save": ""}
         app.post(url=url_for("group.new"), extra_environ=env, data=form)
 
-        group = model.Group.by_name(u"saved")
-        assert group.title == u""
+        group = model.Group.by_name("saved")
+        assert group.title == ""
         assert group.type == "group"
         assert group.state == "active"
 
@@ -85,7 +85,7 @@ class TestGroupControllerNew(object):
         user = factories.User()
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         form = {
-            "name": u"all-fields-saved",
+            "name": "all-fields-saved",
             "title": "Science",
             "description": "Sciencey datasets",
             "image_url": "http://example.com/image.png",
@@ -93,8 +93,8 @@ class TestGroupControllerNew(object):
         }
         app.post(url=url_for("group.new"), extra_environ=env, data=form)
 
-        group = model.Group.by_name(u"all-fields-saved")
-        assert group.title == u"Science"
+        group = model.Group.by_name("all-fields-saved")
+        assert group.title == "Science"
         assert group.description == "Sciencey datasets"
 
     def test_form_without_initial_data(self, app):
@@ -152,7 +152,7 @@ class TestGroupControllerEdit(object):
 
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         form = {
-            "name": u"all-fields-edited",
+            "name": "all-fields-edited",
             "title": "Science",
             "description": "Sciencey datasets",
             "image_url": "http://example.com/image.png",
@@ -164,8 +164,8 @@ class TestGroupControllerEdit(object):
             data=form,
         )
 
-        group = model.Group.by_name(u"all-fields-edited")
-        assert group.title == u"Science"
+        group = model.Group.by_name("all-fields-edited")
+        assert group.title == "Science"
         assert group.description == "Sciencey datasets"
         assert group.image_url == "http://example.com/image.png"
 
@@ -876,7 +876,7 @@ class TestActivity:
         response = app.get(url, extra_environ=env, status=404)
         # group_delete causes the Member to state=deleted and then the user
         # doesn't have permission to see their own deleted Group. Therefore you
-        # can't render the activity stream of that group. You'd hope that
+        # can't render the activity stream of that group. you'd hope that
         # group_delete was the same as group_update state=deleted but they are
         # not...
 

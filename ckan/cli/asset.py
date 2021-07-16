@@ -12,7 +12,7 @@ from ckan.cli import error_shout
 log = logging.getLogger(__name__)
 
 
-@click.group(short_help=u"WebAssets commands.")
+@click.group(short_help="WebAssets commands.")
 def asset():
     """WebAssets commands.
     """
@@ -26,7 +26,7 @@ def build():
     Builds bundles, regardless of whether they are changed or not.
     """
     script.main(['build'], webassets_tools.env)
-    click.secho(u'Compile assets: SUCCESS', fg=u'green', bold=True)
+    click.secho('Compile assets: SUCCESS', fg='green', bold=True)
 
 
 @asset.command()
@@ -54,4 +54,4 @@ def clean():
         script.main(['clean'], webassets_tools.env)
     except BundleError as e:
         return error_shout(e)
-    click.secho(u'Clear cache: SUCCESS', fg=u'green', bold=True)
+    click.secho('Clear cache: SUCCESS', fg='green', bold=True)

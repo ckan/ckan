@@ -46,7 +46,7 @@ group_table = Table('group', meta.metadata,
                            default=datetime.datetime.now),
                     Column('is_organization', types.Boolean, default=False),
                     Column('approval_status', types.UnicodeText,
-                           default=u"approved"),
+                           default="approved"),
                     Column('state', types.UnicodeText,
                            default=core.State.ACTIVE),
                     )
@@ -104,7 +104,7 @@ class Member(core.StatefulObjectMixin,
         else:
             table_info = 'table_name=%s table_id=%s' % (self.table_name,
                                                         self.table_id)
-        return u'<Member group=%s %s capacity=%s state=%s>' % \
+        return '<Member group=%s %s capacity=%s state=%s>' % \
                (self.group.name if self.group else repr(self.group),
                 table_info, self.capacity, self.state)
 
@@ -112,8 +112,8 @@ class Member(core.StatefulObjectMixin,
 class Group(core.StatefulObjectMixin,
             domain_object.DomainObject):
 
-    def __init__(self, name=u'', title=u'', description=u'', image_url=u'',
-                 type=u'group', approval_status=u'approved',
+    def __init__(self, name='', title='', description='', image_url='',
+                 type='group', approval_status='approved',
                  is_organization=False):
         self.name = name
         self.title = title
@@ -192,8 +192,8 @@ class Group(core.StatefulObjectMixin,
 
         e.g.
         >>> dept-health.get_children_group_hierarchy()
-        [(u'8ac0...', u'national-health-service', u'National Health Service', u'e041...'),
-         (u'b468...', u'nhs-wirral-ccg', u'NHS Wirral CCG', u'8ac0...')]
+        [('8ac0...', 'national-health-service', 'National Health Service', 'e041...'),
+         ('b468...', 'nhs-wirral-ccg', 'NHS Wirral CCG', '8ac0...')]
         '''
         results = meta.Session.query(Group.id, Group.name, Group.title,
                                      'parent_id').\

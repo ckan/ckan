@@ -36,7 +36,7 @@ class PackageExtra(
 meta.mapper(PackageExtra, package_extra_table, properties={
     'package': orm.relation(_package.Package,
         backref=orm.backref('_extras',
-            collection_class=orm.collections.attribute_mapped_collection(u'key'),
+            collection_class=orm.collections.attribute_mapped_collection('key'),
             cascade='all, delete, delete-orphan',
             ),
         ),

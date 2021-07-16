@@ -4,11 +4,11 @@ import pytest
 from ckan.tests.helpers import body_contains
 
 
-@pytest.mark.ckan_config(u"ckan.root_path", u"/data/{{LANG}}")
-@pytest.mark.ckan_config(u"ckan.plugins", u"example_theme_v15_webassets")
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.ckan_config("ckan.root_path", "/data/{{LANG}}")
+@pytest.mark.ckan_config("ckan.plugins", "example_theme_v15_webassets")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_url(app):
-    content = app.get(u"/")
-    if not body_contains(content, u"example_theme.css"):
-        assert body_contains(content, u"example_theme.min.css")
-    assert body_contains(content, u'href="/data/webassets/example_theme')
+    content = app.get("/")
+    if not body_contains(content, "example_theme.css"):
+        assert body_contains(content, "example_theme.min.css")
+    assert body_contains(content, 'href="/data/webassets/example_theme')

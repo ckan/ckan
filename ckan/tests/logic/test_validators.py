@@ -257,7 +257,7 @@ def test_name_validator_with_invalid_value():
         # Strings > PACKAGE_NAME_MAX_LENGTH long aren't allowed as names.
         "a" * (model.PACKAGE_NAME_MAX_LENGTH + 1),
         # Strings containing non-ascii characters aren't allowed as names.
-        u"fred_❤%'\"Ußabc@fred.com",
+        "fred_❤%'\"Ußabc@fred.com",
         # Strings containing upper-case characters aren't allowed as names.
         "seanH",
         # Strings containing spaces aren't allowed as names.
@@ -342,7 +342,7 @@ def test_name_validator_with_valid_value():
         "99",
         "--",
         "__",
-        u"fred-flintstone_9",
+        "fred-flintstone_9",
     ]
 
     for valid_name in valid_names:

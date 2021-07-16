@@ -113,8 +113,8 @@ class TestRealUsersAuth(object):
 
         resource_view = {
             "resource_id": resource["id"],
-            "title": u"Resource View",
-            "view_type": u"image_view",
+            "title": "Resource View",
+            "view_type": "image_view",
             "image_url": "url",
         }
 
@@ -143,8 +143,8 @@ class TestRealUsersAuth(object):
 
         resource_view = {
             "resource_id": resource["id"],
-            "title": u"Resource View",
-            "view_type": u"image_view",
+            "title": "Resource View",
+            "view_type": "image_view",
             "image_url": "url",
         }
 
@@ -159,8 +159,8 @@ class TestRealUsersAuth(object):
     def test_not_authorized_if_not_logged_in_3(self):
 
         resource_view = {
-            "title": u"Resource View",
-            "view_type": u"image_view",
+            "title": "Resource View",
+            "view_type": "image_view",
             "image_url": "url",
         }
 
@@ -369,21 +369,21 @@ class TestApiToken(object):
     def test_anon_is_not_allowed_to_create_tokens(self):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                u"api_token_create",
-                {u"user": None, u"model": core_model}
+                "api_token_create",
+                {"user": None, "model": core_model}
             )
 
-    @pytest.mark.usefixtures(u"clean_db")
+    @pytest.mark.usefixtures("clean_db")
     def test_auth_user_is_allowed_to_create_tokens(self):
         user = factories.User()
-        helpers.call_auth(u"api_token_create", {
-            u"model": core_model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        helpers.call_auth("api_token_create", {
+            "model": core_model,
+            "user": user["name"]
+        }, user=user["name"])
 
 
 @pytest.mark.usefixtures("clean_db")
-@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreateAuth(object):
 
     def _get_context(self, user):

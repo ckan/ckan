@@ -19,7 +19,7 @@ from ckan.lib.datapreview import (
 _page_size = 100
 
 
-@click.group(short_help=u"Manage resource views.")
+@click.group(short_help="Manage resource views.")
 def views():
     """Manage resource views.
     """
@@ -27,11 +27,11 @@ def views():
 
 
 @views.command()
-@click.argument(u"types", nargs=-1)
-@click.option(u"-d", u"--dataset", multiple=True)
-@click.option(u"--no-default-filters", is_flag=True)
-@click.option(u"-s", u"--search")
-@click.option(u"-y", u"--yes", is_flag=True)
+@click.argument("types", nargs=-1)
+@click.option("-d", "--dataset", multiple=True)
+@click.option("--no-default-filters", is_flag=True)
+@click.option("-s", "--search")
+@click.option("-y", "--yes", is_flag=True)
 @click.pass_context
 def create(ctx, types, dataset, no_default_filters, search, yes):
     """Create views on relevant resources. You can optionally provide
@@ -44,7 +44,7 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
     """
 
     datastore_enabled = (
-        u"datastore" in p.toolkit.config[u"ckan.plugins"].split()
+        "datastore" in p.toolkit.config["ckan.plugins"].split()
     )
 
     flask_app = ctx.meta['flask_app']
@@ -52,8 +52,8 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
         loaded_view_plugins = _get_view_plugins(types, datastore_enabled)
     if loaded_view_plugins is None:
         return
-    site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})
-    context = {u"user": site_user[u"name"]}
+    site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
+    context = {"user": site_user["name"]}
 
     page = 1
     while True:
@@ -62,27 +62,27 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
         )
         if query is None:
             return
-        if page == 1 and query[u"count"] == 0:
+        if page == 1 and query["count"] == 0:
             return error_shout(
-                u"No datasets to create resource views on, exiting..."
+                "No datasets to create resource views on, exiting..."
             )
 
         elif page == 1 and not yes:
 
             msg = (
-                u"\nYou are about to check {0} datasets for the "
-                + u"following view plugins: {1}\n"
-                + u" Do you want to continue?"
+                "\nYou are about to check {0} datasets for the "
+                + "following view plugins: {1}\n"
+                + " Do you want to continue?"
             )
 
             click.confirm(
-                msg.format(query[u"count"], loaded_view_plugins), abort=True
+                msg.format(query["count"], loaded_view_plugins), abort=True
             )
 
-        if query[u"results"]:
-            for dataset_dict in query[u"results"]:
+        if query["results"]:
+            for dataset_dict in query["results"]:
 
-                if not dataset_dict.get(u"resources"):
+                if not dataset_dict.get("resources"):
                     continue
                 with flask_app.test_request_context():
                     views = add_views_to_dataset_resources(
@@ -90,32 +90,32 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
                     )
 
                 if views:
-                    view_types = list({view[u"view_type"] for view in views})
+                    view_types = list({view["view_type"] for view in views})
                     msg = (
-                        u"Added {0} view(s) of type(s) {1} to "
-                        + u"resources from dataset {2}"
+                        "Added {0} view(s) of type(s) {1} to "
+                        + "resources from dataset {2}"
                     )
                     click.secho(
                         msg.format(
                             len(views),
-                            u", ".join(view_types),
-                            dataset_dict[u"name"],
+                            ", ".join(view_types),
+                            dataset_dict["name"],
                         )
                     )
 
-            if len(query[u"results"]) < _page_size:
+            if len(query["results"]) < _page_size:
                 break
 
             page += 1
         else:
             break
 
-    click.secho(u"Done", fg=u"green")
+    click.secho("Done", fg="green")
 
 
 @views.command()
-@click.argument(u"types", nargs=-1)
-@click.option(u"-y", u"--yes", is_flag=True)
+@click.argument("types", nargs=-1)
+@click.option("-y", "--yes", is_flag=True)
 def clear(types, yes):
     """Permanently delete all views or the ones with the provided types.
 
@@ -124,23 +124,23 @@ def clear(types, yes):
     if not yes:
         if types:
             msg = (
-                u"Are you sure you want to delete all resource views "
-                + u"of type {0}?".format(u", ".join(types))
+                "Are you sure you want to delete all resource views "
+                + "of type {0}?".format(", ".join(types))
             )
         else:
-            msg = u"Are you sure you want to delete all resource views?"
+            msg = "Are you sure you want to delete all resource views?"
         click.confirm(msg, abort=True)
 
-    site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})
+    site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
 
-    context = {u"user": site_user[u"name"]}
-    logic.get_action(u"resource_view_clear")(context, {u"view_types": types})
+    context = {"user": site_user["name"]}
+    logic.get_action("resource_view_clear")(context, {"view_types": types})
 
-    click.secho(u"Done", fg=u"green")
+    click.secho("Done", fg="green")
 
 
 @views.command()
-@click.option(u"-y", u"--yes", is_flag=True)
+@click.option("-y", "--yes", is_flag=True)
 @click.pass_context
 def clean(ctx, yes):
     """Permanently delete views for all types no longer present in the
@@ -151,24 +151,24 @@ def clean(ctx, yes):
     flask_app = ctx.meta['flask_app']
     with flask_app.test_request_context():
         for plugin in p.PluginImplementations(p.IResourceView):
-            names.append(str(plugin.info()[u"name"]))
+            names.append(str(plugin.info()["name"]))
 
     results = model.ResourceView.get_count_not_in_view_types(names)
 
     if not results:
-        return click.secho(u"No resource views to delete", fg=u"red")
+        return click.secho("No resource views to delete", fg="red")
 
-    click.secho(u"This command will delete.\n")
+    click.secho("This command will delete.\n")
     for row in results:
-        click.secho(u"%s of type %s" % (row[1], row[0]))
+        click.secho("%s of type %s" % (row[1], row[0]))
 
     yes or click.confirm(
-        u"Do you want to delete these resource views?", abort=True
+        "Do you want to delete these resource views?", abort=True
     )
 
     model.ResourceView.delete_not_in_view_types(names)
     model.Session.commit()
-    click.secho(u"Deleted resource views.", fg=u"green")
+    click.secho("Deleted resource views.", fg="green")
 
 
 def _get_view_plugins(view_plugin_types, get_datastore_views=False):
@@ -191,7 +191,7 @@ def _get_view_plugins(view_plugin_types, get_datastore_views=False):
     view_plugins = []
 
     if not view_plugin_types:
-        click.secho(u"No view types provided, using default types")
+        click.secho("No view types provided, using default types")
         view_plugins = get_default_view_plugins()
         if get_datastore_views:
             view_plugins.extend(
@@ -201,23 +201,23 @@ def _get_view_plugins(view_plugin_types, get_datastore_views=False):
         view_plugins = get_view_plugins(view_plugin_types)
 
     loaded_view_plugins = [
-        view_plugin.info()[u"name"] for view_plugin in view_plugins
+        view_plugin.info()["name"] for view_plugin in view_plugins
     ]
 
     plugins_not_found = list(set(view_plugin_types) - set(loaded_view_plugins))
 
     if plugins_not_found:
         error_shout(
-            u"View plugin(s) not found : {0}. ".format(plugins_not_found)
-            + u"Have they been added to the `ckan.plugins` configuration"
-            + u" option?"
+            "View plugin(s) not found : {0}. ".format(plugins_not_found)
+            + "Have they been added to the `ckan.plugins` configuration"
+            + " option?"
         )
         return None
     return loaded_view_plugins
 
 
 def _search_datasets(
-    page=1, view_types=[], dataset=[], search=u"", no_default_filters=False
+    page=1, view_types=[], dataset=[], search="", no_default_filters=False
 ):
     """
     Perform a query with `package_search` and return the result
@@ -228,19 +228,19 @@ def _search_datasets(
     n = _page_size
 
     search_data_dict = {
-        u"q": u"",
-        u"fq": u"",
-        u"fq_list": [],
-        u"include_private": True,
-        u"rows": n,
-        u"start": n * (page - 1),
+        "q": "",
+        "fq": "",
+        "fq_list": [],
+        "include_private": True,
+        "rows": n,
+        "start": n * (page - 1),
     }
 
     if dataset:
 
-        search_data_dict[u"q"] = u" OR ".join(
+        search_data_dict["q"] = " OR ".join(
             [
-                u'id:{0} OR name:"{0}"'.format(dataset_id)
+                'id:{0} OR name:"{0}"'.format(dataset_id)
                 for dataset_id in dataset
             ]
         )
@@ -255,10 +255,10 @@ def _search_datasets(
 
         _add_default_filters(search_data_dict, view_types)
 
-    if not search_data_dict.get(u"q"):
-        search_data_dict[u"q"] = u"*:*"
+    if not search_data_dict.get("q"):
+        search_data_dict["q"] = "*:*"
 
-    query = p.toolkit.get_action(u"package_search")({}, search_data_dict)
+    query = p.toolkit.get_action("package_search")({}, search_data_dict)
 
     return query
 
@@ -289,31 +289,31 @@ def _add_default_filters(search_data_dict, view_types):
     filter_formats = []
 
     for view_type in view_types:
-        if view_type == u"image_view":
+        if view_type == "image_view":
 
             for _format in DEFAULT_IMAGE_FORMATS:
                 filter_formats.extend([_format, _format.upper()])
 
-        elif view_type == u"text_view":
+        elif view_type == "text_view":
             formats = get_text_formats(p.toolkit.config)
             for _format in itertools.chain.from_iterable(formats.values()):
                 filter_formats.extend([_format, _format.upper()])
 
-        elif view_type == u"pdf_view":
-            filter_formats.extend([u"pdf", u"PDF"])
+        elif view_type == "pdf_view":
+            filter_formats.extend(["pdf", "PDF"])
 
         elif view_type in [
-            u"recline_view",
-            u"recline_grid_view",
-            u"recline_graph_view",
-            u"recline_map_view",
+            "recline_view",
+            "recline_grid_view",
+            "recline_graph_view",
+            "recline_map_view",
         ]:
 
             if datapusher_formats[0] in filter_formats:
                 continue
 
             for _format in datapusher_formats:
-                if u"/" not in _format:
+                if "/" not in _format:
                     filter_formats.extend([_format, _format.upper()])
         else:
             # There is another view type provided so we can't add any
@@ -321,9 +321,9 @@ def _add_default_filters(search_data_dict, view_types):
             return search_data_dict
 
     filter_formats_query = [
-        u'+res_format:"{0}"'.format(_format) for _format in filter_formats
+        '+res_format:"{0}"'.format(_format) for _format in filter_formats
     ]
-    search_data_dict[u"fq_list"].append(u" OR ".join(filter_formats_query))
+    search_data_dict["fq_list"].append(" OR ".join(filter_formats_query))
 
     return search_data_dict
 
@@ -346,20 +346,20 @@ def _update_search_params(search_data_dict, search):
     try:
         user_search_params = json.loads(search)
     except ValueError as e:
-        error_shout(u"Unable to parse JSON search parameters: {0}".format(e))
+        error_shout("Unable to parse JSON search parameters: {0}".format(e))
         return None
 
-    if user_search_params.get(u"q"):
-        search_data_dict[u"q"] = user_search_params[u"q"]
+    if user_search_params.get("q"):
+        search_data_dict["q"] = user_search_params["q"]
 
-    if user_search_params.get(u"fq"):
-        if search_data_dict[u"fq"]:
-            search_data_dict[u"fq"] += u" " + user_search_params[u"fq"]
+    if user_search_params.get("fq"):
+        if search_data_dict["fq"]:
+            search_data_dict["fq"] += " " + user_search_params["fq"]
         else:
-            search_data_dict[u"fq"] = user_search_params[u"fq"]
+            search_data_dict["fq"] = user_search_params["fq"]
 
-    if user_search_params.get(u"fq_list") and isinstance(
-        user_search_params[u"fq_list"], list
+    if user_search_params.get("fq_list") and isinstance(
+        user_search_params["fq_list"], list
     ):
-        search_data_dict[u"fq_list"].extend(user_search_params[u"fq_list"])
+        search_data_dict["fq_list"].extend(user_search_params["fq_list"])
     return search_data_dict

@@ -29,9 +29,9 @@ class TestVocabulary(object):
         self.sysadmin_user = ckan.model.User.get("admin")
         self.normal_user = ckan.model.User.get("normal")
         if not self.sysadmin_user:
-            normal_user = ckan.model.User(name=u"normal", password=u"annafan")
+            normal_user = ckan.model.User(name="normal", password="annafan")
             sysadmin_user = ckan.model.User(
-                name=u"admin", password=u"testsysadmin"
+                name="admin", password="testsysadmin"
             )
             sysadmin_user.sysadmin = True
             ckan.model.Session.add(normal_user)
@@ -324,7 +324,7 @@ class TestVocabulary(object):
         )
         assert response.json["success"] is False
         assert response.json["error"]["id"] == [
-            u"The input field id was " "not expected."
+            "The input field id was " "not expected."
         ]
 
     def test_vocabulary_create_no_name(self, app):
@@ -341,7 +341,7 @@ class TestVocabulary(object):
             status=409,
         )
         assert response.json["success"] is False
-        assert response.json["error"]["name"] == [u"Missing value"]
+        assert response.json["error"]["name"] == ["Missing value"]
 
     def test_vocabulary_create_invalid_name(self, app):
         """Test error response when user tries to create a vocab with an
@@ -373,7 +373,7 @@ class TestVocabulary(object):
         )
         assert response.json["success"] is False
         assert response.json["error"]["name"] == [
-            u"That vocabulary name is " "already in use."
+            "That vocabulary name is " "already in use."
         ]
 
     def test_vocabulary_create_not_logged_in(self, app):
@@ -771,7 +771,7 @@ class TestVocabulary(object):
         )
         assert response.json["success"] is False
         assert response.json["error"]["id"] == [
-            u"The input field id was not " "expected."
+            "The input field id was not " "expected."
         ]
 
     def test_add_tag_without_name(self, app):
@@ -787,7 +787,7 @@ class TestVocabulary(object):
             status=409,
         )
         assert response.json["success"] is False
-        assert response.json["error"]["name"] == [u"Missing value"]
+        assert response.json["error"]["name"] == ["Missing value"]
 
     def test_add_tag_invalid_name(self, app):
         for name in ("Not a valid tag name!", "", None):
@@ -811,7 +811,7 @@ class TestVocabulary(object):
         )
         assert response.json["success"] is False
         assert response.json["error"]["vocabulary_id"] == [
-            u"Tag vocabulary was not found."
+            "Tag vocabulary was not found."
         ]
 
     def test_add_tag_not_logged_in(self, app):
@@ -1083,7 +1083,7 @@ class TestVocabulary(object):
             )
             assert response.json["success"] is False
             msg = response.json["error"]["message"]
-            assert msg == u'Not found: Could not find tag "{0}"'.format(
+            assert msg == 'Not found: Could not find tag "{0}"'.format(
                 tag["name"]
             ), msg
 
@@ -1108,7 +1108,7 @@ class TestVocabulary(object):
         assert response.json["success"] is False
         msg = response.json["error"]["message"]
         assert (
-            msg == u'Not found: Could not find tag "%s"' % "nonexistent"
+            msg == 'Not found: Could not find tag "%s"' % "nonexistent"
         ), msg
 
     def test_delete_tag_vocab_not_exists(self, app):
@@ -1129,7 +1129,7 @@ class TestVocabulary(object):
         assert response.json["success"] is False
         msg = response.json["error"]["message"]
         assert (
-            msg == u"Not found: could not find vocabulary 'nonexistent'"
+            msg == "Not found: could not find vocabulary 'nonexistent'"
         ), msg
 
     def test_delete_tag_invalid_tag(self, app):
@@ -1155,7 +1155,7 @@ class TestVocabulary(object):
             )
             assert response.json["success"] is False
             msg = response.json["error"]["message"]
-            assert msg == u'Not found: Could not find tag "%s"' % tag_name, msg
+            assert msg == 'Not found: Could not find tag "%s"' % tag_name, msg
 
     def test_delete_tag_invalid_vocab(self, app):
         """Test the error response when a user tries to delete a tag but gives
@@ -1179,7 +1179,7 @@ class TestVocabulary(object):
             msg = response.json["error"]["message"]
             assert (
                 msg
-                == u"Not found: could not find vocabulary '%s'" % vocab_name
+                == "Not found: could not find vocabulary '%s'" % vocab_name
             ), msg
 
     def test_delete_tag_not_logged_in(self, app):
@@ -1194,7 +1194,7 @@ class TestVocabulary(object):
         )
         assert response.json["success"] is False
         error = response.json["error"]["__type"]
-        assert error == u"Authorization Error", error
+        assert error == "Authorization Error", error
 
     def test_delete_tag_not_authorized(self, app):
         vocab = self.genre_vocab
@@ -1209,4 +1209,4 @@ class TestVocabulary(object):
         )
         assert response.json["success"] is False
         msg = response.json["error"]["__type"]
-        assert msg == u"Authorization Error"
+        assert msg == "Authorization Error"

@@ -71,30 +71,30 @@ def test_check_ckan_version(version, bound, value, expected, monkeypatch):
     #   * number of numbers in the checked version
     #   * the index of the number being tested in the checked version
 
-    monkeypatch.setattr(tk.ckan, u"__version__", version)
-    kwargs = {bound + u"_version": value}
+    monkeypatch.setattr(tk.ckan, "__version__", version)
+    kwargs = {bound + "_version": value}
     assert tk.check_ckan_version(**kwargs) is expected
 
 
 def test_no_raise(monkeypatch):
-    monkeypatch.setattr(tk.ckan, u"__version__", u"2")
-    tk.requires_ckan_version(min_version=u"2")
+    monkeypatch.setattr(tk.ckan, "__version__", "2")
+    tk.requires_ckan_version(min_version="2")
 
 
 def test_raise(monkeypatch):
-    monkeypatch.setattr(tk.ckan, u"__version__", u"2")
+    monkeypatch.setattr(tk.ckan, "__version__", "2")
     with pytest.raises(tk.CkanVersionException):
-        tk.requires_ckan_version(min_version=u"3")
+        tk.requires_ckan_version(min_version="3")
 
 
 def test_call_helper():
     # the null_function would return ''
-    assert tk.h.icon_url(u"x")
+    assert tk.h.icon_url("x")
 
 
 def test_tk_helper_attribute_error_on_missing_helper():
     with pytest.raises(AttributeError):
-        getattr(tk.h, u"not_a_real_helper_function")
+        getattr(tk.h, "not_a_real_helper_function")
 
 
 def test_tk_helper_as_attribute_missing_helper():
@@ -106,4 +106,4 @@ def test_tk_helper_as_attribute_missing_helper():
 def test_tk_helper_as_item_missing_helper():
     """Directly attempt access as item"""
     with pytest.raises(tk.HelperError):
-        tk.h[u"nothere"]()
+        tk.h["nothere"]()

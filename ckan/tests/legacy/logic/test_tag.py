@@ -101,7 +101,7 @@ class TestAction(object):
         assert res.json["success"] is True
         assert res.json["result"]["count"] == 5
         tag_dicts = res.json["result"]["results"]
-        assert [tag["name"] for tag in tag_dicts] == [u"tolkien", u"tollbooth"]
+        assert [tag["name"] for tag in tag_dicts] == ["tolkien", "tollbooth"]
 
     def test_15a_tag_search_with_vocab_and_empty_query(self, app):
         for q in ("missing", None, "", "  "):
@@ -181,8 +181,8 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-space-1",
-                    "tags": [u"with space"],
+                    "name": "package-with-tag-that-has-a-space-1",
+                    "tags": ["with space"],
                     "license": "never_heard_of_it",
                 }
             ]
@@ -199,8 +199,8 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-foreign-character-1",
-                    "tags": [u"greek beta \u03b2"],
+                    "name": "package-with-tag-that-has-a-foreign-character-1",
+                    "tags": ["greek beta \u03b2"],
                     "license": "never_heard_of_it",
                 }
             ]
@@ -209,7 +209,7 @@ class TestAction(object):
         res = app.post("/api/action/tag_autocomplete", json={"q": "greek"})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
-        assert u"greek beta \u03b2" in res_obj["result"], res_obj["result"]
+        assert "greek beta \u03b2" in res_obj["result"], res_obj["result"]
 
     def test_15_tag_autocomplete_tag_with_punctuation(self, app):
         """Asserts autocomplete finds tags that contain punctuation"""
@@ -217,8 +217,8 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-fullstop-1",
-                    "tags": [u"fullstop."],
+                    "name": "package-with-tag-that-has-a-fullstop-1",
+                    "tags": ["fullstop."],
                     "license": "never_heard_of_it",
                 }
             ]
@@ -227,7 +227,7 @@ class TestAction(object):
         res = app.post("/api/action/tag_autocomplete", json={"q": "fullstop"})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
-        assert u"fullstop." in res_obj["result"], res_obj["result"]
+        assert "fullstop." in res_obj["result"], res_obj["result"]
 
     def test_15_tag_autocomplete_tag_with_capital_letters(self, app):
         """
@@ -237,8 +237,8 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-capital-letter-1",
-                    "tags": [u"CAPITAL idea old chap"],
+                    "name": "package-with-tag-that-has-a-capital-letter-1",
+                    "tags": ["CAPITAL idea old chap"],
                     "license": "never_heard_of_it",
                 }
             ]
@@ -247,7 +247,7 @@ class TestAction(object):
         res = app.post("/api/action/tag_autocomplete", json={"q": "idea"})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
-        assert u"CAPITAL idea old chap" in res_obj["result"], res_obj["result"]
+        assert "CAPITAL idea old chap" in res_obj["result"], res_obj["result"]
 
     def test_15_tag_autocomplete_search_with_space(self, app):
         """
@@ -257,8 +257,8 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-space-2",
-                    "tags": [u"with space"],
+                    "name": "package-with-tag-that-has-a-space-2",
+                    "tags": ["with space"],
                     "license": "never_heard_of_it",
                 }
             ]
@@ -277,17 +277,17 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-foreign-character-2",
-                    "tags": [u"greek beta \u03b2"],
+                    "name": "package-with-tag-that-has-a-foreign-character-2",
+                    "tags": ["greek beta \u03b2"],
                     "license": "never_heard_of_it",
                 }
             ]
         )
 
-        res = app.post("/api/action/tag_autocomplete", json={"q": u"\u03b2"})
+        res = app.post("/api/action/tag_autocomplete", json={"q": "\u03b2"})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
-        assert u"greek beta \u03b2" in res_obj["result"], res_obj["result"]
+        assert "greek beta \u03b2" in res_obj["result"], res_obj["result"]
 
     def test_15_tag_autocomplete_search_with_punctuation(self, app):
         """
@@ -297,14 +297,14 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-fullstop-2",
-                    "tags": [u"fullstop."],
+                    "name": "package-with-tag-that-has-a-fullstop-2",
+                    "tags": ["fullstop."],
                     "license": "never_heard_of_it",
                 }
             ]
         )
 
-        res = app.post("/api/action/tag_autocomplete", json={"q": u"stop."})
+        res = app.post("/api/action/tag_autocomplete", json={"q": "stop."})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert "fullstop." in res_obj["result"], res_obj["result"]
@@ -317,14 +317,14 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-capital-letter-2",
-                    "tags": [u"CAPITAL idea old chap"],
+                    "name": "package-with-tag-that-has-a-capital-letter-2",
+                    "tags": ["CAPITAL idea old chap"],
                     "license": "never_heard_of_it",
                 }
             ]
         )
 
-        res = app.post("/api/action/tag_autocomplete", json={"q": u"CAPITAL"})
+        res = app.post("/api/action/tag_autocomplete", json={"q": "CAPITAL"})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert "CAPITAL idea old chap" in res_obj["result"], res_obj["result"]
@@ -333,14 +333,14 @@ class TestAction(object):
         CreateTestData.create_arbitrary(
             [
                 {
-                    "name": u"package-with-tag-that-has-a-capital-letter-3",
-                    "tags": [u"MIX of CAPITALS and LOWER case"],
+                    "name": "package-with-tag-that-has-a-capital-letter-3",
+                    "tags": ["MIX of CAPITALS and LOWER case"],
                     "license": "never_heard_of_it",
                 }
             ]
         )
 
-        res = app.post("/api/action/tag_autocomplete", json={"q": u"lower case"})
+        res = app.post("/api/action/tag_autocomplete", json={"q": "lower case"})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert "MIX of CAPITALS and LOWER case" in res_obj["result"], res_obj[
@@ -349,7 +349,7 @@ class TestAction(object):
 
     def test_15_tag_autocomplete_with_vocab_and_empty_query(self, app):
         for q in ("missing", None, "", "  "):
-            paramd = {"vocabulary_id": u"genre"}
+            paramd = {"vocabulary_id": "genre"}
             if q != "missing":
                 paramd["q"] = q
             res = app.post("/api/action/tag_autocomplete", json=paramd)
@@ -357,7 +357,7 @@ class TestAction(object):
             assert res.json["result"] == []
 
     def test_15_tag_autocomplete_with_vocab_and_single_match(self, app):
-        paramd = {"vocabulary_id": u"genre", "q": "son"}
+        paramd = {"vocabulary_id": "genre", "q": "son"}
         res = app.post("/api/action/tag_autocomplete", json=paramd)
         assert res.json["success"] is True
         assert res.json["result"] == ["sonata"], res.json["result"]

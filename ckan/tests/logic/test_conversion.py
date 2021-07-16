@@ -136,5 +136,5 @@ def test_convert_to_extras_free_extra_can_not_have_the_same_key():
 
     assert "extras" in errors
     assert errors["extras"] == [
-        {"key": [u"There is a schema field with the same name"]}
+        {"key": ["There is a schema field with the same name"]}
     ]

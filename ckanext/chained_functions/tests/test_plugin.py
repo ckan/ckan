@@ -3,8 +3,8 @@
 import pytest
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"chained_functions")
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "chained_functions")
+@pytest.mark.usefixtures("with_plugins")
 class TestChainedFunctionsPlugin(object):
     def test_auth_attributes_are_retained(self):
         from ckan.authz import _AuthFunctions

@@ -48,22 +48,22 @@ class ExampleIDatasetFormPluginBase(object):
         assert "this is my custom text" == result["custom_text"]
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v1")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform_v1")
 class TestVersion1(ExampleIDatasetFormPluginBase):
     pass
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v2")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform_v2")
 class TestVersion2(ExampleIDatasetFormPluginBase):
     pass
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v3")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform_v3")
 class TestVersion3(ExampleIDatasetFormPluginBase):
     pass
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform_v5")
 @pytest.mark.usefixtures(
     "clean_db", "clean_index", "with_plugins", "with_request_context"
 )
@@ -111,7 +111,7 @@ class TestVersion5(object):
         ]
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform_v5")
 @pytest.mark.ckan_config("package_edit_return_url", None)
 @pytest.mark.usefixtures(
     "clean_db", "clean_index", "with_plugins", "with_request_context"
@@ -316,7 +316,7 @@ class TestUrlsForCustomDatasetType(object):
         )
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v4")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform_v4")
 @pytest.mark.usefixtures(
     "clean_db", "clean_index", "with_plugins", "with_request_context"
 )
@@ -331,7 +331,7 @@ class TestIDatasetFormPluginVersion4(object):
             country_code="uk",
         )
         assert "this is my custom text" == result["custom_text"]
-        assert [u"uk"] == result["country_code"]
+        assert ["uk"] == result["country_code"]
 
     def test_package_create_wrong_country_code(self, test_request_context):
         with test_request_context():
@@ -360,10 +360,10 @@ class TestIDatasetFormPluginVersion4(object):
             country_code="ie",
         )
         assert "this is my updated text" == result["custom_text"]
-        assert [u"ie"] == result["country_code"]
+        assert ["ie"] == result["country_code"]
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform")
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
 class TestIDatasetFormPlugin(object):
     def test_package_create(self, test_request_context):
@@ -414,7 +414,7 @@ class TestIDatasetFormPlugin(object):
             ],
         )
         assert "this is my updated text" == result["custom_text"]
-        assert [u"ie"] == result["country_code"]
+        assert ["ie"] == result["country_code"]
         assert (
             "updated custom resource"
             == result["resources"][0]["custom_resource_text"]
@@ -446,7 +446,7 @@ class TestIDatasetFormPlugin(object):
         )
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform")
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
 class TestCustomSearch(object):
     def test_custom_search(self, app):
@@ -476,21 +476,21 @@ class TestCustomSearch(object):
         assert a < b
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v6")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform_v6")
 @pytest.mark.usefixtures("with_plugins", "with_request_context")
 class TestDatasetBlueprintPreparations(object):
     def test_additional_routes_are_registered(self, app):
         resp = app.get("/fancy_type/fancy-route", status=200)
-        assert resp.body == u'Hello, fancy_type'
+        assert resp.body == 'Hello, fancy_type'
 
     def test_existing_routes_are_replaced(self, app):
         resp = app.get("/fancy_type/new", status=200)
-        assert resp.body == u'Hello, new fancy_type'
+        assert resp.body == 'Hello, new fancy_type'
 
         resp = app.get("/fancy_type/random/resource/new", status=200)
-        assert resp.body == u'Hello, fancy_type:random'
+        assert resp.body == 'Hello, fancy_type:random'
 
-    @pytest.mark.usefixtures(u'clean_db', u'clean_index')
+    @pytest.mark.usefixtures('clean_db', 'clean_index')
     def test_existing_routes_are_untouched(self, app):
         resp = app.get("/fancy_type", status=200)
         page = bs4.BeautifulSoup(resp.body)
@@ -500,7 +500,7 @@ class TestDatasetBlueprintPreparations(object):
         assert links == ['/', '/fancy_type/']
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v7")
+@pytest.mark.ckan_config("ckan.plugins", "example_idatasetform_v7")
 @pytest.mark.usefixtures("with_plugins", "with_request_context")
 class TestDatasetMultiTypes(object):
     @pytest.mark.parametrize('type_', ['first', 'second'])

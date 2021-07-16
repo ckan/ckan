@@ -130,12 +130,12 @@ class CommonFixtureMethods(BaseCase):
     def clear_all_tst_ratings(self):
         ratings = (
             model.Session.query(model.Rating)
-            .filter_by(package=model.Package.by_name(u"annakarenina"))
+            .filter_by(package=model.Package.by_name("annakarenina"))
             .all()
         )
         ratings += (
             model.Session.query(model.Rating)
-            .filter_by(package=model.Package.by_name(u"warandpeace"))
+            .filter_by(package=model.Package.by_name("warandpeace"))
             .all()
         )
         for rating in ratings[:]:
@@ -144,31 +144,31 @@ class CommonFixtureMethods(BaseCase):
 
     @property
     def war(self):
-        return self.get_package_by_name(u"warandpeace")
+        return self.get_package_by_name("warandpeace")
 
     @property
     def anna(self):
-        return self.get_package_by_name(u"annakarenina")
+        return self.get_package_by_name("annakarenina")
 
     @property
     def roger(self):
-        return self.get_group_by_name(u"roger")
+        return self.get_group_by_name("roger")
 
     @property
     def david(self):
-        return self.get_group_by_name(u"david")
+        return self.get_group_by_name("david")
 
     @property
     def russian(self):
-        return self.get_tag_by_name(u"russian")
+        return self.get_tag_by_name("russian")
 
     @property
     def tolstoy(self):
-        return self.get_tag_by_name(u"tolstoy")
+        return self.get_tag_by_name("tolstoy")
 
     @property
     def flexible_tag(self):
-        return self.get_tag_by_name(u"Flexible \u30a1")
+        return self.get_tag_by_name("Flexible \u30a1")
 
 
 class CheckMethods(BaseCase):

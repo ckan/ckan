@@ -117,13 +117,13 @@ def datastore_create_schema():
         'indexes': [ignore_missing, list_of_strings_or_string],
         'triggers': {
             'when': [
-                default(u'before insert or update'),
+                default('before insert or update'),
                 unicode_only,
-                one_of([u'before insert or update'])],
+                one_of(['before insert or update'])],
             'for_each': [
-                default(u'row'),
+                default('row'),
                 unicode_only,
-                one_of([u'row'])],
+                one_of(['row'])],
             'function': [not_empty, unicode_only],
         },
         'calculate_record_count': [ignore_missing, default(False),
@@ -183,8 +183,8 @@ def datastore_search_schema():
         'include_total': [default(True), boolean_validator],
         'total_estimation_threshold': [default(None), int_validator],
         'records_format': [
-            default(u'objects'),
-            one_of([u'objects', u'lists', u'csv', u'tsv'])],
+            default('objects'),
+            one_of(['objects', 'lists', 'csv', 'tsv'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')],
         'full_text': [ignore_missing, unicode_safe]
@@ -201,7 +201,7 @@ def datastore_function_create_schema():
             'argname': [unicode_only, not_empty],
             'argtype': [unicode_only, not_empty],
         },
-        'rettype': [default(u'void'), unicode_only],
+        'rettype': [default('void'), unicode_only],
         'definition': [unicode_only],
     }
 

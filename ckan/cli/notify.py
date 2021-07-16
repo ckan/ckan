@@ -6,16 +6,16 @@ from ckan.model.modification import DomainObjectModificationExtension
 
 
 @click.group(
-    name=u'notify',
-    short_help=u'Send out modification notifications.'
+    name='notify',
+    short_help='Send out modification notifications.'
 )
 def notify():
     pass
 
 
 @notify.command(
-    name=u'replay',
-    short_help=u'Send out modification signals.'
+    name='replay',
+    short_help='Send out modification signals.'
 )
 def replay():
     dome = DomainObjectModificationExtension()

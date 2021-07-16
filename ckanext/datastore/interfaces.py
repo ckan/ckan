@@ -13,7 +13,7 @@ class IDatastore(interfaces.Interface):
         there aren't any unrecognized parameters, so other methods don't need
         to worry about that.
 
-        You'll need to go through the received ``data_dict`` and remove
+        Yo'll need to go through the received ``data_dict`` and remove
         everything that you understand as valid. For example, if your extension
         supports an ``age_between`` filter, you have to remove this filter from
         the filters on the ``data_dict``.

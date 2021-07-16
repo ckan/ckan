@@ -12,7 +12,7 @@ import ckan.logic as logic
 from ckan import model
 
 
-@pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+@pytest.mark.ckan_config("ckan.auth.public_user_details", "false")
 def test_auth_user_list():
     context = {"user": None, "model": model}
     with pytest.raises(logic.NotAuthorized):
@@ -31,10 +31,10 @@ def test_user_list_email_parameter():
         helpers.call_auth("user_list", email="a@example.com", context=context)
 
 
-@pytest.mark.usefixtures(u"clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGetAuth(object):
 
-    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", "false")
     def test_auth_user_show(self):
         fred = factories.User(name="fred")
         fred["capacity"] = "editor"
@@ -102,7 +102,7 @@ class TestGetAuth(object):
         ret = helpers.call_auth("group_show", context=context, id=org["name"])
         assert ret
 
-    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", "false")
     def test_group_show__user_is_hidden_to_public(self):
         group = factories.Group()
         context = {"model": model}
@@ -166,7 +166,7 @@ class TestGetAuth(object):
         assert helpers.call_auth("config_option_list", context=context)
 
     @pytest.mark.ckan_config(
-        u"ckan.auth.public_activity_stream_detail", u"false"
+        "ckan.auth.public_activity_stream_detail", "false"
     )
     def test_config_option_public_activity_stream_detail_denied(self):
         """Config option says an anon user is not authorized to get activity
@@ -183,7 +183,7 @@ class TestGetAuth(object):
             )
 
     @pytest.mark.ckan_config(
-        u"ckan.auth.public_activity_stream_detail", u"true"
+        "ckan.auth.public_activity_stream_detail", "true"
     )
     def test_config_option_public_activity_stream_detail(self):
         """Config option says an anon user is authorized to get activity
@@ -199,28 +199,28 @@ class TestGetAuth(object):
         )
 
 
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures("clean_db")
 class TestApiToken(object):
     def test_anon_is_not_allowed_to_get_tokens(self):
         user = factories.User()
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                u"api_token_list",
-                {u"user": None, u"model": model},
+                "api_token_list",
+                {"user": None, "model": model},
                 user=user['name']
             )
 
     def test_auth_user_is_allowed_to_list_tokens(self):
         user = factories.User()
-        helpers.call_auth(u"api_token_list", {
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        helpers.call_auth("api_token_list", {
+            "model": model,
+            "user": user["name"]
+        }, user=user["name"])
 
 
 @pytest.mark.usefixtures('clean_db', 'with_plugins')
 @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestGetAuthWithCollaborators(object):
 
     def _get_context(self, user):
@@ -404,7 +404,7 @@ class TestGetAuthWithCollaborators(object):
 
 
 @pytest.mark.usefixtures("clean_db")
-@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberList(object):
 
     def _get_context(self, user):

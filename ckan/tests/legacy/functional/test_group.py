@@ -13,7 +13,7 @@ import ckan.tests.factories as factories
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 def test_sorting():
-    testsysadmin = factories.Sysadmin(name=u"testsysadmin")
+    testsysadmin = factories.Sysadmin(name="testsysadmin")
 
     pkg1 = model.Package(name="pkg1")
     pkg2 = model.Package(name="pkg2")
@@ -39,49 +39,49 @@ def test_sorting():
     }
     data_dict = {"all_fields": True}
     results = get_action("group_list")(context, data_dict)
-    assert results[0]["name"] == u"alpha", results[0]["name"]
-    assert results[-1]["name"] == u"gamma", results[-1]["name"]
+    assert results[0]["name"] == "alpha", results[0]["name"]
+    assert results[-1]["name"] == "gamma", results[-1]["name"]
 
     # Test title forward
     data_dict = {"all_fields": True, "sort": "title asc"}
     results = get_action("group_list")(context, data_dict)
-    assert results[0]["name"] == u"alpha", results[0]["name"]
-    assert results[-1]["name"] == u"gamma", results[-1]["name"]
+    assert results[0]["name"] == "alpha", results[0]["name"]
+    assert results[-1]["name"] == "gamma", results[-1]["name"]
 
     # Test title reverse
     data_dict = {"all_fields": True, "sort": "title desc"}
     results = get_action("group_list")(context, data_dict)
-    assert results[0]["name"] == u"gamma", results[0]["name"]
-    assert results[-1]["name"] == u"alpha", results[-1]["name"]
+    assert results[0]["name"] == "gamma", results[0]["name"]
+    assert results[-1]["name"] == "alpha", results[-1]["name"]
 
     # Test name reverse
     data_dict = {"all_fields": True, "sort": "name desc"}
     results = get_action("group_list")(context, data_dict)
-    assert results[0]["name"] == u"gamma", results[0]["name"]
-    assert results[-1]["name"] == u"alpha", results[-1]["name"]
+    assert results[0]["name"] == "gamma", results[0]["name"]
+    assert results[-1]["name"] == "alpha", results[-1]["name"]
 
     # Test packages reversed
     data_dict = {"all_fields": True, "sort": "package_count desc"}
     results = get_action("group_list")(context, data_dict)
-    assert results[0]["name"] == u"beta", results[0]["name"]
-    assert results[1]["name"] == u"delta", results[1]["name"]
+    assert results[0]["name"] == "beta", results[0]["name"]
+    assert results[1]["name"] == "delta", results[1]["name"]
 
     # Test packages forward
     data_dict = {"all_fields": True, "sort": "package_count asc"}
     results = get_action("group_list")(context, data_dict)
-    assert results[-2]["name"] == u"delta", results[-2]["name"]
-    assert results[-1]["name"] == u"beta", results[-1]["name"]
+    assert results[-2]["name"] == "delta", results[-2]["name"]
+    assert results[-1]["name"] == "beta", results[-1]["name"]
 
     # Default ordering for packages
     data_dict = {"all_fields": True, "sort": "package_count"}
     results = get_action("group_list")(context, data_dict)
-    assert results[0]["name"] == u"beta", results[0]["name"]
-    assert results[1]["name"] == u"delta", results[1]["name"]
+    assert results[0]["name"] == "beta", results[0]["name"]
+    assert results[1]["name"] == "delta", results[1]["name"]
 
 
 @pytest.mark.usefixtures("clean_db")
 def test_read_non_existent(app):
-    name = u"group_does_not_exist"
+    name = "group_does_not_exist"
     offset = url_for(controller="group", action="read", id=name)
     app.get(offset, status=404)
 

@@ -159,14 +159,14 @@ def unicode_safe(value):
         # cgi.FieldStorage instance for uploaded files, show the name
         value = value.filename
     if value is missing or value is None:
-        return u''
+        return ''
     if isinstance(value, bytes):
         # bytes only arrive when core ckan or plugins call
         # actions from Python code
         try:
             return six.ensure_text(value)
         except UnicodeDecodeError:
-            return value.decode(u'cp1252')
+            return value.decode('cp1252')
     try:
         return json.dumps(value, sort_keys=True, ensure_ascii=False)
     except Exception:
@@ -174,7 +174,7 @@ def unicode_safe(value):
         try:
             return text_type(value)
         except Exception:
-            return u'\N{REPLACEMENT CHARACTER}'
+            return '\N{REPLACEMENT CHARACTER}'
 
 def limit_to_configured_maximum(config_option, default_limit):
     '''

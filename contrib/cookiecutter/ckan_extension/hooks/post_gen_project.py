@@ -44,7 +44,7 @@ def recut():
                 if keyword not in ('ckan', 'CKAN', 'A', 'space',
                                    'seperated', 'list', 'of', 'keywords')]
     keywords.insert(0, 'CKAN')
-    keywords = u' '.join(keywords)
+    keywords = ' '.join(keywords)
     context['keywords'] = keywords
 
     # Double check 'project_shortname' and 'plugin_class_name'

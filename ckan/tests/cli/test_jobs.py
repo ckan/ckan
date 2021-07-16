@@ -14,9 +14,9 @@ def test_unknown_command(cli):
     """
     Test error handling for unknown ``ckan jobs`` sub-command.
     """
-    result = cli.invoke(ckan, [u"jobs", u"does-not-exist"])
+    result = cli.invoke(ckan, ["jobs", "does-not-exist"])
     assert result.exit_code != 0
-    assert u"No such command" in result.output
+    assert "No such command" in result.output
 
 
 class TestJobsList(helpers.RQTestBase):
@@ -29,10 +29,10 @@ class TestJobsList(helpers.RQTestBase):
         Test output of ``jobs list`` for default queue.
         """
         job = self.enqueue()
-        stdout = cli.invoke(ckan, [u"jobs", u"list"]).output
-        fields = stdout.split(u"\n")[-2].split()
+        stdout = cli.invoke(ckan, ["jobs", "list"]).output
+        fields = stdout.split("\n")[-2].split()
         assert len(fields) == 3
-        dt = datetime.datetime.strptime(fields[0], u"%Y-%m-%dT%H:%M:%S")
+        dt = datetime.datetime.strptime(fields[0], "%Y-%m-%dT%H:%M:%S")
         now = datetime.datetime.utcnow()
         assert abs((now - dt).total_seconds()) < 10
         assert fields[1] == job.id
@@ -42,33 +42,33 @@ class TestJobsList(helpers.RQTestBase):
         """
         Test output of ``jobs.list`` for non-default queue.
         """
-        job = self.enqueue(queue=u"my_queue")
-        stdout = cli.invoke(ckan, [u"jobs", u"list"]).output
-        fields = stdout.split(u"\n")[-2].split()
+        job = self.enqueue(queue="my_queue")
+        stdout = cli.invoke(ckan, ["jobs", "list"]).output
+        fields = stdout.split("\n")[-2].split()
         assert len(fields) == 3
-        assert fields[2] == u"my_queue"
+        assert fields[2] == "my_queue"
 
     def test_list_title(self, cli):
         """
         Test title output of ``jobs list``.
         """
-        job = self.enqueue(title=u"My_Title")
-        stdout = cli.invoke(ckan, [u"jobs", u"list"]).output
-        fields = stdout.split(u"\n")[-2].split()
+        job = self.enqueue(title="My_Title")
+        stdout = cli.invoke(ckan, ["jobs", "list"]).output
+        fields = stdout.split("\n")[-2].split()
         assert len(fields) == 4
-        assert fields[3] == u'"My_Title"'
+        assert fields[3] == '"My_Title"'
 
     def test_list_filter(self, cli):
         """
         Test filtering by queues for ``jobs list``.
         """
-        job1 = self.enqueue(queue=u"q1")
-        job2 = self.enqueue(queue=u"q2")
-        job3 = self.enqueue(queue=u"q3")
-        stdout = cli.invoke(ckan, [u"jobs", u"list", u"q1", u"q2"]).output
-        assert u"q1" in stdout
-        assert u"q2" in stdout
-        assert u"q3" not in stdout
+        job1 = self.enqueue(queue="q1")
+        job2 = self.enqueue(queue="q2")
+        job3 = self.enqueue(queue="q3")
+        stdout = cli.invoke(ckan, ["jobs", "list", "q1", "q2"]).output
+        assert "q1" in stdout
+        assert "q2" in stdout
+        assert "q3" not in stdout
 
 
 class TestJobShow(helpers.RQTestBase):
@@ -80,8 +80,8 @@ class TestJobShow(helpers.RQTestBase):
         """
         Test ``jobs show`` for an existing job.
         """
-        job = self.enqueue(queue=u"my_queue", title=u"My Title")
-        output = cli.invoke(ckan, [u"jobs", u"show", job.id]).output
+        job = self.enqueue(queue="my_queue", title="My Title")
+        output = cli.invoke(ckan, ["jobs", "show", job.id]).output
         assert job.id in output
         assert jobs.remove_queue_name_prefix(job.origin) in output
 
@@ -89,9 +89,9 @@ class TestJobShow(helpers.RQTestBase):
         """
         Test ``jobs show`` with a missing ID.
         """
-        result = cli.invoke(ckan, [u"jobs", u"show"])
+        result = cli.invoke(ckan, ["jobs", "show"])
         assert result.exit_code != 0
-        assert u"Error: Missing argument" in result.output
+        assert "Error: Missing argument" in result.output
 
 
 class TestJobsCancel(helpers.RQTestBase):
@@ -105,7 +105,7 @@ class TestJobsCancel(helpers.RQTestBase):
         """
         job1 = self.enqueue()
         job2 = self.enqueue()
-        stdout = cli.invoke(ckan, [u"jobs", u"cancel", job1.id]).output
+        stdout = cli.invoke(ckan, ["jobs", "cancel", job1.id]).output
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 1
         assert all_jobs[0].id == job2.id
@@ -115,18 +115,18 @@ class TestJobsCancel(helpers.RQTestBase):
         """
         Test ``jobs cancel`` for a not existing job.
         """
-        result = cli.invoke(ckan, [u"jobs", u"cancel", u"does-not-exist"])
+        result = cli.invoke(ckan, ["jobs", "cancel", "does-not-exist"])
         # FIXME: after https://github.com/ckan/ckan/issues/5158
         # assert result.exit_code != 0
-        assert u"does-not-exist" in result.output
+        assert "does-not-exist" in result.output
 
     def test_cancel_missing_id(self, cli):
         """
         Test ``jobs cancel`` with a missing ID.
         """
-        result = cli.invoke(ckan, [u"jobs", u"cancel"])
+        result = cli.invoke(ckan, ["jobs", "cancel"])
         assert result.exit_code != 0
-        assert u"Error: Missing argument" in result.output
+        assert "Error: Missing argument" in result.output
 
 
 class TestJobsClear(helpers.RQTestBase):
@@ -140,12 +140,12 @@ class TestJobsClear(helpers.RQTestBase):
         """
         self.enqueue()
         self.enqueue()
-        self.enqueue(queue=u"q1")
-        self.enqueue(queue=u"q2")
-        stdout = cli.invoke(ckan, [u"jobs", u"clear"]).output
+        self.enqueue(queue="q1")
+        self.enqueue(queue="q2")
+        stdout = cli.invoke(ckan, ["jobs", "clear"]).output
         assert jobs.DEFAULT_QUEUE_NAME in stdout
-        assert u"q1" in stdout
-        assert u"q2" in stdout
+        assert "q1" in stdout
+        assert "q2" in stdout
         assert self.all_jobs() == []
 
     def test_clear_specific_queues(self, cli):
@@ -153,15 +153,15 @@ class TestJobsClear(helpers.RQTestBase):
         Test clearing specific queues via ``jobs clear``.
         """
         job1 = self.enqueue()
-        job2 = self.enqueue(queue=u"q1")
-        self.enqueue(queue=u"q2")
-        self.enqueue(queue=u"q2")
-        self.enqueue(queue=u"q3")
-        stdout = cli.invoke(ckan, [u"jobs", u"clear", u"q2", u"q3"]).output
-        assert u"q2" in stdout
-        assert u"q3" in stdout
+        job2 = self.enqueue(queue="q1")
+        self.enqueue(queue="q2")
+        self.enqueue(queue="q2")
+        self.enqueue(queue="q3")
+        stdout = cli.invoke(ckan, ["jobs", "clear", "q2", "q3"]).output
+        assert "q2" in stdout
+        assert "q3" in stdout
         assert jobs.DEFAULT_QUEUE_NAME not in stdout
-        assert u"q1" not in stdout
+        assert "q1" not in stdout
         all_jobs = self.all_jobs()
         assert set(all_jobs) == {job1, job2}
 
@@ -175,7 +175,7 @@ class TestJobsTest(helpers.RQTestBase):
         """
         Test ``jobs test`` for the default queue.
         """
-        stdout = cli.invoke(ckan, [u"jobs", u"test"]).output
+        stdout = cli.invoke(ckan, ["jobs", "test"]).output
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 1
         assert (
@@ -187,12 +187,12 @@ class TestJobsTest(helpers.RQTestBase):
         """
         Test ``jobs test`` for specific queues.
         """
-        stdout = cli.invoke(ckan, [u"jobs", u"test", u"q1", u"q2"]).output
+        stdout = cli.invoke(ckan, ["jobs", "test", "q1", "q2"]).output
         all_jobs = self.all_jobs()
         assert len(all_jobs) == 2
         assert {jobs.remove_queue_name_prefix(j.origin) for j in all_jobs} == {
-            u"q1",
-            u"q2",
+            "q1",
+            "q2",
         }
 
 
@@ -210,7 +210,7 @@ class TestJobsWorker(helpers.RQTestBase):
         """
         with tempfile.NamedTemporaryFile(delete=False) as f:
             self.enqueue(os.remove, args=[f.name])
-            cli.invoke(ckan, [u"jobs", u"worker", u"--burst"])
+            cli.invoke(ckan, ["jobs", "worker", "--burst"])
             all_jobs = self.all_jobs()
             assert all_jobs == []
             assert not (os.path.isfile(f.name))
@@ -222,10 +222,10 @@ class TestJobsWorker(helpers.RQTestBase):
         with tempfile.NamedTemporaryFile(delete=False) as f:
             with tempfile.NamedTemporaryFile(delete=False) as g:
                 job1 = self.enqueue()
-                job2 = self.enqueue(queue=u"q2")
-                self.enqueue(os.remove, args=[f.name], queue=u"q3")
-                self.enqueue(os.remove, args=[g.name], queue=u"q4")
-                cli.invoke(ckan, [u"jobs", u"worker", u"--burst", u"q3", u"q4"])
+                job2 = self.enqueue(queue="q2")
+                self.enqueue(os.remove, args=[f.name], queue="q3")
+                self.enqueue(os.remove, args=[g.name], queue="q4")
+                cli.invoke(ckan, ["jobs", "worker", "--burst", "q3", "q4"])
                 all_jobs = self.all_jobs()
                 assert set(all_jobs) == {job1, job2}
                 assert not (os.path.isfile(f.name))

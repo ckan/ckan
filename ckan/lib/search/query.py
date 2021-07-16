@@ -424,4 +424,4 @@ def solr_literal(t):
     double quotes -- this method currently only used by tokens like site_id
     and permission labels.
     '''
-    return u'"' + t.replace(u'"', u'') + u'"'
+    return '"' + t.replace('"', '') + '"'

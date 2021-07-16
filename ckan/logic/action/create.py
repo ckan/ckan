@@ -520,7 +520,7 @@ def package_relationship_create(context, data_dict):
     ref_package_by = 'id' if api == 2 else 'name'
 
     id, id2, rel_type = _get_or_bust(data_dict, ['subject', 'object', 'type'])
-    comment = data_dict.get('comment', u'')
+    comment = data_dict.get('comment', '')
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
@@ -597,10 +597,10 @@ def member_create(context, data_dict=None):
         filter(model.Member.state == 'active').first()
     if member:
         user_obj = model.User.get(user)
-        if member.table_name == u'user' and \
+        if member.table_name == 'user' and \
                 member.table_id == user_obj.id and \
-                member.capacity == u'admin' and \
-                capacity != u'admin':
+                member.capacity == 'admin' and \
+                capacity != 'admin':
             raise NotAuthorized("Administrators cannot revoke their "
                                 "own admin status")
     else:
@@ -1379,7 +1379,7 @@ def follow_user(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug(u'User {follower} started following user {object}'.format(
+    log.debug('User {follower} started following user {object}'.format(
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_user_dictize(follower, context)
@@ -1436,7 +1436,7 @@ def follow_dataset(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug(u'User {follower} started following dataset {object}'.format(
+    log.debug('User {follower} started following dataset {object}'.format(
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_dataset_dictize(follower, context)
@@ -1465,7 +1465,7 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     if result:
         user_id = result.id
     else:
-        message = _(u'User {username} does not exist.').format(
+        message = _('User {username} does not exist.').format(
             username=username)
         raise ValidationError({'message': message}, error_summary=message)
     member_dict = {
@@ -1572,7 +1572,7 @@ def follow_group(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug(u'User {follower} started following group {object}'.format(
+    log.debug('User {follower} started following group {object}'.format(
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_group_dictize(follower, context)
@@ -1597,15 +1597,15 @@ def api_token_create(context, data_dict):
     :rtype: dictionary
 
     """
-    model = context[u'model']
-    user, name = _get_or_bust(data_dict, [u'user', u'name'])
+    model = context['model']
+    user, name = _get_or_bust(data_dict, ['user', 'name'])
 
     if model.User.get(user) is None:
         raise NotFound("User not found")
 
-    _check_access(u'api_token_create', context, data_dict)
+    _check_access('api_token_create', context, data_dict)
 
-    schema = context.get(u'schema')
+    schema = context.get('schema')
     if not schema:
         schema = api_token.get_schema()
 
@@ -1615,16 +1615,16 @@ def api_token_create(context, data_dict):
         raise ValidationError(errors)
 
     token_obj = model_save.api_token_save(
-        {u'user': user, u'name': name}, context
+        {'user': user, 'name': name}, context
     )
     model.Session.commit()
     data = {
-        u'jti': token_obj.id,
-        u'iat': api_token.into_seconds(token_obj.created_at)
+        'jti': token_obj.id,
+        'iat': api_token.into_seconds(token_obj.created_at)
     }
 
     data = api_token.postprocess(data, token_obj.id, validated_data_dict)
     token = api_token.encode(data)
 
-    result = api_token.add_extra({u'token': token})
+    result = api_token.add_extra({'token': token})
     return result

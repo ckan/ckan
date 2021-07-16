@@ -197,9 +197,9 @@ def datastore_dictionary(resource_id):
         return [
             f for f in get_action('datastore_search')(
                 None, {
-                    u'resource_id': resource_id,
-                    u'limit': 0,
-                    u'include_total': False})['fields']
-            if not f['id'].startswith(u'_')]
+                    'resource_id': resource_id,
+                    'limit': 0,
+                    'include_total': False})['fields']
+            if not f['id'].startswith('_')]
     except (ObjectNotFound, NotAuthorized):
         return []

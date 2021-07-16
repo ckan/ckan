@@ -18,11 +18,11 @@ class TestUserApi(ControllerTestCase):
     def test_autocomplete(self):
         response = self.app.get(
             url=url_for(controller="api", action="user_autocomplete", ver=2),
-            params={"q": u"sysadmin"},
+            params={"q": "sysadmin"},
             status=200,
         )
         assert set(response.json[0].keys()) == set(["id", "name", "fullname"])
-        assert response.json[0]["name"] == u"testsysadmin"
+        assert response.json[0]["name"] == "testsysadmin"
         assert (
             response.headers.get("Content-Type")
             == "application/json;charset=utf-8"
@@ -31,7 +31,7 @@ class TestUserApi(ControllerTestCase):
     def test_autocomplete_multiple(self):
         response = self.app.get(
             url=url_for(controller="api", action="user_autocomplete", ver=2),
-            params={"q": u"tes"},
+            params={"q": "tes"},
             status=200,
         )
         assert len(response.json) == 2
@@ -39,7 +39,7 @@ class TestUserApi(ControllerTestCase):
     def test_autocomplete_limit(self):
         response = self.app.get(
             url=url_for(controller="api", action="user_autocomplete", ver=2),
-            params={"q": u"tes", "limit": 1},
+            params={"q": "tes", "limit": 1},
             status=200,
         )
         print(response.json)

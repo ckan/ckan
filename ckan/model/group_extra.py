@@ -31,7 +31,7 @@ class GroupExtra(core.StatefulObjectMixin,
 meta.mapper(GroupExtra, group_extra_table, properties={
     'group': orm.relation(group.Group,
         backref=orm.backref('_extras',
-            collection_class=orm.collections.attribute_mapped_collection(u'key'),
+            collection_class=orm.collections.attribute_mapped_collection('key'),
             cascade='all, delete, delete-orphan',
             ),
         )

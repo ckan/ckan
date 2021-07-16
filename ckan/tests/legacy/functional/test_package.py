@@ -23,8 +23,8 @@ existing_extra_html = (
 
 
 class TestPackageBase(object):
-    key1 = u"key1 Less-than: < Umlaut: \xfc"
-    value1 = u"value1 Less-than: < Umlaut: \xfc"
+    key1 = "key1 Less-than: < Umlaut: \xfc"
+    value1 = "value1 Less-than: < Umlaut: \xfc"
 
     # Note: Can't put a quotation mark in key1 or value1 because
     # paste.fixture doesn't unescape the value in an input field
@@ -46,7 +46,7 @@ class TestPackageForm(TestPackageBase):
 
     def _check_package_read(self, res, **params):
         assert not "Error" in res, res
-        assert u"%s - Datasets" % params["title"] in res, res
+        assert "%s - Datasets" % params["title"] in res, res
         main_res = self.main_div(res)
         main_div = main_res
         main_div_str = main_div.encode("utf8")
@@ -102,7 +102,7 @@ class TestPackageForm(TestPackageBase):
                 elif isinstance(resource, (list, tuple)):
                     expected_value = resource[i]
                 elif isinstance(resource, dict):
-                    expected_value = resource.get(res_field, u"")
+                    expected_value = resource.get(res_field, "")
                 else:
                     raise NotImplemented
                 if not by_resource:
@@ -179,7 +179,7 @@ class TestPackageForm(TestPackageBase):
         @param pkg_name_to_edit - '' means create a new dataset
         """
         try:
-            new_name = u"new-name"
+            new_name = "new-name"
             offset_params = {}
             if pkg_name_to_edit:
                 pkg_name = pkg_name_to_edit
@@ -231,7 +231,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         res = app.get(offset, status=404)
 
     def test_read_internal_links(self, app):
-        pkg_name = (u"link-test",)
+        pkg_name = ("link-test",)
         CreateTestData.create_arbitrary(
             [
                 {
@@ -264,7 +264,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
     @pytest.mark.usefixtures("with_plugins")
     def test_read_plugin_hook(self, app):
         plugin = plugins.get_plugin("test_package_controller_plugin")
-        name = u"annakarenina"
+        name = "annakarenina"
         offset = url_for("dataset.read", id=name)
         res = app.get(offset)
 
@@ -297,7 +297,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
 
 
 class TestEdit(TestPackageForm):
-    editpkg_name = u"editpkgtest"
+    editpkg_name = "editpkgtest"
 
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db):
@@ -305,12 +305,12 @@ class TestEdit(TestPackageForm):
         CreateTestData.create_arbitrary(
             {
                 "name": self.editpkg_name,
-                "url": u"editpkgurl.com",
-                "tags": [u"mytesttag"],
+                "url": "editpkgurl.com",
+                "tags": ["mytesttag"],
                 "resources": [
                     {
-                        "url": u'url escape: & umlaut: \xfc quote: "',
-                        "description": u'description escape: & umlaut: \xfc quote "',
+                        "url": 'url escape: & umlaut: \xfc quote: "',
+                        "description": 'description escape: & umlaut: \xfc quote "',
                     }
                 ],
             }
@@ -321,7 +321,7 @@ class TestEdit(TestPackageForm):
         self.offset = url_for("dataset.edit", id=self.editpkg_name)
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
-        self.admin = model.User.by_name(u"testsysadmin")
+        self.admin = model.User.by_name("testsysadmin")
 
         self.extra_environ_admin = {
             "REMOTE_USER": self.admin.name.encode("utf8")
@@ -360,8 +360,8 @@ class TestEdit(TestPackageForm):
 
         # add a relationship to a package
         pkg = model.Package.by_name(self.editpkg_name)
-        anna = model.Package.by_name(u"annakarenina")
-        pkg.add_relationship(u"depends_on", anna)
+        anna = model.Package.by_name("annakarenina")
+        pkg.add_relationship("depends_on", anna)
         model.repo.commit_and_remove()
 
         # check relationship before the test
@@ -394,7 +394,7 @@ class TestDelete(object):
 
     @pytest.fixture
     def users(self, initial_data):
-        admin = model.User.by_name(u"testsysadmin")
+        admin = model.User.by_name("testsysadmin")
         return {
             "admin": {"REMOTE_USER": admin.name.encode("utf8")},
             "tester": {"REMOTE_USER": "tester"},
@@ -412,7 +412,7 @@ class TestDelete(object):
 
         app.post(offset, extra_environ=users["admin"])
 
-        assert model.Package.get("warandpeace").state == u"deleted"
+        assert model.Package.get("warandpeace").state == "deleted"
 
         assert plugin.calls["delete"] == 2
         assert plugin.calls["after_delete"] == 2
@@ -430,7 +430,7 @@ class TestNew:
     def test_new_plugin_hook(self, env_user, app):
         plugin = plugins.get_plugin("test_package_controller_plugin")
         offset = url_for("dataset.new")
-        new_name = u"plugged"
+        new_name = "plugged"
         res = app.post(offset, extra_environ=env_user, data={
             "name": new_name,
             "save": ""
@@ -443,7 +443,7 @@ class TestNew:
     def test_after_create_plugin_hook(self, env_user, app):
         plugin = plugins.get_plugin("test_package_controller_plugin")
         offset = url_for("dataset.new")
-        new_name = u"plugged2"
+        new_name = "plugged2"
         res = app.post(offset, extra_environ=env_user, data={
             "name": new_name,
             "save": ""
@@ -460,7 +460,7 @@ class TestNew:
         solr_url = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
-            new_package_name = u"new-package-missing-solr"
+            new_package_name = "new-package-missing-solr"
 
             offset = url_for("dataset.new")
             res = app.post(offset, extra_environ=env_user,  data={
@@ -480,7 +480,7 @@ class TestNew:
 
 
 class TestNonActivePackages:
-    non_active_name = u"test_nonactive"
+    non_active_name = "test_nonactive"
 
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db):
@@ -494,7 +494,7 @@ class TestNonActivePackages:
             .filter_by(name=self.non_active_name)
             .one()
         )
-        admin = model.User.by_name(u"joeadmin")
+        admin = model.User.by_name("joeadmin")
         model.repo.commit_and_remove()
 
         pkg = (
@@ -521,7 +521,7 @@ class TestResourceListing:
     def initial_data(self, clean_db, app):
         CreateTestData.create()
         users = {}
-        tester = model.User.by_name(u"tester")
+        tester = model.User.by_name("tester")
         tests.call_action_api(
             app, "organization_create", name="test_org_2", apikey=tester.apikey
         )

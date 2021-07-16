@@ -795,8 +795,8 @@ def job_clear(context, data_dict):
 
     .. versionadded:: 2.7
     '''
-    _check_access(u'job_clear', context, data_dict)
-    queues = data_dict.get(u'queues')
+    _check_access('job_clear', context, data_dict)
+    queues = data_dict.get('queues')
     if queues:
         queues = [jobs.get_queue(q) for q in queues]
     else:
@@ -804,7 +804,7 @@ def job_clear(context, data_dict):
     names = [jobs.remove_queue_name_prefix(queue.name) for queue in queues]
     for queue, name in zip(queues, names):
         queue.empty()
-        log.info(u'Cleared background job queue "{}"'.format(name))
+        log.info('Cleared background job queue "{}"'.format(name))
     return names
 
 
@@ -817,11 +817,11 @@ def job_cancel(context, data_dict):
 
     .. versionadded:: 2.7
     '''
-    _check_access(u'job_cancel', context, data_dict)
-    id = _get_or_bust(data_dict, u'id')
+    _check_access('job_cancel', context, data_dict)
+    id = _get_or_bust(data_dict, 'id')
     try:
         jobs.job_from_id(id).delete()
-        log.info(u'Cancelled background job {}'.format(id))
+        log.info('Cancelled background job {}'.format(id))
     except KeyError:
         raise NotFound
 
@@ -834,9 +834,9 @@ def api_token_revoke(context, data_dict):
 
     .. versionadded:: 3.0
     """
-    jti = data_dict.get(u'jti')
+    jti = data_dict.get('jti')
     if not jti:
-        token = _get_or_bust(data_dict, u'token')
+        token = _get_or_bust(data_dict, 'token')
         decoders = plugins.PluginImplementations(plugins.IApiToken)
         for plugin in decoders:
             data = plugin.decode_api_token(token)
@@ -846,8 +846,8 @@ def api_token_revoke(context, data_dict):
             data = api_token.decode(token)
 
         if data:
-            jti = data.get(u'jti')
+            jti = data.get('jti')
 
-    _check_access(u'api_token_revoke', context, {u'jti': jti})
-    model = context[u'model']
+    _check_access('api_token_revoke', context, {'jti': jti})
+    model = context['model']
     model.ApiToken.revoke(jti)

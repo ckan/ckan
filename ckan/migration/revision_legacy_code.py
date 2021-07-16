@@ -44,8 +44,8 @@ def package_dictize_with_revisions(pkg, context):
         # CKAN>2.8
         revision_model = RevisionTableMappings.instance()
 
-    is_latest_revision = not(context.get(u'revision_id') or
-                             context.get(u'revision_date'))
+    is_latest_revision = not(context.get('revision_id') or
+                             context.get('revision_date'))
     execute = _execute if is_latest_revision else _execute_with_revision
     # package
     if is_latest_revision:
@@ -60,7 +60,7 @@ def package_dictize_with_revisions(pkg, context):
         raise logic.NotFound
     result_dict = d.table_dictize(result, context)
     # strip whitespace from title
-    if result_dict.get(u'title'):
+    if result_dict.get('title'):
         result_dict['title'] = result_dict['title'].strip()
 
     # resources
@@ -70,13 +70,13 @@ def package_dictize_with_revisions(pkg, context):
         res = revision_model.resource_revision_table
     # metadata_modified was added after the revisioning was removed so
     # it does not exist on the resource_revision table.
-    mm_col = res._columns.get(u'metadata_modified')
+    mm_col = res._columns.get('metadata_modified')
     if mm_col is not None:
         res._columns.remove(mm_col)
     q = select([res]).where(res.c.package_id == pkg.id)
     result = execute(q, res, context)
     result_dict["resources"] = resource_list_dictize(result, context)
-    result_dict['num_resources'] = len(result_dict.get(u'resources', []))
+    result_dict['num_resources'] = len(result_dict.get('resources', []))
 
     # tags
     tag = model.tag_table
@@ -90,13 +90,13 @@ def package_dictize_with_revisions(pkg, context):
     result = execute(q, pkg_tag, context)
     result_dict["tags"] = d.obj_list_dictize(result, context,
                                              lambda x: x["name"])
-    result_dict['num_tags'] = len(result_dict.get(u'tags', []))
+    result_dict['num_tags'] = len(result_dict.get('tags', []))
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
     for tag in result_dict['tags']:
-        assert u'display_name' not in tag
+        assert 'display_name' not in tag
         tag['display_name'] = tag['name']
 
     # extras
@@ -117,7 +117,7 @@ def package_dictize_with_revisions(pkg, context):
     q = select([group, member.c.capacity],
                from_obj=member.join(group, group.c.id == member.c.group_id)
                ).where(member.c.table_id == pkg.id)\
-                .where(member.c.state == u'active') \
+                .where(member.c.state == 'active') \
                 .where(group.c.is_organization == False)  # noqa
     result = execute(q, member, context)
     context['with_capacity'] = False
@@ -134,7 +134,7 @@ def package_dictize_with_revisions(pkg, context):
         group = revision_model.group_revision_table
     q = select([group]
                ).where(group.c.id == result_dict['owner_org']) \
-                .where(group.c.state == u'active')
+                .where(group.c.state == 'active')
     result = execute(q, group, context)
     organizations = d.obj_list_dictize(result, context)
     if organizations:
@@ -168,12 +168,12 @@ def package_dictize_with_revisions(pkg, context):
 
     # type
     # if null assign the default value to make searching easier
-    result_dict['type'] = pkg.type or u'dataset'
+    result_dict['type'] = pkg.type or 'dataset'
 
     # license
     if pkg.license and pkg.license.url:
         result_dict['license_url'] = pkg.license.url
-        result_dict['license_title'] = pkg.license.title.split(u'::')[-1]
+        result_dict['license_title'] = pkg.license.title.split('::')[-1]
     elif pkg.license:
         result_dict['license_title'] = pkg.license.title
     else:
@@ -204,8 +204,8 @@ def _execute_with_revision(q, rev_table, context):
     '''
     model = context['model']
     session = model.Session
-    revision_id = context.get(u'revision_id')
-    revision_date = context.get(u'revision_date')
+    revision_id = context.get('revision_id')
+    revision_date = context.get('revision_date')
 
     if revision_id:
         revision = session.query(revision_model.Revision) \
@@ -232,13 +232,13 @@ def make_revisioned_table(base_table, frozen=False):
 
     @return revision table (e.g. package_revision)
     '''
-    revision_table = Table(base_table.name + u'_revision', base_table.metadata)
+    revision_table = Table(base_table.name + '_revision', base_table.metadata)
     copy_table(base_table, revision_table)
     # we no longer add revision_id to the base table (e.g. package.revision_id)
     # because it is redundant - package_revision.current flags the latest.
     # However the revision_table needs revision_id still
     revision_table.append_column(
-        Column(u'revision_id', UnicodeText, ForeignKey(u'revision.id'))
+        Column('revision_id', UnicodeText, ForeignKey('revision.id'))
     )
 
     # create foreign key 'continuity' constraint
@@ -249,27 +249,27 @@ def make_revisioned_table(base_table, frozen=False):
         if col.primary_key:
             pkcols.append(col)
     assert len(pkcols) <= 1,\
-        u'Do not support versioning objects with multiple primary keys'
-    fk_name = base_table.name + u'.' + pkcols[0].name
+        'Do not support versioning objects with multiple primary keys'
+    fk_name = base_table.name + '.' + pkcols[0].name
     revision_table.append_column(
-        Column(u'continuity_id', pkcols[0].type,
+        Column('continuity_id', pkcols[0].type,
                None if frozen else ForeignKey(fk_name))
     )
 
     # TODO: why do we iterate all the way through rather than just using dict
     # functionality ...? Surely we always have a revision here ...
     for col in revision_table.c:
-        if col.name == u'revision_id':
+        if col.name == 'revision_id':
             col.primary_key = True
             revision_table.primary_key.columns.add(col)
 
     # Copied from ckan.model.core.make_revisioned_table
-    revision_table.append_column(Column(u'expired_id',
+    revision_table.append_column(Column('expired_id',
                                  Text))
-    revision_table.append_column(Column(u'revision_timestamp', DateTime))
-    revision_table.append_column(Column(u'expired_timestamp', DateTime,
+    revision_table.append_column(Column('revision_timestamp', DateTime))
+    revision_table.append_column(Column('expired_timestamp', DateTime,
                                  default=datetime.datetime(9999, 12, 31)))
-    revision_table.append_column(Column(u'current', Boolean))
+    revision_table.append_column(Column('current', Boolean))
     return revision_table
 
 
@@ -309,13 +309,13 @@ def copy_table(table, newtable):
 # Copied from vdm
 def make_revision_table(metadata):
     revision_table = Table(
-        u'revision', metadata,
-        Column(u'id', UnicodeText, primary_key=True,
+        'revision', metadata,
+        Column('id', UnicodeText, primary_key=True,
                default=lambda: six.u(uuid.uuid4())),
-        Column(u'timestamp', DateTime, default=datetime.datetime.utcnow),
-        Column(u'author', String(200)),
-        Column(u'message', UnicodeText),
-        Column(u'state', UnicodeText, default=model.State.ACTIVE)
+        Column('timestamp', DateTime, default=datetime.datetime.utcnow),
+        Column('author', String(200)),
+        Column('message', UnicodeText),
+        Column('state', UnicodeText, default=model.State.ACTIVE)
     )
     return revision_table
 
@@ -372,7 +372,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
             for k, v in six.iteritems(kw):
                 setattr(self, k, v)
 
-    name = base_object.__name__ + u'Revision'
+    name = base_object.__name__ + 'Revision'
     MyClass.__name__ = str(name)
     MyClass.__continuity_class__ = base_object
 
@@ -424,7 +424,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
             # in 0.4.5
             prop_remote_obj = prop.argument
             remote_obj_is_revisioned = \
-                getattr(prop_remote_obj, u'__revisioned__', False)
+                getattr(prop_remote_obj, '__revisioned__', False)
             # this is crude, probably need something better
             is_many = (prop.secondary is not None or prop.uselist)
             if remote_obj_is_revisioned:
@@ -436,7 +436,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
                 # TODO: actually deal with this
                 # raise a warning of some kind
                 msg = \
-                    u'Skipping adding property %s to revisioned object' % prop
+                    'Skipping adding property %s to revisioned object' % prop
 
     return MyClass
 
@@ -551,7 +551,7 @@ def make_revision(instances):
     # `expired_timestamp` values in the revision tables
     # (e.g. package_revision) so that is added here:
     for instance in instances:
-        if not hasattr(instance, u'__revision_class__'):
+        if not hasattr(instance, '__revision_class__'):
             continue
         revision_cls = instance.__revision_class__
         revision_table = \
@@ -602,7 +602,7 @@ class RevisionTableMappings(object):
         # gradually move the definitions here
         self.revision_table = make_revision_table(model.meta.metadata)
         self.revision_table.append_column(
-            Column(u'approved_timestamp', DateTime))
+            Column('approved_timestamp', DateTime))
 
         self.Revision = make_Revision(model.meta.mapper, self.revision_table)
 

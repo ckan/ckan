@@ -32,16 +32,16 @@ from ckan.cli import (
 
 from ckan.cli import seed
 
-META_ATTR = u'_ckan_meta'
-CMD_TYPE_PLUGIN = u'plugin'
-CMD_TYPE_ENTRY = u'entry_point'
+META_ATTR = '_ckan_meta'
+CMD_TYPE_PLUGIN = 'plugin'
+CMD_TYPE_ENTRY = 'entry_point'
 
 log = logging.getLogger(__name__)
 
 _no_config_commands = [
-    [u'config-tool'],
-    [u'generate', u'config'],
-    [u'generate', u'extension'],
+    ['config-tool'],
+    ['generate', 'config'],
+    ['generate', 'extension'],
 ]
 
 
@@ -56,8 +56,8 @@ class CtxObject(object):
 
 class ExtendableGroup(click.Group):
     _section_titles = {
-        CMD_TYPE_PLUGIN: u'Plugins',
-        CMD_TYPE_ENTRY: u'Entry points',
+        CMD_TYPE_PLUGIN: 'Plugins',
+        CMD_TYPE_ENTRY: 'Entry points',
     }
 
     def format_commands(self, ctx, formatter):
@@ -81,17 +81,17 @@ class ExtendableGroup(click.Group):
                 continue
             if cmd.hidden:
                 continue
-            help = cmd.short_help or u''
+            help = cmd.short_help or ''
 
             meta = getattr(cmd, META_ATTR, None)
             if meta:
-                ext_commands[meta[u'type']][meta[u'name']].append(
+                ext_commands[meta['type']][meta['name']].append(
                     (subcommand, help))
             else:
                 commands.append((subcommand, help))
 
         if commands:
-            with formatter.section(u'Commands'):
+            with formatter.section('Commands'):
                 formatter.write_dl(commands)
 
         for section, group in ext_commands.items():
@@ -151,7 +151,7 @@ def _command_with_ckan_meta(cmd, name, type_):
 
     This information is used when CLI help text is generated.
     """
-    setattr(cmd, META_ATTR, {u'name': name, u'type': type_})
+    setattr(cmd, META_ATTR, {'name': name, 'type': type_})
     return cmd
 
 
@@ -164,7 +164,7 @@ def _get_commands_from_plugins(plugins):
             yield _command_with_ckan_meta(cmd, plugin.name, CMD_TYPE_PLUGIN)
 
 
-def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
+def _get_commands_from_entry_point(entry_point='ckan.click_command'):
     """Register commands that are available even if plugin is not enabled.
 
     """
@@ -172,11 +172,11 @@ def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
     for entry in iter_entry_points(entry_point):
         if entry.name in registered_entries:
             p.toolkit.error_shout((
-                u'Attempt to override entry_point `{name}`.\n'
-                u'First encounter:\n\t{first!r}\n'
-                u'Second encounter:\n\t{second!r}\n'
-                u'Either uninstall one of mentioned extensions or update'
-                u' corresponding `setup.py` and re-install the extension.'
+                'Attempt to override entry_point `{name}`.\n'
+                'First encounter:\n\t{first!r}\n'
+                'Second encounter:\n\t{second!r}\n'
+                'Either uninstall one of mentioned extensions or update'
+                ' corresponding `setup.py` and re-install the extension.'
             ).format(
                 name=entry.name,
                 first=registered_entries[entry.name].dist,
@@ -188,10 +188,10 @@ def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
 
 
 @click.group(cls=ExtendableGroup)
-@click.option(u'-c', u'--config', metavar=u'CONFIG',
+@click.option('-c', '--config', metavar='CONFIG',
               is_eager=True, callback=_init_ckan_config, expose_value=False,
-              help=u'Config file to use (default: ckan.ini)')
-@click.help_option(u'-h', u'--help')
+              help='Config file to use (default: ckan.ini)')
+@click.help_option('-h', '--help')
 def ckan():
     pass
 

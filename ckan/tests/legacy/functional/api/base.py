@@ -79,7 +79,7 @@ class ApiTestCase(object):
         base = "/api"
         if cls.api_version:
             base += "/%s" % cls.api_version
-        utf8_encoded = (u"%s%s" % (base, path)).encode("utf8")
+        utf8_encoded = ("%s%s" % (base, path)).encode("utf8")
         url_encoded = quote(utf8_encoded)
         return url_encoded
 

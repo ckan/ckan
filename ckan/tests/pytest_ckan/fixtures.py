@@ -77,7 +77,7 @@ def ckan_config(request, monkeypatch):
 
     """
     _original = config.copy()
-    for mark in request.node.iter_markers(u"ckan_config"):
+    for mark in request.node.iter_markers("ckan_config"):
         monkeypatch.setitem(config, *mark.args)
     yield config
     config.clear()
@@ -122,12 +122,12 @@ def cli(ckan_config):
 
     """
     env = {
-        u'CKAN_INI': ckan_config[u'__file__']
+        'CKAN_INI': ckan_config['__file__']
     }
     return test_helpers.CKANCliRunner(env=env)
 
 
-@pytest.fixture(scope=u"session")
+@pytest.fixture(scope="session")
 def reset_db():
     """Callable for resetting the database to the initial state.
 
@@ -137,7 +137,7 @@ def reset_db():
     return test_helpers.reset_db
 
 
-@pytest.fixture(scope=u"session")
+@pytest.fixture(scope="session")
 def reset_index():
     """Callable for cleaning search index.
 
@@ -239,7 +239,7 @@ def mail_server(monkeypatch):
     """Catch all outcome mails.
     """
     bag = test_helpers.FakeSMTP()
-    monkeypatch.setattr(smtplib, u"SMTP", bag)
+    monkeypatch.setattr(smtplib, "SMTP", bag)
     yield bag
 
 
@@ -248,10 +248,10 @@ def with_test_worker(monkeypatch):
     """Worker that doesn't create forks.
     """
     monkeypatch.setattr(
-        rq.Worker, u"main_work_horse", rq.SimpleWorker.main_work_horse
+        rq.Worker, "main_work_horse", rq.SimpleWorker.main_work_horse
     )
     monkeypatch.setattr(
-        rq.Worker, u"execute_job", rq.SimpleWorker.execute_job
+        rq.Worker, "execute_job", rq.SimpleWorker.execute_job
     )
     yield
 
@@ -270,7 +270,7 @@ def with_extended_cli(ckan_config, monkeypatch):
     # using global config object.  With this patch it becomes possible
     # to apply per-test config changes to it without creating real
     # config file.
-    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)
+    monkeypatch.setattr(ckan.cli, 'load_config', lambda _: ckan_config)
 
 
 class FakeFileStorage(FlaskFileStorage):
@@ -279,7 +279,7 @@ class FakeFileStorage(FlaskFileStorage):
     def __init__(self, stream, filename):
         self.stream = stream
         self.filename = filename
-        self.name = u"upload"
+        self.name = "upload"
 
 
 @pytest.fixture
@@ -310,12 +310,12 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
             assert resource["size"] == 11
 
     """
-    monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
+    monkeypatch.setitem(ckan_config, 'ckan.storage_path', str(tmpdir))
+    monkeypatch.setattr(ckan.lib.uploader, '_storage_path', str(tmpdir))
 
     def factory(data, filename, context={}, **kwargs):
-        action = kwargs.pop(u"action", u"resource_create")
-        field = kwargs.pop(u"upload_field_name", u"upload")
+        action = kwargs.pop("action", "resource_create")
+        field = kwargs.pop("upload_field_name", "upload")
         test_file = six.BytesIO()
         test_file.write(six.ensure_binary(data))
         test_file.seek(0)

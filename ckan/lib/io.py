@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-u'''
+'''
 Utility functions for I/O.
 '''
 
@@ -14,7 +14,7 @@ _FILESYSTEM_ENCODING = six.text_type(
 
 
 def encode_path(p):
-    u'''
+    '''
     Convert a Unicode path string to a byte string.
 
     Intended to be used for encoding paths that are known to be
@@ -31,12 +31,12 @@ def encode_path(p):
     Raises a ``TypeError`` is the input is not a Unicode string.
     '''
     if not isinstance(p, six.text_type):
-        raise TypeError(u'Can only encode unicode, not {}'.format(type(p)))
+        raise TypeError('Can only encode unicode, not {}'.format(type(p)))
     return six.ensure_text(p).encode(_FILESYSTEM_ENCODING)
 
 
 def decode_path(p):
-    u'''
+    '''
     Convert a byte path string to a Unicode string.
 
     Intended to be used for decoding byte paths to existing files as
@@ -51,5 +51,5 @@ def decode_path(p):
     '''
 
     if not isinstance(p, six.binary_type):
-        raise TypeError(u'Can only decode str, not {}'.format(type(p)))
+        raise TypeError('Can only decode str, not {}'.format(type(p)))
     return six.ensure_binary(p).decode(_FILESYSTEM_ENCODING)

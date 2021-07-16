@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-u"""
+"""
 Tests for ``ckan.lib.i18n``.
 """
 
@@ -18,12 +18,12 @@ from ckan.lib.plugins import DefaultTranslation
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-I18N_DIR = os.path.join(HERE, u"_i18n_build_js_translations")
-I18N_DUMMY_DIR = os.path.join(HERE, u"_i18n_dummy_es")
+I18N_DIR = os.path.join(HERE, "_i18n_build_js_translations")
+I18N_DUMMY_DIR = os.path.join(HERE, "_i18n_dummy_es")
 
 
 class TestJSTranslationsPlugin(plugins.SingletonPlugin, DefaultTranslation):
-    u"""
+    """
     CKAN plugin for testing JavaScript translations from extensions.
 
     Registered in ``setup.py`` as ``test_js_translations_plugin``.
@@ -34,13 +34,13 @@ class TestJSTranslationsPlugin(plugins.SingletonPlugin, DefaultTranslation):
         return I18N_DIR
 
     def i18n_domain(self):
-        return u"ckanext-test_js_translations"
+        return "ckanext-test_js_translations"
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_js_translations_plugin")
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "test_js_translations_plugin")
+@pytest.mark.usefixtures("with_plugins")
 class TestBuildJSTranslations(object):
-    u"""
+    """
     Tests for ``ckan.lib.i18n.build_js_translations``.
     """
 
@@ -51,7 +51,7 @@ class TestBuildJSTranslations(object):
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def build_js_translations(self):
-        u"""
+        """
         Build JS translations in temporary directory.
         """
         old_translations_dir = i18n._JS_TRANSLATIONS_DIR
@@ -62,20 +62,20 @@ class TestBuildJSTranslations(object):
             i18n._JS_TRANSLATIONS_DIR = old_translations_dir
 
     def test_output_is_valid(self):
-        u"""
+        """
         Test that the generated JS files are valid.
         """
 
         def check_file(path):
-            with codecs.open(path, u"r", encoding=u"utf-8") as f:
+            with codecs.open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            assert data[u""].get(u"domain", None) == u"ckan"
+            assert data[""].get("domain", None) == "ckan"
 
         self.build_js_translations()
         files = os.listdir(self.temp_dir)
 
         # Check that all locales have been generated
-        assert set(i18n.get_locales()).difference([u"en"]) == set(
+        assert set(i18n.get_locales()).difference(["en"]) == set(
             os.path.splitext(fn)[0] for fn in files
         )
 
@@ -84,7 +84,7 @@ class TestBuildJSTranslations(object):
             check_file(os.path.join(self.temp_dir, filename))
 
     def test_regenerate_only_if_necessary(self):
-        u"""
+        """
         Test that translation files are only generated when necessary.
         """
         self.build_js_translations()
@@ -118,40 +118,40 @@ class TestBuildJSTranslations(object):
             assert new_mtime == mtimes[filename]
 
     def test_translations_from_extensions(self):
-        u"""
+        """
         Test that translations from extensions are taken into account.
         """
         self.build_js_translations()
-        filename = os.path.join(self.temp_dir, u"de.js")
-        with codecs.open(filename, u"r", encoding=u"utf-8") as f:
+        filename = os.path.join(self.temp_dir, "de.js")
+        with codecs.open(filename, "r", encoding="utf-8") as f:
             de = json.load(f)
 
         # Check overriding a JS translation from CKAN core
-        assert u"Loading..." in de
-        assert de[u"Loading..."] == [None, u"foo"]
+        assert "Loading..." in de
+        assert de["Loading..."] == [None, "foo"]
 
         # Check introducing a new JS translation
-        assert u"Test JS Translations 1" in de
-        assert de[u"Test JS Translations 1"] == [None, u"bar"]
+        assert "Test JS Translations 1" in de
+        assert de["Test JS Translations 1"] == [None, "bar"]
 
         # Check that non-JS strings are not exported
-        assert u"Test JS Translations 2" not in de
+        assert "Test JS Translations 2" not in de
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_routing_plugin")
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.usefixtures("with_plugins")
 class TestI18nFlask(object):
     def test_translation_works_on_flask_and_pylons(self, app):
-        resp = app.get(u"/flask_translated")
-        assert six.ensure_text(resp.data) == six.text_type(u"Dataset")
+        resp = app.get("/flask_translated")
+        assert six.ensure_text(resp.data) == six.text_type("Dataset")
 
-        resp = app.get(u"/es/flask_translated")
-        assert six.ensure_text(resp.data) == six.text_type(u"Conjunto de datos")
+        resp = app.get("/es/flask_translated")
+        assert six.ensure_text(resp.data) == six.text_type("Conjunto de datos")
 
-    @pytest.mark.ckan_config(u"ckan.i18n_directory", I18N_DUMMY_DIR)
+    @pytest.mark.ckan_config("ckan.i18n_directory", I18N_DUMMY_DIR)
     def test_config_i18n_directory(self, app):
-        resp = app.get(u"/flask_translated")
-        assert six.ensure_text(resp.data) == six.text_type(u"Dataset")
+        resp = app.get("/flask_translated")
+        assert six.ensure_text(resp.data) == six.text_type("Dataset")
 
-        resp = app.get(u"/es/flask_translated")
-        assert six.ensure_text(resp.data) == six.text_type(u"Foo baz 123")
+        resp = app.get("/es/flask_translated")
+        assert six.ensure_text(resp.data) == six.text_type("Foo baz 123")

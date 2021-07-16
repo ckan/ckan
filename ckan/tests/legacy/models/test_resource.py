@@ -6,12 +6,12 @@ import ckan.model as model
 
 
 class TestResource:
-    pkgname = u"resourcetest"
-    urls = [u"http://somewhere.com/", u"http://elsewhere.com/"]
-    format = u"csv"
-    description = u"Important part."
-    hash = u"abc123"
-    alt_url = u"http://alturl"
+    pkgname = "resourcetest"
+    urls = ["http://somewhere.com/", "http://elsewhere.com/"]
+    format = "csv"
+    description = "Important part."
+    hash = "abc123"
+    alt_url = "http://alturl"
     size = 200
     label = "labeltest"
     sort_order = "1"
@@ -29,7 +29,7 @@ class TestResource:
                 description=self.description,
                 hash=self.hash,
                 alt_url=self.alt_url,
-                extras={u"size": self.size},
+                extras={"size": self.size},
                 package_id=pkg.id,
             )
             pkg.resources_all.append(pr)
@@ -58,18 +58,18 @@ class TestResource:
         assert resource_0.hash == self.hash, resource_0
         assert resource_0.position == 0, resource_0.position
         assert resource_0.alt_url == self.alt_url, resource_0.alt_url
-        assert resource_0.extras[u"size"] == self.size
+        assert resource_0.extras["size"] == self.size
 
         generated_dict_resource = resource_0.as_dict()
         assert (
-            generated_dict_resource["alt_url"] == u"http://alturl"
+            generated_dict_resource["alt_url"] == "http://alturl"
         ), generated_dict_resource["alt_url"]
         assert generated_dict_resource["size"] == 200
 
         ## check to see if extra descriptor deletes properly
-        del resource_0.extras[u"size"]
+        del resource_0.extras["size"]
         assert resource_0.extras == {
-            u"alt_url": u"http://alturl"
+            "alt_url": "http://alturl"
         }, pkg.resources[0].extras
 
         del resource_0.alt_url
@@ -77,14 +77,14 @@ class TestResource:
         assert resource_0.alt_url is None
 
         resource_0.alt_url = "weeee"
-        assert resource_0.extras == {u"alt_url": u"weeee"}, resource_0.extras
+        assert resource_0.extras == {"alt_url": "weeee"}, resource_0.extras
 
         model.Session.add(resource_0)
 
         model.repo.commit_and_remove()
         pkg = model.Package.by_name(self.pkgname)
 
-        assert resource_0.extras == {u"alt_url": u"weeee"}, resource_0.extras
+        assert resource_0.extras == {"alt_url": "weeee"}, resource_0.extras
         assert resource_0.alt_url == "weeee", resource_0.alt_url
 
         pkg = model.Package.by_name(self.pkgname)
@@ -127,7 +127,7 @@ class TestResource:
 
     def test_04_insert_resource(self):
         pkg = model.Package.by_name(self.pkgname)
-        newurl = u"http://xxxxxxxxxxxxxxx"
+        newurl = "http://xxxxxxxxxxxxxxx"
 
         resource = model.Resource(url=newurl)
         pkg.resources_all.insert(0, resource)

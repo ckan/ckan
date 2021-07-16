@@ -62,7 +62,7 @@ class Resource(core.StatefulObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
 
-    def __init__(self, url=u'', format=u'', description=u'', hash=u'',
+    def __init__(self, url='', format='', description='', hash='',
                  extras=None, package_id=None, **kwargs):
         self.id = _types.make_uuid()
         self.url = url

@@ -2,7 +2,7 @@
 
 
 def skip_based_on_legacy_engine_version(op, filename):
-    u'''Safe way to update instances sqlalchemy-migrate migrations applied.
+    '''Safe way to update instances sqlalchemy-migrate migrations applied.
 
     CKAN `db upgrade/init` command is trying to obtain current version
     of sqlalchemy-migrate migrations from database. In that case, we
@@ -17,6 +17,6 @@ def skip_based_on_legacy_engine_version(op, filename):
     existing portals and initializing new ones.
     '''
     conf = op.get_context().config
-    version = conf.get_main_option(u'sqlalchemy_migrate_version')
+    version = conf.get_main_option('sqlalchemy_migrate_version')
     if version:
-        return int(version) >= int(filename.split(u'_', 1)[0])
+        return int(version) >= int(filename.split('_', 1)[0])

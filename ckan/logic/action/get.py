@@ -379,7 +379,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
     if groups:
         query = query.filter(model.Group.name.in_(groups))
     if q:
-        q = u'%{0}%'.format(q)
+        q = '%{0}%'.format(q)
         query = query.filter(_or_(
             model.Group.name.ilike(q),
             model.Group.title.ilike(q),
@@ -1539,7 +1539,7 @@ def format_autocomplete(context, data_dict):
     q = data_dict['q']
     limit = data_dict.get('limit', 5)
 
-    like_q = u'%' + q + u'%'
+    like_q = '%' + q + '%'
 
     query = (session.query(
         model.Resource.format,
@@ -1760,12 +1760,12 @@ def package_search(context, data_dict):
 
      {'count': 2,
       'results': [ { <snip> }, { <snip> }],
-      'search_facets': {u'tags': {'items': [{'count': 1,
-                                             'display_name': u'tolstoy',
-                                             'name': u'tolstoy'},
+      'search_facets': {'tags': {'items': [{'count': 1,
+                                             'display_name': 'tolstoy',
+                                             'name': 'tolstoy'},
                                             {'count': 2,
-                                             'display_name': u'russian',
-                                             'name': u'russian'}
+                                             'display_name': 'russian',
+                                             'name': 'russian'}
                                            ]
                                  }
                        }
@@ -2104,9 +2104,9 @@ def resource_search(context, data_dict):
 
                 like = _or_(
                     model_attr.ilike(
-                        u'''%%"%s": "%%%s%%",%%''' % (field, term)),
+                        '''%%"%s": "%%%s%%",%%''' % (field, term)),
                     model_attr.ilike(
-                        u'''%%"%s": "%%%s%%"}''' % (field, term))
+                        '''%%"%s": "%%%s%%"}''' % (field, term))
                 )
                 q = q.filter(like)
 
@@ -3257,7 +3257,7 @@ def activity_show(context, data_dict):
         raise NotFound
     context['activity'] = activity
 
-    _check_access(u'activity_show', context, data_dict)
+    _check_access('activity_show', context, data_dict)
 
     activity = model_dictize.activity_dictize(activity, context,
                                               include_data=include_data)
@@ -3287,7 +3287,7 @@ def activity_data_show(context, data_dict):
         raise NotFound
     context['activity'] = activity
 
-    _check_access(u'activity_data_show', context, data_dict)
+    _check_access('activity_data_show', context, data_dict)
 
     activity = model_dictize.activity_dictize(activity, context,
                                               include_data=True)
@@ -3321,7 +3321,7 @@ def activity_diff(context, data_dict):
     object_type = _get_or_bust(data_dict, 'object_type')
     diff_type = data_dict.get('diff_type', 'unified')
 
-    _check_access(u'activity_diff', context, data_dict)
+    _check_access('activity_diff', context, data_dict)
 
     activity = model.Session.query(model.Activity).get(activity_id)
     if activity is None:
@@ -3507,9 +3507,9 @@ def job_list(context, data_dict):
 
     .. versionadded:: 2.7
     '''
-    _check_access(u'job_list', context, data_dict)
+    _check_access('job_list', context, data_dict)
     dictized_jobs = []
-    queues = data_dict.get(u'queues')
+    queues = data_dict.get('queues')
     if queues:
         queues = [jobs.get_queue(q) for q in queues]
     else:
@@ -3530,8 +3530,8 @@ def job_show(context, data_dict):
 
     .. versionadded:: 2.7
     '''
-    _check_access(u'job_show', context, data_dict)
-    id = _get_or_bust(data_dict, u'id')
+    _check_access('job_show', context, data_dict)
+    id = _get_or_bust(data_dict, 'id')
     try:
         return jobs.dictize_job(jobs.job_from_id(id))
     except KeyError:
@@ -3546,8 +3546,8 @@ def api_token_list(context, data_dict):
 
     .. versionadded:: 2.9
     '''
-    id_or_name = _get_or_bust(data_dict, u'user')
-    _check_access(u'api_token_list', context, data_dict)
+    id_or_name = _get_or_bust(data_dict, 'user')
+    _check_access('api_token_list', context, data_dict)
     user = model.User.get(id_or_name)
     if user is None:
         raise NotFound("User not found")

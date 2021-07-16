@@ -16,7 +16,7 @@ def remove_extra_tables():
     # downgrade database because we don't need those extra tables in the
     # following tests.
     yield
-    db._run_migrations(u'example_database_migrations', None, False)
+    db._run_migrations('example_database_migrations', None, False)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_database_migrations")
@@ -61,37 +61,37 @@ class TestMigrations:
         self.check_upgrade(False, False, "base")
 
         # All migrations applied by default
-        db._run_migrations(u'example_database_migrations', None, True)
+        db._run_migrations('example_database_migrations', None, True)
         self.check_upgrade(True, True, "728663ebe30e (head)")
 
         # All migrations applied by default
-        db._run_migrations(u'example_database_migrations', None, False)
+        db._run_migrations('example_database_migrations', None, False)
         self.check_upgrade(False, False, "base")
 
         # Migrations can be applied one after another
         db._run_migrations(
-            u'example_database_migrations', version="+1", forward=True)
+            'example_database_migrations', version="+1", forward=True)
         self.check_upgrade(True, False, "4f59069f433e")
 
         db._run_migrations(
-            u'example_database_migrations', version="+1", forward=True)
+            'example_database_migrations', version="+1", forward=True)
         self.check_upgrade(True, True, "728663ebe30e (head)")
 
         # the same is true for downgrade
         db._run_migrations(
-            u'example_database_migrations', version="-1", forward=False)
+            'example_database_migrations', version="-1", forward=False)
         self.check_upgrade(True, False, "4f59069f433e")
 
         db._run_migrations(
-            u'example_database_migrations', version="-1", forward=False)
+            'example_database_migrations', version="-1", forward=False)
         self.check_upgrade(False, False, "base")
 
     def test_pending_list(self):
-        db._run_migrations(u'example_database_migrations', None, False)
+        db._run_migrations('example_database_migrations', None, False)
 
         assert db._get_pending_plugins() == {"example_database_migrations": 2}
         db._run_migrations(
-            u'example_database_migrations', version="+1", forward=True)
+            'example_database_migrations', version="+1", forward=True)
         assert db._get_pending_plugins() == {"example_database_migrations": 1}
-        db._run_migrations(u'example_database_migrations')
+        db._run_migrations('example_database_migrations')
         assert db._get_pending_plugins() == {}

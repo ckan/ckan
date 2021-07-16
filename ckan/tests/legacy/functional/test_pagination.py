@@ -42,7 +42,7 @@ def fake_groups():
     num_groups = 22
 
     # CS: nasty_string ignore
-    groups = [u"group_%s" % str(i).zfill(2) for i in range(0, num_groups)]
+    groups = ["group_%s" % str(i).zfill(2) for i in range(0, num_groups)]
 
     CreateTestData.create_arbitrary([], extra_group_names=groups)
 
@@ -54,7 +54,7 @@ def fake_users():
     num_users = 21
 
     # CS: nasty_string ignore
-    users = [u"user_%s" % str(i).zfill(2) for i in range(num_users)]
+    users = ["user_%s" % str(i).zfill(2) for i in range(num_users)]
 
     CreateTestData.create_arbitrary([], extra_user_names=users)
 
@@ -70,8 +70,8 @@ def fake_packages():
         packages.append(
             {
                 # CS: nasty_string ignore
-                "name": u"dataset_%s" % str(i).zfill(2),
-                "groups": u"group_00",
+                "name": "dataset_%s" % str(i).zfill(2),
+                "groups": "group_00",
             }
         )
 

@@ -23,10 +23,10 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
         if len(records):
             for record in records:
                 self._get_engine().execute(
-                    u'INSERT INTO "{0}"({1}) VALUES({2})'.format(
+                    'INSERT INTO "{0}"({1}) VALUES({2})'.format(
                         table,
-                        u', '.join(record.keys()),
-                        u', '.join(['?'] * len(record.keys()))
+                        ', '.join(record.keys()),
+                        ', '.join(['?'] * len(record.keys()))
                     ),
                     list(record.values())
                 )
@@ -34,17 +34,17 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def configure(self, config):
         self.write_url = config.get(
-            u'ckan.datastore.write_url'
-        ).replace(u'example-', u'')
+            'ckan.datastore.write_url'
+        ).replace('example-', '')
 
         return config
 
     def create(self, context, data_dict):
-        columns = str(u', '.join(
-            [e['id'] + u' text' for e in data_dict['fields']]))
+        columns = str(', '.join(
+            [e['id'] + ' text' for e in data_dict['fields']]))
         engine = self._get_engine()
         engine.execute(
-            u' CREATE TABLE IF NOT EXISTS "{name}"({columns});'.format(
+            ' CREATE TABLE IF NOT EXISTS "{name}"({columns});'.format(
                 name=data_dict['resource_id'],
                 columns=columns
             ))
@@ -56,16 +56,16 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def delete(self, context, data_dict):
         engine = self._get_engine()
-        engine.execute(u'DROP TABLE IF EXISTS "{0}"'.format(
+        engine.execute('DROP TABLE IF EXISTS "{0}"'.format(
             data_dict['resource_id']
         ))
         return data_dict
 
     def search(self, context, data_dict):
         engine = self._get_engine()
-        result = engine.execute(u'SELECT * FROM "{0}" LIMIT {1}'.format(
+        result = engine.execute('SELECT * FROM "{0}" LIMIT {1}'.format(
             data_dict['resource_id'],
-            data_dict.get(u'limit', 10)
+            data_dict.get('limit', 10)
         ))
 
         data_dict['records'] = list(map(dict, result.fetchall()))
@@ -75,8 +75,8 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
         for name, type in self.resource_fields(
                 data_dict['resource_id'])['schema'].items():
             fields_info.append({
-                u'type': type,
-                u'id': name
+                'type': type,
+                'id': name
             })
         data_dict['fields'] = fields_info
         return data_dict
@@ -92,7 +92,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def resource_exists(self, id):
         return self._get_engine().execute(
-            u'''
+            '''
             select name from sqlite_master
             where type = "table" and name = "{0}"'''.format(
                 id)
@@ -101,12 +101,12 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
     def resource_fields(self, id):
         engine = self._get_engine()
         info = engine.execute(
-            u'PRAGMA table_info("{0}")'.format(id)).fetchall()
+            'PRAGMA table_info("{0}")'.format(id)).fetchall()
 
         schema = {}
         for col in info:
             schema[col.name] = col.type
-        return {u'schema': schema, u'meta': {}}
+        return {'schema': schema, 'meta': {}}
 
     def resource_id_from_alias(self, alias):
         if self.resource_exists(alias):
@@ -115,7 +115,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def get_all_ids(self):
         return [t.name for t in self._get_engine().execute(
-            u'''
+            '''
             select name from sqlite_master
             where type = "table"'''
         ).fetchall()]

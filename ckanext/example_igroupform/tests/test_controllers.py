@@ -9,8 +9,8 @@ import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
 
-custom_group_type = u"grup"
-group_type = u"group"
+custom_group_type = "grup"
+group_type = "group"
 
 
 def _get_group_new_page(app, group_type):
@@ -155,8 +155,8 @@ class TestGroupControllerNew(object):
         )
 
         # check saved ok
-        group = model.Group.by_name(u"saved")
-        assert group.title == u""
+        group = model.Group.by_name("saved")
+        assert group.title == ""
         assert group.type == custom_group_type
         assert group.state == "active"
 
@@ -181,8 +181,8 @@ class TestGroupControllerNew_DefaultGroupType(object):
         )
 
         # check saved ok
-        group = model.Group.by_name(u"saved")
-        assert group.title == u""
+        group = model.Group.by_name("saved")
+        assert group.title == ""
         assert group.type == group_type
         assert group.state == "active"
 
@@ -241,20 +241,20 @@ class TestGroupControllerEdit_DefaultGroupType(object):
         assert helpers.body_contains(response, "My Custom Group Form!")
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_igroupform_v2")
+@pytest.mark.ckan_config("ckan.plugins", "example_igroupform_v2")
 @pytest.mark.usefixtures(
     "with_plugins", "with_request_context"
 )
 class TestGroupBlueprintPreparations(object):
     def test_additional_routes_are_registered(self, app):
         resp = app.get("/fancy_type/fancy-route", status=200)
-        assert resp.body == u'Hello, fancy_type'
+        assert resp.body == 'Hello, fancy_type'
 
     def test_existing_routes_are_replaced(self, app):
         resp = app.get("/fancy_type/new", status=200)
-        assert resp.body == u'Hello, new fancy_type'
+        assert resp.body == 'Hello, new fancy_type'
 
-    @pytest.mark.usefixtures(u'clean_db', u'clean_index')
+    @pytest.mark.usefixtures('clean_db', 'clean_index')
     def test_existing_routes_are_untouched(self, app):
         resp = app.get("/fancy_type", status=200)
         page = bs4.BeautifulSoup(resp.body)
@@ -264,7 +264,7 @@ class TestGroupBlueprintPreparations(object):
         assert links == ['/', '/fancy_type/']
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_igroupform")
+@pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
 @pytest.mark.usefixtures(
     "with_plugins", "with_request_context", "clean_db"
 )

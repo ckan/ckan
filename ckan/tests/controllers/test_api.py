@@ -19,8 +19,8 @@ from ckan.lib import uploader as ckan_uploader
 class TestApiController(object):
     def test_resource_create_upload_file(
             self, app, monkeypatch, tmpdir, ckan_config):
-        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan_uploader, u'_storage_path', str(tmpdir))
+        monkeypatch.setitem(ckan_config, 'ckan.storage_path', str(tmpdir))
+        monkeypatch.setattr(ckan_uploader, '_storage_path', str(tmpdir))
 
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user["id"])
@@ -54,7 +54,7 @@ class TestApiController(object):
         # Use tag_delete to echo back some unicode
 
         org_url = "/api/action/tag_delete"
-        data_dict = {"id": u"Delta symbol: \u0394"}  # unicode gets rec'd ok
+        data_dict = {"id": "Delta symbol: \u0394"}  # unicode gets rec'd ok
         response = app.post(url=org_url, data=data_dict, status=404)
         # The unicode is backslash encoded (because that is the default when
         # you do str(exception) )
@@ -68,17 +68,17 @@ class TestApiController(object):
         )
         assert url == "/api/2/util/dataset/autocomplete"
 
-        response = app.get(url=url, query_string={"incomplete": u"rive"}, status=200)
+        response = app.get(url=url, query_string={"incomplete": "rive"}, status=200)
 
         results = json.loads(response.body)
         assert results == {
-            u"ResultSet": {
-                u"Result": [
+            "ResultSet": {
+                "Result": [
                     {
-                        u"match_field": u"name",
-                        u"name": u"rivers",
-                        u"match_displayed": u"rivers",
-                        u"title": dataset["title"],
+                        "match_field": "name",
+                        "name": "rivers",
+                        "match_displayed": "rivers",
+                        "title": dataset["title"],
                     }
                 ]
             }
@@ -96,17 +96,17 @@ class TestApiController(object):
         )
         assert url == "/api/2/util/dataset/autocomplete"
 
-        response = app.get(url=url, query_string={"incomplete": u"riv"}, status=200)
+        response = app.get(url=url, query_string={"incomplete": "riv"}, status=200)
 
         results = json.loads(response.body)
         assert results == {
-            u"ResultSet": {
-                u"Result": [
+            "ResultSet": {
+                "Result": [
                     {
-                        u"match_field": u"title",
-                        u"name": dataset["name"],
-                        u"match_displayed": u"Rivers (test_ri)",
-                        u"title": u"Rivers",
+                        "match_field": "title",
+                        "name": dataset["name"],
+                        "match_displayed": "Rivers (test_ri)",
+                        "title": "Rivers",
                     }
                 ]
             }
@@ -121,7 +121,7 @@ class TestApiController(object):
         url = url_for(controller="api", action="tag_autocomplete", ver="/2")
         assert url == "/api/2/util/tag/autocomplete"
 
-        response = app.get(url=url, query_string={"incomplete": u"rive"}, status=200)
+        response = app.get(url=url, query_string={"incomplete": "rive"}, status=200)
 
         results = json.loads(response.body)
         assert results == {"ResultSet": {"Result": [{"Name": "rivers"}]}}
@@ -135,7 +135,7 @@ class TestApiController(object):
         url = url_for(controller="api", action="group_autocomplete", ver="/2")
         assert url == "/api/2/util/group/autocomplete"
 
-        response = app.get(url=url, query_string={"q": u"rive"}, status=200)
+        response = app.get(url=url, query_string={"q": "rive"}, status=200)
 
         results = json.loads(response.body)
         assert len(results) == 1
@@ -150,7 +150,7 @@ class TestApiController(object):
         org = factories.Group(name="frogs", title="Bugs")
         url = url_for(controller="api", action="group_autocomplete", ver="/2")
 
-        response = app.get(url=url, query_string={"q": u"bug"}, status=200)
+        response = app.get(url=url, query_string={"q": "bug"}, status=200)
 
         results = json.loads(response.body)
         assert len(results) == 1
@@ -163,7 +163,7 @@ class TestApiController(object):
         )
         assert url == "/api/2/util/organization/autocomplete"
 
-        response = app.get(url=url, query_string={"q": u"simple"}, status=200)
+        response = app.get(url=url, query_string={"q": "simple"}, status=200)
 
         results = json.loads(response.body)
         assert len(results) == 1
@@ -180,7 +180,7 @@ class TestApiController(object):
             controller="api", action="organization_autocomplete", ver="/2"
         )
 
-        response = app.get(url=url, query_string={"q": u"simple dum"}, status=200)
+        response = app.get(url=url, query_string={"q": "simple dum"}, status=200)
 
         results = json.loads(response.body)
         assert len(results) == 1

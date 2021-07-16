@@ -16,7 +16,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"book": "annakarenina"}, {u"book": "warandpeace"}],
+            "records": [{"book": "annakarenina"}, {"book": "warandpeace"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -35,23 +35,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -63,7 +63,7 @@ class TestDatastoreDump(object):
         response = app.get("/datastore/dump/{0}".format(str(resource["id"])))
         content = six.ensure_text(response.data)
         expected = (
-            u"_id,b\xfck,author,published" u",characters,random_letters,nested"
+            "_id,b\xfck,author,published" ",characters,random_letters,nested"
         )
         assert content[: len(expected)] == expected
         assert "warandpeace" in content
@@ -77,7 +77,7 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "aliases": "books",
-            "records": [{u"book": "annakarenina"}, {u"book": "warandpeace"}],
+            "records": [{"book": "annakarenina"}, {"book": "warandpeace"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -102,7 +102,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"book": "annakarenina"}, {u"book": "warandpeace"}],
+            "records": [{"book": "annakarenina"}, {"book": "warandpeace"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -110,7 +110,7 @@ class TestDatastoreDump(object):
             "/datastore/dump/{0}?limit=1".format(str(resource["id"]))
         )
         content = six.ensure_text(response.data)
-        expected_content = u"_id,book\r\n" u"1,annakarenina\n"
+        expected_content = "_id,book\r\n" "1,annakarenina\n"
         assert content == expected_content
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -121,23 +121,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -147,13 +147,13 @@ class TestDatastoreDump(object):
         helpers.call_action("datastore_create", **data)
 
         response = app.get(
-            u"/datastore/dump/{0}?q=warandpeace&fields=nested,author".format(
+            "/datastore/dump/{0}?q=warandpeace&fields=nested,author".format(
                 resource["id"]
             )
         )
         content = six.ensure_text(response.data)
 
-        expected_content = u"nested,author\r\n" u'"{""a"": ""b""}",tolstoy\n'
+        expected_content = "nested,author\r\n" '"{""a"": ""b""}",tolstoy\n'
         assert content == expected_content
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -164,23 +164,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -190,7 +190,7 @@ class TestDatastoreDump(object):
         helpers.call_action("datastore_create", **data)
 
         res = app.get(
-            u"/datastore/dump/{0}?limit=1&format=csv".format(
+            "/datastore/dump/{0}?limit=1&format=csv".format(
                 resource["id"]
             )
         )
@@ -210,23 +210,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -243,11 +243,11 @@ class TestDatastoreDump(object):
         content = six.ensure_text(res.data)
 
         expected_content = (
-            u"_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t"
-            u"nested\r\n1\tannakarenina\ttolstoy\t2005-03-01T00:00:00\t"
-            u'"[""Princess Anna"",""Sergius""]"\t'
-            u'"[""a"",""e"",""x""]"\t"[""b"", '
-            u'{""moo"": ""moo""}]"\n'
+            "_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t"
+            "nested\r\n1\tannakarenina\ttolstoy\t2005-03-01T00:00:00\t"
+            '"[""Princess Anna"",""Sergius""]"\t'
+            '"[""a"",""e"",""x""]"\t"[""b"", '
+            '{""moo"": ""moo""}]"\n'
         )
         assert content == expected_content
 
@@ -259,23 +259,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -305,23 +305,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -338,21 +338,21 @@ class TestDatastoreDump(object):
 
         content = json.loads(six.ensure_text(res.data))
         expected_content = {
-            u'fields': [
-                {u'id': u'_id', u'type': u'int'},
-                {u'id': u'bük', u'type': u'text'},
-                {u'id': u'author', u'type': u'text'},
-                {u'id': u'published', u'type': u'timestamp'},
-                {u'id': u'characters', u'type': u'_text'},
-                {u'id': u'random_letters', u'type': u'_text'},
-                {u'id': u'nested', u'type': u'json'}
+            'fields': [
+                {'id': '_id', 'type': 'int'},
+                {'id': 'bük', 'type': 'text'},
+                {'id': 'author', 'type': 'text'},
+                {'id': 'published', 'type': 'timestamp'},
+                {'id': 'characters', 'type': '_text'},
+                {'id': 'random_letters', 'type': '_text'},
+                {'id': 'nested', 'type': 'json'}
             ],
-            u'records': [
+            'records': [
                 [
-                    1, u'annakarenina', u'tolstoy', u'2005-03-01T00:00:00',
-                    [u'Princess Anna', u'Sergius'],
-                    [u'a', u'e', u'x'],
-                    [u'b', {u'moo': u'moo'}]
+                    1, 'annakarenina', 'tolstoy', '2005-03-01T00:00:00',
+                    ['Princess Anna', 'Sergius'],
+                    ['a', 'e', 'x'],
+                    ['b', {'moo': 'moo'}]
                 ]
             ]
         }
@@ -366,23 +366,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -412,23 +412,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -444,28 +444,28 @@ class TestDatastoreDump(object):
         )
         content = six.ensure_text(res.data)
         expected_content = (
-            u"<data>\n"
+            "<data>\n"
             r'<row _id="1">'
-            u"<b\xfck>annakarenina</b\xfck>"
-            u"<author>tolstoy</author>"
-            u"<published>2005-03-01T00:00:00</published>"
-            u"<characters>"
-            u'<value key="0">Princess Anna</value>'
-            u'<value key="1">Sergius</value>'
-            u"</characters>"
-            u"<random_letters>"
-            u'<value key="0">a</value>'
-            u'<value key="1">e</value>'
-            u'<value key="2">x</value>'
-            u"</random_letters>"
-            u"<nested>"
-            u'<value key="0">b</value>'
-            u'<value key="1">'
-            u'<value key="moo">moo</value>'
-            u"</value>"
-            u"</nested>"
-            u"</row>\n"
-            u"</data>\n"
+            "<b\xfck>annakarenina</b\xfck>"
+            "<author>tolstoy</author>"
+            "<published>2005-03-01T00:00:00</published>"
+            "<characters>"
+            '<value key="0">Princess Anna</value>'
+            '<value key="1">Sergius</value>'
+            "</characters>"
+            "<random_letters>"
+            '<value key="0">a</value>'
+            '<value key="1">e</value>'
+            '<value key="2">x</value>'
+            "</random_letters>"
+            "<nested>"
+            '<value key="0">b</value>'
+            '<value key="1">'
+            '<value key="moo">moo</value>'
+            "</value>"
+            "</nested>"
+            "</row>\n"
+            "</data>\n"
         )
         assert content == expected_content
 
@@ -477,23 +477,23 @@ class TestDatastoreDump(object):
             "resource_id": resource["id"],
             "force": True,
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "random_letters", "type": "text[]"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "random_letters": ["a", "e", "x"],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "random_letters": [],
@@ -523,7 +523,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in list(range(12))],
+            "records": [{"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -538,7 +538,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in list(range(12))],
+            "records": [{"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -554,7 +554,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in list(range(12))],
+            "records": [{"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -572,7 +572,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in list(range(12))],
+            "records": [{"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -590,7 +590,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in list(range(12))],
+            "records": [{"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -608,7 +608,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in list(range(12))],
+            "records": [{"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -626,7 +626,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in list(range(12))],
+            "records": [{"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -646,7 +646,7 @@ class TestDatastoreDump(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{u"record": str(num)} for num in list(range(12))],
+            "records": [{"record": str(num)} for num in list(range(12))],
         }
         helpers.call_action("datastore_create", **data)
 

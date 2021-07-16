@@ -150,13 +150,13 @@ class DomainObject(object):
         return repr(self)
 
     def __unicode__(self):
-        repr = u'<%s' % self.__class__.__name__
+        repr = '<%s' % self.__class__.__name__
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
             try:
-                repr += u' %s=%s' % (col.name, getattr(self, col.name))
+                repr += ' %s=%s' % (col.name, getattr(self, col.name))
             except Exception as inst:
-                repr += u' %s=%s' % (col.name, inst)
+                repr += ' %s=%s' % (col.name, inst)
 
         repr += '>'
         return repr

@@ -15,8 +15,8 @@ def initial_data(clean_db):
 
     # make 3 changes, authored by annafan
     for i in range(3):
-        pkg = model.Package.by_name(u"annakarenina")
-        pkg.notes = u"Changed notes %i" % i
+        pkg = model.Package.by_name("annakarenina")
+        pkg.notes = "Changed notes %i" % i
         model.repo.commit_and_remove()
 
     CreateTestData.create_user(
@@ -27,11 +27,11 @@ def initial_data(clean_db):
     )
     CreateTestData.create_user(
         "spammer",
-        about=u'<a href="http://mysite">mysite</a> <a href=\u201dhttp://test2\u201d>test2</a>',
+        about='<a href="http://mysite">mysite</a> <a href=\u201dhttp://test2\u201d>test2</a>',
     )
     CreateTestData.create_user(
         "spammer2",
-        about=u'<a href="http://spamsite1.com\u201d>spamsite1</a>\r\n<a href="http://www.spamsite2.com\u201d>spamsite2</a>\r\n',
+        about='<a href="http://spamsite1.com\u201d>spamsite1</a>\r\n<a href="http://www.spamsite2.com\u201d>spamsite2</a>\r\n',
     )
 
 
@@ -50,7 +50,7 @@ def test_user_delete_redirects_to_user_index(app):
 
 
 def test_user_delete_by_unauthorized_user(app):
-    user = model.User.by_name(u"annafan")
+    user = model.User.by_name("annafan")
     url = url_for("user.delete", id=user.id)
     extra_environ = {"REMOTE_USER": "an_unauthorized_user"}
 
@@ -68,10 +68,10 @@ def test_user_read_me_without_id(app):
 
 
 def test_apikey(app):
-    username = u"okfntest"
-    user = model.User.by_name(u"okfntest")
+    username = "okfntest"
+    user = model.User.by_name("okfntest")
     if not user:
-        user = model.User(name=u"okfntest")
+        user = model.User(name="okfntest")
         model.Session.add(user)
         model.Session.commit()
         model.Session.remove()
@@ -89,7 +89,7 @@ def test_apikey(app):
 def test_perform_reset_user_password_link_key_incorrect(app):
     CreateTestData.create_user(name="jack", password="TestPassword1")
     # Make up a key - i.e. trying to hack this
-    user = model.User.by_name(u"jack")
+    user = model.User.by_name("jack")
     offset = url_for(
         controller="user", action="perform_reset", id=user.id, key="randomness"
     )  # i.e. incorrect
@@ -98,7 +98,7 @@ def test_perform_reset_user_password_link_key_incorrect(app):
 
 def test_perform_reset_user_password_link_key_missing(app):
     CreateTestData.create_user(name="jack", password="TestPassword1")
-    user = model.User.by_name(u"jack")
+    user = model.User.by_name("jack")
     offset = url_for(
         controller="user", action="perform_reset", id=user.id
     )  # not, no key specified
@@ -107,7 +107,7 @@ def test_perform_reset_user_password_link_key_missing(app):
 
 def test_perform_reset_user_password_link_user_incorrect(app):
     # Make up a key - i.e. trying to hack this
-    user = model.User.by_name(u"jack")
+    user = model.User.by_name("jack")
     offset = url_for(
         controller="user",
         action="perform_reset",

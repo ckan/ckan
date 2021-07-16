@@ -11,21 +11,21 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = u'19ddad52b500'
-down_revision = u'9fadda785b07'
+revision = '19ddad52b500'
+down_revision = '9fadda785b07'
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
     op.add_column(
-        u'user',
+        'user',
         sa.Column(
-            u'plugin_extras',
+            'plugin_extras',
             postgresql.JSONB(astext_type=sa.Text()),
             nullable=True)
     )
 
 
 def downgrade():
-    op.drop_column(u'user', u'plugin_extras')
+    op.drop_column('user', 'plugin_extras')

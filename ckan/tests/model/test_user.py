@@ -32,7 +32,7 @@ def _set_password(password):
     return hashed_password
 
 
-@pytest.mark.usefixtures("clean_db", u"with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUser:
     def test_upgrade_from_sha(self):
         user = factories.User()
@@ -50,7 +50,7 @@ class TestUser:
 
     def test_upgrade_from_sha_with_unicode_password(self):
         user = factories.User()
-        password = u"testpassword\xc2\xa0"
+        password = "testpassword\xc2\xa0"
         user_obj = model.User.by_name(user["name"])
 
         # setup our user with an old password hash
@@ -68,7 +68,7 @@ class TestUser:
 
     def test_upgrade_from_sha_with_wrong_password_fails_to_upgrade(self):
         user = factories.User()
-        password = u"testpassword"
+        password = "testpassword"
         user_obj = model.User.by_name(user["name"])
 
         old_hash = _set_password(password)
@@ -86,7 +86,7 @@ class TestUser:
         passlib, ckan should upgrade the password hashes for people without
         involvement from users"""
         user = factories.User()
-        password = u"testpassword"
+        password = "testpassword"
         user_obj = model.User.by_name(user["name"])
 
         # setup hash with salt/rounds less than the default
@@ -108,7 +108,7 @@ class TestUser:
 
     def test_upgrade_from_pbkdf2_fails_with_wrong_password(self):
         user = factories.User()
-        password = u"testpassword"
+        password = "testpassword"
         user_obj = model.User.by_name(user["name"])
 
         # setup hash with salt/rounds less than the default
@@ -123,7 +123,7 @@ class TestUser:
 
     def test_pbkdf2_password_auth(self):
         user = factories.User()
-        password = u"testpassword"
+        password = "testpassword"
         user_obj = model.User.by_name(user["name"])
 
         user_obj._set_password(password)
@@ -132,7 +132,7 @@ class TestUser:
 
     def test_pbkdf2_password_auth_unicode(self):
         user = factories.User()
-        password = u"testpassword\xc2\xa0"
+        password = "testpassword\xc2\xa0"
         user_obj = model.User.by_name(user["name"])
         user_obj._set_password(password)
         user_obj.save()

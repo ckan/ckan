@@ -5,10 +5,10 @@ from ckan.model import domain_object
 
 class System(domain_object.DomainObject):
 
-    name = u'system'
+    name = 'system'
 
     def __unicode__(self):
-        return u'<%s>' % self.__class__.__name__
+        return '<%s>' % self.__class__.__name__
 
     def purge(self):
         pass

@@ -4,14 +4,14 @@ import click
 import ckan.plugins.toolkit as tk
 
 
-@click.command(u"example-iclick-hello")
+@click.command("example-iclick-hello")
 def hello_cmd():
     """Example of single command.
     """
-    click.secho(u"Hello, World!", fg=u"green")
+    click.secho("Hello, World!", fg="green")
 
 
-@click.group(u"example-iclick-bye")
+@click.group("example-iclick-bye")
 def bye_cmd():
     """Example of group of commands.
     """
@@ -19,14 +19,14 @@ def bye_cmd():
 
 
 @bye_cmd.command()
-@click.argument(u"name", required=False)
+@click.argument("name", required=False)
 def bye(name):
     """Command with optional argument.
     """
     if not name:
-        tk.error_shout(u"I do not know your name.")
+        tk.error_shout("I do not know your name.")
     else:
-        click.secho(u"Bye, {}".format(name))
+        click.secho("Bye, {}".format(name))
 
 
 def get_commands():

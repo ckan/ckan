@@ -24,7 +24,7 @@
 #
 ##############################################################################
 
-u'''Collection of :mod:`repoze.who` friendly forms'''
+'''Collection of :mod:`repoze.who` friendly forms'''
 
 from six.moves.urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
@@ -39,7 +39,7 @@ from zope.interface import implementer
 
 from repoze.who.interfaces import IChallenger, IIdentifier
 
-__all__ = [u'FriendlyFormPlugin']
+__all__ = ['FriendlyFormPlugin']
 
 
 def construct_url(environ):
@@ -48,7 +48,7 @@ def construct_url(environ):
 
 @implementer(IChallenger, IIdentifier)
 class FriendlyFormPlugin(object):
-    u'''
+    '''
     :class:`RedirectingFormPlugin
     <repoze.who.plugins.form.RedirectingFormPlugin>`-like form plugin with
     more features.
@@ -74,14 +74,14 @@ class FriendlyFormPlugin(object):
     '''
 
     classifications = {
-        IIdentifier: [u'browser'],
-        IChallenger: [u'browser'],
+        IIdentifier: ['browser'],
+        IChallenger: ['browser'],
     }
 
     def __init__(self, login_form_url, login_handler_path, post_login_url,
                  logout_handler_path, post_logout_url, rememberer_name,
-                 login_counter_name=None, charset=u'iso-8859-1'):
-        u'''
+                 login_counter_name=None, charset='iso-8859-1'):
+        '''
 
         :param login_form_url: The URL/path where the login form is located.
         :type login_form_url: str
@@ -121,12 +121,12 @@ class FriendlyFormPlugin(object):
         self.rememberer_name = rememberer_name
         self.login_counter_name = login_counter_name
         if not login_counter_name:
-            self.login_counter_name = u'__logins'
+            self.login_counter_name = '__logins'
         self.charset = charset
 
     # IIdentifier
     def identify(self, environ):
-        u'''
+        '''
         Override the parent's identifier to introduce a login counter
         (possibly along with a post-login page) and load the login counter into
         the ``environ``.
@@ -134,8 +134,8 @@ class FriendlyFormPlugin(object):
         '''
         request = Request(environ, charset=self.charset)
 
-        path_info = environ[u'PATH_INFO']
-        script_name = environ.get(u'SCRIPT_NAME') or u'/'
+        path_info = environ['PATH_INFO']
+        script_name = environ.get('SCRIPT_NAME') or '/'
         query = request.GET
 
         if path_info == self.login_handler_path:
@@ -146,41 +146,41 @@ class FriendlyFormPlugin(object):
             form = dict(request.POST)
             form.update(query)
             try:
-                login = form[u'login']
-                password = form[u'password']
+                login = form['login']
+                password = form['password']
             except KeyError:
                 credentials = None
             else:
-                if request.charset == u'us-ascii':
+                if request.charset == 'us-ascii':
                     credentials = {
-                        u'login': str(login),
-                        u'password': str(password),
+                        'login': str(login),
+                        'password': str(password),
                     }
                 else:
-                    credentials = {u'login': login, u'password': password}
+                    credentials = {'login': login, 'password': password}
 
             try:
-                credentials[u'max_age'] = form[u'remember']
+                credentials['max_age'] = form['remember']
             except KeyError:
                 pass
 
-            referer = environ.get(u'HTTP_REFERER', script_name)
-            destination = form.get(u'came_from', referer)
+            referer = environ.get('HTTP_REFERER', script_name)
+            destination = form.get('came_from', referer)
 
             if self.post_login_url:
                 # There's a post-login page, so we have to replace the
                 # destination with it.
                 destination = self._get_full_path(self.post_login_url,
                                                   environ)
-                if u'came_from' in query:
+                if 'came_from' in query:
                     # There's a referrer URL defined, so we have to pass it to
                     # the post-login page as a GET variable.
                     destination = self._insert_qs_variable(destination,
-                                                           u'came_from',
-                                                           query[u'came_from'])
+                                                           'came_from',
+                                                           query['came_from'])
             failed_logins = self._get_logins(environ, True)
             new_dest = self._set_logins_in_url(destination, failed_logins)
-            environ[u'repoze.who.application'] = HTTPFound(location=new_dest)
+            environ['repoze.who.application'] = HTTPFound(location=new_dest)
             return credentials
 
         elif path_info == self.logout_handler_path:
@@ -189,11 +189,11 @@ class FriendlyFormPlugin(object):
             params = dict(list(r.GET.items()) + list(r.POST.items()))
             form = MultiDict(params)
             form.update(query)
-            referer = environ.get(u'HTTP_REFERER', script_name)
-            came_from = form.get(u'came_from', referer)
+            referer = environ.get('HTTP_REFERER', script_name)
+            came_from = form.get('came_from', referer)
             # set in environ for self.challenge() to find later
-            environ[u'came_from'] = came_from
-            environ[u'repoze.who.application'] = HTTPUnauthorized()
+            environ['came_from'] = came_from
+            environ['repoze.who.application'] = HTTPUnauthorized()
             return None
 
         elif path_info == self.login_form_url or self._get_logins(environ):
@@ -202,15 +202,15 @@ class FriendlyFormPlugin(object):
             # So let's load the counter into the environ and then hide it from
             # the query string (it will cause problems in frameworks like TG2,
             # where this unexpected variable would be passed to the controller)
-            environ[u'repoze.who.logins'] = self._get_logins(environ, True)
+            environ['repoze.who.logins'] = self._get_logins(environ, True)
             # Hiding the GET variable in the environ:
             if self.login_counter_name in query:
                 del query[self.login_counter_name]
-                environ[u'QUERY_STRING'] = urlencode(query, doseq=True)
+                environ['QUERY_STRING'] = urlencode(query, doseq=True)
 
     # IChallenger
     def challenge(self, environ, status, app_headers, forget_headers):
-        u'''
+        '''
         Override the parent's challenge to avoid challenging the user on
         logout, introduce a post-logout page and/or pass the login counter
         to the login form.
@@ -219,40 +219,40 @@ class FriendlyFormPlugin(object):
         url_parts = list(urlparse(self.login_form_url))
         query = url_parts[4]
         query_elements = parse_qs(query)
-        came_from = environ.get(u'came_from', construct_url(environ))
-        query_elements[u'came_from'] = came_from
+        came_from = environ.get('came_from', construct_url(environ))
+        query_elements['came_from'] = came_from
         url_parts[4] = urlencode(query_elements, doseq=True)
         login_form_url = urlunparse(url_parts)
         login_form_url = self._get_full_path(login_form_url, environ)
         destination = login_form_url
         # Configuring the headers to be set:
         cookies = [
-            (h, v) for (h, v) in app_headers if h.lower() == u'set-cookie'
+            (h, v) for (h, v) in app_headers if h.lower() == 'set-cookie'
         ]
         headers = forget_headers + cookies
 
-        if environ[u'PATH_INFO'] == self.logout_handler_path:
+        if environ['PATH_INFO'] == self.logout_handler_path:
             # Let's log the user out without challenging.
-            came_from = environ.get(u'came_from')
+            came_from = environ.get('came_from')
             if self.post_logout_url:
-                # Redirect to a predefined u'post logout' URL.
+                # Redirect to a predefined 'post logout' URL.
                 destination = self._get_full_path(self.post_logout_url,
                                                   environ)
                 if came_from:
                     destination = self._insert_qs_variable(
-                        destination, u'came_from', came_from)
+                        destination, 'came_from', came_from)
             else:
                 # Redirect to the referrer URL.
-                script_name = environ.get(u'SCRIPT_NAME', u'')
-                destination = came_from or script_name or u'/'
+                script_name = environ.get('SCRIPT_NAME', '')
+                destination = came_from or script_name or '/'
 
-        elif u'repoze.who.logins' in environ:
+        elif 'repoze.who.logins' in environ:
             # Login failed! Let's redirect to the login form and include
             # the login counter in the query string
-            environ[u'repoze.who.logins'] += 1
+            environ['repoze.who.logins'] += 1
             # Re-building the URL:
             destination = self._set_logins_in_url(
-                destination, environ[u'repoze.who.logins'])
+                destination, environ['repoze.who.logins'])
 
         return HTTPFound(location=destination, headers=headers)
 
@@ -267,22 +267,22 @@ class FriendlyFormPlugin(object):
         return rememberer.forget(environ, identity)
 
     def _get_rememberer(self, environ):
-        rememberer = environ[u'repoze.who.plugins'][self.rememberer_name]
+        rememberer = environ['repoze.who.plugins'][self.rememberer_name]
         return rememberer
 
     def _get_full_path(self, path, environ):
-        u'''
+        '''
         Return the full path to ``path`` by prepending the SCRIPT_NAME.
 
         If ``path`` is a URL, do nothing.
 
         '''
-        if path.startswith(u'/'):
-            path = environ.get(u'SCRIPT_NAME', u'') + path
+        if path.startswith('/'):
+            path = environ.get('SCRIPT_NAME', '') + path
         return path
 
     def _get_logins(self, environ, force_typecast=False):
-        u'''
+        '''
         Return the login counter from the query string in the ``environ``.
 
         If it's not possible to convert it into an integer and
@@ -306,7 +306,7 @@ class FriendlyFormPlugin(object):
         return failed_logins
 
     def _set_logins_in_url(self, url, logins):
-        u'''
+        '''
         Insert the login counter variable with the ``logins`` value into
         ``url`` and return the new URL.
 
@@ -314,7 +314,7 @@ class FriendlyFormPlugin(object):
         return self._insert_qs_variable(url, self.login_counter_name, logins)
 
     def _insert_qs_variable(self, url, var_name, var_value):
-        u'''
+        '''
         Insert the variable ``var_name`` with value ``var_value`` in the query
         string of ``url`` and return the new URL.
 
@@ -326,4 +326,4 @@ class FriendlyFormPlugin(object):
         return urlunparse(url_parts)
 
     def __repr__(self):
-        return u'<%s %s>' % (self.__class__.__name__, id(self))
+        return '<%s %s>' % (self.__class__.__name__, id(self))

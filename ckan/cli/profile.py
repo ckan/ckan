@@ -9,7 +9,7 @@ from ckan.cli import error_shout
 
 
 @click.group(
-    short_help=u"Code speed profiler.", invoke_without_command=True,
+    short_help="Code speed profiler.", invoke_without_command=True,
 )
 @click.pass_context
 def profile(ctx):
@@ -33,9 +33,9 @@ def profile(ctx):
         ctx.invoke(profile)
 
 
-@profile.command(short_help=u"Code speed profiler.",)
-@click.argument(u"url")
-@click.argument(u"user", required=False, default=u"visitor")
+@profile.command(short_help="Code speed profiler.",)
+@click.argument("url")
+@click.argument("user", required=False, default="visitor")
 def profile(url, user):
     import cProfile
     from ckan.tests.helpers import _get_test_app
@@ -45,24 +45,24 @@ def profile(url, user):
     def profile_url(url):
         try:
             res = app.get(
-                url, status=[200], extra_environ={u"REMOTE_USER": str(user)}
+                url, status=[200], extra_environ={"REMOTE_USER": str(user)}
             )
         except KeyboardInterrupt:
             raise
         except Exception:
             error_shout(traceback.format_exc())
 
-    output_filename = u"ckan%s.profile" % re.sub(
-        u"[/?]", u".", url.replace(u"/", u".")
+    output_filename = "ckan%s.profile" % re.sub(
+        "[/?]", ".", url.replace("/", ".")
     )
-    profile_command = u"profile_url('%s')" % url
+    profile_command = "profile_url('%s')" % url
     cProfile.runctx(
         profile_command, globals(), locals(), filename=output_filename
     )
     import pstats
 
     stats = pstats.Stats(output_filename)
-    stats.sort_stats(u"cumulative")
+    stats.sort_stats("cumulative")
     stats.print_stats(0.1)  # show only top 10% of lines
-    click.secho(u"Only top 10% of lines shown")
-    click.secho(u"Written profile to: %s" % output_filename, fg=u"green")
+    click.secho("Only top 10% of lines shown")
+    click.secho("Written profile to: %s" % output_filename, fg="green")

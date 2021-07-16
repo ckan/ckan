@@ -61,17 +61,17 @@ log = logging.getLogger(__name__)
 LOCALE_ALIASES['pt'] = 'pt_BR'
 
 # CKAN root directory
-_CKAN_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), u'..'))
+_CKAN_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 # Output directory for generated JavaScript translations
-_JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, u'public', u'base', u'i18n')
+_JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, 'public', 'base', 'i18n')
 
 
 def get_ckan_i18n_dir():
     path = config.get(
-        u'ckan.i18n_directory', os.path.join(_CKAN_DIR, u'i18n'))
-    if os.path.isdir(os.path.join(path, u'i18n')):
-        path = os.path.join(path, u'i18n')
+        'ckan.i18n_directory', os.path.join(_CKAN_DIR, 'i18n'))
+    if os.path.isdir(os.path.join(path, 'i18n')):
+        path = os.path.join(path, 'i18n')
 
     return path
 
@@ -255,7 +255,7 @@ def _get_js_translation_entries(filename):
         if entry.obsolete:
             continue
         for occ in entry.occurrences:
-            if occ[0].endswith(u'.js'):
+            if occ[0].endswith('.js'):
                 js_entries.add(entry.msgid)
     return js_entries
 
@@ -279,10 +279,10 @@ def _build_js_translation(lang, source_filenames, entries, dest_filename):
     pos = [polib.pofile(fn) for fn in source_filenames]
 
     result = {}
-    result[u''] = {}
-    result[u''][u'plural-forms'] = pos[0].metadata[u'Plural-Forms']
-    result[u''][u'lang'] = lang
-    result[u''][u'domain'] = u'ckan'
+    result[''] = {}
+    result['']['plural-forms'] = pos[0].metadata['Plural-Forms']
+    result['']['lang'] = lang
+    result['']['domain'] = 'ckan'
 
     for po in pos:
         for entry in po:
@@ -295,7 +295,7 @@ def _build_js_translation(lang, source_filenames, entries, dest_filename):
                 ordered_plural = sorted(entry.msgstr_plural.items())
                 for order, msgstr in ordered_plural:
                     plural.append(msgstr)
-    with open(dest_filename, u'w') as f:
+    with open(dest_filename, 'w') as f:
         s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
         f.write(six.ensure_str(s))
 
@@ -309,12 +309,12 @@ def build_js_translations():
     ``ckan.i18n_directory``. These include only those translation
     strings that are actually used in JS files.
     '''
-    log.debug(u'Generating JavaScript translations')
+    log.debug('Generating JavaScript translations')
     ckan_i18n_dir = get_ckan_i18n_dir()
     # Collect all language codes (an extension might add support for a
     # language that isn't supported by CKAN core, yet).
     langs = set()
-    i18n_dirs = collections.OrderedDict([(ckan_i18n_dir, u'ckan')])
+    i18n_dirs = collections.OrderedDict([(ckan_i18n_dir, 'ckan')])
     for item in os.listdir(ckan_i18n_dir):
         if os.path.isdir(os.path.join(ckan_i18n_dir, item)):
             langs.add(item)
@@ -327,7 +327,7 @@ def build_js_translations():
     # (even those for which no translation exists, yet).
     js_entries = set()
     for i18n_dir, domain in six.iteritems(i18n_dirs):
-        pot_file = os.path.join(i18n_dir, domain + u'.pot')
+        pot_file = os.path.join(i18n_dir, domain + '.pot')
         if os.path.isfile(pot_file):
             js_entries.update(_get_js_translation_entries(pot_file))
 
@@ -338,8 +338,8 @@ def build_js_translations():
                 os.path.join(
                     i18n_dir,
                     lang,
-                    u'LC_MESSAGES',
-                    domain + u'.po'
+                    'LC_MESSAGES',
+                    domain + '.po'
                 )
                 for i18n_dir, domain in six.iteritems(i18n_dirs)
             ) if os.path.isfile(fn)
@@ -348,9 +348,9 @@ def build_js_translations():
             continue
 
         latest = max(os.path.getmtime(fn) for fn in po_files)
-        dest_file = os.path.join(_JS_TRANSLATIONS_DIR, lang + u'.js')
+        dest_file = os.path.join(_JS_TRANSLATIONS_DIR, lang + '.js')
         if os.path.isfile(dest_file) and os.path.getmtime(dest_file) > latest:
-            log.debug(u'JS translation for "{}" is up to date'.format(lang))
+            log.debug('JS translation for "{}" is up to date'.format(lang))
         else:
-            log.debug(u'Generating JS translation for "{}"'.format(lang))
+            log.debug('Generating JS translation for "{}"'.format(lang))
             _build_js_translation(lang, po_files, js_entries, dest_file)

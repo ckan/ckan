@@ -16,18 +16,18 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def initial_data(self, clean_db, clean_index):
         CreateTestData.create()
         self.package_fixture_data = {
-            "name": u"testpkg",
+            "name": "testpkg",
             "title": "Some Title",
-            "url": u"http://blahblahblah.mydomain",
+            "url": "http://blahblahblah.mydomain",
             "resources": [
                 {
-                    u"url": u"http://blahblahblah.mydomain",
-                    u"format": u"",
-                    u"description": "",
+                    "url": "http://blahblahblah.mydomain",
+                    "format": "",
+                    "description": "",
                 }
             ],
             "tags": ["russion", "novel"],
-            "license_id": u"gpl-3.0",
+            "license_id": "gpl-3.0",
             "extras": {
                 "national_statistic": "yes",
                 "geographic_coverage": "England, Wales",
@@ -114,18 +114,18 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
     def initial_data(self, clean_db, clean_index):
         CreateTestData.create()
         self.package_fixture_data = {
-            "name": u"testpkg",
+            "name": "testpkg",
             "title": "Some Title",
-            "url": u"http://blahblahblah.mydomain",
+            "url": "http://blahblahblah.mydomain",
             "resources": [
                 {
-                    u"url": u"http://blahblahblah.mydomain",
-                    u"format": u"",
-                    u"description": "",
+                    "url": "http://blahblahblah.mydomain",
+                    "format": "",
+                    "description": "",
                 }
             ],
             "tags": ["russion", "novel"],
-            "license_id": u"gpl-3.0",
+            "license_id": "gpl-3.0",
             "extras": {
                 "national_statistic": "yes",
                 "geographic_coverage": "England, Wales",
@@ -150,14 +150,14 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         assert res_dict["count"] == 1, res_dict
 
     def test_10_single_tag_with_plus(self):
-        tagname = "Flexible+" + quote(u"\u30a1".encode("utf8"))
+        tagname = "Flexible+" + quote("\u30a1".encode("utf8"))
         offset = self.base_url + "?tags=%s&all_fields=1" % tagname
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert res_dict["count"] == 2, res_dict
 
     def test_10_multi_tags_with_ampersand_including_a_multiword_tagame(self):
-        tagname = "Flexible+" + quote(u"\u30a1".encode("utf8"))
+        tagname = "Flexible+" + quote("\u30a1".encode("utf8"))
         offset = self.base_url + "?tags=tolstoy&tags=%s&all_fields=1" % tagname
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)

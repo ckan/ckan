@@ -40,17 +40,17 @@ class TestStatsPlugin(object):
         factories.Dataset(name="test4", user=user)
 
         # week 2
-        model.Package.by_name(u"test2").delete()
+        model.Package.by_name("test2").delete()
         model.repo.commit_and_remove()
 
         # week 3
-        model.Package.by_name(u"test3").title = "Test 3"
+        model.Package.by_name("test3").title = "Test 3"
         model.repo.commit_and_remove()
-        model.Package.by_name(u"test4").title = "Test 4"
+        model.Package.by_name("test4").title = "Test 4"
         model.repo.commit_and_remove()
 
         # week 4
-        model.Package.by_name(u"test3").notes = "Test 3 notes"
+        model.Package.by_name("test3").notes = "Test 3 notes"
         model.repo.commit_and_remove()
 
     def test_largest_groups(self):

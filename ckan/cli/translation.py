@@ -11,97 +11,97 @@ import six
 from ckan.common import config
 from ckan.lib.i18n import build_js_translations
 
-ckan_path = os.path.join(os.path.dirname(__file__), u'..')
+ckan_path = os.path.join(os.path.dirname(__file__), '..')
 
 log = logging.getLogger(__name__)
 
 
-@click.group(name=u'translation', short_help=u'Translation management')
+@click.group(name='translation', short_help='Translation management')
 def translation():
     pass
 
 
 @translation.command(
-    u'js', short_help=u'Generate the javascript translations.'
+    'js', short_help='Generate the javascript translations.'
 )
 def js():
     build_js_translations()
-    click.secho(u'JS translation build: SUCCESS', fg=u'green', bold=True)
+    click.secho('JS translation build: SUCCESS', fg='green', bold=True)
 
 
 @translation.command(
-    u'mangle', short_help=u'Mangle the zh_TW translations for testing.'
+    'mangle', short_help='Mangle the zh_TW translations for testing.'
 )
 def mangle():
-    u'''This will mangle the zh_TW translations for translation coverage
+    '''This will mangle the zh_TW translations for translation coverage
     testing.
 
     NOTE: This will destroy the current translations fot zh_TW
     '''
     i18n_path = get_i18n_path()
-    pot_path = os.path.join(i18n_path, u'ckan.pot')
+    pot_path = os.path.join(i18n_path, 'ckan.pot')
     po = polib.pofile(pot_path)
     # we don't want to mangle the following items in strings
     # %(...)s  %s %0.3f %1$s %2$0.3f [1:...] {...} etc
 
     # sprintf bit after %
-    spf_reg_ex = u"\\+?(0|'.)?-?\\d*(.\\d*)?[\\%bcdeufosxX]"
+    spf_reg_ex = "\\+?(0|'.)?-?\\d*(.\\d*)?[\\%bcdeufosxX]"
 
-    extract_reg_ex = u'(\\%\\([^\\)]*\\)' + spf_reg_ex + \
-                     u'|\\[\\d*\\:[^\\]]*\\]' + \
-                     u'|\\{[^\\}]*\\}' + \
-                     u'|<[^>}]*>' + \
-                     u'|\\%((\\d)*\\$)?' + spf_reg_ex + u')'
+    extract_reg_ex = '(\\%\\([^\\)]*\\)' + spf_reg_ex + \
+                     '|\\[\\d*\\:[^\\]]*\\]' + \
+                     '|\\{[^\\}]*\\}' + \
+                     '|<[^>}]*>' + \
+                     '|\\%((\\d)*\\$)?' + spf_reg_ex + ')'
 
     for entry in po:
-        msg = entry.msgid.encode(u'utf-8')
+        msg = entry.msgid.encode('utf-8')
         matches = re.finditer(extract_reg_ex, msg)
         length = len(msg)
         position = 0
-        translation = u''
+        translation = ''
         for match in matches:
-            translation += u'-' * (match.start() - position)
+            translation += '-' * (match.start() - position)
             position = match.end()
             translation += match.group(0)
-        translation += u'-' * (length - position)
+        translation += '-' * (length - position)
         entry.msgstr = translation
-    out_dir = os.path.join(i18n_path, u'zh_TW', u'LC_MESSAGES')
+    out_dir = os.path.join(i18n_path, 'zh_TW', 'LC_MESSAGES')
     try:
         os.makedirs(out_dir)
     except OSError:
         pass
-    po.metadata[u'Plural-Forms'] = u"nplurals=1; plural=0\n"
-    out_po = os.path.join(out_dir, u'ckan.po')
-    out_mo = os.path.join(out_dir, u'ckan.mo')
+    po.metadata['Plural-Forms'] = "nplurals=1; plural=0\n"
+    out_po = os.path.join(out_dir, 'ckan.po')
+    out_mo = os.path.join(out_dir, 'ckan.mo')
     po.save(out_po)
     po.save_as_mofile(out_mo)
-    click.secho(u'zh_TW has been mangled', fg=u'green', bold=True)
+    click.secho('zh_TW has been mangled', fg='green', bold=True)
 
 
 @translation.command(
-    u'check-po', short_help=u'Check po files for common mistakes'
+    'check-po', short_help='Check po files for common mistakes'
 )
-@click.argument(u'files', nargs=-1, type=click.Path(exists=True))
+@click.argument('files', nargs=-1, type=click.Path(exists=True))
 def check_po(files):
     for file in files:
         errors = check_po_file(file)
         for msgid, msgstr in errors:
-            click.echo(u"Format specifiers don't match:")
+            click.echo("Format specifiers don't match:")
             click.echo(
-                u'\t{} -> {}'.format(
-                    msgid, msgstr.encode(u'ascii', u'replace')
+                '\t{} -> {}'.format(
+                    msgid, msgstr.encode('ascii', 'replace')
                 )
             )
 
 
 @translation.command(
-    u'sync-msgids', short_help=u'Update the msgids on the po files '
+    'sync-msgids', short_help='Update the msgids on the po files '
     'with the ones on the pot file'
 )
-@click.argument(u'files', nargs=-1, type=click.Path(exists=True))
+@click.argument('files', nargs=-1, type=click.Path(exists=True))
 def sync_po_msgids(files):
     i18n_path = get_i18n_path()
-    pot_path = os.path.join(i18n_path, u'ckan.pot')
+    pot_path = os.path.join(i18n_path, 'ckan.pot')
     po = polib.pofile(pot_path)
     entries_to_change = {}
     for entry in po.untranslated_entries():
@@ -130,12 +130,12 @@ def sync_po_file_msgids(entries_to_change, path):
 
     po.save()
     click.echo(
-        u'Entries updated in {} file: {}'.format(po.metadata[u'Language'], cnt)
+        'Entries updated in {} file: {}'.format(po.metadata['Language'], cnt)
     )
 
 
 def get_i18n_path():
-    return config.get(u'ckan.i18n_directory', os.path.join(ckan_path, u'i18n'))
+    return config.get('ckan.i18n_directory', os.path.join(ckan_path, 'i18n'))
 
 
 def simple_conv_specs(s):
@@ -145,7 +145,7 @@ def simple_conv_specs(s):
 
     See http://docs.python.org/library/stdtypes.html#string-formatting
     '''
-    simple_conv_specs_re = re.compile(u'\\%\\w')
+    simple_conv_specs_re = re.compile('\\%\\w')
     return simple_conv_specs_re.findall(s)
 
 
@@ -156,7 +156,7 @@ def mapping_keys(s):
 
     See http://docs.python.org/library/stdtypes.html#string-formatting
     '''
-    mapping_keys_re = re.compile(u'\\%\\([^\\)]*\\)\\w')
+    mapping_keys_re = re.compile('\\%\\([^\\)]*\\)\\w')
     return sorted(mapping_keys_re.findall(s))
 
 
@@ -167,7 +167,7 @@ def replacement_fields(s):
 
     See http://docs.python.org/library/string.html#formatstrings
     '''
-    repl_fields_re = re.compile(u'\\{[^\\}]*\\}')
+    repl_fields_re = re.compile('\\{[^\\}]*\\}')
     return sorted(repl_fields_re.findall(s))
 
 
@@ -185,7 +185,7 @@ def check_po_file(path):
                 simple_conv_specs, mapping_keys, replacement_fields
             ):
                 for key, msgstr in six.iteritems(entry.msgstr_plural):
-                    if key == u'0':
+                    if key == '0':
                         error = check_translation(
                             function, entry.msgid, entry.msgstr_plural[key]
                         )

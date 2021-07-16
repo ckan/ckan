@@ -517,7 +517,7 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action(
             "package_update",
             id=dataset["id"],
-            extras=[{"key": u"original media", "value": u'"book"'}],
+            extras=[{"key": "original media", "value": '"book"'}],
         )
 
         assert dataset_["extras"][0]["key"] == "original media"
@@ -534,8 +534,8 @@ class TestDatasetUpdate(object):
             "package_update",
             id=dataset["id"],
             extras=[
-                {"key": u"old attribute", "value": u'value'},
-                {"key": u"original media", "value": u'"book"'},
+                {"key": "old attribute", "value": 'value'},
+                {"key": "original media", "value": '"book"'},
             ],
         )
 
@@ -553,8 +553,8 @@ class TestDatasetUpdate(object):
             "package_update",
             id=dataset["id"],
             extras=[
-                {"key": u"original media", "value": u'"book"'},
-                {"key": u"new attribute", "value": u'value'},
+                {"key": "original media", "value": '"book"'},
+                {"key": "new attribute", "value": 'value'},
             ],
         )
 
@@ -593,20 +593,20 @@ class TestDatasetUpdate(object):
             id=dataset["id"],
             resources=[
                 {
-                    "alt_url": u"alt123",
-                    "description": u"Full text.",
+                    "alt_url": "alt123",
+                    "description": "Full text.",
                     "somekey": "somevalue",  # this is how to do resource extras
-                    "extras": {u"someotherkey": u"alt234"},  # this isnt
-                    "format": u"plain text",
-                    "hash": u"abc123",
+                    "extras": {"someotherkey": "alt234"},  # this isnt
+                    "format": "plain text",
+                    "hash": "abc123",
                     "position": 0,
-                    "url": u"http://datahub.io/download/",
+                    "url": "http://datahub.io/download/",
                 },
                 {
-                    "description": u"Index of the novel",
-                    "format": u"JSON",
+                    "description": "Index of the novel",
+                    "format": "JSON",
                     "position": 1,
-                    "url": u"http://datahub.io/index.json",
+                    "url": "http://datahub.io/index.json",
                 },
             ],
         )
@@ -649,7 +649,7 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action(
             "package_update",
             id=dataset["id"],
-            tags=[{"name": u"russian"}, {"name": u"tolstoy"}],
+            tags=[{"name": "russian"}, {"name": "tolstoy"}],
         )
 
         tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
@@ -1191,16 +1191,16 @@ class TestResourceUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(
             user=user,
-            resources=[dict(format=u"json", url=u"http://datahub.io/")],
+            resources=[dict(format="json", url="http://datahub.io/")],
         )
 
         resource = helpers.call_action(
             "resource_update",
             id=dataset["resources"][0]["id"],
             somekey="somevalue",  # this is how to do resource extras
-            extras={u"someotherkey": u"alt234"},  # this isnt
-            format=u"plain text",
-            url=u"http://datahub.io/download/",
+            extras={"someotherkey": "alt234"},  # this isnt
+            format="plain text",
+            url="http://datahub.io/download/",
         )
 
         assert resource["somekey"] == "somevalue"

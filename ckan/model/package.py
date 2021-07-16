@@ -47,7 +47,7 @@ package_table = Table('package', meta.metadata,
         Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
         Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
         Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('type', types.UnicodeText, default=u'dataset'),
+        Column('type', types.UnicodeText, default='dataset'),
         Column('owner_org', types.UnicodeText),
         Column('creator_user_id', types.UnicodeText),
         Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
@@ -107,7 +107,7 @@ class Package(core.StatefulObjectMixin,
     def related_packages(self):
         return [self]
 
-    def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
+    def add_resource(self, url, format='', description='', hash='', **kw):
         from ckan.model import resource
         self.resources_all.append(resource.Resource(
             package_id=self.id,
@@ -229,10 +229,10 @@ class Package(core.StatefulObjectMixin,
             if self.metadata_created else None
         import ckan.lib.helpers as h
         _dict['notes_rendered'] = h.render_markdown(self.notes)
-        _dict['type'] = self.type or u'dataset'
+        _dict['type'] = self.type or 'dataset'
         return _dict
 
-    def add_relationship(self, type_, related_package, comment=u''):
+    def add_relationship(self, type_, related_package, comment=''):
         '''Creates a new relationship between this package and a
         related_package. It leaves the caller to commit the change.
 
@@ -309,7 +309,7 @@ class Package(core.StatefulObjectMixin,
     def get_relationships_printable(self):
         '''Returns a list of tuples describing related packages, including
         non-direct relationships (such as siblings).
-        @return: e.g. [(annakarenina, u"is a parent"), ...]
+        @return: e.g. [(annakarenina, "is a parent"), ...]
         '''
         from ckan.model.package_relationship import PackageRelationship
         rel_list = []
@@ -424,7 +424,7 @@ class Package(core.StatefulObjectMixin,
         # When the user marks a package as deleted this comes through here as
         # a 'changed' package activity. We detect this and change it to a
         # 'deleted' activity.
-        if activity_type == 'changed' and self.state == u'deleted':
+        if activity_type == 'changed' and self.state == 'deleted':
             if meta.Session.query(activity.Activity).filter_by(
                     object_id=self.id, activity_type='deleted').all():
                 # A 'deleted' activity for this object has already been emitted

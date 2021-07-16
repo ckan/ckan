@@ -157,7 +157,7 @@ class TestDatastoreSearch(object):
         db.get_write_engine().execute(analyze_sql)
         search_data = {
             "resource_id": resource["id"],
-            "filters": {u"the year": 1901},
+            "filters": {"the year": 1901},
             "total_estimation_threshold": 5,
         }
         result = helpers.call_action("datastore_search", **search_data)
@@ -298,7 +298,7 @@ class TestDatastoreSearch(object):
         search_data = {"resource_id": resource["id"], "limit": 1}
         result = helpers.call_action("datastore_search", **search_data)
         assert result["total"] == 2
-        assert result["records"] == [{u"the year": 2014, u"_id": 1}]
+        assert result["records"] == [{"the year": 2014, "_id": 1}]
         assert result["limit"] == 1
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -348,7 +348,7 @@ class TestDatastoreSearch(object):
         }
         result = helpers.call_action("datastore_search", **search_data)
         assert result["total"] == 2
-        assert result["records"] == [{u"the year": 2014, u"_id": 1}]
+        assert result["records"] == [{"the year": 2014, "_id": 1}]
         assert result["limit"] == 1
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -373,8 +373,8 @@ class TestDatastoreSearch(object):
         result = helpers.call_action("datastore_search", **search_data)
         assert result["total"] == 3
         assert result["records"] == [
-            {u"the year": 2015, u"_id": 1},
-            {u"the year": 2014, u"_id": 2},
+            {"the year": 2015, "_id": 1},
+            {"the year": 2014, "_id": 2},
         ]
         assert result["limit"] == 2
 
@@ -395,7 +395,7 @@ class TestDatastoreSearch(object):
         }
         result = helpers.call_action("datastore_search", **search_data)
         assert result["total"] == 2
-        assert result["records"] == [{u"the year": 2014, u"_id": 1}]
+        assert result["records"] == [{"the year": 2014, "_id": 1}]
         assert result["limit"] == 1
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -425,8 +425,8 @@ class TestDatastoreSearch(object):
         # ignoring the rows_default because we specified limit
         # but limit is more than rows_max so rows_max=2 wins
         assert result["records"] == [
-            {u"the year": 2016, u"_id": 1},
-            {u"the year": 2015, u"_id": 2},
+            {"the year": 2016, "_id": 1},
+            {"the year": 2015, "_id": 2},
         ]
         assert result["limit"] == 2
 
@@ -443,13 +443,13 @@ class TestDatastoreSearch(object):
                 {"id": "bo%ok", "type": "text"},
                 {"id": "author", "type": "text"},
             ],
-            "records": [{"id": "1%", "bo%ok": u"El Nino", "author": "Torres"}],
+            "records": [{"id": "1%", "bo%ok": "El Nino", "author": "Torres"}],
         }
         helpers.call_action("datastore_create", **data)
 
         search_data = {
             "resource_id": resource["id"],
-            "filters": {u"bo%ok": "El Nino"},
+            "filters": {"bo%ok": "El Nino"},
         }
         result = helpers.call_action("datastore_search", **search_data)
         assert result["total"] == 1
@@ -472,23 +472,23 @@ class TestDatastoreSearchLegacyTests(object):
             "force": True,
             "aliases": "books3",
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
-                {"id": u"characters", u"type": u"_text"},
+                {"id": "characters", "type": "_text"},
                 {"id": "rating with %"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
-                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "characters": ["Princess Anna", "Sergius"],
                     "rating with %": "60%",
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                     "rating with %": "99%",
@@ -512,22 +512,22 @@ class TestDatastoreSearchLegacyTests(object):
 
         self.expected_records = [
             {
-                u"published": u"2005-03-01T00:00:00",
-                u"_id": 1,
-                u"nested": [u"b", {u"moo": u"moo"}],
-                u"b\xfck": u"annakarenina",
-                u"author": u"tolstoy",
-                u"characters": [u"Princess Anna", u"Sergius"],
-                u"rating with %": u"60%",
+                "published": "2005-03-01T00:00:00",
+                "_id": 1,
+                "nested": ["b", {"moo": "moo"}],
+                "b\xfck": "annakarenina",
+                "author": "tolstoy",
+                "characters": ["Princess Anna", "Sergius"],
+                "rating with %": "60%",
             },
             {
-                u"published": None,
-                u"_id": 2,
-                u"nested": {u"a": u"b"},
-                u"b\xfck": u"warandpeace",
-                u"author": u"tolstoy",
-                u"characters": None,
-                u"rating with %": u"99%",
+                "published": None,
+                "_id": 2,
+                "nested": {"a": "b"},
+                "b\xfck": "warandpeace",
+                "author": "tolstoy",
+                "characters": None,
+                "rating with %": "99%",
             },
         ]
 
@@ -629,7 +629,7 @@ class TestDatastoreSearchLegacyTests(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_fields(self, app):
-        data = {"resource_id": self.data["resource_id"], "fields": [u"b\xfck"]}
+        data = {"resource_id": self.data["resource_id"], "fields": ["b\xfck"]}
         auth = {"Authorization": str(self.normal_user.apikey)}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
@@ -639,13 +639,13 @@ class TestDatastoreSearchLegacyTests(object):
         result = res_dict["result"]
         assert result["total"] == len(self.data["records"])
         assert result["records"] == [
-            {u"b\xfck": "annakarenina"},
-            {u"b\xfck": "warandpeace"},
+            {"b\xfck": "annakarenina"},
+            {"b\xfck": "warandpeace"},
         ], result["records"]
 
         data = {
             "resource_id": self.data["resource_id"],
-            "fields": u"b\xfck, author",
+            "fields": "b\xfck, author",
         }
         auth = {"Authorization": str(self.normal_user.apikey)}
         res = app.post(
@@ -656,8 +656,8 @@ class TestDatastoreSearchLegacyTests(object):
         result = res_dict["result"]
         assert result["total"] == len(self.data["records"])
         assert result["records"] == [
-            {u"b\xfck": "annakarenina", "author": "tolstoy"},
-            {u"b\xfck": "warandpeace", "author": "tolstoy"},
+            {"b\xfck": "annakarenina", "author": "tolstoy"},
+            {"b\xfck": "warandpeace", "author": "tolstoy"},
         ], result["records"]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -665,7 +665,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_distinct(self, app):
         data = {
             "resource_id": self.data["resource_id"],
-            "fields": [u"author"],
+            "fields": ["author"],
             "distinct": True,
         }
 
@@ -677,14 +677,14 @@ class TestDatastoreSearchLegacyTests(object):
         assert res_dict["success"] is True
         result = res_dict["result"]
         assert result["total"] == 1
-        assert result["records"] == [{u"author": "tolstoy"}], result["records"]
+        assert result["records"] == [{"author": "tolstoy"}], result["records"]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_filters(self, app):
         data = {
             "resource_id": self.data["resource_id"],
-            "filters": {u"b\xfck": "annakarenina"},
+            "filters": {"b\xfck": "annakarenina"},
         }
 
         auth = {"Authorization": str(self.normal_user.apikey)}
@@ -702,7 +702,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_filter_array_field(self, app):
         data = {
             "resource_id": self.data["resource_id"],
-            "filters": {u"characters": [u"Princess Anna", u"Sergius"]},
+            "filters": {"characters": ["Princess Anna", "Sergius"]},
         }
 
         auth = {"Authorization": str(self.normal_user.apikey)}
@@ -720,7 +720,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_multiple_filters_on_same_field(self, app):
         data = {
             "resource_id": self.data["resource_id"],
-            "filters": {u"b\xfck": [u"annakarenina", u"warandpeace"]},
+            "filters": {"b\xfck": ["annakarenina", "warandpeace"]},
         }
 
         auth = {"Authorization": str(self.normal_user.apikey)}
@@ -740,7 +740,7 @@ class TestDatastoreSearchLegacyTests(object):
     ):
         data = {
             "resource_id": self.data["resource_id"],
-            "filters": {u"b\xfck": [u"annakarenina", u"warandpeace"]},
+            "filters": {"b\xfck": ["annakarenina", "warandpeace"]},
         }
 
         auth = {"Authorization": str(self.normal_user.apikey)}
@@ -756,7 +756,7 @@ class TestDatastoreSearchLegacyTests(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_filters_get(self, app):
-        filters = {u"b\xfck": "annakarenina"}
+        filters = {"b\xfck": "annakarenina"}
         res = app.get(
             "/api/action/datastore_search?resource_id={0}&filters={1}".format(
                 self.data["resource_id"], json.dumps(filters)
@@ -774,7 +774,7 @@ class TestDatastoreSearchLegacyTests(object):
         data = {
             "resource_id": self.data["resource_id"],
             # invalid because author is not a numeric field
-            "filters": {u"author": 42},
+            "filters": {"author": 42},
         }
 
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
@@ -792,7 +792,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_sort(self, app):
         data = {
             "resource_id": self.data["resource_id"],
-            "sort": u"b\xfck asc, author desc",
+            "sort": "b\xfck asc, author desc",
         }
         auth = {"Authorization": str(self.normal_user.apikey)}
         res = app.post(
@@ -807,7 +807,7 @@ class TestDatastoreSearchLegacyTests(object):
 
         data = {
             "resource_id": self.data["resource_id"],
-            "sort": [u"b\xfck desc", '"author" asc'],
+            "sort": ["b\xfck desc", '"author" asc'],
         }
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
@@ -824,7 +824,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_invalid(self, app):
         data = {
             "resource_id": self.data["resource_id"],
-            "sort": u"f\xfc\xfc asc",
+            "sort": "f\xfc\xfc asc",
         }
         auth = {"Authorization": str(self.sysadmin_user.apikey)}
         res = app.post(
@@ -837,8 +837,8 @@ class TestDatastoreSearchLegacyTests(object):
         assert res_dict["success"] is False
         error_msg = res_dict["error"]["sort"][0]
         assert (
-            u"f\xfc\xfc" in error_msg
-        ), 'Expected "{0}" to contain "{1}"'.format(error_msg, u"f\xfc\xfc")
+            "f\xfc\xfc" in error_msg
+        ), 'Expected "{0}" to contain "{1}"'.format(error_msg, "f\xfc\xfc")
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -904,13 +904,13 @@ class TestDatastoreSearchLegacyTests(object):
             extract(
                 result["records"][0],
                 [
-                    u"_id",
-                    u"author",
-                    u"b\xfck",
-                    u"nested",
-                    u"published",
-                    u"characters",
-                    u"rating with %",
+                    "_id",
+                    "author",
+                    "b\xfck",
+                    "nested",
+                    "published",
+                    "characters",
+                    "rating with %",
                 ],
             )
         ]
@@ -929,13 +929,13 @@ class TestDatastoreSearchLegacyTests(object):
             extract(
                 record,
                 [
-                    u"_id",
-                    u"author",
-                    u"b\xfck",
-                    u"nested",
-                    u"published",
-                    u"characters",
-                    u"rating with %",
+                    "_id",
+                    "author",
+                    "b\xfck",
+                    "nested",
+                    "published",
+                    "characters",
+                    "rating with %",
                 ],
             )
             for record in result["records"]
@@ -943,11 +943,11 @@ class TestDatastoreSearchLegacyTests(object):
         assert results == self.expected_records, result["records"]
 
         expected_fields = [
-            {u"type": u"int", u"id": u"_id"},
-            {u"type": u"text", u"id": u"b\xfck"},
-            {u"type": u"text", u"id": u"author"},
-            {u"type": u"timestamp", u"id": u"published"},
-            {u"type": u"json", u"id": u"nested"},
+            {"type": "int", "id": "_id"},
+            {"type": "text", "id": "b\xfck"},
+            {"type": "text", "id": "author"},
+            {"type": "timestamp", "id": "published"},
+            {"type": "json", "id": "nested"},
         ]
         for field in expected_fields:
             assert field in result["fields"]
@@ -970,13 +970,13 @@ class TestDatastoreSearchLegacyTests(object):
             extract(
                 result["records"][0],
                 [
-                    u"_id",
-                    u"author",
-                    u"b\xfck",
-                    u"nested",
-                    u"published",
-                    u"characters",
-                    u"rating with %",
+                    "_id",
+                    "author",
+                    "b\xfck",
+                    "nested",
+                    "published",
+                    "characters",
+                    "rating with %",
                 ],
             )
         ]
@@ -990,7 +990,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_full_text_on_specific_column(self, app):
         data = {
             "resource_id": self.data["resource_id"],
-            "q": {u"b\xfck": "annakarenina"},
+            "q": {"b\xfck": "annakarenina"},
         }
 
         auth = {"Authorization": str(self.normal_user.apikey)}
@@ -1012,7 +1012,7 @@ class TestDatastoreSearchLegacyTests(object):
     ):
         data = {
             "resource_id": self.data["resource_id"],
-            "q": u'{"b\xfck": "annakarenina"}',
+            "q": '{"b\xfck": "annakarenina"}',
         }
 
         auth = {"Authorization": str(self.normal_user.apikey)}
@@ -1351,19 +1351,19 @@ class TestDatastoreSQLLegacyTests(object):
             "force": True,
             "aliases": "books4",
             "fields": [
-                {"id": u"b\xfck", "type": "text"},
+                {"id": "b\xfck", "type": "text"},
                 {"id": "author", "type": "text"},
                 {"id": "published"},
             ],
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                 },
@@ -1386,31 +1386,31 @@ class TestDatastoreSQLLegacyTests(object):
 
         self.expected_records = [
             {
-                u"_full_text": [
-                    u"'annakarenina'",
-                    u"'b'",
-                    u"'moo'",
-                    u"'tolstoy'",
-                    u"'2005'",
+                "_full_text": [
+                    "'annakarenina'",
+                    "'b'",
+                    "'moo'",
+                    "'tolstoy'",
+                    "'2005'",
                 ],
-                u"_id": 1,
-                u"author": u"tolstoy",
-                u"b\xfck": u"annakarenina",
-                u"nested": [u"b", {u"moo": u"moo"}],
-                u"published": u"2005-03-01T00:00:00",
+                "_id": 1,
+                "author": "tolstoy",
+                "b\xfck": "annakarenina",
+                "nested": ["b", {"moo": "moo"}],
+                "published": "2005-03-01T00:00:00",
             },
             {
-                u"_full_text": [u"'tolstoy'", u"'warandpeac'", u"'b'"],
-                u"_id": 2,
-                u"author": u"tolstoy",
-                u"b\xfck": u"warandpeace",
-                u"nested": {u"a": u"b"},
-                u"published": None,
+                "_full_text": ["'tolstoy'", "'warandpeac'", "'b'"],
+                "_id": 2,
+                "author": "tolstoy",
+                "b\xfck": "warandpeace",
+                "nested": {"a": "b"},
+                "published": None,
             },
         ]
         self.expected_join_results = [
-            {u"first": 1, u"second": 1},
-            {u"first": 1, u"second": 2},
+            {"first": 1, "second": 1},
+            {"first": 1, "second": 2},
         ]
 
         engine = db.get_write_engine()
@@ -1547,29 +1547,29 @@ class TestDatastoreSQLFunctional(object):
         user1 = factories.User()
         user2 = factories.User()
         user3 = factories.User()
-        ctx1 = {u"user": user1["name"], u"ignore_auth": False}
-        ctx2 = {u"user": user2["name"], u"ignore_auth": False}
-        ctx3 = {u"user": user3["name"], u"ignore_auth": False}
+        ctx1 = {"user": user1["name"], "ignore_auth": False}
+        ctx2 = {"user": user2["name"], "ignore_auth": False}
+        ctx3 = {"user": user3["name"], "ignore_auth": False}
 
         org1 = factories.Organization(
             user=user1,
-            users=[{u"name": user3["name"], u"capacity": u"member"}],
+            users=[{"name": user3["name"], "capacity": "member"}],
         )
         org2 = factories.Organization(
             user=user2,
-            users=[{u"name": user3["name"], u"capacity": u"member"}],
+            users=[{"name": user3["name"], "capacity": "member"}],
         )
         ds1 = factories.Dataset(owner_org=org1["id"], private=True)
         ds2 = factories.Dataset(owner_org=org2["id"], private=True)
         r1 = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds1["id"]},
-            fields=[{u"id": u"spam", u"type": u"text"}],
+            "datastore_create",
+            resource={"package_id": ds1["id"]},
+            fields=[{"id": "spam", "type": "text"}],
         )
         r2 = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds2["id"]},
-            fields=[{u"id": u"ham", u"type": u"text"}],
+            "datastore_create",
+            resource={"package_id": ds2["id"]},
+            fields=[{"id": "ham", "type": "text"}],
         )
 
         sql1 = 'SELECT spam FROM "{0}"'.format(r1["resource_id"])
@@ -1712,13 +1712,13 @@ class TestDatastoreSQLFunctional(object):
             "force": True,
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                 },
@@ -1726,26 +1726,26 @@ class TestDatastoreSQLFunctional(object):
         }
         expected_records = [
             {
-                u"_full_text": [
-                    u"'annakarenina'",
-                    u"'b'",
-                    u"'moo'",
-                    u"'tolstoy'",
-                    u"'2005'",
+                "_full_text": [
+                    "'annakarenina'",
+                    "'b'",
+                    "'moo'",
+                    "'tolstoy'",
+                    "'2005'",
                 ],
-                u"_id": 1,
-                u"author": u"tolstoy",
-                u"b\xfck": u"annakarenina",
-                u"nested": [u"b", {u"moo": u"moo"}],
-                u"published": u"2005-03-01T00:00:00",
+                "_id": 1,
+                "author": "tolstoy",
+                "b\xfck": "annakarenina",
+                "nested": ["b", {"moo": "moo"}],
+                "published": "2005-03-01T00:00:00",
             },
             {
-                u"_full_text": [u"'tolstoy'", u"'warandpeac'", u"'b'"],
-                u"_id": 2,
-                u"author": u"tolstoy",
-                u"b\xfck": u"warandpeace",
-                u"nested": {u"a": u"b"},
-                u"published": None,
+                "_full_text": ["'tolstoy'", "'warandpeac'", "'b'"],
+                "_id": 2,
+                "author": "tolstoy",
+                "b\xfck": "warandpeace",
+                "nested": {"a": "b"},
+                "published": None,
             },
         ]
         helpers.call_action("datastore_create", **data)
@@ -1761,7 +1761,7 @@ class TestDatastoreSQLFunctional(object):
                         assert ft_value in row["_full_text"]
                 else:
                     assert row[field] == expected_row[field]
-        assert u"records_truncated" not in result
+        assert "records_truncated" not in result
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1773,13 +1773,13 @@ class TestDatastoreSQLFunctional(object):
             "aliases": "books4",
             "records": [
                 {
-                    u"b\xfck": "annakarenina",
+                    "b\xfck": "annakarenina",
                     "author": "tolstoy",
                     "published": "2005-03-01",
                     "nested": ["b", {"moo": "moo"}],
                 },
                 {
-                    u"b\xfck": "warandpeace",
+                    "b\xfck": "warandpeace",
                     "author": "tolstoy",
                     "nested": {"a": "b"},
                 },
@@ -1813,8 +1813,8 @@ class TestDatastoreSQLFunctional(object):
         sql = 'SELECT * FROM "{0}"'.format(resource["id"])
         result = helpers.call_action("datastore_search_sql", sql=sql)
         assert len(result["records"]) == 2
-        assert [res[u"the year"] for res in result["records"]] == [2014, 2013]
-        assert result[u"records_truncated"]
+        assert [res["the year"] for res in result["records"]] == [2014, 2013]
+        assert result["records_truncated"]
 
 
 @pytest.mark.usefixtures("with_request_context")
@@ -1824,83 +1824,83 @@ class TestDatastoreSearchRecordsFormat(object):
     def test_sort_results_objects(self):
         ds = factories.Dataset()
         r = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds["id"]},
+            "datastore_create",
+            resource={"package_id": ds["id"]},
             fields=[
-                {u"id": u"num", u"type": u"numeric"},
-                {u"id": u"dt", u"type": u"timestamp"},
-                {u"id": u"txt", u"type": u"text"},
+                {"id": "num", "type": "numeric"},
+                {"id": "dt", "type": "timestamp"},
+                {"id": "txt", "type": "text"},
             ],
             records=[
-                {u"num": 10, u"dt": u"2020-01-01", u"txt": "aaab"},
-                {u"num": 9, u"dt": u"2020-01-02", u"txt": "aaab"},
-                {u"num": 9, u"dt": u"2020-01-01", u"txt": "aaac"},
+                {"num": 10, "dt": "2020-01-01", "txt": "aaab"},
+                {"num": 9, "dt": "2020-01-02", "txt": "aaab"},
+                {"num": 9, "dt": "2020-01-01", "txt": "aaac"},
             ],
         )
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], sort=u"num, dt"
+            "datastore_search", resource_id=r["resource_id"], sort="num, dt"
         )["records"] == [
             {
-                u"_id": 3,
-                u"num": 9,
-                u"dt": u"2020-01-01T00:00:00",
-                u"txt": u"aaac",
+                "_id": 3,
+                "num": 9,
+                "dt": "2020-01-01T00:00:00",
+                "txt": "aaac",
             },
             {
-                u"_id": 2,
-                u"num": 9,
-                u"dt": u"2020-01-02T00:00:00",
-                u"txt": u"aaab",
+                "_id": 2,
+                "num": 9,
+                "dt": "2020-01-02T00:00:00",
+                "txt": "aaab",
             },
             {
-                u"_id": 1,
-                u"num": 10,
-                u"dt": u"2020-01-01T00:00:00",
-                u"txt": u"aaab",
+                "_id": 1,
+                "num": 10,
+                "dt": "2020-01-01T00:00:00",
+                "txt": "aaab",
             },
         ]
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], sort=u"dt, txt"
+            "datastore_search", resource_id=r["resource_id"], sort="dt, txt"
         )["records"] == [
             {
-                u"_id": 1,
-                u"num": 10,
-                u"dt": u"2020-01-01T00:00:00",
-                u"txt": u"aaab",
+                "_id": 1,
+                "num": 10,
+                "dt": "2020-01-01T00:00:00",
+                "txt": "aaab",
             },
             {
-                u"_id": 3,
-                u"num": 9,
-                u"dt": u"2020-01-01T00:00:00",
-                u"txt": u"aaac",
+                "_id": 3,
+                "num": 9,
+                "dt": "2020-01-01T00:00:00",
+                "txt": "aaac",
             },
             {
-                u"_id": 2,
-                u"num": 9,
-                u"dt": u"2020-01-02T00:00:00",
-                u"txt": u"aaab",
+                "_id": 2,
+                "num": 9,
+                "dt": "2020-01-02T00:00:00",
+                "txt": "aaab",
             },
         ]
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], sort=u"txt, num"
+            "datastore_search", resource_id=r["resource_id"], sort="txt, num"
         )["records"] == [
             {
-                u"_id": 2,
-                u"num": 9,
-                u"dt": u"2020-01-02T00:00:00",
-                u"txt": u"aaab",
+                "_id": 2,
+                "num": 9,
+                "dt": "2020-01-02T00:00:00",
+                "txt": "aaab",
             },
             {
-                u"_id": 1,
-                u"num": 10,
-                u"dt": u"2020-01-01T00:00:00",
-                u"txt": u"aaab",
+                "_id": 1,
+                "num": 10,
+                "dt": "2020-01-01T00:00:00",
+                "txt": "aaab",
             },
             {
-                u"_id": 3,
-                u"num": 9,
-                u"dt": u"2020-01-01T00:00:00",
-                u"txt": u"aaac",
+                "_id": 3,
+                "num": 9,
+                "dt": "2020-01-01T00:00:00",
+                "txt": "aaac",
             },
         ]
 
@@ -1909,48 +1909,48 @@ class TestDatastoreSearchRecordsFormat(object):
     def test_sort_results_lists(self):
         ds = factories.Dataset()
         r = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds["id"]},
+            "datastore_create",
+            resource={"package_id": ds["id"]},
             fields=[
-                {u"id": u"num", u"type": u"numeric"},
-                {u"id": u"dt", u"type": u"timestamp"},
-                {u"id": u"txt", u"type": u"text"},
+                {"id": "num", "type": "numeric"},
+                {"id": "dt", "type": "timestamp"},
+                {"id": "txt", "type": "text"},
             ],
             records=[
-                {u"num": 10, u"dt": u"2020-01-01", u"txt": u"aaab"},
-                {u"num": 9, u"dt": u"2020-01-02", u"txt": u"aaab"},
-                {u"num": 9, u"dt": u"2020-01-01", u"txt": u"aaac"},
+                {"num": 10, "dt": "2020-01-01", "txt": "aaab"},
+                {"num": 9, "dt": "2020-01-02", "txt": "aaab"},
+                {"num": 9, "dt": "2020-01-01", "txt": "aaac"},
             ],
         )
         assert helpers.call_action(
             "datastore_search",
             resource_id=r["resource_id"],
-            records_format=u"lists",
-            sort=u"num, dt",
+            records_format="lists",
+            sort="num, dt",
         )["records"] == [
-            [3, 9, u"2020-01-01T00:00:00", u"aaac"],
-            [2, 9, u"2020-01-02T00:00:00", u"aaab"],
-            [1, 10, u"2020-01-01T00:00:00", u"aaab"],
+            [3, 9, "2020-01-01T00:00:00", "aaac"],
+            [2, 9, "2020-01-02T00:00:00", "aaab"],
+            [1, 10, "2020-01-01T00:00:00", "aaab"],
         ]
         assert helpers.call_action(
             "datastore_search",
             resource_id=r["resource_id"],
-            records_format=u"lists",
-            sort=u"dt, txt",
+            records_format="lists",
+            sort="dt, txt",
         )["records"] == [
-            [1, 10, u"2020-01-01T00:00:00", u"aaab"],
-            [3, 9, u"2020-01-01T00:00:00", u"aaac"],
-            [2, 9, u"2020-01-02T00:00:00", u"aaab"],
+            [1, 10, "2020-01-01T00:00:00", "aaab"],
+            [3, 9, "2020-01-01T00:00:00", "aaac"],
+            [2, 9, "2020-01-02T00:00:00", "aaab"],
         ]
         assert helpers.call_action(
             "datastore_search",
             resource_id=r["resource_id"],
-            records_format=u"lists",
-            sort=u"txt, num",
+            records_format="lists",
+            sort="txt, num",
         )["records"] == [
-            [2, 9, u"2020-01-02T00:00:00", u"aaab"],
-            [1, 10, u"2020-01-01T00:00:00", u"aaab"],
-            [3, 9, u"2020-01-01T00:00:00", u"aaac"],
+            [2, 9, "2020-01-02T00:00:00", "aaab"],
+            [1, 10, "2020-01-01T00:00:00", "aaab"],
+            [3, 9, "2020-01-01T00:00:00", "aaac"],
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -1958,51 +1958,51 @@ class TestDatastoreSearchRecordsFormat(object):
     def test_sort_results_csv(self):
         ds = factories.Dataset()
         r = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds["id"]},
+            "datastore_create",
+            resource={"package_id": ds["id"]},
             fields=[
-                {u"id": u"num", u"type": u"numeric"},
-                {u"id": u"dt", u"type": u"timestamp"},
-                {u"id": u"txt", u"type": u"text"},
+                {"id": "num", "type": "numeric"},
+                {"id": "dt", "type": "timestamp"},
+                {"id": "txt", "type": "text"},
             ],
             records=[
-                {u"num": 10, u"dt": u"2020-01-01", u"txt": u"aaab"},
-                {u"num": 9, u"dt": u"2020-01-02", u"txt": u"aaab"},
-                {u"num": 9, u"dt": u"2020-01-01", u"txt": u"aaac"},
+                {"num": 10, "dt": "2020-01-01", "txt": "aaab"},
+                {"num": 9, "dt": "2020-01-02", "txt": "aaab"},
+                {"num": 9, "dt": "2020-01-01", "txt": "aaac"},
             ],
         )
         assert (
             helpers.call_action(
                 "datastore_search",
                 resource_id=r["resource_id"],
-                records_format=u"csv",
-                sort=u"num, dt",
+                records_format="csv",
+                sort="num, dt",
             )["records"]
-            == u"3,9,2020-01-01T00:00:00,aaac\n"
-            u"2,9,2020-01-02T00:00:00,aaab\n"
-            u"1,10,2020-01-01T00:00:00,aaab\n"
+            == "3,9,2020-01-01T00:00:00,aaac\n"
+            "2,9,2020-01-02T00:00:00,aaab\n"
+            "1,10,2020-01-01T00:00:00,aaab\n"
         )
         assert (
             helpers.call_action(
                 "datastore_search",
                 resource_id=r["resource_id"],
-                records_format=u"csv",
-                sort=u"dt, txt",
+                records_format="csv",
+                sort="dt, txt",
             )["records"]
-            == u"1,10,2020-01-01T00:00:00,aaab\n"
-            u"3,9,2020-01-01T00:00:00,aaac\n"
-            u"2,9,2020-01-02T00:00:00,aaab\n"
+            == "1,10,2020-01-01T00:00:00,aaab\n"
+            "3,9,2020-01-01T00:00:00,aaac\n"
+            "2,9,2020-01-02T00:00:00,aaab\n"
         )
         assert (
             helpers.call_action(
                 "datastore_search",
                 resource_id=r["resource_id"],
-                records_format=u"csv",
-                sort=u"txt, num",
+                records_format="csv",
+                sort="txt, num",
             )["records"]
-            == u"2,9,2020-01-02T00:00:00,aaab\n"
-            u"1,10,2020-01-01T00:00:00,aaab\n"
-            u"3,9,2020-01-01T00:00:00,aaac\n"
+            == "2,9,2020-01-02T00:00:00,aaab\n"
+            "1,10,2020-01-01T00:00:00,aaab\n"
+            "3,9,2020-01-01T00:00:00,aaac\n"
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -2010,54 +2010,54 @@ class TestDatastoreSearchRecordsFormat(object):
     def test_fields_results_csv(self):
         ds = factories.Dataset()
         r = helpers.call_action(
-            u"datastore_create",
-            resource={u"package_id": ds["id"]},
+            "datastore_create",
+            resource={"package_id": ds["id"]},
             fields=[
-                {u"id": u"num", u"type": u"numeric"},
-                {u"id": u"dt", u"type": u"timestamp"},
-                {u"id": u"txt", u"type": u"text"},
+                {"id": "num", "type": "numeric"},
+                {"id": "dt", "type": "timestamp"},
+                {"id": "txt", "type": "text"},
             ],
             records=[
-                {u"num": 9, u"dt": u"2020-01-02", u"txt": u"aaab"},
-                {u"num": 9, u"dt": u"2020-01-01", u"txt": u"aaac"},
+                {"num": 9, "dt": "2020-01-02", "txt": "aaab"},
+                {"num": 9, "dt": "2020-01-01", "txt": "aaac"},
             ],
         )
         r = helpers.call_action(
             "datastore_search",
             resource_id=r["resource_id"],
-            records_format=u"csv",
-            fields=u"dt, num, txt",
+            records_format="csv",
+            fields="dt, num, txt",
         )
         assert r["fields"] == [
-            {u"id": u"dt", u"type": u"timestamp"},
-            {u"id": u"num", u"type": u"numeric"},
-            {u"id": u"txt", u"type": u"text"},
+            {"id": "dt", "type": "timestamp"},
+            {"id": "num", "type": "numeric"},
+            {"id": "txt", "type": "text"},
         ]
         assert (
-            r["records"] == u"2020-01-02T00:00:00,9,aaab\n"
-            u"2020-01-01T00:00:00,9,aaac\n"
+            r["records"] == "2020-01-02T00:00:00,9,aaab\n"
+            "2020-01-01T00:00:00,9,aaac\n"
         )
         r = helpers.call_action(
             "datastore_search",
             resource_id=r["resource_id"],
-            records_format=u"csv",
-            fields=u"dt",
-            q=u"aaac",
+            records_format="csv",
+            fields="dt",
+            q="aaac",
         )
-        assert r["fields"] == [{u"id": u"dt", u"type": u"timestamp"}]
-        assert r["records"] == u"2020-01-01T00:00:00\n"
+        assert r["fields"] == [{"id": "dt", "type": "timestamp"}]
+        assert r["records"] == "2020-01-01T00:00:00\n"
         r = helpers.call_action(
             "datastore_search",
             resource_id=r["resource_id"],
-            records_format=u"csv",
-            fields=u"txt, rank txt",
-            q={u"txt": u"aaac"},
+            records_format="csv",
+            fields="txt, rank txt",
+            q={"txt": "aaac"},
         )
         assert r["fields"] == [
-            {u"id": u"txt", u"type": u"text"},
-            {u"id": u"rank txt", u"type": u"float"},
+            {"id": "txt", "type": "text"},
+            {"id": "rank txt", "type": "float"},
         ]
-        assert r["records"][:7] == u"aaac,0."
+        assert r["records"][:7] == "aaac,0."
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")

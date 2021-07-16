@@ -9,18 +9,18 @@ from ckan.config import environment
 from ckan.exceptions import CkanConfigurationException
 
 ENV_VAR_LIST = [
-    (u"CKAN_SQLALCHEMY_URL", u"postgresql://mynewsqlurl/"),
-    (u"CKAN_DATASTORE_WRITE_URL", u"http://mynewdbwriteurl/"),
-    (u"CKAN_DATASTORE_READ_URL", u"http://mynewdbreadurl/"),
-    (u"CKAN_SOLR_URL", u"http://mynewsolrurl/solr"),
-    (u"CKAN_SITE_ID", u"my-site"),
-    (u"CKAN_DB", u"postgresql://mydeprectatesqlurl/"),
-    (u"CKAN_SMTP_SERVER", u"mail.example.com"),
-    (u"CKAN_SMTP_STARTTLS", u"True"),
-    (u"CKAN_SMTP_USER", u"my_user"),
-    (u"CKAN_SMTP_PASSWORD", u"password"),
-    (u"CKAN_SMTP_MAIL_FROM", u"server@example.com"),
-    (u"CKAN_MAX_UPLOAD_SIZE_MB", u"50"),
+    ("CKAN_SQLALCHEMY_URL", "postgresql://mynewsqlurl/"),
+    ("CKAN_DATASTORE_WRITE_URL", "http://mynewdbwriteurl/"),
+    ("CKAN_DATASTORE_READ_URL", "http://mynewdbreadurl/"),
+    ("CKAN_SOLR_URL", "http://mynewsolrurl/solr"),
+    ("CKAN_SITE_ID", "my-site"),
+    ("CKAN_DB", "postgresql://mydeprectatesqlurl/"),
+    ("CKAN_SMTP_SERVER", "mail.example.com"),
+    ("CKAN_SMTP_STARTTLS", "True"),
+    ("CKAN_SMTP_USER", "my_user"),
+    ("CKAN_SMTP_PASSWORD", "password"),
+    ("CKAN_SMTP_MAIL_FROM", "server@example.com"),
+    ("CKAN_MAX_UPLOAD_SIZE_MB", "50"),
 ]
 
 
@@ -36,7 +36,7 @@ def reset_env():
     p.load()
 
 
-@pytest.mark.usefixtures(u"reset_env")
+@pytest.mark.usefixtures("reset_env")
 def test_update_config_env_vars(ckan_config):
     """
     Setting an env var from the whitelist will set the appropriate option
@@ -47,19 +47,19 @@ def test_update_config_env_vars(ckan_config):
     # plugin.load() will force the config to update
     p.load()
 
-    assert ckan_config[u"solr_url"] == u"http://mynewsolrurl/solr"
-    assert ckan_config[u"sqlalchemy.url"] == u"postgresql://mynewsqlurl/"
+    assert ckan_config["solr_url"] == "http://mynewsolrurl/solr"
+    assert ckan_config["sqlalchemy.url"] == "postgresql://mynewsqlurl/"
     assert (
-        ckan_config[u"ckan.datastore.write_url"] == u"http://mynewdbwriteurl/"
+        ckan_config["ckan.datastore.write_url"] == "http://mynewdbwriteurl/"
     )
-    assert ckan_config[u"ckan.datastore.read_url"] == u"http://mynewdbreadurl/"
-    assert ckan_config[u"ckan.site_id"] == u"my-site"
-    assert ckan_config[u"smtp.server"] == u"mail.example.com"
-    assert ckan_config[u"smtp.starttls"] == u"True"
-    assert ckan_config[u"smtp.user"] == u"my_user"
-    assert ckan_config[u"smtp.password"] == u"password"
-    assert ckan_config[u"smtp.mail_from"] == u"server@example.com"
-    assert ckan_config[u"ckan.max_resource_size"] == u"50"
+    assert ckan_config["ckan.datastore.read_url"] == "http://mynewdbreadurl/"
+    assert ckan_config["ckan.site_id"] == "my-site"
+    assert ckan_config["smtp.server"] == "mail.example.com"
+    assert ckan_config["smtp.starttls"] == "True"
+    assert ckan_config["smtp.user"] == "my_user"
+    assert ckan_config["smtp.password"] == "password"
+    assert ckan_config["smtp.mail_from"] == "server@example.com"
+    assert ckan_config["ckan.max_resource_size"] == "50"
 
 
 @pytest.mark.usefixtures("reset_env")

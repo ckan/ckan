@@ -8,20 +8,20 @@ import ckan.tests.legacy as tests
 from ckan.logic import _actions
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
-@pytest.mark.usefixtures(u"clean_db", u"with_plugins", u"with_request_context")
+@pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 def test_resource_data(app, monkeypatch):
     if not tests.is_datastore_supported():
-        pytest.skip(u"Datastore not supported")
+        pytest.skip("Datastore not supported")
 
     user = factories.User()
     dataset = factories.Dataset(creator_user_id=user["id"])
     resource = factories.Resource(
         package_id=dataset["id"], creator_user_id=user["id"]
     )
-    auth = {u"REMOTE_USER": user["name"]}
+    auth = {"REMOTE_USER": user["name"]}
 
-    url = u"/dataset/{id}/resource_data/{resource_id}".format(
+    url = "/dataset/{id}/resource_data/{resource_id}".format(
         id=str(dataset["name"]), resource_id=str(resource["id"])
     )
 

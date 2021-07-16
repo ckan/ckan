@@ -12,5 +12,5 @@ class ExampleIDatastoreBackendPlugin(plugins.SingletonPlugin):
 
     def register_backends(self):
         return {
-            u'sqlite': DatastoreExampleSqliteBackend
+            'sqlite': DatastoreExampleSqliteBackend
         }

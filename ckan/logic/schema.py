@@ -9,7 +9,7 @@ from ckan.logic import get_validator
 
 
 def validator_args(fn):
-    u'''collect validator names from argument names
+    '''collect validator names from argument names
     and pass them to wrapped function'''
 
     args = inspect.getargspec(fn).args
@@ -92,7 +92,7 @@ def default_create_tag_schema(
     # function).
     schema['vocabulary_id'] = [not_missing, not_empty, unicode_safe,
                                vocabulary_id_exists, tag_not_in_vocabulary]
-    # You're not allowed to specify your own ID when creating a tag.
+    # you're not allowed to specify your own ID when creating a tag.
     schema['id'] = [empty]
     return schema
 
@@ -789,14 +789,14 @@ def update_configuration_schema():
 @validator_args
 def job_list_schema(ignore_missing, list_of_strings):
     return {
-        u'queues': [ignore_missing, list_of_strings],
+        'queues': [ignore_missing, list_of_strings],
     }
 
 
 @validator_args
 def job_clear_schema(ignore_missing, list_of_strings):
     return {
-        u'queues': [ignore_missing, list_of_strings],
+        'queues': [ignore_missing, list_of_strings],
     }
 
 
@@ -805,9 +805,9 @@ def default_create_api_token_schema(
         not_empty, unicode_safe,
         ignore_missing, json_object, ignore_not_sysadmin):
     return {
-        u'name': [not_empty, unicode_safe],
-        u'user': [not_empty, unicode_safe],
-        u'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
+        'name': [not_empty, unicode_safe],
+        'user': [not_empty, unicode_safe],
+        'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
     }
 
 
@@ -817,20 +817,20 @@ def package_revise_schema(
         collect_prefix_validate, json_or_string,
         json_list_or_string, dict_only):
     return {
-        u'__before': [
+        '__before': [
             collect_prefix_validate(
-                u'match__', u'json_or_string'),
+                'match__', 'json_or_string'),
             collect_prefix_validate(
-                u'update__', u'json_or_string')],
-        u'match': [
+                'update__', 'json_or_string')],
+        'match': [
             ignore_missing, json_or_string, dict_only],
-        u'filter': [
+        'filter': [
             ignore_missing, json_list_or_string, list_of_strings],
-        u'update': [
+        'update': [
             ignore_missing, json_or_string, dict_only],
-        u'include': [
+        'include': [
             ignore_missing, json_list_or_string, list_of_strings],
         # collect_prefix moves values to these, always dicts:
-        u'match__': [],
-        u'update__': [],
+        'match__': [],
+        'update__': [],
     }

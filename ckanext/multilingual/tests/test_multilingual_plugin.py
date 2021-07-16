@@ -177,10 +177,10 @@ class TestDatasetSearchIndex(object):
                 context, data_dict)
 
         sample_index_data = {
-            'download_url': u'moo',
-            'notes': u'an interesting note',
-            'tags': [u'moon', 'boon'],
-            'title': u'david',
+            'download_url': 'moo',
+            'notes': 'an interesting note',
+            'tags': ['moon', 'boon'],
+            'title': 'david',
         }
 
         result = mulilingual_plugin.MultilingualDataset().before_index(
@@ -189,14 +189,14 @@ class TestDatasetSearchIndex(object):
                           'text_fi': '',
                           'text_de': '',
                           'text_pt_BR': '',
-                          u'title_fr': u'french david',
-                          'text_fr': u'french_moo french note french moon french boon',
+                          'title_fr': 'french david',
+                          'text_fr': 'french_moo french note french moon french boon',
                           'text_ja': '',
                           'text_sr': '',
-                          'title': u'david',
+                          'title': 'david',
                           'text_ca': '',
-                          'download_url': u'moo',
-                          'text_hu': '',
+                          'download_url': 'moo',
+                          'text_h': '',
                           'text_sa': '',
                           'text_cs_CZ': '',
                           'text_nl': '',
@@ -205,15 +205,15 @@ class TestDatasetSearchIndex(object):
                           'text_sk': '',
                           'text_bg': '',
                           'text_sv': '',
-                          'tags': [u'moon', 'boon'],
+                          'tags': ['moon', 'boon'],
                           'text_el': '',
-                          'title_en': u'david',
-                          'text_en': u'moo an interesting note moon boon',
+                          'title_en': 'david',
+                          'text_en': 'moo an interesting note moon boon',
                           'text_es': '',
                           'text_sl': '',
                           'text_pl': '',
-                          'notes': u'an interesting note',
+                          'notes': 'an interesting note',
                           'text_lv': '',
-                          'text_it': u'italian boon',
-                          u'title_it': u'italian david',
-                          'text_ru': ''}, result
+                          'text_it': 'italian boon',
+                          'title_it': 'italian david',
+                          'text_r': ''}, result

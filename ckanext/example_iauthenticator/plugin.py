@@ -8,21 +8,21 @@ from ckan import plugins as p
 toolkit = p.toolkit
 
 
-blueprint = Blueprint(u'example_iauthenticator', __name__, url_prefix=u'/user')
+blueprint = Blueprint('example_iauthenticator', __name__, url_prefix='/user')
 
 
 def custom_login():
 
-    return u'logged in'
+    return 'logged in'
 
 
 def custom_logout():
 
-    return u'logged out'
+    return 'logged out'
 
 
-blueprint.add_url_rule(u'/custom_login', view_func=custom_login)
-blueprint.add_url_rule(u'/custom_logout', view_func=custom_logout)
+blueprint.add_url_rule('/custom_login', view_func=custom_login)
+blueprint.add_url_rule('/custom_logout', view_func=custom_logout)
 
 
 class ExampleIAuthenticatorPlugin(p.SingletonPlugin):
@@ -35,22 +35,22 @@ class ExampleIAuthenticatorPlugin(p.SingletonPlugin):
     def identify(self):
 
         if toolkit.request.path not in [
-                toolkit.url_for(u'user.login'),
-                toolkit.url_for(u'user.logout'),
-                toolkit.url_for(u'example_iauthenticator.custom_login'),
-                toolkit.url_for(u'example_iauthenticator.custom_logout')]:
+                toolkit.url_for('user.login'),
+                toolkit.url_for('user.logout'),
+                toolkit.url_for('example_iauthenticator.custom_login'),
+                toolkit.url_for('example_iauthenticator.custom_logout')]:
             response = make_response(toolkit.request.path)
-            response.set_cookie(u'example_iauthenticator', u'hi')
+            response.set_cookie('example_iauthenticator', 'hi')
 
             return response
 
     def login(self):
 
-        return toolkit.redirect_to(u'example_iauthenticator.custom_login')
+        return toolkit.redirect_to('example_iauthenticator.custom_login')
 
     def logout(self):
 
-        return toolkit.redirect_to(u'example_iauthenticator.custom_logout')
+        return toolkit.redirect_to('example_iauthenticator.custom_logout')
 
     # IBlueprint
 

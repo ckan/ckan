@@ -25,15 +25,15 @@ def get_all_resources_ids_in_datastore():
 
 
 def _parse_sort_clause(clause, fields_types):
-    clause_match = re.match(u'^(.+?)( +(asc|desc) *)?$', clause, re.I)
+    clause_match = re.match('^(.+?)( +(asc|desc) *)?$', clause, re.I)
 
     if not clause_match:
         return False
 
     field = clause_match.group(1)
-    if field[0] == field[-1] == u'"':
+    if field[0] == field[-1] == '"':
         field = field[1:-1]
-    sort = (clause_match.group(3) or u'asc').lower()
+    sort = (clause_match.group(3) or 'asc').lower()
 
     if field not in fields_types:
         return False
@@ -87,9 +87,9 @@ class DatastoreBackend:
         :rtype: ckan.common.CKANConfig
 
         """
-        schema = config.get(u'ckan.datastore.write_url').split(u':')[0]
-        read_schema = config.get(u'ckan.datastore.read_url').split(u':')[0]
-        assert read_schema == schema, u'Read and write engines are different'
+        schema = config.get('ckan.datastore.write_url').split(':')[0]
+        read_schema = config.get('ckan.datastore.read_url').split(':')[0]
+        assert read_schema == schema, 'Read and write engines are different'
         cls._active_backend = cls._backends[schema]()
 
     @classmethod

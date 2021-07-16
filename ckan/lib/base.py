@@ -160,7 +160,7 @@ def _allow_caching(cache_force=None):
 def _is_valid_session_cookie_data():
     is_valid_cookie_data = False
     for key, value in session.items():
-        if not key.startswith(u'_') and value:
+        if not key.startswith('_') and value:
             is_valid_cookie_data = True
             break
 

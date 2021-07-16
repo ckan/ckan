@@ -32,7 +32,7 @@ class TestConfigOptionUpdatePluginNotEnabled(object):
             helpers.call_action("config_option_update", **params)
 
 
-@pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
+@pytest.mark.ckan_config("ckan.plugins", "example_iconfigurer")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "ckan_config")
 class TestConfigOptionUpdatePluginEnabled(object):
 

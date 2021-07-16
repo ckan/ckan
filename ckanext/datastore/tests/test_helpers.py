@@ -20,9 +20,9 @@ class TestTypeGetters(object):
         assert get_list("foo, bar") == ["foo", "bar"]
         assert get_list('foo_"bar, baz') == ['foo_"bar', "baz"]
         assert get_list('"foo", "bar"') == ["foo", "bar"]
-        assert get_list(u"foo, bar") == ["foo", "bar"]
+        assert get_list("foo, bar") == ["foo", "bar"]
         assert get_list(["foo", "bar"]) == ["foo", "bar"]
-        assert get_list([u"foo", u"bar"]) == ["foo", "bar"]
+        assert get_list(["foo", "bar"]) == ["foo", "bar"]
         assert get_list(["foo", ["bar", "baz"]]) == ["foo", ["bar", "baz"]]
 
     def test_is_single_statement(self):
@@ -77,30 +77,30 @@ class TestGetTables(object):
         engine = db.get_write_engine()
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         create_tables = [
-            u"CREATE TABLE test_a (id_a text)",
-            u"CREATE TABLE test_b (id_b text)",
-            u'CREATE TABLE "TEST_C" (id_c text)',
-            u'CREATE TABLE test_d ("α/α" integer)',
+            "CREATE TABLE test_a (id_a text)",
+            "CREATE TABLE test_b (id_b text)",
+            'CREATE TABLE "TEST_C" (id_c text)',
+            'CREATE TABLE test_d ("α/α" integer)',
         ]
         for create_table_sql in create_tables:
             session.execute(create_table_sql)
 
         test_cases = [
-            (u"SELECT * FROM test_a", ["test_a"]),
-            (u"SELECT * FROM public.test_a", ["test_a"]),
-            (u'SELECT * FROM "TEST_C"', ["TEST_C"]),
-            (u'SELECT * FROM public."TEST_C"', ["TEST_C"]),
-            (u"SELECT * FROM pg_catalog.pg_database", ["pg_database"]),
-            (u"SELECT rolpassword FROM pg_roles", ["pg_authid"]),
+            ("SELECT * FROM test_a", ["test_a"]),
+            ("SELECT * FROM public.test_a", ["test_a"]),
+            ('SELECT * FROM "TEST_C"', ["TEST_C"]),
+            ('SELECT * FROM public."TEST_C"', ["TEST_C"]),
+            ("SELECT * FROM pg_catalog.pg_database", ["pg_database"]),
+            ("SELECT rolpassword FROM pg_roles", ["pg_authid"]),
             (
-                u"""SELECT p.rolpassword
+                """SELECT p.rolpassword
                 FROM pg_roles p
                 JOIN test_b b
                 ON p.rolpassword = b.id_b""",
                 ["pg_authid", "test_b"],
             ),
             (
-                u"""SELECT id_a, id_b, id_c
+                """SELECT id_a, id_b, id_c
                 FROM (
                     SELECT *
                     FROM (
@@ -110,9 +110,9 @@ class TestGetTables(object):
                     test_a AS a""",
                 ["test_a", "test_b", "TEST_C"],
             ),
-            (u"INSERT INTO test_a VALUES ('a')", ["test_a"]),
-            (u'SELECT "α/α" FROM test_d', ["test_d"]),
-            (u'SELECT "α/α" FROM test_d WHERE "α/α" > 1000', ["test_d"]),
+            ("INSERT INTO test_a VALUES ('a')", ["test_a"]),
+            ('SELECT "α/α" FROM test_d', ["test_d"]),
+            ('SELECT "α/α" FROM test_d WHERE "α/α" > 1000', ["test_d"]),
         ]
 
         context = {"connection": session.connection()}
@@ -130,22 +130,22 @@ class TestGetFunctions(object):
         engine = db.get_write_engine()
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         create_tables = [
-            u"CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
-            u"CREATE TABLE test_b (name text, subject_id text)",
+            "CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
+            "CREATE TABLE test_b (name text, subject_id text)",
         ]
         for create_table_sql in create_tables:
             session.execute(create_table_sql)
 
         test_cases = [
-            (u"SELECT max(id) from test_a", ["max"]),
-            (u"SELECT count(distinct(id)) FROM test_a", ["count", "distinct"]),
-            (u"SELECT trunc(avg(result),2) FROM test_a", ["trunc", "avg"]),
-            (u"SELECT trunc(avg(result),2), avg(result) FROM test_a", ["trunc", "avg"]),
-            (u"SELECT * from pg_settings", ["pg_show_all_settings"]),
-            (u"SELECT * from pg_settings UNION SELECT * from pg_settings", ["pg_show_all_settings"]),
-            (u"SELECT * from (SELECT * FROM pg_settings) AS tmp", ["pg_show_all_settings"]),
-            (u"SELECT query_to_xml('SELECT max(id) FROM test_a', true, true , '')", ["query_to_xml"]),
-            (u"select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
+            ("SELECT max(id) from test_a", ["max"]),
+            ("SELECT count(distinct(id)) FROM test_a", ["count", "distinct"]),
+            ("SELECT trunc(avg(result),2) FROM test_a", ["trunc", "avg"]),
+            ("SELECT trunc(avg(result),2), avg(result) FROM test_a", ["trunc", "avg"]),
+            ("SELECT * from pg_settings", ["pg_show_all_settings"]),
+            ("SELECT * from pg_settings UNION SELECT * from pg_settings", ["pg_show_all_settings"]),
+            ("SELECT * from (SELECT * FROM pg_settings) AS tmp", ["pg_show_all_settings"]),
+            ("SELECT query_to_xml('SELECT max(id) FROM test_a', true, true , '')", ["query_to_xml"]),
+            ("select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
         ]
 
         context = {"connection": session.connection()}
@@ -159,7 +159,7 @@ class TestGetFunctions(object):
         engine = db.get_write_engine()
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         create_tables = [
-            u"""CREATE FUNCTION add(integer, integer) RETURNS integer
+            """CREATE FUNCTION add(integer, integer) RETURNS integer
                 AS 'select $1 + $2;'
                     LANGUAGE SQL
                         IMMUTABLE
@@ -187,14 +187,14 @@ class TestGetFunctions(object):
         engine = db.get_write_engine()
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         create_tables = [
-            u"CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
-            u"CREATE TABLE test_b (name text, subject_id text)",
+            "CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
+            "CREATE TABLE test_b (name text, subject_id text)",
         ]
         for create_table_sql in create_tables:
             session.execute(create_table_sql)
 
         test_cases = [
-            (u"""SELECT *
+            ("""SELECT *
                 FROM crosstab(
                     'SELECT extract(month from period)::text, test_b.name, trunc(avg(result),2)
                      FROM test_a, test_b

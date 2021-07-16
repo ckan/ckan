@@ -11,73 +11,73 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = u"ccd38ad5fced"
-down_revision = u"3ae4b17ed66d"
+revision = "ccd38ad5fced"
+down_revision = "3ae4b17ed66d"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
     op.drop_constraint(
-        u"package_tag_revision_continuity_id_fkey",
-        u"package_tag_revision",
-        type_=u"foreignkey",
+        "package_tag_revision_continuity_id_fkey",
+        "package_tag_revision",
+        type_="foreignkey",
     )
     op.drop_constraint(
-        u"package_tag_revision_package_id_fkey",
-        u"package_tag_revision",
-        type_=u"foreignkey",
+        "package_tag_revision_package_id_fkey",
+        "package_tag_revision",
+        type_="foreignkey",
     )
     op.drop_constraint(
-        u"package_extra_revision_package_id_fkey",
-        u"package_extra_revision",
-        type_=u"foreignkey",
+        "package_extra_revision_package_id_fkey",
+        "package_extra_revision",
+        type_="foreignkey",
     )
     op.drop_constraint(
-        u"group_revision_continuity_id_fkey",
-        u"group_revision",
-        type_=u"foreignkey",
+        "group_revision_continuity_id_fkey",
+        "group_revision",
+        type_="foreignkey",
     )
     op.drop_constraint(
-        u"member_revision_group_id_fkey",
-        u"member_revision",
-        type_=u"foreignkey",
+        "member_revision_group_id_fkey",
+        "member_revision",
+        type_="foreignkey",
     )
 
 
 def downgrade():
     op.create_foreign_key(
-        u"package_tag_revision_continuity_id_fkey",
-        u"package_tag_revision",
-        u"package_tag",
-        [u"continuity_id"],
+        "package_tag_revision_continuity_id_fkey",
+        "package_tag_revision",
+        "package_tag",
+        ["continuity_id"],
         ["id"],
     )
     op.create_foreign_key(
-        u"package_tag_revision_package_id_fkey",
-        u"package_tag_revision",
-        u"package",
-        [u"package_id"],
+        "package_tag_revision_package_id_fkey",
+        "package_tag_revision",
+        "package",
+        ["package_id"],
         ["id"],
     )
     op.create_foreign_key(
-        u"package_extra_revision_package_id_fkey",
-        u"package_extra_revision",
-        u"package",
-        [u"package_id"],
+        "package_extra_revision_package_id_fkey",
+        "package_extra_revision",
+        "package",
+        ["package_id"],
         ["id"],
     )
     op.create_foreign_key(
-        u"group_revision_continuity_id_fkey",
-        u"group_revision",
-        u"group",
-        [u"continuity_id"],
+        "group_revision_continuity_id_fkey",
+        "group_revision",
+        "group",
+        ["continuity_id"],
         ["id"],
     )
     op.create_foreign_key(
-        u"member_revision_group_id_fkey",
-        u"member_revision",
-        u"group",
-        [u"group_id"],
+        "member_revision_group_id_fkey",
+        "member_revision",
+        "group",
+        ["group_id"],
         ["id"],
     )

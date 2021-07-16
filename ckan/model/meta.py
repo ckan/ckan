@@ -90,7 +90,7 @@ create_local_session = orm.sessionmaker(
 mapper = orm.mapper
 
 # Global metadata. If you have multiple databases with overlapping table
-# names, you'll need a metadata for each database
+# names, yo'll need a metadata for each database
 metadata = MetaData()
 
 

@@ -36,10 +36,10 @@ def deprecation_warning(message=None):
 
     If ``message`` is given it is also printed to STDERR.
     '''
-    sys.stderr.write(u'WARNING: This function is deprecated.')
+    sys.stderr.write('WARNING: This function is deprecated.')
     if message:
-        sys.stderr.write(u' ' + message.strip())
-    sys.stderr.write(u'\n')
+        sys.stderr.write(' ' + message.strip())
+    sys.stderr.write('\n')
 
 
 @maintain.deprecated(since='2.9.0')
@@ -57,12 +57,12 @@ def error(msg):
 
 @maintain.deprecated('Use model.parse_db_config directly instead',
                      since='2.9.0')
-def _parse_db_config(config_key=u'sqlalchemy.url'):
+def _parse_db_config(config_key='sqlalchemy.url'):
     '''Deprecated'''
     db_config = model.parse_db_config(config_key)
     if not db_config:
         raise Exception(
-            u'Could not extract db details from url: %r' % config[config_key]
+            'Could not extract db details from url: %r' % config[config_key]
         )
     return db_config
 
@@ -170,8 +170,8 @@ def paster_click_group(summary):
         def __call__(self, ignored_command):
             sys.argv.remove(ignored_command)
             return super(PasterClickGroup, self).__call__(
-                prog_name=u'paster ' + ignored_command,
-                help_option_names=[u'-h', u'--help'],
+                prog_name='paster ' + ignored_command,
+                help_option_names=['-h', '--help'],
                 obj={})
 
     @click.group(cls=PasterClickGroup)
@@ -186,7 +186,7 @@ def paster_click_group(summary):
 
 
     cli.summary = summary
-    cli.group_name = u'ckan'
+    cli.group_name = 'ckan'
     return cli
 
 
@@ -196,7 +196,7 @@ click_config_option = click.option(
     '--config',
     default=None,
     metavar='CONFIG',
-    help=u'Config file to use (default: development.ini)')
+    help='Config file to use (default: development.ini)')
 
 
 class CkanCommand(paste.script.command.Command):

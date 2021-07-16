@@ -127,7 +127,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 qualified=True)
 
         if 'datastore_active' not in resource_dict:
-            resource_dict[u'datastore_active'] = False
+            resource_dict['datastore_active'] = False
 
         return resource_dict
 
@@ -166,12 +166,12 @@ class DatastorePlugin(p.SingletonPlugin):
         if q:
             if isinstance(q, string_types):
                 del data_dict['q']
-                column_names.append(u'rank')
+                column_names.append('rank')
             elif isinstance(q, dict):
                 for key in list(q.keys()):
                     if key in fields_types and isinstance(q[key],
                                                           string_types):
-                        column_names.append(u'rank ' + key)
+                        column_names.append('rank ' + key)
                         del q[key]
 
         fields = data_dict.get('fields')
@@ -254,6 +254,6 @@ class DatastorePlugin(p.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        u'''Return a Flask Blueprint object to be registered by the app.'''
+        '''Return a Flask Blueprint object to be registered by the app.'''
 
         return view.datastore

@@ -164,20 +164,20 @@ def clean_dict(data_dict):
 
     e.g.
     >>> clean_dict(
-        {'name': u'testgrp4',
-         'title': u'',
-         'description': u'',
-         'packages': [{'name': u'testpkg'}, {'name': u'testpkg'}],
-         'extras': [{'key': u'packages', 'value': u'["testpkg"]'},
-                    {'key': u'', 'value': u''},
-                    {'key': u'', 'value': u''}],
-         'state': u'active'}
-    {'name': u'testgrp4',
-     'title': u'',
-     'description': u'',
-     'packages': [{'name': u'testpkg'}, {'name': u'testpkg'}],
-     'extras': [{'key': u'packages', 'value': u'["testpkg"]'}],
-     'state': u'active'}
+        {'name': 'testgrp4',
+         'title': '',
+         'description': '',
+         'packages': [{'name': 'testpkg'}, {'name': 'testpkg'}],
+         'extras': [{'key': 'packages', 'value': '["testpkg"]'},
+                    {'key': '', 'value': ''},
+                    {'key': '', 'value': ''}],
+         'state': 'active'}
+    {'name': 'testgrp4',
+     'title': '',
+     'description': '',
+     'packages': [{'name': 'testpkg'}, {'name': 'testpkg'}],
+     'extras': [{'key': 'packages', 'value': '["testpkg"]'}],
+     'state': 'active'}
 
     '''
     for key, value in data_dict.items():
@@ -316,7 +316,7 @@ def check_access(action, context, data_dict=None):
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
     except NotAuthorized as e:
-        log.debug(u'check access NotAuthorized - %s user=%s "%s"',
+        log.debug('check access NotAuthorized - %s user=%s "%s"',
                   action, user, text_type(e))
         raise
 

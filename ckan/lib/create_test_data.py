@@ -17,7 +17,7 @@ class CreateTestData(object):
     group_names = set()
     user_refs = []
 
-    author = u'tester'
+    author = 'tester'
 
     pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
                        'author', 'author_email',
@@ -50,14 +50,14 @@ class CreateTestData(object):
 
     @classmethod
     def create_test_user(cls):
-        tester = model.User.by_name(u'tester')
+        tester = model.User.by_name('tester')
         if tester is None:
-            tester = model.User(name=u'tester', apikey=u'tester',
-                password=u'tester')
+            tester = model.User(name='tester', apikey='tester',
+                password='tester')
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
-        cls.user_refs.append(u'tester')
+        cls.user_refs.append('tester')
 
     @classmethod
     def create_translations_test_data(cls):
@@ -356,44 +356,44 @@ class CreateTestData(object):
     def create(cls, auth_profile="", package_type=None):
         model.Session.remove()
         if auth_profile == "publisher":
-            organization_group = model.Group(name=u"organization_group",
+            organization_group = model.Group(name="organization_group",
                                              type="organization")
 
-        cls.pkg_names = [u'annakarenina', u'warandpeace']
+        cls.pkg_names = ['annakarenina', 'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
         if auth_profile == "publisher":
             pkg1.group = organization_group
         model.Session.add(pkg1)
-        pkg1.title = u'A Novel By Tolstoy'
-        pkg1.version = u'0.7a'
-        pkg1.url = u'http://datahub.io'
+        pkg1.title = 'A Novel By Tolstoy'
+        pkg1.version = '0.7a'
+        pkg1.url = 'http://datahub.io'
         # put an & in the url string to test escaping
         if 'alt_url' in model.Resource.get_extra_columns():
-            configured_extras = ({'alt_url': u'alt123'},
-                                 {'alt_url': u'alt345'})
+            configured_extras = ({'alt_url': 'alt123'},
+                                 {'alt_url': 'alt345'})
         else:
             configured_extras = ({}, {})
         pr1 = model.Resource(
-            url=u'http://datahub.io/download/x=1&y=2',
-            format=u'plain text',
-            description=u'Full text. Needs escaping: " Umlaut: \xfc',
-            hash=u'abc123',
-            extras={'size_extra': u'123'},
+            url='http://datahub.io/download/x=1&y=2',
+            format='plain text',
+            description='Full text. Needs escaping: " Umlaut: \xfc',
+            hash='abc123',
+            extras={'size_extra': '123'},
             **configured_extras[0]
             )
         pr2 = model.Resource(
-            url=u'http://datahub.io/index.json',
-            format=u'JSON',
-            description=u'Index of the novel',
-            hash=u'def456',
-            extras={'size_extra': u'345'},
+            url='http://datahub.io/index.json',
+            format='JSON',
+            description='Index of the novel',
+            hash='def456',
+            extras={'size_extra': '345'},
             **configured_extras[1]
             )
         model.Session.add(pr1)
         model.Session.add(pr2)
         pkg1.resources_all.append(pr1)
         pkg1.resources_all.append(pr2)
-        pkg1.notes = u'''Some test notes
+        pkg1.notes = '''Some test notes
 
 ### A 3rd level heading
 
@@ -413,41 +413,41 @@ left arrow <
 
 '''
         pkg2 = model.Package(name=cls.pkg_names[1], type=package_type)
-        tag1 = model.Tag(name=u'russian')
-        tag2 = model.Tag(name=u'tolstoy')
+        tag1 = model.Tag(name='russian')
+        tag2 = model.Tag(name='tolstoy')
 
         if auth_profile == "publisher":
             pkg2.group = organization_group
 
         # Flexible tag, allows spaces, upper-case,
         # and all punctuation except commas
-        tag3 = model.Tag(name=u'Flexible \u30a1')
+        tag3 = model.Tag(name='Flexible \u30a1')
 
         for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
         pkg1.add_tags([tag1, tag2, tag3])
         pkg2.add_tags([ tag1, tag3 ])
         cls.tag_names = [ t.name for t in (tag1, tag2, tag3) ]
-        pkg1.license_id = u'other-open'
-        pkg2.license_id = u'cc-nc' # closed license
-        pkg2.title = u'A Wonderful Story'
-        pkg1.extras = {u'genre':'romantic novel',
-                       u'original media':'book'}
+        pkg1.license_id = 'other-open'
+        pkg2.license_id = 'cc-nc' # closed license
+        pkg2.title = 'A Wonderful Story'
+        pkg1.extras = {'genre':'romantic novel',
+                       'original media':'book'}
         # group
-        david = model.Group(name=u'david',
-                             title=u'Dave\'s books',
-                             description=u'These are books that David likes.',
+        david = model.Group(name='david',
+                             title='Dave\'s books',
+                             description='These are books that David likes.',
                              type=auth_profile or 'group')
-        roger = model.Group(name=u'roger',
-                             title=u'Roger\'s books',
-                             description=u'Roger likes these books.',
+        roger = model.Group(name='roger',
+                             title='Roger\'s books',
+                             description='Roger likes these books.',
                              type=auth_profile or 'group')
 
         for obj in [david, roger]:
             model.Session.add(obj)
 
-        cls.group_names.add(u'david')
-        cls.group_names.add(u'roger')
+        cls.group_names.add('david')
+        cls.group_names.add('roger')
 
         model.Session.flush()
 
@@ -455,16 +455,16 @@ left arrow <
         model.Session.add(model.Member(table_id=pkg2.id, table_name='package', group=david))
         model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=roger))
         # authz
-        sysadmin = model.User(name=u'testsysadmin', password=u'testsysadmin')
+        sysadmin = model.User(name='testsysadmin', password='testsysadmin')
         sysadmin.sysadmin = True
         model.Session.add_all([
-            model.User(name=u'tester', apikey=u'tester', password=u'tester'),
-            model.User(name=u'joeadmin', password=u'joeadmin'),
-            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://datahub.io', password=u'annafan'),
-            model.User(name=u'russianfan', password=u'russianfan'),
+            model.User(name='tester', apikey='tester', password='tester'),
+            model.User(name='joeadmin', password='joeadmin'),
+            model.User(name='annafan', about='I love reading Annakarenina. My site: http://datahub.io', password='annafan'),
+            model.User(name='russianfan', password='russianfan'),
             sysadmin,
             ])
-        cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
+        cls.user_refs.extend(['tester', 'joeadmin', 'annafan', 'russianfan', 'testsysadmin'])
 
         # Create activities for packages
         for item in [pkg1, pkg2]:
@@ -571,9 +571,9 @@ left arrow <
     def make_some_vocab_tags(cls):
 
         # Create a couple of vocabularies.
-        genre_vocab = model.Vocabulary(u'genre')
+        genre_vocab = model.Vocabulary('genre')
         model.Session.add(genre_vocab)
-        composers_vocab = model.Vocabulary(u'composers')
+        composers_vocab = model.Vocabulary('composers')
         model.Session.add(composers_vocab)
 
         # Create some additional free tags for tag search tests.
@@ -590,10 +590,10 @@ left arrow <
             tolerance_tag, tollbooth_tag))
 
         # Create some tags that belong to vocabularies.
-        sonata_tag = model.Tag(name=u'sonata', vocabulary_id=genre_vocab.id)
+        sonata_tag = model.Tag(name='sonata', vocabulary_id=genre_vocab.id)
         model.Session.add(sonata_tag)
 
-        bach_tag = model.Tag(name=u'Bach', vocabulary_id=composers_vocab.id)
+        bach_tag = model.Tag(name='Bach', vocabulary_id=composers_vocab.id)
         model.Session.add(bach_tag)
 
         neoclassical_tag = model.Tag(name='neoclassical',
@@ -641,7 +641,7 @@ search_items = [{'name':'gils',
                           'description':'http://www.statistics.gov.uk/hub/id/119-34565'}],
               'groups':'ukgov test1 test2 penguin',
               'license':'odc-by',
-              'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
+              'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
 
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
 > Because this collection is decentralized, the GPO
@@ -697,7 +697,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
               'groups':'penguin',
-              'tags':u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise.,greek omega \u03a9,japanese katakana \u30a1'.split(','),
+              'tags':'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise.,greek omega \u03a9,japanese katakana \u30a1'.split(','),
               'license':'',
               'notes':'''### About
 
@@ -731,13 +731,13 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
               },
              ]
 
-family_items = [{'name':u'abraham', 'title':u'Abraham'},
-                {'name':u'homer', 'title':u'Homer'},
-                {'name':u'homer_derived', 'title':u'Homer Derived'},
-                {'name':u'beer', 'title':u'Beer'},
-                {'name':u'bart', 'title':u'Bart'},
-                {'name':u'lisa', 'title':u'Lisa'},
-                {'name':u'marge', 'title':u'Marge'},
+family_items = [{'name':'abraham', 'title':'Abraham'},
+                {'name':'homer', 'title':'Homer'},
+                {'name':'homer_derived', 'title':'Homer Derived'},
+                {'name':'beer', 'title':'Beer'},
+                {'name':'bart', 'title':'Bart'},
+                {'name':'lisa', 'title':'Lisa'},
+                {'name':'marge', 'title':'Marge'},
                 ]
 family_relationships = [('abraham', 'parent_of', 'homer'),
                         ('homer', 'parent_of', 'bart'),
