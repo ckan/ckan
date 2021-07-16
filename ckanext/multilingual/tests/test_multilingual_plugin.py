@@ -216,4 +216,4 @@ class TestDatasetSearchIndex(object):
                           'text_lv': '',
                           'text_it': 'italian boon',
                           'title_it': 'italian david',
-                          'text_r': ''}, result
+                          'text_ru': ''}, result
