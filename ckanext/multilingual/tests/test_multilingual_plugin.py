@@ -196,7 +196,7 @@ class TestDatasetSearchIndex(object):
                           'title': 'david',
                           'text_ca': '',
                           'download_url': 'moo',
-                          'text_h': '',
+                          'text_hu': '',
                           'text_sa': '',
                           'text_cs_CZ': '',
                           'text_nl': '',
