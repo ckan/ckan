@@ -797,7 +797,6 @@ def _link_to(text, *args, **kwargs):
             active = ' active'
         else:
             active = ''
-        kwargs.pop('highlight_actions', '')
         return kwargs.pop('class_', '') + active or None
 
     def _create_link_text(text, **kwargs):
@@ -1027,8 +1026,7 @@ def _make_menu_item(menu_item, title, **kw):
     controller, action = menu_item.split('.')
     item = {
         'action': action,
-        'controller': controller,
-        'highlight_actions': action
+        'controller': controller
     }
     item.update(kw)
     active = _link_active(item)
