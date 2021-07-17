@@ -52,7 +52,7 @@ class TestPackageNew(object):
 
         env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
-        assert url_for(controller="organization", action="new") in response
+        assert url_for("organization.new") in response
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
     @pytest.mark.ckan_config("ckan.auth.user_create_organizations", "false")
@@ -74,7 +74,7 @@ class TestPackageNew(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
-        assert url_for(controller="organization", action="new") not in response
+        assert url_for("organization.new") not in response
         assert "Ask a system administrator" in response
 
     def test_name_required(self, app, user_env):

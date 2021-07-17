@@ -90,18 +90,14 @@ def test_perform_reset_user_password_link_key_incorrect(app):
     CreateTestData.create_user(name="jack", password="TestPassword1")
     # Make up a key - i.e. trying to hack this
     user = model.User.by_name(u"jack")
-    offset = url_for(
-        controller="user", action="perform_reset", id=user.id, key="randomness"
-    )  # i.e. incorrect
+    offset = url_for("user.perform_reset", id=user.id, key="randomness")  # i.e. incorrect
     res = app.get(offset, status=403)  # error
 
 
 def test_perform_reset_user_password_link_key_missing(app):
     CreateTestData.create_user(name="jack", password="TestPassword1")
     user = model.User.by_name(u"jack")
-    offset = url_for(
-        controller="user", action="perform_reset", id=user.id
-    )  # not, no key specified
+    offset = url_for("user.perform_reset", id=user.id)  # not, no key specified
     res = app.get(offset, status=403)  # error
 
 
@@ -109,8 +105,7 @@ def test_perform_reset_user_password_link_user_incorrect(app):
     # Make up a key - i.e. trying to hack this
     user = model.User.by_name(u"jack")
     offset = url_for(
-        controller="user",
-        action="perform_reset",
+        "user.perform_reset",
         id="randomness",  # i.e. incorrect
         key="randomness",
     )
@@ -128,8 +123,7 @@ def test_perform_reset_activates_pending_user(app):
     assert user.is_pending(), user.state
 
     offset = url_for(
-        controller="user",
-        action="perform_reset",
+        "user.perform_reset",
         id=user.id,
         key=user.reset_key,
     )
@@ -150,8 +144,7 @@ def test_perform_reset_doesnt_activate_deleted_user(app):
     assert user.is_deleted(), user.state
 
     offset = url_for(
-        controller="user",
-        action="perform_reset",
+        "user.perform_reset",
         id=user.id,
         key=user.reset_key,
     )
