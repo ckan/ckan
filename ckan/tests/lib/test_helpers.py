@@ -626,7 +626,7 @@ class TestBuildNavMain(object):
         link = h.link_to("Example Link", "https://www.example.com", cls='css-class', target='_blank')
         assert link == '<a class="css-class" href="https://www.example.com" target="_blank">Example Link</a>'
 
-        link2 =  h.link_to('display_name', h.url_for('dataset.search', tags='name'), class_='tag')
+        link2 = h.link_to('display_name', h.url_for('dataset.search', tags='name'), class_='tag')
         link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
 
     def test_build_nav_icon(self):
