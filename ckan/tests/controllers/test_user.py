@@ -410,8 +410,7 @@ class TestUser(object):
         user_two = factories.User()
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
-        follow_url = url_for("user.follow", id=user_two["id"]
-        )
+        follow_url = url_for("user.follow", id=user_two["id"])
         response = app.post(follow_url, extra_environ=env)
         assert (
             "You are now following {0}".format(user_two["display_name"])
