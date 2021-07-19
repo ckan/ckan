@@ -365,7 +365,7 @@ def _where_clauses(data_dict, fields_types):
     filters = data_dict.get('filters', {})
     clauses = []
 
-    for field, value in six.iteritems(filters):
+    for field, value in filters.items():
         if field not in fields_types:
             continue
         field_array_type = _is_array_type(fields_types[field])
@@ -391,7 +391,7 @@ def _where_clauses(data_dict, fields_types):
             clauses.append((clause_str,))
         elif isinstance(q, dict):
             lang = _fts_lang(data_dict.get('language'))
-            for field, value in six.iteritems(q):
+            for field, value in q.items():
                 if field not in fields_types:
                     continue
                 query_field = _ts_query_alias(field)
@@ -429,7 +429,7 @@ def _where_clauses(data_dict, fields_types):
 
 def _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses):
     lang = _fts_lang(data_dict.get('language'))
-    for field, value in six.iteritems(q):
+    for field, value in q.items():
         if field not in fields_types:
             continue
         query_field = _ts_query_alias(field)
@@ -470,7 +470,7 @@ def _textsearch_query(lang, q, plain, full_text):
             statements.append(query)
             rank_columns[u'rank'] = rank
         elif isinstance(q, dict):
-            for field, value in six.iteritems(q):
+            for field, value in q.items():
                 query, rank = _build_query_and_rank_statements(
                     lang, value, plain, field)
                 statements.append(query)
@@ -482,7 +482,7 @@ def _textsearch_query(lang, q, plain, full_text):
     elif full_text and isinstance(q, dict):
         _update_rank_statements_and_columns(
             statements, rank_columns, lang, full_text, plain)
-        for field, value in six.iteritems(q):
+        for field, value in q.items():
             _update_rank_statements_and_columns(
                 statements, rank_columns, lang, value, plain, field
             )
@@ -1270,7 +1270,7 @@ def validate(context, data_dict):
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('calculate_record_count', None)
 
-    for key, values in six.iteritems(data_dict_copy):
+    for key, values in data_dict_copy.items():
         if not values:
             continue
         if isinstance(values, string_types):

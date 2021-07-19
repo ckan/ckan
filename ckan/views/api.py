@@ -163,7 +163,7 @@ def _get_request_data(try_url_params=False):
            item or a string otherwise
         '''
         out = {}
-        for key, value in six.iteritems(multi_dict.to_dict(flat=False)):
+        for key, value in multi_dict.to_dict(flat=False).items():
             out[key] = value[0] if len(value) == 1 else value
         return out
 
@@ -205,7 +205,7 @@ def _get_request_data(try_url_params=False):
     if request.method == u'PUT' and not request_data:
         raise ValueError(u'Invalid request. Please use the POST method for '
                          'your request')
-    for field_name, file_ in six.iteritems(request.files):
+    for field_name, file_ in request.files.items():
         request_data[field_name] = file_
     log.debug(u'Request data extracted: %r', request_data)
 

@@ -66,7 +66,7 @@ def _enclosure(pkg):
 
 def _set_extras(**kw):
     extras = []
-    for key, value in six.iteritems(kw):
+    for key, value in kw.items():
         extras.append({key: value})
     return extras
 
@@ -424,7 +424,7 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    for item in six.iteritems(query):
+    for item in query.items():
         kwargs['query'] = item
     return h.url_for(controller=controller, action=action, **kwargs)
 

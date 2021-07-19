@@ -927,7 +927,7 @@ class BulkProcessView(MethodView):
         actions = form_names.intersection(actions_in_form)
         # ie7 puts all buttons in form params but puts submitted one twice
 
-        for key, value in six.iteritems(request.form.to_dict()):
+        for key, value in request.form.to_dict().items():
             if value in [u'private', u'public']:
                 action = key.split(u'.')[-1]
                 break

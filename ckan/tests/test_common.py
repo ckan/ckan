@@ -82,7 +82,7 @@ def test_iteritems_works():
     my_conf[u"test_key_2"] = u"Test value 2"
 
     cnt = 0
-    for key, value in six.iteritems(my_conf):
+    for key, value in my_conf.items():
         cnt += 1
         assert key.startswith(u"test_key_")
         assert value.startswith(u"Test value")

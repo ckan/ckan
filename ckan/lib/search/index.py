@@ -219,7 +219,7 @@ class PackageSearchIndex(SearchIndex):
         for rel in subjects:
             type = rel['type']
             rel_dict[type].append(model.Package.get(rel['object_package_id']).name)
-        for key, value in six.iteritems(rel_dict):
+        for key, value in rel_dict.items():
             if key not in pkg_dict:
                 pkg_dict[key] = value
 

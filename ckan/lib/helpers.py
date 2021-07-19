@@ -1000,7 +1000,7 @@ def build_extra_admin_nav():
     admin_tabs_dict = config.get('ckan.admin_tabs')
     output = ''
     if admin_tabs_dict:
-        for k, v in six.iteritems(admin_tabs_dict):
+        for k, v in admin_tabs_dict.items():
             if v['icon']:
                 output += build_nav_icon(k, v['label'], icon=v['icon'])
             else:
@@ -2774,7 +2774,7 @@ def load_plugin_helpers():
             new_func = functools.partial(
                 func, helper_functions[name])
             # persisting attributes to the new partial function
-            for attribute, value in six.iteritems(func.__dict__):
+            for attribute, value in func.__dict__.items():
                 setattr(new_func, attribute, value)
             helper_functions[name] = new_func
 

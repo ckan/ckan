@@ -19,7 +19,7 @@ def identity_converter(key, data, errors, context):
 def keep_extras(key, data, errors, context):
 
     extras = data.pop(key, {})
-    for extras_key, value in six.iteritems(extras):
+    for extras_key, value in extras.items():
         data[key[:-1] + (extras_key,)] = value
 
 def not_missing(key, data, errors, context):

@@ -411,7 +411,7 @@ class PackageSearchQuery(SearchQuery):
 
         # get facets and convert facets list to a dict
         self.facets = solr_response.facets.get('facet_fields', {})
-        for field, values in six.iteritems(self.facets):
+        for field, values in self.facets.items():
             self.facets[field] = dict(zip(values[0::2], values[1::2]))
 
         return {'results': self.results, 'count': self.count}

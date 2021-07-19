@@ -102,7 +102,7 @@ class ValidationError(ActionError):
 
             summary = {}
 
-            for key, error in six.iteritems(error_dict):
+            for key, error in error_dict.items():
                 if key == 'resources':
                     summary[_('Resources')] = _('Package resource(s) invalid')
                 elif key == 'extras':
@@ -203,7 +203,7 @@ def tuplize_dict(data_dict):
     May raise a DataError if the format of the key is incorrect.
     '''
     tuplized_dict = {}
-    for key, value in six.iteritems(data_dict):
+    for key, value in data_dict.items():
         key_list = key.split('__')
         for num, key in enumerate(key_list):
             if num % 2 == 1:
@@ -218,7 +218,7 @@ def tuplize_dict(data_dict):
 def untuplize_dict(tuplized_dict):
 
     data_dict = {}
-    for key, value in six.iteritems(tuplized_dict):
+    for key, value in tuplized_dict.items():
         new_key = '__'.join([str(item) for item in key])
         data_dict[new_key] = value
     return data_dict
@@ -458,7 +458,7 @@ def get_action(action):
                 # This needs to be resolved later
                 action_function.auth_audit_exempt = True
                 fetched_actions[name] = action_function
-    for name, func_list in six.iteritems(chained_actions):
+    for name, func_list in chained_actions.items():
         if name not in fetched_actions and name not in _actions:
             # nothing to override from plugins or core
             raise NotFound('The action %r is not found for chained action' % (
@@ -468,7 +468,7 @@ def get_action(action):
             prev_func = fetched_actions.get(name, _actions.get(name))
             new_func = functools.partial(func, prev_func)
             # persisting attributes to the new partial function
-            for attribute, value in six.iteritems(func.__dict__):
+            for attribute, value in func.__dict__.items():
                 setattr(new_func, attribute, value)
             fetched_actions[name] = new_func
 

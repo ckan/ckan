@@ -619,7 +619,7 @@ class TestActionAuth(object):
 
     def test_fn_signatures(self):
         errors = []
-        for name, fn in six.iteritems(self.actions):
+        for name, fn in self.actions.items():
             args_info = inspect.getargspec(fn)
             if (
                 args_info.args != ["context", "data_dict"]
@@ -636,7 +636,7 @@ class TestActionAuth(object):
 
     def test_fn_docstrings(self):
         errors = []
-        for name, fn in six.iteritems(self.actions):
+        for name, fn in self.actions.items():
             if not getattr(fn, "__doc__", None):
                 if name not in self.ACTION_NO_DOC_STR_BLACKLIST:
                     errors.append(name)
