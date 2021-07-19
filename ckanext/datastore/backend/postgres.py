@@ -1849,6 +1849,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         if rows_max is not None:
             int(rows_max)
 
+        if not _pg_version_is_at_least(self.read_engine, "9.5"):
+            error_msg = 'At least PostgreSQL v9.5 is required.'
+            raise DatastoreException(error_msg)
+
     def datastore_delete(self, context, data_dict, fields_types, query_dict):
         query_dict['where'] += _where_clauses(data_dict, fields_types)
         return query_dict

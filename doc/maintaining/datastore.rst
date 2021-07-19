@@ -47,7 +47,7 @@ Setting up the DataStore
 .. versionchanged:: 2.6
 
    Previous CKAN (and DataStore) versions were compatible with earlier versions
-   of |postgres|.
+   of |postgres|. Currently, at least |postgres| version 9.5 is required.
 
 1. Enable the plugin
 ====================
