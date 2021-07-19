@@ -9,7 +9,7 @@ import paste.script
 import routes
 from paste.registry import Registry
 from six.moves import input
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from ckan.config.middleware import make_app
 from ckan.cli import load_config as _get_config

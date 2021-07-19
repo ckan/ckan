@@ -10,7 +10,7 @@ import string
 import json
 
 from six import string_types, iteritems
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic

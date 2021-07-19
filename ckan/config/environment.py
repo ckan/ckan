@@ -9,7 +9,7 @@ import pytz
 import six
 import sqlalchemy
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 import ckan.model as model
 import ckan.plugins as p

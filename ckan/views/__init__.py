@@ -4,7 +4,7 @@ from sqlalchemy import inspect
 from ckan.common import asbool
 import six
 from six import text_type
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model

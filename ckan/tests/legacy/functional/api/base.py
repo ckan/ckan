@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 
 from ckan.tests.legacy import TestController as ControllerTestCase, CreateTestData
 from ckan.common import json

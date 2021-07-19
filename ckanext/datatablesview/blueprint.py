@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 
 from flask import Blueprint
 from six import text_type

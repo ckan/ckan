@@ -13,7 +13,7 @@ which builds the dictionary by iterating over the table columns.
 '''
 import copy
 import six
-from six.moves.urllib.parse import urlsplit
+from urllib.parse import urlsplit
 
 from ckan.common import config
 from sqlalchemy.sql import select

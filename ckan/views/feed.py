@@ -2,7 +2,7 @@
 
 import logging
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 from flask import Blueprint, make_response
 import six
 from six import text_type

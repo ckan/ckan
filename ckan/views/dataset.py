@@ -3,7 +3,7 @@ import logging
 import inspect
 from collections import OrderedDict
 from functools import partial
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 from datetime import datetime
 
 from flask import Blueprint

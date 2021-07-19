@@ -31,7 +31,7 @@ from ckan.lib import i18n
 
 import six
 from six import string_types, text_type
-from six.moves.urllib.parse import (
+from urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
 )
 from six.moves import map

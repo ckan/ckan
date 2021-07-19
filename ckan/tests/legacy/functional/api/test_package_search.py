@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 
 import pytest
 from dominate.util import escape

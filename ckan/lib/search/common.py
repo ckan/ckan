@@ -7,7 +7,7 @@ import pysolr
 import simplejson
 
 from six import string_types
-from six.moves.urllib.parse import quote_plus
+from urllib.parse import quote_plus
 
 from ckan.common import config, asint
 

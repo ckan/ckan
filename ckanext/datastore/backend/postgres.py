@@ -13,7 +13,7 @@ import json
 from collections import OrderedDict
 
 import six
-from six.moves.urllib.parse import (
+from urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
 from six import string_types, text_type, StringIO

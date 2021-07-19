@@ -3,7 +3,7 @@
 import pytest
 from ckan.common import config
 
-from six.moves.urllib.parse import urljoin
+from urllib.parse import urljoin
 
 import ckan.model as model
 import ckan.plugins as plugins

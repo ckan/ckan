@@ -5,7 +5,7 @@ import json
 import datetime
 import time
 
-from six.moves.urllib.parse import urljoin
+from urllib.parse import urljoin
 from dateutil.parser import parse as parse_date
 
 import requests
