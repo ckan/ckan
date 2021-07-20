@@ -1097,7 +1097,7 @@ ckan.search.default_package_sort
 
 Example::
 
- ckan.search.default_package_sort = "name asc"
+ ckan.search.default_package_sort = name asc
 
 Default value:  ``score desc, metadata_modified desc``
 
