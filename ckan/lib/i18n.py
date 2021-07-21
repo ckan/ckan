@@ -295,7 +295,7 @@ def _build_js_translation(lang, source_filenames, entries, dest_filename):
                 ordered_plural = sorted(entry.msgstr_plural.items())
                 for order, msgstr in ordered_plural:
                     plural.append(msgstr)
-    with open(dest_filename, u'w') as f:
+    with open(dest_filename, u'w', encoding='utf-8') as f:
         s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
         f.write(six.ensure_str(s))
 
