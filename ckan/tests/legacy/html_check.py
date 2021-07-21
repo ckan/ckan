@@ -86,7 +86,7 @@ class HtmlCheckMethods(object):
             found_all = True
             for i, html_bit_to_find in enumerate(html_to_find):
                 assert isinstance(
-                    html_bit_to_find, string_types
+                    html_bit_to_find, str
                 ), html_bit_to_find
                 html_bit_to_find = str(html_bit_to_find)
                 find_inverse = html_bit_to_find.startswith("!")
