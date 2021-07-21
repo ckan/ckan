@@ -213,7 +213,7 @@ def index(group_type, is_organization):
 
 
 def _read(id, limit, group_type):
-    u''' This is common code used by both read and bulk_process'''
+    u'''Internal call used in group.read blueprint '''
     extra_vars = {}
     context = {
         u'model': model,
