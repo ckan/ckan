@@ -863,14 +863,11 @@ class BulkProcessView(MethodView):
             # FIXME: better error
             raise Exception(u'Must be an organization')
 
-        # If no action then just show the datasets
-        limit = 500
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
         g.group_dict = group_dict
         g.group = group
-        extra_vars = _read(id, limit, group_type)
         g.packages = g.page.items
 
         extra_vars = {
