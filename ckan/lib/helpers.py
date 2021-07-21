@@ -872,18 +872,6 @@ def link_to(label, url, **attrs):
     return literal(dom_tags.a(label, **attrs))
 
 
-@maintain.deprecated(u'h.submit is deprecated. '
-                     u'Use h.literal(<markup or dominate.tags>) instead.',
-                     since=u'2.9.0')
-@core_helper
-def submit(name, value=None, id=None, **attrs):
-    """Create a submit field.
-
-    Deprecated: Use h.literal(<markup or dominate.tags>) instead.
-    """
-    return literal(_input_tag(u"submit", name, value, id, **attrs))
-
-
 @core_helper
 def nav_link(text, *args, **kwargs):
     '''
@@ -1398,50 +1386,6 @@ def markdown_extract(text, extract_length=190):
 
 
 @core_helper
-def icon_url(name):
-    return url_for_static('/images/icons/%s.png' % name)
-
-
-@core_helper
-def icon_html(url, alt=None, inline=True):
-    classes = ''
-    if inline:
-        classes += 'inline-icon '
-    return literal(('<img src="%s" height="16px" width="16px" alt="%s" ' +
-                    'class="%s" /> ') % (url, alt, classes))
-
-
-@core_helper
-def icon(name, alt=None, inline=True):
-    return icon_html(icon_url(name), alt, inline)
-
-
-@core_helper
-def resource_icon(res):
-    return icon(format_icon(res.get('format', '')))
-
-
-@core_helper
-def format_icon(_format):
-    _format = _format.lower()
-    if ('json' in _format):
-        return 'page_white_cup'
-    if ('csv' in _format):
-        return 'page_white_gear'
-    if ('xls' in _format):
-        return 'page_white_excel'
-    if ('zip' in _format):
-        return 'page_white_compressed'
-    if ('api' in _format):
-        return 'page_white_database'
-    if ('plain text' in _format):
-        return 'page_white_text'
-    if ('xml' in _format):
-        return 'page_white_code'
-    return 'page_white'
-
-
-@core_helper
 def dict_list_reduce(list_, key, unique=True):
     ''' Take a list of dicts and create a new one containing just the
     values for the key with unique values if requested. '''
@@ -1753,13 +1697,6 @@ def time_ago_from_timestamp(timestamp):
 
 
 @core_helper
-def button_attr(enable, type='primary'):
-    if enable:
-        return 'class="btn %s"' % type
-    return 'disabled class="btn disabled"'
-
-
-@core_helper
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         return get_translated(package_or_package_dict, 'title') or \
@@ -1803,34 +1740,6 @@ def resource_display_name(resource_dict):
 
 
 @core_helper
-def resource_link(resource_dict, package_id, package_type='dataset'):
-    text = resource_display_name(resource_dict)
-    url = url_for('{}_resource.read'.format(package_type),
-                  id=package_id,
-                  resource_id=resource_dict['id'])
-    return link_to(text, url)
-
-
-@core_helper
-def tag_link(tag, package_type='dataset'):
-    url = url_for('{}.search'.format(package_type), tags=tag['name'])
-    return link_to(tag.get('title', tag['name']), url)
-
-
-@core_helper
-def group_link(group):
-    url = url_for('group.read', id=group['name'])
-    return link_to(group['title'], url)
-
-
-@core_helper
-def organization_link(organization):
-    url = url_for(controller='organization', action='read',
-                  id=organization['name'])
-    return link_to(organization['title'], url)
-
-
-@core_helper
 def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
 
@@ -1844,21 +1753,6 @@ def auto_log_message():
     elif (c.action == 'edit'):
         return _('Edited settings.')
     return ''
-
-
-@core_helper
-def activity_div(template, activity, actor, object=None, target=None):
-    actor = '<span class="actor">%s</span>' % actor
-    if object:
-        object = '<span class="object">%s</span>' % object
-    if target:
-        target = '<span class="target">%s</span>' % target
-    rendered_datetime = render_datetime(activity['timestamp'])
-    date = '<span class="date">%s</span>' % rendered_datetime
-    template = template.format(actor=actor, date=date,
-                               object=object, target=target)
-    template = '<div class="activity">%s %s</div>' % (template, date)
-    return literal(template)
 
 
 @core_helper
@@ -2717,15 +2611,6 @@ def mail_to(email_address, name):
     author = escape(name)
     html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
     return html
-
-
-@core_helper
-def radio(selected, id, checked):
-    if checked:
-        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">') % (selected, id, selected, id))
-    return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">') % (selected, id, selected, id))
 
 
 @core_helper
