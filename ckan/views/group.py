@@ -213,7 +213,6 @@ def index(group_type, is_organization):
 
 
 def _read(id, limit, group_type):
-    u'''Internal call used in group.read blueprint '''
     extra_vars = {}
     context = {
         u'model': model,
