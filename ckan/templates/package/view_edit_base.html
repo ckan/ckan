@@ -3,8 +3,6 @@
 {% set logged_in = true if c.userobj else false %}
 {% set res = resource %}
 
-{% block breadcrumb_edit_selected %}{% endblock %}
-
 {% block content_action %}
   {% link_for _('All views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='arrow-left' %}
   {% if res %}
