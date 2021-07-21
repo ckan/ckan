@@ -479,7 +479,7 @@ def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
                              u'base', u'i18n', u'{0}.js'.format(lang)))
     if not os.path.exists(source):
         return u'{}'
-    translations = json.load(open(source, u'r'))
+    translations = json.load(open(source, u'r', encoding='utf-8'))
     return _finish_ok(translations)
 
 
