@@ -89,7 +89,7 @@ def test_raise(monkeypatch):
 
 def test_call_helper():
     # the null_function would return ''
-    assert tk.h.icon_url(u"x")
+    assert tk.h.ckan_version()
 
 
 def test_tk_helper_attribute_error_on_missing_helper():

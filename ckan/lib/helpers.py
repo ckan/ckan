@@ -1738,6 +1738,7 @@ def resource_display_name(resource_dict):
     else:
         return _("Unnamed resource")
 
+
 @core_helper
 def resource_link(resource_dict, package_id, package_type='dataset'):
     text = resource_display_name(resource_dict)
