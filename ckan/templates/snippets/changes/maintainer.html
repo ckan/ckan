@@ -3,7 +3,7 @@
     {% if change.method == "change" %}
 
       {{ _('Set maintainer of {pkg_link} to {new_maintainer} (previously {old_maintainer})').format(
-        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),,
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
         new_maintainer = change.new_maintainer,
         old_maintainer = change.old_maintainer
         ) }}
@@ -11,7 +11,7 @@
     {% elif change.method == "add" %}
 
       {{ _('Set maintainer of {pkg_link} to {new_maintainer}').format(
-        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),,
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
         new_maintainer = change.new_maintainer
         ) }}
 

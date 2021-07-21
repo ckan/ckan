@@ -10,7 +10,7 @@
         </a>
         {% endblock %}
         {% block organization_item_header_title %}
-          <h3 class="media-heading"><a href={{ url }}>{{ organization.title or organization.name }}</a></h3>
+          <h3 class="media-heading"><a href="{{ url }}">{{ organization.title or organization.name }}</a></h3>
         {% endblock %}
         {% block organization_item_header_description %}
           {% if organization.description %}
