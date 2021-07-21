@@ -15,8 +15,6 @@ from unittest import TestCase
 import pytest
 
 from ckan.common import config
-from six import text_type
-
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
@@ -108,7 +106,7 @@ class CommonFixtureMethods(BaseCase):
     @classmethod
     def purge_packages(cls, pkg_names):
         for pkg_name in pkg_names:
-            pkg = model.Package.by_name(text_type(pkg_name))
+            pkg = model.Package.by_name(str(pkg_name))
             if pkg:
                 pkg.purge()
         model.repo.commit_and_remove()

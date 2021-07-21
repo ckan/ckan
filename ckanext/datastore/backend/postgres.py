@@ -16,7 +16,7 @@ import six
 from urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
-from six import string_types, text_type, StringIO
+from six import StringIO
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -385,7 +385,7 @@ def _where_clauses(data_dict, fields_types):
     q = data_dict.get('q')
     full_text = data_dict.get('full_text')
     if q and not full_text:
-        if isinstance(q, string_types):
+        if isinstance(q, str):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
@@ -419,7 +419,7 @@ def _where_clauses(data_dict, fields_types):
         # update clauses with q dict
         _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses)
 
-    elif full_text and isinstance(q, string_types):
+    elif full_text and isinstance(q, str):
         ts_query_alias = _ts_query_alias()
         clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
         clauses.append((clause_str,))
@@ -464,7 +464,7 @@ def _textsearch_query(lang, q, plain, full_text):
     statements = []
     rank_columns = {}
     if q and not full_text:
-        if isinstance(q, string_types):
+        if isinstance(q, str):
             query, rank = _build_query_and_rank_statements(
                 lang, q, plain)
             statements.append(query)
@@ -486,7 +486,7 @@ def _textsearch_query(lang, q, plain, full_text):
             _update_rank_statements_and_columns(
                 statements, rank_columns, lang, value, plain, field
             )
-    elif full_text and isinstance(q, string_types):
+    elif full_text and isinstance(q, str):
         _update_rank_statements_and_columns(
             statements, rank_columns, lang, full_text, plain
         )
@@ -815,7 +815,7 @@ def convert(data, type_name):
         return data.isoformat()
     if isinstance(data, (int, float)):
         return data
-    return text_type(data)
+    return str(data)
 
 
 def check_fields(context, fields):
@@ -1273,7 +1273,7 @@ def validate(context, data_dict):
     for key, values in data_dict_copy.items():
         if not values:
             continue
-        if isinstance(values, string_types):
+        if isinstance(values, str):
             value = values
         elif isinstance(values, (list, tuple)):
             value = values[0]

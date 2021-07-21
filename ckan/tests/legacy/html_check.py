@@ -3,7 +3,7 @@
 import re
 from html.parser import HTMLParser
 import six
-from six import string_types, text_type
+
 
 from flask.wrappers import Response
 
@@ -33,7 +33,7 @@ class HtmlCheckMethods(object):
 
     def strip_tags(self, res):
         """Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace."""
-        if not isinstance(res, string_types):
+        if not isinstance(res, str):
             res = six.ensure_text(res.data)
         return Stripper().strip(res)
 
@@ -68,7 +68,7 @@ class HtmlCheckMethods(object):
         self._check_html(self.tag_re, html, html_to_find)
 
     def _get_html_from_res(self, html):
-        if isinstance(html, text_type):
+        if isinstance(html, str):
             html_str = html
         elif isinstance(html, str):
             html_str = six.ensure_text(html)
@@ -79,7 +79,7 @@ class HtmlCheckMethods(object):
         return html_str  # always unicode
 
     def _check_html(self, regex_compiled, html, html_to_find):
-        html_to_find = [text_type(html_bit) for html_bit in html_to_find]
+        html_to_find = [str(html_bit) for html_bit in html_to_find]
         partly_matching_tags = []
         html_str = self._get_html_from_res(html)
         for tag in regex_compiled.finditer(html_str):
@@ -88,7 +88,7 @@ class HtmlCheckMethods(object):
                 assert isinstance(
                     html_bit_to_find, string_types
                 ), html_bit_to_find
-                html_bit_to_find = text_type(html_bit_to_find)
+                html_bit_to_find = str(html_bit_to_find)
                 find_inverse = html_bit_to_find.startswith("!")
                 if (find_inverse and html_bit_to_find[1:] in tag.group()) or (
                     not find_inverse and html_bit_to_find not in tag.group()

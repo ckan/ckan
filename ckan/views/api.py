@@ -6,7 +6,7 @@ import html
 
 from flask import Blueprint, make_response
 import six
-from six import text_type
+
 from werkzeug.exceptions import BadRequest
 
 import ckan.model as model
@@ -304,14 +304,14 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
                                  u'message': _(u'Access denied')}
         return_dict[u'success'] = False
 
-        if text_type(e):
+        if str(e):
             return_dict[u'error'][u'message'] += u': %s' % e
 
         return _finish(403, return_dict, content_type=u'json')
     except NotFound as e:
         return_dict[u'error'] = {u'__type': u'Not Found Error',
                                  u'message': _(u'Not found')}
-        if text_type(e):
+        if str(e):
             return_dict[u'error'][u'message'] += u': %s' % e
         return_dict[u'success'] = False
         return _finish(404, return_dict, content_type=u'json')

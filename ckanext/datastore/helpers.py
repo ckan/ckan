@@ -7,8 +7,6 @@ import ckan.common as converters
 import sqlparse
 import six
 
-from six import string_types
-
 from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
 
 log = logging.getLogger(__name__)
@@ -61,7 +59,7 @@ def validate_int(i, non_negative=False):
 
 
 def _strip(s):
-    if isinstance(s, string_types) and len(s) and s[0] == s[-1]:
+    if isinstance(s, str) and len(s) and s[0] == s[-1]:
         return s.strip().strip('"')
     return s
 

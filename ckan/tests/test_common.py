@@ -4,7 +4,7 @@ import flask
 import pytest
 
 import six
-from six import text_type
+
 
 from ckan.common import (
     CKANConfig,
@@ -170,7 +170,7 @@ def test_other_missing_attributes_raise_attributeerror_exceptions(app):
 
 def test_flask_g_is_used_on_a_flask_request(app):
     with app.flask_app.test_request_context():
-        assert u"flask.g" in text_type(ckan_g)
+        assert u"flask.g" in str(ckan_g)
         flask.g.user = u"example"
         assert ckan_g.user == u"example"
 

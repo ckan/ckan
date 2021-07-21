@@ -143,15 +143,15 @@ class TestBuildJSTranslations(object):
 class TestI18nFlask(object):
     def test_translation_works_on_flask_and_pylons(self, app):
         resp = app.get(u"/flask_translated")
-        assert six.ensure_text(resp.data) == six.text_type(u"Dataset")
+        assert six.ensure_text(resp.data) == str(u"Dataset")
 
         resp = app.get(u"/es/flask_translated")
-        assert six.ensure_text(resp.data) == six.text_type(u"Conjunto de datos")
+        assert six.ensure_text(resp.data) == str(u"Conjunto de datos")
 
     @pytest.mark.ckan_config(u"ckan.i18n_directory", I18N_DUMMY_DIR)
     def test_config_i18n_directory(self, app):
         resp = app.get(u"/flask_translated")
-        assert six.ensure_text(resp.data) == six.text_type(u"Dataset")
+        assert six.ensure_text(resp.data) == str(u"Dataset")
 
         resp = app.get(u"/es/flask_translated")
-        assert six.ensure_text(resp.data) == six.text_type(u"Foo baz 123")
+        assert six.ensure_text(resp.data) == str(u"Foo baz 123")

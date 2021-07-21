@@ -3,7 +3,7 @@
 import datetime
 import logging
 from ckan.common import config
-from six import text_type
+
 from sqlalchemy import Table, select, join, func, and_
 
 import ckan.plugins as p
@@ -51,7 +51,7 @@ class Stats(object):
 
         res_ids = model.Session.execute(s).fetchall()
         res_groups = [
-            (model.Session.query(model.Group).get(text_type(group_id)), val)
+            (model.Session.query(model.Group).get(str(group_id)), val)
             for group_id, val in res_ids
         ]
         return res_groups
@@ -88,7 +88,7 @@ class Stats(object):
             return res_col
         elif returned_tag_info == 'object':
             res_tags = [
-                (model.Session.query(model.Tag).get(text_type(tag_id)), val)
+                (model.Session.query(model.Tag).get(str(tag_id)), val)
                 for tag_id, val in res_col
             ]
             return res_tags
@@ -104,7 +104,7 @@ class Stats(object):
                  ).order_by(func.count(model.Package.creator_user_id).desc()
                             ).limit(limit).all()
         user_count = [
-            (model.Session.query(model.User).get(text_type(user_id)), count)
+            (model.Session.query(model.User).get(str(user_id)), count)
             for user_id, count in userid_count
             if user_id
         ]

@@ -19,10 +19,10 @@ import sys
 import six
 import pytest
 
-from six import text_type
+
 from six.moves import xrange
 
-FILESYSTEM_ENCODING = text_type(
+FILESYSTEM_ENCODING = str(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 

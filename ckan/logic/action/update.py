@@ -10,7 +10,7 @@ import json
 from ckan.common import config
 import ckan.common as converters
 import six
-from six import text_type
+
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins

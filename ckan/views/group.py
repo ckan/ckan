@@ -5,7 +5,7 @@ import re
 from collections import OrderedDict
 
 import six
-from six import string_types
+
 from urllib.parse import urlencode
 from datetime import datetime
 
@@ -256,7 +256,7 @@ def _read(id, limit, group_type):
             g, u'action', u'') == u'bulk_process' else u'read'
         url = h.url_for(u'.'.join([group_type, action]), id=id)
         params = [(k, v.encode(u'utf-8')
-                   if isinstance(v, string_types) else str(v))
+                   if isinstance(v, str) else str(v))
                   for k, v in params]
         return url + u'?' + urlencode(params)
 

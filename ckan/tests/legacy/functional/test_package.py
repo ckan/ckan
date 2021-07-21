@@ -2,7 +2,7 @@
 
 
 import pytest
-from six import string_types
+
 from ckan.common import config
 from difflib import unified_diff
 
@@ -95,7 +95,7 @@ class TestPackageForm(TestPackageBase):
             for i, res_field in enumerate(
                 model.Resource.get_columns(extra_columns=False)
             ):
-                if isinstance(resource, string_types):
+                if isinstance(resource, str):
                     expected_value = resource if res_field == "url" else ""
                 elif hasattr(resource, res_field):
                     expected_value = getattr(resource, res_field)
@@ -135,7 +135,7 @@ class TestPackageForm(TestPackageBase):
         #    self.check_tag(main_res, '%sresources__%i__%s' % (prefix, res_index, res_field), expected_value)
         self.check_tag_and_data(main_res, prefix + "notes", params["notes"])
         self.check_tag_and_data(main_res, "selected", params["license_id"])
-        if isinstance(params["tags"], string_types):
+        if isinstance(params["tags"], str):
             tags = list(map(lambda s: s.strip(), params["tags"].split(",")))
         else:
             tags = params["tags"]

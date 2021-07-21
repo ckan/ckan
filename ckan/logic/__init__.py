@@ -11,7 +11,7 @@ from collections import defaultdict
 
 from werkzeug.utils import import_string
 import six
-from six import string_types, text_type
+
 
 import ckan.model as model
 import ckan.authz as authz
@@ -40,7 +40,7 @@ class ActionError(Exception):
 
     def __str__(self):
         msg = self.message
-        if not isinstance(msg, six.string_types):
+        if not isinstance(msg, str):
             msg = str(msg)
         return six.ensure_text(msg)
 
@@ -184,7 +184,7 @@ def clean_dict(data_dict):
         if not isinstance(value, list):
             continue
         for inner_dict in value[:]:
-            if isinstance(inner_dict, string_types):
+            if isinstance(inner_dict, str):
                 break
             if not any(inner_dict.values()):
                 value.remove(inner_dict)
@@ -317,7 +317,7 @@ def check_access(action, context, data_dict=None):
             raise NotAuthorized(msg)
     except NotAuthorized as e:
         log.debug(u'check access NotAuthorized - %s user=%s "%s"',
-                  action, user, text_type(e))
+                  action, user, str(e))
         raise
 
     log.debug('check access OK - %s user=%s', action, user)
@@ -546,7 +546,7 @@ def get_or_bust(data_dict, keys):
         not in the given dictionary
 
     '''
-    if isinstance(keys, string_types):
+    if isinstance(keys, str):
         keys = [keys]
 
     import ckan.logic.schema as schema

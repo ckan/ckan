@@ -470,7 +470,7 @@ def user_is_collaborator_on_dataset(user_id, dataset_id, capacity=None):
         .filter(model.PackageMember.package_id == dataset_id)
 
     if capacity:
-        if isinstance(capacity, six.string_types):
+        if isinstance(capacity, str):
             capacity = [capacity]
         q = q.filter(model.PackageMember.capacity.in_(capacity))
 

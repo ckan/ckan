@@ -1,13 +1,11 @@
 # encoding: utf-8
 
-from six import text_type
-
 from ckan import model
 import ckan.lib.search as search
 
 
 def check_search_results(terms, expected_count, expected_packages=[]):
-    query = {"q": text_type(terms)}
+    query = {"q": str(terms)}
     result = search.query_for(model.Package).run(query)
     pkgs = result["results"]
     count = result["count"]

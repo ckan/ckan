@@ -2,7 +2,7 @@
 
 import pytest
 import six
-from six import text_type
+
 from ckan.lib.navl.dictization_functions import (
     validate, Invalid, check_dict, resolve_string_key, DataError,
     check_string_key, filter_glob_match, update_merge_dict,

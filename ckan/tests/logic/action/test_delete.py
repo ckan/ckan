@@ -3,7 +3,7 @@
 import re
 
 import pytest
-from six import text_type
+
 
 import ckan.lib.jobs as jobs
 import ckan.lib.api_token as api_token
@@ -142,7 +142,7 @@ class TestDeleteTags(object):
         try:
             helpers.call_action("tag_delete", id=u"Delta symbol: \u0394")
         except logic.NotFound as e:
-            assert u"Delta symbol: \u0394" in text_type(e)
+            assert u"Delta symbol: \u0394" in str(e)
         else:
             assert 0, "Should have raised NotFound"
 

@@ -10,7 +10,7 @@ from jinja2 import ext
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists, escape
 
-from six import text_type
+
 from six.moves import xrange
 
 import ckan.lib.base as base
@@ -83,7 +83,7 @@ class CkanInternationalizationExtension(ext.InternationalizationExtension):
             for arg in args:
                 if isinstance(arg, nodes.Const):
                     value = arg.value
-                    if isinstance(value, text_type):
+                    if isinstance(value, str):
                         arg.value = regularise_html(value)
         return node
 

@@ -6,7 +6,7 @@ import shutil
 import tempfile
 import pytest
 import six
-from six import text_type
+
 
 import ckan.lib.io as ckan_io
 
@@ -22,7 +22,7 @@ def test_encode_path_fails_for_str():
 
 
 def test_decode_path_returns_unicode():
-    assert isinstance(ckan_io.decode_path(b"just_a_str"), text_type)
+    assert isinstance(ckan_io.decode_path(b"just_a_str"), str)
 
 
 def test_encode_path_returns_str():

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from six import text_type
+
 
 from ckan.lib.navl.dictization_functions import (
     flatten_schema,
@@ -362,7 +362,7 @@ def test_simple_converter_types():
         "name": u"fred",
     }, converted_data
 
-    assert isinstance(converted_data["name"], text_type)
+    assert isinstance(converted_data["name"], str)
     assert isinstance(converted_data["gender"], str)
 
 

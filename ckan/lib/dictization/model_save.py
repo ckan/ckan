@@ -6,7 +6,7 @@ import logging
 
 from sqlalchemy.orm import class_mapper
 import six
-from six import string_types
+
 
 import ckan.lib.dictization as d
 import ckan.authz as authz
@@ -444,7 +444,7 @@ def package_api_to_dict(api1_dict, context):
     for key, value in api1_dict.items():
         new_value = value
         if key == 'tags':
-            if isinstance(value, string_types):
+            if isinstance(value, str):
                 new_value = [{"name": item} for item in value.split()]
             else:
                 new_value = [{"name": item} for item in value]
