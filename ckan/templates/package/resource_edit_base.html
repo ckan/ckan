@@ -3,8 +3,6 @@
 {% set logged_in = true if c.userobj else false %}
 {% set res = resource %}
 
-{% block breadcrumb_content_selected %}{% endblock %}
-
 {% block breadcrumb_content %}
   {{ super() }}
   {% if res %}

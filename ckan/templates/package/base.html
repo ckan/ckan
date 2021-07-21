@@ -3,8 +3,6 @@
 {% set pkg = pkg_dict %}
 {% set dataset_type = dataset_type or pkg.type or 'dataset' %}
 
-{% block breadcrumb_content_selected %} class="active"{% endblock %}
-
 {% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
 
 {% block breadcrumb_content %}
@@ -18,7 +16,7 @@
     {% else %}
       <li>{% link_for _(dataset_type.title()), named_route=dataset_type ~ '.search' %}</li>
     {% endif %}
-    <li{{ self.breadcrumb_content_selected() }}>{% link_for dataset|truncate(30), named_route=pkg.type ~ '.read', id=pkg.id if is_activity_archive else pkg.name %}</li>
+    <li class="active">{% link_for dataset|truncate(30), named_route=pkg.type ~ '.read', id=pkg.id if is_activity_archive else pkg.name %}</li>
   {% else %}
     <li>{% link_for _(dataset_type.title()), named_route=dataset_type ~ '.search' %}</li>
     <li class="active"><a href="">{{ _('Create Dataset') }}</a></li>

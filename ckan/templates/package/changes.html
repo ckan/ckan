@@ -2,8 +2,6 @@
 
 {% block subtitle %}{{ pkg_dict.name }} {{ g.template_title_delimiter }} Changes {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
-{% block breadcrumb_content_selected %}{% endblock %}
-
 {% block breadcrumb_content %}
   {{ super() }}
   <li>{% link_for _('Changes'), named_route=dataset_type ~ '.activity', id=pkg_dict.name %}</li>
