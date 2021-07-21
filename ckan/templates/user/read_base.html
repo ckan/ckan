@@ -5,8 +5,8 @@
 {% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  {{ h.build_nav('user.index', _('Users')) }}
-  {{ h.build_nav('user.read', user.display_name|truncate(35), id=user.name) }}
+  <li>{% link_for _('Users'), named_route='user.index' %}</li>
+  <li class="active">{% link_for user.display_name|truncate(35), named_route='user.read', id=user.name %}</li>
 {% endblock %}
 
 {% block content_action %}
