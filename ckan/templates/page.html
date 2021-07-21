@@ -35,12 +35,10 @@
           {% block toolbar %}
             <div class="toolbar" role="navigation" aria-label="{{ _('Breadcrumb') }}">
               {% block breadcrumb %}
-                {% if self.breadcrumb_content() | trim %}
                   <ol class="breadcrumb">
                     <li class="home"><a href="{{ h.url_for('home.index') }}" aria-label="{{ _('Home') }}"><i class="fa fa-home"></i><span> {{ _('Home') }}</span></a></li>
                     {% block breadcrumb_content %}{% endblock %}
                   </ol>
-                {% endif %}
               {% endblock %}
             </div>
           {% endblock %}
