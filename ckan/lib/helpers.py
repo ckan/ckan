@@ -1738,6 +1738,33 @@ def resource_display_name(resource_dict):
     else:
         return _("Unnamed resource")
 
+@core_helper
+def resource_link(resource_dict, package_id, package_type='dataset'):
+    text = resource_display_name(resource_dict)
+    url = url_for('{}_resource.read'.format(package_type),
+                  id=package_id,
+                  resource_id=resource_dict['id'])
+    return link_to(text, url)
+
+
+@core_helper
+def tag_link(tag, package_type='dataset'):
+    url = url_for('{}.search'.format(package_type), tags=tag['name'])
+    return link_to(tag.get('title', tag['name']), url)
+
+
+@core_helper
+def group_link(group):
+    url = url_for('group.read', id=group['name'])
+    return link_to(group['title'], url)
+
+
+@core_helper
+def organization_link(organization):
+    url = url_for(controller='organization', action='read',
+                  id=organization['name'])
+    return link_to(organization['title'], url)
+
 
 @core_helper
 def dump_json(obj, **kw):
