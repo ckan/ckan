@@ -1,14 +1,14 @@
 {% extends "group/edit_base.html" %}
 
 {% block breadcrumb_content %}
-  <li>{{ h.nav_link(
+  <li>{% link_for
         h.humanize_entity_type('group', group_type, 'breadcrumb') or _('Groups'),
-        named_route=group_type+'.index') }}</li>
+        named_route=group_type+'.index' %}</li>
   <li class="active">
     {% block breadcrumb_link %}
-      {{ h.nav_link(
+      {% link_for
         h.humanize_entity_type('group', group_type, 'add link') or _('Add a Group'),
-        named_route=group_type~'.new') }}
+        named_route=group_type~'.new' %}
     {% endblock %}
   </li>
 {% endblock %}

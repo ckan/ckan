@@ -5,7 +5,7 @@
 
 {% block subtitle %}{{ title }}{% endblock %}
 
-{% block breadcrumb_link %}{{ h.nav_link(title, named_route=group_type+'.new') }}{% endblock %}
+{% block breadcrumb_link %}{% link_for title, named_route=group_type+'.new' %}{% endblock %}
 
 {% block page_heading %}{{ title }}{% endblock %}
 
