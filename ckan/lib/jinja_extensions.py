@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 
 def _get_extensions():
-    return ['jinja2.ext.do', 'jinja2.ext.with_',
+    return ['jinja2.ext.do', 'jinja2.ext.loopcontrols',
             SnippetExtension,
             CkanExtend,
             CkanInternationalizationExtension,

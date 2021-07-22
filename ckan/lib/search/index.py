@@ -16,7 +16,7 @@ from ckan.common import config
 from ckan.common import asbool
 import six
 
-from six.moves import map
+
 
 from .common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship

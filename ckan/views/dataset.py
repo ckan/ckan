@@ -8,6 +8,7 @@ from datetime import datetime
 
 from flask import Blueprint
 from flask.views import MethodView
+from jinja2.exceptions import TemplateNotFound
 from werkzeug.datastructures import MultiDict
 from ckan.common import asbool
 
@@ -24,9 +25,7 @@ import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
-from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
-from ckan.views import LazyView
 
 
 NotFound = logic.NotFound
@@ -1400,24 +1399,6 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
     blueprint.add_url_rule(u'/changes_multiple', view_func=changes_multiple)
-
-    # Duplicate resource create and edit for backward compatibility. Note,
-    # we cannot use resource.CreateView directly here, because of
-    # circular imports
-    blueprint.add_url_rule(
-        u'/new_resource/<id>',
-        view_func=LazyView(
-            u'ckan.views.resource.CreateView', str(u'new_resource')
-        )
-    )
-
-    blueprint.add_url_rule(
-        u'/<id>/resource_edit/<resource_id>',
-        view_func=LazyView(
-            u'ckan.views.resource.EditView', str(u'edit_resource')
-        )
-
-    )
 
     if authz.check_config_permission(u'allow_dataset_collaborators'):
         blueprint.add_url_rule(

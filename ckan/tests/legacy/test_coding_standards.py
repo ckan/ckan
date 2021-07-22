@@ -319,7 +319,6 @@ class TestPep8(object):
         "ckan/lib/navl/validators.py",
         "ckan/lib/package_saver.py",
         "ckan/lib/plugins.py",
-        "ckan/lib/render.py",
         "ckan/lib/search/__init__.py",
         "ckan/lib/search/index.py",
         "ckan/lib/search/query.py",

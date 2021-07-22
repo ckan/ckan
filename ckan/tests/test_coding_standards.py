@@ -282,7 +282,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/lib/navl/dictization_functions.py",
     u"ckan/lib/navl/validators.py",
     u"ckan/lib/plugins.py",
-    u"ckan/lib/render.py",
     u"ckan/lib/search/__init__.py",
     u"ckan/lib/search/common.py",
     u"ckan/lib/search/index.py",

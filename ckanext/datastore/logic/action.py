@@ -667,18 +667,6 @@ def set_datastore_active_flag(model, data_dict, flag):
                 break
 
 
-def _resource_exists(context, data_dict):
-    ''' Returns true if the resource exists in CKAN and in the datastore '''
-    model = _get_or_bust(context, 'model')
-    res_id = _get_or_bust(data_dict, 'resource_id')
-    if not model.Resource.get(res_id):
-        return False
-
-    backend = DatastoreBackend.get_active_backend()
-
-    return backend.resource_exists(res_id)
-
-
 def _check_read_only(context, resource_id):
     ''' Raises exception if the resource is read-only.
     Make sure the resource id is in resource_id
