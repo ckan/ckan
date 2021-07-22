@@ -34,10 +34,7 @@ def test_get_item_works():
 def test_repr_works():
     my_conf = CKANConfig()
     my_conf[u"test_key_1"] = u"Test value 1"
-    if six.PY3:
-        assert repr(my_conf) == u"{'test_key_1': 'Test value 1'}"
-    else:
-        assert repr(my_conf) == u"{u'test_key_1': u'Test value 1'}"
+    assert repr(my_conf) == u"{'test_key_1': 'Test value 1'}"
 
 
 def test_len_works():

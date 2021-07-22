@@ -1,6 +1,6 @@
 # encoding: utf-8
 import six
-
+from io import BytesIO
 from werkzeug.datastructures import FileStorage
 
 import ckan.lib.uploader
