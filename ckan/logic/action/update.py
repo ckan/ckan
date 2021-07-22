@@ -731,8 +731,10 @@ def _group_or_org_update(context, data_dict, is_org=False):
                 'deleted organization' if is_org else 'deleted group'
     if activity_dict is not None:
         activity_dict['data'] = {
-                'group': dictization.table_dictize(group, context, extras=data['extras'])
+                'group': dictization.table_dictize(group, context)
                 }
+        activity_dict['data']['group']['extras'] = data['extras']
+        
         activity_create_context = {
             'model': model,
             'user': user,
