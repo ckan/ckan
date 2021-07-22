@@ -33,14 +33,14 @@
           {% endblock %}
 
           {% block toolbar %}
-            <div class="toolbar" role="navigation" aria-label="{{ _('Breadcrumb') }}">
+            <nav class="toolbar" aria-label="breadcrumb">
               {% block breadcrumb %}
                   <ol class="breadcrumb">
                     {% snippet 'snippets/home_breadcrumb_item.html' %}
                     {% block breadcrumb_content %}{% endblock %}
                   </ol>
               {% endblock %}
-            </div>
+            </nav>
           {% endblock %}
 
           <div class="row wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' or c.action=='resource_read' %} no-nav{% endif %}">

@@ -4,7 +4,7 @@
 {% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _(dataset_type.title() + 's'), named_route='%s.search' % dataset_type  %}</li>
+  <li class="breadcrumb-item active"><a href="{{ h.url_for('%s.search' % dataset_type) }}" aria-current="page"> {{ _(dataset_type.title() + 's') }}</a></li>
 {% endblock %}
 
 {% block primary_content %}

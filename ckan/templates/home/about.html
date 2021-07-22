@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('About') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('About'), 'home.about' %}</li>
+  <li class="breadcrumb-item active"><a href="{{ h.url_for('home.about') }}" aria-current="page"> {{ _('About') }}</a></li>
 {% endblock %}
 
 {% block primary %}

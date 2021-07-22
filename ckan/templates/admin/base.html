@@ -2,7 +2,9 @@
 
 {% block subtitle %}{{ _('Administration') }}{% endblock %}
 
-{% block breadcrumb_content %}{% endblock %}
+{% block breadcrumb_content %}
+  <li class="breadcrumb-item active"><a href="{{ h.url_for('admin.index') }}" aria-current="page">{{ _('Administration') }}</a></li>
+{% endblock %}
 
 {% block content_primary_nav %}
   {{ h.build_nav_icon('admin.index', _('Sysadmins'), icon='gavel') }}

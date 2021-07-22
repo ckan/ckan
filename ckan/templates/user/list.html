@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('All Users') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('Users'), named_route='user.index' %}</li>
+  <li class="breadcrumb-item active"><a href="{{ h.url_for('user.index') }}" aria-current="page">{{ _('Users') }}</a></li>
 {% endblock %}
 
 {% block primary_content %}

@@ -5,8 +5,8 @@
 {% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Users'), named_route='user.index' %}</li>
-  <li class="active">{% link_for user.display_name|truncate(35), named_route='user.read', id=user.name %}</li>
+  <li class="breadcrumb-item"><a href="{{ h.url_for('user.index') }}">{{ _('Users') }}</a></li>
+  <li class="breadcrumb-item active"><a href="{{ h.url_for('user.read', id=user.name) }}" aria-current="page">{{ user.display_name|truncate(35) }}</a></li>
 {% endblock %}
 
 {% block content_action %}

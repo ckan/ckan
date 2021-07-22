@@ -1,10 +1,10 @@
 {% extends "group/base_form_page.html" %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for h.humanize_entity_type('group', group_type, 'breadcrumb') or _('Groups'), named_route=group_type+'.index' %}</li>
+  <li class="breadcrumb-item"><a href="{{ h.url_for(group_type + '.index') }}"> {{ h.humanize_entity_type('group', group_type, 'breadcrumb') or _('Groups') }}</a></li>
   {% block breadcrumb_content_inner %}
-    <li>{% link_for group.display_name|truncate(35), named_route=group_type+'.read', id=group.name %}</li>
-    <li class="active">{% link_for _('Manage'), named_route=group_type+'.edit', id=group.name %}</li>
+    <li class="breadcrumb-item"><a href="{{ h.url_for(group_type + '.read', id=group.name) }}"> {{ group.display_name|truncate(35) }}</a></li>
+    <li class="breadcrumb-item active"><a href="{{ h.url_for(group_type + '.edit', id=group.name) }}" aria-current="page"> {{ _('Manage') }}</a></li>
   {% endblock %}
 {% endblock %}
 

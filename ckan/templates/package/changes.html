@@ -4,8 +4,8 @@
 
 {% block breadcrumb_content %}
   {{ super() }}
-  <li>{% link_for _('Changes'), named_route=dataset_type ~ '.activity', id=pkg_dict.name %}</li>
-  <li class="active">{% link_for activity_diffs[0].activities[1].id|truncate(30), named_route=dataset_type ~ '.changes', id=activity_diffs[0].activities[1].id %}</li>
+  <li class="breadcrumb-item"><a href="{{ h.url_for(dataset_type ~ '.activity', id=pkg_dict.name) }}">{{ _('Changes') }}</a></li>
+  <li class="breadcrumb-item active"><a href="{{ h.url_for(dataset_type ~ '.changes', id=activity_diffs[0].activities[1].id) }}" aria-current="page">{{ activity_diffs[0].activities[1].id|truncate(8) }}</a></li>
 {% endblock %}
 
 {% block primary %}
