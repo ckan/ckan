@@ -8,7 +8,7 @@ import click
 import paste.script
 import routes
 from paste.registry import Registry
-from six.moves import input
+
 from urllib.parse import urlparse
 
 from ckan.config.middleware import make_app

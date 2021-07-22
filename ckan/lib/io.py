@@ -50,6 +50,6 @@ def decode_path(p):
     Raises a ``TypeError`` if the input is not a byte string.
     '''
 
-    if not isinstance(p, six.binary_type):
+    if not isinstance(p, bytes):
         raise TypeError(u'Can only decode str, not {}'.format(type(p)))
     return six.ensure_binary(p).decode(_FILESYSTEM_ENCODING)

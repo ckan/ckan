@@ -26,7 +26,7 @@ def test_decode_path_returns_unicode():
 
 
 def test_encode_path_returns_str():
-    assert isinstance(ckan_io.encode_path(u"just_a_unicode"), six.binary_type)
+    assert isinstance(ckan_io.encode_path(u"just_a_unicode"), bytes)
 
 
 def test_decode_encode_path():

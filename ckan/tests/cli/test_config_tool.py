@@ -3,7 +3,7 @@
 import os
 import pytest
 from ckan.cli.cli import ckan
-from six.moves.configparser import ConfigParser, NoOptionError
+from configparser import ConfigParser, NoOptionError
 
 
 @pytest.fixture

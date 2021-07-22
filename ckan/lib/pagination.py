@@ -39,8 +39,6 @@ from string import Template
 import dominate.tags as tags
 from markupsafe import Markup
 
-from six.moves import range
-
 
 class BasePage(list):
     """A list/iterator of items representing one page in a larger

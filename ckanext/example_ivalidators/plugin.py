@@ -29,7 +29,7 @@ def negate(value):
 
 
 def unicode_please(value):
-    if isinstance(value, six.binary_type):
+    if isinstance(value, bytes):
         try:
             return six.ensure_text(value)
         except UnicodeDecodeError:

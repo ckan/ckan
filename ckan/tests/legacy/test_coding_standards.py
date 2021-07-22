@@ -25,7 +25,7 @@ import re
 import sys
 
 import six
-from six import StringIO
+from io import StringIO
 import pycodestyle
 
 file_path = os.path.dirname(__file__)

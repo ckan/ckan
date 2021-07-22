@@ -34,7 +34,7 @@ import six
 from urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
 )
-from six.moves import map
+
 import jinja2
 
 import ckan.exceptions

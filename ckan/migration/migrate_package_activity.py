@@ -31,7 +31,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 import argparse
 from collections import defaultdict
-from six.moves import input
 
 
 # not importing anything from ckan until after the arg parsing, to fail on bad

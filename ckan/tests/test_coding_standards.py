@@ -20,8 +20,6 @@ import six
 import pytest
 
 
-from six.moves import xrange
-
 FILESYSTEM_ENCODING = str(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
@@ -174,7 +172,7 @@ def renumerate(it):
     reverse order and ``i`` is the corresponding (decreasing) index.
     ``it`` must support ``len``.
     """
-    return zip(xrange(len(it) - 1, -1, -1), reversed(it))
+    return zip(range(len(it) - 1, -1, -1), reversed(it))
 
 
 def find_unprefixed_string_literals(filename):

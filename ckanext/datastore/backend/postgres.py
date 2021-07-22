@@ -16,7 +16,7 @@ import six
 from urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
-from six import StringIO
+from io import StringIO
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit

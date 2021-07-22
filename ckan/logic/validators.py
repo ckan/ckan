@@ -9,7 +9,6 @@ import mimetypes
 import string
 import json
 
-from six import iteritems
 from urllib.parse import urlparse
 
 import ckan.lib.navl.dictization_functions as df
