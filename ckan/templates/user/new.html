@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('Register') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% _('Registration'), named_route='user.register' %}</li>
+  <li class="active">{% link_for _('Registration'), named_route='user.register' %}</li>
 {% endblock %}
 
 {% block primary_content %}
