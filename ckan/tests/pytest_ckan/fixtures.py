@@ -30,7 +30,7 @@ Deeper expanation can be found in `official documentation
 
 import smtplib
 
-
+from io import BytesIO
 import pytest
 import six
 import rq
