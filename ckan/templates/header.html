@@ -4,17 +4,17 @@
     <div class="container">
       {% block header_account_container_content %} {% if c.userobj %}
         <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
-          <ul class="list-unstyled">
+          <ul class="list-unstyled" role="menubar" aria-label="Account">
             {% block header_account_logged %} {% if c.userobj.sysadmin %}
               <li>
-                <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
+                <a href="{{ h.url_for(controller='admin', action='index') }}" aria-label="{{ _('Sysadmin settings') }}" data-toggle="tooltip" >
                   <i class="fa fa-gavel" aria-hidden="true"></i>
                   <span class="text">{{ _('Admin') }}</span>
                 </a>
               </li>
             {% endif %}
             <li>
-              <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
+              <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" class="image"  aria-label="{{ _('View profile') }}" data-toggle="tooltip">
                 {{ h.user_image((c.user if c and c.user else ''), size=22) }}
                 <span class="username">{{ c.userobj.display_name }}</span>
               </a>
@@ -23,7 +23,7 @@
             <li class="notifications {% if new_activities > 0 %}notifications-important{% endif %}">
               {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)', new_activities)
               %}
-              <a href="{{ h.url_for('dashboard.index') }}" title="{{ notifications_tooltip }}">
+              <a href="{{ h.url_for('dashboard.index') }}"  aria-label="{{ notifications_tooltip }}" data-toggle="tooltip">
                 <i class="fa fa-tachometer" aria-hidden="true"></i>
                 <span class="text">{{ _('Dashboard') }}</span>
                 <span class="badge">{{ new_activities }}</span>
@@ -31,14 +31,14 @@
             </li>
             {% block header_account_settings_link %}
               <li>
-                <a href="{{ h.url_for('user.edit', id=c.userobj.name) }}" title="{{ _('Profile settings') }}">
+                <a href="{{ h.url_for('user.edit', id=c.userobj.name) }}"  aria-label="{{ _('Profile settings') }}"  data-toggle="tooltip">
                   <i class="fa fa-cog" aria-hidden="true"></i>
                   <span class="text">{{ _('Profile settings') }}</span>
                 </a>
               </li>
             {% endblock %} {% block header_account_log_out_link %}
               <li>
-                <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log out') }}">
+                <a href="{{ h.url_for('/user/_logout') }}" aria-label="{{ _('Log out') }}"  data-toggle="tooltip">
                   <i class="fa fa-sign-out" aria-hidden="true"></i>
                   <span class="text">{{ _('Log out') }}</span>
                 </a>
@@ -73,7 +73,7 @@
     </div>
     <hgroup class="{{ g.header_class }} navbar-left">
       {% block header_logo %} {% if g.site_logo %}
-        <a class="logo" href="{{ h.url_for('home.index') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
+        <a class="logo" href="{{ h.url_for('home.index') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" aria-label="{{ g.site_title }}" /></a>
       {% else %}
         <h1>
           <a href="{{ h.url_for('home.index') }}">{{ g.site_title }}</a>

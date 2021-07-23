@@ -99,3 +99,12 @@ $(function() {
     $("body").removeClass("filters-modal");
   });
 });
+
+// tooltip
+$('[data-toggle="tooltip"]').html(function () {
+  $(this).tooltip({
+    title: $(this).attr('aria-label'),
+    placement: "bottom",
+    delay: { "show": 400, "hide": 200 }
+  })
+});

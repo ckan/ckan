@@ -1,4 +1,4 @@
 {# show the popularity icon #}
 {% if number >= min %}
-<span class="popular ckan-icon ckan-icon-flame" title="{{ title.format(number=number) }}" xmlns="http://www.w3.org/1999/xhtml">{{ _('Popular') }}</span>
+<span class="popular ckan-icon ckan-icon-flame" title="{{ title.format(number=number) }}" data-toggle="tooltip" xmlns="http://www.w3.org/1999/xhtml" data-toggle="tooltip">{{ _('Popular') }}</span>
 {% endif %}
