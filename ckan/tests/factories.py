@@ -282,6 +282,7 @@ class DatasetFactory(CKANFactory):
     notes = factory.Faker("text")
 
 
+
 class VocabularyFactory(CKANFactory):
     """A factory class for creating tag vocabularies.
     """
@@ -393,69 +394,79 @@ class User(UserFactory):
 
 @deprecated(since="2.10.0")
 class Resource(ResourceFactory):
-    """Deprecated. Use ResourceFactory instead.
+    """Deprecated. Use resource_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class ResourceView(ResourceViewFactory):
-    """Deprecated. Use ResourceViewFactory instead.
+    """Deprecated. Use resource_view_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class Sysadmin(SysadminFactory):
-    """Deprecated. Use SysadminFactory instead.
+    """Deprecated. Use sysadmin_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class Group(GroupFactory):
-    """Deprecated. Use GroupFactory instead.
+    """Deprecated. Use group_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class Organization(OrganizationFactory):
-    """Deprecated. Use OrganizationFactory instead.
+    """Deprecated. Use organization_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class Dataset(DatasetFactory):
-    """Deprecated. Use DatasetFactory instead.
+    """Deprecated. Use dataset_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class MockUser(MockUserFactory):
-    """Deprecated. Use MockUserFactory instead.
+    """Deprecated. Use mock_user_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class Activity(ActivityFactory):
-    """Deprecated. Use ActivityFactory instead.
+    """Deprecated. Use activity_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class SystemInfo(SystemInfoFactory):
-    """Deprecated. Use SystemInfoFactory instead.
+    """Deprecated. Use system_info_factory pytest fixture instead.
+
     """
     pass
 
 
 @deprecated(since="2.10.0")
 class Vocabulary(VocabularyFactory):
-    """Deprecated. Use VocabularyFactory instead.
+    """Deprecated. Use vocabulary_factory pytest fixture instead.
+
     """
     pass

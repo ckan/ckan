@@ -38,8 +38,10 @@ import six
 import rq
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
+from pytest_factoryboy import register
 
 import ckan.tests.helpers as test_helpers
+import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli
@@ -47,6 +49,17 @@ import ckan.lib.search as search
 
 from ckan.common import config
 
+register(factories.UserFactory)
+register(factories.ResourceFactory)
+register(factories.ResourceViewFactory)
+register(factories.SysadminFactory)
+register(factories.GroupFactory)
+register(factories.OrganizationFactory)
+register(factories.DatasetFactory)
+register(factories.VocabularyFactory)
+register(factories.ActivityFactory)
+register(factories.SystemInfoFactory)
+register(factories.MockUserFactory)
 
 @pytest.fixture
 def ckan_config(request, monkeypatch):
