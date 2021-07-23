@@ -676,7 +676,8 @@ def default_create_resource_view_schema(resource_view):
 @validator_args
 def default_create_resource_view_schema_unfiltered(
         empty_if_not_sysadmin, ignore_missing, unicode_safe,
-        resource_view_id_does_not_exist, not_empty, resource_id_exists, empty):
+        resource_view_id_does_not_exist, not_empty, resource_id_exists,
+        keep_extras):
     return {
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
                resource_view_id_does_not_exist],
@@ -685,7 +686,7 @@ def default_create_resource_view_schema_unfiltered(
         'title': [not_empty, unicode_safe],
         'description': [ignore_missing, unicode_safe],
         'view_type': [not_empty, unicode_safe],
-        '__extras': [empty],
+        '__extras': [keep_extras],
     }
 
 
