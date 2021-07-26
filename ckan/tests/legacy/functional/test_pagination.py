@@ -136,7 +136,7 @@ def test_package_search_p1(app):
 
 @pytest.mark.usefixtures("clean_index", "clean_db", "fake_packages")
 def test_group_datasets_read_p1(app):
-    res = app.get(url_for(controller="group", action="read", id="group_00"))
+    res = app.get(url_for("group.read", id="group_00"))
     assert 'href="/group/group_00?page=2' in res, res
     pkg_numbers = scrape_search_results(res.data, "group_dataset")
     assert [
@@ -162,9 +162,7 @@ def test_group_datasets_read_p1(app):
         "31",
     ] == pkg_numbers
 
-    res = app.get(
-        url_for(controller="group", action="read", id="group_00", page=2)
-    )
+    res = app.get(url_for("group.read", id="group_00", page=2))
     assert 'href="/group/group_00?page=1' in res, res
     pkg_numbers = scrape_search_results(res.data, "group_dataset")
     assert [
