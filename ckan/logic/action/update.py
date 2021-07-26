@@ -29,6 +29,9 @@ import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
 
 
+import ckan.lib.jobs as jobs
+import ckan.jobs as ckan_jobs        
+
 from ckan.common import _, request
 
 log = logging.getLogger(__name__)
@@ -704,6 +707,11 @@ def _group_or_org_update(context, data_dict, is_org=False):
     for item in plugins.PluginImplementations(plugin_type):
         item.edit(group)
 
+    if is_org and data_dict.name:
+        # TODO: figure out a good timeout. we should test the job to see how long it takes usually
+        # we could also make this proportional to the number of datasets
+        jobs.enqueue(ckan_jobs.update_organization_name_on_datasets, [data.id], timeout=3600)
+    
     if is_org:
         activity_type = 'changed organization'
     else:
