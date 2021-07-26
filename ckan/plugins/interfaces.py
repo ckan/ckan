@@ -494,6 +494,11 @@ class IPackageController(Interface):
         u'''
         Extensions will receive the validated data dict after the dataset
         has been updated.
+
+        Note that bulk dataset update actions (`bulk_update_private`,
+        `bulk_update_public`) will bypass this callback. See
+        ``ckan.plugins.toolkit.chained_action`` to wrap those actions
+        if required.
         '''
         pass
 
@@ -502,6 +507,10 @@ class IPackageController(Interface):
         u'''
         Extensions will receive the data dict (typically containing
         just the dataset id) after the dataset has been deleted.
+
+        Note that the `bulk_update_delete` action will bypass this
+        callback. See ``ckan.plugins.toolkit.chained_action`` to wrap
+        that action if required.
         '''
         pass
 
