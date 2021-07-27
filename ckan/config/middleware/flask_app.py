@@ -337,6 +337,7 @@ def ckan_after_request(response):
     if not response.data and response.status_code == 200:
         response.status_code = 204
         response.headers.pop('Content-Type', None)
+        response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type, Accept'
 
     return response
 
