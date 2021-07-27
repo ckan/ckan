@@ -25,7 +25,7 @@ from ckan.cli import (
     plugin_info,
     notify,
     tracking,
-    less,
+    sass,
     generate,
     user
 )
@@ -211,6 +211,6 @@ ckan.add_command(views.views)
 ckan.add_command(plugin_info.plugin_info)
 ckan.add_command(notify.notify)
 ckan.add_command(tracking.tracking)
-ckan.add_command(less.less)
+ckan.add_command(sass.sass)
 ckan.add_command(generate.generate)
 ckan.add_command(user.user)
