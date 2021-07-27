@@ -399,6 +399,12 @@ def ckan_after_request(response):
 
     log.info(' %s render time %.3f seconds' % (url, r_time))
 
+    # 204 "No content" response required for CORS OPTIONS calls
+    if not response.data and response.status_code == 200:
+        response.status_code = 204
+        response.headers.pop('Content-Type', None)
+        response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type, Accept'
+
     return response
 
 
