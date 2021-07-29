@@ -640,6 +640,10 @@ class IResourceController(Interface):
             dictionary ``url_type`` which is set to ``upload`` when the
             resource file is uploaded instead of linked.
         :type resource: dictionary
+
+        Note that the datastore will bypass this callback when updating
+        the ``datastore_active`` flag on a resource that has been added
+        to the datastore.
         '''
         pass
 
