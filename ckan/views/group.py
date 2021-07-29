@@ -707,7 +707,7 @@ class BulkProcessView(MethodView):
         }
 
         try:
-            check_access(u'group_update', context)
+            check_access(u'bulk_update_public', context, {u'org_id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to access'))
 
@@ -756,7 +756,6 @@ class BulkProcessView(MethodView):
         context = self._prepare(group_type)
         data_dict = {u'id': id, u'type': group_type}
         try:
-            check_access(u'bulk_update_public', context, {u'org_id': id})
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
