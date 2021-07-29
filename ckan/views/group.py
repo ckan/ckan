@@ -845,6 +845,12 @@ class BulkProcessView(MethodView):
             u'for_view': True,
             u'extras_as_string': True
         }
+
+        try:
+            check_access(u'group_update', context)
+        except NotAuthorized:
+            base.abort(403, _(u'Unauthorized to access'))
+
         return context
 
     def get(self, id, group_type, is_organization):
@@ -856,9 +862,6 @@ class BulkProcessView(MethodView):
         try:
             group_dict = _action(u'group_show')(context, data_dict)
             group = context['group']
-            check_access(u'group_update', context)
-        except NotAuthorized:
-            base.abort(403, _(u'Unauthorized to access'))
         except NotFound:
             base.abort(404, _(u'Group not found'))
 
