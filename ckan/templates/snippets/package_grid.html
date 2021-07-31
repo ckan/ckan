@@ -4,7 +4,6 @@ Displays a list of packages in a grid.
 packages       - A list of packages to display.
 list_class     - The class name for the list item.
 item_class     - The class name to use on each item.
-banner         - If true displays a popular banner (default: false).
 truncate       - The length to trucate the description to (default: 120).
 title_truncate - The length to truncate the title to (default: 40).
 
@@ -24,7 +23,7 @@ Example:
       {% if loop.index0 % 2 == 0 %}{% set full_class = full_class ~ ' first' %}{% endif %}
       {% if loop.index0 % 2 == 1 %}{% set full_class = full_class ~ ' last' %}{% endif %}
 
-      {% snippet 'snippets/package_item.html', package=package, item_class=full_class, hide_resources=hide_resources, banner=banner, truncate=truncate, truncate_title=truncate_title %}
+      {% snippet 'snippets/package_item.html', package=package, item_class=full_class, hide_resources=hide_resources, truncate=truncate, truncate_title=truncate_title %}
     {% endfor %}
   </ul>
 {% endif %}

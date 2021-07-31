@@ -4,7 +4,6 @@ Displays a single of dataset.
 package        - A package to display.
 item_class     - The class name to use on the list item.
 hide_resources - If true hides the resources (default: false).
-banner         - If true displays a popular banner (default: false).
 truncate       - The length to trucate the description to (default: 180)
 truncate_title - The length to truncate the title to (default: 80).
 
@@ -44,11 +43,6 @@ Example:
               {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
             {% endblock %}
           </h2>
-        {% endblock %}
-        {% block banner %}
-          {% if banner %}
-            <span class="banner">{{ _('Popular') }}</span>
-          {% endif %}
         {% endblock %}
         {% block notes %}
           {% if notes %}

@@ -9485,29 +9485,6 @@ a.tag:hover {
   vertical-align: middle;
 }
 
-.banner {
-  -webkit-transform: rotate(45deg);
-  -moz-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  -o-transform: rotate(45deg);
-  transform: rotate(45deg);
-  -webkit-transform-origin: center, center;
-  -moz-transform-origin: center, center;
-  -ms-transform-origin: center, center;
-  -o-transform-origin: center, center;
-  transform-origin: center, center;
-  position: absolute;
-  top: 15px;
-  right: -35px;
-  width: 80px;
-  color: #fff;
-  background-color: #005d7a;
-  padding: 1px 20px;
-  font-size: 11px;
-  text-align: center;
-  text-transform: uppercase;
-}
-
 .media-grid, .module-grid {
   margin: 0;
   list-style: none;
@@ -9575,18 +9552,8 @@ a.tag:hover {
   -webkit-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
 }
-.media-view:hover .banner, .media-view.hovered .banner {
-  background-color: #005d7a;
-}
 .media-view span {
   display: none;
-}
-.media-view .banner {
-  display: block;
-  background-color: #b7b7b7;
-  -webkit-transition: background-color 0.2s ease-in;
-  -o-transition: background-color 0.2s ease-in;
-  transition: background-color 0.2s ease-in;
 }
 
 .media-image {
