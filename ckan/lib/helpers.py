@@ -1335,8 +1335,7 @@ def group_name_to_title(name):
 @core_helper
 @maintain.deprecated("helpers.truncate() is deprecated and will be removed "
                      "in a future version of CKAN. Instead, please use the "
-                     "builtin jinja filter or python textwrap.shorten "
-                     "method.",
+                     "builtin jinja filter instead.",
                      since="2.10.0")
 def truncate(text, length=30, indicator='...', whole_word=False):
     """Truncate ``text`` with replacement characters.
@@ -1357,9 +1356,7 @@ def truncate(text, length=30, indicator='...', whole_word=False):
         >>> truncate('Once upon a time in a world far far away', 14)
         'Once upon a...'
 
-    TODO: try to replace it with built-in `textwrap.shorten`
-    (available starting from Python 3.4) when support for Python 2
-    completely dropped.
+    Deprecated: please use jinja filter `truncate` instead
     """
     if not text:
         return ""
