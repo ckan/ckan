@@ -2,8 +2,6 @@
   Embeds a organization within the sidebar of a page.
 
   organization    - The organization dict.
-  truncate - A max length for the organization description. If not provided the description
-  will be full length.
   has_context_title - Boolean for whether to display a module-heading for when
   this snippet appears within a non-organization template
   (e.g. dataset page sidebar)
@@ -14,7 +12,6 @@
 
   #}
 
-{% set truncate = truncate or 0 %}
 {% set url = h.url_for(organization.type + '.read', id=organization.name, ) %}
 
 {% block info %}
