@@ -52,6 +52,7 @@ from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
+from textwrap import shorten
 
 log = logging.getLogger(__name__)
 
@@ -1332,6 +1333,11 @@ def group_name_to_title(name):
 
 
 @core_helper
+@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "builtin jinja filter or python textwrap.shorten "
+                     "method.",
+                     since="2.10.0")
 def truncate(text, length=30, indicator='...', whole_word=False):
     """Truncate ``text`` with replacement characters.
 
@@ -1384,14 +1390,12 @@ def markdown_extract(text, extract_length=190):
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
-
     return literal(
         text_type(
-            truncate(
+            shorten(
                 plain,
-                length=extract_length,
-                indicator='...',
-                whole_word=True
+                width=extract_length,
+                placeholder='...'
             )
         )
     )
