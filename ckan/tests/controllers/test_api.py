@@ -71,10 +71,9 @@ class TestApiController(object):
         pkg = factories.Dataset(creator_user_id=user["id"])
 
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="resource_create",
-            ver="/3",
+            ver=3,
         )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
@@ -109,9 +108,7 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_name(self, app):
         dataset = factories.Dataset(name="rivers")
-        url = url_for(
-            controller="api", action="dataset_autocomplete", ver="/2"
-        )
+        url = url_for("api.dataset_autocomplete", ver=2)
         assert url == "/api/2/util/dataset/autocomplete"
 
         response = app.get(
@@ -139,9 +136,7 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_title(self, app):
         dataset = factories.Dataset(name="test_ri", title="Rivers")
-        url = url_for(
-            controller="api", action="dataset_autocomplete", ver="/2"
-        )
+        url = url_for("api.dataset_autocomplete", ver=2)
         assert url == "/api/2/util/dataset/autocomplete"
 
         response = app.get(
@@ -168,7 +163,8 @@ class TestApiController(object):
 
     def test_tag_autocomplete(self, app):
         factories.Dataset(tags=[{"name": "rivers ア"}])
-        url = url_for(controller="api", action="tag_autocomplete", ver="/2")
+        url = url_for("api.tag_autocomplete", ver=2)
+
         assert url == "/api/2/util/tag/autocomplete"
 
         response = app.get(
@@ -185,7 +181,7 @@ class TestApiController(object):
 
     def test_group_autocomplete_by_name(self, app):
         org = factories.Group(name="rivers", title="Bridges")
-        url = url_for(controller="api", action="group_autocomplete", ver="/2")
+        url = url_for("api.group_autocomplete", ver=2)
         assert url == "/api/2/util/group/autocomplete"
 
         response = app.get(url=url, query_string={"q": u"rive"}, status=200)
@@ -201,7 +197,7 @@ class TestApiController(object):
 
     def test_group_autocomplete_by_title(self, app):
         org = factories.Group(name="frogs", title="Bugs")
-        url = url_for(controller="api", action="group_autocomplete", ver="/2")
+        url = url_for("api.group_autocomplete", ver=2)
 
         response = app.get(url=url, query_string={"q": u"bug"}, status=200)
 
@@ -211,9 +207,7 @@ class TestApiController(object):
 
     def test_organization_autocomplete_by_name(self, app):
         org = factories.Organization(name="simple-dummy-org")
-        url = url_for(
-            controller="api", action="organization_autocomplete", ver="/2"
-        )
+        url = url_for("api.organization_autocomplete", ver=2)
         assert url == "/api/2/util/organization/autocomplete"
 
         response = app.get(url=url, query_string={"q": u"simple"}, status=200)
@@ -229,9 +223,7 @@ class TestApiController(object):
 
     def test_organization_autocomplete_by_title(self, app):
         org = factories.Organization(title="Simple dummy org")
-        url = url_for(
-            controller="api", action="organization_autocomplete", ver="/2"
-        )
+        url = url_for("api.organization_autocomplete", ver=2)
 
         response = app.get(
             url=url, query_string={"q": u"simple dum"}, status=200
@@ -244,10 +236,9 @@ class TestApiController(object):
     def test_config_option_list_access_sysadmin(self, app):
         user = factories.Sysadmin()
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="config_option_list",
-            ver="/3",
+            ver=3,
         )
 
         app.get(
@@ -260,10 +251,9 @@ class TestApiController(object):
     def test_config_option_list_access_sysadmin_jsonp(self, app):
         user = factories.Sysadmin()
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="config_option_list",
-            ver="/3",
+            ver=3,
         )
 
         app.get(
@@ -279,10 +269,9 @@ class TestApiController(object):
         dataset2 = factories.Dataset()
 
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="package_list",
-            ver="/3",
+            ver=3,
         )
 
         res = app.get(url=url, query_string={"callback": "my_callback"})
@@ -298,10 +287,9 @@ class TestApiController(object):
 
     def test_jsonp_returns_javascript_content_type(self, app):
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="status_show",
-            ver="/3",
+            ver=3,
         )
 
         res = app.get(url=url, query_string={"callback": "my_callback"})
@@ -313,10 +301,9 @@ class TestApiController(object):
         dataset2 = factories.Dataset()
 
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="package_list",
-            ver="/3",
+            ver=3,
             callback="my_callback",
         )
 

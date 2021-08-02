@@ -412,8 +412,7 @@ class TestUser(object):
         key = user_obj.reset_key
 
         offset = url_for(
-            controller="user",
-            action="perform_reset",
+            "user.perform_reset",
             id=user_obj.id,
             key=user_obj.reset_key,
         )
@@ -470,9 +469,7 @@ class TestUser(object):
         user_two = factories.User()
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
-        follow_url = url_for(
-            controller="user", action="follow", id=user_two["id"]
-        )
+        follow_url = url_for("user.follow", id=user_two["id"])
         response = app.post(follow_url, extra_environ=env)
         assert (
             "You are now following {0}".format(user_two["display_name"])
@@ -485,7 +482,7 @@ class TestUser(object):
         user_one = factories.User()
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
-        follow_url = url_for(controller="user", action="follow", id="not-here")
+        follow_url = url_for("user.follow", id="not-here")
         response = app.post(follow_url, extra_environ=env)
 
         assert response.status_code == 404
@@ -496,9 +493,7 @@ class TestUser(object):
         user_two = factories.User()
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
-        follow_url = url_for(
-            controller="user", action="follow", id=user_two["id"]
-        )
+        follow_url = url_for("user.follow", id=user_two["id"])
         app.post(follow_url, extra_environ=env)
 
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
@@ -530,9 +525,7 @@ class TestUser(object):
         user_one = factories.User()
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
-        unfollow_url = url_for(
-            controller="user", action="unfollow", id="not-here"
-        )
+        unfollow_url = url_for("user.unfollow", id="not-here")
         response = app.post(unfollow_url, extra_environ=env)
 
         assert response.status_code == 404
@@ -544,9 +537,7 @@ class TestUser(object):
         user_two = factories.User()
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
-        follow_url = url_for(
-            controller="user", action="follow", id=user_two["id"]
-        )
+        follow_url = url_for("user.follow", id=user_two["id"])
         app.post(follow_url, extra_environ=env)
 
         followers_url = url_for("user.followers", id=user_two["id"])
