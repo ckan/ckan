@@ -9378,58 +9378,6 @@ h4 small {
   margin-bottom: 10px;
 }
 
-.table-chunky td,
-.table-chunky th {
-  padding: 12px 15px;
-  font-size: 12px;
-}
-
-.table-chunky thead th,
-.table-chunky thead td {
-  color: #fff;
-  background-color: #aaa;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-.table-striped tbody tr:nth-child(odd) td,
-.table-striped tbody tr:nth-child(odd) th {
-  background-color: transparent;
-}
-.table-striped tbody tr:nth-child(even) td,
-.table-striped tbody tr:nth-child(even) th {
-  background-color: #f2f2f2;
-}
-
-.table-chunky.table-bordered {
-  border-radius: 2px;
-}
-.table-chunky.table-bordered thead:first-child tr:first-child th:first-child,
-.table-chunky.table-bordered tbody:first-child tr:first-child td:first-child {
-  -webkit-border-top-left-radius: 2px;
-  -moz-border-radius-topleft: 2px;
-  border-top-left-radius: 2px;
-}
-.table-chunky.table-bordered thead:first-child tr:first-child th:last-child,
-.table-chunky.table-bordered tbody:first-child tr:first-child td:last-child {
-  -webkit-border-top-right-radius: 2px;
-  -moz-border-radius-topright: 2px;
-  border-top-right-radius: 2px;
-}
-.table-chunky.table-bordered thead:last-child tr:last-child th:first-child,
-.table-chunky.table-bordered tbody:last-child tr:last-child td:first-child {
-  border-radius: 0 0 0 2px;
-  -webkit-border-bottom-left-radius: 2px;
-  -moz-border-radius-bottomleft: 2px;
-  border-bottom-left-radius: 2px;
-}
-.table-chunky.table-bordered thead:last-child tr:last-child th:last-child,
-.table-chunky.table-bordered tbody:last-child tr:last-child td:last-child {
-  -webkit-border-bottom-right-radius: 2px;
-  -moz-border-radius-bottomright: 2px;
-  border-bottom-right-radius: 2px;
-}
-
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;

@@ -10,18 +10,18 @@
     <section id="stats-largest-groups" class="module-content tab-content">
       <h2>{{ _('Largest Groups') }}</h2>
       {% if largest_groups %}
-        <table class="table table-chunky table-bordered table-striped">
+        <table class="table table-striped table-bordered table-condensed">
           <thead>
             <tr>
-              <th>{{ _('Group') }}</th>
-              <th class="metric">{{ _('Number of datasets') }}</th>
+              <th class="col-md-9">{{ _('Group') }}</th>
+              <th class="col-md-3">{{ _('Number of datasets') }}</th>
             </tr>
           </thead>
           <tbody>
             {% for group, num_packages in largest_groups %}
               <tr>
                 <td>{{ h.link_to(group.title or group.name, h.url_for(group.type + '.read', id=group.name)) }}</td>
-                <td class="metric">{{ num_packages }}</td>
+                <td>{{ num_packages }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -33,18 +33,18 @@
 
     <section id="stats-top-tags" class="module-content tab-content">
       <h2>{{ _('Top Tags') }}</h2>
-      <table class="table table-chunky table-bordered table-striped">
+      <table class="table table-striped table-bordered table-condensed">
         <thead>
           <tr>
-            <th>{{ _('Tag Name') }}</th>
-            <th class="metric">{{ _('Number of Datasets') }}</th>
+            <th class="col-md-9">{{ _('Tag Name') }}</th>
+            <th class="col-md-3">{{ _('Number of Datasets') }}</th>
           </tr>
         </thead>
         <tbody>
           {% for tag, num_packages in top_tags %}
             <tr>
               <td>{{ h.link_to(tag.name, h.url_for('dataset.search', tags=tag.name)) }}</td>
-              <td class="metric">{{ num_packages }}</td>
+              <td>{{ num_packages }}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -53,18 +53,18 @@
 
     <section id="stats-most-create" class="module-content tab-content">
       <h2>{{ _('Users Creating Most Datasets') }}</h2>
-      <table class="table table-chunky table-bordered table-striped">
+      <table class="table table-striped table-bordered table-condensed">
         <thead>
           <tr>
-            <th>{{ _('User') }}</th>
-            <th class="metric">{{ _('Number of Datasets') }}</th>
+            <th class="col-md-9">{{ _('User') }}</th>
+            <th class="col-md-3">{{ _('Number of Datasets') }}</th>
           </tr>
         </thead>
         <tbody>
           {% for user, num_packages in top_package_creators %}
             <tr>
-              <td class="media">{{ h.linked_user(user) }}</td>
-              <td class="metric">{{ num_packages }}</td>
+              <td>{{ h.linked_user(user) }}</td>
+              <td>{{ num_packages }}</td>
             </tr>
           {% endfor %}
         </tbody>
