@@ -2,7 +2,7 @@
   {% if notes != 'null' %}
     {% set notes = notes|striptags %}
     <p class="about">
-      {{ truncate(notes, 160) }}
+      {{ notes|truncate(160) }}
     </p>
   {% endif %}
   <div class="btn-group">
