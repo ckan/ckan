@@ -1,0 +1,21 @@
+<div class="context-info">
+  {% if description != 'null' %}
+    {% set description = description|striptags %}
+    <p class="about">
+      {{ h.truncate(description, length=160, whole_word=True) }}
+    </p>
+  {% endif %}
+  <div class="btn-group">
+    {{ h.follow_button('group', id) }}
+  </div>
+  <div class="nums">
+    <dl>
+      <dt>{{ _('Followers') }}</dt>
+      <dd>{{ h.SI_number_span(num_followers) }}</dd>
+    </dl>
+    <dl>
+      <dt>{{ _('Datasets') }}</dt>
+      <dd>{{ h.SI_number_span(package_count) }}</dd>
+    </dl>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<li>
+  <p>
+    {% if change.method == "change" %}
+
+      {{ _('Changed the source URL of {pkg_link} from {old_link} to {new_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        old_link = h.link_to(change.old_url, "http://" + change.old_url if not change.old_url[0:4] == "http" else change.old_url),
+        new_link = h.link_to(change.new_url, "http://" + change.new_url if not change.new_url[0:4] == "http" else change.new_url),
+        ) }}
+
+    {% elif change.method == "remove" %}
+
+      {{ _('Removed the source URL from {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        ) }}
+
+    {% elif change.method == "add" %}
+
+      {{ _('Changed the source URL of {pkg_link} to {new_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_link = h.link_to(change.new_url, "http://" + change.new_url if not change.new_url[0:4] == "http" else change.new_url),
+        ) }}
+
+    {% else %}
+
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
+
+    {% endif %}
+  </p>
+</li>

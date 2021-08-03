@@ -1,0 +1,104 @@
+{% extends "page.html" %}
+
+{% set user = user_dict %}
+
+{% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ h.build_nav('user.index', _('Users')) }}
+  {{ h.build_nav('user.read', user.display_name|truncate(35), id=user.name) }}
+{% endblock %}
+
+{% block content_action %}
+  {% if h.check_access('user_update', user) %}
+    {% link_for _('Manage'), named_route='user.edit', id=user.name, class_='btn btn-default', icon='wrench' %}
+  {% endif %}
+{% endblock %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon('user.read', _('Datasets'), id=user.name, icon='sitemap') }}
+  {{ h.build_nav_icon('user.activity', _('Activity Stream'), id=user.name, icon='clock-o') }}
+  {% if h.check_access('api_token_list', {'user': user['name']}) %}
+    {{ h.build_nav_icon('user.api_tokens', _('API Tokens'), id=user.name, icon='key') }}
+  {% endif %}
+{% endblock %}
+
+{% block secondary_content %}
+<div class="module context-info">
+  <section class="module-content">
+    {% block secondary_content_inner %}
+      {% block user_image %}
+      <div class="image">{{ h.user_image(user.id, size=270) }}</div>
+      {% endblock %}
+      {% block user_heading %}
+      <h1 class="heading">{{ user.display_name }}</h1>
+      {% endblock %}
+      {% block user_about %}
+      {% if about_formatted %}
+        {{ about_formatted }}
+      {% else %}
+        <p class="empty">
+          {% if is_myself %}
+            {% trans %}You have not provided a biography.{% endtrans %}
+          {% else %}
+            {% trans %}This user has no biography.{% endtrans %}
+          {% endif %}
+        </p>
+      {% endif %}
+      {% endblock %}
+      {% block user_nums %}
+      <div class="nums">
+        <dl>
+          <dt>{{ _('Followers') }}</dt>
+          <dd data-module="followers-counter" data-module-id="{{ user.id }}" data-module-num_followers="{{ user.num_followers }}">{{ h.SI_number_span(user.num_followers) }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ _('Datasets') }}</dt>
+          <dd>{{ h.SI_number_span(user.number_created_packages) }}</dd>
+        </dl>
+      </div>
+      {% endblock %}
+      {% if is_myself == false %}
+        {% block user_follow %}
+        <div class="follow_button">
+          {{ h.follow_button('user', user.id) }}</li>
+        </div>
+        {% endblock %}
+      {% endif %}
+      {% block user_info %}
+      <div class="info">
+        <dl>
+          {% if user.name.startswith('http://') or user.name.startswith('https://') %}
+            <dt>{{ _('Open ID') }}</dt>
+            <dd>{{ user.name|urlize(25) }}{# Be great if this just showed the domain #}</dd>
+          {% else %}
+            <dt>{{ _('Username') }}</dt>
+            <dd>{{ user.name }}</dd>
+          {% endif %}
+        </dl>
+        {% if is_myself %}
+          <dl>
+            <dt>{{ _('Email') }} <span class="label label-default" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+            <dd>{{ user.email }}</dd>
+          </dl>
+        {% endif %}
+        <dl>
+          <dt>{{ _('Member Since') }}</dt>
+          <dd>{{ h.render_datetime(user.created) }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ _('State') }}</dt>
+          <dd>{{ _(user.state) }}</dd>
+        </dl>
+        {% if is_myself %}
+          <dl>
+            <dt class="key">{{ _('API Key') }} <span class="label label-default" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+            <dd class="value"><code>{{ user.apikey }}</code></dd>
+          </dl>
+        {% endif %}
+      </div>
+      {% endblock %}
+    {% endblock %}
+  </section>
+</div>
+{% endblock %}

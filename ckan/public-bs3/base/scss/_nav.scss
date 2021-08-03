@@ -1,0 +1,193 @@
+.nav-simple,
+.nav-aside {
+    @include simple-list; // Adds border and padding.
+    padding-bottom: 0;
+}
+
+.nav-aside {
+    border-top: 1px dotted #DDD;
+    border-bottom: 1px dotted #DDD;
+    margin-bottom: 15px;
+}
+
+.nav-item>a,
+.nav-aside li a {
+    color: $navLinkColor;
+    font-size: $font-size-base;
+    line-height: $line-height-base;
+    margin: -7px (-$gutterX);
+    padding: 7px ($gutterX);
+}
+
+.nav-item.active,
+.nav-aside li.active {
+    background-color: $navActiveBackgroundColor;
+}
+
+.nav-item.active>a,
+.nav-aside li.active a {
+    position: relative;
+    color: $navItemActiveTextColor;
+    background-color: $navItemActiveBackgroundColor;
+    &:hover {
+        color: $navItemActiveTextColor;
+        background-color: $navItemActiveBackgroundColor;
+    }
+}
+
+@media (min-width: $screen-sm-min) {
+    .nav-item.active>a:before,
+    .nav-aside li.active a:before {
+        content: ' ';
+        position: absolute;
+        border: ($navItemActiveArrowSize*3 + 2) solid transparent;
+        border-right: none;
+        border-left-color: $navItemActiveBackgroundColor;
+        border-left-width: $navItemActiveArrowSize;
+        top: 0;
+        bottom: 0;
+        right: -$navItemActiveArrowSize;
+        width: $navItemActiveArrowSize;
+        height: 34px;
+        // background-image: url("${imagePath}/nav-active.png?1");
+    }
+}
+
+.nav-pills>li {
+    float: none;
+    @media (min-width: $grid-float-breakpoint) {
+        float: left;
+    }
+}
+
+.nav-item.active>a span,
+.nav-aside li.active a span {
+    white-space: nowrap;
+    overflow: hidden;
+    // display: block;
+}
+
+.module-narrow .nav-item>a,
+.module-narrow .nav-aside li a {
+    padding-left: $gutterSmallX;
+    padding-right: $gutterSmallX;
+    position: relative;
+}
+
+.module-narrow .nav-item.image,
+.module-narrow .nav-aside li.image {
+    position: relative;
+}
+
+.module-narrow .nav-item.image>a,
+.module-narrow .nav-aside li.image a {
+    padding-left: $gutterSmallX + 27;
+    padding-right: $gutterSmallX + 27;
+}
+
+.module-narrow .nav-item.image>img,
+.module-narrow .nav-aside li.image img {
+    position: absolute;
+    top: 50%;
+    left: $gutterSmallX;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    z-index: 2;
+}
+
+// FACET NAVIGATION
+.nav-facet .nav-item>a:hover:after,
+.nav-facet .nav-item.active>a:after {
+    @include ckan-icon;
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    margin-top: -8px;
+}
+
+.nav-facet .nav-item>a:hover:after{
+    @extend .ckan-icon-circle-add;
+}
+.nav-facet .nav-item.active>a:hover:after{
+    @extend .ckan-icon-circle-cross;
+}
+
+.nav-facet .nav-item.active>a:after {
+    @extend .ckan-icon-circle-cross;
+    right: 3px;
+}
+
+.user-list {
+    @include list-unstyled;
+    li {
+        margin: 0 0 10px 0;
+    }
+    .user-image {
+        margin-right: 3px;
+        margin-bottom: 3px;
+        @include border-radius(100px);
+    }
+}
+
+.nav-facet-tertiary {
+    margin: 10px 0;
+    .module-heading {
+        margin-bottom: 5px;
+        padding: 8px 12px;
+        border-bottom-width: 0;
+        @include border-radius(5px);
+        i {
+            display: none;
+        }
+    }
+    .module-footer {
+        padding: 8px 12px;
+        border-top-width: 0;
+        a {
+            font-weight: normal;
+            color: #8C8C8C;
+        }
+    }
+    .nav {
+        margin-bottom: 0;
+    }
+    .module-content.empty {
+        padding: 8px 12px;
+        margin-top: 0;
+    }
+    .nav li.active {
+        position: relative;
+    }
+    .nav li.active>a:hover:after,
+    .nav li.active>a:after {
+        @include ckan-icon;
+        @extend .ckan-icon-circle-cross;
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 5px;
+        margin-top: -8px;
+    }
+}
+
+.nav-simple>.nav-btn {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+    .btn {
+        display: inline-block;
+    }
+}
+
+// STACKED NAV
+// -----------
+
+// Stacked tabs and pills
+.nav-stacked > li {
+    float: none;
+}
+.nav-stacked > li > a {
+    margin-right: 0; // no need for the gap between nav items
+}

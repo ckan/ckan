@@ -1,0 +1,43 @@
+<li>
+  <p>
+    {# if both of them have URLs #}
+    {% if change.new_url != "" and change.old_url != "" %}
+
+      {{ _('Changed the license of {pkg_link} to {new_link} (previously {old_link})').format(
+
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_link = h.link_to(change.new_title, change.new_url),
+        old_link = h.link_to(change.old_title, change.old_url)
+        ) }}
+
+      {# if only the new one has a URL #}
+    {% elif change.new_url != "" and change.old_url == "" %}
+
+      {{ _('Changed the license of {pkg_link} to {new_link} (previously {old_title})').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_link = h.link_to(change.new_title, change.new_url),
+        old_title = change.old_title
+        ) }}
+
+      {# if only the old one has a URL #}
+    {% elif change.new_url == "" and change.old_url != "" %}
+
+      {{ _('Changed the license of {pkg_link} to {new_title} (previously {old_link})').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_title = change.new_title,
+        old_link = h.link_to(change.old_title, change.old_url)
+        )}}
+
+      {# otherwise neither has a URL #}
+    {% else %}
+
+
+      {{ _('Changed the license of {pkg_link} to {new_title} (previously {old_title})').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_title = change.new_title,
+        old_title = change.old_title
+        )|safe }}
+
+    {% endif %}
+  </p>
+</li>

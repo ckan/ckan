@@ -1,0 +1,26 @@
+{% extends "page.html" %}
+
+{% set pkg = pkg_dict %}
+{% set dataset_type = dataset_type or pkg.type or 'dataset' %}
+
+{% block breadcrumb_content_selected %} class="active"{% endblock %}
+
+{% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
+
+{% block breadcrumb_content %}
+  {% if pkg %}
+    {% set dataset = h.dataset_display_name(pkg) %}
+    {% if pkg.organization %}
+      {% set organization = h.get_translated(pkg.organization, 'title') or pkg.organization.name %}
+      {% set group_type = pkg.organization.type %}
+      <li>{% link_for h.humanize_entity_type('organization', group_type, 'breadcrumb') or _('Organizations'), named_route=group_type ~ '.index' %}</li>
+      <li>{% link_for organization|truncate(30), named_route=group_type ~ '.read', id=pkg.organization.name %}</li>
+    {% else %}
+      <li>{% link_for _(dataset_type.title()), named_route=dataset_type ~ '.search' %}</li>
+    {% endif %}
+    <li{{ self.breadcrumb_content_selected() }}>{% link_for dataset|truncate(30), named_route=pkg.type ~ '.read', id=pkg.id if is_activity_archive else pkg.name %}</li>
+  {% else %}
+    <li>{% link_for _(dataset_type.title()), named_route=dataset_type ~ '.search' %}</li>
+    <li class="active"><a href="">{{ _('Create Dataset') }}</a></li>
+  {% endif %}
+{% endblock %}

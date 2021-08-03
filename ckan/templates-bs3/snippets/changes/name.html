@@ -1,0 +1,12 @@
+<li>
+  <p>
+    {% set old_url = h.url_for('dataset.read', qualified=True, id=change.old_name) %}
+    {% set new_url = h.url_for('dataset.read', qualified=True, id=change.new_name) %}
+
+    {{ _('Moved {pkg_link} from {old_link} to {new_link}').format(
+      pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+      old_link = h.link_to(old_url, old_url),
+      new_link = h.link_to(new_url, new_url),
+      ) }}
+  </p>
+</li>

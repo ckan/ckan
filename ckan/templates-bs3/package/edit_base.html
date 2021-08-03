@@ -1,0 +1,26 @@
+{% extends 'package/base.html' %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+
+{% block breadcrumb_content %}
+    {{ super() }}
+    {% if pkg %}
+	<li class="active">{% link_for _('Edit'), named_route=pkg.type ~ '.edit', id=pkg.name %}</li>
+    {% endif %}
+{% endblock %}
+
+{% block content_action %}
+    {% link_for _('View dataset'), named_route=pkg.type ~ '.read', id=pkg.name, class_='btn btn-default', icon='eye' %}
+{% endblock %}
+
+{% block content_primary_nav %}
+    {{ h.build_nav_icon(pkg.type ~ '.edit', _('Edit metadata'), id=pkg.name, icon='pencil-square-o') }}
+    {{ h.build_nav_icon(pkg.type ~ '.resources', _('Resources'), id=pkg.name, icon='bars') }}
+    {% if h.check_config_permission('allow_dataset_collaborators') and h.check_access('package_collaborator_create', {'id': pkg_dict.id}) %}
+        {{ h.build_nav_icon(pkg.type ~ '.collaborators_read', _('Collaborators'), id=pkg.name, icon='users')}}
+    {% endif %}
+{% endblock %}
+
+{% block secondary_content %}
+    {% snippet 'package/snippets/info.html', pkg=pkg, hide_follow_button=true %}
+{% endblock %}

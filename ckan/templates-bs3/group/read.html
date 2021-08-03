@@ -1,0 +1,41 @@
+{% extends "group/read_base.html" %}
+
+{% block primary_content_inner %}
+  {% block groups_search_form %}
+    {% set facets = {
+      'fields': fields_grouped,
+      'search': search_facets,
+      'titles': facet_titles,
+      'translated_fields': translated_fields,
+      'remove_field': remove_field }
+    %}
+    {% set sorting = [
+      (_('Relevance'), 'score desc, metadata_modified desc'),
+      (_('Name Ascending'), 'title_string asc'),
+      (_('Name Descending'), 'title_string desc'),
+      (_('Last Modified'), 'metadata_modified desc'),
+      (_('Popular'), 'views_recent desc') if g.tracking_enabled else (false, false) ]
+    %}
+    {% snippet 'snippets/search_form.html', form_id='group-datasets-search-form', type='dataset', query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, facets=facets, placeholder=_('Search datasets...'), show_empty=request.params, fields=fields %}
+  {% endblock %}
+  {% block packages_list %}
+    {% if page.items %}
+      {{ h.snippet('snippets/package_list.html', packages=page.items) }}
+    {% endif %}
+  {% endblock %}
+  {% block page_pagination %}
+    {{ page.pager(q=q) }}
+  {% endblock %}
+{% endblock %}
+
+{% block secondary_content %}
+  {{ super() }}
+  <div class="filters">
+    <div>
+      {% for facet in facet_titles %}
+        {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, extras={'id':group_dict.id}) }}
+      {% endfor %}
+    </div>
+    <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
+  </div>
+{% endblock %}
