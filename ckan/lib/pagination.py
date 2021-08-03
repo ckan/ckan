@@ -494,16 +494,20 @@ class BasePage(list):
                 u"last_item": self.last_item,
                 u"item_count": self.item_count,
                 u"link_first": self.page > self.first_page
-                and self._pagerlink(self.first_page, symbol_first, raw_text=raw_symbols)
+                and self._pagerlink(self.first_page, symbol_first,
+                                    raw_text=raw_symbols)
                 or u"",
                 u"link_last": self.page < self.last_page
-                and self._pagerlink(self.last_page, symbol_last, raw_text=raw_symbols)
+                and self._pagerlink(self.last_page, symbol_last,
+                                    raw_text=raw_symbols)
                 or u"",
                 u"link_previous": self.previous_page
-                and self._pagerlink(self.previous_page, symbol_previous, raw_text=raw_symbols)
+                and self._pagerlink(self.previous_page, symbol_previous,
+                                    raw_text=raw_symbols)
                 or u"",
                 u"link_next": self.next_page
-                and self._pagerlink(self.next_page, symbol_next, raw_text=raw_symbols)
+                and self._pagerlink(self.next_page, symbol_next,
+                                    raw_text=raw_symbols)
                 or u"",
             }
         )
