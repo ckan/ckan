@@ -37,6 +37,7 @@ import re
 from string import Template
 
 import dominate.tags as tags
+from dominate.util import raw
 from markupsafe import Markup
 from six import text_type
 from six.moves import range
@@ -272,6 +273,7 @@ class BasePage(list):
         symbol_last=u">>",
         symbol_previous=u"<",
         symbol_next=u">",
+        raw_symbols=False,
         link_attr={u"class": u"pager_link"},
         curpage_attr={u"class": u"pager_curpage"},
         dotdot_attr={u"class": u"pager_dotdot"},
@@ -328,6 +330,11 @@ class BasePage(list):
             link above.
 
             Default: '>'
+
+        raw_symbols
+            Interpret symbol_* as raw HTML
+
+            Default: False
 
         separator:
             String that is used to separate page links/numbers in the
@@ -487,16 +494,16 @@ class BasePage(list):
                 u"last_item": self.last_item,
                 u"item_count": self.item_count,
                 u"link_first": self.page > self.first_page
-                and self._pagerlink(self.first_page, symbol_first)
+                and self._pagerlink(self.first_page, symbol_first, raw_text=raw_symbols)
                 or u"",
                 u"link_last": self.page < self.last_page
-                and self._pagerlink(self.last_page, symbol_last)
+                and self._pagerlink(self.last_page, symbol_last, raw_text=raw_symbols)
                 or u"",
                 u"link_previous": self.previous_page
-                and self._pagerlink(self.previous_page, symbol_previous)
+                and self._pagerlink(self.previous_page, symbol_previous, raw_text=raw_symbols)
                 or u"",
                 u"link_next": self.next_page
-                and self._pagerlink(self.next_page, symbol_next)
+                and self._pagerlink(self.next_page, symbol_next, raw_text=raw_symbols)
                 or u"",
             }
         )
@@ -573,7 +580,7 @@ class BasePage(list):
 
         return self.separator.join(nav_items)
 
-    def _pagerlink(self, page, text):
+    def _pagerlink(self, page, text, raw_text=False):
         """
         Create a URL that links to another page using url_for().
 
@@ -584,6 +591,11 @@ class BasePage(list):
 
         text
             Text to be printed in the A-HREF tag
+
+        raw_text
+            Insert text as raw HTML
+
+            Default: False
         """
         link_params = {}
         # Use the instance kwargs from Page.__init__ as URL parameters
@@ -600,6 +612,11 @@ class BasePage(list):
 
         # Create the URL to load a certain page
         link_url = url_generator(**link_params)
+
+        if raw_text:
+            if isinstance(text, Markup):
+                text = text.unescape()
+            text = raw(text)
 
         if self.onclick:  # create link with onclick action for AJAX
             # Create the URL to load the page area part of a certain page (AJAX
@@ -637,8 +654,8 @@ class Page(BasePage):
 
     # Put each page link into a <li> (for Bootstrap to style it)
 
-    def _pagerlink(self, page, text, extra_attributes=None):
-        anchor = super(Page, self)._pagerlink(page, text)
+    def _pagerlink(self, page, text, extra_attributes=None, raw_text=False):
+        anchor = super(Page, self)._pagerlink(page, text, raw_text=raw_text)
         extra_attributes = extra_attributes or {}
         return text_type(tags.li(anchor, **extra_attributes))
 
