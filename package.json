@@ -5,7 +5,7 @@
   "dependencies": {
     "@highlightjs/cdn-assets": "^10.7.3",
     "blueimp-file-upload": "^10.31.0",
-    "bootstrap-sass": "^3.4.1",
+    "bootstrap": "^5.0.2",
     "font-awesome": "^4.7.0",
     "gulp": "^4.0.2",
     "gulp-if": "^3.0.0",

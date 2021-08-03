@@ -39,9 +39,14 @@ const jquery = () =>
   );
 
 const bootstrapScss = () =>
-  src(__dirname + "/node_modules/bootstrap-sass/assets/**/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/bootstrap/")
+  src([__dirname + "/node_modules/bootstrap/scss/**/*", ]).pipe(
+    dest(__dirname + "/ckan/public/base/vendor/bootstrap/scss")
   );
+
+const bootstrapJS = () =>
+src([__dirname + "/node_modules/bootstrap/js/dist/**/*",
+    __dirname + "/node_modules/bootstrap/dist/js/**/*"
+  ]).pipe(dest(__dirname + "/ckan/public/base/vendor/bootstrap/js"));
 
 const moment = () =>
   src(__dirname + "/node_modules/moment/min/moment-with-locales.js").pipe(
@@ -91,6 +96,7 @@ exports.watch = watchSource;
 exports.updateVendorLibs = parallel(
   jquery,
   bootstrapScss,
+  bootstrapJS,
   moment,
   fontAwesomeCss,
   fontAwesomeFonts,
