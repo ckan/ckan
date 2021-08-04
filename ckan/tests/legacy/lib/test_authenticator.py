@@ -22,6 +22,16 @@ class TestUsernamePasswordAuthenticator(object):
         username = self.authenticate(environ, identity)
         assert username == user.name, username
 
+    def test_authenticate_succeeds_if_user_login_with_email_passowrd(self):
+        environ = {}
+        email = "someuser@xyz.com"
+        password = "somepass"
+        user = CreateTestData.create_user(
+            "a_user", **{"password": password, "email": email})
+        identity = {"login": email, "password": password}
+        username = self.authenticate(environ, identity)
+        assert username == user.name, username
+
     def test_authenticate_fails_if_user_is_deleted(self):
         environ = {}
         password = "somepass"
