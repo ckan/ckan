@@ -27,7 +27,7 @@
   --bs-danger: #d9534f;
   --bs-light: #f8f9fa;
   --bs-dark: #212529;
-  --bs-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --bs-font-sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
 }
@@ -201,10 +201,11 @@ sup {
 
 a {
   color: #206b82;
-  text-decoration: underline;
+  text-decoration: none;
 }
 a:hover {
   color: #1a5668;
+  text-decoration: underline;
 }
 
 a:not([href]):not([class]), a:not([href]):not([class]):hover {
@@ -2870,7 +2871,6 @@ textarea.form-control-lg {
   line-height: 1.5;
   color: #212529;
   text-align: center;
-  text-decoration: none;
   vertical-align: middle;
   cursor: pointer;
   user-select: none;
@@ -2888,6 +2888,7 @@ textarea.form-control-lg {
 }
 .btn:hover {
   color: #212529;
+  text-decoration: none;
 }
 .btn-check:focus + .btn, .btn:focus {
   outline: 0;
@@ -3341,10 +3342,14 @@ textarea.form-control-lg {
 .btn-link {
   font-weight: 400;
   color: #206b82;
-  text-decoration: underline;
+  text-decoration: none;
 }
 .btn-link:hover {
   color: #1a5668;
+  text-decoration: underline;
+}
+.btn-link:focus {
+  text-decoration: underline;
 }
 .btn-link:disabled, .btn-link.disabled {
   color: #6c757d;
@@ -3627,13 +3632,13 @@ textarea.form-control-lg {
   font-weight: 400;
   color: #212529;
   text-align: inherit;
-  text-decoration: none;
   white-space: nowrap;
   background-color: transparent;
   border: 0;
 }
 .dropdown-item:hover, .dropdown-item:focus {
   color: #1e2125;
+  text-decoration: none;
   background-color: #e9ecef;
 }
 .dropdown-item.active, .dropdown-item:active {
@@ -3803,7 +3808,6 @@ textarea.form-control-lg {
   display: block;
   padding: 0.5rem 1rem;
   color: #206b82;
-  text-decoration: none;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -3813,6 +3817,7 @@ textarea.form-control-lg {
 }
 .nav-link:hover, .nav-link:focus {
   color: #1a5668;
+  text-decoration: none;
 }
 .nav-link.disabled {
   color: #6c757d;
@@ -3913,9 +3918,12 @@ textarea.form-control-lg {
   padding-bottom: 0.3125rem;
   margin-right: 1rem;
   font-size: 1.25rem;
-  text-decoration: none;
   white-space: nowrap;
 }
+.navbar-brand:hover, .navbar-brand:focus {
+  text-decoration: none;
+}
+
 .navbar-nav {
   display: flex;
   flex-direction: column;
@@ -4505,7 +4513,6 @@ textarea.form-control-lg {
   position: relative;
   display: block;
   color: #206b82;
-  text-decoration: none;
   background-color: #fff;
   border: 1px solid #dee2e6;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -4518,6 +4525,7 @@ textarea.form-control-lg {
 .page-link:hover {
   z-index: 2;
   color: #1a5668;
+  text-decoration: none;
   background-color: #e9ecef;
   border-color: #dee2e6;
 }
@@ -4787,7 +4795,6 @@ textarea.form-control-lg {
   display: block;
   padding: 0.5rem 1rem;
   color: #212529;
-  text-decoration: none;
   background-color: #fff;
   border: 1px solid rgba(0, 0, 0, 0.125);
 }
@@ -10882,7 +10889,6 @@ textarea.form-control-lg {
     display: block;
     padding: 0.5rem 1rem;
     color: #fff;
-    text-decoration: none;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
   }
 }
@@ -10894,6 +10900,7 @@ textarea.form-control-lg {
 @media (max-width: 991.98px) {
   .masthead .main-navbar ul li a:hover, .masthead .main-navbar ul li a:focus {
     color: #fff;
+    text-decoration: none;
   }
 }
 @media (max-width: 991.98px) {
@@ -10902,4 +10909,42 @@ textarea.form-control-lg {
     pointer-events: none;
     cursor: default;
   }
+}
+.site-footer {
+  background: #005d7a url("../../../base/images/bg.png");
+  padding: 20px 0;
+}
+.site-footer label,
+.site-footer small,
+.site-footer .small {
+  color: #CCDEE3;
+}
+.site-footer a {
+  color: #CCDEE3;
+}
+.site-footer .footer-links ul {
+  margin: 0;
+}
+.site-footer .footer-links ul li {
+  margin-bottom: 5px;
+}
+.site-footer .attribution p {
+  color: #CCDEE3;
+  font-size: 1.25rem;
+}
+.site-footer .attribution .ckan-footer-logo {
+  display: block;
+  width: 68px;
+  height: 21px;
+  margin-top: 2px;
+  background: url("../../../base/images/ckan-logo-footer.png") no-repeat top left;
+  text-indent: -900em;
+}
+.site-footer .lang-select .form-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.site-footer .lang-select .form-group label {
+  font-size: 1.25rem;
 }
