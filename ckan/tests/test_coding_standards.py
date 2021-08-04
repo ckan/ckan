@@ -412,7 +412,6 @@ _STRING_LITERALS_WHITELIST = [
     u"ckan/model/package.py",
     u"ckan/model/package_extra.py",
     u"ckan/model/package_relationship.py",
-    u"ckan/model/rating.py",
     u"ckan/model/resource.py",
     u"ckan/model/resource_view.py",
     u"ckan/model/system_info.py",

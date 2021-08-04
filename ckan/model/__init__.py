@@ -79,11 +79,7 @@ from ckan.model.tracking import (
     TrackingSummary,
     tracking_raw_table
 )
-from ckan.model.rating import (
-    Rating,
-    MIN_RATING,
-    MAX_RATING,
-)
+
 from ckan.model.package_relationship import (
     PackageRelationship,
     package_relationship_table,
