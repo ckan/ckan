@@ -206,8 +206,6 @@ class Package(core.StatefulObjectMixin,
         groups.sort()
         _dict['groups'] = groups
         _dict['extras'] = {key: value for key, value in self.extras.items()}
-        _dict['ratings_average'] = self.get_average_rating()
-        _dict['ratings_count'] = len(self.ratings)
         _dict['resources'] = [res.as_dict(core_columns_only=False) \
                               for res in self.resources]
         site_url = config.get('ckan.site_url', None)
@@ -476,9 +474,6 @@ class Package(core.StatefulObjectMixin,
 class PackageMember(domain_object.DomainObject):
     pass
 
-
-class RatingValueException(Exception):
-    pass
 
 # import here to prevent circular import
 from ckan.model import tag

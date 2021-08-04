@@ -365,7 +365,6 @@ class TestPep8(object):
         "ckan/tests/legacy/ckantestplugin/setup.py",
         "ckan/tests/legacy/functional/api/base.py",
         "ckan/tests/legacy/functional/api/model/test_package.py",
-        "ckan/tests/legacy/functional/api/model/test_ratings.py",
         "ckan/tests/legacy/functional/api/model/test_relationships.py",
         "ckan/tests/legacy/functional/api/model/test_revisions.py",
         "ckan/tests/legacy/functional/api/model/test_tag.py",
