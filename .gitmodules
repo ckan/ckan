@@ -1,3 +1,39 @@
 [submodule "contrib/docker/src/ckanext-harvest"]
 	path = contrib/docker/src/ckanext-harvest
-	url = https://github.com/canadian-ioos/ckanext-harvest.git
+	url = https://github.com/cioos-siooc/ckanext-harvest.git
+[submodule "contrib/docker/src/ckanext-spatial"]
+	path = contrib/docker/src/ckanext-spatial
+	url = https://github.com/cioos-siooc/ckanext-spatial.git
+[submodule "contrib/docker/src/ckanext-cioos_theme"]
+	path = contrib/docker/src/ckanext-cioos_theme
+	url = https://github.com/cioos-siooc/ckanext-cioos_theme.git
+[submodule "contrib/docker/src/OWSLib"]
+	path = contrib/docker/src/OWSLib
+	url = https://github.com/geopython/OWSLib.git
+[submodule "contrib/docker/src/ckanext-geoview"]
+	path = contrib/docker/src/ckanext-geoview
+	url = https://github.com/ckan/ckanext-geoview.git
+[submodule "contrib/docker/src/ckanext-repeating"]
+	path = contrib/docker/src/ckanext-repeating
+	url = https://github.com/open-data/ckanext-repeating.git
+[submodule "contrib/docker/src/ckanext-scheming"]
+	path = contrib/docker/src/ckanext-scheming
+	url = https://github.com/cioos-siooc/ckanext-scheming.git
+[submodule "contrib/docker/src/cioos-siooc-schema"]
+	path = contrib/docker/src/cioos-siooc-schema
+	url = https://github.com/cioos-siooc/cioos-siooc-schema.git
+[submodule "contrib/docker/src/ckanext-composite"]
+	path = contrib/docker/src/ckanext-composite
+	url = https://github.com/cioos-siooc/ckanext-composite.git
+[submodule "contrib/docker/src/ckanext-fluent"]
+	path = contrib/docker/src/ckanext-fluent
+	url = https://github.com/cioos-siooc/ckanext-fluent.git
+[submodule "contrib/docker/src/ckanext-cioos_harvest"]
+	path = contrib/docker/src/ckanext-cioos_harvest
+	url = https://github.com/cioos-siooc/ckanext-cioos_harvest.git
+[submodule "contrib/docker/src/ckanext-googleanalyticsbasic"]
+	path = contrib/docker/src/ckanext-googleanalyticsbasic
+	url = https://github.com/cioos-siooc/ckanext-googleanalyticsbasic.git
+[submodule "contrib/docker/src/ckanext-dcat"]
+	path = contrib/docker/src/ckanext-dcat
+	url = https://github.com/ckan/ckanext-dcat.git
