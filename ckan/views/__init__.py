@@ -16,8 +16,8 @@ import ckan.plugins as p
 import logging
 log = logging.getLogger(__name__)
 
-APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
-APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
+APIKEY_HEADER_NAME_KEY = u'apitoken_header_name'
+APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Token'
 
 
 def check_session_cookie(response):
@@ -185,34 +185,32 @@ def _identify_user_default():
                               u'logout_handler_path')
                 redirect(pth)
     else:
-        g.userobj = _get_user_for_apikey()
+        g.userobj = _get_user_for_apitoken()
         if g.userobj is not None:
             g.user = g.userobj.name
 
 
-def _get_user_for_apikey():
-    apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
-                                    APIKEY_HEADER_NAME_DEFAULT)
-    apikey = request.headers.get(apikey_header_name, u'')
-    if not apikey:
-        apikey = request.environ.get(apikey_header_name, u'')
-    if not apikey:
+def _get_user_for_apitoken():
+    api_token_header_name = config.get(APIKEY_HEADER_NAME_KEY,
+                                       APIKEY_HEADER_NAME_DEFAULT)
+    api_token = request.headers.get(api_token_header_name, u'')
+    if not api_token:
+        api_token = request.environ.get(api_token_header_name, u'')
+    if not api_token:
         # For misunderstanding old documentation (now fixed).
-        apikey = request.environ.get(u'HTTP_AUTHORIZATION', u'')
-    if not apikey:
-        apikey = request.environ.get(u'Authorization', u'')
+        api_token = request.environ.get(u'HTTP_AUTHORIZATION', u'')
+    if not api_token:
+        apitoken = request.environ.get(u'Authorization', u'')
         # Forget HTTP Auth credentials (they have spaces).
-        if u' ' in apikey:
-            apikey = u''
-    if not apikey:
+        if u' ' in api_token:
+            api_token = u''
+    if not api_token:
         return None
-    apikey = six.ensure_text(apikey, errors=u"ignore")
-    log.debug(u'Received API Key: %s' % apikey)
-    query = model.Session.query(model.User)
-    user = query.filter_by(apikey=apikey).first()
+    api_token = six.ensure_text(api_token, errors=u"ignore")
+    log.debug(u'Received API Key: %s' % api_token)
 
-    if not user:
-        user = api_token.get_user_from_token(apikey)
+    user = api_token.get_user_from_token(apitoken)
+
     return user
 
 

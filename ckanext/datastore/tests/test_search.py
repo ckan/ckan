@@ -495,7 +495,9 @@ class TestDatastoreSearchLegacyTests(object):
                 },
             ],
         }
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        query = model.Session.query(model.ApiToken)
+        token = query.filter_by(user_id=self.sysadmin_user.id).first()
+        auth = {"Authorization": str(token.id)}
         res = app.post(
             "/api/action/datastore_create", json=self.data, extra_environ=auth,
         )
