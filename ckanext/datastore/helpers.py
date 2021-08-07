@@ -74,10 +74,6 @@ def get_table_and_function_names_from_sql(context, sql):
     '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and
     function names
 
-def get_table_and_function_names_from_sql(context, sql):
-    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and
-    function names
-
     It performs an EXPLAIN query against the provided SQL, and parses
     the output recusively.
 
