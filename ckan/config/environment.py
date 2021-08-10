@@ -196,7 +196,6 @@ def update_config():
     app_globals.app_globals._init()
 
     helpers.load_plugin_helpers()
-    config['pylons.h'] = helpers.helper_functions
 
     # Templates and CSS loading from configuration
     valid_base_templates_folder_names = ['templates']
