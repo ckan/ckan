@@ -105,19 +105,6 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-class MockTranslator(object):
-    def gettext(self, value):
-        return value
-
-    def ugettext(self, value):
-        return value
-
-    def ungettext(self, singular, plural, n):
-        if n > 1:
-            return plural
-        return singular
-
-
 def load_config(config, load_site_user=True):
     conf = _get_config(config)
     assert 'ckan' not in dir()  # otherwise loggers would be disabled
