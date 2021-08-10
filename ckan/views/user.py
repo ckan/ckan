@@ -269,7 +269,8 @@ class EditView(MethodView):
         else:
             current_user = False
 
-        # we save the username for later use.. in case the current logged in user change his username
+        # we save the username for later use.. in case the current
+        # logged in user change his username
         old_username = g.userobj.name
 
         try:
@@ -288,18 +289,23 @@ class EditView(MethodView):
         context[u'message'] = data_dict.get(u'log_message', u'')
         data_dict[u'id'] = id
 
-        # we need this comparison when sysadmin edits a user, this will return True
+        # we need this comparison when sysadmin edits a user,
+        # this will return True
         # and we can utilize it for later use.
         email_changed = data_dict[u'email'] != g.userobj.email
 
-        # common users can edit their own profiles without providing password, but if they want to change
-        # their old password with new one... old password must be provided.. so we are checking here if password1
+        # common users can edit their own profiles without providing
+        # password, but if they want to change
+        # their old password with new one... old password must be provided..
+        # so we are checking here if password1
         # and password2 are filled so we can enter the validation process.
-        # when sysadmins edits a user he MUST provide sysadmin password. We are recognizing sysadmin user 
-        # by email_changed variable.. this returns True and we are entering the validation.
+        # when sysadmins edits a user he MUST provide sysadmin password.
+        # We are recognizing sysadmin user
+        # by email_changed variable.. this returns True
+        # and we are entering the validation.
         if (data_dict[u'password1']
                 and data_dict[u'password2']) or email_changed:
-            
+
             # getting the identity for current logged user
             identity = {
                 u'login': g.user,
@@ -307,8 +313,8 @@ class EditView(MethodView):
             }
             auth = authenticator.UsernamePasswordAuthenticator()
 
-            # we are checking if the identity is not the same with the current logged user if so
-            # raise error.
+            # we are checking if the identity is not the
+            # same with the current logged user if so raise error.
             if auth.authenticate(request.environ, identity) != g.user:
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
