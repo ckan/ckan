@@ -3,6 +3,8 @@
 import json
 import pytest
 import ckan.model as model
+import six
+import ckan.tests.helpers as helpers
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.legacy import StatusCodes
 
@@ -12,6 +14,10 @@ class TestAction(object):
     def setup_class(self, clean_db, clean_index):
         CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
+        self.data = helpers.call_action(u"api_token_create", context={
+            u"model": model,
+            u"user": self.sysadmin_user.name},
+            user=self.sysadmin_user.name, name=u"first token")
         CreateTestData.make_some_vocab_tags()
 
     def test_08_user_create_not_authorized(self, app):
@@ -36,7 +42,8 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_create",
             json=user_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={
+                "Authorization": six.ensure_str(self.data['token'])},
         )
         res_obj = json.loads(res.body)
         assert "/api/3/action/help_show?name=user_create" in res_obj["help"]
@@ -44,7 +51,7 @@ class TestAction(object):
         result = res_obj["result"]
         assert result["name"] == user_dict["name"]
         assert result["about"] == user_dict["about"]
-        assert "apikey" in result
+        # assert "apitoken" in result
         assert "created" in result
         assert "display_name" in result
         assert "number_created_packages" in result
@@ -340,7 +347,8 @@ class TestAction(object):
             ]
         )
 
-        res = app.post("/api/action/tag_autocomplete", json={"q": u"lower case"})
+        res = app.post("/api/action/tag_autocomplete",
+                       json={"q": u"lower case"})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert "MIX of CAPITALS and LOWER case" in res_obj["result"], res_obj[

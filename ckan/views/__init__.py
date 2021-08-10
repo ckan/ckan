@@ -16,8 +16,8 @@ import ckan.plugins as p
 import logging
 log = logging.getLogger(__name__)
 
-APIKEY_HEADER_NAME_KEY = u'apitoken_header_name'
-APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Token'
+APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
+APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
 
 
 def check_session_cookie(response):
@@ -191,23 +191,24 @@ def _identify_user_default():
 
 
 def _get_user_for_apitoken():
+    # breakpoint()
     api_token_header_name = config.get(APIKEY_HEADER_NAME_KEY,
                                        APIKEY_HEADER_NAME_DEFAULT)
-    api_token = request.headers.get(api_token_header_name, u'')
-    if not api_token:
-        api_token = request.environ.get(api_token_header_name, u'')
-    if not api_token:
+    apitoken = request.headers.get(api_token_header_name, u'')
+    if not apitoken:
+        apitoken = request.environ.get(api_token_header_name, u'')
+    if not apitoken:
         # For misunderstanding old documentation (now fixed).
-        api_token = request.environ.get(u'HTTP_AUTHORIZATION', u'')
-    if not api_token:
+        apitoken = request.environ.get(u'HTTP_AUTHORIZATION', u'')
+    if not apitoken:
         apitoken = request.environ.get(u'Authorization', u'')
         # Forget HTTP Auth credentials (they have spaces).
-        if u' ' in api_token:
-            api_token = u''
-    if not api_token:
+        if u' ' in apitoken:
+            apitoken = u''
+    if not apitoken:
         return None
-    api_token = six.ensure_text(api_token, errors=u"ignore")
-    log.debug(u'Received API Key: %s' % api_token)
+    apitoken = six.ensure_text(apitoken, errors=u"ignore")
+    log.debug(u'Received API Key: %s' % apitoken)
 
     user = api_token.get_user_from_token(apitoken)
 

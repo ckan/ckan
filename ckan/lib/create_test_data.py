@@ -6,8 +6,10 @@ import datetime
 from six import string_types, text_type
 
 import ckan.model as model
+import ckan.tests.helpers as helpers
 
 log = logging.getLogger(__name__)
+
 
 class CreateTestData(object):
     # keep track of the objects created by this class so that
@@ -24,6 +26,7 @@ class CreateTestData(object):
                        'maintainer', 'maintainer_email',
                        'private',
                        ]
+
     @classmethod
     def create_basic_test_data(cls):
         cls.create()
@@ -39,8 +42,8 @@ class CreateTestData(object):
     @classmethod
     def create_family_test_data(cls, extra_users=[]):
         cls.create_arbitrary(family_items,
-                              relationships=family_relationships,
-                              extra_user_names=extra_users)
+                             relationships=family_relationships,
+                             extra_user_names=extra_users)
 
     @classmethod
     def create_group_hierarchy_test_data(cls, extra_users=[]):
@@ -52,8 +55,8 @@ class CreateTestData(object):
     def create_test_user(cls):
         tester = model.User.by_name(u'tester')
         if tester is None:
-            tester = model.User(name=u'tester', apikey=u'tester',
-                password=u'tester')
+            tester = model.User(name=u'tester',
+                                password=u'tester')
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
@@ -72,25 +75,25 @@ class CreateTestData(object):
         # display, if not into the user's current language then into the
         # fallback language.
         package.add_tags([ckan.model.Tag('123'), ckan.model.Tag('456'),
-                ckan.model.Tag('789')])
+                          ckan.model.Tag('789')])
 
         # Add the above translations to CKAN.
         for (lang_code, translations) in (('de', german_translations),
-                ('fr', french_translations), ('en', english_translations)):
+                                          ('fr', french_translations), ('en', english_translations)):
             for term in terms:
                 if term in translations:
                     data_dict = {
-                            'term': term,
-                            'term_translation': translations[term],
-                            'lang_code': lang_code,
-                            }
+                        'term': term,
+                        'term_translation': translations[term],
+                        'lang_code': lang_code,
+                    }
                     context = {
                         'model': ckan.model,
                         'session': ckan.model.Session,
                         'user': sysadmin_user.name,
                     }
                     ckan.logic.action.update.term_translation_update(context,
-                            data_dict)
+                                                                     data_dict)
 
         ckan.model.Session.commit()
 
@@ -104,22 +107,22 @@ class CreateTestData(object):
 
         # Create a couple of vocabularies.
         context = {
-                'model': ckan.model,
-                'session': ckan.model.Session,
-                'user': sysadmin_user.name
-                }
+            'model': ckan.model,
+            'session': ckan.model.Session,
+            'user': sysadmin_user.name
+        }
         data_dict = {
-                'name': 'Genre',
-                'tags': [{'name': 'Drama'}, {'name': 'Sci-Fi'},
-                    {'name': 'Mystery'}],
-                }
+            'name': 'Genre',
+            'tags': [{'name': 'Drama'}, {'name': 'Sci-Fi'},
+                     {'name': 'Mystery'}],
+        }
         ckan.logic.action.create.vocabulary_create(context, data_dict)
 
         data_dict = {
-                'name': 'Actors',
-                'tags': [{'name': 'keira-knightley'}, {'name': 'jude-law'},
-                    {'name': 'alessio-boni'}],
-                }
+            'name': 'Actors',
+            'tags': [{'name': 'keira-knightley'}, {'name': 'jude-law'},
+                     {'name': 'alessio-boni'}],
+        }
         ckan.logic.action.create.vocabulary_create(context, data_dict)
 
         # Add some vocab tags to some packages.
@@ -133,7 +136,7 @@ class CreateTestData(object):
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
-            extra_user_names=[], extra_group_names=[]):
+                         extra_user_names=[], extra_group_names=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
@@ -159,15 +162,15 @@ class CreateTestData(object):
                     if field in item:
                         pkg_dict[field] = text_type(item[field])
                 if model.Package.by_name(pkg_dict['name']):
-                    log.warning('Cannot create package "%s" as it already exists.' % \
-                                    (pkg_dict['name']))
+                    log.warning('Cannot create package "%s" as it already exists.' %
+                                (pkg_dict['name']))
                     continue
                 pkg = model.Package(**pkg_dict)
                 model.Session.add(pkg)
                 for attr, val in item.items():
                     if isinstance(val, str):
                         val = text_type(val)
-                    if attr=='name':
+                    if attr == 'name':
                         continue
                     if attr in cls.pkg_core_fields:
                         pass
@@ -182,7 +185,8 @@ class CreateTestData(object):
                                     if not isinstance(v, datetime.datetime):
                                         v = text_type(v)
                                     non_extras[str(k)] = v
-                            extras = {str(k): text_type(v) for k, v in res_dict.get('extras', {}).items()}
+                            extras = {str(k): text_type(v)
+                                      for k, v in res_dict.get('extras', {}).items()}
                             pkg.add_resource(extras=extras, **non_extras)
                     elif attr == 'tags':
                         if isinstance(val, string_types):
@@ -212,8 +216,8 @@ class CreateTestData(object):
                             group = model.Group.by_name(text_type(group_name))
                             if not group:
                                 if not group_name in new_groups:
-                                    group = model.Group(name=
-                                                        text_type(group_name))
+                                    group = model.Group(
+                                        name=text_type(group_name))
                                     model.Session.add(group)
                                     new_group_names.add(group_name)
                                     new_groups[group_name] = group
@@ -289,7 +293,6 @@ class CreateTestData(object):
 
             model.repo.commit_and_remove()
 
-
     @classmethod
     def create_groups(cls, group_dicts, admin_user_name=None, auth_profile=""):
         '''A more featured interface for creating groups.
@@ -325,7 +328,7 @@ class CreateTestData(object):
             model.Session.add(group)
             admins = [model.User.by_name(user_name)
                       for user_name in group_dict.get('admins', [])] + \
-                     admin_users
+                admin_users
             for admin in admins:
                 member = model.Member(group=group, table_id=admin.id,
                                       table_name='user', capacity='admin')
@@ -380,7 +383,7 @@ class CreateTestData(object):
             hash=u'abc123',
             extras={'size_extra': u'123'},
             **configured_extras[0]
-            )
+        )
         pr2 = model.Resource(
             url=u'http://datahub.io/index.json',
             format=u'JSON',
@@ -388,14 +391,14 @@ class CreateTestData(object):
             hash=u'def456',
             extras={'size_extra': u'345'},
             **configured_extras[1]
-            )
+        )
         model.Session.add(pr1)
         model.Session.add(pr2)
         pkg1.resources_all.append(pr1)
         pkg1.resources_all.append(pr2)
         pkg1.notes = u'''Some test notes
 
-### A 3rd level heading
+# A 3rd level heading
 
 **Some bolded text.**
 
@@ -419,29 +422,29 @@ left arrow <
         if auth_profile == "publisher":
             pkg2.group = organization_group
 
-        # Flexible tag, allows spaces, upper-case,
-        # and all punctuation except commas
+        # Fcase,
+        # and all punctuation elexible tag, allows spaces, upper-xcept commas
         tag3 = model.Tag(name=u'Flexible \u30a1')
 
         for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
         pkg1.add_tags([tag1, tag2, tag3])
-        pkg2.add_tags([ tag1, tag3 ])
-        cls.tag_names = [ t.name for t in (tag1, tag2, tag3) ]
+        pkg2.add_tags([tag1, tag3])
+        cls.tag_names = [t.name for t in (tag1, tag2, tag3)]
         pkg1.license_id = u'other-open'
-        pkg2.license_id = u'cc-nc' # closed license
+        pkg2.license_id = u'cc-nc'  # closed license
         pkg2.title = u'A Wonderful Story'
-        pkg1.extras = {u'genre':'romantic novel',
-                       u'original media':'book'}
+        pkg1.extras = {u'genre': 'romantic novel',
+                       u'original media': 'book'}
         # group
         david = model.Group(name=u'david',
-                             title=u'Dave\'s books',
-                             description=u'These are books that David likes.',
-                             type=auth_profile or 'group')
+                            title=u'Dave\'s books',
+                            description=u'These are books that David likes.',
+                            type=auth_profile or 'group')
         roger = model.Group(name=u'roger',
-                             title=u'Roger\'s books',
-                             description=u'Roger likes these books.',
-                             type=auth_profile or 'group')
+                            title=u'Roger\'s books',
+                            description=u'Roger likes these books.',
+                            type=auth_profile or 'group')
 
         for obj in [david, roger]:
             model.Session.add(obj)
@@ -451,20 +454,25 @@ left arrow <
 
         model.Session.flush()
 
-        model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=david))
-        model.Session.add(model.Member(table_id=pkg2.id, table_name='package', group=david))
-        model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=roger))
+        model.Session.add(model.Member(table_id=pkg1.id,
+                                       table_name='package', group=david))
+        model.Session.add(model.Member(table_id=pkg2.id,
+                                       table_name='package', group=david))
+        model.Session.add(model.Member(table_id=pkg1.id,
+                                       table_name='package', group=roger))
         # authz
         sysadmin = model.User(name=u'testsysadmin', password=u'testsysadmin')
         sysadmin.sysadmin = True
         model.Session.add_all([
-            model.User(name=u'tester', apikey=u'tester', password=u'tester'),
+            model.User(name=u'tester', apikey='tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
-            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://datahub.io', password=u'annafan'),
+            model.User(
+                name=u'annafan', about=u'I love reading Annakarenina. My site: http://datahub.io', password=u'annafan'),
             model.User(name=u'russianfan', password=u'russianfan'),
             sysadmin,
-            ])
-        cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
+        ])
+        cls.user_refs.extend(
+            [u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
 
         # Create activities for packages
         for item in [pkg1, pkg2]:
@@ -474,7 +482,7 @@ left arrow <
         model.repo.commit_and_remove()
 
     # method used in DGU and all good tests elsewhere
-    @classmethod
+    @ classmethod
     def create_users(cls, user_dicts):
         needs_commit = False
         for user_dict in user_dicts:
@@ -484,7 +492,7 @@ left arrow <
         if needs_commit:
             model.repo.commit_and_remove()
 
-    @classmethod
+    @ classmethod
     def _create_user_without_commit(cls, name='', **user_dict):
         if model.User.by_name(name):
             log.warning('Cannot create user "%s" as it already exists.' %
@@ -505,13 +513,13 @@ left arrow <
         cls.user_refs.append(user_ref)
         return user
 
-    @classmethod
+    @ classmethod
     def create_user(cls, name='', **kwargs):
         user = cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
         return user
 
-    @classmethod
+    @ classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
                           user_names=[]):
         '''If you create a domain object manually in your test then you
@@ -524,7 +532,7 @@ left arrow <
         cls.group_names = cls.group_names.union(set(group_names))
         cls.user_refs.extend(user_names)
 
-    @classmethod
+    @ classmethod
     def delete(cls):
         '''Purges packages etc. that were created by this class.'''
         for pkg_name in cls.pkg_names:
@@ -556,18 +564,18 @@ left arrow <
         model.Session.remove()
         cls.reset()
 
-    @classmethod
+    @ classmethod
     def reset(cls):
         cls.pkg_names = []
         cls.group_names = set()
         cls.tag_names = []
         cls.user_refs = []
 
-    @classmethod
+    @ classmethod
     def get_all_data(cls):
         return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_refs
 
-    @classmethod
+    @ classmethod
     def make_some_vocab_tags(cls):
 
         # Create a couple of vocabularies.
@@ -587,7 +595,7 @@ left arrow <
         model.Session.add(tollbooth_tag)
         # We have to add free tags to a package or they won't show up in tag results.
         model.Package.get('warandpeace').add_tags((tolkien_tag, toledo_tag,
-            tolerance_tag, tollbooth_tag))
+                                                   tolerance_tag, tollbooth_tag))
 
         # Create some tags that belong to vocabularies.
         sonata_tag = model.Tag(name=u'sonata', vocabulary_id=genre_vocab.id)
@@ -597,22 +605,22 @@ left arrow <
         model.Session.add(bach_tag)
 
         neoclassical_tag = model.Tag(name='neoclassical',
-                vocabulary_id=genre_vocab.id)
+                                     vocabulary_id=genre_vocab.id)
         model.Session.add(neoclassical_tag)
 
         neofolk_tag = model.Tag(name='neofolk', vocabulary_id=genre_vocab.id)
         model.Session.add(neofolk_tag)
 
         neomedieval_tag = model.Tag(name='neomedieval',
-                vocabulary_id=genre_vocab.id)
+                                    vocabulary_id=genre_vocab.id)
         model.Session.add(neomedieval_tag)
 
         neoprog_tag = model.Tag(name='neoprog',
-                vocabulary_id=genre_vocab.id)
+                                vocabulary_id=genre_vocab.id)
         model.Session.add(neoprog_tag)
 
         neopsychedelia_tag = model.Tag(name='neopsychedelia',
-                vocabulary_id=genre_vocab.id)
+                                       vocabulary_id=genre_vocab.id)
         model.Session.add(neopsychedelia_tag)
 
         neosoul_tag = model.Tag(name='neosoul', vocabulary_id=genre_vocab.id)
@@ -627,21 +635,20 @@ left arrow <
         model.Session.commit()
 
 
-
-search_items = [{'name':'gils',
-              'title':'Government Information Locator Service',
-              'url':'',
-              'tags':'registry,country-usa,government,federal,gov,workshop-20081101,penguin'.split(','),
-              'resources':[{'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
-                          'format':'XLS',
-                          'last_modified': datetime.datetime(2005, 10, 1),
-                          'description':'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'},
-                          {'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000860/SFR17_2009_key.doc',
-                          'format':'DOC',
-                          'description':'http://www.statistics.gov.uk/hub/id/119-34565'}],
-              'groups':'ukgov test1 test2 penguin',
-              'license':'odc-by',
-              'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
+search_items = [{'name': 'gils',
+                 'title': 'Government Information Locator Service',
+                 'url': '',
+                 'tags': 'registry,country-usa,government,federal,gov,workshop-20081101,penguin'.split(','),
+                 'resources': [{'url': 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
+                                'format': 'XLS',
+                                'last_modified': datetime.datetime(2005, 10, 1),
+                                'description': 'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'},
+                               {'url': 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000860/SFR17_2009_key.doc',
+                                'format': 'DOC',
+                                'description': 'http://www.statistics.gov.uk/hub/id/119-34565'}],
+                 'groups': 'ukgov test1 test2 penguin',
+                 'license': 'odc-by',
+                 'notes': u'''From <http://www.gpoaccess.gov/gils/about.html>
 
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
 > Because this collection is decentralized, the GPO
@@ -649,32 +656,32 @@ search_items = [{'name':'gils',
 Foreign word:
 u with umlaut th\xfcmb
 ''',
-              'extras':{'date_released':'2008'},
-              },
-             {'name':'us-gov-images',
-              'title':'U.S. Government Photos and Graphics',
-              'url':'http://www.usa.gov/Topics/Graphics.shtml',
-              'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
-              'tags':'images,graphics,photographs,photos,pictures,us,usa,america,history,wildlife,nature,war,military,todo split,gov,penguin'.split(','),
-              'groups':'ukgov test1 penguin',
-              'license':'other-open',
-              'notes':'''## About
+                 'extras': {'date_released': '2008'},
+                 },
+                {'name': 'us-gov-images',
+                 'title': 'U.S. Government Photos and Graphics',
+                 'url': 'http://www.usa.gov/Topics/Graphics.shtml',
+                 'download_url': 'http://www.usa.gov/Topics/Graphics.shtml',
+                 'tags': 'images,graphics,photographs,photos,pictures,us,usa,america,history,wildlife,nature,war,military,todo split,gov,penguin'.split(','),
+                 'groups': 'ukgov test1 penguin',
+                 'license': 'other-open',
+                 'notes': '''## About
 
 Collection of links to different US image collections in the public domain.
 
-## Openness
+# Openness
 
 > Most of these images and graphics are available for use in the public domain, and''',
-              'extras':{'date_released':'2009'},
-              },
-             {'name':'usa-courts-gov',
-              'title':'Text of US Federal Cases',
-              'url':'http://bulk.resource.org/courts.gov/',
-              'download_url':'http://bulk.resource.org/courts.gov/',
-              'tags':'us,courts,case-law,us,courts,case-law,gov,legal,law,access-bulk,penguins,penguin'.split(','),
-              'groups':'ukgov test2 penguin',
-              'license':'cc-zero',
-              'notes':'''### Description
+                 'extras': {'date_released': '2009'},
+                 },
+                {'name': 'usa-courts-gov',
+                 'title': 'Text of US Federal Cases',
+                 'url': 'http://bulk.resource.org/courts.gov/',
+                 'download_url': 'http://bulk.resource.org/courts.gov/',
+                 'tags': 'us,courts,case-law,us,courts,case-law,gov,legal,law,access-bulk,penguins,penguin'.split(','),
+                 'groups': 'ukgov test2 penguin',
+                 'license': 'cc-zero',
+                 'notes': '''### Description
 
 1.8 million pages of U.S. case law available with no restrictions. From the [README](http://bulk.resource.org/courts.gov/0_README.html):
 
@@ -682,40 +689,40 @@ Collection of links to different US image collections in the public domain.
 
 penguin
 ''',
-              'extras':{'date_released':'2007-06'},
-              },
-             {'name':'uk-government-expenditure',
-              'title':'UK Government Expenditure',
-              'tags':'workshop-20081101,uk,gov,expenditure,finance,public,funding,penguin'.split(','),
-              'groups':'ukgov penguin',
-              'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
+                 'extras': {'date_released': '2007-06'},
+                 },
+                {'name': 'uk-government-expenditure',
+                 'title': 'UK Government Expenditure',
+                 'tags': 'workshop-20081101,uk,gov,expenditure,finance,public,funding,penguin'.split(','),
+                 'groups': 'ukgov penguin',
+                 'notes': '''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
 Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).''',
-              'extras':{'date_released':'2007-10'},
-              },
-             {'name':'se-publications',
-              'title':'Sweden - Government Offices of Sweden - Publications',
-              'url':'http://www.sweden.gov.se/sb/d/574',
-              'groups':'penguin',
-              'tags':u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise.,greek omega \u03a9,japanese katakana \u30a1'.split(','),
-              'license':'',
-              'notes':'''### About
+                 'extras': {'date_released': '2007-10'},
+                 },
+                {'name': 'se-publications',
+                 'title': 'Sweden - Government Offices of Sweden - Publications',
+                 'url': 'http://www.sweden.gov.se/sb/d/574',
+                 'groups': 'penguin',
+                 'tags': u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise.,greek omega \u03a9,japanese katakana \u30a1'.split(','),
+                 'license': '',
+                 'notes': '''### About
 
 Official documents including "government bills and reports, information material and other publications".
 
-### Reuse
+# Reuse
 
 Not clear.''',
-              'extras':{'date_released':'2009-10-27'},
-              },
-             {'name':'se-opengov',
-              'title':'Opengov.se',
-              'groups':'penguin',
-              'url':'http://www.opengov.se/',
-              'download_url':'http://www.opengov.se/data/open/',
-              'tags':'country-sweden,government,data,penguin'.split(','),
-              'license':'cc-by-sa',
-              'notes':'''### About
+                 'extras': {'date_released': '2009-10-27'},
+                 },
+                {'name': 'se-opengov',
+                 'title': 'Opengov.se',
+                 'groups': 'penguin',
+                 'url': 'http://www.opengov.se/',
+                 'download_url': 'http://www.opengov.se/data/open/',
+                 'tags': 'country-sweden,government,data,penguin'.split(','),
+                 'license': 'cc-by-sa',
+                 'notes': '''### About
 
 From [website](http://www.opengov.se/sidor/english/):
 
@@ -723,21 +730,21 @@ From [website](http://www.opengov.se/sidor/english/):
 
 > The goal is to highlight the benefits of open access to government data and explain how this is done in practice.
 
-### Openness
+# Openness
 
 It appears that the website is under a CC-BY-SA license. Legal status of the data varies. Data that is fully open can be viewed at:
 
  * <http://www.opengov.se/data/open/>'''
-              },
-             ]
+                 },
+                ]
 
-family_items = [{'name':u'abraham', 'title':u'Abraham'},
-                {'name':u'homer', 'title':u'Homer'},
-                {'name':u'homer_derived', 'title':u'Homer Derived'},
-                {'name':u'beer', 'title':u'Beer'},
-                {'name':u'bart', 'title':u'Bart'},
-                {'name':u'lisa', 'title':u'Lisa'},
-                {'name':u'marge', 'title':u'Marge'},
+family_items = [{'name': u'abraham', 'title': u'Abraham'},
+                {'name': u'homer', 'title': u'Homer'},
+                {'name': u'homer_derived', 'title': u'Homer Derived'},
+                {'name': u'beer', 'title': u'Beer'},
+                {'name': u'bart', 'title': u'Bart'},
+                {'name': u'lisa', 'title': u'Lisa'},
+                {'name': u'marge', 'title': u'Marge'},
                 ]
 family_relationships = [('abraham', 'parent_of', 'homer'),
                         ('homer', 'parent_of', 'bart'),
@@ -749,69 +756,69 @@ family_relationships = [('abraham', 'parent_of', 'homer'),
                         ]
 
 gov_items = [
-    {'name':'private-fostering-england-2009',
-     'title':'Private Fostering',
-     'notes':'Figures on children cared for and accommodated in private fostering arrangements, England, Year ending 31 March 2009',
-     'resources':[{'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
-                  'format':'XLS',
-                  'description':'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'},
-                  {'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000860/SFR17_2009_key.doc',
-                  'format':'DOC',
-                  'description':'http://www.statistics.gov.uk/hub/id/119-34565'}],
-     'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml',
-     'author':'DCSF Data Services Group',
-     'author_email':'statistics@dcsf.gsi.gov.uk',
-     'license':'ukcrown',
-     'tags':'children fostering',
-     'extras':{
-        'external_reference':'DCSF-DCSF-0024',
-        'date_released':'2009-07-30',
-        'date_updated':'2009-07-30',
-        'update_frequency':'annually',
-        'geographic_granularity':'regional',
-        'geographic_coverage':'100000: England',
-        'department':'Department for Education',
-        'published_by':'Department for Education [3]',
-        'published_via':'',
-        'temporal_granularity':'years',
-        'temporal_coverage-from':'2008-6',
-        'temporal_coverage-to':'2009-6',
-        'mandate':'',
-        'national_statistic':'yes',
-        'precision':'Numbers to nearest 10, percentage to nearest whole number',
-        'taxonomy_url':'',
-        'agency':'',
-        'import_source':'ONS-Jan-09',
-        }
-     },
-    {'name':'weekly-fuel-prices',
-     'title':'Weekly fuel prices',
-     'notes':'Latest price as at start of week of unleaded petrol and diesel.',
-     'resources':[{'url':'http://www.decc.gov.uk/assets/decc/statistics/source/prices/qep211.xls', 'format':'XLS', 'description':'Quarterly 23/2/12'}],
-     'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
-     'author':'DECC Energy Statistics Team',
-     'author_email':'energy.stats@decc.gsi.gov.uk',
-     'license':'ukcrown',
-     'tags':'fuel prices',
-     'extras':{
-        'external_reference':'DECC-DECC-0001',
-        'date_released':'2009-11-24',
-        'date_updated':'2009-11-24',
-        'update_frequency':'weekly',
-        'geographic_granularity':'national',
-        'geographic_coverage':'111100: United Kingdom (England, Scotland, Wales, Northern Ireland)',
-        'department':'Department of Energy and Climate Change',
-        'published_by':'Department of Energy and Climate Change [4]',
-        'published_via':'',
-         'mandate':'',
-        'temporal_granularity':'weeks',
-        'temporal_coverage-from':'2008-11-24',
-        'temporal_coverage-to':'2009-11-24',
-        'national_statistic':'no',
-        'import_source':'DECC-Jan-09',
-        }
+    {'name': 'private-fostering-england-2009',
+     'title': 'Private Fostering',
+     'notes': 'Figures on children cared for and accommodated in private fostering arrangements, England, Year ending 31 March 2009',
+     'resources': [{'url': 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
+                    'format': 'XLS',
+                    'description': 'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'},
+                   {'url': 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000860/SFR17_2009_key.doc',
+                    'format': 'DOC',
+                    'description': 'http://www.statistics.gov.uk/hub/id/119-34565'}],
+     'url': 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml',
+     'author': 'DCSF Data Services Group',
+     'author_email': 'statistics@dcsf.gsi.gov.uk',
+     'license': 'ukcrown',
+     'tags': 'children fostering',
+     'extras': {
+         'external_reference': 'DCSF-DCSF-0024',
+         'date_released': '2009-07-30',
+         'date_updated': '2009-07-30',
+         'update_frequency': 'annually',
+         'geographic_granularity': 'regional',
+         'geographic_coverage': '100000: England',
+         'department': 'Department for Education',
+         'published_by': 'Department for Education [3]',
+         'published_via': '',
+         'temporal_granularity': 'years',
+         'temporal_coverage-from': '2008-6',
+         'temporal_coverage-to': '2009-6',
+         'mandate': '',
+         'national_statistic': 'yes',
+         'precision': 'Numbers to nearest 10, percentage to nearest whole number',
+         'taxonomy_url': '',
+         'agency': '',
+         'import_source': 'ONS-Jan-09',
      }
-    ]
+     },
+    {'name': 'weekly-fuel-prices',
+     'title': 'Weekly fuel prices',
+     'notes': 'Latest price as at start of week of unleaded petrol and diesel.',
+     'resources': [{'url': 'http://www.decc.gov.uk/assets/decc/statistics/source/prices/qep211.xls', 'format': 'XLS', 'description': 'Quarterly 23/2/12'}],
+     'url': 'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
+     'author': 'DECC Energy Statistics Team',
+     'author_email': 'energy.stats@decc.gsi.gov.uk',
+     'license': 'ukcrown',
+     'tags': 'fuel prices',
+     'extras': {
+         'external_reference': 'DECC-DECC-0001',
+         'date_released': '2009-11-24',
+         'date_updated': '2009-11-24',
+         'update_frequency': 'weekly',
+         'geographic_granularity': 'national',
+         'geographic_coverage': '111100: United Kingdom (England, Scotland, Wales, Northern Ireland)',
+         'department': 'Department of Energy and Climate Change',
+         'published_by': 'Department of Energy and Climate Change [4]',
+         'published_via': '',
+         'mandate': '',
+         'temporal_granularity': 'weeks',
+         'temporal_coverage-from': '2008-11-24',
+         'temporal_coverage-to': '2009-11-24',
+         'national_statistic': 'no',
+         'import_source': 'DECC-Jan-09',
+     }
+     }
+]
 
 group_hierarchy_groups = [
     {'name': 'department-of-health',
@@ -853,7 +860,7 @@ group_hierarchy_groups = [
      'contact-email': 'contact@cabinet-office.gov.uk',
      'type': 'organization',
      'is_organization': True},
-    ]
+]
 
 group_hierarchy_datasets = [
     {'name': 'doh-spend', 'title': 'Department of Health Spend Data',
@@ -864,7 +871,7 @@ group_hierarchy_datasets = [
      'groups': ['nhs-wirral-ccg']},
     {'name': 'southwark-spend', 'title': 'Southwark Spend Data',
      'groups': ['nhs-southwark-ccg']},
-    ]
+]
 
 group_hierarchy_users = [{'name': 'nhsadmin', 'password': 'pass'},
                          {'name': 'nhseditor', 'password': 'pass'},
@@ -874,19 +881,19 @@ group_hierarchy_users = [{'name': 'nhsadmin', 'password': 'pass'},
 
 # Some test terms and translations.
 terms = ('A Novel By Tolstoy',
-    'Index of the novel',
-    'russian',
-    'tolstoy',
-    "Dave's books",
-    "Roger's books",
-    'romantic novel',
-    'book',
-    '123',
-    '456',
-    '789',
-    'plain text',
-    'Roger likes these books.',
-)
+         'Index of the novel',
+         'russian',
+         'tolstoy',
+         "Dave's books",
+         "Roger's books",
+         'romantic novel',
+         'book',
+         '123',
+         '456',
+         '789',
+         'plain text',
+         'Roger likes these books.',
+         )
 english_translations = {
     '123': 'jealousy',
     '456': 'realism',

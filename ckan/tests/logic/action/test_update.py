@@ -92,7 +92,7 @@ class TestUpdate(object):
         context = {"user": user["name"]}
         with pytest.raises(logic.NotFound):
             helpers.call_action(
-                "user_generate_apikey", context=context, id=user["id"]
+                "api_token_create", context=context, id=user["id"]
             )
 
     def test_user_update_with_id_that_does_not_exist(self):
@@ -1346,7 +1346,8 @@ class TestResourceUpdate(object):
         dataset = factories.Dataset()
 
         with freeze_time('1987-03-04 23:30:00'):
-            resource = factories.Resource(package_id=dataset['id'], description='test')
+            resource = factories.Resource(
+                package_id=dataset['id'], description='test')
             assert (resource['metadata_modified'] ==
                     datetime.datetime.utcnow().isoformat())
 
@@ -1779,7 +1780,8 @@ class TestCollaboratorsUpdate(object):
         dataset = factories.Dataset(owner_org=org1['id'])
 
         user = factories.User()
-        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org2 = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}])
 
         helpers.call_action(
             'package_collaborator_create',
@@ -1805,7 +1807,8 @@ class TestCollaboratorsUpdate(object):
         dataset = factories.Dataset(owner_org=org1['id'])
 
         user = factories.User()
-        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org2 = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}])
 
         helpers.call_action(
             'package_collaborator_create',
@@ -1819,7 +1822,8 @@ class TestCollaboratorsUpdate(object):
 
         dataset['owner_org'] = org2['id']
 
-        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+        updated_dataset = helpers.call_action(
+            'package_update', context=context, **dataset)
 
         assert updated_dataset['owner_org'] == org2['id']
 
@@ -1828,10 +1832,12 @@ class TestCollaboratorsUpdate(object):
 
         user = factories.User()
 
-        org1 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org1 = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}])
         dataset = factories.Dataset(owner_org=org1['id'])
 
-        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org2 = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}])
 
         helpers.call_action(
             'package_collaborator_create',
@@ -1845,7 +1851,8 @@ class TestCollaboratorsUpdate(object):
 
         dataset['owner_org'] = org2['id']
 
-        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+        updated_dataset = helpers.call_action(
+            'package_update', context=context, **dataset)
 
         assert updated_dataset['owner_org'] == org2['id']
 
@@ -1903,7 +1910,8 @@ class TestDatasetRevise(object):
         response = helpers.call_action(
             'package_revise',
             match={'id': dataset['id']},
-            update__resources__extend=[{'name': 'new resource', 'url': 'http://example.com'}],
+            update__resources__extend=[
+                {'name': 'new resource', 'url': 'http://example.com'}],
         )
         assert response['package']['resources'][0]['name'] == 'new resource'
 
@@ -1925,7 +1933,8 @@ class TestDatasetRevise(object):
         response = helpers.call_action(
             'package_revise',
             match={'id': dataset['id']},
-            update__resources__34a12={'name': 'new name'},  # prefixes allowed >4 chars
+            # prefixes allowed >4 chars
+            update__resources__34a12={'name': 'new name'},
         )
         assert response['package']['resources'][0]['name'] == 'new name'
 
@@ -1946,7 +1955,8 @@ class TestDatasetRevise(object):
 
     def test_revise_normal_user(self):
         user = factories.User()
-        org = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}])
         # make sure normal users can use package_revise
         context = {'user': user['name'], 'ignore_auth': False}
         ds = factories.Dataset(owner_org=org['id'])
@@ -2100,7 +2110,8 @@ class TestUserPluginExtras(object):
 
         user['plugin_extras']['plugin1']['key1'] = 'value2'
 
-        updated_user = helpers.call_action('user_update', context=context, **user)
+        updated_user = helpers.call_action(
+            'user_update', context=context, **user)
 
         assert updated_user['plugin_extras']['plugin1']['key1'] == 'value2'
 

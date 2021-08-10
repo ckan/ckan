@@ -110,6 +110,7 @@ def add_extra(result):
 
 
 def get_user_from_token(token, update_access_time=True):
+
     data = decode(token)
     if not data:
         return

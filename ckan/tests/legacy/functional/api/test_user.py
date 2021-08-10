@@ -62,10 +62,12 @@ class TestCreateUserApiDisabled(object):
             "email": "testinganewuser@ckan.org",
             "password": "TestPassword1",
         }
+        query = model.Session.query(model.ApiToken)
+        token = query.filter_by(user_id=self.sysadmin_user.id).first().id
         res = app.post(
             "/api/3/action/user_create",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(token)},
         )
         res_dict = res.json
         assert res_dict["success"] is True
@@ -99,10 +101,12 @@ class TestCreateUserApiEnabled(object):
             "email": "testinganewuser@ckan.org",
             "password": "TestPassword1",
         }
+        query = model.Session.query(model.ApiToken)
+        token = query.filter_by(user_id=self.sysadmin_user.id).first().id
         res = app.post(
             "/api/3/action/user_create",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(token)},
         )
         res_dict = res.json
         assert res_dict["success"] is True

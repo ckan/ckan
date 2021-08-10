@@ -13,24 +13,30 @@ class TestEmailNotifications(ControllerTestCase):
     @classmethod
     def setup_class(cls):
         model.repo.rebuild_db()
-
         tests.CreateTestData.create()
         cls.app = helpers._get_test_app()
+
+        query = model.Session.query(model.ApiToken)
         joeadmin = model.User.get("joeadmin")
-        cls.joeadmin = {"id": joeadmin.id, "apikey": joeadmin.apikey}
+        joeadmin_token = query.filter_by(user_id=joeadmin.id).first().id
+        cls.joeadmin = {"id": joeadmin.id, "apitoken": joeadmin_token}
+
         testsysadmin = model.User.get("testsysadmin")
+        testsysadmin_token = query.filter_by(
+            user_id=testsysadmin.id).first().id
         cls.testsysadmin = {
             "id": testsysadmin.id,
-            "apikey": testsysadmin.apikey,
+            "apitoken": testsysadmin_token,
         }
         annafan = model.User.get("annafan")
-        cls.annafan = {"id": annafan.id, "apikey": annafan.apikey}
+        annafan_token = query.filter_by(user_id=annafan.id).first().id
+        cls.annafan = {"id": annafan.id, "apitoken": annafan_token}
 
         # Register a new user.
         cls.sara = tests.call_action_api(
             cls.app,
             "user_create",
-            apikey=cls.testsysadmin["apikey"],
+            apitoken=cls.testsysadmin["apitoken"],
             name="sara",
             email="sara@sararollins.com",
             password="TestPassword1",
@@ -231,18 +237,23 @@ class TestEmailNotificationsUserPreference(ControllerTestCase):
         model.repo.rebuild_db()
         tests.CreateTestData.create()
         cls.app = helpers._get_test_app()
+
         joeadmin = model.User.get("joeadmin")
-        cls.joeadmin = {"id": joeadmin.id, "apikey": joeadmin.apikey}
+        query = model.Session.query(model.ApiToken)
+        joeadmin_token = query.filter_by(user_id=joeadmin.id).first().id
+        cls.joeadmin = {"id": joeadmin.id, "apitoken": joeadmin_token}
 
         testsysadmin = model.User.get("testsysadmin")
+        testsysadmin_token = query.filter_by(
+            user_id=testsysadmin.id).first().id
         cls.testsysadmin = {
             "id": testsysadmin.id,
-            "apikey": testsysadmin.apikey,
+            "apitoken": testsysadmin_token,
         }
         cls.sara = tests.call_action_api(
             cls.app,
             "user_create",
-            apikey=cls.testsysadmin["apikey"],
+            apitoken=cls.testsysadmin["apitoken"],
             name="sara",
             email="sara@sararollins.com",
             password="TestPassword1",
@@ -433,12 +444,17 @@ class TestEmailNotificationsIniSetting(object):
         model.repo.rebuild_db()
         tests.CreateTestData.create()
 
+        query = model.Session.query(model.ApiToken)
         joeadmin = model.User.get("joeadmin")
-        cls.joeadmin = {"id": joeadmin.id, "apikey": joeadmin.apikey}
+        joeadmin_token = query.filter_by(user_id=joeadmin.id).first().id
+        cls.joeadmin = {"id": joeadmin.id, "apitoken": joeadmin_token}
+
         testsysadmin = model.User.get("testsysadmin")
+        testsysadmin_token = query.filter_by(
+            user_id=testsysadmin.id).first().id
         cls.testsysadmin = {
             "id": testsysadmin.id,
-            "apikey": testsysadmin.apikey,
+            "apitoken": testsysadmin_token,
         }
 
     @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", False)
@@ -449,7 +465,7 @@ class TestEmailNotificationsIniSetting(object):
         sara = tests.call_action_api(
             self.app,
             "user_create",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
             name="sara",
             email="sara@sararollins.com",
             password="TestPassword1",
@@ -464,7 +480,7 @@ class TestEmailNotificationsIniSetting(object):
         tests.call_action_api(self.app, "user_update", **sara)
         assert (
             tests.call_action_api(
-                self.app, "user_show", apikey=self.sara["apikey"], id="sara"
+                self.app, "user_show", apitoken=self.sara["apitoken"], id="sara"
             )["activity_streams_email_notifications"]
             is True
         )
@@ -474,7 +490,7 @@ class TestEmailNotificationsIniSetting(object):
         tests.call_action_api(
             self.app,
             "follow_dataset",
-            apikey=self.sara["apikey"],
+            apitoken=self.sara["apitoken"],
             id="warandpeace",
         )
 
@@ -482,7 +498,7 @@ class TestEmailNotificationsIniSetting(object):
         tests.call_action_api(
             self.app,
             "package_update",
-            apikey=self.joeadmin["apikey"],
+            apitoken=self.joeadmin["apitoken"],
             id="warandpeace",
             notes="updated",
         )
@@ -492,7 +508,7 @@ class TestEmailNotificationsIniSetting(object):
             tests.call_action_api(
                 self.app,
                 "dashboard_new_activities_count",
-                apikey=self.sara["apikey"],
+                apitoken=self.sara["apitoken"],
             )
             > 0
         )
@@ -502,7 +518,7 @@ class TestEmailNotificationsIniSetting(object):
         tests.call_action_api(
             self.app,
             "send_email_notifications",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
             status=409,
         )
 
@@ -519,17 +535,22 @@ class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
 
     @classmethod
     def setup_class(cls):
-
         cls.app = helpers._get_test_app()
         model.repo.rebuild_db()
         tests.CreateTestData.create()
 
+        query = model.Session.query(model.ApiToken)
         joeadmin = model.User.get("joeadmin")
-        cls.joeadmin = {"id": joeadmin.id, "apikey": joeadmin.apikey}
+        joeadmin_token = query.filter_by(user_id=joeadmin.id).first().id
+        cls.joeadmin = {"id": joeadmin.id, "apitoken": joeadmin_token}
+
         testsysadmin = model.User.get("testsysadmin")
+        query = model.Session.query(model.ApiToken)
+        testsysadmin_token = query.filter_by(
+            user_id=testsysadmin.id).first().id
         cls.testsysadmin = {
             "id": testsysadmin.id,
-            "apikey": testsysadmin.apikey,
+            "apikey": testsysadmin_token,
         }
 
     # Don't send email notifications for activities older than 1
@@ -544,7 +565,7 @@ class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
         sara = tests.call_action_api(
             self.app,
             "user_create",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
             name="sara",
             email="sara@sararollins.com",
             password="TestPassword1",
@@ -559,7 +580,7 @@ class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
         tests.call_action_api(self.app, "user_update", **sara)
         assert (
             tests.call_action_api(
-                self.app, "user_show", apikey=self.sara["apikey"], id="sara"
+                self.app, "user_show", apitoken=self.sara["apitoken"], id="sara"
             )["activity_streams_email_notifications"]
             is True
         )
@@ -569,7 +590,7 @@ class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
         tests.call_action_api(
             self.app,
             "follow_dataset",
-            apikey=self.sara["apikey"],
+            apitoken=self.sara["apitoken"],
             id="warandpeace",
         )
 
@@ -577,7 +598,7 @@ class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
         tests.call_action_api(
             self.app,
             "package_update",
-            apikey=self.joeadmin["apikey"],
+            apitoken=self.joeadmin["apitoken"],
             id="warandpeace",
             notes="updated",
         )
@@ -587,7 +608,7 @@ class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
             tests.call_action_api(
                 self.app,
                 "dashboard_new_activities_count",
-                apikey=self.sara["apikey"],
+                apitoken=self.sara["apitoken"],
             )
             > 0
         )
@@ -599,6 +620,6 @@ class TestEmailNotificationsSinceIniSetting(ControllerTestCase):
         tests.call_action_api(
             self.app,
             "send_email_notifications",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert len(mail_server.get_smtp_messages()) == 0

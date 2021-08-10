@@ -9,6 +9,7 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
 import ckan.tests.legacy as tests
+import ckan.tests.helpers as helpers
 from ckan.tests.legacy import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
@@ -51,6 +52,11 @@ class TestAction(object):
         CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
         self.normal_user = model.User.get("annafan")
+        query = model.Session.query(model.ApiToken)
+        self.sysadmin_token = query.filter_by(
+            user_id=self.sysadmin_user.id).first().id
+        self.normal_user_token = query.filter_by(
+            user_id=self.normal_user.id).first().id
         CreateTestData.make_some_vocab_tags()
 
     def test_01_package_list(self, app):
@@ -86,7 +92,7 @@ class TestAction(object):
             app,
             "organization_create",
             name="test_org_2",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
         )
 
         tests.call_action_api(
@@ -94,7 +100,7 @@ class TestAction(object):
             "package_create",
             name="public_dataset",
             owner_org="test_org_2",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
         )
 
         res = tests.call_action_api(app, "package_list")
@@ -110,7 +116,7 @@ class TestAction(object):
             name="private_dataset",
             owner_org="test_org_2",
             private=True,
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
         )
 
         res = tests.call_action_api(app, "package_list")
@@ -121,7 +127,8 @@ class TestAction(object):
         assert "private_dataset" not in res
 
         # def test_02_package_autocomplete_match_name(self):
-        res = app.post("/api/action/package_autocomplete", json={"q": "war", "limit": 5})
+        res = app.post("/api/action/package_autocomplete",
+                       json={"q": "war", "limit": 5})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert res_obj["result"][0]["name"] == "warandpeace"
@@ -130,7 +137,8 @@ class TestAction(object):
         assert res_obj["result"][0]["match_displayed"] == "warandpeace"
 
         # def test_02_package_autocomplete_match_title(self):
-        res = app.post("/api/action/package_autocomplete", json={"q": "won", "limit": 5})
+        res = app.post("/api/action/package_autocomplete",
+                       json={"q": "won", "limit": 5})
         res_obj = json.loads(res.body)
         assert res_obj["success"]
         assert res_obj["result"][0]["name"] == "warandpeace"
@@ -148,7 +156,7 @@ class TestAction(object):
             app,
             "organization_create",
             name="test_org",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
         )
 
         # Create a dataset without specifying visibility
@@ -187,7 +195,7 @@ class TestAction(object):
         package_created = tests.call_action_api(
             app,
             "package_create",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
             **package_dict
         )
         assert package_created["private"] is False
@@ -199,7 +207,7 @@ class TestAction(object):
         package_created_public = tests.call_action_api(
             app,
             "package_create",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
             **package_dict
         )
         assert package_created_public["private"] is False
@@ -211,7 +219,7 @@ class TestAction(object):
         package_created_private = tests.call_action_api(
             app,
             "package_create",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
             **package_dict
         )
         assert package_created_private["private"] is True
@@ -220,11 +228,10 @@ class TestAction(object):
 
         anna_id = model.Package.by_name(u"annakarenina").id
         resource = {"package_id": anna_id, "url": "http://new_url"}
-        api_key = six.ensure_text(model.User.get("testsysadmin").apikey)
         res = app.post(
             "/api/action/resource_create",
             json=resource,
-            extra_environ={"Authorization": str(api_key)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
 
         resource = json.loads(res.body)["result"]
@@ -239,12 +246,11 @@ class TestAction(object):
             "url": "new_url",
             "created": "bad_date",
         }
-        api_key = six.ensure_text(model.User.get("testsysadmin").apikey)
 
         res = app.post(
             "/api/action/resource_create",
             json=resource,
-            extra_environ={"Authorization": str(api_key)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
 
@@ -259,7 +265,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_create",
             json=user_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
         res_obj = json.loads(res.body)
@@ -282,7 +288,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_create",
             json=user_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
 
@@ -314,7 +320,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_update",
             json=normal_user_dict,
-            extra_environ={"Authorization": str(self.normal_user.apikey)},
+            extra_environ={"Authorization": str(self.normal_user_token)},
         )
 
         res_obj = json.loads(res.body)
@@ -325,7 +331,7 @@ class TestAction(object):
         assert result["name"] == self.normal_user.name
         assert result["fullname"] == normal_user_dict["fullname"]
         assert result["about"] == normal_user_dict["about"]
-        assert "apikey" in result
+        assert "apitoken" in result
         assert "created" in result
         assert "display_name" in result
         assert "number_created_packages" in result
@@ -335,7 +341,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_update",
             json=sysadmin_user_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
 
         res_obj = json.loads(res.body)
@@ -351,7 +357,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_update",
             json=normal_user_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
 
         res_obj = json.loads(res.body)
@@ -367,7 +373,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_update",
             json=sysadmin_user_dict,
-            extra_environ={"Authorization": str(self.normal_user.apikey)},
+            extra_environ={"Authorization": str(self.normal_user_token)},
             status=StatusCodes.STATUS_403_ACCESS_DENIED,
         )
 
@@ -421,7 +427,7 @@ class TestAction(object):
             res = app.post(
                 "/api/action/user_update",
                 json=test_call["user_dict"],
-                extra_environ={"Authorization": str(self.normal_user.apikey)},
+                extra_environ={"Authorization": str(self.sysadmin_token)},
                 status=StatusCodes.STATUS_409_CONFLICT,
             )
             res_obj = json.loads(res.body)
@@ -438,7 +444,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_delete",
             json=user_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
 
         res_obj = json.loads(res.body)
@@ -451,7 +457,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/user_delete",
             json=user_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
 
@@ -508,7 +514,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/task_status_update",
             json=task_status,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         task_status_updated = json.loads(res.body)["result"]
 
@@ -521,7 +527,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/task_status_update",
             json=task_status_updated,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         task_status_updated_2 = json.loads(res.body)["result"]
         task_status_updated_2.pop("last_updated")
@@ -556,7 +562,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/task_status_update_many",
             json=task_statuses,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         task_statuses_updated = json.loads(res.body)["result"]["results"]
         for i in range(len(task_statuses["data"])):
@@ -575,7 +581,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/task_status_update",
             json=task_status,
-            extra_environ={"Authorization": str(self.normal_user.apikey)},
+            extra_environ={"Authorization": str(self.normal_user_token)},
             status=StatusCodes.STATUS_403_ACCESS_DENIED,
         )
         res_obj = json.loads(res.body)
@@ -591,7 +597,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/task_status_update",
             json=task_status,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=StatusCodes.STATUS_409_CONFLICT,
         )
 
@@ -610,7 +616,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/task_status_update",
             json=task_status,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         task_status_updated = json.loads(res.body)["result"]
 
@@ -618,7 +624,7 @@ class TestAction(object):
         res = app.post(
             "/api/action/task_status_show",
             json={"id": task_status_updated["id"]},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         task_status_show = res.json["result"]
 
@@ -637,7 +643,7 @@ class TestAction(object):
                 "task_type": task_status["task_type"],
                 "key": task_status["key"],
             },
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         task_status_show = json.loads(res.body)["result"]
 
@@ -662,14 +668,14 @@ class TestAction(object):
         res = app.post(
             "/api/action/task_status_update",
             json=task_status,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         task_status_updated = json.loads(res.body)["result"]
 
         res = app.post(
             "/api/action/task_status_delete",
             json={"id": task_status_updated["id"]},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         task_status_delete = json.loads(res.body)
         assert task_status_delete["success"] == True
@@ -767,9 +773,9 @@ class TestAction(object):
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
-        ## Due to the side-effect of previously run tests, there may be extra
-        ## resources in the results.  So just check that each found Resource
-        ## matches the search criteria
+        # Due to the side-effect of previously run tests, there may be extra
+        # resources in the results.  So just check that each found Resource
+        # matches the search criteria
         assert count > 0
         for resource in result:
             assert "index" in resource["description"].lower()
@@ -780,9 +786,9 @@ class TestAction(object):
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
-        ## Due to the side-effect of previously run tests, there may be extra
-        ## resources in the results.  So just check that each found Resource
-        ## matches the search criteria
+        # Due to the side-effect of previously run tests, there may be extra
+        # resources in the results.  So just check that each found Resource
+        # matches the search criteria
         assert count > 0
         for resource in result:
             assert "index" in resource["description"].lower()
@@ -809,9 +815,9 @@ class TestAction(object):
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
-        ## Due to the side-effect of previously run tests, there may be extra
-        ## resources in the results.  So just check that each found Resource
-        ## matches the search criteria
+        # Due to the side-effect of previously run tests, there may be extra
+        # resources in the results.  So just check that each found Resource
+        # matches the search criteria
         assert count > 0
         for resource in result:
             assert "index" in resource["description"].lower()
@@ -825,9 +831,9 @@ class TestAction(object):
         result = json.loads(response.body)["result"]["results"]
         count = json.loads(response.body)["result"]["count"]
 
-        ## Due to the side-effect of previously run tests, there may be extra
-        ## resources in the results.  So just check that each found Resource
-        ## matches the search criteria
+        # Due to the side-effect of previously run tests, there may be extra
+        # resources in the results.  So just check that each found Resource
+        # matches the search criteria
         assert count > 0
         for resource in result:
             assert "index" in resource["description"].lower()
@@ -841,7 +847,7 @@ class TestAction(object):
         error = call_action_api(
             app,
             "package_create",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
             status=409,
             name="foobar",
             extras=[
@@ -857,13 +863,13 @@ class TestAction(object):
         org = call_action_api(
             app,
             "organization_create",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
             name="myorganization",
         )
         package = call_action_api(
             app,
             "package_create",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
             name="foobarbaz",
             owner_org=org["id"],
         )
@@ -871,7 +877,7 @@ class TestAction(object):
         assert package["owner_org"]
         package["owner_org"] = ""
         res = call_action_api(
-            app, "package_update", apikey=self.sysadmin_user.apikey, **package
+            app, "package_update", apitoken=self.sysadmin_token, **package
         )
         assert not res["owner_org"], res["owner_org"]
 
@@ -881,7 +887,7 @@ class TestAction(object):
         package = call_action_api(
             app,
             "package_create",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
             name="foobar",
         )
 
@@ -894,7 +900,7 @@ class TestAction(object):
         error = call_action_api(
             app,
             "package_update",
-            apikey=self.sysadmin_user.apikey,
+            apitoken=self.sysadmin_token,
             status=409,
             **package
         )
@@ -908,13 +914,18 @@ class TestActionTermTranslation(object):
         CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
         self.normal_user = model.User.get("annafan")
+        query = model.Session.query(model.ApiToken)
+        self.sysadmin_token = query.filter_by(
+            user_id=self.sysadmin_user.id).first().id
+        self.normal_user_token = query.filter_by(
+            user_id=self.normal_user.id).first().id
 
     def test_1_update_single(self, app):
 
         res = app.post(
             "/api/action/term_translation_update",
             json={"term": "moo", "term_translation": "moo", "lang_code": "fr"},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=200,
         )
 
@@ -923,7 +934,7 @@ class TestActionTermTranslation(object):
         res = app.post(
             "/api/action/term_translation_update",
             json={"term": "moo", "term_translation": "moomoo", "lang_code": "fr"},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=200,
         )
 
@@ -932,7 +943,7 @@ class TestActionTermTranslation(object):
         res = app.post(
             "/api/action/term_translation_update",
             json={"term": "moo", "term_translation": "moomoo", "lang_code": "en"},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=200,
         )
 
@@ -941,7 +952,7 @@ class TestActionTermTranslation(object):
         res = app.post(
             "/api/action/term_translation_show",
             json={"terms": ["moo"]},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=200,
         )
 
@@ -965,29 +976,29 @@ class TestActionTermTranslation(object):
 
     def test_2_update_many(self, app):
 
-        data  = {
-                "data": [
-                    {
-                        "term": "many",
-                        "term_translation": "manymoo",
-                        "lang_code": "fr",
-                    },
-                    {
-                        "term": "many",
-                        "term_translation": "manymoo",
-                        "lang_code": "en",
-                    },
-                    {
-                        "term": "many",
-                        "term_translation": "manymoomoo",
-                        "lang_code": "en",
-                    },
-                ]
-            }
+        data = {
+            "data": [
+                {
+                    "term": "many",
+                    "term_translation": "manymoo",
+                    "lang_code": "fr",
+                },
+                {
+                    "term": "many",
+                    "term_translation": "manymoo",
+                    "lang_code": "en",
+                },
+                {
+                    "term": "many",
+                    "term_translation": "manymoomoo",
+                    "lang_code": "en",
+                },
+            ]
+        }
         res = app.post(
             "/api/action/term_translation_update_many",
             json=data,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=200,
         )
 
@@ -998,7 +1009,7 @@ class TestActionTermTranslation(object):
         res = app.post(
             "/api/action/term_translation_show",
             json={"terms": ["many"]},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             status=200,
         )
 
@@ -1088,7 +1099,8 @@ class TestSearchPluginInterface(object):
     def test_search_plugin_interface_search(self, app):
         avoid = "Tolstoy"
 
-        res = app.post("/api/action/package_search", json={"q": "*:*", "extras": {"ext_avoid": avoid}})
+        res = app.post("/api/action/package_search",
+                       json={"q": "*:*", "extras": {"ext_avoid": avoid}})
 
         results_dict = json.loads(res.body)["result"]
         for result in results_dict["results"]:
@@ -1097,7 +1109,8 @@ class TestSearchPluginInterface(object):
         assert results_dict["count"] == 1
 
     def test_search_plugin_interface_abort(self, app):
-        res = app.post("/api/action/package_search", json={"q": "*:*", "extras": {"ext_abort": True}})
+        res = app.post("/api/action/package_search",
+                       json={"q": "*:*", "extras": {"ext_abort": True}})
 
         # Check that the query was aborted and no results returned
         res_dict = json.loads(res.body)["result"]
@@ -1134,7 +1147,11 @@ class TestSearchPluginInterface(object):
 class TestBulkActions(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index, app, with_request_context):
-        factories.Sysadmin(apikey=u"sysadmin")
+        CreateTestData.create()
+        self.sysadmin_user = model.User.get("testsysadmin")
+        query = model.Session.query(model.ApiToken)
+        self.sysadmin_token = query.filter_by(
+            user_id=self.sysadmin_user.id).first().id
 
         data_dict = "%s=1" % json.dumps({"name": "org"})
         org = factories.Organization(name="org")
@@ -1148,7 +1165,7 @@ class TestBulkActions(object):
         data_dict = {"datasets": self.package_ids, "org_id": self.org_id}
         res = app.post(
             "/api/action/bulk_update_private",
-            extra_environ={"Authorization": "sysadmin"},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             json=data_dict,
         )
 
@@ -1164,7 +1181,7 @@ class TestBulkActions(object):
 
         res = app.post(
             "/api/action/bulk_update_public",
-            extra_environ={"Authorization": "sysadmin"},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             json=data_dict,
         )
 
@@ -1182,7 +1199,7 @@ class TestBulkActions(object):
 
         res = app.post(
             "/api/action/bulk_update_delete",
-            extra_environ={"Authorization": "sysadmin"},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
             json={"datasets": self.package_ids, "org_id": self.org_id},
         )
 
@@ -1206,6 +1223,9 @@ class TestResourceAction(object):
     def setup_class(self, clean_db, clean_index):
         CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
+        query = model.Session.query(model.ApiToken)
+        self.sysadmin_token = query.filter_by(
+            user_id=self.sysadmin_user.id).first().id
 
     def test_01_delete_resource(self, app):
         res_dict = _add_basic_package(app)
@@ -1219,7 +1239,7 @@ class TestResourceAction(object):
         res = app.post(
             url,
             json={"id": id},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_token)},
         )
         res_dict = json.loads(res.body)
         assert res_dict["success"] is True
@@ -1273,10 +1293,15 @@ def _assert_we_can_add_user_to_group(app, user_id, group_id):
     group = model.Group.get(group_id)
     url = "/api/action/group_member_create"
     role = "member"
+    helpers.call_action(u"api_token_create",
+                        user=user.id, name=u"first token")
+    query = model.Session.query(model.ApiToken)
+    user_token = query.filter_by(
+        user_id=user.id).first().id
     res = app.post(
         url,
         json={"id": group_id, "username": user_id, "role": role},
-        extra_environ={"Authorization": str(user.apikey)},
+        extra_environ={"Authorization": str(user_token)},
     )
 
     res = json.loads(res.body)

@@ -20,6 +20,7 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
+import ckan.lib.helpers as h
 import ckan.model as model
 import ckan.model.misc as misc
 import ckan.plugins as plugins
@@ -97,7 +98,7 @@ def package_list(context, data_dict):
     if offset:
         query = query.offset(offset)
 
-    ## Returns the first field in each result record
+    # Returns the first field in each result record
     return [r[0] for r in query.execute()]
 
 
@@ -138,7 +139,7 @@ def current_package_list_with_resources(context, data_dict):
 
     search = package_search(context, {
         'q': '', 'rows': limit, 'start': offset,
-        'include_private': authz.is_sysadmin(user) })
+        'include_private': authz.is_sysadmin(user)})
     return search.get('results', [])
 
 
@@ -322,7 +323,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or config.get('ckan.default_group_sort') or 'title'
+    sort = data_dict.get('sort') or config.get(
+        'ckan.default_group_sort') or 'title'
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -336,7 +338,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
             max_limit = 25
     else:
         try:
-            max_limit = int(config.get('ckan.group_and_organization_list_max', 1000))
+            max_limit = int(config.get(
+                'ckan.group_and_organization_list_max', 1000))
         except ValueError:
             max_limit = 1000
 
@@ -713,7 +716,7 @@ def organization_list_for_user(context, data_dict):
 
     context['with_capacity'] = True
     orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
-        with_package_counts=asbool(data_dict.get('include_dataset_count')))
+                                                 with_package_counts=asbool(data_dict.get('include_dataset_count')))
     return orgs_list
 
 
@@ -824,7 +827,7 @@ def user_list(context, data_dict):
                         model.Package.creator_user_id == model.User.id,
                         model.Package.state == 'active',
                         model.Package.private == False,
-                    )).label('number_created_packages')
+            )).label('number_created_packages')
         )
     else:
         query = model.Session.query(model.User.name)
@@ -866,7 +869,7 @@ def user_list(context, data_dict):
     # Filter deleted users
     query = query.filter(model.User.state != model.State.DELETED)
 
-    ## hack for pagination
+    # hack for pagination
     if context.get('return_query'):
         return query
 
@@ -897,7 +900,7 @@ def package_relationships_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    ##TODO needs to work with dictization layer
+    # TODO needs to work with dictization layer
     model = context['model']
     api = context.get('api_version')
 
@@ -1066,7 +1069,7 @@ def resource_show(context, data_dict):
     pkg_dict = logic.get_action('package_show')(
         dict(context),
         {'id': resource.package.id,
-        'include_tracking': asbool(data_dict.get('include_tracking', False))})
+         'include_tracking': asbool(data_dict.get('include_tracking', False))})
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
@@ -1119,7 +1122,7 @@ def resource_view_list(context, data_dict):
     context['resource'] = resource
     _check_access('resource_view_list', context, data_dict)
     q = model.Session.query(model.ResourceView).filter_by(resource_id=id)
-    ## only show views when there is the correct plugin enabled
+    # only show views when there is the correct plugin enabled
     resource_views = [
         resource_view for resource_view
         in q.order_by(model.ResourceView.order).all()
@@ -1816,7 +1819,8 @@ def package_search(context, data_dict):
     abort = data_dict.get('abort_search', False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = config.get('ckan.search.default_package_sort') or 'score desc, metadata_modified desc'
+        data_dict['sort'] = config.get(
+            'ckan.search.default_package_sort') or 'score desc, metadata_modified desc'
 
     results = []
     if not abort:
@@ -1849,7 +1853,7 @@ def package_search(context, data_dict):
             labels = None
         else:
             labels = lib_plugins.get_permission_labels(
-                ).get_user_dataset_labels(context['auth_user_obj'])
+            ).get_user_dataset_labels(context['auth_user_obj'])
 
         query = search.query_for(model.Package)
         query.run(data_dict, permission_labels=labels)
@@ -1868,7 +1872,7 @@ def package_search(context, data_dict):
             for package in query.results:
                 # get the package object
                 package_dict = package.get(data_source)
-                ## use data in search index if there
+                # use data in search index if there
                 if package_dict:
                     # the package_dict still needs translating when being viewed
                     package_dict = json.loads(package_dict)
@@ -1902,8 +1906,8 @@ def package_search(context, data_dict):
         group_names.extend(facets.get(field_name, {}).keys())
 
     groups = (session.query(model.Group.name, model.Group.title)
-                    .filter(model.Group.name.in_(group_names))
-                    .all()
+              .filter(model.Group.name.in_(group_names))
+              .all()
               if group_names else [])
     group_titles_by_name = dict(groups)
 
@@ -2063,10 +2067,10 @@ def resource_search(context, data_dict):
     limit = data_dict.get('limit')
 
     q = model.Session.query(model.Resource) \
-         .join(model.Package) \
-         .filter(model.Package.state == 'active') \
-         .filter(model.Package.private == False) \
-         .filter(model.Resource.state == 'active') \
+        .join(model.Package) \
+        .filter(model.Package.state == 'active') \
+        .filter(model.Package.private == False) \
+        .filter(model.Resource.state == 'active') \
 
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
@@ -2530,7 +2534,8 @@ def package_activity_list(context, data_dict):
     exclude_activity_types = data_dict.pop('exclude_activity_types', None)
 
     if activity_types is not None and exclude_activity_types is not None:
-        raise ValidationError({'activity_types': ['Cannot be used together with `exclude_activity_types']})
+        raise ValidationError(
+            {'activity_types': ['Cannot be used together with `exclude_activity_types']})
 
     _check_access('package_activity_list', context, data_dict)
 
@@ -2837,6 +2842,7 @@ def organization_follower_list(context, data_dict):
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
         context['model'].UserFollowingGroup)
+
 
 def _am_following(context, data_dict, default_schema, FollowerClass):
     schema = context.get('schema', default_schema)
@@ -3370,7 +3376,7 @@ def activity_diff(context, data_dict):
     return {
         'diff': diff,
         'activities': activities,
-        }
+    }
 
 
 def _unpick_search(sort, allowed_fields=None, total=None):

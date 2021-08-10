@@ -3,6 +3,7 @@
 import pytest
 
 import ckan.model as model
+import ckan.tests.helpers as helpers
 from ckan.lib.helpers import url_for
 from ckan.lib.mailer import create_reset_key
 from ckan.tests.legacy import CreateTestData
@@ -67,7 +68,7 @@ def test_user_read_me_without_id(app):
     app.get(offset, status=302, follow_redirects=False)
 
 
-def test_apikey(app):
+def test_apitoken(app):
     username = u"okfntest"
     user = model.User.by_name(u"okfntest")
     if not user:
@@ -77,20 +78,24 @@ def test_apikey(app):
         model.Session.remove()
 
     # not logged in
-    offset = url_for("user.read", id=username)
+    offset = url_for("user.api_tokens", id=username)
     res = app.get(offset)
-    assert not "API key" in res
-
-    offset = url_for("user.read", id="okfntest")
+    assert not "first token" in res
+    helpers.call_action(u"api_token_create",
+                        user=user.id, name=u"first token")
+    query = model.Session.query(model.ApiToken)
+    token = query.filter_by(user_id=user.id).first().name
+    offset = url_for("user.api_tokens", id="okfntest")
     res = app.get(offset, extra_environ={"REMOTE_USER": "okfntest"})
-    assert user.apikey in res, res
+    assert token in res, res
 
 
 def test_perform_reset_user_password_link_key_incorrect(app):
     CreateTestData.create_user(name="jack", password="TestPassword1")
     # Make up a key - i.e. trying to hack this
     user = model.User.by_name(u"jack")
-    offset = url_for("user.perform_reset", id=user.id, key="randomness")  # i.e. incorrect
+    offset = url_for("user.perform_reset", id=user.id,
+                     key="randomness")  # i.e. incorrect
     res = app.get(offset, status=403)  # error
 
 

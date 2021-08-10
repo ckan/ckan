@@ -4,6 +4,8 @@ import six
 import pytest
 
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
+import ckan.model as model
 
 
 @pytest.mark.ckan_config("debug", True)
@@ -18,31 +20,41 @@ def test_comment_absent_if_debug_false(app):
     assert "<!-- Snippet " not in response
 
 
-def test_apikey_missing(app):
+def test_apitoken_missing(app):
     request_headers = {}
 
     app.get("/dataset/new", headers=request_headers, status=403)
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-def test_apikey_in_authorization_header(app):
+def test_apitoken_in_authorization_header(app):
     user = factories.Sysadmin()
-    request_headers = {"Authorization": str(user["apikey"])}
+    helpers.call_action(u"api_token_create",
+                        user=user[u"id"], name=u"first token")
+    query = model.Session.query(model.ApiToken)
+    user_token = query.filter_by(
+        user_id=user.id).first().id
+    request_headers = {"Authorization": str(user_token)}
 
     app.get("/dataset/new", headers=request_headers)
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-def test_apikey_in_x_ckan_header(app):
+def test_apitoken_in_x_ckan_header(app):
     user = factories.Sysadmin()
+    helpers.call_action(u"api_token_create",
+                        user=user[u"id"], name=u"first token")
+    query = model.Session.query(model.ApiToken)
+    user_token = query.filter_by(
+        user_id=user.id).first().id
     # non-standard header name is defined in test-core.ini
-    request_headers = {"X-Non-Standard-CKAN-API-Key": str(user["apikey"])}
+    request_headers = {"X-Non-Standard-CKAN-API-Key": str(user_token)}
 
     app.get("/dataset/new", headers=request_headers)
 
 
-def test_apikey_contains_unicode(app):
-    # there is no valid apikey containing unicode, but we should fail
+def test_apitoken_contains_unicode(app):
+    # there is no valid apitoken containing unicode, but we should fail
     # nicely if unicode is supplied
     request_headers = {"Authorization": "\xc2\xb7"}
 
@@ -51,7 +63,8 @@ def test_apikey_contains_unicode(app):
 
 def test_options(app):
     response = app.options(url="/", status=200)
-    assert len(six.ensure_str(response.data)) == 0, "OPTIONS must return no content"
+    assert len(six.ensure_str(response.data)
+               ) == 0, "OPTIONS must return no content"
 
 
 def test_cors_config_no_cors(app):
@@ -228,7 +241,8 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
 @pytest.mark.usefixtures("with_plugins")
 def test_options_2(app):
     response = app.options(url="/simple_flask", status=200)
-    assert len(six.ensure_str(response.data)) == 0, "OPTIONS must return no content"
+    assert len(six.ensure_str(response.data)
+               ) == 0, "OPTIONS must return no content"
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")

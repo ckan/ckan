@@ -3,6 +3,7 @@
 import ckan
 import ckan.lib.dictization.model_dictize as model_dictize
 import pytest
+import ckan.tests.helpers as helpers
 
 
 class TestVocabulary(object):
@@ -39,7 +40,16 @@ class TestVocabulary(object):
             ckan.model.Session.commit()
             self.sysadmin_user = ckan.model.User.get("admin")
             self.normal_user = ckan.model.User.get("normal")
-        self.sysadmin_apikey = self.sysadmin_user.apikey
+        helpers.call_action(u"api_token_create",
+                            user=self.sysadmin_user.id, name=u"first token")
+        helpers.call_action(u"api_token_create",
+                            user=self.normal_user.id, name=u"first token")
+
+        query = ckan.model.Session.query(ckan.model.ApiToken)
+        self.sysadmin_apitoken = query.filter_by(
+            user_id=self.sysadmin_user.id).first().id
+        self.normal_user_apitoken = query.filter_by(
+            user_id=self.normal_user.id).first().id
 
     def _post(self, url, params=None, extra_environ=None):
         if params is None:
@@ -54,7 +64,9 @@ class TestVocabulary(object):
         # Create a new vocabulary.
         params = {"name": vocab_name}
         if user:
-            extra_environ = {"Authorization": str(user.apikey)}
+            query = ckan.model.Session.query(ckan.model.ApiToken)
+            token = query.filter_by(user_id=user.id).first().id
+            extra_environ = {"Authorization": str(token)}
         else:
             extra_environ = None
         response = self._post(
@@ -93,7 +105,9 @@ class TestVocabulary(object):
 
     def _update_vocabulary(self, params, user=None):
         if user:
-            extra_environ = {"Authorization": str(user.apikey)}
+            query = ckan.model.Session.query(ckan.model.ApiToken)
+            token = query.filter_by(user_id=user.id).first().id
+            extra_environ = {"Authorization": str(token)}
         else:
             extra_environ = None
 
@@ -156,7 +170,9 @@ class TestVocabulary(object):
         if vocabulary:
             params["vocabulary_id"] = vocabulary["id"]
         if user:
-            extra_environ = {"Authorization": str(user.apikey)}
+            query = ckan.model.Session.query(ckan.model.ApiToken)
+            token = query.filter_by(user_id=user.id).first().id
+            extra_environ = {"Authorization": str(token)}
         else:
             extra_environ = None
         response = self._post(
@@ -170,7 +186,9 @@ class TestVocabulary(object):
         if vocabulary:
             tag_dict["vocabulary_id"] = vocabulary["id"]
         if user:
-            extra_environ = {"Authorization": str(user.apikey)}
+            query = ckan.model.Session.query(ckan.model.ApiToken)
+            token = query.filter_by(user_id=user.id).first().id
+            extra_environ = {"Authorization": str(token)}
         else:
             extra_environ = None
         response = self._post(
@@ -186,7 +204,9 @@ class TestVocabulary(object):
         if vocab_id_or_name:
             params["vocabulary_id"] = vocab_id_or_name
         if user:
-            extra_environ = {"Authorization": str(user.apikey)}
+            query = ckan.model.Session.query(ckan.model.ApiToken)
+            token = query.filter_by(user_id=user.id).first().id
+            extra_environ = {"Authorization": str(token)}
         else:
             extra_environ = None
         response = self._post(
@@ -217,7 +237,7 @@ class TestVocabulary(object):
         response = self._post(
             "/api/action/vocabulary_create",
             params=params,
-            extra_environ={"Authorization": str(self.sysadmin_apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
         )
         assert response["success"] is True
         assert response["result"]
@@ -266,7 +286,7 @@ class TestVocabulary(object):
             response = app.post(
                 "/api/action/vocabulary_create",
                 json=params,
-                extra_environ={"Authorization": str(self.sysadmin_apikey)},
+                extra_environ={"Authorization": str(self.sysadmin_apitoken)},
                 status=409,
             )
             assert response.json["success"] is False
@@ -281,7 +301,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_create",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=400,
         )
         assert "Integrity Error" in response.body
@@ -294,7 +314,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_create",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=200,
         )
         assert response.json["success"] is True
@@ -319,7 +339,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_create",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -337,7 +357,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_create",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -353,7 +373,7 @@ class TestVocabulary(object):
             response = app.post(
                 "/api/action/vocabulary_create",
                 json=params,
-                extra_environ={"Authorization": str(self.sysadmin_apikey)},
+                extra_environ={"Authorization": str(self.sysadmin_apitoken)},
                 status=409,
             )
             assert response.json["success"] is False
@@ -368,7 +388,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_create",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -395,7 +415,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_create",
             json=params,
-            extra_environ={"Authorization": str(self.normal_user.apikey)},
+            extra_environ={"Authorization": str(self.normal_user_apitoken)},
             status=403,
         )
         assert response.json["success"] is False
@@ -478,7 +498,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_update",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=404,
         )
         assert response.json["success"] is False
@@ -489,7 +509,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_update",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -534,7 +554,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_update",
             json=params,
-            extra_environ={"Authorization": str(self.normal_user.apikey)},
+            extra_environ={"Authorization": str(self.normal_user_apitoken)},
             status=403,
         )
         assert response.json["success"] is False
@@ -544,7 +564,7 @@ class TestVocabulary(object):
         """Test updating vocabularies with invalid tags.
 
         """
-        apikey = str(self.sysadmin_user.apikey)
+        apitoken = str(self.sysadmin_apitoken)
 
         for tags in (
             [{"id": "xxx"}, {"name": "foo"}],
@@ -558,7 +578,7 @@ class TestVocabulary(object):
             response = app.post(
                 "/api/action/vocabulary_update",
                 json=params,
-                extra_environ={"Authorization": apikey},
+                extra_environ={"Authorization": apitoken},
                 status=409,
             )
             assert response.json["success"] is False
@@ -572,7 +592,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_update",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=400,
         )
         assert "Integrity Error" in response.body, response.body
@@ -585,7 +605,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_update",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=200,
         )
         assert response.json["success"] is True
@@ -605,7 +625,9 @@ class TestVocabulary(object):
         vocab_id = self.genre_vocab["id"]
         user = self.sysadmin_user
         if user:
-            extra_environ = {"Authorization": str(user.apikey)}
+            query = ckan.model.Session.query(ckan.model.ApiToken)
+            token = query.filter_by(user_id=user.id).first().id
+            extra_environ = {"Authorization": str(token)}
         else:
             extra_environ = None
         params = {"id": vocab_id}
@@ -631,7 +653,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_show",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=404,
         )
         assert response.json["success"] is False
@@ -645,7 +667,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_delete",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=404,
         )
         assert response.json["success"] is False
@@ -662,7 +684,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_delete",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -684,7 +706,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/vocabulary_delete",
             json=params,
-            extra_environ={"Authorization": str(self.normal_user.apikey)},
+            extra_environ={"Authorization": str(self.normal_user_apitoken)},
             status=403,
         )
         assert response.json["success"] is False
@@ -711,7 +733,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_create",
             json=tag_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -726,7 +748,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_create",
             json=tag_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -745,7 +767,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_create",
             json=tag_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -766,7 +788,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_create",
             json=tag_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -783,7 +805,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_create",
             json=tag_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -795,7 +817,7 @@ class TestVocabulary(object):
             response = app.post(
                 "/api/action/tag_create",
                 json=tag_dict,
-                extra_environ={"Authorization": str(self.sysadmin_apikey)},
+                extra_environ={"Authorization": str(self.sysadmin_apitoken)},
                 status=409,
             )
             assert response.json["success"] is False
@@ -806,7 +828,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_create",
             json=tag_dict,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=409,
         )
         assert response.json["success"] is False
@@ -827,7 +849,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_create",
             json=tag_dict,
-            extra_environ={"Authorization": str(self.normal_user.apikey)},
+            extra_environ={"Authorization": str(self.normal_user_apitoken)},
             status=403,
         )
         assert response.json["success"] is False
@@ -854,7 +876,7 @@ class TestVocabulary(object):
         updated_package = self._post(
             "/api/action/package_update",
             params={"id": package["id"], "tags": package["tags"]},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
         )["result"]
 
         # Test that the new vocab tag was added to the package.
@@ -891,7 +913,7 @@ class TestVocabulary(object):
         updated_package = self._post(
             "/api/action/package_update",
             params={"id": package["id"], "tags": package["tags"]},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
         )["result"]
 
         # Test that the tag no longer appears in the list of tags for the
@@ -934,7 +956,7 @@ class TestVocabulary(object):
         updated_package = self._post(
             "/api/action/package_update",
             params={"id": package["id"], "tags": package["tags"]},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
         )["result"]
 
         # Test that the new vocab tags were added to the package.
@@ -999,7 +1021,7 @@ class TestVocabulary(object):
         self._post(
             "/api/action/package_update",
             params={"id": package["id"], "tags": tags},
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
         )
 
         # Test that the new tags appear in the list of tags.
@@ -1043,6 +1065,8 @@ class TestVocabulary(object):
         vocab = self.genre_vocab
         self._create_tag(self.sysadmin_user, "noise", vocab)
 
+        query = ckan.model.Session.query(ckan.model.ApiToken)
+        token = query.filter_by(user_id=self.sysadmin_user.id).first()
         for tag_id in ("missing", "", None):
             # Now try to delete the tag from the vocab.
             params = {"vocabulary_id": vocab["name"]}
@@ -1052,7 +1076,7 @@ class TestVocabulary(object):
                 "/api/action/tag_delete",
                 json=params,
                 extra_environ={
-                    "Authorization": str(self.sysadmin_user.apikey)
+                    "Authorization": str(token)
                 },
                 status=409,
             )
@@ -1077,7 +1101,7 @@ class TestVocabulary(object):
                 "/api/action/tag_delete",
                 json=params,
                 extra_environ={
-                    "Authorization": str(self.sysadmin_user.apikey)
+                    "Authorization": str(self.sysadmin_apitoken)
                 },
                 status=404,
             )
@@ -1102,7 +1126,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_delete",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=404,
         )
         assert response.json["success"] is False
@@ -1123,7 +1147,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_delete",
             json=params,
-            extra_environ={"Authorization": str(self.sysadmin_user.apikey)},
+            extra_environ={"Authorization": str(self.sysadmin_apitoken)},
             status=404,
         )
         assert response.json["success"] is False
@@ -1149,7 +1173,7 @@ class TestVocabulary(object):
                 "/api/action/tag_delete",
                 json=params,
                 extra_environ={
-                    "Authorization": str(self.sysadmin_user.apikey)
+                    "Authorization": str(self.sysadmin_apitoken)
                 },
                 status=404,
             )
@@ -1171,7 +1195,7 @@ class TestVocabulary(object):
                 "/api/action/tag_delete",
                 json=params,
                 extra_environ={
-                    "Authorization": str(self.sysadmin_user.apikey)
+                    "Authorization": str(self.sysadmin_apitoken)
                 },
                 status=404,
             )
@@ -1204,7 +1228,7 @@ class TestVocabulary(object):
         response = app.post(
             "/api/action/tag_delete",
             json=params,
-            extra_environ={"Authorization": str(self.normal_user.apikey)},
+            extra_environ={"Authorization": str(self.normal_user_apitoken)},
             status=403,
         )
         assert response.json["success"] is False

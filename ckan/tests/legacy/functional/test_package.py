@@ -2,7 +2,7 @@
 
 
 import pytest
-from six import string_types
+from six import string_types, ensure_str
 from ckan.common import config
 from difflib import unified_diff
 
@@ -10,6 +10,7 @@ from ckan.tests.legacy import url_for
 import ckan.tests.legacy as tests
 from ckan.tests.legacy.html_check import HtmlCheckMethods
 import ckan.model as model
+import ckan.tests.helpers as helpers
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic.action import get, update
 from ckan import plugins
@@ -342,6 +343,7 @@ class TestEdit(TestPackageForm):
         )
 
     def test_redirect_after_edit_using_config(self, app):
+        breakpoint()
         return_url = ""  # redirect comes from test.ini setting
         expected_redirect = config["package_edit_return_url"]
         self._check_redirect(
@@ -522,8 +524,10 @@ class TestResourceListing:
         CreateTestData.create()
         users = {}
         tester = model.User.by_name(u"tester")
+        data = helpers.call_action(u"api_token_create", context={'model': model,
+                                                                 'user': tester.name}, user=tester.name, name=u"first token")
         tests.call_action_api(
-            app, "organization_create", name="test_org_2", apikey=tester.apikey
+            app, "organization_create", name="test_org_2", apitoken=ensure_str(data['token'])
         )
 
         tests.call_action_api(
@@ -531,7 +535,7 @@ class TestResourceListing:
             "package_create",
             name="crimeandpunishment",
             owner_org="test_org_2",
-            apikey=tester.apikey,
+            apitoken=ensure_str(data['token']),
         )
 
     @pytest.fixture

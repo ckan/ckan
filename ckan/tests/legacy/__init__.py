@@ -348,7 +348,7 @@ class StatusCodes:
     STATUS_409_CONFLICT = 409
 
 
-def call_action_api(app, action, apikey=None, status=200, **kwargs):
+def call_action_api(app, action, apitoken=None, status=200, **kwargs):
     """POST an HTTP request to the CKAN API and return the result.
 
     Any additional keyword arguments that you pass to this function as **kwargs
@@ -356,7 +356,7 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
 
     Usage:
 
-        package_dict = post(app, 'package_create', apikey=apikey,
+        package_dict = post(app, 'package_create', apitoken=apitoken,
                 name='my_package')
         assert package_dict['name'] == 'my_package'
 
@@ -375,9 +375,9 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
     :param action: the action to post to, e.g. 'package_create'
     :type action: string
 
-    :param apikey: the API key to put in the Authorization header of the post
+    :param apitoken: the API token to put in the Authorization header of the post
         (optional, default: None)
-    :type apikey: string
+    :type apitoken: string
 
     :param status: the HTTP status code expected in the response from the CKAN
         API, e.g. 403, if a different status code is received an exception will
@@ -391,10 +391,11 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
     :rtype: dictionary
 
     """
+    breakpoint()
     response = app.post(
         "/api/action/{0}".format(action),
         json=kwargs,
-        extra_environ={"Authorization": str(apikey)},
+        extra_environ={"Authorization": str(apitoken)},
         status=status,
     )
     assert (

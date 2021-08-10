@@ -15,6 +15,7 @@ test_dashboard.py.
 import datetime
 import ckan
 import pytest
+import ckan.tests.helpers as helpers
 from ckan.tests.legacy import (
     are_foreign_keys_supported,
     CreateTestData,
@@ -40,22 +41,23 @@ def follow(func):
     """
 
     def wrapped_func(
-        app, follower_id, apikey, object_id, object_arg, sysadmin_apikey
+        app, follower_id, apitoken, object_id, object_arg, sysadmin_apitoken
     ):
         followee_count_before = call_action_api(
             app, "followee_count", id=follower_id
         )
         followees_before = call_action_api(
-            app, "followee_list", id=follower_id, apikey=sysadmin_apikey
+            app, "followee_list", id=follower_id, apitoken=sysadmin_apitoken
         )
 
-        func(app, follower_id, apikey, object_id, object_arg, sysadmin_apikey)
+        func(app, follower_id, apitoken, object_id,
+             object_arg, sysadmin_apitoken)
 
         followee_count_after = call_action_api(
             app, "followee_count", id=follower_id
         )
         followees_after = call_action_api(
-            app, "followee_list", id=follower_id, apikey=sysadmin_apikey
+            app, "followee_list", id=follower_id, apitoken=sysadmin_apitoken
         )
 
         assert followee_count_after == followee_count_before + 1, (
@@ -86,12 +88,12 @@ def follow(func):
 
 @follow
 def follow_user(
-    app, follower_id, apikey, object_id, object_arg, sysadmin_apikey
+    app, follower_id, apitoken, object_id, object_arg, sysadmin_apitoken
 ):
     """Test a user starting to follow another user via the API.
 
     :param follower_id: id of the user that will be following something.
-    :param apikey: API key of the user that will be following something.
+    :param apitoken: API token of the user that will be following something.
     :param object_id: id of the user that will be followed.
     :param object_arg: the argument to pass to follow_user as the id of
         the object that will be followed, could be the object's id or name.
@@ -109,14 +111,14 @@ def follow_user(
 
     # Check that the user is not already following the object.
     result = call_action_api(
-        app, "am_following_user", id=object_id, apikey=apikey
+        app, "am_following_user", id=object_id, apitoken=apitoken
     )
     assert result is False
 
     # Make the  user start following the object.
     before = datetime.datetime.now()
     follower = call_action_api(
-        app, "follow_user", id=object_arg, apikey=apikey
+        app, "follow_user", id=object_arg, apitoken=apitoken
     )
     after = datetime.datetime.now()
     assert follower["follower_id"] == follower_id
@@ -126,13 +128,13 @@ def follow_user(
 
     # Check that am_following_user now returns True.
     result = call_action_api(
-        app, "am_following_user", id=object_id, apikey=apikey
+        app, "am_following_user", id=object_id, apitoken=apitoken
     )
     assert result is True
 
     # Check that the follower appears in the object's list of followers.
     followers = call_action_api(
-        app, "user_follower_list", id=object_id, apikey=sysadmin_apikey
+        app, "user_follower_list", id=object_id, apitoken=sysadmin_apitoken
     )
     assert len(followers) == follower_count_before + 1
     assert (
@@ -148,7 +150,7 @@ def follow_user(
 
     # Check that the object appears in the follower's list of followees.
     followees = call_action_api(
-        app, "user_followee_list", apikey=sysadmin_apikey, id=follower_id
+        app, "user_followee_list", apitoken=sysadmin_apitoken, id=follower_id
     )
     assert len(followees) == followee_count_before + 1
     assert (
@@ -173,12 +175,12 @@ def follow_user(
 
 @follow
 def follow_dataset(
-    app, follower_id, apikey, dataset_id, dataset_arg, sysadmin_apikey
+    app, follower_id, apitoken, dataset_id, dataset_arg, sysadmin_apitoken
 ):
     """Test a user starting to follow a dataset via the API.
 
     :param follower_id: id of the user.
-    :param apikey: API key of the user.
+    :param apitoken: API token of the user.
     :param dataset_id: id of the dataset.
     :param dataset_arg: the argument to pass to follow_dataset as the id of
         the dataset that will be followed, could be the dataset's id or name.
@@ -196,14 +198,14 @@ def follow_dataset(
 
     # Check that the user is not already following the dataset.
     result = call_action_api(
-        app, "am_following_dataset", id=dataset_id, apikey=apikey
+        app, "am_following_dataset", id=dataset_id, apitoken=apitoken
     )
     assert result is False
 
     # Make the  user start following the dataset.
     before = datetime.datetime.now()
     follower = call_action_api(
-        app, "follow_dataset", id=dataset_arg, apikey=apikey
+        app, "follow_dataset", id=dataset_arg, apitoken=apitoken
     )
     after = datetime.datetime.now()
     assert follower["follower_id"] == follower_id
@@ -213,13 +215,13 @@ def follow_dataset(
 
     # Check that am_following_dataset now returns True.
     result = call_action_api(
-        app, "am_following_dataset", id=dataset_id, apikey=apikey
+        app, "am_following_dataset", id=dataset_id, apitoken=apitoken
     )
     assert result is True
 
     # Check that the follower appears in the dataset's list of followers.
     followers = call_action_api(
-        app, "dataset_follower_list", id=dataset_id, apikey=sysadmin_apikey
+        app, "dataset_follower_list", id=dataset_id, apitoken=sysadmin_apitoken
     )
     assert len(followers) == follower_count_before + 1
     assert (
@@ -235,7 +237,7 @@ def follow_dataset(
 
     # Check that the dataset appears in the follower's list of followees.
     followees = call_action_api(
-        app, "dataset_followee_list", apikey=sysadmin_apikey, id=follower_id
+        app, "dataset_followee_list", apitoken=sysadmin_apitoken, id=follower_id
     )
     assert len(followees) == followee_count_before + 1
     assert (
@@ -263,11 +265,11 @@ def follow_dataset(
 
 
 @follow
-def follow_group(app, user_id, apikey, group_id, group_arg, sysadmin_apikey):
+def follow_group(app, user_id, apitoken, group_id, group_arg, sysadmin_apitoken):
     """Test a user starting to follow a group via the API.
 
     :param user_id: id of the user
-    :param apikey: API key of the user
+    :param apitoken: API token of the user
     :param group_id: id of the group
     :param group_arg: the argument to pass to follow_group as the id of
         the group that will be followed, could be the group's id or name
@@ -285,13 +287,14 @@ def follow_group(app, user_id, apikey, group_id, group_arg, sysadmin_apikey):
 
     # Check that the user is not already following the group.
     result = call_action_api(
-        app, "am_following_group", id=group_id, apikey=apikey
+        app, "am_following_group", id=group_id, apitoken=apitoken
     )
     assert result is False
 
     # Make the  user start following the group.
     before = datetime.datetime.now()
-    follower = call_action_api(app, "follow_group", id=group_id, apikey=apikey)
+    follower = call_action_api(
+        app, "follow_group", id=group_id, apitoken=apitoken)
     after = datetime.datetime.now()
     assert follower["follower_id"] == user_id
     assert follower["object_id"] == group_id
@@ -300,13 +303,13 @@ def follow_group(app, user_id, apikey, group_id, group_arg, sysadmin_apikey):
 
     # Check that am_following_group now returns True.
     result = call_action_api(
-        app, "am_following_group", id=group_id, apikey=apikey
+        app, "am_following_group", id=group_id, apitoken=apitoken
     )
     assert result is True
 
     # Check that the user appears in the group's list of followers.
     followers = call_action_api(
-        app, "group_follower_list", id=group_id, apikey=sysadmin_apikey
+        app, "group_follower_list", id=group_id, apitoken=sysadmin_apitoken
     )
     assert len(followers) == follower_count_before + 1
     assert (
@@ -316,7 +319,7 @@ def follow_group(app, user_id, apikey, group_id, group_arg, sysadmin_apikey):
 
     # Check that the group appears in the user's list of followees.
     followees = call_action_api(
-        app, "group_followee_list", apikey=sysadmin_apikey, id=user_id
+        app, "group_followee_list", apitoken=sysadmin_apitoken, id=user_id
     )
     assert len(followees) == followee_count_before + 1
     assert (
@@ -344,24 +347,25 @@ class TestFollow(object):
     def initial_data(self, clean_db, app):
         CreateTestData.create()
         self.app = app
+        query = ckan.model.Session.query(ckan.model.ApiToken)
         self.testsysadmin = {
             "id": ckan.model.User.get("testsysadmin").id,
-            "apikey": ckan.model.User.get("testsysadmin").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("testsysadmin").id).first().id,
             "name": ckan.model.User.get("testsysadmin").name,
         }
         self.annafan = {
             "id": ckan.model.User.get("annafan").id,
-            "apikey": ckan.model.User.get("annafan").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("annafan").id).first().id,
             "name": ckan.model.User.get("annafan").name,
         }
         self.russianfan = {
             "id": ckan.model.User.get("russianfan").id,
-            "apikey": ckan.model.User.get("russianfan").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("russianfan").id).first().id,
             "name": ckan.model.User.get("russianfan").name,
         }
         self.joeadmin = {
             "id": ckan.model.User.get("joeadmin").id,
-            "apikey": ckan.model.User.get("joeadmin").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("joeadmin").id).first().id,
             "name": ckan.model.User.get("joeadmin").name,
         }
         self.warandpeace = {
@@ -392,7 +396,7 @@ class TestFollow(object):
             "user_follower_list",
             id=self.russianfan["id"],
             status=403,
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
         )
 
         # def test_00_sysadmin_can_get_user_follower_list(self):
@@ -401,7 +405,7 @@ class TestFollow(object):
             "user_follower_list",
             id=self.russianfan["id"],
             status=200,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
 
         # def test_00_visitor_cannot_get_dataset_follower_list(self):
@@ -415,7 +419,7 @@ class TestFollow(object):
             "dataset_follower_list",
             id="warandpeace",
             status=403,
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
         )
 
         # def test_00_sysadmin_can_get_dataset_follower_list(self):
@@ -424,7 +428,7 @@ class TestFollow(object):
             "dataset_follower_list",
             id="warandpeace",
             status=200,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
 
         # def test_00_visitor_cannot_get_group_follower_list(self):
@@ -436,7 +440,7 @@ class TestFollow(object):
             "group_follower_list",
             id="roger",
             status=403,
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
         )
 
         # def test_00_sysadmin_can_get_group_follower_list(self):
@@ -445,7 +449,7 @@ class TestFollow(object):
             "group_follower_list",
             id="roger",
             status=200,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
 
         # def test_00_visitor_cannot_get_followee_list(self):
@@ -459,7 +463,7 @@ class TestFollow(object):
             "followee_list",
             id=self.russianfan["id"],
             status=403,
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
         )
 
         # def test_00_sysadmin_can_get_followee_list(self):
@@ -468,7 +472,7 @@ class TestFollow(object):
             "followee_list",
             id=self.russianfan["id"],
             status=200,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
 
         # def test_00_visitor_cannot_get_user_followee_list(self):
@@ -484,7 +488,7 @@ class TestFollow(object):
             "user_followee_list",
             id=self.russianfan["id"],
             status=403,
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
         )
 
         # def test_00_sysadmin_can_get_user_followee_list(self):
@@ -494,7 +498,7 @@ class TestFollow(object):
             "user_followee_list",
             id=self.russianfan["id"],
             status=200,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
 
         # def test_00_user_can_get_own_user_followee_list(self):
@@ -504,7 +508,7 @@ class TestFollow(object):
             "user_followee_list",
             id=self.russianfan["id"],
             status=200,
-            apikey=self.russianfan["apikey"],
+            apitoken=self.russianfan["apitoken"],
         )
 
         # def test_00_visitor_cannot_get_dataset_followee_list(self):
@@ -520,7 +524,7 @@ class TestFollow(object):
             "dataset_followee_list",
             id="russianfan",
             status=403,
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
         )
 
         # def test_00_sysadmin_can_get_dataset_followee_list(self):
@@ -530,7 +534,7 @@ class TestFollow(object):
             "dataset_followee_list",
             id="russianfan",
             status=200,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
 
         # def test_00_user_can_get_own_dataset_followee_list(self):
@@ -540,7 +544,7 @@ class TestFollow(object):
             "dataset_followee_list",
             id=self.russianfan["id"],
             status=200,
-            apikey=self.russianfan["apikey"],
+            apitoken=self.russianfan["apitoken"],
         )
 
         # def test_00_visitor_cannot_get_group_followee_list(self):
@@ -554,7 +558,7 @@ class TestFollow(object):
             "group_followee_list",
             id="roger",
             status=403,
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
         )
 
         # def test_00_sysadmin_can_get_group_followee_list(self):
@@ -564,7 +568,7 @@ class TestFollow(object):
             "group_followee_list",
             id=self.annafan["id"],
             status=200,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
 
         # def test_00_user_can_get_own_group_followee_list(self):
@@ -574,55 +578,55 @@ class TestFollow(object):
             "group_followee_list",
             id=self.russianfan["id"],
             status=200,
-            apikey=self.russianfan["apikey"],
+            apitoken=self.russianfan["apitoken"],
         )
 
-    def test_01_user_follow_user_bad_apikey(self, app):
-        for apikey in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
+    def test_01_user_follow_user_bad_apitoken(self, app):
+        for apitoken in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
             error = call_action_api(
                 app,
                 "follow_user",
                 id=self.russianfan["id"],
-                apikey=apikey,
+                apitoken=apitoken,
                 status=403,
             )
             assert error["__type"] == "Authorization Error"
 
-        # def test_01_user_follow_dataset_bad_apikey(self):
-        for apikey in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
+        # def test_01_user_follow_dataset_bad_apitoken(self):
+        for apitoken in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
             error = call_action_api(
                 app,
                 "follow_dataset",
                 id=self.warandpeace["id"],
-                apikey=apikey,
+                apitoken=apitoken,
                 status=403,
             )
             assert error["__type"] == "Authorization Error"
 
-        # def test_01_user_follow_group_bad_apikey(self):
-        for apikey in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
+        # def test_01_user_follow_group_bad_apitoken(self):
+        for apitoken in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
             error = call_action_api(
                 app,
                 "follow_group",
                 id=self.rogers_group["id"],
-                apikey=apikey,
+                apitoken=apitoken,
                 status=403,
             )
             assert error["__type"] == "Authorization Error"
 
-        # def test_01_user_follow_user_missing_apikey(self):
+        # def test_01_user_follow_user_missing_apitoken(self):
         error = call_action_api(
             app, "follow_user", id=self.russianfan["id"], status=403
         )
         assert error["__type"] == "Authorization Error"
 
-        # def test_01_user_follow_dataset_missing_apikey(self):
+        # def test_01_user_follow_dataset_missing_apitoken(self):
         error = call_action_api(
             app, "follow_dataset", id=self.warandpeace["id"], status=403
         )
         assert error["__type"] == "Authorization Error"
 
-        # def test_01_user_follow_group_missing_apikey(self):
+        # def test_01_user_follow_group_missing_apitoken(self):
         error = call_action_api(
             app, "follow_group", id=self.rogers_group["id"], status=403
         )
@@ -635,7 +639,7 @@ class TestFollow(object):
                     app,
                     action,
                     id=object_id,
-                    apikey=self.annafan["apikey"],
+                    apitoken=self.annafan["apitoken"],
                     status=409,
                 )
                 assert error["id"][0].startswith("Not found")
@@ -647,7 +651,7 @@ class TestFollow(object):
                     app,
                     action,
                     id=object_id,
-                    apikey=self.annafan["apikey"],
+                    apitoken=self.annafan["apitoken"],
                     status=409,
                 )
                 assert error["id"] == ["Missing value"]
@@ -655,7 +659,7 @@ class TestFollow(object):
         # def test_01_follow_missing_object_id(self):
         for action in ("follow_user", "follow_dataset", "follow_group"):
             error = call_action_api(
-                app, action, apikey=self.annafan["apikey"], status=409
+                app, action, apitoken=self.annafan["apitoken"], status=409
             )
             assert error["id"] == ["Missing value"]
 
@@ -663,60 +667,60 @@ class TestFollow(object):
         follow_user(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.russianfan["id"],
             self.russianfan["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         # def test_02_user_follow_dataset_by_id(self):
         follow_dataset(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.warandpeace["id"],
             self.warandpeace["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         # def test_02_user_follow_group_by_id(self):
         follow_group(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.rogers_group["id"],
             self.rogers_group["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         # def test_02_user_follow_user_by_name(self):
         follow_user(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.testsysadmin["id"],
             self.testsysadmin["name"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         # def test_02_user_follow_dataset_by_name(self):
         follow_dataset(
             app,
             self.joeadmin["id"],
-            self.joeadmin["apikey"],
+            self.joeadmin["apitoken"],
             self.warandpeace["id"],
             self.warandpeace["name"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         # def test_02_user_follow_group_by_name(self):
         follow_group(
             app,
             self.joeadmin["id"],
-            self.joeadmin["apikey"],
+            self.joeadmin["apitoken"],
             self.rogers_group["id"],
             self.rogers_group["name"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         # def test_03_user_follow_user_already_following(self):
@@ -730,7 +734,7 @@ class TestFollow(object):
                 app,
                 "follow_user",
                 id=object_id,
-                apikey=self.annafan["apikey"],
+                apitoken=self.annafan["apitoken"],
                 status=409,
             )
             assert error["message"].startswith("You are already following ")
@@ -741,7 +745,7 @@ class TestFollow(object):
                 app,
                 "follow_dataset",
                 id=object_id,
-                apikey=self.annafan["apikey"],
+                apitoken=self.annafan["apitoken"],
                 status=409,
             )
             assert error["message"].startswith("You are already following ")
@@ -752,7 +756,7 @@ class TestFollow(object):
                 app,
                 "follow_group",
                 id=group_id,
-                apikey=self.annafan["apikey"],
+                apitoken=self.annafan["apitoken"],
                 status=409,
             )
             assert error["message"].startswith("You are already following ")
@@ -761,7 +765,7 @@ class TestFollow(object):
         error = call_action_api(
             app,
             "follow_user",
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
             status=409,
             id=self.annafan["id"],
         )
@@ -789,13 +793,13 @@ class TestFollow(object):
                 action,
                 status=409,
                 id=object_id,
-                apikey=self.testsysadmin["apikey"],
+                apitoken=self.testsysadmin["apitoken"],
             )
             assert error["id"]
 
     def _followee_list_missing_id(self, action):
         error = call_action_api(
-            self.app, action, status=409, apikey=self.testsysadmin["apikey"]
+            self.app, action, status=409, apitoken=self.testsysadmin["apitoken"]
         )
         assert error["id"] == ["Missing value"]
 
@@ -804,7 +808,7 @@ class TestFollow(object):
             self.app,
             action,
             id=self.russianfan["id"],
-            apikey=self.russianfan["apikey"],
+            apitoken=self.russianfan["apitoken"],
         )
         assert followees == []
 
@@ -893,7 +897,7 @@ class TestFollow(object):
                     action,
                     status=409,
                     id=object_id,
-                    apikey=self.testsysadmin["apikey"],
+                    apitoken=self.testsysadmin["apitoken"],
                 )
                 assert error["id"]
 
@@ -904,7 +908,7 @@ class TestFollow(object):
             "group_follower_list",
         ):
             error = call_action_api(
-                app, action, status=409, apikey=self.testsysadmin["apikey"]
+                app, action, status=409, apitoken=self.testsysadmin["apitoken"]
             )
             assert error["id"] == ["Missing value"]
 
@@ -913,7 +917,7 @@ class TestFollow(object):
             app,
             "user_follower_list",
             id=self.annafan["id"],
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert followers == []
 
@@ -922,7 +926,7 @@ class TestFollow(object):
             app,
             "dataset_follower_list",
             id=self.annakarenina["id"],
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert followers == []
 
@@ -931,7 +935,7 @@ class TestFollow(object):
             app,
             "group_follower_list",
             id=self.davids_group["id"],
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert followers == []
 
@@ -981,7 +985,7 @@ class TestFollow(object):
                 error = call_action_api(
                     app,
                     action,
-                    apikey=self.annafan["apikey"],
+                    apitoken=self.annafan["apitoken"],
                     status=409,
                     id=object_id,
                 )
@@ -996,64 +1000,64 @@ class TestFollow(object):
             for id in ("missing", None, ""):
                 if id == "missing":
                     error = call_action_api(
-                        app, action, apikey=self.annafan["apikey"], status=409
+                        app, action, apitoken=self.annafan["apitoken"], status=409
                     )
                 else:
                     error = call_action_api(
                         app,
                         action,
-                        apikey=self.annafan["apikey"],
+                        apitoken=self.annafan["apitoken"],
                         status=409,
                         id=id,
                     )
                 assert error["id"] == [u"Missing value"]
 
-        # def test_04_am_following_dataset_bad_apikey(self):
-        for apikey in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
+        # def test_04_am_following_dataset_bad_apitoken(self):
+        for apitoken in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
             error = call_action_api(
                 app,
                 "am_following_dataset",
-                apikey=apikey,
+                apitoken=apitoken,
                 status=403,
                 id=self.warandpeace["id"],
             )
             assert error["message"] == "Access denied"
 
-        # def test_04_am_following_dataset_missing_apikey(self):
+        # def test_04_am_following_dataset_missing_apitoken(self):
         error = call_action_api(
             app, "am_following_dataset", status=403, id=self.warandpeace["id"]
         )
         assert error["message"] == "Access denied"
 
-        # def test_04_am_following_user_bad_apikey(self):
-        for apikey in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
+        # def test_04_am_following_user_bad_apitoken(self):
+        for apitoken in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
             error = call_action_api(
                 app,
                 "am_following_user",
-                apikey=apikey,
+                apitoken=apitoken,
                 status=403,
                 id=self.annafan["id"],
             )
             assert error["message"] == "Access denied"
 
-        # def test_04_am_following_user_missing_apikey(self):
+        # def test_04_am_following_user_missing_apitoken(self):
         error = call_action_api(
             app, "am_following_user", status=403, id=self.annafan["id"]
         )
         assert error["message"] == "Access denied"
 
-        # def test_04_am_following_group_bad_apikey(self):
-        for apikey in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
+        # def test_04_am_following_group_bad_apitoken(self):
+        for apitoken in ("bad api key", "", "     ", "None", "3", "35.7", "xxx"):
             error = call_action_api(
                 app,
                 "am_following_group",
-                apikey=apikey,
+                apitoken=apitoken,
                 status=403,
                 id=self.rogers_group["id"],
             )
             assert error["message"] == "Access denied"
 
-        # def test_04_am_following_group_missing_apikey(self):
+        # def test_04_am_following_group_missing_apitoken(self):
         error = call_action_api(
             app, "am_following_group", status=403, id=self.rogers_group["id"]
         )
@@ -1067,29 +1071,30 @@ class TestFollowerDelete(object):
     def initial_data(self, app, clean_db):
         CreateTestData.create()
         self.app = app
+        query = ckan.model.Session.query(ckan.model.ApiToken)
         self.tester = {
             "id": ckan.model.User.get("tester").id,
-            "apikey": ckan.model.User.get("tester").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("joeadmin").id).first().id,
             "name": ckan.model.User.get("tester").name,
         }
         self.testsysadmin = {
             "id": ckan.model.User.get("testsysadmin").id,
-            "apikey": ckan.model.User.get("testsysadmin").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("testsysadmin").id).first().id,
             "name": ckan.model.User.get("testsysadmin").name,
         }
         self.annafan = {
             "id": ckan.model.User.get("annafan").id,
-            "apikey": ckan.model.User.get("annafan").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("annafan").id).first().id,
             "name": ckan.model.User.get("annafan").name,
         }
         self.russianfan = {
             "id": ckan.model.User.get("russianfan").id,
-            "apikey": ckan.model.User.get("russianfan").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("russianfan").id).first().id,
             "name": ckan.model.User.get("russianfan").name,
         }
         self.joeadmin = {
             "id": ckan.model.User.get("joeadmin").id,
-            "apikey": ckan.model.User.get("joeadmin").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("joeadmin").id).first().id,
             "name": ckan.model.User.get("joeadmin").name,
         }
         self.warandpeace = {
@@ -1112,82 +1117,82 @@ class TestFollowerDelete(object):
         follow_user(
             app,
             self.testsysadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
             self.joeadmin["id"],
             self.joeadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_user(
             app,
             self.tester["id"],
-            self.tester["apikey"],
+            self.tester["apitoken"],
             self.joeadmin["id"],
             self.joeadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_user(
             app,
             self.russianfan["id"],
-            self.russianfan["apikey"],
+            self.russianfan["apitoken"],
             self.joeadmin["id"],
             self.joeadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_user(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.joeadmin["id"],
             self.joeadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_user(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.tester["id"],
             self.tester["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_dataset(
             app,
             self.testsysadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
             self.warandpeace["id"],
             self.warandpeace["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_dataset(
             app,
             self.tester["id"],
-            self.tester["apikey"],
+            self.tester["apitoken"],
             self.warandpeace["id"],
             self.warandpeace["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_dataset(
             app,
             self.russianfan["id"],
-            self.russianfan["apikey"],
+            self.russianfan["apitoken"],
             self.warandpeace["id"],
             self.warandpeace["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_dataset(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.warandpeace["id"],
             self.warandpeace["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_group(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.davids_group["id"],
             self.davids_group["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
     def test_01_unfollow_user_not_exists(self, app):
@@ -1198,7 +1203,7 @@ class TestFollowerDelete(object):
         error = call_action_api(
             app,
             "unfollow_user",
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
             status=404,
             id=self.russianfan["id"],
         )
@@ -1212,7 +1217,7 @@ class TestFollowerDelete(object):
         error = call_action_api(
             app,
             "unfollow_dataset",
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
             status=404,
             id=self.annakarenina["id"],
         )
@@ -1226,19 +1231,19 @@ class TestFollowerDelete(object):
         error = call_action_api(
             app,
             "unfollow_group",
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
             status=404,
             id=self.rogers_group["id"],
         )
         assert error["message"].startswith("Not found: You are not following")
 
-    def test_01_unfollow_bad_apikey(self, app):
+    def test_01_unfollow_bad_apitoken(self, app):
         """Test the error response when a user tries to unfollow something
         but provides a bad API key.
 
         """
         for action in ("unfollow_user", "unfollow_dataset", "unfollow_group"):
-            for apikey in (
+            for apitoken in (
                 "bad api key",
                 "",
                 "     ",
@@ -1250,13 +1255,13 @@ class TestFollowerDelete(object):
                 error = call_action_api(
                     app,
                     action,
-                    apikey=apikey,
+                    apitoken=apitoken,
                     status=403,
                     id=self.joeadmin["id"],
                 )
                 assert error["__type"] == "Authorization Error"
 
-    def test_01_unfollow_missing_apikey(self, app):
+    def test_01_unfollow_missing_apitoken(self, app):
         """Test error response when calling unfollow_* without api key."""
         for action in ("unfollow_user", "unfollow_dataset", "unfollow_group"):
             error = call_action_api(
@@ -1271,7 +1276,7 @@ class TestFollowerDelete(object):
                 error = call_action_api(
                     app,
                     action,
-                    apikey=self.annafan["apikey"],
+                    apitoken=self.annafan["apitoken"],
                     status=409,
                     id=object_id,
                 )
@@ -1282,23 +1287,23 @@ class TestFollowerDelete(object):
             for id in ("missing", None, ""):
                 if id == "missing":
                     error = call_action_api(
-                        app, action, apikey=self.annafan["apikey"], status=409
+                        app, action, apitoken=self.annafan["apitoken"], status=409
                     )
                 else:
                     error = call_action_api(
                         app,
                         action,
-                        apikey=self.annafan["apikey"],
+                        apitoken=self.annafan["apitoken"],
                         status=409,
                         id=id,
                     )
                 assert error["id"] == [u"Missing value"]
 
-    def _unfollow_user(self, follower_id, apikey, object_id, object_arg):
+    def _unfollow_user(self, follower_id, apitoken, object_id, object_arg):
         """Test a user unfollowing a user via the API.
 
         :param follower_id: id of the follower.
-        :param apikey: API key of the follower.
+        :param apitoken: API token of the follower.
         :param object_id: id of the object to unfollow.
         :param object_arg: the argument to pass to unfollow_user as the id of
             the object to unfollow, could be the object's id or name.
@@ -1317,18 +1322,18 @@ class TestFollowerDelete(object):
 
         # Check that the user is following the object.
         am_following = call_action_api(
-            self.app, "am_following_user", apikey=apikey, id=object_id
+            self.app, "am_following_user", apitoken=apitoken, id=object_id
         )
         assert am_following is True
 
         # Make the user unfollow the object.
         call_action_api(
-            self.app, "unfollow_user", apikey=apikey, id=object_arg
+            self.app, "unfollow_user", apitoken=apitoken, id=object_arg
         )
 
         # Check that am_following_user now returns False.
         am_following = call_action_api(
-            self.app, "am_following_user", apikey=apikey, id=object_id
+            self.app, "am_following_user", apitoken=apitoken, id=object_id
         )
         assert am_following is False
 
@@ -1337,7 +1342,7 @@ class TestFollowerDelete(object):
             self.app,
             "user_follower_list",
             id=object_id,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert (
             len(
@@ -1359,7 +1364,7 @@ class TestFollowerDelete(object):
         # Check that the user doesn't appear in the subject's list of
         # followees.
         followees = call_action_api(
-            self.app, "followee_list", id=follower_id, apikey=apikey
+            self.app, "followee_list", id=follower_id, apitoken=apitoken
         )
         assert (
             len(
@@ -1372,7 +1377,7 @@ class TestFollowerDelete(object):
             == 0
         )
         followees = call_action_api(
-            self.app, "user_followee_list", id=follower_id, apikey=apikey
+            self.app, "user_followee_list", id=follower_id, apitoken=apitoken
         )
         assert (
             len(
@@ -1395,11 +1400,11 @@ class TestFollowerDelete(object):
         )
         assert count_after == user_followee_count_before - 1
 
-    def _unfollow_dataset(self, user_id, apikey, dataset_id, dataset_arg):
+    def _unfollow_dataset(self, user_id, apitoken, dataset_id, dataset_arg):
         """Test a user unfollowing a dataset via the API.
 
         :param user_id: id of the follower.
-        :param apikey: API key of the follower.
+        :param apitoken: API token of the follower.
         :param dataset_id: id of the object to unfollow.
         :param dataset_arg: the argument to pass to unfollow_dataset as the id
             of the object to unfollow, could be the object's id or name.
@@ -1418,18 +1423,18 @@ class TestFollowerDelete(object):
 
         # Check that the user is following the dataset.
         am_following = call_action_api(
-            self.app, "am_following_dataset", apikey=apikey, id=dataset_id
+            self.app, "am_following_dataset", apitoken=apitoken, id=dataset_id
         )
         assert am_following is True
 
         # Make the user unfollow the dataset.
         call_action_api(
-            self.app, "unfollow_dataset", apikey=apikey, id=dataset_arg
+            self.app, "unfollow_dataset", apitoken=apitoken, id=dataset_arg
         )
 
         # Check that am_following_dataset now returns False.
         am_following = call_action_api(
-            self.app, "am_following_dataset", apikey=apikey, id=dataset_id
+            self.app, "am_following_dataset", apitoken=apitoken, id=dataset_id
         )
         assert am_following is False
 
@@ -1439,7 +1444,7 @@ class TestFollowerDelete(object):
             self.app,
             "dataset_follower_list",
             id=dataset_id,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert (
             len(
@@ -1461,7 +1466,7 @@ class TestFollowerDelete(object):
         # Check that the dataset doesn't appear in the user's list of
         # followees.
         followees = call_action_api(
-            self.app, "followee_list", id=user_id, apikey=apikey
+            self.app, "followee_list", id=user_id, apitoken=apitoken
         )
         assert (
             len(
@@ -1474,7 +1479,7 @@ class TestFollowerDelete(object):
             == 0
         )
         followees = call_action_api(
-            self.app, "dataset_followee_list", id=user_id, apikey=apikey
+            self.app, "dataset_followee_list", id=user_id, apitoken=apitoken
         )
         assert (
             len(
@@ -1495,11 +1500,11 @@ class TestFollowerDelete(object):
         )
         assert count_after == dataset_followee_count_before - 1
 
-    def _unfollow_group(self, user_id, apikey, group_id, group_arg):
+    def _unfollow_group(self, user_id, apitoken, group_id, group_arg):
         """Test a user unfollowing a group via the API.
 
         :param user_id: id of the user
-        :param apikey: API key of the user
+        :param apitoken: API token of the user
         :param group_id: id of the group
         :param group_arg: the argument to pass to unfollow_group as the id
             of the group, could be the group's id or name.
@@ -1518,18 +1523,18 @@ class TestFollowerDelete(object):
 
         # Check that the user is following the group.
         am_following = call_action_api(
-            self.app, "am_following_group", apikey=apikey, id=group_id
+            self.app, "am_following_group", apitoken=apitoken, id=group_id
         )
         assert am_following is True
 
         # Make the user unfollow the group.
         call_action_api(
-            self.app, "unfollow_group", apikey=apikey, id=group_arg
+            self.app, "unfollow_group", apitoken=apitoken, id=group_arg
         )
 
         # Check that am_following_group now returns False.
         am_following = call_action_api(
-            self.app, "am_following_group", apikey=apikey, id=group_id
+            self.app, "am_following_group", apitoken=apitoken, id=group_id
         )
         assert am_following is False
 
@@ -1539,7 +1544,7 @@ class TestFollowerDelete(object):
             self.app,
             "group_follower_list",
             id=group_id,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert (
             len(
@@ -1561,7 +1566,7 @@ class TestFollowerDelete(object):
         # Check that the group doesn't appear in the user's list of
         # followees.
         followees = call_action_api(
-            self.app, "followee_list", id=user_id, apikey=apikey
+            self.app, "followee_list", id=user_id, apitoken=apitoken
         )
         assert (
             len(
@@ -1577,7 +1582,7 @@ class TestFollowerDelete(object):
             self.app,
             "group_followee_list",
             id=user_id,
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert (
             len(
@@ -1601,19 +1606,19 @@ class TestFollowerDelete(object):
     def test_02_follower_delete_by_id(self):
         self._unfollow_user(
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.joeadmin["id"],
             self.joeadmin["id"],
         )
         self._unfollow_dataset(
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.warandpeace["id"],
             self.warandpeace["id"],
         )
         self._unfollow_group(
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.davids_group["id"],
             self.davids_group["id"],
         )
@@ -1626,29 +1631,30 @@ class TestFollowerCascade(object):
     def initial_data(self, clean_db, app):
         CreateTestData.create()
         self.app = app
+        query = ckan.model.Session.query(ckan.model.ApiToken)
         self.tester = {
             "id": ckan.model.User.get("tester").id,
-            "apikey": ckan.model.User.get("tester").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("tester").id).first().id,
             "name": ckan.model.User.get("tester").name,
         }
         self.testsysadmin = {
             "id": ckan.model.User.get("testsysadmin").id,
-            "apikey": ckan.model.User.get("testsysadmin").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("testsysadmin").id).first().id,
             "name": ckan.model.User.get("testsysadmin").name,
         }
         self.annafan = {
             "id": ckan.model.User.get("annafan").id,
-            "apikey": ckan.model.User.get("annafan").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("annafan").id).first().id,
             "name": ckan.model.User.get("annafan").name,
         }
         self.russianfan = {
             "id": ckan.model.User.get("russianfan").id,
-            "apikey": ckan.model.User.get("russianfan").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("russianfan").id).first().id,
             "name": ckan.model.User.get("russianfan").name,
         }
         self.joeadmin = {
             "id": ckan.model.User.get("joeadmin").id,
-            "apikey": ckan.model.User.get("joeadmin").apikey,
+            "apitoken": query.filter_by(user_id=ckan.model.User.get("joeadmin").id).first().id,
             "name": ckan.model.User.get("joeadmin").name,
         }
         self.warandpeace = {
@@ -1671,80 +1677,80 @@ class TestFollowerCascade(object):
         follow_user(
             app,
             self.joeadmin["id"],
-            self.joeadmin["apikey"],
+            self.joeadmin["apitoken"],
             self.testsysadmin["id"],
             self.testsysadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         follow_user(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.testsysadmin["id"],
             self.testsysadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_user(
             app,
             self.russianfan["id"],
-            self.russianfan["apikey"],
+            self.russianfan["apitoken"],
             self.testsysadmin["id"],
             self.testsysadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         follow_dataset(
             app,
             self.joeadmin["id"],
-            self.joeadmin["apikey"],
+            self.joeadmin["apitoken"],
             self.annakarenina["id"],
             self.annakarenina["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         follow_dataset(
             app,
             self.annafan["id"],
-            self.annafan["apikey"],
+            self.annafan["apitoken"],
             self.annakarenina["id"],
             self.annakarenina["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
         follow_dataset(
             app,
             self.russianfan["id"],
-            self.russianfan["apikey"],
+            self.russianfan["apitoken"],
             self.annakarenina["id"],
             self.annakarenina["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         follow_user(
             app,
             self.tester["id"],
-            self.tester["apikey"],
+            self.tester["apitoken"],
             self.joeadmin["id"],
             self.joeadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         follow_dataset(
             app,
             self.testsysadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
             self.warandpeace["id"],
             self.warandpeace["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         follow_group(
             app,
             self.testsysadmin["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
             self.davids_group["id"],
             self.davids_group["id"],
-            self.testsysadmin["apikey"],
+            self.testsysadmin["apitoken"],
         )
 
         session = ckan.model.Session()
@@ -1769,7 +1775,7 @@ class TestFollowerCascade(object):
             "user_follower_list",
             status=409,
             id="joeadmin",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert "id" in error
 
@@ -1785,7 +1791,7 @@ class TestFollowerCascade(object):
                 action,
                 status=409,
                 id="joeadmin",
-                apikey=self.testsysadmin["apikey"],
+                apitoken=self.testsysadmin["apitoken"],
             )
             assert "id" in error
 
@@ -1795,7 +1801,7 @@ class TestFollowerCascade(object):
             "dataset_follower_list",
             status=409,
             id="warandpeace",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert "id" in error
 
@@ -1805,7 +1811,7 @@ class TestFollowerCascade(object):
             "group_follower_list",
             status=409,
             id="david",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert "id" in error
 
@@ -1841,7 +1847,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "am_following_user",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
             status=409,
             id="joeadmin",
         )
@@ -1851,7 +1857,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "am_following_dataset",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
             status=409,
             id="warandpeace",
         )
@@ -1861,7 +1867,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "am_following_group",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
             status=409,
             id="david",
         )
@@ -1871,7 +1877,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "unfollow_user",
-            apikey=self.tester["apikey"],
+            apitoken=self.tester["apitoken"],
             status=409,
             id="joeadmin",
         )
@@ -1881,7 +1887,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "unfollow_dataset",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
             status=409,
             id="warandpeace",
         )
@@ -1891,7 +1897,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "unfollow_group",
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
             status=409,
             id="david",
         )
@@ -1901,7 +1907,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "follow_user",
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
             status=409,
             id="joeadmin",
         )
@@ -1911,7 +1917,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "follow_dataset",
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
             status=409,
             id="warandpeace",
         )
@@ -1921,7 +1927,7 @@ class TestFollowerCascade(object):
         error = call_action_api(
             app,
             "follow_group",
-            apikey=self.annafan["apikey"],
+            apitoken=self.annafan["apitoken"],
             status=409,
             id="david",
         )
@@ -1933,7 +1939,7 @@ class TestFollowerCascade(object):
             app,
             "user_follower_list",
             id=self.testsysadmin["id"],
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert "joeadmin" not in [follower["name"] for follower in followers]
 
@@ -1943,7 +1949,7 @@ class TestFollowerCascade(object):
             app,
             "dataset_follower_list",
             id=self.annakarenina["id"],
-            apikey=self.testsysadmin["apikey"],
+            apitoken=self.testsysadmin["apitoken"],
         )
         assert "joeadmin" not in [follower["name"] for follower in followers]
 

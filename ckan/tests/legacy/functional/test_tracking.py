@@ -6,16 +6,36 @@ import tempfile
 import csv
 import datetime
 import pytest
+import six
 from ckan.lib.helpers import url_for
 import ckan.tests.legacy as tests
+import ckan.tests.helpers as helpers
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.fixture
+def auth_config(ckan_config, monkeypatch):
+    options = (
+        ("ckan.auth.anon_create_dataset", False),
+        ("ckan.auth.create_dataset_if_not_in_organization", False),
+        ("ckan.auth.user_create_groups", False),
+        ("ckan.auth.user_create_organizations", False),
+        ("ckan.auth.user_delete_groups", False),
+        ("ckan.auth.user_delete_organizations", False),
+        ("ckan.auth.create_unowned_dataset", True),
+        ("ckan.auth.create_user_via_api", False),
+        ("ckan.auth.create_user_via_web", True),
+        ("ckan.auth.roles_that_cascade_to_sub_groups", "admin"),
+    )
+    for key, value in options:
+        monkeypatch.setitem(ckan_config, key, value)
+
+
+@pytest.mark.usefixtures("clean_db", "auth_config")
 class TestTracking(object):
     def _create_sysadmin(self, app):
         """Create a sysadmin user.
 
-        Returns a tuple (sysadmin_user_object, api_key).
+        Returns a tuple (sysadmin_user_object, apitoken).
 
         """
         # You can't create a user via the api
@@ -31,25 +51,28 @@ class TestTracking(object):
         user.sysadmin = True
         model.Session.add(user)
         model.repo.commit_and_remove()
+        token = helpers.call_action(u"api_token_create", context={'model': model,
+                                                                  'user': user.name}, user=user.name, name=u"first token")
+        # query = model.Session.query(model.ApiToken)
+        # token = query.filter_by(user_id=user.id).first().id
         return (
             tests.call_action_api(app, "user_show", id=user.id),
-            user.apikey,
+            six.ensure_text(token["token"]),
         )
 
-    def _create_package(self, app, apikey, name="look_to_windward"):
+    def _create_package(self, app, apitoken, name="look_to_windward"):
         """Create a package via the action api."""
-
         return tests.call_action_api(
-            app, "package_create", apikey=apikey, name=name
+            app, "package_create", apitoken=apitoken, name=name
         )
 
-    def _create_resource(self, app, package, apikey):
+    def _create_resource(self, app, package, apitoken):
         """Create a resource via the action api."""
 
         return tests.call_action_api(
             app,
             "resource_create",
-            apikey=apikey,
+            apitoken=apitoken,
             package_id=package["id"],
             url="http://example.com",
         )
@@ -63,6 +86,7 @@ class TestTracking(object):
         enabled (an ajax request posts to /_tracking).
 
         """
+        breakpoint()
         params = {"url": url, "type": type_}
         extra_environ = {
             # The tracking middleware crashes if these aren't present.
@@ -103,9 +127,8 @@ class TestTracking(object):
         rebuild()
 
     def test_package_with_0_views(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
         # The API should return 0 recent views and 0 total views for the
         # unviewed package.
         package = tests.call_action_api(
@@ -124,9 +147,9 @@ class TestTracking(object):
         )
 
     def test_resource_with_0_views(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
+        resource = self._create_resource(app, package, apitoken)
 
         # The package_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
@@ -165,9 +188,10 @@ class TestTracking(object):
         )
 
     def test_package_with_one_view(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        self._create_resource(app, package, apikey)
+        breakpoint()
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
+        self._create_resource(app, package, apitoken)
 
         url = url_for("dataset.read", id=package["name"])
         self._post_to_tracking(app, url)
@@ -205,9 +229,9 @@ class TestTracking(object):
         )
 
     def test_resource_with_one_preview(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
+        resource = self._create_resource(app, package, apitoken)
 
         url = url_for(
             "resource.read", id=package["name"], resource_id=resource["id"]
@@ -253,9 +277,9 @@ class TestTracking(object):
         )
 
     def test_resource_with_one_download(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
+        resource = self._create_resource(app, package, apitoken)
 
         self._post_to_tracking(app, resource["url"], type_="resource")
         self._update_tracking_summary()
@@ -328,9 +352,9 @@ class TestTracking(object):
             ), "running_total for a page is always 0"
 
     def test_package_with_many_views(self, app):
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        self._create_resource(app, package, apikey)
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
+        self._create_resource(app, package, apitoken)
 
         url = url_for("dataset.read", id=package["name"])
 
@@ -367,9 +391,9 @@ class TestTracking(object):
 
     def test_resource_with_many_downloads(self, app):
 
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
+        resource = self._create_resource(app, package, apitoken)
         url = resource["url"]
 
         # Download the resource three times from different IPs.
@@ -446,9 +470,9 @@ class TestTracking(object):
         day, only one view should get counted.
 
         """
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        self._create_resource(app, package, apikey)
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
+        self._create_resource(app, package, apitoken)
         url = url_for("dataset.read", id=package["name"])
 
         # Visit the dataset three times from the same IP.
@@ -475,9 +499,9 @@ class TestTracking(object):
 
         """
 
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        package = self._create_package(app, apikey)
-        resource = self._create_resource(app, package, apikey)
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        package = self._create_package(app, apitoken)
+        resource = self._create_resource(app, package, apitoken)
 
         # Download the resource three times from the same IP.
         self._post_to_tracking(app, resource["url"], type_="resource")
@@ -501,10 +525,10 @@ class TestTracking(object):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
         reset_index()
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        self._create_package(app, apikey, name="consider_phlebas")
-        self._create_package(app, apikey, name="the_player_of_games")
-        self._create_package(app, apikey, name="use_of_weapons")
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        self._create_package(app, apitoken, name="consider_phlebas")
+        self._create_package(app, apitoken, name="the_player_of_games")
+        self._create_package(app, apitoken, name="use_of_weapons")
 
         url = url_for("dataset.read", id="consider_phlebas")
         self._post_to_tracking(app, url)
@@ -535,10 +559,10 @@ class TestTracking(object):
         # views, to make this a better test.
         reset_index()
 
-        sysadmin_user, apikey = self._create_sysadmin(app)
-        self._create_package(app, apikey, name="consider_phlebas")
-        self._create_package(app, apikey, name="the_player_of_games")
-        self._create_package(app, apikey, name="use_of_weapons")
+        sysadmin_user, apitoken = self._create_sysadmin(app)
+        self._create_package(app, apitoken, name="consider_phlebas")
+        self._create_package(app, apitoken, name="the_player_of_games")
+        self._create_package(app, apitoken, name="use_of_weapons")
 
         url = url_for("dataset.read", id="consider_phlebas")
         self._post_to_tracking(app, url)
@@ -591,11 +615,11 @@ class TestTracking(object):
         views.
 
         """
-        sysadmin_user, apikey = self._create_sysadmin(app)
+        sysadmin_user, apitoken = self._create_sysadmin(app)
 
         # Create a couple of packages.
-        package_1 = self._create_package(app, apikey)
-        package_2 = self._create_package(app, apikey, name="another_package")
+        package_1 = self._create_package(app, apitoken)
+        package_2 = self._create_package(app, apitoken, name="another_package")
 
         # View the package_1 three times from different IPs.
         url = url_for("dataset.read", id=package_1["name"])

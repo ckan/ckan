@@ -144,7 +144,6 @@ def read(id):
     # FIXME: line 331 in multilingual plugins expects facets to be defined.
     # any ideas?
     g.fields = []
-
     extra_vars = _extra_template_variables(context, data_dict)
     if extra_vars is None:
         return h.redirect_to(u'user.login')

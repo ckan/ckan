@@ -141,7 +141,7 @@ def test_user_generate_own_apikey():
     params = {"id": fred.id}
 
     result = helpers.call_auth(
-        "user_generate_apikey", context=context, **params
+        "api_token_create", context=context, **params
     )
     assert result is True
 
@@ -156,7 +156,7 @@ def test_user_generate_apikey_without_logged_in_user():
     params = {"id": fred.id}
 
     with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("user_generate_apikey", context=context, **params)
+        helpers.call_auth("api_token_create", context=context, **params)
 
 
 @pytest.mark.usefixtures("with_request_context")
@@ -172,7 +172,7 @@ def test_user_generate_apikey_for_another_user():
     params = {"id": fred.id}
 
     with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("user_generate_apikey", context=context, **params)
+        helpers.call_auth("api_token_create", context=context, **params)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")

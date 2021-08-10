@@ -6,8 +6,10 @@ import ckan.logic.auth as logic_auth
 
 from ckan.common import _
 
+
 @logic.auth_allow_anonymous_access
 def package_create(context, data_dict=None):
+    # breakpoint()
     user = context['user']
 
     if authz.auth_is_anon_user(context):
@@ -15,18 +17,18 @@ def package_create(context, data_dict=None):
             'anon_create_dataset',
             'create_dataset_if_not_in_organization',
             'create_unowned_dataset',
-            ))
+        ))
     else:
         check1 = all(authz.check_config_permission(p) for p in (
             'create_dataset_if_not_in_organization',
             'create_unowned_dataset',
-            )) or authz.has_user_permission_for_some_org(
+        )) or authz.has_user_permission_for_some_org(
             user, 'create_dataset')
 
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
 
-    check2 = _check_group_auth(context,data_dict)
+    check2 = _check_group_auth(context, data_dict)
     if not check2:
         return {'success': False, 'msg': _('User %s not authorized to edit these groups') % user}
 
@@ -69,7 +71,8 @@ def resource_create(context, data_dict):
         )
 
     pkg_dict = {'id': pkg.id}
-    authorized = authz.is_authorized('package_update', context, pkg_dict).get('success')
+    authorized = authz.is_authorized(
+        'package_update', context, pkg_dict).get('success')
 
     if not authorized:
         return {'success': False,
@@ -109,6 +112,7 @@ def package_relationship_create(context, data_dict):
     else:
         return {'success': True}
 
+
 def group_create(context, data_dict=None):
     user = context['user']
     user = authz.get_user_id_for_username(user, allow_none=True)
@@ -128,6 +132,7 @@ def organization_create(context, data_dict=None):
     return {'success': False,
             'msg': _('User %s not authorized to create organizations') % user}
 
+
 def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
@@ -137,16 +142,16 @@ def rating_create(context, data_dict):
 def user_create(context, data_dict=None):
     using_api = 'api_version' in context
     create_user_via_api = authz.check_config_permission(
-            'create_user_via_api')
+        'create_user_via_api')
     create_user_via_web = authz.check_config_permission(
-            'create_user_via_web')
+        'create_user_via_web')
 
     if using_api and not create_user_via_api:
         return {'success': False, 'msg': _('User {user} not authorized to '
-            'create users via the API').format(user=context.get('user'))}
+                                           'create users via the API').format(user=context.get('user'))}
     if not using_api and not create_user_via_web:
         return {'success': False, 'msg': _('Not authorized to '
-            'create users')}
+                                           'create users')}
     return {'success': True}
 
 
@@ -245,8 +250,8 @@ def member_create(context, data_dict):
         permission = 'manage_group'
 
     authorized = authz.has_user_permission_for_group_or_org(group.id,
-                                                                user,
-                                                                permission)
+                                                            user,
+                                                            permission)
     if not authorized:
         return {'success': False,
                 'msg': _('User %s not authorized to edit group %s') %
@@ -260,7 +265,6 @@ def api_token_create(context, data_dict):
     """
     user = context['model'].User.get(data_dict['user'])
     return {'success': user.name == context['user']}
-
 
 
 def package_collaborator_create(context, data_dict):
