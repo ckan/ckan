@@ -17,9 +17,8 @@ const renamer = (path) => {
 
 const build = () =>
   src([
-    __dirname + "/ckan/public/base/scss/main.scss",
-    __dirname + "/ckan/public/base/scss/main-rtl.scss",
-  ])
+    __dirname + "/ckan/public/base/scss/main.scss"
+    ])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
     .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))

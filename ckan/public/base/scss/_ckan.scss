@@ -1,4 +1,12 @@
 @use "sass:math";
+@import "custom.scss";
 @import "variables.scss";
+@import "mixins.scss";
+@import "layout.scss";
+@import "module.scss";
+@import "media.scss";
 @import "masthead.scss";
 @import "footer.scss";
+@import "homepage.scss";
+@import "group.scss";
+@import "dataset.scss";

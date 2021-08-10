@@ -3,8 +3,7 @@
     padding-bottom: 20px;
     margin-bottom: 20px;
 }
-
-@media (max-width: $screen-sm-max) {
+@include media-breakpoint-down(sm){
     .dataset-item {
         word-wrap: break-word;
     }
@@ -33,7 +32,7 @@
 }
 
 .label-inverse {
-    background-color: $gray;
+    background-color: $gray-600;
 }
 
 .dataset-private {
@@ -100,11 +99,11 @@
 
 .resource-item .btn-group {
     position: absolute;
-    top: ($grid-gutter-width/2 - 6);
+    top: (math.div($grid-gutter-width,2) - 6);
     right: 10px;
 }
 
-@media (max-width: $screen-sm-max) {
+@media (sm) {
     .resource-item .btn-group {
         display: none;
     }
