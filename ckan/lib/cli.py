@@ -126,9 +126,6 @@ def load_config(config, load_site_user=True):
 
     site_user = None
     if model.user_table.exists() and load_site_user:
-        # If the DB has already been initialized, create and register
-        # a pylons context object, and add the site user to it, so the
-        # auth works as in a normal web request
         site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
 
     ## give routes enough information to run url_for
