@@ -46,7 +46,6 @@ class TestEmailNotifications(ControllerTestCase):
                        "apitoken": annafan_token['token']}
 
         # Register a new user.
-        # breakpoint()
         cls.sara = tests.call_action_api(
             cls.app,
             "user_create",

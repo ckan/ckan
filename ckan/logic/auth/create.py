@@ -9,7 +9,6 @@ from ckan.common import _
 
 @logic.auth_allow_anonymous_access
 def package_create(context, data_dict=None):
-    # breakpoint()
     user = context['user']
 
     if authz.auth_is_anon_user(context):
@@ -263,7 +262,6 @@ def member_create(context, data_dict):
 def api_token_create(context, data_dict):
     """Create new token for current user.
     """
-    breakpoint()
     user = context['model'].User.get(data_dict['user'])
     return {'success': user.name == context['user']}
 

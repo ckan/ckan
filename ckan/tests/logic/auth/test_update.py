@@ -148,7 +148,6 @@ def test_user_generate_own_apitoken():
 
 @ pytest.mark.usefixtures("with_request_context")
 def test_user_generate_apitoken_without_logged_in_user():
-    breakpoint()
     fred = factories.MockUser(name="fred")
     mock_model = mock.MagicMock()
     mock_model.User.get.return_value = fred
