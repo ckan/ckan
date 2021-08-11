@@ -391,7 +391,6 @@ def call_action_api(app, action, apitoken=None, status=200, **kwargs):
     :rtype: dictionary
 
     """
-    breakpoint()
     response = app.post(
         "/api/action/{0}".format(action),
         json=kwargs,

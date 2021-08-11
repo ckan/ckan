@@ -12,25 +12,7 @@ import ckan.tests.legacy as tests
 import ckan.tests.helpers as helpers
 
 
-@pytest.fixture
-def auth_config(ckan_config, monkeypatch):
-    options = (
-        ("ckan.auth.anon_create_dataset", False),
-        ("ckan.auth.create_dataset_if_not_in_organization", False),
-        ("ckan.auth.user_create_groups", False),
-        ("ckan.auth.user_create_organizations", False),
-        ("ckan.auth.user_delete_groups", False),
-        ("ckan.auth.user_delete_organizations", False),
-        ("ckan.auth.create_unowned_dataset", True),
-        ("ckan.auth.create_user_via_api", False),
-        ("ckan.auth.create_user_via_web", True),
-        ("ckan.auth.roles_that_cascade_to_sub_groups", "admin"),
-    )
-    for key, value in options:
-        monkeypatch.setitem(ckan_config, key, value)
-
-
-@pytest.mark.usefixtures("clean_db", "auth_config")
+@pytest.mark.usefixtures("clean_db")
 class TestTracking(object):
     def _create_sysadmin(self, app):
         """Create a sysadmin user.
@@ -51,10 +33,10 @@ class TestTracking(object):
         user.sysadmin = True
         model.Session.add(user)
         model.repo.commit_and_remove()
-        token = helpers.call_action(u"api_token_create", context={'model': model,
-                                                                  'user': user.name}, user=user.name, name=u"first token")
-        # query = model.Session.query(model.ApiToken)
-        # token = query.filter_by(user_id=user.id).first().id
+        token = helpers.call_action(u"api_token_create",
+                                    context={'model': model,
+                                             'user': user.name},
+                                    user=user.name, name=u"first token")
         return (
             tests.call_action_api(app, "user_show", id=user.id),
             six.ensure_text(token["token"]),
@@ -86,7 +68,6 @@ class TestTracking(object):
         enabled (an ajax request posts to /_tracking).
 
         """
-        breakpoint()
         params = {"url": url, "type": type_}
         extra_environ = {
             # The tracking middleware crashes if these aren't present.
@@ -188,7 +169,6 @@ class TestTracking(object):
         )
 
     def test_package_with_one_view(self, app):
-        breakpoint()
         sysadmin_user, apitoken = self._create_sysadmin(app)
         package = self._create_package(app, apitoken)
         self._create_resource(app, package, apitoken)

@@ -263,6 +263,7 @@ def member_create(context, data_dict):
 def api_token_create(context, data_dict):
     """Create new token for current user.
     """
+    breakpoint()
     user = context['model'].User.get(data_dict['user'])
     return {'success': user.name == context['user']}
 

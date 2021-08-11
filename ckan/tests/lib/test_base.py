@@ -29,12 +29,12 @@ def test_apitoken_missing(app):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_apitoken_in_authorization_header(app):
     user = factories.Sysadmin()
-    helpers.call_action(u"api_token_create",
-                        user=user[u"id"], name=u"first token")
-    query = model.Session.query(model.ApiToken)
-    user_token = query.filter_by(
-        user_id=user.id).first().id
-    request_headers = {"Authorization": str(user_token)}
+    user_token = helpers.call_action(
+        u"api_token_create", context={'model': model,
+                                      'user': user['name']},
+        user=user['name'],
+        name=u"first token")
+    request_headers = {"Authorization": six.ensure_str(user_token["token"])}
 
     app.get("/dataset/new", headers=request_headers)
 
@@ -42,13 +42,14 @@ def test_apitoken_in_authorization_header(app):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_apitoken_in_x_ckan_header(app):
     user = factories.Sysadmin()
-    helpers.call_action(u"api_token_create",
-                        user=user[u"id"], name=u"first token")
-    query = model.Session.query(model.ApiToken)
-    user_token = query.filter_by(
-        user_id=user.id).first().id
+    user_token = helpers.call_action(
+        u"api_token_create", context={'model': model,
+                                      'user': user['name']},
+        user=user['name'],
+        name=u"first token")
     # non-standard header name is defined in test-core.ini
-    request_headers = {"X-Non-Standard-CKAN-API-Key": str(user_token)}
+    request_headers = {
+        "X-Non-Standard-CKAN-API-Key": six.ensure_str(user_token["token"])}
 
     app.get("/dataset/new", headers=request_headers)
 

@@ -7,7 +7,9 @@ from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.tests.legacy import url_for
+import ckan.tests.helpers as helpers
 import pytest
+import six
 
 
 class TestUserApi(ControllerTestCase):
@@ -62,12 +64,16 @@ class TestCreateUserApiDisabled(object):
             "email": "testinganewuser@ckan.org",
             "password": "TestPassword1",
         }
-        query = model.Session.query(model.ApiToken)
-        token = query.filter_by(user_id=self.sysadmin_user.id).first().id
+        sysadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': model,
+                                          'user': self.sysadmin_user.name},
+            user=self.sysadmin_user.name,
+            name=u"first token")
         res = app.post(
             "/api/3/action/user_create",
             json=params,
-            extra_environ={"Authorization": str(token)},
+            extra_environ={"Authorization":
+                           six.ensure_str(sysadmin_token["token"])},
         )
         res_dict = res.json
         assert res_dict["success"] is True
@@ -101,12 +107,16 @@ class TestCreateUserApiEnabled(object):
             "email": "testinganewuser@ckan.org",
             "password": "TestPassword1",
         }
-        query = model.Session.query(model.ApiToken)
-        token = query.filter_by(user_id=self.sysadmin_user.id).first().id
+        sysadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': model,
+                                          'user': self.sysadmin_user.name},
+            user=self.sysadmin_user.name,
+            name=u"first token")
         res = app.post(
             "/api/3/action/user_create",
             json=params,
-            extra_environ={"Authorization": str(token)},
+            extra_environ={"Authorization":
+                           six.ensure_str(sysadmin_token["token"])},
         )
         res_dict = res.json
         assert res_dict["success"] is True

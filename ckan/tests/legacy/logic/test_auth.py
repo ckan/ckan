@@ -6,7 +6,9 @@ import pytest
 import ckan.authz as authz
 import ckan.logic as logic
 import ckan.model as model
+import six
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic import get_action
 from ckan.tests.helpers import call_auth
@@ -16,12 +18,12 @@ from ckan.tests.helpers import call_auth
 def auth_config(ckan_config, monkeypatch):
     options = (
         ("ckan.auth.anon_create_dataset", False),
-        ("ckan.auth.create_dataset_if_not_in_organization", True),
+        ("ckan.auth.create_dataset_if_not_in_organization", False),
         ("ckan.auth.user_create_groups", False),
         ("ckan.auth.user_create_organizations", False),
         ("ckan.auth.user_delete_groups", False),
         ("ckan.auth.user_delete_organizations", False),
-        ("ckan.auth.create_unowned_dataset", True),
+        ("ckan.auth.create_unowned_dataset", False),
         ("ckan.auth.create_user_via_api", False),
         ("ckan.auth.create_user_via_web", True),
         ("ckan.auth.roles_that_cascade_to_sub_groups", "admin"),
@@ -31,21 +33,26 @@ def auth_config(ckan_config, monkeypatch):
 
 
 @pytest.fixture
-def apikeys(clean_db):
-    admin_api = get_action("get_site_user")(
+def apitokens(clean_db):
+    admin = get_action("get_site_user")(
         {"model": model, "ignore_auth": True}, {}
-    )["apikey"]
-    return {"sysadmin": str(admin_api), "random_key": "moo"}
+    )
+    admin['apitoken'] = {}
+    admin['apitoken'] = helpers.call_action(
+        u"api_token_create",
+        context={'model': model, 'user': admin['name']},
+        user=admin['name'], name=u"first token")
+    return {"sysadmin": six.ensure_str(admin['apitoken']['token']),
+            "random_key": "moo"}
 
 
 @pytest.fixture
-def call_api(app, apikeys):
+def call_api(app, apitokens):
     def call(action, data, user, status=None):
-
         res = app.post(
             "/api/action/%s" % action,
             json=data,
-            extra_environ={"Authorization": apikeys[user]},
+            extra_environ={"Authorization": apitokens[user]},
         )
         if res.status_code != (status or 200):
             error = res.json["error"]
@@ -59,7 +66,7 @@ def call_api(app, apikeys):
 
 
 @pytest.fixture
-def create_user(apikeys, call_api):
+def create_user(apitokens, call_api):
     def create(name):
         user = {
             "name": name,
@@ -67,8 +74,12 @@ def create_user(apikeys, call_api):
             "email": "{}@moo.com".format(name),
         }
         res = call_api("user_create", user, "sysadmin", 200)
-        apikeys[name] = str(json.loads(res.body)["result"]["apikey"])
-
+        user['apitoken'] = {}
+        user['apitoken'] = helpers.call_action(
+            u"api_token_create",
+            context={'model': model, 'user': user['name']},
+            user=user['name'], name=u"first token")
+        apitokens[name] = six.ensure_str(user['apitoken']['token'])
     return create
 
 
@@ -161,7 +172,6 @@ class TestAuthOrgs(object):
 
     @pytest.mark.usefixtures("auth_config")
     def test_create_dataset_no_org(self, call_api):
-
         # no owner_org supplied
         dataset = {"name": "admin_create_no_org"}
         call_api("package_create", dataset, "sysadmin", 409)
@@ -268,13 +278,18 @@ class TestAuthOrgHierarchy(object):
     # group hierarchy provides extra permissions through cascading
 
     @pytest.fixture(autouse=True)
-    def initial_data(self, apikeys, monkeypatch, ckan_config):
+    def initial_data(self, apitokens, monkeypatch, ckan_config):
         monkeypatch.setitem(
             ckan_config, "ckan.auth.roles_that_cascade_to_sub_groups", "admin"
         )
         CreateTestData.create_group_hierarchy_test_data()
+
         for user in model.Session.query(model.User):
-            apikeys[user.name] = str(user.apikey)
+            user.apitoken = helpers.call_action(
+                u"api_token_create",
+                context={'model': model, 'user': user.name},
+                user=user.name, name=u"first token")
+            apitokens[user.name] = six.ensure_str(user.apitoken["token"])
 
         self.sysadmin = get_action("get_site_user")(
             {"model": model, "ignore_auth": True}, {}

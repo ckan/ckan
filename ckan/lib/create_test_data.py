@@ -464,7 +464,7 @@ left arrow <
         sysadmin = model.User(name=u'testsysadmin', password=u'testsysadmin')
         sysadmin.sysadmin = True
         model.Session.add_all([
-            model.User(name=u'tester', apikey='tester', password=u'tester'),
+            model.User(name=u'tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
             model.User(
                 name=u'annafan', about=u'I love reading Annakarenina. My site: http://datahub.io', password=u'annafan'),

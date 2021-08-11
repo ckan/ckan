@@ -191,7 +191,6 @@ def _identify_user_default():
 
 
 def _get_user_for_apitoken():
-    # breakpoint()
     api_token_header_name = config.get(APIKEY_HEADER_NAME_KEY,
                                        APIKEY_HEADER_NAME_DEFAULT)
     apitoken = request.headers.get(api_token_header_name, u'')

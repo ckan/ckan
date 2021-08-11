@@ -3,6 +3,7 @@
 import pytest
 
 import ckan.plugins
+import six
 import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers as h
 import ckan.lib.create_test_data
@@ -10,6 +11,7 @@ import ckan.logic.action.update
 import ckan.model as model
 import ckan.tests.legacy
 import ckan.tests.legacy.html_check
+import ckan.tests.helpers as helpers
 from ckan.tests.helpers import _get_test_app, body_contains
 
 _create_test_data = ckan.lib.create_test_data
@@ -29,20 +31,24 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
         _create_test_data.CreateTestData.create_translations_test_data()
 
         cls.sysadmin_user = model.User.get('testsysadmin')
-        query = model.Session.query(model.ApiToken)
-        cls.sysadmin_token = query.filter_by(
-            user_id=cls.sysadmin_user.id).first().id
+        cls.sysadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': model,
+                                          'user': cls.sysadmin_user.name},
+            user=cls.sysadmin_user.name,
+            name=u"first token")
         cls.org = {'name': 'test_org',
                    'title': 'russian',
                    'description': 'Roger likes these books.'}
         ckan.tests.legacy.call_action_api(cls.app, 'organization_create',
-                                          apitoken=cls.sysadmin_token,
+                                          apitoken=six.ensure_str(
+                                              cls.sysadmin_token["token"]),
                                           **cls.org)
         dataset = {'name': 'test_org_dataset',
                    'title': 'A Novel By Tolstoy',
                    'owner_org': cls.org['name']}
         ckan.tests.legacy.call_action_api(cls.app, 'package_create',
-                                          apitoken=cls.sysadmin_token,
+                                          apitoken=six.ensure_str(
+                                              cls.sysadmin_token["token"]),
                                           **dataset)
 
         # Add translation terms that match a couple of group names and package

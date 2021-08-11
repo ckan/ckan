@@ -51,7 +51,6 @@ class TestAction(object):
         result = res_obj["result"]
         assert result["name"] == user_dict["name"]
         assert result["about"] == user_dict["about"]
-        # assert "apitoken" in result
         assert "created" in result
         assert "display_name" in result
         assert "number_created_packages" in result

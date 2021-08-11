@@ -15,6 +15,7 @@ test_dashboard.py.
 import datetime
 import ckan
 import pytest
+import six
 import ckan.tests.helpers as helpers
 from ckan.tests.legacy import (
     are_foreign_keys_supported,
@@ -237,7 +238,8 @@ def follow_dataset(
 
     # Check that the dataset appears in the follower's list of followees.
     followees = call_action_api(
-        app, "dataset_followee_list", apitoken=sysadmin_apitoken, id=follower_id
+        app, "dataset_followee_list", apitoken=sysadmin_apitoken,
+             id=follower_id
     )
     assert len(followees) == followee_count_before + 1
     assert (
@@ -347,26 +349,49 @@ class TestFollow(object):
     def initial_data(self, clean_db, app):
         CreateTestData.create()
         self.app = app
-        query = ckan.model.Session.query(ckan.model.ApiToken)
+        testsysadmin = ckan.model.User.get("testsysadmin")
+        testsysadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': testsysadmin.name},
+            user=testsysadmin.name,
+            name=u"first token")
         self.testsysadmin = {
-            "id": ckan.model.User.get("testsysadmin").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("testsysadmin").id).first().id,
-            "name": ckan.model.User.get("testsysadmin").name,
+            "id": testsysadmin.id,
+            "apitoken": six.ensure_str(testsysadmin_token["token"]),
+            "name": testsysadmin.name,
         }
+        annafan = ckan.model.User.get("annafan")
+        annafan_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': annafan.name},
+            user=annafan.name,
+            name=u"first token")
         self.annafan = {
-            "id": ckan.model.User.get("annafan").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("annafan").id).first().id,
-            "name": ckan.model.User.get("annafan").name,
+            "id": annafan.id,
+            "apitoken": six.ensure_str(annafan_token["token"]),
+            "name": annafan.name,
         }
+        russianfan = ckan.model.User.get("russianfan")
+        russianfan_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': russianfan.name},
+            user=russianfan.name,
+            name=u"first token")
         self.russianfan = {
-            "id": ckan.model.User.get("russianfan").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("russianfan").id).first().id,
-            "name": ckan.model.User.get("russianfan").name,
+            "id": russianfan.id,
+            "apitoken": six.ensure_str(russianfan_token["token"]),
+            "name": russianfan.name,
         }
+        joeadmin = ckan.model.User.get("joeadmin")
+        joeadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': joeadmin.name},
+            user=joeadmin.name,
+            name=u"first token")
         self.joeadmin = {
-            "id": ckan.model.User.get("joeadmin").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("joeadmin").id).first().id,
-            "name": ckan.model.User.get("joeadmin").name,
+            "id": joeadmin.id,
+            "apitoken": six.ensure_str(joeadmin_token["token"]),
+            "name": joeadmin.name,
         }
         self.warandpeace = {
             "id": ckan.model.Package.get("warandpeace").id,
@@ -799,7 +824,8 @@ class TestFollow(object):
 
     def _followee_list_missing_id(self, action):
         error = call_action_api(
-            self.app, action, status=409, apitoken=self.testsysadmin["apitoken"]
+            self.app, action, status=409,
+            apitoken=self.testsysadmin["apitoken"]
         )
         assert error["id"] == ["Missing value"]
 
@@ -1071,31 +1097,60 @@ class TestFollowerDelete(object):
     def initial_data(self, app, clean_db):
         CreateTestData.create()
         self.app = app
-        query = ckan.model.Session.query(ckan.model.ApiToken)
+        tester = ckan.model.User.get("tester")
+        tester_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': tester.name},
+            user=tester.name,
+            name=u"first token")
         self.tester = {
-            "id": ckan.model.User.get("tester").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("joeadmin").id).first().id,
-            "name": ckan.model.User.get("tester").name,
+            "id": tester.id,
+            "apitoken": six.ensure_str(tester_token["token"]),
+            "name": tester.name,
         }
+        testsysadmin = ckan.model.User.get("testsysadmin")
+        testsysadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': testsysadmin.name},
+            user=testsysadmin.name,
+            name=u"first token")
         self.testsysadmin = {
-            "id": ckan.model.User.get("testsysadmin").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("testsysadmin").id).first().id,
-            "name": ckan.model.User.get("testsysadmin").name,
+            "id": testsysadmin.id,
+            "apitoken": six.ensure_str(testsysadmin_token["token"]),
+            "name": testsysadmin.name,
         }
+        annafan = ckan.model.User.get("annafan")
+        annafan_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': annafan.name},
+            user=annafan.name,
+            name=u"first token")
         self.annafan = {
-            "id": ckan.model.User.get("annafan").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("annafan").id).first().id,
-            "name": ckan.model.User.get("annafan").name,
+            "id": annafan.id,
+            "apitoken": six.ensure_str(annafan_token["token"]),
+            "name": annafan.name,
         }
+        russianfan = ckan.model.User.get("russianfan")
+        russianfan_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': russianfan.name},
+            user=russianfan.name,
+            name=u"first token")
         self.russianfan = {
-            "id": ckan.model.User.get("russianfan").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("russianfan").id).first().id,
-            "name": ckan.model.User.get("russianfan").name,
+            "id": russianfan.id,
+            "apitoken": six.ensure_str(russianfan_token["token"]),
+            "name": russianfan.name,
         }
+        joeadmin = ckan.model.User.get("joeadmin")
+        joeadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': joeadmin.name},
+            user=joeadmin.name,
+            name=u"first token")
         self.joeadmin = {
-            "id": ckan.model.User.get("joeadmin").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("joeadmin").id).first().id,
-            "name": ckan.model.User.get("joeadmin").name,
+            "id": joeadmin.id,
+            "apitoken": six.ensure_str(joeadmin_token["token"]),
+            "name": joeadmin.name,
         }
         self.warandpeace = {
             "id": ckan.model.Package.get("warandpeace").id,
@@ -1631,31 +1686,60 @@ class TestFollowerCascade(object):
     def initial_data(self, clean_db, app):
         CreateTestData.create()
         self.app = app
-        query = ckan.model.Session.query(ckan.model.ApiToken)
+        tester = ckan.model.User.get("tester")
+        tester_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': tester.name},
+            user=tester.name,
+            name=u"first token")
         self.tester = {
-            "id": ckan.model.User.get("tester").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("tester").id).first().id,
-            "name": ckan.model.User.get("tester").name,
+            "id": tester.id,
+            "apitoken": six.ensure_str(tester_token["token"]),
+            "name": tester.name,
         }
+        testsysadmin = ckan.model.User.get("testsysadmin")
+        testsysadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': testsysadmin.name},
+            user=testsysadmin.name,
+            name=u"first token")
         self.testsysadmin = {
-            "id": ckan.model.User.get("testsysadmin").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("testsysadmin").id).first().id,
-            "name": ckan.model.User.get("testsysadmin").name,
+            "id": testsysadmin.id,
+            "apitoken": six.ensure_str(testsysadmin_token["token"]),
+            "name": testsysadmin.name,
         }
+        annafan = ckan.model.User.get("annafan")
+        annafan_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': annafan.name},
+            user=annafan.name,
+            name=u"first token")
         self.annafan = {
-            "id": ckan.model.User.get("annafan").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("annafan").id).first().id,
-            "name": ckan.model.User.get("annafan").name,
+            "id": annafan.id,
+            "apitoken": six.ensure_str(annafan_token["token"]),
+            "name": annafan.name,
         }
+        russianfan = ckan.model.User.get("russianfan")
+        russianfan_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': russianfan.name},
+            user=russianfan.name,
+            name=u"first token")
         self.russianfan = {
-            "id": ckan.model.User.get("russianfan").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("russianfan").id).first().id,
-            "name": ckan.model.User.get("russianfan").name,
+            "id": russianfan.id,
+            "apitoken": six.ensure_str(russianfan_token["token"]),
+            "name": russianfan.name,
         }
+        joeadmin = ckan.model.User.get("joeadmin")
+        joeadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': ckan.model,
+                                          'user': joeadmin.name},
+            user=joeadmin.name,
+            name=u"first token")
         self.joeadmin = {
-            "id": ckan.model.User.get("joeadmin").id,
-            "apitoken": query.filter_by(user_id=ckan.model.User.get("joeadmin").id).first().id,
-            "name": ckan.model.User.get("joeadmin").name,
+            "id": joeadmin.id,
+            "apitoken": six.ensure_str(joeadmin_token["token"]),
+            "name": joeadmin.name,
         }
         self.warandpeace = {
             "id": ckan.model.Package.get("warandpeace").id,

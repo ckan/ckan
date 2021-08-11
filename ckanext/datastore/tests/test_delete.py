@@ -2,6 +2,7 @@
 
 import json
 import pytest
+import six
 
 import sqlalchemy.orm as orm
 
@@ -132,11 +133,16 @@ class TestDatastoreDeleteLegacy(object):
         ctd.CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
         self.normal_user = model.User.get("annafan")
-        query = model.Session.query(model.ApiToken)
-        self.sysadmin_token = query.filter_by(
-            user_id=self.sysadmin_user.id).first().id
-        self.normal_user_token = query.filter_by(
-            user_id=self.normal_user.id).first().id
+        self.sysadmin_token = helpers.call_action(
+            u"api_token_create", context={'model': model,
+                                          'user': self.sysadmin_user.name},
+            user=self.sysadmin_user.name,
+            name=u"first token")
+        self.normal_user_token = helpers.call_action(
+            u"api_token_create", context={'model': model,
+                                          'user': self.normal_user.name},
+            user=self.normal_user.name,
+            name=u"first token")
         resource = model.Package.get("annakarenina").resources[0]
         self.data = {
             "resource_id": resource.id,
@@ -169,7 +175,7 @@ class TestDatastoreDeleteLegacy(object):
             )
 
     def _create(self):
-        auth = {"Authorization": str(self.sysadmin_token)}
+        auth = {"Authorization": six.ensure_str(self.sysadmin_token["token"])}
         res = self.app.post(
             "/api/action/datastore_create",
             json=self.data,
@@ -182,7 +188,7 @@ class TestDatastoreDeleteLegacy(object):
     def _delete(self):
         data = {"resource_id": self.data["resource_id"]}
         postparams = "%s=1" % json.dumps(data)
-        auth = {"Authorization": str(self.sysadmin_token)}
+        auth = {"Authorization": six.ensure_str(self.sysadmin_token["token"])}
         res = self.app.post(
             "/api/action/datastore_delete",
             data=data,
@@ -257,7 +263,7 @@ class TestDatastoreDeleteLegacy(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_delete_invalid_resource_id(self, app):
         data = {"resource_id": "bad"}
-        auth = {"Authorization": str(self.sysadmin_token)}
+        auth = {"Authorization": six.ensure_str(self.sysadmin_token["token"])}
         res = app.post(
             "/api/action/datastore_delete",
             data=data,
@@ -275,7 +281,7 @@ class TestDatastoreDeleteLegacy(object):
 
         # try and delete just the 'warandpeace' row
         data = {"resource_id": resource_id, "filters": {"book": "warandpeace"}}
-        auth = {"Authorization": str(self.sysadmin_token)}
+        auth = {"Authorization": six.ensure_str(self.sysadmin_token["token"])}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -297,7 +303,7 @@ class TestDatastoreDeleteLegacy(object):
             "filters": {"book": "annakarenina", "author": "bad"},
         }
 
-        auth = {"Authorization": str(self.sysadmin_token)}
+        auth = {"Authorization": six.ensure_str(self.sysadmin_token["token"])}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -318,7 +324,7 @@ class TestDatastoreDeleteLegacy(object):
             "id": resource_id,
             "filters": {"book": "annakarenina", "author": "tolstoy"},
         }
-        auth = {"Authorization": str(self.sysadmin_token)}
+        auth = {"Authorization": six.ensure_str(self.sysadmin_token["token"])}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -347,7 +353,8 @@ class TestDatastoreDeleteLegacy(object):
             "filters": {"invalid-column-name": "value"},
         }
 
-        auth = {"Authorization": str(self.normal_user_token)}
+        auth = {"Authorization": six.ensure_str(
+            self.normal_user_token["token"])}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -368,7 +375,8 @@ class TestDatastoreDeleteLegacy(object):
         self._create()
 
         data = {"resource_id": self.data["resource_id"], "filters": []}
-        auth = {"Authorization": str(self.normal_user_token)}
+        auth = {"Authorization": six.ensure_str(
+            self.normal_user_token["token"])}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -389,7 +397,8 @@ class TestDatastoreDeleteLegacy(object):
         res = app.post(
             "/api/action/datastore_delete",
             json={"resource_id": self.data["resource_id"], "filters": {}},
-            environ_overrides={"Authorization": str(self.normal_user_token)},
+            environ_overrides={"Authorization": six.ensure_str(
+                self.normal_user_token["token"])},
         )
         assert res.status_code == 200
         results = json.loads(res.data)
@@ -398,7 +407,8 @@ class TestDatastoreDeleteLegacy(object):
         res = app.post(
             "/api/action/datastore_search",
             json={"resource_id": self.data["resource_id"]},
-            environ_overrides={"Authorization": str(self.normal_user_token)},
+            environ_overrides={"Authorization": six.ensure_str(
+                self.normal_user_token["token"])},
         )
         assert res.status_code == 200
         results = json.loads(res.data)

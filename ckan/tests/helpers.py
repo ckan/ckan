@@ -210,7 +210,7 @@ class CKANTestApp(object):
         self.app = app
 
     def test_client(self, use_cookies=True):
-        breakpoint()
+
         return CKANTestClient(self.app, CKANResponse, use_cookies=use_cookies)
 
     def options(self, url, *args, **kwargs):
@@ -218,7 +218,6 @@ class CKANTestApp(object):
         return res
 
     def post(self, url, *args, **kwargs):
-        breakpoint()
         params = kwargs.pop("params", None)
         if params:
             kwargs["data"] = params

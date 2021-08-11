@@ -343,7 +343,6 @@ class TestEdit(TestPackageForm):
         )
 
     def test_redirect_after_edit_using_config(self, app):
-        breakpoint()
         return_url = ""  # redirect comes from test.ini setting
         expected_redirect = config["package_edit_return_url"]
         self._check_redirect(
@@ -524,10 +523,13 @@ class TestResourceListing:
         CreateTestData.create()
         users = {}
         tester = model.User.by_name(u"tester")
-        data = helpers.call_action(u"api_token_create", context={'model': model,
-                                                                 'user': tester.name}, user=tester.name, name=u"first token")
+        data = helpers.call_action(u"api_token_create",
+                                   context={'model': model,
+                                            'user': tester.name},
+                                   user=tester.name, name=u"first token")
         tests.call_action_api(
-            app, "organization_create", name="test_org_2", apitoken=ensure_str(data['token'])
+            app, "organization_create", name="test_org_2",
+                 apitoken=ensure_str(data['token'])
         )
 
         tests.call_action_api(

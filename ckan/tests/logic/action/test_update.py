@@ -6,6 +6,7 @@ import unittest.mock as mock
 import pytest
 
 import ckan
+import six
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
 import ckan.plugins as p
@@ -55,45 +56,6 @@ class TestUpdate(object):
             helpers.call_action("user_update", **user)
 
     # END-BEFORE
-
-    def test_user_generate_apikey(self):
-        user = factories.User()
-        context = {"user": user["name"]}
-        result = helpers.call_action(
-            "user_generate_apikey", context=context, id=user["id"]
-        )
-        updated_user = helpers.call_action(
-            "user_show", context=context, id=user["id"]
-        )
-
-        assert updated_user["apikey"] != user["apikey"]
-        assert result["apikey"] == updated_user["apikey"]
-
-    def test_user_generate_apikey_sysadmin_user(self):
-        user = factories.User()
-        sysadmin = factories.Sysadmin()
-        context = {"user": sysadmin["name"], "ignore_auth": False}
-        result = helpers.call_action(
-            "user_generate_apikey", context=context, id=user["id"]
-        )
-        updated_user = helpers.call_action(
-            "user_show", context=context, id=user["id"]
-        )
-
-        assert updated_user["apikey"] != user["apikey"]
-        assert result["apikey"] == updated_user["apikey"]
-
-    def test_user_generate_apikey_nonexistent_user(self):
-        user = {
-            "id": "nonexistent",
-            "name": "nonexistent",
-            "email": "does@notexist.com",
-        }
-        context = {"user": user["name"]}
-        with pytest.raises(logic.NotFound):
-            helpers.call_action(
-                "api_token_create", context=context, id=user["id"]
-            )
 
     def test_user_update_with_id_that_does_not_exist(self):
         user_dict = factories.User.attributes()()
@@ -339,22 +301,6 @@ class TestUpdate(object):
 
         updated_user = helpers.call_action("user_update", **params)
         assert "password" not in updated_user
-
-    def test_user_update_does_not_return_apikey(self):
-        """The user dict that user_update returns should not include the user's
-        API key."""
-
-        user = factories.User()
-        params = {
-            "id": user["id"],
-            "fullname": "updated full name",
-            "about": "updated about",
-            "email": user["email"],
-            "password": factories.User.password,
-        }
-
-        updated_user = helpers.call_action("user_update", **params)
-        assert "apikey" not in updated_user
 
     def test_user_update_does_not_return_reset_key(self):
         """The user dict that user_update returns should not include the user's
@@ -1014,8 +960,9 @@ class TestResourceUpdate(object):
         """
         The mimetype is supplied by the user
 
-        Real world usage would be using the FileStore API or web UI form to create a resource
-        and the user wanted to specify the mimetype themselves
+        Real world usage would be using the FileStore API or web UI form to 
+        create a resource and the user wanted to specify the mimetype 
+        themselves
         """
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -1051,8 +998,9 @@ class TestResourceUpdate(object):
         )
 
         content = """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
-        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, 
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, 
+        Normal mm SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
@@ -1100,8 +1048,9 @@ class TestResourceUpdate(object):
             package_id=dataset['id'], url="http://localhost")
 
         content = """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
-        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm,
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period,
+        Normal mm SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
@@ -1121,7 +1070,9 @@ class TestResourceUpdate(object):
         """
         The size of the resource is provided by the users
 
-        Real world usage would be using the FileStore API and the user provides a size for the resource
+        Real world usage would be using the FileStore API and the user 
+
+        provides a size for the resource
         """
         dataset = factories.Dataset()
         resource = factories.Resource(
@@ -1172,8 +1123,9 @@ class TestResourceUpdate(object):
             package_id=dataset['id'], url="http://localhost")
 
         content = """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
-        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, 
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, 
+        Normal mm SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
@@ -2006,7 +1958,8 @@ class TestUserPluginExtras(object):
 
         context = {'user': sysadmin['name'], 'ignore_auth': False}
         user = helpers.call_action(
-            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+            'user_show', context=context, id=user['id'],
+            include_plugin_extras=True)
 
         assert updated_user['plugin_extras'] == {
             'plugin1': {
@@ -2056,7 +2009,8 @@ class TestUserPluginExtras(object):
 
         context = {'user': sysadmin['name'], 'ignore_auth': False}
         user = helpers.call_action(
-            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+            'user_show', context=context, id=created_user['id'],
+            include_plugin_extras=True)
 
         assert user['plugin_extras'] == {
             'plugin1': {
@@ -2087,7 +2041,8 @@ class TestUserPluginExtras(object):
 
         context = {'user': sysadmin['name'], 'ignore_auth': False}
         user = helpers.call_action(
-            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+            'user_show', context=context, id=created_user['id'],
+            include_plugin_extras=True)
 
         assert user['plugin_extras'] is None
 
@@ -2106,7 +2061,8 @@ class TestUserPluginExtras(object):
         context = {'user': sysadmin['name']}
 
         user = helpers.call_action(
-            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+            'user_show', context=context, id=user['id'],
+            include_plugin_extras=True)
 
         user['plugin_extras']['plugin1']['key1'] = 'value2'
 
