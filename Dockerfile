@@ -113,18 +113,6 @@ chmod +x /ckan-run-harvester-entrypoint.sh && \
 chmod +x /wait-for-postgres.sh
 
 # Copy extensions into container and Install
-WORKDIR $CKAN_VENV/src
-# COPY ./contrib/docker/src/pycsw $CKAN_VENV/src/pycsw
-# COPY ./contrib/docker/pycsw/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
-COPY ./contrib/docker/src/ckanext-harvest $CKAN_VENV/src/ckanext-harvest
-COPY ./contrib/docker/src/ckanext-spatial $CKAN_VENV/src/ckanext-spatial
-COPY ./contrib/docker/src/ckanext-cioos_theme $CKAN_VENV/src/ckanext-cioos_theme
-COPY ./contrib/docker/src/ckanext-cioos_harvest $CKAN_VENV/src/ckanext-cioos_harvest
-COPY ./contrib/docker/src/ckanext-scheming $CKAN_VENV/src/ckanext-scheming
-COPY ./contrib/docker/src/ckanext-composite $CKAN_VENV/src/ckanext-composite
-COPY ./contrib/docker/src/ckanext-repeating $CKAN_VENV/src/ckanext-repeating
-COPY ./contrib/docker/src/ckanext_fluent $CKAN_VENV/src/ckanext_fluent
-# COPY ./contrib/docker/src/ckanext-package_converter $CKAN_VENV/src/ckanext-package_converter
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
 COPY ./contrib/docker/src/ckanext-geoview/pip-requirements.txt $CKAN_VENV/src/ckanext-geoview/pip-requirements.txt
@@ -149,9 +137,6 @@ RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pi
 FROM base as extensions1
 #------------------------------------------------------------------------------#
 WORKDIR $CKAN_VENV/src
-
-# COPY ./contrib/docker/src/pycsw $CKAN_VENV/src/pycsw
-# COPY ./contrib/docker/pycsw/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
 
 COPY ./contrib/docker/src/ckanext-googleanalyticsbasic $CKAN_VENV/src/ckanext-googleanalyticsbasic
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-googleanalyticsbasic && python setup.py install && python setup.py develop"
