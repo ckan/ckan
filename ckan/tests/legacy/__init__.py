@@ -375,8 +375,8 @@ def call_action_api(app, action, apitoken=None, status=200, **kwargs):
     :param action: the action to post to, e.g. 'package_create'
     :type action: string
 
-    :param apitoken: the API token to put in the Authorization header of the post
-        (optional, default: None)
+    :param apitoken: the API token to put in the Authorization header of
+    the post (optional, default: None)
     :type apitoken: string
 
     :param status: the HTTP status code expected in the response from the CKAN

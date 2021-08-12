@@ -1181,12 +1181,11 @@ class TestSearchPluginInterface(object):
 class TestBulkActions(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index, app, with_request_context):
-        CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
+        self.sysadmin_user = factories.Sysadmin()
         self.sysadmin_token = helpers.call_action(
             u"api_token_create", context={'model': model,
-                                          'user': self.sysadmin_user.name},
-            user=self.sysadmin_user.name,
+                                          'user': self.sysadmin_user['name']},
+            user=self.sysadmin_user['name'],
             name=u"first token")
 
         data_dict = "%s=1" % json.dumps({"name": "org"})

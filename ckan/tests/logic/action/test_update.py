@@ -960,8 +960,8 @@ class TestResourceUpdate(object):
         """
         The mimetype is supplied by the user
 
-        Real world usage would be using the FileStore API or web UI form to 
-        create a resource and the user wanted to specify the mimetype 
+        Real world usage would be using the FileStore API or web UI form to
+        create a resource and the user wanted to specify the mimetype
         themselves
         """
         dataset = factories.Dataset()
@@ -998,8 +998,8 @@ class TestResourceUpdate(object):
         )
 
         content = """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, 
-        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, 
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm,
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period,
         Normal mm SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
@@ -1070,7 +1070,7 @@ class TestResourceUpdate(object):
         """
         The size of the resource is provided by the users
 
-        Real world usage would be using the FileStore API and the user 
+        Real world usage would be using the FileStore API and the user
 
         provides a size for the resource
         """
@@ -1123,8 +1123,8 @@ class TestResourceUpdate(object):
             package_id=dataset['id'], url="http://localhost")
 
         content = """
-        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, 
-        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, 
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm,
+        Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period,
         Normal mm SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
