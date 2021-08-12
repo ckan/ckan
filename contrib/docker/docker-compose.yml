@@ -57,7 +57,7 @@ services:
      image: cioos/ckan:${CKAN_TAG}
      entrypoint: /ckan-harvester-entrypoint.sh
      user: root
-     command: ckan-paster --plugin=ckanext-harvest harvester gather_consumer -c /etc/ckan/production.ini
+     command: ckan --config=/etc/ckan/production.ini harvester gather-consumer
      ports: []
      depends_on:
        - ckan
@@ -68,7 +68,7 @@ services:
      image: cioos/ckan:${CKAN_TAG}
      entrypoint: /ckan-harvester-entrypoint.sh
      user: root
-     command: ckan-paster --plugin=ckanext-harvest harvester fetch_consumer -c /etc/ckan/production.ini
+     command: ckan --config=/etc/ckan/production.ini harvester fetch-consumer -c /etc/ckan/production.ini
      ports: []
      depends_on:
        - ckan
