@@ -398,7 +398,7 @@ class CreateTestData(object):
         pkg1.resources_all.append(pr2)
         pkg1.notes = u'''Some test notes
 
-# A 3rd level heading
+### A 3rd level heading
 
 **Some bolded text.**
 

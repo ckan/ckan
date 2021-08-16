@@ -434,6 +434,7 @@ class TestDatastoreCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_duplicate_alias_name(self, app):
+        breakpoint()
         resource = model.Package.get("annakarenina").resources[0]
         data = {"resource_id": resource.id, "aliases": u"myalias"}
         auth = {"Authorization": six.ensure_str(self.sysadmin_token["token"])}
