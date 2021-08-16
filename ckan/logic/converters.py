@@ -220,3 +220,23 @@ def remove_whitespace(value, context):
     if isinstance(value, string_types):
         return value.strip()
     return value
+
+
+def store_public_extra(key, data, errors, context):
+    """Copy data[key] to plugin_extras["public"][key] for storing in the db"""
+    model = context['model']
+    user = context['user']
+    user = model.User.get(user)
+    if user.plugin_extras:
+        user.plugin_extras["public"][key] = data[key]
+    else:
+        user.plugin_extras = {"public": {}}
+        user.plugin_extras['public'][key] = data[key]
+
+
+def load_public_extra(key, data, errors, context):
+    """Copy pugin_extras["public"][key] to data[key] for exposing to forms and API"""
+    model = context['model']
+    user = context['user']
+    user = model.User.get(user)
+    data[key] = user.plugin_extras["public"][key]
