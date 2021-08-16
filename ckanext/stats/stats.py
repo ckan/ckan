@@ -198,11 +198,10 @@ class Stats(object):
                 weekly_pkg_ids.append(build_weekly_stats(week_commences, []))
             return weekly_pkg_ids
         if cache_enabled:
-            week_commences = cls.get_date_week_started(datetime.date.today())
-            key = '%s_by_week_%s' % (
-                cls._object_type, week_commences.strftime(DATE_FORMAT))
-            objects_by_week_ = our_cache.get_value(key=key,
-                                                   createfunc=objects_by_week)
+            log.warn(
+                'ckanext.stats does not support caching in current\
+                     implementations'
+            )
         else:
             objects_by_week_ = objects_by_week()
         return objects_by_week_
@@ -228,10 +227,10 @@ class Stats(object):
                 res_pickleable.append((pkg_id, created_datetime.toordinal()))
             return res_pickleable
         if cache_enabled:
-            week_commences = cls.get_date_week_started(datetime.date.today())
-            key = 'all_new_packages_%s' + week_commences.strftime(DATE_FORMAT)
-            new_packages = our_cache.get_value(key=key,
-                                               createfunc=new_packages)
+            log.warn(
+                'ckanext.stats does not support caching in current\
+                     implementations'
+            )
         else:
             new_packages = new_packages()
         return new_packages
@@ -299,10 +298,10 @@ class Stats(object):
             assert deleted_package_week_index == len(deleted_packages_by_week)
             return weekly_numbers
         if cache_enabled:
-            week_commences = cls.get_date_week_started(datetime.date.today())
-            key = 'number_packages_%s' + week_commences.strftime(DATE_FORMAT)
-            num_packages = our_cache.get_value(key=key,
-                                               createfunc=num_packages)
+            log.warn(
+                'ckanext.stats does not support caching in current\
+                     implementations'
+            )
         else:
             num_packages = num_packages()
         return num_packages
@@ -331,11 +330,10 @@ class Stats(object):
                 res_pickleable.append((pkg_id, deleted_datetime.toordinal()))
             return res_pickleable
         if cache_enabled:
-            week_commences = cls.get_date_week_started(datetime.date.today())
-            key = 'all_deleted_packages_%s' + \
-                week_commences.strftime(DATE_FORMAT)
-            deleted_packages = our_cache.get_value(key=key,
-                                                   createfunc=deleted_packages)
+            log.warn(
+                'ckanext.stats does not support caching in current\
+                     implementations'
+            )
         else:
             deleted_packages = deleted_packages()
         return deleted_packages
