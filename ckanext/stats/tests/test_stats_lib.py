@@ -175,9 +175,9 @@ class TestStatsPlugin(object):
             return (date, num, cumulative)
         num_setup_revs = revisions_by_week[0][2]
         data1 = ('2011-01-03', num_setup_revs, num_setup_revs)
-        data2 = ('2011-01-10', 1, num_setup_revs+1)
-        data3 = ('2011-01-17', 2, num_setup_revs+3)
-        data4 = ('2011-01-24', 1, num_setup_revs+4)
+        data2 = ('2011-01-10', 1, num_setup_revs + 1)
+        data3 = ('2011-01-17', 2, num_setup_revs + 3)
+        data4 = ('2011-01-24', 1, num_setup_revs + 4)
         assert 6 > num_setup_revs > 2, num_setup_revs
         assert len(get_results(0)) == len(data1)
         assert all([a == b for a, b in zip(get_results(0), data1)])
