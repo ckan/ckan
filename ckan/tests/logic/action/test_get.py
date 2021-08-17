@@ -938,8 +938,8 @@ class TestUserList(object):
             u['name'] for u in [
                 users[3],  # Kathy Tillman
                 users[1],  # Max Hankins
-                users[0],  # Xander Bird
                 users[2],  # morgan_w
+                users[0],  # Xander Bird
             ]
         ]
 
