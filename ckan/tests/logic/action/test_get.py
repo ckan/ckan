@@ -339,12 +339,8 @@ class TestGroupList(object):
         assert "datasets" not in group_list[0]
 
     def _create_bulk_groups(self, name, count):
-
-        groups = [
-            model.Group(name="{}_{}".format(name, i)) for i in range(count)
-        ]
-        model.Session.add_all(groups)
-        model.repo.commit_and_remove()
+        for i in range(count):
+            factories.Group(name="{}_{}".format(name, i))
 
     def test_limit_default(self):
         self._create_bulk_groups("group_default", 1010)
@@ -714,19 +710,12 @@ class TestOrganizationList(object):
         ), "{}".format(org_list)
 
     def _create_bulk_orgs(self, name, count):
-        from ckan import model
-
-        orgs = [
-            model.Group(
+        for i in range(count):
+            factories.Group(
                 name="{}_{}".format(name, i),
                 is_organization=True,
                 type="organization",
             )
-            for i in range(count)
-        ]
-
-        model.Session.add_all(orgs)
-        model.repo.commit_and_remove()
 
     def test_limit_default(self):
         self._create_bulk_orgs("org_default", 1010)
@@ -1384,13 +1373,8 @@ class TestPackageSearch(object):
         # depending on the solr version.
 
     def _create_bulk_datasets(self, name, count):
-        from ckan import model
-
-        pkgs = [
-            model.Package(name="{}_{}".format(name, i)) for i in range(count)
-        ]
-        model.Session.add_all(pkgs)
-        model.repo.commit_and_remove()
+        for i in range(count):
+            factories.Dataset(name="{}_{}".format(name, i))
 
     def test_rows_returned_default(self):
         self._create_bulk_datasets("rows_default", 11)
@@ -3192,21 +3176,16 @@ class TestPackageActivityList(object):
 
     def _create_bulk_types_activities(self, types):
         dataset = factories.Dataset()
-        from ckan import model
-
         user = factories.User()
 
-        objs = [
-            model.Activity(
+        for activity_type in types:
+            factories.Activity(
                 user_id=user['id'],
                 object_id=dataset["id"],
                 activity_type=activity_type,
                 data=None,
             )
-            for activity_type in types
-        ]
-        model.Session.add_all(objs)
-        model.repo.commit_and_remove()
+
         return dataset["id"]
 
     def test_error_bad_search(self):
@@ -3258,21 +3237,15 @@ class TestPackageActivityList(object):
 
     def _create_bulk_package_activities(self, count):
         dataset = factories.Dataset()
-        from ckan import model
-
         user = factories.User()
 
-        objs = [
-            model.Activity(
+        for i in range(count):
+            factories.Activity(
                 user_id=user['id'],
                 object_id=dataset["id"],
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
-        ]
-        model.Session.add_all(objs)
-        model.repo.commit_and_remove()
         return dataset["id"]
 
     def test_limit_default(self):
@@ -3494,21 +3467,16 @@ class TestUserActivityList(object):
         assert activities[0]["data"]["group"]["title"] == org["title"]
 
     def _create_bulk_user_activities(self, count):
-        from ckan import model
-
         user = factories.User()
 
-        objs = [
-            model.Activity(
+        for i in range(count):
+            factories.Activity(
                 user_id=user["id"],
                 object_id=None,
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
-        ]
-        model.Session.add_all(objs)
-        model.repo.commit_and_remove()
+
         return user["id"]
 
     def test_limit_default(self):
@@ -3710,21 +3678,16 @@ class TestGroupActivityList(object):
 
     def _create_bulk_group_activities(self, count):
         group = factories.Group()
-        from ckan import model
-
         user = factories.User()
 
-        objs = [
-            model.Activity(
+        for i in range(count):
+            factories.Activity(
                 user_id=user['id'],
                 object_id=group["id"],
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
-        ]
-        model.Session.add_all(objs)
-        model.repo.commit_and_remove()
+
         return group["id"]
 
     def test_limit_default(self):
@@ -3943,21 +3906,16 @@ class TestOrganizationActivityList(object):
 
     def _create_bulk_org_activities(self, count):
         org = factories.Organization()
-        from ckan import model
-
         user = factories.User()
 
-        objs = [
-            model.Activity(
+        for i in range(count):
+            factories.Activity(
                 user_id=user['id'],
                 object_id=org["id"],
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
-        ]
-        model.Session.add_all(objs)
-        model.repo.commit_and_remove()
+
         return org["id"]
 
     def test_limit_default(self):
@@ -4114,21 +4072,15 @@ class TestRecentlyChangedPackagesActivityList(object):
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
 
     def _create_bulk_package_activities(self, count):
-        from ckan import model
-
         user = factories.User()
 
-        objs = [
-            model.Activity(
+        for i in range(count):
+            factories.Activity(
                 user_id=user['id'],
                 object_id=None,
                 activity_type="new_package",
                 data=None,
             )
-            for i in range(count)
-        ]
-        model.Session.add_all(objs)
-        model.repo.commit_and_remove()
 
     def test_limit_default(self):
         self._create_bulk_package_activities(35)
@@ -4224,19 +4176,15 @@ class TestDashboardActivityList(object):
 
     def _create_bulk_package_activities(self, count):
         user = factories.User()
-        from ckan import model
 
-        objs = [
-            model.Activity(
+        for i in range(count):
+            factories.Activity(
                 user_id=user["id"],
                 object_id=None,
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
-        ]
-        model.Session.add_all(objs)
-        model.repo.commit_and_remove()
+
         return user["id"]
 
     def test_limit_default(self):
