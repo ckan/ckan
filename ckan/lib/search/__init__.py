@@ -5,6 +5,7 @@ import logging
 import sys
 import cgitb
 import warnings
+import traceback
 import base64
 import xml.dom.minidom
 
@@ -31,11 +32,20 @@ log = logging.getLogger(__name__)
 TIMEOUT = config.get_value('ckan.requests.timeout')
 
 def text_traceback():
+    info = sys.exc_info()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        res = 'the original traceback:'.join(
-            cgitb.text(sys.exc_info()).split('the original traceback:')[1:]
-        ).strip()
+        try:
+            text = cgitb.text(info)
+        except RuntimeError:
+            # there is werkzeug.local.LocalProxy object inside traceback, that
+            # cannot be printed out by the cgitb
+            res = "".join(traceback.format_tb(info[-1]))
+        else:
+            res = 'the original traceback:'.join(
+                text.split('the original traceback:')[1:]
+            ).strip()
+
     return res
 
 
