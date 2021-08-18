@@ -126,22 +126,6 @@ class CommonFixtureMethods(BaseCase):
             group.purge()
             model.repo.commit_and_remove()
 
-    @classmethod
-    def clear_all_tst_ratings(self):
-        ratings = (
-            model.Session.query(model.Rating)
-            .filter_by(package=model.Package.by_name(u"annakarenina"))
-            .all()
-        )
-        ratings += (
-            model.Session.query(model.Rating)
-            .filter_by(package=model.Package.by_name(u"warandpeace"))
-            .all()
-        )
-        for rating in ratings[:]:
-            model.Session.delete(rating)
-        model.repo.commit_and_remove()
-
     @property
     def war(self):
         return self.get_package_by_name(u"warandpeace")
