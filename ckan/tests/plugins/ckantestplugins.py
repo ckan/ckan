@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 import ckan.plugins as p
-import ckan.tests.legacy.mock_plugin as mock_plugin
+import ckan.tests.plugins.mock_plugin as mock_plugin
 
 
 class MapperPlugin(p.SingletonPlugin):
@@ -199,8 +199,3 @@ class JsonMockResourcePreviewExtension(mock_plugin.MockSingletonPlugin):
     def preview_template(self, context, data_dict):
         self.calls["preview_templates"] += 1
         return "tests/mock_json_resource_preview_template.html"
-
-
-# importing this file loads all these extensions by default
-# so clean up the extensions
-# p.plugins_update()
