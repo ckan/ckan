@@ -15,7 +15,7 @@ _validators = {u'is_blanket': is_blanket}
 # can be used for testing and prototyping, and replaced with explicit
 # blankets before going to production
 @tk.blanket.helper
-@tk.blanket.auth
+@tk.blanket.auth_function
 @tk.blanket.action
 @tk.blanket.blueprint
 @tk.blanket.cli
@@ -29,7 +29,7 @@ class ExampleBlanketHelperPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket.auth(auth)
+@tk.blanket.auth_function(auth)
 class ExampleBlanketAuthPlugin(p.SingletonPlugin):
     pass
 

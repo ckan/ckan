@@ -1,83 +1,87 @@
 # -*- coding: utf-8 -*-
 
-"""Quick implementations for simplest interfaces.
+"""Quick implementations of simple plugin interfaces.
 
-Decorate plugin with ``@tk.blanket.<GROUP>`` and it will automatically
-receive common implementation of interface corresponding to the chosen
-group. Common implementation is the one, that satisfies following
-requirements:
+Blankets allow to reduce boilerplate code in plugins by simplifying the way
+common interfaces are registered.
 
- - implementation of interface must provide just a single method
- - method, required by interface, returns either list or dictionary
- - all the items, that are returned from method are defined in separate module
- - all the items(and only those items) are listed inside ``module.__all__``
- - module is available under common import path. Those paths are:
+For instance, this is how template helpers are generally added using the
+:py:class:`~ckan.plugins.interfaces.ITemplateHelpers` interface::
 
-   - ``ckanext.ext.helpers`` for ``ITemplateHelpers``
-   - ``ckanext.ext.logic.auth`` for ``IAuthFunctions``
-   - ``ckanext.ext.logic.action`` for ``IActions``
-   - ``ckanext.ext.logic.validators`` for ``IValidators``
-   - ``ckanext.ext.views`` for ``IBlueprint``
-   - ``ckanext.ext.cli`` for ``IClick``
+    from ckan import plugins as p
+    from ckanext.myext import helpers
 
-Available groups are:
-  - ``tk.blanket.helpers``: implemets ``ITemplateHelpers``
-  - ``tk.blanket.auth``: implemets ``IAuthFunctions``
-  - ``tk.blanket.action``: implemets ``IActions``
-  - ``tk.blanket.validator``: implemets ``IValidators``
-  - ``tk.blanket.blueprint``: implemets ``IBlueprint``
-  - ``tk.blanket.cli``: implemets ``IClick``
 
-Example::
+    class MyPlugin(p.SingletonPlugin):
 
-    @tk.blanket.action
-    class MyPlugin(plugins.SingletonPlugin):
-        pass
+        p.implements(ITemplateHelpers)
 
-Is roughly equal to::
+        def get_helpers(self):
 
-    class MyPlugin(plugins.SingletonPlugin):
-        plugins.implements(plugins.IActions)
-
-        def get_actions(self):
-            import ckanext.ext.logic.action as actions
-            extra_actions = {
-                name: getattr(actions, name)
-                for name in actions.__all__
+            return {
+                'my_ext_custom_helper_1': helpers.my_ext_custom_helper_1,
+                'my_ext_custom_helper_2': helpers.my_ext_custom_helper_2,
             }
-            return extra_actions
 
-In addition, if plugin follows custom naming conventions, it's
-possible to customize implementation, by providing argument to
-decorator.
+The same pattern is used for :py:class:`~ckan.plugins.interfaces.IActions`,
+:py:class:`~ckan.plugins.interfaces.IAuthFunctions`, etc.
 
-If extension uses different names for modules::
+With Blankets, assuming that you have created your module in the expected path
+with the expected name (see below), you can automate the registration of your helpers
+using the corresponding blanket decorator from the plugins toolkit::
 
-    import ckanext.ext.custom_actions as custom_module
 
-    @tk.blanket.action(custom_module)
-    class MyPlugin(plugins.SingletonPlugin):
+    @p.toolkit.blanket.helper
+    class MyPlugin(p.SingletonPlugin):
         pass
 
-If extension already defines function that returns items required by
-interface::
+
+The following table lists the available blanket decorators, the interface they implement
+and the default module path where the blanket will automatically look for items to import:
+
+
++---------------------------------------+-------------------------------------------------------+--------------------------------+
+| Decorator                             | Interface                                             | Default module path            |
++=======================================+=======================================================+================================+
+| ``toolkit.blanket.helper``            | :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` | ckanext.myext.helpers          |
++---------------------------------------+-------------------------------------------------------+--------------------------------+
+| ``toolkit.blanket.auth_function       | :py:class:`~ckan.plugins.interfaces.IAuthFunctions`   | ckanext.myext.logic.auth       |
++---------------------------------------+-------------------------------------------------------+--------------------------------+
+| ``toolkit.blanket.action``            | :py:class:`~ckan.plugins.interfaces.IActions`         | ckanext.myext.logic.action     |
++---------------------------------------+-------------------------------------------------------+--------------------------------+
+| ``toolkit.blanket.validator``         | :py:class:`~ckan.plugins.interfaces.IValidators`      | ckanext.myext.logic.validators |
++---------------------------------------+-------------------------------------------------------+--------------------------------+
+| ``toolkit.blanket.blueprint``         | :py:class:`~ckan.plugins.interfaces.IBlueprint`       | ckanext.myext.logic.views      |
++---------------------------------------+-------------------------------------------------------+--------------------------------+
+| ``toolkit.blanket.cli``               | :py:class:`~ckan.plugins.interfaces.IClick`           | ckanext.myext.cli              |
++---------------------------------------+-------------------------------------------------------+--------------------------------+
+
+
+If your extension uses a different naming convention for your modules, it is still possible
+to use blankets by passing the relevant module as a parameter to the decorator::
+
+    import ckanext.myext.custom_actions as custom_module
+
+    @p.toolkit.blanket.action(custom_module)
+    class MyPlugin(p.SingletonPlugin):
+        pass
+
+You can also pass a function that returns the items required by the interface::
 
     def all_actions():
         return {'ext_action': ext_action}
 
-    @tk.blanket.action(all_actions)
-    class MyPlugin(plugins.SingletonPlugin):
+    @p.toolkit.blanket.action(all_actions)
+    class MyPlugin(p.SingletonPlugin):
         pass
 
-If extension statically defines collection of items required by
-interface::
+Or just a dict with the items required by the interface::
 
     all_actions = {'ext_action': ext_action}
 
-    @tk.blanket.action(all_actions)
-    class MyPlugin(plugins.SingletonPlugin):
+    @p.toolkit.blanket.action(all_actions)
+    class MyPlugin(p.SingletonPlugin):
         pass
-
 """
 import logging
 import enum
@@ -89,7 +93,7 @@ from typing import Any, Callable, Dict, List, NamedTuple, Optional, Type, Union
 
 import ckan.plugins as p
 
-__all__ = [u"helper", u"auth", u"action", u"blueprint", u"cli", u"validator"]
+__all__ = [u"helper", u"auth_function", u"action", u"blueprint", u"cli", u"validator"]
 
 log = logging.getLogger(__name__)
 
@@ -108,12 +112,11 @@ class Blanket(enum.Flag):
     """
 
     helper = enum.auto()
-    auth = enum.auto()
+    auth_function = enum.auto()
     action = enum.auto()
     blueprint = enum.auto()
     cli = enum.auto()
     validator = enum.auto()
-    _all = helper | auth | action | blueprint | cli | validator
 
     def path(self) -> str:
         """Return relative(start from `ckanext.ext`) import path for
@@ -171,7 +174,7 @@ _mapping: Dict[Blanket, BlanketMapping] = {
     Blanket.helper: BlanketMapping(
         u"helpers", u"get_helpers", p.ITemplateHelpers
     ),
-    Blanket.auth: BlanketMapping(
+    Blanket.auth_function: BlanketMapping(
         u"logic.auth", u"get_auth_functions", p.IAuthFunctions
     ),
     Blanket.action: BlanketMapping(
@@ -230,8 +233,6 @@ def _blanket_implementation(
         def wrapper(plugin: Type[p.SingletonPlugin]):
             class wrapped_plugin(plugin):
                 for key in Blanket:
-                    if key is Blanket._all:
-                        continue
                     if key & group:
                         p.implements(key.interface())
                         key.implement(locals(), plugin, subject)
@@ -249,9 +250,8 @@ def _blanket_implementation(
     return decorator
 
 
-_everything = _blanket_implementation(Blanket._all)
 helper = _blanket_implementation(Blanket.helper)
-auth = _blanket_implementation(Blanket.auth)
+auth_function = _blanket_implementation(Blanket.auth_function)
 action = _blanket_implementation(Blanket.action)
 blueprint = _blanket_implementation(Blanket.blueprint)
 cli = _blanket_implementation(Blanket.cli)

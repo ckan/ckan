@@ -298,7 +298,17 @@ implements the :class:`~ckan.plugins.interfaces.IAuthFunctions` interface, and
 provides an implementation of the interface's
 :func:`~ckan.plugins.interfaces.IAuthFunctions.get_auth_functions` method that
 overrides the default :func:`~ckan.logic.auth.create.group_create` function
-with a custom one. This custom function simply returns ``{'success': False}``
+with a custom one.
+
+
+.. seealso::
+
+    Starting from CKAN 2.10, you can also use the ``ckan.plugins.toolkit.blanket``
+    decorators to implement common interfaces in your plugins. See the ``blanket`` method in the
+    :doc:`/extensions/plugins-toolkit`.
+
+
+Our custom function simply returns ``{'success': False}``
 to refuse to let anyone create a new group.
 
 If you now restart CKAN and reload the ``/group`` page, as long as you're not a
