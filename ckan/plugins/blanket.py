@@ -31,7 +31,7 @@ with the expected name (see below), you can automate the registration of your he
 using the corresponding blanket decorator from the plugins toolkit::
 
 
-    @p.toolkit.blanket.helper
+    @p.toolkit.blanket.helpers
     class MyPlugin(p.SingletonPlugin):
         pass
 
@@ -43,15 +43,15 @@ and the default module path where the blanket will automatically look for items 
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
 | Decorator                             | Interface                                             | Default module path            |
 +=======================================+=======================================================+================================+
-| ``toolkit.blanket.helper``            | :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` | ckanext.myext.helpers          |
+| ``toolkit.blanket.helpers``           | :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` | ckanext.myext.helpers          |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.auth_function``     | :py:class:`~ckan.plugins.interfaces.IAuthFunctions`   | ckanext.myext.logic.auth       |
+| ``toolkit.blanket.auth_functions``    | :py:class:`~ckan.plugins.interfaces.IAuthFunctions`   | ckanext.myext.logic.auth       |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.action``            | :py:class:`~ckan.plugins.interfaces.IActions`         | ckanext.myext.logic.action     |
+| ``toolkit.blanket.actions``           | :py:class:`~ckan.plugins.interfaces.IActions`         | ckanext.myext.logic.action     |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.validator``         | :py:class:`~ckan.plugins.interfaces.IValidators`      | ckanext.myext.logic.validators |
+| ``toolkit.blanket.validators``        | :py:class:`~ckan.plugins.interfaces.IValidators`      | ckanext.myext.logic.validators |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.blueprint``         | :py:class:`~ckan.plugins.interfaces.IBlueprint`       | ckanext.myext.logic.views      |
+| ``toolkit.blanket.blueprints``        | :py:class:`~ckan.plugins.interfaces.IBlueprint`       | ckanext.myext.logic.views      |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
 | ``toolkit.blanket.cli``               | :py:class:`~ckan.plugins.interfaces.IClick`           | ckanext.myext.cli              |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
@@ -68,7 +68,7 @@ to use blankets by passing the relevant module as a parameter to the decorator::
 
     import ckanext.myext.custom_actions as custom_module
 
-    @p.toolkit.blanket.action(custom_module)
+    @p.toolkit.blanket.actions(custom_module)
     class MyPlugin(p.SingletonPlugin):
         pass
 
@@ -77,7 +77,7 @@ You can also pass a function that returns the items required by the interface::
     def all_actions():
         return {'ext_action': ext_action}
 
-    @p.toolkit.blanket.action(all_actions)
+    @p.toolkit.blanket.actions(all_actions)
     class MyPlugin(p.SingletonPlugin):
         pass
 
@@ -85,7 +85,7 @@ Or just a dict with the items required by the interface::
 
     all_actions = {'ext_action': ext_action}
 
-    @p.toolkit.blanket.action(all_actions)
+    @p.toolkit.blanket.actions(all_actions)
     class MyPlugin(p.SingletonPlugin):
         pass
 
@@ -119,12 +119,12 @@ class Blanket(enum.Flag):
 
     """
 
-    helper = enum.auto()
-    auth_function = enum.auto()
-    action = enum.auto()
-    blueprint = enum.auto()
+    helpers = enum.auto()
+    auth_functions = enum.auto()
+    actions = enum.auto()
+    blueprints = enum.auto()
     cli = enum.auto()
-    validator = enum.auto()
+    validators = enum.auto()
 
     def path(self) -> str:
         """Return relative(start from `ckanext.ext`) import path for
@@ -143,7 +143,7 @@ class Blanket(enum.Flag):
 
     def returns_list(self) -> bool:
         """Check, whether implementation returns list instead of dict."""
-        return bool(self & (Blanket.cli | Blanket.blueprint))
+        return bool(self & (Blanket.cli | Blanket.blueprints))
 
     def implement(
         self,
@@ -179,20 +179,20 @@ class BlanketMapping(NamedTuple):
 
 
 _mapping: Dict[Blanket, BlanketMapping] = {
-    Blanket.helper: BlanketMapping(
+    Blanket.helpers: BlanketMapping(
         u"helpers", u"get_helpers", p.ITemplateHelpers
     ),
-    Blanket.auth_function: BlanketMapping(
+    Blanket.auth_functions: BlanketMapping(
         u"logic.auth", u"get_auth_functions", p.IAuthFunctions
     ),
-    Blanket.action: BlanketMapping(
+    Blanket.actions: BlanketMapping(
         u"logic.action", u"get_actions", p.IActions
     ),
-    Blanket.blueprint: BlanketMapping(
+    Blanket.blueprints: BlanketMapping(
         u"views", u"get_blueprint", p.IBlueprint
     ),
     Blanket.cli: BlanketMapping(u"cli", u"get_commands", p.IClick),
-    Blanket.validator: BlanketMapping(
+    Blanket.validators: BlanketMapping(
         u"logic.validators", u"get_validators", p.IValidators
     ),
 }
@@ -272,9 +272,9 @@ def _blanket_implementation(
     return decorator
 
 
-helper = _blanket_implementation(Blanket.helper)
-auth_function = _blanket_implementation(Blanket.auth_function)
-action = _blanket_implementation(Blanket.action)
-blueprint = _blanket_implementation(Blanket.blueprint)
+helpers = _blanket_implementation(Blanket.helpers)
+auth_functions = _blanket_implementation(Blanket.auth_functions)
+actions = _blanket_implementation(Blanket.actions)
+blueprints = _blanket_implementation(Blanket.blueprints)
 cli = _blanket_implementation(Blanket.cli)
-validator = _blanket_implementation(Blanket.validator)
+validators = _blanket_implementation(Blanket.validators)

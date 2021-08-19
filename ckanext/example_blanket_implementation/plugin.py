@@ -8,32 +8,32 @@ from ckanext.example_blanket_implementation.logic.validators import is_blanket
 
 _validators = {u'is_blanket': is_blanket}
 
-@tk.blanket.helper
-@tk.blanket.auth_function
-@tk.blanket.action
-@tk.blanket.blueprint
+@tk.blanket.helpers
+@tk.blanket.auth_functions
+@tk.blanket.actions
+@tk.blanket.blueprints
 @tk.blanket.cli
-@tk.blanket.validator
+@tk.blanket.validators
 class ExampleBlanketPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket.helper
+@tk.blanket.helpers
 class ExampleBlanketHelperPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket.auth_function(auth)
+@tk.blanket.auth_functions(auth)
 class ExampleBlanketAuthPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket.action(action.get_actions)
+@tk.blanket.actions(action.get_actions)
 class ExampleBlanketActionPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket.blueprint(lambda: current.views.get_blueprints())
+@tk.blanket.blueprints(lambda: current.views.get_blueprints())
 class ExampleBlanketBlueprintPlugin(p.SingletonPlugin):
     pass
 
@@ -43,6 +43,6 @@ class ExampleBlanketCliPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket.validator(_validators)
+@tk.blanket.validators(_validators)
 class ExampleBlanketValidatorPlugin(p.SingletonPlugin):
     pass
