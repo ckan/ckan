@@ -27,8 +27,13 @@ class TestBlanketImplementation(object):
         try:
             tk.h.bed()
             tk.h.pillow()
+            tk.h.blanket_helper()
         except AttributeError:
             return False
+        with pytest.raises(AttributeError):
+            tk.h._hidden_helper()
+        with pytest.raises(AttributeError):
+            tk.h.randrange(1, 10)
         return True
 
     def _auth_registered(self):

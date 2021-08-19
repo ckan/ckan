@@ -57,10 +57,10 @@ and the default module path where the blanket will automatically look for items 
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
 
 
-.. note:: The only module members that will be exported by blanket are ones,
-          listed inside module's ``__all__`` property. Thus you won't
-          accidentally export hidden functions, CLI sub-commands or blueprint's
-          view functions.
+.. note:: By default, all local module members, whose ``__name__``/``name``
+          doesn't start with an underscore are exported. If the module has
+          ``__all__`` list, only members listed inside this list will be
+          exported.
 
 
 If your extension uses a different naming convention for your modules, it is still possible
@@ -93,6 +93,7 @@ Or just a dict with the items required by the interface::
 import logging
 import enum
 import types
+import inspect
 
 from functools import update_wrapper
 from importlib import import_module
@@ -212,10 +213,7 @@ def _as_implementation(subject: Subject, as_list: bool) -> Callable[..., Any]:
         if isinstance(subject, types.FunctionType):
             return subject(*args, **kwargs)
         elif isinstance(subject, types.ModuleType):
-            result = {
-                item: getattr(subject, item)
-                for item in getattr(subject, u"__all__", [])
-            }
+            result = _get_public_module_members(subject)
             if as_list:
                 return list(result.values())
             return result
@@ -223,6 +221,23 @@ def _as_implementation(subject: Subject, as_list: bool) -> Callable[..., Any]:
             return subject
 
     return func
+
+
+def _get_public_module_members(module: types.ModuleType) -> Dict[str, Any]:
+    all_ = getattr(module, u"__all__", None)
+    if all_:
+        return {item: getattr(module, item) for item in all_}
+
+    def _is_public(member: Any) -> bool:
+        if inspect.getmodule(member) is not module:
+            return False
+
+        name = getattr(member, "__name__", None)
+        if not name:
+            name = getattr(member, "name", "_")
+        return not name.startswith("_")
+
+    return dict(inspect.getmembers(module, _is_public))
 
 
 def _blanket_implementation(

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-__all__ = [u"bed", u"pillow"]
+# must be ignored by blanket
+from random import randrange
 
 
 def blanket_helper():
