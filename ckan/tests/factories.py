@@ -3,39 +3,88 @@
 """This is a collection of factory classes for building CKAN users, datasets,
 etc.
 
-These are meant to be used by tests to create any objects that are needed for
-the tests. They're written using ``factory_boy``:
+These are not meant to be used by tests directly. Instead, use corresponding
+pytest fixture to create any objects that are needed for the tests. These
+factories are written using ``factory_boy``:
 
 https://factoryboy.readthedocs.org/en/latest/
 
-These are not meant to be used for the actual testing, e.g. if you're writing
-a test for the :py:func:`~ckan.logic.action.create.user_create` function then
+These are not meant to be used for the actual testing, e.g. if you're writing a
+test for the :py:func:`~ckan.logic.action.create.user_create` function then
 call :py:func:`~ckan.tests.helpers.call_action`, don't test it via the
-:py:class:`~ckan.tests.factories.User` factory below.
+:py:class:`~ckan.tests.factories.UserFactory` factory or
+:py:func:`~ckan.tests.pytest_ckan.fixtures.user_factory` fixture.
 
 Usage::
 
  # Create a user with the factory's default attributes, and get back a
  # user dict:
- user_dict = factories.User()
+ def test_creation(user_factory):
+     user_dict = user_factory()
 
  # You can create a second user the same way. For attributes that can't be
  # the same (e.g. you can't have two users with the same name) a new value
  # will be generated each time you use the factory:
- another_user_dict = factories.User()
+ def test_creation(user_factory):
+     user_dict = user_factory()
+     another_user_dict = user_factory()
 
  # Create a user and specify your own user name and email (this works
  # with any params that CKAN's user_create() accepts):
- custom_user_dict = factories.User(name='bob', email='bob@bob.com')
+ def test_creation(user_factory):
+     custom_user_dict = user_factory(name='bob', email='bob@bob.com')
 
  # Get a user dict containing the attributes (name, email, password, etc.)
  # that the factory would use to create a user, but without actually
  # creating the user in CKAN:
- user_attributes_dict = vars(factories.User.stub())
+ def test_creation(user_factory):
+     user_attributes_dict = vars(user_factory.stub())
 
  # If you later want to create a user using these attributes, just pass them
  # to the factory:
- user = factories.User(**user_attributes_dict)
+ def test_creation(user_factory):
+     user = user_factory(**user_attributes_dict)
+
+ # If you just need random user, you can get ready-to-use dictionary inside
+ # your test by requiring `user` fixture (just drop `_factory` suffix):
+ def test_creation(user):
+     assert isinstance(user, dict)
+     assert "name" in user
+
+ # If you need SQLAlchemy model object instead of the plain dictionary, call
+ # `model` method of the corresponding factory. All arguments has the same
+ # effect as if they were passed directly to the factory:
+ def test_creation(user_factory):
+     user = user_factory.model(name="bob")
+     assert isinstance(user, model.User)
+
+
+ # In order to create your own factory:
+ # * inherit from :py:class:`~ckan.tests.factories.CKANFactory`
+ # * create `Meta` class inside it, with the two properties:
+ #   * model: corresponding SQLAlchemy model
+ #   * action: API action that can create instances of the model
+ # * define any extra attributes
+ # * register factory as a fixture using :py:func:`~pytest_factoryboy.register`
+ import factory
+ from pytest_factoryboy import register
+ from ckan.tests.factories import CKANFactory
+
+ @register
+ class RatingFactory(CKANFactory):
+
+     class Meta:
+         model = ckanext.ext.model.Rating
+         action = "rating_create"
+
+     # These are the default params that will be used to create new ratings
+     value = factory.Faker("pyint")
+     comment = factory.Faker("text")
+     approved = factory.Faker("boolean")
+
+Factory-fixtures are generated using ``pytest-factoryboy``:
+
+https://pytest-factoryboy.readthedocs.io/en/latest/
 
 """
 import string
@@ -46,22 +95,6 @@ import ckan.model
 import ckan.logic
 import ckan.tests.helpers as helpers
 from ckan.lib.maintain import deprecated
-
-
-def validator_data_dict():
-    """Return a data dict with some arbitrary data in it, suitable to be passed
-    to validator functions for testing.
-
-    """
-    return {("other key",): "other value"}
-
-
-def validator_errors_dict():
-    """Return an errors dict with some arbitrary errors in it, suitable to be
-    passed to validator functions for testing.
-
-    """
-    return {("other key",): ["other error"]}
 
 
 def _get_action_user_name(kwargs):
@@ -101,9 +134,9 @@ def _name(type_):
 class CKANOptions(factory.alchemy.SQLAlchemyOptions):
     """CKANFactory options.
 
-    action: name of the CKAN API action used for entity creation
-    primary_key: name of the entity's property that can be used for retriving
-    entity object from database
+    :param action: name of the CKAN API action used for entity creation
+    :param primary_key: name of the entity's property that can be used for retriving
+        entity object from database
 
     """
 
@@ -120,7 +153,7 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
     Creates entities via CKAN API using an action specified by the
     `Meta.action`.
 
-    Provides `model` method that returns created model object instead of the
+    Provides ``model`` method that returns created model object instead of the
     plain dictionary.
 
     Check factoryboy's documentation for more details:
@@ -171,6 +204,8 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
 
 class UserFactory(CKANFactory):
     """A factory class for creating CKAN users.
+
+    Prefer using ``user_factory`` and ``user`` fixtures.
     """
 
     class Meta:
@@ -185,10 +220,13 @@ class UserFactory(CKANFactory):
     name = factory.Faker("user_name")
     email = factory.Faker("email", domain="ckan.example.com")
     reset_key = None
+    sysadmin = False
 
 
 class ResourceFactory(CKANFactory):
     """A factory class for creating CKAN resources.
+
+    Prefer using ``resource_factory`` and ``resource`` fixtures.
     """
 
     class Meta:
@@ -199,7 +237,7 @@ class ResourceFactory(CKANFactory):
     description = factory.Faker("text")
     format = factory.Faker("file_extension")
     url = factory.Faker("url")
-    package_id = factory.LazyFunction(lambda: DatasetFactory()["id"])
+    package_id = factory.LazyFunction(lambda: PackageFactory()["id"])
 
 
 class ResourceViewFactory(CKANFactory):
@@ -215,6 +253,7 @@ class ResourceViewFactory(CKANFactory):
         def test_resource_view_factory():
             ...
 
+    Prefer using ``resource_view_factory`` and ``resource_view`` fixtures.
     """
 
     class Meta:
@@ -229,6 +268,8 @@ class ResourceViewFactory(CKANFactory):
 
 class SysadminFactory(UserFactory):
     """A factory class for creating sysadmin users.
+
+    Prefer using ``sysadmin_factory`` and ``sysadmin`` fixtures.
     """
 
     sysadmin = True
@@ -240,6 +281,8 @@ class SysadminFactory(UserFactory):
 
 class GroupFactory(CKANFactory):
     """A factory class for creating CKAN groups.
+
+    Prefer using ``group_factory`` and ``group`` fixtures.
     """
 
     class Meta:
@@ -259,6 +302,8 @@ class GroupFactory(CKANFactory):
 
 class OrganizationFactory(GroupFactory):
     """A factory class for creating CKAN organizations.
+
+    Prefer using ``organization_factory`` and ``organization`` fixtures.
     """
 
     class Meta:
@@ -269,8 +314,10 @@ class OrganizationFactory(GroupFactory):
     type = "organization"
 
 
-class DatasetFactory(CKANFactory):
+class PackageFactory(CKANFactory):
     """A factory class for creating CKAN datasets.
+
+    Prefer using ``package_factory`` and ``package`` fixtures.
     """
 
     class Meta:
@@ -285,6 +332,8 @@ class DatasetFactory(CKANFactory):
 
 class VocabularyFactory(CKANFactory):
     """A factory class for creating tag vocabularies.
+
+    Prefer using ``vocabulary_factory`` and ``vocabulary`` fixtures.
     """
 
     class Meta:
@@ -296,6 +345,8 @@ class VocabularyFactory(CKANFactory):
 
 class ActivityFactory(CKANFactory):
     """A factory class for creating CKAN activity objects.
+
+    Prefer using ``activity_factory`` and ``activity`` fixtures.
     """
 
     class Meta:
@@ -305,6 +356,8 @@ class ActivityFactory(CKANFactory):
 
 class MockUserFactory(factory.Factory):
     """A factory class for creating mock CKAN users using the mock library.
+
+    Prefer using ``mock_user_factory`` fixture.
     """
 
     class Meta:
@@ -335,6 +388,8 @@ class MockUserFactory(factory.Factory):
 class SystemInfoFactory(factory.alchemy.SQLAlchemyModelFactory):
     """A factory class for creating SystemInfo objects (config objects
     stored in the DB).
+
+    Prefer using ``system_info_factory`` and ``system_info`` fixtures.
     """
 
     class Meta:
@@ -433,8 +488,8 @@ class Organization(OrganizationFactory):
 
 
 @deprecated(since="2.10.0")
-class Dataset(DatasetFactory):
-    """Deprecated. Use dataset_factory pytest fixture instead.
+class Dataset(PackageFactory):
+    """Deprecated. Use package_factory pytest fixture instead.
 
     """
     pass

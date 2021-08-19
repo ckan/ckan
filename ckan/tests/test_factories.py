@@ -12,7 +12,7 @@ import ckan.tests.factories as factories
         factories.SysadminFactory,
         factories.GroupFactory,
         factories.OrganizationFactory,
-        factories.DatasetFactory,
+        factories.PackageFactory,
         factories.MockUserFactory,
     ],
 )
@@ -33,6 +33,6 @@ def test_resource_view_factory(resource_view_factory):
 
 # END-CONFIG-OVERRIDE
 
-def test_dataset_factory_allows_creation_by_anonymous_user(dataset_factory):
-    dataset = dataset_factory(user=None)
+def test_dataset_factory_allows_creation_by_anonymous_user(package_factory):
+    dataset = package_factory(user=None)
     assert dataset[u"creator_user_id"] is None

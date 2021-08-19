@@ -13,10 +13,25 @@ import pytest
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 import ckan.model as model
-import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckan.tests.lib.navl.test_validators as t
 import ckan.logic as logic
+
+
+def validator_data_dict():
+    """Return a data dict with some arbitrary data in it, suitable to be passed
+    to validator functions for testing.
+
+    """
+    return {("other key",): "other value"}
+
+
+def validator_errors_dict():
+    """Return an errors dict with some arbitrary errors in it, suitable to be
+    passed to validator functions for testing.
+
+    """
+    return {("other key",): ["other error"]}
 
 
 def returns_arg(function):
@@ -162,19 +177,19 @@ def adds_message_to_errors_dict(error_message):
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_with_existed_value(app):
+def test_email_is_unique_validator_with_existed_value(app, user_factory):
     with app.flask_app.test_request_context():
-        user1 = factories.User(username="user01", email="user01@email.com")
+        user1 = user_factory(username="user01", email="user01@email.com")
 
         # try to create new user with occupied email
         with pytest.raises(logic.ValidationError):
-            factories.User(username="new_user", email="user01@email.com")
+            user_factory(username="new_user", email="user01@email.com")
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_email_unchanged(app):
+def test_email_is_unique_validator_user_update_email_unchanged(app, user_factory):
     with app.flask_app.test_request_context():
-        user = factories.User(username="user01", email="user01@email.com")
+        user = user_factory(username="user01", email="user01@email.com")
 
         # try to update user1 and leave email unchanged
         old_email = "user01@email.com"
@@ -186,9 +201,9 @@ def test_email_is_unique_validator_user_update_email_unchanged(app):
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_using_name_as_id(app):
+def test_email_is_unique_validator_user_update_using_name_as_id(app, user_factory):
     with app.flask_app.test_request_context():
-        user = factories.User(username="user01", email="user01@email.com")
+        user = user_factory(username="user01", email="user01@email.com")
 
         # try to update user1 and leave email unchanged
         old_email = "user01@email.com"
@@ -202,9 +217,9 @@ def test_email_is_unique_validator_user_update_using_name_as_id(app):
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_email_new(app):
+def test_email_is_unique_validator_user_update_email_new(app, user_factory):
     with app.flask_app.test_request_context():
-        user = factories.User(username="user01", email="user01@email.com")
+        user = user_factory(username="user01", email="user01@email.com")
 
         # try to update user1 email to unoccupied one
         new_email = "user_new@email.com"
@@ -217,10 +232,10 @@ def test_email_is_unique_validator_user_update_email_new(app):
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_to_existed_email(app):
+def test_email_is_unique_validator_user_update_to_existed_email(app, user_factory):
     with app.flask_app.test_request_context():
-        user1 = factories.User(username="user01", email="user01@email.com")
-        user2 = factories.User(username="user02", email="user02@email.com")
+        user1 = user_factory(username="user01", email="user01@email.com")
+        user2 = user_factory(username="user02", email="user02@email.com")
 
         # try to update user1 email to existed one
         user1["email"] = user2["email"]
@@ -383,9 +398,9 @@ def test_user_name_validator_with_non_string_value():
 
     key = ("name",)
     for non_string_value in non_string_values:
-        data = factories.validator_data_dict()
+        data = validator_data_dict()
         data[key] = non_string_value
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
 
         @t.does_not_modify_data_dict
@@ -409,10 +424,10 @@ def test_user_name_validator_with_a_name_that_already_exists():
     # the same user name in the database.
     mock_model = mock.MagicMock()
 
-    data = factories.validator_data_dict()
+    data = validator_data_dict()
     key = ("name",)
     data[key] = "user_name"
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
 
     @does_not_modify_other_keys_in_errors_dict
@@ -427,10 +442,10 @@ def test_user_name_validator_with_a_name_that_already_exists():
 
 def test_user_name_validator_successful():
     """user_name_validator() should do nothing if given a valid name."""
-    data = factories.validator_data_dict()
+    data = validator_data_dict()
     key = ("name",)
     data[key] = "new_user_name"
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
 
     # Mock ckan.model.
@@ -526,8 +541,8 @@ def test_clean_format():
 
 
 def test_datasets_with_org_can_be_private_when_creating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -550,8 +565,8 @@ def test_datasets_with_org_can_be_private_when_creating():
 
 
 def test_datasets_with_no_org_cannot_be_private_when_creating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -573,8 +588,8 @@ def test_datasets_with_no_org_cannot_be_private_when_creating():
 
 
 def test_datasets_with_org_can_be_private_when_updating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -730,9 +745,9 @@ def test_package_name_exists_empty():
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_package_name_exists():
+def test_package_name_exists(package_factory):
     name = "pne_validation_test"
-    dataset = factories.Dataset(name=name)
+    package_factory(name=name)
     v = validators.package_name_exists(name, _make_context())
     assert v == name
 
@@ -743,8 +758,7 @@ def test_resource_id_exists_empty():
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_resource_id_exists():
-    resource = factories.Resource()
+def test_resource_id_exists(resource):
     v = validators.resource_id_exists(resource["id"], _make_context())
     assert v == resource["id"]
 
@@ -755,8 +769,8 @@ def test_user_id_or_name_exists_empty():
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-def test_user_id_or_name_exists():
-    user = factories.User(name="username")
+def test_user_id_or_name_exists(user_factory):
+    user = user_factory(name="username")
     v = validators.user_id_or_name_exists(user["id"], _make_context())
     assert v == user["id"]
     v = validators.user_id_or_name_exists(user["name"], _make_context())
@@ -769,8 +783,7 @@ def test_group_id_or_name_exists_empty():
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-def test_group_id_or_name_exists():
-    group = factories.Group()
+def test_group_id_or_name_exists(group):
     v = validators.group_id_or_name_exists(group["id"], _make_context())
     assert v == group["id"]
 
@@ -792,7 +805,7 @@ def test_password_ok():
         return validators.user_password_validator(*args, **kwargs)
 
     for password in passwords:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: password}, errors, None)
 
@@ -807,7 +820,7 @@ def test_password_too_short():
     def call_validator(*args, **kwargs):
         return validators.user_password_validator(*args, **kwargs)
 
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
     call_validator(key, {key: password}, errors, None)
 
@@ -825,7 +838,7 @@ def test_url_ok():
         return validators.url_validator(*args, **kwargs)
 
     for url in urls:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: url}, errors, None)
 
@@ -839,7 +852,7 @@ def test_url_invalid():
         return validators.url_validator(*args, **kwargs)
 
     for url in urls:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: url}, errors, None)
 
