@@ -9,6 +9,7 @@ from ckan.model import core
 from ckan.model import package as _package
 from ckan.model import types as _types
 from ckan.model import domain_object
+from ckan.common import g
 
 __all__ = ['group_table', 'Group',
            'Member',
@@ -345,6 +346,54 @@ class Group(core.StatefulObjectMixin,
 
     def __repr__(self):
         return '<Group %s>' % self.name
+
+    def activity_stream_item(self, activity_type, user, user_obj):
+        import ckan.model
+        import ckan.logic
+        # breakpoint()
+        assert activity_type in ("new", "changed"), (
+            str(activity_type))
+
+        # Handle 'deleted' objects.
+        # When the user marks a package as deleted this comes through here as
+        # a 'changed' package activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            if meta.Session.query(activity.Activity).filter_by(
+                    object_id=self.id, activity_type='deleted').all():
+                # A 'deleted' activity for this object has already been emitted
+                # FIXME: What if the object was deleted and then activated
+                # again?
+                return None
+            else:
+                # Emit a 'deleted' activity for this object.
+                activity_type = 'deleted'
+
+        try:
+            # We save the entire rendered package dict so we can support
+            # viewing the past packages from the activity feed.
+            dictized_data = ckan.logic.get_action(self.type + u'_show')({
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'user': user,
+            }, {
+                'id': self.id
+            })
+        except ckan.logic.NotFound:
+            # This happens if this package is being purged and therefore has no
+            # current revision.
+            # TODO: Purge all related activity stream items when a model object
+            # is purged.
+            return None
+
+        activity_type = activity_type + ' ' + self.type
+
+        return ckan.model.activity.Activity(
+            user_id=user_obj.id,
+            object_id=self.id,
+            activity_type=activity_type,
+            data={'group': dictized_data}
+        )
 
 meta.mapper(Group, group_table)
 
