@@ -33,6 +33,13 @@ class TestSearchIndex(object):
             "metadata_modified": datetime.datetime.now().isoformat(),
         }
 
+    def test_solr_is_available(self):
+        assert self.solr_client.search("*:*") is not None
+
+    def test_search_all(self):
+        self.package_index.index_package(self.base_package_dict)
+        assert len(self.solr_client.search("*:*")) == 1
+
     def test_index_basic(self):
 
         self.package_index.index_package(self.base_package_dict)

@@ -8,12 +8,6 @@ from ckanext.example_blanket_implementation.logic.validators import is_blanket
 
 _validators = {u'is_blanket': is_blanket}
 
-
-# As an alternative, `@tk.blanket._everything` may be used, though
-# it's not recommended, because in future new blanket groups will be
-# added and existing functionality can become broken. It's generally
-# can be used for testing and prototyping, and replaced with explicit
-# blankets before going to production
 @tk.blanket.helper
 @tk.blanket.auth_function
 @tk.blanket.action

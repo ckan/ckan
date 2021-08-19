@@ -45,7 +45,7 @@ and the default module path where the blanket will automatically look for items 
 +=======================================+=======================================================+================================+
 | ``toolkit.blanket.helper``            | :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` | ckanext.myext.helpers          |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.auth_function       | :py:class:`~ckan.plugins.interfaces.IAuthFunctions`   | ckanext.myext.logic.auth       |
+| ``toolkit.blanket.auth_function``     | :py:class:`~ckan.plugins.interfaces.IAuthFunctions`   | ckanext.myext.logic.auth       |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
 | ``toolkit.blanket.action``            | :py:class:`~ckan.plugins.interfaces.IActions`         | ckanext.myext.logic.action     |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
@@ -55,6 +55,12 @@ and the default module path where the blanket will automatically look for items 
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
 | ``toolkit.blanket.cli``               | :py:class:`~ckan.plugins.interfaces.IClick`           | ckanext.myext.cli              |
 +---------------------------------------+-------------------------------------------------------+--------------------------------+
+
+
+.. note:: The only module members that will be exported by blanket are ones,
+          listed inside module's ``__all__`` property. Thus you won't
+          accidentally export hidden functions, CLI sub-commands or blueprint's
+          view functions.
 
 
 If your extension uses a different naming convention for your modules, it is still possible
@@ -82,6 +88,7 @@ Or just a dict with the items required by the interface::
     @p.toolkit.blanket.action(all_actions)
     class MyPlugin(p.SingletonPlugin):
         pass
+
 """
 import logging
 import enum

@@ -398,6 +398,25 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Member"
 
+    def test_membership_add_by_email(self, app, mail_server):
+        owner = factories.User(fullname="My Owner")
+        group = self._create_group(owner["name"])
+        url = url_for("group.member_new", id=group["name"])
+        env = {"REMOTE_USER": owner["name"]}
+        email = "invited_user@mailinator.com"
+        app.post(
+            url,
+            environ_overrides=env,
+            data={"save": "", "email": email, "role": "member"},
+            status=200
+        )
+        assert len(mail_server.get_smtp_messages()) == 1
+        users = model.User.by_email(email)
+        assert len(users) == 1, users
+        user = users[0]
+        assert user.email == email, user
+        assert group["id"] in user.get_group_ids(capacity="member")
+
     def test_membership_edit_page(self, app):
         """If `user` parameter provided, render edit page."""
         owner = factories.User(fullname="My Owner")
