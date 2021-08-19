@@ -912,6 +912,19 @@ class TestUserList(object):
         got_user = got_users[0]
         assert got_user == user["name"]
 
+    def test_user_list_return_query(self):
+        user_a = factories.User(email="a@example.com")
+        query = helpers.call_action(
+            "user_list",
+            {"return_query": True},
+            email="a@example.com"
+        )
+        user = query.one()
+
+        expected = ["name", "fullname", "about", "email"]
+        for prop in expected:
+            assert user_a[prop] == getattr(user, prop), prop
+
     def test_user_list_filtered_by_email(self):
 
         user_a = factories.User(email="a@example.com")

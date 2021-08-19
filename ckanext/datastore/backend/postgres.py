@@ -107,19 +107,23 @@ def identifier(s):
 
 
 def get_read_engine():
-    return _get_engine_from_url(config['ckan.datastore.read_url'])
+    return _get_engine_from_url(
+        config['ckan.datastore.read_url'],
+        isolation_level='READ_UNCOMMITTED')
 
 
 def get_write_engine():
     return _get_engine_from_url(config['ckan.datastore.write_url'])
 
 
-def _get_engine_from_url(connection_url):
+def _get_engine_from_url(connection_url, **kwargs):
     '''Get either read or write engine.'''
     engine = _engines.get(connection_url)
     if not engine:
         extras = {'url': connection_url}
         config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
+        for key, value in kwargs.items():
+            config.setdefault(key, value)
         engine = sqlalchemy.engine_from_config(config,
                                                'ckan.datastore.sqlalchemy.',
                                                **extras)
