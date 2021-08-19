@@ -44,30 +44,10 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 _select = sqlalchemy.sql.select
-_aliased = sqlalchemy.orm.aliased
 _or_ = sqlalchemy.or_
 _and_ = sqlalchemy.and_
 _func = sqlalchemy.func
-_desc = sqlalchemy.desc
 _case = sqlalchemy.case
-_text = sqlalchemy.text
-
-
-def _activity_stream_get_filtered_users():
-    '''
-    Get the list of users from the :ref:`ckan.hide_activity_from_users` config
-    option and return a list of their ids. If the config is not specified,
-    returns the id of the site user.
-    '''
-    users = config.get('ckan.hide_activity_from_users')
-    if users:
-        users_list = users.split()
-    else:
-        context = {'model': model, 'ignore_auth': True}
-        site_user = logic.get_action('get_site_user')(context)
-        users_list = [site_user.get('name')]
-
-    return model.User.user_ids_for_name_or_id(users_list)
 
 
 def site_read(context, data_dict=None):
@@ -141,7 +121,6 @@ def current_package_list_with_resources(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
     limit = data_dict.get('limit')
     offset = data_dict.get('offset', 0)
     user = context['user']
@@ -838,7 +817,7 @@ def user_list(context, data_dict):
             model.User.name.label('name'),
             model.User.fullname.label('fullname'),
             model.User.about.label('about'),
-            model.User.about.label('email'),
+            model.User.email.label('email'),
             model.User.created.label('created'),
             _select([_func.count(model.Package.id)],
                     _and_(
@@ -3270,7 +3249,6 @@ def activity_show(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     include_data = asbool(_get_or_bust(data_dict, 'include_data'))
 
@@ -3301,7 +3279,6 @@ def activity_data_show(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = data_dict.get('object_type')
 
@@ -3340,7 +3317,6 @@ def activity_diff(context, data_dict):
     import difflib
 
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = _get_or_bust(data_dict, 'object_type')
     diff_type = data_dict.get('diff_type', 'unified')

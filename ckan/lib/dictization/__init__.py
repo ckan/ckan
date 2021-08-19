@@ -30,9 +30,6 @@ def table_dictize(obj, context, **kw):
 
     result_dict = {}
 
-    model = context["model"]
-    session = model.Session
-
     if isinstance(obj, RowProxy):
         fields = obj.keys()
     else:

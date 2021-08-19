@@ -28,6 +28,13 @@ class TestSearchIndex(object):
         search_result = helpers.call_action(u'package_search', q=u"After")
         assert search_result[u'count'] == 1
 
+        # Clear and defer commit
+        result = cli.invoke(ckan, [u'search-index', u'rebuild', '-e', '-c'])
+        print(result.output)
+        assert not result.exit_code
+        search_result = helpers.call_action(u'package_search', q=u"After")
+        assert search_result[u'count'] == 1
+
     def test_test_main_operations(self, cli):
         """Create few datasets, clear index, rebuild it - make sure search results
         are always reflect correct state of index.

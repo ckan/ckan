@@ -319,7 +319,6 @@ class TestPep8(object):
         "ckan/lib/navl/validators.py",
         "ckan/lib/package_saver.py",
         "ckan/lib/plugins.py",
-        "ckan/lib/render.py",
         "ckan/lib/search/__init__.py",
         "ckan/lib/search/index.py",
         "ckan/lib/search/query.py",
@@ -350,7 +349,6 @@ class TestPep8(object):
         "ckan/model/package.py",
         "ckan/model/package_extra.py",
         "ckan/model/package_relationship.py",
-        "ckan/model/rating.py",
         "ckan/model/resource.py",
         "ckan/model/system_info.py",
         "ckan/model/tag.py",
@@ -362,13 +360,11 @@ class TestPep8(object):
         "ckan/model/vocabulary.py",
         "ckan/authz.py",
         "ckan/poo.py",
-        "ckan/rating.py",
         "ckan/templates_legacy/home/__init__.py",
         "ckan/tests/legacy/ckantestplugin/ckantestplugin/__init__.py",
         "ckan/tests/legacy/ckantestplugin/setup.py",
         "ckan/tests/legacy/functional/api/base.py",
         "ckan/tests/legacy/functional/api/model/test_package.py",
-        "ckan/tests/legacy/functional/api/model/test_ratings.py",
         "ckan/tests/legacy/functional/api/model/test_relationships.py",
         "ckan/tests/legacy/functional/api/model/test_revisions.py",
         "ckan/tests/legacy/functional/api/model/test_tag.py",
@@ -423,12 +419,11 @@ class TestPep8(object):
         "ckan/tests/legacy/models/test_resource.py",
         "contrib/cookiecutter/ckan_extension/"
         "{{cookiecutter.project}}/setup.py",
+        "contrib/cookiecutter/ckan_extension/"
+        "{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}/"
+        "plugin.py",
         "contrib/cookiecutter/ckan_extension/hooks/post_gen_project.py",
         "contrib/cookiecutter/ckan_extension/"
-        "{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}"
-        "/tests/test_plugin.py",
-        "contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}"
-        "/ckanext/{{cookiecutter.project_shortname}}/plugin.py",
         "ckan/tests/legacy/models/test_purge_revision.py",
         "ckan/tests/legacy/models/test_revision.py",
     ]
@@ -543,8 +538,6 @@ class TestActionAuth(object):
 
     AUTH_NO_ACTION_BLACKLIST = [
         "create: file_upload",
-        "delete: revision_delete",
-        "delete: revision_undelete",
         "get: activity_list",
         "get: group_list_available",
         "get: sysadmin",
@@ -553,7 +546,6 @@ class TestActionAuth(object):
         "update: group_change_state",
         "update: group_edit_permissions",
         "update: package_change_state",
-        "update: revision_change_state",
     ]
 
     ACTION_NO_DOC_STR_BLACKLIST = ["get: get_site_user"]

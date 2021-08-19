@@ -17,7 +17,6 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
-import ckan.lib.render as render
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
@@ -197,7 +196,6 @@ def update_config():
     app_globals.app_globals._init()
 
     helpers.load_plugin_helpers()
-    config['pylons.h'] = helpers.helper_functions
 
     # Templates and CSS loading from configuration
     valid_base_templates_folder_names = ['templates']
@@ -237,10 +235,6 @@ def update_config():
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
-
-    # reset the template cache - we do this here so that when we load the
-    # environment it is clean
-    render.reset_template_info_cache()
 
     # clear other caches
     logic.clear_actions_cache()

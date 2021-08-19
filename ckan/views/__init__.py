@@ -5,7 +5,6 @@ from ckan.common import asbool
 import six
 from six import text_type
 from six.moves.urllib.parse import quote
-from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
@@ -19,24 +18,6 @@ log = logging.getLogger(__name__)
 
 APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
-
-
-class LazyView(object):
-
-    def __init__(self, import_name, view_name=None):
-        self.__module__, self.__name__ = import_name.rsplit(u'.', 1)
-        self.import_name = import_name
-        self.view_name = view_name
-
-    @cached_property
-    def view(self):
-        actual_view = import_string(self.import_name)
-        if self.view_name:
-            actual_view = actual_view.as_view(self.view_name)
-        return actual_view
-
-    def __call__(self, *args, **kwargs):
-        return self.view(*args, **kwargs)
 
 
 def check_session_cookie(response):

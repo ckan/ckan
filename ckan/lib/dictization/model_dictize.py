@@ -589,8 +589,6 @@ def package_to_api(pkg, context):
     dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     dictized['license'] = pkg.license.title if pkg.license else None
-    dictized['ratings_average'] = pkg.get_average_rating()
-    dictized['ratings_count'] = len(pkg.ratings)
     dictized['notes_rendered'] = h.render_markdown(pkg.notes)
 
     site_url = config.get('ckan.site_url', None)

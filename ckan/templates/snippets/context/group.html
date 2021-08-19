@@ -2,7 +2,7 @@
   {% if description != 'null' %}
     {% set description = description|striptags %}
     <p class="about">
-      {{ h.truncate(description, length=160, whole_word=True) }}
+      {{ description|truncate(160) }}
     </p>
   {% endif %}
   <div class="btn-group">

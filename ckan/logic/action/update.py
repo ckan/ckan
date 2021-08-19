@@ -65,7 +65,6 @@ def resource_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
@@ -410,7 +409,7 @@ def package_revise(context, data_dict):
     * Change description in dataset, checking for old description::
 
         match={"notes": "old notes", "name": "xyz"}
-        date={"notes": "new notes"}
+        update={"notes": "new notes"}
 
     * Identical to above, but using flattened keys::
 
@@ -897,8 +896,6 @@ def user_generate_apikey(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
-    session = context['session']
     schema = context.get('schema') or schema_.default_generate_apikey_user_schema()
     context['schema'] = schema
     # check if user id in data_dict
@@ -1175,7 +1172,6 @@ def package_owner_org_update(context, data_dict):
     :type organization_id: string
     '''
     model = context['model']
-    user = context['user']
     name_or_id = data_dict.get('id')
     organization_id = data_dict.get('organization_id')
 

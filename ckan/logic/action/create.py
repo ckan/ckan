@@ -283,7 +283,6 @@ def resource_create(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
@@ -515,7 +514,6 @@ def package_relationship_create(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     schema = context.get('schema') \
         or ckan.logic.schema.default_create_relationship_schema()
     api = context.get('api_version')
@@ -928,60 +926,6 @@ def organization_create(context, data_dict):
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
-@logic.auth_audit_exempt
-def rating_create(context, data_dict):
-    '''Rate a dataset (package).
-
-    You must provide your API key in the Authorization header.
-
-    :param package: the name or id of the dataset to rate
-    :type package: string
-    :param rating: the rating to give to the dataset, an integer between 1 and
-        5
-    :type rating: int
-
-    :returns: a dictionary with two keys: ``'rating average'`` (the average
-        rating of the dataset you rated) and ``'rating count'`` (the number of
-        times the dataset has been rated)
-    :rtype: dictionary
-
-    '''
-    model = context['model']
-    user = context.get("user")
-
-    package_ref = data_dict.get('package')
-    rating = data_dict.get('rating')
-    opts_err = None
-    if not package_ref:
-        opts_err = _('You must supply a package id or name '
-                     '(parameter "package").')
-    elif not rating:
-        opts_err = _('You must supply a rating (parameter "rating").')
-    else:
-        try:
-            rating_int = int(rating)
-        except ValueError:
-            opts_err = _('Rating must be an integer value.')
-        else:
-            package = model.Package.get(package_ref)
-            if rating < model.MIN_RATING or rating > model.MAX_RATING:
-                opts_err = _('Rating must be between %i and %i.') \
-                    % (model.MIN_RATING, model.MAX_RATING)
-            elif not package:
-                opts_err = _('Not found') + ': %r' % package_ref
-    if opts_err:
-        raise ValidationError(opts_err)
-
-    user = model.User.by_name(user)
-    package.set_rating(user, rating_int)
-    model.repo.commit()
-
-    package = model.Package.get(package_ref)
-    ret_dict = {'rating average': package.get_average_rating(),
-                'rating count': len(package.ratings)}
-    return ret_dict
-
-
 def user_create(context, data_dict):
     '''Create a new user.
 
@@ -1348,7 +1292,6 @@ def follow_user(context, data_dict):
         raise NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -1407,7 +1350,6 @@ def follow_dataset(context, data_dict):
             _("You must be logged in to follow a dataset."))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -1451,7 +1393,6 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     # this needs to be after the repo.commit or else revisions break
     model = context['model']
     user = context['user']
-    session = context['session']
 
     schema = ckan.logic.schema.member_schema()
     data, errors = _validate(data_dict, schema, context)
@@ -1482,7 +1423,6 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     member_create_context = {
         'model': model,
         'user': user,
-        'session': session,
         'ignore_auth': context.get('ignore_auth'),
     }
     return logic.get_action('member_create')(member_create_context,
@@ -1548,7 +1488,6 @@ def follow_group(context, data_dict):
             _("You must be logged in to follow a group."))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:

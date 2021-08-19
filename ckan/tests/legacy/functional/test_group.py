@@ -82,7 +82,7 @@ def test_sorting():
 @pytest.mark.usefixtures("clean_db")
 def test_read_non_existent(app):
     name = u"group_does_not_exist"
-    offset = url_for(controller="group", action="read", id=name)
+    offset = url_for("group.read", id=name)
     app.get(offset, status=404)
 
 
@@ -93,7 +93,7 @@ def test_member_new_invites_user_if_received_email(_mail_user, app):
     group_name = "a_group"
     CreateTestData.create_groups([{"name": group_name}], user.name)
     group = model.Group.get(group_name)
-    url = url_for(controller="group", action="member_new", id=group.id)
+    url = url_for("group.member_new", id=group.id)
     email = "invited_user@mailinator.com"
     role = "member"
 
