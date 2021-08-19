@@ -101,7 +101,7 @@ from typing import Any, Callable, Dict, List, NamedTuple, Optional, Type, Union
 
 import ckan.plugins as p
 
-__all__ = [u"helper", u"auth_function", u"action", u"blueprint", u"cli", u"validator"]
+__all__ = ["helpers", "auth_functions", "actions", "blueprints", "cli", "validators"]
 
 log = logging.getLogger(__name__)
 
