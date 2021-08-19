@@ -83,9 +83,9 @@ import logging
 import enum
 import types
 
-from collections import namedtuple
 from functools import update_wrapper
 from importlib import import_module
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Type, Union
 
 import ckan.plugins as p
 
@@ -93,8 +93,12 @@ __all__ = [u"helper", u"auth", u"action", u"blueprint", u"cli", u"validator"]
 
 log = logging.getLogger(__name__)
 
+Subject = Union[
+    types.FunctionType, types.ModuleType, Dict[str, Any], List[Any]
+]
 
-class Blanket(enum.IntEnum):
+
+class Blanket(enum.Flag):
     """Enumeration of all available blanket types.
 
     In addition, contains hidden `_all` option, that contains all
@@ -103,42 +107,40 @@ class Blanket(enum.IntEnum):
 
     """
 
-    helper = 1 << 0
-    auth = 1 << 1
-    action = 1 << 2
-    blueprint = 1 << 3
-    cli = 1 << 4
-    validator = 1 << 5
+    helper = enum.auto()
+    auth = enum.auto()
+    action = enum.auto()
+    blueprint = enum.auto()
+    cli = enum.auto()
+    validator = enum.auto()
     _all = helper | auth | action | blueprint | cli | validator
 
-    def path(self):
+    def path(self) -> str:
         """Return relative(start from `ckanext.ext`) import path for
         implementation.
 
         """
         return _mapping[self].path
 
-    def method(self):
-        """Return the name of the method, required for implementation.
-
-        """
+    def method(self) -> str:
+        """Return the name of the method, required for implementation."""
         return _mapping[self].method
 
-    def interface(self):
-        """Return interface provided by blanket.
-        """
+    def interface(self) -> p.Interface:
+        """Return interface provided by blanket."""
         return _mapping[self].interface
 
-    def returns_list(self):
-        """Check, whether implementation returns list instead of dict.
+    def returns_list(self) -> bool:
+        """Check, whether implementation returns list instead of dict."""
+        return bool(self & (Blanket.cli | Blanket.blueprint))
 
-        """
-        return self & (Blanket.cli | Blanket.blueprint)
-
-    def implement(self, locals, plugin, subject):
-        """Provide implementation for interface.
-
-        """
+    def implement(
+        self,
+        locals: Dict[str, Any],
+        plugin: p.SingletonPlugin,
+        subject: Optional[Subject],
+    ):
+        """Provide implementation for interface."""
         if subject is None:
             _last_dot = plugin.__module__.rindex(u".")
             root = plugin.__module__[:_last_dot]
@@ -159,12 +161,13 @@ class Blanket(enum.IntEnum):
         )
 
 
-BlanketMapping = namedtuple(
-    u"BlanketMapping",
-    [u"path", u"method", u"interface"]
-)
+class BlanketMapping(NamedTuple):
+    path: str
+    method: str
+    interface: p.Interface
 
-_mapping = {
+
+_mapping: Dict[Blanket, BlanketMapping] = {
     Blanket.helper: BlanketMapping(
         u"helpers", u"get_helpers", p.ITemplateHelpers
     ),
@@ -184,7 +187,7 @@ _mapping = {
 }
 
 
-def _as_implementation(subject, as_list):
+def _as_implementation(subject: Subject, as_list: bool) -> Callable[..., Any]:
     """Convert subject into acceptable interface implementation.
 
     Subject is one of:
@@ -193,7 +196,9 @@ def _as_implementation(subject, as_list):
     * dict/list - implementation will return subject as is;
     """
 
-    def func(self, *args, **kwargs):
+    def func(
+        self: p.SingletonPlugin, *args: Any, **kwargs: Any
+    ) -> Union[Dict[str, Any], List[Any]]:
         if isinstance(subject, types.FunctionType):
             return subject(*args, **kwargs)
         elif isinstance(subject, types.ModuleType):
@@ -210,7 +215,9 @@ def _as_implementation(subject, as_list):
     return func
 
 
-def _blanket_implementation(group):
+def _blanket_implementation(
+    group: Blanket,
+) -> Callable[[Optional[Subject]], Callable[..., Any]]:
     """Generator of blanket types.
 
     Unless blanket requires something fancy, this function should be
@@ -219,8 +226,8 @@ def _blanket_implementation(group):
 
     """
 
-    def decorator(subject=None):
-        def wrapper(plugin):
+    def decorator(subject: Optional[Subject] = None) -> Callable[..., Any]:
+        def wrapper(plugin: Type[p.SingletonPlugin]):
             class wrapped_plugin(plugin):
                 for key in Blanket:
                     if key is Blanket._all:
