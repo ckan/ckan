@@ -93,7 +93,7 @@ Turn this file into a github issue with a checklist using this command::
    release branch if the original branch was not compatible).
 
    As in the master branch, if some commits involving CSS changes are
-   cherry-picked from master, the less compiling command needs to be run on
+   cherry-picked from master, the sass compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
         npm run build

@@ -10,19 +10,19 @@ from ckan.common import config
 
 
 @click.command(
-    name=u'less',
-    short_help=u'Compile all root less documents into their CSS counterparts')
-def less():
+    name=u'sass',
+    short_help=u'Compile all root sass documents into their CSS counterparts')
+def sass():
     command = (u'npm', u'run', u'build')
 
     public = config.get(u'ckan.base_public_folder')
 
     root = os.path.join(os.path.dirname(__file__), u'..', public, u'base')
     root = os.path.abspath(root)
-    _compile_less(root, command, u'main')
+    _compile_sass(root, command, u'main')
 
 
-def _compile_less(root, command, color):
+def _compile_sass(root, command, color):
     click.echo(u'compile {}.css'.format(color))
     command = command + (u'--', u'--' + color)
 
