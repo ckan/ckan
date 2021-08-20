@@ -1,0 +1,1 @@
+CLI command less is now renamed to sass as the preprocessor was changed in #6175.

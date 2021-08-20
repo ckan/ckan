@@ -42,6 +42,63 @@ def _get_package_new_page(app):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageNew(object):
 
+    @pytest.mark.ckan_config("ckan.plugins", "test_package_controller_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_new_plugin_hook(self, app):
+        user = factories.User()
+        plugin = p.get_plugin("test_package_controller_plugin")
+        res = app.post(
+            url_for("dataset.new"),
+            extra_environ={"REMOTE_USER": user["name"]},
+            data={"name": u"plugged", "save": ""},
+            follow_redirects=False,
+        )
+        assert plugin.calls["edit"] == 0, plugin.calls
+        assert plugin.calls["create"] == 1, plugin.calls
+
+    @pytest.mark.ckan_config("ckan.plugins", "test_package_controller_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_after_create_plugin_hook(self, app):
+        user = factories.User()
+        plugin = p.get_plugin("test_package_controller_plugin")
+        res = app.post(
+            url_for("dataset.new"),
+            extra_environ={"REMOTE_USER": user["name"]},
+            data={"name": u"plugged2", "save": ""},
+            follow_redirects=False,
+        )
+        assert plugin.calls["after_update"] == 0, plugin.calls
+        assert plugin.calls["after_create"] == 1, plugin.calls
+
+        assert plugin.id_in_dict
+
+    @pytest.mark.usefixtures("clean_index")
+    def test_new_indexerror(self, app):
+        from ckan.lib.search.common import SolrSettings
+        user = factories.User()
+        bad_solr_url = "http://example.com/badsolrurl"
+        solr_url = SolrSettings.get()[0]
+        try:
+            SolrSettings.init(bad_solr_url)
+            new_package_name = u"new-package-missing-solr"
+
+            offset = url_for("dataset.new")
+            res = app.post(
+                offset,
+                extra_environ={"REMOTE_USER": user["name"]},
+                data={"save": "", "name": new_package_name},
+            )
+            assert "Unable to add package to search index" in res, res
+        finally:
+            SolrSettings.init(solr_url)
+
+    def test_change_locale(self, app):
+        user = factories.User()
+        url = url_for("dataset.new")
+        res = app.get(url, extra_environ={"REMOTE_USER": user["name"]})
+        res = app.get("/de/dataset/new", extra_environ={"REMOTE_USER": user["name"]})
+        assert helpers.body_contains(res, "Datensatz")
+
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
     def test_needs_organization_but_no_organizations_has_button(self, app):
         """ Scenario: The settings say every dataset needs an organization
@@ -405,6 +462,22 @@ class TestPackageNew(object):
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageEdit(object):
+    def test_redirect_after_edit_using_param(self, app):
+        return_url = "http://random.site.com/dataset/<NAME>?test=param"
+        pkg = factories.Dataset()
+        admin = factories.Sysadmin()
+        url = url_for("dataset.edit", id=pkg["name"], return_to=return_url)
+        resp = app.post(url, extra_environ={"REMOTE_USER": admin["name"]}, follow_redirects=False)
+        assert resp.headers["location"] == return_url.replace("<NAME>", pkg["name"])
+
+    def test_redirect_after_edit_using_config(self, app, ckan_config):
+        expected_redirect = ckan_config["package_edit_return_url"]
+        pkg = factories.Dataset()
+        admin = factories.Sysadmin()
+        url = url_for("dataset.edit", id=pkg["name"])
+        resp = app.post(url, extra_environ={"REMOTE_USER": admin["name"]}, follow_redirects=False)
+        assert resp.headers["location"] == expected_redirect.replace("<NAME>", pkg["name"])
+
     def test_organization_admin_can_edit(self, app):
         user = factories.User()
         organization = factories.Organization(
@@ -853,6 +926,23 @@ class TestPackageDelete(object):
         )
 
         assert 200 == response.status_code
+
+    @pytest.mark.ckan_config("ckan.plugins", "test_package_controller_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_delete(self, app):
+        user = factories.User()
+        admin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        plugin = p.get_plugin("test_package_controller_plugin")
+        plugin.calls.clear()
+        url = url_for("dataset.delete", id=dataset["name"])
+        app.post(url, extra_environ={"REMOTE_USER": user["name"]})
+        app.post(url, extra_environ={"REMOTE_USER": admin["name"]})
+
+        assert model.Package.get(dataset["name"]).state == u"deleted"
+
+        assert plugin.calls["delete"] == 2
+        assert plugin.calls["after_delete"] == 2
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -2364,3 +2454,84 @@ class TestCollaborators(object):
         response = app.get(url, extra_environ=env)
 
         assert '<option value="admin">' in response
+
+
+@pytest.mark.usefixtures('clean_db')
+class TestResourceListing(object):
+    def test_resource_listing_premissions_sysadmin(self, app):
+        admin = factories.Sysadmin()
+        org = factories.Organization()
+        pkg = factories.Dataset(owner_org=org["id"])
+        app.get(
+            url_for("dataset.resources", id=pkg["name"]),
+            extra_environ={"REMOTE_USER": admin["name"]}, status=200)
+
+    def test_resource_listing_premissions_auth_user(self, app):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        pkg = factories.Dataset(owner_org=org["id"])
+
+        app.get(
+            url_for("dataset.resources", id=pkg["name"]),
+            extra_environ={"REMOTE_USER": user["name"]}, status=200)
+
+    def test_resource_listing_premissions_non_auth_user(self, app):
+        org = factories.Organization()
+        pkg = factories.Dataset(owner_org=org["id"])
+        app.get(
+            url_for("dataset.resources", id=pkg["name"]),
+            extra_environ={"REMOTE_USER": "someone_else"}, status=403)
+
+    def test_resource_listing_premissions_not_logged_in(self, app):
+        pkg = factories.Dataset()
+        app.get(url_for("dataset.resources", id=pkg["name"]), status=403)
+
+
+@pytest.mark.usefixtures('clean_db')
+class TestNonActivePackages:
+    def test_read(self, app):
+        pkg = factories.Dataset(state="deleted")
+        url = url_for("dataset.read", id=pkg["name"])
+        app.get(url, status=404)
+
+    def test_read_as_admin(self, app):
+        admin = factories.Sysadmin()
+        pkg = factories.Dataset(state="deleted")
+        url = url_for("dataset.read", id=pkg["name"])
+        res = app.get(
+            url, status=200, extra_environ={"REMOTE_USER": admin["name"]}
+        )
+
+
+@pytest.mark.usefixtures("clean_db", "clean_index")
+class TestReadOnly(object):
+    def test_read_nonexistentpackage(self, app):
+        name = "anonexistentpackage"
+        url = url_for("dataset.read", id=name)
+        app.get(url, status=404)
+
+    def test_read_internal_links(self, app):
+        pkg = factories.Dataset(
+            notes="Decoy link here: decoy:decoy, real links here: dataset:pkg-1, "
+            "tag:tag_1 group:test-group-1 and a multi-word tag: tag:\"multi word with punctuation.\"",)
+        res = app.get(url_for("dataset.read", id=pkg["name"]))
+        page = BeautifulSoup(res.data)
+        link = page.body.find("a", text="dataset:pkg-1")
+        assert link
+        assert link["href"] == "/dataset/pkg-1"
+
+        link = page.body.find("a", text="group:test-group-1")
+        assert link
+        assert link["href"] == "/group/test-group-1"
+        assert "decoy</a>" not in res, res
+        assert 'decoy"' not in res, res
+
+    @pytest.mark.ckan_config("ckan.plugins", "test_package_controller_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_read_plugin_hook(self, app):
+        pkg = factories.Dataset()
+        plugin = p.get_plugin("test_package_controller_plugin")
+        plugin.calls.clear()
+        app.get(url_for("dataset.read", id=pkg["name"]))
+        assert plugin.calls["read"] == 1
+        assert plugin.calls["after_show"] == 1
