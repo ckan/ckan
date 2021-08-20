@@ -225,9 +225,7 @@ def resource_view_delete(context, data_dict):
     if not resource_view:
         raise NotFound
 
-    context["resource_view"] = resource_view
-    context['resource'] = model.Resource.get(resource_view.resource_id)
-    _check_access('resource_view_delete', context, data_dict)
+    _check_access('resource_view_delete', context, {'id': id})
 
     resource_view.delete()
     model.repo.commit()

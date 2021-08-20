@@ -52,6 +52,7 @@ from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
+from textwrap import shorten
 
 log = logging.getLogger(__name__)
 
@@ -1320,6 +1321,10 @@ def group_name_to_title(name):
 
 
 @core_helper
+@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "builtin jinja filter instead.",
+                     since="2.10.0")
 def truncate(text, length=30, indicator='...', whole_word=False):
     """Truncate ``text`` with replacement characters.
 
@@ -1339,9 +1344,7 @@ def truncate(text, length=30, indicator='...', whole_word=False):
         >>> truncate('Once upon a time in a world far far away', 14)
         'Once upon a...'
 
-    TODO: try to replace it with built-in `textwrap.shorten`
-    (available starting from Python 3.4) when support for Python 2
-    completely dropped.
+    Deprecated: please use jinja filter `truncate` instead
     """
     if not text:
         return ""
@@ -1372,14 +1375,12 @@ def markdown_extract(text, extract_length=190):
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
-
     return literal(
         text_type(
-            truncate(
+            shorten(
                 plain,
-                length=extract_length,
-                indicator='...',
-                whole_word=True
+                width=extract_length,
+                placeholder='...'
             )
         )
     )
@@ -1762,8 +1763,7 @@ def group_link(group):
 
 @core_helper
 def organization_link(organization):
-    url = url_for(controller='organization', action='read',
-                  id=organization['name'])
+    url = url_for('organization.read', id=organization['name'])
     return link_to(organization['title'], url)
 
 
@@ -1871,8 +1871,8 @@ def _create_url_with_params(params=None, controller=None, action=None,
         action = getattr(c, 'action', False) or p.toolkit.get_endpoint()[1]
     if not extras:
         extras = {}
-
-    url = url_for(controller=controller, action=action, **extras)
+    endpoint = controller + '.' + action
+    url = url_for(endpoint, **extras)
     return _url_with_params(url, params)
 
 
@@ -2613,7 +2613,8 @@ def license_options(existing_license_id=None):
         license_ids.insert(0, existing_license_id)
     return [
         (license_id,
-         register[license_id].title if license_id in register else license_id)
+         _(register[license_id].title)
+         if license_id in register else license_id)
         for license_id in license_ids]
 
 

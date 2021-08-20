@@ -985,6 +985,7 @@ def task_status_update_many(context, data_dict):
     model = context['model']
     deferred = context.get('defer_commit')
     context['defer_commit'] = True
+
     for data in data_dict['data']:
         results.append(_get_action('task_status_update')(context, data))
     if not deferred:

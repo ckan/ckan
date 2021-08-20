@@ -166,8 +166,7 @@ def get_invite_body(user, group_dict=None, role=None):
 
 
 def get_reset_link(user):
-    return h.url_for(controller='user',
-                     action='perform_reset',
+    return h.url_for('user.perform_reset',
                      id=user.id,
                      key=user.reset_key,
                      qualified=True)

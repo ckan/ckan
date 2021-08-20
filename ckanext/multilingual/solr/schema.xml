@@ -368,8 +368,6 @@
     <field name="maintainer_email" type="textgen" indexed="true" stored="true" />
     <field name="license" type="string" indexed="true" stored="true" />
     <field name="license_id" type="string" indexed="true" stored="true" />
-    <field name="ratings_count" type="int" indexed="true" stored="false" />
-    <field name="ratings_average" type="float" indexed="true" stored="false" />
     <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="groups" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="organization" type="string" indexed="true" stored="true" multiValued="false"/>

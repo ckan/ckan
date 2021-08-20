@@ -926,60 +926,6 @@ def organization_create(context, data_dict):
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
-@logic.auth_audit_exempt
-def rating_create(context, data_dict):
-    '''Rate a dataset (package).
-
-    You must provide your API key in the Authorization header.
-
-    :param package: the name or id of the dataset to rate
-    :type package: string
-    :param rating: the rating to give to the dataset, an integer between 1 and
-        5
-    :type rating: int
-
-    :returns: a dictionary with two keys: ``'rating average'`` (the average
-        rating of the dataset you rated) and ``'rating count'`` (the number of
-        times the dataset has been rated)
-    :rtype: dictionary
-
-    '''
-    model = context['model']
-    user = context.get("user")
-
-    package_ref = data_dict.get('package')
-    rating = data_dict.get('rating')
-    opts_err = None
-    if not package_ref:
-        opts_err = _('You must supply a package id or name '
-                     '(parameter "package").')
-    elif not rating:
-        opts_err = _('You must supply a rating (parameter "rating").')
-    else:
-        try:
-            rating_int = int(rating)
-        except ValueError:
-            opts_err = _('Rating must be an integer value.')
-        else:
-            package = model.Package.get(package_ref)
-            if rating < model.MIN_RATING or rating > model.MAX_RATING:
-                opts_err = _('Rating must be between %i and %i.') \
-                    % (model.MIN_RATING, model.MAX_RATING)
-            elif not package:
-                opts_err = _('Not found') + ': %r' % package_ref
-    if opts_err:
-        raise ValidationError(opts_err)
-
-    user = model.User.by_name(user)
-    package.set_rating(user, rating_int)
-    model.repo.commit()
-
-    package = model.Package.get(package_ref)
-    ret_dict = {'rating average': package.get_average_rating(),
-                'rating count': len(package.ratings)}
-    return ret_dict
-
-
 def user_create(context, data_dict):
     '''Create a new user.
 

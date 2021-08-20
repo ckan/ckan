@@ -555,3 +555,70 @@ class TestPackageMemberList(object):
         context = self._get_context(user)
         assert helpers.call_auth(
             'package_collaborator_list', context=context, id=dataset['id'])
+
+
+class TestFollower:
+    functions = [
+        "user_follower_list",
+        "dataset_follower_list",
+        "group_follower_list",
+        "organization_follower_list",
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anon_cannot_list_followers(self, func):
+        context = {"user": "", "model": model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(func, context=context)
+
+    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.parametrize("func", functions)
+    def test_user_cannot_list_followers(self, func):
+        user = factories.User()
+        context = {"user": user["name"], "model": model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(func, context=context)
+
+    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.parametrize("func", functions)
+    def test_sysadmin_can_list_followers(self, func):
+        sysadmin = factories.Sysadmin()
+        context = {"user": sysadmin["name"], "model": model}
+        assert helpers.call_auth(func, context=context)
+
+
+class TestFollowee:
+    functions = [
+        "user_followee_list",
+        "dataset_followee_list",
+        "group_followee_list",
+        "organization_followee_list",
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anon_cannot_list_followees(self, func):
+        context = {"user": "", "model": model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(func, context=context)
+
+    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.parametrize("func", functions)
+    def test_user_cannot_list_followees_of_another_user(self, func):
+        user = factories.User()
+        context = {"user": user["name"], "model": model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth(func, context=context)
+
+    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.parametrize("func", functions)
+    def test_user_can_list_own_followees(self, func):
+        user = factories.User()
+        context = {"user": user["name"], "model": model}
+        assert helpers.call_auth(func, context=context, id=user["id"])
+
+    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.parametrize("func", functions)
+    def test_sysadmin_can_list_followees(self, func):
+        sysadmin = factories.Sysadmin()
+        context = {"user": sysadmin["name"], "model": model}
+        assert helpers.call_auth(func, context=context)

@@ -39,7 +39,7 @@ def test_config_unset_debug(cli, config_file):
         [u'config-tool', str(config_file), u'debug=false']
 
     )
-    assert not result.exit_code
+    assert not result.exit_code, result.output
     assert _parse(config_file).get(u'app:main', u'debug') == u'false'
 
 
@@ -51,7 +51,7 @@ def test_config_create_custom_debug(cli, config_file):
     result = cli.invoke(
         ckan, [u'config-tool',
                str(config_file), u'custom_debug=false'])
-    assert not result.exit_code
+    assert not result.exit_code, result.output
     assert _parse(config_file).get(u'app:main', u'custom_debug') == u'false'
 
 
@@ -63,7 +63,7 @@ def test_config_custom_section(cli, config_file):
         u'config-tool',
         str(config_file), u'-s', u'server:main', u'port=8000'
     ])
-    assert not result.exit_code
+    assert not result.exit_code, result.output
     assert _parse(config_file).get(u'server:main', u'port') == u'8000'
 
 
@@ -78,6 +78,6 @@ def test_merge_into_new_file(cli, config_file, tmp_path):
         [u'config-tool',
          str(dest), u'-f',
          str(config_file), u'debug=false'])
-    assert not result.exit_code
+    assert not result.exit_code, result.output
     assert _parse(config_file).get(u'app:main', u'debug') == u'true'
     assert _parse(dest).get(u'app:main', u'debug') == u'false'

@@ -22,7 +22,7 @@ I18N_DIR = os.path.join(HERE, u"_i18n_build_js_translations")
 I18N_DUMMY_DIR = os.path.join(HERE, u"_i18n_dummy_es")
 
 
-class TestJSTranslationsPlugin(plugins.SingletonPlugin, DefaultTranslation):
+class JSTranslationsTestPlugin(plugins.SingletonPlugin, DefaultTranslation):
     u"""
     CKAN plugin for testing JavaScript translations from extensions.
 
