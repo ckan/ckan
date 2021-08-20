@@ -817,7 +817,7 @@ def user_list(context, data_dict):
             model.User.name.label('name'),
             model.User.fullname.label('fullname'),
             model.User.about.label('about'),
-            model.User.about.label('email'),
+            model.User.email.label('email'),
             model.User.created.label('created'),
             _select([_func.count(model.Package.id)],
                     _and_(

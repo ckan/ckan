@@ -24,7 +24,7 @@ class TestUserAdd(object):
         ]
         result = cli.invoke(ckan, args)
 
-        assert result.exit_code == 0
+        assert not result.exit_code, result.output
 
     def test_cli_user_add_no_args(self, cli):
         """Command with no args raises SystemExit.
@@ -44,7 +44,7 @@ class TestUserAdd(object):
         ]
         result = cli.invoke(ckan, args)
 
-        assert not result.exit_code
+        assert not result.exit_code, result.output
 
     def test_cli_user_add_unicode_fullname_unicode_decode_error(self, cli):
         """
@@ -60,7 +60,7 @@ class TestUserAdd(object):
             u"email=berty@example.com",
         ]
         result = cli.invoke(ckan, args)
-        assert not result.exit_code
+        assert not result.exit_code, result.output
 
     def test_cli_user_add_unicode_fullname_system_exit(self, cli):
         """
@@ -76,7 +76,7 @@ class TestUserAdd(object):
             u"email=berty@example.com",
         ]
         result = cli.invoke(ckan, args)
-        assert not result.exit_code
+        assert not result.exit_code, result.output
 
 
 @pytest.mark.usefixtures(u"clean_db")
@@ -93,7 +93,7 @@ class TestApiToken(object):
             tid,
         ]
         result = cli.invoke(ckan, args)
-        assert result.exit_code == 0
+        assert not result.exit_code, result.output
         assert u"API Token has been revoked" in result.output
 
         result = cli.invoke(ckan, args)
@@ -111,7 +111,7 @@ class TestApiToken(object):
             user[u"name"],
         ]
         result = cli.invoke(ckan, args)
-        assert result.exit_code == 0
+        assert not result.exit_code, result.output
         for (id,) in model.Session.query(model.ApiToken.id):
             assert id in result.output
 
@@ -130,7 +130,7 @@ class TestApiToken(object):
 
         assert model.Session.query(model.ApiToken).count() == 0
         result = cli.invoke(ckan, args)
-        assert result.exit_code == 0
+        assert not result.exit_code, result.output
         assert model.Session.query(model.ApiToken).count() == 1
 
         args = [
@@ -144,7 +144,7 @@ class TestApiToken(object):
         ]
 
         result = cli.invoke(ckan, args)
-        assert result.exit_code == 0
+        assert not result.exit_code, result.output
         assert model.Session.query(model.ApiToken).count() == 2
 
         args = [

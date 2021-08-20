@@ -6,7 +6,7 @@
         {% block footer_nav %}
           <ul class="list-unstyled">
             {% block footer_links %}
-              <li><a href="{{ h.url_for(controller='home', action='about') }}">{{ _('About {0}').format(g.site_title) }}</a></li>
+              <li><a href="{{ h.url_for('home.about') }}">{{ _('About {0}').format(g.site_title) }}</a></li>
             {% endblock %}
           </ul>
           <ul class="list-unstyled">

@@ -26,6 +26,20 @@ def _reset_config(app):
     app.post(url=url_for("admin.reset_config"), extra_environ=env)
 
 
+@pytest.mark.usefixtures("clean_db")
+def test_index(app, sysadmin_env):
+    url = url_for("admin.index")
+    response = app.get(url, status=403)
+    # random username
+    response = app.get(
+        url, status=403, extra_environ={"REMOTE_USER": "my-random-user-name"}
+    )
+    # now test real access
+
+    response = app.get(url, extra_environ=sysadmin_env)
+    assert "Administration" in response, response
+
+
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestConfig(object):
     """View tests to go along with 'Customizing look and feel' docs."""

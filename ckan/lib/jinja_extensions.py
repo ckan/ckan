@@ -27,7 +27,6 @@ def _get_extensions():
             CkanExtend,
             CkanInternationalizationExtension,
             LinkForExtension,
-            ResourceExtension,
             UrlForStaticExtension,
             UrlForExtension,
             AssetExtension]
@@ -314,24 +313,6 @@ class LinkForExtension(BaseExtension):
     @classmethod
     def _call(cls, args, kwargs):
         return h.nav_link(*args, **kwargs)
-
-class ResourceExtension(BaseExtension):
-    ''' Deprecated. Custom include_resource tag.
-
-    {% resource <resource_name> %}
-
-    see lib.helpers.include_resource() for more details.
-    '''
-
-    tags = set(['resource'])
-
-    @classmethod
-    def _call(cls, args, kwargs):
-        assert len(args) == 1
-        assert len(kwargs) == 0
-        h.include_resource(args[0], **kwargs)
-        return ''
-
 
 class AssetExtension(BaseExtension):
     ''' Custom include_asset tag.
