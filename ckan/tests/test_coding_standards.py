@@ -403,7 +403,6 @@ class TestPep8(object):
         "ckan/model/vocabulary.py",
         "ckan/authz.py",
         "ckanext/datastore/logic/action.py",
-        "ckanext/datastore/tests/test_create.py",
         "ckanext/example_idatasetform/plugin.py",
         "ckanext/example_itemplatehelpers/plugin.py",
         "ckanext/multilingual/plugin.py",
