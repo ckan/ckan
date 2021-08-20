@@ -33,31 +33,43 @@ class TestDelete:
         res_obj = model.Resource.get(resource["id"])
         assert res_obj.state == "deleted"
 
-    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
-    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
-    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
+    @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
+    @pytest.mark.parametrize("role", ["admin", "editor"])
     def test_collaborators_can_delete_resources(self, role):
 
         org1 = factories.Organization()
-        dataset = factories.Dataset(owner_org=org1['id'])
-        resource = factories.Resource(package_id=dataset['id'])
+        dataset = factories.Dataset(owner_org=org1["id"])
+        resource = factories.Resource(package_id=dataset["id"])
 
         user = factories.User()
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity=role)
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity=role,
+        )
 
         context = {
-            'user': user['name'],
-            'ignore_auth': False,
-
+            "user": user["name"],
+            "ignore_auth": False,
         }
 
         created_resource = helpers.call_action(
-            'resource_delete',
-            context=context,
-            id=resource['id'])
+            "resource_delete", context=context, id=resource["id"]
+        )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestDeleteResource(object):
+    def test_01_delete_resource(self, app):
+        res = factories.Resource()
+        pkg = helpers.call_action("package_show", id=res["package_id"])
+        assert len(pkg["resources"]) == 1
+        helpers.call_action("resource_delete", id=res["id"])
+        pkg = helpers.call_action("package_show", id=res["package_id"])
+        assert len(pkg["resources"]) == 0
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
@@ -139,12 +151,40 @@ class TestDeleteTags(object):
         # There is not a lot of call for it, but in theory there could be
         # unicode in the ActionError error message, so ensure that comes
         # through in NotFound as unicode.
-        try:
+        with pytest.raises(logic.NotFound) as e:
             helpers.call_action("tag_delete", id=u"Delta symbol: \u0394")
-        except logic.NotFound as e:
-            assert u"Delta symbol: \u0394" in text_type(e)
-        else:
-            assert 0, "Should have raised NotFound"
+        assert u"Delta symbol: \u0394" in e.value.message
+
+    def test_no_id(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("tag_delete")
+
+    def test_does_not_exist(self):
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("tag_delete", id="not-a-real-id")
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_vocab_does_not_exist(self):
+        vocab = factories.Vocabulary(tags=[{"name": "testtag"}])
+        tag = vocab["tags"][0]
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                "tag_delete", id=tag["id"], vocabulary_id="not-a-real-id"
+            )
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_delete_tag(self):
+        pkg = factories.Dataset(tags=[{"name": "foo"}, {"name": "bar"}])
+        assert len(pkg["tags"]) == 2
+        tags = {t["name"] for t in pkg["tags"]}
+        assert set(helpers.call_action("tag_list")) == tags
+
+        for tag in pkg["tags"]:
+            helpers.call_action("tag_delete", id=tag["id"])
+
+        assert helpers.call_action("tag_list") == []
+        pkg = helpers.call_action("package_show", id=pkg["id"])
+        assert pkg["tags"] == []
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -547,17 +587,34 @@ class TestUserDelete(object):
         user = factories.User()
         dataset = factories.Dataset()
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity="editor",
+        )
 
-        assert len(helpers.call_action('package_collaborator_list', id=dataset['id'])) == 1
+        assert (
+            len(
+                helpers.call_action(
+                    "package_collaborator_list", id=dataset["id"]
+                )
+            )
+            == 1
+        )
 
         context = {}
         params = {u"id": user[u"id"]}
 
         helpers.call_action(u"user_delete", context, **params)
 
-        assert len(helpers.call_action('package_collaborator_list', id=dataset['id'])) == 0
+        assert (
+            len(
+                helpers.call_action(
+                    "package_collaborator_list", id=dataset["id"]
+                )
+            )
+            == 0
+        )
 
 
 class TestJobClear(helpers.FunctionalRQTestBase):
@@ -615,44 +672,52 @@ class TestJobCancel(helpers.FunctionalRQTestBase):
 
 @pytest.mark.usefixtures(u"clean_db")
 class TestApiToken(object):
-
     def test_token_revoke(self):
         user = factories.User()
-        token = helpers.call_action(u"api_token_create", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"], name="token-name")['token']
-        token2 = helpers.call_action(u"api_token_create", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"], name="token-name-2")['token']
+        token = helpers.call_action(
+            u"api_token_create",
+            context={u"model": model, u"user": user[u"name"]},
+            user=user[u"name"],
+            name="token-name",
+        )["token"]
+        token2 = helpers.call_action(
+            u"api_token_create",
+            context={u"model": model, u"user": user[u"name"]},
+            user=user[u"name"],
+            name="token-name-2",
+        )["token"]
 
-        tokens = helpers.call_action(u"api_token_list", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        tokens = helpers.call_action(
+            u"api_token_list",
+            context={u"model": model, u"user": user[u"name"]},
+            user=user[u"name"],
+        )
         assert len(tokens) == 2
 
-        helpers.call_action(u"api_token_revoke", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, token=token)
+        helpers.call_action(
+            u"api_token_revoke",
+            context={u"model": model, u"user": user[u"name"]},
+            token=token,
+        )
 
-        tokens = helpers.call_action(u"api_token_list", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        tokens = helpers.call_action(
+            u"api_token_list",
+            context={u"model": model, u"user": user[u"name"]},
+            user=user[u"name"],
+        )
         assert len(tokens) == 1
 
-        helpers.call_action(u"api_token_revoke", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, jti=api_token.decode(token2)[u'jti'])
+        helpers.call_action(
+            u"api_token_revoke",
+            context={u"model": model, u"user": user[u"name"]},
+            jti=api_token.decode(token2)[u"jti"],
+        )
 
-        tokens = helpers.call_action(u"api_token_list", context={
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        tokens = helpers.call_action(
+            u"api_token_list",
+            context={u"model": model, u"user": user[u"name"]},
+            user=user[u"name"],
+        )
         assert len(tokens) == 0
 
 
@@ -665,49 +730,55 @@ def test_delete_package_collaborator_when_config_disabled():
 
     with pytest.raises(logic.ValidationError):
         helpers.call_action(
-            'package_collaborator_delete',
-            id=dataset['id'], user_id=user['id'])
+            "package_collaborator_delete", id=dataset["id"], user_id=user["id"]
+        )
 
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDelete(object):
-
     def test_delete(self):
 
         dataset = factories.Dataset()
         user = factories.User()
-        capacity = 'editor'
+        capacity = "editor"
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity=capacity)
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity=capacity,
+        )
 
         assert model.Session.query(model.PackageMember).count() == 1
 
         helpers.call_action(
-            'package_collaborator_delete',
-            id=dataset['id'], user_id=user['id'])
+            "package_collaborator_delete", id=dataset["id"], user_id=user["id"]
+        )
 
         assert model.Session.query(model.PackageMember).count() == 0
 
     def test_delete_dataset_not_found(self):
-        dataset = {'id': 'xxx'}
+        dataset = {"id": "xxx"}
         user = factories.User()
 
         with pytest.raises(logic.NotFound):
             helpers.call_action(
-                'package_collaborator_delete',
-                id=dataset['id'], user_id=user['id'])
+                "package_collaborator_delete",
+                id=dataset["id"],
+                user_id=user["id"],
+            )
 
     def test_delete_user_not_found(self):
         dataset = factories.Dataset()
-        user = {'id': 'yyy'}
+        user = {"id": "yyy"}
 
         with pytest.raises(logic.NotFound):
             helpers.call_action(
-                'package_collaborator_delete',
-                id=dataset['id'], user_id=user['id'])
+                "package_collaborator_delete",
+                id=dataset["id"],
+                user_id=user["id"],
+            )
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -717,14 +788,134 @@ def test_package_delete_removes_collaborations():
     user = factories.User()
     dataset = factories.Dataset()
     helpers.call_action(
-        'package_collaborator_create',
-        id=dataset['id'], user_id=user['id'], capacity='editor')
+        "package_collaborator_create",
+        id=dataset["id"],
+        user_id=user["id"],
+        capacity="editor",
+    )
 
-    assert len(helpers.call_action('package_collaborator_list_for_user', id=user['id'])) == 1
+    assert (
+        len(
+            helpers.call_action(
+                "package_collaborator_list_for_user", id=user["id"]
+            )
+        )
+        == 1
+    )
 
     context = {}
     params = {u"id": dataset[u"id"]}
 
     helpers.call_action(u"package_delete", context, **params)
 
-    assert len(helpers.call_action('package_collaborator_list_for_user', id=user['id'])) == 0
+    assert (
+        len(
+            helpers.call_action(
+                "package_collaborator_list_for_user", id=user["id"]
+            )
+        )
+        == 0
+    )
+
+
+class TestVocabularyDelete(object):
+    @pytest.mark.usefixtures("clean_db")
+    def test_basic(self):
+        vocab = factories.Vocabulary()
+        helpers.call_action("vocabulary_delete", id=vocab["id"])
+
+        assert helpers.call_action("vocabulary_list") == []
+
+    @pytest.mark.usefixtures("clean_db")
+    def test_not_existing(self):
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("vocabulary_delete", id="does-not-exist")
+
+    def test_no_id(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_delete")
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestMemberDelete:
+    def test_member_delete_accepts_object_name_or_id(self):
+        org = factories.Organization()
+        user = factories.User()
+        helpers.call_action(
+            "member_delete",
+            object=user["id"],
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+        helpers.call_action(
+            "member_create",
+            object=user["name"],
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+    def test_member_delete_raises_if_user_unauthorized_to_update_group(self):
+        org = factories.Organization()
+        pkg = factories.Dataset()
+        user = factories.User()
+        context = {"ignore_auth": False, "user": user["name"]}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "member_delete",
+                context,
+                object=pkg["name"],
+                id=org["id"],
+                object_type="package",
+                capacity="member",
+            )
+
+    def test_member_delete_raises_if_any_required_parameter_isnt_defined(self):
+        org = factories.Organization()
+        pkg = factories.Dataset()
+        data = dict(
+            object=pkg["name"],
+            id=org["id"],
+            object_type="package",
+            capacity="member",
+        )
+        for key in ["id", "object", "object_type"]:
+            payload = data.copy()
+            payload.pop(key)
+            with pytest.raises(logic.ValidationError):
+                helpers.call_action("member_delete", **payload)
+
+    def test_member_delete_raises_if_group_wasnt_found(self):
+        pkg = factories.Dataset()
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                "member_delete",
+                object=pkg["name"],
+                id="not-real",
+                object_type="package",
+                capacity="member",
+            )
+
+    def test_member_delete_raises_if_object_wasnt_found(self):
+        org = factories.Organization()
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                "member_delete",
+                object="not-real",
+                id=org["id"],
+                object_type="package",
+                capacity="member",
+            )
+
+    def test_member_delete_raises_if_object_type_is_invalid(self):
+        org = factories.Organization()
+        pkg = factories.Dataset()
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "member_delete",
+                object=pkg["name"],
+                id=org["id"],
+                object_type="notvalid",
+                capacity="member",
+            )

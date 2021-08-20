@@ -14,7 +14,7 @@ def test_without_args(cli):
     """
     result = cli.invoke(ckan)
     assert u'Usage: ckan' in result.output
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 def test_incorrect_config(cli):
@@ -29,14 +29,14 @@ def test_correct_config(cli, ckan_config):
     """
     result = cli.invoke(ckan, [u'-c', ckan_config[u'__file__']])
     assert u'Usage: ckan' in result.output
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 def test_correct_config_with_help(cli, ckan_config):
     """Config file not ignored when displaying usage.
     """
     result = cli.invoke(ckan, [u'-c', ckan_config[u'__file__'], u'-h'])
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 def test_config_via_env_var(cli, ckan_config):
@@ -46,7 +46,7 @@ def test_config_via_env_var(cli, ckan_config):
     """
     result = cli.invoke(ckan, [u'-c', None, u'-h'],
                         env={u'CKAN_INI': ckan_config[u'__file__']})
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')

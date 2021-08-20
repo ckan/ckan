@@ -52,6 +52,7 @@ from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
+from textwrap import shorten
 
 log = logging.getLogger(__name__)
 
@@ -139,8 +140,36 @@ def _is_chained_helper(func):
 
 
 def chained_helper(func):
-    """Decorator function allowing helper functions to be chained.
-    """
+    '''Decorator function allowing helper functions to be chained.
+
+    This chain starts with the first chained helper to be registered and
+    ends with the original helper (or a non-chained plugin override
+    version). Chained helpers must accept an extra parameter,
+    specifically the next helper in the chain, for example::
+
+            helper(next_helper, *args, **kwargs).
+
+    The chained helper function may call the next_helper function,
+    optionally passing different values, handling exceptions,
+    returning different values and/or raising different exceptions
+    to the caller.
+
+    Usage::
+
+        from ckan.plugins.toolkit import chained_helper
+
+        @chained_helper
+        def ckan_version(next_func, **kw):
+
+            return next_func(**kw)
+
+    :param func: chained helper function
+    :type func: callable
+
+    :returns: chained helper function
+    :rtype: callable
+
+    '''
     func.chained_helper = True
     return func
 
@@ -1109,8 +1138,9 @@ def get_facet_items_dict(
     if search_facets is None:
         search_facets = getattr(c, u'search_facets', None)
 
-    if not search_facets or not search_facets.get(
-            facet, {}).get('items'):
+    if not search_facets \
+       or not isinstance(search_facets, dict) \
+       or not search_facets.get(facet, {}).get('items'):
         return []
     facets = []
     for facet_item in search_facets.get(facet)['items']:
@@ -1303,6 +1333,10 @@ def group_name_to_title(name):
 
 
 @core_helper
+@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "builtin jinja filter instead.",
+                     since="2.10.0")
 def truncate(text, length=30, indicator='...', whole_word=False):
     """Truncate ``text`` with replacement characters.
 
@@ -1322,9 +1356,7 @@ def truncate(text, length=30, indicator='...', whole_word=False):
         >>> truncate('Once upon a time in a world far far away', 14)
         'Once upon a...'
 
-    TODO: try to replace it with built-in `textwrap.shorten`
-    (available starting from Python 3.4) when support for Python 2
-    completely dropped.
+    Deprecated: please use jinja filter `truncate` instead
     """
     if not text:
         return ""
@@ -1355,14 +1387,12 @@ def markdown_extract(text, extract_length=190):
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
-
     return literal(
         text_type(
-            truncate(
+            shorten(
                 plain,
-                length=extract_length,
-                indicator='...',
-                whole_word=True
+                width=extract_length,
+                placeholder='...'
             )
         )
     )
@@ -1796,8 +1826,7 @@ def group_link(group):
 
 @core_helper
 def organization_link(organization):
-    url = url_for(controller='organization', action='read',
-                  id=organization['name'])
+    url = url_for('organization.read', id=organization['name'])
     return link_to(organization['title'], url)
 
 
@@ -1920,8 +1949,8 @@ def _create_url_with_params(params=None, controller=None, action=None,
         action = getattr(c, 'action', False) or p.toolkit.get_endpoint()[1]
     if not extras:
         extras = {}
-
-    url = url_for(controller=controller, action=action, **extras)
+    endpoint = controller + '.' + action
+    url = url_for(endpoint, **extras)
     return _url_with_params(url, params)
 
 
@@ -2632,7 +2661,8 @@ def license_options(existing_license_id=None):
         license_ids.insert(0, existing_license_id)
     return [
         (license_id,
-         register[license_id].title if license_id in register else license_id)
+         _(register[license_id].title)
+         if license_id in register else license_id)
         for license_id in license_ids]
 
 

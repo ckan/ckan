@@ -2,7 +2,7 @@
   {% if about != 'null' %}
     {% set about = about|striptags %}
     <p class="about">
-      {{ h.truncate(about, length=160, whole_word=True) }}
+      {{ about|truncate(160) }}
     </p>
   {% endif %}
   <div class="btn-group">

@@ -2,6 +2,6 @@
 
 {% for organization in organizations %}
   <div class="box">
-    {% snippet 'snippets/organization_item.html', organization=organization, truncate=50, truncate_title=35 %}
+    {% snippet 'snippets/organization_item.html', organization=organization %}
   </div>
 {% endfor %}
