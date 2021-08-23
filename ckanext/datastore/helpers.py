@@ -9,7 +9,7 @@ import six
 
 from six import string_types
 
-from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
+import ckan.plugins.toolkit as tk
 
 log = logging.getLogger(__name__)
 
@@ -195,11 +195,11 @@ def datastore_dictionary(resource_id):
     """
     try:
         return [
-            f for f in get_action('datastore_search')(
+            f for f in tk.get_action('datastore_search')(
                 None, {
                     u'resource_id': resource_id,
                     u'limit': 0,
                     u'include_total': False})['fields']
             if not f['id'].startswith(u'_')]
-    except (ObjectNotFound, NotAuthorized):
+    except (tk.ObjectNotFound, tk.NotAuthorized):
         return []
