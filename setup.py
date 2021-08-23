@@ -166,6 +166,7 @@ entry_points = {
         'auth_plugin = tests.plugins.ckantestplugins:AuthPlugin',
         'test_group_plugin = tests.plugins.ckantestplugins:MockGroupControllerPlugin',
         'test_package_controller_plugin = tests.plugins.ckantestplugins:MockPackageControllerPlugin',
+        'test_resource_view = tests.plugins.ckantestplugins:MockResourceViewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
         'example_datastore_deleted_with_count_plugin = ckanext.datastore.tests.test_chained_action:ExampleDataStoreDeletedWithCountPlugin',
         'example_data_store_search_sql_plugin = ckanext.datastore.tests.test_chained_auth_functions:ExampleDataStoreSearchSQLPlugin',

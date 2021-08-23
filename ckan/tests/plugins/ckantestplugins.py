@@ -156,3 +156,33 @@ class MockPackageControllerPlugin(p.SingletonPlugin):
 
     def update_facet_titles(self, facet_titles):
         return facet_titles
+
+
+class MockResourceViewExtension(mock_plugin.MockSingletonPlugin):
+    p.implements(p.IResourceView)
+
+    def __init__(self, *args, **kw):
+        self.calls = defaultdict(int)
+
+    def info(self):
+        return {
+            'name': 'test_resource_view',
+            'title': 'Test',
+            'default_title': 'Test',
+        }
+
+    def setup_template_variables(self, context, data_dict):
+        self.calls["setup_template_variables"] += 1
+
+    def can_view(self, data_dict):
+        assert isinstance(data_dict["resource"], dict)
+        assert isinstance(data_dict["package"], dict)
+        self.calls["can_view"] += 1
+        return data_dict["resource"]["format"].lower() == "mock"
+
+    def view_template(self, context, data_dict):
+        assert isinstance(data_dict["resource"], dict)
+        assert isinstance(data_dict["package"], dict)
+
+        self.calls["view_template"] += 1
+        return "tests/mock_resource_preview_template.html"
