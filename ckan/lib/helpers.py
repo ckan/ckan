@@ -2319,36 +2319,6 @@ def format_resource_items(items):
 
 
 @core_helper
-def resource_preview(resource, package):
-    '''
-    Returns a rendered snippet for a embedded resource preview.
-
-    Depending on the type, different previews are loaded.
-    This could be an img tag where the image is loaded directly or an iframe
-    that embeds a web page or a recline preview.
-    '''
-
-    if not resource['url']:
-        return False
-
-    datapreview.res_format(resource)
-    directly = False
-    data_dict = {'resource': resource, 'package': package}
-
-    if datapreview.get_preview_plugin(data_dict, return_first=True):
-        url = url_for('{}_resource.datapreview'.format(package['type']),
-                      resource_id=resource['id'], id=package['id'],
-                      qualified=True)
-    else:
-        return False
-
-    return snippet("dataviewer/snippets/data_preview.html",
-                   embed=directly,
-                   resource_url=url,
-                   raw_resource_url=resource.get('url'))
-
-
-@core_helper
 def get_allowed_view_types(resource, package):
     data_dict = {'resource': resource, 'package': package}
     plugins = datapreview.get_allowed_view_plugins(data_dict)

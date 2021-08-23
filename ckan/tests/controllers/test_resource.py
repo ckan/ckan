@@ -13,47 +13,54 @@ import ckan.tests.factories as factories
 from ckan.tests.helpers import call_action
 
 
-@pytest.mark.ckan_config(
-    "ckan.plugins", "test_resource_preview test_json_resource_preview"
-)
+@pytest.mark.ckan_config("ckan.plugins", "test_resource_view")
+@pytest.mark.ckan_config("ckan.views.default_views", "test_resource_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestPluggablePreviews:
     def test_hook(self, app):
         res = factories.Resource()
-        plugin = plugins.get_plugin("test_resource_preview")
+        plugin = plugins.get_plugin("test_resource_view")
         plugin.calls.clear()
+
         url = h.url_for(
-            "resource.datapreview", id=res["package_id"], resource_id=res["id"]
+            "resource.read", id=res["package_id"], resource_id=res["id"]
         )
-        result = app.get(url, status=409)
-        assert "No preview" in result
+        result = app.get(url)
+        assert "There are no views created" in result
 
         # no preview for type "ümlaut", should not fail
         res["format"] = u"ümlaut"
         call_action("resource_update", **res)
-        result = app.get(url, status=409)
-        assert "No preview" in result
+        result = app.get(url, status=200)
+        assert "There are no views created" in result
 
         res["format"] = "mock"
         call_action("resource_update", **res)
 
-        result = app.get(url, status=200)
+        assert plugin.calls["can_view"] == 2
+
+        result = app.get(url)
+
+        assert 'data-module="data-viewer"' in result.body
+        assert "<iframe" in result.body
+
+        views = call_action("resource_view_list", id=res["id"])
+
+        assert len(views) == 1
+        assert views[0]["view_type"] == "test_resource_view"
+
+        view_url = h.url_for(
+            "resource.view",
+            id=res["package_id"], resource_id=res["id"], view_id=views[0]["id"]
+        )
+
+        result = app.get(view_url)
+
+        assert plugin.calls["setup_template_variables"] == 1
+        assert plugin.calls["view_template"] == 1
 
         assert "mock-preview" in result
         assert "mock-preview.js" in result
-
-        assert plugin.calls["can_preview"] == 3
-        assert plugin.calls["setup_template_variables"] == 1
-        assert plugin.calls["preview_templates"] == 1
-
-        result = app.get(
-            h.url_for(
-                "resource.read", id=res["package_id"], resource_id=res["id"]
-            )
-        )
-        assert 'data-module="data-viewer"' in result
-        assert "<iframe" in result
-        assert url in result
 
 
 @pytest.fixture

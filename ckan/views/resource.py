@@ -886,54 +886,6 @@ def embedded_dataviewer(package_type, id, resource_id, width=500, height=500):
     )
 
 
-def datapreview(package_type, id, resource_id):
-    """
-    Embedded page for a resource data-preview.
-
-    Depending on the type, different previews are loaded.  This could be an
-    img tag where the image is loaded directly or an iframe that embeds a
-    webpage, or a recline preview.
-    """
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
-    }
-
-    try:
-        resource = get_action(u'resource_show')(context, {u'id': resource_id})
-        package = get_action(u'package_show')(context, {u'id': id})
-
-        data_dict = {u'resource': resource, u'package': package}
-
-        preview_plugin = lib_datapreview.get_preview_plugin(data_dict)
-
-        if preview_plugin is None:
-            return base.abort(409, _(u'No preview has been defined.'))
-
-        preview_plugin.setup_template_variables(context, data_dict)
-        resource_json = json.dumps(resource)
-        dataset_type = package[u'type'] or package_type
-
-        # TODO: remove
-        g.resource = resource
-        g.package = package
-        g.resource_json = resource_json
-
-    except (NotFound, NotAuthorized):
-        return base.abort(404, _(u'Resource not found'))
-    else:
-        return base.render(
-            preview_plugin.preview_template(context, data_dict), {
-                u'dataset_type': dataset_type,
-                u'resource': resource,
-                u'package': package,
-                u'resource_json': resource_json
-            }
-        )
-
-
 def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
     blueprint.add_url_rule(
@@ -968,7 +920,6 @@ def register_dataset_plugin_rules(blueprint):
             u'height': u"800"
         }
     )
-    blueprint.add_url_rule(u'/<resource_id>/preview', view_func=datapreview)
 
 
 register_dataset_plugin_rules(resource)
