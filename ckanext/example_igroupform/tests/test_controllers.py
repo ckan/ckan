@@ -76,7 +76,7 @@ class TestGroupController(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform_organization")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
 class TestOrganizationController(object):
     def test_about(self, app):
         user = factories.User()
@@ -122,6 +122,24 @@ class TestOrganizationController(object):
         assert helpers.body_contains(
             response,
             'data-module-placeholder="&lt;{}&gt;"'.format(custom_group_type),
+        )
+
+    def test_pagination(self, app):
+        user = factories.User()
+        group = factories.Organization(user=user, type=custom_group_type)
+        group_name = group["name"]
+        for i in range(0, 21):
+            factories.Dataset(owner_org=group['id'], user=user)
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("%s.read" % custom_group_type, id=group_name)
+        response = app.get(url=url, extra_environ=env)
+        assert helpers.body_contains(
+            response,
+            '/grup/{}?page=2'.format(group_name)
+        )
+        assert not helpers.body_contains(
+            response,
+            '/organization/{}?page=2'.format(group_name)
         )
 
 

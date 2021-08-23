@@ -56,13 +56,6 @@ class TestGroupController(object):
             app.get(url=group_url)
 
 
-def _get_group_new_page(app):
-    user = factories.User()
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
-    response = app.get(url=url_for("group.new"), extra_environ=env)
-    return env, response
-
-
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
@@ -126,17 +119,6 @@ class TestGroupControllerNew(object):
         assert form.select_one('[name=title]')['value'] == "title"
         assert form.select_one('[name=name]')['value'] == "name"
         assert form.select_one('[name=description]').text == "description"
-
-
-def _get_group_edit_page(app, group_name=None):
-    user = factories.User()
-    if group_name is None:
-        group = factories.Group(user=user)
-        group_name = group["name"]
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
-    url = url_for("group.edit", id=group_name)
-    response = app.get(url=url, extra_environ=env)
-    return env, response, group_name
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -415,6 +397,25 @@ class TestGroupMembership(object):
 
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Member"
+
+    def test_membership_add_by_email(self, app, mail_server):
+        owner = factories.User(fullname="My Owner")
+        group = self._create_group(owner["name"])
+        url = url_for("group.member_new", id=group["name"])
+        env = {"REMOTE_USER": owner["name"]}
+        email = "invited_user@mailinator.com"
+        app.post(
+            url,
+            environ_overrides=env,
+            data={"save": "", "email": email, "role": "member"},
+            status=200
+        )
+        assert len(mail_server.get_smtp_messages()) == 1
+        users = model.User.by_email(email)
+        assert len(users) == 1, users
+        user = users[0]
+        assert user.email == email, user
+        assert group["id"] in user.get_group_ids(capacity="member")
 
     def test_membership_edit_page(self, app):
         """If `user` parameter provided, render edit page."""

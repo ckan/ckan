@@ -101,12 +101,6 @@ def test_true_if_not_empty():
     assert my_conf
 
 
-@pytest.mark.skipif(six.PY3, reason=u"Do not test pylons in Py3")
-@pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
-def test_setting_a_key_sets_it_on_pylons_config():
-    assert pylons.config[u"ckan.site_title"] == u"Example title"
-
-
 def test_setting_a_key_sets_it_on_flask_config_if_app_context(
     app, monkeypatch
 ):
@@ -142,16 +136,6 @@ def test_deleting_a_key_delets_it_on_flask_config(
 # END-CONFIG-OVERRIDE
 
 
-@pytest.mark.skipif(six.PY3, reason=u"Do not test pylons in Py3")
-@pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
-def test_update_works_on_pylons_config():
-    ckan_config.update(
-        {u"ckan.site_title": u"Example title 2", u"ckan.new_key": u"test"}
-    )
-    assert pylons.config[u"ckan.site_title"] == u"Example title 2"
-    assert pylons.config[u"ckan.new_key"] == u"test"
-
-
 def test_update_works_on_flask_config(app):
     with app.flask_app.app_context():
         ckan_config[u"ckan.site_title"] = u"Example title"
@@ -163,14 +147,6 @@ def test_update_works_on_flask_config(app):
             flask.current_app.config[u"ckan.site_title"] == u"Example title 2"
         )
         assert flask.current_app.config[u"ckan.new_key"] == u"test"
-
-
-@pytest.mark.skipif(six.PY3, reason=u"Do not test pylons in Py3")
-def test_config_option_update_action_works_on_pylons(reset_db):
-    params = {u"ckan.site_title": u"Example title action"}
-    helpers.call_action(u"config_option_update", {}, **params)
-    assert pylons.config[u"ckan.site_title"] == u"Example title action"
-    reset_db()
 
 
 def test_config_option_update_action_works_on_flask(app, reset_db, ckan_config):

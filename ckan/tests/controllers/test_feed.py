@@ -66,39 +66,6 @@ class TestFeeds(object):
         assert not helpers.body_contains(res, u'<title">{0}</title>'.format(dataset2["title"]))
 
 
-@pytest.mark.skipif(six.PY3, reason="Relies on webhelpers")
-@pytest.mark.ckan_config("ckan.plugins", "test_feed_plugin")
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
-class TestCustomFeedPlugin:
-    def test_custom_class_used(self, app):
-        offset = url_for(u"feeds.general")
-        res = app.get(offset)
-
-        assert helpers.body_contains(
-            res,
-            'xmlns:georss="http://www.georss.org/georss"'
-        )
-
-    def test_additional_fields_added(self, app):
-        metadata = {
-            "ymin": "-2373790",
-            "xmin": "2937940",
-            "ymax": "-1681290",
-            "xmax": "3567770",
-        }
-
-        extras = [{"key": k, "value": v} for (k, v) in metadata.items()]
-
-        factories.Dataset(extras=extras)
-        offset = url_for(u"feeds.general")
-        res = app.get(offset)
-
-        assert helpers.body_contains(
-            res,
-            "<georss:box>-2373790.000000 2937940.000000 -1681290.000000 3567770.000000</georss:box>"
-        )
-
-
 class MockFeedPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFeed)
 

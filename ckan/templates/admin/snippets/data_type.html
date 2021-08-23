@@ -14,13 +14,11 @@
 
 <!-- expanded by default to prevent problems with disabled js -->
 <div id="{{ ent_type }}" class="entities collapse in">
-	{% set truncate = truncate or 180 %}
-	{% set truncate_title = truncate_title or 80 %}
 	<ul class="{{ ent_type }}-list">
     {% for entity in entities %}
       {% set title = entity.title or entity.name %}
         <li>
-          {{ h.link_to(h.truncate(title, truncate_title), h.url_for(entity.type + '.read', id=entity.name)) }}
+          {{ h.link_to(title|truncate(80), h.url_for(entity.type + '.read', id=entity.name)) }}
         </li>
       {% else %}
       <p>
@@ -33,7 +31,7 @@
   {% if entities.first() %}
     <form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-{{ ent_type }}">
       <input type="hidden" name="action" value="{{ent_type}}">
-      <a href="{{ h.url_for('admin.trash', name=ent_type) }}" 
+      <a href="{{ h.url_for('admin.trash', name=ent_type) }}"
          class="btn btn-danger purge-all"
          data-module="confirm-action"
          data-module-with-data=true

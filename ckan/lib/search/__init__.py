@@ -5,6 +5,7 @@ import logging
 import sys
 import cgitb
 import warnings
+import base64
 import xml.dom.minidom
 
 import requests
@@ -137,8 +138,8 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
 
-def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
-            defer_commit=False, package_ids=None, quiet=False):
+def rebuild(package_id=None, only_missing=False, force=False, defer_commit=False,
+            package_ids=None, quiet=False, clear=False):
     '''
         Rebuilds the search index.
 
@@ -183,7 +184,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
         else:
             log.info('Rebuilding the whole index...')
             # When refreshing, the index is not previously cleared
-            if not refresh:
+            if clear:
                 package_index.clear()
 
         total_packages = len(package_ids)
@@ -256,16 +257,11 @@ def clear_all():
 def _get_schema_from_solr(file_offset):
     solr_url, solr_user, solr_password = SolrSettings.get()
 
-    http_auth = None
-    if solr_user is not None and solr_password is not None:
-        http_auth = solr_user + ':' + solr_password
-        http_auth = 'Basic ' + http_auth.encode('base64').strip()
-
     url = solr_url.strip('/') + file_offset
 
-    if http_auth:
+    if solr_user is not None and solr_password is not None:
         response = requests.get(
-            url, headers={'Authorization': http_auth})
+            url, auth=requests.auth.HTTPBasicAuth(solr_user, solr_password))
     else:
         response = requests.get(url)
 

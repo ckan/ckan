@@ -7,7 +7,7 @@ import six
 from six import text_type
 from xml.etree.cElementTree import Element, SubElement, ElementTree
 
-import unicodecsv
+import csv
 
 from codecs import BOM_UTF8
 
@@ -32,7 +32,7 @@ def csv_writer(response, fields, name=None, bom=False):
     if bom:
         response.stream.write(BOM_UTF8)
 
-    unicodecsv.writer(response.stream, encoding=u'utf-8').writerow(
+    csv.writer(response.stream).writerow(
         f['id'] for f in fields)
     yield TextWriter(response.stream)
 
@@ -58,10 +58,9 @@ def tsv_writer(response, fields, name=None, bom=False):
     if bom:
         response.stream.write(BOM_UTF8)
 
-    unicodecsv.writer(
+    csv.writer(
         response.stream,
-        encoding=u'utf-8',
-        dialect=unicodecsv.excel_tab).writerow(
+        dialect='excel-tab').writerow(
             f['id'] for f in fields)
     yield TextWriter(response.stream)
 

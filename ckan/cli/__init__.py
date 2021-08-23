@@ -17,8 +17,13 @@ class CKANConfigLoader(object):
         self.config_file = filename.strip()
         self.config = dict()
         self.parser = ConfigParser()
+        # Preserve case in config keys
+        self.parser.optionxform = str
         self.section = u'app:main'
-        defaults = {u'__file__': os.path.abspath(self.config_file)}
+        defaults = dict(
+            (k, v) for k, v in os.environ.items()
+            if k.startswith("CKAN_"))
+        defaults['__file__'] = os.path.abspath(self.config_file)
         self._update_defaults(defaults)
         self._create_config_object()
 

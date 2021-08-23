@@ -42,7 +42,7 @@ bootstrap:
       - vendor/font-awesome
       - vendor/jquery
   contents:
-    - bootstrap/js/bootstrap.js
+    - bootstrap/javascripts/bootstrap.js
 
 fileupload:
   filters: rjsmin

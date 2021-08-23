@@ -43,18 +43,12 @@ def resource_delete(context, data_dict):
 
 
 def resource_view_delete(context, data_dict):
+    model = context['model']
 
-    if context.get('resource'):
-        return authz.is_authorized('resource_delete', context, {})
-    if context.get('resource_view'):
-        return authz.is_authorized('resource_delete', context, {'id': context['resource_view'].resource_id})
-
-    resource_id = data_dict.get('resource_id')
-    if not resource_id:
-        resource_view = context['model'].ResourceView.get(data_dict['id'])
-        if not resource_view:
-            raise logic.NotFound(_('Resource view not found, cannot check auth.'))
-        resource_id = resource_view.resource_id
+    resource_view = model.ResourceView.get(data_dict['id'])
+    if not resource_view:
+        raise logic.NotFound(_('Resource view not found, cannot check auth.'))
+    resource_id = resource_view.resource_id
 
     return authz.is_authorized('resource_delete', context, {'id': resource_id})
 
@@ -108,16 +102,9 @@ def organization_delete(context, data_dict):
     else:
         return {'success': True}
 
-def revision_undelete(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
-
-def revision_delete(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
-
 def task_status_delete(context, data_dict):
     # sysadmins only
-    user = context['user']
-    return {'success': False, 'msg': _('User %s not authorized to delete task_status') % user}
+    return {'success': False}
 
 def vocabulary_delete(context, data_dict):
     # sysadmins only

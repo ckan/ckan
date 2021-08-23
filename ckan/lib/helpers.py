@@ -22,7 +22,7 @@ from collections import defaultdict
 import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import asbool, config, is_flask_request
+from ckan.common import asbool, config
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
@@ -52,6 +52,7 @@ from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
+from textwrap import shorten
 
 log = logging.getLogger(__name__)
 
@@ -139,8 +140,36 @@ def _is_chained_helper(func):
 
 
 def chained_helper(func):
-    """Decorator function allowing helper functions to be chained.
-    """
+    '''Decorator function allowing helper functions to be chained.
+
+    This chain starts with the first chained helper to be registered and
+    ends with the original helper (or a non-chained plugin override
+    version). Chained helpers must accept an extra parameter,
+    specifically the next helper in the chain, for example::
+
+            helper(next_helper, *args, **kwargs).
+
+    The chained helper function may call the next_helper function,
+    optionally passing different values, handling exceptions,
+    returning different values and/or raising different exceptions
+    to the caller.
+
+    Usage::
+
+        from ckan.plugins.toolkit import chained_helper
+
+        @chained_helper
+        def ckan_version(next_func, **kw):
+
+            return next_func(**kw)
+
+    :param func: chained helper function
+    :type func: callable
+
+    :returns: chained helper function
+    :rtype: callable
+
+    '''
     func.chained_helper = True
     return func
 
@@ -225,8 +254,7 @@ def redirect_to(*args, **kw):
     if _url.startswith('/'):
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
-    if is_flask_request():
-        return _flask_redirect(_url)
+    return _flask_redirect(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
@@ -749,24 +777,6 @@ def are_there_flash_messages():
 
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
-    if is_flask_request():
-        return _link_active_flask(kwargs)
-    else:
-        return _link_active_pylons(kwargs)
-
-
-def _link_active_pylons(kwargs):
-    highlight_controllers = kwargs.get('highlight_controllers', [])
-    if highlight_controllers and c.controller in highlight_controllers:
-        return True
-
-    highlight_actions = kwargs.get('highlight_actions',
-                                   kwargs.get('action', '')).split()
-    return (c.controller == kwargs.get('controller')
-            and c.action in highlight_actions)
-
-
-def _link_active_flask(kwargs):
     blueprint, endpoint = p.toolkit.get_endpoint()
 
     highlight_controllers = kwargs.get('highlight_controllers', [])
@@ -883,13 +893,6 @@ def nav_link(text, *args, **kwargs):
     :param condition: if ``False`` then no link is returned
 
     '''
-    if is_flask_request():
-        return nav_link_flask(text, *args, **kwargs)
-    else:
-        return nav_link_pylons(text, *args, **kwargs)
-
-
-def nav_link_flask(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
     blueprint, endpoint = p.toolkit.get_endpoint()
@@ -905,56 +908,6 @@ def nav_link_flask(text, *args, **kwargs):
     else:
         link = ''
     return link
-
-
-def nav_link_pylons(text, *args, **kwargs):
-    if len(args) > 1:
-        raise Exception('Too many unnamed parameters supplied')
-    if args:
-        kwargs['controller'] = kwargs.get('controller')
-        log.warning('h.nav_link() please supply controller as a named '
-                    'parameter not a positional one')
-    named_route = kwargs.pop('named_route', '')
-    if kwargs.pop('condition', True):
-        if named_route:
-            link = _link_to(text, named_route, **kwargs)
-        else:
-            link = _link_to(text, **kwargs)
-    else:
-        link = ''
-    return link
-
-
-@core_helper
-@maintain.deprecated('h.nav_named_link is deprecated please '
-                     'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter', since='2.0.0')
-def nav_named_link(text, named_route, **kwargs):
-    '''Create a link for a named route.
-    Deprecated in ckan 2.0 '''
-    return nav_link(text, named_route=named_route, **kwargs)
-
-
-@core_helper
-@maintain.deprecated('h.subnav_link is deprecated please '
-                     'use h.nav_link\nNOTE: if action is passed as the second '
-                     'parameter make sure it is passed as a named parameter '
-                     'eg. `action=\'my_action\'', since='2.0.0')
-def subnav_link(text, action, **kwargs):
-    '''Create a link for a named route.
-    Deprecated in ckan 2.0 '''
-    kwargs['action'] = action
-    return nav_link(text, **kwargs)
-
-
-@core_helper
-@maintain.deprecated('h.subnav_named_route is deprecated please '
-                     'use h.nav_link\nNOTE: you will need to pass the '
-                     'route_name as a named parameter', since='2.0.0')
-def subnav_named_route(text, named_route, **kwargs):
-    '''Generate a subnav element based on a named route
-    Deprecated in ckan 2.0 '''
-    return nav_link(text, named_route=named_route, **kwargs)
 
 
 @core_helper
@@ -1185,15 +1138,15 @@ def get_facet_items_dict(
     if search_facets is None:
         search_facets = getattr(c, u'search_facets', None)
 
-    if not search_facets or not search_facets.get(
-            facet, {}).get('items'):
+    if not search_facets \
+       or not isinstance(search_facets, dict) \
+       or not search_facets.get(facet, {}).get('items'):
         return []
     facets = []
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        params_items = request.params.items(multi=True) \
-            if is_flask_request() else request.params.items()
+        params_items = request.params.items(multi=True)
         if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
@@ -1230,13 +1183,12 @@ def has_more_facets(facet, search_facets, limit=None, exclude_active=False):
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        params_items = request.params.items(multi=True) \
-            if is_flask_request() else request.params.items()
+        params_items = request.params.items(multi=True)
         if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    if c.search_facets_limits and limit is None:
+    if getattr(c, 'search_facets_limits', None) and limit is None:
         limit = c.search_facets_limits.get(facet)
     if limit is not None and len(facets) > limit:
         return True
@@ -1264,34 +1216,6 @@ def unselected_facet_items(facet, limit=10):
     '''
     return get_facet_items_dict(
         facet, c.search_facets, limit=limit, exclude_active=True)
-
-
-@core_helper
-@maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be '
-                     'removed.', since="2.0.0")
-def get_facet_title(name):
-    '''Deprecated in ckan 2.0 '''
-    # if this is set in the config use this
-    config_title = config.get('search.facets.%s.title' % name)
-    if config_title:
-        return config_title
-
-    org_label = humanize_entity_type(
-        u'organization',
-        default_group_type(u'organization'),
-        u'facet label') or _(u'Organizations')
-
-    group_label = humanize_entity_type(
-        u'group',
-        default_group_type(u'group'),
-        u'facet label') or _(u'Groups')
-
-    facet_titles = {'organization': _(org_label),
-                    'groups': _(group_label),
-                    'tags': _('Tags'),
-                    'res_format': _('Formats'),
-                    'license': _('Licenses'), }
-    return facet_titles.get(name, name.capitalize())
 
 
 @core_helper
@@ -1409,6 +1333,10 @@ def group_name_to_title(name):
 
 
 @core_helper
+@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "builtin jinja filter instead.",
+                     since="2.10.0")
 def truncate(text, length=30, indicator='...', whole_word=False):
     """Truncate ``text`` with replacement characters.
 
@@ -1428,9 +1356,7 @@ def truncate(text, length=30, indicator='...', whole_word=False):
         >>> truncate('Once upon a time in a world far far away', 14)
         'Once upon a...'
 
-    TODO: try to replace it with built-in `textwrap.shorten`
-    (available starting from Python 3.4) when support for Python 2
-    completely dropped.
+    Deprecated: please use jinja filter `truncate` instead
     """
     if not text:
         return ""
@@ -1461,14 +1387,12 @@ def markdown_extract(text, extract_length=190):
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
-
     return literal(
         text_type(
-            truncate(
+            shorten(
                 plain,
-                length=extract_length,
-                indicator='...',
-                whole_word=True
+                width=extract_length,
+                placeholder='...'
             )
         )
     )
@@ -1495,14 +1419,7 @@ def icon(name, alt=None, inline=True):
 
 @core_helper
 def resource_icon(res):
-    if False:
-        icon_name = 'page_white'
-        # if (res.is_404?): icon_name = 'page_white_error'
-        # also: 'page_white_gear'
-        # also: 'page_white_link'
-        return icon(icon_name)
-    else:
-        return icon(format_icon(res.get('format', '')))
+    return icon(format_icon(res.get('format', '')))
 
 
 @core_helper
@@ -1624,8 +1541,7 @@ def user_image(user_id, size=100):
 @core_helper
 def pager_url(page, partial=None, **kwargs):
     pargs = []
-    if is_flask_request():
-        pargs.append(request.endpoint)
+    pargs.append(request.endpoint)
     kwargs['page'] = page
     return url_for(*pargs, **kwargs)
 
@@ -1910,8 +1826,7 @@ def group_link(group):
 
 @core_helper
 def organization_link(organization):
-    url = url_for(controller='organization', action='read',
-                  id=organization['name'])
+    url = url_for('organization.read', id=organization['name'])
     return link_to(organization['title'], url)
 
 
@@ -2034,8 +1949,8 @@ def _create_url_with_params(params=None, controller=None, action=None,
         action = getattr(c, 'action', False) or p.toolkit.get_endpoint()[1]
     if not extras:
         extras = {}
-
-    url = url_for(controller=controller, action=action, **extras)
+    endpoint = controller + '.' + action
+    url = url_for(endpoint, **extras)
     return _url_with_params(url, params)
 
 
@@ -2053,8 +1968,7 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     instead.
     '''
 
-    params_items = request.params.items(multi=True) \
-        if is_flask_request() else request.params.items()
+    params_items = request.params.items(multi=True)
     params_nopage = [
         (k, v) for k, v in params_items
         if k != 'page'
@@ -2092,8 +2006,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     else:
         keys = key
 
-    params_items = request.params.items(multi=True) \
-        if is_flask_request() else request.params.items()
+    params_items = request.params.items(multi=True)
     params_nopage = [
         (k, v) for k, v in params_items
         if k != 'page'
@@ -2778,7 +2691,8 @@ def license_options(existing_license_id=None):
         license_ids.insert(0, existing_license_id)
     return [
         (license_id,
-         register[license_id].title if license_id in register else license_id)
+         _(register[license_id].title)
+         if license_id in register else license_id)
         for license_id in license_ids]
 
 

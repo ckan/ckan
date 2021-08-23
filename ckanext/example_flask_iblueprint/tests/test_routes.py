@@ -42,3 +42,11 @@ class TestFlaskIBlueprint(object):
         """
         with pytest.raises(HelperError):
             app.get(u"/helper_not_here")
+
+    def test_flask_request_in_template(self, app):
+        u"""
+        Test that we are using Flask request wrapped with CKANRequest
+        params is should be accessible for backward compatibility
+        """
+        res = app.get(u"/flask_request?test=it_works")
+        assert helpers.body_contains(res, 'it_works')

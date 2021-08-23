@@ -167,7 +167,7 @@ datastore         Perform commands to set up the datastore.
 db                Perform various tasks on the database.
 generate          Generate empty extension files to expand CKAN
 jobs              Manage background jobs
-less              Compile all root less documents into their CSS counterparts
+sass              Compile all root sass documents into their CSS counterparts
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
 profile           Code speed profiler.
@@ -262,6 +262,7 @@ db: Manage databases
  ckan db downgrade           - Downgrade the database
  ckan db duplicate_emails    - Check users email for duplicate
  ckan db init                - Initialize the database
+ ckan db pending-migrations  - List all sources with unapplied migrations.
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
 
@@ -405,16 +406,16 @@ then the job is added to the default queue. If queue names are given then a
 separate test job is added to each of the queues.
 
 
-.. _less:
+.. _sass:
 
-less: Compile all root less documents into their CSS counterparts
+sass: Compile all root sass documents into their CSS counterparts
 =================================================================
 
 Usage
 
 .. parsed-literal::
 
- less
+ sass
 
 
 notify: Send out modification notifications
@@ -493,7 +494,7 @@ For example
 
  ckan -c |ckan.ini| search-index rebuild
 
-This default behaviour will clear the index and rebuild it with all datasets. If you want to rebuild it for only
+This default behaviour will refresh the index keeping the existing indexed datasets and rebuild it with all datasets. If you want to rebuild it for only
 one dataset, you can provide a dataset name
 
 .. parsed-literal::
@@ -507,19 +508,18 @@ already indexed
 
  ckan -c |ckan.ini| search-index rebuild -o
 
-If you don't want to rebuild the whole index, but just refresh it, use the `-r` or `--refresh` option. This
-won't clear the index before starting rebuilding it
-
-.. parsed-literal::
-
- ckan -c |ckan.ini| search-index rebuild -r
-
 There is also an option available which works like the refresh option but tries to use all processes on the
 computer to reindex faster
 
 .. parsed-literal::
 
  ckan -c |ckan.ini| search-index rebuild_fast
+
+There is also an option to clear the whole index first and then rebuild it with all datasets:
+
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild --clear
 
 There are other search related commands, mostly useful for debugging purposes
 

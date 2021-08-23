@@ -137,8 +137,6 @@ class LicenseRegister(object):
         for license in license_data:
             if isinstance(license, string_types):
                 license = license_data[license]
-            if license.get('title'):
-                license['title'] = _(license['title'])
         self._create_license_list(license_data, license_url)
 
     def _create_license_list(self, license_data, license_url=''):

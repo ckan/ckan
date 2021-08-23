@@ -222,6 +222,7 @@ def make_flask_stack(conf):
     # Template context processors
     app.context_processor(helper_functions)
     app.context_processor(c_object)
+    app.context_processor(request_object)
 
     @app.context_processor
     def ungettext_alias():
@@ -326,11 +327,11 @@ def make_flask_stack(conf):
 
     # Prevent the host from request to be added to the new header location.
     app = HostHeaderMiddleware(app)
-    if six.PY3:
-        app = I18nMiddleware(app)
 
-        if asbool(config.get('ckan.tracking_enabled', 'false')):
-            app = TrackingMiddleware(app, config)
+    app = I18nMiddleware(app)
+
+    if asbool(config.get('ckan.tracking_enabled', 'false')):
+        app = TrackingMiddleware(app, config)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
@@ -360,6 +361,8 @@ def ckan_before_request():
     '''
     response = None
 
+    g.__timer = time.time()
+
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
@@ -372,7 +375,6 @@ def ckan_before_request():
     set_controller_and_action()
 
     set_ckan_current_url(request.environ)
-    g.__timer = time.time()
 
     return response
 
@@ -412,6 +414,11 @@ def c_object():
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
     return dict(c=g)
+
+
+def request_object():
+    u"""Use CKANRequest object implicitly in templates"""
+    return dict(request=request)
 
 
 class CKAN_Rule(Rule):
