@@ -363,6 +363,8 @@ def ckan_before_request():
     '''
     response = None
 
+    g.__timer = time.time()
+
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
@@ -375,7 +377,6 @@ def ckan_before_request():
     set_controller_and_action()
 
     set_ckan_current_url(request.environ)
-    g.__timer = time.time()
 
     return response
 
