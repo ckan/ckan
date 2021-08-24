@@ -1221,6 +1221,7 @@ class TestUserShow(object):
         assert "password" not in got_user
         assert "reset_key" not in got_user
 
+
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestCurrentPackageList(object):
     def test_current_package_list(self):
