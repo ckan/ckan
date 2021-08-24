@@ -419,7 +419,7 @@ class TestPackageMemberCreateAuth(object):
     def _get_context(self, user):
 
         return {
-            'model': core_model,
+            'model': model,
             'user': user if isinstance(user, str) else user.get('name')
         }
 

@@ -153,7 +153,7 @@ class Stats(object):
         )
         res_ids = model.Session.execute(s).fetchall()
         res_pkgs = [
-            (model.Session.query(model.Package).get(text_type(pkg_id)), val)
+            (model.Session.query(model.Package).get(str(pkg_id)), val)
             for pkg_id, val in res_ids
         ]
         return res_pkgs
