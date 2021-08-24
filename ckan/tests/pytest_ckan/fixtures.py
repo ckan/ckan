@@ -31,6 +31,8 @@ Deeper expanation can be found in `official documentation
 import smtplib
 
 from io import BytesIO
+import copy
+
 import pytest
 import six
 import rq
@@ -76,7 +78,7 @@ def ckan_config(request, monkeypatch):
        :end-before: # END-CONFIG-OVERRIDE
 
     """
-    _original = config.copy()
+    _original = copy.deepcopy(config)
     for mark in request.node.iter_markers(u"ckan_config"):
         monkeypatch.setitem(config, *mark.args)
     yield config

@@ -8,7 +8,6 @@ import responses
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
-import ckan.tests.legacy as tests
 import ckanext.datapusher.interfaces as interfaces
 import ckanext.datastore.backend.postgres as db
 from ckan.tests import helpers, factories
@@ -38,9 +37,6 @@ class TestInterace(object):
 
     @pytest.fixture(autouse=True)
     def setup_class(self, clean_db, test_request_context):
-        if not tests.is_datastore_supported():
-            pytest.skip("Datastore not supported")
-
         resource = factories.Resource(url_type="datastore")
         self.dataset = factories.Dataset(resources=[resource])
         with test_request_context():

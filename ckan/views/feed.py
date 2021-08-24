@@ -426,7 +426,8 @@ def _feed_url(query, controller, action, **kwargs):
     """
     for item in query.items():
         kwargs['query'] = item
-    return h.url_for(controller=controller, action=action, **kwargs)
+    endpoint = controller + '.' + action
+    return h.url_for(endpoint, **kwargs)
 
 
 def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
