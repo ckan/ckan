@@ -1207,6 +1207,19 @@ class TestUserShow(object):
         assert dataset_deleted["name"] not in datasets_got
         assert got_user["number_created_packages"] == 3
 
+    def test_user_show_for_myself_without_passing_id(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action(
+            "user_show", context={"user": user["name"]}
+        )
+
+        assert got_user["name"] == user["name"]
+        assert got_user["email"] == user["email"]
+        assert got_user["apikey"] == user["apikey"]
+        assert "password" not in got_user
+        assert "reset_key" not in got_user
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestCurrentPackageList(object):

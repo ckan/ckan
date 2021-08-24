@@ -1354,7 +1354,9 @@ def tag_show(context, data_dict):
 def user_show(context, data_dict):
     '''Return a user account.
 
-    Either the ``id`` or the ``user_obj`` parameter must be given.
+    Either the ``id`` or the ``user_obj`` parameter should be given.
+    If the ``id`` or the ``user_obj`` is not given and user is logged in then
+    the user object will be returned otherwise not found will be returned.
 
     :param id: the id or name of the user (optional)
     :type id: string
@@ -1385,6 +1387,9 @@ def user_show(context, data_dict):
 
     '''
     model = context['model']
+
+    if 'user' in context and 'id' not in data_dict:
+        data_dict['id'] = context.get('user')
 
     id = data_dict.get('id', None)
     provided_user = data_dict.get('user_obj', None)
