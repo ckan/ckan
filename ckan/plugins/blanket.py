@@ -27,8 +27,8 @@ The same pattern is used for :py:class:`~ckan.plugins.interfaces.IActions`,
 :py:class:`~ckan.plugins.interfaces.IAuthFunctions`, etc.
 
 With Blankets, assuming that you have created your module in the expected path
-with the expected name (see below), you can automate the registration of your helpers
-using the corresponding blanket decorator from the plugins toolkit::
+with the expected name (see below), you can automate the registration of your
+helpers using the corresponding blanket decorator from the plugins toolkit::
 
 
     @p.toolkit.blanket.helpers
@@ -36,25 +36,41 @@ using the corresponding blanket decorator from the plugins toolkit::
         pass
 
 
-The following table lists the available blanket decorators, the interface they implement
-and the default module path where the blanket will automatically look for items to import:
+The following table lists the available blanket decorators, the interface they
+implement and the default module path where the blanket will automatically look
+for items to import:
 
 
-+---------------------------------------+-------------------------------------------------------+--------------------------------+
-| Decorator                             | Interface                                             | Default module path            |
-+=======================================+=======================================================+================================+
-| ``toolkit.blanket.helpers``           | :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` | ckanext.myext.helpers          |
-+---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.auth_functions``    | :py:class:`~ckan.plugins.interfaces.IAuthFunctions`   | ckanext.myext.logic.auth       |
-+---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.actions``           | :py:class:`~ckan.plugins.interfaces.IActions`         | ckanext.myext.logic.action     |
-+---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.validators``        | :py:class:`~ckan.plugins.interfaces.IValidators`      | ckanext.myext.logic.validators |
-+---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.blueprints``        | :py:class:`~ckan.plugins.interfaces.IBlueprint`       | ckanext.myext.logic.views      |
-+---------------------------------------+-------------------------------------------------------+--------------------------------+
-| ``toolkit.blanket.cli``               | :py:class:`~ckan.plugins.interfaces.IClick`           | ckanext.myext.cli              |
-+---------------------------------------+-------------------------------------------------------+--------------------------------+
++---------------------------------------+------------------------------------\
+-------------------+--------------------------------+
+| Decorator                             | Interface                          \
+                   | Default module path            |
++=======================================+====================================\
+===================+================================+
+| ``toolkit.blanket.helpers``           | :py:class:`~ckan.plugins.interfaces\
+.ITemplateHelpers` | ckanext.myext.helpers          |
++---------------------------------------+------------------------------------\
+-------------------+--------------------------------+
+| ``toolkit.blanket.auth_functions``    | :py:class:`~ckan.plugins.interfaces\
+.IAuthFunctions`   | ckanext.myext.logic.auth       |
++---------------------------------------+------------------------------------\
+-------------------+--------------------------------+
+| ``toolkit.blanket.actions``           | :py:class:`~ckan.plugins.interfaces\
+.IActions`         | ckanext.myext.logic.action     |
++---------------------------------------+------------------------------------\
+-------------------+--------------------------------+
+| ``toolkit.blanket.validators``        | :py:class:`~ckan.plugins.interfaces\
+.IValidators`      | ckanext.myext.logic.validators |
++---------------------------------------+------------------------------------\
+-------------------+--------------------------------+
+| ``toolkit.blanket.blueprints``        | :py:class:`~ckan.plugins.interfaces\
+.IBlueprint`       | ckanext.myext.logic.views      |
++---------------------------------------+------------------------------------\
+-------------------+--------------------------------+
+| ``toolkit.blanket.cli``               | :py:class:`~ckan.plugins.interfaces\
+.IClick`           | ckanext.myext.cli              |
++---------------------------------------+------------------------------------\
+-------------------+--------------------------------+
 
 
 .. note:: By default, all local module members, whose ``__name__``/``name``
@@ -63,8 +79,9 @@ and the default module path where the blanket will automatically look for items 
           exported.
 
 
-If your extension uses a different naming convention for your modules, it is still possible
-to use blankets by passing the relevant module as a parameter to the decorator::
+If your extension uses a different naming convention for your modules, it is
+still possible to use blankets by passing the relevant module as a parameter to
+the decorator::
 
     import ckanext.myext.custom_actions as custom_module
 
@@ -90,6 +107,7 @@ Or just a dict with the items required by the interface::
         pass
 
 """
+
 import logging
 import enum
 import types
@@ -101,7 +119,14 @@ from typing import Any, Callable, Dict, List, NamedTuple, Optional, Type, Union
 
 import ckan.plugins as p
 
-__all__ = ["helpers", "auth_functions", "actions", "blueprints", "cli", "validators"]
+__all__ = [
+    "helpers",
+    "auth_functions",
+    "actions",
+    "blueprints",
+    "cli",
+    "validators",
+]
 
 log = logging.getLogger(__name__)
 
