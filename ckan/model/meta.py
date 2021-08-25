@@ -29,17 +29,14 @@ create_local_session = orm.sessionmaker(
 )
 
 
-@event.listens_for(create_local_session, 'after_commit')
-@event.listens_for(Session, 'after_commit')
-def ckan_after_commit(session):
-    "listen for the 'after_commit' event"
-    if hasattr(session, '_object_cache'):
-        del session._object_cache
-
-
 @event.listens_for(create_local_session, 'before_flush')
 @event.listens_for(Session, 'before_flush')
 def ckan_before_flush(session, flush_context, instances):
+    """ Create a new _object_cache in the Session object.
+
+    _object_cache is used in DomainObjectModificationExtension to trigger
+    notifications on changes. e.g: re-indexing a package in solr upon update.
+    """
     if not hasattr(session, '_object_cache'):
         session._object_cache= {'new': set(),
                                 'deleted': set(),
@@ -52,6 +49,13 @@ def ckan_before_flush(session, flush_context, instances):
     session._object_cache['deleted'].update(session.deleted)
     session._object_cache['changed'].update(changed)
 
+@event.listens_for(create_local_session, 'after_commit')
+@event.listens_for(Session, 'after_commit')
+def ckan_after_commit(session):
+    """ Cleans our custom _object_cache attribute after commiting.
+    """
+    if hasattr(session, '_object_cache'):
+        del session._object_cache
 
 @event.listens_for(create_local_session, 'before_commit')
 @event.listens_for(Session, 'before_commit')
@@ -65,6 +69,8 @@ def ckan_before_commit(session):
 @event.listens_for(create_local_session, 'after_rollback')
 @event.listens_for(Session, 'after_rollback')
 def ckan_after_rollback(session):
+    """ Cleans our custom _object_cache attribute after rollback.
+    """
     if hasattr(session, '_object_cache'):
         del session._object_cache
 
