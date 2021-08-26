@@ -7,7 +7,7 @@ Functions and data structures that are needed for the ckan data preview.
 
 import logging
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from ckan.common import config
 

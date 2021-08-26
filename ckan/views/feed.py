@@ -2,10 +2,10 @@
 
 import logging
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 from flask import Blueprint, make_response
 import six
-from six import text_type
+
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
 from ckan.common import _, config, g, request
@@ -60,18 +60,18 @@ def _enclosure(pkg):
     )
     enc = Enclosure(url)
     enc.type = u'application/json'
-    enc.length = text_type(len(json.dumps(pkg)))
+    enc.length = str(len(json.dumps(pkg)))
     return enc
 
 
 def _set_extras(**kw):
     extras = []
-    for key, value in six.iteritems(kw):
+    for key, value in kw.items():
         extras.append({key: value})
     return extras
 
 
-class Enclosure(text_type):
+class Enclosure(str):
     def __init__(self, url):
         self.url = url
         self.length = u'0'
@@ -424,7 +424,7 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    for item in six.iteritems(query):
+    for item in query.items():
         kwargs['query'] = item
     endpoint = controller + '.' + action
     return h.url_for(endpoint, **kwargs)

@@ -4,7 +4,7 @@ import flask
 import pytest
 
 import six
-from six import text_type
+
 
 from ckan.common import (
     CKANConfig,
@@ -34,10 +34,7 @@ def test_get_item_works():
 def test_repr_works():
     my_conf = CKANConfig()
     my_conf[u"test_key_1"] = u"Test value 1"
-    if six.PY3:
-        assert repr(my_conf) == u"{'test_key_1': 'Test value 1'}"
-    else:
-        assert repr(my_conf) == u"{u'test_key_1': u'Test value 1'}"
+    assert repr(my_conf) == u"{'test_key_1': 'Test value 1'}"
 
 
 def test_len_works():
@@ -82,7 +79,7 @@ def test_iteritems_works():
     my_conf[u"test_key_2"] = u"Test value 2"
 
     cnt = 0
-    for key, value in six.iteritems(my_conf):
+    for key, value in my_conf.items():
         cnt += 1
         assert key.startswith(u"test_key_")
         assert value.startswith(u"Test value")
@@ -170,7 +167,7 @@ def test_other_missing_attributes_raise_attributeerror_exceptions(app):
 
 def test_flask_g_is_used_on_a_flask_request(app):
     with app.flask_app.test_request_context():
-        assert u"flask.g" in text_type(ckan_g)
+        assert u"flask.g" in str(ckan_g)
         flask.g.user = u"example"
         assert ckan_g.user == u"example"
 

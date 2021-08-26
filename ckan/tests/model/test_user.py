@@ -7,7 +7,7 @@ import pytest
 import six
 
 from passlib.hash import pbkdf2_sha512
-from six import text_type
+
 
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -18,7 +18,7 @@ def _set_password(password):
 
     This is needed to create old password hashes in the tests
     """
-    # if isinstance(password, text_type):
+    # if isinstance(password, str):
     #     password_8bit = password.encode("ascii", "ignore")
     # else:
     #     password_8bit = password
@@ -27,7 +27,7 @@ def _set_password(password):
     hash = hashlib.sha1(six.ensure_binary(password + salt.hexdigest()))
     hashed_password = salt.hexdigest() + hash.hexdigest()
 
-    if not isinstance(hashed_password, text_type):
+    if not isinstance(hashed_password, str):
         hashed_password = six.ensure_text(hashed_password)
     return hashed_password
 

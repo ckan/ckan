@@ -22,9 +22,8 @@ import pytest
 import six
 import pycodestyle
 
-from six import text_type
 
-FILESYSTEM_ENCODING = text_type(
+FILESYSTEM_ENCODING = str(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 

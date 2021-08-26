@@ -4,7 +4,7 @@ import logging
 import pprint
 
 import click
-from six import text_type
+
 
 import ckan.logic as logic
 import ckan.model as model
@@ -80,7 +80,7 @@ def purge(package):
 
 
 def _get_dataset(package):
-    dataset = model.Package.get(text_type(package))
+    dataset = model.Package.get(str(package))
     assert dataset, u'Could not find dataset matching reference: {}'.format(
         package
     )

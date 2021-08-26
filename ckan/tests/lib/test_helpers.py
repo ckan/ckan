@@ -8,7 +8,7 @@ import os
 import pytz
 import tzlocal
 from babel import Locale
-from six import text_type
+
 import pytest
 
 import ckan.lib.helpers as h
@@ -403,7 +403,7 @@ class TestHelpersRemoveLineBreaks(object):
         ), '"remove_linebreaks" should remove line breaks'
 
     def test_remove_linebreaks_casts_into_unicode(self):
-        class UnicodeLike(text_type):
+        class UnicodeLike(str):
             pass
 
         test_string = UnicodeLike("foo")

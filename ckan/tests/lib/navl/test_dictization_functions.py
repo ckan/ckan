@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import pytest
+
 from pprint import pformat
-from six import text_type
 from ckan.lib.navl.dictization_functions import (
     validate,
     Invalid,
@@ -633,7 +633,7 @@ class TestDictization:
             "name": u"fred",
         }, converted_data
 
-        assert isinstance(converted_data["name"], text_type)
+        assert isinstance(converted_data["name"], str)
         assert isinstance(converted_data["gender"], str)
 
 

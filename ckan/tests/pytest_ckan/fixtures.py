@@ -29,6 +29,8 @@ Deeper expanation can be found in `official documentation
 """
 
 import smtplib
+
+from io import BytesIO
 import copy
 
 import pytest
@@ -316,7 +318,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     def factory(data, filename, context={}, **kwargs):
         action = kwargs.pop(u"action", u"resource_create")
         field = kwargs.pop(u"upload_field_name", u"upload")
-        test_file = six.BytesIO()
+        test_file = BytesIO()
         test_file.write(six.ensure_binary(data))
         test_file.seek(0)
         test_resource = FakeFileStorage(test_file, filename)

@@ -15,7 +15,6 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
 from ckan.lib.navl.dictization_functions import DataError
-from six import string_types
 
 from freezegun import freeze_time
 
@@ -962,7 +961,7 @@ class TestDatasetCreate(object):
             "package_create", name="test-id", context={"return_id_only": True}
         )
 
-        assert isinstance(dataset, string_types)
+        assert isinstance(dataset, str)
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")

@@ -8,7 +8,6 @@ import requests
 from ckan.common import config
 from ckan.common import asbool
 import six
-from six import text_type, string_types
 
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
@@ -135,7 +134,7 @@ class LicenseRegister(object):
             msg = "Couldn't parse the licenses file {}: {}".format(license_url, e)
             raise Exception(msg)
         for license in license_data:
-            if isinstance(license, string_types):
+            if isinstance(license, str):
                 license = license_data[license]
         self._create_license_list(license_data, license_url)
 
@@ -212,7 +211,7 @@ class DefaultLicense(dict):
         if key in self.keys:
             value = getattr(self, key)
             if isinstance(value, str):
-                return text_type(value)
+                return str(value)
             else:
                 return value
         else:
@@ -222,7 +221,7 @@ class DefaultLicense(dict):
         ''' create a dict of the license used by the licenses api '''
         out = {}
         for key in self.keys:
-            out[key] = text_type(getattr(self, key))
+            out[key] = str(getattr(self, key))
         return out
 
 class LicenseNotSpecified(DefaultLicense):

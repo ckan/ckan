@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import logging
-from six import text_type
+
 import ckan.plugins as p
 
 log = logging.getLogger(__name__)

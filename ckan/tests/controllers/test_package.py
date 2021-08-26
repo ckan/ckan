@@ -8,7 +8,7 @@ import ckan.authz as authz
 from ckan.lib.helpers import url_for
 import pytest
 import six
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 import ckan.model as model
 import ckan.model.activity as activity_model
 import ckan.plugins as p

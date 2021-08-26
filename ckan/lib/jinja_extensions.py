@@ -10,9 +10,6 @@ from jinja2 import ext
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists, escape
 
-from six import text_type
-from six.moves import xrange
-
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 from ckan.common import config
@@ -60,7 +57,7 @@ def regularise_html(html):
         return
     html = re.sub('\n', ' ', html)
     matches = re.findall('(<[^>]*>|%[^%]\([^)]*\)\w|[^<%]+|%)', html)
-    for i in xrange(len(matches)):
+    for i in range(len(matches)):
         match = matches[i]
         if match.startswith('<') or match.startswith('%'):
             continue
@@ -82,7 +79,7 @@ class CkanInternationalizationExtension(ext.InternationalizationExtension):
             for arg in args:
                 if isinstance(arg, nodes.Const):
                     value = arg.value
-                    if isinstance(value, text_type):
+                    if isinstance(value, str):
                         arg.value = regularise_html(value)
         return node
 

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from six.moves import zip_longest
+from itertools import zip_longest
 
 from flask import Blueprint, make_response
 from flask.views import MethodView

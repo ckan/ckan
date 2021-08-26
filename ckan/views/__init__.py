@@ -3,8 +3,9 @@
 from sqlalchemy import inspect
 from ckan.common import asbool
 import six
-from six import text_type
-from six.moves.urllib.parse import quote
+
+from urllib.parse import quote
+from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
@@ -149,7 +150,7 @@ def identify_user():
         g.author = g.user
     else:
         g.author = g.remote_addr
-    g.author = text_type(g.author)
+    g.author = str(g.author)
 
 
 def _identify_user_default():

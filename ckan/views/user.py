@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
-from six import text_type, ensure_str
+from six import ensure_str
 import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
@@ -756,7 +756,7 @@ class PerformResetView(MethodView):
         except logic.ValidationError as e:
             h.flash_error(u'%r' % e.error_dict)
         except ValueError as e:
-            h.flash_error(text_type(e))
+            h.flash_error(str(e))
         user_dict[u'state'] = user_state
         return base.render(u'user/perform_reset.html', {
             u'user_dict': user_dict

@@ -12,8 +12,7 @@ The basic recipe is to call:
 which builds the dictionary by iterating over the table columns.
 '''
 import copy
-import six
-from six.moves.urllib.parse import urlsplit
+from urllib.parse import urlsplit
 
 from ckan.common import config
 from sqlalchemy.sql import select
@@ -76,7 +75,7 @@ def resource_list_dictize(res_list, context):
 
 def extras_dict_dictize(extras_dict, context):
     result_list = []
-    for name, extra in six.iteritems(extras_dict):
+    for name, extra in extras_dict.items():
         dictized = d.table_dictize(extra, context)
         if not extra.state == 'active':
             continue

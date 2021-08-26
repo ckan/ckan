@@ -5,7 +5,7 @@ import json
 
 import sqlalchemy
 import six
-from six import text_type
+
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -157,7 +157,7 @@ def datastore_create(context, data_dict):
     try:
         result = backend.create(context, data_dict)
     except InvalidDataError as err:
-        raise p.toolkit.ValidationError(text_type(err))
+        raise p.toolkit.ValidationError(str(err))
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])

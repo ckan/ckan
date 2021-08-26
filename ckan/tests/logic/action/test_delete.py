@@ -3,7 +3,7 @@
 import re
 
 import pytest
-from six import text_type
+
 
 import ckan.lib.jobs as jobs
 import ckan.lib.api_token as api_token

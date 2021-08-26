@@ -11,7 +11,7 @@ import socket
 from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
-from six import string_types, text_type
+
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -1859,7 +1859,7 @@ def package_search(context, data_dict):
 
         if result_fl:
             for package in query.results:
-                if isinstance(package, text_type):
+                if isinstance(package, str):
                     package = {result_fl[0]: package}
                 extras = package.pop('extras', {})
                 package.update(extras)
@@ -2037,7 +2037,7 @@ def resource_search(context, data_dict):
             {'fields': _('Do not specify if using "query" parameter')})
 
     elif query is not None:
-        if isinstance(query, string_types):
+        if isinstance(query, str):
             query = [query]
         try:
             fields = dict(pair.split(":", 1) for pair in query)
@@ -2053,7 +2053,7 @@ def resource_search(context, data_dict):
         # So maintain that behaviour
         split_terms = {}
         for field, terms in fields.items():
-            if isinstance(terms, string_types):
+            if isinstance(terms, str):
                 terms = terms.split()
             split_terms[field] = terms
         fields = split_terms
@@ -2071,7 +2071,7 @@ def resource_search(context, data_dict):
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
 
-        if isinstance(terms, string_types):
+        if isinstance(terms, str):
             terms = [terms]
 
         if field not in resource_fields:
@@ -2095,7 +2095,7 @@ def resource_search(context, data_dict):
 
             # Treat the has field separately, see docstring.
             if field == 'hash':
-                q = q.filter(model_attr.ilike(text_type(term) + '%'))
+                q = q.filter(model_attr.ilike(str(term) + '%'))
 
             # Resource extras are stored in a json blob.  So searching for
             # matching fields is a bit trickier.  See the docstring.
@@ -2114,7 +2114,7 @@ def resource_search(context, data_dict):
             else:
                 column = model_attr.property.columns[0]
                 if isinstance(column.type, sqlalchemy.UnicodeText):
-                    q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
+                    q = q.filter(model_attr.ilike('%' + str(term) + '%'))
                 else:
                     q = q.filter(model_attr == term)
 
@@ -2147,7 +2147,7 @@ def _tag_search(context, data_dict):
     model = context['model']
 
     terms = data_dict.get('query') or data_dict.get('q') or []
-    if isinstance(terms, string_types):
+    if isinstance(terms, str):
         terms = [terms]
     terms = [t.strip() for t in terms if t.strip()]
 
@@ -2334,7 +2334,7 @@ def term_translation_show(context, data_dict):
     # This action accepts `terms` as either a list of strings, or a single
     # string.
     terms = _get_or_bust(data_dict, 'terms')
-    if isinstance(terms, string_types):
+    if isinstance(terms, str):
         terms = [terms]
     if terms:
         q = q.where(trans_table.c.term.in_(terms))
@@ -2343,7 +2343,7 @@ def term_translation_show(context, data_dict):
     # string.
     if 'lang_codes' in data_dict:
         lang_codes = _get_or_bust(data_dict, 'lang_codes')
-        if isinstance(lang_codes, string_types):
+        if isinstance(lang_codes, str):
             lang_codes = [lang_codes]
         q = q.where(trans_table.c.lang_code.in_(lang_codes))
 
