@@ -1388,7 +1388,9 @@ def user_show(context, data_dict):
     '''
     model = context['model']
 
-    if 'user' in context and 'id' not in data_dict:
+    if 'user' in context and \
+       'id' not in data_dict and \
+       'user_obj' not in data_dict:
         data_dict['id'] = context.get('user')
 
     id = data_dict.get('id', None)
