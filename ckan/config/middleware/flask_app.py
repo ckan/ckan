@@ -396,6 +396,7 @@ def ckan_after_request(response):
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
     status_code = response.status_code
+
     log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
 
     return response
