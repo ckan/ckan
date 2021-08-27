@@ -1,4 +1,4 @@
-{% extends 'dataviewer/base.html' %}
+{% extends "base.html" %}
 
 {% block subtitle %}{% endblock %}
 
@@ -19,6 +19,9 @@
     </script>
   {% endblock %}
 
+  {% block styles %}{% endblock %}
+  {% block custom_styles %}{% endblock %}
 
   {% asset 'ckanext-textview/main' %}
 {% endblock %}
+

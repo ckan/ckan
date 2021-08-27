@@ -10,7 +10,7 @@ import json
 from ckan.common import config
 import ckan.common as converters
 import six
-from six import text_type
+
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
@@ -409,7 +409,7 @@ def package_revise(context, data_dict):
     * Change description in dataset, checking for old description::
 
         match={"notes": "old notes", "name": "xyz"}
-        date={"notes": "new notes"}
+        update={"notes": "new notes"}
 
     * Identical to above, but using flattened keys::
 
@@ -985,6 +985,7 @@ def task_status_update_many(context, data_dict):
     model = context['model']
     deferred = context.get('defer_commit')
     context['defer_commit'] = True
+
     for data in data_dict['data']:
         results.append(_get_action('task_status_update')(context, data))
     if not deferred:
@@ -1391,7 +1392,7 @@ def config_option_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    for key, value in six.iteritems(data):
+    for key, value in data.items():
 
         # Set full Logo url
         if key == 'ckan.site_logo' and value and not value.startswith('http')\

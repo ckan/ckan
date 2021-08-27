@@ -1,9 +1,9 @@
 <li>
   <p>
     {% set format_search_base_url = (
-      h.url_for(controller="organization", action="read", id=change.org_id)
+      h.url_for("organization.read", id=change.org_id)
       if change.org_id else
-      h.url_for(controller="dataset", action="search")) %}
+      h.url_for("dataset.search")) %}
 
     {% if change.method == "add" %}
 

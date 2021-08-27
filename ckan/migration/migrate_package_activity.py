@@ -31,8 +31,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 import argparse
 from collections import defaultdict
-from six.moves import input
-from six import text_type
+
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
 # args quickly.
@@ -176,7 +175,7 @@ def migrate_dataset(dataset_name, errors):
             if isinstance(exc, logic.NotFound):
                 error_msg = u'Revision missing'
             else:
-                error_msg = text_type(exc)
+                error_msg = str(exc)
             print(u'    Error: {}! Skipping this version '
                   '(revision_id={}, timestamp={})'
                   .format(error_msg, activity_obj.revision_id,

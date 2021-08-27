@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy import orm
-from six import string_types
+
 
 from ckan.model import meta, core
 
@@ -129,7 +129,7 @@ class DomainObject(object):
             if col.name in _dict:
                 value = _dict[col.name]
                 db_value = getattr(self, col.name)
-                if isinstance(db_value, datetime.datetime) and isinstance(value, string_types):
+                if isinstance(db_value, datetime.datetime) and isinstance(value, str):
                     db_value = db_value.isoformat()
                 if db_value != value:
                     changed.add(col.name)

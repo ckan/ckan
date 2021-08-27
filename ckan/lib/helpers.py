@@ -30,11 +30,11 @@ from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
 
 import six
-from six import string_types, text_type
-from six.moves.urllib.parse import (
+
+from urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
 )
-from six.moves import map
+
 import jinja2
 
 import ckan.exceptions
@@ -52,6 +52,7 @@ from ckan.lib.pagination import Page
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
+from textwrap import shorten
 
 log = logging.getLogger(__name__)
 
@@ -139,8 +140,36 @@ def _is_chained_helper(func):
 
 
 def chained_helper(func):
-    """Decorator function allowing helper functions to be chained.
-    """
+    '''Decorator function allowing helper functions to be chained.
+
+    This chain starts with the first chained helper to be registered and
+    ends with the original helper (or a non-chained plugin override
+    version). Chained helpers must accept an extra parameter,
+    specifically the next helper in the chain, for example::
+
+            helper(next_helper, *args, **kwargs).
+
+    The chained helper function may call the next_helper function,
+    optionally passing different values, handling exceptions,
+    returning different values and/or raising different exceptions
+    to the caller.
+
+    Usage::
+
+        from ckan.plugins.toolkit import chained_helper
+
+        @chained_helper
+        def ckan_version(next_func, **kw):
+
+            return next_func(**kw)
+
+    :param func: chained helper function
+    :type func: callable
+
+    :returns: chained helper function
+    :rtype: callable
+
+    '''
     func.chained_helper = True
     return func
 
@@ -154,7 +183,7 @@ def _datestamp_to_datetime(datetime_):
 
     :rtype: datetime
     '''
-    if isinstance(datetime_, string_types):
+    if isinstance(datetime_, str):
         try:
             datetime_ = date_str_to_datetime(datetime_)
         except TypeError:
@@ -208,12 +237,12 @@ def redirect_to(*args, **kw):
         kw['__no_cache__'] = True
 
     # Routes router doesn't like unicode args
-    uargs = [str(arg) if isinstance(arg, text_type) else arg for arg in args]
+    uargs = [str(arg) if isinstance(arg, str) else arg for arg in args]
 
     _url = ''
     skip_url_parsing = False
     parse_url = kw.pop('parse_url', False)
-    if uargs and len(uargs) == 1 and isinstance(uargs[0], string_types) \
+    if uargs and len(uargs) == 1 and isinstance(uargs[0], str) \
             and (uargs[0].startswith('/') or is_url(uargs[0])) \
             and parse_url is False:
         skip_url_parsing = True
@@ -392,7 +421,7 @@ def _url_for_flask(*args, **kw):
     # The API routes used to require a slash on the version number, make sure
     # we remove it
     if (args and args[0].startswith('api.') and
-            isinstance(kw.get('ver'), string_types) and
+            isinstance(kw.get('ver'), str) and
             kw['ver'].startswith('/')):
         kw['ver'] = kw['ver'].replace('/', '')
 
@@ -948,7 +977,7 @@ def map_pylons_to_flask_route_name(menu_item):
     # Pylons to Flask legacy route names mappings
     mappings = config.get('ckan.legacy_route_mappings')
     if mappings:
-        if isinstance(mappings, string_types):
+        if isinstance(mappings, str):
             LEGACY_ROUTE_NAMES.update(json.loads(mappings))
         elif isinstance(mappings, dict):
             LEGACY_ROUTE_NAMES.update(mappings)
@@ -972,7 +1001,7 @@ def build_extra_admin_nav():
     admin_tabs_dict = config.get('ckan.admin_tabs')
     output = ''
     if admin_tabs_dict:
-        for k, v in six.iteritems(admin_tabs_dict):
+        for k, v in admin_tabs_dict.items():
             if v['icon']:
                 output += build_nav_icon(k, v['label'], icon=v['icon'])
             else:
@@ -1109,8 +1138,9 @@ def get_facet_items_dict(
     if search_facets is None:
         search_facets = getattr(c, u'search_facets', None)
 
-    if not search_facets or not search_facets.get(
-            facet, {}).get('items'):
+    if not search_facets \
+       or not isinstance(search_facets, dict) \
+       or not search_facets.get(facet, {}).get('items'):
         return []
     facets = []
     for facet_item in search_facets.get(facet)['items']:
@@ -1199,7 +1229,7 @@ def get_param_int(name, default=10):
 def _url_with_params(url, params):
     if not params:
         return url
-    params = [(k, v.encode('utf-8') if isinstance(v, string_types) else str(v))
+    params = [(k, v.encode('utf-8') if isinstance(v, str) else str(v))
               for k, v in params]
     return url + u'?' + urlencode(params)
 
@@ -1233,7 +1263,7 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
         elif auto_clean:
             k = k.replace('_', ' ').replace('-', ' ').title()
         if isinstance(v, (list, tuple)):
-            v = ", ".join(map(text_type, v))
+            v = ", ".join(map(str, v))
         output.append((k, v))
     return output
 
@@ -1271,7 +1301,7 @@ def get_action(action_name, data_dict=None):
 @core_helper
 def linked_user(user, maxlength=0, avatar=20):
     if not isinstance(user, model.User):
-        user_name = text_type(user)
+        user_name = str(user)
         user = model.User.get(user_name)
         if not user:
             return user_name
@@ -1303,6 +1333,10 @@ def group_name_to_title(name):
 
 
 @core_helper
+@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "builtin jinja filter instead.",
+                     since="2.10.0")
 def truncate(text, length=30, indicator='...', whole_word=False):
     """Truncate ``text`` with replacement characters.
 
@@ -1322,9 +1356,7 @@ def truncate(text, length=30, indicator='...', whole_word=False):
         >>> truncate('Once upon a time in a world far far away', 14)
         'Once upon a...'
 
-    TODO: try to replace it with built-in `textwrap.shorten`
-    (available starting from Python 3.4) when support for Python 2
-    completely dropped.
+    Deprecated: please use jinja filter `truncate` instead
     """
     if not text:
         return ""
@@ -1355,14 +1387,12 @@ def markdown_extract(text, extract_length=190):
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
-
     return literal(
-        text_type(
-            truncate(
+        str(
+            shorten(
                 plain,
-                length=extract_length,
-                indicator='...',
-                whole_word=True
+                width=extract_length,
+                placeholder='...'
             )
         )
     )
@@ -1796,8 +1826,7 @@ def group_link(group):
 
 @core_helper
 def organization_link(organization):
-    url = url_for(controller='organization', action='read',
-                  id=organization['name'])
+    url = url_for('organization.read', id=organization['name'])
     return link_to(organization['title'], url)
 
 
@@ -1920,8 +1949,8 @@ def _create_url_with_params(params=None, controller=None, action=None,
         action = getattr(c, 'action', False) or p.toolkit.get_endpoint()[1]
     if not extras:
         extras = {}
-
-    url = url_for(controller=controller, action=action, **extras)
+    endpoint = controller + '.' + action
+    url = url_for(endpoint, **extras)
     return _url_with_params(url, params)
 
 
@@ -1972,7 +2001,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     instead.
 
     '''
-    if isinstance(key, string_types):
+    if isinstance(key, str):
         keys = [key]
     else:
         keys = key
@@ -2272,7 +2301,7 @@ def format_resource_items(items):
                 # Sometimes values that can't be converted to ints can sneak
                 # into the db. In this case, just leave them as they are.
                 pass
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             # check if strings are actually datetime/number etc
             if re.search(reg_ex_datetime, value):
                 datetime_ = date_str_to_datetime(value)
@@ -2434,7 +2463,7 @@ def resource_view_full_page(resource_view):
 @core_helper
 def remove_linebreaks(string):
     '''Remove linebreaks from string to make it usable in JavaScript'''
-    return text_type(string).replace('\n', '')
+    return str(string).replace('\n', '')
 
 
 @core_helper
@@ -2662,7 +2691,8 @@ def license_options(existing_license_id=None):
         license_ids.insert(0, existing_license_id)
     return [
         (license_id,
-         register[license_id].title if license_id in register else license_id)
+         _(register[license_id].title)
+         if license_id in register else license_id)
         for license_id in license_ids]
 
 
@@ -2673,7 +2703,7 @@ def get_translated(data_dict, field):
         return data_dict[field + u'_translated'][language]
     except KeyError:
         val = data_dict.get(field, '')
-        return _(val) if val and isinstance(val, string_types) else val
+        return _(val) if val and isinstance(val, str) else val
 
 
 @core_helper
@@ -2701,7 +2731,7 @@ def radio(selected, id, checked):
 
 @core_helper
 def clean_html(html):
-    return bleach_clean(text_type(html))
+    return bleach_clean(str(html))
 
 
 core_helper(flash, name='flash')
@@ -2745,7 +2775,7 @@ def load_plugin_helpers():
             new_func = functools.partial(
                 func, helper_functions[name])
             # persisting attributes to the new partial function
-            for attribute, value in six.iteritems(func.__dict__):
+            for attribute, value in func.__dict__.items():
                 setattr(new_func, attribute, value)
             helper_functions[name] = new_func
 

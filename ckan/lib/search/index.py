@@ -15,8 +15,8 @@ import pysolr
 from ckan.common import config
 from ckan.common import asbool
 import six
-from six import text_type
-from six.moves import map
+
+
 
 from .common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
@@ -145,7 +145,7 @@ class PackageSearchIndex(SearchIndex):
         for extra in extras:
             key, value = extra['key'], extra['value']
             if isinstance(value, (tuple, list)):
-                value = " ".join(map(text_type, value))
+                value = " ".join(map(str, value))
             key = ''.join([c for c in key if c in KEY_CHARS])
             pkg_dict['extras_' + key] = value
             if key not in index_fields:
@@ -219,7 +219,7 @@ class PackageSearchIndex(SearchIndex):
         for rel in subjects:
             type = rel['type']
             rel_dict[type].append(model.Package.get(rel['object_package_id']).name)
-        for key, value in six.iteritems(rel_dict):
+        for key, value in rel_dict.items():
             if key not in pkg_dict:
                 pkg_dict[key] = value
 

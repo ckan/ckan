@@ -28,7 +28,7 @@
 
 {% block secondary_content %}
   <section class="module module-narrow module-shallow simple-input">
-    <form class="module-content field-bordered" action="{% url_for controller='tag', action='index' %}" method="get">
+    <form class="module-content field-bordered" action="{% url_for 'tag.index' %}" method="get">
       <div class="field">
         <label for="field-tag-search">{{ _('Search Tags') }}</label>
         <input id="field-tag-search" type="text" class="field form-control" name="q" placeholder="{{ _('Search Tags') }}" />

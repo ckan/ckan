@@ -211,8 +211,6 @@ class CKANTestApp(object):
 
     def test_client(self, use_cookies=True):
         return CKANTestClient(self.app, CKANResponse, use_cookies=use_cookies)
-        self.flask_app.test_client_class = CKANTestClient
-        return self.flask_app.test_client()
 
     def options(self, url, *args, **kwargs):
         res = self.test_client().options(url, *args, **kwargs)
@@ -257,7 +255,7 @@ class CKANTestClient(FlaskClient):
         if extra_environ:
             kwargs["environ_overrides"] = extra_environ
 
-        if args and isinstance(args[0], six.string_types):
+        if args and isinstance(args[0], str):
             kwargs.setdefault("follow_redirects", True)
             kwargs.setdefault("base_url", config["ckan.site_url"])
         res = super(CKANTestClient, self).open(*args, **kwargs)

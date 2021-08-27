@@ -4,18 +4,42 @@
 """
 
 import pytest
-from six import string_types
 
 import ckan.logic.auth.delete as auth_delete
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan import model
+from ckan import authz, model
 
 logic = helpers.logic
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestDeleteAuth:
+    def test_auth_deleted_users_are_always_unauthorized(self):
+        def always_success(x, y):
+            return {"success": True}
+        authz._AuthFunctions._build()
+        authz._AuthFunctions._functions["always_success"] = always_success
+        username = "deleted_user"
+        user = factories.User()
+        username = user["name"]
+        user = model.User.get(username)
+        user.delete()
+        assert not authz.is_authorized_boolean(
+            "always_success", {"user": username}
+        )
+        del authz._AuthFunctions._functions["always_success"]
+
+    def test_only_sysadmins_can_delete_users(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        context = {"model": model, "user": user["name"]}
+        with pytest.raises(logic.NotAuthorized):
+            assert not helpers.call_auth("user_delete", context=context, id=user["id"])
+
+        context = {"model": model, "user": sysadmin["name"]}
+        assert helpers.call_auth("user_delete", context=context, id=user["id"])
+
     def test_anon_cant_delete(self):
         context = {"user": None, "model": model}
         params = {}
@@ -184,7 +208,7 @@ class TestPackageMemberDeleteAuth(object):
 
         return {
             'model': model,
-            'user': user if isinstance(user, string_types) else user.get('name')
+            'user': user if isinstance(user, str) else user.get('name')
         }
 
     def setup(self):

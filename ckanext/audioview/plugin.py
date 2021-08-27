@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from six import text_type
+
 import ckan.plugins as p
 
 ignore_empty = p.toolkit.get_validator('ignore_empty')
