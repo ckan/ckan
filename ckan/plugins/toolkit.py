@@ -116,6 +116,11 @@ class _Toolkit(object):
         'mail_recipient',
         # Email a user
         'mail_user',
+        # Collection of signals
+        'signals',
+
+        # fast interface implementations
+        'blanket',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -140,6 +145,8 @@ class _Toolkit(object):
     def _initialize(self):
         ''' get the required functions/objects, store them for later
         access and check that they match the contents dict. '''
+        import enum
+
         import six
         import ckan
         import ckan.logic as logic
@@ -149,7 +156,9 @@ class _Toolkit(object):
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
         import ckan.cli as cli
+        import ckan.plugins.blanket as blanket
         import ckan.lib.plugins as lib_plugins
+        import ckan.lib.signals as signals
         import ckan.common as common
         from ckan.exceptions import (
             CkanVersionException,
@@ -159,9 +168,6 @@ class _Toolkit(object):
         from ckan.lib import mailer
 
         import ckan.common as converters
-        if six.PY2:
-            import ckan.lib.cli as old_cli
-            import pylons
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -322,21 +328,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
-
-        if six.PY2:
-            t['response'] = pylons.response
-            self.docstring_overrides['response'] = '''
-The Pylons response object.
-
-Pylons uses this object to generate the HTTP response it returns to the web
-browser. It has attributes like the HTTP status code, the response headers,
-content type, cookies, etc.
-
-'''
-            t['BaseController'] = base.BaseController
-            # TODO: Sort these out
-            t['CkanCommand'] = old_cli.CkanCommand
-            t['load_config'] = old_cli.load_config
+        t['blanket'] = blanket
+        t['signals'] = signals
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
@@ -397,14 +390,11 @@ content type, cookies, etc.
         assert config_var in ('extra_template_paths', 'extra_public_paths')
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
-        # TODO: starting from python 3.5, `inspect.stack` returns list
-        # of named tuples `FrameInfo`. Don't forget to remove
-        # `getframeinfo` wrapper after migration.
-        filename = inspect.getframeinfo(inspect.stack()[2][0]).filename
+        filename = inspect.stack()[2].filename
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, relative_path)
-        if absolute_path not in config.get(config_var, ''):
+        if absolute_path not in config.get(config_var, '').split(','):
             if config.get(config_var):
                 config[config_var] += ',' + absolute_path
             else:
@@ -431,17 +421,11 @@ content type, cookies, etc.
         # TODO: starting from python 3.5, `inspect.stack` returns list
         # of named tuples `FrameInfo`. Don't forget to remove
         # `getframeinfo` wrapper after migration.
-        filename = inspect.getframeinfo(inspect.stack()[1][0]).filename
+        filename = inspect.stack()[1].filename
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, path)
         create_library(name, absolute_path)
-
-        import six
-        if six.PY2:
-            # TODO: remove next two lines after dropping Fanstatic support
-            import ckan.lib.fanstatic_resources
-            ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
     def _add_ckan_admin_tabs(cls, config, route_name, tab_label,

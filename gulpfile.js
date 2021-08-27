@@ -1,6 +1,6 @@
 const path = require("path");
 const { src, watch, dest, parallel } = require("gulp");
-const less = require("gulp-less");
+const sass = require("gulp-sass")(require("sass"));
 const if_ = require("gulp-if");
 const sourcemaps = require("gulp-sourcemaps");
 const rename = require("gulp-rename");
@@ -17,18 +17,18 @@ const renamer = (path) => {
 
 const build = () =>
   src([
-    __dirname + "/ckan/public/base/less/main.less",
-    __dirname + "/ckan/public/base/less/main-rtl.less",
+    __dirname + "/ckan/public/base/scss/main.scss",
+    __dirname + "/ckan/public/base/scss/main-rtl.scss",
   ])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
-    .pipe(less())
+    .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))
     .pipe(rename(renamer))
     .pipe(dest(__dirname + "/ckan/public/base/css/"));
 
 const watchSource = () =>
   watch(
-    __dirname + "/ckan/public/base/less/**/*.less",
+    __dirname + "/ckan/public/base/scss/**/*.scss",
     { ignoreInitial: false },
     build
   );
@@ -38,14 +38,9 @@ const jquery = () =>
     dest(__dirname + "/ckan/public/base/vendor")
   );
 
-const bootstrap = () =>
-  src(__dirname + "/node_modules/bootstrap/dist/**/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/bootstrap")
-  );
-
-const bootstrapLess = () =>
-  src(__dirname + "/node_modules/bootstrap/less/**/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/bootstrap/less")
+const bootstrapScss = () =>
+  src(__dirname + "/node_modules/bootstrap-sass/assets/**/*").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/bootstrap/")
   );
 
 const moment = () =>
@@ -63,25 +58,39 @@ const fontAwesomeFonts = () =>
     dest(__dirname + "/ckan/public/base/vendor/font-awesome/fonts")
   );
 
-const fontAwesomeLess = () =>
-  src(__dirname + "/node_modules/font-awesome/less/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/font-awesome/less")
-  );
-
 const jQueryFileUpload = () =>
   src(__dirname + "/node_modules/blueimp-file-upload/js/*.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor/jquery-fileupload/")
   );
 
+const qs = () =>
+  src(__dirname + "/node_modules/qs/dist/qs.js").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/")
+  )
+
+const highlightJs = () =>
+  src(__dirname + "/node_modules/@highlightjs/cdn-assets/highlight.js").pipe(
+    dest(__dirname + "/ckanext/textview/theme/public/vendor/")
+  )
+
+const highlightJsStyles = () =>
+  src(__dirname + "/node_modules/@highlightjs/cdn-assets/styles/a11y-light.min.css").pipe(
+    rename("a11y-light.css")).pipe(
+    dest(__dirname + "/ckanext/textview/theme/public/styles/")
+  )
+
+
+
 exports.build = build;
 exports.watch = watchSource;
 exports.updateVendorLibs = parallel(
   jquery,
-  bootstrap,
-  bootstrapLess,
+  bootstrapScss,
   moment,
   fontAwesomeCss,
   fontAwesomeFonts,
-  fontAwesomeLess,
-  jQueryFileUpload
+  jQueryFileUpload,
+  qs,
+  highlightJs,
+  highlightJsStyles
 );

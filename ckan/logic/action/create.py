@@ -283,15 +283,12 @@ def resource_create(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    pkg_dict = _get_action('package_show')(
-        dict(context, return_type='dict'),
-        {'id': package_id})
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
 
@@ -517,7 +514,6 @@ def package_relationship_create(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     schema = context.get('schema') \
         or ckan.logic.schema.default_create_relationship_schema()
     api = context.get('api_version')
@@ -668,7 +664,7 @@ def package_collaborator_create(context, data_dict):
 
     user = model.User.get(user_id)
     if not user:
-        raise NotAuthorized(_('Not allowed to add collaborators'))
+        raise NotFound(_('User not found'))
 
     if not authz.check_config_permission('allow_dataset_collaborators'):
         raise ValidationError(_('Dataset collaborators not enabled'))
@@ -702,7 +698,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
     # get the schema
-    group_type = data_dict.get('type')
+    group_type = data_dict.get('type', 'organization' if is_org else 'group')
     group_plugin = lib_plugins.lookup_group_plugin(group_type)
     try:
         schema = group_plugin.form_to_db_schema_options({
@@ -822,7 +818,7 @@ def group_create(context, data_dict):
     :param image_url: the URL to an image to be displayed on the group's page
         (optional)
     :type image_url: string
-    :param type: the type of the group (optional),
+    :param type: the type of the group (optional, default: ``'group'``),
         :py:class:`~ckan.plugins.interfaces.IGroupForm` plugins
         associate themselves with different group types and provide custom
         group handling behaviour for these types
@@ -930,60 +926,6 @@ def organization_create(context, data_dict):
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
-@logic.auth_audit_exempt
-def rating_create(context, data_dict):
-    '''Rate a dataset (package).
-
-    You must provide your API key in the Authorization header.
-
-    :param package: the name or id of the dataset to rate
-    :type package: string
-    :param rating: the rating to give to the dataset, an integer between 1 and
-        5
-    :type rating: int
-
-    :returns: a dictionary with two keys: ``'rating average'`` (the average
-        rating of the dataset you rated) and ``'rating count'`` (the number of
-        times the dataset has been rated)
-    :rtype: dictionary
-
-    '''
-    model = context['model']
-    user = context.get("user")
-
-    package_ref = data_dict.get('package')
-    rating = data_dict.get('rating')
-    opts_err = None
-    if not package_ref:
-        opts_err = _('You must supply a package id or name '
-                     '(parameter "package").')
-    elif not rating:
-        opts_err = _('You must supply a rating (parameter "rating").')
-    else:
-        try:
-            rating_int = int(rating)
-        except ValueError:
-            opts_err = _('Rating must be an integer value.')
-        else:
-            package = model.Package.get(package_ref)
-            if rating < model.MIN_RATING or rating > model.MAX_RATING:
-                opts_err = _('Rating must be between %i and %i.') \
-                    % (model.MIN_RATING, model.MAX_RATING)
-            elif not package:
-                opts_err = _('Not found') + ': %r' % package_ref
-    if opts_err:
-        raise ValidationError(opts_err)
-
-    user = model.User.by_name(user)
-    package.set_rating(user, rating_int)
-    model.repo.commit()
-
-    package = model.Package.get(package_ref)
-    ret_dict = {'rating average': package.get_average_rating(),
-                'rating count': len(package.ratings)}
-    return ret_dict
-
-
 def user_create(context, data_dict):
     '''Create a new user.
 
@@ -1051,7 +993,7 @@ def user_create(context, data_dict):
         data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
-
+    plugins.toolkit.signals.user_created.send(user.name, user=user)
     # Flush the session to cause user.id to be initialised, because
     # activity_create() (below) needs it.
     session.flush()
@@ -1302,7 +1244,8 @@ def tag_create(context, data_dict):
     :py:func:`~ckan.logic.action.update.package_update` function.)
 
     :param name: the name for the new tag, a string between 2 and 100
-        characters long containing only alphanumeric characters and ``-``,
+        characters long containing only alphanumeric characters,
+        spaces and the characters ``-``,
         ``_`` and ``.``, e.g. ``'Jazz'``
     :type name: string
     :param vocabulary_id: the id of the vocabulary that the new tag
@@ -1349,7 +1292,6 @@ def follow_user(context, data_dict):
         raise NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -1408,7 +1350,6 @@ def follow_dataset(context, data_dict):
             _("You must be logged in to follow a dataset."))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -1452,7 +1393,6 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     # this needs to be after the repo.commit or else revisions break
     model = context['model']
     user = context['user']
-    session = context['session']
 
     schema = ckan.logic.schema.member_schema()
     data, errors = _validate(data_dict, schema, context)
@@ -1483,7 +1423,6 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     member_create_context = {
         'model': model,
         'user': user,
-        'session': session,
         'ignore_auth': context.get('ignore_auth'),
     }
     return logic.get_action('member_create')(member_create_context,
@@ -1549,7 +1488,6 @@ def follow_group(context, data_dict):
             _("You must be logged in to follow a group."))
 
     model = context['model']
-    session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -1607,6 +1545,9 @@ def api_token_create(context, data_dict):
     """
     model = context[u'model']
     user, name = _get_or_bust(data_dict, [u'user', u'name'])
+
+    if model.User.get(user) is None:
+        raise NotFound("User not found")
 
     _check_access(u'api_token_create', context, data_dict)
 

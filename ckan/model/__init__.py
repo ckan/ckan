@@ -79,11 +79,7 @@ from ckan.model.tracking import (
     TrackingSummary,
     tracking_raw_table
 )
-from ckan.model.rating import (
-    Rating,
-    MIN_RATING,
-    MAX_RATING,
-)
+
 from ckan.model.package_relationship import (
     PackageRelationship,
     package_relationship_table,
@@ -266,7 +262,7 @@ class Repository():
         self.reset_alembic_output()
         alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
-            "sqlalchemy.url", str(self.metadata.bind.url)
+            "sqlalchemy.url", config.get("sqlalchemy.url")
         )
         try:
             sqlalchemy_migrate_version = self.metadata.bind.execute(
@@ -287,12 +283,23 @@ class Repository():
         self.alembic_config = alembic_config
 
     def current_version(self):
+        """Returns current revision of the migration repository.
+
+        Returns None for plugins that has no migrations and "base" for plugins
+        that has migrations but none of them were applied. If current revision
+        is the newest one, ` (head)` suffix added to the result
+
+        """
+        from alembic.util import CommandError
         try:
             alembic_current(self.alembic_config)
             return self.take_alembic_output()[0][0]
         except (TypeError, IndexError):
             # alembic is not initialized yet
             return 'base'
+        except CommandError:
+            # trying to get revision of plugin without migrations
+            return None
 
     def downgrade_db(self, version='base'):
         self.setup_migration_version_control()

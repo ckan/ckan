@@ -1,9 +1,10 @@
 # encoding: utf-8
 
-from six import text_type
+
 import ckan.plugins as p
 
 ignore_empty = p.toolkit.get_validator('ignore_empty')
+unicode_safe = p.toolkit.get_validator('unicode_safe')
 
 DEFAULT_AUDIO_FORMATS = 'wav ogg mp3'
 
@@ -24,7 +25,7 @@ class AudioView(p.SingletonPlugin):
         return {'name': 'audio_view',
                 'title': p.toolkit._('Audio'),
                 'icon': 'file-audio-o',
-                'schema': {'audio_url': [ignore_empty, text_type]},
+                'schema': {'audio_url': [ignore_empty, unicode_safe]},
                 'iframed': False,
                 'always_available': True,
                 'default_title': p.toolkit._('Audio'),

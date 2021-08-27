@@ -3,10 +3,10 @@
 import flask
 import pytest
 import six
-from mock import patch
+from unittest.mock import patch
 from ckan.lib.helpers import url_for
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 import ckan.lib.uploader
 import ckan.model as model
 

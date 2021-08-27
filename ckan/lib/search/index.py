@@ -15,8 +15,8 @@ import pysolr
 from ckan.common import config
 from ckan.common import asbool
 import six
-from six import text_type
-from six.moves import map
+
+
 
 from .common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
@@ -31,10 +31,7 @@ log = logging.getLogger(__name__)
 
 TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
-if six.PY2:
-    KEY_CHARS = string.digits + string.letters + "_-"
-else:
-    KEY_CHARS = string.digits + string.ascii_letters + "_-"
+KEY_CHARS = string.digits + string.ascii_letters + "_-"
 
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description",
@@ -148,7 +145,7 @@ class PackageSearchIndex(SearchIndex):
         for extra in extras:
             key, value = extra['key'], extra['value']
             if isinstance(value, (tuple, list)):
-                value = " ".join(map(text_type, value))
+                value = " ".join(map(str, value))
             key = ''.join([c for c in key if c in KEY_CHARS])
             pkg_dict['extras_' + key] = value
             if key not in index_fields:
@@ -222,7 +219,7 @@ class PackageSearchIndex(SearchIndex):
         for rel in subjects:
             type = rel['type']
             rel_dict[type].append(model.Package.get(rel['object_package_id']).name)
-        for key, value in six.iteritems(rel_dict):
+        for key, value in rel_dict.items():
             if key not in pkg_dict:
                 pkg_dict[key] = value
 
@@ -249,7 +246,8 @@ class PackageSearchIndex(SearchIndex):
                         # The date field was empty, so dateutil filled it with
                         # the default bogus date
                         value = None
-                except (ValueError, IndexError):
+                except (IndexError, TypeError, ValueError):
+                    log.error('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
                     continue
             new_dict[key] = value
         pkg_dict = new_dict

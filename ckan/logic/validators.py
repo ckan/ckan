@@ -9,8 +9,7 @@ import mimetypes
 import string
 import json
 
-from six import string_types, iteritems
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -44,6 +43,8 @@ def owner_org_validator(key, data, errors, context):
     model = context['model']
     user = context['user']
     user = model.User.get(user)
+    package = context.get('package')
+
     if value == '':
         if not authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('An organization must be provided'))
@@ -52,7 +53,6 @@ def owner_org_validator(key, data, errors, context):
     if (authz.check_config_permission('allow_dataset_collaborators')
             and not authz.check_config_permission('allow_collaborators_to_change_owner_org')):
 
-        package = context.get('package')
         if package and user and not user.sysadmin:
             is_collaborator = authz.user_is_collaborator_on_dataset(
                 user.id, package.id, ['admin', 'editor'])
@@ -70,10 +70,14 @@ def owner_org_validator(key, data, errors, context):
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    if not context.get(u'ignore_auth', False) and not(user.sysadmin or
-           authz.has_user_permission_for_group_or_org(
-               group_id, user.name, 'create_dataset')):
-        raise Invalid(_('You cannot add a dataset to this organization'))
+
+    if not package or (package and package.owner_org != group_id):
+        # This is a new dataset or we are changing the organization
+        if not context.get(u'ignore_auth', False) and not(user.sysadmin or
+               authz.has_user_permission_for_group_or_org(
+                   group_id, user.name, 'create_dataset')):
+            raise Invalid(_('You cannot add a dataset to this organization'))
+
     data[key] = group_id
 
 
@@ -124,7 +128,7 @@ def natural_number_validator(value, context):
 def is_positive_integer(value, context):
     value = int_validator(value, context)
     if value < 1:
-        raise Invalid(_('Must be a postive integer'))
+        raise Invalid(_('Must be a positive integer'))
     return value
 
 def boolean_validator(value, context):
@@ -351,7 +355,7 @@ def name_validator(value, context):
         a valid name
 
     '''
-    if not isinstance(value, string_types):
+    if not isinstance(value, str):
         raise Invalid(_('Names must be strings'))
 
     # check basic textual rules
@@ -449,8 +453,9 @@ def tag_name_validator(value, context):
 
     tagname_match = re.compile('[\w \-.]*$', re.UNICODE)
     if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" must be alphanumeric '
-                        'characters or symbols: -_.') % (value))
+        raise Invalid(_('Tag "%s" can only contain alphanumeric '
+                        'characters, spaces (" "), hyphens ("-"), '
+                        'underscores ("_") or dots (".")') % (value))
     return value
 
 def tag_not_uppercase(value, context):
@@ -465,7 +470,7 @@ def tag_string_convert(key, data, errors, context):
     and parses tag names. These are added to the data dict, enumerated. They
     are also validated.'''
 
-    if isinstance(data[key], string_types):
+    if isinstance(data[key], str):
         tags = [tag.strip() \
                 for tag in data[key].split(',') \
                 if tag.strip()]
@@ -564,7 +569,7 @@ def user_name_validator(key, data, errors, context):
     model = context['model']
     new_user_name = data[key]
 
-    if not isinstance(new_user_name, string_types):
+    if not isinstance(new_user_name, str):
         raise Invalid(_('User names must be strings'))
 
     user = model.User.get(new_user_name)
@@ -602,7 +607,7 @@ def user_password_validator(key, data, errors, context):
 
     if isinstance(value, Missing):
         pass
-    elif not isinstance(value, string_types):
+    elif not isinstance(value, str):
         errors[('password',)].append(_('Passwords must be strings'))
     elif value == '':
         pass
@@ -773,7 +778,7 @@ def list_of_strings(key, data, errors, context):
     if not isinstance(value, list):
         raise Invalid(_('Not a list'))
     for x in value:
-        if not isinstance(x, string_types):
+        if not isinstance(x, str):
             raise Invalid('%s: %s' % (_('Not a string'), x))
 
 def if_empty_guess_format(key, data, errors, context):
@@ -785,6 +790,12 @@ def if_empty_guess_format(key, data, errors, context):
         url = data.get(key[:-1] + ('url',), '')
         if not url:
             return
+
+        # Uploaded files have only the filename as url, so check scheme to determine if it's an actual url
+        parsed = urlparse(url)
+        if parsed.scheme and not parsed.path:
+            return
+
         mimetype, encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype
@@ -871,6 +882,11 @@ email_pattern = re.compile(
                         )
 
 
+def strip_value(value):
+    '''Trims the Whitespace'''
+    return value.strip()
+
+
 def email_validator(value, context):
     '''Validate email input '''
 
@@ -919,20 +935,21 @@ def dict_only(value):
         raise Invalid(_('Must be a dict'))
     return value
 
+
 def email_is_unique(key, data, errors, context):
     '''Validate email is unique'''
     model = context['model']
     session = context['session']
 
     users = session.query(model.User) \
-            .filter(model.User.email == data[key]).all()
+        .filter(model.User.email == data[key]).all()
     # is there is no users with this email it's free
     if not users:
         return
     else:
         # allow user to update their own email
         for user in users:
-            if (user.name == data[("name",)]
+            if (user.name in [data[("name",)], data[("id",)]]
                     or user.id == data[("id",)]):
                 return
 
@@ -964,7 +981,7 @@ def json_object(value):
 
 def extras_valid_json(extras, context):
     try:
-        for extra, value in iteritems(extras):
+        for extra, value in extras.items():
             json.dumps(value)
     except ValueError as e:
         raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').

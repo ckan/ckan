@@ -11,11 +11,6 @@ from __future__ import print_function
 import polib
 import re
 
-import six
-
-if six.PY2:
-    import paste.script.command
-
 
 def simple_conv_specs(s):
     '''Return the simple Python string conversion specifiers in the string s.
@@ -53,18 +48,6 @@ def replacement_fields(s):
     return sorted(repl_fields_re.findall(s))
 
 
-if six.PY2:
-    class CheckPoFiles(paste.script.command.Command):
-
-        usage = "[FILE] ..."
-        group_name = 'ckan'
-        summary = 'Check po files for common mistakes'
-        parser = paste.script.command.Command.standard_parser(verbose=True)
-
-        def command(self):
-            check_po_files(self.args)
-
-
 def check_po_files(paths):
     for path in paths:
         print(u'Checking file {}'.format(path))
@@ -88,7 +71,7 @@ def check_po_file(path):
         if entry.msgid_plural and entry.msgstr_plural:
             for function in (simple_conv_specs, mapping_keys,
                              replacement_fields):
-                for key, msgstr in six.iteritems(entry.msgstr_plural):
+                for key, msgstr in entry.msgstr_plural.items():
                     if key == '0':
                         check_translation(function, entry.msgid,
                                           entry.msgstr_plural[key])

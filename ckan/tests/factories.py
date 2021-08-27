@@ -41,7 +41,7 @@ Usage::
 import random
 import string
 import factory
-import mock
+import unittest.mock as mock
 
 import ckan.model
 import ckan.logic

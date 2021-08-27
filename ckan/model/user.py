@@ -2,7 +2,6 @@
 
 import datetime
 import re
-import os
 from hashlib import sha1, md5
 import six
 
@@ -13,7 +12,7 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
-from six import text_type
+
 
 from ckan.model import meta
 from ckan.model import core
@@ -112,7 +111,7 @@ class User(core.StatefulObjectMixin,
         '''
         hashed_password = pbkdf2_sha512.encrypt(password)
 
-        if not isinstance(hashed_password, text_type):
+        if not isinstance(hashed_password, str):
             hashed_password = six.ensure_text(hashed_password)
         self._password = hashed_password
 
@@ -120,7 +119,7 @@ class User(core.StatefulObjectMixin,
         return self._password
 
     def _verify_and_upgrade_from_sha1(self, password):
-        # if isinstance(password, text_type):
+        # if isinstance(password, str):
         #     password_8bit = password.encode('ascii', 'ignore')
         # else:
         #     password_8bit = password
@@ -285,14 +284,14 @@ class User(core.StatefulObjectMixin,
         return query
 
     @classmethod
-    def user_ids_for_name_or_id(self, user_list=[]):
+    def user_ids_for_name_or_id(cls, user_list=[]):
         '''
         This function returns a list of ids from an input that can be a list of
         names or ids
         '''
-        query = meta.Session.query(self.id)
-        query = query.filter(or_(self.name.in_(user_list),
-                                 self.id.in_(user_list)))
+        query = meta.Session.query(cls.id)
+        query = query.filter(or_(cls.name.in_(user_list),
+                                 cls.id.in_(user_list)))
         return [user.id for user in query.all()]
 
 

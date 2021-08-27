@@ -35,7 +35,7 @@ Finally, create the file
 with the following contents:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/tests/test_example_iauthfunctions.py
-   :end-before: class TestExampleIAuthFunctionsPluginV3
+   :end-before: @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v3')
 
 To run these extension tests, ``cd`` into the ``ckanext-iauthfunctions``
 directory and run this command::
@@ -47,14 +47,25 @@ Some notes on how these tests work:
 * Pytest has lots of useful functions for testing, see the
   `pytest documentation <https://docs.pytest.org/en/latest/>`_.
 
-* We're calling :func:`ckan.tests.call_action_api` to post (simulated) HTTP
-  requests to the CKAN API. This is a convenience function that CKAN provides
-  for its own tests.
+* We're calling :func:`ckan.tests.call_action` This is a convenience function
+  that CKAN provides for its own tests.
+
+* The CKAN core :doc:`/contributing/testing` can usefully be applied to writing tests for plugins.
+
+* CKAN core provides:
+
+  * :mod:`ckan.tests.factories` for creating test data
+
+  * :mod:`ckan.tests.helpers` a collection of helper functions for use in tests
+
+  * :mod:`ckan.tests.pytest_ckan.fixtures` for setting up the test environment
+
+  which are also useful for testing extensions.
 
 * You might also find it useful to read the
-  `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_.
-
-* The Pylons book also has a `chapter on testing <http://pylonsbook.com/en/1.0/testing.html>`_.
+  `Flask testing documentation <https://flask-doc.readthedocs.io/en/latest/testing.html>`_ (or
+  `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_
+  for plugins using legacy pylons controllers).
 
 * Avoid importing the plugin modules directly into your test modules
   (e.g from example_iauthfunctions import plugin_v5_custom_config_setting).

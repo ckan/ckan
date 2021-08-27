@@ -2,9 +2,8 @@
 
 import copy
 import json
-
 import six
-from six import text_type
+
 from ckan.common import config, _
 
 
@@ -106,7 +105,7 @@ def flatten_schema(schema, flattened=None, key=None):
     flattened = flattened or {}
     old_key = key or []
 
-    for key, value in six.iteritems(schema):
+    for key, value in schema.items():
         new_key = old_key + [key]
         if isinstance(value, dict):
             flattened = flatten_schema(value, flattened, new_key)
@@ -153,7 +152,7 @@ def make_full_schema(data, schema):
         for key in combination[::2]:
             sub_schema = sub_schema[key]
 
-        for key, value in six.iteritems(sub_schema):
+        for key, value in sub_schema.items():
             if isinstance(value, list):
                 full_schema[combination + (key,)] = value
 
@@ -219,35 +218,27 @@ def augment_data(data, schema):
 
 
 def convert(converter, key, converted_data, errors, context):
-
     try:
-        value = converter(converted_data.get(key))
-        converted_data[key] = value
-        return
-    except TypeError as e:
-        # hack to make sure the type error was caused by the wrong
-        # number of arguments given.
-        if converter.__name__ not in str(e):
-            raise
-    except Invalid as e:
-        errors[key].append(e.error)
-        return
-
+        nargs = converter.__code__.co_argcount
+    except AttributeError:
+        raise TypeError(
+            f"{converter.__name__} cannot be used as validator "
+            "because it is not a user-defined function")
+    if nargs == 1:
+        params = (converted_data.get(key),)
+    elif nargs == 2:
+        params = (converted_data.get(key), context)
+    elif nargs == 4:
+        params = (key, converted_data, errors, context)
+    else:
+        raise TypeError(
+            "Wrong number of arguments for "
+            f"{converter.__name__}(expected 1, 2 or 4): {nargs}")
     try:
-        converter(key, converted_data, errors, context)
-        return
-    except Invalid as e:
-        errors[key].append(e.error)
-        return
-    except TypeError as e:
-        # hack to make sure the type error was caused by the wrong
-        # number of arguments given.
-        if converter.__name__ not in str(e):
-            raise
-
-    try:
-        value = converter(converted_data.get(key), context)
-        converted_data[key] = value
+        value = converter(*params)
+        # 4-args version sets value internally
+        if nargs != 4:
+            converted_data[key] = value
         return
     except Invalid as e:
         errors[key].append(e.error)
@@ -366,7 +357,7 @@ def flatten_dict(data, flattened=None, old_key=None):
     flattened = flattened or {}
     old_key = old_key or []
 
-    for key, value in six.iteritems(data):
+    for key, value in data.items():
         new_key = old_key + [key]
         if isinstance(value, list) and value and isinstance(value[0], dict):
             flattened = flatten_list(value, flattened, new_key)
@@ -405,7 +396,7 @@ def unflatten(data):
     '''
 
     unflattened = {}
-    convert_to_list = []
+    clean_lists = {}
 
     for flattend_key in sorted(data.keys(), key=flattened_order_key):
         current_pos = unflattened
@@ -414,14 +405,22 @@ def unflatten(data):
             try:
                 current_pos = current_pos[key]
             except IndexError:
-                new_pos = {}
-                current_pos.append(new_pos)
+                while True:
+                    new_pos = {}
+                    current_pos.append(new_pos)
+                    if key < len(current_pos):
+                        break
+                    # skipped list indexes need to be removed before returning
+                    clean_lists[id(current_pos)] = current_pos
                 current_pos = new_pos
             except KeyError:
                 new_pos = []
                 current_pos[key] = new_pos
                 current_pos = new_pos
         current_pos[flattend_key[-1]] = data[flattend_key]
+
+    for cl in clean_lists.values():
+        cl[:] = [i for i in cl if i]
 
     return unflattened
 

@@ -30,10 +30,8 @@ package_revision table.)
 from __future__ import print_function
 from __future__ import absolute_import
 import argparse
-import sys
 from collections import defaultdict
-from six.moves import input
-from six import text_type
+
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
 # args quickly.
@@ -177,7 +175,7 @@ def migrate_dataset(dataset_name, errors):
             if isinstance(exc, logic.NotFound):
                 error_msg = u'Revision missing'
             else:
-                error_msg = text_type(exc)
+                error_msg = str(exc)
             print(u'    Error: {}! Skipping this version '
                   '(revision_id={}, timestamp={})'
                   .format(error_msg, activity_obj.revision_id,
@@ -273,8 +271,11 @@ if __name__ == u'__main__':
                         u'dataset - specify its name')
     args = parser.parse_args()
     assert args.config, u'You must supply a --config'
+    print(u'Loading config')
     try:
-        from ckan.lib.cli import load_config
+        from ckan.cli import load_config
+        from ckan.config.middleware import make_app
+        make_app(load_config(args.config))
     except ImportError:
         # for CKAN 2.6 and earlier
         def load_config(config):
@@ -287,9 +288,7 @@ if __name__ == u'__main__':
             cmd.options.config = config
             cmd._load_config()
             return
-
-    print(u'Loading config')
-    load_config(args.config)
+        load_config(args.config)
     if not args.dataset:
         migrate_all_datasets()
         wipe_activity_detail(delete_activity_detail=args.delete)

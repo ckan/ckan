@@ -3,8 +3,8 @@
 from sqlalchemy import inspect
 from ckan.common import asbool
 import six
-from six import text_type
-from six.moves.urllib.parse import quote
+
+from urllib.parse import quote
 from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
@@ -19,24 +19,6 @@ log = logging.getLogger(__name__)
 
 APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
-
-
-class LazyView(object):
-
-    def __init__(self, import_name, view_name=None):
-        self.__module__, self.__name__ = import_name.rsplit(u'.', 1)
-        self.import_name = import_name
-        self.view_name = view_name
-
-    @cached_property
-    def view(self):
-        actual_view = import_string(self.import_name)
-        if self.view_name:
-            actual_view = actual_view.as_view(self.view_name)
-        return actual_view
-
-    def __call__(self, *args, **kwargs):
-        return self.view(*args, **kwargs)
 
 
 def check_session_cookie(response):
@@ -139,12 +121,13 @@ def identify_user():
                                             u'Unknown IP Address')
 
     # Authentication plugins get a chance to run here break as soon as a user
-    # is identified.
-
+    # is identified or a response is returned
     authenticators = p.PluginImplementations(p.IAuthenticator)
     if authenticators:
         for item in authenticators:
-            item.identify()
+            response = item.identify()
+            if response:
+                return response
             try:
                 if g.user:
                     break
@@ -167,7 +150,7 @@ def identify_user():
         g.author = g.user
     else:
         g.author = g.remote_addr
-    g.author = text_type(g.author)
+    g.author = str(g.author)
 
 
 def _identify_user_default():

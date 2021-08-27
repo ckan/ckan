@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
-from six import text_type, ensure_str
+from six import ensure_str
 import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
@@ -298,7 +298,9 @@ class EditView(MethodView):
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
                 }
-                error_summary = {_(u'Old Password'): _(u'incorrect password')}
+                error_summary = {_(u'Old Password'): _(u'incorrect password')}\
+                    if not g.userobj.sysadmin \
+                    else {_(u'Sysadmin Password'): _(u'incorrect password')}
                 return self.get(id, data_dict, errors, error_summary)
 
         try:
@@ -449,7 +451,9 @@ class RegisterView(MethodView):
 def login():
     # Do any plugin login stuff
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
-        item.login()
+        response = item.login()
+        if response:
+            return response
 
     extra_vars = {}
     if g.user:
@@ -480,7 +484,10 @@ def logged_in():
 def logout():
     # Do any plugin logout stuff
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
-        item.logout()
+        response = item.logout()
+        if response:
+            return response
+
     url = h.url_for(u'user.logged_out_page')
     return h.redirect_to(
         _get_repoze_handler(u'logout_handler_path') + u'?came_from=' + url,
@@ -650,20 +657,26 @@ class RequestResetView(MethodView):
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above
                 mailer.send_reset_link(user_obj)
+                plugins.toolkit.signals.request_password_reset.send(
+                    user_obj.name, user=user_obj)
             except mailer.MailerException as e:
                 # SMTP is not configured correctly or the server is
                 # temporarily unavailable
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(u'home.index')
+                return h.redirect_to(config.get(
+                    u'ckan.user_reset_landing_page',
+                    u'home.index'))
 
         # always tell the user it succeeded, because otherwise we reveal
         # which accounts exist or not
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(u'home.index')
+        return h.redirect_to(config.get(
+            u'ckan.user_reset_landing_page',
+            u'home.index'))
 
     def get(self):
         self._prepare()
@@ -727,9 +740,13 @@ class PerformResetView(MethodView):
             user_dict[u'state'] = model.State.ACTIVE
             logic.get_action(u'user_update')(context, user_dict)
             mailer.create_reset_key(context[u'user_obj'])
+            plugins.toolkit.signals.perform_password_reset.send(
+                username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(u'home.index')
+            return h.redirect_to(config.get(
+                u'ckan.user_reset_landing_page',
+                u'home.index'))
         except logic.NotAuthorized:
             h.flash_error(_(u'Unauthorized to edit user %s') % id)
         except logic.NotFound:
@@ -739,7 +756,7 @@ class PerformResetView(MethodView):
         except logic.ValidationError as e:
             h.flash_error(u'%r' % e.error_dict)
         except ValueError as e:
-            h.flash_error(text_type(e))
+            h.flash_error(str(e))
         user_dict[u'state'] = user_state
         return base.render(u'user/perform_reset.html', {
             u'user_dict': user_dict

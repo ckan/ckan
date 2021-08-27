@@ -7,7 +7,7 @@ import warnings
 import copy
 import decimal
 import fractions
-import mock
+import unittest.mock as mock
 import pytest
 
 import ckan.lib.navl.dictization_functions as df
@@ -186,6 +186,22 @@ def test_email_is_unique_validator_user_update_email_unchanged(app):
 
 
 @pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_using_name_as_id(app):
+    with app.flask_app.test_request_context():
+        user = factories.User(username="user01", email="user01@email.com")
+
+        # try to update user1 and leave email unchanged
+        old_email = "user01@email.com"
+
+        helpers.call_action(
+            "user_update", id=user['name'], email=user['email'], about='test')
+        updated_user = model.User.get(user["id"])
+
+        assert updated_user.email == old_email
+        assert updated_user.about == 'test'
+
+
+@pytest.mark.usefixtures("clean_db")
 def test_email_is_unique_validator_user_update_email_new(app):
     with app.flask_app.test_request_context():
         user = factories.User(username="user01", email="user01@email.com")
@@ -292,6 +308,21 @@ def test_email_validator_with_valid_value():
             return validators.email_validator(*args, **kwargs)
 
         call_validator(valid_value)
+
+
+def test_strip_value_with_valid_value():
+    valid_values = [
+        " test@example.com",
+        "  test@example.com",
+        "test@example.com ",
+        "test@example.com  ",
+        " test@example.com ",
+        "  test@example.com  ",
+    ]
+
+    for valid_value in valid_values:
+
+        assert validators.strip_value(valid_value) == "test@example.com"
 
 
 def test_name_validator_with_valid_value():
@@ -433,6 +464,8 @@ def test_if_empty_guess_format():
                 "id": "fake_resource_id",
                 "format": "",
             },
+            {"url": "http://example.com", "format": ""},
+            {"url": "my.csv", "format": ""}
         ],
     }
     data = df.flatten_dict(data)
@@ -464,6 +497,18 @@ def test_if_empty_guess_format():
         key=("resources", 3, "format"), data=new_data, errors={}, context={}
     )
     assert new_data[("resources", 3, "format")] == ""
+
+    new_data = copy.deepcopy(data)
+    call_validator(
+        key=("resources", 4, "format"), data=new_data, errors={}, context={}
+    )
+    assert new_data[("resources", 4, "format")] == ""
+
+    new_data = copy.deepcopy(data)
+    call_validator(
+        key=("resources", 5, "format"), data=new_data, errors={}, context={}
+    )
+    assert new_data[("resources", 5, "format")] == "text/csv"
 
 
 def test_clean_format():
@@ -811,4 +856,29 @@ class TestOneOfValidator(object):
         raises_Invalid(func)(5)
 
 
-# TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show
+def test_tag_string_convert():
+    def convert(tag_string):
+        key = "tag_string"
+        data = {key: tag_string}
+        errors = []
+        context = {"model": model, "session": model.Session}
+        validators.tag_string_convert(key, data, errors, context)
+        tags = []
+        i = 0
+        while True:
+            tag = data.get(("tags", i, "name"))
+            if not tag:
+                break
+            tags.append(tag)
+            i += 1
+        return tags
+
+    assert convert("big, good") == ["big", "good"]
+    assert convert("one, several word tag, with-hyphen") == [
+        "one",
+        "several word tag",
+        "with-hyphen",
+    ]
+    assert convert("") == []
+    assert convert("trailing comma,") == ["trailing comma"]
+    assert convert("trailing comma space, ") == ["trailing comma space"]

@@ -33,6 +33,13 @@ class TestSearchIndex(object):
             "metadata_modified": datetime.datetime.now().isoformat(),
         }
 
+    def test_solr_is_available(self):
+        assert self.solr_client.search("*:*") is not None
+
+    def test_search_all(self):
+        self.package_index.index_package(self.base_package_dict)
+        assert len(self.solr_client.search("*:*")) == 1
+
     def test_index_basic(self):
 
         self.package_index.index_package(self.base_package_dict)
@@ -142,6 +149,8 @@ class TestSearchIndex(object):
                 "extras": [
                     {"key": "test_wrong_date", "value": "Not a date"},
                     {"key": "test_another_wrong_date", "value": "2014-13-01"},
+                    {"key": "test_yet_another_wrong_date", "value": "2014-15"},
+                    {"key": "test_yet_another_very_wrong_date", "value": "30/062012"},
                 ]
             }
         )
@@ -154,6 +163,8 @@ class TestSearchIndex(object):
 
         assert "test_wrong_date" not in response.docs[0]
         assert "test_another_wrong_date" not in response.docs[0]
+        assert "test_yet_another_wrong_date" not in response.docs[0]
+        assert "test_yet_another_very_wrong_date" not in response.docs[0]
 
     def test_index_date_field_empty_value(self):
 

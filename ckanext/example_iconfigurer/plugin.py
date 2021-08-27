@@ -1,8 +1,5 @@
 # encoding: utf-8
 
-from routes.mapper import SubMapper
-from six import text_type
-
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckanext.example_iconfigurer.blueprint as blueprint
@@ -42,6 +39,7 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
     def update_config_schema(self, schema):
 
         ignore_missing = toolkit.get_validator(u'ignore_missing')
+        unicode_safe = toolkit.get_validator(u'unicode_safe')
         is_positive_integer = toolkit.get_validator(u'is_positive_integer')
 
         schema.update({
@@ -51,7 +49,7 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
 
             # This is a custom configuration option
             u'ckanext.example_iconfigurer.test_conf': [
-                ignore_missing, text_type
+                ignore_missing, unicode_safe
             ],
         })
 

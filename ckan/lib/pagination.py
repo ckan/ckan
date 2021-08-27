@@ -38,8 +38,6 @@ from string import Template
 
 import dominate.tags as tags
 from markupsafe import Markup
-from six import text_type
-from six.moves import range
 
 
 class BasePage(list):
@@ -626,7 +624,7 @@ class Page(BasePage):
         with tags.div(cls=u"pagination-wrapper") as wrapper:
             tags.ul(u"$link_previous ~2~ $link_next", cls=u"pagination")
         params = dict(
-            format=text_type(wrapper),
+            format=str(wrapper),
             symbol_previous=u"«",
             symbol_next=u"»",
             curpage_attr={u"class": u"active"},
@@ -640,7 +638,7 @@ class Page(BasePage):
     def _pagerlink(self, page, text, extra_attributes=None):
         anchor = super(Page, self)._pagerlink(page, text)
         extra_attributes = extra_attributes or {}
-        return text_type(tags.li(anchor, **extra_attributes))
+        return str(tags.li(anchor, **extra_attributes))
 
     # Change 'current page' link from <span> to <li><a>
     # and '..' into '<li><a>..'
@@ -651,11 +649,11 @@ class Page(BasePage):
         # Convert ..
         dotdot = u'<span class="pager_dotdot">..</span>'
         dotdot_link = tags.li(tags.a(u"...", href=u"#"), cls=u"disabled")
-        html = re.sub(dotdot, text_type(dotdot_link), html)
+        html = re.sub(dotdot, str(dotdot_link), html)
 
         # Convert current page
         text = u"%s" % self.page
-        current_page_span = text_type(tags.span(text, **self.curpage_attr))
+        current_page_span = str(tags.span(text, **self.curpage_attr))
         current_page_link = self._pagerlink(
             self.page, text, extra_attributes=self.curpage_attr
         )

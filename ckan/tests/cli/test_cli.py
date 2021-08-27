@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from configparser import InterpolationMissingOptionError
 import pytest
 import os
 
 from ckan.cli.cli import ckan
 from ckan.cli import CKANConfigLoader
+from ckan.exceptions import CkanConfigurationException
 
 
 def test_without_args(cli):
@@ -12,7 +14,7 @@ def test_without_args(cli):
     """
     result = cli.invoke(ckan)
     assert u'Usage: ckan' in result.output
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 def test_incorrect_config(cli):
@@ -23,18 +25,18 @@ def test_incorrect_config(cli):
 
 
 def test_correct_config(cli, ckan_config):
-    """Presense of config file disables default printing of help message.
+    """With explicit config file user still sees help message.
     """
     result = cli.invoke(ckan, [u'-c', ckan_config[u'__file__']])
-    assert u'Error: Missing command.' in result.output
-    assert result.exit_code
+    assert u'Usage: ckan' in result.output
+    assert not result.exit_code, result.output
 
 
 def test_correct_config_with_help(cli, ckan_config):
     """Config file not ignored when displaying usage.
     """
     result = cli.invoke(ckan, [u'-c', ckan_config[u'__file__'], u'-h'])
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 def test_config_via_env_var(cli, ckan_config):
@@ -44,7 +46,7 @@ def test_config_via_env_var(cli, ckan_config):
     """
     result = cli.invoke(ckan, [u'-c', None, u'-h'],
                         env={u'CKAN_INI': ckan_config[u'__file__']})
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')
@@ -53,6 +55,9 @@ def test_command_from_extension_shown_in_help_when_enabled(cli):
     """Extra commands shown in help when plugin enabled.
     """
     result = cli.invoke(ckan, [])
+    assert u'example-iclick-hello' in result.output
+
+    result = cli.invoke(ckan, [u'--help'])
     assert u'example-iclick-hello' in result.output
 
 
@@ -110,3 +115,46 @@ def test_ckan_config_loader_parse_two_files():
     assert conf[u'global_conf'][u'__file__'] == filename
     assert conf[u'global_conf'][u'here'] == tpl_dir
     assert conf[u'global_conf'][u'debug'] == u'false'
+
+
+def test_ckan_env_vars_in_config(monkeypatch):
+    """CKAN_ prefixed environment variables can be used in config.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-env-var.ini')
+    monkeypatch.setenv("CKAN_TEST_ENV_VAR", "value")
+    conf = CKANConfigLoader(filename).get_config()
+    assert conf["var"] == "value"
+
+
+def test_other_env_vars_ignored(monkeypatch):
+    """Non-CKAN_ environment variables are ignored
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-no-env-var.ini')
+    monkeypatch.setenv("TEST_ENV_VAR", "value")
+    with pytest.raises(InterpolationMissingOptionError):
+        CKANConfigLoader(filename).get_config()
+
+
+def test_chain_loading():
+    """Load chains of config files via `use = config:...`.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-one.ini')
+    conf = CKANConfigLoader(filename).get_config()
+    assert conf[u'__file__'] == filename
+    assert conf[u'key1'] == u'one'
+    assert conf[u'key2'] == u'two'
+    assert conf[u'key3'] == u'three'
+
+
+def test_recursive_loading():
+    """ Make sure we still remember main config file.
+
+    If there are circular dependencies, make sure the user knows about it.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-one-recursive.ini')
+    with pytest.raises(CkanConfigurationException):
+        CKANConfigLoader(filename).get_config()

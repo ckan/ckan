@@ -1,9 +1,10 @@
 # encoding: utf-8
 
-from six import text_type
+
 import ckan.plugins as p
 
 ignore_empty = p.toolkit.get_validator('ignore_empty')
+unicode_safe = p.toolkit.get_validator('unicode_safe')
 
 DEFAULT_VIDEO_FORMATS = 'mp4 ogg webm'
 
@@ -24,8 +25,8 @@ class VideoView(p.SingletonPlugin):
         return {'name': 'video_view',
                 'title': p.toolkit._('Video'),
                 'icon': 'file-video-o',
-                'schema': {'video_url': [ignore_empty, text_type],
-                           'poster_url': [ignore_empty, text_type]},
+                'schema': {'video_url': [ignore_empty, unicode_safe],
+                           'poster_url': [ignore_empty, unicode_safe]},
                 'iframed': False,
                 'always_available': True,
                 'default_title': p.toolkit._('Video'),

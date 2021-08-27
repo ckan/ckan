@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from six.moves import zip_longest
+from itertools import zip_longest
 
 from flask import Blueprint, make_response
 from flask.views import MethodView
@@ -70,7 +70,7 @@ def dump(resource_id):
     try:
         dump_to(
             resource_id,
-            response.stream,
+            response,
             fmt=data[u'format'],
             offset=data[u'offset'],
             limit=data.get(u'limit'),

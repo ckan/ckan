@@ -2,23 +2,20 @@
 
 from __future__ import print_function
 
-import os
 import sys
 
 import click
 import paste.script
 import routes
 from paste.registry import Registry
-from paste.script.util.logging_config import fileConfig
-from six.moves import input
-from six.moves.urllib.parse import urlparse
+
+from urllib.parse import urlparse
 
 from ckan.config.middleware import make_app
 from ckan.cli import load_config as _get_config
 import ckan.logic as logic
 import ckan.model as model
 from ckan.common import config
-from ckan.common import asbool
 import ckan.lib.maintain as maintain
 # This is a test Flask request context to be used internally.
 # Do not use it!
@@ -30,7 +27,7 @@ _cli_test_request_context = None
 #    Otherwise loggers get disabled.
 
 
-@maintain.deprecated('Use @maintain.deprecated instead')
+@maintain.deprecated('Use @maintain.deprecated instead', since="2.9.0")
 def deprecation_warning(message=None):
     '''
     DEPRECATED
@@ -45,7 +42,7 @@ def deprecation_warning(message=None):
     sys.stderr.write(u'\n')
 
 
-@maintain.deprecated()
+@maintain.deprecated(since='2.9.0')
 def error(msg):
     '''
     DEPRECATED
@@ -58,7 +55,8 @@ def error(msg):
     sys.exit(1)
 
 
-@maintain.deprecated('Use model.parse_db_config directly instead')
+@maintain.deprecated('Use model.parse_db_config directly instead',
+                     since='2.9.0')
 def _parse_db_config(config_key=u'sqlalchemy.url'):
     '''Deprecated'''
     db_config = model.parse_db_config(config_key)
@@ -70,7 +68,8 @@ def _parse_db_config(config_key=u'sqlalchemy.url'):
 
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
 ## Written by Trent Mick
-@maintain.deprecated('Instead you can probably use click.confirm()')
+@maintain.deprecated('Instead you can probably use click.confirm()',
+                     since='2.9.0')
 def query_yes_no(question, default="yes"):
     """DEPRECATED
 
@@ -106,19 +105,6 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-class MockTranslator(object):
-    def gettext(self, value):
-        return value
-
-    def ugettext(self, value):
-        return value
-
-    def ungettext(self, singular, plural, n):
-        if n > 1:
-            return plural
-        return singular
-
-
 def load_config(config, load_site_user=True):
     conf = _get_config(config)
     assert 'ckan' not in dir()  # otherwise loggers would be disabled
@@ -137,22 +123,10 @@ def load_config(config, load_site_user=True):
 
     registry = Registry()
     registry.prepare()
-    import pylons
-    registry.register(pylons.translator, MockTranslator())
 
     site_user = None
     if model.user_table.exists() and load_site_user:
-        # If the DB has already been initialized, create and register
-        # a pylons context object, and add the site user to it, so the
-        # auth works as in a normal web request
-        c = pylons.util.AttribSafeContextObj()
-
-        registry.register(pylons.c, c)
-
         site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
-
-        pylons.c.user = site_user['name']
-        pylons.c.userobj = model.User.get(site_user['name'])
 
     ## give routes enough information to run url_for
     parsed = urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
@@ -164,7 +138,7 @@ def load_config(config, load_site_user=True):
 
 
 @maintain.deprecated('Instead use ckan.cli.cli.CkanCommand or extensions '
-                     'should use IClick')
+                     'should use IClick', since='2.9.0')
 def paster_click_group(summary):
     '''DEPRECATED
 

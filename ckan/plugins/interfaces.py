@@ -26,7 +26,6 @@ __all__ = [
     u'IResourceUrlChange',
     u'IDatasetForm',
     u'IValidators',
-    u'IResourcePreview',
     u'IResourceView',
     u'IResourceController',
     u'IGroupForm',
@@ -41,6 +40,7 @@ __all__ = [
     u'IForkObserver',
     u'IApiToken',
     u'IClick',
+    u'ISignal',
 ]
 
 
@@ -442,65 +442,6 @@ class IResourceView(Interface):
 
         :returns: the location of the edit view form template.
         :rtype: string
-        '''
-
-
-class IResourcePreview(Interface):
-    u'''
-
-    .. warning:: This interface is deprecated, and is only kept for backwards
-        compatibility with the old resource preview code. Please
-        use :py:class:`~ckan.plugins.interfaces.IResourceView` for writing
-        custom view plugins.
-
-    '''
-
-    def can_preview(self, data_dict):
-        u'''Return info on whether the plugin can preview the resource.
-
-        This can be done in two ways:
-
-        1. The old way is to just return ``True`` or ``False``.
-
-        2. The new way is to return a dict with  three keys:
-
-           * ``can_preview`` (``boolean``)
-             ``True`` if the extension can preview the resource.
-
-           * ``fixable`` (``string``)
-             A string explaining how preview for the resource could be enabled,
-             for example if the ``resource_proxy`` plugin was enabled.
-
-           * ``quality`` (``int``)
-             How good the preview is: ``1`` (poor), ``2`` (average) or
-             ``3`` (good). When multiple preview extensions can preview the
-             same resource, this is used to determine which extension will
-             be used.
-
-        :param data_dict: the resource to be previewed and the dataset that it
-          belongs to.
-        :type data_dict: dictionary
-
-        Make sure to check the ``on_same_domain`` value of the resource or the
-        url if your preview requires the resource to be on the same domain
-        because of the same-origin policy.  To find out how to preview
-        resources that are on a different domain, read :ref:`resource-proxy`.
-
-        '''
-
-    def setup_template_variables(self, context, data_dict):
-        u'''
-        Add variables to c just prior to the template being rendered.
-        The ``data_dict`` contains the resource and the dataset.
-
-        Change the url to a proxied domain if necessary.
-        '''
-
-    def preview_template(self, context, data_dict):
-        u'''
-        Returns a string representing the location of the template to be
-        rendered for the read page.
-        The ``data_dict`` contains the resource and the dataset.
         '''
 
 
@@ -1667,24 +1608,67 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''Allows custom authentication methods to be integrated into CKAN.'''
+    u'''Allows custom authentication methods to be integrated into CKAN.
+
+        All interface methods except for the ``abort()`` one support
+        returning a Flask response object. This can be used for instance to
+        issue redirects or set cookies in the response. If a response object
+        is returned there will be no further processing of the current request
+        and that response will be returned. This can be used by plugins to:
+
+        * Issue a redirect::
+
+            def identify(self):
+
+                return toolkit.redirect_to('myplugin.custom_endpoint')
+
+        * Set or clear cookies (or headers)::
+
+            from Flask import make_response
+
+            def identify(self)::
+
+                response = make_response(toolkit.render('my_page.html'))
+                response.set_cookie(cookie_name, expires=0)
+
+                return response
+
+    '''
 
     def identify(self):
         u'''Called to identify the user.
 
         If the user is identified then it should set:
 
-         - c.user: The id of the user
-         - c.userobj: The actual user object (this may be removed as a
-           requirement in a later release so that access to the model is not
-           required)
+         - g.user: The name of the user
+         - g.userobj: The actual user object
+
+        Alternatively, plugins can return a response object in order to prevent
+        the default CKAN authorization flow. See
+        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
+        for more details.
+
         '''
 
     def login(self):
-        u'''Called at login.'''
+        u'''Called before the login starts (that is before asking the user for
+        user name and a password in the default authentication).
+
+        Plugins can return a response object to prevent the default CKAN
+        authorization flow. See
+        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
+        for more details.
+        '''
 
     def logout(self):
-        u'''Called at logout.'''
+        u'''Called before the logout starts (that is before clicking the logout
+        button in the default authentication).
+
+        Plugins can return a response object to prevent the default CKAN
+        authorization flow. See
+        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
+        for more details.
+        '''
 
     def abort(self, status_code, detail, headers, comment):
         u'''Called on abort.  This allows aborts due to authorization issues
@@ -2015,3 +1999,130 @@ class IClick(Interface):
         :rtype: list of function objects
         '''
         return []
+
+
+class ISignal(Interface):
+    """Subscribe to CKAN signals.
+    """
+
+    def get_signal_subscriptions(self):
+        """Return a mapping of signals to their listeners.
+
+        Note that keys are not strings, they are instances of
+        ``blinker.Signal``. When using signals provided by CKAN core,
+        it is better to use the references from the :doc:`plugins
+        toolkit <plugins-toolkit>` for better future
+        compatibility. Values should be a list of listener functions::
+
+            def get_signal_subscriptions(self):
+                import ckan.plugins.toolkit as tk
+
+                # or, even better, but requires additional dependency:
+                # pip install ckantoolkit
+                import ckantoolkit as tk
+
+                return {
+                    tk.signals.request_started: [request_listener],
+                    tk.signals.register_blueprint: [
+                        first_blueprint_listener,
+                        second_blueprint_listener
+                    ]
+                }
+
+        Listeners are callables that accept one mandatory
+        argument (``sender``) and an arbitrary number of
+        named arguments (text). The best signature for a listener is
+        ``def(sender, **kwargs)``.
+
+        The ``sender`` argument  will be different depending on the signal
+        and will be generally used to conditionally executing code on the
+        listener. For example, the ``register_blueprint`` signal is sent every
+        time a custom dataset/group/organization blueprint is registered
+        (using :class:`ckan.plugins.interfaces.IDatasetForm`
+        or :class:`ckan.plugins.interfaces.IGroupForm`). Depending on
+        the kind of blueprint, ``sender`` may be 'dataset', 'group',
+        'organization' or 'resource'. If you want to do some work only
+        for 'dataset' blueprints, you may end up with something similar to::
+
+
+            import ckan.plugins.toolkit as tk
+
+            def dataset_blueprint_listener(sender, **kwargs):
+                if sender != 'dataset':
+                    return
+                # Otherwise, do something..
+
+            class ExamplePlugin(plugins.SingletonPlugin)
+                plugins.implements(plugins.ISignal)
+
+                def get_signal_subscriptions(self):
+
+                    return {
+                        tk.signals.register_blueprint: [
+                            dataset_blueprint_listener,
+                        ]
+                    }
+
+        Because this is a really common use case, there is additional
+        form of listener registration supported. Instead of just
+        callables, one can use dictionaries of form ``{'receiver':
+        CALLABLE, 'sender': DESIRED_SENDER}``. The following code
+        snippet has the same effect than the previous one::
+
+
+            import ckan.plugins.toolkit as tk
+
+            def dataset_blueprint_listener(sender, **kwargs):
+                # do something..
+
+            class ExamplePlugin(plugins.SingletonPlugin)
+                plugins.implements(plugins.ISignal)
+
+                def get_signal_subscriptions(self):
+
+                    return {
+                        tk.signals.register_blueprint: [{
+                            'receiver': dataset_blueprint_listener,
+                            'sender': 'dataset'
+                        }]
+                    }
+
+        The two forms of registration can be mixed when multiple
+        listeners are registered, callables and dictionaries with
+        ``receiver``/``sender`` keys::
+
+            import ckan.plugins.toolkit as tk
+
+            def log_registration(sender, **kwargs):
+                log.info("Log something")
+
+            class ExamplePlugin(plugins.SingletonPlugin)
+                plugins.implements(plugins.ISignal)
+
+                def get_signal_subscriptions(self):
+                    return {
+                        tk.signals.request_started: [
+                            log_registration,
+                            {'receiver': log_registration, 'sender': 'dataset'}
+                        ]
+                    }
+
+        Even though it is possible to change mutable arguments inside the
+        listener, or return something from it, the main purpose of signals
+        is the triggering of side effects, like logging, starting background
+        jobs, calls to external services, etc.
+
+        Any mutation or attempt to change CKAN behavior through signals should
+        be considered unsafe and may lead to hard to track bugs in
+        the future. So never modify the arguments of signal listener and
+        treat them as constants.
+
+        Always check for the presence of the desired value inside the received
+        context (named arguments). Arguments passed to
+        signals may change over time, and some arguments may disappear.
+
+        :returns: mapping of subscriptions to signals
+        :rtype: dict
+
+        """
+        return {}
