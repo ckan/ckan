@@ -893,7 +893,7 @@ class BulkProcessView(MethodView):
 
     def post(self, id, group_type, is_organization, data=None):
         set_org(is_organization)
-        context = self._prepare(group_type)
+        context = self._prepare(group_type, id)
         data_dict = {u'id': id, u'type': group_type}
         try:
             # Do not query for the group datasets when dictizing, as they will
