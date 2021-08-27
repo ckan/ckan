@@ -32,12 +32,36 @@
     {% block extra_fields %}
     {% endblock %}
 
+    {% if is_sysadmin and g.user != data.name %}
+    {% block sysadmin_password %}
+      <fieldset>
+      <legend>{{ _('Change ' + data.name|capitalize + "'s" + ' password') }}</legend>
+      {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'} ) }}
+      {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ _('Sysadmin password') }}</legend>
+        {{ form.input('old_password',
+                      type='password',
+                      label=_('Sysadmin Password'),
+                      id='field-password-old',
+                      value=data.oldpassword,
+                      error=errors.oldpassword,
+                      classes=['control-medium'],
+                      attrs={'autocomplete': 'off', 'class': 'form-control'}
+                      ) }}
+        
+      </fieldset>
+    {% endblock %}
+
+    {% else %}
     {% block change_password %}
       <fieldset>
         <legend>{{ _('Change password') }}</legend>
         {{ form.input('old_password',
                       type='password',
-                      label=_('Sysadmin Password') if is_sysadmin else _('Old Password'),
+                      label=_('Old Password'),
                       id='field-password-old',
                       value=data.oldpassword,
                       error=errors.oldpassword,
@@ -50,6 +74,7 @@
         {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
       </fieldset>
     {% endblock %}
+    {% endif %}
 
     <div class="form-actions">
       {% block form_actions %}
