@@ -695,6 +695,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
         data, context,
         prevent_packages_update=is_org or not contains_packages
     )
+    # Needed to let extensions know the group id
+    session.flush()
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -709,45 +711,45 @@ def _group_or_org_update(context, data_dict, is_org=False):
     else:
         activity_type = 'changed group'
 
-    # activity_dict = {
-    #         'user_id': model.User.by_name(six.ensure_text(user)).id,
-    #         'object_id': group.id,
-    #         'activity_type': activity_type,
-    #         }
+    activity_dict = {
+            'user_id': model.User.by_name(six.ensure_text(user)).id,
+            'object_id': group.id,
+            'activity_type': activity_type,
+            }
     # Handle 'deleted' groups.
     # When the user marks a group as deleted this comes through here as
     # a 'changed' group activity. We detect this and change it to a 'deleted'
     # activity.
-    # if group.state == u'deleted':
-    #     if session.query(ckan.model.Activity).filter_by(
-    #             object_id=group.id, activity_type='deleted').all():
-    #         # A 'deleted group' activity for this group has already been
-    #         # emitted.
-    #         # FIXME: What if the group was deleted and then activated again?
-    #         activity_dict = None
-    #     else:
-    #         # We will emit a 'deleted group' activity.
-    #         activity_dict['activity_type'] = \
-    #             'deleted organization' if is_org else 'deleted group'
-    # if activity_dict is not None:
-    #     activity_dict['data'] = {
-    #             'group': dictization.table_dictize(group, context)
-    #             }
-    #     activity_create_context = {
-    #         'model': model,
-    #         'user': user,
-    #         'defer_commit': True,
-    #         'ignore_auth': True,
-    #         'session': session
-    #     }
-    #     _get_action('activity_create')(activity_create_context, activity_dict)
-    user_obj = model.User.by_name(user)
-    # if user_obj:
-    #     user_id = user_obj.id
-    # else:
-    #     user_id = 'not logged in'
-    activity = group.activity_stream_item('changed', user, user_obj)
-    session.add(activity)
+    if group.state == u'deleted':
+        if session.query(ckan.model.Activity).filter_by(
+                object_id=group.id, activity_type='deleted').all():
+            # A 'deleted group' activity for this group has already been
+            # emitted.
+            # FIXME: What if the group was deleted and then activated again?
+            activity_dict = None
+        else:
+            # We will emit a 'deleted group' activity.
+            activity_dict['activity_type'] = \
+                'deleted organization' if is_org else 'deleted group'
+    if activity_dict is not None:
+        activity_dict['data'] = {
+                'group': model_dictize.group_dictize(
+                    group,
+                    context,
+                    include_groups=False,
+                    include_tags=False,
+                    include_users=False, 
+                    packages_field=None
+                    )
+                }
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit': True,
+            'ignore_auth': True,
+            'session': session
+        }
+        _get_action('activity_create')(activity_create_context, activity_dict)
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
@@ -756,7 +758,13 @@ def _group_or_org_update(context, data_dict, is_org=False):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    return model_dictize.group_dictize(group, context)
+    return_id_only = context.get('return_id_only', False)
+    action = 'organization_show' if is_org else 'group_show'
+
+    output = context['id'] if return_id_only \
+        else _get_action(action)(context, {'id': group.id})
+
+    return output
 
 
 def group_update(context, data_dict):

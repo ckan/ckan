@@ -513,7 +513,6 @@ def changes(id, group_type, is_organization):
     Shows the changes to an organization in one particular activity stream
     item.
     '''
-    # breakpoint()
     set_org(is_organization)
     extra_vars = {}
     activity_id = id

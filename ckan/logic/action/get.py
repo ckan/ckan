@@ -3315,7 +3315,7 @@ def activity_diff(context, data_dict):
     :type diff_type: string
     '''
     import difflib
-    # breakpoint()
+
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = _get_or_bust(data_dict, 'object_type')

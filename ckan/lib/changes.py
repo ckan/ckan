@@ -387,6 +387,8 @@ def check_metadata_org_changes(change_list, old, new):
     if old.get(u'image_url') != new.get(u'image_url'):
         _image_url_change(change_list, old, new)
 
+    _extra_fields(change_list, old, new)
+
 
 def _title_change(change_list, old, new):
     '''
