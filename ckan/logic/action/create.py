@@ -757,8 +757,8 @@ def _group_or_org_create(context, data_dict, is_org=False):
             include_groups=False,
             include_tags=False,
             include_users=False,
-            packages_field=None
-            )
+            packages_field=None,
+        )
     }
     activity_create_context = {
         'model': model,
