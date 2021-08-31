@@ -98,9 +98,17 @@
     .nav-tabs {
         float: left;
         margin-bottom: -1px;
+        li {
+            a {
+                @extend .nav-link;
+                padding: 10px 15px;
+            }
+        }
         li.active a,
         a:hover {
+            border: 1px solid $table-border-color;
             background-color: $moduleBackgroundColor;
+            border-bottom-color: transparent;
         }
     }
     .content_action {

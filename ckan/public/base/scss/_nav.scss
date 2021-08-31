@@ -2,6 +2,7 @@
 .nav-aside {
     @include simple-list; // Adds border and padding.
     padding-bottom: 0;
+    display: block;
 }
 
 .nav-aside {
@@ -12,11 +13,21 @@
 
 .nav-item>a,
 .nav-aside li a {
+    text-decoration: none;;
+    display: block;
     color: $navLinkColor;
     font-size: $font-size-base;
     line-height: $line-height-base;
     margin: -7px (-$gutterX);
-    padding: 7px ($gutterX);
+    padding: 10px ($gutterX);
+    &:hover {
+        text-decoration: none;
+        background-color: #eeeeee;
+    }
+    .badge {
+        background-color: $emptyTextColor;
+        border-radius: 10px;
+    }
 }
 
 .nav-item.active,
@@ -35,27 +46,25 @@
     }
 }
 
-@media (min-width: $screen-sm-min) {
-    .nav-item.active>a:before,
-    .nav-aside li.active a:before {
-        content: ' ';
-        position: absolute;
-        border: ($navItemActiveArrowSize*3 + 2) solid transparent;
-        border-right: none;
-        border-left-color: $navItemActiveBackgroundColor;
-        border-left-width: $navItemActiveArrowSize;
-        top: 0;
-        bottom: 0;
-        right: -$navItemActiveArrowSize;
-        width: $navItemActiveArrowSize;
-        height: 34px;
-        // background-image: url("${imagePath}/nav-active.png?1");
-    }
+.nav-item.active>a:before,
+.nav-aside li.active a:before {
+    content: ' ';
+    position: absolute;
+    border: ($navItemActiveArrowSize*3 + 2) solid transparent;
+    border-right: none;
+    border-left-color: $navItemActiveBackgroundColor;
+    border-left-width: $navItemActiveArrowSize;
+    top: 0;
+    bottom: 0;
+    right: -$navItemActiveArrowSize;
+    width: $navItemActiveArrowSize;
+    height: 34px;
+    // background-image: url("${imagePath}/nav-active.png?1");
 }
 
 .nav-pills>li {
     float: none;
-    @media (min-width: $grid-float-breakpoint) {
+    @include media-breakpoint-down(sm) { 
         float: left;
     }
 }
@@ -63,7 +72,6 @@
 .nav-item.active>a span,
 .nav-aside li.active a span {
     white-space: nowrap;
-    overflow: hidden;
     // display: block;
 }
 
@@ -100,6 +108,7 @@
 .nav-facet .nav-item>a:hover:after,
 .nav-facet .nav-item.active>a:after {
     @include ckan-icon;
+    background-position: 0px -16px;
     content: "";
     position: absolute;
     top: 50%;

@@ -26,7 +26,7 @@
     color: $listingHeadingTextColor;
 }
 
-.dataset-heading .label {
+.dataset-heading .badge {
     position: relative;
     top: -1px;
 }
@@ -175,56 +175,56 @@
 }
 
 // FORMATS
-.label[data-format=html],
-.label[data-format*=html] {
+.badge[data-format=html],
+.badge[data-format*=html] {
     background-color: #2E759E;
 }
 
-.label[data-format=json],
-.label[data-format*=json] {
+.badge[data-format=json],
+.badge[data-format*=json] {
     background-color: #D63B00;
 }
 
-.label[data-format=xml],
-.label[data-format*=xml] {
+.badge[data-format=xml],
+.badge[data-format*=xml] {
     background-color: #D63B00;
 }
 
-.label[data-format=text],
-.label[data-format*=text] {
+.badge[data-format=text],
+.badge[data-format*=text] {
     background-color: #1A7EA3;
 }
 
-.label[data-format=csv],
-.label[data-format*=csv] {
+.badge[data-format=csv],
+.badge[data-format*=csv] {
     background-color: #856A00;
 }
 
-.label[data-format=xls],
-.label[data-format*=xls] {
+.badge[data-format=xls],
+.badge[data-format*=xls] {
     background-color: #207E42;
 }
 
-.label[data-format=zip],
-.label[data-format*=zip] {
+.badge[data-format=zip],
+.badge[data-format*=zip] {
     background-color: #686868;
 }
 
-.label[data-format=api],
-.label[data-format*=api] {
+.badge[data-format=api],
+.badge[data-format*=api] {
     background-color: #D22D81;
 }
 
-.label[data-format=pdf],
-.label[data-format*=pdf] {
+.badge[data-format=pdf],
+.badge[data-format*=pdf] {
     background-color: #e0051e;
 }
 
-.label[data-format=rdf],
-.label[data-format*=rdf],
-.label[data-format*=nquad],
-.label[data-format*=ntriples],
-.label[data-format*=turtle] {
+.badge[data-format=rdf],
+.badge[data-format*=rdf],
+.badge[data-format*=nquad],
+.badge[data-format*=ntriples],
+.badge[data-format*=turtle] {
     background-color: #0b4498;
 }
 
