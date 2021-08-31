@@ -463,7 +463,19 @@ class TestDatastoreSearchLegacyTests(object):
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
+        self.sysadmin_token = helpers.call_action(
+            "api_token_create",
+            context={"model": model, "user": self.sysadmin_user.name},
+            user=self.sysadmin_user.name,
+            name="first token",
+        )
         self.normal_user = model.User.get("annafan")
+        self.normal_user_token = helpers.call_action(
+            "api_token_create",
+            context={"model": model, "user": self.normal_user.name},
+            user=self.normal_user.name,
+            name="first token",
+        )
         self.dataset = model.Package.get("annakarenina")
         self.resource = self.dataset.resources[0]
         self.data = {
@@ -494,7 +506,7 @@ class TestDatastoreSearchLegacyTests(object):
                 },
             ],
         }
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token["token"]}
         res = app.post(
             "/api/action/datastore_create", json=self.data, extra_environ=auth,
         )
@@ -536,7 +548,7 @@ class TestDatastoreSearchLegacyTests(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_basic(self, app):
         data = {"resource_id": self.data["resource_id"]}
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -548,7 +560,7 @@ class TestDatastoreSearchLegacyTests(object):
 
         # search with parameter id should yield the same results
         data = {"id": self.data["resource_id"]}
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -586,7 +598,7 @@ class TestDatastoreSearchLegacyTests(object):
         )
         helpers.call_action("datastore_create", resource_id=resource["id"], force=True)
         data = {"resource_id": resource["id"]}
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
 
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
@@ -598,7 +610,7 @@ class TestDatastoreSearchLegacyTests(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_alias(self, app):
         data = {"resource_id": self.data["aliases"]}
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -614,7 +626,7 @@ class TestDatastoreSearchLegacyTests(object):
             "resource_id": self.data["resource_id"],
             "fields": [{"id": "bad"}],
         }
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -628,7 +640,7 @@ class TestDatastoreSearchLegacyTests(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_fields(self, app):
         data = {"resource_id": self.data["resource_id"], "fields": [u"b\xfck"]}
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -645,7 +657,7 @@ class TestDatastoreSearchLegacyTests(object):
             "resource_id": self.data["resource_id"],
             "fields": u"b\xfck, author",
         }
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -667,7 +679,7 @@ class TestDatastoreSearchLegacyTests(object):
             "distinct": True,
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -685,7 +697,7 @@ class TestDatastoreSearchLegacyTests(object):
             "filters": {u"b\xfck": "annakarenina"},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -703,7 +715,7 @@ class TestDatastoreSearchLegacyTests(object):
             "filters": {u"characters": [u"Princess Anna", u"Sergius"]},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -721,7 +733,7 @@ class TestDatastoreSearchLegacyTests(object):
             "filters": {u"b\xfck": [u"annakarenina", u"warandpeace"]},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -741,7 +753,7 @@ class TestDatastoreSearchLegacyTests(object):
             "filters": {u"b\xfck": [u"annakarenina", u"warandpeace"]},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -775,7 +787,7 @@ class TestDatastoreSearchLegacyTests(object):
             "filters": {u"author": 42},
         }
 
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -792,7 +804,7 @@ class TestDatastoreSearchLegacyTests(object):
             "resource_id": self.data["resource_id"],
             "sort": u"b\xfck asc, author desc",
         }
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -824,7 +836,7 @@ class TestDatastoreSearchLegacyTests(object):
             "resource_id": self.data["resource_id"],
             "sort": u"f\xfc\xfc asc",
         }
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -847,7 +859,7 @@ class TestDatastoreSearchLegacyTests(object):
             "offset": 1,
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -862,7 +874,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_invalid_offset(self, app):
         data = {"resource_id": self.data["resource_id"], "offset": "bad"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -874,7 +886,7 @@ class TestDatastoreSearchLegacyTests(object):
 
         data = {"resource_id": self.data["resource_id"], "offset": -1}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -889,7 +901,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_full_text(self, app):
         data = {"resource_id": self.data["resource_id"], "q": "annakarenina"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -991,7 +1003,7 @@ class TestDatastoreSearchLegacyTests(object):
             "q": {u"b\xfck": "annakarenina"},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1013,7 +1025,7 @@ class TestDatastoreSearchLegacyTests(object):
             "q": u'{"b\xfck": "annakarenina"}',
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1033,7 +1045,7 @@ class TestDatastoreSearchLegacyTests(object):
             "q": {"invalid_field_name": "value"},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -1051,7 +1063,7 @@ class TestDatastoreSearchLegacyTests(object):
             "q": {"author": ["invalid", "value"]},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -1066,7 +1078,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_table_metadata(self, app):
         data = {"resource_id": "_table_metadata"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1083,7 +1095,7 @@ class TestDatastoreSearchLegacyTests(object):
             "filters": "the-filter",
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -1104,7 +1116,7 @@ class TestDatastoreSearchLegacyTests(object):
             "filters": {"invalid-column-name": "value"},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -1123,7 +1135,7 @@ class TestDatastoreSearchLegacyTests(object):
             "fields": ["invalid-column-name"],
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search",
             json=data,
@@ -1140,7 +1152,19 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
+        self.sysadmin_token = helpers.call_action(
+            "api_token_create",
+            context={"model": model, "user": self.sysadmin_user.name},
+            user=self.sysadmin_user.name,
+            name="first token",
+        )
         self.normal_user = model.User.get("annafan")
+        self.normal_user_token = helpers.call_action(
+            "api_token_create",
+            context={"model": model, "user": self.normal_user.name},
+            user=self.normal_user.name,
+            name="first token",
+        )
         resource = model.Package.get("annakarenina").resources[0]
         self.data = dict(
             resource_id=resource.id,
@@ -1225,7 +1249,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
                 },
             ],
         )
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_create", json=self.data, extra_environ=auth,
         )
@@ -1237,7 +1261,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def test_search_full_text(self, app):
         data = {"resource_id": self.data["resource_id"], "q": "DE"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1253,7 +1277,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
             "q": "DE | UK",
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1265,7 +1289,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def test_full_text_search_on_integers_within_text_strings(self, app):
         data = {"resource_id": self.data["resource_id"], "q": "99"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1277,7 +1301,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def test_full_text_search_on_integers(self, app):
         data = {"resource_id": self.data["resource_id"], "q": "4"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1289,7 +1313,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def test_full_text_search_on_decimal_within_text_strings(self, app):
         data = {"resource_id": self.data["resource_id"], "q": "53.56"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1301,7 +1325,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def test_full_text_search_on_decimal(self, app):
         data = {"resource_id": self.data["resource_id"], "q": "52.56"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1313,7 +1337,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def test_full_text_search_on_date(self, app):
         data = {"resource_id": self.data["resource_id"], "q": "2011-01-01"}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1325,7 +1349,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def test_full_text_search_on_json_like_string_succeeds(self, app):
         data = {"resource_id": self.data["resource_id"], "q": '"{}"'}
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search", json=data, extra_environ=auth,
         )
@@ -1341,7 +1365,19 @@ class TestDatastoreSQLLegacyTests(object):
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
+        self.sysadmin_token = helpers.call_action(
+            "api_token_create",
+            context={"model": model, "user": self.sysadmin_user.name},
+            user=self.sysadmin_user.name,
+            name="first token",
+        )
         self.normal_user = model.User.get("annafan")
+        self.normal_user_token = helpers.call_action(
+            "api_token_create",
+            context={"model": model, "user": self.normal_user.name},
+            user=self.normal_user.name,
+            name="first token",
+        )
         self.dataset = model.Package.get("annakarenina")
         resource = self.dataset.resources[0]
         self.data = {
@@ -1367,7 +1403,7 @@ class TestDatastoreSQLLegacyTests(object):
                 },
             ],
         }
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token["token"]}
         res = app.post(
             "/api/action/datastore_create", json=self.data, extra_environ=auth,
         )
@@ -1420,7 +1456,7 @@ class TestDatastoreSQLLegacyTests(object):
             self.data["resource_id"]
         )
         data = {"sql": query}
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token["token"]}
         res = app.post(
             "/api/action/datastore_search_sql", json=data, extra_environ=auth,
         )
@@ -1450,7 +1486,7 @@ class TestDatastoreSQLLegacyTests(object):
             """.format(
             self.data["resource_id"]
         )
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search_sql",
             json={"sql": query},
@@ -1492,7 +1528,7 @@ class TestDatastoreSQLLegacyTests(object):
             },
         )
 
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token["token"]}
         helpers.call_action(
             "datastore_create", resource_id=resource["id"], force=True
         )
@@ -1500,7 +1536,7 @@ class TestDatastoreSQLLegacyTests(object):
         # new resource should be private
         query = 'SELECT * FROM "{0}"'.format(resource["id"])
         data = {"sql": query}
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token["token"]}
         res = app.post(
             "/api/action/datastore_search_sql",
             json=data,
