@@ -21,6 +21,7 @@ __all__ = [
     u'IPackageController',
     u'IPluginObserver',
     u'IConfigurable',
+    u'IConfigDeclarations',
     u'IConfigurer',
     u'IActions',
     u'IResourceUrlChange',
@@ -802,7 +803,12 @@ class IConfigurable(Interface):
         :param config: dict-like configuration object
         :type config: :py:class:`ckan.common.CKANConfig`
         '''
+        return
 
+
+class IConfigDeclarations(Interface):
+    """
+    """
     def declare_config_options(self, declaration, option):
         """Register additional configuration options.
 

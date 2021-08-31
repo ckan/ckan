@@ -13,6 +13,7 @@ def default_token_lifetime():
 class ExpireApiTokenPlugin(p.SingletonPlugin):
     p.implements(p.IApiToken, inherit=True)
     p.implements(p.IConfigurer)
+    p.implements(p.IConfigDeclarations)
     p.implements(p.ITemplateHelpers)
 
     # IConfigurer
@@ -53,6 +54,13 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
             u"expire_api_token", {u"exp": expire_at.isoformat()}, True
         )
         return data
+
+    # IConfigDeclarations
+
+    def declare_config_options(self, declaration, option):
+        declaration.annotate("API Token: expire_api_token plugin")
+        key = option.expire_api_token.default_lifetime
+        declaration.declare(key, 3600)
 
     # TODO: subscribe to signal, sent from api_token.decode and remove
     # expired tokens

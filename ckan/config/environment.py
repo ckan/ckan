@@ -235,7 +235,7 @@ def update_config():
     model.init_model(engine)
 
     declaration = Declaration.set_global(Declaration())
-    for plugin in p.PluginImplementations(p.IConfigurable):
+    for plugin in reversed(list(p.PluginImplementations(p.IConfigDeclarations))):
         plugin.declare_config_options(declaration, Option())
 
     for plugin in p.PluginImplementations(p.IConfigurable):

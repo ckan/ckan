@@ -28,6 +28,7 @@ ValidationError = p.toolkit.ValidationError
 
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
+    p.implements(p.IConfigDeclarations, inherit=True)
     p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
@@ -77,6 +78,22 @@ class DatastorePlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
         self.backend.configure(config)
+
+    # IConfigDeclarations
+
+    def declare_config_options(self, declaration, option):
+        section = option.ckan.datastore
+        declaration.annotate("Datastore settings")
+        declaration.declare(
+            section.write_url,
+            "postgresql://ckan_default:pass@localhost/datastore_default")
+        declaration.declare(
+            section.read_url,
+            "postgresql://datastore_default:pass@localhost/datastore_default")
+
+        declaration.annotate("PostgreSQL' full-text search parameters")
+        declaration.declare(section.default_fts_lang, "english")
+        declaration.declare(section.default_fts_index_method, "gist")
 
     # IActions
 

@@ -58,6 +58,7 @@ class ResourceProxy(p.SingletonPlugin):
     """
     p.implements(p.ITemplateHelpers, inherit=True)
     p.implements(p.IBlueprint)
+    p.implements(p.IConfigDeclarations)
 
     def get_blueprint(self):
         return blueprint.resource_proxy
@@ -83,3 +84,12 @@ class ResourceProxy(p.SingletonPlugin):
         return get_proxified_resource_url(
             data_dict, proxy_schemes=proxy_schemes
         )
+
+    def declare_config_options(self, declaration, option):
+        proxy = option.ckan.resource_proxy
+        declaration.annotate("Resource Proxy settings")
+
+        declaration.declare(proxy.max_file_size, 1048576).set_description(
+            "Preview size limit, default: 1MB")
+        declaration.declare(proxy.chunk_size, 4096).set_description(
+            "Size of chunks to read/write.").comment()

@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import textwrap
 from typing import (
-    Any, Callable, ClassVar, Generic, NewType, Optional, OrderedDict,
-    Sequence, Tuple, TypeVar, Union
+    Any,
+    Callable,
+    ClassVar,
+    Generic,
+    NewType,
+    Optional,
+    OrderedDict,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
 )
 
 T = TypeVar("T")
@@ -17,21 +27,17 @@ UNSET = UnsetType({})
 DefaultType = Union[T, UnsetType]
 
 
-def _identity(v: Any):
-    return v
-
-
 class Option:
     __path: Tuple[str, ...]
 
-    def __init__(self, path: Sequence[str]=()):
+    def __init__(self, path: Sequence[str] = ()):
         self.__path = tuple(path)
 
     def __str__(self):
         return ".".join(self.__path)
 
-    def __bool__(self):
-        return len(self.__path) > 0
+    def __len__(self):
+        return len(self.__path)
 
     def __hash__(self):
         return hash(str(self))
@@ -44,6 +50,9 @@ class Option:
             return self.__path == other.__path
 
         return super().__eq__(other)
+
+    def __getitem__(self, idx):
+        return self.__path[idx]
 
     def __getattr__(self, fragment: str):
         return self._descend(fragment)
@@ -67,35 +76,43 @@ class Option:
         return Option([fragment for fragment in path.split(".") if fragment])
 
 
-
 class Details(Generic[T]):
     default: DefaultType[T]
+    commented: bool = False
     description: Optional[str] = None
-
-    from_str: ConverterFrom = _identity
-    into_str: ConverterInto = str
-
 
     def __init__(self, default: DefaultType[T] = UNSET):
         self.default = default
 
+    def __str__(self):
+        if self.has_default():
+            return str(self.default)
+        return ""
+
     def has_default(self):
         return self.default is not UNSET
 
-    def use_converters(self, from_: ConverterFrom, into_: ConverterInto):
-        if from_:
-            self.from_str = from_
-        if into_:
-            self.into_str = into_
-        return self
-
     def set_description(self, description: str):
         self.description = description
+        return self
+
+    def set_default(self, default: T):
+        self.default = default
+        return self
+
+    def comment(self):
+        self.commented = True
+        return self
+
+
+class Annotation(str):
+    pass
 
 
 class Declaration:
     _global: ClassVar[Declaration]
-    _mapping: OrderedDict[str, Union[Details, Declaration]]
+    _mapping: dict[Option, Details]
+    _order: list[Union[Option, Annotation]]
 
     @classmethod
     def set_global(cls, declaration: Declaration):
@@ -104,46 +121,57 @@ class Declaration:
 
     @classmethod
     def get_global(cls):
+        if not hasattr(cls, "_global"):
+            cls.set_global(cls())
         return cls._global
 
-    def __init__(self, initial = {}):
-        self._mapping = OrderedDict(initial)
+    def __init__(self):
+        self._mapping = OrderedDict()
+        self._order = []
 
-    def __getitem__(self, option: Option) -> Union[Details, Declaration]:
-        section_key, value_key = option._split()
-        section = self.get_section(section_key)
-        return section._mapping[value_key]
+    def __getitem__(self, option: Option) -> Details:
+        return self._mapping[option]
 
-    def get_section(self, option: Option,
-                    create_missing: bool = False) -> Declaration:
-        if not option:
-            # whole declaration requested via Option()
-            return self
+    def __str__(self):
+        result = ""
+        for item in self._order:
+            if isinstance(item, Option):
+                value = self._mapping[item]
+                if value.description:
+                    result += (
+                        textwrap.fill(
+                            value.description,
+                            initial_indent="# ",
+                            subsequent_indent="# ",
+                        )
+                        + "\n"
+                    )
 
-        section = self._mapping
-        tail = option
-        while True:
-            head, tail = tail._behead()
-
-            if head not in section and create_missing:
-                section[head] = Declaration()
-            else:
-                raise KeyError(option)
-
-            child = section[head]
-            if not isinstance(child, Declaration):
-                raise ValueError(
-                    f"Unexpected value at {option}[{head} segment]."
+                result += "{comment}{key} = {value}\n".format(
+                    comment="# " if value.commented else "",
+                    key=item,
+                    value=value,
+                )
+            elif isinstance(item, Annotation):
+                result += (
+                    "\n"
+                    + textwrap.fill(
+                        item, initial_indent="## ", subsequent_indent="## "
+                    )
+                    + "\n"
                 )
 
-            if not tail:
-                break
-            section = child._mapping
+        return result
 
-        return child
+    def declare(
+        self, option: Option, default: DefaultType[T] = UNSET
+    ) -> Details[T]:
+        value = Details(default)
+        if option not in self._mapping:
+            self._order.append(option)
 
-    def declare(self, option: Option, value: Details):
-        section_key, value_key = option._split()
-        section = self.get_section(section_key, create_missing=True)
+        self._mapping[option] = value
+        return value
 
-        section._mapping[value_key] = value
+    def annotate(self, annotation: str):
+        self._order.append(Annotation(annotation))

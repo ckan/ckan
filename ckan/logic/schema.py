@@ -822,10 +822,7 @@ def package_revise_schema(
 
 
 @validator_args
-def config_declaration_show_schema(not_empty, one_of, default, unicode_safe):
-    from ckan.config import Option
-
+def config_declaration_show_schema(one_of, default):
     return {
-        "format": [not_empty, one_of(["ini"])],
-        "section": [default(""), unicode_safe, Option.from_string]
+        "format": [default("ini"), one_of(["ini"])],
     }

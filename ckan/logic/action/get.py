@@ -3560,12 +3560,5 @@ def api_token_list(context, data_dict):
 def config_declaration_show(context, data_dict):
     _check_access("config_declaration_show", context, data_dict)
 
-    section = data_dict["section"]
-    try:
-        declaration = Declaration.get_global().get_section(section)
-    except KeyError:
-        raise NotFound(f"Section {section} not found")
-    except ValueError as e:
-        raise ValidationError({"section": [e]})
-
-    return str(declaration._mapping)
+    declaration = Declaration.get_global()
+    return str(declaration)

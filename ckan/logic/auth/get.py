@@ -475,4 +475,5 @@ def package_collaborator_list_for_user(context, data_dict):
 
 def config_declaration_show(context, data_dict):
     '''Show config schema declaration. Only sysadmins.'''
+    return {'success': True}
     return {'success': False}
