@@ -29,6 +29,7 @@ import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
 
 from ckan.common import _
+from ckan.config import Declaration
 
 log = logging.getLogger('ckan.logic')
 
@@ -3553,3 +3554,18 @@ def api_token_list(context, data_dict):
         model.ApiToken.user_id == user.id
     )
     return model_dictize.api_token_list_dictize(tokens, context)
+
+
+@logic.validate(logic.schema.config_declaration_show_schema)
+def config_declaration_show(context, data_dict):
+    _check_access("config_declaration_show", context, data_dict)
+
+    section = data_dict["section"]
+    try:
+        declaration = Declaration.get_global().get_section(section)
+    except KeyError:
+        raise NotFound(f"Section {section} not found")
+    except ValueError as e:
+        raise ValidationError({"section": [e]})
+
+    return str(declaration._mapping)

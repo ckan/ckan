@@ -803,6 +803,12 @@ class IConfigurable(Interface):
         :type config: :py:class:`ckan.common.CKANConfig`
         '''
 
+    def declare_config_options(self, declaration, option):
+        """Register additional configuration options.
+
+        """
+        return declaration
+
 
 class IConfigurer(Interface):
     u'''

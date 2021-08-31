@@ -819,3 +819,13 @@ def package_revise_schema(
         u'match__': [],
         u'update__': [],
     }
+
+
+@validator_args
+def config_declaration_show_schema(not_empty, one_of, default, unicode_safe):
+    from ckan.config import Option
+
+    return {
+        "format": [not_empty, one_of(["ini"])],
+        "section": [default(""), unicode_safe, Option.from_string]
+    }

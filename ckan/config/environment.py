@@ -23,6 +23,7 @@ import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
 from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
+from ckan.config import Declaration, Option
 
 from ckan.common import _, ungettext, config
 from ckan.exceptions import CkanConfigurationException
@@ -232,6 +233,10 @@ def update_config():
     # Initialize SQLAlchemy
     engine = sqlalchemy.engine_from_config(config)
     model.init_model(engine)
+
+    declaration = Declaration.set_global(Declaration())
+    for plugin in p.PluginImplementations(p.IConfigurable):
+        plugin.declare_config_options(declaration, Option())
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
