@@ -12262,11 +12262,11 @@ select[data-module=autocomplete] {
 
 .resource-item .btn-group {
   position: absolute;
-  top: -5.25rem;
+  top: 10px;
   right: 10px;
 }
 
-@media (sm) {
+@media (max-width: 575.98px) {
   .resource-item .btn-group {
     display: none;
   }
@@ -12383,6 +12383,13 @@ select[data-module=autocomplete] {
 .badge[data-format*=ntriples],
 .badge[data-format*=turtle] {
   background-color: #0b4498;
+}
+
+.badge-default[href]:hover,
+.badge-default[href]:focus {
+  background-color: #5e5e5e;
+  color: #fff;
+  text-decoration: none;
 }
 
 .view-list {
@@ -14257,17 +14264,6 @@ h4 .small,
 
 br.line-height2 {
   line-height: 2;
-}
-
-.dropdown:hover .dropdown-menu {
-  display: block;
-}
-
-.js .dropdown .dropdown-menu, .js .dropdown:hover .dropdown-menu {
-  display: none;
-}
-.js .dropdown.open .dropdown-menu {
-  display: block;
 }
 
 #followee-filter .btn::after {

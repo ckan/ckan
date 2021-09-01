@@ -99,11 +99,11 @@
 
 .resource-item .btn-group {
     position: absolute;
-    top: (math.div($grid-gutter-width,2) - 6);
+    top: 10px;
     right: 10px;
 }
 
-@media (sm) {
+@include media-breakpoint-down(sm) {
     .resource-item .btn-group {
         display: none;
     }
@@ -226,6 +226,13 @@
 .badge[data-format*=ntriples],
 .badge[data-format*=turtle] {
     background-color: #0b4498;
+}
+
+.badge-default[href]:hover, 
+.badge-default[href]:focus {
+    background-color: #5e5e5e;
+    color: $white;
+    text-decoration: none;
 }
 
 // Views
