@@ -11513,6 +11513,10 @@ textarea {
   max-width: 100%;
 }
 
+.form-group {
+  margin-bottom: 30px;
+}
+
 .form-group .btn {
   position: relative;
   top: -2px;
