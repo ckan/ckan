@@ -26,8 +26,44 @@ UnsetType = NewType("UnsetType", dict)
 UNSET = UnsetType({})
 DefaultType = Union[T, UnsetType]
 
+__all__ = [
+    "Option",
+]
+
 
 class Option:
+    """Generic interface for accessing config options.
+
+    In the simplest case, :py:class:`~ckan.plugins.toolkit.option` objects completely
+    interchangeable with the corresponding config option names represented by
+    string. Example::
+
+        site_url = toolkit.option().ckan.site_url
+        # or
+        site_url = toolkit.option(["ckan", "site_url"])
+        # or
+        site_url = toolkit.option.from_string("ckan.site_url")
+
+        assert site_url == "ckan.site_url"
+        assert toolkit.config[site_url] is toolkit.config["ckan.site_url"]
+
+    In addition, :py:class:`~ckan.plugins.toolkit.option` objects are similar to the
+    curried functions. Existing :py:class:`~ckan.plugins.toolkit.option` can be extended
+    to the sub-option at any moment. Example::
+
+        ckan = toolkit.option().ckan
+        assert ckan == "ckan"
+
+        auth = ckan.auth
+        assert auth == "ckan.auth"
+
+        unowned = auth.create_unowned_datasets
+        assert unowned == "ckan.auth.create_unowned_datasets"
+        assert unowned == toolkit.option().ckan.auth.create_unowned_datasets
+
+    """
+
+    __slots__ = ("__path")
     __path: Tuple[str, ...]
 
     def __init__(self, path: Sequence[str] = ()):
@@ -35,6 +71,9 @@ class Option:
 
     def __str__(self):
         return ".".join(self.__path)
+
+    def __repr__(self):
+        return f"<Option {self}>"
 
     def __len__(self):
         return len(self.__path)
@@ -51,29 +90,54 @@ class Option:
 
         return super().__eq__(other)
 
+    def __add__(self, other: Any):
+        return self._combine(self, other)
+
+    def __radd__(self, other: Any):
+        return self._combine(other, self)
+
     def __getitem__(self, idx):
-        return self.__path[idx]
+        fragment = self.__path[idx]
+        if isinstance(fragment, tuple):
+            return Option(fragment)
+        return fragment
 
     def __getattr__(self, fragment: str):
         return self._descend(fragment)
 
-    def _descend(self, fragment) -> Option:
+
+    def _descend(self, fragment: str) -> Option:
+        """Create sub-option."""
         return Option(self.__path + (fragment,))
 
     def _ascend(self) -> Option:
+        """Get parent option for the current one.
+
+        Explicit version of `option[:-1]`.
+        """
         return Option(self.__path[:-1])
 
-    def _behead(self) -> Tuple[str, Option]:
-        head, *tail = self.__path
-        return head, Option(tail)
+    @classmethod
+    def _as_option(cls, value: Any):
+        if isinstance(value, Option):
+            return value
 
-    def _split(self) -> Tuple[Option, str]:
-        *head, tail = self.__path
-        return Option(head), tail
+        if isinstance(value, str):
+            return cls.from_string(value)
+
+        type_ = type(value).__name__
+        raise TypeError(f"{type_} cannot be converted into Option")
 
     @staticmethod
     def from_string(path: str):
         return Option([fragment for fragment in path.split(".") if fragment])
+
+    @staticmethod
+    def _combine(left: Any, right: Any):
+        head = Option._as_option(left)
+        tail = Option._as_option(right)
+
+        return Option(head.__path + tail.__path)
 
 
 class Details(Generic[T]):

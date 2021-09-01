@@ -807,13 +807,41 @@ class IConfigurable(Interface):
 
 
 class IConfigDeclarations(Interface):
+    """Register additional configuration options.
+
+    While it's not necessary, declared config options can be printed out using
+    CLI or additionally verified in code. This makes the task of adding new
+    configuration, removing obsolete config options, checking the sanity of
+    config options much simpler for extension consumers.
+
     """
-    """
+
     def declare_config_options(self, declaration, option):
-        """Register additional configuration options.
+        """Register extra config options with optional annotations.
+
+        Example::
+
+            declaration.annotate("MyExt config section")
+            group = option.ckanext.my_ext.feature
+            declaration.declare(group.enabled, "no").set_description(
+                "Enables feature"
+            )
+            declaration.declare(group.mode, "simple").comment()
+
+        Produces the following config suggestion::
+
+            ## MyExt config section
+            # Enables feature
+            ckanext.my_ext.feature.enabled = no
+            # ckanext.my_ext.feature.mode = simple
+
+        :param declaration:  object containing all the config declarations
+        :type declaration: :py:class:`ckan.config.Declaration`
+
+        :param option: object for generic option access.
+        :type option: :py:class:`ckan.plugins.toolkit.option`
 
         """
-        return declaration
 
 
 class IConfigurer(Interface):

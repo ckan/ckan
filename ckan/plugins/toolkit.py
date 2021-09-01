@@ -121,6 +121,8 @@ class _Toolkit(object):
 
         # fast interface implementations
         'blanket',
+        # generic config option access
+        'option',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -166,6 +168,7 @@ class _Toolkit(object):
         )
         from ckan.lib.jobs import enqueue as enqueue_job
         from ckan.lib import mailer
+        from ckan.config import Option
 
         import ckan.common as converters
 
@@ -330,6 +333,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['enqueue_job'] = enqueue_job
         t['blanket'] = blanket
         t['signals'] = signals
+        t['option'] = Option
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
