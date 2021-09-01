@@ -124,10 +124,9 @@ def purge():
     action, which drops tables when called without filters.'''
 
     site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
-    context = {u'user': site_user[u'name']}
 
     result = logic.get_action(u'datastore_search')(
-        context,
+        {u'user': site_user[u'name']},
         {u'resource_id': u'_table_metadata'}
     )
 
@@ -139,13 +138,8 @@ def purge():
             if record[u'alias_of']:
                 continue
 
-            # we need to do this to trigger resource_show auth function
-            site_user = logic.get_action(u'get_site_user')(
-                {u'ignore_auth': True}, {})
-            context = {u'user': site_user[u'name']}
-
             logic.get_action(u'resource_show')(
-                context,
+                {u'user': site_user[u'name']},
                 {u'id': record[u'name']}
             )
         except logic.NotFound:
@@ -168,7 +162,7 @@ def purge():
     drop_count = 0
     for resource_id in resource_id_list:
         logic.get_action(u'datastore_delete')(
-            context,
+            {u'user': site_user[u'name']},
             {u'resource_id': resource_id, u'force': True}
         )
         click.echo(u"Table '%s' dropped)" % resource_id)
