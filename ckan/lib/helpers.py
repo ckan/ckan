@@ -2291,7 +2291,11 @@ def format_resource_items(items):
     reg_ex_int = r'^-?\d{1,}$'
     reg_ex_float = r'^-?\d{1,}\.\d{1,}$'
     for key, value in items:
-        if not value or key in blacklist:
+        if key in blacklist or (not isinstance(value, bool) and not value):
+            # Ignore blocked keys and values that evaluate to
+            # `bool(value) == False` (e.g. `""`, `[]` or `{}`),
+            # with the exception of boolean-valued keys (keep `False`
+            # values just like `True` values).
             continue
         # size is treated specially as we want to show in MiB etc
         if key == 'size':
