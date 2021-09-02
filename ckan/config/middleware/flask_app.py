@@ -529,7 +529,7 @@ def _register_error_handler(app):
     def error_handler(e):
         debug = asbool(config.get('debug', config.get('DEBUG', False)))
         if isinstance(e, HTTPException):
-            log.error(e, exc_info=sys.exc_info) if debug else log.error(e)
+            log.debug(e, exc_info=sys.exc_info) if debug else log.info(e)
             extra_vars = {
                 u'code': e.code,
                 u'content': e.description,
