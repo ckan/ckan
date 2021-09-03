@@ -13835,14 +13835,15 @@ td.diff_header {
   padding-right: 20px;
 }
 .masthead .main-navbar ul li {
-  padding: 0.5rem 0.9rem;
-  border-radius: 0.5rem;
+  margin-right: 2px;
 }
 .masthead .main-navbar ul li a {
+  padding: 0.6rem 0.9rem;
   color: #fff;
   text-decoration: none;
 }
-.masthead .main-navbar ul li:hover, .masthead .main-navbar ul li:focus, .masthead .main-navbar ul li.active {
+.masthead .main-navbar ul li:hover a, .masthead .main-navbar ul li:focus a, .masthead .main-navbar ul li.active a {
+  border-radius: 0.3rem;
   background-color: #003647;
 }
 .masthead .main-navbar .site-search button {

@@ -122,17 +122,19 @@ $notificationsBg: #C9403A;
         ul {
             padding-right: 20px;
             li {
-                padding: ($spacer * .5)  ($spacer * .9);
-                border-radius: $spacer * 0.5;
+                margin-right: 2px;;
                 a {
+                    padding: ($spacer * .6)  ($spacer * .9);
                     color: $white;
                     text-decoration: none;
-                    
                 }
                 &:hover,
                 &:focus,
                 &.active {
-                    background-color: darken($mastheadBackgroundColor, 10%);
+                    a {
+                        border-radius: $spacer * 0.3;
+                        background-color: darken($mastheadBackgroundColor, 10%);
+                    }
                 }
             }
         }
