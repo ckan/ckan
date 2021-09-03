@@ -27,31 +27,31 @@ UNSET = UnsetType({})
 DefaultType = Union[T, UnsetType]
 
 __all__ = [
-    "Option",
+    "Key",
 ]
 
 
-class Option:
+class Key:
     """Generic interface for accessing config options.
 
-    In the simplest case, :py:class:`~ckan.plugins.toolkit.option` objects completely
+    In the simplest case, :py:class:`~ckan.plugins.toolkit.key` objects completely
     interchangeable with the corresponding config option names represented by
     string. Example::
 
-        site_url = toolkit.option().ckan.site_url
+        site_url = toolkit.key().ckan.site_url
         # or
-        site_url = toolkit.option(["ckan", "site_url"])
+        site_url = toolkit.key(["ckan", "site_url"])
         # or
-        site_url = toolkit.option.from_string("ckan.site_url")
+        site_url = toolkit.key.from_string("ckan.site_url")
 
         assert site_url == "ckan.site_url"
         assert toolkit.config[site_url] is toolkit.config["ckan.site_url"]
 
-    In addition, :py:class:`~ckan.plugins.toolkit.option` objects are similar to the
-    curried functions. Existing :py:class:`~ckan.plugins.toolkit.option` can be extended
-    to the sub-option at any moment. Example::
+    In addition, :py:class:`~ckan.plugins.toolkit.key` objects are similar to the
+    curried functions. Existing :py:class:`~ckan.plugins.toolkit.key` can be extended
+    to the sub-key at any moment. Example::
 
-        ckan = toolkit.option().ckan
+        ckan = toolkit.key().ckan
         assert ckan == "ckan"
 
         auth = ckan.auth
@@ -59,7 +59,7 @@ class Option:
 
         unowned = auth.create_unowned_datasets
         assert unowned == "ckan.auth.create_unowned_datasets"
-        assert unowned == toolkit.option().ckan.auth.create_unowned_datasets
+        assert unowned == toolkit.key().ckan.auth.create_unowned_datasets
 
     """
 
@@ -73,7 +73,7 @@ class Option:
         return ".".join(self.__path)
 
     def __repr__(self):
-        return f"<Option {self}>"
+        return f"<Key {self}>"
 
     def __len__(self):
         return len(self.__path)
@@ -85,7 +85,7 @@ class Option:
         if isinstance(other, str):
             return str(self) == other
 
-        elif isinstance(other, Option):
+        elif isinstance(other, Key):
             return self.__path == other.__path
 
         return super().__eq__(other)
@@ -99,45 +99,45 @@ class Option:
     def __getitem__(self, idx):
         fragment = self.__path[idx]
         if isinstance(fragment, tuple):
-            return Option(fragment)
+            return Key(fragment)
         return fragment
 
     def __getattr__(self, fragment: str):
         return self._descend(fragment)
 
 
-    def _descend(self, fragment: str) -> Option:
-        """Create sub-option."""
-        return Option(self.__path + (fragment,))
+    def _descend(self, fragment: str) -> Key:
+        """Create sub-key."""
+        return Key(self.__path + (fragment,))
 
-    def _ascend(self) -> Option:
-        """Get parent option for the current one.
+    def _ascend(self) -> Key:
+        """Get parent key for the current one.
 
-        Explicit version of `option[:-1]`.
+        Explicit version of `key[:-1]`.
         """
-        return Option(self.__path[:-1])
+        return Key(self.__path[:-1])
 
     @classmethod
-    def _as_option(cls, value: Any):
-        if isinstance(value, Option):
+    def _as_key(cls, value: Any):
+        if isinstance(value, Key):
             return value
 
         if isinstance(value, str):
             return cls.from_string(value)
 
         type_ = type(value).__name__
-        raise TypeError(f"{type_} cannot be converted into Option")
+        raise TypeError(f"{type_} cannot be converted into Key")
 
     @staticmethod
     def from_string(path: str):
-        return Option([fragment for fragment in path.split(".") if fragment])
+        return Key([fragment for fragment in path.split(".") if fragment])
 
     @staticmethod
     def _combine(left: Any, right: Any):
-        head = Option._as_option(left)
-        tail = Option._as_option(right)
+        head = Key._as_key(left)
+        tail = Key._as_key(right)
 
-        return Option(head.__path + tail.__path)
+        return Key(head.__path + tail.__path)
 
 
 class Details(Generic[T]):
@@ -175,8 +175,8 @@ class Annotation(str):
 
 class Declaration:
     _global: ClassVar[Declaration]
-    _mapping: dict[Option, Details]
-    _order: list[Union[Option, Annotation]]
+    _mapping: dict[Key, Details]
+    _order: list[Union[Key, Annotation]]
 
     @classmethod
     def set_global(cls, declaration: Declaration):
@@ -193,13 +193,13 @@ class Declaration:
         self._mapping = OrderedDict()
         self._order = []
 
-    def __getitem__(self, option: Option) -> Details:
-        return self._mapping[option]
+    def __getitem__(self, key: Key) -> Details:
+        return self._mapping[key]
 
     def __str__(self):
         result = ""
         for item in self._order:
-            if isinstance(item, Option):
+            if isinstance(item, Key):
                 value = self._mapping[item]
                 if value.description:
                     result += (
@@ -228,13 +228,13 @@ class Declaration:
         return result
 
     def declare(
-        self, option: Option, default: DefaultType[T] = UNSET
+        self, key: Key, default: DefaultType[T] = UNSET
     ) -> Details[T]:
         value = Details(default)
-        if option not in self._mapping:
-            self._order.append(option)
+        if key not in self._mapping:
+            self._order.append(key)
 
-        self._mapping[option] = value
+        self._mapping[key] = value
         return value
 
     def annotate(self, annotation: str):

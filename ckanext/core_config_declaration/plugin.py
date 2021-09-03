@@ -1,12 +1,12 @@
 import ckan.plugins as p
 
-from ckan.config import Declaration, Option
+from ckan.config import Declaration, Key
 
 
 class CoreConfigDeclarationPlugin(p.SingletonPlugin):
     p.implements(p.IConfigDeclarations)
 
-    def declare_config_options(self, declaration: Declaration, option: Option):
+    def declare_config_options(self, declaration: Declaration, option: Key):
 
         declaration.declare(option.use, "egg:ckan")
         _declare_devserver(declaration, option)
@@ -35,14 +35,14 @@ class CoreConfigDeclarationPlugin(p.SingletonPlugin):
         return declaration
 
 
-def _declare_devserver(declaration: Declaration, option: Option):
+def _declare_devserver(declaration: Declaration, option: Key):
     declaration.annotate("Development settings")
     devserver = option.ckan.devserver
     declaration.declare(devserver.host, "localhost")
     declaration.declare(devserver.port, 5000)
 
 
-def _declare_session(declaration: Declaration, option: Option):
+def _declare_session(declaration: Declaration, option: Key):
     declaration.annotate("Session settings")
 
     cache_dir = option.cache_dir
@@ -66,7 +66,7 @@ def _declare_session(declaration: Declaration, option: Option):
     )
 
 
-def _declare_repoze(declaration: Declaration, option: Option):
+def _declare_repoze(declaration: Declaration, option: Key):
     declaration.annotate("repoze.who settings")
     who = option.who
     declaration.declare(who.config_file, "%(here)s/who.ini")
@@ -80,7 +80,7 @@ def _declare_repoze(declaration: Declaration, option: Option):
     )
 
 
-def _declare_database(declaration: Declaration, option: Option):
+def _declare_database(declaration: Declaration, option: Key):
     declaration.annotate("Database settings")
     declaration.declare(
         option.sqlalchemy.url,
@@ -88,12 +88,12 @@ def _declare_database(declaration: Declaration, option: Option):
     )
 
 
-def _declare_site(declaration: Declaration, option: Option):
+def _declare_site(declaration: Declaration, option: Key):
     declaration.annotate("Site Settings")
     declaration.declare(option.ckan.site_url)
 
 
-def _declare_auth(declaration: Declaration, option: Option):
+def _declare_auth(declaration: Declaration, option: Key):
     declaration.annotate("Authorization Settings")
 
     auth = option.ckan.auth
@@ -113,7 +113,7 @@ def _declare_auth(declaration: Declaration, option: Option):
     declaration.declare(auth.create_default_api_keys, "false")
 
 
-def _declare_api_token(declaration: Declaration, option: Option):
+def _declare_api_token(declaration: Declaration, option: Key):
     declaration.annotate("API Token Settings")
 
     at = option.api_token
@@ -127,7 +127,7 @@ def _declare_api_token(declaration: Declaration, option: Option):
     declaration.declare(at.api_token.jwt.algorithm, "HS256")
 
 
-def _declare_search(declaration: Declaration, option: Option):
+def _declare_search(declaration: Declaration, option: Key):
     declaration.annotate("Search Settings")
     declaration.declare(option.ckan.site_id, "default")
     declaration.declare(
@@ -137,7 +137,7 @@ def _declare_search(declaration: Declaration, option: Option):
     declaration.declare(option.solr_timeout, 60)
 
 
-def _declare_redis(declaration: Declaration, option: Option):
+def _declare_redis(declaration: Declaration, option: Key):
     declaration.annotate("Redis Settings")
 
     declaration.declare(
@@ -147,7 +147,7 @@ def _declare_redis(declaration: Declaration, option: Option):
     )
 
 
-def _declare_cors(declaration: Declaration, option: Option):
+def _declare_cors(declaration: Declaration, option: Key):
     declaration.annotate("CORS Settings")
 
     cors = option.ckan.cors
@@ -162,7 +162,7 @@ def _declare_cors(declaration: Declaration, option: Option):
     )
 
 
-def _declare_plugins(declaration: Declaration, option: Option):
+def _declare_plugins(declaration: Declaration, option: Key):
     declaration.annotate("Plugins Settings")
     declaration.declare(
         option.ckan.plugins, "stats text_view image_view recline_view"
@@ -173,7 +173,7 @@ def _declare_plugins(declaration: Declaration, option: Option):
         "same origin policy. ")
 
 
-def _declare_views(declaration: Declaration, option: Option):
+def _declare_views(declaration: Declaration, option: Key):
     views = option.ckan.views.default_views
     declaration.declare(
         views, "image_view text_view recline_view"
@@ -199,7 +199,7 @@ def _declare_views(declaration: Declaration, option: Option):
     )
 
 
-def _declare_frontend(declaration: Declaration, option: Option):
+def _declare_frontend(declaration: Declaration, option: Key):
     declaration.annotate("Front-End Settings")
     ckan = option.ckan
 
@@ -216,7 +216,7 @@ def _declare_frontend(declaration: Declaration, option: Option):
     declaration.declare(ckan.display_timezone, "server")
 
 
-def _declare_package(declaration: Declaration, option: Option):
+def _declare_package(declaration: Declaration, option: Key):
     declaration.declare(
         option.package_hide_extras, "for_search_index_only"
     ).comment()
@@ -229,12 +229,12 @@ def _declare_package(declaration: Declaration, option: Option):
     ).comment()
 
 
-def _declare_recaptcha(declaration: Declaration, option: Option):
+def _declare_recaptcha(declaration: Declaration, option: Key):
     declaration.declare(option.ckan.recaptcha.publickey).comment()
     declaration.declare(option.ckan.recaptcha.privatekey).comment()
 
 
-def _declare_random(declaration: Declaration, option: Option):
+def _declare_random(declaration: Declaration, option: Key):
     declaration.declare(
         option.licenses_group_url,
         "http://licenses.opendefinition.org/licenses/groups/ckan.json",
@@ -242,7 +242,7 @@ def _declare_random(declaration: Declaration, option: Option):
     declaration.declare(option.ckan.template_footer_end).comment()
 
 
-def _declare_locale(declaration: Declaration, option: Option):
+def _declare_locale(declaration: Declaration, option: Key):
     declaration.annotate("Internationalisation Settings")
 
     ckan = option.ckan
@@ -255,7 +255,7 @@ def _declare_locale(declaration: Declaration, option: Option):
     declaration.declare(ckan.locales_filtered_out, "en_GB")
 
 
-def _declare_feed(declaration: Declaration, option: Option):
+def _declare_feed(declaration: Declaration, option: Key):
     declaration.annotate("Feeds Settings")
 
     feed = option.ckan.feeds
@@ -265,7 +265,7 @@ def _declare_feed(declaration: Declaration, option: Option):
     declaration.declare(feed.author_link)
 
 
-def _declare_storage(declaration: Declaration, option: Option):
+def _declare_storage(declaration: Declaration, option: Key):
     declaration.annotate("Storage Settings")
     ckan = option.ckan
 
@@ -274,7 +274,7 @@ def _declare_storage(declaration: Declaration, option: Option):
     declaration.declare(ckan.max_image_size, "2").comment()
 
 
-def _declare_webassets(declaration: Declaration, option: Option):
+def _declare_webassets(declaration: Declaration, option: Key):
     declaration.annotate("Webassets Settings")
 
     wa = option.ckan.webassets
@@ -282,7 +282,7 @@ def _declare_webassets(declaration: Declaration, option: Option):
     declaration.declare(wa.path, "/var/lib/ckan/webassets").comment()
 
 
-def _declare_activity(declaration: Declaration, option: Option):
+def _declare_activity(declaration: Declaration, option: Key):
     declaration.annotate("Activity Streams Settings")
 
     ckan = option.ckan
@@ -295,7 +295,7 @@ def _declare_activity(declaration: Declaration, option: Option):
     declaration.declare(ckan.hide_activity_from_users, "%(ckan.site_id)s")
 
 
-def _declare_email(declaration: Declaration, option: Option):
+def _declare_email(declaration: Declaration, option: Key):
     declaration.annotate("Email settings")
     declaration.declare(option.email_to, "errors@example.com").comment()
     declaration.declare(
@@ -311,7 +311,7 @@ def _declare_email(declaration: Declaration, option: Option):
     declaration.declare(smtp.reply_to, "").comment()
 
 
-def _declare_background_jobs(declaration: Declaration, option: Option):
+def _declare_background_jobs(declaration: Declaration, option: Key):
     declaration.annotate("Background Job Settings")
     jobs = option.ckan.jobs
     declaration.declare(jobs.timeout, 180)

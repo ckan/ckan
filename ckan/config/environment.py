@@ -23,7 +23,7 @@ import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
 from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
-from ckan.config import Declaration, Option
+from ckan.config import Declaration, Key
 
 from ckan.common import _, ungettext, config
 from ckan.exceptions import CkanConfigurationException
@@ -236,7 +236,7 @@ def update_config():
 
     declaration = Declaration.set_global(Declaration())
     for plugin in reversed(list(p.PluginImplementations(p.IConfigDeclarations))):
-        plugin.declare_config_options(declaration, Option())
+        plugin.declare_config_options(declaration, Key())
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
