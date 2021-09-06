@@ -9,12 +9,12 @@
       </a>
 
       {{ _('to') }}
-      <a href="{{ "mailto:" + change.new_author_email }}">
+      <a href="{{ 'mailto:' + change.new_author_email }}">
         {{change.new_author_email}}
       </a>
 
       {{_('( previously ')}}
-      <a href="{{ "mailto:" + change.old_author_email }}">
+      <a href="{{ 'mailto:' + change.old_author_email }}">
         {{change.old_author_email}}
       </a>
       {{ _(')') }}
@@ -27,7 +27,7 @@
       </a>
 
       {{ _('to') }}
-      <a href="{{ "mailto:" + change.new_author_email }}">
+      <a href="{{ 'mailto:' + change.new_author_email }}">
         {{ change.new_author_email }}
       </a>
 

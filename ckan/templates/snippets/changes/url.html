@@ -9,12 +9,12 @@
       </a>
 
       {{ _('from') }}
-      <a href="{{"http://" + change.old_url if not change.old_url[0:4] == "http" else change.old_url}}">
+      <a href="{{'http://' + change.old_url if not change.old_url[0:4] == 'http' else change.old_url}}">
         {{change.old_url}}
       </a>
 
       {{ _('to') }}
-      <a href="{{"http://" + change.new_url if not change.new_url[0:4] == "http" else change.new_url}}">
+      <a href="{{'http://' + change.new_url if not change.new_url[0:4] == 'http' else change.new_url}}">
         {{change.new_url}}
       </a>
 
@@ -33,7 +33,7 @@
       </a>
 
       {{ _('to') }}
-      <a href="{{"http://" + change.new_url if not change.new_url[0:4] == "http" else change.new_url}}">
+      <a href="{{'http://' + change.new_url if not change.new_url[0:4] == 'http' else change.new_url}}">
         {{change.new_url}}
       </a>
 
