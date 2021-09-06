@@ -130,10 +130,10 @@ class TestDatastoreDeleteLegacy(object):
     def initial_data(self, clean_datastore, app, test_request_context):
         self.app = app
         ctd.CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user.name)
-        self.normal_user = model.User.get("annafan")
-        self.normal_user_token = factories.APIToken(user=self.normal_user.name)
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user)
         resource = model.Package.get("annakarenina").resources[0]
         self.data = {
             "resource_id": resource.id,

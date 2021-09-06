@@ -345,10 +345,10 @@ class TestDatastoreCreate(object):
     @pytest.fixture(autouse=True)
     def create_test_data(self, clean_datastore, test_request_context):
         ctd.CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user.name)
-        self.normal_user = model.User.get("annafan")
-        self.normal_user_token = factories.APIToken(user=self.normal_user.name)
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user)
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         with test_request_context():

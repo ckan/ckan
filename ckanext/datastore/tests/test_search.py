@@ -462,10 +462,10 @@ class TestDatastoreSearchLegacyTests(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user.name)
-        self.normal_user = model.User.get("annafan")
-        self.normal_user_token = factories.APIToken(user=self.normal_user.name)
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user)
         self.dataset = model.Package.get("annakarenina")
         self.resource = self.dataset.resources[0]
         self.data = {
@@ -506,7 +506,7 @@ class TestDatastoreSearchLegacyTests(object):
         # Make an organization, because private datasets must belong to one.
         self.organization = helpers.call_action(
             "organization_create",
-            {"user": self.sysadmin_user.name},
+            {"user": self.sysadmin_user["name"]},
             name="test_org",
         )
 
@@ -565,7 +565,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_private_dataset(self, app):
         group = self.dataset.get_groups()[0]
         context = {
-            "user": self.sysadmin_user.name,
+            "user": self.sysadmin_user["name"],
             "ignore_auth": True,
             "model": model,
         }
@@ -1141,10 +1141,10 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user.name)
-        self.normal_user = model.User.get("annafan")
-        self.normal_user_token = factories.APIToken(user=self.normal_user.name)
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user)
         resource = model.Package.get("annakarenina").resources[0]
         self.data = dict(
             resource_id=resource.id,
@@ -1344,10 +1344,10 @@ class TestDatastoreSQLLegacyTests(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user.name)
-        self.normal_user = model.User.get("annafan")
-        self.normal_user_token = factories.APIToken(user=self.normal_user.name)
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user)
         self.dataset = model.Package.get("annakarenina")
         resource = self.dataset.resources[0]
         self.data = {
@@ -1383,7 +1383,7 @@ class TestDatastoreSQLLegacyTests(object):
         # Make an organization, because private datasets must belong to one.
         self.organization = helpers.call_action(
             "organization_create",
-            {"user": self.sysadmin_user.name},
+            {"user": self.sysadmin_user["name"]},
             name="test_org",
         )
 
@@ -1476,7 +1476,7 @@ class TestDatastoreSQLLegacyTests(object):
         # make a private CKAN resource
         group = self.dataset.get_groups()[0]
         context = {
-            "user": self.sysadmin_user.name,
+            "user": self.sysadmin_user["name"],
             "ignore_auth": True,
             "model": model,
         }

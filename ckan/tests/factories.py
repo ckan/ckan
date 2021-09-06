@@ -408,7 +408,6 @@ class APIToken(factory.Factory):
         model = ckan.model.ApiToken
 
     name = "first token"
-    user = factory.LazyAttribute(lambda _: User()["name"])
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -419,10 +418,11 @@ class APIToken(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        context = {"user": kwargs["user"]}
+        context = {"user": _get_action_user_name(kwargs)}
+        data_dict = {"name": kwargs["name"], "user": kwargs["user"]["name"]}
 
         token_create = helpers.call_action(
-            'api_token_create', context=context, **kwargs
+            'api_token_create', context=context, **data_dict
         )
         return token_create["token"]
 

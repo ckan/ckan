@@ -9,7 +9,7 @@ import ckan.tests.helpers as helpers
 @pytest.mark.usefixtures(u"clean_datastore", u"with_plugins", u"with_request_context")
 def test_read(app):
     user = factories.User()
-    user_token = factories.APIToken(user=user["name"])
+    user_token = factories.APIToken(user=user)
     dataset = factories.Dataset(creator_user_id=user["id"])
     resource = factories.Resource(
         package_id=dataset["id"], creator_user_id=user["id"]
