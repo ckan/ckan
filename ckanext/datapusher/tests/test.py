@@ -181,7 +181,7 @@ class TestDatastoreCreate(object):
 
         data = {"status": "success", "metadata": {"resource_id": resource.id}}
 
-        if user["sysadmin"] == True:
+        if user["sysadmin"]:
             auth = {"Authorization": self.sysadmin_token}
         else:
             auth = {"Authorization": self.normal_user_token}
