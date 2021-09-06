@@ -346,19 +346,9 @@ class TestDatastoreCreate(object):
     def create_test_data(self, clean_datastore, test_request_context):
         ctd.CreateTestData.create()
         self.sysadmin_user = model.User.get("testsysadmin")
-        self.sysadmin_token = helpers.call_action(
-            "api_token_create",
-            context={"model": model, "user": self.sysadmin_user.name},
-            user=self.sysadmin_user.name,
-            name="first token",
-        )
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user.name)
         self.normal_user = model.User.get("annafan")
-        self.normal_user_token = helpers.call_action(
-            "api_token_create",
-            context={"model": model, "user": self.normal_user.name},
-            user=self.normal_user.name,
-            name="first token",
-        )
+        self.normal_user_token = factories.APIToken(user=self.normal_user.name)
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         with test_request_context():
@@ -383,7 +373,7 @@ class TestDatastoreCreate(object):
     @pytest.mark.usefixtures("with_plugins")
     def test_create_empty_fails(self, app):
         data = {}
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             data=data,
@@ -406,7 +396,7 @@ class TestDatastoreCreate(object):
             ],
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -423,7 +413,7 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -438,7 +428,7 @@ class TestDatastoreCreate(object):
     def test_create_duplicate_alias_name(self, app):
         resource = model.Package.get("annakarenina").resources[0]
         data = {"resource_id": resource.id, "aliases": u"myalias"}
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             data=data,
@@ -451,7 +441,7 @@ class TestDatastoreCreate(object):
         # try to create another table with the same alias
         resource = model.Package.get("annakarenina").resources[1]
         data = {"resource_id": resource.id, "aliases": u"myalias"}
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             data=data,
@@ -468,7 +458,7 @@ class TestDatastoreCreate(object):
             "resource_id": resource.id,
             "aliases": model.Package.get("annakarenina").resources[0].id,
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             data=data,
@@ -489,7 +479,7 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "INVALID"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -503,7 +493,7 @@ class TestDatastoreCreate(object):
     @pytest.mark.usefixtures("with_plugins")
     def test_create_invalid_field_name(self, app):
         resource = model.Package.get("annakarenina").resources[0]
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         invalid_names = [
             "_author",
             '"author',
@@ -546,7 +536,7 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace", "published": "1869"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -568,7 +558,7 @@ class TestDatastoreCreate(object):
             ],
             "records": ["bad"],  # treat author as null
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -593,7 +583,7 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace"},
             ],  # treat author as null
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -617,7 +607,7 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -639,7 +629,7 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -661,7 +651,7 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -676,7 +666,7 @@ class TestDatastoreCreate(object):
             "aliases": "new_alias",
             "fields": [{"id": "more books", "type": "text"}],
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -693,7 +683,7 @@ class TestDatastoreCreate(object):
         aliases = [u"great_list_of_books", u"another_list_of_b\xfcks"]
         ### Firstly test to see whether resource has no datastore table yet
         data = {"id": resource.id}
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/resource_show", data=data, extra_environ=auth
         )
@@ -714,7 +704,7 @@ class TestDatastoreCreate(object):
             ],  # treat author as null
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -781,7 +771,7 @@ class TestDatastoreCreate(object):
         self.Session.remove()
 
         # check to test to see if resource now has a datastore table
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/resource_show", data={"id": resource.id}, extra_environ=auth
         )
@@ -794,7 +784,7 @@ class TestDatastoreCreate(object):
             "records": [{"boo%k": "hagji murat", "author": ["tolstoy"]}],
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data2,
@@ -841,7 +831,7 @@ class TestDatastoreCreate(object):
             "indexes": ["rating"],
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data3,
@@ -882,7 +872,7 @@ class TestDatastoreCreate(object):
             "primary_key": "boo%k",
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data4,
@@ -902,7 +892,7 @@ class TestDatastoreCreate(object):
             "primary_key": "",
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data5,
@@ -946,7 +936,7 @@ class TestDatastoreCreate(object):
             "indexes": ["characters"],
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data6,
@@ -976,7 +966,7 @@ class TestDatastoreCreate(object):
             "indexes": ["characters"],
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data7,
@@ -993,7 +983,7 @@ class TestDatastoreCreate(object):
             "records": [{"boo%k": "warandpeace", "author": "99% good"}],
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data8,
@@ -1022,7 +1012,7 @@ class TestDatastoreCreate(object):
             ],  # treat author as null
         }
 
-        auth = {"Authorization": str(self.normal_user_token["token"])}
+        auth = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -1047,7 +1037,7 @@ class TestDatastoreCreate(object):
         resource = model.Package.get("annakarenina").resources[1]
 
         data = {"resource_id": resource.id}
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             data=data,
@@ -1075,7 +1065,7 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace"},
             ],  # treat author as null
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -1134,7 +1124,7 @@ class TestDatastoreCreate(object):
             ],
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -1189,7 +1179,7 @@ class TestDatastoreCreate(object):
             ],
         }
 
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -1220,7 +1210,7 @@ class TestDatastoreCreate(object):
             ],
             "method": "insert",
         }
-        auth = {"Authorization": self.sysadmin_token["token"]}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data_dict,

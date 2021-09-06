@@ -29,14 +29,9 @@ def test_apitoken_missing(app):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_apitoken_in_authorization_header(app):
     user = factories.Sysadmin()
-    user_token = h.call_action(
-        "api_token_create",
-        context={"model": model, "user": user["name"]},
-        user=user["name"],
-        name="first token",
-    )
+    user_token = factories.APIToken(user=user["name"])
     request_headers = {
-        "Authorization": user_token["token"]
+        "Authorization": user_token
     }
 
     app.get("/dataset/new", headers=request_headers)
@@ -45,14 +40,9 @@ def test_apitoken_in_authorization_header(app):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_apitoken_in_x_ckan_header(app):
     user = factories.Sysadmin()
-    user_token = h.call_action(
-        "api_token_create",
-        context={"model": model, "user": user["name"]},
-        user=user["name"],
-        name="first token",
-    )
+    user_token = factories.APIToken(user=user["name"])
     # non-standard header name is defined in test-core.ini
-    request_headers = {"X-Non-Standard-CKAN-API-Key": user_token["token"]}
+    request_headers = {"X-Non-Standard-CKAN-API-Key": user_token}
 
     app.get("/dataset/new", headers=request_headers)
 

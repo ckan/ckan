@@ -401,6 +401,32 @@ class SystemInfo(factory.Factory):
         return obj
 
 
+class APIToken(factory.Factory):
+    """A factory class for creating CKAN API Tokens"""
+
+    class Meta:
+        model = ckan.model.ApiToken
+
+    name = "first token"
+    user = factory.LazyAttribute(lambda _: User()["name"])
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        context = {"user": kwargs["user"]}
+
+        token_create = helpers.call_action(
+            'api_token_create', context=context, **kwargs
+        )
+        return token_create["token"]
+
+
 def validator_data_dict():
     """Return a data dict with some arbitrary data in it, suitable to be passed
     to validator functions for testing.
