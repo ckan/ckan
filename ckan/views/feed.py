@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import logging
+import re
 
 from urllib.parse import urlparse
 from flask import Blueprint, make_response
@@ -144,6 +145,8 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
     author_name = config.get(u'ckan.feeds.author_name', u'').strip() or \
         config.get(u'ckan.site_id', u'').strip()
 
+    CTRL_CHARS = r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff]'
+
     # TODO: language
     feed_class = CKANFeed
     for plugin in plugins.PluginImplementations(plugins.IFeed):
@@ -178,7 +181,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 id=pkg['id'],
                 ver=3,
                 _external=True),
-            description=pkg.get(u'notes', u''),
+            description=re.sub(CTRL_CHARS, '', pkg.get(u'notes', u'') or ''),
             updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
             published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
             unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
