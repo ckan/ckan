@@ -437,16 +437,29 @@ def _url_for_flask(*args, **kw):
             kw.pop('host', None)
             kw.pop('protocol', None)
             if kw:
-                my_url += '?'
                 query_args = []
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
+                            if value is None:
+                                continue
                             query_args.append(
-                                u'{}={}'.format(quote(key), quote(value)))
+                                u'{}={}'.format(
+                                    quote(str(key)),
+                                    quote(str(value))
+                                )
+                            )
                     else:
+                        if val is None:
+                            continue
                         query_args.append(
-                            u'{}={}'.format(quote(key), quote(val)))
+                            u'{}={}'.format(
+                                quote(str(key)),
+                                quote(str(val))
+                            )
+                        )
+                if query_args:
+                    my_url += '?'
                 my_url += '&'.join(query_args)
         else:
             raise
