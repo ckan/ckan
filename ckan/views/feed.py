@@ -221,6 +221,8 @@ def organization(id):
         })
     except logic.NotFound:
         base.abort(404, _(u'Organization not found'))
+    except logic.NotAuthorized:
+        base.abort(403, _('Not authorized to see this page'))
 
     return group_or_organization(group_dict, is_org=True)
 
