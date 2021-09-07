@@ -21,6 +21,7 @@ abort () {
 set_environment () {
   export CKAN_SITE_ID=${CKAN_SITE_ID}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
+  export CKAN_DOMAIN=${CKAN_DOMAIN}
   export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
   export CKAN_SOLR_URL=${CKAN_SOLR_URL}
   export CKAN_REDIS_URL=${CKAN_REDIS_URL}
@@ -70,4 +71,7 @@ fi
 
 set_environment
 ckan --config "$CONFIG" db init
+
+apache2ctl start
+
 exec "$@"

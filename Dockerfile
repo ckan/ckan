@@ -32,20 +32,27 @@ RUN apt-get -q -y update \
         postgresql-client \
         build-essential \
         git-core \
+        apache2 libapache2-mod-rpaf libapache2-mod-wsgi-py3 \
         vim \
         wget \
         curl \
+        gettext \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Build-time variables specified by docker-compose.yml / .env
+ARG CKAN_DOMAIN
+ARG CKAN_SITE_URL
+
 # Define environment variables
+ENV CKAN_DOMAIN ${CKAN_DOMAIN}
+ENV CKAN_SITE_URL ${CKAN_SITE_URL}
 ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/venv
 ENV CKAN_CONFIG /etc/ckan
-ENV CKAN_STORAGE_PATH=/var/lib/ckan
-
-# Build-time variables specified by docker-compose.yml / .env
-ARG CKAN_SITE_URL
+ENV CKAN_STORAGE_PATH /var/lib/ckan
+ENV APACHE_RUN_USER ckan
+ENV APACHE_RUN_GROUP ckan
 
 # Create ckan user
 RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
@@ -66,13 +73,20 @@ RUN ckan-pip3 install -U pip && \
     ckan-pip3 install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip3 install -e $CKAN_VENV/src/ckan/ && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
+    ln -s $CKAN_VENV/src/ckan/contrib/docker/apache.wsgi $CKAN_CONFIG/apache.wsgi && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
-    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
+    envsubst '${CKAN_DOMAIN}${CKAN_CONFIG}${CKAN_HOME}${CKAN_VENV}' < $CKAN_VENV/src/ckan/contrib/docker/apache.conf > /etc/apache2/sites-available/ckan.conf && \
+    echo '' > /etc/apache2/ports.conf && \
+    chown -R ckan:ckan /etc/apache2 /var/run/apache2 /var/log/apache2 /var/cache/apache2
+
+RUN a2ensite  ckan
+RUN a2dissite 000-default
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
 USER ckan
-EXPOSE 5000
+EXPOSE 5000 8080
 
 CMD ["ckan","-c","/etc/ckan/production.ini", "run", "--host", "0.0.0.0"]

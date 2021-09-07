@@ -152,7 +152,8 @@ def make_config(output_path):
                                 u'deployment.ini_tmpl')
     template_variables = {
         u'app_instance_uuid': uuid.uuid4(),
-        u'app_instance_secret': secrets.token_urlsafe(20)[:25]
+        u'app_instance_secret': secrets.token_urlsafe(20)[:25],
+        u'ckan_site_url': os.environ['CKAN_SITE_URL']
     }
 
     with open(template_loc, u'r') as file_in:
