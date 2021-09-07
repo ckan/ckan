@@ -32,6 +32,32 @@ This section will walk you through the steps for making a pull request.
        git remote add my_fork https://github.com/USERNAME/ckan
 
 
+#. Initialize git hooks
+
+   CKAN uses `pre-commit <https://pre-commit.com/>`_ for maintaining git
+   hooks. Initialize hooks using ``pre-commit install`` and all the following
+   commits will pass a number of checks in order to be verified and
+   completed. If your commit does not satisfy some criterium it will be
+   rejected and you'll see the message explaining the problem or, whenever it's
+   possible, the problem will be solved automatically. In the latter case, a
+   number of files will be updated but not staged for commit. You have to
+   review these changes and stage them via ``git add -u``/``git add <FILE1>
+   <FILE2> <etc.>`` . Try to commit changes once again and this time you'll
+   succeed.
+
+   .. note::
+
+      In rare cases, if you cannot include suggested auto-fixes into your
+      commit for some reason, these pre-commit checks can be bypassed. Provide
+      ``-n`` flag to the commit command(``git commit -n ...``) and hooks won't
+      be executed.
+
+   .. note::
+
+      ``pre-commit`` is installed alongside with the other development requirements::
+
+          pip install -r dev-requirements.txt
+
 #. Commit and push your changes
 
    Commit your changes on your feature branch, and push your branch to GitHub.
