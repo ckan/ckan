@@ -44,4 +44,3 @@ contrib/docker/.env
 cypress.env.json
 # cypress
 cypress/videos
-/id.txt
