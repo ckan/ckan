@@ -18,11 +18,13 @@ if [ ! -f /usr/share/nginx/certificates/fullchain.pem ]; then
     openssl x509 -req -days 365 -in /usr/share/nginx/certificates/cert.csr -signkey /usr/share/nginx/certificates/privkey.pem -out /usr/share/nginx/certificates/fullchain.pem
 fi
 
-### Send certbot emission/renewal to background
-$(while :; do /opt/request.sh; sleep "${RENEW_INTERVAL:-12h}"; done;) &
+if [ -n "$DOMAIN" ] && [ "$DOMAIN" != "localhost" ]; then
+    ### Send certbot emission/renewal to background
+    $(while :; do /opt/request.sh; sleep "${RENEW_INTERVAL:-12h}"; done;) &
 
-### Check for changes in the certificate (i.e renewals or first start) in the background
-$(while inotifywait -e close_write /usr/share/nginx/certificates; do echo "Reloading nginx with new certificate"; nginx -s reload; done) &
+    ### Check for changes in the certificate (i.e renewals or first start) in the background
+    $(while inotifywait -e close_write /usr/share/nginx/certificates; do echo "Reloading nginx with new certificate"; nginx -s reload; done) &
+fi
 
 ### Start nginx with daemon off as our main pid
 echo "Starting nginx"
