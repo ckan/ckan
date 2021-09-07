@@ -32,7 +32,7 @@ Using a cloud based VM, external storage volumes are cheaper than VMs and easy t
 In our use case, we use a cloud based VM with 16 GB storage, have mounted a 100 GB btrfs-formatted
 external storage volume, and symlinked ``/var/lib/docker`` to the external volume.
 This allows us to store the bulky and/or precious cargo -- Docker images, Docker data volumes
-containing the CKAN databases, filestore, and config -- on a cheaper service.
+containing the CKAN databases, filestore, config, and certificates -- on a cheaper service.
 On the other hand, a snapshotting filesystem like btrfs is ideal for rolling backups.
 The same cost consideration might apply to other cloud-based providers.
 
@@ -81,11 +81,12 @@ To use a stable version, checkout the respective tag, e.g.:
 In this step we will build the Docker images and create Docker data volumes with user-defined,
 sensitive settings (e.g. database passwords).
 
-a. Sensitive settings and environment variables
+a. Sensitive settings, environment variables, and domain name
 
 Copy ``contrib/docker/.env.template`` to ``contrib/docker/.env`` and follow instructions
-within to set passwords and other sensitive or user-defined variables.
-The defaults will work fine in a development environment on Linux. For Windows and OSX, the `CKAN_SITE_URL` must be updated.
+within to set the domain name, passwords, and other sensitive or user-defined variables.
+The defaults will work fine in a development environment on Linux.
+For Windows and OSX, the `CKAN_SITE_URL` must be updated.
 
 .. note:: Related reading:
 
@@ -93,6 +94,12 @@ The defaults will work fine in a development environment on Linux. For Windows a
    * `Environment variables in Compose <https://docs.docker.com/compose/environment-variables/>`_
    * Newcomers to Docker should read the excellent write-up on
      `Docker variables <http://vsupalov.com/docker-env-vars/>`_ by Vladislav Supalov (GitHub @th4t)
+
+To access CKAN from the Internet, you must choose a fully qualified domain name, and ensure
+it points to the machine where you are installing CKAN. Make sure to set `CKAN_DOMAIN` with the domain name.
+
+.. note:: If you do not provide a domain name, a self-signed certificate will be used
+for SSL.
 
 b. Build the images
 
@@ -121,15 +128,16 @@ If the CKAN logs show problems connecting to the database, restart the ckan cont
 
 After this step, CKAN should be running at ``CKAN_SITE_URL``.
 
-There should be five containers running (``docker ps``):
+There should be six containers running (``docker ps``):
 
 * ``ckan``: CKAN with standard extensions
 * ``db``: CKAN's database, later also running CKAN's datastore database
 * ``redis``: A pre-built Redis image.
 * ``solr``: A pre-built SolR image set up for CKAN.
 * ``datapusher``: A pre-built CKAN Datapusher image.
+* ``cert``: Web frontend with SSL support
 
-There should be four named Docker volumes (``docker volume ls | grep docker``). They will be
+There should be five named Docker volumes (``docker volume ls | grep docker``). They will be
 prefixed with the Docker Compose project name (default: ``docker`` or value of host environment
 variable ``COMPOSE_PROJECT_NAME``.)
 
@@ -137,6 +145,7 @@ variable ``COMPOSE_PROJECT_NAME``.)
 * ``docker_ckan_home``: home of ckan venv and source, later also additional CKAN extensions
 * ``docker_ckan_storage``: home of CKAN's filestore (resource files)
 * ``docker_pg_data``: home of the database files for CKAN's default and datastore databases
+* ``docker_ckan_cert``: holds the SSL certificates
 
 The location of these named volumes needs to be backed up in a production environment.
 To migrate CKAN data between different hosts, simply transfer the content of the named volumes.
@@ -161,9 +170,15 @@ We'll use a prefix ``VOL_`` to avoid overriding variables in ``docker-compose.ym
     export VOL_CKAN_STORAGE=`docker volume inspect docker_ckan_storage | jq -r -c '.[] | .Mountpoint'`
     echo $VOL_CKAN_STORAGE
 
-We won't need to access files inside ``docker_pg_data`` directly, so we'll skip creating the shortcut.
+We won't need to access files inside ``docker_pg_data`` and ``docker_ckan_cert`` directly,
+so we'll skip creating shortcuts for these.
 As shown further below, we can use ``psql`` from inside the ``ckan`` container to run commands
 against the database and import / export files from ``$VOL_CKAN_HOME``.
+
+.. note:: If you have to rebuild the containers, make sure to keep the volume ``docker_ckan_cert``.
+  Deleting and recreating this volume will force the ``cert`` container to request a new certificate from
+  Let's Encrypt or startup, and you will quickly exceed the 20 certs/week (but at most 5 certs/week
+  for each domain) rate limit.
 
 ---------------------------
 3. Datastore and datapusher
@@ -507,3 +522,9 @@ A possible path towards a production-ready environment is:
 * Transfer production data into the new server as described above using volume orchestration
   tools or transferring files directly.
 * Bonus: contribute a write-up of working production setups to the CKAN documentation.
+
+.. note:: When switching to a production environment, make sure to remove the `--dry-run` option
+  from the [certbot](https://letsencrypt.org/docs/client-options/#recommended-certbot) command that
+  requests/renews Let's Encrypt certificates for the web frontend.
+  Keep this option while developing for or experimenting with CKAN, to protect from exceeding
+  Let's Encrypt 5 cert/week rate limit.
