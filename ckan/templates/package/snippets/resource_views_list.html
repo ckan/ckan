@@ -1,15 +1,5 @@
-{% set views_created = views or resource_preview %}
-{% if views_created %}
+{% if views %}
   <ul class="nav {{ extra_class }}" {{ extra_attributes }}>
-    {% if resource_preview %}
-      <li{% if not view_id %} class="active"{% endif %}>
-        <a href="{{ h.url_for(pkg.type ~ '_resource.read', id=pkg.name, resource_id=resource.id) }}" >
-          <i class="fa icon fa-eye-open"></i>
-          {{ _("Resource Preview") }}
-        </a>
-      </li>
-  {% endif %}
-
   {% set current_filters = request.args.get('filters') %}
   {% for view in views %}
   	{% set is_selected = true if view_id == view.id else false %}

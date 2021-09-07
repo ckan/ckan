@@ -93,7 +93,7 @@ Turn this file into a github issue with a checklist using this command::
    release branch if the original branch was not compatible).
 
    As in the master branch, if some commits involving CSS changes are
-   cherry-picked from master, the less compiling command needs to be run on
+   cherry-picked from master, the sass compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
         npm run build
@@ -271,14 +271,14 @@ Leading up to the release
 
 #. Update the CHANGELOG.txt with the new version changes.
 
-   * Check that all merged PRs have corresponding fragment inside
-     ``changes/`` folder. Name of every fragment is following format
-     ``{issue number}.{fragment type}``, where *issue number* is
-     GitHub issue id and *fragment type* is one of *migration*,
-     *removal*, *bugfix* or *misc* depending on change introduced by
-     PR.
-     The following gist has a script that uses the GitHub API to
-     aid in getting the merged issues between releases:
+   * Check that all merged PRs have corresponding fragment inside ``changes/``
+     folder. Name of every fragment is following format ``{issue
+     number}.{fragment type}``, where *issue number* is GitHub issue id and
+     *fragment type* is one of *migration*, *removal*, *bugfix* or *misc*
+     depending on change introduced by PR. Missing fragments can be created
+     using `towncrier create --edit {issue number}.{fragment type}` command.
+     The following gist has a script that uses the GitHub API to aid in getting
+     the merged issues between releases:
 
         https://gist.github.com/amercader/4ec55774b9a625e815bf
 
@@ -288,12 +288,12 @@ Leading up to the release
 
      When all fragments are ready, make a test build::
 
-        towncrier --draft
+        towncrier build --draft
 
      And check output. If no problems identified, compile updated
      changelog::
 
-        towncrier --yes
+        towncrier build --yes
 
      You'll be asked, whether it's ok to remove source fragments. Feel
      free to answer "yes" - all changes will be automatically inserted

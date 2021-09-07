@@ -105,7 +105,7 @@ def flatten_schema(schema, flattened=None, key=None):
     flattened = flattened or {}
     old_key = key or []
 
-    for key, value in six.iteritems(schema):
+    for key, value in schema.items():
         new_key = old_key + [key]
         if isinstance(value, dict):
             flattened = flatten_schema(value, flattened, new_key)
@@ -152,7 +152,7 @@ def make_full_schema(data, schema):
         for key in combination[::2]:
             sub_schema = sub_schema[key]
 
-        for key, value in six.iteritems(sub_schema):
+        for key, value in sub_schema.items():
             if isinstance(value, list):
                 full_schema[combination + (key,)] = value
 
@@ -357,7 +357,7 @@ def flatten_dict(data, flattened=None, old_key=None):
     flattened = flattened or {}
     old_key = old_key or []
 
-    for key, value in six.iteritems(data):
+    for key, value in data.items():
         new_key = old_key + [key]
         if isinstance(value, list) and value and isinstance(value[0], dict):
             flattened = flatten_list(value, flattened, new_key)

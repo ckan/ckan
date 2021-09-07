@@ -4,7 +4,7 @@
 """
 import unittest.mock as mock
 import pytest
-from six import string_types
+
 
 import ckan.logic as logic
 import ckan.model as model
@@ -286,7 +286,7 @@ class TestUpdateAuthWithCollaborators(object):
 
         return {
             'model': model,
-            'user': user if isinstance(user, string_types) else user.get('name')
+            'user': user if isinstance(user, str) else user.get('name')
         }
 
     @pytest.mark.parametrize('role,action,private', [

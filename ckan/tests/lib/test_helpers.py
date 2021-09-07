@@ -1,13 +1,14 @@
 # encoding: utf-8
 
 import datetime
+import hashlib
 import six
 import os
 
 import pytz
 import tzlocal
 from babel import Locale
-from six import text_type
+
 import pytest
 
 import ckan.lib.helpers as h
@@ -103,6 +104,7 @@ class TestHelpersUrlFor(BaseUrlFor):
                 {"qualified": True, "locale": "de"},
                 "http://example.com/de/dataset/my_dataset",
             ),
+            ({"__no_cache__": True}, "/dataset/my_dataset?__no_cache__=True"),
         ],
     )
     def test_url_for_default(self, extra, exp):
@@ -159,6 +161,32 @@ class TestHelpersUrlFor(BaseUrlFor):
         expected = "/my/custom/path/_debug_toolbar/static/test.js"
         url = url_for('_debug_toolbar.static', filename='test.js')
         assert url == expected
+
+    @pytest.mark.parametrize(
+        "extra,exp",
+        [
+            ({"param": "foo"}, "/dataset/my_dataset?param=foo"),
+            ({"param": 27}, "/dataset/my_dataset?param=27"),
+            ({"param": 27.3}, "/dataset/my_dataset?param=27.3"),
+            ({"param": True}, "/dataset/my_dataset?param=True"),
+            ({"param": None}, "/dataset/my_dataset"),
+            ({"param": {}}, "/dataset/my_dataset?param=%7B%7D"),
+        ],
+    )
+    def test_url_for_string_route_with_query_param(self, extra, exp):
+        assert (
+            h.url_for("/dataset/my_dataset", **extra) ==
+            h.url_for("dataset.read", id="my_dataset", **extra) ==
+            exp
+        )
+
+    def test_url_for_string_route_with_list_query_param(self):
+        extra = {'multi': ['foo', 27, 27.3, True, None]}
+        assert (
+            h.url_for("/dataset/my_dataset", **extra) ==
+            h.url_for("dataset.read", id="my_dataset", **extra) ==
+            "/dataset/my_dataset?multi=foo&multi=27&multi=27.3&multi=True"
+        )
 
 
 class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
@@ -402,7 +430,7 @@ class TestHelpersRemoveLineBreaks(object):
         ), '"remove_linebreaks" should remove line breaks'
 
     def test_remove_linebreaks_casts_into_unicode(self):
-        class UnicodeLike(text_type):
+        class UnicodeLike(str):
             pass
 
         test_string = UnicodeLike("foo")
@@ -745,7 +773,7 @@ class TestBuildNavMain(object):
         )
 
 
-class TestHelpersPlugin(p.SingletonPlugin):
+class HelpersTestPlugin(p.SingletonPlugin):
 
     p.implements(p.IRoutes, inherit=True)
 
@@ -879,3 +907,126 @@ def test_sanitize_url():
             u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
         )
     ) == h.sanitize_url(u'http://éxàmple.com/some:path/to+a/fil[e].jpg')
+
+
+def test_extract_markdown():
+    WITH_HTML = u"""Data exposed: &mdash;
+Size of dump and data set: size?
+Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
+"""
+
+    WITH_UNICODE = u"""[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving."""
+
+    assert "Data exposed" in h.markdown_extract(WITH_HTML)
+    assert "collects information" in h.markdown_extract(WITH_UNICODE)
+
+
+@pytest.mark.parametrize("string, date", [
+    ("2008-04-13", datetime.datetime(2008, 4, 13)),
+    ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),
+    ("2008-04-13T20:40:20", datetime.datetime(2008, 4, 13, 20, 40, 20)),
+    ("2008-04-13T20:40:20.1234", datetime.datetime(2008, 4, 13, 20, 40, 20, 123400)),
+])
+def test_date_str_to_datetime_valid(string, date):
+    assert h.date_str_to_datetime(string) == date
+
+
+@pytest.mark.parametrize("string", [
+    "2008-04-13T20:40:20-01:30",
+    "2008-04-13T20:40:20-0130",
+    "2008-04-13T20:40:20foobar",
+])
+def test_date_str_to_datetime_invalid(string):
+    with pytest.raises(ValueError):
+        h.date_str_to_datetime(string)
+
+
+def test_gravatar():
+    email = "zephod@gmail.com"
+    expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"'
+
+    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    res = h.gravatar(email_hash, 200, default="mm")
+    assert expected in res
+
+
+def test_gravatar_config_set_default(ckan_config):
+    """Test when default gravatar is None, it is pulled from the config file"""
+    email = "zephod@gmail.com"
+    default = ckan_config.get("ckan.gravatar_default", "identicon")
+    expected = (
+        '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
+        % default
+    )
+    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    res = h.gravatar(email_hash, 200)
+    assert expected in res
+
+
+def test_gravatar_encodes_url_correctly():
+    """Test when the default gravatar is a url, it gets urlencoded"""
+    email = "zephod@gmail.com"
+    default = "http://example.com/images/avatar.jpg"
+    expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"'
+
+    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    res = h.gravatar(email_hash, 200, default=default)
+    assert expected in res
+
+
+def test_parse_rfc_2822_no_timezone_specified():
+    """
+    Parse "Tue, 15 Nov 1994 12:45:26" successfully.
+
+    Assuming it's UTC.
+    """
+    dt = h.parse_rfc_2822_date("Tue, 15 Nov 1994 12:45:26")
+    assert dt.isoformat() == "1994-11-15T12:45:26+00:00"
+
+
+def test_parse_rfc_2822_gmt_case():
+    """
+    Parse "Tue, 15 Nov 1994 12:45:26 GMT" successfully.
+
+    GMT obs-zone specified
+    """
+    dt = h.parse_rfc_2822_date("Tue, 15 Nov 1994 12:45:26 GMT")
+    assert dt.isoformat() == "1994-11-15T12:45:26+00:00"
+
+
+def test_parse_rfc_2822_with_offset():
+    """
+    Parse "Tue, 15 Nov 1994 12:45:26 +0700" successfully.
+    """
+    dt = h.parse_rfc_2822_date("Tue, 15 Nov 1994 12:45:26 +0700")
+    assert dt.isoformat() == "1994-11-15T12:45:26+07:00"
+
+
+def test_escape_js():
+    input_str = '{"type":"point", "desc":"Bla bla O\'hara.\\nNew line."}'
+    expected_str = '{\\"type\\":\\"point\\", \\"desc\\":\\"Bla bla O\\\'hara.\\\\nNew line.\\"}'
+    output_str = h.escape_js(input_str)
+    assert output_str == expected_str
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+def test_get_pkg_dict_extra():
+
+    from ckan.lib.create_test_data import CreateTestData
+    from ckan import model
+    from ckan.logic import get_action
+
+    CreateTestData.create()
+
+    pkg_dict = helpers.call_action("package_show", id="annakarenina")
+
+    assert h.get_pkg_dict_extra(pkg_dict, "genre") == "romantic novel"
+
+    assert h.get_pkg_dict_extra(pkg_dict, "extra_not_found") is None
+
+    assert (
+        h.get_pkg_dict_extra(pkg_dict, "extra_not_found", "default_value")
+        == "default_value"
+    )
+
+    model.repo.rebuild_db()

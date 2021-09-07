@@ -145,7 +145,7 @@ def parse_version(version_):
     global version_re
     if version_re is None:
         version_re = re.compile('(?:ckan-)?(\d+)\.(\d+)(?:\.(\d+))?[a-z]?')
-    if isinstance(version_, six.binary_type):
+    if isinstance(version_, bytes):
         version_ = version_.decode()
     return version_re.match(version_).groups()
 

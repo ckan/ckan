@@ -3,7 +3,7 @@
 import os
 
 import pytest
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk

@@ -8,8 +8,8 @@ import click
 import paste.script
 import routes
 from paste.registry import Registry
-from six.moves import input
-from six.moves.urllib.parse import urlparse
+
+from urllib.parse import urlparse
 
 from ckan.config.middleware import make_app
 from ckan.cli import load_config as _get_config
@@ -105,19 +105,6 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-class MockTranslator(object):
-    def gettext(self, value):
-        return value
-
-    def ugettext(self, value):
-        return value
-
-    def ungettext(self, singular, plural, n):
-        if n > 1:
-            return plural
-        return singular
-
-
 def load_config(config, load_site_user=True):
     conf = _get_config(config)
     assert 'ckan' not in dir()  # otherwise loggers would be disabled
@@ -139,9 +126,6 @@ def load_config(config, load_site_user=True):
 
     site_user = None
     if model.user_table.exists() and load_site_user:
-        # If the DB has already been initialized, create and register
-        # a pylons context object, and add the site user to it, so the
-        # auth works as in a normal web request
         site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
 
     ## give routes enough information to run url_for

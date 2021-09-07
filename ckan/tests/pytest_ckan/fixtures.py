@@ -30,6 +30,8 @@ Deeper expanation can be found in `official documentation
 
 import smtplib
 
+from io import BytesIO
+import copy
 
 import pytest
 import six
@@ -76,7 +78,7 @@ def ckan_config(request, monkeypatch):
        :end-before: # END-CONFIG-OVERRIDE
 
     """
-    _original = config.copy()
+    _original = copy.deepcopy(config)
     for mark in request.node.iter_markers(u"ckan_config"):
         monkeypatch.setitem(config, *mark.args)
     yield config
@@ -316,7 +318,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     def factory(data, filename, context={}, **kwargs):
         action = kwargs.pop(u"action", u"resource_create")
         field = kwargs.pop(u"upload_field_name", u"upload")
-        test_file = six.BytesIO()
+        test_file = BytesIO()
         test_file.write(six.ensure_binary(data))
         test_file.seek(0)
         test_resource = FakeFileStorage(test_file, filename)

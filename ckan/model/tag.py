@@ -118,23 +118,19 @@ class Tag(domain_object.DomainObject):
         :rtype: ckan.model.tag.Tag
 
         '''
-        # First try to get the tag by ID.
+        vocab = None
+        if vocab_id_or_name:
+            vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
+            if vocab is None:
+                # The user specified an invalid vocab.
+                return None
+
         tag = Tag.by_id(tag_id_or_name)
-        if tag:
-            return tag
-        else:
-            # If that didn't work, try to get the tag by name and vocabulary.
-            if vocab_id_or_name:
-                vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
-                if vocab is None:
-                    # The user specified an invalid vocab.
-                    raise ckan.logic.NotFound("could not find vocabulary '%s'"
-                            % vocab_id_or_name)
-            else:
-                vocab = None
-            tag = Tag.by_name(tag_id_or_name, vocab=vocab)
-            return tag
-        # Todo: Make sure tag names can't be changed to look like tag IDs?
+        if not tag:
+            return Tag.by_name(tag_id_or_name, vocab=vocab)
+        elif vocab and tag.vocabulary_id != vocab.id:
+                return None
+        return tag
 
     @classmethod
     @maintain.deprecated(since="2.9.0")

@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
-from six import text_type, ensure_str
+from six import ensure_str
 import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
@@ -263,10 +263,14 @@ class EditView(MethodView):
         if not context[u'save']:
             return self.get(id)
 
+        # checks if user id match with the current logged user
         if id in (g.userobj.id, g.userobj.name):
             current_user = True
         else:
             current_user = False
+
+        # we save the username for later use.. in case the current
+        # logged in user change his username
         old_username = g.userobj.name
 
         try:
@@ -284,16 +288,33 @@ class EditView(MethodView):
 
         context[u'message'] = data_dict.get(u'log_message', u'')
         data_dict[u'id'] = id
+
+        # we need this comparison when sysadmin edits a user,
+        # this will return True
+        # and we can utilize it for later use.
         email_changed = data_dict[u'email'] != g.userobj.email
 
+        # common users can edit their own profiles without providing
+        # password, but if they want to change
+        # their old password with new one... old password must be provided..
+        # so we are checking here if password1
+        # and password2 are filled so we can enter the validation process.
+        # when sysadmins edits a user he MUST provide sysadmin password.
+        # We are recognizing sysadmin user
+        # by email_changed variable.. this returns True
+        # and we are entering the validation.
         if (data_dict[u'password1']
                 and data_dict[u'password2']) or email_changed:
+
+            # getting the identity for current logged user
             identity = {
                 u'login': g.user,
                 u'password': data_dict[u'old_password']
             }
             auth = authenticator.UsernamePasswordAuthenticator()
 
+            # we are checking if the identity is not the
+            # same with the current logged user if so raise error.
             if auth.authenticate(request.environ, identity) != g.user:
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
@@ -756,7 +777,7 @@ class PerformResetView(MethodView):
         except logic.ValidationError as e:
             h.flash_error(u'%r' % e.error_dict)
         except ValueError as e:
-            h.flash_error(text_type(e))
+            h.flash_error(str(e))
         user_dict[u'state'] = user_state
         return base.render(u'user/perform_reset.html', {
             u'user_dict': user_dict

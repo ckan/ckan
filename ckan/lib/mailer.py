@@ -13,7 +13,7 @@ from email import utils
 
 from ckan.common import config
 import ckan.common
-from six import text_type
+
 
 import ckan
 import ckan.model as model
@@ -166,8 +166,7 @@ def get_invite_body(user, group_dict=None, role=None):
 
 
 def get_reset_link(user):
-    return h.url_for(controller='user',
-                     action='perform_reset',
+    return h.url_for('user.perform_reset',
                      id=user.id,
                      key=user.reset_key,
                      qualified=True)
@@ -202,7 +201,7 @@ def send_invite(user, group_dict=None, role=None):
 
 
 def create_reset_key(user):
-    user.reset_key = text_type(make_key())
+    user.reset_key = str(make_key())
     model.repo.commit_and_remove()
 
 
