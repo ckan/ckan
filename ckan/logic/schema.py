@@ -471,7 +471,7 @@ def default_generate_apikey_user_schema(
 
 @validator_args
 def default_user_invite_schema(
-        not_empty, email_validator, email_is_unique):
+        not_empty, email_validator, email_is_unique, unicode_safe):
     return {
         'email': [not_empty, email_validator, email_is_unique, unicode_safe],
         'group_id': [not_empty],
