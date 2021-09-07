@@ -9,14 +9,12 @@ sandbox/*
 dist
 .mypy_cache
 .eggs/*
-
 # pylons
 development.ini*
 sstore/*
 data/*
 pylons_data/*
 #ckan/i18n/*/*/*.mo
-
 # other
 pip-requirements-local.txt
 migrate/*
@@ -30,25 +28,20 @@ fl_notes.txt
 *~
 .idea
 .vscode
-
 # custom style
 ckan/public/base/less/custom.less
-
 # nosetest coverage output
 .coverage
 htmlcov/*
-
 # CKAN
 ckan.log
 ckan_deb/DEBIAN/control
 ckan_deb/DEBIAN/prerm
-
 # node.js
 node_modules/
-
 # docker
 contrib/docker/.env
 cypress.env.json
-
 # cypress
 cypress/videos
+/id.txt
