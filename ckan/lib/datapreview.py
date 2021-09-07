@@ -132,7 +132,7 @@ def get_default_view_plugins(get_datastore_views=False):
         view_plugin = get_view_plugin(view_type)
 
         if not view_plugin:
-            log.warn('Plugin for view {0} could not be found'
+            log.warning('Plugin for view {0} could not be found'
                      .format(view_type))
             # We should probably check on startup if the default
             # view types exist
