@@ -19,6 +19,9 @@ abort () {
 }
 
 set_environment () {
+  export CKAN_INI=${CONFIG}
+  export CKAN_SITE_TITLE=${CKAN_SITE_TITLE}
+  export CKAN_SITE_DESC=${CKAN_SITE_DESC}
   export CKAN_SITE_ID=${CKAN_SITE_ID}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
   export CKAN_DOMAIN=${CKAN_DOMAIN}
