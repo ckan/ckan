@@ -28,10 +28,21 @@ def before_request():
     except logic.NotAuthorized:
         abort(403)
 
+import logging
+
+log = logging.getLogger(__name__)
+
+def hi(msg):
+    log.critical(f'Hey {msg}')
+
 
 def index():
     u'''display home page'''
     try:
+        from ckan.plugins import toolkit
+
+        toolkit.enqueue_job(hi, ['koko'], title="Calling Hi job")
+
         context = {u'model': model, u'session': model.Session,
                    u'user': g.user, u'auth_user_obj': g.userobj}
         data_dict = {u'q': u'*:*',
