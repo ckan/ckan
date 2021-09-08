@@ -55,6 +55,7 @@ done
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
+  set_environment
   write_config
 fi
 
