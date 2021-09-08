@@ -132,9 +132,9 @@ ckan.views.default_views = image_view text_view recline_view
 
 ## Front-End Settings
 
-ckan.site_title = CKAN
+ckan.site_title = $ckan_site_title
 ckan.site_logo = /base/images/ckan-logo.png
-ckan.site_description =
+ckan.site_description = $ckan_site_desc
 ckan.favicon = /base/images/ckan.ico
 ckan.gravatar_default = identicon
 ckan.preview.direct = png jpg gif
