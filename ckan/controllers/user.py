@@ -578,7 +578,9 @@ class UserController(base.BaseController):
             user_dict['state'] = user_state
 
         c.user_dict = user_dict
-        return render('user/perform_reset.html')
+        return render('user/perform_reset.html', extra_vars={
+                'user_dict': c.user_dict,
+            })
 
     def _get_form_password(self):
         password1 = request.params.getone('password1')
