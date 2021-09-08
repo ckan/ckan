@@ -190,12 +190,11 @@ ckan.feeds.author_link =
 
 ## Activity Streams Settings
 
-#ckan.activity_streams_enabled = true
-#ckan.activity_list_limit = 31
-#ckan.activity_streams_email_notifications = true
-#ckan.email_notifications_since = 2 days
+ckan.activity_streams_enabled = $activity_streams_enabled
+ckan.activity_list_limit = 31
+ckan.activity_streams_email_notifications = $activity_streams_notify
+ckan.email_notifications_since = 2 days
 ckan.hide_activity_from_users = %(ckan.site_id)s
-
 
 ## Email settings
 
