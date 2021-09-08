@@ -153,7 +153,13 @@ def make_config(output_path):
     template_variables = {
         u'app_instance_uuid': uuid.uuid4(),
         u'app_instance_secret': secrets.token_urlsafe(20)[:25],
-        u'ckan_site_url': os.environ['CKAN_SITE_URL']
+        u'ckan_site_url': os.environ['CKAN_SITE_URL'],
+        u'smtp_server': os.environ['CKAN_SMTP_SERVER'],
+        u'smtp_starttls': os.environ['CKAN_SMTP_STARTTLS'],
+        u'smtp_user': os.environ['CKAN_SMTP_USER'],
+        u'smtp_password': os.environ['CKAN_SMTP_PASSWORD'],
+        u'smtp_mail_from': os.environ['CKAN_SMTP_MAIL_FROM'],
+        u'smtp_reply_to': os.environ['CKAN_SMTP_REPLY_TO']
     }
 
     with open(template_loc, u'r') as file_in:
