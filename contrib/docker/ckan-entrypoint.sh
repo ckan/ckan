@@ -19,6 +19,7 @@ abort () {
 }
 
 set_environment () {
+  echo "Setting environment variables..."
   export CKAN_SITE_ID=${CKAN_SITE_ID}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
   export CKAN_DOMAIN=${CKAN_DOMAIN}
@@ -44,8 +45,6 @@ set_environment () {
 }
 
 write_config () {
-  set_environment
-
   echo "Generating config at ${CONFIG}..."
   ckan generate config "$CONFIG"
 }
@@ -54,6 +53,8 @@ write_config () {
 while ! pg_isready -h db -U ckan; do
   sleep 1;
 done
+
+set_environment
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
@@ -77,7 +78,6 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
     abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
 fi
 
-set_environment
 ckan --config "$CONFIG" db init
 
 apache2ctl start
