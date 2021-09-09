@@ -32,17 +32,20 @@ with your faverit edit, open `/ckan/contrib/docker/ckanext-cioos_theme/ckanext/c
 at top of file, after imports, add
 ```python
 import debugpy
-
-StopOnError = df.StopOnError
-missing = df.missing
+import os
 log = logging.getLogger(__name__)
 
-debugpy.listen(('0.0.0.0', 5678))
-log.debug("Waiting for debugger attach")
-debugpy.wait_for_client()
-debugpy.breakpoint()
-log.debug('break on this line')
+REMOTE_DEBUG = os.environ.get('REMOTE_DEBUG')
+if REMOTE_DEBUG and not debugpy.is_client_connected():
+    debugpy.listen(('0.0.0.0', 5678))
+    log.debug("Waiting for debugger attach")
+    debugpy.wait_for_client()
+    debugpy.breakpoint()
+    log.debug('break on this line')
 ```
+
+then add the 'REMOTE_DEBUG' enviroment variable to the docker-compose file for
+the container you wish to debug
 
 You can add breakpoints from VS Code as well but if you add one to the code the
 editor will open the file for you when it hits the breakpoint, which can be handy.

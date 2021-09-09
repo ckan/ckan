@@ -284,7 +284,7 @@ CKAN doesn't start with an admin user so it must be created via command line.  T
 You'll be asked to supply an email address and a password (8 characters in length minimum) and then to confirm the password.
 
 ```bash
-sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add admin
+sudo docker exec -it ckan ckan --config /etc/ckan/production.ini sysadmin add admin
 ```
 
 > **NOTE:** You'll receive warnings about Python 2 no longer being supported, you can safely ignore these for now - they will go away when the base version of CKAN is migrated to one that supports Python 3.
@@ -745,7 +745,7 @@ sudo docker cp ./contrib/docker/ckan-run-harvester-entrypoint.sh ckan_run_harves
 update permissions (optional but recommended)
 
 ```bash
-sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/
+sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/ $VOL_CKAN_STORAGE
 ```
 
 or on windows run the command directly in the ckan container
@@ -795,10 +795,7 @@ sudo cp -r src/ckanext-googleanalyticsbasic $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-cioos_harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
-sudo cp -r src/pycsw/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-scheming/ $VOL_CKAN_HOME/venv/src/
-sudo cp -r src/ckanext-repeating/ $VOL_CKAN_HOME/venv/src/
-sudo cp -r src/ckanext-composite/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-fluent/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-dcat/ $VOL_CKAN_HOME/venv/src/
 sudo cp src/cioos-siooc-schema/cioos-siooc_schema.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
@@ -817,8 +814,6 @@ docker cp src/ckanext-harvest/ ckan:/usr/lib/ckan/venv/src/
 docker cp src/ckanext-spatial/ ckan:/usr/lib/ckan/venv/src/
 docker cp src/pycsw/ ckan:/usr/lib/ckan/venv/src/
 docker cp src/ckanext-scheming/ ckan:/usr/lib/ckan/venv/src/
-docker cp src/ckanext-repeating/ ckan:/usr/lib/ckan/venv/src/
-docker cp src/ckanext-composite/ ckan:/usr/lib/ckan/venv/src/
 docker cp src/ckanext-fluent/ ckan:/usr/lib/ckan/venv/src/
 docker cp src/ckanext-dcat/ ckan:/usr/lib/ckan/venv/src/
 docker cp src/cioos-siooc-schema/cioos-siooc_schema.json ckan:/usr/lib/ckan/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
@@ -829,7 +824,7 @@ docker cp src/cioos-siooc-schema/ckan_license.json ckan:/usr/lib/ckan/venv/src/c
 update permissions (optional)
 
 ```bash
-sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/
+sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/ $VOL_CKAN_STORAGE
 ```
 
 or on windows run the command directly in the ckan container
@@ -1223,6 +1218,6 @@ You may get a file permissions error after the new volume is created. reset perm
 
 ```bash
 cd ~/ckan/contrib/docker
-sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/
+sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/ $VOL_CKAN_STORAGE
 sudo docker-compose up -d
 ```
