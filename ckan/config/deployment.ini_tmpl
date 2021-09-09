@@ -134,7 +134,7 @@ ckan.views.default_views = image_view text_view recline_view
 
 ckan.site_title = $ckan_site_title
 ckan.site_logo = /base/images/ckan-logo.png
-ckan.site_description = $ckan_site_desc
+ckan.site_description = $ckan_site_description
 ckan.favicon = /base/images/ckan.ico
 ckan.gravatar_default = identicon
 ckan.preview.direct = png jpg gif
@@ -178,7 +178,7 @@ ckan.feeds.author_link =
 
 # Make sure you have set up the DataStore
 
-#ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 #ckan.datapusher.url = http://127.0.0.1:8800/
 #ckan.datapusher.assume_task_stale_after = 3600
 
@@ -190,9 +190,9 @@ ckan.feeds.author_link =
 
 ## Activity Streams Settings
 
-ckan.activity_streams_enabled = $activity_streams_enabled
+ckan.activity_streams_enabled = false
 ckan.activity_list_limit = 31
-ckan.activity_streams_email_notifications = $activity_streams_notify
+ckan.activity_streams_email_notifications = false
 ckan.email_notifications_since = 2 days
 ckan.hide_activity_from_users = %(ckan.site_id)s
 
@@ -200,12 +200,12 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 #email_to = errors@example.com
 #error_email_from = ckan-errors@example.com
-smtp.server = $smtp_server
-smtp.starttls = $smtp_starttls
-smtp.user = $smtp_user
-smtp.password = $smtp_password
-smtp.mail_from = $smtp_mail_from
-smtp.reply_to = $smtp_reply_to
+smtp.server = smtp.gmail.com:587
+smtp.starttls = true
+smtp.user = user@gmail.com
+smtp.password = pass
+smtp.mail_from = ckan@gmail.com
+smtp.reply_to = noreply@gmail.com
 
 ## Background Job Settings
 ckan.jobs.timeout = 180

@@ -177,7 +177,7 @@ against the database and import / export files from ``$VOL_CKAN_HOME``.
 
 .. note:: If you have to rebuild the containers, make sure to keep the volume ``docker_ckan_cert``.
   Deleting and recreating this volume will force the ``cert`` container to request a new certificate from
-  Let's Encrypt or startup, and you will quickly exceed the 20 certs/week (but at most 5 certs/week
+  Let's Encrypt on startup, and you will quickly exceed the 20 certs/week (but at most 5 certs/week
   for each domain) rate limit.
 
 ---------------------------
@@ -523,8 +523,8 @@ A possible path towards a production-ready environment is:
   tools or transferring files directly.
 * Bonus: contribute a write-up of working production setups to the CKAN documentation.
 
-.. note:: When switching to a production environment, make sure to remove the `--dry-run` option
-  from the [certbot](https://letsencrypt.org/docs/client-options/#recommended-certbot) command that
-  requests/renews Let's Encrypt certificates for the web frontend.
-  Keep this option while developing for or experimenting with CKAN, to protect from exceeding
-  Let's Encrypt 5 cert/week rate limit.
+.. note:: When switching to a production environment, make sure to remove the `--dry-run`
+  option from the [certbot](https://letsencrypt.org/docs/client-options/#recommended-certbot)
+  command in _/contrib/docker/cert/cert-request.sh_ that requests/renews Let's Encrypt certificates
+  for the web frontend. Keep this option while developing for or experimenting with CKAN,
+  to protect from exceeding Let's Encrypt 5 cert/week rate limit.

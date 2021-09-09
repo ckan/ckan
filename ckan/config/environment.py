@@ -103,6 +103,8 @@ CONFIG_FROM_ENV_VARS = {
     'solr_password': 'CKAN_SOLR_PASSWORD',
     'ckan.site_id': 'CKAN_SITE_ID',
     'ckan.site_url': 'CKAN_SITE_URL',
+    'ckan.site_title': 'CKAN_SITE_TITLE',
+    'ckan.site_description': 'CKAN_SITE_DESC',
     'ckan.storage_path': 'CKAN_STORAGE_PATH',
     'ckan.datapusher.url': 'CKAN_DATAPUSHER_URL',
     'smtp.server': 'CKAN_SMTP_SERVER',
@@ -110,7 +112,10 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.user': 'CKAN_SMTP_USER',
     'smtp.password': 'CKAN_SMTP_PASSWORD',
     'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM',
-    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB'
+    'smtp.reply_to': 'CKAN_SMTP_REPLY_TO',
+    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB',
+    'ckan.activity_streams_enabled': 'CKAN_ACTIVITY_STREAMS_ENABLED',
+    'ckan.activity_streams_email_notifications': 'CKAN_ACTIVITY_STREAMS_NOTIFIY'
 }
 # End CONFIG_FROM_ENV_VARS
 
