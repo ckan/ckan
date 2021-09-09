@@ -418,11 +418,12 @@ class APIToken(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        context = {"user": _get_action_user_name(kwargs)}
-        data_dict = {"name": kwargs["name"], "user": kwargs["user"]["name"]}
+        target_user_name = _get_action_user_name(kwargs)
+        context = {"user": target_user_name}
+        kwargs["user"] = target_user_name
 
         token_create = helpers.call_action(
-            'api_token_create', context=context, **data_dict
+            'api_token_create', context=context, **kwargs
         )
         return token_create["token"]
 
