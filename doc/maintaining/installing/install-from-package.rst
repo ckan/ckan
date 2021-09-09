@@ -196,3 +196,12 @@ your CKAN site.
     You should check the :doc:`/maintaining/authorization` documentation, configure CKAN accordingly
     and grant other users the relevant permissions using the :ref:`sysadmin account <create-admin-user>`.
 
+.. note::
+
+   There may be a ``PermissionError: [Errno 13] Permission denied:`` message when restarting supervisor or 
+   accessing CKAN via a browser for the first time. This happens when a different user is used to execute 
+   the web server than the user who installed CKAN and the support software. A workaround would be to 
+   open up the permissions on the ``/path/to/ckan/lib/default/src/ckan/ckan/public/base/i18n/`` directory 
+   to be world-readable ie: ``chmod 777 /path/to/ckan/lib/default/src/ckan/ckan/public/base/i18n/`` 
+   before starting/accessing CKAN. Once all the .js files have been generated in this directory the 
+   permissions could be changed back to what they were previously.
