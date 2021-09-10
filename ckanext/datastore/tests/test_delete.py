@@ -130,8 +130,10 @@ class TestDatastoreDeleteLegacy(object):
     def initial_data(self, clean_datastore, app, test_request_context):
         self.app = app
         ctd.CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
-        self.normal_user = model.User.get("annafan")
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user)
         resource = model.Package.get("annakarenina").resources[0]
         self.data = {
             "resource_id": resource.id,
@@ -164,7 +166,7 @@ class TestDatastoreDeleteLegacy(object):
             )
 
     def _create(self):
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = self.app.post(
             "/api/action/datastore_create",
             json=self.data,
@@ -177,7 +179,7 @@ class TestDatastoreDeleteLegacy(object):
     def _delete(self):
         data = {"resource_id": self.data["resource_id"]}
         postparams = "%s=1" % json.dumps(data)
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = self.app.post(
             "/api/action/datastore_delete",
             data=data,
@@ -252,7 +254,7 @@ class TestDatastoreDeleteLegacy(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_delete_invalid_resource_id(self, app):
         data = {"resource_id": "bad"}
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             data=data,
@@ -270,7 +272,7 @@ class TestDatastoreDeleteLegacy(object):
 
         # try and delete just the 'warandpeace' row
         data = {"resource_id": resource_id, "filters": {"book": "warandpeace"}}
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -292,7 +294,7 @@ class TestDatastoreDeleteLegacy(object):
             "filters": {"book": "annakarenina", "author": "bad"},
         }
 
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -313,7 +315,7 @@ class TestDatastoreDeleteLegacy(object):
             "id": resource_id,
             "filters": {"book": "annakarenina", "author": "tolstoy"},
         }
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -342,7 +344,7 @@ class TestDatastoreDeleteLegacy(object):
             "filters": {"invalid-column-name": "value"},
         }
 
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -363,7 +365,7 @@ class TestDatastoreDeleteLegacy(object):
         self._create()
 
         data = {"resource_id": self.data["resource_id"], "filters": []}
-        auth = {"Authorization": str(self.normal_user.apikey)}
+        auth = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
@@ -384,7 +386,7 @@ class TestDatastoreDeleteLegacy(object):
         res = app.post(
             "/api/action/datastore_delete",
             json={"resource_id": self.data["resource_id"], "filters": {}},
-            environ_overrides={"Authorization": str(self.normal_user.apikey)},
+            environ_overrides={"Authorization": self.normal_user_token},
         )
         assert res.status_code == 200
         results = json.loads(res.data)
@@ -393,7 +395,7 @@ class TestDatastoreDeleteLegacy(object):
         res = app.post(
             "/api/action/datastore_search",
             json={"resource_id": self.data["resource_id"]},
-            environ_overrides={"Authorization": str(self.normal_user.apikey)},
+            environ_overrides={"Authorization": self.normal_user_token},
         )
         assert res.status_code == 200
         results = json.loads(res.data)
