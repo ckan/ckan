@@ -7,9 +7,6 @@
 [submodule "contrib/docker/src/ckanext-cioos_theme"]
 	path = contrib/docker/src/ckanext-cioos_theme
 	url = https://github.com/cioos-siooc/ckanext-cioos_theme.git
-[submodule "contrib/docker/src/OWSLib"]
-	path = contrib/docker/src/OWSLib
-	url = https://github.com/geopython/OWSLib.git
 [submodule "contrib/docker/src/ckanext-geoview"]
 	path = contrib/docker/src/ckanext-geoview
 	url = https://github.com/ckan/ckanext-geoview.git
