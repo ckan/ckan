@@ -2,6 +2,18 @@
 # If "docker-compose logs ckan" shows DB not ready, run "docker-compose restart ckan" a few times.
 version: "3.4"
 
+x-common-ckan-variables: &common-ckan-variables
+  CKAN_SQLALCHEMY_URL: postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
+  CKAN_DATASTORE_WRITE_URL: postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
+  CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
+  CKAN_SOLR_URL: http://solr:8983/solr/ckan
+  CKAN_REDIS_URL: redis://redis:6379/1
+  CKAN_DATAPUSHER_URL: http://datapusher:8800
+  CKAN_SITE_URL: ${CKAN_SITE_URL}
+  CKAN_MAX_UPLOAD_SIZE_MB: ${CKAN_MAX_UPLOAD_SIZE_MB}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  DS_RO_PASS: ${DATASTORE_READONLY_PASSWORD}
+
 x-ckan: &ckan_app
   container_name: ckan
   image: docker_ckan
@@ -14,16 +26,7 @@ x-ckan: &ckan_app
     - "0.0.0.0:${CKAN_PORT}:5000"
   environment:
     # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
-    - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
-    - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
-    - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
-    - CKAN_SOLR_URL=http://solr:8983/solr/ckan
-    - CKAN_REDIS_URL=redis://redis:6379/1
-    - CKAN_DATAPUSHER_URL=http://datapusher:8800
-    - CKAN_SITE_URL=${CKAN_SITE_URL}
-    - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+    <<: *common-ckan-variables
     #- TZ=Canada/Vancouver
   #restart: always
   volumes:
@@ -34,10 +37,11 @@ x-ckan: &ckan_app
     - ${CKAN_LOG_PATH}:/usr/lib/ckan/venv/src/logs
 
 x-ckan_build: &ckan_build
-    build:
-      context: ../../
-      args:
-          - CKAN_SITE_URL=${CKAN_SITE_URL}
+  build:
+    context: ../../
+    args:
+      - CKAN_SITE_URL=${CKAN_SITE_URL}
+
 volumes:
   ckan_config:
   ckan_home:
@@ -47,46 +51,57 @@ volumes:
 
 services:
   ckan:
+    ports:
+      - "0.0.0.0:${CKAN_PORT}:5000"
+      - "5678:5678" # used by the debugger during development. NOT for production
+    environment:
+      <<: *common-ckan-variables
+      # REMOTE_DEBUG: 1
     depends_on:
       - db
     <<: *ckan_app
     <<: *ckan_build
 
   ckan_gather_harvester:
-     <<: *ckan_app
-     container_name: ckan_gather_harvester
-     image: docker_ckan
-     entrypoint: /ckan-harvester-entrypoint.sh
-     user: root
-     command: ckan --config=/etc/ckan/production.ini harvester gather-consumer
-     ports: []
-     depends_on:
-       - ckan
+    <<: *ckan_app
+    container_name: ckan_gather_harvester
+    image: docker_ckan
+    entrypoint: /ckan-harvester-entrypoint.sh
+    user: root
+    command: ckan --config=/etc/ckan/production.ini harvester gather-consumer
+    ports: []
+    # ports:
+    #  - "5678:5678" # used by the debugger during development. NOT for production
+    environment:
+      <<: *common-ckan-variables
+      # REMOTE_DEBUG: 1
+    depends_on:
+      - ckan
 
   ckan_fetch_harvester:
-     <<: *ckan_app
-     container_name: ckan_fetch_harvester
-     image: docker_ckan
-     entrypoint: /ckan-harvester-entrypoint.sh
-     user: root
-     command: ckan --config=/etc/ckan/production.ini harvester fetch-consumer
-     ports: []
-     depends_on:
-       - ckan
-       - ckan_gather_harvester
+    <<: *ckan_app
+    container_name: ckan_fetch_harvester
+    image: docker_ckan
+    entrypoint: /ckan-harvester-entrypoint.sh
+    user: root
+    command: ckan --config=/etc/ckan/production.ini harvester fetch-consumer
+    ports: []
+    depends_on:
+      - ckan
+      - ckan_gather_harvester
 
   ckan_run_harvester:
-     <<: *ckan_app
-     container_name: ckan_run_harvester
-     image: docker_ckan
-     entrypoint: /ckan-run-harvester-entrypoint.sh
-     user: root
-     command: /bin/bash -c "echo 'ckan_run_harvester started' && cron -f 2>&1 "
-     ports: []
-     depends_on:
-       - ckan
-       - ckan_gather_harvester
-       - ckan_fetch_harvester
+    <<: *ckan_app
+    container_name: ckan_run_harvester
+    image: docker_ckan
+    entrypoint: /ckan-run-harvester-entrypoint.sh
+    user: root
+    command: /bin/bash -c "echo 'ckan_run_harvester started' && cron -f 2>&1 "
+    ports: []
+    depends_on:
+      - ckan
+      - ckan_gather_harvester
+      - ckan_fetch_harvester
 
   datapusher:
     container_name: datapusher
@@ -99,7 +114,7 @@ services:
     container_name: db
     image: docker_db
     ports:
-       - "5432:5432"
+      - "5432:5432"
     build:
       context: ../../
       dockerfile: contrib/docker/postgresql/Dockerfile
@@ -109,6 +124,7 @@ services:
     environment:
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data
     #restart: always
     volumes:
       - "/etc/localtime:/etc/localtime:ro"

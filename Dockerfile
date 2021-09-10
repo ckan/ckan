@@ -235,6 +235,8 @@ RUN touch "$CKAN_VENV/src/logs/ckan_default.log"
 
 RUN chown -R 900:900 $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
+WORKDIR $CKAN_VENV/src
+
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
 USER ckan
