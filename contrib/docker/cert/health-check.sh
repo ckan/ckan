@@ -17,5 +17,5 @@ check_status() {
         exit 1
     fi
 }
-
+ 
 check_status "${1:-localhost}"

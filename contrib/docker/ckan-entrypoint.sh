@@ -42,7 +42,7 @@ set_environment () {
   export CKAN_ACTIVITY_STREAMS_ENABLED=${CKAN_ACTIVITY_STREAMS_ENABLED:-false}
   export CKAN_ACTIVITY_STREAMS_NOTIFIY=${CKAN_ACTIVITY_STREAMS_NOTIFIY:-false}
 }
-
+ 
 write_config () {
   echo "Generating config at ${CONFIG}..."
   ckan generate config "$CONFIG"

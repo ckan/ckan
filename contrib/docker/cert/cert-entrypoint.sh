@@ -17,7 +17,7 @@ if [ ! -f /usr/share/nginx/certificates/fullchain.pem ]; then
     "/C=PT/ST=World/L=World/O=$DOMAIN/OU=egi lda/CN=$DOMAIN"
     openssl x509 -req -days 365 -in /usr/share/nginx/certificates/cert.csr -signkey /usr/share/nginx/certificates/privkey.pem -out /usr/share/nginx/certificates/fullchain.pem
 fi
-
+ 
 if [ -n "$DOMAIN" ] && [ "$DOMAIN" != "localhost" ]; then
     ### Send certbot emission/renewal to background
     $(while :; do /opt/request.sh; sleep "${RENEW_INTERVAL:-12h}"; done;) &
