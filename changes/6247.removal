@@ -1,0 +1,5 @@
+-Renamed methods/vars from api_key -> api_token
+-Removed the API key snippet and "Regenerate API key" button from the user profile templates
+-Removed the endpoint used to regenerate the API key and the user_generate_apikey action and auth function
+-Removed apikey from the user schema
+-Created factory.APIToken() for the tests and we use it for Authorization instead of user's api_key
