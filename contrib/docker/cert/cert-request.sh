@@ -16,7 +16,7 @@ if [ -n "$DOMAIN" ] && [ "$DOMAIN" != "localhost" ]; then
 			--webroot \
 			--webroot-path /var/www/html \
 			$OPTIONS || true
- 
+
 	if [ -f "${LETSENCRYPT_DIR:-/etc/letsencrypt}/live/$DOMAIN/privkey.pem" ]; then
 		chmod +rx "${LETSENCRYPT_DIR:-/etc/letsencrypt}/live"
 		chmod +rx "${LETSENCRYPT_DIR:-/etc/letsencrypt}/archive"
