@@ -231,6 +231,8 @@ class FeedController(base.BaseController):
             group_dict = logic.get_action('group_show')(context, {'id': id})
         except logic.NotFound:
             base.abort(404, _('Group not found'))
+        except logic.NotAuthorized:
+            base.abort(403, _('Not authorized to see this page'))
 
         return self._group_or_organization(group_dict, is_org=False)
 
@@ -242,6 +244,8 @@ class FeedController(base.BaseController):
                                                                {'id': id})
         except logic.NotFound:
             base.abort(404, _('Organization not found'))
+        except logic.NotAuthorized:
+            base.abort(403, _('Not authorized to see this page'))
 
         return self._group_or_organization(group_dict, is_org=True)
 
