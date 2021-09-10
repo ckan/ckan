@@ -797,7 +797,7 @@ Maximum number of groups/organizations returned when listing them. Specifically 
 * ``group_list``'s ``limit`` when ``all_fields=false``
 * ``organization_list``'s ``limit`` when ``all_fields=false``
 
-.. note:: This is only available in CKAN versions 2.8.7 and newer.
+.. note:: This is only available in CKAN version 2.8.7 and newer.
 
 .. _ckan.group_and_organization_list_all_fields_max:
 
@@ -815,7 +815,7 @@ Maximum number of groups/organizations returned when listing them in detail. Spe
 * ``group_list``'s ``limit`` when ``all_fields=true``
 * ``organization_list``'s ``limit`` when ``all_fields=true``
 
-.. note:: This is only available in CKAN versions 2.8.7 and newer.
+.. note:: This is only available in CKAN version 2.8.7 and newer.
 
 Redis Settings
 ---------------
