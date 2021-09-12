@@ -113,7 +113,7 @@ sqlalchemy==1.3.5
     # via
     #   -r requirements.in
     #   alembic
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via -r requirements.in
 tzlocal==2.1
     # via -r requirements.in
