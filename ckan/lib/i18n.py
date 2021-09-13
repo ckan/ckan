@@ -41,7 +41,7 @@ import json
 import logging
 import os
 import os.path
-from io import open
+from codecs import open
 
 import six
 from babel import Locale
