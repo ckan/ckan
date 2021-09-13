@@ -16,12 +16,10 @@ import pprint
 import copy
 import uuid
 
-from paste.deploy import converters
-
 import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import config, is_flask_request
+from ckan.common import config, is_flask_request, asbool
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
@@ -2848,8 +2846,8 @@ core_helper(localised_filesize)
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
 core_helper(literal)
-# Useful additions from the paste library.
-core_helper(converters.asbool)
+# Useful additions from the common module
+core_helper(asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
 core_helper(include_asset)
