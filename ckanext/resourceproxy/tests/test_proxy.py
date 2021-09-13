@@ -66,7 +66,7 @@ class TestProxyPrettyfied(object):
         self.mock_out_urls(
             self.url,
             content_type='application/json',
-            body=six.ensure_binary(JSON_STRING))
+            body=(JSON_STRING).encode())
 
         url = self.data_dict['resource']['url']
         result = requests.get(url)
@@ -77,7 +77,7 @@ class TestProxyPrettyfied(object):
     def test_resource_proxy_on_404(self, app):
         self.mock_out_urls(
             self.url,
-            body=six.ensure_binary("I'm not here"),
+            body=b"I'm not here",
             content_type='application/json',
             status=404)
 

@@ -84,8 +84,8 @@ class User(core.StatefulObjectMixin,
     def email_hash(self):
         e = ''
         if self.email:
-            e = self.email.strip().lower().encode('utf8')
-        return md5(six.ensure_binary(e)).hexdigest()
+            e = self.email.strip().lower()
+        return md5(bytes(e,'utf8')).hexdigest()
 
     def get_reference_preferred_for_uri(self):
         '''Returns a reference (e.g. name, id) for this user
@@ -124,7 +124,7 @@ class User(core.StatefulObjectMixin,
         # else:
         #     password_8bit = password
 
-        hashed_pass = sha1(six.ensure_binary(password + self.password[:40]))
+        hashed_pass = sha1((password + self.password[:40]).encode())
         current_hash = passlib.utils.to_native_str(self.password[40:])
 
         if passlib.utils.consteq(hashed_pass.hexdigest(), current_hash):

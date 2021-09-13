@@ -95,8 +95,8 @@ def json_writer(response, fields, name=None, bom=False):
     if bom:
         response.stream.write(BOM_UTF8)
     response.stream.write(
-        six.ensure_binary(u'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(u',', u':'))))
+        (u'{\n  "fields": %s,\n  "records": [' % dumps(
+            fields, ensure_ascii=False, separators=(u',', u':'))).encode())
     yield JSONWriter(response.stream)
     response.stream.write(b'\n]}\n')
 

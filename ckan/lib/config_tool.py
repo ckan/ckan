@@ -47,7 +47,7 @@ def config_edit(config_filepath, desired_options, edit=False):
     # write the file with the changes
     output = make_changes(input_lines, new_sections, changes)
     with open(config_filepath, 'wb') as f:
-        f.write(six.ensure_binary('\n'.join(output) + '\n'))
+        f.write(('\n'.join(output) + '\n').encode())
 
 
 def parse_option_string(section, option_string, raise_on_error=False):

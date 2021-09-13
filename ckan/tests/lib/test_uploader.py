@@ -73,7 +73,7 @@ class TestUpload(object):
         monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
-                     BytesIO(six.ensure_binary(u'hello')),
+                     BytesIO((u'hello').encode()),
                      filename=u'logo.png',
                      content_type=u'PNG'
                  ),

@@ -2,7 +2,6 @@
 
 import hmac
 import hashlib
-import six
 
 from ckan.common import config, request
 
@@ -13,7 +12,7 @@ def get_message_hash(value):
     if not secret:
         # avoid getting config value at module scope since config may
         # not be read in yet
-        secret = six.ensure_binary(config['beaker.session.secret'])
+        secret = (config['beaker.session.secret']).encode()
     return hmac.new(secret, value.encode('utf8'), hashlib.sha1).hexdigest()
 
 def get_redirect():
