@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from unittest import mock
 import pytest
 from ckan import logic, model
 import ckan.tests.factories as factories
@@ -46,3 +47,17 @@ def test_check_access_auth_user_obj_is_not_set_when_ignoring_auth():
     assert result
     assert "__auth_user_obj_checked" not in context
     assert context["auth_user_obj"] is None
+
+
+@mock.patch("ckan.authz.is_authorized")
+def test_user_inside_context_of_check_access(is_authorized: mock.Mock):
+    logic.check_access("site_read", {})
+    is_authorized.assert_called_once()
+    context = is_authorized.call_args[0][1]
+    assert context["user"] == ""
+
+    is_authorized.reset_mock()
+
+    logic.check_access("site_read", {"user": "test"})
+    context = is_authorized.call_args[0][1]
+    assert context["user"] == "test"
