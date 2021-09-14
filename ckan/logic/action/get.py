@@ -8,7 +8,7 @@ import json
 import datetime
 import socket
 
-from ckan.common import config, asbool
+from ckan.common import config, asbool, config_declaration
 import sqlalchemy
 from sqlalchemy import text
 
@@ -3560,5 +3560,4 @@ def api_token_list(context, data_dict):
 def config_declaration_show(context, data_dict):
     _check_access("config_declaration_show", context, data_dict)
 
-    declaration = Declaration.get_global()
-    return str(declaration)
+    return str(config_declaration)

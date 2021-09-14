@@ -23,9 +23,9 @@ import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
 from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
-from ckan.config import Declaration, Key
+from ckan.config import Key
 
-from ckan.common import _, ungettext, config
+from ckan.common import _, ungettext, config, config_declaration
 from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
@@ -234,9 +234,10 @@ def update_config():
     engine = sqlalchemy.engine_from_config(config)
     model.init_model(engine)
 
-    declaration = Declaration.set_global(Declaration())
+    config_declaration.reset()
+    config_declaration.load_core_declaration()
     for plugin in reversed(list(p.PluginImplementations(p.IConfigDeclarations))):
-        plugin.declare_config_options(declaration, Key())
+        plugin.declare_config_options(config_declaration, Key())
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)

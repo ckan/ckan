@@ -20,6 +20,7 @@ from flask_babel import (gettext as flask_ugettext,
 
 import simplejson as json
 import ckan.lib.maintain as maintain
+from ckan.config import Declaration
 
 current_app = flask.current_app
 
@@ -153,6 +154,9 @@ local(u'config')
 
 # Thread-local safe objects
 config = local.config = CKANConfig()
+
+local("config_declaration")
+config_declaration = local.config_declaration = Declaration()
 
 # Proxies to already thread-local safe objects
 request = CKANRequest(_get_request)

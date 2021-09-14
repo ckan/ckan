@@ -1,5 +1,6 @@
 import pytest
 from ckan.config import Key
+from ckan.config.utils import Details
 
 
 class TestKey:
@@ -68,3 +69,13 @@ class TestKey:
     ])
     def test_addition(self, left, right, expected):
         assert left + right == expected
+
+
+class TestDetails:
+    def test_default_value(self):
+        assert Details("def").has_default()
+        assert Details("").has_default()
+        assert Details(None).has_default()
+        assert Details(False).has_default()
+
+        assert not Details().has_default()

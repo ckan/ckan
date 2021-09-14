@@ -161,7 +161,6 @@ entry_points = {
     'ckan.system_plugins': [
         'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
-        'core_config_declaration = ckanext.core_config_declaration.plugin:CoreConfigDeclarationPlugin',
     ],
     'ckan.test_plugins': [
         'routes_plugin = tests.plugins.ckantestplugins:RoutesPlugin',

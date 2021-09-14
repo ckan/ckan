@@ -16,7 +16,7 @@ import uuid
 import string
 import secrets
 from ckan.cli import error_shout
-
+from ckan.common import config_declaration
 
 class CKANAlembicConfig(AlembicConfig):
     def get_template_directory(self):
@@ -140,7 +140,8 @@ def remove_code_examples(root: str):
 @generate.command(name=u'config',
                   short_help=u'Create a ckan.ini file.')
 @click.argument(u'output_path', nargs=1)
-def make_config(output_path):
+@click.option('-i', '--include-plugin', multiple=True)
+def make_config(output_path, include_plugin):
     u"""Generate a new CKAN configuration ini file."""
 
     # Output to current directory if no path is specified
@@ -155,12 +156,17 @@ def make_config(output_path):
         u'app_instance_secret': secrets.token_urlsafe(20)[:25]
     }
 
+    config_declaration.reset()
+    config_declaration.load_core_declaration()
+    for plugin in include_plugin:
+        config_declaration.load_plugin(plugin)
+    declaration = string.Template(str(config_declaration)).substitute(template_variables)
+
     with open(template_loc, u'r') as file_in:
         template = string.Template(file_in.read())
-
         try:
             with open(output_path, u'w') as file_out:
-                file_out.writelines(template.substitute(template_variables))
+                file_out.writelines(template.substitute({"declaration": declaration}))
 
         except IOError as e:
             error_shout(e)

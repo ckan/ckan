@@ -826,3 +826,19 @@ def config_declaration_show_schema(one_of, default):
     return {
         "format": [default("ini"), one_of(["ini"])],
     }
+
+
+@validator_args
+def config_declaration_v1(ignore_missing, unicode_safe, not_empty, default, boolean_validator):
+    from ckan.config import Key
+    return {
+        "items": {
+            "annotation": [ignore_missing, unicode_safe],
+            "details": {
+                "key": [not_empty, Key.from_string],
+                "default": [default("")],
+                "commented": [default(False), boolean_validator],
+                "description": [default(""), unicode_safe],
+            }
+        }
+    }
