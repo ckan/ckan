@@ -49,17 +49,37 @@ import ckan.lib.search as search
 
 from ckan.common import config
 
-register(factories.UserFactory)
-register(factories.ResourceFactory)
-register(factories.ResourceViewFactory)
-register(factories.SysadminFactory, "sysadmin")
-register(factories.GroupFactory)
-register(factories.OrganizationFactory, "organization")
-register(factories.PackageFactory)
-register(factories.VocabularyFactory)
-register(factories.ActivityFactory)
-register(factories.SystemInfoFactory)
-register(factories.MockUserFactory)
+@register
+class UserFactory(factories.User): ...
+
+@register
+class ResourceFactory(factories.Resource): ...
+
+@register
+class ResourceViewFactory(factories.ResourceView): ...
+
+@register
+class GroupFactory(factories.Group): ...
+
+@register
+class PackageFactory(factories.Dataset): ...
+
+@register
+class VocabularyFactory(factories.Vocabulary): ...
+
+@register
+class ActivityFactory(factories.Activity): ...
+
+@register
+class SystemInfoFactory(factories.SystemInfo): ...
+
+@register
+class APITokenFactory(factories.APIToken): ...
+
+
+register(factories.Sysadmin, "sysadmin")
+register(factories.Organization, "organization")
+
 
 @pytest.fixture
 def ckan_config(request, monkeypatch):

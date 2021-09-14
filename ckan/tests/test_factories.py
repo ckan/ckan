@@ -7,13 +7,13 @@ import ckan.tests.factories as factories
 @pytest.mark.parametrize(
     u"entity",
     [
-        factories.UserFactory,
-        factories.ResourceFactory,
-        factories.SysadminFactory,
-        factories.GroupFactory,
-        factories.OrganizationFactory,
-        factories.PackageFactory,
-        factories.MockUserFactory,
+        factories.User,
+        factories.Resource,
+        factories.Sysadmin,
+        factories.Group,
+        factories.Organization,
+        factories.Dataset,
+        factories.MockUser,
     ],
 )
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -25,14 +25,14 @@ def test_id_uniqueness(entity):
 # START-CONFIG-OVERRIDE
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_resource_view_factory(resource_view_factory):
-    resource_view1 = resource_view_factory()
-    resource_view2 = resource_view_factory()
+def test_resource_view_factory():
+    resource_view1 = factories.ResourceView()
+    resource_view2 = factories.ResourceView()
     assert resource_view1[u"id"] != resource_view2[u"id"]
 
 
 # END-CONFIG-OVERRIDE
 
-def test_dataset_factory_allows_creation_by_anonymous_user(package_factory):
-    dataset = package_factory(user=None)
+def test_dataset_factory_allows_creation_by_anonymous_user():
+    dataset = factories.Dataset(user=None)
     assert dataset[u"creator_user_id"] is None
