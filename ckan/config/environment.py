@@ -115,8 +115,8 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.reply_to': 'CKAN_SMTP_REPLY_TO',
     'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB',
     'ckan.activity_streams_enabled': 'CKAN_ACTIVITY_STREAMS_ENABLED',
-    'ckan.activity_streams_email_notifications': 
-            'CKAN_ACTIVITY_STREAMS_NOTIFIY'
+    'ckan.activity_streams_email_notifications':
+        'CKAN_ACTIVITY_STREAMS_NOTIFIY'
 }
 # End CONFIG_FROM_ENV_VARS
 
