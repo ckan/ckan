@@ -149,8 +149,8 @@ class TestUpdate(object):
 
         import ckan.model as model
 
-        updated_user = model.User.get(user["id"])
-        assert updated_user.validate_password(password)
+        updated_user = model.User.get(user_dict["id"])
+        assert updated_user.validate_password(original_password)
 
     def test_user_update_with_null_password(self):
         user = factories.User()
