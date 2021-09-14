@@ -98,8 +98,8 @@ For Windows and OSX, the `CKAN_SITE_URL` must be updated.
 To access CKAN from the Internet, you must choose a fully qualified domain name, and ensure
 it points to the machine where you are installing CKAN. Make sure to set `CKAN_DOMAIN` with the domain name.
 
-.. note:: If you do not provide a domain name, a self-signed certificate will be used
-for SSL.
+.. note:: If you do not provide a domain name, a self-signed certificate will be used for SSL.
+
 
 b. Build the images
 
@@ -525,6 +525,6 @@ A possible path towards a production-ready environment is:
 
 .. note:: When switching to a production environment, make sure to remove the `--dry-run`
   option from the [certbot](https://letsencrypt.org/docs/client-options/#recommended-certbot)
-  command in _/contrib/docker/cert/cert-request.sh_ that requests/renews Let's Encrypt certificates
+  command in `/contrib/docker/cert/cert-request.sh` that requests/renews Let's Encrypt certificates
   for the web frontend. Keep this option while developing for or experimenting with CKAN,
   to protect from exceeding Let's Encrypt 5 cert/week rate limit.
