@@ -41,7 +41,7 @@ import json
 import logging
 import os
 import os.path
-from codecs import open
+from io import open
 
 import six
 from babel import Locale
@@ -354,7 +354,7 @@ def _build_js_translation(lang, source_filenames, entries, dest_filename):
                     plural.append(msgstr)
     with open(dest_filename, u'w', encoding='utf-8') as f:
         s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
-        f.write(six.ensure_str(s))
+        f.write(s)
 
 
 def build_js_translations():
