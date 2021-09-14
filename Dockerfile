@@ -72,11 +72,13 @@ RUN ckan-pip3 install -U pip && \
     ckan-pip3 install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
     ckan-pip3 install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip3 install -e $CKAN_VENV/src/ckan/ && \
-    ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
-    ln -s $CKAN_VENV/src/ckan/contrib/docker/apache.wsgi $CKAN_CONFIG/apache.wsgi && \
+    ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \    
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
-    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
+    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+
+# Setup CKAN web frontend
+RUN ln -s $CKAN_VENV/src/ckan/contrib/docker/apache.wsgi $CKAN_CONFIG/apache.wsgi && \
     envsubst '${CKAN_DOMAIN}${CKAN_CONFIG}${CKAN_HOME}${CKAN_VENV}' < $CKAN_VENV/src/ckan/contrib/docker/apache.conf > /etc/apache2/sites-available/ckan.conf && \
     echo '' > /etc/apache2/ports.conf && \
     chown -R ckan:ckan /etc/apache2 /var/run/apache2 /var/log/apache2 /var/cache/apache2
