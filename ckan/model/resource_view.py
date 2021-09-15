@@ -34,6 +34,15 @@ class ResourceView(domain_object.DomainObject):
         return view
 
     @classmethod
+    def get_by_resource_id(cls, resource_id):
+        '''Returns a ResourceView object referenced by its resource id'''
+        if not resource_id:
+            return None
+
+        return meta.Session.query(cls).filter_by(resource_id=resource_id)\
+            .first()
+
+    @classmethod
     def get_columns(cls):
         return resource_view_table.columns.keys()
 

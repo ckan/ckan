@@ -855,6 +855,11 @@ def embedded_dataviewer(package_type, id, resource_id, width=500, height=500):
                 u'state (version %d)' % state_version
             )
         )
+    # Getting the view type
+    try:
+        resource_view = get_action('resource_view_show')(context, resource)
+    except NotFound:
+        return base.abort(404, _('Resource view not found'))
 
     recline_state = h.json.dumps(recline_state)
 
@@ -872,7 +877,7 @@ def embedded_dataviewer(package_type, id, resource_id, width=500, height=500):
     g.embedded = embedded
 
     return base.render(
-        u'package/resource_embedded_dataviewer.html', {
+        u'package/snippets/resource_view_embed.html', {
             u'dataset_type': dataset_type,
             u'resource': resource,
             u'package': package,
@@ -880,7 +885,8 @@ def embedded_dataviewer(package_type, id, resource_id, width=500, height=500):
             u'width': width,
             u'height': height,
             u'embedded': embedded,
-            u'recline_state': recline_state
+            u'recline_state': recline_state,
+            u'resource_view': resource_view
         }
     )
 
