@@ -20,6 +20,7 @@ from typing import (
 )
 
 import yaml
+from werkzeug.utils import import_string
 
 T = TypeVar("T")
 UnsetType = NewType("UnsetType", dict)
@@ -141,9 +142,9 @@ class Key:
         return Key(head.__path + tail.__path)
 
 
-class Details(Generic[T]):
+class Option(Generic[T]):
     default: DefaultType[T]
-    commented: bool = False
+    disabled: bool = False
     description: Optional[str] = None
 
     def __init__(self, default: DefaultType[T] = UNSET):
@@ -157,16 +158,16 @@ class Details(Generic[T]):
     def has_default(self):
         return self.default is not UNSET
 
-    def set_description(self, description: str):
-        self.description = description
-        return self
-
     def set_default(self, default: T):
         self.default = default
         return self
 
-    def comment(self):
-        self.commented = True
+    def set_description(self, description: str):
+        self.description = description
+        return self
+
+    def disable(self):
+        self.disabled = True
         return self
 
 
@@ -175,29 +176,72 @@ class Annotation(str):
 
 
 class Declaration:
-    _mapping: Dict[Key, Details[Any]]
+    _mapping: Dict[Key, Option[Any]]
     _order: List[Union[Key, Annotation, Any]]
+
+    def __init__(self):
+        self.reset()
+        self._loader = Loader(self)
+        self._serializer = Serializer(self)
 
     def reset(self):
         self._mapping = OrderedDict()
         self._order = []
 
     def load_core_declaration(self):
+        return self._loader.from_core_declaration()
+
+    def load_plugin(self, name: str):
+        return self._loader.from_plugin(name)
+
+    def load_dict(self, data: Dict[str, Any]):
+        self._loader.from_dict(data)
+
+    def into_ini(self):
+        return self._serializer.into_ini()
+
+    def __getitem__(self, key: Key) -> Option[Any]:
+        return self._mapping[key]
+
+    def declare(self, key: Key, default: DefaultType[T] = UNSET) -> Option[T]:
+        value = Option(default)
+        if key not in self._mapping:
+            self._order.append(key)
+
+        self._mapping[key] = value
+        return value
+
+    def annotate(self, annotation: str):
+        self._order.append(Annotation(annotation))
+
+
+class Loader:
+    def __init__(self, declaration: Declaration):
+        self.declaration = declaration
+
+    def from_core_declaration(self):
         source = pathlib.Path(__file__).parent / "config_declaration.yaml"
         with source.open("r") as stream:
             data = yaml.safe_load(stream)
-            self.load_dict(data)
+            self.from_dict(data)
 
-    def load_plugin(self, name: str):
+    def from_plugin(self, name: str):
+        from ckan.plugins import IConfigDeclarations, PluginNotFoundException
         from ckan.plugins.core import _get_service
 
-        plugin: Any = _get_service(name)
-        if not plugin:
+        try:
+            plugin: Any = _get_service(name)
+        except PluginNotFoundException:
             log.error("Plugin %s does not exists", name)
             return
-        plugin.declare_config_options(self, Key())
 
-    def load_dict(self, data: Dict[str, Any]):
+        if not IConfigDeclarations.implemented_by(type(plugin)):
+            log.error("Plugin %s does not declare config options", name)
+            return
+
+        plugin.declare_config_options(self.declaration, Key())
+
+    def from_dict(self, data: Dict[str, Any]):
         import ckan.logic.schema as schema
         from ckan.logic import ValidationError
         from ckan.lib.navl.dictization_functions import validate
@@ -206,32 +250,37 @@ class Declaration:
         if version == 1:
             data, errors = validate(data, schema.config_declaration_v1())
             if any(
-                details
+                options
                 for item in errors["items"]
-                for details in item["details"]
+                for options in item["options"]
             ):
                 raise ValidationError(errors)
             for group in data["items"]:
                 if "annotation" in group:
-                    self.annotate(group["annotation"])
-                for details in group["details"]:
-                    option = self.declare(details["key"], details["default"])
-                    if details["commented"]:
-                        option.comment()
-                    if details["description"]:
-                        option.set_description(details["description"])
+                    self.declaration.annotate(group["annotation"])
+                for option in group["options"]:
+                    item = self.declaration.declare(option["key"], option["default"])
 
-    def __init__(self):
-        self.reset()
+                    if option["disabled"]:
+                        item.disable()
 
-    def __getitem__(self, key: Key) -> Details[Any]:
-        return self._mapping[key]
+                    if option["description"]:
+                        item.set_description(option["description"])
 
-    def __str__(self):
+                    if option["default_callable"]:
+                        args = option.get("default_args", {})
+                        default = import_string(option["default_callable"])(**args)
+                        item.set_default(default)
+
+class Serializer:
+    def __init__(self, declaration: Declaration):
+        self.declaration = declaration
+
+    def into_ini(self):
         result = ""
-        for item in self._order:
+        for item in self.declaration._order:
             if isinstance(item, Key):
-                value = self._mapping[item]
+                value = self.declaration._mapping[item]
                 if value.description:
                     result += (
                         textwrap.fill(
@@ -243,7 +292,7 @@ class Declaration:
                     )
 
                 result += "{comment}{key} = {value}\n".format(
-                    comment="# " if value.commented else "",
+                    comment="# " if value.disabled else "",
                     key=item,
                     value=value,
                 )
@@ -257,14 +306,3 @@ class Declaration:
                 )
 
         return result
-
-    def declare(self, key: Key, default: DefaultType[T] = UNSET) -> Details[T]:
-        value = Details(default)
-        if key not in self._mapping:
-            self._order.append(key)
-
-        self._mapping[key] = value
-        return value
-
-    def annotate(self, annotation: str):
-        self._order.append(Annotation(annotation))

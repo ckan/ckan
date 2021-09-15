@@ -140,7 +140,8 @@ def remove_code_examples(root: str):
 @generate.command(name=u'config',
                   short_help=u'Create a ckan.ini file.')
 @click.argument(u'output_path', nargs=1)
-@click.option('-i', '--include-plugin', multiple=True)
+@click.option('-i', '--include-plugin', multiple=True,
+              help="Include config declaration from the given plugin")
 def make_config(output_path, include_plugin):
     u"""Generate a new CKAN configuration ini file."""
 
@@ -151,23 +152,18 @@ def make_config(output_path, include_plugin):
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     template_loc = os.path.join(cur_loc, u'..', u'config',
                                 u'deployment.ini_tmpl')
-    template_variables = {
-        u'app_instance_uuid': uuid.uuid4(),
-        u'app_instance_secret': secrets.token_urlsafe(20)[:25]
-    }
 
     config_declaration.reset()
     config_declaration.load_core_declaration()
     for plugin in include_plugin:
         config_declaration.load_plugin(plugin)
-    declaration = string.Template(str(config_declaration)).substitute(template_variables)
 
+    variables = {"declaration": config_declaration.into_ini()}
     with open(template_loc, u'r') as file_in:
         template = string.Template(file_in.read())
         try:
             with open(output_path, u'w') as file_out:
-                file_out.writelines(template.substitute({"declaration": declaration}))
-
+                file_out.writelines(template.substitute(variables))
         except IOError as e:
             error_shout(e)
             raise click.Abort()

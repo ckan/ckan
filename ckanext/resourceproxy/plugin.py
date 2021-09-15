@@ -92,4 +92,4 @@ class ResourceProxy(p.SingletonPlugin):
         declaration.declare(proxy.max_file_size, 1048576).set_description(
             "Preview size limit, default: 1MB")
         declaration.declare(proxy.chunk_size, 4096).set_description(
-            "Size of chunks to read/write.").comment()
+            "Size of chunks to read/write.").disable()

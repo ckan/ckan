@@ -826,7 +826,7 @@ class IConfigDeclarations(Interface):
             declaration.declare(group.enabled, "no").set_description(
                 "Enables feature"
             )
-            declaration.declare(group.mode, "simple").comment()
+            declaration.declare(group.mode, "simple").disable()
 
         Produces the following config suggestion::
 

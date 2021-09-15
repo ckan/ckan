@@ -1,37 +1,39 @@
 version: 1
 items:
   - annotation:
-    details:
+    options:
       - key: "use"
         default: "egg:ckan"
 
   - annotation: Development settings
-    details:
+    options:
       - key: ckan.devserver.host
         default: localhost
       - key: ckan.devserver.port
         default: 5000
 
   - annotation: Session settings
-    details:
+    options:
       - key: cache_dir
         default: "/tmp/%(ckan.site_id)s/"
       - key: beaker.session.key
         default: ckan
       - key: beaker.session.secret
-        default: "$app_instance_secret"
+        default_callable: "secrets:token_urlsafe"
+        default_args:
+          nbytes: 20
         description: >-
           This is the secret token that the beaker library uses to hash the
           cookie sent to the client. `ckan generate config` generates a unique
           value for this each time it generates a config file.
       - key: app_instance_uuid
-        default: "$app_instance_uuid"
+        default_callable: "uuid:uuid4"
         description: >-
           `ckan generate config` generates a unique value for this each time it
           generates a config file.
 
   - annotation: repoze.who settings
-    details:
+    options:
       - key: ckan.devserver.host
         default: localhost
       - key: ckan.devserver.port
@@ -46,22 +48,22 @@ items:
 
       - key: who.timeout
         default: 86400
-        commented: true
+        disabled: true
         description: >-
           Session timeout (user logged out after period of inactivity, in
           seconds). Inactive by default, so the session doesn't expire.
 
   - annotation: Database settings
-    details:
+    options:
       - key: sqlalchemy.url
         default: "postgresql://ckan_default:pass@localhost/ckan_default"
 
   - annotation: Site Settings
-    details:
+    options:
       - key: ckan.site_url
 
   - annotation: Authorization Settings
-    details:
+    options:
       - key: ckan.auth.anon_create_dataset
         default: "false"
       - key: ckan.auth.create_unowned_dataset
@@ -92,7 +94,7 @@ items:
         default: "false"
 
   - annotation: API Token Settings
-    details:
+    options:
       - key: api_token.nbytes
         default: 60
       - key: api_token.jwt.encode.secret
@@ -103,36 +105,36 @@ items:
         default: "HS256"
 
   - annotation: Search Settings
-    details:
+    options:
       - key: ckan.site_id
         default: "default"
       - key: solr_url
         default: "http://127.0.0.1:8983/solr"
-        commented: true
+        disabled: true
       - key: solr_timeout
         default: 60
 
   - annotation: Redis Settings
-    details:
+    options:
       - key: ckan.redis.url
         default: "redis://localhost:6379/0"
         description: URL to your Redis instance, including the database to be used.
 
   - annotation: CORS Settings
-    details:
+    options:
       - key: ckan.cors.origin_allow_all
         default: true
-        commented: true
+        disabled: true
         description: >-
           If cors.origin_allow_all is true, all origins are allowed.  If false,
           the cors.origin_whitelist is used.
       - key: ckan.cors.origin_whitelist
         default: "http://example1.com http://example2.com"
-        commented: true
+        disabled: true
         description: cors.origin_whitelist is a space separated list of allowed domains.
 
   - annotation: Plugins Settings
-    details:
+    options:
       - key: ckan.plugins
         default: "stats text_view image_view recline_view"
         description: |-
@@ -146,25 +148,25 @@ items:
           loaded in ckan.plugins)
 
   - annotation: Customize which text formats the text_view plugin will show
-    details:
+    options:
       - key: ckan.preview.json_formats
         default: "json"
-        commented: true
+        disabled: true
       - key: ckan.preview.xml_formats
         default: "xml rdf rdf+xml owl+xml atom rss"
-        commented: true
+        disabled: true
       - key: ckan.preview.text_formats
         default: "txt plain text/plain"
-        commented: true
+        disabled: true
 
       - key: ckan.preview.image_formats
         default: "png jpeg jpg gif"
-        commented: true
+        disabled: true
         description: >-
           Customize which image formats the image_view plugin will show
 
   - annotation: Front-End Settings
-    details:
+    options:
       - key: ckan.site_title
         default: "CKAN"
       - key: ckan.site_logo
@@ -183,27 +185,27 @@ items:
 
       - key: package_hide_extras
         default: "for_search_index_only"
-        commented: true
+        disabled: true
       - key: package_edit_return_url
         default: "http://another.frontend/dataset/<NAME>"
-        commented: true
+        disabled: true
       - key: package_new_return_url
         default: "http://another.frontend/dataset/<NAME>"
-        commented: true
+        disabled: true
 
       - key: ckan.recaptcha.publickey
-        commented: true
+        disabled: true
       - key: ckan.recaptcha.privatekey
-        commented: true
+        disabled: true
 
       - key: licenses_group_url
         default: "http://licenses.opendefinition.org/licenses/groups/ckan.json"
-        commented: true
+        disabled: true
       - key: ckan.template_footer_end
-        commented: true
+        disabled: true
 
   - annotation: Internationalisation Settings
-    details:
+    options:
       - key: ckan.locale_default
         default: "en"
       - key: ckan.locale_order
@@ -213,77 +215,77 @@ items:
         default: "en_GB"
 
   - annotation: Feeds Settings
-    details:
+    options:
       - key: ckan.feeds.authority_name
       - key: ckan.feeds.date
       - key: ckan.feeds.author_name
       - key: ckan.feeds.author_link
 
   - annotation: Storage Settings
-    details:
+    options:
       - key: ckan.storage_path
         default: "/var/lib/ckan"
-        commented: true
+        disabled: true
       - key: ckan.max_resource_size
         default: "10"
-        commented: true
+        disabled: true
       - key: ckan.max_image_size
         default: "2"
-        commented: true
+        disabled: true
 
   - annotation: Webassets Settings
-    details:
+    options:
       - key: ckan.webassets.use_x_sendfile
         default: "false"
-        commented: true
+        disabled: true
       - key: ckan.webassets.path
         default: "/var/lib/ckan/webassets"
-        commented: true
+        disabled: true
 
   - annotation: Activity Streams Settings
-    details:
+    options:
       - key: ckan.activity_streams_enabled
         default: "true"
-        commented: true
+        disabled: true
       - key: ckan.activity_list_limit
         default: "31"
-        commented: true
+        disabled: true
       - key: ckan.activity_streams_email_notifications
         default: "true"
-        commented: true
+        disabled: true
       - key: ckan.email_notifications_since
         default: "2 days"
-        commented: true
+        disabled: true
       - key: ckan.hide_activity_from_users
         default: "%(ckan.site_id)s"
 
   - annotation: Email settings
-    details:
+    options:
       - key: email_to
         default: "errors@example.com"
-        commented: true
+        disabled: true
       - key: error_email_from
         default: "ckan-errors@example.com"
-        commented: true
+        disabled: true
 
       - key: smtp.server
         default: "localhost"
-        commented: true
+        disabled: true
       - key: smtp.starttls
         default: "False"
-        commented: true
+        disabled: true
       - key: smtp.user
         default: "username@example.com"
-        commented: true
+        disabled: true
       - key: smtp.password
         default: "your_password"
-        commented: true
+        disabled: true
       - key: smtp.mail_from
-        commented: true
+        disabled: true
       - key: smtp.reply_to
-        commented: true
+        disabled: true
 
   - annotation: Background Job Settings
-    details:
+    options:
       - key: ckan.jobs.timeout
         default: 180
