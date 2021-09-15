@@ -57,45 +57,6 @@ class TestUpdate(object):
 
     # END-BEFORE
 
-    def test_user_generate_apikey(self):
-        user = factories.User()
-        context = {"user": user["name"]}
-        result = helpers.call_action(
-            "user_generate_apikey", context=context, id=user["id"]
-        )
-        updated_user = helpers.call_action(
-            "user_show", context=context, id=user["id"]
-        )
-
-        assert updated_user["apikey"] != user["apikey"]
-        assert result["apikey"] == updated_user["apikey"]
-
-    def test_user_generate_apikey_sysadmin_user(self):
-        user = factories.User()
-        sysadmin = factories.Sysadmin()
-        context = {"user": sysadmin["name"], "ignore_auth": False}
-        result = helpers.call_action(
-            "user_generate_apikey", context=context, id=user["id"]
-        )
-        updated_user = helpers.call_action(
-            "user_show", context=context, id=user["id"]
-        )
-
-        assert updated_user["apikey"] != user["apikey"]
-        assert result["apikey"] == updated_user["apikey"]
-
-    def test_user_generate_apikey_nonexistent_user(self):
-        user = {
-            "id": "nonexistent",
-            "name": "nonexistent",
-            "email": "does@notexist.com",
-        }
-        context = {"user": user["name"]}
-        with pytest.raises(logic.NotFound):
-            helpers.call_action(
-                "user_generate_apikey", context=context, id=user["id"]
-            )
-
     def test_user_update_with_id_that_does_not_exist(self):
         user_dict = factories.User()
         user_dict["id"] = "there's no user with this id"
@@ -338,43 +299,6 @@ class TestUpdate(object):
 
         updated_user = helpers.call_action("user_update", **params)
         assert "password" not in updated_user
-
-    def test_user_update_does_not_return_apikey(self):
-        """The user dict that user_update returns should not include the user's
-        API key."""
-
-        user = factories.User()
-        params = {
-            "id": user["id"],
-            "fullname": "updated full name",
-            "about": "updated about",
-            "email": user["email"],
-            "password": factories.User.password,
-        }
-
-        updated_user = helpers.call_action("user_update", **params)
-        assert "apikey" not in updated_user
-
-    def test_user_update_does_not_return_reset_key(self):
-        """The user dict that user_update returns should not include the user's
-        reset key."""
-
-        import ckan.lib.mailer
-        import ckan.model
-
-        user = factories.User()
-        ckan.lib.mailer.create_reset_key(ckan.model.User.get(user["id"]))
-
-        params = {
-            "id": user["id"],
-            "fullname": "updated full name",
-            "about": "updated about",
-            "email": user["email"],
-            "password": factories.User.password,
-        }
-
-        updated_user = helpers.call_action("user_update", **params)
-        assert "reset_key" not in updated_user
 
     def test_resource_reorder(self):
         resource_urls = ["http://a.html", "http://b.html", "http://c.html"]
