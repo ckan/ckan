@@ -14,6 +14,7 @@ from ckan.common import asbool, config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
+import ckan.lib.helpers as h
 
 from ckan.lib.search.common import (
     SearchIndexError, SearchError, SearchQueryError,
@@ -187,14 +188,7 @@ def rebuild(package_id=None, only_missing=False, force=False, defer_commit=False
             if clear:
                 package_index.clear()
 
-        total_packages = len(package_ids)
-        for counter, pkg_id in enumerate(package_ids):
-            if not quiet:
-                sys.stdout.write(
-                    "\rIndexing dataset {0}/{1}".format(
-                        counter +1, total_packages)
-                )
-                sys.stdout.flush()
+        for pkg_id in h.progressbar(package_ids, disable=quiet, desc='Indexing datasets', unit=' package'):
             try:
                 package_index.update_dict(
                     logic.get_action('package_show')(context,

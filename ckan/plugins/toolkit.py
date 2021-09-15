@@ -148,6 +148,8 @@ class _Toolkit(object):
         import enum
 
         import six
+        from tqdm import tqdm
+
         import ckan
         import ckan.logic as logic
 
@@ -306,6 +308,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
         t['redirect_to'] = h.redirect_to
         t['url_for'] = h.url_for
+        t['progressbar'] = h.progressbar
         t['get_or_bust'] = logic.get_or_bust
         t['side_effect_free'] = logic.side_effect_free
         t['auth_sysadmins_check'] = logic.auth_sysadmins_check

@@ -17,6 +17,7 @@ import copy
 import uuid
 import functools
 
+from tqdm import tqdm
 from collections import defaultdict
 
 import dominate.tags as dom_tags
@@ -2935,3 +2936,62 @@ def can_update_owner_org(package_dict, user_orgs=None):
         return True
 
     return False
+
+
+@core_helper
+def progressbar(*args, **kwargs):
+    """
+    Customisable progressbar decorator for iterators.
+    
+    This is a wrapper for `tqdm` library.
+
+    Usage::
+
+        for user in h.progressbar(users, desc='Notifying users', unit='user'):
+            mailer.mail_user(...)
+            # Do what you need in loop and progressbar will do the rest
+
+
+    :param n: Number of finished iterations
+    :type n: int or float
+
+    :param total: The expected total number of iterations. If meaningless (None), only basic progress statistics are displayed (no ETA)
+    :type total: int or float
+    
+    :param elapsed: Number of seconds passed since start
+    :type elapsed: float
+    
+    :param ncols: The width of the entire output message. If specified, dynamically resizes {bar} to stay within this bound [default: None]. If 0, will not print any bar (only stats). The fallback is {bar:10}
+    :type ncols: int, optional
+    
+    :param prefix: Prefix message (included in total width) [default: '']. Use as {desc} in bar_format string
+    :type prefix: str, optional
+    
+    :param ascii: If not set, use unicode (smooth blocks) to fill the meter [default: False]. The fallback is to use ASCII characters " 123456789#"
+    :type ascii: bool, optional or str, optional
+    
+    :param unit: The iteration unit [default: 'it'].
+    :type unit: str, optional
+    
+    :param unit_scale: If 1 or True, the number of iterations will be printed with an appropriate SI metric prefix (k = 10^3, M = 10^6, etc.) [default: False]. If any other non-zero number, will scale total and n
+    :type unit_scale: bool or int or float, optional
+    
+    :param rate: Manual override for iteration rate. If [default: None], uses n/elapsed
+    :type rate: float, optional
+    
+    :param bar_format: Specify a custom bar string formatting. May impact performance. [default: '{l_bar}{bar}{r_bar}'], where l_bar='{desc}: {percentage:3.0f}%|' and r_bar='| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, ' '{rate_fmt}{postfix}]' Possible vars: l_bar, bar, r_bar, n, n_fmt, total, total_fmt, percentage, elapsed, elapsed_s, ncols, nrows, desc, unit, rate, rate_fmt, rate_noinv, rate_noinv_fmt, rate_inv, rate_inv_fmt, postfix, unit_divisor, remaining, remaining_s, eta. Note that a trailing ": " is automatically removed after {desc} if the latter is empty
+    :type bar_format: str, optional
+    
+    :param postfix: Similar to prefix, but placed at the end (e.g. for additional stats). Note: postfix is usually a string (not a dict) for this method, and will if possible be set to postfix = ', ' + postfix. However other types are supported (382)
+    :type postfix: *, optional
+    
+    :param unit_divisor: [default: 1000], ignored unless unit_scale is True
+    :type unit_divisor: float, optional
+    
+    :param initial: The initial counter value [default: 0]
+    :type initial: int or float, optional
+    
+    :param colour: Bar colour (valid choices: [hex (#00ff00), BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE)
+    :type colour: str, optional
+    """
+    return tqdm(*args, **kwargs)
