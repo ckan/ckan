@@ -99,8 +99,10 @@ def resource_update(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
-    data_dict['url_type'] = resource.url_type
     pkg_dict['resources'][n] = data_dict
+    
+    if not 'url_type' in pkg_dict['resources'][n]:
+        pkg_dict['resources'][n]['url_type'] = resource.url_type
 
     try:
         context['use_cache'] = False
