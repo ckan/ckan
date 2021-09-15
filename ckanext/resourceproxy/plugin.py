@@ -8,7 +8,7 @@ import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
 from ckan.common import config
-
+from ckan.config import Declaration, Key
 from ckanext.resourceproxy import blueprint
 
 log = getLogger(__name__)
@@ -58,7 +58,7 @@ class ResourceProxy(p.SingletonPlugin):
     """
     p.implements(p.ITemplateHelpers, inherit=True)
     p.implements(p.IBlueprint)
-    p.implements(p.IConfigDeclarations)
+    p.implements(p.IConfigDeclaration)
 
     def get_blueprint(self):
         return blueprint.resource_proxy
@@ -85,11 +85,13 @@ class ResourceProxy(p.SingletonPlugin):
             data_dict, proxy_schemes=proxy_schemes
         )
 
-    def declare_config_options(self, declaration, option):
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, option: Key):
         proxy = option.ckan.resource_proxy
         declaration.annotate("Resource Proxy settings")
 
-        declaration.declare(proxy.max_file_size, 1048576).set_description(
+        declaration.declare_int(proxy.max_file_size, 1048576).set_description(
             "Preview size limit, default: 1MB")
-        declaration.declare(proxy.chunk_size, 4096).set_description(
+        declaration.declare_int(proxy.chunk_size, 4096).set_description(
             "Size of chunks to read/write.").disable()

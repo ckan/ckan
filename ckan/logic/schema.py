@@ -829,18 +829,29 @@ def config_declaration_show_schema(one_of, default):
 
 
 @validator_args
-def config_declaration_v1(ignore_missing, unicode_safe, not_empty, default, boolean_validator, dict_only):
-    from ckan.config import Key
+def config_declaration_v1(
+        ignore_missing, unicode_safe, not_empty, default, boolean_validator,
+        dict_only, one_of):
+    from ckan.config.utils import Key, option_types
+    def key_from_string(s):
+        return Key.from_string(s)
+
     return {
         "items": {
             "annotation": [ignore_missing, unicode_safe],
             "options": {
-                "key": [not_empty, Key.from_string],
+                "key": [not_empty, key_from_string],
                 "default": [default("")],
                 "default_callable": [default(None)],
                 "default_args": [ignore_missing, dict_only],
-                "disabled": [default(False), boolean_validator],
                 "description": [default(""), unicode_safe],
+                "validators": [default(""), unicode_safe],
+                "type": [default("base"), one_of(option_types)],
+
+                "disabled": [default(False), boolean_validator],
+                "ignored": [default(False), boolean_validator],
+                "experimental": [default(False), boolean_validator],
+                "internal": [default(False), boolean_validator],
             }
         }
     }

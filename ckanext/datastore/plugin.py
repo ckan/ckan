@@ -5,6 +5,7 @@ import logging
 import ckan.plugins as p
 import ckan.logic as logic
 from ckan.model.core import State
+from ckan.config import Declaration, Key
 
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.logic.action as action
@@ -28,7 +29,7 @@ ValidationError = p.toolkit.ValidationError
 
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
-    p.implements(p.IConfigDeclarations, inherit=True)
+    p.implements(p.IConfigDeclaration)
     p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
@@ -79,17 +80,21 @@ class DatastorePlugin(p.SingletonPlugin):
         self.config = config
         self.backend.configure(config)
 
-    # IConfigDeclarations
+    # IConfigDeclaration
 
-    def declare_config_options(self, declaration, option):
-        section = option.ckan.datastore
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        section = key.ckan.datastore
+        not_empty = p.toolkit.get_validator("not_empty")
+
         declaration.annotate("Datastore settings")
         declaration.declare(
             section.write_url,
-            "postgresql://ckan_default:pass@localhost/datastore_default")
+            "postgresql://ckan_default:pass@localhost/datastore_default"
+        ).set_validators([not_empty])
         declaration.declare(
             section.read_url,
-            "postgresql://datastore_default:pass@localhost/datastore_default")
+            "postgresql://datastore_default:pass@localhost/datastore_default"
+        ).set_validators([not_empty])
 
         declaration.annotate("PostgreSQL' full-text search parameters")
         declaration.declare(section.default_fts_lang, "english")

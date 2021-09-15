@@ -236,8 +236,9 @@ def update_config():
 
     config_declaration.reset()
     config_declaration.load_core_declaration()
-    for plugin in reversed(list(p.PluginImplementations(p.IConfigDeclarations))):
+    for plugin in reversed(list(p.PluginImplementations(p.IConfigDeclaration))):
         plugin.declare_config_options(config_declaration, Key())
+    config_declaration.seal()
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)

@@ -21,7 +21,7 @@ __all__ = [
     u'IPackageController',
     u'IPluginObserver',
     u'IConfigurable',
-    u'IConfigDeclarations',
+    u'IConfigDeclaration',
     u'IConfigurer',
     u'IActions',
     u'IResourceUrlChange',
@@ -806,7 +806,7 @@ class IConfigurable(Interface):
         return
 
 
-class IConfigDeclarations(Interface):
+class IConfigDeclaration(Interface):
     """Register additional configuration options.
 
     While it's not necessary, declared config options can be printed out using

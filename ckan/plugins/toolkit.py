@@ -333,7 +333,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['enqueue_job'] = enqueue_job
         t['blanket'] = blanket
         t['signals'] = signals
-        t['key'] = Key
+        t['key'] = Key()
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
