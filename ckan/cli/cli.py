@@ -70,8 +70,9 @@ class ExtendableGroup(click.Group):
         # manually.
         if not ctx.obj:
             _add_service_commands(ctx)
-            _add_ctx_object(ctx)
-            _add_external_commands(ctx)
+            if not ctx.meta.get("no_config"):
+                _add_ctx_object(ctx)
+                _add_external_commands(ctx)
 
         commands = []
         ext_commands = defaultdict(lambda: defaultdict(list))
@@ -123,6 +124,7 @@ def _set_no_config(ctx, param, value):
 
 
 def _init_ckan_config(ctx, param, value):
+    _remove_stale_commands(ctx)
     _add_service_commands(ctx)
 
     if ctx.meta["no_config"]:
@@ -146,6 +148,8 @@ def _add_ctx_object(ctx, path=None):
 
     ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
 
+
+def _remove_stale_commands(ctx):
     # Remove all commands that were registered by extensions before
     # adding new ones. Such situation is possible only during tests,
     # because we are using singleton as main entry point, so it
@@ -153,6 +157,7 @@ def _add_ctx_object(ctx, path=None):
     for key, cmd in list(ctx.command.commands.items()):
         if hasattr(cmd, META_ATTR):
             ctx.command.commands.pop(key)
+
 
 
 def _add_service_commands(ctx):
