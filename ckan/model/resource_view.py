@@ -26,7 +26,8 @@ resource_view_table = sa.Table(
 class ResourceView(domain_object.DomainObject):
     @classmethod
     def get(cls, reference):
-        '''Returns a ResourceView object referenced by its id or resource_id.'''
+        '''Returns a ResourceView object referenced
+             by its id or resource_id.'''
         if not reference:
             return None
 
