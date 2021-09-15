@@ -99,6 +99,7 @@ def resource_update(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
+    data_dict['url_type'] = resource.url_type
     pkg_dict['resources'][n] = data_dict
 
     try:
