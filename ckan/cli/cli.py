@@ -69,6 +69,7 @@ class ExtendableGroup(click.Group):
         # provided, except for `--help`. In this case it has to be done
         # manually.
         if not ctx.obj:
+            _add_service_commands(ctx)
             _add_ctx_object(ctx)
             _add_external_commands(ctx)
 
@@ -117,9 +118,18 @@ class ExtendableGroup(click.Group):
         return result
 
 
+def _set_no_config(ctx, param, value):
+    ctx.meta["no_config"] = value
+
+
 def _init_ckan_config(ctx, param, value):
+    _add_service_commands(ctx)
+
+    if ctx.meta["no_config"]:
+        return
     if any(sys.argv[1:len(cmd) + 1] == cmd for cmd in _no_config_commands):
         return
+
     _add_ctx_object(ctx, value)
     _add_external_commands(ctx)
 
@@ -145,10 +155,12 @@ def _add_ctx_object(ctx, path=None):
             ctx.command.commands.pop(key)
 
 
-def _add_external_commands(ctx):
+def _add_service_commands(ctx):
     for cmd in _get_commands_from_entry_point():
         ctx.command.add_command(cmd)
 
+
+def _add_external_commands(ctx):
     plugins = p.PluginImplementations(p.IClick)
     for cmd in _get_commands_from_plugins(plugins):
         ctx.command.add_command(cmd)
@@ -196,6 +208,12 @@ def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
 
 
 @click.group(cls=ExtendableGroup)
+@click.option('-C', '--no-config',
+              is_eager=True, is_flag=True, expose_value=False,
+              callback=_set_no_config,
+              help='Skip configuration parsing.'
+              ' Must be used only for commands that do not require'
+              ' initialized CKAN application and do not read config options')
 @click.option(u'-c', u'--config', metavar=u'CONFIG',
               is_eager=True, callback=_init_ckan_config, expose_value=False,
               help=u'Config file to use (default: ckan.ini)')
