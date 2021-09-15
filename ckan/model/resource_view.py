@@ -5,6 +5,7 @@ import sqlalchemy as sa
 from ckan.model import meta
 from ckan.model import types as _types
 from ckan.model import domain_object
+from sqlalchemy.sql.expression import or_
 
 __all__ = ['ResourceView', 'resource_view_table']
 
@@ -25,22 +26,15 @@ resource_view_table = sa.Table(
 class ResourceView(domain_object.DomainObject):
     @classmethod
     def get(cls, reference):
-        '''Returns a ResourceView object referenced by its id.'''
+        '''Returns a ResourceView object referenced by its id or resource_id.'''
         if not reference:
             return None
 
-        view = meta.Session.query(cls).get(reference)
-
-        return view
-
-    @classmethod
-    def get_by_resource_id(cls, resource_id):
-        '''Returns a ResourceView object referenced by its resource id'''
-        if not resource_id:
-            return None
-
-        return meta.Session.query(cls).filter_by(resource_id=resource_id)\
-            .first()
+        query = meta.Session.query(cls).autoflush(False)
+        query = query.filter(
+            or_(cls.id == reference, cls.resource_id == reference)
+        )
+        return query.first()
 
     @classmethod
     def get_columns(cls):

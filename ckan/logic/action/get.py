@@ -1090,8 +1090,7 @@ def resource_view_show(context, data_dict):
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
-    resource_view = model.ResourceView.get(id) or model.ResourceView.\
-        get_by_resource_id(id)
+    resource_view = model.ResourceView.get(id)
     if not resource_view:
         _check_access('resource_view_show', context, data_dict)
         raise NotFound
