@@ -156,12 +156,12 @@ def make_config(output_path):
         u'ckan_site_url': os.environ['CKAN_SITE_URL'],
         u'ckan_site_title':
             os.environ['CKAN_SITE_TITLE']
-                if os.environ['CKAN_SITE_TITLE']
-                else 'CKAN',
+            if os.environ['CKAN_SITE_TITLE']
+            else 'CKAN',
         u'ckan_site_description':
             os.environ['CKAN_SITE_DESC']
-                if os.environ['CKAN_SITE_DESC']
-                else ''
+            if os.environ['CKAN_SITE_DESC']
+            else ''
     }
 
     with open(template_loc, u'r') as file_in:
