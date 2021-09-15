@@ -50,4 +50,4 @@ class TestFlaskIBlueprint(object):
         params is should be accessible for backward compatibility
         """
         res = app.get(u"/flask_request?test=it_works")
-        assert helpers.body_contains(res, 'it_works')
+        assert helpers.body_contains(res, u'it_works')

@@ -271,8 +271,8 @@ class Worker(rq.Worker):
         # The original implementation performs the actual fork
         queue = remove_queue_name_prefix(job.origin)
 
-        if job.meta.get('title'):
-            job_id = '{} ({})'.format(job.id, job.meta['title'])
+        if job.meta.get(u'title'):
+            job_id = u'{} ({})'.format(job.id, job.meta['title'])
         else:
             job_id = job.id
 

@@ -241,7 +241,7 @@ def list_tokens(username):
                     accessed.day,
                     accessed.hour,
                     accessed.minute,
-                    accessed.second).isoformat(" ")
+                    accessed.second).isoformat(u" ")
             else:
                 accessed = accessed.isoformat(u" ", u"seconds")
 

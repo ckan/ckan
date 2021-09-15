@@ -185,8 +185,8 @@ def migrate_db_for():
     """
     from ckan.cli.db import _run_migrations
 
-    def runner(plugin, version="head", forward=True):
-        assert plugin, "Cannot apply migrations of unknown plugin"
+    def runner(plugin, version=u"head", forward=True):
+        assert plugin, u"Cannot apply migrations of unknown plugin"
         _run_migrations(plugin, version, forward)
 
     return runner
