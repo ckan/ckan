@@ -9,7 +9,7 @@ import xml.dom.minidom
 
 import requests
 
-from ckan.common import asbool, config
+from ckan.common import asbool, asint, config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
@@ -27,6 +27,7 @@ from ckan.lib.search.query import (
 
 log = logging.getLogger(__name__)
 
+TIMEOUT = asint(config.get('ckan.requests.timeout', 10))
 
 def text_traceback():
     with warnings.catch_warnings():
@@ -265,9 +266,11 @@ def _get_schema_from_solr(file_offset):
 
     if http_auth:
         response = requests.get(
-            url, headers={'Authorization': http_auth})
+            url,
+            timeout=TIMEOUT,
+            headers={'Authorization': http_auth})
     else:
-        response = requests.get(url)
+        response = requests.get(url, timeout=TIMEOUT)
 
     return response
 
