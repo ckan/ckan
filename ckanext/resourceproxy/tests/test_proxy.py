@@ -69,7 +69,7 @@ class TestProxyPrettyfied(object):
             body=six.ensure_binary(JSON_STRING))
 
         url = self.data_dict['resource']['url']
-        result = requests.get(url)
+        result = requests.get(url, timeout=30)
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in six.ensure_str(result.content)
 
@@ -82,7 +82,7 @@ class TestProxyPrettyfied(object):
             status=404)
 
         url = self.data_dict['resource']['url']
-        result = requests.get(url)
+        result = requests.get(url, timeout=30)
         assert result.status_code == 404, result.status_code
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
@@ -133,7 +133,7 @@ class TestProxyPrettyfied(object):
 
         def f1():
             url = self.data_dict['resource']['url']
-            requests.get(url)
+            requests.get(url, timeout=30)
 
         with pytest.raises(requests.ConnectionError):
             f1()

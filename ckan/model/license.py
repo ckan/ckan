@@ -6,7 +6,7 @@ import logging
 import requests
 
 from ckan.common import config
-from ckan.common import asbool
+from ckan.common import asbool, asint
 import six
 
 from ckan.common import _, json
@@ -14,6 +14,7 @@ import ckan.lib.maintain as maintain
 
 log = logging.getLogger(__name__)
 
+TIMEOUT = asint(config.get('ckan.requests.timeout', 10))
 
 class License(object):
     """Domain object for a license."""
@@ -125,7 +126,7 @@ class LicenseRegister(object):
                 with open(license_url.replace('file://', ''), 'r') as f:
                     license_data = json.load(f)
             else:
-                response = requests.get(license_url)
+                response = requests.get(license_url, timeout=TIMEOUT)
                 license_data = response.json()
         except requests.RequestException as e:
             msg = "Couldn't get the licenses file {}: {}".format(license_url, e)

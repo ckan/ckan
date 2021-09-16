@@ -10,7 +10,7 @@ import xml.dom.minidom
 
 import requests
 
-from ckan.common import asbool, config
+from ckan.common import asbool, asint, config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
@@ -28,6 +28,7 @@ from ckan.lib.search.query import (
 
 log = logging.getLogger(__name__)
 
+TIMEOUT = asint(config.get('ckan.requests.timeout', 10))
 
 def text_traceback():
     with warnings.catch_warnings():
@@ -261,9 +262,11 @@ def _get_schema_from_solr(file_offset):
 
     if solr_user is not None and solr_password is not None:
         response = requests.get(
-            url, auth=requests.auth.HTTPBasicAuth(solr_user, solr_password))
+            url,
+            timeout=TIMEOUT,
+            auth=requests.auth.HTTPBasicAuth(solr_user, solr_password))
     else:
-        response = requests.get(url)
+        response = requests.get(url, timeout=TIMEOUT)
 
     return response
 
