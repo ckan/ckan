@@ -14,13 +14,15 @@ import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
-from ckan.common import config
+from ckan.common import config, asint
 import ckanext.datapusher.logic.schema as dpschema
 import ckanext.datapusher.interfaces as interfaces
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
+
+TIMEOUT = asint(config.get('ckan.requests.timeout', 10))
 
 
 def datapusher_submit(context, data_dict):
@@ -127,6 +129,7 @@ def datapusher_submit(context, data_dict):
             headers={
                 'Content-Type': 'application/json'
             },
+            timeout=TIMEOUT,
             data=json.dumps({
                 'api_key': user['apikey'],
                 'job_type': 'push_to_datastore',
@@ -291,8 +294,10 @@ def datapusher_status(context, data_dict):
     if job_id:
         url = urlparse.urljoin(datapusher_url, 'job' + '/' + job_id)
         try:
-            r = requests.get(url, headers={'Content-Type': 'application/json',
-                                           'Authorization': job_key})
+            r = requests.get(url,
+                             timeout=TIMEOUT,
+                             headers={'Content-Type': 'application/json',
+                                      'Authorization': job_key})
             r.raise_for_status()
             job_detail = r.json()
             for log in job_detail['logs']:
