@@ -522,21 +522,17 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
     @classmethod
     def _get_endpoint(cls):
-        """Returns tuple in format: (controller|blueprint, action|view).
-        """
-        import ckan.common as common
-        try:
-            # CKAN >= 2.8
-            endpoint = tuple(common.request.endpoint.split('.'))
-        except AttributeError:
-            try:
-                return common.c.controller, common.c.action
-            except AttributeError:
-                return (None, None)
+        """Returns tuple in format: (blueprint, view)."""
+        from ckan.common import request
+
+        if not request:
+            return None, None
+
+        blueprint, *rest = tuple(request.endpoint.split(".", 1))
         # service routes, like `static`
-        if len(endpoint) == 1:
-            return endpoint + ('index', )
-        return endpoint
+        if not rest:
+            rest = ("index",)
+        return blueprint, rest[0]
 
     def __getattr__(self, name):
         ''' return the function/object requested '''

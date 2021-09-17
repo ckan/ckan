@@ -1947,16 +1947,25 @@ def follow_count(obj_type, obj_id):
     return logic.get_action(action)(context, {'id': obj_id})
 
 
-def _create_url_with_params(params=None, controller=None, action=None,
-                            extras=None):
-    ''' internal function for building urls with parameters. '''
+def _create_url_with_params(
+    params=None, controller=None, action=None, extras=None
+):
+    """internal function for building urls with parameters."""
+    if extras is None:
+        if not controller and not action:
+            # it's an url for the current page. Let's keep all interlal params,
+            # like <package_type>
+            extras = dict(request.view_args)
+        else:
+            extras = {}
+
+    blueprint, view = p.toolkit.get_endpoint()
     if not controller:
-        controller = getattr(c, 'controller', False) or request.blueprint
+        controller = getattr(g, "controller", blueprint)
     if not action:
-        action = getattr(c, 'action', False) or p.toolkit.get_endpoint()[1]
-    if not extras:
-        extras = {}
-    endpoint = controller + '.' + action
+        action = getattr(g, "action", view)
+
+    endpoint = controller + "." + action
     url = url_for(endpoint, **extras)
     return _url_with_params(url, params)
 
