@@ -837,7 +837,7 @@ def config_declaration_v1(
         return Key.from_string(s)
 
     return {
-        "items": {
+        "groups": {
             "annotation": [ignore_missing, unicode_safe],
             "options": {
                 "key": [not_empty, key_from_string],

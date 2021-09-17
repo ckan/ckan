@@ -1,6 +1,5 @@
-
 version: 1
-items:
+groups:
   - annotation: ~
     options:
       - key: __file__
@@ -88,7 +87,14 @@ items:
         internal: true
       - key: USE_X_SENDFILE
         internal: true
-
+      - key: DEBUG_TB_HOSTS
+        internal: true
+      - key: DEBUG_TB_ENABLED
+        internal: true
+      - key: DEBUG_TB_INTERCEPT_REDIRECTS
+        internal: true
+      - key: DEBUG_TB_PANELS
+        internal: true
   - annotation: ~
     options:
       - key: use
@@ -120,11 +126,6 @@ items:
           This is the secret token that the beaker library uses to hash the
           cookie sent to the client. `ckan generate config` generates a unique
           value for this each time it generates a config file.
-      - key: app_instance_uuid
-        default_callable: "uuid:uuid4"
-        description: >-
-          `ckan generate config` generates a unique value for this each time it
-          generates a config file.
 
   - annotation: repoze.who settings
     options:

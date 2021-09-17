@@ -171,7 +171,6 @@ class DatapusherPlugin(p.SingletonPlugin):
     def declare_config_options(self, declaration: Declaration, key: Key):
         datapusher = key.ckan.datapusher
         declaration.annotate("Datapusher settings")
-        declaration.declare(datapusher.url, "ckan.datapusher.url")
         declaration.declare(
             datapusher.formats,
             "csv xls xlsx tsv application/csv application/vnd.ms-excel "

@@ -2,6 +2,7 @@
 
 import fnmatch
 import enum
+from io import StringIO
 import textwrap
 import pathlib
 import logging
@@ -320,6 +321,9 @@ class Declaration:
     def into_schema(self):
         return self._serializer.into_schema()
 
+    def into_declaration(self, fmt: str):
+        return self._serializer.into_declaration(fmt)
+
     def declare(self, key: Key, default: DefaultType[T] = UNSET) -> Option[T]:
         if self._sealed:
             raise TypeError("Sealed declaration cannot be updated")
@@ -400,11 +404,11 @@ class Loader:
             data, errors = validate(data, schema.config_declaration_v1())
             if any(
                 options
-                for item in errors["items"]
+                for item in errors["groups"]
                 for options in item["options"]
             ):
                 raise ValidationError(errors)
-            for group in data["items"]:
+            for group in data["groups"]:
                 if "annotation" in group:
                     self.declaration.annotate(group["annotation"])
                 for details in group["options"]:
@@ -487,6 +491,127 @@ class Serializer:
             schema[str(key)] = option.get_validators()
 
         return schema
+
+    def into_declaration(self, fmt: str, exclude = Flag.internal | Flag.ignored | Flag.experimental) -> str:
+
+        if fmt == "python":
+            describer = PythonDescriber()
+        elif fmt == "json":
+            describer = JsonDescriber()
+        elif fmt == "yaml":
+            describer = YamlDescriber()
+        elif fmt == "toml":
+            describer = TomlDescriber()
+        elif fmt == "dict":
+            describer = DictDescriber()
+        else:
+            raise TypeError(f"Cannot generate {fmt} annotation")
+
+        for item in self.declaration._order:
+            if isinstance(item, Annotation):
+                describer.annotate(item)
+            elif isinstance(item, Key):
+                option = self.declaration._mapping[item]
+                if option._has_flag(exclude):
+                    continue
+                describer.add_option(item, option)
+        return describer.finalize()
+
+
+class DictDescriber():
+    def __init__(self):
+        self.data = {"version": 1, "groups": []}
+        self.current_listing = None
+
+    def _add_group(self, annotation: Optional[str] = None):
+        listing = []
+        self.data["groups"].append({
+            "annotation": annotation,
+            "options": listing
+        })
+        self.current_listing = listing
+
+    def finalize(self):
+        import pprint
+        return pprint.pformat(self.data)
+
+    def annotate(self, annotation: str):
+        self._add_group(str(annotation))
+
+    def add_option(self, key: Key, option: Option):
+        if self.current_listing is None:
+            self._add_group()
+        data: Dict[str, Any] = {
+            "key": str(key),
+        }
+        if option.has_default():
+            data["default"] = option.default
+
+        validators = option.get_validators()
+        if validators:
+            data["validators"] = " ".join(v.__name__ for v in validators)
+
+        if option._has_flag(Flag.disabled):
+            data["disabled"] = True
+        if option._has_flag(Flag.ignored):
+            data["ignored"] = True
+        if option._has_flag(Flag.internal):
+            data["internal"] = True
+        if option._has_flag(Flag.experimental):
+            data["experimental"] = True
+        if option.description:
+            data["description"] = option.description
+
+        self.current_listing.append(data)
+
+
+class TomlDescriber(DictDescriber):
+    def finalize(self):
+        import toml
+        return toml.dumps(self.data)
+
+
+class JsonDescriber(DictDescriber):
+    def finalize(self):
+        import json
+        return json.dumps(self.data)
+
+class YamlDescriber(DictDescriber):
+    def finalize(self):
+        import yaml
+        return yaml.safe_dump(self.data)
+
+class PythonDescriber():
+    def __init__(self):
+        self.output = StringIO()
+
+    def finalize(self):
+        return self.output.getvalue()
+
+    def annotate(self, annotation: str):
+        self.output.write(f"\ndeclaration.annotate({repr(annotation)})\n")
+
+    def add_option(self, key: Key, option: Option):
+        default = option.default if option.has_default() else str(option)
+        self.output.write(f"declaration.declare(key.{key}, {repr(default)})")
+        if option._has_flag(Flag.disabled):
+            self.output.write(".disable()")
+        if option._has_flag(Flag.ignored):
+            self.output.write(".ignore()")
+        if option._has_flag(Flag.internal):
+            self.output.write(".internal()")
+        if option._has_flag(Flag.experimental):
+            self.output.write(".experimental()")
+        if option.description:
+            self.output.write(f".set_description({repr(option.description)})")
+
+        validators = option.get_validators()
+        if validators:
+            validators_str = " ".join(v.__name__ for v in validators)
+            self.output.write(f".set_validators([{validators_str})]")
+
+        self.output.write("\n")
+
 
 
 # taken from ckanext-scheming
