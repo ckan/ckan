@@ -528,11 +528,10 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         if not request:
             return None, None
 
-        blueprint, *rest = tuple(request.endpoint.split(".", 1))
+        blueprint, *rest = request.endpoint.split(".", 1)
         # service routes, like `static`
-        if not rest:
-            rest = ("index",)
-        return blueprint, rest[0]
+        view = rest[0] if rest else "index"
+        return blueprint, view
 
     def __getattr__(self, name):
         ''' return the function/object requested '''
