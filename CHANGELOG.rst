@@ -7,6 +7,17 @@ qq.. This tocdepth stops Sphinx from putting every subsection title in this file
 Changelog
 ---------
 
+v.2.7.12 2021-09-22
+===================
+
+Fixes:
+
+* Fix tracking.js module preventing links to be opened in new tabs (`#6384 <https://github.com/ckan/ckan/pull/6088>`_)
+* Fix deleted org/group feeds (`#6367 <https://github.com/ckan/ckan/pull/6088>`_)
+* Fix runaway preview height (`#6283 <https://github.com/ckan/ckan/pull/6088>`_)
+* Fix unreliable ordering of DataStore results (`#2317 <https://github.com/ckan/ckan/pull/6088>`_)
+
+
 v.2.7.11 2021-05-19
 ===================
 
