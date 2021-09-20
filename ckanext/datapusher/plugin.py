@@ -10,7 +10,7 @@ import ckanext.datapusher.views as views
 import ckanext.datapusher.helpers as helpers
 import ckanext.datapusher.logic.action as action
 import ckanext.datapusher.logic.auth as auth
-from ckan.config import Declaration, Key
+from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust

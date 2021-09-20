@@ -1,5 +1,6 @@
 version: 1
 groups:
+  # Internal options, that are used/computed by CKAN in runtime
   - annotation: ~
     options:
       - key: __file__
@@ -14,7 +15,14 @@ groups:
         ignored: true
       - key: ckan.host
         ignored: true
+      - key: ckanext.stats.cache_enabled
+        ignored: true
+        type: bool
+      - key: testing
+        ignored: true
+        type: bool
 
+  # Flask configuration options
   - annotation: ~
     options:
       - key: APPLICATION_ROOT
@@ -95,13 +103,19 @@ groups:
         internal: true
       - key: DEBUG_TB_PANELS
         internal: true
+
+  # Global modifiers
   - annotation: ~
     options:
       - key: use
         default: egg:ckan
       - key: debug
         type: bool
-      - key: strict
+      - key: config.safe
+        type: bool
+      - key: config.strict
+        type: bool
+      - key: config.normalized
         type: bool
 
   - annotation: Development settings
@@ -197,6 +211,9 @@ groups:
 
   - annotation: API Token Settings
     options:
+      - key: apikey_header_name
+        default: X-CKAN-API-Key
+        disabled: true
       - key: api_token.nbytes
         type: int
         default: 60
@@ -219,6 +236,10 @@ groups:
         disabled: true
         type: int
         default: 60
+      - key: ckan.datasets_per_page
+        disabled: true
+        type: int
+        default: 20
 
   - annotation: Redis Settings
     options:
@@ -301,6 +322,8 @@ groups:
         disabled: true
       - key: extra_template_paths
         disabled: true
+      - key: ckan.template_head_end
+        disabled: true
       - key: ckan.template_footer_end
         disabled: true
       - key: ckan.homepage_style
@@ -315,9 +338,23 @@ groups:
         disabled: true
       - key: ckan.site_intro_text
         disabled: true
+      - key: ckan.legacy_templates
+        ignored: true
 
+  # Not sure where these options must be stored
   - annotation: ~
     options:
+      - key: licenses_group_url
+        default: http://licenses.opendefinition.org/licenses/groups/ckan.json
+        disabled: true
+      - key: ckan.cache_enabled
+        disabled: true
+        type: bool
+      - key: ckan.tracking_enabled
+        disabled: true
+        type: bool
+      - key: ckan.extra_resource_fields
+        disabled: true
       - key: package_hide_extras
         default: for_search_index_only
         disabled: true
@@ -333,12 +370,6 @@ groups:
       - key: ckan.recaptcha.publickey
         disabled: true
       - key: ckan.recaptcha.privatekey
-        disabled: true
-
-  - annotation: ~
-    options:
-      - key: licenses_group_url
-        default: http://licenses.opendefinition.org/licenses/groups/ckan.json
         disabled: true
 
   - annotation: Internationalisation Settings

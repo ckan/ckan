@@ -8,7 +8,7 @@ import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
 from ckan.common import config
-from ckan.config import Declaration, Key
+from ckan.config.declaration import Declaration, Key
 from ckanext.resourceproxy import blueprint
 
 log = getLogger(__name__)

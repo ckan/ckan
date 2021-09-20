@@ -5,7 +5,7 @@ import itertools
 from typing import Iterable, Tuple
 import click
 
-from ckan.config.utils import Declaration, Flag
+from ckan.config.declaration import Declaration, Flag
 from ckan.common import config as cfg
 import ckan.lib.navl.dictization_functions as df
 
@@ -35,7 +35,7 @@ def describe(plugins: Tuple[str, ...], core: bool, enabled: bool, fmt: str):
     """Print out config declaration for the given plugins."""
     decl = _declaration(plugins, core, enabled)
     if decl:
-        click.echo(decl.into_declaration(fmt))
+        click.echo(decl.describe(fmt))
 
 
 @config.command()
@@ -79,8 +79,9 @@ def undeclared(plugins: Tuple[str, ...]):
     """
     decl = _declaration(plugins, True, True)
 
-    declared = set(decl.iter_options(exclude=Flag(0)))
+    declared = set(decl.iter_options(exclude=Flag.none()))
     available = set(cfg)
+
     for key in available - declared:
         click.echo(key)
 
@@ -88,9 +89,11 @@ def undeclared(plugins: Tuple[str, ...]):
 @config.command()
 @click.option("-i", "--include-plugin", "plugins", multiple=True)
 def validate(plugins: Tuple[str, ...]):
+    """Validate global configuration object against declaration.
+    """
     decl = _declaration(plugins, True, True)
-    schema = decl.into_schema()
-    _, errors = df.validate(cfg.copy(), schema)
+    _, errors = decl._validate(cfg.copy())
+
     for name, errors in errors.items():
         click.secho(name, bold=True)
         for error in errors:

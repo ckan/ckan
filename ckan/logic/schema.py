@@ -822,28 +822,32 @@ def package_revise_schema(
 
 
 @validator_args
-def config_declaration_show_schema(one_of, default):
-    return {
-        "format": [default("ini"), one_of(["ini"])],
-    }
-
-
-@validator_args
 def config_declaration_v1(
         ignore_missing, unicode_safe, not_empty, default, boolean_validator,
-        dict_only, one_of):
-    from ckan.config.utils import Key, option_types
+        dict_only, one_of, ignore_empty):
+    from ckan.config.declaration import Key, UNSET
+    from ckan.config.declaration.load import option_types
+
     def key_from_string(s):
         return Key.from_string(s)
+
+    def importable_string(value):
+        from werkzeug.utils import import_string, ImportStringError
+        from ckan.logic.validators import Invalid
+        try:
+            return import_string(value)
+        except ImportStringError as e:
+            raise Invalid(e)
 
     return {
         "groups": {
             "annotation": [ignore_missing, unicode_safe],
             "options": {
                 "key": [not_empty, key_from_string],
-                "default": [default("")],
-                "default_callable": [default(None)],
-                "default_args": [ignore_missing, dict_only],
+                "default": [default(UNSET)],
+
+                "default_callable": [ignore_empty, importable_string],
+                "default_args": [ignore_empty, dict_only],
                 "description": [default(""), unicode_safe],
                 "validators": [default(""), unicode_safe],
                 "type": [default("base"), one_of(option_types)],

@@ -168,7 +168,7 @@ class _Toolkit(object):
         )
         from ckan.lib.jobs import enqueue as enqueue_job
         from ckan.lib import mailer
-        from ckan.config import Key
+        from ckan.config.declaration import Key
 
         import ckan.common as converters
 

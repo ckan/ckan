@@ -5,7 +5,7 @@ import logging
 import ckan.plugins as p
 import ckan.logic as logic
 from ckan.model.core import State
-from ckan.config import Declaration, Key
+from ckan.config.declaration import Declaration, Key
 
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.logic.action as action
@@ -84,21 +84,26 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def declare_config_options(self, declaration: Declaration, key: Key):
         section = key.ckan.datastore
-        not_empty = p.toolkit.get_validator("not_empty")
 
         declaration.annotate("Datastore settings")
         declaration.declare(
             section.write_url,
             "postgresql://ckan_default:pass@localhost/datastore_default"
-        ).set_validators([not_empty])
+        ).set_validators("not_empty")
         declaration.declare(
             section.read_url,
             "postgresql://datastore_default:pass@localhost/datastore_default"
-        ).set_validators([not_empty])
+        ).set_validators("not_empty")
+
+        declaration.declare(
+            section.sqlsearch.allowed_functions_file,
+            "ckanext/datastore/allowed_functions.txt").disable()
+        declaration.declare_bool(section.sqlsearch.enabled, False)
 
         declaration.annotate("PostgreSQL' full-text search parameters")
         declaration.declare(section.default_fts_lang, "english")
         declaration.declare(section.default_fts_index_method, "gist")
+
 
     # IActions
 

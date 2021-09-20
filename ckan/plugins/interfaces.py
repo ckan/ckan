@@ -836,7 +836,7 @@ class IConfigDeclaration(Interface):
             # ckanext.my_ext.feature.mode = simple
 
         :param declaration:  object containing all the config declarations
-        :type declaration: :py:class:`ckan.config.Declaration`
+        :type declaration: :py:class:`ckan.config.declaration.Declaration`
 
         :param key: object for generic option access.
         :type key: :py:class:`ckan.plugins.toolkit.key`

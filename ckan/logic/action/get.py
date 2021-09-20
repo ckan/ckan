@@ -29,7 +29,6 @@ import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
 
 from ckan.common import _
-from ckan.config import Declaration
 
 log = logging.getLogger('ckan.logic')
 
@@ -3554,10 +3553,3 @@ def api_token_list(context, data_dict):
         model.ApiToken.user_id == user.id
     )
     return model_dictize.api_token_list_dictize(tokens, context)
-
-
-@logic.validate(logic.schema.config_declaration_show_schema)
-def config_declaration_show(context, data_dict):
-    _check_access("config_declaration_show", context, data_dict)
-
-    return config_declaration.into_ini()

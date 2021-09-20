@@ -20,7 +20,7 @@ from flask_babel import (gettext as flask_ugettext,
 
 import simplejson as json
 import ckan.lib.maintain as maintain
-from ckan.config import Declaration
+from ckan.config.declaration import Declaration
 
 current_app = flask.current_app
 

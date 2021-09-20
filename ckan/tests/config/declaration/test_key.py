@@ -1,6 +1,13 @@
 import pytest
-from ckan.config import Key
-from ckan.config.utils import Option, Pattern
+from ckan.config.declaration.key import Key, Pattern, Wildcard
+
+
+class TestWildcard:
+    def test_equality(self):
+        assert Wildcard("hello") == "hello"
+
+    def test_str(self):
+        assert str(Wildcard("hello")) == "<hello>"
 
 
 class TestKey:
@@ -8,9 +15,35 @@ class TestKey:
         staged = Key().ckan.site_url
         listed = Key(["ckan", "site_url"])
         parsed = Key.from_string("ckan.site_url")
+        iterated = Key.from_iterable(s for s in ["ckan", "site_url"])
 
         assert staged == listed
         assert staged == parsed
+        assert staged == iterated
+
+    @pytest.mark.parametrize(
+        "s, part, expected",
+        [
+            ("a.b.c.d.e.f", slice(2), Key().a.b),
+            ("a.b.c.d.e.f", slice(2), Key().a.b),
+            ("a.b.c.d.e.f", slice(2, 4), Key().c.d),
+            ("a.b.c.d.e.f", slice(None, None, -1), Key().f.e.d.c.b.a),
+        ],
+    )
+    def test_slices(self, s, part, expected):
+        assert Key.from_string(s)[part] == expected
+
+    def test_dynamic(self):
+        ckan = Key(["ckan"])
+        group = ckan.dynamic("group")
+        assert group == ckan.first
+        assert group == ckan.second
+
+        assert group.name == ckan.a.name
+        assert group.name == ckan.b.name
+        assert group.name != ckan.b.age
+
+        assert str(group.name) == "ckan.<group>.name"
 
     @pytest.mark.parametrize(
         "string",
@@ -80,16 +113,6 @@ class TestKey:
     )
     def test_addition(self, left, right, expected):
         assert left + right == expected
-
-
-class TestDetails:
-    def test_default_value(self):
-        assert Option("def").has_default()
-        assert Option("").has_default()
-        assert Option(None).has_default()
-        assert Option(False).has_default()
-
-        assert not Option().has_default()
 
 
 class TestPattern:

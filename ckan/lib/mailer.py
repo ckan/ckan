@@ -63,19 +63,11 @@ def _mail_recipient(recipient_name, recipient_email,
         msg['Reply-to'] = reply_to
 
     # Send the email using Python's smtplib.
-    if 'smtp.test_server' in config:
-        # If 'smtp.test_server' is configured we assume we're running tests,
-        # and don't use the smtp.server, starttls, user, password etc. options.
-        smtp_server = config['smtp.test_server']
-        smtp_starttls = False
-        smtp_user = None
-        smtp_password = None
-    else:
-        smtp_server = config.get('smtp.server', 'localhost')
-        smtp_starttls = ckan.common.asbool(
-            config.get('smtp.starttls'))
-        smtp_user = config.get('smtp.user')
-        smtp_password = config.get('smtp.password')
+    smtp_server = config.get('smtp.server', 'localhost')
+    smtp_starttls = ckan.common.asbool(
+        config.get('smtp.starttls'))
+    smtp_user = config.get('smtp.user')
+    smtp_password = config.get('smtp.password')
 
     try:
         smtp_connection = smtplib.SMTP(smtp_server)

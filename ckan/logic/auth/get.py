@@ -471,9 +471,3 @@ def package_collaborator_list_for_user(context, data_dict):
     if user_obj and data_dict.get('id') in (user_obj.name, user_obj.id):
         return {'success': True}
     return {'success': False}
-
-
-def config_declaration_show(context, data_dict):
-    '''Show config schema declaration. Only sysadmins.'''
-    return {'success': True}
-    return {'success': False}

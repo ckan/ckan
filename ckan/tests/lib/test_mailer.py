@@ -242,7 +242,7 @@ class TestMailer(MailerBase):
         assert org["title"] in six.ensure_text(body)
         assert h.roles_translated()[role] in six.ensure_text(body)
 
-    @pytest.mark.ckan_config("smtp.test_server", "999.999.999.999")
+    @pytest.mark.ckan_config("smtp.server", "999.999.999.999")
     def test_bad_smtp_host(self):
         test_email = {
             "recipient_name": "Bob",

@@ -127,6 +127,7 @@ def ignore_empty(key, data, errors, context):
         raise StopOnError
 
 def convert_int(value, context):
+
     try:
         return int(value)
     except ValueError:
