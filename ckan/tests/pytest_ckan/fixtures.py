@@ -319,7 +319,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
         action = kwargs.pop(u"action", u"resource_create")
         field = kwargs.pop(u"upload_field_name", u"upload")
         test_file = BytesIO()
-        test_file.write((data).encode())
+        test_file.write(bytes(data))
         test_file.seek(0)
         test_resource = FakeFileStorage(test_file, filename)
 

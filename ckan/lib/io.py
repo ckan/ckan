@@ -52,4 +52,4 @@ def decode_path(p):
 
     if not isinstance(p, bytes):
         raise TypeError(u'Can only decode str, not {}'.format(type(p)))
-    return p.encode().decode(_FILESYSTEM_ENCODING)
+    return bytes(p).decode(_FILESYSTEM_ENCODING)
