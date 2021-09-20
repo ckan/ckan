@@ -154,8 +154,8 @@ def make_config(output_path):
         u'app_instance_uuid': uuid.uuid4(),
         u'app_instance_secret': secrets.token_urlsafe(20)[:25],
         u'ckan_site_url': os.environ['CKAN_SITE_URL'],
-        u'ckan_site_title': os.getenv('CKAN_SITE_TITLE', 'CKAN'),
-        u'ckan_site_description': os.getenv('CKAN_SITE_DESC', '')
+        u'ckan_site_title': os.environ.get('CKAN_SITE_TITLE', 'CKAN'),
+        u'ckan_site_description': os.environ.get('CKAN_SITE_DESC', '')
     }
 
     with open(template_loc, u'r') as file_in:
