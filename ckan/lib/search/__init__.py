@@ -5,6 +5,7 @@ import logging
 import sys
 import cgitb
 import warnings
+import base64
 import xml.dom.minidom
 
 import requests
@@ -256,16 +257,11 @@ def clear_all():
 def _get_schema_from_solr(file_offset):
     solr_url, solr_user, solr_password = SolrSettings.get()
 
-    http_auth = None
-    if solr_user is not None and solr_password is not None:
-        http_auth = solr_user + ':' + solr_password
-        http_auth = 'Basic ' + http_auth.encode('base64').strip()
-
     url = solr_url.strip('/') + file_offset
 
-    if http_auth:
+    if solr_user is not None and solr_password is not None:
         response = requests.get(
-            url, headers={'Authorization': http_auth})
+            url, auth=requests.auth.HTTPBasicAuth(solr_user, solr_password))
     else:
         response = requests.get(url)
 

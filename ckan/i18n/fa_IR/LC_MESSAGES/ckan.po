@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
+# Amir Reza Asadi <amirreza.asadi@live.com>, 2021
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2020\n"
+"Last-Translator: Amir Reza Asadi <amirreza.asadi@live.com>, 2021\n"
 "Language-Team: Persian (Iran) (https://www.transifex.com/okfn/teams/11162/fa_IR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,11 +25,11 @@ msgstr ""
 
 #: ckanext/audioview/plugin.py:25 ckanext/audioview/plugin.py:30
 msgid "Audio"
-msgstr ""
+msgstr "صوت"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "Audio url"
-msgstr ""
+msgstr "آدرس فایل صوتی"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "eg. http://example.com/audio.mp3  (if blank uses resource url)"
@@ -119,7 +120,7 @@ msgstr ""
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:52
 #: ckanext/datapusher/templates/datapusher/resource_data.html:52
 msgid "Last updated"
-msgstr ""
+msgstr "تاریخ آخرین به‌روز رسانی"
 
 #: ckan/templates/user/snippets/api_token_list.html:32
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:56
@@ -173,7 +174,7 @@ msgstr ""
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:19
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:21
 msgid "CKAN Data API"
-msgstr ""
+msgstr "API داده"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:23
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:25
@@ -203,7 +204,7 @@ msgstr ""
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:44
 msgid "Create"
-msgstr ""
+msgstr "ایجاد"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:46
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:48
@@ -347,7 +348,7 @@ msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:12
 msgid "Show Columns"
-msgstr ""
+msgstr "نمایش ستون‌‌ها "
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:30
 msgid "Hide/Unhide Columns"
@@ -478,7 +479,7 @@ msgstr ""
 #: ckan/templates/user/read_base.html:52
 #: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
 msgid "Followers"
-msgstr ""
+msgstr "دنبال کنندگان"
 
 #: ckan/logic/__init__.py:103 ckan/logic/action/__init__.py:62
 #: ckan/templates/package/edit_base.html:18
@@ -495,7 +496,7 @@ msgstr ""
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:7
 msgid "Minute"
-msgstr ""
+msgstr "دقیقه"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:8
 msgid "Hour"
@@ -577,7 +578,7 @@ msgstr ""
 #: ckanext/reclineview/theme/public/recline_view.js:219
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Filters"
-msgstr ""
+msgstr "فیلترها"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -721,11 +722,11 @@ msgstr ""
 
 #: ckanext/videoview/plugin.py:25 ckanext/videoview/plugin.py:31
 msgid "Video"
-msgstr ""
+msgstr "ویدیو"
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "Video url"
-msgstr ""
+msgstr "آدرس فایل ویدیویی"
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "eg. http://example.com/video.mpeg  (if blank uses resource url)"
@@ -1332,7 +1333,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:376 ckan/views/user.py:301
 msgid "incorrect password"
-msgstr ""
+msgstr "گذرواژه نادرست"
 
 #: ckan/controllers/user.py:416 ckan/views/user.py:475
 msgid "Login failed. Bad username or password."
@@ -1344,7 +1345,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:454 ckan/views/user.py:604
 msgid "Email is required"
-msgstr ""
+msgstr "درج ایمیل الزامی است. "
 
 #: ckan/controllers/user.py:492 ckan/views/user.py:656
 msgid ""
@@ -1874,16 +1875,16 @@ msgstr ""
 
 #: ckan/logic/action/create.py:1369
 msgid "You cannot follow yourself"
-msgstr ""
+msgstr "نمیشه که خودت رو دنبال کنی"
 
 #: ckan/logic/action/create.py:1377 ckan/logic/action/create.py:1434
 #: ckan/logic/action/create.py:1573
 msgid "You are already following {0}"
-msgstr ""
+msgstr "همین حالا هم  دنبال می‌کنید {0}"
 
 #: ckan/logic/action/create.py:1408 ckan/logic/action/create.py:1416
 msgid "You must be logged in to follow a dataset."
-msgstr ""
+msgstr "برای دنبال کردن یک مجموعه داده باید وارد سایت شوید."
 
 #: ckan/logic/action/create.py:1474
 msgid "User {username} does not exist."
@@ -2020,7 +2021,7 @@ msgstr ""
 
 #: ckan/logic/auth/create.py:191
 msgid "Group was not found."
-msgstr ""
+msgstr "گروه مورد نظر یافت نشد"
 
 #: ckan/logic/auth/create.py:225
 #, python-format
