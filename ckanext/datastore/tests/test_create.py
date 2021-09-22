@@ -510,7 +510,6 @@ class TestDatastoreCreate(object):
         resource = model.Package.get("annakarenina").resources[0]
         auth = {"Authorization": self.sysadmin_token}
         invalid_names = [
-            "_author",
             '"author',
             "",
             " author",
