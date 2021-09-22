@@ -123,6 +123,18 @@ class TestDatastoreDump(DatastoreLegacyTestBase):
             u'{""moo"": ""moo""}]"\n')
         assert_equals(content, expected_content)
 
+    def test_dump_q_and_fields(self):
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.get(
+            u'/datastore/dump/{0}?q=warandpeace&fields=nested,author'
+            .format(str(self.data['resource_id'])), extra_environ=auth)
+        content = res.body.decode('utf-8')
+
+        expected_content = (
+            u'nested,author\r\n'
+            u'"{""a"": ""b""}",tolstoy\n')
+        assert_equals(content, expected_content)
+
     def test_dump_tsv(self):
         auth = {'Authorization': str(self.normal_user.apikey)}
         res = self.app.get('/datastore/dump/{0}?limit=1&format=tsv'.format(str(

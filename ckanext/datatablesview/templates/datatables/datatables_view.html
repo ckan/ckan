@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block page %}
+  {% set filters = request.params.get('filters', '')|e if request.params is defined else request.args.get('filters', '')|e %}
   <table id="dtprv"
       class="table table-striped table-bordered"
       data-module="datatables_view"
@@ -8,12 +9,12 @@
       data-server-side="true"
       data-processing="true"
       data-ajax='{
-           "url": "{{ h.url_for(
+          "url": "{{ h.url_for(
             controller='ckanext.datatablesview.controller:DataTablesController',
             action='ajax',
             resource_view_id=resource_view.id) }}",
           "type": "POST",
-          "data": { "filters": "{{ request.params.get('filters', '')|e }}" }
+          "data": { "filters": "{{ filters }}" }
         }'
       {% if resource_view.get('responsive') %}
         data-responsive="true"
@@ -29,7 +30,7 @@
         {
           "extend": "colvis",
           "text": "{{ _('Hide/Unhide Columns') }}"
-        }{{ ', "copy", "excel", "print"' | safe
+        }{{ ', "copy", "print"' | safe
           if resource_view.get('export_buttons') else ''}}
         ]'
       data-keys='true'>
@@ -46,6 +47,12 @@
     <tbody>
     </tbody>
   </table>
+  <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
+      controller='ckanext.datatablesview.controller:DataTablesController',
+      action='filtered_download',
+      resource_view_id=resource_view.id) }}">
+    <input type="hidden" name="filters" value="{{ filters }}" />
+  </form>
 
   {% resource 'ckanext-datatablesview/main' %}
 {% endblock %}

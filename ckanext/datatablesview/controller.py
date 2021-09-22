@@ -1,10 +1,11 @@
 # encoding: utf-8
 
-import json
+from urllib import urlencode
 
 from six import text_type
 
-from ckan.plugins.toolkit import BaseController, get_action, request
+from ckan.plugins.toolkit import BaseController, get_action, request, h
+from ckan.common import json
 
 
 class DataTablesController(BaseController):
@@ -61,6 +62,50 @@ class DataTablesController(BaseController):
                 for row in response['records']
             ],
         })
+
+    def filtered_download(self, resource_view_id):
+        params = json.loads(request.params['params'])
+        resource_view = get_action(u'resource_view_show')(
+            None, {u'id': resource_view_id})
+
+        search_text = text_type(params['search']['value'])
+        view_filters = resource_view.get(u'filters', {})
+        user_filters = text_type(params['filters'])
+        filters = merge_filters(view_filters, user_filters)
+
+        datastore_search = get_action(u'datastore_search')
+        unfiltered_response = datastore_search(None, {
+            u"resource_id": resource_view[u'resource_id'],
+            u"limit": 0,
+            u"filters": view_filters,
+        })
+
+        cols = [f['id'] for f in unfiltered_response['fields']]
+        if u'show_fields' in resource_view:
+            cols = [c for c in cols if c in resource_view['show_fields']]
+
+        sort_list = []
+        for order in params['order']:
+            sort_by_num = int(order['column'])
+            sort_order = (
+                u'desc' if order['dir'] == u'desc'
+                else u'asc')
+            sort_list.append(cols[sort_by_num] + u' ' + sort_order)
+
+        cols = [c for (c, v) in zip(cols, params['visible']) if v]
+
+        h.redirect_to(
+            h.url_for(
+                controller=u'ckanext.datastore.controller:DatastoreController',
+                action=u'dump',
+                resource_id=resource_view[u'resource_id'])
+            + u'?' + urlencode({
+                u'q': search_text,
+                u'sort': u','.join(sort_list),
+                u'filters': json.dumps(filters),
+                u'format': request.params['format'],
+                u'fields': u','.join(cols),
+                }))
 
 
 def merge_filters(view_filters, user_filters_str):
