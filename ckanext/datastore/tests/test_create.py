@@ -68,6 +68,21 @@ class TestDatastoreCreateNewTests(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_underescored_field_name(self):
+        package = factories.Dataset()
+        data = {
+            "resource": {"package_id": package["id"]},
+            "fields": [
+                {"id": "_id", "type": "text"},
+                {"id": "movie", "type": "text"},
+            ],
+            "records": [{"movie": "sideways", "_id": "99"}],
+        }
+        result = helpers.call_action("datastore_create", **data)
+        assert result["resource_id"] is not None
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_works_with_empty_object_in_json_field(self):
         package = factories.Dataset()
         data = {
