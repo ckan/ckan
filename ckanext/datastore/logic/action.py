@@ -40,16 +40,17 @@ def _fix_bad_field_names(data_dict, prefix):
             new_fields.append(field)
         data_dict['fields'] = new_fields
 
-        new_records = []
-        for record in data_dict.get('records'):
-            new_record = {}
-            for field, value in record.items():
-                if field.startswith('_'):
-                    new_record['{}{}'.format(prefix, field)] = value
-                else:
-                    new_record[field] = record[field]
-            new_records.append(new_record)
-        data_dict['records'] = new_records
+        if data_dict.get('records'):
+            new_records = []
+            for record in data_dict.get('records'):
+                new_record = {}
+                for field, value in record.items():
+                    if field.startswith('_'):
+                        new_record['{}{}'.format(prefix, field)] = value
+                    else:
+                        new_record[field] = record[field]
+                new_records.append(new_record)
+            data_dict['records'] = new_records
 
     return data_dict
 
