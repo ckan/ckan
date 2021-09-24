@@ -1,17 +1,19 @@
 # encoding: utf-8
 import logging
+import inspect
 from collections import OrderedDict
 from functools import partial
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 from datetime import datetime
 
 from flask import Blueprint
 from flask.views import MethodView
+from jinja2.exceptions import TemplateNotFound
 from werkzeug.datastructures import MultiDict
 from ckan.common import asbool
 
 import six
-from six import string_types, text_type
+
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -23,9 +25,7 @@ import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
-from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
-from ckan.views import LazyView
 
 
 NotFound = logic.NotFound
@@ -57,16 +57,15 @@ def _setup_template_variables(context, data_dict, package_type=None):
 def _get_pkg_template(template_type, package_type=None):
     pkg_plugin = lookup_package_plugin(package_type)
     method = getattr(pkg_plugin, template_type)
-    try:
+    signature = inspect.signature(method)
+    if len(signature.parameters):
         return method(package_type)
-    except TypeError as err:
-        if u'takes 1' not in str(err) and u'takes exactly 1' not in str(err):
-            raise
+    else:
         return method()
 
 
 def _encode_params(params):
-    return [(k, v.encode(u'utf-8') if isinstance(v, string_types) else str(v))
+    return [(k, v.encode(u'utf-8') if isinstance(v, str) else str(v))
             for k, v in params]
 
 
@@ -223,7 +222,8 @@ def search(package_type):
     limit = int(config.get(u'ckan.datasets_per_page', 20))
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.args.items() if k != u'page']
+    params_nopage = [(k, v) for k, v in request.args.items(multi=True)
+                     if k != u'page']
 
     extra_vars[u'drill_down_url'] = drill_down_url
     extra_vars[u'remove_field'] = partial(remove_field, package_type)
@@ -378,7 +378,7 @@ def search(package_type):
     extra_vars[u'dataset_type'] = package_type
 
     # TODO: remove
-    for key, value in six.iteritems(extra_vars):
+    for key, value in extra_vars.items():
         setattr(g, key, value)
 
     return base.render(
@@ -616,9 +616,9 @@ class CreateView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = text_type(repr(e.args))
+                exc_str = str(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = text_type(str(e))
+                exc_str = str(str(e))
             return base.abort(
                 500,
                 _(u'Unable to add package to search index.') + exc_str
@@ -752,9 +752,9 @@ class EditView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = text_type(repr(e.args))
+                exc_str = str(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = text_type(str(e))
+                exc_str = str(str(e))
             return base.abort(
                 500,
                 _(u'Unable to update search index.') + exc_str
@@ -1313,10 +1313,12 @@ class CollaboratorEditView(MethodView):
         except NotAuthorized:
             message = _(u'Unauthorized to edit collaborators {}').format(id)
             return base.abort(401, _(message))
-        except NotFound:
-            return base.abort(404, _(u'Resource not found'))
+        except NotFound as e:
+            h.flash_error(_('User not found'))
+            return h.redirect_to(u'dataset.new_collaborator', id=id)
         except ValidationError as e:
             h.flash_error(e.error_summary)
+            return h.redirect_to(u'dataset.new_collaborator', id=id)
         else:
             h.flash_success(_(u'User added to collaborators'))
 
@@ -1397,24 +1399,6 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
     blueprint.add_url_rule(u'/changes_multiple', view_func=changes_multiple)
-
-    # Duplicate resource create and edit for backward compatibility. Note,
-    # we cannot use resource.CreateView directly here, because of
-    # circular imports
-    blueprint.add_url_rule(
-        u'/new_resource/<id>',
-        view_func=LazyView(
-            u'ckan.views.resource.CreateView', str(u'new_resource')
-        )
-    )
-
-    blueprint.add_url_rule(
-        u'/<id>/resource_edit/<resource_id>',
-        view_func=LazyView(
-            u'ckan.views.resource.EditView', str(u'edit_resource')
-        )
-
-    )
 
     if authz.check_config_permission(u'allow_dataset_collaborators'):
         blueprint.add_url_rule(

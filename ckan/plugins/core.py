@@ -6,13 +6,14 @@ Provides plugin services to the CKAN
 
 from contextlib import contextmanager
 import logging
+import blinker
 from pkg_resources import iter_entry_points
 from pyutilib.component.core import PluginGlobals, implements
-from pyutilib.component.core import ExtensionPoint as PluginImplementations
+from pyutilib.component.core import ExtensionPoint
 from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
 from ckan.common import asbool
-from six import string_types
+
 
 from ckan.plugins import interfaces
 
@@ -69,6 +70,37 @@ def use_plugin(*plugins):
         yield p
     finally:
         unload(*plugins)
+
+
+class PluginImplementations(ExtensionPoint):
+
+    def __iter__(self):
+        '''
+        When we upgraded pyutilib on CKAN 2.9 the order in which
+        plugins were returned by `PluginImplementations` changed
+        so we use this wrapper to maintain the previous order
+        (which is the same as the ckan.plugins config option)
+        '''
+
+        iterator = super(PluginImplementations, self).__iter__()
+
+        plugin_lookup = {pf.name: pf for pf in iterator}
+
+        plugins_in_config = (
+            config.get('ckan.plugins', '').split() + find_system_plugins())
+
+        ordered_plugins = []
+        for pc in plugins_in_config:
+            if pc in plugin_lookup:
+                ordered_plugins.append(plugin_lookup[pc])
+                plugin_lookup.pop(pc)
+
+        if plugin_lookup:
+            # Any oustanding plugin not in the ini file (ie system ones),
+            # add to the end of the iterator
+            ordered_plugins.extend(plugin_lookup.values())
+
+        return iter(ordered_plugins)
 
 
 class PluginNotFoundException(Exception):
@@ -130,12 +162,6 @@ def load_all():
     unload_all()
 
     plugins = config.get('ckan.plugins', '').split() + find_system_plugins()
-    # Add the synchronous search plugin, unless already loaded or
-    # explicitly disabled
-    if 'synchronous_search' not in plugins and \
-            asbool(config.get('ckan.search.automatic_indexing', True)):
-        log.debug('Loading the synchronous search plugin')
-        plugins.append('synchronous_search')
 
     load(*plugins)
 
@@ -163,7 +189,8 @@ def load(*plugins):
 
         if isinstance(service, SingletonPlugin):
             _PLUGINS_SERVICE[plugin] = service
-
+        if interfaces.ISignal.implemented_by(service.__class__):
+            _connect_signals(service.get_signal_subscriptions())
         output.append(service)
     plugins_update()
 
@@ -199,6 +226,10 @@ def unload(*plugins):
             raise Exception('Cannot unload plugin `%s`' % plugin)
 
         service = _get_service(plugin)
+
+        if interfaces.ISignal.implemented_by(service.__class__):
+            _disconnect_signals(service.get_signal_subscriptions())
+
         for observer_plugin in observers:
             observer_plugin.before_unload(service)
 
@@ -245,7 +276,7 @@ def _get_service(plugin_name):
     :return: the service object
     '''
 
-    if isinstance(plugin_name, string_types):
+    if isinstance(plugin_name, str):
         for group in GROUPS:
             iterator = iter_entry_points(
                 group=group,
@@ -257,3 +288,21 @@ def _get_service(plugin_name):
         raise PluginNotFoundException(plugin_name)
     else:
         raise TypeError('Expected a plugin name', plugin_name)
+
+
+def _connect_signals(mapping):
+    for signal, listeners in mapping.items():
+        for options in listeners:
+            if not isinstance(options, dict):
+                options = {'receiver': options}
+            signal.connect(**options)
+
+
+def _disconnect_signals(mapping):
+    for signal, listeners in mapping.items():
+        for options in listeners:
+            if isinstance(options, dict):
+                options.pop('weak', None)
+            else:
+                options = {'receiver': options}
+            signal.disconnect(**options)

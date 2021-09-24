@@ -1,62 +1,14 @@
 # encoding: utf-8
 
-"""Common middleware used by both Flask and Pylons app stacks."""
+"""Additional middleware used by the Flask app stack."""
 import hashlib
-import cgi
 
 import six
-from six.moves.urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urlparse
 
 import sqlalchemy as sa
-from webob.request import FakeCGIBody
 
 from ckan.common import config
-from ckan.lib.i18n import get_locales_from_config
-
-
-class RootPathMiddleware(object):
-    '''
-    Prevents the SCRIPT_NAME server variable conflicting with the ckan.root_url
-    config. The routes package uses the SCRIPT_NAME variable and appends to the
-    path and ckan addes the root url causing a duplication of the root path.
-
-    This is a middleware to ensure that even redirects use this logic.
-    '''
-    def __init__(self, app, config):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        # Prevents the variable interfering with the root_path logic
-        if 'SCRIPT_NAME' in environ:
-            environ['SCRIPT_NAME'] = ''
-
-        return self.app(environ, start_response)
-
-
-class CloseWSGIInputMiddleware(object):
-    '''
-    webob.request.Request has habit to create FakeCGIBody. This leads(
-    during file upload) to creating temporary files that are not closed.
-    For long lived processes this means that for each upload you will
-    spend the same amount of temporary space as size of uploaded
-    file additionally, until server restart(this will automatically
-    close temporary files).
-
-    This middleware is supposed to close such files after each request.
-    '''
-    def __init__(self, app, config):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        wsgi_input = environ['wsgi.input']
-        if isinstance(wsgi_input, FakeCGIBody):
-            for _, item in wsgi_input.vars.items():
-                if not isinstance(item, cgi.FieldStorage):
-                    continue
-                fp = getattr(item, 'fp', None)
-                if fp is not None:
-                    fp.close()
-        return self.app(environ, start_response)
 
 
 class TrackingMiddleware(object):
@@ -111,5 +63,5 @@ class HostHeaderMiddleware(object):
                          '/user/logged_out']:
             site_url = config.get('ckan.site_url')
             parts = urlparse(site_url)
-            environ['HTTP_HOST'] = parts.netloc
+            environ['HTTP_HOST'] = str(parts.netloc)
         return self.app(environ, start_response)

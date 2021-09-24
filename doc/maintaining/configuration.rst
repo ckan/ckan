@@ -147,6 +147,34 @@ maintain compatibility.
 Development Settings
 --------------------
 
+.. _ckan.devserver.host:
+
+ckan.devserver.host
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.host = 0.0.0.0
+
+Default value: localhost
+
+Host name to use when running the development server.
+
+
+.. _ckan.devserver.port:
+
+ckan.devserver.port
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.port = 5005
+
+Default value: 5000
+
+Port to use when running the development server.
+
+
 .. _ckan.devserver.threaded:
 
 ckan.devserver.threaded
@@ -158,7 +186,7 @@ Example::
 
 Default value: False
 
-Controls, whether development server handle each request in a separate
+Controls whether the development server should handle each request in a separate
 thread.
 
 .. _ckan.devserver.multiprocess:
@@ -172,7 +200,7 @@ Example::
 
 Default value: 1
 
-If greater than 1 then handle each request in a new process up to this
+If greater than 1 then the development server will handle each request in a new process, up to this
 maximum number of concurrent processes.
 
 .. _ckan.devserver.watch_patterns:
@@ -186,8 +214,52 @@ Example::
 
 Default value: None
 
-A list of files the reloader should watch additionally to the
-modules. For example configuration files.
+A list of files the reloader should watch to restart the development server, in addition to the
+Python modules (for example configuration files)
+
+.. _ckan.devserver.ssl_cert:
+
+ckan.devserver.ssl_cert
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_cert = path/to/host.cert
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). You can generate a
+self-signed certificate and key (see :ref:`ckan.devserver.ssl_key`) running
+the following commands::
+
+    openssl genrsa 2048 > host.key
+    chmod 400 host.key
+    openssl req -new -x509 -nodes -sha256 -days 3650 -key host.key > host.cert
+
+After that you can run CKAN locally with SSL using this command::
+
+    ckan -c /path/to/ckan.ini run --ssl-cert=/path/to/host.cert --ssl-key=/path/to/host.key
+
+Alternatively, setting this option to ``adhoc`` will automatically generate a new
+certificate file (on each server reload, which means that you'll get a browser warning
+about the certificate on each reload).
+
+.. _ckan.devserver.ssl_key:
+
+ckan.devserver.ssl_key
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.devserver.ssl_key = path/to/host.key
+
+Default value: None (SSL disabled)
+
+Path to a certificate file that will be used to enable SSL (ie to serve the
+local development server on https://localhost:5000). See :ref:`ckan.devserver.ssl_cert`
+for more details. This option also supports the ``adhoc`` value, with the same caveat.
+
 
 Repoze.who Settings
 -------------------
@@ -265,6 +337,25 @@ Example::
 This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
+
+.. _sqlalchemy.any:
+
+sqlalchemy.*
+^^^^^^^^^^^^
+
+Example::
+
+ sqlalchemy.pool_pre_ping=True
+ sqlalchemy.pool_size=10
+ sqlalchemy.max_overflow=20
+
+Custom sqlalchemy config parameters used to establish the main
+database connection.
+
+To get the list of all the available properties check the `SQLAlchemy documentation`_
+
+.. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+
 
 .. start_config-datastore-urls
 
@@ -356,12 +447,21 @@ ckan.datastore.sqlsearch.enabled
 
 Example::
 
- ckan.datastore.sqlsearch.enabled = False
+ ckan.datastore.sqlsearch.enabled = True
 
-Default value:  ``True``
+Default value:  ``False``
 
-This option allows you to disable the datastore_search_sql action function, and
-corresponding API endpoint if you do not wish it to be activated.
+This option allows you to enable the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` action function, and corresponding API endpoint.
+
+This action function has protections from abuse including:
+
+- parsing of the query to prevent unsafe functions from being called, see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`
+- parsing of the query to prevent multiple statements
+- prevention of data modification by using a read-only database role
+- use of ``explain`` to resolve tables accessed in the query to check against user permissions
+- use of a statement timeout to prevent queries from running indefinitely
+
+These protections offer some safety but are not designed to prevent all types of abuse. Depending on the sensitivity of private data in your datastore and the likelihood of abuse of your site you may choose to disable this action function or restrict its use with a :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin.
 
 .. _ckan.datastore.search.rows_default:
 
@@ -396,6 +496,30 @@ Specifically this limits:
 
 * ``datastore_search``'s ``limit`` parameter.
 * ``datastore_search_sql`` queries have this limit inserted.
+
+.. _ckan.datastore.sqlsearch.allowed_functions_file:
+
+ckan.datastore.sqlsearch.allowed_functions_file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlsearch.allowed_functions_file = /path/to/my_allowed_functions.txt
+
+Default value: File included in the source code at ``ckanext/datastore/allowed_functions.txt``.
+
+Allows to define the path to a text file listing the SQL functions that should be allowed to run
+on queries sent to the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` function
+(if enabled, see :ref:`ckan.datastore.sqlsearch.enabled`). Function names should be listed one on
+each line, eg::
+
+    abbrev
+    abs
+    abstime
+    ...
+
+
+
 
 Site Settings
 -------------
@@ -748,10 +872,10 @@ Example::
 Default value: ``False``
 
 
-Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
+Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default, collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
 
 
-.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assinged to.
+.. warning:: If this setting is turned off in a site where admin collaborators have been already created, existing collaborators with role "admin" will no longer be able to add or remove collaborators, but they will still be able to edit and access the datasets that they are assigned to.
 
 .. _ckan.auth.allow_collaborators_to_change_owner_org:
 
@@ -894,6 +1018,17 @@ Optionally, ``solr_user`` and ``solr_password`` can also be configured to specif
 
 .. _ckan.search.automatic_indexing:
 
+solr_timeout
+^^^^^^^^^^^^
+
+Example::
+
+ solr_timeout = 120
+
+Default value:  ``60``
+
+The option defines the timeout in seconds until giving up on a request. Raising this value might help you if you encounter a timeout exception.
+
 ckan.search.automatic_indexing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -962,7 +1097,7 @@ ckan.search.default_package_sort
 
 Example::
 
- ckan.search.default_package_sort = "name asc"
+ ckan.search.default_package_sort = name asc
 
 Default value:  ``score desc, metadata_modified desc``
 
@@ -1515,7 +1650,7 @@ default views are created.
 .. note:: You must have the relevant view plugins loaded on the ``ckan.plugins``
     setting to be able to create the default views, eg::
 
-        ckan.plugins = image_view webpage_view recline_grid_view ...
+        ckan.plugins = image_view webpage_view recline_grid_view datatables_view ...
 
         ckan.views.default_views = image_view webpage_view recline_grid_view
 
@@ -1552,9 +1687,9 @@ ckan.preview.text_formats
 
 Example::
 
- ckan.preview.text_formats = text plain
+ ckan.preview.text_formats = txt plain
 
-Default value: ``text plain text/plain``
+Default value: ``txt plain text/plain``
 
 Space-delimited list of plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
 
@@ -1587,6 +1722,118 @@ Custom URL to a self-hosted DataProxy instance. The DataProxy is an external ser
 JSON format to the Recline-based views when data is not on the DataStore. The main instance is deprecated and will
 be eventually shut down, so users that require it can host an instance themselves and use this configuration option
 to point Recline to it.
+
+
+.. _ckan.datatables.page_length_choices:
+
+ckan.datatables.page_length_choices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.page_length_choices = 20 50 100 500 1000 5000
+
+Default value: ``20 50 100 500 1000``
+
+Space-delimited list of the choices for the number of rows per page, with the lowest value being the default initial value.
+
+.. note:: On larger screens, DataTables view will attempt to fill the table with as many rows that can fit using the lowest closest choice.
+
+.. _ckan.datatables.state_saving:
+
+ckan.datatables.state_saving
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.state_saving = False
+
+Default value: ``True``
+
+Enable or disable state saving. When enabled, DataTables view will store state information such as pagination position,
+page length, row selection/s, column visibility/ordering, filtering and sorting using the browser's localStorage.
+When the end user reloads the page, the table's state will be altered to match what they had previously set up.
+
+This also enables/disables the "Reset" and "Share current view" buttons. "Reset" discards the saved state. "Share current view" base-64 encodes
+the state and passes it as a url parameter, acting like a "saved search" that can be used for embedding and sharing table searches.
+
+.. _ckan.datatables.state_duration:
+
+ckan.datatables.state_duration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.state_duration = 86400
+
+Default value: ``7200``
+
+Duration (in seconds) for which the saved state information is considered valid. After this period has elapsed, the table's state will
+be returned to the default, and the state cleared from the browser's localStorage.
+
+.. note:: The value ``0`` is a special value as it indicates that the state can be stored and retrieved indefinitely with no time limit.
+
+.. _ckan.datatables.data_dictionary_labels:
+
+ckan.datatables.data_dictionary_labels
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.data_dictionary_labels = True
+
+Default value: ``True``
+
+Enable or disable data dictionary integration. When enabled, a column's data dictionary label will be used in the table header. A tooltip for each
+column with data dictionary information will also be integrated into the header.
+
+.. _ckan.datatables.ellipsis_length:
+
+ckan.datatables.ellipsis_length
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.ellipsis_length = 100
+
+Default value: ``100``
+
+The maximum number of characters to show in a cell before it is truncated. An ellipsis (...) will be added at the truncation point and the
+full text of the cell will be available as a tooltip. This value can be overridden at the resource level when configuring a DataTables resource view.
+
+.. note:: The value ``0`` is a special value as it indicates that the column's width will be determined by the column name, and cell content will word-wrap.
+
+.. _ckan.datatables.date_format:
+
+ckan.datatables.date_format
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.date_format = YYYY-MM-DD dd ww
+
+Default value: ``llll``
+
+The `moment.js date format
+<https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/>`_ to use to convert raw timestamps to a user-friendly date format using CKAN's current
+locale language code. This value can be overridden at the resource level when configuring a DataTables resource view.
+
+.. note:: The value ``NONE`` is a special value as it indicates that no date formatting will be applied and the raw ISO-8601 timestamp will be displayed.
+
+.. _ckan.datatables.default_view:
+
+ckan.datatables.default_view
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datatables.default_view = list
+
+Default value:  ``table``
+
+Indicates the default view mode of the DataTable (valid values: ``table`` or ``list``). Table view is the typical grid layout, with horizontal scrolling.
+List view is a responsive table, automatically hiding columns as required to fit the browser viewport. In addition, list view allows the user to view, copy and print
+the details of a specific row. This value can be overridden at the resource level when configuring a DataTables resource view.
 
 .. end_resource-views
 
@@ -1867,6 +2114,19 @@ Default value: ``20``
 
 This controls the number of users to show in the Users list. By default, it shows 20 users.
 
+.. _ckan.user_reset_landing_page:
+
+ckan.user_reset_landing_page
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.user_reset_landing_page = dataset
+
+Default value: ``home.index``
+
+This controls the page where users will be sent after requesting a password reset.
+This is ordinarily the home page, but specific sites may prefer somewhere else.
 
 Activity Streams Settings
 -------------------------

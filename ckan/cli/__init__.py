@@ -1,12 +1,11 @@
 # encoding: utf-8
 
-import sys
 import os
 
 import click
 import logging
 from logging.config import fileConfig as loggingFileConfig
-from six.moves.configparser import ConfigParser
+from configparser import ConfigParser, RawConfigParser
 
 from ckan.exceptions import CkanConfigurationException
 
@@ -18,8 +17,13 @@ class CKANConfigLoader(object):
         self.config_file = filename.strip()
         self.config = dict()
         self.parser = ConfigParser()
+        # Preserve case in config keys
+        self.parser.optionxform = str
         self.section = u'app:main'
-        defaults = {u'__file__': os.path.abspath(self.config_file)}
+        defaults = dict(
+            (k, v) for k, v in os.environ.items()
+            if k.startswith("CKAN_"))
+        defaults['__file__'] = os.path.abspath(self.config_file)
         self._update_defaults(defaults)
         self._create_config_object()
 
@@ -35,27 +39,58 @@ class CKANConfigLoader(object):
     def _update_config(self):
         options = self.parser.options(self.section)
         for option in options:
-            if option not in self.config or option in self.parser.defaults():
-                value = self.parser.get(self.section, option)
-                self.config[option] = value
-                if option in self.parser.defaults():
-                    self.config[u'global_conf'][option] = value
+            value = self.parser.get(self.section, option)
+            self.config[option] = value
+
+            # eager interpolation of the `here` variable. Otherwise it will get
+            # shadowed by the higher-level config file.
+            raw = self.parser.get(self.section, option, raw=True)
+            if "%(here)s" in raw:
+                self.parser.set(self.section, option, value)
+
+    def _unwrap_config_chain(self, filename):
+        """Get all names of files in use-chain.
+
+        Parse files using RawConfigParser, because top-level config file can
+        use variaables from the lower-level config files, which are not
+        initialized yet.
+        """
+        parser = RawConfigParser()
+        chain = []
+        while True:
+            parser.read(filename)
+            chain.append(filename)
+            use = parser.get(self.section, "use")
+            if not use:
+                return chain
+            try:
+                schema, next_config = use.split(":", 1)
+            except ValueError:
+                raise CkanConfigurationException(
+                    "Missing colon symbol in the value of `use` " +
+                    f"option inside {filename}: {use}"
+                )
+
+            if schema != "config":
+                return chain
+            filename = os.path.join(
+                os.path.dirname(os.path.abspath(filename)), next_config)
+            if filename in chain:
+                joined_chain = ' -> '.join(chain + [filename])
+                raise CkanConfigurationException(
+                    'Circular dependency located in '
+                    f'the configuration chain: {joined_chain}'
+                )
 
     def _create_config_object(self):
-        self._read_config_file(self.config_file)
-
-        # # The global_config key is to keep compatibility with Pylons.
-        # # It can be safely removed when the Flask migration is completed.
-        self.config[u'global_conf'] = self.parser.defaults().copy()
-
-        self._update_config()
-
-        schema, path = self.parser.get(self.section, u'use').split(u':')
-        if schema == u'config':
-            use_config_path = os.path.join(
-                os.path.dirname(os.path.abspath(self.config_file)), path)
-            self._read_config_file(use_config_path)
+        chain = self._unwrap_config_chain(self.config_file)
+        for filename in reversed(chain):
+            self._read_config_file(filename)
             self._update_config()
+        log.debug(
+            u'Loaded configuration from the following files: %s',
+            chain
+        )
 
     def get_config(self):
         return self.config.copy()

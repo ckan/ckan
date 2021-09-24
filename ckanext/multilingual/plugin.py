@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import six
-from six import string_types
+
 
 import ckan
 from ckan.plugins import SingletonPlugin, implements, IPackageController
@@ -34,7 +34,7 @@ def translate_data_dict(data_dict):
     for (key, value) in flattened.items():
         if value in (None, True, False):
             continue
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             terms.add(value)
         elif isinstance(value, (int, long)):
             continue
@@ -82,7 +82,7 @@ def translate_data_dict(data_dict):
             # Don't try to translate values that aren't strings.
             translated_flattened[key] = value
 
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             if value in desired_translations:
                 translated_flattened[key] = desired_translations[value]
             else:
@@ -130,7 +130,7 @@ def translate_resource_data_dict(data_dict):
     for (key, value) in flattened.items():
         if value in (None, True, False):
             continue
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             terms.add(value)
         elif isinstance(value, (int, long)):
             continue
@@ -173,7 +173,7 @@ def translate_resource_data_dict(data_dict):
             # Don't try to translate values that aren't strings.
             translated_flattened[key] = value
 
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             if value in desired_translations:
                 translated_flattened[key] = desired_translations[value]
             else:
@@ -226,13 +226,13 @@ class MultilingualDataset(SingletonPlugin):
 
         ## translate rest
         all_terms = []
-        for key, value in sorted(six.iteritems(search_data)):
+        for key, value in sorted(search_data.items()):
             if key in KEYS_TO_IGNORE or key.startswith('title'):
                 continue
             if not isinstance(value, list):
                 value = [value]
             for item in value:
-                if isinstance(item, string_types):
+                if isinstance(item, str):
                     all_terms.append(item)
 
         field_translations = get_action('term_translation_show')(
@@ -248,7 +248,7 @@ class MultilingualDataset(SingletonPlugin):
             lang_field = 'text_' + translation['lang_code']
             text_field_items[lang_field].append(translation['term_translation'])
 
-        for key, value in six.iteritems(text_field_items):
+        for key, value in text_field_items.items():
             search_data[key] = ' '.join(value)
 
         return search_data

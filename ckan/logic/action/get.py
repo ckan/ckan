@@ -11,7 +11,7 @@ import socket
 from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
-from six import string_types, text_type
+
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -44,47 +44,10 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 _select = sqlalchemy.sql.select
-_aliased = sqlalchemy.orm.aliased
 _or_ = sqlalchemy.or_
 _and_ = sqlalchemy.and_
 _func = sqlalchemy.func
-_desc = sqlalchemy.desc
 _case = sqlalchemy.case
-_text = sqlalchemy.text
-
-
-def _filter_activity_by_user(activity_list, users=[]):
-    '''
-    Return the given ``activity_list`` but with activities from the specified
-    users removed. The users parameters should be a list of ids.
-
-    A *new* filtered list is returned, the given ``activity_list`` itself is
-    not modified.
-    '''
-    if not len(users):
-        return activity_list
-    new_list = []
-    for activity in activity_list:
-        if activity.user_id not in users:
-            new_list.append(activity)
-    return new_list
-
-
-def _activity_stream_get_filtered_users():
-    '''
-    Get the list of users from the :ref:`ckan.hide_activity_from_users` config
-    option and return a list of their ids. If the config is not specified,
-    returns the id of the site user.
-    '''
-    users = config.get('ckan.hide_activity_from_users')
-    if users:
-        users_list = users.split()
-    else:
-        context = {'model': model, 'ignore_auth': True}
-        site_user = logic.get_action('get_site_user')(context)
-        users_list = [site_user.get('name')]
-
-    return model.User.user_ids_for_name_or_id(users_list)
 
 
 def site_read(context, data_dict=None):
@@ -158,7 +121,6 @@ def current_package_list_with_resources(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
     limit = data_dict.get('limit')
     offset = data_dict.get('offset', 0)
     user = context['user']
@@ -367,11 +329,18 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     if all_fields:
         # all_fields is really computationally expensive, so need a tight limit
-        max_limit = config.get(
-            'ckan.group_and_organization_list_all_fields_max', 25)
+        try:
+            max_limit = int(config.get(
+                'ckan.group_and_organization_list_all_fields_max', 25))
+        except ValueError:
+            max_limit = 25
     else:
-        max_limit = config.get('ckan.group_and_organization_list_max', 1000)
-    if limit is None or limit > max_limit:
+        try:
+            max_limit = int(config.get('ckan.group_and_organization_list_max', 1000))
+        except ValueError:
+            max_limit = 1000
+
+    if limit is None or int(limit) > max_limit:
         limit = max_limit
 
     # order_by deprecated in ckan 1.8
@@ -463,6 +432,9 @@ def _group_or_org_list(context, data_dict, is_org=False):
 def group_list(context, data_dict):
     '''Return a list of the names of the site's groups.
 
+    :param type: the type of group to list (optional, default: ``'group'``),
+        See docs for :py:class:`~ckan.plugins.interfaces.IGroupForm`
+    :type type: string
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
@@ -514,6 +486,10 @@ def group_list(context, data_dict):
 def organization_list(context, data_dict):
     '''Return a list of the names of the site's organizations.
 
+    :param type: the type of organization to list (optional,
+        default: ``'organization'``),
+        See docs for :py:class:`~ckan.plugins.interfaces.IGroupForm`
+    :type type: string
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
@@ -841,7 +817,7 @@ def user_list(context, data_dict):
             model.User.name.label('name'),
             model.User.fullname.label('fullname'),
             model.User.about.label('about'),
-            model.User.about.label('email'),
+            model.User.email.label('email'),
             model.User.created.label('created'),
             _select([_func.count(model.Package.id)],
                     _and_(
@@ -881,6 +857,9 @@ def user_list(context, data_dict):
                 else_=model.User.fullname
             )
         )
+    elif order_by_field == 'number_created_packages' or order_by_field == 'fullname' \
+            or order_by_field == 'about' or order_by_field == 'sysadmin':
+        query = query.order_by(order_by_field, model.User.name)
     else:
         query = query.order_by(order_by_field)
 
@@ -1093,7 +1072,7 @@ def resource_show(context, data_dict):
         if resource_dict['id'] == id:
             break
     else:
-        log.error('Could not find resource %s after all', id)
+        log.error('Resource %s exists but it is not found in the package it should belong to.', id)
         raise NotFound(_('Resource was not found.'))
 
     return resource_dict
@@ -1241,7 +1220,8 @@ def group_show(context, data_dict):
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the group's users
-         (optional, default: ``False``)
+         (optional, default: ``True`` if ``ckan.auth.public_user_details`` is ``True``
+         otherwise ``False``)
     :type include_users: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
@@ -1276,7 +1256,8 @@ def organization_show(context, data_dict):
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the organization's users
-         (optional, default: ``True``)
+         (optional, default: ``True`` if ``ckan.auth.public_user_details`` is ``True``
+         otherwise ``False``)
     :type include_users: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
@@ -1291,7 +1272,7 @@ def organization_show(context, data_dict):
 
     :rtype: dictionary
 
-    .. note:: Only its first 1000 datasets are returned
+    .. note:: Only its first 10 datasets are returned
     '''
     return _group_or_org_show(context, data_dict, is_org=True)
 
@@ -1878,7 +1859,7 @@ def package_search(context, data_dict):
 
         if result_fl:
             for package in query.results:
-                if isinstance(package, text_type):
+                if isinstance(package, str):
                     package = {result_fl[0]: package}
                 extras = package.pop('extras', {})
                 package.update(extras)
@@ -2056,7 +2037,7 @@ def resource_search(context, data_dict):
             {'fields': _('Do not specify if using "query" parameter')})
 
     elif query is not None:
-        if isinstance(query, string_types):
+        if isinstance(query, str):
             query = [query]
         try:
             fields = dict(pair.split(":", 1) for pair in query)
@@ -2072,7 +2053,7 @@ def resource_search(context, data_dict):
         # So maintain that behaviour
         split_terms = {}
         for field, terms in fields.items():
-            if isinstance(terms, string_types):
+            if isinstance(terms, str):
                 terms = terms.split()
             split_terms[field] = terms
         fields = split_terms
@@ -2090,7 +2071,7 @@ def resource_search(context, data_dict):
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
 
-        if isinstance(terms, string_types):
+        if isinstance(terms, str):
             terms = [terms]
 
         if field not in resource_fields:
@@ -2114,7 +2095,7 @@ def resource_search(context, data_dict):
 
             # Treat the has field separately, see docstring.
             if field == 'hash':
-                q = q.filter(model_attr.ilike(text_type(term) + '%'))
+                q = q.filter(model_attr.ilike(str(term) + '%'))
 
             # Resource extras are stored in a json blob.  So searching for
             # matching fields is a bit trickier.  See the docstring.
@@ -2133,7 +2114,7 @@ def resource_search(context, data_dict):
             else:
                 column = model_attr.property.columns[0]
                 if isinstance(column.type, sqlalchemy.UnicodeText):
-                    q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
+                    q = q.filter(model_attr.ilike('%' + str(term) + '%'))
                 else:
                     q = q.filter(model_attr == term)
 
@@ -2166,7 +2147,7 @@ def _tag_search(context, data_dict):
     model = context['model']
 
     terms = data_dict.get('query') or data_dict.get('q') or []
-    if isinstance(terms, string_types):
+    if isinstance(terms, str):
         terms = [terms]
     terms = [t.strip() for t in terms if t.strip()]
 
@@ -2353,7 +2334,7 @@ def term_translation_show(context, data_dict):
     # This action accepts `terms` as either a list of strings, or a single
     # string.
     terms = _get_or_bust(data_dict, 'terms')
-    if isinstance(terms, string_types):
+    if isinstance(terms, str):
         terms = [terms]
     if terms:
         q = q.where(trans_table.c.term.in_(terms))
@@ -2362,7 +2343,7 @@ def term_translation_show(context, data_dict):
     # string.
     if 'lang_codes' in data_dict:
         lang_codes = _get_or_bust(data_dict, 'lang_codes')
-        if isinstance(lang_codes, string_types):
+        if isinstance(lang_codes, str):
             lang_codes = [lang_codes]
         q = q.where(trans_table.c.lang_code.in_(lang_codes))
 
@@ -2414,6 +2395,10 @@ def status_show(context, data_dict):
     :rtype: dictionary
 
     '''
+
+    plugins = config.get('ckan.plugins')
+    extensions = plugins.split() if plugins else []
+
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -2421,7 +2406,7 @@ def status_show(context, data_dict):
         'ckan_version': ckan.__version__,
         'error_emails_to': config.get('email_to'),
         'locale_default': config.get('ckan.locale_default'),
-        'extensions': config.get('ckan.plugins').split(),
+        'extensions': extensions,
     }
 
 
@@ -2496,10 +2481,8 @@ def user_activity_list(context, data_dict):
     offset = data_dict.get('offset', 0)
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = model.activity.user_activity_list(
+    activity_objects = model.activity.user_activity_list(
         user.id, limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(
-        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -2530,6 +2513,11 @@ def package_activity_list(context, data_dict):
         NB Only sysadmins may set include_hidden_activity to true.
         (default: false)
     :type include_hidden_activity: bool
+    :param activity_types: A list of activity types to include in the response
+    :type activity_types: list
+
+    :param exclude_activity_types: A list of activity types to exclude from the response
+    :type exclude_activity_types: list
 
     :rtype: list of dictionaries
 
@@ -2538,6 +2526,12 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
+    activity_types = data_dict.pop('activity_types', None)
+    exclude_activity_types = data_dict.pop('exclude_activity_types', None)
+
+    if activity_types is not None and exclude_activity_types is not None:
+        raise ValidationError({'activity_types': ['Cannot be used together with `exclude_activity_types']})
+
     _check_access('package_activity_list', context, data_dict)
 
     model = context['model']
@@ -2550,13 +2544,12 @@ def package_activity_list(context, data_dict):
     offset = int(data_dict.get('offset', 0))
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = model.activity.package_activity_list(
-        package.id, limit=limit, offset=offset)
-    if not include_hidden_activity:
-        activity_objects = _filter_activity_by_user(
-            _activity_objects, _activity_stream_get_filtered_users())
-    else:
-        activity_objects = _activity_objects
+    activity_objects = model.activity.package_activity_list(
+        package.id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types,
+        exclude_activity_types=exclude_activity_types
+    )
 
     return model_dictize.activity_list_dictize(
         activity_objects, context, include_data=data_dict['include_data'])
@@ -2605,13 +2598,10 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(
-        group_id, limit=limit, offset=offset)
-    if not include_hidden_activity:
-        activity_objects = _filter_activity_by_user(
-            _activity_objects, _activity_stream_get_filtered_users())
-    else:
-        activity_objects = _activity_objects
+    activity_objects = model.activity.group_activity_list(
+        group_id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+    )
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -2659,13 +2649,10 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.organization_activity_list(
-        org_id, limit=limit, offset=offset)
-    if not include_hidden_activity:
-        activity_objects = _filter_activity_by_user(
-            _activity_objects, _activity_stream_get_filtered_users())
-    else:
-        activity_objects = _activity_objects
+    activity_objects = model.activity.organization_activity_list(
+        org_id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+    )
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -2695,12 +2682,9 @@ def recently_changed_packages_activity_list(context, data_dict):
     data_dict['include_data'] = False
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = \
+    activity_objects = \
         model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(
-        _activity_objects,
-        _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -3213,13 +3197,11 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _activity_tuple_objects = model.activity.dashboard_activity_list(
+    activity_objects = model.activity.dashboard_activity_list(
         user_id, limit=limit, offset=offset)
 
-    activity_tuple_list = _filter_activity_by_user(
-        _activity_tuple_objects, _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
-        activity_tuple_list, context)
+        activity_objects, context)
 
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
@@ -3267,7 +3249,6 @@ def activity_show(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     include_data = asbool(_get_or_bust(data_dict, 'include_data'))
 
@@ -3298,7 +3279,6 @@ def activity_data_show(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = data_dict.get('object_type')
 
@@ -3335,10 +3315,8 @@ def activity_diff(context, data_dict):
     :type diff_type: string
     '''
     import difflib
-    from pprint import pformat
 
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = _get_or_bust(data_dict, 'object_type')
     diff_type = data_dict.get('diff_type', 'unified')
@@ -3566,12 +3544,13 @@ def api_token_list(context, data_dict):
     :returns: collection of all API Tokens
     :rtype: list
 
-    .. versionadded:: 3.0
+    .. versionadded:: 2.9
     '''
     id_or_name = _get_or_bust(data_dict, u'user')
     _check_access(u'api_token_list', context, data_dict)
     user = model.User.get(id_or_name)
-
+    if user is None:
+        raise NotFound("User not found")
     tokens = model.Session.query(model.ApiToken).filter(
         model.ApiToken.user_id == user.id
     )

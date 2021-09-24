@@ -2,11 +2,6 @@
 Data preview and visualization
 ==============================
 
-.. versionchanged:: 2.3
-
-    The whole way resource previews are handled was changed on CKAN 2.3.
-    Please refer to previous versions of the documentation if you are using
-    an older CKAN version.
 
 .. contents::
 
@@ -88,6 +83,47 @@ Available view plugins
 Some view plugins for common formats are included in the main CKAN repository.
 These don't require further setup and can be directly added to the
 :ref:`ckan.plugins` setting.
+
+DataTables view
++++++++++++++++
+
+.. image:: /images/datatables_view.png
+
+View plugin: ``datatables_view``
+
+Displays a filterable, sortable, table view of structured data using the 
+DataTables_ jQuery plugin, with the following features.
+
+ * Search highlighting
+ * Column Filters
+ * Multi-column sorting
+ * Two view modes (table/list). Table shows the data in a typical grid with
+   horizontal scrolling. List displays the data in a responsive mode, with
+   a Record Details view.
+ * Filtered Downloads
+ * Column Visibility control
+ * Copy to clipboard and Printing of filtered results and row selection/s
+ * Drag-and-drop column reordering
+ * State Saving - saves search keywords, column order/visibility, row
+   selections and page settings between session, with the ability to share
+   saved searches.
+ * Data Dictionary Integration
+ * Automatic "linkification" of URLs
+ * Automatic creation of zoomable thumbnails when a cell only contains a URL 
+   to an image.
+ * Available automatic, locale-aware date formatting to convert raw ISO-8601
+   timestamps to a user-friendly date format 
+
+It is designed not only as a data viewer, but also as a simple ad-hoc report
+generator - allowing users to quickly find an actionable subset of
+the data they need from inside the resource view, without having to first
+download the dataset.
+
+It's also optimized for embedding datasets and saved searches on external
+sites - with a backlink to the portal and automatic resizing.
+
+This plugin requires data to be in the DataStore.
+
 
 .. _data-explorer:
 
@@ -175,6 +211,8 @@ as Mapbox. Look below for an example to add to your configuration file::
     ckanext.spatial.common_map.subdomains = <subdomains>
 
 
+
+
 Text view
 +++++++++
 
@@ -202,6 +240,45 @@ If the resource format is a common image format like PNG, JPEG or GIF, it adds
 an ``<img>`` tag pointing to the resource URL. You can provide an alternative
 URL on the edit view form. The available formats can be configured using the
 :ref:`ckan.preview.image_formats` configuration option.
+
+Video view
+++++++++++
+
+.. image:: /images/video_view.png
+
+View plugin: ``video_view``
+
+This plugin uses the HTML5 <video> tag to embed video content into a page,
+such as movie clip or other video streams.
+
+There are three supported video formats: MP4, WebM, and OGG.
+
+.. image:: /images/video_view_edit.png
+
+You can provide an alternative URL on the edit view form. Otherwise, the resource link will be used.
+
+Also, you can provide a poster image URL. The poster image will be shown while the
+video is downloading, or until the user hits the play button.
+If this is not provided, the first frame of the video will be used instead.
+
+Audio view
+++++++++++
+
+.. image:: /images/audio_view.png
+
+View plugin: ``audio_view``
+
+This plugin uses the HTML5 audio tag to embed an audio player on the page.
+
+Since we rely on HTML5 <audio> tag, there are three supported audio formats: MP3, WAV, and OGG.
+Notice. Browsers don't all support the same `file types`_ and `audio codecs`_.
+
+.. image:: /images/audio_view_edit.png
+
+You can provide an alternative URL on the edit view form. Otherwise, the resource link will be used.
+
+.. _file types: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers
+.. _audio codecs: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Audio_codecs
 
 Web page view
 +++++++++++++
@@ -239,6 +316,7 @@ the :py:class:`~ckan.plugins.interfaces.IResourceView` interface.
 
 
 .. _Recline: https://github.com/okfn/recline/
+.. _DataTables: https://datatables.net/
 .. _DataProxy: https://github.com/okfn/dataproxy
 .. _GeoJSON: http://geojson.org
 .. _Dashboard: https://github.com/ckan/ckanext-dashboard

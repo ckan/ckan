@@ -2,10 +2,9 @@
 
 import datetime
 import pytz
-import six
 
 from flask_babel import (
-    format_number,
+    format_decimal,
     format_datetime,
     format_date,
     format_timedelta
@@ -60,7 +59,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
 
 def localised_number(number):
     ''' Returns a localised unicode representation of number '''
-    return format_number(number)
+    return format_decimal(number)
 
 
 def localised_filesize(number):

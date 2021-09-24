@@ -2,7 +2,7 @@
 
 import datetime
 
-from six import text_type
+
 from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
@@ -132,25 +132,6 @@ class Resource(core.StatefulObjectMixin,
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
 
-    @classmethod
-    def get_all_without_views(cls, formats=[]):
-        '''Returns all resources that have no resource views
-
-        :param formats: if given, returns only resources that have no resource
-            views and are in any of the received formats
-        :type formats: list
-
-        :rtype: list of ckan.model.Resource objects
-        '''
-        query = meta.Session.query(cls).outerjoin(ckan.model.ResourceView) \
-                    .filter(ckan.model.ResourceView.id == None)
-
-        if formats:
-            lowercase_formats = [f.lower() for f in formats]
-            query = query.filter(func.lower(cls.format).in_(lowercase_formats))
-
-        return query.all()
-
     def related_packages(self):
         return [self.package]
 
@@ -179,7 +160,7 @@ def resource_identifier(obj):
 
 class DictProxy(object):
 
-    def __init__(self, target_key, target_dict, data_type=text_type):
+    def __init__(self, target_key, target_dict, data_type=str):
         self.target_key = target_key
         self.target_dict = target_dict
         self.data_type = data_type

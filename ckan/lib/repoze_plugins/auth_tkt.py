@@ -24,8 +24,7 @@ log = logging.getLogger(__name__)
 _ckan_userid_type_decoders = dict(
     repoze_auth_tkt.AuthTktCookiePlugin.userid_type_decoders
 )
-if six.PY3:
-    _ckan_userid_type_decoders.pop('unicode')
+_ckan_userid_type_decoders.pop('unicode')
 
 
 class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):

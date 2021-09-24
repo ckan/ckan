@@ -93,14 +93,12 @@ Turn this file into a github issue with a checklist using this command::
    release branch if the original branch was not compatible).
 
    As in the master branch, if some commits involving CSS changes are
-   cherry-picked from master, the less compiling command needs to be run on
+   cherry-picked from master, the sass compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
         npm run build
         git commit -am "Rebuild CSS"
         git push
-
-   There will be a final front-end build before the actual release.
 
 #. Update beta.ckan.org to run new branch.
 
@@ -264,7 +262,7 @@ Turn this file into a github issue with a checklist using this command::
 
      aws s3 cp python-ckan_2.5.0-precisebeta1_amd64.deb s3://packaging.ckan.org/build/python-ckan_2.5.0-precisebeta1_amd64.deb
 
-   Now the .deb files are available at http://packaging.ckan.org/build/ invite
+   Now the .deb files are available at https://packaging.ckan.org/build/ invite
    people on ckan-dev to test them.
 
 -------------------------
@@ -273,14 +271,14 @@ Leading up to the release
 
 #. Update the CHANGELOG.txt with the new version changes.
 
-   * Check that all merged PRs have corresponding fragment inside
-     ``changes/`` folder. Name of every fragment is following format
-     ``{issue number}.{fragment type}``, where *issue number* is
-     GitHub issue id and *fragment type* is one of *migration*,
-     *removal*, *bugfix* or *misc* depending on change introduced by
-     PR.
-     The following gist has a script that uses the GitHub API to
-     aid in getting the merged issues between releases:
+   * Check that all merged PRs have corresponding fragment inside ``changes/``
+     folder. Name of every fragment is following format ``{issue
+     number}.{fragment type}``, where *issue number* is GitHub issue id and
+     *fragment type* is one of *migration*, *removal*, *bugfix* or *misc*
+     depending on change introduced by PR. Missing fragments can be created
+     using `towncrier create --edit {issue number}.{fragment type}` command.
+     The following gist has a script that uses the GitHub API to aid in getting
+     the merged issues between releases:
 
         https://gist.github.com/amercader/4ec55774b9a625e815bf
 
@@ -290,12 +288,12 @@ Leading up to the release
 
      When all fragments are ready, make a test build::
 
-        towncrier --draft
+        towncrier build --draft
 
      And check output. If no problems identified, compile updated
      changelog::
 
-        towncrier --yes
+        towncrier build --yes
 
      You'll be asked, whether it's ok to remove source fragments. Feel
      free to answer "yes" - all changes will be automatically inserted
@@ -331,10 +329,10 @@ Leading up to the release
 #. A week before the actual release, announce the upcoming release(s).
 
    Send an email to the
-   `ckan-announce mailing list <http://lists.okfn.org/mailman/listinfo/ckan-announce>`_,
+   `ckan-announce mailing list <https://groups.google.com/a/ckan.org/g/ckan-announce>`_,
    so CKAN instance maintainers can be aware of the upcoming releases. List any
    patch releases that will be also available. Here's an `example
-   <https://lists.okfn.org/pipermail/ckan-announce/2015-July/000013.html>`_ email.
+   <https://groups.google.com/a/ckan.org/g/ckan-announce/c/BcDR7Guzb44>`_ email.
 
 -----------------------
 Doing the final release
@@ -346,13 +344,6 @@ a release.
 #. Run the most thorough tests::
 
         pytest --ckan-ini=test-core.ini ckan/tests
-
-#. Do a final build of the front-end, add the generated files to the repo and
-   commit the changes::
-
-        ckan -c |ckan.ini| front-end-build
-        git add ckan ckanext
-        git commit -am "Rebuild front-end"
 
 #. Review the CHANGELOG to check it is complete.
 
@@ -378,7 +369,7 @@ a release.
 #. Create and deploy the final deb package.
 
    Move it to the root of the
-   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   `publicly accessible folder <https://packaging.ckan.org/>`_ of
    the packaging server from the `/build` folder.
 
    Make sure to rename it so it follows the deb packages name convention::
@@ -419,6 +410,11 @@ a release.
    If you upload a bad package, then you can remove it from PyPI however you
    must use a new version number next time.
 
+#. Build new Docker images for the new version in the following repos:
+
+   * `openknowledge/docker-ckan <https://github.com/okfn/docker-ckan>`_ -> ``openknowledge/ckan-base:{Major:minor}`` and ``openknowledge/ckan-dev:{Major:minor}`` (ping @amercader for this one)
+   * `ckan/ckan-solr-dev <https://github.com/ckan/ckan-solr-dev>`_ -> ``ckan/ckan-solr-dev:{Major:minor}``
+   * `ckan/ckan-postgres-dev <https://github.com/ckan/ckan-postgres-dev>`_ -> ``ckan/ckan-postgres-dev:{Major:minor}``
 
 #. Enable the new version of the docs on Read the Docs.
 
@@ -439,8 +435,8 @@ a release.
 
    CKAN blog here: <http://ckan.org/wp-admin>`_
 
-   * `Example blog <http://ckan.org/2015/07/22/ckan-2-4-release-and-patch-releases/>`_
-   * `Example email <https://lists.okfn.org/pipermail/ckan-dev/2015-July/009141.html>`_
+   * `Example blog <https://ckan.org/2021/02/10/new-patch-releases-available-upgrade-now-your-ckan-site/>`_
+   * `Example email <https://groups.google.com/a/ckan.org/g/ckan-announce/c/BcDR7Guzb44>`_
 
    Tweet from @CKANproject
 
@@ -495,14 +491,6 @@ Preparing patch releases
 Doing the patch releases
 ------------------------
 
-#. If there have been any CSS or JS changes, rebuild the front-end.
-
-   Rebuild the front-end, add new files and commit with::
-
-        ckan -c |ckan.ini| front-end-build
-        git add ckan ckanext
-        git commit -am "Rebuild front-end"
-
 #. Review the CHANGELOG to check it is complete.
 
 #. Tag the repository with the version number.
@@ -525,7 +513,7 @@ Doing the patch releases
    Note that we drop the patch version and iteration number from the package name.
 
    Move it to the root of the
-   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   `publicly accessible folder <https://packaging.ckan.org/>`_ of
    the packaging server from the `/build` folder, replacing the existing file
    for this minor version.
 

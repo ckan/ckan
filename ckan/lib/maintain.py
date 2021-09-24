@@ -1,16 +1,19 @@
 # encoding: utf-8
 
 ''' This module contains code that helps in maintaining the Ckan codebase. '''
+
 import inspect
 import time
 import logging
 import re
+import warnings
 
+from ckan.exceptions import CkanDeprecationWarning
 
 log = logging.getLogger(__name__)
 
 
-def deprecated(message=''):
+def deprecated(message='', since=None):
     ''' This is a decorator used to mark functions as deprecated.
 
     It logs a warning when the function is called. If a message is
@@ -30,9 +33,16 @@ def deprecated(message=''):
                             % (fn.__name__, fn.__module__))
 
         def wrapped(*args, **kw):
-            log.warning('Function %s() in module %s has been deprecated '
-                        'and will be removed in a later release of ckan. %s'
-                        % (fn.__name__, fn.__module__, message))
+            since_msg = f'since CKAN v{since}' if since else ''
+            msg = (
+                'Function %s() in module %s has been deprecated %s'
+                ' and will be removed in a later release of ckan. %s'
+                % (fn.__name__, fn.__module__, since_msg, message)
+            )
+
+            log.warning(msg)
+            warnings.warn(msg, CkanDeprecationWarning, stacklevel=2)
+
             return fn(*args, **kw)
         return wrapped
     return decorator

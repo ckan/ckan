@@ -13,7 +13,8 @@ from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
 
-import six
+import webob
+
 from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
@@ -21,7 +22,6 @@ from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
 from ckan.common import asbool
-from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
@@ -63,6 +63,30 @@ class I18nMiddleware(object):
 
         handle_i18n(environ)
         return self.app(environ, start_response)
+
+
+class RepozeAdapterMiddleware(object):
+    """When repoze.who interrupts requrests for anonymous user because of
+    insufficient permission, it closes requrest stream and make an
+    attempt to return response to user as quick as possible. But when
+    werkzeug sees POST request with some payload it tries to parse
+    request data and it leads to BadRequests(400), because there is no
+    way to parse closed request stream. This middlewary just
+    reproduces part of internal Fanstatic bevavior: don't drop request
+    stream while response is written to the client.
+
+    The middleware only requred because of repoze.who and it should be
+    removed as soon as PluggableAuthenticationMiddlewary is replaced
+    with some alternative solution.
+
+    """
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        request = webob.Request(environ)
+        response = request.get_response(self.app)
+        return response(environ, start_response)
 
 
 class CKANBabel(Babel):
@@ -164,9 +188,6 @@ def make_flask_stack(conf):
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
-        log = logging.getLogger('werkzeug')
-        log.setLevel(logging.DEBUG)
-
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
         def open_session(self, app, request):
@@ -178,7 +199,7 @@ def make_flask_stack(conf):
 
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v
-                    for k, v in six.iteritems(config)
+                    for k, v in config.items()
                     if k.startswith(namespace)}
     if (not session_opts.get('session.data_dir') and
             session_opts.get('session.type', 'file') == 'file'):
@@ -216,7 +237,7 @@ def make_flask_stack(conf):
         (_ckan_i18n_dir, u'ckan')
     ] + [
         (p.i18n_directory(), p.i18n_domain())
-        for p in PluginImplementations(ITranslation)
+        for p in reversed(list(PluginImplementations(ITranslation)))
     ]
 
     i18n_dirs, i18n_domains = zip(*pairs)
@@ -224,6 +245,7 @@ def make_flask_stack(conf):
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
     app.config[u'BABEL_DOMAIN'] = 'ckan'
     app.config[u'BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
+    app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(helpers.get_display_timezone())
 
     babel = CKANBabel(app)
 
@@ -248,55 +270,9 @@ def make_flask_stack(conf):
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
 
-    # Set flask routes in named_routes
-    # TODO: refactor whatever helper is using this to not do it
-    if 'routes.named_routes' not in config:
-        config['routes.named_routes'] = {}
-    for rule in app.url_map.iter_rules():
-        if '.' not in rule.endpoint:
-            continue
-        controller, action = rule.endpoint.split('.')
-        needed = list(rule.arguments - set(rule.defaults or {}))
-        route = {
-            rule.endpoint: {
-                'action': action,
-                'controller': controller,
-                'highlight_actions': action,
-                'needed': needed
-            }
-        }
-        config['routes.named_routes'].update(route)
-
     # Start other middleware
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
-
-    # Fanstatic
-    fanstatic_enable_rollup = asbool(
-        conf.get('fanstatic_enable_rollup', False))
-    if debug:
-        fanstatic_config = {
-            'versioning': True,
-            'recompute_hashes': True,
-            'minified': False,
-            'bottom': True,
-            'bundle': False,
-            'rollup': fanstatic_enable_rollup,
-        }
-    else:
-        fanstatic_config = {
-            'versioning': True,
-            'recompute_hashes': False,
-            'minified': True,
-            'bottom': True,
-            'bundle': True,
-            'rollup': fanstatic_enable_rollup,
-        }
-
-    if root_path:
-        root_path = re.sub('/{{LANG}}', '', root_path)
-        fanstatic_config['base_url'] = root_path
-    app = Fanstatic(app, **fanstatic_config)
 
     for plugin in PluginImplementations(IMiddleware):
         try:
@@ -311,7 +287,7 @@ def make_flask_stack(conf):
     who_parser.parse(open(conf['who.config_file']))
 
     app = PluggableAuthenticationMiddleware(
-        app,
+        RepozeAdapterMiddleware(app),
         who_parser.identifiers,
         who_parser.authenticators,
         who_parser.challengers,
@@ -331,11 +307,11 @@ def make_flask_stack(conf):
 
     # Prevent the host from request to be added to the new header location.
     app = HostHeaderMiddleware(app)
-    if six.PY3:
-        app = I18nMiddleware(app)
 
-        if asbool(config.get('ckan.tracking_enabled', 'false')):
-            app = TrackingMiddleware(app, config)
+    app = I18nMiddleware(app)
+
+    if asbool(config.get('ckan.tracking_enabled', 'false')):
+        app = TrackingMiddleware(app, config)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
@@ -355,21 +331,32 @@ def get_locale():
 
 
 def ckan_before_request():
-    u'''Common handler executed before all Flask requests'''
+    u'''
+    Common handler executed before all Flask requests
+
+    If a response is returned by any of the functions called (
+    currently ``identify_user()` only) any further processing of the
+    request will be stopped and that response will be returned.
+
+    '''
+    response = None
+
+    g.__timer = time.time()
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
-    identify_user()
+    response = identify_user()
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
     set_controller_and_action()
 
     set_ckan_current_url(request.environ)
-    g.__timer = time.time()
+
+    return response
 
 
 def ckan_after_request(response):
@@ -389,8 +376,9 @@ def ckan_after_request(response):
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
+    status_code = response.status_code
 
-    log.info(' %s render time %.3f seconds' % (url, r_time))
+    log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
 
     return response
 
@@ -484,7 +472,7 @@ class CKANFlask(MultiStaticFlask):
 
         # Get the new blueprint rules
         bp_rules = itertools.chain.from_iterable(
-            v for k, v in six.iteritems(self.url_map._rules_by_endpoint)
+            v for k, v in self.url_map._rules_by_endpoint.items()
             if k.startswith(u'{0}.'.format(blueprint.name))
         )
 
@@ -514,8 +502,9 @@ def _register_error_handler(app):
     u'''Register error handler'''
 
     def error_handler(e):
-        log.error(e, exc_info=sys.exc_info)
+        debug = asbool(config.get('debug', config.get('DEBUG', False)))
         if isinstance(e, HTTPException):
+            log.debug(e, exc_info=sys.exc_info) if debug else log.info(e)
             extra_vars = {
                 u'code': e.code,
                 u'content': e.description,
@@ -524,6 +513,7 @@ def _register_error_handler(app):
 
             return base.render(
                 u'error_document_template.html', extra_vars), e.code
+        log.error(e, exc_info=sys.exc_info)
         extra_vars = {u'code': [500], u'content': u'Internal server error'}
         return base.render(u'error_document_template.html', extra_vars), 500
 

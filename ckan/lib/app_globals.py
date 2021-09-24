@@ -139,11 +139,7 @@ def reset():
             value = None
         config_value = config.get(key)
         # sort encodeings if needed
-        if isinstance(config_value, str) and six.PY2:
-            try:
-                config_value = six.ensure_text(config_value)
-            except UnicodeDecodeError:
-                config_value = config_value.decode('latin-1')
+        
         # we want to store the config the first time we get here so we can
         # reset them if needed
         if key not in _CONFIG_CACHE:

@@ -5,7 +5,7 @@ import json
 import datetime
 import time
 
-from six.moves.urllib.parse import urljoin
+from urllib.parse import urljoin
 from dateutil.parser import parse as parse_date
 
 import requests
@@ -67,11 +67,9 @@ def datapusher_submit(context, data_dict):
         callback_url = urljoin(
             callback_url_base.rstrip('/'), '/api/3/action/datapusher_hook')
     else:
-        site_url = h.url_for('/', qualified=True)
+        site_url = h.url_for('home.index', qualified=True)
         callback_url = h.url_for(
             '/api/3/action/datapusher_hook', qualified=True)
-
-    user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
 
     for plugin in p.PluginImplementations(interfaces.IDataPusher):
         upload = plugin.can_upload(res_id)
@@ -119,6 +117,10 @@ def datapusher_submit(context, data_dict):
         pass
 
     context['ignore_auth'] = True
+    # Use local session for task_status_update, so it can commit its own
+    # results without messing up with the parent session that contains pending
+    # updats of dataset/resource/etc.
+    context['session'] = context['model'].meta.create_local_session()
     p.toolkit.get_action('task_status_update')(context, task)
 
     site_user = p.toolkit.get_action(

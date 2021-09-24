@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import pytest
-from six import text_type
+
 
 from ckan.common import config
 
@@ -9,7 +9,6 @@ import ckan.lib.app_globals as app_globals
 
 import ckan.model as model
 import ckan.logic as logic
-import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 
 
@@ -58,7 +57,7 @@ class TestConfigOptionUpdatePluginEnabled(object):
 
         # db
         obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
-        assert obj.value == text_type(value)  # all values stored as string
+        assert obj.value == str(value)  # all values stored as string
 
     def test_update_registered_external_value(self):
 

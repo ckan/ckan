@@ -145,7 +145,7 @@ def parse_version(version_):
     global version_re
     if version_re is None:
         version_re = re.compile('(?:ckan-)?(\d+)\.(\d+)(?:\.(\d+))?[a-z]?')
-    if isinstance(version_, six.binary_type):
+    if isinstance(version_, bytes):
         version_ = version_.decode()
     return version_re.match(version_).groups()
 
@@ -200,7 +200,8 @@ def get_current_release_tag():
     if release_tags_.__contains__(current_tag):
         return current_tag
     else:
-        return 'COULD_NOT_DETECT_TAG_VERSION'
+        # Un-released tag (eg master or a beta version), use the latest one
+        return get_latest_release_tag()
 
 
 def get_latest_release_tag():
@@ -216,7 +217,8 @@ def get_latest_release_tag():
     if release_tags_:
         return release_tags_[-1]
     else:
-        return 'COULD_NOT_DETECT_VERSION_NUMBER'
+        # Un-released tag (eg master or a beta version), use the latest one
+        return get_latest_release_version()
 
 
 def get_latest_release_version():
@@ -308,7 +310,7 @@ def write_substitutions_file(**kwargs):
             f.write('.. |{name}| replace:: {substitution}\n'.format(
                     name=name, substitution=substitution))
 
-current_release_tag = get_current_release_tag()
+current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
@@ -318,6 +320,8 @@ is_supported = get_status_of_this_version() == 'supported'
 is_latest_version = version == latest_release_version
 
 write_substitutions_file(
+    current_release_tag=current_release_tag_value,
+    current_release_version=current_release_version,
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
     latest_package_name_bionic=get_latest_package_name('bionic'),

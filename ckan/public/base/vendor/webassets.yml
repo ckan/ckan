@@ -16,6 +16,12 @@ jquery:
   contents:
     - jquery.js
 
+qs:
+  filters: rjsmin
+  output: vendor/%(version)s_qs.js
+  contents:
+    - qs.js
+
 vendor:
   filters: rjsmin
   output: vendor/%(version)s_vendor.js
@@ -36,7 +42,7 @@ bootstrap:
       - vendor/font-awesome
       - vendor/jquery
   contents:
-    - bootstrap/js/bootstrap.js
+    - bootstrap/javascripts/bootstrap.js
 
 fileupload:
   filters: rjsmin

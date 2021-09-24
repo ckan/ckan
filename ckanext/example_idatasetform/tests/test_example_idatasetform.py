@@ -3,16 +3,13 @@
 import pytest
 import six
 import bs4
-from ckan.common import config
 
 from ckan.lib.helpers import url_for
 
-import ckan.model as model
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckanext.example_idatasetform as idf
-import ckan.lib.search
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
@@ -78,6 +75,40 @@ class TestVersion5(object):
         assert (
             url_for("fancy_type.edit", id="check") == "/fancy_type/edit/check"
         )
+
+    def test_custom_field_with_extras(self):
+        dataset = factories.Dataset(
+            type='fancy_type',
+            name='test-dataset',
+            custom_text='custom-text',
+            extras=[
+                {'key': 'key1', 'value': 'value1'},
+                {'key': 'key2', 'value': 'value2'},
+            ]
+        )
+        assert dataset['custom_text'] == 'custom-text'
+        assert dataset['extras'] == [
+            {'key': 'key1', 'value': 'value1'},
+            {'key': 'key2', 'value': 'value2'},
+        ]
+
+    def test_mixed_extras(self):
+        dataset = factories.Dataset(
+            type='fancy_type',
+            name='test-dataset',
+            custom_text='custom-text',
+            extras=[
+                {'key': 'key1', 'value': 'value1'},
+                {'key': 'custom_text_2', 'value': 'custom-text-2'},
+                {'key': 'key2', 'value': 'value2'},
+            ],
+        )
+        assert dataset['custom_text'] == 'custom-text'
+        assert dataset['custom_text_2'] == 'custom-text-2'
+        assert dataset['extras'] == [
+            {'key': 'key1', 'value': 'value1'},
+            {'key': 'key2', 'value': 'value2'},
+        ]
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")

@@ -6,7 +6,6 @@ import json
 import responses
 import six
 
-from ckan.tests.helpers import _get_test_app
 from ckan.common import config
 
 import ckan.model as model
@@ -98,7 +97,7 @@ class TestProxyPrettyfied(object):
         cl = blueprint.MAX_FILE_SIZE + 1
         self.mock_out_urls(
             self.url,
-            headers={'Content-Length': six.text_type(cl)},
+            headers={'Content-Length': str(cl)},
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)

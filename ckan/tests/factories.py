@@ -41,7 +41,7 @@ Usage::
 import random
 import string
 import factory
-import mock
+import unittest.mock as mock
 
 import ckan.model
 import ckan.logic
@@ -399,6 +399,33 @@ class SystemInfo(factory.Factory):
         )
 
         return obj
+
+
+class APIToken(factory.Factory):
+    """A factory class for creating CKAN API Tokens"""
+
+    class Meta:
+        model = ckan.model.ApiToken
+
+    name = "first token"
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        target_user_name = _get_action_user_name(kwargs)
+        context = {"user": target_user_name}
+        kwargs["user"] = target_user_name
+
+        token_create = helpers.call_action(
+            'api_token_create', context=context, **kwargs
+        )
+        return token_create["token"]
 
 
 def validator_data_dict():

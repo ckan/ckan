@@ -2,11 +2,8 @@
 
 import logging
 
-from six import string_types
-
 import ckan.plugins as p
 import ckan.logic as logic
-import ckan.model as model
 from ckan.model.core import State
 
 import ckanext.datastore.helpers as datastore_helpers
@@ -145,9 +142,10 @@ class DatastorePlugin(p.SingletonPlugin):
             if res.extras.get('datastore_active') is True]
 
         for res in deleted:
-            self.backend.delete(context, {
-                'resource_id': res.id,
-            })
+            if self.backend.resource_exists(res.id):
+                self.backend.delete(context, {
+                    'resource_id': res.id,
+                })
             res.extras['datastore_active'] = False
             res_query.filter_by(id=res.id).update(
                 {'extras': res.extras}, synchronize_session=False)
@@ -164,13 +162,13 @@ class DatastorePlugin(p.SingletonPlugin):
 
         q = data_dict.get('q')
         if q:
-            if isinstance(q, string_types):
+            if isinstance(q, str):
                 del data_dict['q']
                 column_names.append(u'rank')
             elif isinstance(q, dict):
                 for key in list(q.keys()):
                     if key in fields_types and isinstance(q[key],
-                                                          string_types):
+                                                          str):
                         column_names.append(u'rank ' + key)
                         del q[key]
 
@@ -180,7 +178,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         language = data_dict.get('language')
         if language:
-            if isinstance(language, string_types):
+            if isinstance(language, str):
                 del data_dict['language']
 
         plain = data_dict.get('plain')
@@ -207,7 +205,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if limit:
             is_positive_int = datastore_helpers.validate_int(limit,
                                                              non_negative=True)
-            is_all = isinstance(limit, string_types) and limit.lower() == 'all'
+            is_all = isinstance(limit, str) and limit.lower() == 'all'
             if is_positive_int or is_all:
                 del data_dict['limit']
 
@@ -217,6 +215,11 @@ class DatastorePlugin(p.SingletonPlugin):
                                                              non_negative=True)
             if is_positive_int:
                 del data_dict['offset']
+
+        full_text = data_dict.get('full_text')
+        if full_text:
+            if isinstance(full_text, str):
+                del data_dict['full_text']
 
         return data_dict
 

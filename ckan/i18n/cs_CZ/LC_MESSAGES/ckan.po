@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
+# Jiří Podhorecký, 2020
 # trendspotter <j.podhorecky@volny.cz>, 2020
 # 
 #, fuzzy
@@ -14,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: trendspotter <j.podhorecky@volny.cz>, 2020\n"
+"Last-Translator: trendspotter, 2020\n"
 "Language-Team: Czech (Czech Republic) (https://www.transifex.com/okfn/teams/11162/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -43,6 +44,8 @@ msgid ""
 "Your browser does not support the <code>audio</code> element. But don't "
 "worry, you can <a href=\"%(res_url)s\" alt=\"video url\">download it</a>."
 msgstr ""
+"Váš prohlížeč nepodporuje <code>audio</code> soubory. Ale nebojte se, můžete"
+" si je <a href=\"%(res_url)s\" alt=\"video url\">stáhnout</a>."
 
 #: ckan/controllers/package.py:612 ckan/controllers/package.py:1079
 #: ckan/controllers/package.py:1099 ckan/controllers/package.py:1165
@@ -164,7 +167,7 @@ msgstr ""
 
 #: ckanext/datastore/backend/postgres.py:1067
 msgid "The data was invalid: {}"
-msgstr ""
+msgstr "Data byla neplatná: {}"
 
 #: ckanext/datastore/logic/action.py:277 ckanext/datastore/logic/action.py:309
 #: ckanext/datastore/logic/action.py:373 ckanext/datastore/logic/action.py:509
@@ -743,19 +746,21 @@ msgstr "Video"
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "Video url"
-msgstr ""
+msgstr "Video url"
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "eg. http://example.com/video.mpeg  (if blank uses resource url)"
 msgstr ""
+"např. http://example.com/video.mpeg (pokud je prázdné, použije adresu URL "
+"zdroje)"
 
 #: ckanext/videoview/theme/templates/video_form.html:4
 msgid "Poster url"
-msgstr ""
+msgstr "Poster url"
 
 #: ckanext/videoview/theme/templates/video_form.html:4
 msgid "eg. http://example.com/poster.jpg"
-msgstr ""
+msgstr "např. http://example.com/poster.jpg"
 
 #: ckanext/videoview/theme/templates/video_view.html:7
 #, python-format
@@ -764,6 +769,9 @@ msgid ""
 "can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch it "
 "with your favorite video player!"
 msgstr ""
+"Je nám líto, ale váš prohlížeč nepodporuje vložená videa, ale nebojte se, "
+"můžete si jej <a href=\"%(res_url)s\" alt=\"video url\">stáhnout</a> a "
+"sledovat pomocí svého oblíbeného videopřehrávače!"
 
 #: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
 msgid "Website"
@@ -1376,12 +1384,15 @@ msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
 msgstr ""
+"Chyba při odesílání e-mailu. Zkuste to znovu později nebo požádejte o pomoc "
+"správce"
 
 #: ckan/controllers/user.py:500 ckan/views/user.py:664
 msgid ""
 "A reset link has been emailed to you (unless the account specified does not "
 "exist)"
 msgstr ""
+"Byl vám zaslán e-mail s resetovacím odkazem (pokud zadaný účet neexistuje)"
 
 #: ckan/controllers/user.py:514 ckan/views/user.py:686
 msgid "Unauthorized to reset password."
@@ -1605,7 +1616,7 @@ msgstr "Organizace musí být zadána"
 
 #: ckan/logic/validators.py:67
 msgid "You cannot move this dataset to another organization"
-msgstr ""
+msgstr "Tuto datovou sadu nemůžete přesunout do jiné organizace"
 
 #: ckan/logic/validators.py:71
 msgid "Organization does not exist"
@@ -1842,27 +1853,27 @@ msgstr "Email {email} není ve správném formátu"
 
 #: ckan/logic/validators.py:919
 msgid "Must be a dict"
-msgstr ""
+msgstr "Musí to být dict"
 
 #: ckan/logic/validators.py:940
 msgid "The email address '{email}' belongs to a registered user."
-msgstr ""
+msgstr "E-mailová adresa '{email}' patří registrovanému uživateli."
 
 #: ckan/logic/validators.py:947
 msgid "Value must be one of {}"
-msgstr ""
+msgstr "Hodnota musí být jedna z {}"
 
 #: ckan/logic/validators.py:958
 msgid "The value should be a valid JSON object"
-msgstr ""
+msgstr "Hodnota by měla být platný objekt JSON"
 
 #: ckan/logic/validators.py:960
 msgid "Could not parse the value as a valid JSON object"
-msgstr ""
+msgstr "Hodnotu nelze analyzovat jako platný objekt JSON"
 
 #: ckan/logic/validators.py:970
 msgid "Could not parse extra '{name}' as valid JSON"
-msgstr ""
+msgstr "Nelze parsovat extra '{name}' jako platný JSON"
 
 #: ckan/logic/action/__init__.py:64 ckan/views/util.py:21
 msgid "Missing Value"
@@ -1870,16 +1881,16 @@ msgstr "Chybějící hodnota"
 
 #: ckan/logic/action/create.py:660
 msgid "Role must be one of \"{}\""
-msgstr ""
+msgstr "Role musí být jedna z „{}“"
 
 #: ckan/logic/action/create.py:671
 msgid "Not allowed to add collaborators"
-msgstr ""
+msgstr "Není povoleno přidávat spolupracovníky"
 
 #: ckan/logic/action/create.py:674 ckan/logic/action/delete.py:358
 #: ckan/logic/action/get.py:268 ckan/logic/action/get.py:311
 msgid "Dataset collaborators not enabled"
-msgstr ""
+msgstr "Spolupracovníci datové sady nejsou povoleni"
 
 #: ckan/logic/action/create.py:869
 msgid "Trying to create an organization as a group"
@@ -1933,7 +1944,7 @@ msgstr "Abyste mohl(-a) sledovat skupinu, musíte se přihlásit."
 
 #: ckan/logic/action/delete.py:362 ckan/logic/action/get.py:263
 msgid "Package not found"
-msgstr ""
+msgstr "Balíček nebyl nalezen"
 
 #: ckan/logic/action/delete.py:418
 msgid "Organization cannot be deleted while it still has datasets"
@@ -1965,11 +1976,11 @@ msgstr "Nesledujete {0}."
 
 #: ckan/logic/action/get.py:275 ckan/logic/action/get.py:323
 msgid "Capacity must be one of \"{}\""
-msgstr ""
+msgstr "Kapacita musí být jedna z „{}“"
 
 #: ckan/logic/action/get.py:317
 msgid "Not allowed to retrieve collaborators"
-msgstr ""
+msgstr "Není povoleno přibírat spolupracovníky"
 
 #: ckan/logic/action/get.py:1097 ckan/logic/action/update.py:76
 #: ckan/logic/action/update.py:90
@@ -1978,7 +1989,7 @@ msgstr "Zdroj nebyl nalezen."
 
 #: ckan/logic/action/get.py:1176
 msgid "Parameter is not an bool"
-msgstr ""
+msgstr "Parametr není booleovský"
 
 #: ckan/logic/action/get.py:2056
 msgid "Do not specify if using \"query\" parameter"
@@ -2076,6 +2087,7 @@ msgstr "Uživatel %s nemá oprávnění upravovat skupinu %s"
 #, python-format
 msgid "User %s not authorized to add collaborators to this dataset"
 msgstr ""
+"Uživatel %s není oprávněn přidávat spolupracovníky do této datové sady"
 
 #: ckan/logic/auth/delete.py:40
 #, python-format
@@ -2119,7 +2131,7 @@ msgstr "Uživatel %s není oprávněn smazat task_status"
 #: ckan/logic/auth/delete.py:156
 #, python-format
 msgid "User %s not authorized to remove collaborators from this dataset"
-msgstr ""
+msgstr "Uživatel %s není oprávněn odebrat spolupracovníky z této datové sady"
 
 #: ckan/logic/auth/get.py:15 ckan/logic/auth/get.py:370
 msgid "Not authorized"
@@ -2152,7 +2164,7 @@ msgstr "Abyste si mohli prohlédnout svůj přehled, musíte se přihlásit."
 #: ckan/logic/auth/get.py:460
 #, python-format
 msgid "User %s not authorized to list collaborators from this dataset"
-msgstr ""
+msgstr "Uživatel %s není oprávněn vypsat spolupracovníky z této datové sady"
 
 #: ckan/logic/auth/update.py:50
 #, python-format
@@ -2214,7 +2226,7 @@ msgstr "Uživatel %s není oprávněn aktualizovat tabulku term_translation"
 
 #: ckan/model/license.py:145
 msgid "title"
-msgstr ""
+msgstr "nadpis"
 
 #: ckan/model/license.py:240
 msgid "License not specified"
@@ -2421,7 +2433,7 @@ msgstr "Nahrát"
 #: ckan/public/base/javascript/modules/image-upload.js:75
 #: ckan/public/base/javascript/modules/image-upload.min.js:5
 msgid "Please select the file to upload again"
-msgstr ""
+msgstr "Vyberte soubor, který chcete znovu nahrát"
 
 #: ckan/public/base/javascript/modules/image-upload.js:79
 #: ckan/public/base/javascript/modules/image-upload.min.js:6
@@ -2459,7 +2471,7 @@ msgstr "Soubor"
 #: ckan/public/base/javascript/modules/resource-reorder.js:42
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
 msgid "Reorder resources"
-msgstr ""
+msgstr "Změnit pořadí zdrojů"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:43
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
@@ -2468,6 +2480,9 @@ msgid ""
 "the resource to the right and place it to the desired location on the list. "
 "When you are done, click the \"Save order\" -button."
 msgstr ""
+"Uspořádání zdrojů můžete změnit jejich přetažením pomocí ikony šipky. "
+"Přetáhněte zdroj doprava a umístěte jej na požadované místo v seznamu. Po "
+"dokončení klikněte na tlačítko „Uložit pořadí“."
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:65
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
@@ -2607,7 +2622,7 @@ msgstr "Přehled"
 #: ckan/templates/header.html:33 ckan/templates/header.html:35
 #: ckan/templates/user/dashboard.html:16
 msgid "Profile settings"
-msgstr ""
+msgstr "Nastavení profilu"
 
 #: ckan/templates/header.html:40 ckan/templates/header.html:42
 msgid "Log out"
@@ -2615,7 +2630,7 @@ msgstr "Odhlásit"
 
 #: ckan/templates/header.html:49
 msgid "Account"
-msgstr ""
+msgstr "Účet"
 
 #: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:14
 msgid "Log in"
@@ -2655,7 +2670,7 @@ msgstr "Vyhledat datové sady"
 
 #: ckan/templates/header.html:101 ckan/templates/snippets/search_form.html:16
 msgid "Submit"
-msgstr ""
+msgstr "Odeslat"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
@@ -2663,7 +2678,7 @@ msgstr "Přejít na obsah"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
-msgstr ""
+msgstr "Drobečková navigace"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
@@ -2771,16 +2786,17 @@ msgstr ""
 
 #: ckan/templates/admin/trash.html:12
 msgid "Are you sure you want to purge everything?"
-msgstr ""
+msgstr "Opravdu chcete vše odstranit?"
 
 #: ckan/templates/admin/trash.html:13
 msgid "Purge all"
-msgstr ""
+msgstr "Odstranit vše"
 
 #: ckan/templates/admin/trash.html:31
 msgid ""
 "Purge deleted datasets, organizations or groups forever and irreversibly."
 msgstr ""
+"Vymazat odstraněné datové sady, organizace nebo skupiny navždy a nevratně."
 
 #: ckan/templates/admin/snippets/confirm_delete.html:3
 #: ckan/templates/admin/snippets/confirm_delete.html:17
@@ -2801,15 +2817,15 @@ msgstr "Potvrďte odstranění"
 
 #: ckan/templates/admin/snippets/data_type.html:7
 msgid "Deleted datasets"
-msgstr ""
+msgstr "Smazané datové sady"
 
 #: ckan/templates/admin/snippets/data_type.html:9
 msgid "Deleted organizations"
-msgstr ""
+msgstr "Smazané organizace"
 
 #: ckan/templates/admin/snippets/data_type.html:11
 msgid "Deleted groups"
-msgstr ""
+msgstr "Smazané skupiny"
 
 #: ckan/templates/admin/snippets/data_type.html:41
 msgid "Purge"
@@ -3276,7 +3292,7 @@ msgstr ""
 
 #: ckan/templates/macros/form.html:243
 msgid "Key"
-msgstr ""
+msgstr "Klíč"
 
 #: ckan/templates/macros/form.html:255
 #: ckan/templates/package/resource_read.html:180
@@ -3311,7 +3327,7 @@ msgstr "Vymazat nahrávání"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Add an Organization"
-msgstr ""
+msgstr "Přidat Organizaci"
 
 #: ckan/templates/organization/base_form_page.html:10
 msgid "Organization Form"
@@ -3540,7 +3556,7 @@ msgstr "Upravit metadata"
 #: ckan/templates/package/collaborators/collaborators.html:3
 #: ckan/templates/package/edit_base.html:20
 msgid "Collaborators"
-msgstr ""
+msgstr "Spolupracovníci"
 
 #: ckan/templates/package/edit_view.html:3
 #: ckan/templates/package/edit_view.html:4
@@ -3626,6 +3642,8 @@ msgid ""
 "You're currently viewing an old version of this dataset. To see the current "
 "version, click <a href=\"%(url)s\">here</a>."
 msgstr ""
+"Momentálně si prohlížíte starou verzi této datové sady. Aktuální verzi "
+"zobrazíte kliknutím <a href=\"%(url)s\">sem</a>."
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
@@ -3665,7 +3683,7 @@ msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:97
 msgid "Dataset description:"
-msgstr ""
+msgstr "Popis datové sady:"
 
 #: ckan/templates/package/resource_read.html:99
 #, python-format
@@ -3815,36 +3833,38 @@ msgstr "Zobrazit náhled"
 #: ckan/templates/package/collaborators/collaborator_new.html:5
 #: ckan/templates/package/collaborators/collaborator_new.html:10
 msgid "Edit Collaborator"
-msgstr ""
+msgstr "Upravit spolupracovníka"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:5
 #: ckan/templates/package/collaborators/collaborator_new.html:10
 #: ckan/templates/package/collaborators/collaborator_new.html:50
 msgid "Add Collaborator"
-msgstr ""
+msgstr "Přidat spolupracovníka"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:8
 msgid "Back to all collaborators"
-msgstr ""
+msgstr "Zpět na všechny spolupracovníky"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:44
 #: ckan/templates/package/collaborators/collaborators.html:36
 msgid "Are you sure you want to delete this collaborator?"
-msgstr ""
+msgstr "Opravdu chcete tohoto spolupracovníka smazat?"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:46
 msgid "Update Collaborator"
-msgstr ""
+msgstr "Aktualizovat spolupracovníka"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:63
 msgid "What are the available roles?"
-msgstr ""
+msgstr "Jaké jsou dostupné role?"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:67
 msgid ""
 "<p><strong>Admin:</strong> In addition to managing the dataset, admins can "
 "add and remove collaborators from a dataset.</p>"
 msgstr ""
+"<p><strong>Správce:</strong> Kromě správy datové sady mohou správci přidávat"
+" a odebírat spolupracovníky z datové sady.</p>"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:71
 msgid ""
@@ -3852,18 +3872,22 @@ msgid ""
 "as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
 "Members can access the dataset if private, but not edit it.</p>"
 msgstr ""
+"<p><strong>Editor:</strong> Editoři mohou upravovat datovou sadu a její "
+"zdroje a také přístup k datové sadě, pokud je soukromý. "
+"</p><p><strong>Člen:</strong> Členové mají přístup k datové sadě, pokud jsou"
+" soukromé, ale nemohou ji upravovat.</p>"
 
 #: ckan/templates/package/collaborators/collaborators.html:7
 msgid "Add Collaborators"
-msgstr ""
+msgstr "Přidat spolupracovníky"
 
 #: ckan/templates/package/collaborators/collaborators.html:14
 msgid "{count} collaborator"
 msgid_plural "{count} collaborators"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "{count} spolupracovník"
+msgstr[1] "{count} spolupracovníci"
+msgstr[2] "{count} spolupracovníků"
+msgstr[3] "{count} spolupracovníků"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3925,7 +3949,7 @@ msgstr ""
 #: ckan/templates/package/snippets/change_item.html:1
 #, python-format
 msgid "On %(timestamp)s, %(username)s:"
-msgstr ""
+msgstr "%(timestamp)s, %(username)s:"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
@@ -3950,7 +3974,7 @@ msgstr "např. ekonomie, duševní zdraví, vláda"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:36
 msgid "Please select the license"
-msgstr ""
+msgstr "Vyberte licenci"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:47
 msgid ""
@@ -4382,7 +4406,7 @@ msgstr "{actor} upravil(-a) datovou sadu {dataset}"
 #: ckan/templates/snippets/activities/changed_package.html:16
 #: ckan/templates/snippets/activities/new_package.html:15
 msgid "View this version"
-msgstr ""
+msgstr "Zobrazit tuto verzi"
 
 #: ckan/templates/snippets/activities/changed_resource.html:4
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
@@ -4410,7 +4434,7 @@ msgstr "{actor} odstranil(-a) zdroj {resource} z datové sady {dataset}"
 
 #: ckan/templates/snippets/activities/fallback.html:14
 msgid "{actor} {activity_type}"
-msgstr ""
+msgstr "{actor} {activity_type}"
 
 #: ckan/templates/snippets/activities/follow_dataset.html:4
 msgid "{actor} started following {dataset}"
@@ -4450,15 +4474,15 @@ msgstr "{actor} odstranil(-a) tag {tag} z datové sady {dataset}"
 
 #: ckan/templates/snippets/changes/author.html:5
 msgid "Set author of {pkg_link} to {new_author} (previously {old_author})"
-msgstr ""
+msgstr "Nastavit autora {pkg_link} na {new_author} (dříve {old_author})"
 
 #: ckan/templates/snippets/changes/author.html:17
 msgid "Set author of {pkg_link} to {new_author}"
-msgstr ""
+msgstr "Nastavit autora {pkg_link} na {new_author}"
 
 #: ckan/templates/snippets/changes/author.html:28
 msgid "Removed author from {pkg_link}"
-msgstr ""
+msgstr "Odebrán autor z {pkg_link}"
 
 #: ckan/templates/snippets/changes/author.html:38
 #: ckan/templates/snippets/changes/author_email.html:45
@@ -4476,132 +4500,140 @@ msgstr ""
 #: ckan/templates/snippets/changes/version.html:38
 msgid "No fields were updated. See the metadata diff for more details."
 msgstr ""
+"Nebyla aktualizována žádná pole. Další podrobnosti najdete v rozdílu "
+"metadat."
 
 #: ckan/templates/snippets/changes/author_email.html:5
 msgid ""
 "Set author email of {pkg_link} to {new_author_email} (previously "
 "{old_author_email})"
 msgstr ""
+"Nastavit e-mail autora {pkg_link} na {new_author_email} (dříve "
+"{old_author_email})"
 
 #: ckan/templates/snippets/changes/author_email.html:23
 msgid "Set author email of {pkg_link} to {new_author_email}"
-msgstr ""
+msgstr "Nastavit e-mail autora {pkg_link} na {new_author_email}"
 
 #: ckan/templates/snippets/changes/author_email.html:36
 msgid "Removed author email from {pkg_link}"
-msgstr ""
+msgstr "Odebraný e-mail autora z {pkg_link}"
 
 #: ckan/templates/snippets/changes/delete_resource.html:3
 msgid "Deleted resource {resource_link} from {pkg_link}"
-msgstr ""
+msgstr "Smazán zdroj {resource_link} z {pkg_link}"
 
 #: ckan/templates/snippets/changes/extension_fields.html:3
 msgid "Changed value of field <q>{key}</q> to <q>{value}</q> in {pkg_link}"
-msgstr ""
+msgstr "Hodnota pole <q>{key}</q> byla změněna na <q>{value}</q> v {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:5
 msgid "Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}"
-msgstr ""
+msgstr "Přidáno pole <q>{key}</q> s hodnotou <q>{value}</q> do {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:17
 msgid "Added field <q>{key}</q> to {pkg_link}"
-msgstr ""
+msgstr "Přidáno pole <q>{key}</q> do {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:28
 msgid "Added the following fields to {pkg_link}"
-msgstr ""
+msgstr "Přidána následující pole do {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:39
 #: ckan/templates/snippets/changes/resource_extras.html:56
 msgid "{key} with value {value}"
-msgstr ""
+msgstr "{key} s hodnotou {value}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:44
 #: ckan/templates/snippets/changes/resource_extras.html:61
 #: ckan/templates/snippets/changes/resource_extras.html:102
 msgid "{key}"
-msgstr ""
+msgstr "{key}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:54
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> (previously "
 "<q>{old_val}</q>) in {pkg_link}"
 msgstr ""
+"Hodnota pole <q>{key}</q> změněna na <q>{new_val}</q> (dříve "
+"<q>{old_val}</q>) v {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:67
 msgid "Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}"
-msgstr ""
+msgstr "Hodnota pole <q>{key}</q> změněna na <q>{new_val}</q> v {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:79
 msgid "Removed field <q>{key}</q> from {pkg_link}"
-msgstr ""
+msgstr "Odebráno pole <q>{key}</q> z {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:90
 msgid "Removed the following fields from {pkg_link}"
-msgstr ""
+msgstr "Odebrána následující pole z {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:100
 msgid "<q>{key}</q>"
-msgstr ""
+msgstr "<q>{key}</q>"
 
 #: ckan/templates/snippets/changes/license.html:6
 msgid ""
 "Changed the license of {pkg_link} to {new_link} (previously {old_link})"
-msgstr ""
+msgstr "Licence {pkg_link} byla změněna na {new_link} (dříve {old_link})"
 
 #: ckan/templates/snippets/changes/license.html:25
 msgid ""
 "Changed the license of {pkg_link} to {new_link} (previously {old_title})"
 msgstr ""
+"Licence licence {pkg_link} byla změněna na {new_link} (dříve {old_title})"
 
 #: ckan/templates/snippets/changes/license.html:41
 msgid ""
 "Changed the license of {pkg_link} to {new_title} (previously {old_link})"
-msgstr ""
+msgstr "Licence {pkg_link} byla změněna na {new_title} (dříve {old_link})"
 
 #: ckan/templates/snippets/changes/license.html:58
 msgid ""
 "Changed the license of {pkg_link} to {new_title} (previously {old_title})"
-msgstr ""
+msgstr "Licence {pkg_link} byla změněna na {new_title} (dříve {old_title})"
 
 #: ckan/templates/snippets/changes/maintainer.html:5
 msgid ""
 "Set maintainer of {pkg_link} to {new_maintainer} (previously "
 "{old_maintainer})"
 msgstr ""
+"Nastavit správce {pkg_link} na {new_maintainer} (dříve {old_maintainer})"
 
 #: ckan/templates/snippets/changes/maintainer.html:17
 msgid "Set maintainer of {pkg_link} to {new_maintainer}"
-msgstr ""
+msgstr "Nastavit správce {pkg_link} na {new_maintainer}"
 
 #: ckan/templates/snippets/changes/maintainer.html:28
 msgid "Removed maintainer from {pkg_link}"
-msgstr ""
+msgstr "Odebrán správce z {pkg_link}"
 
 #: ckan/templates/snippets/changes/maintainer_email.html:5
 msgid ""
 "Set maintainer email of {pkg_link} to {new_email} (previously {old_email})"
-msgstr ""
+msgstr "Nastavit e-mail správce {pkg_link} na {new_email} (dříve {old_email})"
 
 #: ckan/templates/snippets/changes/maintainer_email.html:23
 msgid "Set maintainer email of {pkg_link} to {new_email}"
-msgstr ""
+msgstr "Nastavit e-mail správce {pkg_link} na {new_email}"
 
 #: ckan/templates/snippets/changes/maintainer_email.html:37
 msgid "Removed maintainer email from {pkg_link}"
-msgstr ""
+msgstr "Odebrán e-mail správce z {pkg_link}"
 
 #: ckan/templates/snippets/changes/name.html:3
 msgid "Moved {pkg_link} from {old_link} to {new_link}"
-msgstr ""
+msgstr "Přesunuto {pkg_link} z {old_link} do {new_link}"
 
 #: ckan/templates/snippets/changes/new_file.html:3
 msgid "Uploaded a new file to resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Nahrál nový soubor do zdroje {resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/new_resource.html:15
 msgid "Added resource {resource_link} to {pkg_link}"
-msgstr ""
+msgstr "Přidán zdroj {resource_link} do {pkg_link}"
 
 #: ckan/templates/snippets/changes/notes.html:5
 msgid ""
@@ -4609,44 +4641,53 @@ msgid ""
 "height2\"><blockquote>{old_notes}</blockquote> to <br class=\"line-"
 "height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
+"Aktualizovaný popis {pkg_link} z <br class=\"line-"
+"height2\"><blockquote>{old_notes}</blockquote> na <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 
 #: ckan/templates/snippets/changes/notes.html:17
 msgid ""
 "Updated description of {pkg_link} to <br class=\"line-"
 "height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
+"Aktualizovaný popis souboru {pkg_link} na <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 
 #: ckan/templates/snippets/changes/notes.html:28
 msgid "Removed description from {pkg_link}"
-msgstr ""
+msgstr "Odebrán popis z {pkg_link}"
 
 #: ckan/templates/snippets/changes/org.html:5
 msgid ""
 "Moved {pkg_link} from organization {old_org_link} to organization "
 "{new_org_link}"
 msgstr ""
+"Přesunuto {pkg_link} z organizace {old_org_link} do organizace "
+"{new_org_link}"
 
 #: ckan/templates/snippets/changes/org.html:25
 msgid "Removed {pkg_link} from organization {old_org_link}"
-msgstr ""
+msgstr "Odebráno {pkg_link} z organizace {old_org_link}"
 
 #: ckan/templates/snippets/changes/org.html:40
 msgid "Added {pkg_link} to organization {new_org_link}"
-msgstr ""
+msgstr "Přidáno {pkg_link} k organizaci {new_org_link}"
 
 #: ckan/templates/snippets/changes/private.html:3
 msgid "Set visibility of {pkg_link} to {visibility}"
-msgstr ""
+msgstr "Nastavit viditelnost {pkg_link} na {visibility}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
 "Updated description of resource {resource_link} in {pkg_link} to <br class"
 "=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
+"Aktualizován popis zdroje {resource_link} v {pkg_link} na <br class=\"line-"
+"height2\"><blockquote>{new_desc}</blockquote>"
 
 #: ckan/templates/snippets/changes/resource_desc.html:22
 msgid "Removed description from resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Odebrán popis ze zdroje {resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
@@ -4654,113 +4695,128 @@ msgid ""
 "=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
 "height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
+"Aktualizován popis zdroje {resource_link} v {pkg_link} z <br class=\"line-"
+"height2\"><blockquote>{old_desc}</blockquote> na <br class=\"line-"
+"height2\"><blockquote>{new_desc}</blockquote>"
 
 #: ckan/templates/snippets/changes/resource_extras.html:5
 msgid ""
 "Added field <q>{key}</q> with value <q>{value}</q> to resource "
 "{resource_link} in {pkg_link}"
 msgstr ""
+"Přidáno pole <q>{key}</q> s hodnotou <q>{value}</q> do zdroje "
+"{resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:23
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Přidáno pole <q>{key}</q> do zdroje {resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:40
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Přidána následující pole do zdroje {resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:70
 msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Odebráno pole <q>{key}</q> ze zdroje {resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:87
 msgid ""
 "Removed the following fields from resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Odebrána následující pole ze zdroje {resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:110
 msgid ""
 "Changed value of field <q>{key}</q> of resource {resource_link} to "
 "<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
 msgstr ""
+"Hodnota pole <q>{key}</q> zdroje {resource_link} změněna na <q>{new_val} "
+"</q>(dříve <q>{old_val}</q>) v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:129
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
 "{resource_link} in {pkg_link}"
 msgstr ""
+"Hodnota pole <q>{key}</q> změněna na <q>{new_val}</q> ve zdroji "
+"{resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:147
 msgid ""
 "Removed the value of field <q>{key}</q> in resource {resource_link} in "
 "{pkg_link}"
 msgstr ""
+"Odebrána hodnota pole <q>{key}</q> ve zdroji {resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_format.html:10
 msgid "Set format of resource {resource_link} to {format_link} in {pkg_link}"
-msgstr ""
+msgstr "Nastavit formát zdroje {resource_link} na {format_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_format.html:30
 msgid ""
 "Set format of resource {resource_link} to {new_format_link} (previously "
 "{old_format_link}) in {pkg_link}"
 msgstr ""
+"Nastavit formát zdroje {resource_link} na {new_format_link} (dříve "
+"{old_format_link}) v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_name.html:3
 msgid ""
 "Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
 msgstr ""
+"Zdroj {old_resource_link} byl přejmenován na {new_resource_link} v "
+"{pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:5
 msgid "Removed tag {tag_link} from {pkg_link}"
-msgstr ""
+msgstr "Odebrána značka {tag_link} z {pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:20
 msgid "Removed the following tags from {pkg_link}"
-msgstr ""
+msgstr "Odebrány následující značky z {pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:31
 #: ckan/templates/snippets/changes/tags.html:70
 msgid "{tag_link}"
-msgstr ""
+msgstr "{tag_link}"
 
 #: ckan/templates/snippets/changes/tags.html:44
 msgid "Added tag {tag_link} to {pkg_link}"
-msgstr ""
+msgstr "Přidána značka {tag_link} do {pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:59
 msgid "Added the following tags to {pkg_link}"
-msgstr ""
+msgstr "Přidány následující značky do {pkg_link}"
 
 #: ckan/templates/snippets/changes/title.html:3
 msgid "Changed title to {title_link} (previously {old_title})"
-msgstr ""
+msgstr "Název změněn na {title_link} (dříve {old_title})"
 
 #: ckan/templates/snippets/changes/url.html:5
 msgid "Changed the source URL of {pkg_link} from {old_link} to {new_link}"
 msgstr ""
+"Zdrojová adresa URL {pkg_link} byla změněna z {old_link} na {new_link}"
 
 #: ckan/templates/snippets/changes/url.html:23
 msgid "Removed the source URL from {pkg_link}"
-msgstr ""
+msgstr "Odstraněno zdrojové URL z {pkg_link}"
 
 #: ckan/templates/snippets/changes/url.html:33
 msgid "Changed the source URL of {pkg_link} to {new_link}"
-msgstr ""
+msgstr "Zdrojová adresa URL {pkg_link} byla změněna na {new_link}"
 
 #: ckan/templates/snippets/changes/version.html:5
 msgid ""
 "Changed the version of {pkg_link} to {new_version} (previously "
 "{old_version})"
-msgstr ""
+msgstr "Verze {pkg_link} byla změněna na {new_version} (dříve {old_version})"
 
 #: ckan/templates/snippets/changes/version.html:17
 msgid "Removed the version from {pkg_link}"
-msgstr ""
+msgstr "Odebrána verze z {pkg_link}"
 
 #: ckan/templates/snippets/changes/version.html:27
 msgid "Changed the version of {pkg_link} to {new_version}"
-msgstr ""
+msgstr "Verze {pkg_link} byla změněna na {new_version}"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
@@ -4768,16 +4824,16 @@ msgstr "Vyhledat tagy"
 
 #: ckan/templates/user/api_tokens.html:19
 msgid "Create API Token"
-msgstr ""
+msgstr "Vytvořit token API"
 
 #: ckan/templates/user/api_tokens.html:29
 #: ckan/templates/user/read_base.html:22
 msgid "API Tokens"
-msgstr ""
+msgstr "API Tokeny"
 
 #: ckan/templates/user/api_tokens.html:37
 msgid "You haven't created any API Tokens."
-msgstr ""
+msgstr "Nevytvořil jste žádné tokeny API."
 
 #: ckan/templates/user/dashboard.html:19 ckan/templates/user/dashboard.html:37
 msgid "News feed"
@@ -4867,12 +4923,12 @@ msgstr "Přihlásit se k odběru emailových oznámení"
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates/user/new_user_form.html:14
 msgid "Profile picture"
-msgstr ""
+msgstr "Profilový obrázek"
 
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates/user/new_user_form.html:14
 msgid "Profile picture URL"
-msgstr ""
+msgstr "URL profilového obrázku"
 
 #: ckan/templates/user/edit_user_form.html:31
 msgid "Change password"
@@ -5070,33 +5126,35 @@ msgstr "Obnovit heslo"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Email or username"
-msgstr ""
+msgstr "E-mail nebo uživatelské jméno"
 
 #: ckan/templates/user/request_reset.html:22
 msgid "Request Reset"
-msgstr ""
+msgstr "Žádost o reset"
 
 #: ckan/templates/user/request_reset.html:38
 msgid ""
 "Enter your email address or username into the box and we will send you an "
 "email with a link to enter a new password."
 msgstr ""
+"Do pole zadejte svou e-mailovou adresu nebo uživatelské jméno a my vám "
+"zašleme e-mail s odkazem na zadání nového hesla."
 
 #: ckan/templates/user/snippets/api_token_list.html:13
 msgid "Token"
-msgstr ""
+msgstr "Token"
 
 #: ckan/templates/user/snippets/api_token_list.html:14
 msgid "Last access"
-msgstr ""
+msgstr "Poslední přístup"
 
 #: ckan/templates/user/snippets/api_token_list.html:15
 msgid "Actions"
-msgstr ""
+msgstr "Akce"
 
 #: ckan/templates/user/snippets/api_token_list.html:40
 msgid "Revoke"
-msgstr ""
+msgstr "Zrušit"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:15
 #: ckan/templates/user/snippets/followee_dropdown.html:16
@@ -5121,72 +5179,74 @@ msgstr "Vyhledat uživatele"
 
 #: ckan/views/admin.py:203
 msgid "Massive purge complete"
-msgstr ""
+msgstr "Masivní čištění dokončeno"
 
 #: ckan/views/admin.py:212
 msgid "success"
-msgstr ""
+msgstr "úspěch"
 
 #: ckan/views/dataset.py:360
 msgid "Parameter u\"{parameter_name}\" is not an integer"
-msgstr ""
+msgstr "Parametr u\"{parameter_name}\"  není celé číslo"
 
 #: ckan/views/dataset.py:451 ckan/views/dataset.py:469
 #: ckan/views/dataset.py:1132 ckan/views/dataset.py:1213
 #: ckan/views/resource.py:81
 msgid "Activity not found"
-msgstr ""
+msgstr "Aktivita nebyla nalezena"
 
 #: ckan/views/dataset.py:453 ckan/views/dataset.py:1134
 #: ckan/views/dataset.py:1215
 msgid "Unauthorized to view activity data"
-msgstr ""
+msgstr "Neoprávněn k zobrazení údajů o aktivitě"
 
 #: ckan/views/dataset.py:462
 msgid "The detail of this dataset activity is not available"
-msgstr ""
+msgstr "Podrobnosti o této aktivitě datové sady nejsou k dispozici"
 
 #: ckan/views/dataset.py:604
 msgid "Unauthorized to read package"
-msgstr ""
+msgstr "Neoprávněn ke čtení balíčku"
 
 #: ckan/views/dataset.py:1249
 msgid "Unauthorized to read collaborators {}"
-msgstr ""
+msgstr "Neoprávněn ke čtení spolupracovníky {}"
 
 #: ckan/views/dataset.py:1267
 msgid "Unauthorized to delete collaborators {}"
-msgstr ""
+msgstr "Neoprávněn k mazání spolupracovníky {}"
 
 #: ckan/views/dataset.py:1272
 msgid "User removed from collaborators"
-msgstr ""
+msgstr "Uživatel odstraněn ze spolupracovníků"
 
 #: ckan/views/dataset.py:1304
 msgid "Unauthorized to edit collaborators {}"
-msgstr ""
+msgstr "Neoprávněn k úpravě spolupracovníků {}"
 
 #: ckan/views/dataset.py:1311
 msgid "User added to collaborators"
-msgstr ""
+msgstr "Uživatel přidán ke spolupracovníkům"
 
 #: ckan/views/user.py:169
 msgid "Unauthorized to view API tokens."
-msgstr ""
+msgstr "Neoprávněn k zobrazení tokenů API."
 
 #: ckan/views/user.py:203
 msgid "Unauthorized to create API tokens."
-msgstr ""
+msgstr "Neoprávněn k vytváření tokenů API."
 
 #: ckan/views/user.py:218
 msgid ""
 "API Token created: <code style=\"word-break:break-all;\">{token}</code> "
 "{copy}<br>Make sure to copy it now, you won't be able to see it again!"
 msgstr ""
+"Token API vytvořen: <code style=\"word-break:break-all;\">{token}</code> "
+"{copy} <br>Nezapomeňte jej zkopírovat hned, už jej neuvidíte!"
 
 #: ckan/views/user.py:234
 msgid "Unauthorized to revoke API tokens."
-msgstr ""
+msgstr "Neoprávněn ke zrušení tokenů API."
 
 #: ckan/views/user.py:706
 msgid "Your password must be 8 characters or longer."

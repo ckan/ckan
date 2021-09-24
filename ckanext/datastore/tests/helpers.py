@@ -23,7 +23,7 @@ def clear_db(Session):
         c.execute(result[0])
 
     drop_functions_sql = u"""
-        SELECT 'drop function ' || quote_ident(proname) || '();'
+        SELECT 'drop function if exists ' || quote_ident(proname) || '();'
         FROM pg_proc
         INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid)
         WHERE ns.nspname = 'public' AND proname != 'populate_full_text_trigger'
@@ -51,7 +51,7 @@ def rebuild_all_dbs(Session):
 
 
 def set_url_type(resources, user):
-    context = {"user": user.name}
+    context = {"user": user["name"]}
     for resource in resources:
         resource = p.toolkit.get_action("resource_show")(
             context, {"id": resource.id}

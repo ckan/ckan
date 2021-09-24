@@ -17,14 +17,15 @@
 # With debug mode enabled, a visitor to your site could execute malicious commands.
 debug = false
 
-[server:main]
-use = egg:Paste#http
-host = 0.0.0.0
-port = 5000
-
 [app:main]
 use = egg:ckan
-full_stack = true
+
+## Development settings
+ckan.devserver.host = localhost
+ckan.devserver.port = 5000
+
+
+## Session settings
 cache_dir = /tmp/%(ckan.site_id)s/
 beaker.session.key = ckan
 
@@ -91,6 +92,7 @@ expire_api_token.default_lifetime = 3600
 
 ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
+solr_timeout = 60
 
 
 ## Redis Settings
@@ -123,7 +125,7 @@ ckan.views.default_views = image_view text_view recline_view
 # Customize which text formats the text_view plugin will show
 #ckan.preview.json_formats = json
 #ckan.preview.xml_formats = xml rdf rdf+xml owl+xml atom rss
-#ckan.preview.text_formats = text plain text/plain
+#ckan.preview.text_formats = txt plain text/plain
 
 # Customize which image formats the image_view plugin will show
 #ckan.preview.image_formats = png jpeg jpg gif

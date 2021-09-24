@@ -1,0 +1,22 @@
+{
+    "emptyTable": "Ingen data tilgjengelig i tabellen",
+    "info": "Viser _START_ til _END_ av _TOTAL_ linjer",
+    "infoEmpty": "Viser 0 til 0 av 0 linjer",
+    "infoFiltered": "(filtrert fra _MAX_ totalt antall linjer)",
+    "infoThousands": " ",
+    "loadingRecords": "Laster...",
+    "lengthMenu": "Vis _MENU_ linjer",
+    "processing": "Laster...",
+    "search": "S&oslash;k:",
+    "zeroRecords": "Ingen linjer matcher s&oslash;ket",
+    "paginate": {
+        "first": "F&oslash;rste",
+        "previous": "Forrige",
+        "next": "Neste",
+        "last": "Siste"
+    },
+    "aria": {
+        "sortAscending": ": aktiver for å sortere kolonnen stigende",
+        "sortDescending": ": aktiver for å sortere kolonnen synkende"
+    }
+}
