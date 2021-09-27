@@ -38,6 +38,7 @@ user_table = Table('user', meta.metadata,
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
+        Column('last_active', types.TIMESTAMP),
         Column('activity_streams_email_notifications', types.Boolean,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
@@ -294,6 +295,9 @@ class User(core.StatefulObjectMixin,
                                  cls.id.in_(user_list)))
         return [user.id for user in query.all()]
 
+    def set_user_last_active(self):
+        self.last_active = datetime.datetime.utcnow()
+        meta.Session.commit()
 
 meta.mapper(User, user_table,
     properties={'password': synonym('_password', map_column=True)},

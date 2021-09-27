@@ -86,6 +86,12 @@
           <dt>{{ _('Member Since') }}</dt>
           <dd>{{ h.render_datetime(user.created) }}</dd>
         </dl>
+        {% if is_sysadmin %}
+        <dl>
+          <dt>{{ _('Last Active') }}</dt>
+          <dd>{{ h.time_ago_from_timestamp(user.last_active) }}</dd>
+        </dl>
+        {% endif %}
         <dl>
           <dt>{{ _('State') }}</dt>
           <dd>{{ _(user.state) }}</dd>
