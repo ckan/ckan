@@ -76,4 +76,4 @@ services:
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:6.2
