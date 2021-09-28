@@ -64,7 +64,6 @@ def resource_update(context, data_dict):
     :rtype: string
 
     '''
-    breakpoint()
     model = context['model']
     id = _get_or_bust(data_dict, "id")
 
