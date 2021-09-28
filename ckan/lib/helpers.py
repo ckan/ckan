@@ -1951,7 +1951,7 @@ def _create_url_with_params(
     params=None, controller=None, action=None, extras=None
 ):
     """internal function for building urls with parameters."""
-    if extras is None:
+    if not extras:
         if not controller and not action:
             # it's an url for the current page. Let's keep all interlal params,
             # like <package_type>
