@@ -324,8 +324,28 @@ def ckan_after_request(response):
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
 
-    # Default to cache-control private if it was not set
-    if response.cache_control.private is None:
+    # Set CORS headers if necessary
+    response = set_cache_control_headers_for_response(response)
+
+    return response
+
+def set_cache_control_headers_for_response(response):
+
+    # __no_cache__ should not be present when caching is allowed
+    allow_cache = u'__no_cache__' not in request.environ
+
+    if u'Pragma' in response.headers:
+        del response.headers["Pragma"]
+
+    if allow_cache:
+        response.cache_control.public = True
+        try:
+            cache_expire = int(config.get(u'ckan.cache_expires', 0))
+            response.cache_control.max_age = cache_expire
+            response.cache_control.must_revalidate = True
+        except ValueError:
+            pass
+    else:
         response.cache_control.private = True
 
     return response
