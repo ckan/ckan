@@ -375,20 +375,7 @@ td.diff_header {
 }
 // TRASH VIEW accordion
 // --------------------------------------------------
-.accordion-item {
-    background-color: $navActiveBackgroundColor;
-    cursor: pointer;
-    padding: 10px;
-    margin-bottom: 5px;
-    width: 100%;
-    text-align: left;
-    border: none;
-    outline: none;
-    transition: 0.4s;
-    &:hover {
-      background-color: darken($navActiveBackgroundColor, 10%);
-    }
-  }
+
   .purge-all {
     float: right;
     margin-bottom: 15px;

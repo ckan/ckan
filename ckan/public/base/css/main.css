@@ -12542,21 +12542,6 @@ td.diff_header {
   background-color: #ffaaaa;
 }
 
-.accordion-item {
-  background-color: #f6f6f6;
-  cursor: pointer;
-  padding: 10px;
-  margin-bottom: 5px;
-  width: 100%;
-  text-align: left;
-  border: none;
-  outline: none;
-  transition: 0.4s;
-}
-.accordion-item:hover {
-  background-color: #dddddd;
-}
-
 .purge-all {
   float: right;
   margin-bottom: 15px;
