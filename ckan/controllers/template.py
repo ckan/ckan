@@ -29,6 +29,10 @@ class TemplateController(base.BaseController):
         By default this controller aborts the request with a 404 (Not
         Found)
         """
+        try:
+            url = unicode(url.encode('utf-8'))
+        except UnicodeDecodeError, UnicodeEncodeError:
+            return base.abort(404)
         if url.endswith(u'.txt'):
             response.headers[b'Content-Type'] = b'text/plain; charset=utf-8'
         # Default content-type is text/html
