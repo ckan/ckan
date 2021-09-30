@@ -284,7 +284,7 @@ class Group(CKANFactory):
     name = _name("group")
     title = factory.Faker("company")
 
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=80)
     image_url = factory.Faker("image_url")
 
 
