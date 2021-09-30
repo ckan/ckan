@@ -11873,13 +11873,13 @@ select[data-module=autocomplete] {
   counter-reset: stage;
   overflow: hidden;
   margin-bottom: 1.5rem;
+  padding: 0;
 }
 .stages::after {
   display: block;
   clear: both;
   content: "";
 }
-
 .stages li {
   line-height: 27px;
   counter-increment: stage;
@@ -11890,8 +11890,7 @@ select[data-module=autocomplete] {
   position: relative;
   z-index: 0;
 }
-
-.stages li:before {
+.stages li::before {
   border-radius: 14px;
   content: counter(stage);
   display: inline-block;
@@ -11904,8 +11903,7 @@ select[data-module=autocomplete] {
   background-color: #aeaeae;
   z-index: 1;
 }
-
-.stages li:after {
+.stages li::after {
   left: 0;
   border: solid rgba(237, 237, 237, 0);
   content: " ";
@@ -11983,11 +11981,6 @@ select[data-module=autocomplete] {
   z-index: -1;
 }
 
-@media (min-width: 576px) {
-  .stages li .highlight {
-    text-indent: -9999px;
-  }
-}
 .stages li.active .highlight {
   color: #fff;
   background: #8cc68a;

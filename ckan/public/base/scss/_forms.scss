@@ -459,47 +459,45 @@ select[data-module="autocomplete"] {
     counter-reset: stage; // margin: -$gutterY -$gutterX $gutterY;
     overflow: hidden;
     margin-bottom: $grid-gutter-width;
-}
-
-.stages li {
-    line-height: 27px;
-    counter-increment: stage;
-    width: 50%;
-    background-color: $stagesBackground;
-    float: left;
-    padding: 10px 20px;
-    position: relative;
-    z-index: 0;
-}
-
-.stages li:before {
-    @include border-radius(14px);
-    content: counter(stage);
-    display: inline-block;
-    width: 27px;
-    height: 27px;
-    margin-right: 5px;
-    font-weight: bold;
-    text-align: center;
-    color: $stagesCounterTextColor;
-    background-color: $stagesCounterBackground;
-    z-index: 1;
-}
-
-.stages li:after {
-    left: 0;
-    border: solid $stagesTransparentBackground;
-    content: " ";
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border-top-color: $stagesBackground;
-    border-bottom-color: $stagesBackground;
-    border-width: 29px; // Needs to be an odd number
-    top: 50%;
-    margin-top: -29px;
-    margin-left: -30px;
+    padding: 0;
+    li {
+        line-height: 27px;
+        counter-increment: stage;
+        width: 50%;
+        background-color: $stagesBackground;
+        float: left;
+        padding: 10px 20px;
+        position: relative;
+        z-index: 0;
+        &::before{
+            @include border-radius(14px);
+            content: counter(stage);
+            display: inline-block;
+            width: 27px;
+            height: 27px;
+            margin-right: 5px;
+            font-weight: bold;
+            text-align: center;
+            color: $stagesCounterTextColor;
+            background-color: $stagesCounterBackground;
+            z-index: 1;
+        }
+        &::after {
+            left: 0;
+            border: solid $stagesTransparentBackground;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+            border-top-color: $stagesBackground;
+            border-bottom-color: $stagesBackground;
+            border-width: 29px; // Needs to be an odd number
+            top: 50%;
+            margin-top: -29px;
+            margin-left: -30px;
+        }
+    }
 }
 
 .stages li.last {
@@ -563,12 +561,6 @@ select[data-module="autocomplete"] {
     text-decoration: none;
     line-height: 27px;
     z-index: -1;
-}
-
-@include media-breakpoint-up(sm) {
-    .stages li .highlight {
-        text-indent: -9999px;
-    }
 }
 
 .stages li.active .highlight {
