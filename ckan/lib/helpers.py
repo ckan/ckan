@@ -655,7 +655,7 @@ def full_current_url() -> str:
 @core_helper
 def current_url() -> str:
     ''' Returns current url unquoted'''
-    return unquote(request.environ['CKAN_CURRENT_URL'])
+    return request.environ['CKAN_CURRENT_URL']
 
 
 @core_helper
