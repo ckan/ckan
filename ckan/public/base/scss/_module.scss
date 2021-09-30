@@ -5,7 +5,7 @@
 
     > .module-content{
         &:nth-child(2n){
-            padding-top: math.div($grid-gutter-width,2);
+            padding-top: $grid-gutter-width;
         }
     }
 }

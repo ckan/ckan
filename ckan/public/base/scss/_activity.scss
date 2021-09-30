@@ -96,8 +96,8 @@
 
 // colors
 .activity .item {
-    &.icon {
-        background-color: #333 ;
+    .icon {
+        background-color: $activityColorBlank ;
     } // Non defined
     &.failure .icon {
         background-color: $activityColorDelete;

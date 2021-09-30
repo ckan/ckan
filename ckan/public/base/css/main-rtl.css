@@ -10881,7 +10881,7 @@ a.tag:hover {
   margin-top: 0.75rem;
 }
 .module > .module-content:nth-child(2n) {
-  padding-top: 0.75rem;
+  padding-top: 1.5rem;
 }
 
 .module-heading {
@@ -14087,8 +14087,8 @@ td.diff_header {
   margin-bottom: 10px;
 }
 
-.activity .item.icon {
-  background-color: #333;
+.activity .item .icon {
+  background-color: #999999;
 }
 .activity .item.failure .icon {
   background-color: #B95252;
