@@ -12789,6 +12789,9 @@ td.diff_header {
   display: inline-block;
   margin-right: 5px;
 }
+.actions li ul li {
+  display: block;
+}
 
 .actions li:last-of-type {
   margin-right: 0;

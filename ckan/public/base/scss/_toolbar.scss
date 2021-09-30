@@ -75,6 +75,9 @@
     display: inline-block;
     margin-right: 5px;
     //@extend ie7-inline-block;
+    ul li {
+        display: block;
+    }
 }
 
 .actions li:last-of-type {
