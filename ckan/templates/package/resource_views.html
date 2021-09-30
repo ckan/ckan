@@ -22,7 +22,7 @@
 
 {% block primary_content_inner %}
   {% if views %}
-    {% snippet "package/snippets/resource_views_list.html", views=views, pkg=pkg, is_edit=true, extra_attributes='data-module = resource-view-reorder data-module-id=' + resource.id, extra_class='resource-view-list nav-pills nav-stacked' %}
+    {% snippet "package/snippets/resource_views_list.html", views=views, pkg=pkg, is_edit=true, extra_attributes='data-module = resource-view-reorder data-module-id=' + resource.id, extra_class='flex-column resource-view-list nav-pills nav-stacked' %}
   {% else %}
     <p class="empty">{{ _('This resource has no views') }}</p>
   {% endif %}
