@@ -10798,6 +10798,10 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
   font-weight: 600;
 }
 
+.btn-danger, .control-custom.disabled .checkbox.btn {
+  color: #fff !important;
+}
+
 .btn-light, .btn-default {
   border: #dee2e6 solid 1px;
 }
@@ -14428,12 +14432,12 @@ br.line-height2 {
 }
 
 .alert-error {
-  color: #d9534f;
-  background-color: #d9534f;
-  border-color: #d9534f;
+  color: #b55457;
+  background-color: #f8f0f0;
+  border-color: #c6898b;
 }
 .alert-error .alert-link {
-  color: #ae423f;
+  color: #914346;
 }
 
 .input-group .form-control {
