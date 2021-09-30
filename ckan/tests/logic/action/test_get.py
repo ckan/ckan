@@ -161,7 +161,7 @@ class TestPackageShow(object):
                     "vocabulary_id": None,
                 }
             ],
-            "title": dataset2["title"],
+            "title": dataset1["title"],
             "type": "dataset",
             "url": None,
             "version": None,
@@ -432,17 +432,15 @@ class TestGroupList(object):
 
     def test_group_list_offset(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
-        group3 = factories.Group()
-        group_names = [g["name"] for g in [group1, group2, group3]]
-
+        group_names = [
+            group["name"] for group in factories.Group.create_batch(3)
+        ]
         group_list = helpers.call_action("group_list", offset=2)
 
-        assert len(group_list) == 1
+        assert len(group_list) == len(group_list)
         # group list returns sorted result. This is not necessarily
         # order of creation
-        assert group_list[0] == sorted(group_names)[2]
+        assert group_list[0] == group_names[2]
 
     def test_group_list_limit_and_offset(self):
 

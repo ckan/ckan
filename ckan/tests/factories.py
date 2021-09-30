@@ -236,7 +236,7 @@ class Resource(CKANFactory):
         action = "resource_create"
 
     name = _name("resource")
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=80)
     format = factory.Faker("file_extension")
     url = factory.Faker("url")
     package_id = factory.LazyFunction(lambda: Dataset()["id"])
@@ -398,6 +398,19 @@ class APIToken(CKANFactory):
 
     class Meta:
         model = ckan.model.ApiToken
-        action = "api_token_create"
 
     name = factory.Faker("name")
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        target_user_name = _get_action_user_name(kwargs)
+        context = {"user": target_user_name}
+        kwargs["user"] = target_user_name
+
+        token_create = helpers.call_action(
+            "api_token_create", context=context, **kwargs
+        )
+        return token_create["token"]

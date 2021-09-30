@@ -1351,7 +1351,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 2
 
         third_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test2"
+            package=dataset, url="http://localhost", name="Test3"
         )
 
         res_views = helpers.call_action(
@@ -1424,9 +1424,9 @@ class TestResourceUpdate(object):
             )
             assert (
                 resource["metadata_modified"]
-                != datetime.datetime.utcnow().isoformat()
+                == datetime.datetime.utcnow().isoformat()
             )
-            assert resource["metadata_modified"] == "1987-03-04T23:30:00"
+            assert resource["metadata_modified"] != "1987-03-04T23:30:00"
 
     def test_new_keys_update_metadata_modified_field(self):
         dataset = factories.Dataset()
