@@ -24,7 +24,7 @@ class TestSearchIndex(object):
         assert search_result[u'count'] == 0
 
         result = cli.invoke(ckan, [u'search-index', u'rebuild'])
-        assert not result.exit_code
+        assert not result.exit_code, result.output
         search_result = helpers.call_action(u'package_search', q=u"After")
         assert search_result[u'count'] == 1
 
@@ -48,28 +48,28 @@ class TestSearchIndex(object):
 
         # Remove one dataset
         result = cli.invoke(ckan, [u'search-index', u'clear', dataset[u'id']])
-        assert not result.exit_code
+        assert not result.exit_code, result.output
         search_result = helpers.call_action(u'package_search', q=u"package")
         assert search_result[u'count'] == 1
 
         # Restore removed dataset and make sure all dataset are there
         result = cli.invoke(ckan,
                             [u'search-index', u'rebuild', dataset[u'id']])
-        assert not result.exit_code
+        assert not result.exit_code, result.output
         search_result = helpers.call_action(u'package_search', q=u"package")
         assert search_result[u'count'] == 2
 
         # Remove one package from index and test `check` tool
         result = cli.invoke(ckan, [u'search-index', u'clear', another_dataset[u'id']])
         result = cli.invoke(ckan, [u'search-index', u'check'])
-        assert not result.exit_code
+        assert not result.exit_code, result.output
         assert u'1 out of 2' in result.output
         search_result = helpers.call_action(u'package_search', q=u"package")
         assert search_result[u'count'] == 1
 
         # One can view data from index using CLI
         result = cli.invoke(ckan, [u'search-index', u'show', dataset[u'id']])
-        assert not result.exit_code
+        assert not result.exit_code, result.output
         assert u'First package' in result.output
         assert u'Second package' not in result.output
 
@@ -79,6 +79,6 @@ class TestSearchIndex(object):
         assert result.exit_code
 
         result = cli.invoke(ckan, [u'search-index', u'rebuild', u'-o'])
-        assert not result.exit_code
+        assert not result.exit_code, result.output
         search_result = helpers.call_action(u'package_search', q=u"package")
         assert search_result[u'count'] == 2

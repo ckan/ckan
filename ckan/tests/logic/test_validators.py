@@ -13,10 +13,26 @@ import pytest
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 import ckan.model as model
-import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 import ckan.tests.lib.navl.test_validators as t
 import ckan.logic as logic
+
+
+def validator_data_dict():
+    """Return a data dict with some arbitrary data in it, suitable to be passed
+    to validator functions for testing.
+
+    """
+    return {("other key",): "other value"}
+
+
+def validator_errors_dict():
+    """Return an errors dict with some arbitrary errors in it, suitable to be
+    passed to validator functions for testing.
+
+    """
+    return {("other key",): ["other error"]}
 
 
 def returns_arg(function):
@@ -383,9 +399,9 @@ def test_user_name_validator_with_non_string_value():
 
     key = ("name",)
     for non_string_value in non_string_values:
-        data = factories.validator_data_dict()
+        data = validator_data_dict()
         data[key] = non_string_value
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
 
         @t.does_not_modify_data_dict
@@ -409,10 +425,10 @@ def test_user_name_validator_with_a_name_that_already_exists():
     # the same user name in the database.
     mock_model = mock.MagicMock()
 
-    data = factories.validator_data_dict()
+    data = validator_data_dict()
     key = ("name",)
     data[key] = "user_name"
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
 
     @does_not_modify_other_keys_in_errors_dict
@@ -427,10 +443,10 @@ def test_user_name_validator_with_a_name_that_already_exists():
 
 def test_user_name_validator_successful():
     """user_name_validator() should do nothing if given a valid name."""
-    data = factories.validator_data_dict()
+    data = validator_data_dict()
     key = ("name",)
     data[key] = "new_user_name"
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
 
     # Mock ckan.model.
@@ -526,8 +542,8 @@ def test_clean_format():
 
 
 def test_datasets_with_org_can_be_private_when_creating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -550,8 +566,8 @@ def test_datasets_with_org_can_be_private_when_creating():
 
 
 def test_datasets_with_no_org_cannot_be_private_when_creating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -573,8 +589,8 @@ def test_datasets_with_no_org_cannot_be_private_when_creating():
 
 
 def test_datasets_with_org_can_be_private_when_updating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -732,7 +748,7 @@ def test_package_name_exists_empty():
 @pytest.mark.usefixtures("clean_db")
 def test_package_name_exists():
     name = "pne_validation_test"
-    dataset = factories.Dataset(name=name)
+    factories.Dataset(name=name)
     v = validators.package_name_exists(name, _make_context())
     assert v == name
 
@@ -743,8 +759,7 @@ def test_resource_id_exists_empty():
 
 
 @pytest.mark.usefixtures("clean_db")
-def test_resource_id_exists():
-    resource = factories.Resource()
+def test_resource_id_exists(resource):
     v = validators.resource_id_exists(resource["id"], _make_context())
     assert v == resource["id"]
 
@@ -769,8 +784,7 @@ def test_group_id_or_name_exists_empty():
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-def test_group_id_or_name_exists():
-    group = factories.Group()
+def test_group_id_or_name_exists(group):
     v = validators.group_id_or_name_exists(group["id"], _make_context())
     assert v == group["id"]
 
@@ -792,7 +806,7 @@ def test_password_ok():
         return validators.user_password_validator(*args, **kwargs)
 
     for password in passwords:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: password}, errors, None)
 
@@ -807,7 +821,7 @@ def test_password_too_short():
     def call_validator(*args, **kwargs):
         return validators.user_password_validator(*args, **kwargs)
 
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
     call_validator(key, {key: password}, errors, None)
 
@@ -825,7 +839,7 @@ def test_url_ok():
         return validators.url_validator(*args, **kwargs)
 
     for url in urls:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: url}, errors, None)
 
@@ -839,7 +853,7 @@ def test_url_invalid():
         return validators.url_validator(*args, **kwargs)
 
     for url in urls:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: url}, errors, None)
 
@@ -856,4 +870,29 @@ class TestOneOfValidator(object):
         raises_Invalid(func)(5)
 
 
-# TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show
+def test_tag_string_convert():
+    def convert(tag_string):
+        key = "tag_string"
+        data = {key: tag_string}
+        errors = []
+        context = {"model": model, "session": model.Session}
+        validators.tag_string_convert(key, data, errors, context)
+        tags = []
+        i = 0
+        while True:
+            tag = data.get(("tags", i, "name"))
+            if not tag:
+                break
+            tags.append(tag)
+            i += 1
+        return tags
+
+    assert convert("big, good") == ["big", "good"]
+    assert convert("one, several word tag, with-hyphen") == [
+        "one",
+        "several word tag",
+        "with-hyphen",
+    ]
+    assert convert("") == []
+    assert convert("trailing comma,") == ["trailing comma"]
+    assert convert("trailing comma space, ") == ["trailing comma space"]

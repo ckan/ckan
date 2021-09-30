@@ -25,7 +25,7 @@ from ckan.cli import (
     plugin_info,
     notify,
     tracking,
-    less,
+    sass,
     generate,
     user
 )
@@ -136,6 +136,14 @@ def _add_ctx_object(ctx, path=None):
 
     ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
 
+    # Remove all commands that were registered by extensions before
+    # adding new ones. Such situation is possible only during tests,
+    # because we are using singleton as main entry point, so it
+    # preserves its state even between tests
+    for key, cmd in list(ctx.command.commands.items()):
+        if hasattr(cmd, META_ATTR):
+            ctx.command.commands.pop(key)
+
 
 def _add_external_commands(ctx):
     for cmd in _get_commands_from_entry_point():
@@ -211,6 +219,6 @@ ckan.add_command(views.views)
 ckan.add_command(plugin_info.plugin_info)
 ckan.add_command(notify.notify)
 ckan.add_command(tracking.tracking)
-ckan.add_command(less.less)
+ckan.add_command(sass.sass)
 ckan.add_command(generate.generate)
 ckan.add_command(user.user)

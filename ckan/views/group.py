@@ -5,8 +5,8 @@ import re
 from collections import OrderedDict
 
 import six
-from six import string_types
-from six.moves.urllib.parse import urlencode
+
+from urllib.parse import urlencode
 from datetime import datetime
 
 import ckan.lib.base as base
@@ -256,7 +256,7 @@ def _read(id, limit, group_type):
             g, u'action', u'') == u'bulk_process' else u'read'
         url = h.url_for(u'.'.join([group_type, action]), id=id)
         params = [(k, v.encode(u'utf-8')
-                   if isinstance(v, string_types) else str(v))
+                   if isinstance(v, str) else str(v))
                   for k, v in params]
         return url + u'?' + urlencode(params)
 
@@ -845,6 +845,12 @@ class BulkProcessView(MethodView):
             u'for_view': True,
             u'extras_as_string': True
         }
+
+        try:
+            check_access(u'bulk_update_public', context, {u'org_id': id})
+        except NotAuthorized:
+            base.abort(403, _(u'Unauthorized to access'))
+
         return context
 
     def get(self, id, group_type, is_organization):
@@ -887,10 +893,9 @@ class BulkProcessView(MethodView):
 
     def post(self, id, group_type, is_organization, data=None):
         set_org(is_organization)
-        context = self._prepare(group_type)
+        context = self._prepare(group_type, id)
         data_dict = {u'id': id, u'type': group_type}
         try:
-            check_access(u'bulk_update_public', context, {u'org_id': id})
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
@@ -927,7 +932,7 @@ class BulkProcessView(MethodView):
         actions = form_names.intersection(actions_in_form)
         # ie7 puts all buttons in form params but puts submitted one twice
 
-        for key, value in six.iteritems(request.form.to_dict()):
+        for key, value in request.form.to_dict().items():
             if value in [u'private', u'public']:
                 action = key.split(u'.')[-1]
                 break

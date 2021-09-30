@@ -119,6 +119,9 @@ class _Toolkit(object):
         # Collection of signals
         'signals',
 
+        # fast interface implementations
+        'blanket',
+
         # Fully defined in this file ##
         'add_template_directory',
         'add_resource',
@@ -142,6 +145,8 @@ class _Toolkit(object):
     def _initialize(self):
         ''' get the required functions/objects, store them for later
         access and check that they match the contents dict. '''
+        import enum
+
         import six
         import ckan
         import ckan.logic as logic
@@ -151,6 +156,7 @@ class _Toolkit(object):
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
         import ckan.cli as cli
+        import ckan.plugins.blanket as blanket
         import ckan.lib.plugins as lib_plugins
         import ckan.lib.signals as signals
         import ckan.common as common
@@ -322,6 +328,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
+        t['blanket'] = blanket
         t['signals'] = signals
 
         # check contents list correct
@@ -515,21 +522,16 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
     @classmethod
     def _get_endpoint(cls):
-        """Returns tuple in format: (controller|blueprint, action|view).
-        """
-        import ckan.common as common
-        try:
-            # CKAN >= 2.8
-            endpoint = tuple(common.request.endpoint.split('.'))
-        except AttributeError:
-            try:
-                return common.c.controller, common.c.action
-            except AttributeError:
-                return (None, None)
+        """Returns tuple in format: (blueprint, view)."""
+        from ckan.common import request
+
+        if not request:
+            return None, None
+
+        blueprint, *rest = request.endpoint.split(".", 1)
         # service routes, like `static`
-        if len(endpoint) == 1:
-            return endpoint + ('index', )
-        return endpoint
+        view = rest[0] if rest else "index"
+        return blueprint, view
 
     def __getattr__(self, name):
         ''' return the function/object requested '''

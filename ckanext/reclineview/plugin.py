@@ -2,7 +2,6 @@
 
 from logging import getLogger
 
-import six
 
 from ckan.common import json, config
 import ckan.plugins as p
@@ -21,7 +20,7 @@ def get_mapview_config():
     '''
     namespace = 'ckanext.spatial.common_map.'
     return {k.replace(namespace, ''): v
-            for k, v in six.iteritems(config)
+            for k, v in config.items()
             if k.startswith(namespace)}
 
 

@@ -32,12 +32,36 @@
     {% block extra_fields %}
     {% endblock %}
 
+    {% if is_sysadmin and g.user != data.name %}
+    {% block sysadmin_password %}
+      <fieldset>
+      <legend>{{ _('Change ' + data.name|capitalize + "'s" + ' password') }}</legend>
+      {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'} ) }}
+      {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ _('Sysadmin password') }}</legend>
+        {{ form.input('old_password',
+                      type='password',
+                      label=_('Sysadmin Password'),
+                      id='field-password-old',
+                      value=data.oldpassword,
+                      error=errors.oldpassword,
+                      classes=['control-medium'],
+                      attrs={'autocomplete': 'off', 'class': 'form-control'}
+                      ) }}
+        
+      </fieldset>
+    {% endblock %}
+
+    {% else %}
     {% block change_password %}
       <fieldset>
         <legend>{{ _('Change password') }}</legend>
         {{ form.input('old_password',
                       type='password',
-                      label=_('Sysadmin Password') if is_sysadmin else _('Old Password'),
+                      label=_('Old Password'),
                       id='field-password-old',
                       value=data.oldpassword,
                       error=errors.oldpassword,
@@ -50,17 +74,13 @@
         {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
       </fieldset>
     {% endblock %}
+    {% endif %}
 
     <div class="form-actions">
       {% block form_actions %}
         {% block delete_button %}
           {% if h.check_access('user_delete', {'id': data.id})  %}
             <a class="btn btn-danger pull-left" href="{% url_for 'user_delete', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this User?') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
-          {% endif %}
-        {% endblock %}
-        {% block generate_button %}
-          {% if h.check_access('user_generate_apikey', {'id': data.id})  %}
-            <a class="btn btn-warning" href="{% url_for 'user.generate_apikey', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to regenerate the API key?') }}">{% block generate_button_text %}{{ _('Regenerate API Key') }}{% endblock %}</a>
           {% endif %}
         {% endblock %}
         {{ form.required_message() }}

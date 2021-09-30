@@ -14,8 +14,6 @@ services:
     container_name: ckan
     build:
       context: ../../
-      args:
-          - CKAN_SITE_URL=${CKAN_SITE_URL}
     links:
       - db
       - solr
@@ -52,10 +50,7 @@ services:
     container_name: db
     build:
       context: ../../
-      dockerfile: contrib/docker/postgresql/Dockerfile
-      args:
-        - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      dockerfile: contrib/docker/postgresql/Dockerfile  
     environment:
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -76,4 +71,4 @@ services:
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:6.2

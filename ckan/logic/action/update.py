@@ -10,7 +10,7 @@ import json
 from ckan.common import config
 import ckan.common as converters
 import six
-from six import text_type
+
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
@@ -886,37 +886,6 @@ def user_update(context, data_dict):
     return user_dict
 
 
-def user_generate_apikey(context, data_dict):
-    '''Cycle a user's API key
-
-    :param id: the name or id of the user whose key needs to be updated
-    :type id: string
-
-    :returns: the updated user
-    :rtype: dictionary
-    '''
-    model = context['model']
-    schema = context.get('schema') or schema_.default_generate_apikey_user_schema()
-    context['schema'] = schema
-    # check if user id in data_dict
-    id = _get_or_bust(data_dict, 'id')
-
-    # check if user exists
-    user_obj = model.User.get(id)
-    context['user_obj'] = user_obj
-    if user_obj is None:
-        raise NotFound('User was not found.')
-
-    # check permission
-    _check_access('user_generate_apikey', context, data_dict)
-
-    # change key
-    old_data = _get_action('user_show')(context, data_dict)
-    old_data['apikey'] = model.types.make_uuid()
-    data_dict = old_data
-    return _get_action('user_update')(context, data_dict)
-
-
 def task_status_update(context, data_dict):
     '''Update a task status.
 
@@ -985,6 +954,7 @@ def task_status_update_many(context, data_dict):
     model = context['model']
     deferred = context.get('defer_commit')
     context['defer_commit'] = True
+
     for data in data_dict['data']:
         results.append(_get_action('task_status_update')(context, data))
     if not deferred:
@@ -1391,7 +1361,7 @@ def config_option_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    for key, value in six.iteritems(data):
+    for key, value in data.items():
 
         # Set full Logo url
         if key == 'ckan.site_logo' and value and not value.startswith('http')\

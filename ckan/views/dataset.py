@@ -3,7 +3,7 @@ import logging
 import inspect
 from collections import OrderedDict
 from functools import partial
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 from datetime import datetime
 
 from flask import Blueprint
@@ -13,7 +13,7 @@ from werkzeug.datastructures import MultiDict
 from ckan.common import asbool
 
 import six
-from six import string_types, text_type
+
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -65,7 +65,7 @@ def _get_pkg_template(template_type, package_type=None):
 
 
 def _encode_params(params):
-    return [(k, v.encode(u'utf-8') if isinstance(v, string_types) else str(v))
+    return [(k, v.encode(u'utf-8') if isinstance(v, str) else str(v))
             for k, v in params]
 
 
@@ -378,7 +378,7 @@ def search(package_type):
     extra_vars[u'dataset_type'] = package_type
 
     # TODO: remove
-    for key, value in six.iteritems(extra_vars):
+    for key, value in extra_vars.items():
         setattr(g, key, value)
 
     return base.render(
@@ -616,9 +616,9 @@ class CreateView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = text_type(repr(e.args))
+                exc_str = str(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = text_type(str(e))
+                exc_str = str(str(e))
             return base.abort(
                 500,
                 _(u'Unable to add package to search index.') + exc_str
@@ -752,9 +752,9 @@ class EditView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = text_type(repr(e.args))
+                exc_str = str(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = text_type(str(e))
+                exc_str = str(str(e))
             return base.abort(
                 500,
                 _(u'Unable to update search index.') + exc_str

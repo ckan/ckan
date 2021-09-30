@@ -1,11 +1,12 @@
 # encoding: utf-8
 
 import logging
+import unicodedata
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 from flask import Blueprint, make_response
 import six
-from six import text_type
+
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
 from ckan.common import _, config, g, request
@@ -60,18 +61,18 @@ def _enclosure(pkg):
     )
     enc = Enclosure(url)
     enc.type = u'application/json'
-    enc.length = text_type(len(json.dumps(pkg)))
+    enc.length = str(len(json.dumps(pkg)))
     return enc
 
 
 def _set_extras(**kw):
     extras = []
-    for key, value in six.iteritems(kw):
+    for key, value in kw.items():
         extras.append({key: value})
     return extras
 
 
-class Enclosure(text_type):
+class Enclosure(str):
     def __init__(self, url):
         self.url = url
         self.length = u'0'
@@ -144,6 +145,12 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
     author_name = config.get(u'ckan.feeds.author_name', u'').strip() or \
         config.get(u'ckan.site_id', u'').strip()
 
+    def remove_control_characters(s):
+        if not s:
+            return ""
+
+        return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C")
+
     # TODO: language
     feed_class = CKANFeed
     for plugin in plugins.PluginImplementations(plugins.IFeed):
@@ -178,7 +185,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 id=pkg['id'],
                 ver=3,
                 _external=True),
-            description=pkg.get(u'notes', u''),
+            description=remove_control_characters(pkg.get(u'notes', u'')),
             updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
             published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
             unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
@@ -204,6 +211,8 @@ def group(id):
         group_dict = logic.get_action(u'group_show')(context, {u'id': id})
     except logic.NotFound:
         base.abort(404, _(u'Group not found'))
+    except logic.NotAuthorized:
+        base.abort(403, _('Not authorized to see this page'))
 
     return group_or_organization(group_dict, is_org=False)
 
@@ -221,6 +230,8 @@ def organization(id):
         })
     except logic.NotFound:
         base.abort(404, _(u'Organization not found'))
+    except logic.NotAuthorized:
+        base.abort(403, _('Not authorized to see this page'))
 
     return group_or_organization(group_dict, is_org=True)
 
@@ -424,7 +435,7 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    for item in six.iteritems(query):
+    for item in query.items():
         kwargs['query'] = item
     endpoint = controller + '.' + action
     return h.url_for(endpoint, **kwargs)

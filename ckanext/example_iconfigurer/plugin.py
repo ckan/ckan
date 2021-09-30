@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-from six import text_type
-
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckanext.example_iconfigurer.blueprint as blueprint
