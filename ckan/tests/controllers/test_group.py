@@ -13,11 +13,13 @@ from ckan.tests import factories
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupController(object):
-    def test_bulk_process_throws_404_for_nonexistent_org(self, app):
+    def test_bulk_process_throws_403_for_nonexistent_org(self, app):
+        """Returns 403, not 404, because access check cannot be passed.
+        """
         bulk_process_url = url_for(
             "organization.bulk_process", id="does-not-exist"
         )
-        app.get(url=bulk_process_url, status=404)
+        app.get(url=bulk_process_url, status=403)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
         orgs = [factories.Organization() for _ in range(35)]
@@ -397,6 +399,25 @@ class TestGroupMembership(object):
 
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Member"
+
+    def test_membership_add_by_email(self, app, mail_server):
+        owner = factories.User(fullname="My Owner")
+        group = self._create_group(owner["name"])
+        url = url_for("group.member_new", id=group["name"])
+        env = {"REMOTE_USER": owner["name"]}
+        email = "invited_user@mailinator.com"
+        app.post(
+            url,
+            environ_overrides=env,
+            data={"save": "", "email": email, "role": "member"},
+            status=200
+        )
+        assert len(mail_server.get_smtp_messages()) == 1
+        users = model.User.by_email(email)
+        assert len(users) == 1, users
+        user = users[0]
+        assert user.email == email, user
+        assert group["id"] in user.get_group_ids(capacity="member")
 
     def test_membership_edit_page(self, app):
         """If `user` parameter provided, render edit page."""

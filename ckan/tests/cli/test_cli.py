@@ -14,7 +14,7 @@ def test_without_args(cli):
     """
     result = cli.invoke(ckan)
     assert u'Usage: ckan' in result.output
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 def test_incorrect_config(cli):
@@ -29,14 +29,14 @@ def test_correct_config(cli, ckan_config):
     """
     result = cli.invoke(ckan, [u'-c', ckan_config[u'__file__']])
     assert u'Usage: ckan' in result.output
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 def test_correct_config_with_help(cli, ckan_config):
     """Config file not ignored when displaying usage.
     """
     result = cli.invoke(ckan, [u'-c', ckan_config[u'__file__'], u'-h'])
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 def test_config_via_env_var(cli, ckan_config):
@@ -46,7 +46,7 @@ def test_config_via_env_var(cli, ckan_config):
     """
     result = cli.invoke(ckan, [u'-c', None, u'-h'],
                         env={u'CKAN_INI': ckan_config[u'__file__']})
-    assert not result.exit_code
+    assert not result.exit_code, result.output
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')
@@ -81,9 +81,7 @@ def test_ckan_config_loader_parse_file():
     with pytest.raises(KeyError):
         conf[u'host']
 
-    assert conf[u'global_conf'][u'__file__'] == filename
-    assert conf[u'global_conf'][u'here'] == tpl_dir
-    assert conf[u'global_conf'][u'debug'] == u'false'
+    assert conf['here'] == tpl_dir
 
 
 def test_ckan_config_loader_parse_two_files():
@@ -99,8 +97,8 @@ def test_ckan_config_loader_parse_two_files():
     filename = os.path.join(extension_tpl_dir, u'test-extension.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
-    # Debug should be override by test-core.ini.tpl since is in DEFAULT section
-    assert conf[u'debug'] == u'false'
+    # Debug should not be overriden by lower-level config test-core.ini.tpl
+    assert conf[u'debug'] == u'true'
     # __file__ should never be override if parsing two files
     assert conf[u'__file__'] == filename
 
@@ -112,9 +110,7 @@ def test_ckan_config_loader_parse_two_files():
     with pytest.raises(KeyError):
         conf[u'host']
 
-    assert conf[u'global_conf'][u'__file__'] == filename
-    assert conf[u'global_conf'][u'here'] == tpl_dir
-    assert conf[u'global_conf'][u'debug'] == u'false'
+    assert conf[u'here'] == extension_tpl_dir
 
 
 def test_ckan_env_vars_in_config(monkeypatch):
@@ -156,5 +152,37 @@ def test_recursive_loading():
     """
     filename = os.path.join(
         os.path.dirname(__file__), u'data', u'test-one-recursive.ini')
+    with pytest.raises(CkanConfigurationException):
+        CKANConfigLoader(filename).get_config()
+
+
+def test_variables_in_chained_files():
+    """Variables are available accross all files in chain.
+
+    When variables got redefined latest version is used, just as in python's
+    class-inheritance. The only exception is the `here` variable, which
+    evaluated immediately.
+    """
+    here = os.path.dirname(__file__)
+    filename = os.path.join(
+        here, u'data', u'test-one.ini')
+    conf = CKANConfigLoader(filename).get_config()
+    assert conf["one.from2"] == "2"
+    assert conf["one.from3"] == "3"
+
+    assert conf["two.from3"] == "3"
+
+    assert conf["parts"] == "one two three"
+
+    assert conf["here.one"] == os.path.join(here, "data")
+    assert conf["here.two"] == os.path.join(here, "data", "sub")
+    assert conf["here.three"] == os.path.join(here, "data")
+
+
+def test_invalid_use_option():
+    """Report missing colon in `use` value
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-invalid-use.ini')
     with pytest.raises(CkanConfigurationException):
         CKANConfigLoader(filename).get_config()

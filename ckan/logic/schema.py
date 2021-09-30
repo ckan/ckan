@@ -402,7 +402,6 @@ def default_user_schema(
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
         'sysadmin': [ignore_missing, ignore_not_sysadmin],
-        'apikey': [ignore],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
@@ -457,15 +456,6 @@ def default_update_user_schema(
     schema['password'] = [
         user_password_validator, ignore_missing, unicode_safe]
 
-    return schema
-
-
-@validator_args
-def default_generate_apikey_user_schema(
-        not_empty, unicode_safe):
-    schema = default_update_user_schema()
-
-    schema['apikey'] = [not_empty, unicode_safe]
     return schema
 
 

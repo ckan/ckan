@@ -63,11 +63,6 @@ const fontAwesomeFonts = () =>
     dest(__dirname + "/ckan/public/base/vendor/font-awesome/fonts")
   );
 
-const fontAwesomeLess = () =>
-  src(__dirname + "/node_modules/font-awesome/less/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/font-awesome/less")
-  );
-
 const jQueryFileUpload = () =>
   src(__dirname + "/node_modules/blueimp-file-upload/js/*.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor/jquery-fileupload/")
@@ -100,7 +95,6 @@ exports.updateVendorLibs = parallel(
   moment,
   fontAwesomeCss,
   fontAwesomeFonts,
-  fontAwesomeLess,
   jQueryFileUpload,
   qs,
   highlightJs,

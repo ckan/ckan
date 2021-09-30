@@ -31,6 +31,17 @@ class TestPackage(object):
         assert pkg.license_id == u"odc-by"
         assert pkg.license.title == u"Open Data Commons Attribution License"
 
+    def test_as_dict(self):
+        pkg = model.Package.by_name(factories.Dataset(license_id="cc-by")["name"])
+        out = pkg.as_dict()
+        assert out["name"] == pkg.name
+        assert out["license"] == pkg.license.title
+        assert out["license_id"] == pkg.license.id
+        assert out["tags"] == [tag.name for tag in pkg.get_tags()]
+        assert out["metadata_modified"] == pkg.metadata_modified.isoformat()
+        assert out["metadata_created"] == pkg.metadata_created.isoformat()
+        assert out["notes"] == pkg.notes
+
     def test_update(self):
         dataset = factories.Dataset()
         pkg = model.Package.by_name(dataset[u"name"])

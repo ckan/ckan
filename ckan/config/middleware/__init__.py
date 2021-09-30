@@ -17,8 +17,7 @@ _internal_test_request_context = None
 
 def make_app(conf):
     '''
-    Initialise both the pylons and flask apps, and wrap them in dispatcher
-    middleware.
+    Initialise the Flask app and wrap it in dispatcher middleware.
     '''
 
     load_environment(conf)

@@ -12,7 +12,7 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
-from six import text_type
+
 
 from ckan.model import meta
 from ckan.model import core
@@ -111,7 +111,7 @@ class User(core.StatefulObjectMixin,
         '''
         hashed_password = pbkdf2_sha512.encrypt(password)
 
-        if not isinstance(hashed_password, text_type):
+        if not isinstance(hashed_password, str):
             hashed_password = six.ensure_text(hashed_password)
         self._password = hashed_password
 
@@ -119,7 +119,7 @@ class User(core.StatefulObjectMixin,
         return self._password
 
     def _verify_and_upgrade_from_sha1(self, password):
-        # if isinstance(password, text_type):
+        # if isinstance(password, str):
         #     password_8bit = password.encode('ascii', 'ignore')
         # else:
         #     password_8bit = password

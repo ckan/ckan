@@ -24,11 +24,18 @@ class TestFeeds(object):
         ), res
 
     def test_general_atom_feed_works(self, app):
-        dataset = factories.Dataset()
+        dataset = factories.Dataset(notes="Test\x0c Notes")
         offset = url_for(u"feeds.general")
         res = app.get(offset)
-
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
+        assert helpers.body_contains(res, u"<content>Test Notes</content>")
+
+    def test_general_atom_feed_works_with_no_notes(self, app):
+        dataset = factories.Dataset(notes=None)
+        offset = url_for(u"feeds.general")
+        res = app.get(offset)
+        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
+        assert helpers.body_contains(res, u"<content/>")
 
     def test_group_atom_feed_works(self, app):
         group = factories.Group()

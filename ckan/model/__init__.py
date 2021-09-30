@@ -7,7 +7,7 @@ import re
 from time import sleep
 from os.path import splitext
 
-from sqlalchemy import MetaData, __version__ as sqav, Table
+from sqlalchemy import MetaData, Table
 from sqlalchemy.exc import ProgrammingError
 
 from alembic.command import (
@@ -79,11 +79,7 @@ from ckan.model.tracking import (
     TrackingSummary,
     tracking_raw_table
 )
-from ckan.model.rating import (
-    Rating,
-    MIN_RATING,
-    MAX_RATING,
-)
+
 from ckan.model.package_relationship import (
     PackageRelationship,
     package_relationship_table,
@@ -240,10 +236,7 @@ class Repository():
         self.session.remove()
         ## use raw connection for performance
         connection = self.session.connection()
-        if sqav.startswith("0.4"):
-            tables = self.metadata.table_iterator()
-        else:
-            tables = reversed(self.metadata.sorted_tables)
+        tables = reversed(self.metadata.sorted_tables)
         for table in tables:
             if table.name == 'alembic_version':
                 continue

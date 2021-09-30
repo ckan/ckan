@@ -2,7 +2,7 @@
 
 import logging
 from sqlalchemy import create_engine
-from six.moves import map
+
 
 from ckanext.datastore.backend import DatastoreBackend
 

@@ -6,8 +6,8 @@ import re
 import pysolr
 import simplejson
 
-from six import string_types
-from six.moves.urllib.parse import quote_plus
+
+from urllib.parse import quote_plus
 
 from ckan.common import config, asint
 
@@ -90,7 +90,7 @@ def make_connection(decode_dates=True):
 
 def solr_datetime_decoder(d):
     for k, v in d.items():
-        if isinstance(v, string_types):
+        if isinstance(v, str):
             possible_datetime = re.search(pysolr.DATETIME_REGEX, v)
             if possible_datetime:
                 date_values = possible_datetime.groupdict()

@@ -1,6 +1,8 @@
 # encoding: utf-8
 
+from ckan.exceptions import CkanDeprecationWarning
 import logging
+import warnings
 
 import click
 from werkzeug.serving import run_simple
@@ -43,6 +45,9 @@ DEFAULT_PORT = 5000
 def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
         ssl_cert, ssl_key):
     u"""Runs the Werkzeug development server"""
+
+    if tk.asbool(config.get("debug")):
+        warnings.filterwarnings("default", category=CkanDeprecationWarning)
 
     # Reloading
     use_reloader = not disable_reloader
