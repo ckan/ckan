@@ -201,6 +201,6 @@ your CKAN site.
    There may be a ``PermissionError: [Errno 13] Permission denied:`` message when restarting supervisor or 
    accessing CKAN via a browser for the first time. This happens when a different user is used to execute 
    the web server process than the user who installed CKAN and the support software. A workaround would be to 
-   open up the permissions on the ``/path/to/ckan/lib/default/src/ckan/ckan/public/base/i18n/`` directory 
+   open up the permissions on the ``/usr/lib/ckan/default/src/ckan/ckan/public/base/i18n/`` directory 
    so that this user could write the .js files into it. Accessing CKAN will generate these files for a new 
-   install, or you could run ``ckan -c /path/to/ckan.ini translation js`` to explicitly generate them.
+   install, or you could run ``ckan -c /etc/ckan/default/ckan.ini translation js`` to explicitly generate them.
