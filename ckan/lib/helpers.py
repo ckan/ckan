@@ -2939,9 +2939,13 @@ def can_update_owner_org(package_dict, user_orgs=None):
 
 def last_active_user():
     remote_user = request.environ.get("REMOTE_USER", "")
-    # userobj = None
-    # breakpoint()
-    if isinstance(remote_user, model.User):
-        userobj = model.User.get(remote_user)
-        userobj.set_user_last_active()
 
+    if remote_user:
+        try:
+            userobj = model.User.get(remote_user)
+            if userobj:
+                userobj.set_user_last_active()
+        except logic.NotFound:
+            pass
+
+        
