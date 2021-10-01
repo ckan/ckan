@@ -157,6 +157,10 @@
 .tag-list {
     @include list-unstyled;
     padding: 10px 10px 5px 10px;
+    @extend .card;
+    @extend .card-body;
+    background-color: $gray-100;
+    margin-bottom: $paragraph-margin-bottom;
 }
 
 .tag-list li {
