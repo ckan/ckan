@@ -11568,11 +11568,6 @@ textarea {
   overflow: auto;
 }
 
-@media (max-width: 575.98px) {
-  .form-actions {
-    text-align: right;
-  }
-}
 .form-actions .action-info {
   line-height: 2;
   text-align: left;
@@ -11580,7 +11575,11 @@ textarea {
   margin: 0;
 }
 
-@media (max-width: 575.98px) {
+@media (min-width: 992px) {
+  .form-actions {
+    text-align: right;
+  }
+
   .form-actions .action-info {
     float: left;
     width: 50%;

@@ -195,7 +195,7 @@ options     - A list/tuple of fields to be used as <options>.
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error='', classes=classes, extra_html=extra_html, is_required=is_required) %}
   <div class="input-group">
-    {% if prepend %}<span class="input-group-addon">{{ prepend }}</span>{%- endif -%}
+    {% if prepend %}<label class="input-group-text">{{ prepend }}</label>{%- endif -%}
     <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
     {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
   </div>
