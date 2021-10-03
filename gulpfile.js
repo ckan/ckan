@@ -53,6 +53,16 @@ const moment = () =>
     dest(__dirname + "/ckan/public/base/vendor")
   );
 
+const popOver = () =>
+  src(__dirname + "/node_modules/@popperjs/core/dist/cjs/popper.js").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/")
+);
+
+const DOMPurify = () =>
+  src(__dirname + "/node_modules/dompurify/dist/purify.js").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/")
+);
+
 const fontAwesomeCss = () =>
   src(__dirname + "/node_modules/font-awesome/css/font-awesome.css").pipe(
     dest(__dirname + "/ckan/public/base/vendor/font-awesome/css")
@@ -97,6 +107,8 @@ exports.updateVendorLibs = parallel(
   fontAwesomeFonts,
   jQueryFileUpload,
   qs,
+  DOMPurify,
+  popOver,
   highlightJs,
   highlightJsStyles
 );

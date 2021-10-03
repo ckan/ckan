@@ -11,8 +11,10 @@
     margin-bottom: 15px;
 }
 
-.nav-item>a,
-.nav-aside li a {
+
+.module-narrow  {
+    .nav-item>a,
+    .nav-aside li a {
     text-decoration: none;;
     display: block;
     color: $navLinkColor;
@@ -29,51 +31,52 @@
         border-radius: 10px;
     }
 }
-
-.nav-item.active,
-.nav-aside li.active {
-    background-color: $navActiveBackgroundColor;
-}
-
-.nav-item.active>a,
-.nav-aside li.active a {
-    position: relative;
-    color: $navItemActiveTextColor;
-    background-color: $navItemActiveBackgroundColor;
-    &:hover {
+    .nav-item.active,
+    .nav-aside li.active {
+        background-color: $navActiveBackgroundColor;
+    }
+    
+    .nav-item.active>a,
+    .nav-aside li.active a {
+        position: relative;
         color: $navItemActiveTextColor;
         background-color: $navItemActiveBackgroundColor;
+        &:hover {
+            color: $navItemActiveTextColor;
+            background-color: $navItemActiveBackgroundColor;
+        }
+    }
+    
+    .nav-item.active>a:before,
+    .nav-aside li.active a:before {
+        content: ' ';
+        position: absolute;
+        border: ($navItemActiveArrowSize*3 + 2) solid transparent;
+        border-right: none;
+        border-left-color: $navItemActiveBackgroundColor;
+        border-left-width: $navItemActiveArrowSize;
+        top: 0;
+        bottom: 0;
+        right: -$navItemActiveArrowSize;
+        width: $navItemActiveArrowSize;
+        height: 34px;
+        // background-image: url("${imagePath}/nav-active.png?1");
+    }
+    
+    .nav-pills>li {
+        float: none;
+        @include media-breakpoint-down(sm) { 
+            float: left;
+        }
+    }
+    
+    .nav-item.active>a span,
+    .nav-aside li.active a span {
+        white-space: nowrap;
+        // display: block;
     }
 }
 
-.nav-item.active>a:before,
-.nav-aside li.active a:before {
-    content: ' ';
-    position: absolute;
-    border: ($navItemActiveArrowSize*3 + 2) solid transparent;
-    border-right: none;
-    border-left-color: $navItemActiveBackgroundColor;
-    border-left-width: $navItemActiveArrowSize;
-    top: 0;
-    bottom: 0;
-    right: -$navItemActiveArrowSize;
-    width: $navItemActiveArrowSize;
-    height: 34px;
-    // background-image: url("${imagePath}/nav-active.png?1");
-}
-
-.nav-pills>li {
-    float: none;
-    @include media-breakpoint-down(sm) { 
-        float: left;
-    }
-}
-
-.nav-item.active>a span,
-.nav-aside li.active a span {
-    white-space: nowrap;
-    // display: block;
-}
 
 .module-narrow .nav-item>a,
 .module-narrow .nav-aside li a {
