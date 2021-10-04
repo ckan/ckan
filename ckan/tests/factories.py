@@ -141,8 +141,8 @@ class CKANOptions(factory.alchemy.SQLAlchemyOptions):
     """CKANFactory options.
 
     :param action: name of the CKAN API action used for entity creation
-    :param primary_key: name of the entity's property that can be used for retriving
-        entity object from database
+    :param primary_key: name of the entity's property that can be used for
+                        retriving entity object from database
 
     """
 
@@ -174,7 +174,9 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     @classmethod
     def _api_prepare_args(cls, data_dict):
-        """Add any extra details to pass into the action on the entity create stage."""
+        """Add any extra details to pass into the action on the entity create
+        stage."""
+
         if "context" not in data_dict:
             data_dict["context"] = {"user": _get_action_user_name(data_dict)}
         return data_dict
@@ -261,7 +263,7 @@ class ResourceView(CKANFactory):
         action = "resource_view_create"
 
     title = _name("resource-view")
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=80)
     view_type = "image_view"
     resource_id = factory.LazyFunction(lambda: Resource()["id"])
 
@@ -310,8 +312,7 @@ class Dataset(CKANFactory):
 
     name = _name("dataset")
     title = factory.Faker("sentence", nb_words=5)
-    notes = factory.Faker("text")
-
+    notes = factory.Faker("text", max_nb_chars=80)
 
 
 class Vocabulary(CKANFactory):
@@ -341,7 +342,6 @@ class MockUser(factory.Factory):
 
     class Meta:
         model = mock.MagicMock
-
 
     fullname = factory.Faker("name")
     password = factory.Faker("password")

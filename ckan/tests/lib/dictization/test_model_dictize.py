@@ -134,7 +134,8 @@ class TestGroupListDictize:
         context = {"model": model, "session": model.Session}
 
         child_dict, parent_dict = model_dictize.group_list_dictize(
-            group_list, context, include_groups=True
+            group_list, context, sort_key=lambda x: x['name'],
+            include_groups=True
         )
 
         assert parent_dict["name"] == "parent"

@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import unittest.mock as mock
+import factory
 from bs4 import BeautifulSoup
 import pytest
 import six
@@ -22,7 +23,12 @@ class TestGroupController(object):
         app.get(url=bulk_process_url, status=403)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
-        orgs = [factories.Organization() for _ in range(35)]
+        orgs = [
+            factories.Organization(
+                name=factory.Sequence(lambda n: "test_org_{0:02d}".format(n))
+            )
+            for _ in range(35)
+        ]
         org_url = url_for("organization.index", sort="name desc")
         response = app.get(url=org_url)
         assert orgs[-1]["name"] in response
@@ -34,15 +40,17 @@ class TestGroupController(object):
         assert orgs[0]["name"] in response
 
     def test_page_thru_list_of_groups_preserves_sort_order(self, app):
-        groups = [factories.Group() for _ in range(35)]
-        group_url = url_for("group.index", sort="title desc")
+        n = factory.Sequence(lambda n: "test_org_{0:02d}".format(n))
+        t = factory.LazyAttribute(lambda n: n.name.replace("_", " ").title())
+        groups = [factories.Group(name=n, title=t) for _ in range(35)]
 
+        group_url = url_for("group.index", sort="title desc")
         response = app.get(url=group_url)
         assert groups[-1]["title"] in response
         assert groups[0]["title"] not in response
 
-        org_url = url_for("group.index", sort="title desc", page=2)
-        response = app.get(url=org_url)
+        group_url = url_for("group.index", sort="title desc", page=2)
+        response = app.get(url=group_url)
         assert groups[-1]["title"] not in response
         assert groups[0]["title"] in response
 

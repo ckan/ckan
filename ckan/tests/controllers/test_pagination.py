@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 import pytest
+import factory
 import ckan.tests.factories as factories
 from ckan.lib.helpers import url_for
 
@@ -72,25 +73,24 @@ def test_group_datasets_read(app):
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 def test_group_index(app):
+    n = factory.Sequence(lambda n: "test_group_{0:02d}".format(n))
     all_numbers = [
-        group["name"] for group in factories.Group.create_batch(22)]
-    all_numbers = sorted(all_numbers)
-    resp = app.get(url_for("group.index", sort="name"))
+        group["name"] for group in factories.Group.create_batch(22, name=n)]
 
+    resp = app.get(url_for("group.index", sort="name"))
     page = BeautifulSoup(resp.data)
-    href = page.select_one(".pagination").find("a", text=1)["href"]
-    assert "/group/?q=&sort=name&page=1" == href
+    href = page.select_one(".pagination").find("a", text=2)["href"]
+    assert "/group/?q=&sort=name&page=2" == href
     numbers = [
         link["href"].rsplit("/", 1)[-1]
         for link in page.select(".primary .media-view")
     ]
-    
     assert all_numbers[:20] == numbers
 
     resp = app.get(url_for("group.index", sort="name", page=2))
     page = BeautifulSoup(resp.data)
-    href = page.select_one(".pagination").find("a", text=2)["href"]
-    assert "/group/?q=&sort=name&page=2" == href
+    href = page.select_one(".pagination").find("a", text=1)["href"]
+    assert "/group/?q=&sort=name&page=1" == href
     numbers = [
         link["href"].rsplit("/", 1)[-1]
         for link in page.select(".primary .media-view")
@@ -100,31 +100,31 @@ def test_group_index(app):
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 def test_users_index(app):
+    n = factory.Sequence(lambda n: "test_user_{0:02d}".format(n))
     all_numbers = [
         user["name"].rsplit("_", 1)[-1]
-        for user in factories.User.create_batch(21)
+        for user in factories.User.create_batch(21, name=n)
     ]
-    all_numbers = sorted(all_numbers)
     resp = app.get(url_for("user.index"))
     page = BeautifulSoup(resp.data)
-    href = page.select_one(".pagination").find("a", text=1)["href"]
-    assert "/user/?q=&order_by=name&page=1" == href
+    href = page.select_one(".pagination").find("a", text=2)["href"]
+    assert "/user/?q=&order_by=name&page=2" == href
     # this page will list default user, created after db reset,
     # that is skipped by our scraper. So, actually there 20 items,
     # but only 19 of them have been caught by regExp
     numbers = [
-        link["href"].rsplit("/", 1)[1]
+        link["href"].rsplit("_", 1)[-1]
         for link in page.select(".primary .user-list a")
-    ][:-1]
+    ][1:]
 
     assert all_numbers[:19] == numbers
 
     resp = app.get(url_for("user.index", page=2))
     page = BeautifulSoup(resp.data)
-    href = page.select_one(".pagination").find("a", text=2)["href"]
-    assert "/user/?q=&order_by=name&page=2" == href
+    href = page.select_one(".pagination").find("a", text=1)["href"]
+    assert "/user/?q=&order_by=name&page=1" == href
     numbers = [
-        link["href"].rsplit("/", 1)[-1]
+        link["href"].rsplit("_", 1)[-1]
         for link in page.select(".primary .user-list a")
     ]
 

@@ -86,85 +86,85 @@ class TestPackageShow(object):
         replace_uuid(dataset2["tags"][0], "id")
 
         assert dataset2 == {
-            "author": None,
-            "author_email": None,
+            "author": dataset1["author"],
+            "author_email": dataset1["author_email"],
             "creator_user_id": "<SOME-UUID>",
-            "extras": [{"key": "subject", "value": "science"}],
+            "extras": dataset1["extras"],
             "groups": [
                 {
-                    "description": "A test description for this test group.",
-                    "display_name": "Test Group num",
+                    "description": group["description"],
+                    "display_name": group["display_name"],
                     "id": "<SOME-UUID>",
-                    "image_display_url": "",
-                    "name": "test_group_num",
-                    "title": "Test Group num",
+                    "image_display_url": group["image_display_url"],
+                    "name": group["name"],
+                    "title": group["title"],
                 }
             ],
             "id": "<SOME-UUID>",
-            "isopen": False,
-            "license_id": None,
-            "license_title": None,
-            "maintainer": None,
-            "maintainer_email": None,
+            "isopen": dataset1["isopen"],
+            "license_id": dataset1["license_id"],
+            "license_title": dataset1["license_title"],
+            "maintainer": dataset1["maintainer"],
+            "maintainer_email": dataset1["maintainer_email"],
             "metadata_created": "2019-05-24T15:52:30.123456",
             "metadata_modified": "2019-05-24T15:52:30.123456",
-            "name": "test_dataset_num",
-            "notes": "Just another test dataset.",
-            "num_resources": 1,
-            "num_tags": 1,
+            "name": dataset1["name"],
+            "notes": dataset1["notes"],
+            "num_resources": dataset1["num_resources"],
+            "num_tags": dataset1["num_tags"],
             "organization": {
-                "approval_status": "approved",
+                "approval_status": org["approval_status"],
                 "created": "2019-05-24T15:52:30.123456",
-                "description": "Just another test organization.",
+                "description": org["description"],
                 "id": "<SOME-UUID>",
-                "image_url": "https://placekitten.com/g/200/100",
-                "is_organization": True,
-                "name": "test_org_num",
-                "state": "active",
-                "title": "Test Organization",
-                "type": "organization",
+                "image_url": org["image_url"],
+                "is_organization": org["is_organization"],
+                "name": org["name"],
+                "state": org["state"],
+                "title": org["title"],
+                "type": org["type"],
             },
             "owner_org": "<SOME-UUID>",
-            "private": False,
-            "relationships_as_object": [],
-            "relationships_as_subject": [],
+            "private": dataset1["private"],
+            "relationships_as_object": dataset1["relationships_as_object"],
+            "relationships_as_subject": dataset1["relationships_as_subject"],
             "resources": [
                 {
-                    "cache_last_updated": None,
-                    "cache_url": None,
+                    "cache_last_updated": dataset1["resources"][0]["cache_last_updated"],
+                    "cache_url": dataset1["resources"][0]["cache_url"],
                     "created": "2019-05-24T15:52:30.123456",
-                    "description": None,
-                    "format": "PNG",
-                    "hash": "",
+                    "description": dataset1["resources"][0]["description"],
+                    "format": dataset1["resources"][0]["format"],
+                    "hash": dataset1["resources"][0]["hash"],
                     "id": "<SOME-UUID>",
-                    "last_modified": None,
+                    "last_modified": dataset1["resources"][0]["last_modified"],
                     "metadata_modified": "2019-05-24T15:52:30.123456",
-                    "mimetype": None,
-                    "mimetype_inner": None,
+                    "mimetype": dataset1["resources"][0]["mimetype"],
+                    "mimetype_inner": dataset1["resources"][0]["mimetype_inner"],
                     "name": "Image num",
                     "package_id": "<SOME-UUID>",
-                    "position": 0,
-                    "resource_type": None,
-                    "size": None,
-                    "state": "active",
-                    "url": "http://example.com/image.png",
-                    "url_type": None,
+                    "position": dataset1["resources"][0]["position"],
+                    "resource_type": dataset1["resources"][0]["resource_type"],
+                    "size": dataset1["resources"][0]["size"],
+                    "state": dataset1["resources"][0]["state"],
+                    "url": dataset1["resources"][0]["url"],
+                    "url_type": dataset1["resources"][0]["url_type"],
                 }
             ],
-            "state": "active",
+            "state": dataset1["state"],
             "tags": [
                 {
-                    "display_name": "science",
+                    "display_name": dataset1["tags"][0]["display_name"],
                     "id": "<SOME-UUID>",
-                    "name": "science",
-                    "state": "active",
-                    "vocabulary_id": None,
+                    "name": dataset1["tags"][0]["name"],
+                    "state": dataset1["tags"][0]["state"],
+                    "vocabulary_id": dataset1["tags"][0]["vocabulary_id"],
                 }
             ],
             "title": dataset1["title"],
-            "type": "dataset",
-            "url": None,
-            "version": None,
+            "type": dataset1["type"],
+            "url": dataset1["url"],
+            "version": dataset1["version"],
         }
 
     def test_package_show_with_custom_schema(self):
@@ -420,24 +420,26 @@ class TestGroupList(object):
 
     def test_group_list_limit(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
-        group3 = factories.Group()
+        group1 = factories.Group(name="aa")
+        group2 = factories.Group(name="bb")
+        group3 = factories.Group(name="cc")
         group_names = [g["name"] for g in [group1, group2, group3]]
 
-        group_list = helpers.call_action("group_list", limit=1)
+        group_list = helpers.call_action("group_list", sort="name", limit=1)
 
         assert len(group_list) == 1
-        assert group_list[0] == sorted(group_names)[0]
+        assert group_list[0] == group_names[0]
 
     def test_group_list_offset(self):
 
-        group_names = [
-            group["name"] for group in factories.Group.create_batch(3)
-        ]
-        group_list = helpers.call_action("group_list", offset=2)
+        group1 = factories.Group(name="aa")
+        group2 = factories.Group(name="bb")
+        group3 = factories.Group(name="cc")
+        group_names = [g["name"] for g in [group1, group2, group3]]
 
-        assert len(group_list) == len(group_list)
+        group_list = helpers.call_action("group_list", sort="name", offset=2)
+
+        assert len(group_list) == 1
         # group list returns sorted result. This is not necessarily
         # order of creation
         assert group_list[0] == group_names[2]
@@ -876,7 +878,7 @@ class TestUserList(object):
 
     def test_user_list_edits(self):
 
-        user = factories.User()
+        user = factories.User(fullname="Guido van Rossum")
         dataset = factories.Dataset(user=user)
         dataset["title"] = "Edited title"
         helpers.call_action(
