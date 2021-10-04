@@ -916,8 +916,6 @@ def register_dataset_plugin_rules(blueprint):
         u'/<resource_id>/edit_view/<view_id>', view_func=_edit_view
     )
     blueprint.add_url_rule(
-        u'/<resource_id>/embed', view_func=embedded_dataviewer)
-    blueprint.add_url_rule(
         u'/<resource_id>/viewer',
         view_func=embedded_dataviewer,
         defaults={
