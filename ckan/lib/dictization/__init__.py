@@ -34,7 +34,7 @@ def table_dictize(obj, context, **kw):
         fields = obj.keys()
     else:
         ModelClass = obj.__class__
-        table = class_mapper(ModelClass).mapped_table
+        table = class_mapper(ModelClass).persist_selectable
         fields = [field.name for field in table.c]
 
     for field in fields:
@@ -120,7 +120,7 @@ def table_dict_save(table_dict, ModelClass, context, extra_attrs=()):
     model = context["model"]
     session = context["session"]
 
-    table = class_mapper(ModelClass).mapped_table
+    table = class_mapper(ModelClass).persist_selectable
 
     obj = None
 

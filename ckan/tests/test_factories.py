@@ -4,7 +4,6 @@ import pytest
 
 import ckan.tests.factories as factories
 
-
 @pytest.mark.parametrize(
     u"entity",
     [
@@ -34,8 +33,6 @@ def test_resource_view_factory():
 
 # END-CONFIG-OVERRIDE
 
-
-@pytest.mark.usefixtures("with_plugins")
 def test_dataset_factory_allows_creation_by_anonymous_user():
     dataset = factories.Dataset(user=None)
     assert dataset[u"creator_user_id"] is None

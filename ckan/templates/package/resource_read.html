@@ -33,7 +33,7 @@
             {% if res.url and h.is_url(res.url) %}
               <li>
                 <div class="btn-group">
-                <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
+                <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
                   {% if res.resource_type in ('listing', 'service') %}
                     <i class="fa fa-eye"></i> {{ _('View') }}
                   {% elif  res.resource_type == 'api' %}
