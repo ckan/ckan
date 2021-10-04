@@ -904,7 +904,7 @@ class TestUserList(object):
 
     def test_user_list_not_all_fields(self):
 
-        user = factories.User()
+        user = factories.User(fullname="Guido")
 
         got_users = helpers.call_action("user_list", all_fields=False)
 
