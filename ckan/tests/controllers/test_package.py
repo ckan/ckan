@@ -689,8 +689,8 @@ class TestPackageRead(object):
     def test_read(self, app):
         dataset = factories.Dataset()
         response = app.get(url_for("dataset.read", id=dataset["name"]))
-        assert helpers.body_contains(response, "Test Dataset")
-        assert helpers.body_contains(response, "Just another test dataset")
+        assert helpers.body_contains(response, dataset["title"])
+        assert helpers.body_contains(response, dataset["notes"][:60].split("\n")[0])
 
     def test_organization_members_can_read_private_datasets(self, app):
         members = {
@@ -714,8 +714,8 @@ class TestPackageRead(object):
                     "REMOTE_USER": six.ensure_str(user_dict["name"])
                 },
             )
-            assert "Test Dataset" in response.body
-            assert "Just another test dataset" in response.body
+            assert dataset["title"] in response.body
+            assert dataset["notes"] in response.body
 
     def test_anonymous_users_cannot_read_private_datasets(self, app):
         organization = factories.Organization()
@@ -957,7 +957,7 @@ class TestResourceNew(object):
             url_for("dataset.resources", id=dataset["name"]), extra_environ=env
         )
         assert resource["name"] in response
-        assert resource["description"] in response
+        assert resource["description"][:60].split("\n")[0] in response
         assert resource["format"] in response
 
     def test_unauth_user_cannot_view_manage_dataset_resource_listing_page(
@@ -972,7 +972,7 @@ class TestResourceNew(object):
             url_for("dataset.resources", id=dataset["name"]), extra_environ=env
         )
         assert resource["name"] in response
-        assert resource["description"] in response
+        assert resource["description"][:60].split("\n")[0] in response
         assert resource["format"] in response
 
     def test_404_on_manage_dataset_resource_listing_page_that_does_not_exist(
@@ -1392,7 +1392,7 @@ class TestResourceRead(object):
                     "REMOTE_USER": six.ensure_str(user_dict["name"])
                 },
             )
-            assert "Just another test resource" in response.body
+            assert resource["description"][:60].split("\n")[0] in response.body
 
     def test_anonymous_users_cannot_read_private_datasets(self, app):
         organization = factories.Organization()
@@ -2032,7 +2032,7 @@ class TestActivity(object):
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
-        assert "Mr. Test User" in response
+        assert user["fullname"] in response
         assert "created the dataset" in response
 
     def test_create_dataset(self, app):
@@ -2043,11 +2043,11 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the dataset" in response
         assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
             in response
         )
 
@@ -2068,12 +2068,12 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
         assert (
-            '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]
+            '<a href="/dataset/{}">{}'.format(
+                dataset["id"], dataset["title"]
             )
             in response
         )
@@ -2091,7 +2091,7 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
         assert (
@@ -2117,7 +2117,7 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
         assert (
@@ -2143,7 +2143,7 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
         assert (
@@ -2171,7 +2171,7 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
         assert (
@@ -2202,7 +2202,7 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
         assert (
@@ -2228,11 +2228,11 @@ class TestActivity(object):
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the dataset" in response
         assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
             in response
         )
 
@@ -2327,11 +2327,11 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
         assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
             in response
         )
 
@@ -2376,7 +2376,7 @@ class TestActivity(object):
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         # it renders the activity with fallback.html, since we've not defined
         # changed_datastore.html in this case

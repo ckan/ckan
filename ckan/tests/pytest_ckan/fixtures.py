@@ -49,32 +49,50 @@ import ckan.lib.search as search
 
 from ckan.common import config
 
-@register
-class UserFactory(factories.User): ...
 
 @register
-class ResourceFactory(factories.Resource): ...
+class UserFactory(factories.User):
+    pass
+
 
 @register
-class ResourceViewFactory(factories.ResourceView): ...
+class ResourceFactory(factories.Resource):
+    pass
+
 
 @register
-class GroupFactory(factories.Group): ...
+class ResourceViewFactory(factories.ResourceView):
+    pass
+
 
 @register
-class PackageFactory(factories.Dataset): ...
+class GroupFactory(factories.Group):
+    pass
+
 
 @register
-class VocabularyFactory(factories.Vocabulary): ...
+class PackageFactory(factories.Dataset):
+    pass
+
 
 @register
-class ActivityFactory(factories.Activity): ...
+class VocabularyFactory(factories.Vocabulary):
+    pass
+
 
 @register
-class SystemInfoFactory(factories.SystemInfo): ...
+class ActivityFactory(factories.Activity):
+    pass
+
 
 @register
-class APITokenFactory(factories.APIToken): ...
+class SystemInfoFactory(factories.SystemInfo):
+    pass
+
+
+@register
+class APITokenFactory(factories.APIToken):
+    pass
 
 
 register(factories.Sysadmin, "sysadmin")
