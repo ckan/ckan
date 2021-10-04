@@ -432,12 +432,12 @@ class TestGroupList(object):
 
     def test_group_list_offset(self):
 
-        group1 = factories.Group(name="aa")
-        group2 = factories.Group(name="bb")
-        group3 = factories.Group(name="cc")
+        group1 = factories.Group(title="aa")
+        group2 = factories.Group(title="bb")
+        group3 = factories.Group(title="cc")
         group_names = [g["name"] for g in [group1, group2, group3]]
 
-        group_list = helpers.call_action("group_list", sort="name", offset=2)
+        group_list = helpers.call_action("group_list", offset=2)
 
         assert len(group_list) == 1
         # group list returns sorted result. This is not necessarily
@@ -446,12 +446,11 @@ class TestGroupList(object):
 
     def test_group_list_limit_and_offset(self):
 
-        group1 = factories.Group(name="aa")
-        group2 = factories.Group(name="bb")
-        group3 = factories.Group(name="cc")
+        group1 = factories.Group(title="aa")
+        group2 = factories.Group(title="bb")
+        group3 = factories.Group(title="cc")
 
         group_list = helpers.call_action("group_list", offset=1, limit=1)
-
         assert len(group_list) == 1
         assert group_list[0] == group2["name"]
 
