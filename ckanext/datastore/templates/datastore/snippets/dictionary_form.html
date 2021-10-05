@@ -8,13 +8,15 @@
   as part of the "info" object on the column.
 #}
 
-{{ form.select('info__' ~ position ~ '__type_override',
-  label=_('Type Override'), options=[
-  {'name': '', 'value': ''},
-  {'name': 'text', 'value': 'text'},
-  {'name': 'numeric', 'value': 'numeric'},
-  {'name': 'timestamp', 'value': 'timestamp'},
-  ], selected=field.get('info', {}).get('type_override', '')) }}
+{% block datapusher_xloader_fields %}
+  {{ form.select('info__' ~ position ~ '__type_override',
+    label=_('Type Override'), options=[
+    {'name': '', 'value': ''},
+    {'name': 'text', 'value': 'text'},
+    {'name': 'numeric', 'value': 'numeric'},
+    {'name': 'timestamp', 'value': 'timestamp'},
+    ], selected=field.get('info', {}).get('type_override', '')) }}
+{% endblock %}
 
 {{ form.input('info__' ~ position ~ '__label',
   label=_('Label'), id='field-f' ~ position ~ 'label',

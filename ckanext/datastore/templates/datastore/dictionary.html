@@ -11,7 +11,7 @@
   <form method="post" action="{{ action }}" >
     {% block dictionary_form %}
       {% for field in fields %}
-          {% snippet "datastore/snippets/dictionary_form.html", field=field, position=loop.index %}
+          {% snippet "datastore/snippets/dictionary_form.html", field=field, position=loop.index, res=res %}
       {% endfor %}
     {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">

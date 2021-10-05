@@ -1,0 +1,5 @@
+# tabledesigner-css:
+#   filter: cssrewrite
+#   output: ckanext-tabledesigner/%(version)s-tabledesigner.css
+#   contents:
+#     - css/tabledesigner.css
