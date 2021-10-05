@@ -4,10 +4,7 @@ import pytest
 
 from werkzeug.utils import import_string
 
-from ckan.tests.helpers import call_action
 from ckan.cli.cli import ckan
-from ckan.common import config_declaration
-from ckan.config.declaration import Declaration, Key, Option
 
 
 @pytest.fixture
@@ -60,18 +57,35 @@ class TestDescribe(object):
         load = import_string(loader)
         result = command("describe", "datapusher", "--format", fmt)
         data = load(result.output)
-        assert data == {'groups': [{'annotation': 'Datapusher settings',
-             'options': [{'default': 'csv xls xlsx tsv application/csv '
-                                     'application/vnd.ms-excel '
-                                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                          'key': 'ckan.datapusher.formats'},
-                         {'key': 'ckan.datapusher.url'},
-                         {'default': '%(ckan.site_url)s',
-                          'key': 'ckan.datapusher.callback_url_base'},
-                         {'default': 3600,
-                          'key': 'ckan.datapusher.assume_task_stale_after',
-                          'validators': 'convert_int'}]}],
- 'version': 1}
+
+        assert data == {
+            "groups": [
+                {
+                    "annotation": "Datapusher settings",
+                    "options": [
+                        {
+                            "default": (
+                                "csv xls xlsx tsv application/csv "
+                                "application/vnd.ms-excel "
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            ),
+                            "key": "ckan.datapusher.formats",
+                        },
+                        {"key": "ckan.datapusher.url"},
+                        {
+                            "default": "%(ckan.site_url)s",
+                            "key": "ckan.datapusher.callback_url_base",
+                        },
+                        {
+                            "default": 3600,
+                            "key": "ckan.datapusher.assume_task_stale_after",
+                            "validators": "convert_int",
+                        },
+                    ],
+                }
+            ],
+            "version": 1,
+        }
 
 
 @pytest.mark.usefixtures("with_extended_cli")
@@ -83,25 +97,22 @@ class TestDeclaration(object):
 
     def test_core(self, command):
         result = command("declaration", "--core")
-        assert result.output.startswith("use = egg:ckan\ndebug = false")
+        assert result.output.startswith("use = egg:ckan")
         assert not result.exit_code, result.output
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_enabled(self, command):
         result = command("declaration", "--enabled")
-        assert result.output.startswith(
-            "\n## Datastore settings\nckan.datastore.write_url ="
-            " postgresql://ckan_default:pass@localhost/datastore_default"
-        )
+        assert "Datastore settings" in result.output
+        assert "ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default" in result.output
+
         assert not result.exit_code, result.output
 
     def test_explicit(self, command):
         result = command("declaration", "datastore")
-        assert result.output.startswith(
-            "\n## Datastore settings\nckan.datastore.write_url ="
-            " postgresql://ckan_default:pass@localhost/datastore_default"
-        )
+        assert "Datastore settings" in result.output
+        assert "ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default" in result.output
         assert not result.exit_code, result.output
 
 
@@ -162,6 +173,14 @@ class TestUndeclared(object):
     def test_report_undeclared(self, command):
         result = command("undeclared", "-idatapusher", "-idatastore")
         assert "ckan.resource_proxy.max_file_size" in result.output
+        assert not result.exit_code, result.output
+
+    @pytest.mark.ckan_config("sqlalchemy.echo", False)
+    @pytest.mark.ckan_config("sqlalchemy-wrong", 3)
+    def test_allow_dynamic_groups(self, command):
+        result = command("undeclared", "-idatapusher", "-idatastore")
+        assert "sqlalchemy.echo" not in result.output
+        assert "sqlalchemy-wrong" in result.output
         assert not result.exit_code, result.output
 
     @pytest.mark.ckan_config("ckan.resource_proxy.max_file_size", 10)

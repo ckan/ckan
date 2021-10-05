@@ -825,7 +825,7 @@ def package_revise_schema(
 def config_declaration_v1(
         ignore_missing, unicode_safe, not_empty, default, boolean_validator,
         dict_only, one_of, ignore_empty):
-    from ckan.config.declaration import Key, UNSET
+    from ckan.config.declaration import Key
     from ckan.config.declaration.load import option_types
 
     def key_from_string(s):
@@ -844,13 +844,12 @@ def config_declaration_v1(
             "annotation": [default(""), unicode_safe],
             "options": {
                 "key": [not_empty, key_from_string],
-                "default": [default(UNSET)],
-
+                "default": [ignore_missing],
                 "default_callable": [ignore_empty, importable_string],
                 "default_args": [ignore_empty, dict_only],
                 "description": [default(""), unicode_safe],
                 "validators": [default(""), unicode_safe],
-                "type": [default("base"), one_of(option_types)],
+                "type": [default("base"), one_of(list(option_types))],
 
                 "disabled": [default(False), boolean_validator],
                 "ignored": [default(False), boolean_validator],

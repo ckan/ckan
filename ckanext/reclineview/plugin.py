@@ -7,6 +7,7 @@ from ckan.common import json, config
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckan.plugins.toolkit import _
+from ckan.config.declaration import Declaration, Key
 
 log = getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
@@ -70,6 +71,7 @@ class ReclineViewBase(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.ITemplateHelpers, inherit=True)
+    p.implements(p.IConfigDeclaration)
 
     def update_config(self, config):
         '''
@@ -263,3 +265,9 @@ class ReclineMapView(ReclineViewBase):
 
     def form_template(self, context, data_dict):
         return 'recline_map_form.html'
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        declaration.annotate("recline_view settings")
+        declaration.declare(key.ckan.recline.dataproxy_url, "//jsonpdataproxy.appspot.com")

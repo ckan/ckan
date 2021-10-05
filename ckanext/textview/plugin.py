@@ -7,6 +7,7 @@ from ckan.common import json
 import ckan.plugins as p
 import ckanext.resourceproxy.plugin as proxy
 import ckan.lib.datapreview as datapreview
+from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +42,7 @@ class TextView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourceView, inherit=True)
+    p.implements(p.IConfigDeclaration)
 
     proxy_is_enabled = False
     text_formats = []
@@ -101,3 +103,14 @@ class TextView(p.SingletonPlugin):
 
     def form_template(self, context, data_dict):
         return 'text_form.html'
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        section = key.ckan.preview
+
+        declaration.annotate("text_view settings")
+        declaration.declare(section.text_formats, " ".join(DEFAULT_TEXT_FORMATS))
+        declaration.declare(section.xml_formats, " ".join(DEFAULT_XML_FORMATS))
+        declaration.declare(section.json_formats, " ".join(DEFAULT_JSON_FORMATS))
+        declaration.declare(section.jsonp_formats, " ".join(DEFAULT_JSONP_FORMATS))

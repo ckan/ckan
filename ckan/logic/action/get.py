@@ -8,7 +8,7 @@ import json
 import datetime
 import socket
 
-from ckan.common import config, asbool, config_declaration
+from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
 

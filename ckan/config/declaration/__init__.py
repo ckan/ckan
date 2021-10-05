@@ -2,16 +2,26 @@
 
 import logging
 from collections import OrderedDict
-from typing import Any, Dict, Iterator, List, Set, Union
+from typing import (
+    Any,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Union,
+    TYPE_CHECKING,
+)
 
-from ckan.exceptions import CkanConfigurationException
-
-from .key import Key, Pattern
-from .option import Option, Annotation, Flag, DefaultType, UNSET, T
+from .key import Key, Pattern, Wildcard
+from .option import Option, Annotation, Flag, T
 
 from .load import load, DeclarationDict
 from .describe import describe
 from .serialize import serialize
+
+if TYPE_CHECKING:
+    from ckan.common import CKANConfig
 
 log = logging.getLogger(__name__)
 
@@ -44,6 +54,11 @@ class Declaration:
     def __getitem__(self, key: Key) -> Option[Any]:
         return self._mapping[key]
 
+    def get(self, key: Union[str, Key]) -> Optional[Option]:
+        key = Key._as_key(key)
+        if key in self:
+            return self[key]
+
     def iter_options(
         self,
         *,
@@ -55,13 +70,12 @@ class Declaration:
         for k, v in self._mapping.items():
             if v._has_flag(exclude):
                 continue
-            if k != pattern:
+            if pattern != k:
                 continue
             yield k
 
-    def setup(self, config):
+    def setup(self):
         import ckan.plugins as p
-        from ckan.common import asbool
 
         self._reset()
         self.load_core_declaration()
@@ -71,30 +85,28 @@ class Declaration:
             plugin.declare_config_options(self, Key())
         self._seal()
 
-        if asbool(config.get("config.safe")):
-            for key in self.iter_options(exclude=Flag.no_default):
-                if key not in config:
-                    config[str(key)] = self[key].default
+    def make_safe(self, config: "CKANConfig") -> bool:
+        if not config.normalized("config.safe"):
+            return False
 
-        if asbool(config.get("config.strict")):
-            _, errors = self._validate(config)
-            if errors:
-                msg = "\n".join(
-                    "{}: {}".format(key, "; ".join(issues))
-                    for key, issues in errors.items()
-                )
-                raise CkanConfigurationException(msg)
+        for key in self.iter_options(exclude=Flag.not_safe()):
+            if key not in config and not isinstance(key, Pattern):
+                config[str(key)] = self[key].default
+        return True
 
-        if asbool(config.get("config.normalized")):
-            self._normalize(config)
-
-    def _normalize(self, config):
+    def normalize(self, config: "CKANConfig") -> bool:
         import ckan.lib.navl.dictization_functions as df
 
-        data, errors = self._validate(config)
+        if not config.normalized("config.normalized"):
+            return False
+
+        data, errors = self.validate(config)
+
         for k, v in data.items():
-            if k in errors or v is df.missing:
+            if v is df.missing:
                 continue
+
+            assert k not in errors, f"Invalid value for {k}: v"
 
             if k not in self:
                 # it either __extra or __junk
@@ -106,11 +118,14 @@ class Declaration:
             log.debug(f"Normalized {k} config option: {v}")
             config[k] = v
 
-    def _validate(self, config):
+        return True
+
+    def validate(self, config):
         import ckan.lib.navl.dictization_functions as df
 
         schema = self.into_schema()
-        return df.validate(config.copy(), schema)
+        data, errors = df.validate(dict(config), schema)
+        return data, errors
 
     def _reset(self):
         self._mapping = OrderedDict()
@@ -138,8 +153,8 @@ class Declaration:
     def load_dict(self, data: DeclarationDict):
         load(self, "dict", data)
 
-    def into_ini(self) -> str:
-        return serialize(self, "ini")
+    def into_ini(self, no_comments: bool = False) -> str:
+        return serialize(self, "ini", no_comments)
 
     def into_schema(self) -> Dict[str, Any]:
         return serialize(self, "validation_schema")
@@ -147,7 +162,7 @@ class Declaration:
     def describe(self, fmt: str) -> str:
         return describe(self, fmt)
 
-    def declare(self, key: Key, default: DefaultType[T] = UNSET) -> Option[T]:
+    def declare(self, key: Key, default: Optional[T] = None) -> Option[T]:
         if self._sealed:
             raise TypeError("Sealed declaration cannot be updated")
 
@@ -167,6 +182,18 @@ class Declaration:
     def declare_int(self, key: Key, default: int) -> Option[int]:
         option = self.declare(key, default)
         option.set_validators("convert_int")
+        return option
+
+    def declare_dynamic(self, key: Key, default: Any = None) -> Option[Any]:
+        key = Pattern(
+            [
+                Wildcard(fragment[1:-1])
+                if (fragment[0], fragment[-1]) == ("<", ">")
+                else fragment
+                for fragment in key
+            ]
+        )
+        option = self.declare(key, default)
         return option
 
     def annotate(self, annotation: str):

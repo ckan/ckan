@@ -77,6 +77,13 @@ class Key:
 
         return super().__eq__(other)
 
+    def __lt__(self, other):
+        if isinstance(other, str):
+            return str(self) < other
+        elif isinstance(other, Key):
+            return self._path < other._path
+        return NotImplemented
+
     def __add__(self, other: Any):
         return self._combine(self, other)
 
@@ -143,6 +150,8 @@ class Key:
 class Pattern(Key):
     __slots__ = ()
     _path: Tuple[Union[str, Wildcard], ...]
+
+    __hash__ = Key.__hash__
 
     def __eq__(self, other: Any):
         if isinstance(other, Key):

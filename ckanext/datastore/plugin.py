@@ -97,11 +97,12 @@ class DatastorePlugin(p.SingletonPlugin):
 
         declaration.declare(
             section.sqlsearch.allowed_functions_file,
-            "ckanext/datastore/allowed_functions.txt").disable()
+            "ckanext/datastore/allowed_functions.txt")
         declaration.declare_bool(section.sqlsearch.enabled, False)
         declaration.declare_int(section.search.rows_default, 100)
         declaration.declare_int(section.search.rows_max, 3200)
-
+        declaration.declare_dynamic(section.sqlalchemy.dynamic("OPTION"))
+#
         declaration.annotate("PostgreSQL' full-text search parameters")
         declaration.declare(section.default_fts_lang, "english")
         declaration.declare(section.default_fts_index_method, "gist")

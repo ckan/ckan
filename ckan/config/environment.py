@@ -24,7 +24,6 @@ import ckan.lib.jinja_extensions as jinja_extensions
 
 from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
-from ckan.config.declaration import Key, Flag
 
 from ckan.common import _, ungettext, config, config_declaration
 from ckan.exceptions import CkanConfigurationException
@@ -124,12 +123,14 @@ def update_config():
 
     webassets_init()
 
+    config_declaration.setup()
+    config_declaration.make_safe(config)
+    config_declaration.normalize(config)
+
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)
-
-    config_declaration.setup(config)
 
     # Set whitelisted env vars on config object
     # This is set up before globals are initialized
@@ -238,6 +239,15 @@ def update_config():
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
+
+    if config.normalized("config.strict"):
+        _, errors = config_declaration.validate(config)
+        if errors:
+            msg = "\n".join(
+                "{}: {}".format(key, "; ".join(issues))
+                for key, issues in errors.items()
+            )
+            raise CkanConfigurationException(msg)
 
     # clear other caches
     logic.clear_actions_cache()

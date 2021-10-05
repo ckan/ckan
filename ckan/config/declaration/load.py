@@ -19,6 +19,7 @@ option_types = {
     "base": "declare",
     "bool": "declare_bool",
     "int": "declare_int",
+    "dynamic": "declare_dynamic",
 }
 
 handler: FormatHandler[Callable[..., None]] = FormatHandler()
@@ -90,7 +91,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
             for details in group["options"]:
                 factory = option_types[details["type"]]
                 option: Option = getattr(declaration, factory)(
-                    details["key"], details["default"]
+                    details["key"], details.get("default")
                 )
                 option.append_validators(details["validators"])
 

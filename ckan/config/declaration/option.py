@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import enum
-from typing import Generic, Optional, TypeVar, Union
+from typing import Any, Generic, Optional, TypeVar
 
 
 T = TypeVar("T")
@@ -12,16 +12,10 @@ class UnsetType(dict):
         return ""
 
 
-UNSET = UnsetType()
-DefaultType = Union[T, UnsetType]
-
-
 class Flag(enum.Flag):
-    disabled = enum.auto()
     ignored = enum.auto()
     experimental = enum.auto()
     internal = enum.auto()
-    no_default = enum.auto()
 
     @classmethod
     def none(cls):
@@ -30,6 +24,10 @@ class Flag(enum.Flag):
     @classmethod
     def non_iterable(cls):
         return cls.ignored | cls.experimental | cls.internal
+
+    @classmethod
+    def not_safe(cls):
+        return cls.ignored | cls.internal
 
 
 class Annotation(str):
@@ -40,18 +38,15 @@ class Option(Generic[T]):
     __slots__ = ("flags", "default", "description", "_validators")
 
     flags: Flag
-    default: DefaultType[T]
+    default: Optional[T]
     description: Optional[str]
     _validators: str
 
-    def __init__(self, default: DefaultType[T] = UNSET):
+    def __init__(self, default: Optional[T] = None):
         self.flags = Flag.none()
         self.description = None
         self._validators = ""
-
         self.default = default
-        if default is UNSET:
-            self._set_flag(Flag.no_default)
 
     def __str__(self):
         return str(self.default)
@@ -66,11 +61,10 @@ class Option(Generic[T]):
         return bool(self.flags & flag)
 
     def has_default(self):
-        return not self._has_flag(Flag.no_default)
+        return self.default is not None
 
     def set_default(self, default: T):
         self.default = default
-        self._unset_flag(Flag.no_default)
         return self
 
     def set_description(self, description: str):
@@ -79,15 +73,14 @@ class Option(Generic[T]):
 
     def set_validators(self, validators: str):
         self._validators = validators
+        return self
 
     def append_validators(self, validators: str):
-        self._validators += " " + validators
+        if validators:
+            self._validators += " " + validators
 
     def get_validators(self):
         return self._validators
-
-    def disable(self):
-        self._set_flag(Flag.disabled)
 
     def ignore(self):
         self._set_flag(Flag.ignored)
@@ -97,3 +90,39 @@ class Option(Generic[T]):
 
     def internal(self):
         self._set_flag(Flag.internal)
+
+    def _normalize(self, value: Any):
+        from ckan.lib.navl.dictization_functions import validate
+
+        data, _ = validate(
+            {"value": value}, {"value": self._parse_validators()}
+        )
+        return data["value"]
+
+    def _parse_validators(self):
+        return _validators_from_string(self.get_validators())
+
+
+# taken from ckanext-scheming
+# (https://github.com/ckan/ckanext-scheming/blob/release-2.1.0/ckanext/scheming/validation.py#L407-L426).
+# This syntax is familiar for everyone and it we can switch to the original
+# when scheming become a part of core.
+def _validators_from_string(s: str):
+    """
+    convert a schema validators string to a list of validators
+    e.g. "if_empty_same_as(name) unicode" becomes:
+    [if_empty_same_as("name"), unicode]
+    """
+    from ckan.logic import get_validator
+
+    out = []
+    parts = s.split()
+    for p in parts:
+        if "(" in p and p[-1] == ")":
+            name, args = p.split("(", 1)
+            args = args[:-1].split(",")  # trim trailing ')', break up
+            v = get_validator(name)(*args)
+        else:
+            v = get_validator(p)
+        out.append(v)
+    return out

@@ -1,3 +1,4 @@
+from ckan.common import CKANConfig
 from ckan.config.declaration.load import GroupV1, OptionV1
 from ckan.exceptions import CkanConfigurationException
 import pytest
@@ -64,7 +65,7 @@ class TestDeclaration:
 
     def test_setup(self, ckan_config):
         decl = Declaration()
-        decl.setup(ckan_config)
+        decl.setup()
 
         # setup seals declaration
         with pytest.raises(TypeError):
@@ -75,7 +76,7 @@ class TestDeclaration:
 
         # no safe-mode by default
         missing = set(decl.iter_options()) - set(ckan_config)
-        assert Key().config.safe in missing
+        assert Key().api_token.jwt.algorithm in missing
 
         # no normalization by default
         assert isinstance(ckan_config["debug"], str)
@@ -86,26 +87,24 @@ class TestDeclaration:
         decl = Declaration()
 
         assert strict not in ckan_config
-        decl.setup(ckan_config)
+        decl.setup()
+        decl.make_safe(ckan_config)
         assert strict in ckan_config
 
     @pytest.mark.ckan_config("config.strict", "true")
     @pytest.mark.ckan_config("ckan.jobs.timeout", "zero")
     def test_strict_setup(self, ckan_config):
         decl = Declaration()
-        with pytest.raises(
-            CkanConfigurationException,
-            match="ckan.jobs.timeout: Please enter an integer value",
-        ):
-            decl.setup(ckan_config)
+        decl.setup()
+        _, errors = decl.validate(ckan_config)
+        assert "ckan.jobs.timeout" in errors
 
     @pytest.mark.ckan_config("config.normalized", "true")
-    @pytest.mark.ckan_config("ckan.jobs.timeout", "zero")
     def test_normalized_setup(self, ckan_config):
         decl = Declaration()
-        decl.setup(ckan_config)
+        decl.setup()
+        decl.normalize(ckan_config)
         assert ckan_config["config.normalized"] is True
-        assert ckan_config["ckan.jobs.timeout"] == "zero"
 
     def test_load_core(self):
         k = Key().ckan.site_url
@@ -131,18 +130,58 @@ class TestDeclaration:
         decl = Declaration()
         assert k not in decl
 
-        option: OptionV1 = {
-            "key": str(k)
-        }
+        option: OptionV1 = {"key": str(k)}
 
         group: GroupV1 = {
             "annotation": "hello",
             "options": [option],
         }
 
-        decl.load_dict({
-            "version": 1,
-            "groups": [group]
-        })
+        decl.load_dict({"version": 1, "groups": [group]})
 
         assert k in decl
+
+    def test_make_safe_no_effect(self):
+        decl = Declaration()
+        decl.declare(Key().a, 10)
+
+        cfg = CKANConfig()
+        assert not decl.make_safe(cfg)
+        assert cfg == CKANConfig()
+
+    def test_make_safe_in_safe_mode(self):
+        decl = Declaration()
+        decl.declare(Key().a, 10)
+
+        cfg = CKANConfig({"config.safe": True})
+        assert decl.make_safe(cfg)
+        assert cfg == CKANConfig({"config.safe": True, "a": 10})
+
+    def test_make_safe_no_overrides(self):
+        decl = Declaration()
+        decl.declare(Key().a, 10)
+
+        cfg = CKANConfig({"config.safe": True, "a": 20})
+        assert decl.make_safe(cfg)
+        assert cfg == CKANConfig({"config.safe": True, "a": 20})
+
+    def test_normalize_no_effect(self):
+        decl = Declaration()
+        decl.declare_int(Key().a, "10")
+
+        cfg = CKANConfig()
+        assert not decl.normalize(cfg)
+        assert cfg == CKANConfig()
+
+    def test_normalize_in_normalized_mode(self):
+        decl = Declaration()
+        decl.declare_int(Key().a, "10")
+
+        cfg = CKANConfig({"config.normalized": True})
+        assert decl.normalize(cfg)
+        # in non-safe mode default value has no effect
+        assert cfg == CKANConfig({"config.normalized": True})
+
+        cfg = CKANConfig({"config.normalized": True, "a": "10"})
+        assert decl.normalize(cfg)
+        assert cfg == CKANConfig({"config.normalized": True, "a": 10})

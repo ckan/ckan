@@ -11,12 +11,12 @@ from .utils import FormatHandler
 if TYPE_CHECKING:
     from . import Declaration
 
-handler: FormatHandler[Callable[["Declaration"], Any]] = FormatHandler()
+handler: FormatHandler[Callable[..., Any]] = FormatHandler()
 serialize = handler.handle
 
 
 @handler.register("ini")
-def serialize_ini(declaration: "Declaration"):
+def serialize_ini(declaration: "Declaration", no_comments: bool):
     result = ""
     for item in declaration._order:
         if isinstance(item, Key):
@@ -24,35 +24,29 @@ def serialize_ini(declaration: "Declaration"):
             if option._has_flag(Flag.non_iterable()):
                 continue
 
-            if option.description:
+            if option.description and not no_comments:
                 result += (
                     textwrap.fill(
                         option.description,
-                        initial_indent="# ",
-                        subsequent_indent="# ",
+                        initial_indent="## ",
+                        subsequent_indent="## ",
                     )
                     + "\n"
                 )
 
-            if isinstance(option.default, bool):
+            if not option.has_default():
+                value = ""
+            elif isinstance(option.default, bool):
                 value = str(option).lower()
             else:
                 value = str(option)
 
-            result += "{comment}{key} = {value}\n".format(
-                comment="# " if option._has_flag(Flag.disabled) else "",
-                key=item,
-                value=value,
-            )
+            if not option.has_default():
+                result += "# "
+            result += f"{item} = {value}\n"
 
         elif isinstance(item, Annotation):
-            result += (
-                "\n"
-                + textwrap.fill(
-                    item, initial_indent="## ", subsequent_indent="## "
-                )
-                + "\n"
-            )
+            result += "\n{}\n".format(f"# {item} #".center(80, "#"))
 
     return result
 

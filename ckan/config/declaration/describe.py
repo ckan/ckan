@@ -118,8 +118,6 @@ class BaseDictDescriber(AbstractDescriber):
         if validators:
             data["validators"] = validators
 
-        if option._has_flag(Flag.disabled):
-            data["disabled"] = True
         if option._has_flag(Flag.ignored):
             data["ignored"] = True
         if option._has_flag(Flag.internal):
@@ -183,8 +181,6 @@ class PythonDescriber(AbstractDescriber):
     def add_option(self, key: Key, option: Option):
         default = f", {repr(option.default)}" if option.has_default() else ""
         self.output.write(f"declaration.declare(key.{key}{default})")
-        if option._has_flag(Flag.disabled):
-            self.output.write(".disable()")
         if option._has_flag(Flag.ignored):
             self.output.write(".ignore()")
         if option._has_flag(Flag.internal):
