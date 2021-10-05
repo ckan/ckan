@@ -4,6 +4,7 @@ import pytest
 
 import ckan.tests.factories as factories
 
+
 @pytest.mark.parametrize(
     u"entity",
     [

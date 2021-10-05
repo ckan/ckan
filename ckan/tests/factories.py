@@ -141,8 +141,8 @@ class CKANOptions(factory.alchemy.SQLAlchemyOptions):
     """CKANFactory options.
 
     :param action: name of the CKAN API action used for entity creation
-    :param primary_key: name of the entity's property that can be used for retriving
-        entity object from database
+    :param primary_key: name of the entity's property that can be used for
+        retriving entity object from database
 
     """
 
@@ -174,7 +174,7 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     @classmethod
     def _api_prepare_args(cls, data_dict):
-        """Add any extra details to pass into the action on the entity create stage."""
+        """Add any extra details for the action."""
         if "context" not in data_dict:
             data_dict["context"] = {"user": _get_action_user_name(data_dict)}
         return data_dict
@@ -209,8 +209,7 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
 
 
 class User(CKANFactory):
-    """A factory class for creating CKAN users.
-    """
+    """A factory class for creating CKAN users."""
 
     class Meta:
         model = ckan.model.User
@@ -228,8 +227,7 @@ class User(CKANFactory):
 
 
 class Resource(CKANFactory):
-    """A factory class for creating CKAN resources.
-    """
+    """A factory class for creating CKAN resources."""
 
     class Meta:
         model = ckan.model.Resource
@@ -267,15 +265,13 @@ class ResourceView(CKANFactory):
 
 
 class Sysadmin(User):
-    """A factory class for creating sysadmin users.
-    """
+    """A factory class for creating sysadmin users."""
 
     sysadmin = True
 
 
 class Group(CKANFactory):
-    """A factory class for creating CKAN groups.
-    """
+    """A factory class for creating CKAN groups."""
 
     class Meta:
         model = ckan.model.Group
@@ -289,8 +285,7 @@ class Group(CKANFactory):
 
 
 class Organization(Group):
-    """A factory class for creating CKAN organizations.
-    """
+    """A factory class for creating CKAN organizations."""
 
     class Meta:
         action = "organization_create"
@@ -301,8 +296,7 @@ class Organization(Group):
 
 
 class Dataset(CKANFactory):
-    """A factory class for creating CKAN datasets.
-    """
+    """A factory class for creating CKAN datasets."""
 
     class Meta:
         model = ckan.model.Package
@@ -313,10 +307,8 @@ class Dataset(CKANFactory):
     notes = factory.Faker("text")
 
 
-
 class Vocabulary(CKANFactory):
-    """A factory class for creating tag vocabularies.
-    """
+    """A factory class for creating tag vocabularies."""
 
     class Meta:
         model = ckan.model.Vocabulary
@@ -326,8 +318,7 @@ class Vocabulary(CKANFactory):
 
 
 class Activity(CKANFactory):
-    """A factory class for creating CKAN activity objects.
-    """
+    """A factory class for creating CKAN activity objects."""
 
     class Meta:
         model = ckan.model.Activity
@@ -335,13 +326,10 @@ class Activity(CKANFactory):
 
 
 class MockUser(factory.Factory):
-    """A factory class for creating mock CKAN users using the mock library.
-
-    """
+    """A factory class for creating mock CKAN users using the mock library."""
 
     class Meta:
         model = mock.MagicMock
-
 
     fullname = factory.Faker("name")
     password = factory.Faker("password")
@@ -401,3 +389,9 @@ class APIToken(CKANFactory):
         action = "api_token_create"
 
     name = factory.Faker("name")
+    user = factory.LazyFunction(lambda: User()["id"])
+
+    @classmethod
+    def _api_prepare_args(cls, data_dict):
+        """Do not try to put `user` parameter into context."""
+        return data_dict

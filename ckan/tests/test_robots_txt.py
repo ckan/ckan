@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+
 def test_robots_txt(app):
     res = app.get(u"/robots.txt")
     assert res.status_code == 200
