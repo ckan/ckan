@@ -23,22 +23,23 @@ option_types = {
 
 handler: FormatHandler[Callable[..., None]] = FormatHandler()
 
+
 class OptionV1(TypedDict, total=False):
     key: str
-    default: Optional[Any]
-    default_callable: Optional[str]
-    default_args: Optional[Dict[str, Any]]
-    description: Optional[str]
-    validators: Optional[str]
-    type: Optional[str]
-    disabled: Optional[bool]
-    ignored: Optional[bool]
-    experimental: Optional[bool]
-    internal: Optional[bool]
+    default: Any
+    default_callable: str
+    default_args: Dict[str, Any]
+    description: str
+    validators: str
+    type: str
+    disabled: bool
+    ignored: bool
+    experimental: bool
+    internal: bool
 
 
 class GroupV1(TypedDict):
-    annotation: Optional[str]
+    annotation: str
     options: List[OptionV1]
 
 
@@ -69,24 +70,22 @@ def load_plugin(declaration: "Declaration", name: str):
     plugin.declare_config_options(declaration, Key())
 
 
-
-
 @handler.register("dict")
-def load_dict(declaration: "Declaration", data: DeclarationDict):
+def load_dict(declaration: "Declaration", definition: DeclarationDict):
     from ckan.logic.schema import config_declaration_v1
     from ckan.logic import ValidationError
     from ckan.lib.navl.dictization_functions import validate
 
-    version = data["version"]
+    version = definition["version"]
     if version == 1:
 
-        data, errors = validate(data, config_declaration_v1())
+        data, errors = validate(definition, config_declaration_v1())
         if any(
             options for item in errors["groups"] for options in item["options"]
         ):
             raise ValidationError(errors)
         for group in data["groups"]:
-            if "annotation" in group:
+            if group["annotation"]:
                 declaration.annotate(group["annotation"])
             for details in group["options"]:
                 factory = option_types[details["type"]]

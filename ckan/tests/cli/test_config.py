@@ -60,33 +60,18 @@ class TestDescribe(object):
         load = import_string(loader)
         result = command("describe", "datapusher", "--format", fmt)
         data = load(result.output)
-        assert data == {
-            "groups": [
-                {
-                    "annotation": "Datapusher settings",
-                    "options": [
-                        {
-                            "default": (
-                                "csv xls xlsx tsv application/csv"
-                                " application/vnd.ms-excel"
-                                " application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                            ),
-                            "key": "ckan.datapusher.formats",
-                        },
-                        {
-                            "default": "http://127.0.0.1:8800/",
-                            "key": "ckan.datapusher.url",
-                        },
-                        {
-                            "default": 3600,
-                            "key": "ckan.datapusher.assume_task_stale_after",
-                            "validators": "convert_int",
-                        },
-                    ],
-                }
-            ],
-            "version": 1,
-        }
+        assert data == {'groups': [{'annotation': 'Datapusher settings',
+             'options': [{'default': 'csv xls xlsx tsv application/csv '
+                                     'application/vnd.ms-excel '
+                                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                          'key': 'ckan.datapusher.formats'},
+                         {'key': 'ckan.datapusher.url'},
+                         {'default': '%(ckan.site_url)s',
+                          'key': 'ckan.datapusher.callback_url_base'},
+                         {'default': 3600,
+                          'key': 'ckan.datapusher.assume_task_stale_after',
+                          'validators': 'convert_int'}]}],
+ 'version': 1}
 
 
 @pytest.mark.usefixtures("with_extended_cli")

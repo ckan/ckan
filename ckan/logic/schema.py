@@ -841,7 +841,7 @@ def config_declaration_v1(
 
     return {
         "groups": {
-            "annotation": [ignore_missing, unicode_safe],
+            "annotation": [default(""), unicode_safe],
             "options": {
                 "key": [not_empty, key_from_string],
                 "default": [default(UNSET)],

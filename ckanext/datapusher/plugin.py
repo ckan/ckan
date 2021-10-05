@@ -176,5 +176,6 @@ class DatapusherPlugin(p.SingletonPlugin):
             "csv xls xlsx tsv application/csv application/vnd.ms-excel "
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        declaration.declare(datapusher.url, "http://127.0.0.1:8800/")
+        declaration.declare(datapusher.url)
+        declaration.declare(datapusher.callback_url_base, "%(ckan.site_url)s")
         declaration.declare_int(datapusher.assume_task_stale_after, 3600)
