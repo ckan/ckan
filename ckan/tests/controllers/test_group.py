@@ -22,7 +22,8 @@ class TestGroupController(object):
         app.get(url=bulk_process_url, status=403)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
-        orgs = [factories.Organization() for _ in range(35)]
+        orgs = sorted([factories.Organization() for _ in range(35)],
+                      key=lambda o: o["name"])
         org_url = url_for("organization.index", sort="name desc")
         response = app.get(url=org_url)
         assert orgs[-1]["name"] in response
@@ -840,7 +841,7 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert "Mr. Test User" in response
+        assert user["fullname"] in response
         assert "created the group" in response
 
     def test_create_group(self, app):
@@ -850,11 +851,13 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "created the group" in response
         assert (
-            '<a href="/group/{}">Test Group'.format(group["name"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
         )
 
     def _clear_activities(self):
@@ -874,12 +877,14 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "updated the group" in response
         assert (
-            '<a href="/group/{}">Group with changed title'.format(
-                group["name"]
+            '<a href="/group/{}">{}'.format(
+                group["name"], group["title"]
             )
             in response
         )
@@ -914,11 +919,13 @@ class TestActivity:
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "deleted the group" in response
         assert (
-            '<a href="/group/{}">Test Group'.format(group["name"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
         )
 
     def test_create_dataset(self, app):
@@ -930,11 +937,13 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "created the dataset" in response
         assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
             in response
         )
 
@@ -952,12 +961,15 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "updated the dataset" in response
         assert (
-            '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]
+            '<a href="/dataset/{}">{}'.format(
+                dataset["id"],
+                dataset["title"]
             )
             in response
         )
@@ -974,10 +986,11 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]
+                                           ) in response
         )
         assert "deleted the dataset" in response
         assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
+            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
             in response
         )
