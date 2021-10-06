@@ -854,8 +854,9 @@ class TestOrganizationShow(object):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUserList(object):
     def test_user_list_default_values(self):
-
-        user = factories.User()
+        # we need to set fullname because user_list by default sorts by 
+        # display_name
+        user = factories.User(fullname="Guido")
 
         got_users = helpers.call_action("user_list")
 
@@ -877,14 +878,15 @@ class TestUserList(object):
         assert "datasets" not in got_user
 
     def test_user_list_edits(self):
-
-        user = factories.User()
+        # we need to set fullname because user_list by default sorts by 
+        # display_name
+        user = factories.User(fullname="Guido")
         dataset = factories.Dataset(user=user)
         dataset["title"] = "Edited title"
         helpers.call_action(
             "package_update", context={"user": user["name"]}, **dataset
         )
-
+        breakpoint()
         got_users = helpers.call_action("user_list")
 
         # There is one default user
@@ -893,8 +895,9 @@ class TestUserList(object):
         assert got_user["number_created_packages"] == 1
 
     def test_user_list_excludes_deleted_users(self):
-
-        user = factories.User()
+        # we need to set fullname because user_list by default sorts by 
+        # display_name
+        user = factories.User(fullname="Guido")
         factories.User(state="deleted")
 
         got_users = helpers.call_action("user_list")
@@ -904,8 +907,9 @@ class TestUserList(object):
         assert got_users[0]["name"] == user["name"]
 
     def test_user_list_not_all_fields(self):
-
-        user = factories.User()
+        # we need to set fullname because user_list by default sorts by 
+        # display_name
+        user = factories.User(fullname="Guido")
 
         got_users = helpers.call_action("user_list", all_fields=False)
 
