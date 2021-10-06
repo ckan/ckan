@@ -854,7 +854,7 @@ class TestOrganizationShow(object):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUserList(object):
     def test_user_list_default_values(self):
-        # we need to set fullname because user_list by default sorts by 
+        # we need to set fullname because user_list by default sorts by
         # display_name
         user = factories.User(fullname="Guido")
 
@@ -878,7 +878,7 @@ class TestUserList(object):
         assert "datasets" not in got_user
 
     def test_user_list_edits(self):
-        # we need to set fullname because user_list by default sorts by 
+        # we need to set fullname because user_list by default sorts by
         # display_name
         user = factories.User(fullname="Guido")
         dataset = factories.Dataset(user=user)
@@ -894,7 +894,7 @@ class TestUserList(object):
         assert got_user["number_created_packages"] == 1
 
     def test_user_list_excludes_deleted_users(self):
-        # we need to set fullname because user_list by default sorts by 
+        # we need to set fullname because user_list by default sorts by
         # display_name
         user = factories.User(fullname="Guido")
         factories.User(state="deleted")
@@ -906,7 +906,7 @@ class TestUserList(object):
         assert got_users[0]["name"] == user["name"]
 
     def test_user_list_not_all_fields(self):
-        # we need to set fullname because user_list by default sorts by 
+        # we need to set fullname because user_list by default sorts by
         # display_name
         user = factories.User(fullname="Guido")
 
