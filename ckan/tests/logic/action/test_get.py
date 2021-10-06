@@ -886,7 +886,6 @@ class TestUserList(object):
         helpers.call_action(
             "package_update", context={"user": user["name"]}, **dataset
         )
-        breakpoint()
         got_users = helpers.call_action("user_list")
 
         # There is one default user
