@@ -1408,6 +1408,7 @@ class TestResourceUpdate(object):
                 package_id=dataset["id"],
                 description="Test",
                 some_custom_field="test",
+                url="http://link.to.some.data",
             )
             assert (
                 resource["metadata_modified"]
