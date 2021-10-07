@@ -28,7 +28,7 @@ def resource_dict_save(res_dict, context):
     else:
         new = False
 
-    table = class_mapper(model.Resource).mapped_table
+    table = class_mapper(model.Resource).persist_selectable
     fields = [field.name for field in table.c]
 
     # Strip the full url for resources of type 'upload'
