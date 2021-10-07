@@ -1,4 +1,4 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
 import datetime
 import re
@@ -161,7 +161,7 @@ class TestPackageShow(object):
                     "vocabulary_id": None,
                 }
             ],
-            "title": "Test Dataset",
+            "title": dataset2["title"],
             "type": "dataset",
             "url": None,
             "version": None,
@@ -475,7 +475,7 @@ class TestGroupList(object):
             helpers.call_action("group_list", offset="-2")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestGroupShow(object):
     def test_group_show(self):
         group = factories.Group(user=factories.User())
@@ -500,7 +500,6 @@ class TestGroupShow(object):
             helpers.call_action("group_show", id=org["id"])
 
     def test_group_show_packages_returned(self):
-
         user_name = helpers.call_action("get_site_user")["name"]
 
         group = factories.Group(user=factories.User())
@@ -1206,6 +1205,20 @@ class TestUserShow(object):
         datasets_got = set([user_["name"] for user_ in got_user["datasets"]])
         assert dataset_deleted["name"] not in datasets_got
         assert got_user["number_created_packages"] == 3
+
+    def test_user_show_for_myself_without_passing_id(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action(
+            "user_show", context={"user": user["name"]}
+        )
+
+        assert got_user["name"] == user["name"]
+        assert got_user["email"] == user["email"]
+        assert got_user["apikey"] == user["apikey"]
+        assert "password" not in got_user
+        assert "reset_key" not in got_user
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
@@ -2955,7 +2968,7 @@ class TestActivityShow(object):
             < 10
         )
         assert activity_shown["object_id"] == dataset["id"]
-        assert activity_shown["data"] == {"package": {"title": "Test Dataset"}}
+        assert activity_shown["data"] == {"package": {"title": dataset["title"]}}
         assert activity_shown["activity_type"] == "new package"
 
     def test_simple_with_data(self):

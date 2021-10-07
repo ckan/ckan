@@ -58,15 +58,15 @@ class TestUpdate(object):
     # END-BEFORE
 
     def test_user_update_with_id_that_does_not_exist(self):
-        user_dict = factories.User()
+        user_dict = vars(factories.User.stub())
         user_dict["id"] = "there's no user with this id"
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("user_update", **user_dict)
 
     def test_user_update_with_no_id(self):
-        user_dict = factories.User()
-        del user_dict["id"]
+        user_dict = vars(factories.User.stub())
+        assert "id" not in user_dict
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user_dict)
 
@@ -140,15 +140,17 @@ class TestUpdate(object):
         changed either.
 
         """
-        password = "123QWEqwe!"
-        user = factories.User(password=password)
-        user["password"] = ""
-        helpers.call_action("user_update", **user)
+        user_dict = vars(factories.User.stub())
+        original_password = user_dict["password"]
+        user_dict = factories.User(**user_dict)
+
+        user_dict["password"] = ""
+        helpers.call_action("user_update", **user_dict)
 
         import ckan.model as model
 
-        updated_user = model.User.get(user["id"])
-        assert updated_user.validate_password(password)
+        updated_user = model.User.get(user_dict["id"])
+        assert updated_user.validate_password(original_password)
 
     def test_user_update_with_null_password(self):
         user = factories.User()
@@ -202,7 +204,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.password,
+            password=factories.User.stub().password,
             fullname="updated full name",
         )
 
@@ -255,7 +257,7 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.password,
+            password=factories.User.stub().password,
             fullname="updated full name",
         )
         assert calls == [user["id"]]
@@ -274,7 +276,7 @@ class TestUpdate(object):
             "email": user["email"],
             # FIXME: We shouldn't have to put password here since we're not
             # updating it, but user_update sucks.
-            "password": factories.User.password,
+            "password": factories.User.stub().password,
         }
 
         helpers.call_action("user_update", **params)
@@ -294,11 +296,48 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.password,
+            "password": factories.User.stub().password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
         assert "password" not in updated_user
+
+    def test_user_update_does_not_return_apikey(self):
+        """The user dict that user_update returns should not include the user's
+        API key."""
+
+        user = factories.User()
+        params = {
+            "id": user["id"],
+            "fullname": "updated full name",
+            "about": "updated about",
+            "email": user["email"],
+            "password": factories.User.stub().password,
+        }
+
+        updated_user = helpers.call_action("user_update", **params)
+        assert "apikey" not in updated_user
+
+    def test_user_update_does_not_return_reset_key(self):
+        """The user dict that user_update returns should not include the user's
+        reset key."""
+
+        import ckan.lib.mailer
+        import ckan.model
+
+        user = factories.User()
+        ckan.lib.mailer.create_reset_key(ckan.model.User.get(user["id"]))
+
+        params = {
+            "id": user["id"],
+            "fullname": "updated full name",
+            "about": "updated about",
+            "email": user["email"],
+            "password": factories.User.stub().password,
+        }
+
+        updated_user = helpers.call_action("user_update", **params)
+        assert "reset_key" not in updated_user
 
     def test_resource_reorder(self):
         resource_urls = ["http://a.html", "http://b.html", "http://c.html"]
