@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
 unicode_safe = p.toolkit.get_validator('unicode_safe')
 
-DEFAULT_IMAGE_FORMATS = 'png jpeg jpg gif'
 
 
 class ImageView(p.SingletonPlugin):
@@ -21,9 +20,7 @@ class ImageView(p.SingletonPlugin):
 
     def update_config(self, config):
         p.toolkit.add_template_directory(config, 'theme/templates')
-        self.formats = config.get(
-            'ckan.preview.image_formats',
-            DEFAULT_IMAGE_FORMATS).split()
+        self.formats = config.safe('ckan.preview.image_formats').split()
 
     def info(self):
         return {'name': 'image_view',
@@ -51,6 +48,6 @@ class ImageView(p.SingletonPlugin):
         section = key.ckan.preview
 
         declaration.annotate("image_view settings")
-        declaration.declare(section.image_formats, DEFAULT_IMAGE_FORMATS).set_description(
+        declaration.declare(section.image_formats, "png jpeg jpg gif").set_description(
             "Customize which image formats the image_view plugin will show"
         )

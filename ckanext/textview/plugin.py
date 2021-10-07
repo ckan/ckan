@@ -11,27 +11,15 @@ from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
 
-DEFAULT_TEXT_FORMATS = ['text/plain', 'txt', 'plain']
-DEFAULT_XML_FORMATS = ['xml', 'rdf', 'rdf+xml', 'owl+xml', 'atom', 'rss']
-DEFAULT_JSON_FORMATS = ['json']
-DEFAULT_JSONP_FORMATS = ['jsonp']
-
 
 def get_formats(config):
 
     out = {}
 
-    text_formats = config.get('ckan.preview.text_formats', '').split()
-    out['text_formats'] = text_formats or DEFAULT_TEXT_FORMATS
-
-    xml_formats = config.get('ckan.preview.xml_formats', '').split()
-    out['xml_formats'] = xml_formats or DEFAULT_XML_FORMATS
-
-    json_formats = config.get('ckan.preview.json_formats', '').split()
-    out['json_formats'] = json_formats or DEFAULT_JSON_FORMATS
-
-    jsonp_formats = config.get('ckan.preview.jsonp_formats', '').split()
-    out['jsonp_formats'] = jsonp_formats or DEFAULT_JSONP_FORMATS
+    out['text_formats'] = config.normalized('ckan.preview.text_formats').split()
+    out['xml_formats'] = config.normalized('ckan.preview.xml_formats').split()
+    out['json_formats'] = config.normalized('ckan.preview.json_formats').split()
+    out['jsonp_formats'] = config.normalized('ckan.preview.jsonp_formats').split()
 
     return out
 
@@ -110,7 +98,7 @@ class TextView(p.SingletonPlugin):
         section = key.ckan.preview
 
         declaration.annotate("text_view settings")
-        declaration.declare(section.text_formats, " ".join(DEFAULT_TEXT_FORMATS))
-        declaration.declare(section.xml_formats, " ".join(DEFAULT_XML_FORMATS))
-        declaration.declare(section.json_formats, " ".join(DEFAULT_JSON_FORMATS))
-        declaration.declare(section.jsonp_formats, " ".join(DEFAULT_JSONP_FORMATS))
+        declaration.declare(section.text_formats, "text/plain txt plain")
+        declaration.declare(section.xml_formats, "xml rdf rdf+xml owl+xml atom rss")
+        declaration.declare(section.json_formats, "json")
+        declaration.declare(section.jsonp_formats, "jsonp")

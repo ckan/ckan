@@ -121,11 +121,11 @@ def update_config():
     plugin might have changed the config values (for instance it might
     change ckan.site_url) '''
 
-    webassets_init()
-
     config_declaration.setup()
     config_declaration.make_safe(config)
     config_declaration.normalize(config)
+
+    webassets_init()
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
@@ -149,7 +149,7 @@ def update_config():
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    site_url = config.get('ckan.site_url', '')
+    site_url = config.safe('ckan.site_url')
     if not site_url:
         raise RuntimeError(
             'ckan.site_url is not configured and it must have a value.'
@@ -158,8 +158,10 @@ def update_config():
         raise RuntimeError(
             'ckan.site_url should be a full URL, including the schema '
             '(http or https)')
+    # Remove backslash from site_url if present
+    config['ckan.site_url'] = site_url.rstrip('/')
 
-    display_timezone = config.get('ckan.display_timezone', '')
+    display_timezone = config.safe('ckan.display_timezone')
     if (display_timezone and
             display_timezone != 'server' and
             display_timezone not in pytz.all_timezones):
@@ -167,28 +169,13 @@ def update_config():
             "ckan.display_timezone is not 'server' or a valid timezone"
         )
 
-    # Remove backslash from site_url if present
-    config['ckan.site_url'] = config['ckan.site_url'].rstrip('/')
-
-    ckan_host = config['ckan.host'] = urlparse(site_url).netloc
-    if config.get('ckan.site_id') is None:
-        if ':' in ckan_host:
-            ckan_host, port = ckan_host.split(':')
-        assert ckan_host, 'You need to configure ckan.site_url or ' \
-                          'ckan.site_id for SOLR search-index rebuild to work.'
-        config['ckan.site_id'] = ckan_host
-
-    # ensure that a favicon has been set
-    favicon = config.get('ckan.favicon', '/base/images/ckan.ico')
-    config['ckan.favicon'] = favicon
-
     # Init SOLR settings and check if the schema is compatible
     # from ckan.lib.search import SolrSettings, check_solr_schema_version
 
     # lib.search is imported here as we need the config enabled and parsed
-    search.SolrSettings.init(config.get('solr_url'),
-                             config.get('solr_user'),
-                             config.get('solr_password'))
+    search.SolrSettings.init(config.safe('solr_url'),
+                             config.safe('solr_user'),
+                             config.safe('solr_password'))
     search.check_solr_schema_version()
 
     lib_plugins.reset_package_plugins()
@@ -203,7 +190,7 @@ def update_config():
 
     # Templates and CSS loading from configuration
     valid_base_templates_folder_names = ['templates']
-    templates = config.get('ckan.base_templates_folder', 'templates')
+    templates = config.safe('ckan.base_templates_folder')
     config['ckan.base_templates_folder'] = templates
 
     if templates not in valid_base_templates_folder_names:
@@ -216,7 +203,7 @@ def update_config():
     log.info('Loading templates from %s' % jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
-    extra_template_paths = config.get('extra_template_paths', '')
+    extra_template_paths = config.safe('extra_template_paths')
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths

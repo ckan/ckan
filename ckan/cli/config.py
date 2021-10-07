@@ -77,6 +77,7 @@ def declaration(
 def search(pattern: str, plugins: Tuple[str, ...], with_default: bool):
     """Print all declared config options that match pattern."""
     decl = _declaration(plugins, True, True)
+
     for key in decl.iter_options(pattern=pattern):
         default = ""
         if with_default:

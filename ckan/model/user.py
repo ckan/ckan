@@ -18,11 +18,10 @@ from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
-from ckan.common import config, asbool
 
 
 def set_api_key():
-    if asbool(config.get('ckan.auth.create_default_api_keys', False)):
+    if config.normalized('ckan.auth.create_default_api_keys'):
         return _types.make_uuid()
     return None
 

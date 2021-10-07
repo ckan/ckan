@@ -282,16 +282,15 @@ def _add_default_filters(search_data_dict, view_types):
     modified with extra filters.
     """
 
-    from ckanext.imageview.plugin import DEFAULT_IMAGE_FORMATS
     from ckanext.textview.plugin import get_formats as get_text_formats
-    from ckanext.datapusher.plugin import DEFAULT_FORMATS as datapusher_formats
+    datapusher_formats = p.toolkit.config.safe("ckan.datapusher.formats").split()
 
     filter_formats = []
 
     for view_type in view_types:
         if view_type == u"image_view":
 
-            for _format in DEFAULT_IMAGE_FORMATS:
+            for _format in p.toolkit.config.safe("ckan.preview.image_formats").split():
                 filter_formats.extend([_format, _format.upper()])
 
         elif view_type == u"text_view":

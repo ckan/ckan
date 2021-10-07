@@ -2,11 +2,10 @@
 
 
 import ckan.plugins as p
+from ckan.config.declaration import Declaration, Key
 
 ignore_empty = p.toolkit.get_validator('ignore_empty')
 unicode_safe = p.toolkit.get_validator('unicode_safe')
-
-DEFAULT_AUDIO_FORMATS = 'wav ogg mp3'
 
 
 class AudioView(p.SingletonPlugin):
@@ -14,12 +13,11 @@ class AudioView(p.SingletonPlugin):
 
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
+    p.implements(p.IConfigDeclaration)
 
     def update_config(self, config):
         p.toolkit.add_template_directory(config, 'theme/templates')
-        self.formats = config.get(
-            'ckan.preview.audio_formats',
-            DEFAULT_AUDIO_FORMATS).split()
+        self.formats = config.safe('ckan.preview.audio_formats').split()
 
     def info(self):
         return {'name': 'audio_view',
@@ -40,3 +38,9 @@ class AudioView(p.SingletonPlugin):
 
     def form_template(self, context, data_dict):
         return 'audio_form.html'
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        declaration.annotate("audio_view settings")
+        declaration.declare(key.ckan.preview.audio_formats, "wav ogg mp3")

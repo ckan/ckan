@@ -55,7 +55,7 @@ def compare_domains(urls):
 
 def on_same_domain(data_dict):
     # compare CKAN domain and resource URL
-    ckan_url = config.get('ckan.site_url', '//localhost:5000')
+    ckan_url = config.safe('ckan.site_url')
     resource_url = data_dict['resource']['url']
 
     return compare_domains([ckan_url, resource_url])
@@ -120,11 +120,7 @@ def get_default_view_plugins(get_datastore_views=False):
 
     Returns a list of IResourceView plugins
     '''
-
-    if config.get('ckan.views.default_views') is None:
-        default_view_types = DEFAULT_RESOURCE_VIEW_TYPES
-    else:
-        default_view_types = config.get('ckan.views.default_views').split()
+    default_view_types = config.safe('ckan.views.default_views').split()
 
     default_view_plugins = []
     for view_type in default_view_types:

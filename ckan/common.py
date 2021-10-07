@@ -10,7 +10,7 @@
 
 import logging
 from collections import MutableMapping
-from typing import Union
+from typing import Any, Union
 
 import flask
 import six
@@ -127,7 +127,7 @@ class CKANConfig(MutableMapping):
             return None
         return option.default
 
-    def normalized(self, key: Union[str, Key]):
+    def normalized(self, key: Union[str, Key]) -> Any:
         if asbool(self.get("config.normalized")):
             return self[key]
 

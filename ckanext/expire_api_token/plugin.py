@@ -7,7 +7,7 @@ import ckan.lib.api_token as api_token
 from ckan.config.declaration import Declaration, Key
 
 def default_token_lifetime():
-    return p.toolkit.config.get(u"expire_api_token.default_lifetime", 3600)
+    return p.toolkit.config.normalized(u"expire_api_token.default_lifetime")
 
 
 class ExpireApiTokenPlugin(p.SingletonPlugin):
@@ -58,7 +58,7 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        declaration.annotate("API Token: expire_api_token plugin")
+        declaration.annotate("expire_api_token plugin")
         key = key.expire_api_token.default_lifetime
         declaration.declare_int(key, 3600)
 

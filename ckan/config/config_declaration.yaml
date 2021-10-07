@@ -7,6 +7,8 @@ groups:
         internal: true
       - key: here
         internal: true
+      - key: ckan.admin_tabs
+        internal: true
       - key: computed_template_paths
         ignored: true
       - key: clear_logo_upload
@@ -15,9 +17,6 @@ groups:
         ignored: true
       - key: ckan.host
         ignored: true
-      - key: ckanext.stats.cache_enabled
-        ignored: true
-        type: bool
       - key: testing
         ignored: true
         type: bool
@@ -124,8 +123,6 @@ groups:
       - key: debug
         type: bool
       - key: ckan.legacy_route_mappings
-        default: '{"home": "home.index", "about": "home.about"}'
-        disabled: true
 
   - annotation: Development settings
     options:
@@ -166,22 +163,20 @@ groups:
         default: warning
       - key: who.log_file
         default: "%(cache_dir)s/who_log.ini"
+      - key: who.reissue_time
+        type: int
       - key: who.timeout
         validators: ignore_empty convert_int
-        disabled: true
         description: >-
           Session timeout (user logged out after period of inactivity, in
           seconds). Inactive by default, so the session doesn't expire.
       - key: who.httponly
         type: bool
         default: true
-        disabled: true
       - key: who.secure
         type: bool
-        disabled: true
       - key: who.samesite
         default: Lax
-        disabled: true
 
   - annotation: Database settings
     options:
@@ -191,7 +186,6 @@ groups:
       - key: sqlalchemy.pool_pre_ping
         type: bool
         default: true
-        disabled: true
       - key: sqlalchemy.<OPTION>
         type: dynamic
         description: >-
@@ -204,26 +198,19 @@ groups:
         validators: not_empty
       - key: apikey_header_name
         default: X-CKAN-API-Key
-        disabled: true
       - key: ckan.cache_expires
-        disabled: true
         default: 0
         type: int
       - key: ckan.cache_enabled
-        disabled: true
         type: bool
       - key: ckan.mimetype_guess
-        disabled: true
         default: file_ext
       - key: ckan.static_max_age
-        disabled: true
         default: 3600
         type: int
       - key: ckan.tracking_enabled
-        disabled: true
         type: bool
       - key: ckan.valid_url_schemes
-        disabled: true
         default: http https ftp
 
   - annotation: Authorization Settings
@@ -275,9 +262,7 @@ groups:
         type: int
         default: 32
       - key: api_token.jwt.encode.secret
-        default: string:%(beaker.session.secret)s
       - key: api_token.jwt.decode.secret
-        default: "string:%(beaker.session.secret)s"
       - key: api_token.jwt.algorithm
         default: "HS256"
 
@@ -288,56 +273,50 @@ groups:
       - key: solr_url
         default: http://127.0.0.1:8983/solr
         validators: not_empty
-        disabled: true
+      - key: solr_user
+      - key: solr_password
       - key: ckan.search.automatic_indexing
-        disabled: true
         type: bool
         default: true
       - key: ckan.search.solr_commit
-        disabled: true
+        type: bool
+        default: true
+      - key: ckan.cache_validated_datasets
         type: bool
         default: true
       - key: ckan.search.show_all_types
-        disabled: true
-        default: false
+        default: dataset
       - key: ckan.search.default_include_private
-        disabled: true
         type: bool
         default: true
       - key: ckan.search.default_package_sort
-        disabled: true
         default:  score desc, metadata_modified desc
+      - key: search.facets
+        default: organization groups tags res_format license_id
       - key: search.facets.limit
-        disabled: true
         type: int
         default: 50
       - key: search.facets.default
-        disabled: true
         type: int
         default: 10
       - key: ckan.extra_resource_fields
-        disabled: true
+        default: ''
       - key: ckan.search.rows_max
-        disabled: true
         type: int
         default: 1000
       - key: ckan.group_and_organization_list_max
-        disabled: true
         type: int
         default: 1000
       - key: ckan.group_and_organization_list_all_fields_max
-        disabled: true
         type: int
         default: 25
       - key: solr_timeout
-        disabled: true
         type: int
         default: 60
 
   - annotation: Redis Settings
     options:
       - key: ckan.redis.url
-        disabled: true
         default: redis://localhost:6379/0
         validators: not_empty
         description: URL to your Redis instance, including the database to be used.
@@ -346,12 +325,10 @@ groups:
     options:
       - key: ckan.cors.origin_allow_all
         type: bool
-        disabled: true
         description: >-
           If cors.origin_allow_all is true, all origins are allowed.  If false,
           the cors.origin_whitelist is used.
       - key: ckan.cors.origin_whitelist
-        disabled: true
         description: cors.origin_whitelist is a space separated list of allowed domains.
 
   - annotation: Plugins Settings
@@ -368,40 +345,28 @@ groups:
         default: CKAN
       - key: ckan.site_description
       - key: ckan.site_intro_text
-        disabled: true
       - key: ckan.site_logo
         default: /base/images/ckan-logo.png
       - key: ckan.site_about
-        disabled: true
       - key: ckan.main_css
         default: /base/css/main.css
-        disabled: true
       - key: ckan.favicon
         default: /base/images/ckan.ico
       - key: ckan.legacy_templates
         ignored: true
         type: bool
       - key: ckan.datasets_per_page
-        disabled: true
         type: int
         default: 20
       - key: package_hide_extras
-        disabled: true
       - key: ckan.dumps_url
-        disabled: true
       - key: ckan.dumps_format
-        disabled: true
       - key: ckan.recaptcha.publickey
-        disabled: true
       - key: ckan.recaptcha.privatekey
-        disabled: true
       - key: ckan.featured_groups
-        disabled: true
       - key: ckan.featured_orgs
-        disabled: true
       - key: ckan.default_group_sort
         default: title
-        disabled: true
       - key: ckan.gravatar_default
         default: identicon
       - key: ckan.debug_supress_header
@@ -409,9 +374,7 @@ groups:
 
       - key: ckan.homepage_style
         default: 1
-        disabled: true
       - key: ckan.site_custom_css
-        disabled: true
 
 
   - annotation: Resource Views Settings
@@ -425,45 +388,38 @@ groups:
   - annotation: Theming Settings
     options:
       - key: ckan.template_head_end
-        disabled: true
       - key: ckan.template_footer_end
-        disabled: true
       - key: ckan.template_title_delimiter
         default: '-'
       - key: extra_template_paths
-        disabled: true
         default: ""
       - key: extra_public_paths
-        disabled: true
         default: ""
       - key: ckan.base_public_folder
         default: public
-        disabled: true
       - key: ckan.base_templates_folder
         default: templates
-        disabled: true
+      - key: ckan.default.group_type
+        default: group
+      - key: ckan.default.organization_type
+        default: organization
+
 
   - annotation: Storage Settings
     options:
       - key: ckan.storage_path
-        disabled: true
       - key: ckan.max_resource_size
         type: int
         default: 10
-        disabled: true
       - key: ckan.max_image_size
         type: int
         default: 2
-        disabled: true
 
   - annotation: Webassets Settings
     options:
       - key: ckan.webassets.path
-        default: '%(ckan.storage_path)/webassets'
-        disabled: true
       - key: ckan.webassets.use_x_sendfile
         type: bool
-        disabled: true
 
   - annotation: User Settings
     options:
@@ -472,37 +428,39 @@ groups:
         default: 20
       - key: ckan.user_reset_landing_page
         default: home.index
+      - key: ckan.route_after_login
+        default: dashboard.index
 
   - annotation: Activity Streams Settings
     options:
       - key: ckan.activity_streams_enabled
         type: bool
         default: true
-        disabled: true
       - key: ckan.activity_streams_email_notifications
         type: bool
         default: false
-        disabled: true
       - key: ckan.activity_list_limit
         type: int
         default: 31
-        disabled: true
       - key: ckan.activity_list_limit_max
         type: int
         default: 100
-        disabled: true
       - key: ckan.email_notifications_since
-        default: infinite
-        disabled: true
+        default: '2 days'
       - key: ckan.hide_activity_from_users
-        default: "%(ckan.site_id)s"
 
   - annotation: Feeds Settings
     options:
       - key: ckan.feeds.author_name
+        default: ""
       - key: ckan.feeds.author_link
       - key: ckan.feeds.authority_name
+        default: ""
       - key: ckan.feeds.date
+        default: ""
+      - key: ckan.feeds.limit
+        type: int
+        default: 20
 
   - annotation: Internationalisation Settings
     options:
@@ -511,6 +469,7 @@ groups:
       - key: ckan.locales_offered
       - key: ckan.locales_filtered_out
       - key: ckan.locale_order
+        default: ''
       - key: ckan.i18n_directory
       - key: ckan.i18n.extra_directory
       - key: ckan.i18n.extra_gettext_domain
@@ -518,46 +477,36 @@ groups:
       - key: ckan.i18n.rtl_languages
         default: he ar fa_IR
       - key: ckan.i18n.rtl_css
-        default: /base/css/rtl.css
+        default: /base/css/main-rtl.css
       - key: ckan.display_timezone
         default: server
       - key: ckan.root_path
       - key: ckan.resource_formats
-        default: ckan/config/resource_formats.json
-        disabled: true
 
   - annotation: Form Settings
     options:
       - key: ckan.dataset.create_on_ui_requires_resources
         type: bool
         default: true
-        disabled: true
       - key: package_new_return_url
-        disabled: true
       - key: package_edit_return_url
-        disabled: true
       - key: licenses_group_url
-        disabled: true
+      - key: ckan.fix_partial_updates
+        type: bool
+        default: true
 
   - annotation: Email settings
     options:
       - key: smtp.server
-        disabled: true
+        default: localhost
       - key: smtp.starttls
         type: bool
-        disabled: true
       - key: smtp.user
-        disabled: true
       - key: smtp.password
-        disabled: true
       - key: smtp.mail_from
-        disabled: true
       - key: smtp.reply_to
-        disabled: true
       - key: email_to
-        disabled: true
       - key: error_email_from
-        disabled: true
 
   - annotation: Background Job Settings
     options:

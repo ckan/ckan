@@ -15,7 +15,7 @@ from ckan.common import config
 def sass():
     command = (u'npm', u'run', u'build')
 
-    public = config.get(u'ckan.base_public_folder')
+    public = config.safe(u'ckan.base_public_folder')
 
     root = os.path.join(os.path.dirname(__file__), u'..', public, u'base')
     root = os.path.abspath(root)

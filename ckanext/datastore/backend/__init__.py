@@ -87,8 +87,8 @@ class DatastoreBackend:
         :rtype: ckan.common.CKANConfig
 
         """
-        schema = config.get(u'ckan.datastore.write_url').split(u':')[0]
-        read_schema = config.get(u'ckan.datastore.read_url').split(u':')[0]
+        schema = config.safe(u'ckan.datastore.write_url').split(u':')[0]
+        read_schema = config.safe(u'ckan.datastore.read_url').split(u':')[0]
         assert read_schema == schema, u'Read and write engines are different'
         cls._active_backend = cls._backends[schema]()
 

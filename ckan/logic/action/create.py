@@ -1206,8 +1206,7 @@ def activity_create(context, activity_dict, **kw):
                         'ignore_auth must be passed in the context not as '
                         'a param')
 
-    if not ckan.common.asbool(
-            config.get('ckan.activity_streams_enabled', 'true')):
+    if not config.normalized('ckan.activity_streams_enabled'):
         return
 
     model = context['model']

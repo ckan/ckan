@@ -4,7 +4,7 @@ import copy
 import json
 import six
 
-from ckan.common import config, _
+from ckan.common import config, _, asbool
 
 
 class Missing(object):
@@ -279,7 +279,7 @@ def validate(data, schema, context=None):
     converted_data = unflatten(converted_data)
 
     # check config for partial update fix option
-    if config.get('ckan.fix_partial_updates', True):
+    if asbool(config.get('ckan.fix_partial_updates', True)):
         # repopulate the empty lists
         for key in empty_lists:
             if key not in converted_data:

@@ -79,7 +79,7 @@ def make_connection(decode_dates=True):
                                        quote_plus(solr_password),
                                        solr_url)
 
-    timeout = asint(config.get('solr_timeout', 60))
+    timeout = config.normalized('solr_timeout')
 
     if decode_dates:
         decoder = simplejson.JSONDecoder(object_hook=solr_datetime_decoder)

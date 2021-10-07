@@ -83,7 +83,7 @@ def get_storage_path():
 
     # None means it has not been set. False means not in config.
     if _storage_path is None:
-        storage_path = config.get('ckan.storage_path')
+        storage_path = config.safe('ckan.storage_path')
         if storage_path:
             _storage_path = storage_path
         else:
@@ -97,14 +97,14 @@ def get_storage_path():
 def get_max_image_size():
     global _max_image_size
     if _max_image_size is None:
-        _max_image_size = int(config.get('ckan.max_image_size', 2))
+        _max_image_size = config.normalized('ckan.max_image_size')
     return _max_image_size
 
 
 def get_max_resource_size():
     global _max_resource_size
     if _max_resource_size is None:
-        _max_resource_size = int(config.get('ckan.max_resource_size', 10))
+        _max_resource_size = config.normalized('ckan.max_resource_size')
     return _max_resource_size
 
 
@@ -196,7 +196,7 @@ class Upload(object):
 class ResourceUpload(object):
     def __init__(self, resource):
         path = get_storage_path()
-        config_mimetype_guess = config.get('ckan.mimetype_guess', 'file_ext')
+        config_mimetype_guess = config.safe('ckan.mimetype_guess')
 
         if not path:
             self.storage_path = None

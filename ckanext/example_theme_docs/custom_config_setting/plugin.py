@@ -4,6 +4,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import config
+from ckan.config.declaration import Declaration, Key
 
 
 def show_most_popular_groups():
@@ -19,8 +20,7 @@ def show_most_popular_groups():
     :rtype: bool
 
     '''
-    value = config.get('ckan.example_theme.show_most_popular_groups', False)
-    value = toolkit.asbool(value)
+    value = config.normalized('ckan.example_theme.show_most_popular_groups')
     return value
 
 
@@ -43,6 +43,7 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
 
     '''
     plugins.implements(plugins.IConfigurer)
+    p.implements(p.IConfigDeclaration)
 
     # Declare that this plugin will implement ITemplateHelpers.
     plugins.implements(plugins.ITemplateHelpers)
@@ -65,3 +66,8 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
                 'example_theme_show_most_popular_groups':
                 show_most_popular_groups,
                 }
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        declaration.declare_bool(key.ckan.example_theme.show_most_popular_groups)

@@ -851,7 +851,6 @@ def config_declaration_v1(
                 "validators": [default(""), unicode_safe],
                 "type": [default("base"), one_of(list(option_types))],
 
-                "disabled": [default(False), boolean_validator],
                 "ignored": [default(False), boolean_validator],
                 "experimental": [default(False), boolean_validator],
                 "internal": [default(False), boolean_validator],

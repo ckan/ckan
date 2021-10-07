@@ -37,7 +37,6 @@ import ckan.plugins as plugins
 log = logging.getLogger(__name__)
 
 DEFAULT_QUEUE_NAME = u'default'
-DEFAULT_JOB_TIMEOUT = 180
 
 # RQ job queues. Do not use this directly, use ``get_queue`` instead.
 _queues = {}
@@ -157,7 +156,7 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
         kwargs = {}
     if rq_kwargs is None:
         rq_kwargs = {}
-    timeout = config.get(u'ckan.jobs.timeout', DEFAULT_JOB_TIMEOUT)
+    timeout = config.normalized(u'ckan.jobs.timeout')
     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
 
     job = get_queue(queue).enqueue_call(

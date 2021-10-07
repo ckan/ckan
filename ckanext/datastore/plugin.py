@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import logging
-
+import os
 import ckan.plugins as p
 import ckan.logic as logic
 from ckan.model.core import State
@@ -21,6 +21,10 @@ import ckanext.datastore.blueprint as view
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
+
+_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "allowed_functions.txt"
+)
 
 DEFAULT_FORMATS = []
 
@@ -69,7 +73,7 @@ class DatastorePlugin(p.SingletonPlugin):
         DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
-        templates_base = config.get('ckan.base_templates_folder')
+        templates_base = config.safe('ckan.base_templates_folder')
 
         p.toolkit.add_template_directory(config, templates_base)
         self.backend = DatastoreBackend.get_active_backend()
@@ -97,16 +101,15 @@ class DatastorePlugin(p.SingletonPlugin):
 
         declaration.declare(
             section.sqlsearch.allowed_functions_file,
-            "ckanext/datastore/allowed_functions.txt")
+            _SQL_FUNCTIONS_ALLOWLIST_FILE)
         declaration.declare_bool(section.sqlsearch.enabled, False)
         declaration.declare_int(section.search.rows_default, 100)
-        declaration.declare_int(section.search.rows_max, 3200)
+        declaration.declare_int(section.search.rows_max, 32000)
         declaration.declare_dynamic(section.sqlalchemy.dynamic("OPTION"))
 #
         declaration.annotate("PostgreSQL' full-text search parameters")
         declaration.declare(section.default_fts_lang, "english")
         declaration.declare(section.default_fts_index_method, "gist")
-
 
     # IActions
 

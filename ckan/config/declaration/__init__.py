@@ -141,8 +141,9 @@ class Declaration:
         if self._core_loaded:
             log.debug("Declaration for core is already loaded")
             return
-        self._core_loaded = True
+
         load(self, "core")
+        self._core_loaded = True
 
     def load_plugin(self, name: str):
         if name in self._plugins:
@@ -174,7 +175,7 @@ class Declaration:
         self._mapping[key] = value
         return value
 
-    def declare_bool(self, key: Key, default: Any) -> Option[bool]:
+    def declare_bool(self, key: Key, default: Any = False) -> Option[bool]:
         option = self.declare(key, bool(default))
         option.set_validators("boolean_validator")
         return option

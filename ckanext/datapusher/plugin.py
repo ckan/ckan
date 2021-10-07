@@ -15,18 +15,6 @@ from ckan.config.declaration import Declaration, Key
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
-DEFAULT_FORMATS = [
-    u'csv',
-    u'xls',
-    u'xlsx',
-    u'tsv',
-    u'application/csv',
-    u'application/vnd.ms-excel',
-    u'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    u'ods',
-    u'application/vnd.oasis.opendocument.spreadsheet',
-]
-
 
 class DatastoreException(Exception):
     pass
@@ -47,21 +35,20 @@ class DatapusherPlugin(p.SingletonPlugin):
     resource_show_action = None
 
     def update_config(self, config):
-        templates_base = config.get(u'ckan.base_templates_folder')
+        templates_base = config.safe(u'ckan.base_templates_folder')
         toolkit.add_template_directory(config, templates_base)
 
     def configure(self, config):
         self.config = config
 
-        datapusher_formats = config.get(u'ckan.datapusher.formats',
-                                        u'').lower()
-        self.datapusher_formats = datapusher_formats.split() or DEFAULT_FORMATS
+        datapusher_formats = config.safe(u'ckan.datapusher.formats').lower()
+        self.datapusher_formats = datapusher_formats.split()
 
         for config_option in (
             u'ckan.site_url',
             u'ckan.datapusher.url',
         ):
-            if not config.get(config_option):
+            if not config.safe(config_option):
                 raise Exception(
                     u'Config option `{0}` must be set to use the DataPusher.'.
                     format(config_option)
@@ -174,8 +161,9 @@ class DatapusherPlugin(p.SingletonPlugin):
         declaration.declare(
             datapusher.formats,
             "csv xls xlsx tsv application/csv application/vnd.ms-excel "
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet "
+            "ods application/vnd.oasis.opendocument.spreadsheet"
         )
         declaration.declare(datapusher.url)
-        declaration.declare(datapusher.callback_url_base, "%(ckan.site_url)s")
+        declaration.declare(datapusher.callback_url_base)
         declaration.declare_int(datapusher.assume_task_stale_after, 3600)

@@ -142,7 +142,7 @@ def _form_save_redirect(pkg_name, action, package_type=None):
     @param action - What the action of the edit was
     """
     assert action in (u'new', u'edit')
-    url = request.args.get(u'return_to') or config.get(
+    url = request.args.get(u'return_to') or config.safe(
         u'package_%s_return_url' % action
     )
     if url:
@@ -219,7 +219,7 @@ def search(package_type):
     extra_vars['query_error'] = False
     page = h.get_page_number(request.args)
 
-    limit = int(config.get(u'ckan.datasets_per_page', 20))
+    limit = config.normalized(u'ckan.datasets_per_page')
 
     # most search operations should reset the page counter:
     params_nopage = [(k, v) for k, v in request.args.items(multi=True)
@@ -261,7 +261,7 @@ def search(package_type):
     # Unless changed via config options, don't show other dataset
     # types any search page. Potential alternatives are do show them
     # on the default search page (dataset) or on one other search page
-    search_all_type = config.get(u'ckan.search.show_all_types', u'dataset')
+    search_all_type = config.safe(u'ckan.search.show_all_types')
     search_all = False
 
     try:
@@ -317,9 +317,7 @@ def search(package_type):
         u'start': (page - 1) * limit,
         u'sort': sort_by,
         u'extras': search_extras,
-        u'include_private': asbool(
-            config.get(u'ckan.search.default_include_private', True)
-        ),
+        u'include_private': config.normalized(u'ckan.search.default_include_private'),
     }
     try:
         query = get_action(u'package_search')(context, data_dict)
@@ -361,7 +359,7 @@ def search(package_type):
             limit = int(
                 request.args.get(
                     u'_%s_limit' % facet,
-                    int(config.get(u'search.facets.default', 10))
+                    config.normalized(u'search.facets.default')
                 )
             )
         except ValueError:

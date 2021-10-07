@@ -72,7 +72,7 @@ def index():
                 u' and add your email address. ') % url + \
             _(u'%s uses your email address'
                 u' if you need to reset your password.') \
-            % config.get(u'ckan.site_title')
+            % config.safe(u'ckan.site_title')
         h.flash_notice(msg, allow_html=True)
     return base.render(u'home/index.html', extra_vars={})
 
