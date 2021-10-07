@@ -80,7 +80,7 @@ class TestOrganizationRead(object):
         org = factories.Organization()
         response = app.get(url=url_for("organization.read", id=org["name"]))
         assert org["title"] in response
-        assert org["description"][:80] in response
+        assert org["description"] in response
 
     def test_read_redirect_when_given_id(self, app):
         org = factories.Organization()
