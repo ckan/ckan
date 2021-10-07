@@ -6,6 +6,7 @@ import ckan.plugins as p
 import ckan.lib.api_token as api_token
 from ckan.config.declaration import Declaration, Key
 
+
 def default_token_lifetime():
     return p.toolkit.config.normalized(u"expire_api_token.default_lifetime")
 

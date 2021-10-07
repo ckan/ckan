@@ -99,6 +99,13 @@ class ReclineViewBase(p.SingletonPlugin):
             'get_dataproxy_url': get_dataproxy_url,
         }
 
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        declaration.annotate("recline_view settings")
+        declaration.declare(
+            key.ckan.recline.dataproxy_url, "//jsonpdataproxy.appspot.com")
+
 
 class ReclineView(ReclineViewBase):
     '''
@@ -264,9 +271,3 @@ class ReclineMapView(ReclineViewBase):
 
     def form_template(self, context, data_dict):
         return 'recline_map_form.html'
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        declaration.annotate("recline_view settings")
-        declaration.declare(key.ckan.recline.dataproxy_url, "//jsonpdataproxy.appspot.com")

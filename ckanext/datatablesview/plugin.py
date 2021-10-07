@@ -41,11 +41,14 @@ class DataTablesView(p.SingletonPlugin):
         self.state_saving = config.normalized(u'ckan.datatables.state_saving')
 
         # https://datatables.net/reference/option/stateDuration
-        self.state_duration = config.normalized(u'ckan.datatables.state_duration')
-        self.data_dictionary_labels = config.normalized(u'ckan.datatables.data_dictionary_labels')
-        self.ellipsis_length = config.normalized(u'ckan.datatables.ellipsis_length')
-        self.date_format = config.safe(u'ckan.datatables.date_format')
-        self.default_view = config.safe(u'ckan.datatables.default_view')
+        self.state_duration = config.normalized(
+            u"ckan.datatables.state_duration")
+        self.data_dictionary_labels = config.normalized(
+            u"ckan.datatables.data_dictionary_labels")
+        self.ellipsis_length = config.normalized(
+            u"ckan.datatables.ellipsis_length")
+        self.date_format = config.safe(u"ckan.datatables.date_format")
+        self.default_view = config.safe(u"ckan.datatables.default_view")
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_public_directory(config, u'public')
@@ -101,7 +104,7 @@ class DataTablesView(p.SingletonPlugin):
         declaration.declare(
             section.page_length_choices, "20 50 100 500 1000"
         ).set_description(
-            "see https://datatables.net/examples/advanced_init/length_menu.html"
+            "https://datatables.net/examples/advanced_init/length_menu.html"
         )
         declaration.declare_bool(section.state_saving, True)
         declaration.declare_int(section.state_duration, 7200)

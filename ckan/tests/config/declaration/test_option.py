@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from ckan.config.declaration import Option
 
 
@@ -18,6 +20,6 @@ class TestDetails:
         assert option._normalize(50) == 50
 
         option.set_default("yes").set_validators("boolean_validator")
-        assert option._normalize(option.default) == True
-        assert option._normalize("no") == False
-        assert option._normalize(False) == False
+        assert option._normalize(option.default) is True
+        assert option._normalize("no") is False
+        assert option._normalize(False) is False

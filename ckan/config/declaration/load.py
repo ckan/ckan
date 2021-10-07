@@ -29,7 +29,8 @@ class OptionV1(TypedDict, total=False):
     key: str
     default: Any
     default_callable: str
-    default_args: Dict[str, Any]
+    placeholder_callable: str
+    callable_args: Dict[str, Any]
     description: str
     validators: str
     type: str
@@ -102,10 +103,18 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
                 if details["description"]:
                     option.set_description(details["description"])
 
+                if details["placeholder"]:
+                    option.set_placeholder(details["placeholder"])
+
                 if "default_callable" in details:
-                    args = details.get("default_args", {})
+                    args = details.get("callable_args", {})
                     default = details["default_callable"](**args)
                     option.set_default(default)
+
+                if "placeholder_callable" in details:
+                    args = details.get("callable_args", {})
+                    placeholder = details["placeholder_callable"](**args)
+                    option.set_placeholder(placeholder)
 
 
 @handler.register("core")

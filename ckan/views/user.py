@@ -672,7 +672,6 @@ class RequestResetView(MethodView):
         return h.redirect_to(config.safe(
             u'ckan.user_reset_landing_page'))
 
-
     def get(self):
         self._prepare()
         return base.render(u'user/request_reset.html', {})

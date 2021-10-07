@@ -70,4 +70,5 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        declaration.declare_bool(key.ckan.example_theme.show_most_popular_groups)
+        declaration.declare_bool(
+            key.ckan.example_theme.show_most_popular_groups)

@@ -13,13 +13,18 @@ log = logging.getLogger(__name__)
 
 
 def get_formats(config):
-
     out = {}
 
-    out['text_formats'] = config.normalized('ckan.preview.text_formats').split()
-    out['xml_formats'] = config.normalized('ckan.preview.xml_formats').split()
-    out['json_formats'] = config.normalized('ckan.preview.json_formats').split()
-    out['jsonp_formats'] = config.normalized('ckan.preview.jsonp_formats').split()
+    out["text_formats"] = config.normalized(
+        "ckan.preview.text_formats"
+    ).split()
+    out["xml_formats"] = config.normalized("ckan.preview.xml_formats").split()
+    out["json_formats"] = config.normalized(
+        "ckan.preview.json_formats"
+    ).split()
+    out["jsonp_formats"] = config.normalized(
+        "ckan.preview.jsonp_formats"
+    ).split()
 
     return out
 
@@ -99,6 +104,7 @@ class TextView(p.SingletonPlugin):
 
         declaration.annotate("text_view settings")
         declaration.declare(section.text_formats, "text/plain txt plain")
-        declaration.declare(section.xml_formats, "xml rdf rdf+xml owl+xml atom rss")
+        declaration.declare(
+            section.xml_formats, "xml rdf rdf+xml owl+xml atom rss")
         declaration.declare(section.json_formats, "json")
         declaration.declare(section.jsonp_formats, "jsonp")

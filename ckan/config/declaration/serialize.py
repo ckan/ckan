@@ -35,7 +35,7 @@ def serialize_ini(declaration: "Declaration", no_comments: bool):
                 )
 
             if not option.has_default():
-                value = ""
+                value = option.placeholder or ""
             elif isinstance(option.default, bool):
                 value = str(option).lower()
             else:

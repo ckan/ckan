@@ -161,8 +161,8 @@ class DatapusherPlugin(p.SingletonPlugin):
         declaration.declare(
             datapusher.formats,
             "csv xls xlsx tsv application/csv application/vnd.ms-excel "
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet "
-            "ods application/vnd.oasis.opendocument.spreadsheet"
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            " ods application/vnd.oasis.opendocument.spreadsheet"
         )
         declaration.declare(datapusher.url)
         declaration.declare(datapusher.callback_url_base)

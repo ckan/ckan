@@ -4,7 +4,7 @@ import abc
 from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
-from .key import Key
+from .key import Key, Pattern, Wildcard
 from .option import Option, Flag, Annotation
 from .utils import FormatHandler
 
@@ -111,6 +111,9 @@ class BaseDictDescriber(AbstractDescriber):
         data: Dict[str, Any] = {
             "key": str(key),
         }
+        if isinstance(key, Pattern):
+            data["type"] = "dynamic"
+
         if option.has_default():
             data["default"] = option.default
 
@@ -118,14 +121,19 @@ class BaseDictDescriber(AbstractDescriber):
         if validators:
             data["validators"] = validators
 
+        if option.description:
+            data["description"] = option.description
+        if option.placeholder:
+            data["placeholder"] = option.placeholder
+
+        if option._has_flag(Flag.required):
+            data["required"] = True
         if option._has_flag(Flag.ignored):
             data["ignored"] = True
         if option._has_flag(Flag.internal):
             data["internal"] = True
         if option._has_flag(Flag.experimental):
             data["experimental"] = True
-        if option.description:
-            data["description"] = option.description
 
         self.current_listing.append(data)
 
@@ -180,18 +188,36 @@ class PythonDescriber(AbstractDescriber):
 
     def add_option(self, key: Key, option: Option):
         default = f", {repr(option.default)}" if option.has_default() else ""
-        self.output.write(f"declaration.declare(key.{key}{default})")
+        if isinstance(key, Pattern):
+            func = "declare_dynamic"
+            key_string = ".".join(
+                f"dynamic({repr(p)})" if isinstance(p, Wildcard) else p
+                for p in key
+            )
+
+        else:
+            func = "declare"
+            key_string = str(key)
+
+        self.output.write(f"declaration.{func}(key.{key_string}{default})")
+
+        if option.description:
+            self.output.write(f".set_description({repr(option.description)})")
+
+        if option.placeholder:
+            self.output.write(f".set_placeholder({repr(option.placeholder)})")
+
+        validators = option.get_validators()
+        if validators:
+            self.output.write(f".set_validators({repr(validators)})")
+
+        if option._has_flag(Flag.required):
+            self.output.write(".required()")
         if option._has_flag(Flag.ignored):
             self.output.write(".ignore()")
         if option._has_flag(Flag.internal):
             self.output.write(".internal()")
         if option._has_flag(Flag.experimental):
             self.output.write(".experimental()")
-        if option.description:
-            self.output.write(f".set_description({repr(option.description)})")
-
-        validators = option.get_validators()
-        if validators:
-            self.output.write(f".set_validators({repr(validators)})")
 
         self.output.write("\n")

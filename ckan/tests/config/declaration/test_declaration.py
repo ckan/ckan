@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
+
 from ckan.common import CKANConfig
 from ckan.config.declaration.load import GroupV1, OptionV1
-from ckan.exceptions import CkanConfigurationException
 import pytest
 
 from ckan.config.declaration import Declaration, Key, Pattern, Flag

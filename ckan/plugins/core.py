@@ -86,7 +86,8 @@ class PluginImplementations(ExtensionPoint):
         plugin_lookup = {pf.name: pf for pf in iterator}
 
         plugins_in_config = (
-            (config.safe('ckan.plugins') or "").split() + find_system_plugins())
+            (config.safe('ckan.plugins') or "").split()
+            + find_system_plugins())
 
         ordered_plugins = []
         for pc in plugins_in_config:
@@ -160,7 +161,9 @@ def load_all():
     # Clear any loaded plugins
     unload_all()
 
-    plugins = (config.safe('ckan.plugins') or "").split() + find_system_plugins()
+    plugins = (
+        config.safe('ckan.plugins') or ""
+    ).split() + find_system_plugins()
 
     load(*plugins)
 

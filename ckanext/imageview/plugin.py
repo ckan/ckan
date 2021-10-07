@@ -10,7 +10,6 @@ ignore_empty = p.toolkit.get_validator('ignore_empty')
 unicode_safe = p.toolkit.get_validator('unicode_safe')
 
 
-
 class ImageView(p.SingletonPlugin):
     '''This plugin makes views of image resources, using an <img> tag'''
 
@@ -48,6 +47,8 @@ class ImageView(p.SingletonPlugin):
         section = key.ckan.preview
 
         declaration.annotate("image_view settings")
-        declaration.declare(section.image_formats, "png jpeg jpg gif").set_description(
+        declaration.declare(
+            section.image_formats, "png jpeg jpg gif"
+        ).set_description(
             "Customize which image formats the image_view plugin will show"
         )

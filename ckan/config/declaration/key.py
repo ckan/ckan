@@ -21,9 +21,9 @@ class Wildcard(str):
 class Key:
     """Generic interface for accessing config options.
 
-    In the simplest case, :py:class:`~ckan.plugins.toolkit.key` objects completely
-    interchangeable with the corresponding config option names represented by
-    string. Example::
+    In the simplest case, :py:class:`~ckan.plugins.toolkit.key` objects
+    completely interchangeable with the corresponding config option names
+    represented by string. Example::
 
         site_url = toolkit.key.ckan.site_url
         # or
@@ -34,9 +34,9 @@ class Key:
         assert site_url == "ckan.site_url"
         assert toolkit.config[site_url] is toolkit.config["ckan.site_url"]
 
-    In addition, :py:class:`~ckan.plugins.toolkit.key` objects are similar to the
-    curried functions. Existing :py:class:`~ckan.plugins.toolkit.key` can be extended
-    to the sub-key at any moment. Example::
+    In addition, :py:class:`~ckan.plugins.toolkit.key` objects are similar to
+    the curried functions. Existing :py:class:`~ckan.plugins.toolkit.key` can
+    be extended to the sub-key at any moment. Example::
 
         ckan = toolkit.key.ckan
         assert ckan == "ckan"

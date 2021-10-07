@@ -67,15 +67,12 @@ class TestDescribe(object):
                             "default": (
                                 "csv xls xlsx tsv application/csv "
                                 "application/vnd.ms-excel "
-                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet ods application/vnd.oasis.opendocument.spreadsheet"
                             ),
                             "key": "ckan.datapusher.formats",
                         },
                         {"key": "ckan.datapusher.url"},
-                        {
-                            "default": "%(ckan.site_url)s",
-                            "key": "ckan.datapusher.callback_url_base",
-                        },
+                        {"key": "ckan.datapusher.callback_url_base"},
                         {
                             "default": 3600,
                             "key": "ckan.datapusher.assume_task_stale_after",
@@ -166,6 +163,7 @@ class TestSearch(object):
 class TestUndeclared(object):
     def test_no_undeclared_options_by_default(self, command):
         result = command("undeclared", "-idatapusher", "-idatastore")
+
         assert not result.output
         assert not result.exit_code, result.output
 
@@ -203,7 +201,7 @@ class TestValidate(object):
     @pytest.mark.ckan_config("ckan.redis.url", "")
     def test_report_missing_redis(self, command):
         result = command("validate")
-        assert "ckan.redis.url" in result.output
+        assert "ckan.redis.url" in result.output, result.output
         assert not result.exit_code, result.output
 
     @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")

@@ -13,7 +13,7 @@ from sqlalchemy import types, Column, Table, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 
-
+from ckan.common import config
 from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types

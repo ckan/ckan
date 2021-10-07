@@ -21,6 +21,26 @@ groups:
         ignored: true
         type: bool
 
+  # Options that are available inside CircleCI containers:
+  - annotation: ~
+    options:
+      - key: CKAN_POSTGRES_USER
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_WRITE_USER
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_READ_USER
+        internal: true
+      - key: CKAN_POSTGRES_DB
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_DB
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_WRITE_PWD
+        internal: true
+      - key: CKAN_POSTGRES_PWD
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_READ_PWD
+        internal: true
+
   # Flask configuration options
   - annotation: ~
     options:
@@ -143,12 +163,11 @@ groups:
   - annotation: Session settings
     options:
       - key: cache_dir
-        default: /tmp/%(ckan.site_id)s/
       - key: beaker.session.key
         default: ckan
       - key: beaker.session.secret
-        default_callable: secrets:token_urlsafe
-        default_args:
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
           nbytes: 20
         description: >-
           This is the secret token that the beaker library uses to hash the
@@ -164,6 +183,7 @@ groups:
       - key: who.log_file
         default: "%(cache_dir)s/who_log.ini"
       - key: who.reissue_time
+        default: 0
         type: int
       - key: who.timeout
         validators: ignore_empty convert_int
@@ -181,8 +201,8 @@ groups:
   - annotation: Database settings
     options:
       - key: sqlalchemy.url
-        default: postgresql://ckan_default:pass@localhost/ckan_default
-        validators: not_empty
+        placeholder: postgresql://ckan_default:pass@localhost/ckan_default
+        required: true
       - key: sqlalchemy.pool_pre_ping
         type: bool
         default: true
@@ -195,7 +215,8 @@ groups:
   - annotation: Site Settings
     options:
       - key: ckan.site_url
-        validators: not_empty
+        required: true
+        placeholder: http://127.0.0.1:5000
       - key: apikey_header_name
         default: X-CKAN-API-Key
       - key: ckan.cache_expires
@@ -246,7 +267,6 @@ groups:
         default: true
       - key: ckan.auth.public_activity_stream_detail
         type: bool
-        default: true
       - key: ckan.auth.allow_dataset_collaborators
         type: bool
       - key: ckan.auth.allow_admin_collaborators
@@ -271,8 +291,8 @@ groups:
       - key: ckan.site_id
         default: default
       - key: solr_url
-        default: http://127.0.0.1:8983/solr
-        validators: not_empty
+        placeholder: http://127.0.0.1:8983/solr
+        required: true
       - key: solr_user
       - key: solr_password
       - key: ckan.search.automatic_indexing
@@ -318,7 +338,7 @@ groups:
     options:
       - key: ckan.redis.url
         default: redis://localhost:6379/0
-        validators: not_empty
+        required: true
         description: URL to your Redis instance, including the database to be used.
 
   - annotation: CORS Settings
@@ -479,7 +499,7 @@ groups:
       - key: ckan.i18n.rtl_css
         default: /base/css/main-rtl.css
       - key: ckan.display_timezone
-        default: server
+        default: UTC
       - key: ckan.root_path
       - key: ckan.resource_formats
 

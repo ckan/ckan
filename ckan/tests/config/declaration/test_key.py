@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pytest
 from ckan.config.declaration.key import Key, Pattern, Wildcard
 

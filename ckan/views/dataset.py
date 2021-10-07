@@ -317,7 +317,8 @@ def search(package_type):
         u'start': (page - 1) * limit,
         u'sort': sort_by,
         u'extras': search_extras,
-        u'include_private': config.normalized(u'ckan.search.default_include_private'),
+        u'include_private': config.normalized(
+            u'ckan.search.default_include_private'),
     }
     try:
         query = get_action(u'package_search')(context, data_dict)

@@ -98,8 +98,8 @@ def datapusher_submit(context, data_dict):
             'key': 'datapusher'
         })
         assume_task_stale_after = datetime.timedelta(
-            seconds=config.normalized('ckan.datapusher.assume_task_stale_after')
-        )
+            seconds=config.normalized(
+                'ckan.datapusher.assume_task_stale_after'))
         if existing_task.get('state') == 'pending':
             updated = datetime.datetime.strptime(
                 existing_task['last_updated'], '%Y-%m-%dT%H:%M:%S.%f')

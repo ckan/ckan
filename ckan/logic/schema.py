@@ -846,14 +846,17 @@ def config_declaration_v1(
                 "key": [not_empty, key_from_string],
                 "default": [ignore_missing],
                 "default_callable": [ignore_empty, importable_string],
-                "default_args": [ignore_empty, dict_only],
+                "placeholder_callable": [ignore_empty, importable_string],
+                "callable_args": [ignore_empty, dict_only],
                 "description": [default(""), unicode_safe],
+                "placeholder": [default(""), unicode_safe],
                 "validators": [default(""), unicode_safe],
                 "type": [default("base"), one_of(list(option_types))],
 
                 "ignored": [default(False), boolean_validator],
                 "experimental": [default(False), boolean_validator],
                 "internal": [default(False), boolean_validator],
+                "required": [default(False), boolean_validator],
             }
         }
     }

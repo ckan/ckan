@@ -630,7 +630,8 @@ def _get_fts_index_method():
 def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
     resource_id = data_dict['resource_id']
-    fts_lang = data_dict.get('language', config.safe('ckan.datastore.default_fts_lang'))
+    fts_lang = data_dict.get(
+        'language', config.safe('ckan.datastore.default_fts_lang'))
 
     # create full-text search indexes
     def to_tsvector(x):

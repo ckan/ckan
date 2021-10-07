@@ -16,6 +16,7 @@ class Flag(enum.Flag):
     ignored = enum.auto()
     experimental = enum.auto()
     internal = enum.auto()
+    required = enum.auto()
 
     @classmethod
     def none(cls):
@@ -35,16 +36,24 @@ class Annotation(str):
 
 
 class Option(Generic[T]):
-    __slots__ = ("flags", "default", "description", "_validators")
+    __slots__ = (
+        "flags",
+        "default",
+        "description",
+        "_validators",
+        "placeholder",
+    )
 
     flags: Flag
     default: Optional[T]
     description: Optional[str]
+    placeholder: Optional[str]
     _validators: str
 
     def __init__(self, default: Optional[T] = None):
         self.flags = Flag.none()
         self.description = None
+        self.placeholder = None
         self._validators = ""
         self.default = default
 
@@ -71,16 +80,29 @@ class Option(Generic[T]):
         self.description = description
         return self
 
+    def set_placeholder(self, placeholder: str):
+        self.placeholder = placeholder
+        return self
+
     def set_validators(self, validators: str):
         self._validators = validators
         return self
 
-    def append_validators(self, validators: str):
-        if validators:
-            self._validators += " " + validators
+    def append_validators(self, validators: str, before: bool = False):
+        left = self._validators
+        right = validators
+        if before:
+            left, right = right, left
+
+        glue = " " if left and right else ""
+
+        self._validators = left + glue + right
 
     def get_validators(self):
-        return self._validators
+        validators = self._validators
+        if self._has_flag(Flag.required) and "not_empty" not in validators:
+            validators = "not_empty " + validators
+        return validators.strip()
 
     def ignore(self):
         self._set_flag(Flag.ignored)
@@ -91,6 +113,9 @@ class Option(Generic[T]):
     def internal(self):
         self._set_flag(Flag.internal)
 
+    def required(self):
+        self._set_flag(Flag.required)
+
     def _normalize(self, value: Any):
         from ckan.lib.navl.dictization_functions import validate
 
@@ -100,6 +125,7 @@ class Option(Generic[T]):
         return data["value"]
 
     def _parse_validators(self):
+
         return _validators_from_string(self.get_validators())
 
 

@@ -468,7 +468,6 @@ def test_unified_resource_format(fmt, exp):
 
 
 class TestGetDisplayTimezone(object):
-    @pytest.mark.ckan_config("ckan.display_timezone", "")
     def test_missing_config(self):
         assert h.get_display_timezone() == pytz.timezone("utc")
 

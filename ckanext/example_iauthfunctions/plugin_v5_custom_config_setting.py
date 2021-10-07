@@ -30,4 +30,5 @@ class ExampleIAuthFunctionsPlugin(plugins.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        declaration.declare_bool(key.ckan.iauthfunctions.users_can_create_groups)
+        declaration.declare_bool(
+            key.ckan.iauthfunctions.users_can_create_groups)

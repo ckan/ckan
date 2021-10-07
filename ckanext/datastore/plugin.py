@@ -93,11 +93,11 @@ class DatastorePlugin(p.SingletonPlugin):
         declaration.declare(
             section.write_url,
             "postgresql://ckan_default:pass@localhost/datastore_default"
-        ).set_validators("not_empty")
+        ).required()
         declaration.declare(
             section.read_url,
             "postgresql://datastore_default:pass@localhost/datastore_default"
-        ).set_validators("not_empty")
+        ).required()
 
         declaration.declare(
             section.sqlsearch.allowed_functions_file,
