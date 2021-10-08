@@ -3,7 +3,7 @@
 import logging
 import six
 import click
-from six import text_type
+
 
 import ckan.logic as logic
 import ckan.plugins as plugin
@@ -119,7 +119,7 @@ def show_user(username):
     if not username:
         error_shout(u'Please specify the username for the user')
         return
-    user = model.User.get(text_type(username))
+    user = model.User.get(str(username))
     click.secho(u'User: %s' % user)
 
 
@@ -155,12 +155,12 @@ def token():
 @click.argument(u"extras", type=click.UNPROCESSED, nargs=-1)
 @click.option(
     u"--json",
+    "json_str",
     metavar=u"EXTRAS",
-    type=json.loads,
     default=u"{}",
     help=u"Valid JSON object with additional fields for api_token_create",
 )
-def add_token(username, token_name, extras, json):
+def add_token(username, token_name, extras, json_str):
     """Create a new API Token for the given user.
 
     Arbitrary fields can be passed in the form `key=value` or using
@@ -173,6 +173,7 @@ def add_token(username, token_name, extras, json):
       ckan user token add john_doe new_token x=y --json '{"prop": "value"}'
 
     """
+    data_dict = json.loads(json_str)
     for chunk in extras:
         try:
             key, value = chunk.split(u"=")
@@ -183,11 +184,12 @@ def add_token(username, token_name, extras, json):
                 )
             )
             raise click.Abort()
-        json[key] = value
-    json.update({u"user": username, u"name": token_name})
+        data_dict[key] = value
+
+    data_dict.update({u"user": username, u"name": token_name})
     try:
         token = plugin.toolkit.get_action(u"api_token_create")(
-            {u"ignore_auth": True}, json
+            {u"ignore_auth": True}, data_dict
         )
     except plugin.toolkit.ObjectNotFound as e:
         error_shout(e)

@@ -52,7 +52,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
     non_solr_params = set(legacy_params.keys()) - VALID_SOLR_PARAMETERS
     for search_key in non_solr_params:
         value_obj = legacy_params[search_key]
-        value = value_obj.replace('+', ' ') if isinstance(value_obj, six.string_types) else value_obj
+        value = value_obj.replace('+', ' ') if isinstance(value_obj, str) else value_obj
         if search_key == 'all_fields':
             if value:
                 solr_params['fl'] = '*'
@@ -65,7 +65,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
         elif search_key == 'tags':
             if isinstance(value_obj, list):
                 tag_list = value_obj
-            elif isinstance(value_obj, six.string_types):
+            elif isinstance(value_obj, str):
                 tag_list = [value_obj]
             else:
                 raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
@@ -176,7 +176,7 @@ class TagSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
-        if isinstance(query, six.string_types):
+        if isinstance(query, str):
             query = [query]
 
         query = query[:] # don't alter caller's query list.
@@ -224,7 +224,7 @@ class ResourceSearchQuery(SearchQuery):
         query = []
 
         for field, terms in fields.items():
-            if isinstance(terms, six.string_types):
+            if isinstance(terms, str):
                 terms = terms.split()
             for term in terms:
                 query.append(':'.join([field, term]))
@@ -411,7 +411,7 @@ class PackageSearchQuery(SearchQuery):
 
         # get facets and convert facets list to a dict
         self.facets = solr_response.facets.get('facet_fields', {})
-        for field, values in six.iteritems(self.facets):
+        for field, values in self.facets.items():
             self.facets[field] = dict(zip(values[0::2], values[1::2]))
 
         return {'results': self.results, 'count': self.count}

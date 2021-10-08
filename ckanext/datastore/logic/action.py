@@ -5,7 +5,7 @@ import json
 
 import sqlalchemy
 import six
-from six import text_type
+
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -157,7 +157,7 @@ def datastore_create(context, data_dict):
     try:
         result = backend.create(context, data_dict)
     except InvalidDataError as err:
-        raise p.toolkit.ValidationError(text_type(err))
+        raise p.toolkit.ValidationError(str(err))
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])
@@ -665,18 +665,6 @@ def set_datastore_active_flag(model, data_dict, flag):
                 resource.update(update_dict)
                 psi.index_package(solr_data_dict)
                 break
-
-
-def _resource_exists(context, data_dict):
-    ''' Returns true if the resource exists in CKAN and in the datastore '''
-    model = _get_or_bust(context, 'model')
-    res_id = _get_or_bust(data_dict, 'resource_id')
-    if not model.Resource.get(res_id):
-        return False
-
-    backend = DatastoreBackend.get_active_backend()
-
-    return backend.resource_exists(res_id)
 
 
 def _check_read_only(context, resource_id):

@@ -6,7 +6,7 @@ import simplejson as json
 
 from datetime import datetime
 from sqlalchemy import types
-from six import string_types, text_type
+
 
 from ckan.model import meta
 
@@ -15,14 +15,14 @@ __all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
 
 
 def make_uuid():
-    return text_type(uuid.uuid4())
+    return str(uuid.uuid4())
 
 
 class UuidType(types.TypeDecorator):
     impl = types.Unicode
 
     def process_bind_param(self, value, engine):
-        return text_type(value)
+        return str(value)
 
     def process_result_value(self, value, engine):
         return value
@@ -32,7 +32,7 @@ class UuidType(types.TypeDecorator):
 
     @classmethod
     def default(cls):
-        return text_type(uuid.uuid4())
+        return str(uuid.uuid4())
 
 
 class JsonType(types.TypeDecorator):
@@ -50,7 +50,7 @@ class JsonType(types.TypeDecorator):
             return None
 
         # ensure_ascii=False => allow unicode but still need to convert
-        return text_type(json.dumps(value, ensure_ascii=False))
+        return str(json.dumps(value, ensure_ascii=False))
 
     def process_result_value(self, value, engine):
         if value is None:
@@ -77,10 +77,10 @@ class JsonDictType(JsonType):
         if value is None or value == {}:
             return None
 
-        if isinstance(value, string_types):
-            return text_type(value)
+        if isinstance(value, str):
+            return str(value)
 
-        return text_type(json.dumps(value, ensure_ascii=False))
+        return str(json.dumps(value, ensure_ascii=False))
 
     def copy(self):
         return JsonDictType(self.impl.length)
@@ -93,7 +93,7 @@ def iso_date_to_datetime_for_sqlite(datetime_or_iso_date_if_sqlite):
     # to call this to convert it into a datetime type. When running on
     # postgres then you have a datetime anyway, so this function doesn't
     # do anything.
-    is_string = isinstance(datetime_or_iso_date_if_sqlite, string_types)
+    is_string = isinstance(datetime_or_iso_date_if_sqlite, str)
     if meta.engine_is_sqlite() and is_string:
         return datetime.strptime(datetime_or_iso_date_if_sqlite,
                                  '%Y-%m-%d %H:%M:%S.%f')

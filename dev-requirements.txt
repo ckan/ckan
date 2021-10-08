@@ -1,22 +1,23 @@
 # These are packages that are required by ckan developers - for running ckan in debug mode, running ckan tests, building the docs and to pip-compile the requirements.in file.
 
-beautifulsoup4==4.9.1
+beautifulsoup4==4.9.3
+cookiecutter==1.7.3
 coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.16
-factory-boy==2.12.0
-Flask-DebugToolbar==0.11.0
+factory-boy==3.2.0
+flask-debugtoolbar==0.11.0
 freezegun==1.1.0
 ipdb==0.13.7
-responses==0.13.1
-pycodestyle==2.5.0
 pip-tools==5.1.2
-Sphinx==1.8.5
+pycodestyle==2.5.0
+responses==0.13.3
 sphinx-rtd-theme==0.4.3
-cookiecutter==1.7.3
+sphinx==1.8.5
+towncrier==21.3.0
 
 pytest==6.2.2
-pytest-split-tests==1.0.9
 pytest-cov==2.11.1
+pytest-factoryboy==2.1.0
 pytest-freezegun==0.4.2
 pytest-rerunfailures==9.1.1
-towncrier==19.2.0
+pytest-split-tests==1.0.9

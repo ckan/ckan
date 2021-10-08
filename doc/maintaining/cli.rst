@@ -167,7 +167,7 @@ datastore         Perform commands to set up the datastore.
 db                Perform various tasks on the database.
 generate          Generate empty extension files to expand CKAN
 jobs              Manage background jobs
-less              Compile all root less documents into their CSS counterparts
+sass              Compile all root sass documents into their CSS counterparts
 notify            Send out modification notifications.
 plugin-info       Provide info on installed plugins.
 profile           Code speed profiler.
@@ -406,16 +406,16 @@ then the job is added to the default queue. If queue names are given then a
 separate test job is added to each of the queues.
 
 
-.. _less:
+.. _sass:
 
-less: Compile all root less documents into their CSS counterparts
+sass: Compile all root sass documents into their CSS counterparts
 =================================================================
 
 Usage
 
 .. parsed-literal::
 
- less
+ sass
 
 
 notify: Send out modification notifications

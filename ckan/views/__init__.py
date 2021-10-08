@@ -3,8 +3,8 @@
 from sqlalchemy import inspect
 from ckan.common import asbool
 import six
-from six import text_type
-from six.moves.urllib.parse import quote
+
+from urllib.parse import quote
 from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
@@ -19,24 +19,6 @@ log = logging.getLogger(__name__)
 
 APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
-
-
-class LazyView(object):
-
-    def __init__(self, import_name, view_name=None):
-        self.__module__, self.__name__ = import_name.rsplit(u'.', 1)
-        self.import_name = import_name
-        self.view_name = view_name
-
-    @cached_property
-    def view(self):
-        actual_view = import_string(self.import_name)
-        if self.view_name:
-            actual_view = actual_view.as_view(self.view_name)
-        return actual_view
-
-    def __call__(self, *args, **kwargs):
-        return self.view(*args, **kwargs)
 
 
 def check_session_cookie(response):
@@ -168,7 +150,7 @@ def identify_user():
         g.author = g.user
     else:
         g.author = g.remote_addr
-    g.author = text_type(g.author)
+    g.author = str(g.author)
 
 
 def _identify_user_default():
@@ -204,34 +186,33 @@ def _identify_user_default():
                               u'logout_handler_path')
                 redirect(pth)
     else:
-        g.userobj = _get_user_for_apikey()
+        g.userobj = _get_user_for_apitoken()
         if g.userobj is not None:
             g.user = g.userobj.name
 
 
-def _get_user_for_apikey():
-    apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
-                                    APIKEY_HEADER_NAME_DEFAULT)
-    apikey = request.headers.get(apikey_header_name, u'')
-    if not apikey:
-        apikey = request.environ.get(apikey_header_name, u'')
-    if not apikey:
+def _get_user_for_apitoken():
+    apitoken_header_name = config.get(
+        APIKEY_HEADER_NAME_KEY, APIKEY_HEADER_NAME_DEFAULT
+    )
+    apitoken = request.headers.get(apitoken_header_name, u'')
+    if not apitoken:
+        apitoken = request.environ.get(apitoken_header_name, u'')
+    if not apitoken:
         # For misunderstanding old documentation (now fixed).
-        apikey = request.environ.get(u'HTTP_AUTHORIZATION', u'')
-    if not apikey:
-        apikey = request.environ.get(u'Authorization', u'')
+        apitoken = request.environ.get(u'HTTP_AUTHORIZATION', u'')
+    if not apitoken:
+        apitoken = request.environ.get(u'Authorization', u'')
         # Forget HTTP Auth credentials (they have spaces).
-        if u' ' in apikey:
-            apikey = u''
-    if not apikey:
+        if u' ' in apitoken:
+            apitoken = u''
+    if not apitoken:
         return None
-    apikey = six.ensure_text(apikey, errors=u"ignore")
-    log.debug(u'Received API Key: %s' % apikey)
-    query = model.Session.query(model.User)
-    user = query.filter_by(apikey=apikey).first()
+    apitoken = six.ensure_text(apitoken, errors=u"ignore")
+    log.debug(u'Received API Token: %s' % apitoken)
 
-    if not user:
-        user = api_token.get_user_from_token(apikey)
+    user = api_token.get_user_from_token(apitoken)
+
     return user
 
 

@@ -6,7 +6,7 @@ import datetime
 import logging
 import magic
 import mimetypes
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 

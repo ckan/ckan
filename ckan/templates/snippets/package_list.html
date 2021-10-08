@@ -6,8 +6,6 @@ list_class     - The class name for the list item.
 item_class     - The class name to use on each item.
 hide_resources - If true hides the resources (default: false).
 banner         - If true displays a popular banner (default: false).
-truncate       - The length to trucate the description to (default: 180)
-truncate_title - The length to truncate the title to (default: 80).
 
 Example:
 
@@ -19,7 +17,7 @@ Example:
     <ul class="{{ list_class or 'dataset-list list-unstyled' }}">
     	{% block package_list_inner %}
 	      {% for package in packages %}
-	        {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources, banner=banner, truncate=truncate, truncate_title=truncate_title %}
+	        {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources, banner=banner %}
 	      {% endfor %}
 	    {% endblock %}
     </ul>

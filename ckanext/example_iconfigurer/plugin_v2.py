@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from six import text_type
+
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 

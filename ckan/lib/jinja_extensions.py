@@ -8,11 +8,8 @@ from jinja2 import nodes
 from jinja2 import loaders
 from jinja2 import ext
 from jinja2.exceptions import TemplateNotFound
-from jinja2.utils import open_if_exists, escape
-from jinja2 import Environment
-
-from six import text_type
-from six.moves import xrange
+from jinja2.utils import open_if_exists
+from markupsafe import escape
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -23,12 +20,11 @@ log = logging.getLogger(__name__)
 
 
 def _get_extensions():
-    return ['jinja2.ext.do', 'jinja2.ext.with_',
+    return ['jinja2.ext.do', 'jinja2.ext.loopcontrols',
             SnippetExtension,
             CkanExtend,
             CkanInternationalizationExtension,
             LinkForExtension,
-            ResourceExtension,
             UrlForStaticExtension,
             UrlForExtension,
             AssetExtension]
@@ -62,7 +58,7 @@ def regularise_html(html):
         return
     html = re.sub('\n', ' ', html)
     matches = re.findall('(<[^>]*>|%[^%]\([^)]*\)\w|[^<%]+|%)', html)
-    for i in xrange(len(matches)):
+    for i in range(len(matches)):
         match = matches[i]
         if match.startswith('<') or match.startswith('%'):
             continue
@@ -84,7 +80,7 @@ class CkanInternationalizationExtension(ext.InternationalizationExtension):
             for arg in args:
                 if isinstance(arg, nodes.Const):
                     value = arg.value
-                    if isinstance(value, text_type):
+                    if isinstance(value, str):
                         arg.value = regularise_html(value)
         return node
 
@@ -316,24 +312,6 @@ class LinkForExtension(BaseExtension):
     def _call(cls, args, kwargs):
         return h.nav_link(*args, **kwargs)
 
-class ResourceExtension(BaseExtension):
-    ''' Deprecated. Custom include_resource tag.
-
-    {% resource <resource_name> %}
-
-    see lib.helpers.include_resource() for more details.
-    '''
-
-    tags = set(['resource'])
-
-    @classmethod
-    def _call(cls, args, kwargs):
-        assert len(args) == 1
-        assert len(kwargs) == 0
-        h.include_resource(args[0], **kwargs)
-        return ''
-
-
 class AssetExtension(BaseExtension):
     ''' Custom include_asset tag.
 
@@ -350,37 +328,3 @@ class AssetExtension(BaseExtension):
         assert len(kwargs) == 0
         h.include_asset(args[0])
         return ''
-
-
-'''
-The following function is based on jinja2 code
-
-Provides a class that holds runtime and parsing time options.
-
-:copyright: (c) 2010 by the Jinja Team.
-:license: BSD, see LICENSE for more details.
-'''
-
-def jinja2_getattr(self, obj, attribute):
-    """Get an item or attribute of an object but prefer the attribute.
-    Unlike :meth:`getitem` the attribute *must* be a bytestring.
-
-    This is a customised version to work with properties
-    """
-    try:
-        value = getattr(obj, attribute)
-        if isinstance(value, property):
-            value = value.fget()
-        return value
-    except AttributeError:
-        pass
-    try:
-        value = obj[attribute]
-        if isinstance(value, property):
-            value = value.fget()
-        return value
-    except (TypeError, LookupError, AttributeError):
-        return self.undefined(obj=obj, name=attribute)
-
-setattr(Environment, 'get_attr', jinja2_getattr)
-del jinja2_getattr

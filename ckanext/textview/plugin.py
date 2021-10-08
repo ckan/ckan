@@ -2,7 +2,6 @@
 
 import logging
 
-import six
 
 from ckan.common import json
 import ckan.plugins as p
@@ -53,7 +52,7 @@ class TextView(p.SingletonPlugin):
     def update_config(self, config):
 
         formats = get_formats(config)
-        for key, value in six.iteritems(formats):
+        for key, value in formats.items():
             setattr(self, key, value)
 
         self.no_jsonp_formats = (self.text_formats +

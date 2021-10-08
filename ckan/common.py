@@ -165,7 +165,7 @@ falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
 
 
 def asbool(obj):
-    if isinstance(obj, six.string_types):
+    if isinstance(obj, str):
         obj = obj.strip().lower()
         if obj in truthy:
             return True
@@ -184,7 +184,7 @@ def asint(obj):
 
 
 def aslist(obj, sep=None, strip=True):
-    if isinstance(obj, six.string_types):
+    if isinstance(obj, str):
         lst = obj.split(sep)
         if strip:
             lst = [v.strip() for v in lst]

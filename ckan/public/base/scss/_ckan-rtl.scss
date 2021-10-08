@@ -1,0 +1,109 @@
+@import "ckan.scss";
+
+.wrapper {
+  @media (min-width: $screen-sm-min) {
+    &:before {
+      left: initial;
+      right: 0;
+      width: 25%;
+      border-left: 1px solid $genericBorderColor;
+    }
+  }
+}
+
+.simple-input .field .btn-search {
+  right: initial;
+  left: 0;
+}
+
+@media (min-width: $screen-md-min) {
+    .masthead .navbar-collapse {
+        float: left;
+    }
+}
+
+.masthead {
+    .section {
+      float: right;
+    }
+    .navigation {
+      margin-right: initial;
+      margin-left: 20px;
+    }
+    .site-search {
+        @media (min-width: $screen-md-min) {
+            margin-right: $grid-gutter-width/2;
+        }
+        margin: ($grid-gutter-width/6 - 1) 0 ($grid-gutter-width/6 - 1) $grid-gutter-width/3 - 2;
+    }
+}
+
+@media (min-width: $screen-sm-min) {
+    .nav-item.active>a:before,
+    .nav-aside li.active a:before {
+        border-left: none;
+        border-right: inherit;
+        border-left-color: inherit;
+        border-left-width: inherit;
+        border-right-color: $navItemActiveBackgroundColor;
+        border-right-width: $navItemActiveArrowSize;
+        left: -$navItemActiveArrowSize;
+        right: inherit;
+    }
+}
+
+
+@media (min-width: $grid-float-breakpoint) {
+  .nav-pills>li {
+        float: right;
+    }
+}
+
+.heading, .module-heading, a, p, .dataset-list, .search-form, h1,
+#dataset-resources, .additional-info, .tags, td.dataset-details, th.dataset-label,
+.context-info, .flash-messages, .page_primary_action, .breadcrumb,
+.media-item, .nav-item
+{
+    direction: rtl;
+    text-align: right;
+}
+
+.search-form .search-input.search-giant button {
+    margin-top: -15px;
+    left: 15px;
+    right: auto;
+}
+
+.context-info .nums dl, .toolbar .breadcrumb {
+    float: right;
+}
+
+.resource-item .btn-group {
+    left: 10px;
+    right: auto;
+}
+
+.resource-item .format-label {
+    left: auto;
+    right: 10px;
+
+}
+
+.resource-item {
+    padding: 10px 60px 10px 10px;
+}
+
+.homepage .module-search .tags h3, .homepage .module-search .tags .tag {
+    float: right;
+}
+
+.nav-facet .nav-item a span.item-label {
+    padding-right: 15px;
+}
+
+@media (min-width: $screen-md-min) {
+    .homepage.layout-1 .row1 .col2 {
+        right: auto;
+        left: 0;
+    }
+}
