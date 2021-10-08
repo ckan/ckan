@@ -18,7 +18,9 @@
     {% for entity in entities %}
       {% set title = entity.title or entity.name %}
         <li>
-          {{ h.link_to(title|truncate(80), h.url_for(entity.type + '.read', id=entity.name)) }}
+          <a href="{{ h.url_for(entity.type + '.read', id=entity.name) }}">
+            {{ title|truncate(80) }}
+          </a>
         </li>
       {% else %}
       <p>
