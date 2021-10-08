@@ -29,7 +29,9 @@ Example:
               {% endif %}
             {% endblock %}
             {% block heading_title %}
-		{{ h.link_to(title|truncate(80), h.url_for('%s.read' % package.type, id=package.name)) }}
+    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}">
+      {{title|truncate(80)}}
+    </a>
             {% endblock %}
             {% block heading_meta %}
               {% if package.get('state', '').startswith('draft') %}

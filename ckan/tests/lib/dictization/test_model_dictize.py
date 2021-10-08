@@ -37,8 +37,10 @@ class TestGroupListDictize:
         assert "groups" not in group_dicts[0]
 
     def test_group_list_dictize_sorted(self):
-        factories.Group(name="aa")
-        factories.Group(name="bb")
+        # we need to set the title because group_list_dictze by default sorts
+        # them per display_name
+        factories.Group(name="aa", title="aa")
+        factories.Group(name="bb", title="bb")
         group_list = [model.Group.get(u"bb"), model.Group.get(u"aa")]
         context = {"model": model, "session": model.Session}
 
@@ -49,8 +51,10 @@ class TestGroupListDictize:
         assert group_dicts[1]["name"] == "bb"
 
     def test_group_list_dictize_reverse_sorted(self):
-        factories.Group(name="aa")
-        factories.Group(name="bb")
+        # we need to set the title because group_list_dictze by default sorts
+        # them per display_name
+        factories.Group(name="aa", title="aa")
+        factories.Group(name="bb", title="bb")
         group_list = [model.Group.get(u"aa"), model.Group.get(u"bb")]
         context = {"model": model, "session": model.Session}
 
@@ -134,7 +138,8 @@ class TestGroupListDictize:
         context = {"model": model, "session": model.Session}
 
         child_dict, parent_dict = model_dictize.group_list_dictize(
-            group_list, context, include_groups=True
+            group_list, context, sort_key=lambda x: x["name"],
+            include_groups=True
         )
 
         assert parent_dict["name"] == "parent"
@@ -386,31 +391,31 @@ class TestPackageDictize:
         assert result["metadata_created"].startswith(today)
         assert result["creator_user_id"] == dataset_obj.creator_user_id
         expected_dict = {
-            "author": None,
-            "author_email": None,
-            "extras": [],
-            "groups": [],
-            "isopen": False,
-            "license_id": None,
-            "license_title": None,
-            "maintainer": None,
-            "maintainer_email": None,
-            "name": u"test_dataset_dictize",
-            "notes": "Some *description*",
-            "num_resources": 0,
-            "num_tags": 0,
-            "organization": None,
-            "owner_org": None,
-            "private": False,
-            "relationships_as_object": [],
-            "relationships_as_subject": [],
-            "resources": [],
-            "state": u"active",
-            "tags": [],
-            "title": u"Test Dataset",
-            "type": u"dataset",
-            "url": "http://example.com",
-            "version": None,
+            "author": dataset["author"],
+            "author_email": dataset["author_email"],
+            "extras": dataset["extras"],
+            "groups": dataset["groups"],
+            "isopen": dataset["isopen"],
+            "license_id": dataset["license_id"],
+            "license_title": dataset["license_title"],
+            "maintainer": dataset["maintainer"],
+            "maintainer_email": dataset["maintainer_email"],
+            "name": dataset["name"],
+            "notes": dataset["notes"],
+            "num_resources": dataset["num_resources"],
+            "num_tags": dataset["num_tags"],
+            "organization": dataset["organization"],
+            "owner_org": dataset["owner_org"],
+            "private": dataset["private"],
+            "relationships_as_object": dataset["relationships_as_object"],
+            "relationships_as_subject": dataset["relationships_as_subject"],
+            "resources": dataset["resources"],
+            "state": dataset["state"],
+            "tags": dataset["tags"],
+            "title": dataset["title"],
+            "type": dataset["type"],
+            "url": dataset["url"],
+            "version": dataset["version"],
         }
         self.assert_equals_expected(expected_dict, result)
 
@@ -451,21 +456,21 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["resources"][0], resource, "name", "url")
         expected_dict = {
-            u"cache_last_updated": None,
-            u"cache_url": None,
-            u"description": u"Just another test resource.",
-            u"format": u"res_format",
-            u"hash": u"",
-            u"last_modified": None,
-            u"mimetype": None,
-            u"mimetype_inner": None,
-            u"name": u"test_pkg_dictize",
-            u"position": 0,
-            u"resource_type": None,
-            u"size": None,
-            u"state": u"active",
-            u"url": u"http://link.to.some.data",
-            u"url_type": None,
+            u"cache_last_updated": resource["cache_last_updated"],
+            u"cache_url": resource["cache_url"],
+            u"description": resource["description"],
+            u"format": resource["format"],
+            u"hash": resource["hash"],
+            u"last_modified": resource["last_modified"],
+            u"mimetype": resource["mimetype"],
+            u"mimetype_inner": resource["mimetype_inner"],
+            u"name": resource["name"],
+            u"position": resource["position"],
+            u"resource_type": resource["resource_type"],
+            u"size": resource["size"],
+            u"state": resource["state"],
+            u"url": resource["url"],
+            u"url_type": resource["url_type"],
         }
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
@@ -544,17 +549,17 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["groups"][0], group, "name")
         expected_dict = {
-            u"approval_status": u"approved",
-            u"capacity": u"public",
-            u"description": u"A test description for this test group.",
-            "display_name": u"Test Group Dictize",
-            "image_display_url": u"",
-            u"image_url": u"",
-            u"is_organization": False,
-            u"name": u"test_group_dictize",
-            u"state": u"active",
-            u"title": u"Test Group Dictize",
-            u"type": u"group",
+            u"approval_status": group["approval_status"],
+            u"capacity": "public",
+            u"description": group["description"],
+            "display_name": group["display_name"],
+            "image_display_url": group["image_display_url"],
+            u"image_url": group["image_url"],
+            u"is_organization": group["is_organization"],
+            u"name": group["name"],
+            u"state": group["state"],
+            u"title": group["title"],
+            u"type": group["type"],
         }
         self.assert_equals_expected(expected_dict, result["groups"][0])
 
@@ -569,14 +574,14 @@ class TestPackageDictize:
         assert result["owner_org"] == org["id"]
         assert_equal_for_keys(result["organization"], org, "name")
         expected_dict = {
-            u"approval_status": u"approved",
-            u"description": u"Just another test organization.",
-            u"image_url": u"https://placekitten.com/g/200/100",
-            u"is_organization": True,
-            u"name": u"test_package_dictize",
-            u"state": u"active",
-            u"title": u"Test Organization",
-            u"type": u"organization",
+            u"approval_status": org["approval_status"],
+            u"description": org["description"],
+            u"image_url": org["image_url"],
+            u"is_organization": org["is_organization"],
+            u"name": org["name"],
+            u"state": org["state"],
+            u"title": org["title"],
+            u"type": org["type"],
         }
         self.assert_equals_expected(expected_dict, result["organization"])
 

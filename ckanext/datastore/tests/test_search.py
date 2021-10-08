@@ -463,9 +463,11 @@ class TestDatastoreSearchLegacyTests(object):
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
         self.sysadmin_user = factories.Sysadmin()
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user["id"])
+        self.sysadmin_token = self.sysadmin_token["token"]
         self.normal_user = factories.User()
-        self.normal_user_token = factories.APIToken(user=self.normal_user)
+        self.normal_user_token = factories.APIToken(user=self.normal_user["id"])
+        self.normal_user_token = self.normal_user_token["token"]
         self.dataset = model.Package.get("annakarenina")
         self.resource = self.dataset.resources[0]
         self.data = {
@@ -1142,9 +1144,11 @@ class TestDatastoreFullTextSearchLegacyTests(object):
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
         self.sysadmin_user = factories.Sysadmin()
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user["id"])
+        self.sysadmin_token = self.sysadmin_token["token"]
         self.normal_user = factories.User()
-        self.normal_user_token = factories.APIToken(user=self.normal_user)
+        self.normal_user_token = factories.APIToken(user=self.normal_user["id"])
+        self.normal_user_token = self.normal_user_token["token"]
         resource = model.Package.get("annakarenina").resources[0]
         self.data = dict(
             resource_id=resource.id,
@@ -1345,9 +1349,11 @@ class TestDatastoreSQLLegacyTests(object):
     def initial_data(self, clean_datastore, app):
         ctd.CreateTestData.create()
         self.sysadmin_user = factories.Sysadmin()
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user["id"])
+        self.sysadmin_token = self.sysadmin_token["token"]
         self.normal_user = factories.User()
-        self.normal_user_token = factories.APIToken(user=self.normal_user)
+        self.normal_user_token = factories.APIToken(user=self.normal_user["id"])
+        self.normal_user_token = self.normal_user_token["token"]
         self.dataset = model.Package.get("annakarenina")
         resource = self.dataset.resources[0]
         self.data = {

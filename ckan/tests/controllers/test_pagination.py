@@ -75,13 +75,13 @@ def test_group_datasets_read(app):
 def test_group_index(app):
     all_names = [
         group["name"]
-        for group in sorted(factories.Group.create_batch(22), key=lambda g: g["title"])
+        for group in sorted(factories.Group.create_batch(22), key=lambda g: g["name"])
     ]
 
-    resp = app.get(url_for("group.index"))
+    resp = app.get(url_for("group.index", sort="name"))
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
-    assert "/group/?q=&sort=&page=2" == href
+    assert "/group/?q=&sort=name&page=2" == href
     names = [
         link["href"].rsplit("/", 1)[-1]
         for link in page.select(".primary .media-view")
@@ -89,10 +89,10 @@ def test_group_index(app):
 
     assert all_names[:20] == names
 
-    resp = app.get(url_for("group.index", page=2))
+    resp = app.get(url_for("group.index", sort="name", page=2))
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=1)["href"]
-    assert "/group/?q=&sort=&page=1" == href
+    assert "/group/?q=&sort=name&page=1" == href
     names = [
         link["href"].rsplit("/", 1)[-1]
         for link in page.select(".primary .media-view")
