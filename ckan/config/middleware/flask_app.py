@@ -221,7 +221,6 @@ def make_flask_stack(conf):
     # Template context processors
     app.context_processor(helper_functions)
     app.context_processor(c_object)
-    app.context_processor(request_object)
 
     @app.context_processor
     def ungettext_alias():
@@ -270,25 +269,6 @@ def make_flask_stack(conf):
 
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
-
-    # Set flask routes in named_routes
-    # TODO: refactor whatever helper is using this to not do it
-    if 'routes.named_routes' not in config:
-        config['routes.named_routes'] = {}
-    for rule in app.url_map.iter_rules():
-        if '.' not in rule.endpoint:
-            continue
-        controller, action = rule.endpoint.split('.')
-        needed = list(rule.arguments - set(rule.defaults or {}))
-        route = {
-            rule.endpoint: {
-                'action': action,
-                'controller': controller,
-                'highlight_actions': action,
-                'needed': needed
-            }
-        }
-        config['routes.named_routes'].update(route)
 
     # Start other middleware
     for plugin in PluginImplementations(IMiddleware):
@@ -415,11 +395,6 @@ def c_object():
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
     return dict(c=g)
-
-
-def request_object():
-    u"""Use CKANRequest object implicitly in templates"""
-    return dict(request=request)
 
 
 class CKAN_Rule(Rule):

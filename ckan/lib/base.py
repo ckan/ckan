@@ -65,7 +65,7 @@ def render_snippet(*template_names, **kw):
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
-            if config.get('debug'):
+            if asbool(config.get('debug')):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
