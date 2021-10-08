@@ -4,6 +4,8 @@ import six
 import pytest
 
 import ckan.tests.factories as factories
+import ckan.model as model
+import ckan.tests.helpers as h
 
 
 @pytest.mark.ckan_config("debug", True)
@@ -18,31 +20,35 @@ def test_comment_absent_if_debug_false(app):
     assert "<!-- Snippet " not in response
 
 
-def test_apikey_missing(app):
+def test_apitoken_missing(app):
     request_headers = {}
 
     app.get("/dataset/new", headers=request_headers, status=403)
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-def test_apikey_in_authorization_header(app):
+def test_apitoken_in_authorization_header(app):
     user = factories.Sysadmin()
-    request_headers = {"Authorization": str(user["apikey"])}
+    user_token = factories.APIToken(user=user["id"], context={})
+    request_headers = {
+        "Authorization": user_token
+    }
 
     app.get("/dataset/new", headers=request_headers)
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-def test_apikey_in_x_ckan_header(app):
+def test_apitoken_in_x_ckan_header(app):
     user = factories.Sysadmin()
+    user_token = factories.APIToken(user=user["id"], context={})
     # non-standard header name is defined in test-core.ini
-    request_headers = {"X-Non-Standard-CKAN-API-Key": str(user["apikey"])}
+    request_headers = {"X-Non-Standard-CKAN-API-Key": user_token}
 
     app.get("/dataset/new", headers=request_headers)
 
 
-def test_apikey_contains_unicode(app):
-    # there is no valid apikey containing unicode, but we should fail
+def test_apitoken_contains_unicode(app):
+    # there is no valid apitoken containing unicode, but we should fail
     # nicely if unicode is supplied
     request_headers = {"Authorization": "\xc2\xb7"}
 

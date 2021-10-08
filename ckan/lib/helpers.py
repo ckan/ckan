@@ -437,16 +437,29 @@ def _url_for_flask(*args, **kw):
             kw.pop('host', None)
             kw.pop('protocol', None)
             if kw:
-                my_url += '?'
                 query_args = []
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
+                            if value is None:
+                                continue
                             query_args.append(
-                                u'{}={}'.format(quote(key), quote(value)))
+                                u'{}={}'.format(
+                                    quote(str(key)),
+                                    quote(str(value))
+                                )
+                            )
                     else:
+                        if val is None:
+                            continue
                         query_args.append(
-                            u'{}={}'.format(quote(key), quote(val)))
+                            u'{}={}'.format(
+                                quote(str(key)),
+                                quote(str(val))
+                            )
+                        )
+                if query_args:
+                    my_url += '?'
                 my_url += '&'.join(query_args)
         else:
             raise
@@ -798,7 +811,6 @@ def _link_to(text, *args, **kwargs):
             active = ' active'
         else:
             active = ''
-        kwargs.pop('highlight_actions', '')
         return kwargs.pop('class_', '') + active or None
 
     def _create_link_text(text, **kwargs):
@@ -1025,21 +1037,16 @@ def _make_menu_item(menu_item, title, **kw):
 
     This function is called by wrapper functions.
     '''
-    menu_item = map_pylons_to_flask_route_name(menu_item)
-    _menu_items = config['routes.named_routes']
-    if menu_item not in _menu_items:
-        raise Exception('menu item `%s` cannot be found' % menu_item)
-    item = copy.copy(_menu_items[menu_item])
+    controller, action = menu_item.split('.')
+    item = {
+        'action': action,
+        'controller': controller
+    }
     item.update(kw)
     active = _link_active(item)
-
     # Remove highlight controllers so that they won't appear in generated urls.
     item.pop('highlight_controllers', False)
-    needed = item.pop('needed')
-    for need in needed:
-        if need not in kw:
-            raise Exception('menu item `%s` need parameter `%s`'
-                            % (menu_item, need))
+
     link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
         return literal('<li class="active">') + link + literal('</li>')
@@ -1940,16 +1947,25 @@ def follow_count(obj_type, obj_id):
     return logic.get_action(action)(context, {'id': obj_id})
 
 
-def _create_url_with_params(params=None, controller=None, action=None,
-                            extras=None):
-    ''' internal function for building urls with parameters. '''
-    if not controller:
-        controller = getattr(c, 'controller', False) or request.blueprint
-    if not action:
-        action = getattr(c, 'action', False) or p.toolkit.get_endpoint()[1]
+def _create_url_with_params(
+    params=None, controller=None, action=None, extras=None
+):
+    """internal function for building urls with parameters."""
     if not extras:
-        extras = {}
-    endpoint = controller + '.' + action
+        if not controller and not action:
+            # it's an url for the current page. Let's keep all interlal params,
+            # like <package_type>
+            extras = dict(request.view_args)
+        else:
+            extras = {}
+
+    blueprint, view = p.toolkit.get_endpoint()
+    if not controller:
+        controller = getattr(g, "controller", blueprint)
+    if not action:
+        action = getattr(g, "action", view)
+
+    endpoint = controller + "." + action
     url = url_for(endpoint, **extras)
     return _url_with_params(url, params)
 
