@@ -86,7 +86,7 @@ class PluginImplementations(ExtensionPoint):
         plugin_lookup = {pf.name: pf for pf in iterator}
 
         plugins_in_config = (
-            (config.safe('ckan.plugins') or "").split()
+            config.get("ckan.plugins", "").split()
             + find_system_plugins())
 
         ordered_plugins = []

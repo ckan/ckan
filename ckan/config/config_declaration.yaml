@@ -127,7 +127,9 @@ groups:
   - annotation: ~
     options:
       - key: use
-        default: egg:ckan
+        placeholder: egg:ckan
+        validators: not_empty
+        required: true
 
   - annotation: Configuration modes
     options:
@@ -163,9 +165,12 @@ groups:
   - annotation: Session settings
     options:
       - key: cache_dir
+        placeholder: "/tmp/%(ckan.site_id)s/"
       - key: beaker.session.key
         default: ckan
       - key: beaker.session.secret
+        validators: not_empty
+        required: true
         placeholder_callable: secrets:token_urlsafe
         callable_args:
           nbytes: 20
@@ -177,11 +182,13 @@ groups:
   - annotation: repoze.who settings
     options:
       - key: who.config_file
-        default: "%(here)s/who.ini"
+        validators: not_empty
+        required: true
+        placeholder: "%(here)s/who.ini"
       - key: who.log_level
         default: warning
       - key: who.log_file
-        default: "%(cache_dir)s/who_log.ini"
+        placeholder: "%(cache_dir)s/who_log.ini"
       - key: who.reissue_time
         default: 0
         type: int
@@ -202,6 +209,7 @@ groups:
     options:
       - key: sqlalchemy.url
         placeholder: postgresql://ckan_default:pass@localhost/ckan_default
+        validators: not_empty
         required: true
       - key: sqlalchemy.pool_pre_ping
         type: bool
@@ -215,6 +223,7 @@ groups:
   - annotation: Site Settings
     options:
       - key: ckan.site_url
+        validators: not_empty
         required: true
         placeholder: http://127.0.0.1:5000
       - key: apikey_header_name
@@ -292,6 +301,7 @@ groups:
         default: default
       - key: solr_url
         placeholder: http://127.0.0.1:8983/solr
+        validators: not_empty
         required: true
       - key: solr_user
       - key: solr_password
@@ -338,7 +348,7 @@ groups:
     options:
       - key: ckan.redis.url
         default: redis://localhost:6379/0
-        required: true
+        validators: not_empty
         description: URL to your Redis instance, including the database to be used.
 
   - annotation: CORS Settings
@@ -354,6 +364,7 @@ groups:
   - annotation: Plugins Settings
     options:
       - key: ckan.plugins
+        required: true
         description: |-
           Note: Add ``datastore`` to enable the CKAN DataStore.
           Add ``datapusher`` to enable DataPusher.
@@ -393,7 +404,7 @@ groups:
         type: bool
 
       - key: ckan.homepage_style
-        default: 1
+        default: "1"
       - key: ckan.site_custom_css
 
 
@@ -428,6 +439,7 @@ groups:
   - annotation: Storage Settings
     options:
       - key: ckan.storage_path
+        placeholder: /var/lib/storage
       - key: ckan.max_resource_size
         type: int
         default: 10
@@ -468,6 +480,7 @@ groups:
       - key: ckan.email_notifications_since
         default: '2 days'
       - key: ckan.hide_activity_from_users
+        placeholder: "%(ckan.site_id)s"
 
   - annotation: Feeds Settings
     options:

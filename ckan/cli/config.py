@@ -60,29 +60,53 @@ def describe(plugins: Tuple[str, ...], core: bool, enabled: bool, fmt: str):
     is_flag=True,
     help="do not explain purpose of options",
 )
+@click.option(
+    "-m",
+    "--minimal",
+    is_flag=True,
+    help="print only mandatory options",
+)
+
 def declaration(
-    plugins: Tuple[str, ...], core: bool, enabled: bool, no_comments: bool
+        plugins: Tuple[str, ...], core: bool, enabled: bool, no_comments: bool, minimal: bool
 ):
     """Print out config declaration for the given plugins."""
 
     decl = _declaration(plugins, core, enabled)
     if decl:
-        click.echo(decl.into_ini(no_comments))
+        click.echo(decl.into_ini(minimal, no_comments))
 
 
 @config.command()
-@click.argument("pattern")
+@click.argument("pattern", default="*")
 @click.option("-i", "--include-plugin", "plugins", multiple=True)
 @click.option("--with-default", is_flag=True)
-def search(pattern: str, plugins: Tuple[str, ...], with_default: bool):
+@click.option("--with-current", is_flag=True)
+@click.option("--custom-only", is_flag=True)
+@click.option("--no-custom", is_flag=True)
+def search(pattern: str, plugins: Tuple[str, ...], with_default: bool, with_current: bool, custom_only: bool, no_custom: bool):
     """Print all declared config options that match pattern."""
     decl = _declaration(plugins, True, True)
 
     for key in decl.iter_options(pattern=pattern):
-        default = ""
+        if isinstance(key, Pattern):
+            continue
+
+        default = decl[key].default
+        current = cfg.normalized(key)
+        if no_custom and default != current:
+            continue
+        if custom_only and default == current:
+            continue
+
+        default_section = ""
+        current_section = ""
         if with_default:
-            default = click.style(f" = {decl[key].default}", fg="green")
-        line = f"{key}{default}"
+            default_section = click.style(f" [Default: {repr(default)}]", fg="red")
+        if with_current:
+            current_section = click.style(f" [Current: {repr(current)}]", fg="green")
+
+        line = f"{key}{default_section}{current_section}"
         click.secho(line)
 
 

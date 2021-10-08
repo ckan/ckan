@@ -2271,7 +2271,7 @@ class TestActivity(object):
     def test_public_cant_see_changes(self, app):
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
-        # helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", **dataset)
 
         url = url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)

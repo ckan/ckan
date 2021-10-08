@@ -154,12 +154,12 @@ def make_config(output_path, include_plugin):
     template_loc = os.path.join(cur_loc, u'..', u'config',
                                 u'deployment.ini_tmpl')
 
-    config_declaration.reset()
+    config_declaration._reset()
     config_declaration.load_core_declaration()
     for plugin in include_plugin:
         config_declaration.load_plugin(plugin)
 
-    variables = {"declaration": config_declaration.into_ini()}
+    variables = {"declaration": config_declaration.into_ini(False, False)}
     with open(template_loc, u'r') as file_in:
         template = string.Template(file_in.read())
         try:

@@ -99,10 +99,7 @@ class Option(Generic[T]):
         self._validators = left + glue + right
 
     def get_validators(self):
-        validators = self._validators
-        if self._has_flag(Flag.required) and "not_empty" not in validators:
-            validators = "not_empty " + validators
-        return validators.strip()
+        return self._validators
 
     def ignore(self):
         self._set_flag(Flag.ignored)
@@ -122,7 +119,8 @@ class Option(Generic[T]):
         data, _ = validate(
             {"value": value}, {"value": self._parse_validators()}
         )
-        return data["value"]
+
+        return data.get("value")
 
     def _parse_validators(self):
 

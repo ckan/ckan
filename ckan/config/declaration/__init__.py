@@ -86,7 +86,8 @@ class Declaration:
         self._seal()
 
     def make_safe(self, config: "CKANConfig") -> bool:
-        if not config.normalized("config.safe"):
+        from ckan.common import asbool
+        if not asbool(config.safe("config.safe")):
             return False
 
         for key in self.iter_options(exclude=Flag.not_safe()):
@@ -106,7 +107,7 @@ class Declaration:
             if v is df.missing:
                 continue
 
-            assert k not in errors, f"Invalid value for {k}: v"
+            assert k not in errors, f"Invalid value for {k}: {v}"
 
             if k not in self:
                 # it either __extra or __junk
@@ -154,8 +155,8 @@ class Declaration:
     def load_dict(self, data: DeclarationDict):
         load(self, "dict", data)
 
-    def into_ini(self, no_comments: bool = False) -> str:
-        return serialize(self, "ini", no_comments)
+    def into_ini(self, minimal: bool, no_comments: bool = False) -> str:
+        return serialize(self, "ini", minimal, no_comments)
 
     def into_schema(self) -> Dict[str, Any]:
         return serialize(self, "validation_schema")

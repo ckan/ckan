@@ -129,7 +129,7 @@ class CKANConfig(MutableMapping):
 
     def normalized(self, key: Union[str, Key]) -> Any:
         if asbool(self.get("config.normalized")):
-            return self[key]
+            return self.safe(key)
 
         option = config_declaration.get(key)
         if not option:

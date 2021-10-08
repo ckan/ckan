@@ -4,7 +4,7 @@ import textwrap
 from typing import TYPE_CHECKING, Any, Callable, Dict
 
 
-from .key import Key
+from .key import Key, Pattern
 from .option import Flag, Annotation
 from .utils import FormatHandler
 
@@ -16,14 +16,17 @@ serialize = handler.handle
 
 
 @handler.register("ini")
-def serialize_ini(declaration: "Declaration", no_comments: bool):
+def serialize_ini(declaration: "Declaration", minimal: bool, no_comments: bool):
     result = ""
     for item in declaration._order:
         if isinstance(item, Key):
             option = declaration._mapping[item]
             if option._has_flag(Flag.non_iterable()):
                 continue
-
+            if minimal and not option._has_flag(Flag.required):
+                if item == "config.safe":
+                    result += "config.safe = true\n"
+                continue
             if option.description and not no_comments:
                 result += (
                     textwrap.fill(
@@ -41,12 +44,14 @@ def serialize_ini(declaration: "Declaration", no_comments: bool):
             else:
                 value = str(option)
 
-            if not option.has_default():
+            if isinstance(item, Pattern):
                 result += "# "
             result += f"{item} = {value}\n"
 
         elif isinstance(item, Annotation):
-            result += "\n{}\n".format(f"# {item} #".center(80, "#"))
+            if minimal:
+                continue
+            result += "\n{}\n".format(f"## {item} #".ljust(80, "#"))
 
     return result
 
