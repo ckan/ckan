@@ -1304,7 +1304,7 @@ class TestResourceUpdate(object):
 
         # Create resource without format
         resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test"
+            package=dataset, url="http://localhost", name="Test", format=""
         )
         res_views = helpers.call_action(
             "resource_view_list", id=resource["id"]
@@ -1351,7 +1351,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 2
 
         third_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test2"
+            package=dataset, url="http://localhost", name="Test3", format=""
         )
 
         res_views = helpers.call_action(
@@ -1408,6 +1408,7 @@ class TestResourceUpdate(object):
                 package_id=dataset["id"],
                 description="Test",
                 some_custom_field="test",
+                url="http://link.to.some.data",
             )
             assert (
                 resource["metadata_modified"]

@@ -218,7 +218,7 @@ class User(CKANFactory):
     # These are the default params that will be used to create new users.
     fullname = factory.Faker("name")
     password = factory.Faker("password")
-    about = factory.Faker("text")
+    about = factory.Faker("text", max_nb_chars=60)
     image_url = factory.Faker("image_url")
     name = factory.Faker("user_name")
     email = factory.Faker("email", domain="ckan.example.com")
@@ -234,7 +234,7 @@ class Resource(CKANFactory):
         action = "resource_create"
 
     name = _name("resource")
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=60)
     format = factory.Faker("file_extension")
     url = factory.Faker("url")
     package_id = factory.LazyFunction(lambda: Dataset()["id"])
@@ -259,7 +259,7 @@ class ResourceView(CKANFactory):
         action = "resource_view_create"
 
     title = _name("resource-view")
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=60)
     view_type = "image_view"
     resource_id = factory.LazyFunction(lambda: Resource()["id"])
 
@@ -280,7 +280,7 @@ class Group(CKANFactory):
     name = _name("group")
     title = factory.Faker("company")
 
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=60)
     image_url = factory.Faker("image_url")
 
 
@@ -304,7 +304,7 @@ class Dataset(CKANFactory):
 
     name = _name("dataset")
     title = factory.Faker("sentence", nb_words=5)
-    notes = factory.Faker("text")
+    notes = factory.Faker("text", max_nb_chars=60)
 
 
 class Vocabulary(CKANFactory):
@@ -333,7 +333,7 @@ class MockUser(factory.Factory):
 
     fullname = factory.Faker("name")
     password = factory.Faker("password")
-    about = factory.Faker("text")
+    about = factory.Faker("text", max_nb_chars=60)
     image_url = factory.Faker("image_url")
     name = factory.Faker("user_name")
     email = factory.Faker("email", domain="ckan.example.com")

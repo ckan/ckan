@@ -693,14 +693,14 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the dataset" in response
-        assert (
-            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_change_dataset(self, app):
 
@@ -714,16 +714,15 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
+
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
-        assert (
-            '<a href="/dataset/{}">{}'.format(
-                dataset["id"], dataset["title"]
-            )
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
 
@@ -737,14 +736,14 @@ class TestUser(object):
         url = url_for("user.activity", id=user["id"])
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the dataset" in response
-        assert (
-            '<a href="/dataset/{}">{}'.format(dataset["id"], dataset["title"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_create_group(self, app):
 
@@ -753,11 +752,15 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".group")
+
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the group" in response
-        assert '<a href="/group/{}">{}'.format(group["id"], group["title"]) in response
+        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert group["title"] in href.text.strip()
 
     def test_change_group(self, app):
 
@@ -771,14 +774,14 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".group")
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the group" in response
-        assert (
-            '<a href="/group/{}">{}'.format(group["id"], group["title"])
-            in response
-        )
+        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert group["title"] in href.text.strip()
 
     def test_delete_group_using_group_delete(self, app):
 
@@ -791,11 +794,14 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".group")
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the group" in response
-        assert '<a href="/group/{}">{}'.format(group["id"], group["title"]) in response
+        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert group["title"] in href.text.strip()
 
     def test_delete_group_by_updating_state(self, app):
 
