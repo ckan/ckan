@@ -25,8 +25,8 @@ class TestChanges(object):
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"title"
-        assert changes[0]["old_title"] == u"Test Dataset"
-        assert changes[0]["new_title"] == u"New title"
+        assert changes[0]["old_title"] == original["title"]
+        assert changes[0]["new_title"] == new["title"]
 
     def test_name(self):
         changes = []

@@ -73,7 +73,9 @@
                         {{ _('Edit') }}
                       </a>
                       <h3 class="dataset-heading">
-                        {{ h.link_to(title|truncate(80), h.url_for(package.type ~ '.read', id=package.name)) }}
+                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}">
+                          {{ title|truncate(80) }}
+                        </a>
                         {% if package.get('state', '').startswith('draft') %}
                           <span class="label label-info">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}

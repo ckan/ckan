@@ -271,13 +271,19 @@ class Worker(rq.Worker):
 
         # The original implementation performs the actual fork
         queue = remove_queue_name_prefix(job.origin)
+
+        if job.meta.get('title'):
+            job_id = '{} ({})'.format(job.id, job.meta['title'])
+        else:
+            job_id = job.id
+
         log.info(u'Worker {} starts job {} from queue "{}"'.format(
-                 self.key, job.id, queue))
+                 self.key, job_id, queue))
         for plugin in plugins.PluginImplementations(plugins.IForkObserver):
             plugin.before_fork()
         result = super(Worker, self).execute_job(job, *args, **kwargs)
         log.info(u'Worker {} has finished job {} from queue "{}"'.format(
-                 self.key, job.id, queue))
+                 self.key, job_id, queue))
 
         return result
 

@@ -743,8 +743,15 @@ class TestActivityListSelect(object):
         assert str(html).startswith(u'<option value="&#34;&gt;" >')
 
 
-class TestAddUrlParam(object):
+class TestRemoveUrlParam:
+    def test_current_url(self, test_request_context):
+        base = "/organization/name"
+        with test_request_context(base + "?q=search"):
+            assert h.remove_url_param("q") == base
+            assert h.remove_url_param("q", replace="test") == base + "?q=test"
 
+
+class TestAddUrlParam(object):
     @pytest.mark.parametrize(u'url,params,expected', [
         (u'/dataset', {u'a': u'2'}, u'/dataset/?a=2'),
         (u'/dataset?a=1', {u'a': u'2'}, u'/dataset/?a=1&a=2'),

@@ -38,14 +38,65 @@ import six
 import rq
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
+from pytest_factoryboy import register
 
 import ckan.tests.helpers as test_helpers
+import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli
 import ckan.lib.search as search
 
 from ckan.common import config
+
+
+@register
+class UserFactory(factories.User):
+    pass
+
+
+@register
+class ResourceFactory(factories.Resource):
+    pass
+
+
+@register
+class ResourceViewFactory(factories.ResourceView):
+    pass
+
+
+@register
+class GroupFactory(factories.Group):
+    pass
+
+
+@register
+class PackageFactory(factories.Dataset):
+    pass
+
+
+@register
+class VocabularyFactory(factories.Vocabulary):
+    pass
+
+
+@register
+class ActivityFactory(factories.Activity):
+    pass
+
+
+@register
+class SystemInfoFactory(factories.SystemInfo):
+    pass
+
+
+@register
+class APITokenFactory(factories.APIToken):
+    pass
+
+
+register(factories.Sysadmin, "sysadmin")
+register(factories.Organization, "organization")
 
 
 @pytest.fixture
