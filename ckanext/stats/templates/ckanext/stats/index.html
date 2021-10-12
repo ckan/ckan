@@ -67,7 +67,11 @@
           <tbody>
             {% for package, edits in most_edited_packages %}
               <tr py:for="package, edits in most_edited_packages">
-                <td>{{ h.link_to(package.title or package.name, h.url_for('dataset.read', id=package.name)) }}</td>
+                <td>
+                  <a href="{{ h.url_for('dataset.read', id=package.name) }}">
+                    {{package.title or package.name}}
+                  </a>
+                </td>
                 <td class="metric">{{ edits }}</td>
               </tr>
             {% endfor %}
@@ -91,7 +95,11 @@
           <tbody>
             {% for group, num_packages in largest_groups %}
               <tr>
-                <td>{{ h.link_to(group.title or group.name, h.url_for(controller=group.type, action='read', id=group.name)) }}</td>
+                <td>
+                  <a href="{{ h.url_for(controller=group.type, action='read', id=group.name) }}">
+                    {{group.title or group.name}}
+                  </a>
+                </td>
                 <td class="metric">{{ num_packages }}</td>
               </tr>
             {% endfor %}
@@ -114,7 +122,11 @@
         <tbody>
           {% for tag, num_packages in top_tags %}
             <tr>
-              <td>{{ h.link_to(tag.name, h.url_for('dataset.search', tags=tag.name)) }}</td>
+              <td>
+                  <a href="{{ h.url_for('dataset.search', tags=tag.name) }}">
+                    {{tag.name}}
+                  </a>
+                </td>
               <td class="metric">{{ num_packages }}</td>
             </tr>
           {% endfor %}
