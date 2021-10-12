@@ -215,7 +215,6 @@ def make_flask_stack(conf):
         jinja_extensions.empty_and_escape
 
     # Common handlers for all requests
-    app.before_first_request(ckan_before_first_request)
     app.before_request(ckan_before_request)
     app.after_request(ckan_after_request)
 
@@ -358,17 +357,6 @@ def ckan_before_request():
     set_ckan_current_url(request.environ)
 
     return response
-
-
-def ckan_before_first_request():
-    '''Registers a function to be run before the first request
-       to this instance of the application.
-
-       The function will be called without any arguments and its
-       return value is ignored.'''
-
-    helpers.last_active_user()
-    return
 
 
 def ckan_after_request(response):
