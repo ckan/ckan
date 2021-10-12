@@ -31,7 +31,6 @@ missing = df.missing
 
 
 def owner_org_validator(key, data, errors, context):
-
     value = data.get(key)
 
     if value is missing or value is None:
