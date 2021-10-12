@@ -16,7 +16,9 @@ serialize = handler.handle
 
 
 @handler.register("ini")
-def serialize_ini(declaration: "Declaration", minimal: bool, no_comments: bool):
+def serialize_ini(
+    declaration: "Declaration", minimal: bool, no_comments: bool
+):
     result = ""
     for item in declaration._order:
         if isinstance(item, Key):

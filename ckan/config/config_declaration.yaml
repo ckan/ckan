@@ -165,7 +165,7 @@ groups:
   - annotation: Session settings
     options:
       - key: cache_dir
-        placeholder: "/tmp/%(ckan.site_id)s/"
+        placeholder: "/tmp/%(ckan.site_id)s"
       - key: beaker.session.key
         default: ckan
       - key: beaker.session.secret
@@ -365,6 +365,7 @@ groups:
     options:
       - key: ckan.plugins
         required: true
+        default: ""
         description: |-
           Note: Add ``datastore`` to enable the CKAN DataStore.
           Add ``datapusher`` to enable DataPusher.
@@ -524,9 +525,6 @@ groups:
       - key: package_new_return_url
       - key: package_edit_return_url
       - key: licenses_group_url
-      - key: ckan.fix_partial_updates
-        type: bool
-        default: true
 
   - annotation: Email settings
     options:

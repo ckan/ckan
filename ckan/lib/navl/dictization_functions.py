@@ -278,12 +278,10 @@ def validate(data, schema, context=None):
     converted_data, errors = _validate(flattened, schema, validators_context)
     converted_data = unflatten(converted_data)
 
-    # check config for partial update fix option
-    if asbool(config.get('ckan.fix_partial_updates', True)):
-        # repopulate the empty lists
-        for key in empty_lists:
-            if key not in converted_data:
-                converted_data[key] = []
+    # repopulate the empty lists
+    for key in empty_lists:
+        if key not in converted_data:
+            converted_data[key] = []
 
     errors_unflattened = unflatten(errors)
 

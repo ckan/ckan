@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import enum
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar, Dict
 
 
 T = TypeVar("T")
 
 
-class UnsetType(dict):
+class UnsetType(Dict[str, Any]):
     def __repr__(self):
         return ""
 

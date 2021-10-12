@@ -146,6 +146,57 @@ maintain compatibility.
     update the extension code to use the new Flask-based route names.
 
 
+Configuration modes
+-------------------
+
+.. _config.safe:
+
+config.safe
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  config.safe = true
+
+Default value: |config:config.safe|
+
+Enables safe mode. For all the :ref:`declared config options
+<declare-config-options>`, if they are missing from the config file, default
+value from declareation will be copied into ``toolkit.config``. In this mode
+``toolkit.config.safe`` is no-op.
+
+.. _config.normalized:
+
+config.normalized
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  config.normalized = true
+
+Default value: |config:config.normalized|
+
+Enables normalized mode. All the :ref:`declared config options
+<declare-config-options>` will be normalized using validators specified in
+declaration. In this mode ``toolkit.config.safe`` is no-op.
+
+.. _config.strict:
+
+config.strict
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  config.strict = true
+
+Default value: |config:config.strict|
+
+Enables strict mode. None of CKAN CLI commands will be executed and CKAN
+application itself will not start unless **all** config options are
+valid(considering validators from the declaration). For every invalid config
+option error will be printed to the output stream.
+
+
 Development Settings
 --------------------
 
@@ -2651,3 +2702,126 @@ Example::
 Default value: |config:error_email_from|
 
 This controls from which email the error messages will come from.
+
+
+.. _declare-config-options:
+
+Config declaration
+******************
+
+Tracking down all the possible config options may be quite a challenging task
+sometimes. CKAN extensions, as well as CKAN itself, evolve, change, deprecate
+features and provide new features as time passes. It means that some new config
+options may be introduced, while other options has no longer any effect. In
+order to keep track of all valid config options, CKAN uses config declarations.
+
+CKAN itself declares all the config options that are used throught the code
+base. At any momement one can get full list of declared config options,
+validate current configuration against the declaration, or check, which config
+options from CKAN config file are undeclared(and, probably, has no effect).
+
+In addition :py:class:`~ckan.plugins.interfaces.IConfigDeclaration` is
+available, so that extensions can declare new config options.
+
+New config options can be declared **only** inside
+:py:meth:`~ckan.plugins.interfaces.IConfigDeclaration.declare_config_options`. This
+method accepts two arguments: :py:class:`~ckan.config.declaration.Declaration`
+object, that contains all the declarations, and
+:py:class:`~ckan.config.declaration.Key` helper, which allows to declare a bit
+unusual config options.
+
+The very basic option may be declared in this way::
+
+  declaration.declare("ckanext.my_ext.option")
+
+which means that extension ``my_ext`` makes use of *some* config option
+``ckanext.my_ext.option``. No extra details, no validation rules, just some
+generic config option.
+
+But we can do better. If instead we write::
+
+  declaration.declare("ckanext.my_ext.option", True)
+
+we'll add extra bit of information: **default value**. While it's completely
+optional, second parameter to
+:py:meth:`~ckan.config.declaration.Declaration.declare` specifies the default
+value of the declared option and it really changes the code, which relies on
+that new option. If default value is not specified, it's implicitly set to
+``None``.
+
+By default, all declared config options are optional. And one can get either
+actual value of declared option either via
+``ckan.plugins.toolkit.config.get(name, DEFAULT)`` or via
+``ckan.plguins.toolkit.config.safe(name)``. You may have noticed, that in the
+second case there is no ``DEFAULT``. ``config.safe`` method looks for the
+option's declaration and takes default value from it, when option is missing
+from the config file. In this way we can guarantee that the default value for
+the particular config option is always the same through the codebase.
+
+.. note:: An attempt to use ``config.safe`` with an undeclared config option
+          will print a warning to the logs and return ``None``.
+
+Every declared config option can be validated::
+
+  option = declaration.declare("ckanext.my_ext.option", True)
+  option.set_validators("not_missing boolean_validator")
+
+``set_validators`` accest string with the names of validators that must be applied to the config option.
+
+.. note:: Declared default value also passed to validators, In addition,
+          validators can be applied multiple times. This means that validators
+          **must be idempotent** and default value itself **must be valid** for
+          the given set of validators.
+
+Current configuration can be validated using :ref:`config declaration CLI <cli.ckan.config>`::
+
+  ckan config validate
+
+
+In order to get example of configuration for the given plugin, run ``ckan
+config declaration <PLUGIN>``::
+
+  ckan config declaration datastore
+
+You can export declaration itself in order to use it as a starting point using
+``ckan config describe <PLUGIN>``::
+
+  ckan config describe datapusher
+
+  # Output:
+  declaration.annotate('Datapusher settings')
+  declaration.declare(key.ckan.datapusher.formats, ...)
+  declaration.declare(key.ckan.datapusher.url)
+  declaration.declare(key.ckan.datapusher.callback_url_base)
+  declaration.declare(key.ckan.datapusher.assume_task_stale_after, 3600).set_validators('convert_int')
+
+In addition, if you are going to declare a lot of options, you can declare all of them at once::
+
+  declaration.load_dict(DICT_WITH_DECLARATIONS)
+
+Declaration mapping can be created directly inside python code or read from the
+file. Here are some examples of definition::
+
+  ckan config describe datapusher --format=dict # python dict
+  ckan config describe datapusher --format=json # JSON file
+  ckan config describe datapusher --format=yaml # YAML file
+  ckan config describe datapusher --format=toml # TOML file
+
+.. note:: `declaration.load_dict` takes only python dictionary as argument. If
+          you store declaration inside a JSON file, you have to parse it into
+          python's dictionary yourself.
+
+The best part of validators is *normalization*, and that's why all the
+validators for the config options must be idempotent. Probably you have seen in
+code constructions like this one::
+
+  is_enabled = toolkit.asbool(toolkit.config.get("ckanext.my_ext.enable", False))
+
+Any config option that has validators-converters (`convert_int`,
+`boolean_validators`) can use the following shortcut::
+
+  is_enabled = toolkit.config.normalized("ckanext.my_ext.enable")
+
+``config.normalized`` takes value from the config(or default value from
+declarations), passes it through validators and returns the result. If option
+has no validators, its value returned as is.

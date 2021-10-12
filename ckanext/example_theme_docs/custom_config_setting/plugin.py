@@ -43,7 +43,7 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
 
     '''
     plugins.implements(plugins.IConfigurer)
-    p.implements(p.IConfigDeclaration)
+    plugins.implements(plugins.IConfigDeclaration)
 
     # Declare that this plugin will implement ITemplateHelpers.
     plugins.implements(plugins.ITemplateHelpers)

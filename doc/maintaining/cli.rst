@@ -160,6 +160,7 @@ The following ckan commands are supported by CKAN:
 
 ================= ============================================================
 asset             WebAssets commands.
+config            Search, validate, describe config options
 config-tool       Tool for editing options in a CKAN config file
 datapusher        Perform commands in the datapusher.
 dataset           Manage datasets.
@@ -192,6 +193,23 @@ Usage
  ckan asset build            - Builds bundles, regardless of whether they are changed or not
  ckan asset watch            - Start a daemon which monitors source files, and rebuilds bundles
  ckan asset clean            - Will clear out the cache, which after a while can grow quite large
+
+
+.. _cli.ckan.config:
+
+config: Search, validate, describe config options
+=================================================
+
+Usage
+
+.. parsed-literal::
+
+  ckan config declaration [PLUGIN...]  - Print declared config options for the given plugins.
+  ckan config describe [PLUGIN..]      - Print out config declaration for the given plugins.
+  ckan config search [PATTERN]         - Print all declared config options that match pattern.
+  ckan config undeclared               - Print config options that has no declaration.
+  ckan config validate                 - Validate global configuration object against declaration.
+
 
 
 config-tool: Tool for editing options in a CKAN config file

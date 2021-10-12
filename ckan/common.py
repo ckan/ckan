@@ -7,10 +7,11 @@
 #
 # NOTE:  This file is specificaly created for
 # from ckan.common import x, y, z to be allowed
+from __future__ import annotations
 
 import logging
 from collections import MutableMapping
-from typing import Any, Union
+from typing import Any, Container, Optional, Union
 
 import flask
 import six
@@ -136,6 +137,17 @@ class CKANConfig(MutableMapping):
             log.warning("Option %s is not declared", key)
             return None
         return option._normalize(self.safe(key))
+
+    def subset(
+            self, pattern: Key,
+            exclude: Optional[Container[Union[str, Key]]] = frozenset()
+    ) -> dict[str, Any]:
+        subset = {}
+        for k, v in self.store.items():
+            if k in exclude or pattern != k:
+                continue
+            subset[k] = v
+        return subset
 
 
 def _get_request():

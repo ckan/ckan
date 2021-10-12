@@ -147,19 +147,16 @@ def update_config():
         if from_env:
             config[option] = from_env
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if config.normalized("config.strict"):
+        _, errors = config_declaration.validate(config)
+        if errors:
+            msg = "\n".join(
+                "{}: {}".format(key, "; ".join(issues))
+                for key, issues in errors.items()
+            )
+            raise CkanConfigurationException(msg)
 
-    site_url = config.safe('ckan.site_url')
-    if not site_url:
-        raise RuntimeError(
-            'ckan.site_url is not configured and it must have a value.'
-            ' Please amend your .ini file.')
-    if not site_url.lower().startswith('http'):
-        raise RuntimeError(
-            'ckan.site_url should be a full URL, including the schema '
-            '(http or https)')
-    # Remove backslash from site_url if present
-    config['ckan.site_url'] = site_url.rstrip('/')
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     display_timezone = config.safe('ckan.display_timezone')
     if (display_timezone and
@@ -209,14 +206,6 @@ def update_config():
         template_paths = extra_template_paths.split(',') + template_paths
     config['computed_template_paths'] = template_paths
 
-    # Markdown ignores the logger config, so to get rid of excessive
-    # markdown debug messages in the log, set it to the level of the
-    # root logger.
-    logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
-
-    # CONFIGURATION OPTIONS HERE (note: all config options will override
-    # any Pylons config options)
-
     # Enable pessimistic disconnect handling (added in SQLAlchemy 1.2)
     # to eliminate database errors due to stale pooled connections
     config.setdefault('sqlalchemy.pool_pre_ping', True)
@@ -227,15 +216,6 @@ def update_config():
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
 
-    if config.normalized("config.strict"):
-        _, errors = config_declaration.validate(config)
-        if errors:
-            msg = "\n".join(
-                "{}: {}".format(key, "; ".join(issues))
-                for key, issues in errors.items()
-            )
-            raise CkanConfigurationException(msg)
-
     # clear other caches
     logic.clear_actions_cache()
     logic.clear_validators_cache()
@@ -244,13 +224,8 @@ def update_config():
     # Here we create the site user if they are not already in the database
     try:
         logic.get_action('get_site_user')({'ignore_auth': True}, None)
-    except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
-        # (ProgrammingError for Postgres, OperationalError for SQLite)
-        # The database is not initialised.  This is a bit dirty.  This occurs
-        # when running tests.
-        pass
-    except sqlalchemy.exc.InternalError:
-        # The database is not initialised.  Travis hits this
+    except (sqlalchemy.exc.ProgrammingError):
+        # The database is not yet initialised. It happens in `ckan db init`
         pass
 
     # Close current session and open database connections to ensure a clean

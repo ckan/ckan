@@ -87,6 +87,7 @@ class Declaration:
 
     def make_safe(self, config: "CKANConfig") -> bool:
         from ckan.common import asbool
+
         if not asbool(config.safe("config.safe")):
             return False
 
@@ -164,9 +165,14 @@ class Declaration:
     def describe(self, fmt: str) -> str:
         return describe(self, fmt)
 
-    def declare(self, key: Key, default: Optional[T] = None) -> Option[T]:
+    def declare(
+        self, key: Union[Key, str], default: Optional[T] = None
+    ) -> Option[T]:
         if self._sealed:
             raise TypeError("Sealed declaration cannot be updated")
+
+        if isinstance(key, str):
+            key = Key.from_string(key)
 
         value = Option(default)
         if key in self._mapping:

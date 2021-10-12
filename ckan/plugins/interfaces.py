@@ -817,23 +817,31 @@ class IConfigDeclaration(Interface):
     """
 
     def declare_config_options(self, declaration, key):
-        """Register extra config options with optional annotations.
+        """Register extra config options.
 
         Example::
 
-            declaration.annotate("MyExt config section")
-            group = key.ckanext.my_ext.feature
-            declaration.declare(group.enabled, "no").set_description(
-                "Enables feature"
-            )
-            declaration.declare(group.mode, "simple")
+            from ckan.config.declaration import Declaration, Key
+
+            def declare_config_options(
+                self, declaration: Declaration, key: Key):
+
+                declaration.annotate("MyExt config section")
+                group = key.ckanext.my_ext.feature
+                declaration.declare(group.enabled, "no").set_description(
+                    "Enables feature"
+                )
+                declaration.declare(group.mode, "simple")
 
         Produces the following config suggestion::
 
-            ## MyExt config section
+            ####### MyExt config section #######
             # Enables feature
             ckanext.my_ext.feature.enabled = no
             # ckanext.my_ext.feature.mode = simple
+
+        See :ref:`declare configuration <declare-config-options>` guide for
+        details.
 
         :param declaration:  object containing all the config declarations
         :type declaration: :py:class:`ckan.config.declaration.Declaration`

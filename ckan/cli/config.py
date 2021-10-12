@@ -66,11 +66,14 @@ def describe(plugins: Tuple[str, ...], core: bool, enabled: bool, fmt: str):
     is_flag=True,
     help="print only mandatory options",
 )
-
 def declaration(
-        plugins: Tuple[str, ...], core: bool, enabled: bool, no_comments: bool, minimal: bool
+    plugins: Tuple[str, ...],
+    core: bool,
+    enabled: bool,
+    no_comments: bool,
+    minimal: bool,
 ):
-    """Print out config declaration for the given plugins."""
+    """Print declared config options for the given plugins."""
 
     decl = _declaration(plugins, core, enabled)
     if decl:
@@ -84,7 +87,14 @@ def declaration(
 @click.option("--with-current", is_flag=True)
 @click.option("--custom-only", is_flag=True)
 @click.option("--no-custom", is_flag=True)
-def search(pattern: str, plugins: Tuple[str, ...], with_default: bool, with_current: bool, custom_only: bool, no_custom: bool):
+def search(
+    pattern: str,
+    plugins: Tuple[str, ...],
+    with_default: bool,
+    with_current: bool,
+    custom_only: bool,
+    no_custom: bool,
+):
     """Print all declared config options that match pattern."""
     decl = _declaration(plugins, True, True)
 
@@ -102,9 +112,13 @@ def search(pattern: str, plugins: Tuple[str, ...], with_default: bool, with_curr
         default_section = ""
         current_section = ""
         if with_default:
-            default_section = click.style(f" [Default: {repr(default)}]", fg="red")
+            default_section = click.style(
+                f" [Default: {repr(default)}]", fg="red"
+            )
         if with_current:
-            current_section = click.style(f" [Current: {repr(current)}]", fg="green")
+            current_section = click.style(
+                f" [Current: {repr(current)}]", fg="green"
+            )
 
         line = f"{key}{default_section}{current_section}"
         click.secho(line)
