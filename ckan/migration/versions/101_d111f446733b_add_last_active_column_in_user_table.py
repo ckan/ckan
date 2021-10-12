@@ -31,4 +31,4 @@ def upgrade():
 
 
 def downgrade():
-    pass
+    op.remove_column('user', sa.Column('last_login'))
