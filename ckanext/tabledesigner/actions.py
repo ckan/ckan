@@ -17,7 +17,7 @@ def package_update(original_action, context, data_dict):
 
 def _create_datastore_tables(pkg):
     for r in pkg['resources']:
-        if r.get('url_type') != 'table_designer':
+        if r.get('url_type') != 'tabledesigner':
             continue
         if r.get('datastore_active'):
             continue

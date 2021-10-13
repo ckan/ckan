@@ -11,6 +11,7 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
 
     def update_config(self, config_):
         toolkit.add_template_directory(config_, "templates")
+        toolkit.add_resource('assets', 'ckanext-tabledesigner')
 
     # IActions
 

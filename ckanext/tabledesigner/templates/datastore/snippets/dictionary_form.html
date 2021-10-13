@@ -2,7 +2,7 @@
 
 {% block datapusher_xloader_fields %}
   {# datapusher fields don't apply to our resources #}
-  {% if res.url_type != 'table_designer' %}
+  {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% endif %}
 {% endblock %}
