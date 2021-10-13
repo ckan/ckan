@@ -11,8 +11,8 @@
 
 {% block url_type_fields %}
   {{ super() }}
-  <input type="radio" id="resource-url-table-designer" name="url_type" value="table_designer" {{
-    'checked' if data['url_type'] == 'table_designer' else '' }}>
+  <input type="radio" id="resource-url-table-designer" name="url_type" value="tabledesigner" {{
+    'checked' if data['url_type'] == 'tabledesigner' else '' }}>
   <div class="select-type">
     {{ remove_button() }}
     <label>{{ _('Table Designer') }}</label>

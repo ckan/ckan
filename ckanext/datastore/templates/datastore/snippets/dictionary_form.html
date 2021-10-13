@@ -1,6 +1,8 @@
 {% import 'macros/form.html' as form %}
 
-<h3>{{ _( "Field {num}.").format(num=position) }} {{ field.id }} ({{ field.type }})</h3>
+{% block field_heading %}
+  <h3>{{ _( "Field {num}.").format(num=position) }} {{ field.id }} ({{ field.type }})</h3>
+{% endblock %}
 
 {#
   Data Dictionary fields may be added this snippet. New fields following
