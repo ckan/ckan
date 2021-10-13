@@ -158,6 +158,18 @@ def update_config():
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+    site_url = config.safe('ckan.site_url')
+    if not site_url:
+        raise RuntimeError(
+            'ckan.site_url is not configured and it must have a value.'
+            ' Please amend your .ini file.')
+    if not site_url.lower().startswith('http'):
+        raise RuntimeError(
+            'ckan.site_url should be a full URL, including the schema '
+            '(http or https)')
+    # Remove backslash from site_url if present
+    config['ckan.site_url'] = site_url.rstrip('/')
+
     display_timezone = config.safe('ckan.display_timezone')
     if (display_timezone and
             display_timezone != 'server' and
@@ -224,7 +236,7 @@ def update_config():
     # Here we create the site user if they are not already in the database
     try:
         logic.get_action('get_site_user')({'ignore_auth': True}, None)
-    except (sqlalchemy.exc.ProgrammingError):
+    except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
         # The database is not yet initialised. It happens in `ckan db init`
         pass
 
