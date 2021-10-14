@@ -1,0 +1,1 @@
+:ref:`declare-config-options`
