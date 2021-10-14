@@ -1,5 +1,28 @@
 {% ckan_extends %}
 
+{% block field_heading %}
+  {% if res.url_type != 'tabledesigner' or field.id %}
+    {{ super() }}
+  {% else %}
+    <h3>{{ _( "Field {num}.").format(num=position) }}</h3>
+    {{ form.input('info__' ~ position ~ '__id',
+      is_required=true,
+      label=_('ID'), classes=['control-full']) }}
+    {{ form.select('info__' ~ position ~ '__type',
+      is_required=true,
+      label=_('Type'), options=[
+        {'name': 'text', 'value': 'text'},
+        {'name': 'numeric', 'value': 'numeric'},
+        {'name': 'integer', 'value': 'integer'},
+        {'name': 'boolean', 'value': 'boolean'},
+        {'name': 'timestamp', 'value': 'timestamp'},
+        {'name': 'time', 'value': 'time'},
+        {'name': 'date', 'value': 'date'},
+        {'name': 'uuid', 'value': 'uuid'},
+        ], selected='text') }}
+  {% endif %}
+{% endblock %}
+
 {% block datapusher_xloader_fields %}
   {# datapusher fields don't apply to our resources #}
   {% if res.url_type != 'tabledesigner' %}
