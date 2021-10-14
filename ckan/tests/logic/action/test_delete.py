@@ -105,6 +105,7 @@ class TestDeleteResourceViews(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+@pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestClearResourceViews(object):
     def test_resource_view_clear(self):

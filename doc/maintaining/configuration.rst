@@ -2715,8 +2715,8 @@ features and provide new features as time passes. It means that some new config
 options may be introduced, while other options has no longer any effect. In
 order to keep track of all valid config options, CKAN uses config declarations.
 
-CKAN itself declares all the config options that are used throught the code
-base. At any momement one can get full list of declared config options,
+CKAN itself declares all the config options that are used throught the
+codebase. At any momement one can get full list of declared config options,
 validate current configuration against the declaration, or check, which config
 options from CKAN config file are undeclared(and, probably, has no effect).
 
@@ -2759,7 +2759,8 @@ from the config file. In this way we can guarantee that the default value for
 the particular config option is always the same through the codebase.
 
 .. note:: An attempt to use ``config.safe`` with an undeclared config option
-          will print a warning to the logs and return ``None``.
+          will print a warning to the logs and return either option's value or
+          ``None`` as default.
 
 Every declared config option can be validated::
 
