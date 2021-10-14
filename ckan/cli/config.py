@@ -101,9 +101,9 @@ def search(
     for key in decl.iter_options(pattern=pattern):
         if isinstance(key, Pattern):
             continue
-
-        default = decl[key].default
-        current = cfg.normalized(key)
+        option = decl[key]
+        default = option.default
+        current = option._normalize(cfg.get(key))
         if no_custom and default != current:
             continue
         if custom_only and default == current:
