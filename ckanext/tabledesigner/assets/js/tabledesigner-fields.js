@@ -9,7 +9,7 @@ this.ckan.module('tabledesigner-fields', function($, _) {
       $template.remove();
 
       $add.on('click', function(e) {
-        var $last = $this.find('.tabledesigner-fields').last();
+        var $last = $this.find('.tabledesigner-field').last();
         var group = ($last.data('index') + 1) || 0;
         var $copy = $(
           template.replace(/TABLEDESIGNER-INDEX0/g, group)
@@ -22,9 +22,9 @@ this.ckan.module('tabledesigner-fields', function($, _) {
 
       $(document).on('click', 'a[name="tabledesigner-remove"]', function(e) {
         var $curr = $(this).closest('.tabledesigner-fields-group');
-        var $body = $curr.find('.fields-content');
+        var $body = $curr.find('.field-content');
         var $button = $curr.find('.btn-tabledesigner-remove');
-        var $removed = $curr.find('.fields-removed-notice');
+        var $removed = $curr.find('.field-removed-notice');
         $button.hide();
         $removed.show(100);
         $body.hide(100, function() {
