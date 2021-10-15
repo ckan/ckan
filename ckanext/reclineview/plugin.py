@@ -29,7 +29,7 @@ def get_dataproxy_url():
     '''
     Returns the value of the ckan.recline.dataproxy_url config option
     '''
-    return config.safe('ckan.recline.dataproxy_url')
+    return config.normalized('ckan.recline.dataproxy_url')
 
 
 def in_list(list_possible_values):

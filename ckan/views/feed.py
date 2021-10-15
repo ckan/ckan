@@ -138,8 +138,8 @@ class CKANFeed(FeedGenerator):
 
 def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 navigation_urls, feed_guid):
-    author_name = config.safe(u'ckan.feeds.author_name').strip() or \
-        config.safe(u'ckan.site_id').strip()
+    author_name = config.normalized(u'ckan.feeds.author_name').strip() or \
+        config.normalized(u'ckan.site_id').strip()
 
     def remove_control_characters(s):
         if not s:
@@ -250,7 +250,7 @@ def tag(id):
 
     alternate_url = _alternate_url(params, tags=id)
 
-    site_title = config.safe(u'ckan.site_title')
+    site_title = config.normalized(u'ckan.site_title')
     title = u'%s - Tag: "%s"' % (site_title, id)
     desc = u'Recently created or updated datasets on %s by tag: "%s"' % \
            (site_title, id)
@@ -279,7 +279,7 @@ def group_or_organization(obj_dict, is_org):
 
     data_dict['fq'] = u'{0}: "{1}"'.format(key, value)
     item_count, results = _package_search(data_dict)
-    site_title = config.safe(u'ckan.site_title')
+    site_title = config.normalized(u'ckan.site_title')
 
     navigation_urls = _navigation_urls(
         params,
@@ -354,7 +354,7 @@ def general():
 
     guid = _create_atom_id(u'/feeds/dataset.atom')
 
-    site_title = config.safe(u'ckan.site_title')
+    site_title = config.normalized(u'ckan.site_title')
     desc = u'Recently created or updated datasets on %s' % site_title
 
     return output_feed(
@@ -406,7 +406,7 @@ def custom():
     atom_url = h._url_with_params(u'/feeds/custom.atom', search_params.items())
 
     alternate_url = _alternate_url(request.params)
-    site_title = config.safe(u'ckan.site_title')
+    site_title = config.normalized(u'ckan.site_title')
     return output_feed(
         results,
         feed_title=u'%s - Custom query' % site_title,
@@ -548,9 +548,9 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
     [4] http://www.ietf.org/rfc/rfc4287
     """
     if authority_name is None:
-        authority_name = config.safe(u'ckan.feeds.authority_name').strip()
+        authority_name = config.normalized(u'ckan.feeds.authority_name').strip()
         if not authority_name:
-            site_url = config.safe(u'ckan.site_url').strip()
+            site_url = config.normalized(u'ckan.site_url').strip()
             authority_name = urlparse(site_url).netloc
 
     if not authority_name:
@@ -558,7 +558,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
                     'Generated feed will be invalid.')
 
     if date_string is None:
-        date_string = config.safe(u'ckan.feeds.date')
+        date_string = config.normalized(u'ckan.feeds.date')
 
     if not date_string:
         log.warning(u'No date_string available for feed generation.  '
@@ -567,7 +567,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
         # Don't generate a tagURI without a date as it wouldn't be valid.
         # This is best we can do, and if the site_url is not set, then
         # this still results in an invalid feed.
-        site_url = config.safe(u'ckan.site_url')
+        site_url = config.normalized(u'ckan.site_url')
         return u''.join([site_url, resource_path])
 
     tagging_entity = u','.join([authority_name, date_string])

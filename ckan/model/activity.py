@@ -487,7 +487,7 @@ def _activity_stream_get_filtered_users():
     option and return a list of their ids. If the config is not specified,
     returns the id of the site user.
     '''
-    users = config.safe('ckan.hide_activity_from_users')
+    users = config.normalized('ckan.hide_activity_from_users')
     if users:
         users_list = users.split()
     else:

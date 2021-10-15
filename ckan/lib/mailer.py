@@ -36,8 +36,8 @@ def _mail_recipient(recipient_name, recipient_email,
     if not headers:
         headers = {}
 
-    mail_from = config.safe('smtp.mail_from')
-    reply_to = config.safe('smtp.reply_to')
+    mail_from = config.normalized('smtp.mail_from')
+    reply_to = config.normalized('smtp.reply_to')
     if body_html:
         # multipart
         msg = MIMEMultipart('alternative')
@@ -63,10 +63,10 @@ def _mail_recipient(recipient_name, recipient_email,
         msg['Reply-to'] = reply_to
 
     # Send the email using Python's smtplib.
-    smtp_server = config.safe('smtp.server')
+    smtp_server = config.normalized('smtp.server')
     smtp_starttls = config.normalized('smtp.starttls')
-    smtp_user = config.safe('smtp.user')
-    smtp_password = config.safe('smtp.password')
+    smtp_user = config.normalized('smtp.user')
+    smtp_password = config.normalized('smtp.password')
 
     try:
         smtp_connection = smtplib.SMTP(smtp_server)
@@ -109,8 +109,8 @@ def _mail_recipient(recipient_name, recipient_email,
 def mail_recipient(recipient_name, recipient_email, subject,
                    body, body_html=None, headers={}):
     '''Sends an email'''
-    site_title = config.safe('ckan.site_title')
-    site_url = config.safe('ckan.site_url')
+    site_title = config.normalized('ckan.site_title')
+    site_url = config.normalized('ckan.site_url')
     return _mail_recipient(recipient_name, recipient_email,
                            site_title, site_url, subject, body,
                            body_html=body_html, headers=headers)
@@ -127,8 +127,8 @@ def mail_user(recipient, subject, body, body_html=None, headers={}):
 def get_reset_link_body(user):
     extra_vars = {
         'reset_link': get_reset_link(user),
-        'site_title': config.safe('ckan.site_title'),
-        'site_url': config.safe('ckan.site_url'),
+        'site_title': config.normalized('ckan.site_title'),
+        'site_url': config.normalized('ckan.site_url'),
         'user_name': user.name,
     }
     # NOTE: This template is translated
@@ -142,8 +142,8 @@ def get_invite_body(user, group_dict=None, role=None):
 
     extra_vars = {
         'reset_link': get_reset_link(user),
-        'site_title': config.safe('ckan.site_title'),
-        'site_url': config.safe('ckan.site_url'),
+        'site_title': config.normalized('ckan.site_title'),
+        'site_url': config.normalized('ckan.site_url'),
         'user_name': user.name,
     }
     if role:
@@ -167,7 +167,7 @@ def send_reset_link(user):
     create_reset_key(user)
     body = get_reset_link_body(user)
     extra_vars = {
-        'site_title': config.safe('ckan.site_title')
+        'site_title': config.normalized('ckan.site_title')
     }
     subject = render('emails/reset_password_subject.txt', extra_vars)
 
@@ -181,7 +181,7 @@ def send_invite(user, group_dict=None, role=None):
     create_reset_key(user)
     body = get_invite_body(user, group_dict, role)
     extra_vars = {
-        'site_title': config.safe('ckan.site_title')
+        'site_title': config.normalized('ckan.site_title')
     }
     subject = render('emails/invite_user_subject.txt', extra_vars)
 

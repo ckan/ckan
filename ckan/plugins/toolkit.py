@@ -184,7 +184,7 @@ class _Toolkit(object):
 
 It stores the configuration values defined in the :ref:`config_file`, eg::
 
-    title = toolkit.config.safe("ckan.site_title")
+    title = toolkit.config.normalized("ckan.site_title")
 
 '''
         t['_'] = common._
@@ -398,8 +398,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, relative_path)
-        if absolute_path not in config.safe(config_var).split(','):
-            if config.safe(config_var):
+        if absolute_path not in config.normalized(config_var).split(','):
+            if config.normalized(config_var):
                 config[config_var] += ',' + absolute_path
             else:
                 config[config_var] = absolute_path

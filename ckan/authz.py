@@ -520,7 +520,7 @@ def check_config_permission(permission):
 
     config_key = 'ckan.auth.' + key
 
-    value = config.safe(config_key)
+    value = config.normalized(config_key)
 
     if key == 'roles_that_cascade_to_sub_groups':
         # This permission is set as a list of strings (space separated)

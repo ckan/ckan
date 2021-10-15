@@ -84,9 +84,9 @@ def make_plugin(secret=None,
     if secret is None or secret == u'somesecret':
         secret = config[u'beaker.session.secret']
     # Session timeout and reissue time for auth cookie
-    if timeout is None and config.safe(u'who.timeout'):
+    if timeout is None and config.normalized(u'who.timeout'):
         timeout = config[u'who.timeout']
-    if reissue_time is None and config.safe(u'who.reissue_time'):
+    if reissue_time is None and config.normalized(u'who.reissue_time'):
         reissue_time = config['who.reissue_time']
     if timeout is not None and reissue_time is None:
         reissue_time = int(math.ceil(int(timeout) * 0.1))

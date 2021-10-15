@@ -142,7 +142,7 @@ def _form_save_redirect(pkg_name, action, package_type=None):
     @param action - What the action of the edit was
     """
     assert action in (u'new', u'edit')
-    url = request.args.get(u'return_to') or config.safe(
+    url = request.args.get(u'return_to') or config.normalized(
         u'package_%s_return_url' % action
     )
     if url:
@@ -261,7 +261,7 @@ def search(package_type):
     # Unless changed via config options, don't show other dataset
     # types any search page. Potential alternatives are do show them
     # on the default search page (dataset) or on one other search page
-    search_all_type = config.safe(u'ckan.search.show_all_types')
+    search_all_type = config.normalized(u'ckan.search.show_all_types')
     search_all = False
 
     try:

@@ -59,11 +59,11 @@ def datapusher_submit(context, data_dict):
     except logic.NotFound:
         return False
 
-    datapusher_url = config.safe('ckan.datapusher.url')
+    datapusher_url = config.normalized('ckan.datapusher.url')
 
-    callback_url_base = config.safe(
+    callback_url_base = config.normalized(
         'ckan.datapusher.callback_url_base'
-    ) or config.safe("ckan.site_url")
+    ) or config.normalized("ckan.site_url")
     if callback_url_base:
         site_url = callback_url_base
         callback_url = urljoin(
@@ -287,7 +287,7 @@ def datapusher_status(context, data_dict):
         'key': 'datapusher'
     })
 
-    datapusher_url = config.safe('ckan.datapusher.url')
+    datapusher_url = config.normalized('ckan.datapusher.url')
     if not datapusher_url:
         raise p.toolkit.ValidationError(
             {'configuration': ['ckan.datapusher.url not in config file']})

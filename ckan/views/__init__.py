@@ -57,7 +57,7 @@ def set_cors_headers_for_response(response):
         cors_origin_allowed = None
         if config.normalized(u'ckan.cors.origin_allow_all'):
             cors_origin_allowed = b'*'
-        elif config.safe(u'ckan.cors.origin_whitelist') and \
+        elif config.normalized(u'ckan.cors.origin_whitelist') and \
                 request.headers.get(u'Origin') \
                 in config[u'ckan.cors.origin_whitelist'].split(u' '):
             # set var to the origin to allow it.
@@ -187,7 +187,7 @@ def _identify_user_default():
 
 
 def _get_user_for_apitoken():
-    apitoken_header_name = config.safe("apikey_header_name")
+    apitoken_header_name = config.normalized("apikey_header_name")
 
     apitoken = request.headers.get(apitoken_header_name, u'')
     if not apitoken:
@@ -226,7 +226,7 @@ def handle_i18n(environ=None):
     '''
     environ = environ or request.environ
     locale_list = get_locales_from_config()
-    default_locale = config.safe(u'ckan.locale_default')
+    default_locale = config.normalized(u'ckan.locale_default')
 
     # We only update once for a request so we can keep
     # the language and original url which helps with 404 pages etc

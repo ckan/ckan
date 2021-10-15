@@ -18,7 +18,7 @@ class VideoView(p.SingletonPlugin):
 
     def update_config(self, config):
         p.toolkit.add_template_directory(config, 'theme/templates')
-        self.formats = config.safe('ckan.preview.video_formats').split()
+        self.formats = config.normalized('ckan.preview.video_formats').split()
 
     def info(self):
         return {'name': 'video_view',

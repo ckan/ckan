@@ -162,7 +162,7 @@ def load_all():
     unload_all()
 
     plugins = (
-        config.safe('ckan.plugins') or ""
+        config.normalized('ckan.plugins') or ""
     ).split() + find_system_plugins()
 
     load(*plugins)

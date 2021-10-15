@@ -88,7 +88,7 @@ class Declaration:
     def make_safe(self, config: "CKANConfig") -> bool:
         from ckan.common import asbool
 
-        if not asbool(config.safe("config.safe")):
+        if not asbool(config.normalized("config.safe")):
             return False
 
         for key in self.iter_options(exclude=Flag.not_safe()):

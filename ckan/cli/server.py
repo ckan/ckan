@@ -52,7 +52,7 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
     # Reloading
     use_reloader = not disable_reloader
     config_extra_files = tk.aslist(
-        config.safe(u"ckan.devserver.watch_patterns")
+        config.normalized(u"ckan.devserver.watch_patterns")
     )
     extra_files = list(extra_files) + [
         config[u"__file__"]
@@ -66,8 +66,8 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
         raise click.Abort()
 
     # SSL
-    cert_file = ssl_cert or config.safe('ckan.devserver.ssl_cert')
-    key_file = ssl_key or config.safe('ckan.devserver.ssl_key')
+    cert_file = ssl_cert or config.normalized('ckan.devserver.ssl_cert')
+    key_file = ssl_key or config.normalized('ckan.devserver.ssl_key')
 
     if cert_file and key_file:
         if cert_file == key_file == 'adhoc':
@@ -77,7 +77,7 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
     else:
         ssl_context = None
 
-    host = host or config.safe('ckan.devserver.host')
+    host = host or config.normalized('ckan.devserver.host')
     port = port or config.normalized('ckan.devserver.port')
     try:
         port = int(port)

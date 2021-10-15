@@ -528,7 +528,7 @@ def _build_query_and_rank_statements(lang, query, plain, field=None):
 
 
 def _fts_lang(lang=None):
-    return lang or config.safe('ckan.datastore.default_fts_lang')
+    return lang or config.normalized('ckan.datastore.default_fts_lang')
 
 
 def _sort(sort, fields_types, rank_columns):
@@ -624,14 +624,14 @@ def _generate_index_name(resource_id, field):
 
 
 def _get_fts_index_method():
-    return config.safe('ckan.datastore.default_fts_index_method')
+    return config.normalized('ckan.datastore.default_fts_index_method')
 
 
 def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
     resource_id = data_dict['resource_id']
     fts_lang = data_dict.get(
-        'language', config.safe('ckan.datastore.default_fts_lang'))
+        'language', config.normalized('ckan.datastore.default_fts_lang'))
 
     # create full-text search indexes
     def to_tsvector(x):
@@ -1790,7 +1790,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             'ckan.datastore.sqlsearch.enabled')
 
         if self.enable_sql_search:
-            allowed_sql_functions_file = self.config.safe(
+            allowed_sql_functions_file = self.config.normalized(
                 'ckan.datastore.sqlsearch.allowed_functions_file'
             )
 

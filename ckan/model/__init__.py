@@ -259,7 +259,7 @@ class Repository():
         self.reset_alembic_output()
         alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
-            "sqlalchemy.url", config.safe("sqlalchemy.url")
+            "sqlalchemy.url", config.normalized("sqlalchemy.url")
         )
         try:
             sqlalchemy_migrate_version = self.metadata.bind.execute(

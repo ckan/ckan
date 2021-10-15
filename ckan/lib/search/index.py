@@ -52,7 +52,7 @@ def escape_xml_illegal_chars(val, replacement=''):
 
 def clear_index():
     conn = make_connection()
-    query = "+site_id:\"%s\"" % (config.safe('ckan.site_id'))
+    query = "+site_id:\"%s\"" % (config.normalized('ckan.site_id'))
     try:
         conn.delete(q=query)
     except socket.error as e:
@@ -263,7 +263,7 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['metadata_modified'] += 'Z'
 
         # mark this CKAN instance as data source:
-        pkg_dict['site_id'] = config.safe('ckan.site_id')
+        pkg_dict['site_id'] = config.normalized('ckan.site_id')
 
         # Strip a selection of the fields.
         # These fields are possible candidates for sorting search results on,
@@ -278,7 +278,7 @@ class PackageSearchIndex(SearchIndex):
 
         # add a unique index_id to avoid conflicts
         import hashlib
-        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.safe('ckan.site_id')))).hexdigest()
+        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.normalized('ckan.site_id')))).hexdigest()
 
         for item in PluginImplementations(IPackageController):
             pkg_dict = item.before_index(pkg_dict)
@@ -323,7 +323,7 @@ class PackageSearchIndex(SearchIndex):
     def delete_package(self, pkg_dict):
         conn = make_connection()
         query = "+%s:%s AND +(id:\"%s\" OR name:\"%s\") AND +site_id:\"%s\"" % \
-                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.safe('ckan.site_id'))
+                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.normalized('ckan.site_id'))
         try:
             commit = config.normalized('ckan.search.solr_commit')
             conn.delete(q=query, commit=commit)

@@ -322,7 +322,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or config.safe('ckan.default_group_sort')
+    sort = data_dict.get('sort') or config.normalized('ckan.default_group_sort')
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -1814,7 +1814,7 @@ def package_search(context, data_dict):
     abort = data_dict.get('abort_search', False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = config.safe('ckan.search.default_package_sort')
+        data_dict['sort'] = config.normalized('ckan.search.default_package_sort')
 
     results = []
     if not abort:
@@ -2369,7 +2369,7 @@ def get_site_user(context, data_dict):
     '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
-    site_id = config.safe('ckan.site_id')
+    site_id = config.normalized('ckan.site_id')
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
@@ -2394,16 +2394,16 @@ def status_show(context, data_dict):
 
     '''
 
-    plugins = config.safe('ckan.plugins')
+    plugins = config.normalized('ckan.plugins')
     extensions = plugins.split() if plugins else []
 
     return {
-        'site_title': config.safe('ckan.site_title'),
-        'site_description': config.safe('ckan.site_description'),
-        'site_url': config.safe('ckan.site_url'),
+        'site_title': config.normalized('ckan.site_title'),
+        'site_description': config.safenormalized('ckan.site_description'),
+        'site_url': config.safenormalized('ckan.site_url'),
         'ckan_version': ckan.__version__,
-        'error_emails_to': config.safe('email_to'),
-        'locale_default': config.safe('ckan.locale_default'),
+        'error_emails_to': config.safenormalized('email_to'),
+        'locale_default': config.safenormalized('ckan.locale_default'),
         'extensions': extensions,
     }
 

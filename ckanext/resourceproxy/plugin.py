@@ -25,7 +25,7 @@ def get_proxified_resource_url(data_dict, proxy_schemes=[u'http', u'https']):
     if not p.plugin_loaded(u'resource_proxy'):
         return url
 
-    ckan_url = config.safe(u'ckan.site_url')
+    ckan_url = config.normalized(u'ckan.site_url')
     scheme = urlparse(url).scheme
     compare_domains = datapreview.compare_domains
     if not compare_domains([ckan_url, url]) and scheme in proxy_schemes:

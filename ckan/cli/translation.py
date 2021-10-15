@@ -134,7 +134,7 @@ def sync_po_file_msgids(entries_to_change, path):
 
 
 def get_i18n_path():
-    return config.safe(
+    return config.normalized(
         u'ckan.i18n_directory') or os.path.join(ckan_path, u'i18n')
 
 

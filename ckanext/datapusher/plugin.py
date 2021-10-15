@@ -35,20 +35,20 @@ class DatapusherPlugin(p.SingletonPlugin):
     resource_show_action = None
 
     def update_config(self, config):
-        templates_base = config.safe(u'ckan.base_templates_folder')
+        templates_base = config.normalized(u'ckan.base_templates_folder')
         toolkit.add_template_directory(config, templates_base)
 
     def configure(self, config):
         self.config = config
 
-        datapusher_formats = config.safe(u'ckan.datapusher.formats').lower()
+        datapusher_formats = config.normalized(u'ckan.datapusher.formats').lower()
         self.datapusher_formats = datapusher_formats.split()
 
         for config_option in (
             u'ckan.site_url',
             u'ckan.datapusher.url',
         ):
-            if not config.safe(config_option):
+            if not config.normalized(config_option):
                 raise Exception(
                     u'Config option `{0}` must be set to use the DataPusher.'.
                     format(config_option)

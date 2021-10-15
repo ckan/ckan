@@ -8,7 +8,7 @@ import requests
 def check_recaptcha(request):
     '''Check a user\'s recaptcha submission is valid, and raise CaptchaError
     on failure.'''
-    recaptcha_private_key = config.safe('ckan.recaptcha.privatekey')
+    recaptcha_private_key = config.normalized('ckan.recaptcha.privatekey')
     if not recaptcha_private_key:
         # Recaptcha not enabled
         return

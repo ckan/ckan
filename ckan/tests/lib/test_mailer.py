@@ -165,7 +165,7 @@ class TestMailer(MailerBase):
         msg = msgs[0]
 
         expected_from_header = "{0} <{1}>".format(
-            config.safe("ckan.site_title"), config.safe("smtp.mail_from")
+            config.safesy("ckan.site_title"), config.normalized("smtp.mail_from")
         )
 
         assert expected_from_header in msg[3]
@@ -275,7 +275,7 @@ class TestMailer(MailerBase):
         msg = msgs[0]
 
         expected_from_header = "Reply-to: {}".format(
-            config.safe("smtp.reply_to")
+            config.normalized("smtp.reply_to")
         )
 
         assert expected_from_header in msg[3]

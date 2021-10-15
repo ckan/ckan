@@ -132,8 +132,8 @@ def make_flask_stack(conf):
         storage_folder = [os.path.join(storage, 'storage')]
 
     # Static files folders (core and extensions)
-    public_folder = config.safe(u'ckan.base_public_folder')
-    app.static_folder = config.safe(
+    public_folder = config.normalized(u'ckan.base_public_folder')
+    app.static_folder = config.normalized(
         'extra_public_paths'
     ).split(',') + [os.path.join(root, public_folder)] + storage_folder
 
@@ -157,12 +157,12 @@ def make_flask_stack(conf):
 
     # Secret key needed for flask-debug-toolbar and sessions
     if not app.config.get('SECRET_KEY'):
-        app.config['SECRET_KEY'] = config.safe('beaker.session.secret')
+        app.config['SECRET_KEY'] = config.normalized('beaker.session.secret')
     if not app.config.get('SECRET_KEY'):
         raise RuntimeError(u'You must provide a value for the secret key'
                            ' with the SECRET_KEY config option')
 
-    root_path = config.safe('ckan.root_path')
+    root_path = config.normalized('ckan.root_path')
     if debug:
         from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
@@ -327,7 +327,7 @@ def get_locale():
     '''
     return request.environ.get(
         u'CKAN_LANG',
-        config.safe(u'ckan.locale_default'))
+        config.normalized(u'ckan.locale_default'))
 
 
 def ckan_before_request():
@@ -521,7 +521,7 @@ def _register_error_handler(app):
         app.register_error_handler(code, error_handler)
     if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
-        if config.safe('email_to'):
+        if config.normalized('email_to'):
             _setup_error_mail_handler(app)
 
 
@@ -535,17 +535,17 @@ def _setup_error_mail_handler(app):
             log_record.headers = request.headers
             return True
 
-    smtp_server = config.safe('smtp.server')
+    smtp_server = config.normalized('smtp.server')
     mailhost = tuple(smtp_server.split(':')) \
         if ':' in smtp_server else smtp_server
     credentials = None
-    if config.safe('smtp.user'):
-        credentials = (config.safe('smtp.user'), config.safe('smtp.password'))
+    if config.normalized('smtp.user'):
+        credentials = (config.normalized('smtp.user'), config.normalized('smtp.password'))
     secure = () if config.normalized('smtp.starttls') else None
     mail_handler = SMTPHandler(
         mailhost=mailhost,
-        fromaddr=config.safe('error_email_from'),
-        toaddrs=[config.safe('email_to')],
+        fromaddr=config.normalized('error_email_from'),
+        toaddrs=[config.normalized('email_to')],
         subject='Application Error',
         credentials=credentials,
         secure=secure

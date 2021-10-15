@@ -68,7 +68,7 @@ _JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, u'public', u'base', u'i18n')
 
 
 def get_ckan_i18n_dir():
-    path = config.safe(u'ckan.i18n_directory') or os.path.join(
+    path = config.normalized(u'ckan.i18n_directory') or os.path.join(
         _CKAN_DIR, u'i18n')
     if os.path.isdir(os.path.join(path, u'i18n')):
         path = os.path.join(path, u'i18n')
@@ -79,10 +79,10 @@ def get_ckan_i18n_dir():
 def get_locales_from_config():
     ''' despite the name of this function it gets the locales defined by
     the config AND also the locals available subject to the config. '''
-    locales_offered = aslist(config.safe('ckan.locales_offered'))
-    filtered_out = aslist(config.safe('ckan.locales_filtered_out'))
-    locale_default = [config.safe('ckan.locale_default')]
-    locale_order = aslist(config.safe('ckan.locale_order'))
+    locales_offered = aslist(config.normalized('ckan.locales_offered'))
+    filtered_out = aslist(config.normalized('ckan.locales_filtered_out'))
+    locale_default = [config.normalized('ckan.locale_default')]
+    locale_order = aslist(config.normalized('ckan.locale_order'))
 
     known_locales = get_locales()
     all_locales = (set(known_locales) |
@@ -98,10 +98,10 @@ def _get_locales():
     assert not config.get('lang'), \
         ('"lang" config option not supported - please use ckan.locale_default '
          'instead.')
-    locales_offered = aslist(config.safe('ckan.locales_offered'))
-    filtered_out = aslist(config.safe('ckan.locales_filtered_out'))
-    locale_default = config.safe('ckan.locale_default')
-    locale_order = aslist(config.safe('ckan.locale_order'))
+    locales_offered = aslist(config.normalized('ckan.locales_offered'))
+    filtered_out = aslist(config.normalized('ckan.locales_filtered_out'))
+    locale_default = config.normalized('ckan.locale_default')
+    locale_order = aslist(config.normalized('ckan.locale_order'))
 
     locales = ['en']
     i18n_path = get_ckan_i18n_dir()
@@ -169,7 +169,7 @@ def non_translated_locals():
     no translations. returns a list like ['en', 'de', ...] '''
     global _non_translated_locals
     if not _non_translated_locals:
-        locales = aslist(config.safe('ckan.locale_order'))
+        locales = aslist(config.normalized('ckan.locale_order'))
         _non_translated_locals = [x for x in locales if x not in get_locales()]
     return _non_translated_locals
 
@@ -220,7 +220,7 @@ def get_identifier_from_locale_class(locale):
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
-        config.safe('ckan.locale_default')
+        config.normalized('ckan.locale_default')
     if lang != 'en':
         set_lang(lang)
 
@@ -238,7 +238,7 @@ def get_lang():
 def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
-        language_code = config.safe('ckan.locale_default')
+        language_code = config.normalized('ckan.locale_default')
 
 
 def _get_js_translation_entries(filename):

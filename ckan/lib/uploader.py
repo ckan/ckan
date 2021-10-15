@@ -83,7 +83,7 @@ def get_storage_path():
 
     # None means it has not been set. False means not in config.
     if _storage_path is None:
-        storage_path = config.safe('ckan.storage_path')
+        storage_path = config.normalized('ckan.storage_path')
         if storage_path:
             _storage_path = storage_path
         else:
@@ -196,7 +196,7 @@ class Upload(object):
 class ResourceUpload(object):
     def __init__(self, resource):
         path = get_storage_path()
-        config_mimetype_guess = config.safe('ckan.mimetype_guess')
+        config_mimetype_guess = config.normalized('ckan.mimetype_guess')
 
         if not path:
             self.storage_path = None

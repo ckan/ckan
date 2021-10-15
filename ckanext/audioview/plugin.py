@@ -17,7 +17,7 @@ class AudioView(p.SingletonPlugin):
 
     def update_config(self, config):
         p.toolkit.add_template_directory(config, 'theme/templates')
-        self.formats = config.safe('ckan.preview.audio_formats').split()
+        self.formats = config.normalized('ckan.preview.audio_formats').split()
 
     def info(self):
         return {'name': 'audio_view',

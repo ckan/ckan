@@ -49,7 +49,7 @@ def webassets_init():
 
     static_path = get_webassets_path()
 
-    public = config.safe(u'ckan.base_public_folder')
+    public = config.normalized(u'ckan.base_public_folder')
 
     public_folder = os.path.abspath(os.path.join(
         os.path.dirname(__file__), u'..', public))
@@ -146,10 +146,10 @@ def render_assets(type_):
 
 
 def get_webassets_path():
-    webassets_path = config.safe(u'ckan.webassets.path')
+    webassets_path = config.normalized(u'ckan.webassets.path')
 
     if not webassets_path:
-        storage_path = config.safe(
+        storage_path = config.normalized(
             u'ckan.storage_path'
         ) or tempfile.gettempdir()
 

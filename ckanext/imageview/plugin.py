@@ -19,7 +19,7 @@ class ImageView(p.SingletonPlugin):
 
     def update_config(self, config):
         p.toolkit.add_template_directory(config, 'theme/templates')
-        self.formats = config.safe('ckan.preview.image_formats').split()
+        self.formats = config.normalized('ckan.preview.image_formats').split()
 
     def info(self):
         return {'name': 'image_view',

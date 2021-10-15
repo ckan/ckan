@@ -2749,19 +2749,6 @@ value of the declared option and it really changes the code, which relies on
 that new option. If default value is not specified, it's implicitly set to
 ``None``.
 
-By default, all declared config options are optional. And one can get either
-actual value of declared option either via
-``ckan.plugins.toolkit.config.get(name, DEFAULT)`` or via
-``ckan.plguins.toolkit.config.safe(name)``. You may have noticed, that in the
-second case there is no ``DEFAULT``. ``config.safe`` method looks for the
-option's declaration and takes default value from it, when option is missing
-from the config file. In this way we can guarantee that the default value for
-the particular config option is always the same through the codebase.
-
-.. note:: An attempt to use ``config.safe`` with an undeclared config option
-          will print a warning to the logs and return either option's value or
-          ``None`` as default.
-
 Every declared config option can be validated::
 
   option = declaration.declare("ckanext.my_ext.option", True)
@@ -2823,6 +2810,17 @@ Any config option that has validators-converters (`convert_int`,
 
   is_enabled = toolkit.config.normalized("ckanext.my_ext.enable")
 
-``config.normalized`` takes value from the config(or default value from
-declarations), passes it through validators and returns the result. If option
-has no validators, its value returned as is.
+By default, all declared config options are optional. And one can get either
+actual value of declared option either via
+``ckan.plugins.toolkit.config.get(name, DEFAULT)`` or via
+``ckan.plguins.toolkit.config.normalized(name)``. You may have noticed, that in
+the second case there is no ``DEFAULT``. ``config.`` method looks for the
+option's declaration and takes default value from it, when option is missing
+from the config file. In this way we can guarantee that the default value for
+the particular config option is always the same through the codebase. After
+that, value passed throught validators and result is returned. If option has no
+validators, result returned as is.
+
+.. note:: An attempt to use ``config.normalized`` with an undeclared config option
+          will print a warning to the logs and return either option's value or
+          ``None`` as default.
