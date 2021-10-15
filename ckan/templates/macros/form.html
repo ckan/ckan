@@ -435,7 +435,7 @@ options     - A list/tuple of fields to be used as <options>.
   {% set previous_upload = data['previous_upload'] %}
 
   {% if field_url == 'url' and field_upload == 'upload' %}
-    {# backwards compat for old copied resource template e.g. ckanext-scheming #}
+    {# backwards compatibility for old resource forms that still call the `forms.image_upload()` macro, eg ckanext-scheming #}
     {% snippet 'package/snippets/resource_upload_field.html',
       data=data,
       errors=errors,
