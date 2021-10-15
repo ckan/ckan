@@ -460,6 +460,7 @@ select[data-module="autocomplete"] {
     counter-reset: stage; // margin: -$gutterY -$gutterX $gutterY;
     overflow: hidden;
     margin-bottom: $grid-gutter-width;
+    padding-left: 0;
 }
 
 .stages li {
