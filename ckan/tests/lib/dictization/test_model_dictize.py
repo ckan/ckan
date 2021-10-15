@@ -2,11 +2,21 @@
 
 import datetime
 import copy
+from pprint import pformat
+
 import pytest
 
-from ckan.lib.dictization import model_dictize, model_save
+from ckan.lib.create_test_data import CreateTestData
 from ckan import model
-
+from ckan.logic.schema import (
+    default_create_package_schema,
+    default_update_package_schema,
+    default_group_schema,
+    default_tags_schema,
+)
+from ckan.lib.navl.dictization_functions import validate
+from ckan.lib.dictization import model_dictize, model_save
+from ckan.lib.dictization.model_dictize import package_dictize, group_dictize
 from ckan.tests import factories
 
 
@@ -27,8 +37,10 @@ class TestGroupListDictize:
         assert "groups" not in group_dicts[0]
 
     def test_group_list_dictize_sorted(self):
-        factories.Group(name="aa")
-        factories.Group(name="bb")
+        # we need to set the title because group_list_dictze by default sorts
+        # them per display_name
+        factories.Group(name="aa", title="aa")
+        factories.Group(name="bb", title="bb")
         group_list = [model.Group.get(u"bb"), model.Group.get(u"aa")]
         context = {"model": model, "session": model.Session}
 
@@ -39,8 +51,10 @@ class TestGroupListDictize:
         assert group_dicts[1]["name"] == "bb"
 
     def test_group_list_dictize_reverse_sorted(self):
-        factories.Group(name="aa")
-        factories.Group(name="bb")
+        # we need to set the title because group_list_dictze by default sorts
+        # them per display_name
+        factories.Group(name="aa", title="aa")
+        factories.Group(name="bb", title="bb")
         group_list = [model.Group.get(u"aa"), model.Group.get(u"bb")]
         context = {"model": model, "session": model.Session}
 
@@ -124,7 +138,8 @@ class TestGroupListDictize:
         context = {"model": model, "session": model.Session}
 
         child_dict, parent_dict = model_dictize.group_list_dictize(
-            group_list, context, include_groups=True
+            group_list, context, sort_key=lambda x: x["name"],
+            include_groups=True
         )
 
         assert parent_dict["name"] == "parent"
@@ -349,9 +364,12 @@ class TestPackageDictize:
             ("%s=%s" % (k, result_dict[k]) for k in superfluous_keys)
         )
         for key in expected_dict:
-            assert expected_dict[key] == result_dict[key], (
-                "%s=%s should be %s"
-                % (key, result_dict[key], expected_dict[key])
+            assert (
+                expected_dict[key] == result_dict[key]
+            ), "%s=%s should be %s" % (
+                key,
+                result_dict[key],
+                expected_dict[key],
             )
 
     def test_package_dictize_basic(self):
@@ -373,31 +391,31 @@ class TestPackageDictize:
         assert result["metadata_created"].startswith(today)
         assert result["creator_user_id"] == dataset_obj.creator_user_id
         expected_dict = {
-            "author": None,
-            "author_email": None,
-            "extras": [],
-            "groups": [],
-            "isopen": False,
-            "license_id": None,
-            "license_title": None,
-            "maintainer": None,
-            "maintainer_email": None,
-            "name": u"test_dataset_dictize",
-            "notes": "Some *description*",
-            "num_resources": 0,
-            "num_tags": 0,
-            "organization": None,
-            "owner_org": None,
-            "private": False,
-            "relationships_as_object": [],
-            "relationships_as_subject": [],
-            "resources": [],
-            "state": u"active",
-            "tags": [],
-            "title": u"Test Dataset",
-            "type": u"dataset",
-            "url": "http://example.com",
-            "version": None,
+            "author": dataset["author"],
+            "author_email": dataset["author_email"],
+            "extras": dataset["extras"],
+            "groups": dataset["groups"],
+            "isopen": dataset["isopen"],
+            "license_id": dataset["license_id"],
+            "license_title": dataset["license_title"],
+            "maintainer": dataset["maintainer"],
+            "maintainer_email": dataset["maintainer_email"],
+            "name": dataset["name"],
+            "notes": dataset["notes"],
+            "num_resources": dataset["num_resources"],
+            "num_tags": dataset["num_tags"],
+            "organization": dataset["organization"],
+            "owner_org": dataset["owner_org"],
+            "private": dataset["private"],
+            "relationships_as_object": dataset["relationships_as_object"],
+            "relationships_as_subject": dataset["relationships_as_subject"],
+            "resources": dataset["resources"],
+            "state": dataset["state"],
+            "tags": dataset["tags"],
+            "title": dataset["title"],
+            "type": dataset["type"],
+            "url": dataset["url"],
+            "version": dataset["version"],
         }
         self.assert_equals_expected(expected_dict, result)
 
@@ -438,21 +456,21 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["resources"][0], resource, "name", "url")
         expected_dict = {
-            u"cache_last_updated": None,
-            u"cache_url": None,
-            u"description": u"Just another test resource.",
-            u"format": u"res_format",
-            u"hash": u"",
-            u"last_modified": None,
-            u"mimetype": None,
-            u"mimetype_inner": None,
-            u"name": u"test_pkg_dictize",
-            u"position": 0,
-            u"resource_type": None,
-            u"size": None,
-            u"state": u"active",
-            u"url": u"http://link.to.some.data",
-            u"url_type": None,
+            u"cache_last_updated": resource["cache_last_updated"],
+            u"cache_url": resource["cache_url"],
+            u"description": resource["description"],
+            u"format": resource["format"],
+            u"hash": resource["hash"],
+            u"last_modified": resource["last_modified"],
+            u"mimetype": resource["mimetype"],
+            u"mimetype_inner": resource["mimetype_inner"],
+            u"name": resource["name"],
+            u"position": resource["position"],
+            u"resource_type": resource["resource_type"],
+            u"size": resource["size"],
+            u"state": resource["state"],
+            u"url": resource["url"],
+            u"url_type": resource["url_type"],
         }
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
@@ -531,17 +549,17 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["groups"][0], group, "name")
         expected_dict = {
-            u"approval_status": u"approved",
-            u"capacity": u"public",
-            u"description": u"A test description for this test group.",
-            "display_name": u"Test Group Dictize",
-            "image_display_url": u"",
-            u"image_url": u"",
-            u"is_organization": False,
-            u"name": u"test_group_dictize",
-            u"state": u"active",
-            u"title": u"Test Group Dictize",
-            u"type": u"group",
+            u"approval_status": group["approval_status"],
+            u"capacity": "public",
+            u"description": group["description"],
+            "display_name": group["display_name"],
+            "image_display_url": group["image_display_url"],
+            u"image_url": group["image_url"],
+            u"is_organization": group["is_organization"],
+            u"name": group["name"],
+            u"state": group["state"],
+            u"title": group["title"],
+            u"type": group["type"],
         }
         self.assert_equals_expected(expected_dict, result["groups"][0])
 
@@ -556,14 +574,14 @@ class TestPackageDictize:
         assert result["owner_org"] == org["id"]
         assert_equal_for_keys(result["organization"], org, "name")
         expected_dict = {
-            u"approval_status": u"approved",
-            u"description": u"Just another test organization.",
-            u"image_url": u"https://placekitten.com/g/200/100",
-            u"is_organization": True,
-            u"name": u"test_package_dictize",
-            u"state": u"active",
-            u"title": u"Test Organization",
-            u"type": u"organization",
+            u"approval_status": org["approval_status"],
+            u"description": org["description"],
+            u"image_url": org["image_url"],
+            u"is_organization": org["is_organization"],
+            u"name": org["name"],
+            u"state": org["state"],
+            u"title": org["title"],
+            u"type": org["type"],
         }
         self.assert_equals_expected(expected_dict, result["organization"])
 
@@ -579,6 +597,7 @@ def assert_equal_for_keys(dict1, dict2, *keys):
         )
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestTagDictize(object):
     """Unit tests for the tag_dictize() function."""
 
@@ -680,3 +699,247 @@ class TestActivityDictize(object):
         assert dictized["user_id"] == user["id"]
         assert dictized["activity_type"] == "new package"
         assert dictized["data"] == {"package": {"title": dataset["title"]}}
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackageSchema(object):
+    def remove_changable_columns(self, dict):
+        for key, value in list(dict.items()):
+            if key.endswith("id") and key != "license_id":
+                dict.pop(key)
+            if key in ("created", "metadata_modified"):
+                dict.pop(key)
+
+            if isinstance(value, list):
+                for new_dict in value:
+                    self.remove_changable_columns(new_dict)
+        return dict
+
+    def test_package_schema(self):
+        CreateTestData.create()
+        context = {"model": model, "session": model.Session}
+        pkg = (
+            model.Session.query(model.Package)
+            .filter_by(name="annakarenina")
+            .first()
+        )
+
+        package_id = pkg.id
+        result = package_dictize(pkg, context)
+        self.remove_changable_columns(result)
+
+        result["name"] = "anna2"
+        # we need to remove these as they have been added
+        del result["relationships_as_object"]
+        del result["relationships_as_subject"]
+
+        converted_data, errors = validate(
+            result, default_create_package_schema(), context
+        )
+
+        expected_data = {
+            "extras": [
+                {"key": u"genre", "value": u"romantic novel"},
+                {"key": u"original media", "value": u"book"},
+            ],
+            "groups": [
+                {u"name": u"david", u"title": u"Dave's books"},
+                {u"name": u"roger", u"title": u"Roger's books"},
+            ],
+            "license_id": u"other-open",
+            "name": u"anna2",
+            "type": u"dataset",
+            "notes": u"Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n",
+            "private": False,
+            "resources": [
+                {
+                    "alt_url": u"alt123",
+                    "description": u'Full text. Needs escaping: " Umlaut: \xfc',
+                    "format": u"plain text",
+                    "hash": u"abc123",
+                    "size_extra": u"123",
+                    "url": u"http://datahub.io/download/x=1&y=2",
+                },
+                {
+                    "alt_url": u"alt345",
+                    "description": u"Index of the novel",
+                    "format": u"JSON",
+                    "hash": u"def456",
+                    "size_extra": u"345",
+                    "url": u"http://datahub.io/index.json",
+                },
+            ],
+            "tags": [
+                {"name": u"Flexible \u30a1"},
+                {"name": u"russian"},
+                {"name": u"tolstoy"},
+            ],
+            "title": u"A Novel By Tolstoy",
+            "url": u"http://datahub.io",
+            "version": u"0.7a",
+        }
+
+        assert converted_data == expected_data, pformat(converted_data)
+        assert not errors, errors
+
+        data = converted_data
+        data["name"] = u"annakarenina"
+        data.pop("title")
+        data["resources"][0]["url"] = "fsdfafasfsaf"
+        data["resources"][1].pop("url")
+
+        converted_data, errors = validate(
+            data, default_create_package_schema(), context
+        )
+
+        assert errors == {"name": [u"That URL is already in use."]}, pformat(
+            errors
+        )
+
+        data["id"] = package_id
+        data["name"] = "????jfaiofjioafjij"
+
+        converted_data, errors = validate(
+            data, default_update_package_schema(), context
+        )
+        assert errors == {
+            "name": [
+                u"Must be purely lowercase alphanumeric (ascii) "
+                "characters and these symbols: -_"
+            ]
+        }, pformat(errors)
+
+    @pytest.mark.usefixtures("clean_index")
+    def test_group_schema(self):
+        CreateTestData.create()
+        context = {"model": model, "session": model.Session}
+        group = model.Session.query(model.Group).first()
+        data = group_dictize(group, context)
+
+        # we don't want these here
+        del data["groups"]
+        del data["users"]
+        del data["tags"]
+        del data["extras"]
+
+        converted_data, errors = validate(
+            data, default_group_schema(), context
+        )
+        assert not errors
+        group_pack = sorted(group.packages(), key=lambda x: x.id)
+
+        converted_data["packages"] = sorted(
+            converted_data["packages"], key=lambda x: x["id"]
+        )
+
+        expected = {
+            "description": u"These are books that David likes.",
+            "id": group.id,
+            "name": u"david",
+            "is_organization": False,
+            "type": u"group",
+            "image_url": u"",
+            "image_display_url": u"",
+            "packages": sorted(
+                [
+                    {
+                        "id": group_pack[0].id,
+                        "name": group_pack[0].name,
+                        "title": group_pack[0].title,
+                    },
+                    {
+                        "id": group_pack[1].id,
+                        "name": group_pack[1].name,
+                        "title": group_pack[1].title,
+                    },
+                ],
+                key=lambda x: x["id"],
+            ),
+            "title": u"Dave's books",
+            "approval_status": u"approved",
+        }
+
+        assert converted_data == expected, pformat(converted_data)
+
+        data["packages"].sort(key=lambda x: x["id"])
+        data["packages"][0]["id"] = "fjdlksajfalsf"
+        data["packages"][1].pop("id")
+        data["packages"][1].pop("name")
+
+        converted_data, errors = validate(
+            data, default_group_schema(), context
+        )
+        assert errors == {
+            "packages": [
+                {"id": [u"Not found: Dataset"]},
+                {"id": [u"Missing value"]},
+            ]
+        }, pformat(errors)
+
+
+class TestTagSchema:
+    def test_tag_schema_allows_spaces(self):
+        """Asserts that a tag name with space is valid"""
+        ignored = ""
+        context = {"model": model, "session": model.Session}
+        data = {
+            "name": u"with space",
+            "revision_timestamp": ignored,
+            "state": ignored,
+        }
+        _, errors = validate(data, default_tags_schema(), context)
+        assert not errors, str(errors)
+
+    def test_tag_schema_allows_limited_punctuation(self):
+        """Asserts that a tag name with limited punctuation is valid"""
+        ignored = ""
+        context = {"model": model, "session": model.Session}
+        data = {
+            "name": u".-_",
+            "revision_timestamp": ignored,
+            "state": ignored,
+        }
+        _, errors = validate(data, default_tags_schema(), context)
+        assert not errors, str(errors)
+
+    def test_tag_schema_allows_capital_letters(self):
+        """Asserts that tag names can have capital letters"""
+        ignored = ""
+        context = {"model": model, "session": model.Session}
+        data = {
+            "name": u"CAPITALS",
+            "revision_timestamp": ignored,
+            "state": ignored,
+        }
+        _, errors = validate(data, default_tags_schema(), context)
+        assert not errors, str(errors)
+
+    def test_tag_schema_disallows_most_punctuation(self):
+        """Asserts most punctuation is disallowed"""
+        not_allowed = r'!?"\'+=:;@#~[]{}()*&^%$,'
+        context = {"model": model, "session": model.Session}
+        ignored = ""
+        data = {"revision_timestamp": ignored, "state": ignored}
+        for ch in not_allowed:
+            data["name"] = "Character " + ch
+            _, errors = validate(data, default_tags_schema(), context)
+            assert errors
+            assert "name" in errors
+            error_message = errors["name"][0]
+            assert data["name"] in error_message, error_message
+            assert "can only contain alphanumeric characters" in error_message
+
+    def test_tag_schema_disallows_whitespace_other_than_spaces(self):
+        """Asserts whitespace characters, such as tabs, are not allowed."""
+        not_allowed = "\t\n\r\f\v"
+        context = {"model": model, "session": model.Session}
+        ignored = ""
+        data = {"revision_timestamp": ignored, "state": ignored}
+        for ch in not_allowed:
+            data["name"] = "Bad " + ch + " character"
+            _, errors = validate(data, default_tags_schema(), context)
+            assert errors, repr(ch)
+            assert "name" in errors
+            error_message = errors["name"][0]
+            assert data["name"] in error_message, error_message
+            assert "can only contain alphanumeric characters" in error_message

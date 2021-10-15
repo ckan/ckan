@@ -26,7 +26,7 @@
 
 u'''Collection of :mod:`repoze.who` friendly forms'''
 
-from six.moves.urllib.parse import urlparse, urlunparse, urlencode, parse_qs
+from urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
 from webob import Request
 try:

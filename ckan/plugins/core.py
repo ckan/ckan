@@ -13,7 +13,7 @@ from pyutilib.component.core import ExtensionPoint
 from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
 from ckan.common import asbool
-from six import string_types
+
 
 from ckan.plugins import interfaces
 
@@ -276,7 +276,7 @@ def _get_service(plugin_name):
     :return: the service object
     '''
 
-    if isinstance(plugin_name, string_types):
+    if isinstance(plugin_name, str):
         for group in GROUPS:
             iterator = iter_entry_points(
                 group=group,

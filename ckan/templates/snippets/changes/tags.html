@@ -4,7 +4,7 @@
 
       {{ _('Removed tag {tag_link} from {pkg_link}').format(
         tag_link = '<a href="{tag_url}">{tag}</a>'.format(
-          tag_url = h.url_for(controller='dataset', action='search') +
+          tag_url = h.url_for('dataset.search') +
           "?tags=" + change.tag,
           tag = change.tag
         )|safe,

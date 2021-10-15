@@ -6,7 +6,7 @@ import logging
 
 from sqlalchemy.orm import class_mapper
 import six
-from six import string_types
+
 
 import ckan.lib.dictization as d
 import ckan.authz as authz
@@ -28,7 +28,7 @@ def resource_dict_save(res_dict, context):
     else:
         new = False
 
-    table = class_mapper(model.Resource).mapped_table
+    table = class_mapper(model.Resource).persist_selectable
     fields = [field.name for field in table.c]
 
     # Strip the full url for resources of type 'upload'
@@ -441,10 +441,10 @@ def package_api_to_dict(api1_dict, context):
 
     dictized = {}
 
-    for key, value in six.iteritems(api1_dict):
+    for key, value in api1_dict.items():
         new_value = value
         if key == 'tags':
-            if isinstance(value, string_types):
+            if isinstance(value, str):
                 new_value = [{"name": item} for item in value.split()]
             else:
                 new_value = [{"name": item} for item in value]
@@ -456,7 +456,7 @@ def package_api_to_dict(api1_dict, context):
 
             new_value = []
 
-            for extras_key, extras_value in six.iteritems(updated_extras):
+            for extras_key, extras_value in updated_extras.items():
                 new_value.append({"key": extras_key,
                                   "value": extras_value})
 
@@ -480,7 +480,7 @@ def group_api_to_dict(api1_dict, context):
 
     dictized = {}
 
-    for key, value in six.iteritems(api1_dict):
+    for key, value in api1_dict.items():
         new_value = value
         if key == 'packages':
             new_value = [{"id": item} for item in value]
@@ -591,7 +591,7 @@ def resource_view_dict_save(data_dict, context):
     if resource_view:
         data_dict['id'] = resource_view.id
     config = {}
-    for key, value in six.iteritems(data_dict):
+    for key, value in data_dict.items():
         if key not in model.ResourceView.get_columns():
             config[key]  = value
     data_dict['config'] = config

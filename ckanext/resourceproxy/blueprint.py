@@ -3,10 +3,10 @@
 from logging import getLogger
 
 import requests
-from six.moves.urllib.parse import urlsplit
+from urllib.parse import urlsplit
 from flask import Blueprint, make_response
 
-import ckan.lib.base as base
+import ckan.model as model
 import ckan.logic as logic
 from ckan.common import config, _
 from ckan.plugins.toolkit import (asint, abort, get_action, c)
@@ -100,8 +100,8 @@ def proxy_resource(context, data_dict):
 def proxy_view(id, resource_id):
     data_dict = {u'resource_id': resource_id}
     context = {
-        u'model': base.model,
-        u'session': base.model.Session,
+        u'model': model,
+        u'session': model.Session,
         u'user': c.user
     }
     return proxy_resource(context, data_dict)

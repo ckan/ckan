@@ -1,6 +1,6 @@
 # encoding: utf-8
 import six
-
+from io import BytesIO
 from werkzeug.datastructures import FileStorage
 
 import ckan.lib.uploader
@@ -73,7 +73,7 @@ class TestUpload(object):
         monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
-                     six.BytesIO(six.ensure_binary(u'hello')),
+                     BytesIO(six.ensure_binary(u'hello')),
                      filename=u'logo.png',
                      content_type=u'PNG'
                  ),

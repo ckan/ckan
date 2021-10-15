@@ -5,7 +5,7 @@ import json
 import datetime
 import time
 
-from six.moves.urllib.parse import urljoin
+from urllib.parse import urljoin
 from dateutil.parser import parse as parse_date
 
 import requests
@@ -67,7 +67,7 @@ def datapusher_submit(context, data_dict):
         callback_url = urljoin(
             callback_url_base.rstrip('/'), '/api/3/action/datapusher_hook')
     else:
-        site_url = h.url_for('/', qualified=True)
+        site_url = h.url_for('home.index', qualified=True)
         callback_url = h.url_for(
             '/api/3/action/datapusher_hook', qualified=True)
 

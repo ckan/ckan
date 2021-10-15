@@ -83,7 +83,7 @@ def reset_db():
     model.repo.rebuild_db()
 
 
-def call_action(action_name, context=None, **kwargs):
+def call_action(action_name: str, context=None, **kwargs):
     """Call the named ``ckan.logic.action`` function and return the result.
 
     This is just a nicer way for user code to call action functions, nicer than
@@ -126,10 +126,10 @@ def call_action(action_name, context=None, **kwargs):
         context = {}
     context.setdefault("user", "127.0.0.1")
     context.setdefault("ignore_auth", True)
-    return logic.get_action(action_name)(context=context, data_dict=kwargs)
+    return logic.get_action(action_name)(context, kwargs)
 
 
-def call_auth(auth_name, context, **kwargs):
+def call_auth(auth_name: str, context, **kwargs) -> bool:
     """Call the named ``ckan.logic.auth`` function and return the result.
 
     This is just a convenience function for tests in
@@ -160,20 +160,8 @@ def call_auth(auth_name, context, **kwargs):
     assert "user" in context, (
         "Test methods must put a user name in the " "context dict"
     )
-    assert "model" in context, (
-        "Test methods must put a model in the " "context dict"
-    )
-
+    context.setdefault("model", model)
     return logic.check_access(auth_name, context, data_dict=kwargs)
-
-
-def body_contains(res, content):
-    try:
-        body = res.data
-    except AttributeError:
-        body = res.body
-    body = six.ensure_text(body)
-    return content in body
 
 
 class CKANCliRunner(CliRunner):
@@ -186,10 +174,10 @@ class CKANCliRunner(CliRunner):
 class CKANResponse(Response):
     @property
     def body(self):
-        return six.ensure_str(self.data)
+        return self.get_data(as_text=True)
 
     def __contains__(self, segment):
-        return body_contains(self, segment)
+        return segment in self.body
 
 
 class CKANTestApp(object):
@@ -231,10 +219,6 @@ class CKANTestApp(object):
         res = self.test_client().get(url, *args, **kwargs)
         return res
 
-    @property
-    def json(self):
-        return json.loads(self.data)
-
 
 class CKANTestClient(FlaskClient):
     def open(self, *args, **kwargs):
@@ -255,7 +239,7 @@ class CKANTestClient(FlaskClient):
         if extra_environ:
             kwargs["environ_overrides"] = extra_environ
 
-        if args and isinstance(args[0], six.string_types):
+        if args and isinstance(args[0], str):
             kwargs.setdefault("follow_redirects", True)
             kwargs.setdefault("base_url", config["ckan.site_url"])
         res = super(CKANTestClient, self).open(*args, **kwargs)
@@ -630,3 +614,7 @@ class FakeSMTP(smtplib.SMTP):
         """Just store message inside current instance.
         """
         self._msgs.append((None, from_addr, to_addrs, msg))
+
+
+def body_contains(res: CKANResponse, content: str):
+    return content in res.body

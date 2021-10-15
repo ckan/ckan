@@ -10,8 +10,8 @@ import sqlalchemy.orm as orm
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
-import ckan.tests.legacy as tests
 from ckan.tests import factories
+from ckan.tests.helpers import call_action
 import ckanext.datastore.backend.postgres as db
 from ckan.common import config
 from ckanext.datastore.tests.helpers import set_url_type
@@ -23,11 +23,11 @@ class TestDatastoreCreate(object):
 
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index, test_request_context):
-        if not tests.is_datastore_supported():
-            pytest.skip("Datastore not supported")
         ctd.CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
-        self.normal_user = model.User.get("annafan")
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user)
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         with test_request_context():
@@ -40,7 +40,7 @@ class TestDatastoreCreate(object):
     def test_create_ckan_resource_in_package(self, app):
         package = model.Package.get("annakarenina")
         data = {"resource": {"package_id": package.id}}
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -52,9 +52,8 @@ class TestDatastoreCreate(object):
         assert "resource_id" in res_dict["result"]
         assert len(model.Package.get("annakarenina").resources) == 3
 
-        res = tests.call_action_api(
-            app, "resource_show", id=res_dict["result"]["resource_id"]
-        )
+        res = call_action("resource_show",
+                          id=res_dict["result"]["resource_id"])
         assert res["url"].endswith("/datastore/dump/" + res["id"]), res
 
     @responses.activate
@@ -72,12 +71,8 @@ class TestDatastoreCreate(object):
 
         package = model.Package.get("annakarenina")
 
-        tests.call_action_api(
-            app,
-            "datastore_create",
-            apikey=self.sysadmin_user.apikey,
-            resource=dict(package_id=package.id, url="demo.ckan.org"),
-        )
+        call_action("datastore_create",
+                    resource=dict(package_id=package.id, url="demo.ckan.org"))
 
         assert len(package.resources) == 3, len(package.resources)
         resource = package.resources[2]
@@ -102,10 +97,8 @@ class TestDatastoreCreate(object):
         package = model.Package.get("annakarenina")
         resource = package.resources[0]
 
-        tests.call_action_api(
-            app,
+        call_action(
             "datapusher_submit",
-            apikey=self.sysadmin_user.apikey,
             resource_id=resource.id,
             ignore_hash=True,
         )
@@ -123,7 +116,7 @@ class TestDatastoreCreate(object):
             "resource": {"package_id": package.id},
         }
 
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -148,7 +141,7 @@ class TestDatastoreCreate(object):
         package = model.Package.get("annakarenina")
         resource = package.resources[0]
 
-        context = {"ignore_auth": True, "user": self.sysadmin_user.name}
+        context = {"ignore_auth": True, "user": self.sysadmin_user["name"]}
         with test_request_context():
             p.toolkit.get_action("datapusher_submit")(
                 context, {"resource_id": resource.id}
@@ -171,7 +164,7 @@ class TestDatastoreCreate(object):
         package = model.Package.get("annakarenina")
         resource = package.resources[0]
 
-        context = {"user": self.sysadmin_user.name}
+        context = {"user": self.sysadmin_user["name"]}
 
         p.toolkit.get_action("task_status_update")(
             context,
@@ -188,7 +181,10 @@ class TestDatastoreCreate(object):
 
         data = {"status": "success", "metadata": {"resource_id": resource.id}}
 
-        auth = {"Authorization": str(user.apikey)}
+        if user["sysadmin"]:
+            auth = {"Authorization": self.sysadmin_token}
+        else:
+            auth = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datapusher_hook",
             json=data,
@@ -199,8 +195,7 @@ class TestDatastoreCreate(object):
 
         assert res_dict["success"] is True
 
-        task = tests.call_action_api(
-            app,
+        task = call_action(
             "task_status_show",
             entity_id=resource.id,
             task_type="datapusher",
@@ -209,8 +204,7 @@ class TestDatastoreCreate(object):
 
         assert task["state"] == "success", task
 
-        task = tests.call_action_api(
-            app,
+        task = call_action(
             "task_status_show",
             entity_id=resource.id,
             task_type="datapusher",
@@ -274,10 +268,8 @@ class TestDatastoreCreate(object):
         )
         responses.add_passthru(config["solr_url"])
 
-        tests.call_action_api(
-            app,
+        call_action(
             "datapusher_submit",
-            apikey=self.sysadmin_user.apikey,
             resource_id=resource.id,
             ignore_hash=True,
         )
@@ -308,10 +300,8 @@ class TestDatastoreCreate(object):
         responses.add_passthru(config["solr_url"])
 
         dataset = factories.Dataset()
-        resource = tests.call_action_api(
-            app,
+        resource = call_action(
             "resource_create",
-            apikey=self.sysadmin_user.apikey,
             package_id=dataset['id'],
             format='CSV',
         )
@@ -336,19 +326,15 @@ class TestDatastoreCreate(object):
         responses.add_passthru(config["solr_url"])
 
         dataset = factories.Dataset()
-        resource = tests.call_action_api(
-            app,
+        resource = call_action(
             "resource_create",
-            apikey=self.sysadmin_user.apikey,
             package_id=dataset['id'],
             url='http://example.com/old.csv',
             format='CSV',
         )
 
-        resource = tests.call_action_api(
-            app,
+        resource = call_action(
             "resource_update",
-            apikey=self.sysadmin_user.apikey,
             id=resource['id'],
             url='http://example.com/new.csv',
             format='CSV',

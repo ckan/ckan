@@ -6,8 +6,23 @@
 import copy
 
 import pytest
-import ckan.tests.factories as factories
 import ckan.lib.navl.validators as validators
+
+
+def validator_data_dict():
+    """Return a data dict with some arbitrary data in it, suitable to be passed
+    to validator functions for testing.
+
+    """
+    return {("other key",): "other value"}
+
+
+def validator_errors_dict():
+    """Return an errors dict with some arbitrary errors in it, suitable to be
+    passed to validator functions for testing.
+
+    """
+    return {("other key",): ["other error"]}
 
 
 def returns_None(function):
@@ -264,12 +279,12 @@ class TestValidators(object):
             key = ("key to be validated",)
 
             # The data to pass to the validator function for validation.
-            data = factories.validator_data_dict()
+            data = validator_data_dict()
             if value != "skip":
                 data[key] = value
 
             # The errors dict to pass to the validator function.
-            errors = factories.validator_errors_dict()
+            errors = validator_errors_dict()
             errors[key] = []
 
             @does_not_modify_other_keys_in_data_dict
@@ -287,9 +302,9 @@ class TestValidators(object):
 
         """
         key = ("key to be validated",)
-        data = factories.validator_data_dict()
+        data = validator_data_dict()
         data[key] = "value to be validated"
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
 
         @returns_None

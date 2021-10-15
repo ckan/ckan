@@ -3,6 +3,7 @@
 import unittest.mock as mock
 from bs4 import BeautifulSoup
 import pytest
+import factory
 import six
 from ckan.lib.helpers import url_for
 import ckan.logic as logic
@@ -13,14 +14,17 @@ from ckan.tests import factories
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupController(object):
-    def test_bulk_process_throws_404_for_nonexistent_org(self, app):
+    def test_bulk_process_throws_403_for_nonexistent_org(self, app):
+        """Returns 403, not 404, because access check cannot be passed.
+        """
         bulk_process_url = url_for(
             "organization.bulk_process", id="does-not-exist"
         )
-        app.get(url=bulk_process_url, status=404)
+        app.get(url=bulk_process_url, status=403)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
-        orgs = [factories.Organization() for _ in range(35)]
+        orgs = sorted([factories.Organization() for _ in range(35)],
+                      key=lambda o: o["name"])
         org_url = url_for("organization.index", sort="name desc")
         response = app.get(url=org_url)
         assert orgs[-1]["name"] in response
@@ -32,7 +36,8 @@ class TestGroupController(object):
         assert orgs[0]["name"] in response
 
     def test_page_thru_list_of_groups_preserves_sort_order(self, app):
-        groups = [factories.Group() for _ in range(35)]
+        groups = sorted([factories.Group() for _ in range(35)],
+                        key=lambda g: g["title"])
         group_url = url_for("group.index", sort="title desc")
 
         response = app.get(url=group_url)
@@ -398,6 +403,25 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Member"
 
+    def test_membership_add_by_email(self, app, mail_server):
+        owner = factories.User(fullname="My Owner")
+        group = self._create_group(owner["name"])
+        url = url_for("group.member_new", id=group["name"])
+        env = {"REMOTE_USER": owner["name"]}
+        email = "invited_user@mailinator.com"
+        app.post(
+            url,
+            environ_overrides=env,
+            data={"save": "", "email": email, "role": "member"},
+            status=200
+        )
+        assert len(mail_server.get_smtp_messages()) == 1
+        users = model.User.by_email(email)
+        assert len(users) == 1, users
+        user = users[0]
+        assert user.email == email, user
+        assert group["id"] in user.get_group_ids(capacity="member")
+
     def test_membership_edit_page(self, app):
         """If `user` parameter provided, render edit page."""
         owner = factories.User(fullname="My Owner")
@@ -701,7 +725,7 @@ class TestGroupInnerSearch(object):
         ds_titles = grp_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        ds_titles = [t.string for t in ds_titles]
+        ds_titles = [t.string.strip() for t in ds_titles]
 
         assert "3 datasets found" in grp_response
         assert len(ds_titles) == 3
@@ -733,7 +757,7 @@ class TestGroupInnerSearch(object):
         ds_titles = search_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        ds_titles = [t.string for t in ds_titles]
+        ds_titles = [t.string.strip() for t in ds_titles]
 
         assert len(ds_titles) == 1
         assert "Dataset One" in ds_titles
@@ -819,7 +843,7 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert "Mr. Test User" in response
+        assert user["fullname"] in response
         assert "created the group" in response
 
     def test_create_group(self, app):
@@ -829,11 +853,13 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "created the group" in response
         assert (
-            '<a href="/group/{}">Test Group'.format(group["name"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
         )
 
     def _clear_activities(self):
@@ -853,12 +879,14 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "updated the group" in response
         assert (
-            '<a href="/group/{}">Group with changed title'.format(
-                group["name"]
+            '<a href="/group/{}">{}'.format(
+                group["name"], group["title"]
             )
             in response
         )
@@ -893,11 +921,13 @@ class TestActivity:
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "deleted the group" in response
         assert (
-            '<a href="/group/{}">Test Group'.format(group["name"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
         )
 
     def test_create_dataset(self, app):
@@ -908,14 +938,16 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "created the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_change_dataset(self, app):
 
@@ -930,16 +962,16 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "updated the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]
-            )
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
         user = factories.User()
@@ -952,11 +984,12 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]
+                                           ) in response
         )
         assert "deleted the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()

@@ -6,7 +6,7 @@ import html
 
 from flask import Blueprint, make_response
 import six
-from six import text_type
+
 from werkzeug.exceptions import BadRequest
 
 import ckan.model as model
@@ -163,7 +163,7 @@ def _get_request_data(try_url_params=False):
            item or a string otherwise
         '''
         out = {}
-        for key, value in six.iteritems(multi_dict.to_dict(flat=False)):
+        for key, value in multi_dict.to_dict(flat=False).items():
             out[key] = value[0] if len(value) == 1 else value
         return out
 
@@ -205,7 +205,7 @@ def _get_request_data(try_url_params=False):
     if request.method == u'PUT' and not request_data:
         raise ValueError(u'Invalid request. Please use the POST method for '
                          'your request')
-    for field_name, file_ in six.iteritems(request.files):
+    for field_name, file_ in request.files.items():
         request_data[field_name] = file_
     log.debug(u'Request data extracted: %r', request_data)
 
@@ -304,14 +304,14 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
                                  u'message': _(u'Access denied')}
         return_dict[u'success'] = False
 
-        if text_type(e):
+        if str(e):
             return_dict[u'error'][u'message'] += u': %s' % e
 
         return _finish(403, return_dict, content_type=u'json')
     except NotFound as e:
         return_dict[u'error'] = {u'__type': u'Not Found Error',
                                  u'message': _(u'Not found')}
-        if text_type(e):
+        if str(e):
             return_dict[u'error'][u'message'] += u': %s' % e
         return_dict[u'success'] = False
         return _finish(404, return_dict, content_type=u'json')
@@ -479,7 +479,7 @@ def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
                              u'base', u'i18n', u'{0}.js'.format(lang)))
     if not os.path.exists(source):
         return u'{}'
-    translations = json.load(open(source, u'r'))
+    translations = json.load(open(source, u'r', encoding='utf-8'))
     return _finish_ok(translations)
 
 

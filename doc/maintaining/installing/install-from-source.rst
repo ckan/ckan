@@ -255,6 +255,11 @@ Follow the instructions in :doc:`/maintaining/datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
+Once you have set up the DataStore, you may then wish to configure either the DataPusher or XLoader
+extensions to add data to the DataStore. To install DataPusher refer to this link:
+https://github.com/ckan/datapusher and to install XLoader refer to this link:
+https://github.com/ckan/ckanext-xloader
+
 ---------------
 9. You're done!
 ---------------

@@ -4,7 +4,7 @@
 """
 import unittest.mock as mock
 import pytest
-from six import string_types
+
 
 import ckan.logic as logic
 import ckan.model as model
@@ -129,52 +129,6 @@ def test_user_update_with_no_user_in_context():
         helpers.call_auth("user_update", context=context, **params)
 
 
-@pytest.mark.usefixtures("with_request_context")
-def test_user_generate_own_apikey():
-    fred = factories.MockUser(name="fred")
-    mock_model = mock.MagicMock()
-    mock_model.User.get.return_value = fred
-    # auth_user_obj shows user as logged in for non-anonymous auth
-    # functions
-    context = {"model": mock_model, "auth_user_obj": fred}
-    context["user"] = fred.name
-    params = {"id": fred.id}
-
-    result = helpers.call_auth(
-        "user_generate_apikey", context=context, **params
-    )
-    assert result is True
-
-
-@pytest.mark.usefixtures("with_request_context")
-def test_user_generate_apikey_without_logged_in_user():
-    fred = factories.MockUser(name="fred")
-    mock_model = mock.MagicMock()
-    mock_model.User.get.return_value = fred
-    context = {"model": mock_model}
-    context["user"] = None
-    params = {"id": fred.id}
-
-    with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("user_generate_apikey", context=context, **params)
-
-
-@pytest.mark.usefixtures("with_request_context")
-def test_user_generate_apikey_for_another_user():
-    fred = factories.MockUser(name="fred")
-    bob = factories.MockUser(name="bob")
-    mock_model = mock.MagicMock()
-    mock_model.User.get.return_value = fred
-    # auth_user_obj shows user as logged in for non-anonymous auth
-    # functions
-    context = {"model": mock_model, "auth_user_obj": bob}
-    context["user"] = bob.name
-    params = {"id": fred.id}
-
-    with pytest.raises(logic.NotAuthorized):
-        helpers.call_auth("user_generate_apikey", context=context, **params)
-
-
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestUpdateWithView(object):
@@ -286,7 +240,7 @@ class TestUpdateAuthWithCollaborators(object):
 
         return {
             'model': model,
-            'user': user if isinstance(user, string_types) else user.get('name')
+            'user': user if isinstance(user, str) else user.get('name')
         }
 
     @pytest.mark.parametrize('role,action,private', [

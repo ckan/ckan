@@ -13,7 +13,6 @@ from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
 
-import six
 import webob
 
 from werkzeug.exceptions import default_exceptions, HTTPException
@@ -200,7 +199,7 @@ def make_flask_stack(conf):
 
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v
-                    for k, v in six.iteritems(config)
+                    for k, v in config.items()
                     if k.startswith(namespace)}
     if (not session_opts.get('session.data_dir') and
             session_opts.get('session.type', 'file') == 'file'):
@@ -222,7 +221,6 @@ def make_flask_stack(conf):
     # Template context processors
     app.context_processor(helper_functions)
     app.context_processor(c_object)
-    app.context_processor(request_object)
 
     @app.context_processor
     def ungettext_alias():
@@ -239,7 +237,7 @@ def make_flask_stack(conf):
         (_ckan_i18n_dir, u'ckan')
     ] + [
         (p.i18n_directory(), p.i18n_domain())
-        for p in PluginImplementations(ITranslation)
+        for p in reversed(list(PluginImplementations(ITranslation)))
     ]
 
     i18n_dirs, i18n_domains = zip(*pairs)
@@ -247,6 +245,7 @@ def make_flask_stack(conf):
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
     app.config[u'BABEL_DOMAIN'] = 'ckan'
     app.config[u'BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
+    app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(helpers.get_display_timezone())
 
     babel = CKANBabel(app)
 
@@ -270,25 +269,6 @@ def make_flask_stack(conf):
 
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
-
-    # Set flask routes in named_routes
-    # TODO: refactor whatever helper is using this to not do it
-    if 'routes.named_routes' not in config:
-        config['routes.named_routes'] = {}
-    for rule in app.url_map.iter_rules():
-        if '.' not in rule.endpoint:
-            continue
-        controller, action = rule.endpoint.split('.')
-        needed = list(rule.arguments - set(rule.defaults or {}))
-        route = {
-            rule.endpoint: {
-                'action': action,
-                'controller': controller,
-                'highlight_actions': action,
-                'needed': needed
-            }
-        }
-        config['routes.named_routes'].update(route)
 
     # Start other middleware
     for plugin in PluginImplementations(IMiddleware):
@@ -396,8 +376,9 @@ def ckan_after_request(response):
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
+    status_code = response.status_code
 
-    log.info(' %s render time %.3f seconds' % (url, r_time))
+    log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
 
     return response
 
@@ -414,11 +395,6 @@ def c_object():
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
     return dict(c=g)
-
-
-def request_object():
-    u"""Use CKANRequest object implicitly in templates"""
-    return dict(request=request)
 
 
 class CKAN_Rule(Rule):
@@ -496,7 +472,7 @@ class CKANFlask(MultiStaticFlask):
 
         # Get the new blueprint rules
         bp_rules = itertools.chain.from_iterable(
-            v for k, v in six.iteritems(self.url_map._rules_by_endpoint)
+            v for k, v in self.url_map._rules_by_endpoint.items()
             if k.startswith(u'{0}.'.format(blueprint.name))
         )
 
@@ -526,8 +502,9 @@ def _register_error_handler(app):
     u'''Register error handler'''
 
     def error_handler(e):
-        log.error(e, exc_info=sys.exc_info)
+        debug = asbool(config.get('debug', config.get('DEBUG', False)))
         if isinstance(e, HTTPException):
+            log.debug(e, exc_info=sys.exc_info) if debug else log.info(e)
             extra_vars = {
                 u'code': e.code,
                 u'content': e.description,
@@ -536,6 +513,7 @@ def _register_error_handler(app):
 
             return base.render(
                 u'error_document_template.html', extra_vars), e.code
+        log.error(e, exc_info=sys.exc_info)
         extra_vars = {u'code': [500], u'content': u'Internal server error'}
         return base.render(u'error_document_template.html', extra_vars), 500
 
