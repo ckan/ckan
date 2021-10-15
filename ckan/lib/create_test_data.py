@@ -52,8 +52,7 @@ class CreateTestData(object):
     def create_test_user(cls):
         tester = model.User.by_name(u'tester')
         if tester is None:
-            tester = model.User(name=u'tester', apikey=u'tester',
-                password=u'tester')
+            tester = model.User(name=u'tester', password=u'tester')
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
@@ -458,7 +457,7 @@ left arrow <
         sysadmin = model.User(name=u'testsysadmin', password=u'testsysadmin')
         sysadmin.sysadmin = True
         model.Session.add_all([
-            model.User(name=u'tester', apikey=u'tester', password=u'tester'),
+            model.User(name=u'tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
             model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://datahub.io', password=u'annafan'),
             model.User(name=u'russianfan', password=u'russianfan'),

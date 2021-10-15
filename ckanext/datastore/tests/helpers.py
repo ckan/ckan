@@ -51,7 +51,7 @@ def rebuild_all_dbs(Session):
 
 
 def set_url_type(resources, user):
-    context = {"user": user.name}
+    context = {"user": user["name"]}
     for resource in resources:
         resource = p.toolkit.get_action("resource_show")(
             context, {"id": resource.id}

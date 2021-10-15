@@ -24,8 +24,10 @@ class TestDatastoreCreate(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, clean_index, test_request_context):
         ctd.CreateTestData.create()
-        self.sysadmin_user = model.User.get("testsysadmin")
-        self.normal_user = model.User.get("annafan")
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user)
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         with test_request_context():
@@ -38,7 +40,7 @@ class TestDatastoreCreate(object):
     def test_create_ckan_resource_in_package(self, app):
         package = model.Package.get("annakarenina")
         data = {"resource": {"package_id": package.id}}
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -114,7 +116,7 @@ class TestDatastoreCreate(object):
             "resource": {"package_id": package.id},
         }
 
-        auth = {"Authorization": str(self.sysadmin_user.apikey)}
+        auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
@@ -139,7 +141,7 @@ class TestDatastoreCreate(object):
         package = model.Package.get("annakarenina")
         resource = package.resources[0]
 
-        context = {"ignore_auth": True, "user": self.sysadmin_user.name}
+        context = {"ignore_auth": True, "user": self.sysadmin_user["name"]}
         with test_request_context():
             p.toolkit.get_action("datapusher_submit")(
                 context, {"resource_id": resource.id}
@@ -162,7 +164,7 @@ class TestDatastoreCreate(object):
         package = model.Package.get("annakarenina")
         resource = package.resources[0]
 
-        context = {"user": self.sysadmin_user.name}
+        context = {"user": self.sysadmin_user["name"]}
 
         p.toolkit.get_action("task_status_update")(
             context,
@@ -179,7 +181,10 @@ class TestDatastoreCreate(object):
 
         data = {"status": "success", "metadata": {"resource_id": resource.id}}
 
-        auth = {"Authorization": str(user.apikey)}
+        if user["sysadmin"]:
+            auth = {"Authorization": self.sysadmin_token}
+        else:
+            auth = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datapusher_hook",
             json=data,
