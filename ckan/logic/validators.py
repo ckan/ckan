@@ -948,7 +948,7 @@ def email_is_unique(key, data, errors, context):
     else:
         # allow user to update their own email
         for user in users:
-            if (user.name == data.get(("name",))
+            if (user.name in (data.get(("name",)), data.get(("id",)))
                     or user.id == data.get(("id",))):
                 return
 
