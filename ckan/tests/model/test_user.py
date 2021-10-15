@@ -24,7 +24,7 @@ def _set_password(password):
     #     password_8bit = password
 
     salt = hashlib.sha1(os.urandom(60))
-    hash = hashlib.sha1(six.ensure_binary(password + salt.hexdigest()))
+    hash = hashlib.sha1((password + salt.hexdigest()).encode())
     hashed_password = salt.hexdigest() + hash.hexdigest()
 
     if not isinstance(hashed_password, str):

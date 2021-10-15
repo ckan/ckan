@@ -77,7 +77,7 @@ class TestApiController(object):
         )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
-        content = six.ensure_binary('upload-content')
+        content = b'upload-content'
         upload_content = BytesIO(content)
         postparams = {
             "name": "test-flask-upload",
