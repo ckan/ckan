@@ -177,53 +177,51 @@ def adds_message_to_errors_dict(error_message):
     return decorator
 
 
-@pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_with_existed_value(app):
-    with app.flask_app.test_request_context():
-        user1 = factories.User(username="user01", email="user01@email.com")
+@pytest.mark.usefixtures("with_db")
+def test_email_is_unique_validator_with_existed_value():
+    user = factories.User()
 
-        # try to create new user with occupied email
-        with pytest.raises(logic.ValidationError):
-            factories.User(username="new_user", email="user01@email.com")
-
-
-@pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_email_unchanged(app):
-    with app.flask_app.test_request_context():
-        user = factories.User(username="user01", email="user01@email.com")
-
-        # try to update user1 and leave email unchanged
-        old_email = "user01@email.com"
-
-        helpers.call_action("user_update", **user)
-        updated_user = model.User.get(user["id"])
-
-        assert updated_user.email == old_email
+    # try to create new user with occupied email
+    with pytest.raises(logic.ValidationError):
+        factories.User(email=user["email"])
 
 
-@pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_using_name_as_id(app):
-    with app.flask_app.test_request_context():
-        user = factories.User(username="user01", email="user01@email.com")
+@pytest.mark.usefixtures("with_db")
+def test_email_is_unique_validator_user_update_email_unchanged():
+    user = factories.User()
 
-        # try to update user1 and leave email unchanged
-        old_email = "user01@email.com"
+    # try to update user1 and leave email unchanged
+    old_email = user["email"]
 
-        helpers.call_action(
-            "user_update", id=user['name'], email=user['email'], about='test')
-        updated_user = model.User.get(user["id"])
+    helpers.call_action("user_update", **user)
+    updated_user = model.User.get(user["id"])
 
-        assert updated_user.email == old_email
-        assert updated_user.about == 'test'
+    assert updated_user.email == old_email
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
+def test_email_is_unique_validator_user_update_using_name_as_id():
+    user = factories.User()
+
+    # try to update user1 and leave email unchanged
+    old_email = user["email"]
+
+    helpers.call_action(
+        "user_update", id=user["name"], email=user["email"], about="test"
+    )
+    updated_user = model.User.get(user["id"])
+
+    assert updated_user.email == old_email
+    assert updated_user.about == "test"
+
+
+@pytest.mark.usefixtures("with_db")
 def test_email_is_unique_validator_user_update_email_new(app):
     with app.flask_app.test_request_context():
-        user = factories.User(username="user01", email="user01@email.com")
+        user = factories.User()
 
         # try to update user1 email to unoccupied one
-        new_email = "user_new@email.com"
+        new_email = factories.User.stub().email
         user["email"] = new_email
 
         helpers.call_action("user_update", **user)
@@ -232,11 +230,11 @@ def test_email_is_unique_validator_user_update_email_new(app):
         assert updated_user.email == new_email
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 def test_email_is_unique_validator_user_update_to_existed_email(app):
     with app.flask_app.test_request_context():
-        user1 = factories.User(username="user01", email="user01@email.com")
-        user2 = factories.User(username="user02", email="user02@email.com")
+        user1 = factories.User()
+        user2 = factories.User()
 
         # try to update user1 email to existed one
         user1["email"] = user2["email"]
@@ -745,10 +743,9 @@ def test_package_name_exists_empty():
         validators.package_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 def test_package_name_exists():
-    name = "pne_validation_test"
-    factories.Dataset(name=name)
+    name = factories.Dataset()["name"]
     v = validators.package_name_exists(name, _make_context())
     assert v == name
 
@@ -758,7 +755,7 @@ def test_resource_id_exists_empty():
         validators.resource_id_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 def test_resource_id_exists(resource):
     v = validators.resource_id_exists(resource["id"], _make_context())
     assert v == resource["id"]
@@ -769,9 +766,9 @@ def test_user_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("with_db")
 def test_user_id_or_name_exists():
-    user = factories.User(name="username")
+    user = factories.User()
     v = validators.user_id_or_name_exists(user["id"], _make_context())
     assert v == user["id"]
     v = validators.user_id_or_name_exists(user["name"], _make_context())
@@ -783,7 +780,7 @@ def test_group_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("with_db")
 def test_group_id_or_name_exists(group):
     v = validators.group_id_or_name_exists(group["id"], _make_context())
     assert v == group["id"]

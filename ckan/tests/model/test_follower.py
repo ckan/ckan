@@ -54,18 +54,18 @@ class FollowerClassesTests(object):
         assert follower_ids == [self.follower["id"]], follower_ids
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 class TestUserFollowingUser(FollowerClassesTests):
     FOLLOWER_CLASS = model.UserFollowingUser
 
     def _before(self):
-        self.follower = factories.User(name="follower")
-        self.followee = factories.User(name="followee")
+        self.follower = factories.User()
+        self.followee = factories.User()
         self.FOLLOWER_CLASS(self.follower["id"], self.followee["id"]).save()
         self._create_deleted_models()
 
     def _create_deleted_models(self):
-        deleted_user = factories.User(name="deleted_user")
+        deleted_user = factories.User()
         self.FOLLOWER_CLASS(deleted_user["id"], self.followee["id"]).save()
         self.FOLLOWER_CLASS(self.follower["id"], deleted_user["id"]).save()
         user = model.User.get(deleted_user["id"])
@@ -73,55 +73,55 @@ class TestUserFollowingUser(FollowerClassesTests):
         user.save()
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 class TestUserFollowingDataset(FollowerClassesTests):
     FOLLOWER_CLASS = model.UserFollowingDataset
 
     def _before(self):
-        self.follower = factories.User(name="follower")
-        self.followee = self._create_dataset("followee")
+        self.follower = factories.User()
+        self.followee = self._create_dataset()
         self.FOLLOWER_CLASS(self.follower["id"], self.followee["id"]).save()
         self._create_deleted_models()
 
     def _create_deleted_models(self):
-        deleted_user = factories.User(name="deleted_user")
+        deleted_user = factories.User()
         self.FOLLOWER_CLASS(deleted_user["id"], self.followee["id"]).save()
         user = model.User.get(deleted_user["id"])
         user.delete()
         user.save()
-        deleted_dataset = self._create_dataset("deleted_dataset")
+        deleted_dataset = self._create_dataset()
         self.FOLLOWER_CLASS(self.follower["id"], deleted_dataset["id"]).save()
         dataset = model.Package.get(deleted_dataset["id"])
         dataset.delete()
         dataset.save()
 
-    def _create_dataset(self, name):
-        return factories.Dataset(name=name)
+    def _create_dataset(self):
+        return factories.Dataset()
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 class TestUserFollowingGroup(FollowerClassesTests):
     FOLLOWER_CLASS = model.UserFollowingGroup
 
     def _before(self):
-        self.follower = factories.User(name="follower")
-        self.followee = self._create_group("followee")
+        self.follower = factories.User()
+        self.followee = self._create_group()
         self.FOLLOWER_CLASS(self.follower["id"], self.followee["id"]).save()
         self._create_deleted_models()
         model.repo.commit_and_remove()
 
     def _create_deleted_models(self):
-        deleted_user = factories.User(name="deleted_user")
+        deleted_user = factories.User()
         self.FOLLOWER_CLASS(deleted_user["id"], self.followee["id"]).save()
         user = model.User.get(deleted_user["id"])
         user.delete()
         user.save()
 
-        deleted_group = self._create_group("deleted_group")
+        deleted_group = self._create_group()
         self.FOLLOWER_CLASS(self.follower["id"], deleted_group["id"]).save()
         group = model.Group.get(deleted_group["id"])
         group.delete()
         group.save()
 
-    def _create_group(self, name):
+    def _create_group(self):
         return factories.Group()

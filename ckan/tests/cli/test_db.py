@@ -20,7 +20,7 @@ def remove_extra_tables():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_database_migrations")
-@pytest.mark.usefixtures("with_plugins", "clean_db", "remove_extra_tables")
+@pytest.mark.usefixtures("with_plugins", "with_db", "remove_extra_tables")
 class TestMigrations:
 
     def test_path_to_alembic_config(self):

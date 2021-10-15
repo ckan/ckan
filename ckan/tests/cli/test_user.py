@@ -8,7 +8,7 @@ from ckan.cli.cli import ckan
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures("with_db")
 class TestUserAdd(object):
 
     def test_cli_user_add_valid_args(self, cli):
@@ -17,10 +17,10 @@ class TestUserAdd(object):
         args = [
             u"user",
             u"add",
-            u"berty",
+            factories.User.stub().name,
             u"password=password123",
             u"fullname=Berty Guffball",
-            u"email=berty@example.com",
+            u"email=" + factories.User.stub().email,
         ]
         result = cli.invoke(ckan, args)
 
@@ -38,9 +38,9 @@ class TestUserAdd(object):
         args = [
             u"user",
             u"add",
-            u"berty",
+            factories.User.stub().name,
             u"password=password123",
-            u"email=berty@example.com",
+            u"email=" + factories.User.stub().email,
         ]
         result = cli.invoke(ckan, args)
 
@@ -54,10 +54,10 @@ class TestUserAdd(object):
         args = [
             u"user",
             u"add",
-            u"berty",
+            factories.User.stub().name,
             u"password=password123",
             u"fullname=Harold Müffintøp",
-            u"email=berty@example.com",
+            u"email=" + factories.User.stub().email,
         ]
         result = cli.invoke(ckan, args)
         assert not result.exit_code, result.output
@@ -70,16 +70,16 @@ class TestUserAdd(object):
         args = [
             u"user",
             u"add",
-            u"berty",
+            factories.User.stub().name,
             u"password=password123",
             u"fullname=Harold Müffintøp",
-            u"email=berty@example.com",
+            u"email=" + factories.User.stub().email,
         ]
         result = cli.invoke(ckan, args)
         assert not result.exit_code, result.output
 
 
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures(u"with_db")
 class TestApiToken(object):
 
     def test_revoke(self, cli):
@@ -112,8 +112,9 @@ class TestApiToken(object):
         ]
         result = cli.invoke(ckan, args)
         assert not result.exit_code, result.output
-        for (id,) in model.Session.query(model.ApiToken.id):
-            assert id in result.output
+        tokens = model.Session.query(model.ApiToken.id).filter_by(
+            user_id=user["id"])
+        assert all(token.id in result.output for token in tokens)
 
     def test_add_with_extras(self, cli):
         """Command shouldn't raise SystemExit when valid args are provided.
@@ -128,10 +129,10 @@ class TestApiToken(object):
             u"""--json={"x": "y"}""",
         ]
 
-        assert model.Session.query(model.ApiToken).count() == 0
+        initial = model.Session.query(model.ApiToken).count()
         result = cli.invoke(ckan, args)
         assert not result.exit_code, result.output
-        assert model.Session.query(model.ApiToken).count() == 1
+        assert model.Session.query(model.ApiToken).count() == initial + 1
 
         args = [
             u"user",
@@ -145,7 +146,7 @@ class TestApiToken(object):
 
         result = cli.invoke(ckan, args)
         assert not result.exit_code, result.output
-        assert model.Session.query(model.ApiToken).count() == 2
+        assert model.Session.query(model.ApiToken).count() == initial + 2
 
         args = [
             u"user",
@@ -159,4 +160,4 @@ class TestApiToken(object):
 
         result = cli.invoke(ckan, args)
         assert result.exit_code == 1
-        assert model.Session.query(model.ApiToken).count() == 2
+        assert model.Session.query(model.ApiToken).count() == initial + 2

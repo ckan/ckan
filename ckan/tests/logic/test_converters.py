@@ -79,60 +79,66 @@ def test_convert_to_extras_output_unflattened_with_correct_index():
     assert errors == {}
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 def test_convert_to_tags():
-    vocab = factories.Vocabulary(tags=[{"name": "tag1"}])
+    tag_name = factories.Tag.stub().name
+    vocab = factories.Vocabulary(tags=[{"name": tag_name}])
     key = ("vocab_tags",)
-    data = {key: "tag1"}
+    data = {key: tag_name}
     context = {"model": model, "session": model.Session}
     converters.convert_to_tags(vocab["name"])(key, data, [], context)
 
-    assert data[("tags", 0, "name")] == "tag1"
+    assert data[("tags", 0, "name")] == tag_name
     assert data[("tags", 0, "vocabulary_id")] == vocab["id"]
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 def test_convert_from_tags():
+    tag_name1 = factories.Tag.stub().name
+    tag_name2 = factories.Tag.stub().name
     vocab = factories.Vocabulary(
         tags=[
-            {"name": "tag1"},
-            {"name": "tag2"},
+            {"name": tag_name1},
+            {"name": tag_name2},
         ]
     )
     key = "tags"
     data = {
         ("tags", 0, "__extras"): {
-            "name": "tag1",
+            "name": tag_name1,
             "vocabulary_id": vocab["id"],
         },
         ("tags", 1, "__extras"): {
-            "name": "tag2",
+            "name": tag_name2,
             "vocabulary_id": vocab["id"],
         },
     }
     errors = []
     context = {"model": model, "session": model.Session}
     converters.convert_from_tags(vocab["name"])(key, data, errors, context)
-    assert "tag1" in data["tags"]
-    assert "tag2" in data["tags"]
+    assert tag_name1 in data["tags"]
+    assert tag_name2 in data["tags"]
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 def test_free_tags_only():
+    tag_name1 = factories.Tag.stub().name
+    tag_name2 = factories.Tag.stub().name
+
     vocab = factories.Vocabulary(
         tags=[
-            {"name": "tag1"},
-            {"name": "tag2"},
+            {"name": tag_name1},
+            {"name": tag_name2},
         ]
     )
     key = ("tags", 0, "__extras")
     data = {
         ("tags", 0, "__extras"): {
-            "name": "tag1",
+            "name": tag_name1,
             "vocabulary_id": vocab["id"],
         },
         ("tags", 0, "vocabulary_id"): vocab["id"],
-        ("tags", 1, "__extras"): {"name": "tag2", "vocabulary_id": None},
+        ("tags", 1, "__extras"): {"name": tag_name2, "vocabulary_id": None},
         ("tags", 1, "vocabulary_id"): None,
     }
     errors = []

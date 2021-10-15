@@ -46,7 +46,7 @@ import ckan.tests.factories as factories
 import ckan.plugins
 import ckan.cli
 import ckan.lib.search as search
-
+import ckan.model as model
 from ckan.common import config
 
 
@@ -77,6 +77,11 @@ class PackageFactory(factories.Dataset):
 
 @register
 class VocabularyFactory(factories.Vocabulary):
+    pass
+
+
+@register
+class TagFactory(factories.Tag):
     pass
 
 
@@ -187,6 +192,7 @@ def reset_db():
     If possible use the ``clean_db`` fixture instead.
 
     """
+    factories.fake.unique.clear()
     return test_helpers.reset_db
 
 
@@ -323,7 +329,26 @@ def with_extended_cli(ckan_config, monkeypatch):
     # using global config object.  With this patch it becomes possible
     # to apply per-test config changes to it without creating real
     # config file.
-    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)
+    monkeypatch.setattr(ckan.cli, u"load_config", lambda _: ckan_config)
+
+
+@pytest.fixture
+def with_db():
+    """Guarantees that DB is initialized.
+
+    This fixture either initializes DB if it hasn't been done yet or does
+    nothing otherwise. If there is some data in DB, it stays intact. If your
+    tests need empty database, use `clean_db` instead, which is much slower,
+    but guarantees that there are no data left from the previous test session.
+
+    Example::
+
+        @pytest.mark.usefixtures("with_db")
+        def test_example():
+            assert factories.User()
+
+    """
+    model.repo.init_db()
 
 
 class FakeFileStorage(FlaskFileStorage):

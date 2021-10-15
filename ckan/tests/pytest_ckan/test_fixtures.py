@@ -116,3 +116,8 @@ class TestMigrateDbFor(object):
 
         assert has_table("example_database_migrations_x")
         assert has_table("example_database_migrations_y")
+
+
+@pytest.mark.usefixtures("with_db")
+def test_with_db_does_not_fail(package_factory):
+    assert package_factory()

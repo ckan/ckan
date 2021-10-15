@@ -9,7 +9,6 @@ from ckan.tests.helpers import body_contains
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
-@pytest.mark.usefixtures("with_request_context")
 class TestWithFlashPlugin:
     def test_flash_populated_by_flask_redirect_to_flask(self, app):
         """

@@ -13,13 +13,13 @@ this_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 @pytest.fixture
-def reset(clean_db):
+def reset():
     yield
     if hasattr(model.Package, "_license_register"):
         del model.Package._license_register
 
 
-@pytest.mark.usefixtures("reset")
+@pytest.mark.usefixtures("with_db", "reset")
 def test_default_register_has_basic_properties_of_a_license():
     config["licenses_group_url"] = None
     reg = LicenseRegister()
@@ -30,7 +30,7 @@ def test_default_register_has_basic_properties_of_a_license():
     assert license.title == "Creative Commons Attribution"
 
 
-@pytest.mark.usefixtures("reset")
+@pytest.mark.usefixtures("with_db", "reset")
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v1" % this_dir
 )
@@ -44,7 +44,7 @@ def test_import_v1_style_register():
 
 
 # v2 is used by http://licenses.opendefinition.org in recent times
-@pytest.mark.usefixtures("reset")
+@pytest.mark.usefixtures("with_db", "reset")
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v2" % this_dir
 )
@@ -56,7 +56,7 @@ def test_import_v2_style_register():
     assert license.title == "Creative Commons Attribution 4.0"
 
 
-@pytest.mark.usefixtures("reset", "with_request_context")
+@pytest.mark.usefixtures("reset")
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v1" % this_dir
 )
@@ -69,7 +69,7 @@ def test_import_v1_style_register_i18n(app):
     assert "Altres (Oberta)" in resp.body
 
 
-@pytest.mark.usefixtures("reset", "with_request_context")
+@pytest.mark.usefixtures("reset")
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v2" % this_dir
 )

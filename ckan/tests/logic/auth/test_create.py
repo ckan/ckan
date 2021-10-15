@@ -44,7 +44,7 @@ def test_cud_overrides_acd():
         helpers.call_auth("package_create", context)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("with_db")
 class TestUserCreate:
     def test_sysadmin_can_create_via_api(self):
         sysadmin = factories.Sysadmin()
@@ -72,7 +72,7 @@ class TestUserCreate:
         assert helpers.call_auth("user_create", context)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("with_db")
 class TestRealUsersAuth(object):
     def test_no_org_user_can_create(self):
         user = factories.User()
@@ -399,28 +399,27 @@ class TestApiToken(object):
     def test_anon_is_not_allowed_to_create_tokens(self):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                u"api_token_create",
-                {u"user": None, u"model": model}
+                u"api_token_create", {u"user": None, u"model": model}
             )
 
-    @pytest.mark.usefixtures(u"clean_db")
+    @pytest.mark.usefixtures(u"with_db")
     def test_auth_user_is_allowed_to_create_tokens(self):
         user = factories.User()
-        helpers.call_auth(u"api_token_create", {
-            u"model": model,
-            u"user": user[u"name"]
-        }, user=user[u"name"])
+        helpers.call_auth(
+            u"api_token_create",
+            {u"model": model, u"user": user[u"name"]},
+            user=user[u"name"],
+        )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreateAuth(object):
-
     def _get_context(self, user):
 
         return {
-            'model': model,
-            'user': user if isinstance(user, str) else user.get('name')
+            "model": model,
+            "user": user if isinstance(user, str) else user.get("name"),
         }
 
     def setup(self):

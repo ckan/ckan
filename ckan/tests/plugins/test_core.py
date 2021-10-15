@@ -152,37 +152,37 @@ def test_only_configured_plugins_loaded():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.usefixtures("with_plugins", "with_db")
 def test_mapper_plugin_fired_on_insert():
     plugin = plugins.get_plugin("mapper_plugin")
-    factories.Dataset(name="testpkg")
+    dataset = factories.Dataset()
     assert plugin.calls == [
-        ("before_insert", "testpkg"),
-        ("after_insert", "testpkg"),
+        ("before_insert", dataset["name"]),
+        ("after_insert", dataset["name"]),
     ]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
+@pytest.mark.usefixtures("with_plugins", "with_db")
 def test_mapper_plugin_fired_on_delete():
     plugin = plugins.get_plugin("mapper_plugin")
-    factories.Dataset(name="testpkg")
+    dataset = factories.Dataset()
     plugin.calls = []
     # remove this data
     user = factories.User()
     context = {"user": user["name"]}
-    logic.get_action("package_delete")(context, {"id": "testpkg"})
+    logic.get_action("package_delete")(context, {"id": dataset["name"]})
     # state=deleted doesn't trigger before_delete()
     assert plugin.calls == []
     from ckan import model
 
     # purging the package does trigger before_delete()
-    model.Package.get("testpkg").purge()
+    model.Package.get(dataset["name"]).purge()
     model.Session.commit()
     model.Session.remove()
     assert plugin.calls == [
-        ("before_delete", "testpkg"),
-        ("after_delete", "testpkg"),
+        ("before_delete", dataset["name"]),
+        ("after_delete", dataset["name"]),
     ]
 
 
