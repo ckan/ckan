@@ -105,7 +105,7 @@ placeholder - placeholder text for url field
           id='field-resource-url',
           type='url',
           placeholder=placeholder,
-          value='' if is_upload else data.get('url'),
+          value='{% if is_url %}{{ data.get('url') }}{% endif %}'
           error=errors.get('url'),
           classes=['control-full']) }}
       {% endblock %}
