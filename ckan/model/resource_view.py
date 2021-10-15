@@ -26,16 +26,12 @@ resource_view_table = sa.Table(
 class ResourceView(domain_object.DomainObject):
     @classmethod
     def get(cls, reference):
-        '''Returns a ResourceView object referenced
-             by its id or resource_id.'''
+        '''Returns a ResourceView object referenced by its id.'''
         if not reference:
             return None
 
-        query = meta.Session.query(cls).autoflush(False)
-        query = query.filter(
-            or_(cls.id == reference, cls.resource_id == reference)
-        )
-        return query.first()
+        view = meta.Session.query(cls).get(reference)
+        return view
 
     @classmethod
     def get_columns(cls):
