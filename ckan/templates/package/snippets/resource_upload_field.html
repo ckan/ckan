@@ -44,7 +44,7 @@ placeholder - placeholder text for url field
             title="{{ _('Upload a file on your computer') }}"
             onclick="
               document.getElementById('resource-url-upload').checked = true;
-              document.getElementById('field-resource-upload').focus();
+              document.getElementById('field-resource-upload').click();
             "><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
         {% endif %}
         <button type="button" class="btn btn-default" id="resource-link-button"
