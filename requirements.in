@@ -11,7 +11,7 @@ feedgen==0.9.0
 Flask==2.0.1
 Flask-Babel==1.0.0
 flask-multistatic==1.0
-Jinja2==3.0.1
+Jinja2==3.0.2
 PyJWT==2.1.0
 Markdown==3.3.4
 passlib==1.7.4
@@ -21,7 +21,7 @@ python-magic==0.4.24
 pysolr==3.6.0
 python-dateutil==2.8.1
 pytz==2021.1
-PyUtilib==6.0.0 
+PyUtilib==6.0.0
 pyyaml==5.4.1
 repoze.who==2.3
 requests==2.25.1
