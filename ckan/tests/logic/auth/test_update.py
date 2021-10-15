@@ -215,22 +215,22 @@ class TestUpdate(object):
     def test_config_option_update_normal_user(self):
         """A normal logged in user is not authorized to use config_option_update
         action."""
-        factories.User(name="fred")
-        context = {"user": "fred", "model": None}
+        user = factories.User()
+        context = {"user": user["name"], "model": None}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("config_option_update", context=context)
 
     def test_config_option_update_sysadmin(self):
         """A sysadmin is authorized to use config_option_update action."""
-        factories.Sysadmin(name="fred")
-        context = {"user": "fred", "model": None}
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "model": None}
         assert helpers.call_auth("config_option_update", context=context)
 
 
-@pytest.mark.usefixtures('clean_db', 'with_plugins')
-@pytest.mark.ckan_config('ckan.plugins', 'image_view')
-@pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
-@pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
+@pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
 class TestUpdateAuthWithCollaborators(object):
 
     def _get_context(self, user):

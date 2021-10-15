@@ -215,6 +215,7 @@ class TestGroupPurge(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("group_show", context={}, id=group["name"])
 
+    @pytest.mark.usefixtures("clean_db")
     def test_purged_group_is_not_listed(self):
         group = factories.Group()
 
@@ -315,6 +316,7 @@ class TestOrganizationPurge(object):
                 "organization_show", context={}, id=org["name"]
             )
 
+    @pytest.mark.usefixtures("clean_db")
     def test_purged_org_is_not_listed(self):
         org = factories.Organization()
 
@@ -416,6 +418,7 @@ class TestDatasetPurge(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("package_show", context={}, id=dataset["name"])
 
+    @pytest.mark.usefixtures("clean_db")
     def test_purged_dataset_is_not_listed(self):
         dataset = factories.Dataset()
 

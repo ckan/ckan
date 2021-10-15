@@ -915,7 +915,7 @@ class TestDatasetCreate(object):
     def test_resources(self):
         dataset = helpers.call_action(
             "package_create",
-            name="test-resources",
+            name=factories.Dataset.stub().name,
             title="Test Resources",
             resources=[
                 {
@@ -1487,7 +1487,7 @@ class TestFollowUser(object):
         )
 
 
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures("with_db")
 class TestApiToken(object):
     def test_token_created(self):
         from ckan.lib.api_token import decode
@@ -1507,8 +1507,8 @@ class TestApiToken(object):
         assert res.id == jti
 
 
-@pytest.mark.usefixtures("clean_db")
-@pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
+@pytest.mark.usefixtures("with_db")
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", False)
 def test_create_package_collaborator_when_config_disabled():
 
     dataset = factories.Dataset()

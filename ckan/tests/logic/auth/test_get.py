@@ -217,8 +217,8 @@ class TestApiToken(object):
         }, user=user[u"name"])
 
 
-@pytest.mark.usefixtures('clean_db', 'with_plugins')
-@pytest.mark.ckan_config('ckan.plugins', 'image_view')
+@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestGetAuthWithCollaborators(object):
 
@@ -402,7 +402,7 @@ class TestGetAuthWithCollaborators(object):
             context=context, id=resource_view['id'])
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("with_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberList(object):
 
