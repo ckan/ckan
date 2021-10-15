@@ -762,6 +762,9 @@ def _group_or_org_create(context, data_dict, is_org=False):
     }
     logic.get_action('activity_create')(activity_create_context, activity_dict)
 
+    if hasattr(upload, "verify_type"):
+        upload.verify_type()
+
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
@@ -1011,6 +1014,9 @@ def user_create(context, data_dict):
         'activity_type': 'new user',
     }
     logic.get_action('activity_create')(activity_create_context, activity_dict)
+
+    if hasattr(upload, "verify_type"):
+        upload.verify_type()
 
     upload.upload(uploader.get_max_image_size())
 
