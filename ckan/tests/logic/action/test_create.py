@@ -1732,7 +1732,6 @@ class TestUserImageUrl(object):
         assert create_with_upload(faker.image(), "file.png", **params)
 
 
-
 class TestVocabularyCreate(object):
     @pytest.mark.usefixtures("clean_db")
     def test_basic(self):

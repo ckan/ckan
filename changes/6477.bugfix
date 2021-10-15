@@ -1,0 +1,1 @@
+Type of uploads for group and user image can be restricted via `ckan.upload.user.types` and `ckan.upload.group.types`
