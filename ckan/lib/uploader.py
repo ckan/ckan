@@ -13,7 +13,7 @@ from werkzeug.datastructures import FileStorage as FlaskFileStorage
 import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
-from ckan.common import config
+from ckan.common import config, aslist
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
 MB = 1 << 20
@@ -191,6 +191,27 @@ class Upload(object):
                 os.remove(self.old_filepath)
             except OSError:
                 pass
+
+    def verify_type(self):
+        if not self.filename:
+            return
+
+        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
+        self.upload_file.seek(0, os.SEEK_SET)
+
+        err = {self.file_field: [
+            "Unsupported upload type: {actual}".format(actual=actual)]}
+
+        mimetypes = aslist(
+            config.get("ckan.upload.{}.mimetypes".format(self.object_type)))
+        if mimetypes and actual not in mimetypes:
+            raise logic.ValidationError(err)
+
+        type_ = actual.split("/")[0]
+        types = aslist(
+            config.get("ckan.upload.{}.types".format(self.object_type)))
+        if types and type_ not in types:
+            raise logic.ValidationError(err)
 
 
 class ResourceUpload(object):
