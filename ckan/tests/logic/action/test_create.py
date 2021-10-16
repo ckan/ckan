@@ -70,6 +70,12 @@ class TestUserInvite(object):
             self._invite_user_to_group(email=None)
 
     @mock.patch("ckan.lib.mailer.send_invite")
+    def test_existed_email(self, _):
+        factories.User(email="email@example.com")
+        with pytest.raises(logic.ValidationError):
+            self._invite_user_to_group(email="email@example.com")
+
+    @mock.patch("ckan.lib.mailer.send_invite")
     def test_requires_role(self, _):
         with pytest.raises(logic.ValidationError):
             self._invite_user_to_group(role=None)
