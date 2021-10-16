@@ -492,11 +492,9 @@ def logged_in():
     # redirect if needed
     came_from = request.params.get(u'came_from', u'')
     if h.url_is_local(came_from):
-        h.user_last_login()
         return h.redirect_to(str(came_from))
 
     if g.user:
-        h.user_last_login()
         return me()
     else:
         err = _(u'Login failed. Bad username or password.')

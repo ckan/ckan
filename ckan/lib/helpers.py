@@ -2944,13 +2944,3 @@ def can_update_owner_org(package_dict, user_orgs=None):
         return True
 
     return False
-
-
-def user_last_login():
-
-    try:
-        if g.user:
-            userobj = g.userobj
-            userobj.set_user_last_login()
-    except logic.NotFound:
-        pass

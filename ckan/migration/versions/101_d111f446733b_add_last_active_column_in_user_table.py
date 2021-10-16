@@ -20,15 +20,8 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column(
-        'user',
-        sa.Column(
-            'last_login',
-            sa.TIMESTAMP,
-            server_default=sa.func.current_timestamp(),
-        ),
-    )
+    op.add_column('user', sa.Column('last_active', sa.TIMESTAMP))
 
 
 def downgrade():
-    op.remove_column('user', sa.Column('last_login'))
+    op.remove_column('user', sa.Column('last_active'))
