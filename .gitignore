@@ -23,7 +23,9 @@ build/*
 tmp/*
 solr_runtime/*
 fl_notes.txt
-*.ini
+who.ini
+production.ini
+ckan.ini
 !ckan/migration/alembic.ini
 .noseids
 *~
