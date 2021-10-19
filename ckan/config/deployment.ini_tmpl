@@ -79,6 +79,9 @@ ckan.auth.public_activity_stream_detail = true
 ckan.auth.allow_dataset_collaborators = false
 ckan.auth.create_default_api_keys = false
 
+# User last active
+ckan.user.last_active = 30
+
 ## API Token Settings
 api_token.nbytes = 60
 api_token.jwt.encode.secret = string:$app_instance_secret

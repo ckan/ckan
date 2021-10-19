@@ -18,11 +18,12 @@ from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
-from ckan.common import config, asbool, session
+from ckan.common import config, asbool, asint, session
 
 
 def last_active_check():
-    calc_time = datetime.datetime.utcnow() - datetime.timedelta(minutes = 30)
+    last_active = asint(config.get('ckan.user.last_active', 30))
+    calc_time = datetime.datetime.utcnow() - datetime.timedelta(minutes = last_active)
     return calc_time
 
 

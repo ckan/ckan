@@ -908,6 +908,21 @@ Determines if a an API key should be automatically created for every user when c
 
 .. end_config-authorization
 
+.. _config-user-last-active
+
+User last active configuration
+------------------------------
+
+Example::
+
+  ckan.user.last_active = 30
+
+Default value: 30
+
+The time is measured in minutes
+
+.. end_config-user-last-active
+
 .. _config-api-tokens:
 
 API Token Settings
