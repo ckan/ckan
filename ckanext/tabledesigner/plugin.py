@@ -1,7 +1,10 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
+import ckanext.tabledesigner.views as views
+
 @toolkit.blanket.actions
+@toolkit.blanket.blueprints(views.tabledesigner)
 class TableDesignerPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
 
