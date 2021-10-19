@@ -2,10 +2,12 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 from ckanext.tabledesigner import actions
+import ckanext.tabledesigner.views as views
 
 class TableDesignerPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IActions)
+    plugins.implements(plugins.IBlueprint)
 
     # IConfigurer
 
@@ -20,3 +22,8 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
             'package_update': actions.package_update,
             'package_create': actions.package_create,
         }
+
+    # IBlueprint
+
+    def get_blueprint(self):
+        return views.tabledesigner
