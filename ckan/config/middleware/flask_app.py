@@ -540,7 +540,10 @@ def _setup_error_mail_handler(app):
         if ':' in smtp_server else smtp_server
     credentials = None
     if config.normalized('smtp.user'):
-        credentials = (config.normalized('smtp.user'), config.normalized('smtp.password'))
+        credentials = (
+            config.normalized('smtp.user'),
+            config.normalized('smtp.password')
+        )
     secure = () if config.normalized('smtp.starttls') else None
     mail_handler = SMTPHandler(
         mailhost=mailhost,

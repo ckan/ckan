@@ -64,12 +64,21 @@ class TestDescribe(object):
                     "annotation": "Datapusher settings",
                     "options": [
                         {
-                            "default": (
-                                "csv xls xlsx tsv application/csv "
-                                "application/vnd.ms-excel "
-                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet ods application/vnd.oasis.opendocument.spreadsheet"
-                            ),
+                            "default": [
+                                "csv",
+                                "xls",
+                                "xlsx",
+                                "tsv",
+                                "application/csv",
+                                "application/vnd.ms-excel",
+                                "application/vnd.openxmlformats-officedocument"
+                                ".spreadsheetml.sheet",
+                                "ods",
+                                "application/vnd.oasis.opendocument"
+                                ".spreadsheet",
+                            ],
                             "key": "ckan.datapusher.formats",
+                            "validators": "as_list"
                         },
                         {"key": "ckan.datapusher.url"},
                         {"key": "ckan.datapusher.callback_url_base"},
@@ -82,7 +91,7 @@ class TestDescribe(object):
                 }
             ],
             "version": 1,
-        }
+        }, data
 
 
 @pytest.mark.usefixtures("with_extended_cli")
@@ -102,14 +111,22 @@ class TestDeclaration(object):
     def test_enabled(self, command):
         result = command("declaration", "--enabled")
         assert "Datastore settings" in result.output
-        assert "ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default" in result.output
+        assert (
+            "ckan.datastore.write_url ="
+            " postgresql://ckan_default:pass@localhost/datastore_default"
+            in result.output
+        )
 
         assert not result.exit_code, result.output
 
     def test_explicit(self, command):
         result = command("declaration", "datastore")
         assert "Datastore settings" in result.output
-        assert "ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default" in result.output
+        assert (
+            "ckan.datastore.write_url ="
+            " postgresql://ckan_default:pass@localhost/datastore_default"
+            in result.output
+        )
         assert not result.exit_code, result.output
 
 

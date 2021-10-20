@@ -548,9 +548,9 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
     [4] http://www.ietf.org/rfc/rfc4287
     """
     if authority_name is None:
-        authority_name = config.normalized(u'ckan.feeds.authority_name').strip()
+        authority_name = config.normalized(u'ckan.feeds.authority_name')
         if not authority_name:
-            site_url = config.normalized(u'ckan.site_url').strip()
+            site_url = config.normalized(u'ckan.site_url')
             authority_name = urlparse(site_url).netloc
 
     if not authority_name:

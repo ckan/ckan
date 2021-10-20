@@ -91,8 +91,8 @@ def index():
     page_number = h.get_page_number(request.params)
     q = request.params.get(u'q', u'')
     order_by = request.params.get(u'order_by', u'name')
-    limit = int(
-        request.params.get(u'limit', config.normalized(u'ckan.user_list_limit')))
+    limit = int(request.params.get(
+        u'limit', config.normalized(u'ckan.user_list_limit')))
     context = {
         u'return_query': True,
         u'user': g.user,

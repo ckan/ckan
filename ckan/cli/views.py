@@ -283,8 +283,7 @@ def _add_default_filters(search_data_dict, view_types):
     """
 
     from ckanext.textview.plugin import get_formats as get_text_formats
-    datapusher_formats = p.toolkit.config.normalized(
-        "ckan.datapusher.formats").split()
+    datapusher_formats = p.toolkit.config.normalized("ckan.datapusher.formats")
 
     filter_formats = []
 

@@ -183,7 +183,8 @@ class Declaration:
         self._mapping[key] = value
         return value
 
-    def declare_bool(self, key: Key, default: Optional[bool] = False) -> Option[bool]:
+    def declare_bool(
+            self, key: Key, default: Optional[bool] = False) -> Option[bool]:
         option = self.declare(key, bool(default))
         option.set_validators("boolean_validator")
         return option
@@ -193,7 +194,8 @@ class Declaration:
         option.set_validators("convert_int")
         return option
 
-    def declare_list(self, key: Key, default: Optional[list[Any]]) -> Option[list[Any]]:
+    def declare_list(
+            self, key: Key, default: Optional[list[Any]]) -> Option[list[Any]]:
         if default is None:
             default = []
         option = self.declare(key, default)

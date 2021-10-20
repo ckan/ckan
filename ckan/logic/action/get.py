@@ -2397,11 +2397,11 @@ def status_show(context, data_dict):
 
     return {
         'site_title': config.normalized('ckan.site_title'),
-        'site_description': config.safenormalized('ckan.site_description'),
-        'site_url': config.safenormalized('ckan.site_url'),
+        'site_description': config.normalized('ckan.site_description'),
+        'site_url': config.normalized('ckan.site_url'),
         'ckan_version': ckan.__version__,
-        'error_emails_to': config.safenormalized('email_to'),
-        'locale_default': config.safenormalized('ckan.locale_default'),
+        'error_emails_to': config.normalized('email_to'),
+        'locale_default': config.normalized('ckan.locale_default'),
         'extensions': extensions,
     }
 

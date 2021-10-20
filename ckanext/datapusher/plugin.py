@@ -2,7 +2,6 @@
 
 import logging
 
-import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -13,7 +12,14 @@ import ckanext.datapusher.logic.auth as auth
 from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
-_get_or_bust = logic.get_or_bust
+
+_default_formats = [
+    "csv", "xls", "xlsx", "tsv", "application/csv",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "ods",
+    "application/vnd.oasis.opendocument.spreadsheet"
+]
 
 
 class DatastoreException(Exception):
@@ -41,8 +47,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
-        datapusher_formats = config.normalized(u'ckan.datapusher.formats').lower()
-        self.datapusher_formats = datapusher_formats.split()
+        self.datapusher_formats = config.normalized(u'ckan.datapusher.formats')
 
         for config_option in (
             u'ckan.site_url',
@@ -158,12 +163,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     def declare_config_options(self, declaration: Declaration, key: Key):
         datapusher = key.ckan.datapusher
         declaration.annotate("Datapusher settings")
-        declaration.declare(
-            datapusher.formats,
-            "csv xls xlsx tsv application/csv application/vnd.ms-excel "
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            " ods application/vnd.oasis.opendocument.spreadsheet"
-        )
+        declaration.declare_list(datapusher.formats, _default_formats)
         declaration.declare(datapusher.url)
         declaration.declare(datapusher.callback_url_base)
         declaration.declare_int(datapusher.assume_task_stale_after, 3600)
