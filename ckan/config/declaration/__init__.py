@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 from collections import OrderedDict
@@ -182,14 +183,21 @@ class Declaration:
         self._mapping[key] = value
         return value
 
-    def declare_bool(self, key: Key, default: Any = False) -> Option[bool]:
+    def declare_bool(self, key: Key, default: Optional[bool] = False) -> Option[bool]:
         option = self.declare(key, bool(default))
         option.set_validators("boolean_validator")
         return option
 
-    def declare_int(self, key: Key, default: int) -> Option[int]:
+    def declare_int(self, key: Key, default: Optional[int]) -> Option[int]:
         option = self.declare(key, default)
         option.set_validators("convert_int")
+        return option
+
+    def declare_list(self, key: Key, default: Optional[list[Any]]) -> Option[list[Any]]:
+        if default is None:
+            default = []
+        option = self.declare(key, default)
+        option.set_validators("as_list")
         return option
 
     def declare_dynamic(self, key: Key, default: Any = None) -> Option[Any]:

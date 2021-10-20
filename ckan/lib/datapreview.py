@@ -120,7 +120,7 @@ def get_default_view_plugins(get_datastore_views=False):
 
     Returns a list of IResourceView plugins
     '''
-    default_view_types = config.normalized('ckan.views.default_views').split()
+    default_view_types = config.normalized('ckan.views.default_views')
 
     default_view_plugins = []
     for view_type in default_view_types:

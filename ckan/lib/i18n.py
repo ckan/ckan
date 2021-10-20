@@ -79,10 +79,10 @@ def get_ckan_i18n_dir():
 def get_locales_from_config():
     ''' despite the name of this function it gets the locales defined by
     the config AND also the locals available subject to the config. '''
-    locales_offered = aslist(config.normalized('ckan.locales_offered'))
-    filtered_out = aslist(config.normalized('ckan.locales_filtered_out'))
+    locales_offered = config.normalized('ckan.locales_offered')
+    filtered_out = config.normalized('ckan.locales_filtered_out')
     locale_default = [config.normalized('ckan.locale_default')]
-    locale_order = aslist(config.normalized('ckan.locale_order'))
+    locale_order = config.normalized('ckan.locale_order')
 
     known_locales = get_locales()
     all_locales = (set(known_locales) |
@@ -98,10 +98,10 @@ def _get_locales():
     assert not config.get('lang'), \
         ('"lang" config option not supported - please use ckan.locale_default '
          'instead.')
-    locales_offered = aslist(config.normalized('ckan.locales_offered'))
-    filtered_out = aslist(config.normalized('ckan.locales_filtered_out'))
+    locales_offered = config.normalized('ckan.locales_offered')
+    filtered_out = config.normalized('ckan.locales_filtered_out')
     locale_default = config.normalized('ckan.locale_default')
-    locale_order = aslist(config.normalized('ckan.locale_order'))
+    locale_order = config.normalized('ckan.locale_order')
 
     locales = ['en']
     i18n_path = get_ckan_i18n_dir()
@@ -169,7 +169,7 @@ def non_translated_locals():
     no translations. returns a list like ['en', 'de', ...] '''
     global _non_translated_locals
     if not _non_translated_locals:
-        locales = aslist(config.normalized('ckan.locale_order'))
+        locales = config.normalized('ckan.locale_order')
         _non_translated_locals = [x for x in locales if x not in get_locales()]
     return _non_translated_locals
 

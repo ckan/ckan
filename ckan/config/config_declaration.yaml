@@ -159,6 +159,7 @@ groups:
         type: int
         default: 1
       - key: ckan.devserver.watch_patterns
+        type: list
       - key: ckan.devserver.ssl_cert
       - key: ckan.devserver.ssl_key
 
@@ -241,7 +242,11 @@ groups:
       - key: ckan.tracking_enabled
         type: bool
       - key: ckan.valid_url_schemes
-        default: http https ftp
+        type: list
+        default:
+          - http
+          - https
+          - ftp
 
   - annotation: Authorization Settings
     options:
@@ -270,7 +275,9 @@ groups:
         type: bool
         default: true
       - key: ckan.auth.roles_that_cascade_to_sub_groups
-        default: admin
+        type: list
+        default:
+          - admin
       - key: ckan.auth.public_user_details
         type: bool
         default: true
@@ -322,7 +329,13 @@ groups:
       - key: ckan.search.default_package_sort
         default:  score desc, metadata_modified desc
       - key: search.facets
-        default: organization groups tags res_format license_id
+        type: list
+        default:
+          - organization
+          - groups
+          - tags
+          - res_format
+          - license_id
       - key: search.facets.limit
         type: int
         default: 50
@@ -330,7 +343,7 @@ groups:
         type: int
         default: 10
       - key: ckan.extra_resource_fields
-        default: ''
+        type: list
       - key: ckan.search.rows_max
         type: int
         default: 1000
@@ -359,13 +372,14 @@ groups:
           If cors.origin_allow_all is true, all origins are allowed.  If false,
           the cors.origin_whitelist is used.
       - key: ckan.cors.origin_whitelist
+        type: list
         description: cors.origin_whitelist is a space separated list of allowed domains.
 
   - annotation: Plugins Settings
     options:
       - key: ckan.plugins
         required: true
-        default: ""
+        type: list
         description: |-
           Note: Add ``datastore`` to enable the CKAN DataStore.
           Add ``datapusher`` to enable DataPusher.
@@ -391,12 +405,15 @@ groups:
         type: int
         default: 20
       - key: package_hide_extras
+        type: list
       - key: ckan.dumps_url
       - key: ckan.dumps_format
       - key: ckan.recaptcha.publickey
       - key: ckan.recaptcha.privatekey
       - key: ckan.featured_groups
+        type: list
       - key: ckan.featured_orgs
+        type: list
       - key: ckan.default_group_sort
         default: title
       - key: ckan.gravatar_default
@@ -412,7 +429,10 @@ groups:
   - annotation: Resource Views Settings
     options:
       - key: ckan.views.default_views
-        default: image_view recline_view
+        type: list
+        default:
+          - image_view
+          - recline_view
         description: >-
           Define which views should be created by default (plugins must be
           loaded in ckan.plugins)
@@ -481,6 +501,7 @@ groups:
       - key: ckan.email_notifications_since
         default: '2 days'
       - key: ckan.hide_activity_from_users
+        type: list
         placeholder: "%(ckan.site_id)s"
 
   - annotation: Feeds Settings
@@ -501,15 +522,22 @@ groups:
       - key: ckan.locale_default
         default: en
       - key: ckan.locales_offered
+        type: list
       - key: ckan.locales_filtered_out
+        type: list
       - key: ckan.locale_order
-        default: ''
+        type: list
       - key: ckan.i18n_directory
       - key: ckan.i18n.extra_directory
       - key: ckan.i18n.extra_gettext_domain
       - key: ckan.i18n.extra_locales
+        type: list
       - key: ckan.i18n.rtl_languages
-        default: he ar fa_IR
+        type: list
+        default:
+          - he
+          - ar
+          - fa_IR
       - key: ckan.i18n.rtl_css
         default: /base/css/main-rtl.css
       - key: ckan.display_timezone

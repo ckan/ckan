@@ -51,9 +51,7 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
 
     # Reloading
     use_reloader = not disable_reloader
-    config_extra_files = tk.aslist(
-        config.normalized(u"ckan.devserver.watch_patterns")
-    )
+    config_extra_files = config.normalized(u"ckan.devserver.watch_patterns")
     extra_files = list(extra_files) + [
         config[u"__file__"]
     ] + config_extra_files

@@ -20,6 +20,7 @@ option_types = {
     "bool": "declare_bool",
     "int": "declare_int",
     "dynamic": "declare_dynamic",
+    "list": "declare_list",
 }
 
 handler: FormatHandler[Callable[..., None]] = FormatHandler()

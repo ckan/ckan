@@ -2393,9 +2393,7 @@ def status_show(context, data_dict):
     :rtype: dictionary
 
     '''
-
-    plugins = config.normalized('ckan.plugins')
-    extensions = plugins.split() if plugins else []
+    extensions = config.normalized('ckan.plugins')
 
     return {
         'site_title': config.normalized('ckan.site_title'),

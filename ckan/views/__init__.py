@@ -55,11 +55,12 @@ def set_cors_headers_for_response(response):
     '''
     if request.headers.get(u'Origin'):
         cors_origin_allowed = None
-        if config.normalized(u'ckan.cors.origin_allow_all'):
+        allow_all = config.normalized(u'ckan.cors.origin_allow_all')
+        whitelisted = request.headers.get(u'Origin') in config.normalized(
+            u'ckan.cors.origin_whitelist')
+        if allow_all:
             cors_origin_allowed = b'*'
-        elif config.normalized(u'ckan.cors.origin_whitelist') and \
-                request.headers.get(u'Origin') \
-                in config[u'ckan.cors.origin_whitelist'].split(u' '):
+        elif whitelisted:
             # set var to the origin to allow it.
             cors_origin_allowed = request.headers.get(u'Origin')
 

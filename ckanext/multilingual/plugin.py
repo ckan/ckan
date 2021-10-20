@@ -203,7 +203,7 @@ KEYS_TO_IGNORE = ['state', 'revision_id', 'id', #title done seperately
 
 class MultilingualDataset(SingletonPlugin):
     implements(IPackageController, inherit=True)
-    LANGS = toolkit.aslist(config.normalized('ckan.locale_order')) or ["en"]
+    LANGS = config.normalized('ckan.locale_order') or ["en"]
 
     def before_index(self, search_data):
 

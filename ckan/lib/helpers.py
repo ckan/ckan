@@ -530,7 +530,7 @@ def is_url(*args, **kw):
     except ValueError:
         return False
 
-    valid_schemes = config.normalized('ckan.valid_url_schemes').lower().split()
+    valid_schemes = config.normalized('ckan.valid_url_schemes')
 
     return url.scheme in (valid_schemes)
 
@@ -667,7 +667,7 @@ def lang_native_name(lang=None):
 
 @core_helper
 def is_rtl_language():
-    return lang() in config.normalized('ckan.i18n.rtl_languages').split()
+    return lang() in config.normalized('ckan.i18n.rtl_languages')
 
 
 @core_helper
@@ -1252,7 +1252,7 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
     # If exclude is not supplied use values defined in the config
     if not exclude:
-        exclude = p.toolkit.aslist(config.normalized('package_hide_extras'))
+        exclude = config.normalized('package_hide_extras')
     output = []
     for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
@@ -2545,7 +2545,7 @@ def get_featured_organizations(count=1):
     '''Returns a list of favourite organization in the form
     of organization_list action function
     '''
-    config_orgs = p.toolkit.aslist(config.normalized('ckan.featured_orgs'))
+    config_orgs = config.normalized('ckan.featured_orgs')
     orgs = featured_group_org(get_action='organization_show',
                               list_action='organization_list',
                               count=count,
@@ -2558,7 +2558,7 @@ def get_featured_groups(count=1):
     '''Returns a list of favourite group the form
     of organization_list action function
     '''
-    config_groups = p.toolkit.aslist(config.normalized('ckan.featured_groups'))
+    config_groups = config.normalized('ckan.featured_groups')
     groups = featured_group_org(get_action='group_show',
                                 list_action='group_list',
                                 count=count,
@@ -2720,7 +2720,7 @@ def get_translated(data_dict, field):
 @core_helper
 def facets():
     u'''Returns a list of the current facet names'''
-    return config.normalized(u'search.facets').split()
+    return config.normalized(u'search.facets')
 
 
 @core_helper
