@@ -12,7 +12,15 @@ var run_query = function(params, format) {
 this.ckan.module('datatables_view', function (jQuery) {
   return {
     initialize: function() {
-      var datatable = jQuery('#dtprv').DataTable({});
+      var datatables_lang = {};
+      if (this.options.lang === 'fr') {
+        datatables_lang = {
+          language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/fr_fr.json'
+          }
+        };
+      }
+      var datatable = jQuery('#dtprv').DataTable(datatables_lang);
 
       // Adds download dropdown to buttons menu
       datatable.button().add(2, {
