@@ -173,6 +173,8 @@ class Upload(object):
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
 
+        self.verify_type()
+
         if self.filename:
             with open(self.tmp_filepath, 'wb+') as output_file:
                 try:
