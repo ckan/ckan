@@ -20,7 +20,6 @@ import subprocess
 import sys
 import pytest
 import six
-import pycodestyle
 
 
 FILESYSTEM_ENCODING = str(
