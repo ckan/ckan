@@ -63,7 +63,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          python -m pytest -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml
+          python -m pytest -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext
 
       - name: Coveralls
         run: coveralls
