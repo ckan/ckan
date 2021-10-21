@@ -1741,7 +1741,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         all Postgres driver names start with `postgres`.
         '''
         drivername = self._get_read_engine().engine.url.drivername
-        return drivername.startswith('postgresql')
+        return drivername.startswith('postgres')
 
     def _is_read_only_database(self):
         ''' Returns True if no connection has CREATE privileges on the public
