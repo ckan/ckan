@@ -19,7 +19,9 @@ this.ckan.module('dashboard', function ($) {
      */
     initialize: function () {
       $.proxyAll(this, /_on/);
-      this.button = $('#followee-filter')
+      this.button = $('#followee-filter .btn').
+        on('click', this._onShowFolloweeDropdown);
+      var title = this.button.prop('title');
 
       this.button.popover({
           placement: 'bottom',
@@ -35,7 +37,6 @@ this.ckan.module('dashboard', function ($) {
           content: $('#followee-content').html()
         });
       this.button.prop('title', title);
-      this.popover = this.button.data('bs.popover').tip().addClass('popover-followee');
     },
 
     /* Handles click event on the 'show me:' dropdown button
