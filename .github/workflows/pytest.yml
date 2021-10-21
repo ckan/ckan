@@ -52,7 +52,7 @@ jobs:
           docker exec ckan-postgres createuser -U ${{ env.POSTGRES_USER }} datastore_write
           docker exec ckan-postgres createuser -U ${{ env.POSTGRES_USER }} datastore_read
           docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER ckan_default WITH ENCRYPTED PASSWORD 'pass';"
-          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
+          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_write WITH ENCRYPTED PASSWORD 'pass';"
           docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
 
           docker exec ckan-postgres createdb -U ${{ env.POSTGRES_USER }} -O ckan_default ckan_test
