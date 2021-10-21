@@ -2,6 +2,7 @@ name: Tests
 on: [pull_request, push]
 env:
   PYTHON_VERSION: '3.7'
+  POSTGRES_USER: ckan_default
 
 jobs:
   pytest:
@@ -18,7 +19,7 @@ jobs:
           --health-retries 5
           --name ckan-postgres
         env:
-          POSTGRES_USER: ckan_default
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
           POSTGRES_PASSWORD: pass
           POSTGRES_DB: ckan_test
 
@@ -49,11 +50,11 @@ jobs:
           sleep 5
           docker exec ckan-postgres createuser datastore_write
           docker exec ckan-postgres createuser datastore_read
-          docker exec ckan-postgres psql -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
-          docker exec ckan-postgres psql -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
+          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
+          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
           docker exec ckan-postgres createdb -O datastore_write datastore_test
           ckan -c test-core-circle-ci.ini db init
-          docker exec ckan-postgres psql --dbname=datastore_test -c "CREATE extension tablefunc;"
+          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} --dbname=datastore_test -c "CREATE extension tablefunc;"
           ckan -c test-core-circle-ci.ini datastore set-permissions | docker exec -i ckan-postgres psql
 
       - name: Run Tests
