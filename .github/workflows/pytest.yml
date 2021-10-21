@@ -9,7 +9,6 @@ jobs:
     services:
       ckan-postgres:
         image: postgres:10
-        options: --name ckan-postgres
         ports:
           - 5432:5432
         options: >-
@@ -17,6 +16,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+          --name ckan-postgres
         env:
           POSTGRES_USER: ckan_default
           POSTGRES_PASSWORD: pass
