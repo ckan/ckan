@@ -1736,10 +1736,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def _is_postgresql_engine(self):
         ''' Returns True if the read engine is a Postgresql Database.
 
-        According to http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+        According to
+        http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
         all Postgres driver names start with `postgres`.
         '''
-        return self._get_read_engine().engine.url.drivername.startswith('postgresql')
+        drivername = self._get_read_engine().engine.url.drivername
+        return drivername.startswith('postgresql')
 
     def _is_read_only_database(self):
         ''' Returns True if no connection has CREATE privileges on the public
