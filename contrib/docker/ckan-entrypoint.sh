@@ -69,5 +69,7 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
 fi
 
 set_environment
-ckan --config "$CONFIG" db init
+if [ ! "$(echo $CKAN_EXTRA | tr '[:upper:]' '[:lower:]')" == "true"]; then
+  ckan --config "$CONFIG" db init
+fi
 exec "$@"
