@@ -433,7 +433,7 @@ def test_user_name_validator_with_a_name_that_already_exists():
 
     @does_not_modify_other_keys_in_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     @adds_message_to_errors_dict("That login name is not available.")
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
@@ -457,7 +457,7 @@ def test_user_name_validator_successful():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
 
@@ -556,7 +556,7 @@ def test_datasets_with_org_can_be_private_when_creating():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
             *args, **kwargs
@@ -604,7 +604,7 @@ def test_datasets_with_org_can_be_private_when_updating():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
             *args, **kwargs
