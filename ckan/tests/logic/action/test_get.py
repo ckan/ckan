@@ -4986,7 +4986,6 @@ class TestGetSiteUser:
     def test_get_site_user_not_authorized(self, ckan_config):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("get_site_user", {"model": model, "user": ""})
-        ckan_config.get("ckan.site_id")
         assert helpers.call_auth(
             "get_site_user", {"model": model, "user": "", "ignore_auth": True}
         )
