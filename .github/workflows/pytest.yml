@@ -7,6 +7,7 @@ env:
 jobs:
   pytest:
     runs-on: ubuntu-latest
+    container: python:${{ env.PYTHON_VERSION }}
     services:
       ckan-postgres:
         image: postgres:10
@@ -35,9 +36,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install python deps
         run: pip install -r requirement-setuptools.txt -r requirements.txt -r dev-requirements.txt -e.
