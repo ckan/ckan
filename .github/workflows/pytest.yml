@@ -2,7 +2,7 @@ name: Tests
 on: [pull_request, push]
 env:
   PYTHON_VERSION: '3.7'
-  POSTGRES_USER: ckan_default
+  POSTGRES_USER: postgres
 
 jobs:
   pytest:
@@ -21,7 +21,7 @@ jobs:
         env:
           POSTGRES_USER: ${{ env.POSTGRES_USER }}
           POSTGRES_PASSWORD: pass
-          POSTGRES_DB: ckan_test
+          POSTGRES_DB: postgres
 
       ckan-redis:
         image: redis
@@ -48,10 +48,14 @@ jobs:
           docker cp ckan/config/solr/schema.xml ckan-solr:/opt/solr/server/solr/ckan/conf/managed-schema
           docker restart ckan-solr
           sleep 5
+          docker exec ckan-postgres createuser -U ${{ env.POSTGRES_USER }} ckan_default
           docker exec ckan-postgres createuser -U ${{ env.POSTGRES_USER }} datastore_write
           docker exec ckan-postgres createuser -U ${{ env.POSTGRES_USER }} datastore_read
+          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER ckan_default WITH ENCRYPTED PASSWORD 'pass';"
           docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
           docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
+
+          docker exec ckan-postgres createdb -U ${{ env.POSTGRES_USER }} -O ckan_default ckan_test
           docker exec ckan-postgres createdb -U ${{ env.POSTGRES_USER }} -O datastore_write datastore_test
           ckan -c test-core-circle-ci.ini db init
           docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} --dbname=datastore_test -c "CREATE extension tablefunc;"
