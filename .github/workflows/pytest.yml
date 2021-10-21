@@ -59,7 +59,7 @@ jobs:
           docker exec ckan-postgres createdb -U ${{ env.POSTGRES_USER }} -O datastore_write datastore_test
           ckan -c test-core-circle-ci.ini db init
           docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} --dbname=datastore_test -c "CREATE extension tablefunc;"
-          ckan -c test-core-circle-ci.ini datastore set-permissions | docker exec -i ckan-postgres psql
+          ckan -c test-core-circle-ci.ini datastore set-permissions | docker exec -i ckan-postgres psql -U ${{ env.POSTGRES_USER }}
 
       - name: Run Tests
         run: |
