@@ -4,7 +4,6 @@ import logging
 from collections import defaultdict
 from pkg_resources import iter_entry_points
 
-import six
 import click
 import sys
 

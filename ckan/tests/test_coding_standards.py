@@ -342,6 +342,9 @@ class TestPep8(object):
     # The following files have known PEP8 errors.  When the files get to a
     # point of not having any such errors they should be removed from this
     # list to prevent new errors being added to the file.
+    #
+    # TestPep8.PEP8_BLACKLIST_FILES is only used by flake8 GitHub actions
+    # workflow
 
     PEP8_BLACKLIST_FILES = [
         "bin/running_stats.py",
@@ -411,76 +414,7 @@ class TestPep8(object):
         "ckanext/tests/plugin.py",
         "doc/conf.py",
         "setup.py",
-        "contrib/cookiecutter/ckan_extension/"
-        "{{cookiecutter.project}}/setup.py",
-        "contrib/cookiecutter/ckan_extension/hooks/post_gen_project.py",
-        "contrib/cookiecutter/ckan_extension/"
-        "{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}"
-        "/tests/test_plugin.py",
-        "contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}"
-        "/ckanext/{{cookiecutter.project_shortname}}/plugin.py",
     ]
-
-    @pytest.fixture(scope="class")
-    def results(self):
-        blacklist = self.PEP8_BLACKLIST_FILES
-        fails = {}
-        passes = []
-        for path, filename in walk_python_files():
-            errors = self.find_pep8_errors(filename=path)
-            if errors and filename not in blacklist:
-                fails[filename] = output_errors(filename, errors)
-            elif not errors and filename in blacklist:
-                passes.append(filename)
-        return fails, passes
-
-    def test_pep8_fails(self, results):
-        msg = "The following files have pep8 issues that need resolving"
-        msg += "\nThey need removing from the test blacklist"
-        show_fails(msg, results[0])
-
-    def test_pep8_pass(self, results):
-        msg = "The following files passed pep8 but are blacklisted"
-        show_passing(msg, results[1])
-
-    def find_pep8_errors(self, filename=None, lines=None):
-        try:
-            sys.stdout = io.StringIO()
-            config = {
-                "ignore": [
-                    # W503/W504 - breaking before/after binary operators is agreed
-                    # to not be a concern and was changed to be ignored by default.
-                    # However we overwrite the ignore list here, so add it back in.
-                    # See: https://github.com/PyCQA/pycodestyle/issues/498
-                    "W503",
-                    "W504",
-                ]
-            }
-
-            # Ignore long lines on test files, as the test names can get long
-            # when following our test naming standards.
-            if self._is_test(filename):
-                config["ignore"].append("E501")
-
-            checker = pycodestyle.Checker(
-                filename=filename, lines=lines, **config
-            )
-            checker.check_all()
-            output = sys.stdout.getvalue()
-        finally:
-            sys.stdout = sys.__stdout__
-
-        errors = []
-        for line in output.split("\n"):
-            parts = line.split(" ", 2)
-            if len(parts) == 3:
-                location, error, desc = parts
-                line_no = location.split(":")[1]
-                errors.append("%s ln:%s %s" % (error, line_no, desc))
-        return errors
-
-    def _is_test(self, filename):
-        return bool(re.search(r"(^|\W)test_.*\.py$", filename, re.IGNORECASE))
 
 
 class TestActionAuth(object):
