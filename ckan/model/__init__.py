@@ -19,11 +19,8 @@ from alembic.config import Config as AlembicConfig
 
 from ckan.model import meta
 
-from ckan.model.meta import (
-    Session,
-    engine_is_sqlite,
-    engine_is_pg,
-)
+from ckan.model.meta import Session
+
 from ckan.model.core import (
     State,
 )
