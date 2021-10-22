@@ -31,10 +31,13 @@ class _TableDesignerDictionary(MethodView):
             e['id'] = f['id']
             e['type'] = f['type']
 
+        primary_key = [f['id'] for f in info if f.get('pk')]
+
         get_action('datastore_create')(
             None, {
                 'resource_id': resource_id,
                 'force': True,
+                'primary_key': primary_key,
                 'fields': [{
                     'id': i['id'],
                     'type': i['type'],
