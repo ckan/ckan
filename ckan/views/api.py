@@ -111,20 +111,6 @@ def _finish_ok(response_data=None,
     return _finish(status_int, response_data, content_type, headers)
 
 
-def _finish_not_authz(extra_msg=None):
-    response_data = _(u'Access denied')
-    if extra_msg:
-        response_data = u'%s - %s' % (response_data, extra_msg)
-    return _finish(403, response_data, u'json')
-
-
-def _finish_not_found(extra_msg=None):
-    response_data = _(u'Not found')
-    if extra_msg:
-        response_data = u'%s - %s' % (response_data, extra_msg)
-    return _finish(404, response_data, u'json')
-
-
 def _finish_bad_request(extra_msg=None):
     response_data = _(u'Bad request')
     if extra_msg:
@@ -210,21 +196,6 @@ def _get_request_data(try_url_params=False):
     log.debug(u'Request data extracted: %r', request_data)
 
     return request_data
-
-
-def _get_action_from_map(action_map, register, subregister):
-    u'''Helper function to get the action function specified in
-        the action map'''
-
-    # translate old package calls to use dataset
-    if register == u'package':
-        register = u'dataset'
-
-    action = action_map.get((register, subregister))
-    if not action:
-        action = action_map.get(register)
-    if action:
-        return get_action(action)
 
 
 # View functions
