@@ -13,7 +13,12 @@
             >{% block delete_button_text %}{{ _('Remove') }}{% endblock %}</a>
         {% endblock %}
         <div class="field-content">
-          {% snippet "datastore/snippets/dictionary_form.html", field=field, position=index1, res=res %}
+          {% snippet "datastore/snippets/dictionary_form.html",
+            field=field,
+            position=index1,
+            res=res,
+            is_new=not fields
+          %}
         </div>
         <div class="field-removed-notice" style="display:none">
           {{ _('Field {num} removed, click save below to save your changes and delete all data in this field.').format(num=index1) }}

@@ -4,7 +4,15 @@
   {% if res.url_type != 'tabledesigner' or field.id %}
     {{ super() }}
   {% else %}
-    <h3>{{ _( "Field {num}.").format(num=position) }}</h3>
+    <h3>{{ _("Field {num}.").format(num=position) }}</h3>
+    {% if is_new %}
+      <label for="info__{{ position }}__pk">
+        {{ _("Primary Key") }}
+      </label>
+        <input id="info__{{ position }}__pk"
+          type="checkbox"
+          name="info__{{ position }}__pk">
+    {% endif %}
     {{ form.input('info__' ~ position ~ '__id',
       is_required=true,
       label=_('ID'), classes=['control-full']) }}
