@@ -1844,7 +1844,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         self.write_url = self.config['ckan.datastore.write_url']
         self.read_url = self.config['ckan.datastore.read_url']
 
-        if self._is_postgresql_engine():
+        if not self._is_postgresql_engine():
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
