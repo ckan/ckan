@@ -5,8 +5,8 @@ import ckan.tests.factories as factories
 from ckan.lib.authenticator import UsernamePasswordAuthenticator
 
 
+@pytest.mark.usefixtures("with_db")
 class TestUsernamePasswordAuthenticator(object):
-    @pytest.mark.usefixtures("clean_db")
     def test_succeeds_if_login_and_password_are_correct(self):
         password = "somepass"
         user = factories.User(password=password)
@@ -16,7 +16,6 @@ class TestUsernamePasswordAuthenticator(object):
             == user["name"]
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_fails_if_user_is_deleted(self):
         password = "somepass"
         user = factories.User(password=password, state="deleted")
@@ -25,7 +24,6 @@ class TestUsernamePasswordAuthenticator(object):
             UsernamePasswordAuthenticator().authenticate({}, identity) is None
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_fails_if_user_is_pending(self):
         password = "somepass"
         user = factories.User(password=password, state="pending")
@@ -34,7 +32,6 @@ class TestUsernamePasswordAuthenticator(object):
             UsernamePasswordAuthenticator().authenticate({}, identity) is None
         )
 
-    @pytest.mark.usefixtures("clean_db")
     def test_fails_if_password_is_wrong(self):
         user = factories.User()
         identity = {"login": user["name"], "password": "wrong-password"}

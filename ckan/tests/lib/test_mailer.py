@@ -29,7 +29,7 @@ class MailerBase(object):
         return decode_header(header)[0][0]
 
 
-@pytest.mark.usefixtures("with_request_context", "clean_db")
+@pytest.mark.usefixtures("with_request_context", "with_db")
 class TestMailer(MailerBase):
     def test_mail_recipient(self, mail_server):
         user = factories.User()
@@ -131,7 +131,7 @@ class TestMailer(MailerBase):
 
     def test_mail_user_without_email(self):
         # send email
-        mary = model.User(name="mary", email=None)
+        mary = model.User(email=None)
         # model.Session.add(mary)
         # model.Session.commit()
 

@@ -40,9 +40,9 @@ def test_request_signals(app):
     assert finish_receiver.call_count == 2
 
 
-@pytest.mark.usefixtures(u"clean_db", u"with_request_context")
+@pytest.mark.usefixtures(u"with_db", u"with_request_context")
 class TestUserSignals:
-    def test_user_created(self, app):
+    def test_user_created(self):
         created = mock.Mock()
         with tk.signals.user_created.connected_to(created):
             user = factories.User()
@@ -81,9 +81,10 @@ class TestUserSignals:
         url = u"/login_generic"
         success = mock.Mock()
         fail = mock.Mock()
+        invalid = factories.User.stub().name
         with tk.signals.successful_login.connected_to(success):
             with tk.signals.failed_login.connected_to(fail):
-                data = {u"login": u"invalid", u"password": u"invalid"}
+                data = {u"login": invalid, u"password": u"invalid"}
                 app.post(url, data=data)
                 assert success.call_count == 0
                 assert fail.call_count == 1
@@ -93,7 +94,7 @@ class TestUserSignals:
                 assert success.call_count == 0
                 assert fail.call_count == 2
 
-                data = {u"login": u"invalid", u"password": u"correct123"}
+                data = {u"login": invalid, u"password": u"correct123"}
                 app.post(url, data=data)
                 assert success.call_count == 0
                 assert fail.call_count == 3

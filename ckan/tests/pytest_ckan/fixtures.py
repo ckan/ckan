@@ -332,8 +332,15 @@ def with_extended_cli(ckan_config, monkeypatch):
     monkeypatch.setattr(ckan.cli, u"load_config", lambda _: ckan_config)
 
 
+@pytest.fixture(scope="session")
+def _reset_db_once(reset_db):
+    """Internal fixture that cleans/initializes DB only the first time it's used.
+    """
+    reset_db()
+
+
 @pytest.fixture
-def with_db():
+def with_db(_reset_db_once):
     """Guarantees that DB is initialized.
 
     This fixture either initializes DB if it hasn't been done yet or does

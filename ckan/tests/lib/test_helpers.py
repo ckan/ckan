@@ -613,7 +613,7 @@ class TestBuildNavMain(object):
                 '<li><a href="/about">About</a></li>'
             )
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("with_db")
     def test_active_in_resource_controller(self, test_request_context):
 
         dataset = factories.Dataset()
