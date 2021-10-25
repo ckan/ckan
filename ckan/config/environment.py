@@ -38,8 +38,6 @@ def load_environment(conf):
 
     This code should only need to be run once.
     """
-    os.environ['CKAN_CONFIG'] = conf['__file__']
-
     conf['ckan.base_public_folder'] = 'public'
     log.info('Static files folder: public')
 
