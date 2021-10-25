@@ -34,9 +34,9 @@ warnings.simplefilter('ignore', UserWarning)
 
 
 def load_environment(conf):
-    """
-    Configure the Pylons environment via the ``pylons.config`` object. This
-    code should only need to be run once.
+    """ Configure the app environment.
+
+    This code should only need to be run once.
     """
     os.environ['CKAN_CONFIG'] = conf['__file__']
 
