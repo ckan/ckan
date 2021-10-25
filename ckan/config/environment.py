@@ -83,7 +83,7 @@ def load_environment(conf):
     # issue #3260: remove idle transaction
     # Session that was used for getting all config params nor committed,
     # neither removed and we have idle connection as result
-    model.Session.commit()
+    model.Session.close()
 
     # Build JavaScript translations. Must be done after plugins have
     # been loaded.
