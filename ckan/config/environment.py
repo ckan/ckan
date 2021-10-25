@@ -40,17 +40,8 @@ def load_environment(conf):
     """
     os.environ['CKAN_CONFIG'] = conf['__file__']
 
-    valid_base_public_folder_names = ['public']
-    static_files = conf.get('ckan.base_public_folder', 'public')
-    conf['ckan.base_public_folder'] = static_files
-
-    if static_files not in valid_base_public_folder_names:
-        raise CkanConfigurationException(
-            'You provided an invalid value for ckan.base_public_folder. '
-            'Possible values are: "public".'
-        )
-
-    log.info('Loading static files from %s' % static_files)
+    conf['ckan.base_public_folder'] = 'public'
+    log.info('Static files folder: public')
 
     # Initialize main CKAN config object
     config.update(conf)

@@ -1924,20 +1924,6 @@ To customise the display of CKAN you can supply replacements for static files su
 
 For more information on theming, see :doc:`/theming/index`.
 
-.. _ckan.base_public_folder:
-
-ckan.base_public_folder
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.base_public_folder = public
-
-Default value:  ``public``
-
-This config option is used to configure the base folder for static files used
-by CKAN core. It is currently unused and it only accepts one value: ``public``
-(Bootstrap 3, the default value from CKAN 2.8 onwards).
 
 .. _ckan.base_templates_folder:
 
