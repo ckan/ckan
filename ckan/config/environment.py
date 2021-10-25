@@ -44,15 +44,6 @@ def load_environment(conf):
     # Initialize main CKAN config object
     config.update(conf)
 
-    # Setup the SQLAlchemy database engine
-    # Suppress a couple of sqlalchemy warnings
-    msgs = ['^Unicode type received non-unicode bind param value',
-            "^Did not recognize type 'BIGINT' of column 'size'",
-            "^Did not recognize type 'tsvector' of column 'search_vector'"
-            ]
-    for msg in msgs:
-        warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
-
     # load all CKAN plugins
     p.load_all()
 
