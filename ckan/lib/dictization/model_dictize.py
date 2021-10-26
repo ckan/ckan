@@ -457,7 +457,7 @@ def tag_dictize(tag, context, include_datasets=True):
             tag_dict['packages'] = []
             for package_dict in package_dicts:
                 for item in plugins.PluginImplementations(plugins.IPackageController):
-                    package_dict = item.before_view(package_dict)
+                    package_dict = item.before_dataset_view(package_dict)
                 tag_dict['packages'].append(package_dict)
     else:
         if include_datasets:

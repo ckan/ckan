@@ -93,7 +93,7 @@ def package_delete(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
 
-        item.after_delete(context, data_dict)
+        item.after_dataset_delete(context, data_dict)
 
     entity.delete()
 

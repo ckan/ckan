@@ -545,9 +545,28 @@ class IPackageController(Interface):
     u'''
     Hook into the dataset view.
     '''
+    def __init__(self):
+        # Drop support by removing this __init__ function
+        for old_name, new_name in [
+            ["after_create", "after_dataset_create"],
+            ["after_update", "after_dataset_update"],
+            ["after_delete", "after_dataset_delete"],
+            ["after_show", "after_dataset_show"],
+            ["before_search", "before_dataset_search"],
+            ["after_search", "after_dataset_search"],
+            ["before_index", "before_dataset_index"],
+                ["before_view", "before_dataset_view"]]:
+            if hasattr(self, old_name):
+                warnings.warn(
+                    "The method 'IPackageController.{}' is ".format(old_name)
+                    + "deprecated. Please use '{}' instead!".format(new_name),
+                    CkanDeprecationWarning)
+                setattr(self, new_name, getattr(self, old_name))
 
     def read(self, entity):
-        u'''Called after IPackageController.before_view inside package_show.
+        u'''
+        Called after IPackageController.before_dataset view inside
+        package_show.
         '''
         pass
 
@@ -566,7 +585,7 @@ class IPackageController(Interface):
         '''
         pass
 
-    def after_create(self, context, pkg_dict):
+    def after_dataset_create(self, context, pkg_dict):
         u'''
         Extensions will receive the validated data dict after the dataset
         has been created (Note that the create method will return a dataset
@@ -575,28 +594,28 @@ class IPackageController(Interface):
         '''
         pass
 
-    def after_update(self, context, pkg_dict):
+    def after_dataset_update(self, context, pkg_dict):
         u'''
         Extensions will receive the validated data dict after the dataset
         has been updated.
         '''
         pass
 
-    def after_delete(self, context, pkg_dict):
+    def after_dataset_delete(self, context, pkg_dict):
         u'''
         Extensions will receive the data dict (typically containing
         just the dataset id) after the dataset has been deleted.
         '''
         pass
 
-    def after_show(self, context, pkg_dict):
+    def after_dataset_show(self, context, pkg_dict):
         u'''
         Extensions will receive the validated data dict after the dataset
         is ready for display.
         '''
         pass
 
-    def before_search(self, search_params):
+    def before_dataset_search(self, search_params):
         u'''
         Extensions will receive a dictionary with the query parameters,
         and should return a modified (or not) version of it.
@@ -607,7 +626,7 @@ class IPackageController(Interface):
         '''
         return search_params
 
-    def after_search(self, search_results, search_params):
+    def after_dataset_search(self, search_results, search_params):
         u'''
         Extensions will receive the search results, as well as the search
         parameters, and should return a modified (or not) object with the
@@ -626,7 +645,7 @@ class IPackageController(Interface):
 
         return search_results
 
-    def before_index(self, pkg_dict):
+    def before_dataset_index(self, pkg_dict):
         u'''
         Extensions will receive what will be given to Solr for
         indexing. This is essentially a flattened dict (except for
@@ -636,7 +655,7 @@ class IPackageController(Interface):
         '''
         return pkg_dict
 
-    def before_view(self, pkg_dict):
+    def before_dataset_view(self, pkg_dict):
         u'''
         Extensions will receive this before the dataset gets
         displayed. The dictionary passed will be the one that gets

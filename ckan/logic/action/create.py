@@ -206,7 +206,7 @@ def package_create(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
-        item.after_create(context, data)
+        item.after_dataset_create(context, data)
 
     # Make sure that a user provided schema is not used in create_views
     # and on package_show

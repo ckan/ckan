@@ -281,7 +281,7 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.get('ckan.site_id')))).hexdigest()
 
         for item in PluginImplementations(IPackageController):
-            pkg_dict = item.before_index(pkg_dict)
+            pkg_dict = item.before_dataset_index(pkg_dict)
 
         assert pkg_dict, 'Plugin must return non empty package dict on index'
 
