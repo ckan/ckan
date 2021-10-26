@@ -664,7 +664,7 @@ class IResourceController(Interface):
                     "The method 'IResourceController.{}' is ".format(old_name)
                     + "deprecated. Please use '{}' instead!".format(new_name),
                     CkanDeprecationWarning)
-                self.setattr(new_name, self.getattr(old_name))
+                setattr(self, new_name, getattr(self, old_name))
 
     def before_resource_create(self, context, resource):
         u'''
