@@ -407,7 +407,6 @@ class TestPep8(object):
         "ckanext/example_itemplatehelpers/plugin.py",
         "ckanext/multilingual/plugin.py",
         "ckanext/stats/stats.py",
-        "ckanext/test_tag_vocab_plugin.py",
         "ckanext/tests/plugin.py",
         "doc/conf.py",
         "setup.py",

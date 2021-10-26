@@ -74,7 +74,6 @@ entry_points = {
         'chained_functions = ckanext.chained_functions.plugin:ChainedFunctionsPlugin',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
         'datapusher=ckanext.datapusher.plugin:DatapusherPlugin',
-        'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
         'resource_proxy = ckanext.resourceproxy.plugin:ResourceProxy',
         'text_view = ckanext.textview.plugin:TextView',
         'recline_view = ckanext.reclineview.plugin:ReclineView',
