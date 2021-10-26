@@ -334,7 +334,7 @@ def with_extended_cli(ckan_config, monkeypatch):
 
 @pytest.fixture(scope="session")
 def _reset_db_once(reset_db):
-    """Internal fixture that cleans/initializes DB only the first time it's used.
+    """Internal fixture that cleans DB only the first time it's used.
     """
     reset_db()
 

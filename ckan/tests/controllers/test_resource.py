@@ -13,7 +13,6 @@ import ckan.tests.factories as factories
 from ckan.tests.helpers import call_action
 
 
-
 @pytest.mark.ckan_config("ckan.plugins", "test_resource_view")
 @pytest.mark.ckan_config("ckan.views.default_views", "test_resource_view")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")

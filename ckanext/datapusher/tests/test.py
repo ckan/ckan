@@ -74,9 +74,11 @@ class TestDatastoreCreate(object):
     def initial_data(self, clean_db):
         ctd.CreateTestData.create()
         self.sysadmin_user = factories.Sysadmin()
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user["id"])["token"]
+        self.sysadmin_token = factories.APIToken(
+            user=self.sysadmin_user["id"])["token"]
         self.normal_user = factories.User()
-        self.normal_user_token = factories.APIToken(user=self.normal_user["id"])["token"]
+        self.normal_user_token = factories.APIToken(
+            user=self.normal_user["id"])["token"]
         set_url_type(
             model.Package.get("annakarenina").resources, self.sysadmin_user
         )
