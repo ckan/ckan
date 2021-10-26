@@ -293,7 +293,7 @@ def resource_create(context, data_dict):
     _check_access('resource_create', context, data_dict)
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_create(context, data_dict)
+        plugin.before_resource_create(context, data_dict)
 
     if 'resources' not in pkg_dict:
         pkg_dict['resources'] = []
@@ -343,7 +343,7 @@ def resource_create(context, data_dict):
          })
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_create(context, resource)
+        plugin.after_resource_create(context, resource)
 
     return resource
 

@@ -11,23 +11,23 @@ class ExampleIResourceControllerPlugin(plugins.SingletonPlugin):
     def __init__(self, *args, **kwargs):
         self.counter = defaultdict(int)
 
-    def before_create(self, context, resource):
-        self.counter['before_create'] += 1
+    def before_resource_create(self, context, resource):
+        self.counter['before_resource_create'] += 1
 
-    def after_create(self, context, resource):
-        self.counter['after_create'] += 1
+    def after_resource_create(self, context, resource):
+        self.counter['after_resource_create'] += 1
 
-    def before_update(self, context, current, resource):
-        self.counter['before_update'] += 1
+    def before_resource_update(self, context, current, resource):
+        self.counter['before_resource_update'] += 1
 
-    def after_update(self, context, resource):
-        self.counter['after_update'] += 1
+    def after_resource_update(self, context, resource):
+        self.counter['after_resource_update'] += 1
 
-    def before_delete(self, context, resource, resources):
-        self.counter['before_delete'] += 1
+    def before_resource_delete(self, context, resource, resources):
+        self.counter['before_resource_delete'] += 1
 
-    def after_delete(self, context, resources):
-        self.counter['after_delete'] += 1
+    def after_resource_delete(self, context, resources):
+        self.counter['after_resource_delete'] += 1
 
-    def before_show(self, resource):
-        self.counter['before_show'] += 1
+    def before_sresource_how(self, resource):
+        self.counter['before_resource_show'] += 1

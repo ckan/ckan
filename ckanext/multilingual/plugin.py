@@ -404,6 +404,6 @@ class MultilingualResource(SingletonPlugin):
    '''
    implements(IResourceController, inherit=True)
 
-   def before_show(self, data_dict):
+   def before_resource_show(self, data_dict):
         translated_data_dict = translate_resource_data_dict(data_dict)
         return translated_data_dict

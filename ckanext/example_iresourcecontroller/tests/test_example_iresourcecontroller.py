@@ -31,12 +31,12 @@ class TestExampleIResourceController(object):
             apikey=user["apikey"],
         )
 
-        assert plugin.counter["before_create"] == 1, plugin.counter
-        assert plugin.counter["after_create"] == 1, plugin.counter
-        assert plugin.counter["before_update"] == 0, plugin.counter
-        assert plugin.counter["after_update"] == 0, plugin.counter
-        assert plugin.counter["before_delete"] == 0, plugin.counter
-        assert plugin.counter["after_delete"] == 0, plugin.counter
+        assert plugin.counter["before_resource_create"] == 1, plugin.counter
+        assert plugin.counter["after_resource_create"] == 1, plugin.counter
+        assert plugin.counter["before_resource_update"] == 0, plugin.counter
+        assert plugin.counter["after_resource_update"] == 0, plugin.counter
+        assert plugin.counter["before_resource_delete"] == 0, plugin.counter
+        assert plugin.counter["after_resource_delete"] == 0, plugin.counter
 
     def test_resource_controller_plugin_update(self):
         user = factories.Sysadmin()
@@ -50,12 +50,12 @@ class TestExampleIResourceController(object):
             apikey=user["apikey"],
         )
 
-        assert plugin.counter["before_create"] == 1, plugin.counter
-        assert plugin.counter["after_create"] == 1, plugin.counter
-        assert plugin.counter["before_update"] == 1, plugin.counter
-        assert plugin.counter["after_update"] == 1, plugin.counter
-        assert plugin.counter["before_delete"] == 0, plugin.counter
-        assert plugin.counter["after_delete"] == 0, plugin.counter
+        assert plugin.counter["before_resource_create"] == 1, plugin.counter
+        assert plugin.counter["after_resource_create"] == 1, plugin.counter
+        assert plugin.counter["before_resource_update"] == 1, plugin.counter
+        assert plugin.counter["after_resource_update"] == 1, plugin.counter
+        assert plugin.counter["before_resource_delete"] == 0, plugin.counter
+        assert plugin.counter["after_resource_delete"] == 0, plugin.counter
 
     def test_resource_controller_plugin_delete(self):
         user = factories.Sysadmin()
@@ -67,12 +67,12 @@ class TestExampleIResourceController(object):
             "resource_delete", id=resource["id"], apikey=user["apikey"]
         )
 
-        assert plugin.counter["before_create"] == 1, plugin.counter
-        assert plugin.counter["after_create"] == 1, plugin.counter
-        assert plugin.counter["before_update"] == 0, plugin.counter
-        assert plugin.counter["after_update"] == 0, plugin.counter
-        assert plugin.counter["before_delete"] == 1, plugin.counter
-        assert plugin.counter["after_delete"] == 1, plugin.counter
+        assert plugin.counter["before_resource_create"] == 1, plugin.counter
+        assert plugin.counter["after_resource_create"] == 1, plugin.counter
+        assert plugin.counter["before_resource_update"] == 0, plugin.counter
+        assert plugin.counter["after_resource_update"] == 0, plugin.counter
+        assert plugin.counter["before_resource_delete"] == 1, plugin.counter
+        assert plugin.counter["after_resource_delete"] == 1, plugin.counter
 
     def test_resource_controller_plugin_show(self):
         """
@@ -88,10 +88,10 @@ class TestExampleIResourceController(object):
 
         res = helpers.call_action("package_show", name_or_id=package["id"])
 
-        assert plugin.counter["before_create"] == 1, plugin.counter
-        assert plugin.counter["after_create"] == 1, plugin.counter
-        assert plugin.counter["before_update"] == 0, plugin.counter
-        assert plugin.counter["after_update"] == 0, plugin.counter
-        assert plugin.counter["before_delete"] == 0, plugin.counter
-        assert plugin.counter["after_delete"] == 0, plugin.counter
-        assert plugin.counter["before_show"] == 5, plugin.counter
+        assert plugin.counter["before_resource_create"] == 1, plugin.counter
+        assert plugin.counter["after_resource_create"] == 1, plugin.counter
+        assert plugin.counter["before_resource_update"] == 0, plugin.counter
+        assert plugin.counter["after_resource_update"] == 0, plugin.counter
+        assert plugin.counter["before_resource_delete"] == 0, plugin.counter
+        assert plugin.counter["after_resource_delete"] == 0, plugin.counter
+        assert plugin.counter["before_resource_show"] == 5, plugin.counter

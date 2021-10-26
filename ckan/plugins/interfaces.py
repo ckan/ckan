@@ -5,7 +5,11 @@ extend CKAN.
 
 '''
 from inspect import isclass
+import warnings
+
+from ckan.exceptions import CkanDeprecationWarning
 from pyutilib.component.core import Interface as _pca_Interface
+
 
 __all__ = [
     u'Interface',
@@ -645,8 +649,24 @@ class IResourceController(Interface):
     u'''
     Hook into the resource view.
     '''
+    def __init__(self):
+        # Drop support by removing this __init__ function
+        for old_name, new_name in [
+            ["before_create", "before_resource_create"],
+            ["after_create", "after_resource_create"],
+            ["before_update", "before_resource_update"],
+            ["after_update", "after_resource_update"],
+            ["before_delete", "before_resource_delete"],
+            ["after_delete", "after_resource_delete"],
+                ["before_show", "before_resource_show"]]:
+            if hasattr(self, old_name):
+                warnings.warn(
+                    "The method 'IResourceController.{}' is ".format(old_name)
+                    + "deprecated. Please use '{}' instead!".format(new_name),
+                    CkanDeprecationWarning)
+                self.setattr(new_name, self.getattr(old_name))
 
-    def before_create(self, context, resource):
+    def before_resource_create(self, context, resource):
         u'''
         Extensions will receive this before a resource is created.
 
@@ -659,7 +679,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def after_create(self, context, resource):
+    def after_resource_create(self, context, resource):
         u'''
         Extensions will receive this after a resource is created.
 
@@ -675,7 +695,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def before_update(self, context, current, resource):
+    def before_resource_update(self, context, current, resource):
         u'''
         Extensions will receive this before a resource is updated.
 
@@ -690,7 +710,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def after_update(self, context, resource):
+    def after_resource_update(self, context, resource):
         u'''
         Extensions will receive this after a resource is updated.
 
@@ -699,14 +719,14 @@ class IResourceController(Interface):
         :type context: dictionary
         :param resource: An object representing the updated resource in
             the dataset (the one that was just updated). As with
-            ``after_create``, a noteworthy key in the resource dictionary
-            ``url_type`` which is set to ``upload`` when the resource file
-            is uploaded instead of linked.
+            ``after_resource_create``, a noteworthy key in the resource
+            dictionary ``url_type`` which is set to ``upload`` when the
+            resource file is uploaded instead of linked.
         :type resource: dictionary
         '''
         pass
 
-    def before_delete(self, context, resource, resources):
+    def before_resource_delete(self, context, resource, resources):
         u'''
         Extensions will receive this before a resource is deleted.
 
@@ -724,7 +744,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def after_delete(self, context, resources):
+    def after_resource_delete(self, context, resources):
         u'''
         Extensions will receive this after a resource is deleted.
 
@@ -737,7 +757,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def before_show(self, resource_dict):
+    def before_resource_show(self, resource_dict):
         u'''
         Extensions will receive the validated data dict before the resource
         is ready for display.

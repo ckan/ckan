@@ -191,8 +191,8 @@ def resource_delete(context, data_dict):
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_delete(context, data_dict,
-                             pkg_dict.get('resources', []))
+        plugin.before_resource_delete(context, data_dict,
+                                      pkg_dict.get('resources', []))
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
@@ -206,7 +206,7 @@ def resource_delete(context, data_dict):
         raise ValidationError(errors)
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_delete(context, pkg_dict.get('resources', []))
+        plugin.after_resource_delete(context, pkg_dict.get('resources', []))
 
     model.repo.commit()
 

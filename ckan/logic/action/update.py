@@ -120,7 +120,7 @@ def resource_update(context, data_dict):
              'resource': resource})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_update(context, resource)
+        plugin.after_resource_update(context, resource)
 
     return resource
 
