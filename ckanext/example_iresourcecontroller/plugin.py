@@ -29,5 +29,5 @@ class ExampleIResourceControllerPlugin(plugins.SingletonPlugin):
     def after_resource_delete(self, context, resources):
         self.counter['after_resource_delete'] += 1
 
-    def before_sresource_how(self, resource):
+    def before_resource_show(self, resource):
         self.counter['before_resource_show'] += 1

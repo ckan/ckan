@@ -97,7 +97,8 @@ def resource_update(context, data_dict):
         data_dict['datastore_active'] = resource.extras['datastore_active']
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_update(context, pkg_dict['resources'][n], data_dict)
+        plugin.before_resource_update(context, pkg_dict['resources'][n],
+                                      data_dict)
 
     pkg_dict['resources'][n] = data_dict
 
