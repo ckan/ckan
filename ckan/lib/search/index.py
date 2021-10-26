@@ -286,7 +286,7 @@ class PackageSearchIndex(SearchIndex):
         assert pkg_dict, 'Plugin must return non empty package dict on index'
 
         # permission labels determine visibility in search, can't be set
-        # in original dataset or before_index plugins
+        # in original dataset or before_dataset_index plugins
         labels = lib_plugins.get_permission_labels()
         dataset = model.Package.get(pkg_dict['id'])
         pkg_dict['permission_labels'] = labels.get_dataset_labels(

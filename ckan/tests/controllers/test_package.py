@@ -67,8 +67,8 @@ class TestPackageNew(object):
             data={"name": u"plugged2", "save": ""},
             follow_redirects=False,
         )
-        assert plugin.calls["after_update"] == 0, plugin.calls
-        assert plugin.calls["after_create"] == 1, plugin.calls
+        assert plugin.calls["after_dataset_update"] == 0, plugin.calls
+        assert plugin.calls["after_dataset_create"] == 1, plugin.calls
 
         assert plugin.id_in_dict
 
@@ -942,7 +942,7 @@ class TestPackageDelete(object):
         assert model.Package.get(dataset["name"]).state == u"deleted"
 
         assert plugin.calls["delete"] == 2
-        assert plugin.calls["after_delete"] == 2
+        assert plugin.calls["after_dataset_delete"] == 2
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -1613,8 +1613,8 @@ class TestSearch(object):
             app.get(offset)
 
             # get redirected ...
-            assert plugin.calls["before_search"] == 1, plugin.calls
-            assert plugin.calls["after_search"] == 1, plugin.calls
+            assert plugin.calls["before_dataset_search"] == 1, plugin.calls
+            assert plugin.calls["after_dataset_search"] == 1, plugin.calls
 
     def test_search_page_request(self, app):
         """Requesting package search page returns list of datasets."""
@@ -2535,4 +2535,4 @@ class TestReadOnly(object):
         plugin.calls.clear()
         app.get(url_for("dataset.read", id=pkg["name"]))
         assert plugin.calls["read"] == 1
-        assert plugin.calls["after_show"] == 1
+        assert plugin.calls["after_dataset_show"] == 1

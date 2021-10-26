@@ -565,7 +565,7 @@ class IPackageController(Interface):
 
     def read(self, entity):
         u'''
-        Called after IPackageController.before_dataset view inside
+        Called after IPackageController.before_dataset_view inside
         package_show.
         '''
         pass
