@@ -7,7 +7,7 @@ from ckan.tests import factories
 
 
 @pytest.mark.ckan_config("ckan.plugins", "webpage_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestWebPageView(object):
 
     @pytest.mark.ckan_config("ckan.views.default_views", "")

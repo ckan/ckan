@@ -127,7 +127,7 @@ def test_user_update_with_no_user_in_context():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestUpdateWithView(object):
     def test_anon_can_not_update(self):
 
@@ -203,7 +203,7 @@ class TestUpdateWithView(object):
             )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUpdate(object):
     def test_config_option_update_anon_user(self):
         """An anon user is not authorized to use config_option_update
@@ -227,7 +227,7 @@ class TestUpdate(object):
         assert helpers.call_auth("config_option_update", context=context)
 
 
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)

@@ -152,7 +152,7 @@ def test_only_configured_plugins_loaded():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "with_db")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db")
 def test_mapper_plugin_fired_on_insert():
     plugin = plugins.get_plugin("mapper_plugin")
     dataset = factories.Dataset()
@@ -163,7 +163,7 @@ def test_mapper_plugin_fired_on_insert():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "with_db")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db")
 def test_mapper_plugin_fired_on_delete():
     plugin = plugins.get_plugin("mapper_plugin")
     dataset = factories.Dataset()

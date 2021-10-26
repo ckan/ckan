@@ -11,7 +11,7 @@ from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationNew(object):
     @pytest.fixture
     def user_env(self):
@@ -55,7 +55,7 @@ class TestOrganizationNew(object):
 
 @pytest.mark.usefixtures("with_request_context")
 class TestOrganizationList(object):
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_error_message_shown_when_no_organization_list_permission(
         self, monkeypatch, app
     ):
@@ -74,7 +74,7 @@ class TestOrganizationList(object):
         )
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationRead(object):
     def test_group_read(self, app):
         org = factories.Organization()
@@ -99,7 +99,7 @@ class TestOrganizationRead(object):
         )  # ie no redirect
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationEdit(object):
     @pytest.fixture
     def initial_data(self):
@@ -151,7 +151,7 @@ class TestOrganizationEdit(object):
         assert group["image_url"] == "http://example.com/image.png"
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationDelete(object):
     @pytest.fixture
     def initial_data(self):
@@ -259,7 +259,7 @@ class TestOrganizationDelete(object):
         assert dataset["owner_org"] is None
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationBulkProcess(object):
     def test_make_private(self, app):
         self.user = factories.User()
@@ -502,7 +502,7 @@ class TestOrganizationInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationMembership(object):
     def test_editor_users_cannot_add_members(self, app):
 
@@ -580,7 +580,7 @@ class TestOrganizationMembership(object):
             )
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestActivity(object):
     def test_simple(self, app):
         """Checking the template shows the activity stream."""

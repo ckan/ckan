@@ -7,7 +7,7 @@ from ckan import model
 from ckan.model.system_info import SystemInfo, set_system_info
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestSystemInfo(object):
     def test_set_value(self):
 

@@ -26,7 +26,7 @@ def datetime_from_string(s):
     return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUpdate(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -433,7 +433,7 @@ class TestUpdate(object):
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetUpdate(object):
     def test_missing_id(self):
         user = factories.User()
@@ -759,7 +759,7 @@ class TestSendEmailNotifications(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceViewUpdate(object):
     def test_resource_view_update(self):
         resource_view = factories.ResourceView()
@@ -879,7 +879,7 @@ class TestResourceViewUpdate(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
     def test_url_only(self):
         dataset = factories.Dataset()
@@ -1511,7 +1511,7 @@ class TestResourceUpdate(object):
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestConfigOptionUpdate(object):
 
     # NOTE: the opposite is tested in
@@ -1532,7 +1532,7 @@ class TestConfigOptionUpdate(object):
         assert getattr(app_globals.app_globals, globals_key) == value
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserUpdate(object):
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1580,7 +1580,7 @@ class TestUserUpdate(object):
         assert user["image_url"] == "new_image_url.jpg"
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupUpdate(object):
     def test_group_update_image_url_field(self):
         user = factories.User()
@@ -1622,7 +1622,7 @@ class TestGroupUpdate(object):
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPackageOwnerOrgUpdate(object):
     def test_package_owner_org_added(self):
         """A package without an owner_org can have one added."""
@@ -1675,7 +1675,7 @@ class TestPackageOwnerOrgUpdate(object):
         assert dataset_obj.owner_org is None
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestBulkOperations(object):
     def test_bulk_make_private(self):
 
@@ -1779,7 +1779,7 @@ class TestBulkOperations(object):
         assert activities[0]["activity_type"] == "deleted package"
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDashboardMarkActivitiesOld(object):
     def test_mark_as_old_some_activities_by_a_followed_user(self):
         # do some activity that will show up on user's dashboard
@@ -1839,7 +1839,7 @@ class TestDashboardMarkActivitiesOld(object):
         ]
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestCollaboratorsUpdate(object):
     @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
@@ -1973,7 +1973,7 @@ class TestCollaboratorsUpdate(object):
         assert updated_dataset["owner_org"] == org2["id"]
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetRevise(object):
     def test_revise_description(self):
         dataset = factories.Dataset(notes="old notes")
@@ -2099,7 +2099,7 @@ class TestDatasetRevise(object):
         assert response["package"]["notes"] == "new notes"
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserPluginExtras(object):
     def test_stored_on_update_if_sysadmin(self):
 
@@ -2252,7 +2252,7 @@ class TestUserPluginExtras(object):
 
 
 class TestVocabularyUpdate(object):
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_no_real_update(self):
         vocab = factories.Vocabulary()
         updated = helpers.call_action("vocabulary_update", id=vocab["id"])
@@ -2263,7 +2263,7 @@ class TestVocabularyUpdate(object):
         )
         assert vocab == updated
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_update_name(self):
         vocab = factories.Vocabulary()
         stub = factories.Vocabulary.stub()
@@ -2273,7 +2273,7 @@ class TestVocabularyUpdate(object):
         )
         assert updated["name"] == stub.name
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_add_tags(self):
         vocab = factories.Vocabulary()
         assert vocab["tags"] == []
@@ -2311,7 +2311,7 @@ class TestVocabularyUpdate(object):
             helpers.call_action("vocabulary_update")
 
     @pytest.mark.parametrize("tags", [])
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_bad_tags(self, tags):
         vocab = factories.Vocabulary()
         for tags in [
@@ -2327,13 +2327,13 @@ class TestVocabularyUpdate(object):
                     "vocabulary_update", id=vocab["id"], tags=tags
                 )
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_no_tags(self):
         vocab = factories.Vocabulary()
         with pytest.raises(DataError):
             helpers.call_action("vocabulary_update", id=vocab["id"], tags=None)
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_clen_tags(self):
         vocab = factories.Vocabulary(
             tags=[{"name": factories.Tag.stub().name}]
@@ -2344,7 +2344,7 @@ class TestVocabularyUpdate(object):
         assert updated["tags"] == []
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTaskStatusUpdate:
     def test_task_status_update(self):
         pkg = factories.Dataset()
@@ -2478,7 +2478,7 @@ class TestTaskStatusUpdate:
         helpers.call_action("task_status_delete", id=task_status_updated["id"])
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTermTranslations:
     def test_update_single(self, app):
 

@@ -58,7 +58,7 @@ def test_get_user_outside_web_request_py3(mock_RuntimeError):
     assert mock_RuntimeError.called
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_get_user_returns_user_obj():
     user = factories.User()
     assert auth._get_user(user["name"]).name == user["name"]
@@ -78,7 +78,7 @@ def test_no_attributes_set_on_imported_auth_members():
     assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestAuthOrgHierarchy(object):
     def test_parent_admin_auth(self):
         user = factories.User()

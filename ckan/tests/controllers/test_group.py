@@ -61,7 +61,7 @@ class TestGroupController(object):
             app.get(url=group_url)
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -126,7 +126,7 @@ class TestGroupControllerNew(object):
         assert form.select_one('[name=description]').text == "description"
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -211,7 +211,7 @@ class TestGroupControllerEdit(object):
         assert all([part.text for part in breadcrumbs])
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupRead(object):
     def test_group_read(self, app):
         group = factories.Group()
@@ -257,7 +257,7 @@ class TestGroupRead(object):
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupDelete(object):
     @pytest.fixture
     def initial_data(self):
@@ -322,7 +322,7 @@ class TestGroupDelete(object):
         assert group["state"] == "active"
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupMembership(object):
     def _create_group(self, owner_username, users=None):
         """Create a group with the owner defined by owner_username and
@@ -553,7 +553,7 @@ class TestGroupMembership(object):
             )
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupFollow:
     def test_group_follow(self, app):
 
@@ -836,7 +836,7 @@ class TestGroupIndex(object):
         assert "Test Group 20" not in response
 
 
-@pytest.mark.usefixtures("with_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestActivity:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""

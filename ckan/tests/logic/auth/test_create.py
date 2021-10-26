@@ -44,7 +44,7 @@ def test_cud_overrides_acd():
         helpers.call_auth("package_create", context)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserCreate:
     def test_sysadmin_can_create_via_api(self):
         sysadmin = factories.Sysadmin()
@@ -72,7 +72,7 @@ class TestUserCreate:
         assert helpers.call_auth("user_create", context)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestRealUsersAuth(object):
     def test_no_org_user_can_create(self):
         user = factories.User()
@@ -402,7 +402,7 @@ class TestApiToken(object):
                 u"api_token_create", {u"user": None, u"model": model}
             )
 
-    @pytest.mark.usefixtures(u"with_db")
+    @pytest.mark.usefixtures(u"non_clean_db")
     def test_auth_user_is_allowed_to_create_tokens(self):
         user = factories.User()
         helpers.call_auth(
@@ -412,7 +412,7 @@ class TestApiToken(object):
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreateAuth(object):
     def _get_context(self, user):

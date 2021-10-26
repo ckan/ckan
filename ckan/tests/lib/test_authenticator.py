@@ -5,7 +5,7 @@ import ckan.tests.factories as factories
 from ckan.lib.authenticator import UsernamePasswordAuthenticator
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUsernamePasswordAuthenticator(object):
     def test_succeeds_if_login_and_password_are_correct(self):
         password = "somepass"

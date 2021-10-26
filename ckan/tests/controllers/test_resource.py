@@ -16,7 +16,7 @@ from ckan.tests.helpers import call_action
 
 @pytest.mark.ckan_config("ckan.plugins", "test_resource_view")
 @pytest.mark.ckan_config("ckan.views.default_views", "test_resource_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestPluggablePreviews:
     def test_hook(self, app):
         res = factories.Resource()
@@ -128,7 +128,7 @@ def update_tracking_summary():
     tracking.update_all(engine=ckan.model.meta.engine, start_date=date)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTracking(object):
     def test_package_with_0_views(self, app):
         package = factories.Dataset()

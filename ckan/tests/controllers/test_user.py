@@ -117,7 +117,7 @@ class TestUserListings:
         assert user_list[0].text.strip() == "User One"
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUser(object):
     def test_register_a_user(self, app):
         url = url_for("user.register")
@@ -1052,7 +1052,7 @@ class TestUser(object):
         assert userobj.is_deleted(), userobj
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserImage(object):
     def test_image_url_is_shown(self, app):
 

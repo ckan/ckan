@@ -25,7 +25,7 @@ CONTENT = "data"
 # open)
 @pytest.mark.ckan_config("ckan.plugins", "example_iuploader")
 @pytest.mark.ckan_config("ckan.webassets.path", "/tmp/webassets")
-@pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db", "with_request_context")
 @patch.object(flask, "send_file", side_effect=[CONTENT])
 def test_resource_download_iuploader_called(
         send_file, app, monkeypatch, tmpdir, ckan_config

@@ -11,7 +11,7 @@ import ckan.tests.helpers as helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_iresourcecontroller")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestExampleIResourceController(object):
     """Tests for the plugin that uses IResourceController.
 

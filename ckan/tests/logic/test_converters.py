@@ -79,7 +79,7 @@ def test_convert_to_extras_output_unflattened_with_correct_index():
     assert errors == {}
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_convert_to_tags():
     tag_name = factories.Tag.stub().name
     vocab = factories.Vocabulary(tags=[{"name": tag_name}])
@@ -92,7 +92,7 @@ def test_convert_to_tags():
     assert data[("tags", 0, "vocabulary_id")] == vocab["id"]
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_convert_from_tags():
     tag_name1 = factories.Tag.stub().name
     tag_name2 = factories.Tag.stub().name
@@ -120,7 +120,7 @@ def test_convert_from_tags():
     assert tag_name2 in data["tags"]
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_free_tags_only():
     tag_name1 = factories.Tag.stub().name
     tag_name2 = factories.Tag.stub().name

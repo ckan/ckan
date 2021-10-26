@@ -5,7 +5,7 @@ import pytest
 from ckan.tests import helpers, factories
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPatch(object):
     def test_package_patch_updating_single_field(self):
         user = factories.User()

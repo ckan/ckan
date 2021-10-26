@@ -8,7 +8,7 @@ from ckan.tests import helpers
 from ckan.tests.factories import Dataset, Organization
 
 
-@pytest.mark.usefixtures(u"with_db")
+@pytest.mark.usefixtures(u"non_clean_db")
 class TestChanges(object):
     def test_title(self):
         changes = []

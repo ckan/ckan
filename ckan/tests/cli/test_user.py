@@ -8,7 +8,7 @@ from ckan.cli.cli import ckan
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserAdd(object):
 
     def test_cli_user_add_valid_args(self, cli):
@@ -79,7 +79,7 @@ class TestUserAdd(object):
         assert not result.exit_code, result.output
 
 
-@pytest.mark.usefixtures(u"with_db")
+@pytest.mark.usefixtures(u"non_clean_db")
 class TestApiToken(object):
 
     def test_revoke(self, cli):

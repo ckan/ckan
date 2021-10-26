@@ -8,7 +8,7 @@ from ckan.logic.action import get_domain_object
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_32_get_domain_object():
     pkg = factories.Dataset()
     group = factories.Group()

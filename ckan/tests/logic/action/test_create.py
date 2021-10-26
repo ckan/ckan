@@ -19,7 +19,7 @@ from ckan.lib.navl.dictization_functions import DataError
 from freezegun import freeze_time
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserInvite(object):
     @mock.patch("ckan.lib.mailer.send_invite")
     def test_invited_user_is_created_as_pending(self, _):
@@ -149,7 +149,7 @@ class TestUserInvite(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceViewCreate(object):
     def test_resource_view_create(self):
         context = {}
@@ -290,7 +290,7 @@ class TestResourceViewCreate(object):
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestCreateDefaultResourceViews(object):
     def test_add_default_views_to_dataset_resources(self):
 
@@ -375,7 +375,7 @@ class TestCreateDefaultResourceViews(object):
         assert created_views[0]["view_type"] == "image_view"
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestResourceCreate:
     def test_resource_create(self):
         context = {}
@@ -657,7 +657,7 @@ class TestResourceCreate:
         assert created_resource["name"] == "created by collaborator"
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate(object):
     def test_group_member_creation(self):
         user = factories.User()
@@ -750,7 +750,7 @@ class TestMemberCreate(object):
             )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetCreate(object):
     def test_private_package(self):
         org = factories.Organization()
@@ -994,7 +994,7 @@ class TestDatasetCreate(object):
         assert isinstance(dataset, str)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupCreate(object):
     def test_create_group(self):
         user = factories.User()
@@ -1055,7 +1055,7 @@ class TestGroupCreate(object):
             assert created[k] == shown[k], k
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationCreate(object):
     def test_create_organization(self):
         user = factories.User()
@@ -1138,7 +1138,7 @@ class TestOrganizationCreate(object):
         assert org["type"] == custom_org_type
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserCreate(object):
     def test_user_create_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1216,7 +1216,7 @@ def _clear_activities():
     model.Session.flush()
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestFollowCommon(object):
     def test_validation(self):
         user = factories.User()
@@ -1254,7 +1254,7 @@ class TestFollowCommon(object):
                     helpers.call_action(action, context, id=object_id)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestFollowDataset(object):
     def test_auth(self):
         user = factories.User()
@@ -1319,7 +1319,7 @@ class TestFollowDataset(object):
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestFollowGroup(object):
     def test_auth(self):
         user = factories.User()
@@ -1367,7 +1367,7 @@ class TestFollowGroup(object):
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestFollowOrganization(object):
     def test_auth(self):
         user = factories.User()
@@ -1415,7 +1415,7 @@ class TestFollowOrganization(object):
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestFollowUser(object):
     def test_auth(self):
         user = factories.User()
@@ -1487,7 +1487,7 @@ class TestFollowUser(object):
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestApiToken(object):
     def test_token_created(self):
         from ckan.lib.api_token import decode
@@ -1507,7 +1507,7 @@ class TestApiToken(object):
         assert res.id == jti
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", False)
 def test_create_package_collaborator_when_config_disabled():
 
@@ -1524,7 +1524,7 @@ def test_create_package_collaborator_when_config_disabled():
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreate(object):
     def test_create(self):
@@ -1613,7 +1613,7 @@ class TestPackageMemberCreate(object):
             )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserPluginExtras(object):
     def test_stored_on_create_if_sysadmin(self):
 
@@ -1699,7 +1699,7 @@ class TestUserPluginExtras(object):
         assert user["plugin_extras"] is None
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserImageUrl(object):
     def test_upload_picture(self):
         stub = factories.User.stub()
@@ -1719,14 +1719,14 @@ class TestUserImageUrl(object):
 
 
 class TestVocabularyCreate(object):
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_basic(self):
         name = factories.Vocabulary.stub().name
         vocab = helpers.call_action("vocabulary_create", name=name)
         obj = model.Vocabulary.get(name)
         assert obj.id == vocab["id"]
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_tags(self):
         name = factories.Vocabulary.stub().name
         tag1 = factories.Tag.stub().name
@@ -1740,13 +1740,13 @@ class TestVocabularyCreate(object):
             assert tag["vocabulary_id"] == vocab["id"]
             assert tag["name"] in {tag1, tag2}
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_empty_tags(self):
         name = factories.Vocabulary.stub().name
         resp = helpers.call_action("vocabulary_create", name=name, tags=[])
         assert resp["tags"] == []
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_existing_name(self):
         name = factories.Vocabulary.stub().name
         helpers.call_action("vocabulary_create", name=name, tags=[])
@@ -1790,7 +1790,7 @@ class TestVocabularyCreate(object):
 
 
 class TestTagCreate:
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_add_tag_to_vocab(self):
         tag1 = factories.Tag.stub().name
         tag2 = factories.Tag.stub().name
@@ -1816,7 +1816,7 @@ class TestTagCreate:
                 vocabulary_id=factories.Vocabulary.stub().name,
             )
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_duplicate(self):
         tag1 = factories.Tag.stub().name
         vocab = factories.Vocabulary(tags=[{"name": tag1}])
@@ -1825,7 +1825,7 @@ class TestTagCreate:
                 "tag_create", name=tag1, vocabulary_id=vocab["id"]
             )
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_id_not_allowed(self):
         vocab = factories.Vocabulary()
         with pytest.raises(logic.ValidationError):
@@ -1833,13 +1833,13 @@ class TestTagCreate:
                 "tag_create", name="foo", id="xxx", vocabulary_id=vocab["id"]
             )
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_name_is_required(self):
         vocab = factories.Vocabulary()
         with pytest.raises(logic.ValidationError):
             helpers.call_action("tag_create", vocabulary_id=vocab["id"])
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_invalid_name(self):
         vocab = factories.Vocabulary()
         for name in ("Not a valid tag name!", "", None):
@@ -1849,7 +1849,7 @@ class TestTagCreate:
                 )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate:
     def test_member_create_accepts_object_name_or_id(self):
         org = factories.Organization()

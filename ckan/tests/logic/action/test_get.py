@@ -15,7 +15,7 @@ from ckan import __version__
 from ckan.lib.search.common import SearchError
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPackageShow(object):
     def test_package_show(self):
         # simple dataset, simple checks
@@ -767,7 +767,7 @@ class TestOrganizationList(object):
         assert len(results) == 5  # i.e. configured limit
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationShow(object):
     def test_organization_show(self):
         org = factories.Organization()
@@ -1033,7 +1033,7 @@ class TestUserList(object):
             helpers.call_action("user_list", order_by="edits")
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserShow(object):
     def test_user_show_default_values(self):
 
@@ -2487,7 +2487,7 @@ class TestOrganizationListForUser(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestShowResourceView(object):
     def test_resource_view_show(self):
 
@@ -2555,7 +2555,7 @@ class TestGetHelpShow(object):
             helpers.call_action("help_show", name=function_name)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestConfigOptionShow(object):
     @pytest.mark.ckan_config("ckan.site_title", "My Test CKAN")
     def test_config_option_show_in_config_not_in_db(self):
@@ -2606,7 +2606,7 @@ def remove_pseudo_users(user_list):
     ]
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTagShow(object):
     def test_tag_show_for_free_tag(self):
         tag = factories.Tag.stub().name
@@ -2838,7 +2838,7 @@ class TestMembersList(object):
         assert len(org_members) == 0
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestFollow(object):
     def test_followee_list(self):
 
@@ -2956,7 +2956,7 @@ def _seconds_since_timestamp(timestamp, format_):
     return (now - dt).total_seconds()
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestActivityShow(object):
     def test_simple_without_data(self):
         dataset = factories.Dataset()
@@ -4603,7 +4603,7 @@ class TestDashboardNewActivities(object):
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestApiToken(object):
     @pytest.mark.parametrize("num_tokens", [0, 1, 2, 5])
     def test_token_list(self, num_tokens):
@@ -4629,7 +4629,7 @@ class TestApiToken(object):
         assert sorted([t["id"] for t in tokens]) == sorted(ids)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", False)
 def test_package_collaborator_list_when_config_disabled():
 
@@ -4941,7 +4941,7 @@ class TestResourceSearch(object):
         assert result == {"count": 0, "results": []}
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserPluginExtras(object):
     def test_returned_if_sysadmin_and_include_plugin_extras_only(self):
 
@@ -4975,7 +4975,7 @@ class TestUserPluginExtras(object):
         assert "plugin_extras" not in user
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupPackageShow:
     def test_group_package_show(self):
         group = factories.Group()
@@ -4988,7 +4988,7 @@ class TestGroupPackageShow:
         assert group_packages[0]["name"] == pkg["name"]
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGetSiteUser:
     def test_get_site_user_not_authorized(self, ckan_config):
         with pytest.raises(logic.NotAuthorized):

@@ -43,7 +43,7 @@ class TestTextView(object):
 
         assert not p.can_view(data_dict)
 
-    @pytest.mark.usefixtures("with_db", "with_request_context")
+    @pytest.mark.usefixtures("non_clean_db", "with_request_context")
     def test_title_description_iframe_shown(self, app, create_with_upload):
         package = factories.Dataset()
         resource = create_with_upload("hello world", "file.txt", package_id=package["id"])
@@ -57,7 +57,7 @@ class TestTextView(object):
         assert 'data-module="data-viewer"' in result.body
 
 
-    @pytest.mark.usefixtures("with_db", "with_request_context")
+    @pytest.mark.usefixtures("non_clean_db", "with_request_context")
     def test_js_included(self, app, create_with_upload):
         package = factories.Dataset()
         resource = create_with_upload("hello world", "file.txt", package_id=package["id"])

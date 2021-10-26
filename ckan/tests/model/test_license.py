@@ -19,7 +19,7 @@ def reset():
         del model.Package._license_register
 
 
-@pytest.mark.usefixtures("with_db", "reset")
+@pytest.mark.usefixtures("non_clean_db", "reset")
 def test_default_register_has_basic_properties_of_a_license():
     config["licenses_group_url"] = None
     reg = LicenseRegister()
@@ -30,7 +30,7 @@ def test_default_register_has_basic_properties_of_a_license():
     assert license.title == "Creative Commons Attribution"
 
 
-@pytest.mark.usefixtures("with_db", "reset")
+@pytest.mark.usefixtures("non_clean_db", "reset")
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v1" % this_dir
 )
@@ -44,7 +44,7 @@ def test_import_v1_style_register():
 
 
 # v2 is used by http://licenses.opendefinition.org in recent times
-@pytest.mark.usefixtures("with_db", "reset")
+@pytest.mark.usefixtures("non_clean_db", "reset")
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v2" % this_dir
 )

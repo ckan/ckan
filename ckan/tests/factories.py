@@ -244,6 +244,7 @@ class Resource(CKANFactory):
     description = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
     format = factory.LazyFunction(fake.file_extension)
     url = factory.LazyFunction(fake.url)
+    url_type = None
     package_id = factory.LazyFunction(lambda: Dataset()["id"])
 
 

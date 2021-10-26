@@ -18,7 +18,7 @@ from ckanext.datastore.tests.helpers import set_url_type
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
-@pytest.mark.usefixtures("with_plugins", "with_db")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db")
 class TestDatastoreNew:
     def test_create_ckan_resource_in_package(self, app, api_token):
         package = factories.Dataset.model()

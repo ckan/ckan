@@ -340,7 +340,7 @@ def _reset_db_once(reset_db):
 
 
 @pytest.fixture
-def with_db(_reset_db_once):
+def non_clean_db(_reset_db_once):
     """Guarantees that DB is initialized.
 
     This fixture either initializes DB if it hasn't been done yet or does
@@ -350,7 +350,7 @@ def with_db(_reset_db_once):
 
     Example::
 
-        @pytest.mark.usefixtures("with_db")
+        @pytest.mark.usefixtures("non_clean_db")
         def test_example():
             assert factories.User()
 

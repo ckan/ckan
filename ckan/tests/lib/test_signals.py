@@ -40,7 +40,7 @@ def test_request_signals(app):
     assert finish_receiver.call_count == 2
 
 
-@pytest.mark.usefixtures(u"with_db", u"with_request_context")
+@pytest.mark.usefixtures(u"non_clean_db", u"with_request_context")
 class TestUserSignals:
     def test_user_created(self):
         created = mock.Mock()

@@ -13,7 +13,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDelete:
     def test_resource_delete(self):
         user = factories.User()
@@ -61,7 +61,7 @@ class TestDelete:
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDeleteResource(object):
     def test_01_delete_resource(self, app):
         res = factories.Resource()
@@ -73,7 +73,7 @@ class TestDeleteResource(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestDeleteResourceViews(object):
     def test_resource_view_delete(self):
         resource_view = factories.ResourceView()
@@ -105,7 +105,7 @@ class TestDeleteResourceViews(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-@pytest.mark.usefixtures("with_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestClearResourceViews(object):
     def test_resource_view_clear(self):
         initial = model.Session.query(model.ResourceView).count()
@@ -168,7 +168,7 @@ class TestDeleteTags(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("tag_delete", id="not-a-real-id")
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_vocab_does_not_exist(self):
         vocab = factories.Vocabulary(tags=[{"name": "testtag"}])
         tag = vocab["tags"][0]
@@ -177,7 +177,7 @@ class TestDeleteTags(object):
                 "tag_delete", id=tag["id"], vocabulary_id="not-a-real-id"
             )
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_delete_tag(self):
         tag1 = factories.Tag.stub().name
         tag2 = factories.Tag.stub().name
@@ -194,7 +194,7 @@ class TestDeleteTags(object):
         assert pkg["tags"] == []
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupPurge(object):
     def test_a_non_sysadmin_cant_purge_group(self):
         user = factories.User()
@@ -293,7 +293,7 @@ class TestGroupPurge(object):
             helpers.call_action("group_purge", id="123")
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationPurge(object):
     def test_a_non_sysadmin_cant_purge_org(self):
         user = factories.User()
@@ -395,7 +395,7 @@ class TestOrganizationPurge(object):
             helpers.call_action("organization_purge", id="123")
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetPurge(object):
     def test_a_non_sysadmin_cant_purge_dataset(self):
         user = factories.User()
@@ -537,7 +537,7 @@ class TestDatasetPurge(object):
             helpers.call_action("dataset_purge", id="123")
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserDelete(object):
     def test_user_delete(self):
         user = factories.User()
@@ -703,7 +703,7 @@ class TestJobCancel(helpers.FunctionalRQTestBase):
             helpers.call_action(u"job_cancel", id=u"does-not-exist")
 
 
-@pytest.mark.usefixtures(u"with_db")
+@pytest.mark.usefixtures(u"non_clean_db")
 class TestApiToken(object):
     def test_token_revoke(self):
         user = factories.User()
@@ -754,7 +754,7 @@ class TestApiToken(object):
         assert len(tokens) == 0
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", False)
 def test_delete_package_collaborator_when_config_disabled():
 
@@ -767,7 +767,7 @@ def test_delete_package_collaborator_when_config_disabled():
         )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDelete(object):
     def test_delete(self):
@@ -824,7 +824,7 @@ class TestPackageMemberDelete(object):
             )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 def test_package_delete_removes_collaborations():
 
@@ -862,7 +862,7 @@ def test_package_delete_removes_collaborations():
 
 
 class TestVocabularyDelete(object):
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_basic(self):
         vocab = factories.Vocabulary()
         helpers.call_action("vocabulary_delete", id=vocab["id"])
@@ -871,7 +871,7 @@ class TestVocabularyDelete(object):
             v["name"] for v in helpers.call_action("vocabulary_list")
         }
 
-    @pytest.mark.usefixtures("with_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_not_existing(self):
         with pytest.raises(logic.NotFound):
             helpers.call_action("vocabulary_delete", id="does-not-exist")
@@ -881,7 +881,7 @@ class TestVocabularyDelete(object):
             helpers.call_action("vocabulary_delete")
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestMemberDelete:
     def test_member_delete_accepts_object_name_or_id(self):
         org = factories.Organization()

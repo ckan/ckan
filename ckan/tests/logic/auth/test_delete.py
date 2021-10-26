@@ -13,7 +13,7 @@ from ckan import authz, model
 logic = helpers.logic
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDeleteAuth:
     def test_auth_deleted_users_are_always_unauthorized(self):
         def always_success(x, y):
@@ -136,7 +136,7 @@ def test_anon_cant_clear():
         helpers.call_auth("resource_view_clear", context=context, **params)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_cant_clear():
     user = factories.User()
 
@@ -146,7 +146,7 @@ def test_normal_user_cant_clear():
         helpers.call_auth("resource_view_clear", context=context)
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_user_can_clear():
     user = factories.User(sysadmin=True)
 
@@ -163,7 +163,7 @@ class TestApiToken(object):
                 u"api_token_revoke", {u"user": None, u"model": model}
             )
 
-    @pytest.mark.usefixtures(u"with_db")
+    @pytest.mark.usefixtures(u"non_clean_db")
     def test_auth_user_is_allowed_to_revoke_tokens(self):
         user = factories.User()
         token = model.ApiToken(user[u"id"])
@@ -176,7 +176,7 @@ class TestApiToken(object):
             jti=token.id,
         )
 
-    @pytest.mark.usefixtures(u"with_db")
+    @pytest.mark.usefixtures(u"non_clean_db")
     def test_auth_user_is_allowed_to_revoke_unowned_tokens(self):
         owner = factories.User()
         not_owner = factories.User()
@@ -191,7 +191,7 @@ class TestApiToken(object):
                 jti=token.id,
             )
 
-    @pytest.mark.usefixtures(u"with_db")
+    @pytest.mark.usefixtures(u"non_clean_db")
     def test_auth_user_is_allowed_to_revoke_unexisting_tokens(self):
         user = factories.User()
 
@@ -203,7 +203,7 @@ class TestApiToken(object):
             )
 
 
-@pytest.mark.usefixtures("with_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDeleteAuth(object):
     def _get_context(self, user):
