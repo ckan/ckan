@@ -184,7 +184,10 @@
            Children should include its own IDs and TEXTs
         */
         let ret = {text: label};
-        if (children !== null) {
+        if (children === undefined) {
+          // This is a regular element without children
+          ret.id = key;
+        } else {
           // This is a group. Children need ID and TEXT
           // "key" and "label" should be defined
           for (i = 0, l = children.length; i < l; i = i + 1) {
@@ -192,9 +195,6 @@
             children[i].text = children[i][options.label];
           }
           ret.children = children;
-        } else {
-          // This is a regular element without children
-          ret.id = key;
         }
 
         var lowercased = item.toLowerCase();
