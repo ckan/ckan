@@ -28,6 +28,9 @@ def test_no_conflicts_in_method_names():
             continue
 
         for name, _ in inspect.getmembers(cls, inspect.isfunction):
+            if name.startswith("_"):
+                # ignore private methods
+                continue
             assert (
                 name not in methods
             ), f"{name} used in {cls_name} and {methods[name]}"
