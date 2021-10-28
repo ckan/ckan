@@ -231,6 +231,14 @@ def fake_data(ctx, category, factory_class, fake_count):
 
     All the extra arguments that follows format `--NAME=VALUE` will be passed
     into the entity factory.
+    
+    For instance:
+    
+         ckan generate fake-data dataset
+         ckan generate fake-data dataset  --title="My test dataset"
+         
+         ckan generate fake-data dataset --factory-class=ckanext.myext.tests.factories.MyCustomDataset
+    
     """
     try:
         from ckan.tests.factories import CKANFactory
