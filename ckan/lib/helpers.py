@@ -1087,7 +1087,7 @@ def humanize_entity_type(entity_type, object_type, purpose):
     Possible purposes(depends on `entity_type` and change over time):
         `add link`: "Add [object]" button on search pages
         `breadcrumb`: "Home / [object]s / New" section in breadcrums
-        `content tab`: "[object]s | Groups | Activity" tag on details page
+        `content tab`: "[object]s | Groups | Activity" tab on details page
         `create label`: "Home / ... / Create [object]" part of breadcrumb
         `create title`: "Create [object] - CKAN" section of page title
         `delete confirmation`: Confirmation popup when object is deleted
@@ -1096,6 +1096,7 @@ def humanize_entity_type(entity_type, object_type, purpose):
         `facet label`: "[object]s" label in sidebar(facets/follower counters)
         `form label`: "[object] Form" heading on object form page
         `main nav`: "[object]s" link in the header
+        `view label`: "View [object]s" button on edit form
         `my label`: "My [object]s" tab in dashboard
         `name placeholder`: "<[object]>" section of URL preview on object form
         `no any objects`: No objects created yet
@@ -1133,6 +1134,7 @@ def humanize_entity_type(entity_type, object_type, purpose):
         u'form label': _(u"{object_type} Form"),
         u'main nav': _(u"{object_type}s"),
         u'my label': _(u"My {object_type}s"),
+        u'view label': _("View {object_type}"),
         u'name placeholder': _(u"My {object_type}"),
         u'no any objects': _(
             u"There are currently no {object_type}s for this site"),
