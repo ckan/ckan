@@ -746,8 +746,8 @@ class EditView(MethodView):
             return _form_save_redirect(
                 pkg_dict[u'name'], u'edit', package_type=package_type
             )
-        except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to read package %s') % id)
+        except NotAuthorized as e:
+            return base.abort(403, _(u'Unauthorized to edit package %s (%s)') % (id, str(e)))
         except NotFound as e:
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
