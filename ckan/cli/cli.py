@@ -30,8 +30,6 @@ from ckan.cli import (
     user
 )
 
-from ckan.cli import seed
-
 META_ATTR = u'_ckan_meta'
 CMD_TYPE_PLUGIN = u'plugin'
 CMD_TYPE_ENTRY = u'entry_point'
@@ -208,7 +206,6 @@ ckan.add_command(jobs.jobs)
 ckan.add_command(config_tool.config_tool)
 ckan.add_command(server.run)
 ckan.add_command(profile.profile)
-ckan.add_command(seed.seed)
 ckan.add_command(db.db)
 ckan.add_command(search_index.search_index)
 ckan.add_command(sysadmin.sysadmin)

@@ -532,29 +532,6 @@ There are other search related commands, mostly useful for debugging purposes
  ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
 
 
-seed: Create test data in the database
-======================================
-
-Usage
-
-.. parsed-literal::
-
- basic           - annakarenina and warandpeace.
- family          - package relationships data.
- gov             - government style data.
- hierarchy       - hierarchy of groups.
- search          - realistic data to test search.
- translations    - test translations of terms.
- user            - create a user "tester" with api key "tester".
- vocabs          - some test vocabularies.
-
-Examples
-
-.. parsed-literal::
-
- ckan -c |ckan.ini| seed basic
-
-
 sysadmin: Give sysadmin rights
 ==============================
 
