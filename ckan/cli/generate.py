@@ -242,7 +242,8 @@ def fake_data(ctx, category, factory_class, fake_count):
          ckan generate fake-data dataset
          ckan generate fake-data dataset  --title="My test dataset"
 
-         ckan generate fake-data dataset --factory-class=ckanext.myext.tests.factories.MyCustomDataset
+         ckan generate fake-data dataset \
+                 --factory-class=ckanext.myext.tests.factories.MyCustomDataset
 
     All the validation rules still apply. For example, if you have
     `ckan.auth.create_unowned_dataset` config option set to `False`,
@@ -263,7 +264,8 @@ def fake_data(ctx, category, factory_class, fake_count):
     factory: Type[CKANFactory]
     if not factory_class:
         if not category:
-            error_shout("Either `category` or `--factory-class` must be specified")
+            error_shout(
+                "Either `category` or `--factory-class` must be specified")
             raise click.Abort()
         factory_class = _factories[category]
     if not factory_class:
