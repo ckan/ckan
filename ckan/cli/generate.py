@@ -1,14 +1,18 @@
 # encoding: utf-8
 
 import contextlib
+import functools
 import os
 import shutil
+from typing import Type
 
 import alembic.command
 import click
 from alembic.config import Config as AlembicConfig
+from werkzeug.utils import import_string
 
 import ckan
+from ckan import logic
 from ckan.cli.db import _resolve_alembic_config
 import ckan.plugins.toolkit as tk
 
@@ -197,3 +201,75 @@ def migration(plugin, message):
         u"Revision file created. Now, you need to update it: \n\t{}".format(
             rev.path),
         fg=u"green")
+
+
+_factories = {
+    "activity": "ckan.tests.factories:Activity",
+    "api-token": "ckan.tests.factories:APIToken",
+    "dataset": "ckan.tests.factories:Dataset",
+    "group": "ckan.tests.factories:Group",
+    "resource": "ckan.tests.factories:Resource",
+    "resource-view": "ckan.tests.factories:ResourceView",
+    "user": "ckan.tests.factories:User",
+    "vocabulary": "ckan.tests.factories:Vocabulary",
+}
+
+
+@generate.command(context_settings={
+    "allow_extra_args": True, "ignore_unknown_options": True
+})
+@click.argument(
+    "category", required=False, type=click.Choice(list(_factories)))
+@click.option(
+    "-f", "--factory-class",
+    help="Import path of the factory class that can generate an entity")
+@click.option("-n", "--fake-count", type=int, default=1,
+              help="Number of entities to create")
+@click.pass_context
+def fake_data(ctx, category, factory_class, fake_count):
+    """Generate random entities of the given category.
+
+    All the extra arguments that follows format `--NAME=VALUE` will be passed
+    into the entity factory.
+    """
+    try:
+        from ckan.tests.factories import CKANFactory
+    except ImportError as e:
+        error_shout(e)
+        error_shout("Make sure you have dev-dependencies installed:")
+        error_shout("\tpip install -r dev-requirements.txt")
+        raise click.Abort()
+
+    factory: Type[CKANFactory]
+    if not factory_class:
+        factory_class = _factories[category]
+    if not factory_class:
+        error_shout("Either `category` or `factory_class` must be specified")
+        raise click.Abort()
+
+    factory = import_string(factory_class, silent=True)
+    if not factory:
+        error_shout(f"{factory_class} cannot be imported")
+        raise click.Abort()
+
+    if not issubclass(factory, CKANFactory):
+        error_shout("Factory must be a subclass of `{module}:{cls}`".format(
+            module=CKANFactory.__module__,
+            cls=CKANFactory.__name__,
+        ))
+        raise click.Abort()
+
+    try:
+        extras = dict(
+            arg[2:].split("=") for arg in ctx.args if arg.startswith("--")
+        )
+    except ValueError:
+        error_shout("Extra arguments must follow the format: --NAME=VALUE")
+        raise click.Abort()
+
+    try:
+        for entity in factory.create_batch(fake_count, **extras):
+            click.echo(entity)
+    except logic.ValidationError as e:
+        error_shout(f"Cannot create entity: {e.error_dict}")
+        raise click.Abort()

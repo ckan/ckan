@@ -269,15 +269,17 @@ db: Manage databases
 See :doc:`database-management`.
 
 
-generate: Generate empty extension files to expand CKANs
-========================================================
+generate: Scaffolding for regular development tasks
+===================================================
 
 Usage
 
 .. parsed-literal::
 
- ckan generate extension           - Create empty extension
- ckan generate --output-dir (-o)   - Location to put the generated template
+ ckan generate config        -  Create a ckan.ini file.
+ ckan generate extension     -  Create empty extension.
+ ckan generate fake-data     -  Generate random entities of the given category.
+ ckan generate migration     -  Create new alembic revision for DB migration.
 
 
 .. _cli jobs:
