@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import contextlib
-import functools
 import os
+import json
 import shutil
 from typing import Type
 
@@ -208,6 +208,7 @@ _factories = {
     "api-token": "ckan.tests.factories:APIToken",
     "dataset": "ckan.tests.factories:Dataset",
     "group": "ckan.tests.factories:Group",
+    "organization": "ckan.tests.factories:Organization",
     "resource": "ckan.tests.factories:Resource",
     "resource-view": "ckan.tests.factories:ResourceView",
     "user": "ckan.tests.factories:User",
@@ -229,16 +230,27 @@ _factories = {
 def fake_data(ctx, category, factory_class, fake_count):
     """Generate random entities of the given category.
 
+    Either positional `category` or named `--factory-class`/`-f` argument must
+    be specified. `--factory-class` has higher priority, which means that
+    `category` is ignored if both arguments are provided at the same time.
+
     All the extra arguments that follows format `--NAME=VALUE` will be passed
     into the entity factory.
-    
+
     For instance:
-    
+
          ckan generate fake-data dataset
          ckan generate fake-data dataset  --title="My test dataset"
-         
+
          ckan generate fake-data dataset --factory-class=ckanext.myext.tests.factories.MyCustomDataset
-    
+
+    All the validation rules still apply. For example, if you have
+    `ckan.auth.create_unowned_dataset` config option set to `False`,
+    `--owner_org` must be supplied:
+
+        owner_org=$(ckan generate fake-data organization | jq .id -r)
+        ckan generate fake-data dataset  --owner_org=$owner_org
+
     """
     try:
         from ckan.tests.factories import CKANFactory
@@ -250,6 +262,9 @@ def fake_data(ctx, category, factory_class, fake_count):
 
     factory: Type[CKANFactory]
     if not factory_class:
+        if not category:
+            error_shout("Either `category` or `--factory-class` must be specified")
+            raise click.Abort()
         factory_class = _factories[category]
     if not factory_class:
         error_shout("Either `category` or `factory_class` must be specified")
@@ -277,7 +292,9 @@ def fake_data(ctx, category, factory_class, fake_count):
 
     try:
         for entity in factory.create_batch(fake_count, **extras):
-            click.echo(entity)
+            # print entity as json, so that it can be stored in file or passed
+            # through jq-pipeline or similar tool
+            click.echo(json.dumps(entity))
     except logic.ValidationError as e:
         error_shout(f"Cannot create entity: {e.error_dict}")
         raise click.Abort()
