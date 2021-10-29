@@ -1118,9 +1118,6 @@ def send_email_notifications(context, data_dict):
     command.
 
     '''
-    # If paste.command_request is True then this function has been called
-    # by a `paster post ...` command not a real HTTP request, so skip the
-    # authorization.
     _check_access('send_email_notifications', context, data_dict)
 
     if not converters.asbool(
