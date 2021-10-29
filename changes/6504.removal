@@ -1,0 +1,3 @@
+The ``ckan seed`` command has been removed in favour of ``ckan generate fake-data`` 
+for generating test entities in the database. Refer to ``ckan generate fake-data --help``
+for some usage examples.

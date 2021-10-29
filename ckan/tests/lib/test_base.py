@@ -4,8 +4,6 @@ import six
 import pytest
 
 import ckan.tests.factories as factories
-import ckan.model as model
-import ckan.tests.helpers as h
 
 
 @pytest.mark.ckan_config("debug", True)

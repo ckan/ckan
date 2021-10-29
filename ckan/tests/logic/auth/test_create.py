@@ -105,10 +105,10 @@ class TestRealUsersAuth(object):
         context = {"user": user["name"], "model": model}
         assert helpers.call_auth("package_create", context, **dataset)
 
-    def test_different_org_user_cant_create(s):
+    def test_different_org_user_cant_create(self):
         user = factories.User()
         org_users = [{"name": user["name"], "capacity": "editor"}]
-        org1 = factories.Organization(users=org_users)
+        factories.Organization(users=org_users)
         org2 = factories.Organization()
         dataset = {
             "name": "different-org-user-cant-create",

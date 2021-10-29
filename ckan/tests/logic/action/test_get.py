@@ -173,7 +173,7 @@ class TestPackageShow(object):
 
         custom_schema = default_show_package_schema()
 
-        def foo(key, data, errors, context):
+        def foo(key, data, errors, context):  # noqa
             data[key] = "foo"
 
         custom_schema["new_field"] = [foo]
@@ -192,7 +192,7 @@ class TestPackageShow(object):
 
         custom_schema = default_show_package_schema()
 
-        def foo(key, data, errors, context):
+        def foo(key, data, errors, context):  # noqa
             data[key] = "foo"
 
         custom_schema["new_field"] = [foo]
@@ -409,9 +409,9 @@ class TestGroupList(object):
 
         child_group_returned = group_list[0]
         if group_list[0]["name"] == child_group["name"]:
-            child_group_returned, parent_group_returned = group_list
+            child_group_returned, _ = group_list
         else:
-            child_group_returned, parent_group_returned = group_list[::-1]
+            child_group_returned, _ = group_list[::-1]
         expected_parent_group = dict(parent_group)
 
         assert [g["name"] for g in child_group_returned["groups"]] == [
@@ -446,9 +446,9 @@ class TestGroupList(object):
 
     def test_group_list_limit_and_offset(self):
 
-        group1 = factories.Group(title="aa")
+        factories.Group(title="aa")
         group2 = factories.Group(title="bb")
-        group3 = factories.Group(title="cc")
+        factories.Group(title="cc")
 
         group_list = helpers.call_action("group_list", offset=1, limit=1)
 
@@ -457,8 +457,8 @@ class TestGroupList(object):
 
     def test_group_list_limit_as_string(self):
 
-        group1 = factories.Group(name="aa")
-        group2 = factories.Group(name="bb")
+        factories.Group(name="aa")
+        factories.Group(name="bb")
 
         group_list = helpers.call_action("group_list", limit="1")
 
@@ -648,7 +648,7 @@ class TestGroupShow(object):
     @pytest.mark.ckan_config("ckan.search.rows_max", "5")
     def test_package_limit_configured(self):
         group = factories.Group()
-        for i in range(7):
+        for _ in range(7):
             factories.Dataset(groups=[{"id": group["id"]}])
         id = group["id"]
 
@@ -700,7 +700,7 @@ class TestOrganizationList(object):
         Getting the org_list with a type defined should only return
         orgs of that type.
         """
-        org1 = factories.Organization()
+        factories.Organization()
         org2 = factories.Organization(type="custom_org")
         factories.Group(type="custom")
         factories.Group(type="custom")
@@ -845,7 +845,7 @@ class TestOrganizationShow(object):
     @pytest.mark.ckan_config("ckan.search.rows_max", "5")
     def test_package_limit_configured(self):
         org = factories.Organization()
-        for i in range(7):
+        for _ in range(7):
             factories.Dataset(owner_org=org["id"])
         id = org["id"]
 
@@ -1235,8 +1235,8 @@ class TestCurrentPackageList(object):
         Test current_package_list_with_resources with no parameters
         """
         user = factories.User()
-        dataset1 = factories.Dataset(user=user)
-        dataset2 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
+        factories.Dataset(user=user)
         current_package_list = helpers.call_action(
             "current_package_list_with_resources"
         )
@@ -1247,7 +1247,7 @@ class TestCurrentPackageList(object):
         Test current_package_list_with_resources with limit parameter
         """
         user = factories.User()
-        dataset1 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         dataset2 = factories.Dataset(user=user)
         current_package_list = helpers.call_action(
             "current_package_list_with_resources", limit=1
@@ -1261,7 +1261,7 @@ class TestCurrentPackageList(object):
         """
         user = factories.User()
         dataset1 = factories.Dataset(user=user)
-        dataset2 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         current_package_list = helpers.call_action(
             "current_package_list_with_resources", offset=1
         )
@@ -1275,10 +1275,10 @@ class TestCurrentPackageList(object):
         """
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(
+        factories.Dataset(
             user=user, owner_org=org["name"], private=True
         )
-        dataset2 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         current_package_list = helpers.call_action(
             "current_package_list_with_resources", context={}
         )
@@ -1291,10 +1291,10 @@ class TestCurrentPackageList(object):
         """
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(
+        factories.Dataset(
             user=user, owner_org=org["name"], private=True
         )
-        dataset2 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         sysadmin = factories.Sysadmin()
         current_package_list = helpers.call_action(
             "current_package_list_with_resources",
@@ -1328,10 +1328,10 @@ class TestPackageAutocomplete(object):
 
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(
+        factories.Dataset(
             user=user, owner_org=org["name"], title="Some public stuff"
         )
-        dataset2 = factories.Dataset(
+        factories.Dataset(
             user=user,
             owner_org=org["name"],
             private=True,
@@ -1389,7 +1389,7 @@ class TestPackageSearch(object):
 
     def test_search_fl(self):
         d1 = factories.Dataset(title="Rivers", name="test_ri")
-        d2 = factories.Dataset(title="Lakes")
+        factories.Dataset(title="Lakes")
 
         search_result = helpers.call_action(
             "package_search", q="rivers", fl=["title", "name"]
@@ -1573,7 +1573,7 @@ class TestPackageSearch(object):
         """
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         factories.Dataset(user=user, state="deleted")
         factories.Dataset(user=user, state="draft")
         factories.Dataset(user=user, private=True, owner_org=org["name"])
@@ -1922,9 +1922,9 @@ class TestPackageSearch(object):
     ):
         user = factories.User()
         user2 = factories.User()
-        org = factories.Organization(user=user)
+        factories.Organization(user=user)
         org2 = factories.Organization(user=user2)
-        private_dataset = factories.Dataset(
+        factories.Dataset(
             user=user2, private=True, owner_org=org2["name"]
         )
 
@@ -2435,7 +2435,7 @@ class TestOrganizationListForUser(object):
         authorized user. Users who aren't logged-in don't have any permissions.
         """
         # Create an organization so we can test that it doesn't get returned.
-        organization = factories.Organization()
+        factories.Organization()
 
         organizations = helpers.call_action("organization_list_for_user")
 
@@ -2844,7 +2844,7 @@ class TestFollow(object):
 
         group1 = factories.Group(title="Finance")
         group2 = factories.Group(title="Environment")
-        group3 = factories.Group(title="Education")
+        factories.Group(title="Education")
 
         user = factories.User()
 
@@ -2867,7 +2867,7 @@ class TestFollow(object):
 
         group1 = factories.Group(title="Finance")
         group2 = factories.Group(title="Environment")
-        group3 = factories.Group(title="Education")
+        factories.Group(title="Education")
 
         user = factories.User()
 
@@ -2917,7 +2917,7 @@ class TestJobList(helpers.FunctionalRQTestBase):
         """
         Test getting jobs from specific queues.
         """
-        job1 = self.enqueue()
+        self.enqueue()
         job2 = self.enqueue(queue="q2")
         job3 = self.enqueue(queue="q3")
         job4 = self.enqueue(queue="q3")
@@ -3130,7 +3130,7 @@ class TestPackageActivityList(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         _clear_activities()
-        resource = factories.Resource(package_id=dataset["id"], user=user)
+        factories.Resource(package_id=dataset["id"], user=user)
 
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
@@ -3352,7 +3352,7 @@ class TestPackageActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -3588,7 +3588,7 @@ class TestUserActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -3804,7 +3804,7 @@ class TestGroupActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -4037,7 +4037,7 @@ class TestOrganizationActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -4208,7 +4208,7 @@ class TestRecentlyChangedPackagesActivityList(object):
                 activity_type="new_package",
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -4316,7 +4316,7 @@ class TestDashboardActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -4993,7 +4993,6 @@ class TestGetSiteUser:
     def test_get_site_user_not_authorized(self, ckan_config):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("get_site_user", {"model": model, "user": ""})
-        site_id = ckan_config.get("ckan.site_id")
         assert helpers.call_auth(
             "get_site_user", {"model": model, "user": "", "ignore_auth": True}
         )
@@ -5001,7 +5000,8 @@ class TestGetSiteUser:
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestPackageList:
-    def test_package_list(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_package_list(self):
         pkg1 = factories.Dataset()
         pkg2 = factories.Dataset()
         packages = helpers.call_action("package_list")
@@ -5011,6 +5011,6 @@ class TestPackageList:
     def test_package_list_private(self):
         org = factories.Organization()
         pkg1 = factories.Dataset()
-        pkg2 = factories.Dataset(private=True, owner_org=org["id"])
+        factories.Dataset(private=True, owner_org=org["id"])
         packages = helpers.call_action("package_list")
         assert packages == [pkg1["name"]]

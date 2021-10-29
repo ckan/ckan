@@ -284,7 +284,7 @@ def _add_default_filters(search_data_dict, view_types):
 
     from ckanext.imageview.plugin import DEFAULT_IMAGE_FORMATS
     from ckanext.textview.plugin import get_formats as get_text_formats
-    from ckanext.datapusher.plugin import DEFAULT_FORMATS as datapusher_formats
+    from ckanext.datapusher.plugin import DEFAULT_FORMATS as DATAPUSHER_FORMATS
 
     filter_formats = []
 
@@ -309,10 +309,10 @@ def _add_default_filters(search_data_dict, view_types):
             u"recline_map_view",
         ]:
 
-            if datapusher_formats[0] in filter_formats:
+            if DATAPUSHER_FORMATS[0] in filter_formats:
                 continue
 
-            for _format in datapusher_formats:
+            for _format in DATAPUSHER_FORMATS:
                 if u"/" not in _format:
                     filter_formats.extend([_format, _format.upper()])
         else:

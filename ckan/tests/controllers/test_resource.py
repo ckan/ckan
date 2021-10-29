@@ -2,13 +2,9 @@
 
 import csv
 import datetime
-from io import StringIO
 import pytest
 import ckan.lib.helpers as h
-import ckan.logic as logic
-import ckan.model as model
 import ckan.plugins as plugins
-import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.tests.factories as factories
 from ckan.tests.helpers import call_action
 
@@ -127,9 +123,9 @@ def update_tracking_summary():
     tracking.update_all(engine=ckan.model.meta.engine, start_date=date)
 
 
-@pytest.mark.usefixtures("non_clean_db")
+@pytest.mark.usefixtures("non_clean_db", "app")
 class TestTracking(object):
-    def test_package_with_0_views(self, app):
+    def test_package_with_0_views(self):
         package = factories.Dataset()
 
         # The API should return 0 recent views and 0 total views for the
@@ -149,7 +145,7 @@ class TestTracking(object):
             "total views"
         )
 
-    def test_resource_with_0_views(self, app):
+    def test_resource_with_0_views(self):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
 
@@ -464,7 +460,7 @@ class TestTracking(object):
 
         """
         package = factories.Dataset()
-        resource = factories.Resource(package_id=package["id"])
+        factories.Resource(package_id=package["id"])
         url = h.url_for("dataset.read", id=package["name"])
 
         # Visit the dataset three times from the same IP.
@@ -512,8 +508,8 @@ class TestTracking(object):
             tracking_summary["total"] == 1
         ), "Repeat resource downloads should not add to total views count"
 
-    @pytest.mark.usefixtures("clean_db", "clean_index")
-    def test_sorting_datasets_by_recent_views(self, reset_index, track):
+    @pytest.mark.usefixtures("clean_index")
+    def test_sorting_datasets_by_recent_views(self, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
         d1 = factories.Dataset()

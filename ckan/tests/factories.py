@@ -104,7 +104,6 @@ from faker import Faker
 import ckan.model
 import ckan.logic
 import ckan.tests.helpers as helpers
-from ckan.lib.maintain import deprecated
 
 fake = Faker()
 

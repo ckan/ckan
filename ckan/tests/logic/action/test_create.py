@@ -811,7 +811,7 @@ class TestDatasetCreate(object):
 
     def test_id_cant_already_exist(self):
         dataset = factories.Dataset()
-        user = factories.Sysadmin()
+        factories.Sysadmin()
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "package_create",
@@ -1015,7 +1015,7 @@ class TestGroupCreate(object):
         context = {"user": user["name"], "ignore_auth": True}
 
         with pytest.raises(logic.ValidationError):
-            group = helpers.call_action(
+            helpers.call_action(
                 "group_create", context=context, name=""
             )
 
@@ -1078,7 +1078,7 @@ class TestOrganizationCreate(object):
         context = {"user": user["name"], "ignore_auth": True}
 
         with pytest.raises(logic.ValidationError):
-            org = helpers.call_action(
+            helpers.call_action(
                 "organization_create", context=context, name=""
             )
 
@@ -1265,7 +1265,8 @@ class TestFollowDataset(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_dataset", context, id=dataset["id"])
 
-    def test_no_activity(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_no_activity(self):
         user = factories.User()
         dataset = factories.Dataset()
         _clear_activities()
@@ -1330,7 +1331,8 @@ class TestFollowGroup(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_group", context, id=group["id"])
 
-    def test_no_activity(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_no_activity(self):
         user = factories.User()
         group = factories.Group()
         _clear_activities()
@@ -1378,7 +1380,8 @@ class TestFollowOrganization(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_group", context, id=organization["id"])
 
-    def test_no_activity(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_no_activity(self):
         user = factories.User()
         org = factories.Organization()
         _clear_activities()
@@ -1433,7 +1436,8 @@ class TestFollowUser(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("follow_user", context, id=user["id"])
 
-    def test_no_activity(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_no_activity(self):
         user = factories.User()
         user2 = factories.User()
         _clear_activities()
@@ -1850,7 +1854,7 @@ class TestTagCreate:
 
 
 @pytest.mark.usefixtures("non_clean_db")
-class TestMemberCreate:
+class TestMemberCreate2:
     def test_member_create_accepts_object_name_or_id(self):
         org = factories.Organization()
         package = factories.Dataset()

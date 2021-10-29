@@ -64,7 +64,7 @@ def returns_arg(function):
     return call_and_assert
 
 
-def raises_Invalid(function):
+def raises_invalid(function):
     """A decorator that asserts that the decorated function raises
     dictization_functions.Invalid.
 
@@ -178,8 +178,9 @@ def adds_message_to_errors_dict(error_message):
 
 
 @pytest.mark.usefixtures("non_clean_db")
-def test_email_is_unique_validator_with_existed_value():
-    user = factories.User()
+def test_email_is_unique_validator_with_existed_value(app):
+    with app.flask_app.test_request_context():
+        user = factories.User(username="user01", email="user01@email.com")
 
     # try to create new user with occupied email
     with pytest.raises(logic.ValidationError):
@@ -282,7 +283,7 @@ def test_name_validator_with_invalid_value():
 
     for invalid_value in invalid_values:
 
-        @raises_Invalid
+        @raises_invalid
         def call_validator(*args, **kwargs):
             return validators.name_validator(*args, **kwargs)
 
@@ -301,7 +302,7 @@ def test_email_validator_with_invalid_value():
 
     for invalid_value in invalid_values:
 
-        @raises_Invalid
+        @raises_invalid
         def call_validator(*args, **kwargs):
             return validators.email_validator(*args, **kwargs)
 
@@ -403,7 +404,7 @@ def test_user_name_validator_with_non_string_value():
         errors[key] = []
 
         @t.does_not_modify_data_dict
-        @raises_Invalid
+        @raises_invalid
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
 
@@ -431,7 +432,7 @@ def test_user_name_validator_with_a_name_that_already_exists():
 
     @does_not_modify_other_keys_in_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     @adds_message_to_errors_dict("That login name is not available.")
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
@@ -455,7 +456,7 @@ def test_user_name_validator_successful():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
 
@@ -554,7 +555,7 @@ def test_datasets_with_org_can_be_private_when_creating():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
             *args, **kwargs
@@ -602,7 +603,7 @@ def test_datasets_with_org_can_be_private_when_updating():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
             *args, **kwargs
@@ -623,7 +624,7 @@ def test_long_unchanged():
     returns_arg(validators.int_validator)(3948756923874659827346598)
 
 
-def test_None_unchanged():
+def test_none_unchanged():
     returns_arg(validators.int_validator)(None)
 
 
@@ -662,48 +663,48 @@ def test_string_with_whitespace_converted():
     assert validators.int_validator("\t  98\n", {}) == 98
 
 
-def test_empty_string_becomes_None():
+def test_empty_string_becomes_none():
     assert validators.int_validator("", {}) is None
 
 
-def test_whitespace_string_becomes_None():
+def test_whitespace_string_becomes_none():
     assert validators.int_validator("\n\n  \t", {}) is None
 
 
-def test_float_with_decimal_raises_Invalid():
-    raises_Invalid(validators.int_validator)(42.5, {})
+def test_float_with_decimal_raises_invalid():
+    raises_invalid(validators.int_validator)(42.5, {})
 
 
-def test_float_string_raises_Invalid():
-    raises_Invalid(validators.int_validator)("42.0", {})
+def test_float_string_raises_invalid():
+    raises_invalid(validators.int_validator)("42.0", {})
 
 
-def test_exponent_string_raises_Invalid():
-    raises_Invalid(validators.int_validator)("1e6", {})
+def test_exponent_string_raises_invalid():
+    raises_invalid(validators.int_validator)("1e6", {})
 
 
-def test_non_numeric_string_raises_Invalid():
-    raises_Invalid(validators.int_validator)("text", {})
+def test_non_numeric_string_raises_invalid():
+    raises_invalid(validators.int_validator)("text", {})
 
 
-def test_non_whole_fraction_raises_Invalid():
-    raises_Invalid(validators.int_validator)(fractions.Fraction(3, 2), {})
+def test_non_whole_fraction_raises_invalid():
+    raises_invalid(validators.int_validator)(fractions.Fraction(3, 2), {})
 
 
-def test_non_whole_decimal_raises_Invalid():
-    raises_Invalid(validators.int_validator)(decimal.Decimal("19.99"), {})
+def test_non_whole_decimal_raises_invalid():
+    raises_invalid(validators.int_validator)(decimal.Decimal("19.99"), {})
 
 
-def test_complex_with_imaginary_component_raises_Invalid():
+def test_complex_with_imaginary_component_raises_invalid():
     with warnings.catch_warnings():  # divmod() issues warning for complex
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        raises_Invalid(validators.int_validator)(1 + 1j, {})
+        raises_invalid(validators.int_validator)(1 + 1j, {})
 
 
-def test_complex_without_imaginary_component_raises_Invalid():
+def test_complex_without_imaginary_component_raises_invalid():
     with warnings.catch_warnings():  # divmod() issues warning for complex
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        raises_Invalid(validators.int_validator)(1 + 0j, {})
+        raises_invalid(validators.int_validator)(1 + 0j, {})
 
 
 def test_bool_true():
@@ -864,7 +865,7 @@ class TestOneOfValidator(object):
     def test_val_not_in_list(self):
         cont = [1, 2, 3, 4]
         func = validators.one_of(cont)
-        raises_Invalid(func)(5)
+        raises_invalid(func)(5)
 
 
 def test_tag_string_convert():
