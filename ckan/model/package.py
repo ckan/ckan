@@ -490,7 +490,6 @@ meta.mapper(Package, package_table, properties={
         cascade='all, delete', #, delete-orphan',
         ),
     },
-    order_by=package_table.c.name,
     extension=[extension.PluginMapperExtension()],
     )
 
@@ -499,7 +498,6 @@ meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
         cascade='none',
         )
     },
-    order_by=tag.package_tag_table.c.id,
     extension=[extension.PluginMapperExtension()],
     )
 
