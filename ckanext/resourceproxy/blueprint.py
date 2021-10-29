@@ -36,7 +36,7 @@ def proxy_resource(context, data_dict):
     if not parts.scheme or not parts.netloc:
         return abort(409, _(u'Invalid URL.'))
 
-    max_file_size = config.normalized(u'ckan.resource_proxy.max_file_size')
+    max_file_size = config.get_value(u'ckan.resource_proxy.max_file_size')
     response = make_response()
     try:
         # first we try a HEAD request which may not be supported
@@ -68,7 +68,7 @@ def proxy_resource(context, data_dict):
         response.charset = r.encoding
 
         length = 0
-        chunk_size = config.normalized(u'ckan.resource_proxy.chunk_size')
+        chunk_size = config.get_value(u'ckan.resource_proxy.chunk_size')
 
         for chunk in r.iter_content(chunk_size=chunk_size):
             response.stream.write(chunk)

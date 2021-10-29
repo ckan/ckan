@@ -84,9 +84,12 @@ class PluginImplementations(ExtensionPoint):
 
         plugin_lookup = {pf.name: pf for pf in iterator}
 
-        plugins_in_config = (
-            config.get("ckan.plugins", "").split()
-            + find_system_plugins())
+        plugins = config.get_value("ckan.plugins")
+        if isinstance(plugins, str):
+            # this happens when core declarations loaded and validated
+            plugins = plugins.split()
+
+        plugins_in_config = plugins + find_system_plugins()
 
         ordered_plugins = []
         for pc in plugins_in_config:
@@ -160,7 +163,7 @@ def load_all():
     # Clear any loaded plugins
     unload_all()
 
-    plugins = config.normalized('ckan.plugins') + find_system_plugins()
+    plugins = config.get_value('ckan.plugins') + find_system_plugins()
 
     load(*plugins)
 

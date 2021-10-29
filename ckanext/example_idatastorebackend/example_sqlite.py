@@ -33,7 +33,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
             pass
 
     def configure(self, config):
-        self.write_url = config.normalized(
+        self.write_url = config.get_value(
             u'ckan.datastore.write_url'
         ).replace(u'example-', u'')
 

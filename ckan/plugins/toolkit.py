@@ -121,8 +121,6 @@ class _Toolkit(object):
 
         # fast interface implementations
         'blanket',
-        # generic config option access
-        'key',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -165,7 +163,6 @@ class _Toolkit(object):
         )
         from ckan.lib.jobs import enqueue as enqueue_job
         from ckan.lib import mailer
-        from ckan.config.declaration import Key
 
         import ckan.common as converters
 
@@ -181,7 +178,7 @@ class _Toolkit(object):
 
 It stores the configuration values defined in the :ref:`config_file`, eg::
 
-    title = toolkit.config.normalized("ckan.site_title")
+    title = toolkit.config.get_value("ckan.site_title")
 
 '''
         t['_'] = common._
@@ -330,7 +327,6 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['enqueue_job'] = enqueue_job
         t['blanket'] = blanket
         t['signals'] = signals
-        t['key'] = Key()
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
@@ -395,8 +391,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, relative_path)
-        if absolute_path not in config.normalized(config_var).split(','):
-            if config.normalized(config_var):
+        if absolute_path not in config.get_value(config_var).split(','):
+            if config.get_value(config_var):
                 config[config_var] += ',' + absolute_path
             else:
                 config[config_var] = absolute_path

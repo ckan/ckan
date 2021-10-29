@@ -21,24 +21,19 @@ class Wildcard(str):
 class Key:
     """Generic interface for accessing config options.
 
-    In the simplest case, :py:class:`~ckan.plugins.toolkit.key` objects
-    completely interchangeable with the corresponding config option names
-    represented by string. Example::
+    In the simplest case, `Key` objects completely interchangeable with the
+    corresponding config option names represented by string. Example::
 
-        site_url = toolkit.key.ckan.site_url
-        # or
-        site_url = toolkit.key.from_iterable(["ckan", "site_url"])
-        # or
-        site_url = toolkit.key.from_string("ckan.site_url")
+        site_url = Key().ckan.site_url
 
         assert site_url == "ckan.site_url"
         assert toolkit.config[site_url] is toolkit.config["ckan.site_url"]
 
-    In addition, :py:class:`~ckan.plugins.toolkit.key` objects are similar to
-    the curried functions. Existing :py:class:`~ckan.plugins.toolkit.key` can
-    be extended to the sub-key at any moment. Example::
+    In addition, `Key` objects are similar to the curried functions. Existing
+    `key` can be extended to the sub-key at any moment. Example::
 
-        ckan = toolkit.key.ckan
+        key = Key()
+        ckan = key.ckan
         assert ckan == "ckan"
 
         auth = ckan.auth
@@ -46,7 +41,7 @@ class Key:
 
         unowned = auth.create_unowned_datasets
         assert unowned == "ckan.auth.create_unowned_datasets"
-        assert unowned == toolkit.key.ckan.auth.create_unowned_datasets
+        assert unowned == Key().ckan.auth.create_unowned_datasets
 
     """
 

@@ -34,21 +34,21 @@ class DataTablesView(p.SingletonPlugin):
         '''
 
         # https://datatables.net/reference/option/lengthMenu
-        self.page_length_choices = toolkit.aslist(
-            config.normalized(u'ckan.datatables.page_length_choices'))
+        self.page_length_choices = config.get_value(
+            u'ckan.datatables.page_length_choices')
 
         self.page_length_choices = [int(i) for i in self.page_length_choices]
-        self.state_saving = config.normalized(u'ckan.datatables.state_saving')
+        self.state_saving = config.get_value(u'ckan.datatables.state_saving')
 
         # https://datatables.net/reference/option/stateDuration
-        self.state_duration = config.normalized(
+        self.state_duration = config.get_value(
             u"ckan.datatables.state_duration")
-        self.data_dictionary_labels = config.normalized(
+        self.data_dictionary_labels = config.get_value(
             u"ckan.datatables.data_dictionary_labels")
-        self.ellipsis_length = config.normalized(
+        self.ellipsis_length = config.get_value(
             u"ckan.datatables.ellipsis_length")
-        self.date_format = config.normalized(u"ckan.datatables.date_format")
-        self.default_view = config.normalized(u"ckan.datatables.default_view")
+        self.date_format = config.get_value(u"ckan.datatables.date_format")
+        self.default_view = config.get_value(u"ckan.datatables.default_view")
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_public_directory(config, u'public')
@@ -101,8 +101,8 @@ class DataTablesView(p.SingletonPlugin):
 
         declaration.annotate("datatables_view settings")
 
-        declaration.declare(
-            section.page_length_choices, "20 50 100 500 1000"
+        declaration.declare_list(
+            section.page_length_choices, [20, 50, 100, 500, 1000]
         ).set_description(
             "https://datatables.net/examples/advanced_init/length_menu.html"
         )

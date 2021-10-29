@@ -101,7 +101,7 @@ def _notifications_for_activities(activities, user_dict):
         "{n} new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities)).format(
-                site_title=config.normalized('ckan.site_title'),
+                site_title=config.get_value('ckan.site_title'),
                 n=len(activities))
     body = base.render(
             'activity_streams/activity_stream_email_notifications.text',
@@ -188,7 +188,7 @@ def get_and_send_notifications_for_user(user):
 
     # Parse the email_notifications_since config setting, email notifications
     # from longer ago than this time will not be sent.
-    email_notifications_since = config.normalized(
+    email_notifications_since = config.get_value(
             'ckan.email_notifications_since')
     email_notifications_since = string_to_timedelta(
             email_notifications_since)

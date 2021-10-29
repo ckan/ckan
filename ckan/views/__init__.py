@@ -54,8 +54,8 @@ def set_cors_headers_for_response(response):
     '''
     if request.headers.get(u'Origin'):
         cors_origin_allowed = None
-        allow_all = config.normalized(u'ckan.cors.origin_allow_all')
-        whitelisted = request.headers.get(u'Origin') in config.normalized(
+        allow_all = config.get_value(u'ckan.cors.origin_allow_all')
+        whitelisted = request.headers.get(u'Origin') in config.get_value(
             u'ckan.cors.origin_whitelist')
         if allow_all:
             cors_origin_allowed = b'*'
@@ -85,7 +85,7 @@ def set_cache_control_headers_for_response(response):
     if allow_cache:
         response.cache_control.public = True
         try:
-            cache_expire = config.normalized(u'ckan.cache_expires')
+            cache_expire = config.get_value(u'ckan.cache_expires')
             response.cache_control.max_age = cache_expire
             response.cache_control.must_revalidate = True
         except ValueError:
@@ -187,7 +187,7 @@ def _identify_user_default():
 
 
 def _get_user_for_apitoken():
-    apitoken_header_name = config.normalized("apikey_header_name")
+    apitoken_header_name = config.get_value("apikey_header_name")
 
     apitoken = request.headers.get(apitoken_header_name, u'')
     if not apitoken:
@@ -226,7 +226,7 @@ def handle_i18n(environ=None):
     '''
     environ = environ or request.environ
     locale_list = get_locales_from_config()
-    default_locale = config.normalized(u'ckan.locale_default')
+    default_locale = config.get_value(u'ckan.locale_default')
 
     # We only update once for a request so we can keep
     # the language and original url which helps with 404 pages etc

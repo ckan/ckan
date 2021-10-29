@@ -94,7 +94,7 @@ class TestProxyPrettyfied(object):
 
     @responses.activate
     def test_large_file(self, app, ckan_config):
-        cl = ckan_config.normalized(u'ckan.resource_proxy.max_file_size') + 1
+        cl = ckan_config.get_value(u'ckan.resource_proxy.max_file_size') + 1
         self.mock_out_urls(
             self.url,
             headers={'Content-Length': str(cl)},
@@ -107,7 +107,7 @@ class TestProxyPrettyfied(object):
 
     @responses.activate
     def test_large_file_streaming(self, app, ckan_config):
-        cl = ckan_config.normalized(u'ckan.resource_proxy.max_file_size') + 1
+        cl = ckan_config.get_value(u'ckan.resource_proxy.max_file_size') + 1
         self.mock_out_urls(
             self.url,
             stream=True,

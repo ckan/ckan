@@ -209,7 +209,7 @@ class TestUndeclared(object):
 
 @pytest.mark.usefixtures("with_extended_cli")
 class TestValidate(object):
-    @pytest.mark.ckan_config("config.safe", True)
+    @pytest.mark.ckan_config("config.mode", "strict")
     def test_no_errors_by_default_in_safe_mofe(self, command):
         result = command("validate")
         assert not result.output

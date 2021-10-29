@@ -46,26 +46,26 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
         ssl_cert, ssl_key):
     u"""Runs the Werkzeug development server"""
 
-    if config.normalized("debug"):
+    if config.get_value("debug"):
         warnings.filterwarnings("default", category=CkanDeprecationWarning)
 
     # Reloading
     use_reloader = not disable_reloader
-    config_extra_files = config.normalized(u"ckan.devserver.watch_patterns")
+    config_extra_files = config.get_value(u"ckan.devserver.watch_patterns")
     extra_files = list(extra_files) + [
         config[u"__file__"]
     ] + config_extra_files
 
     # Threads and processes
-    threaded = threaded or config.normalized(u"ckan.devserver.threaded")
-    processes = processes or config.normalized(u"ckan.devserver.multiprocess")
+    threaded = threaded or config.get_value(u"ckan.devserver.threaded")
+    processes = processes or config.get_value(u"ckan.devserver.multiprocess")
     if threaded and processes > 1:
         tk.error_shout(u"Cannot have a multithreaded and multi process server")
         raise click.Abort()
 
     # SSL
-    cert_file = ssl_cert or config.normalized('ckan.devserver.ssl_cert')
-    key_file = ssl_key or config.normalized('ckan.devserver.ssl_key')
+    cert_file = ssl_cert or config.get_value('ckan.devserver.ssl_cert')
+    key_file = ssl_key or config.get_value('ckan.devserver.ssl_key')
 
     if cert_file and key_file:
         if cert_file == key_file == 'adhoc':
@@ -75,8 +75,8 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
     else:
         ssl_context = None
 
-    host = host or config.normalized('ckan.devserver.host')
-    port = port or config.normalized('ckan.devserver.port')
+    host = host or config.get_value('ckan.devserver.host')
+    port = port or config.get_value('ckan.devserver.port')
     try:
         port = int(port)
     except ValueError:

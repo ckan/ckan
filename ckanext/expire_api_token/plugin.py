@@ -8,7 +8,7 @@ from ckan.config.declaration import Declaration, Key
 
 
 def default_token_lifetime():
-    return p.toolkit.config.normalized(u"expire_api_token.default_lifetime")
+    return p.toolkit.config.get_value(u"expire_api_token.default_lifetime")
 
 
 class ExpireApiTokenPlugin(p.SingletonPlugin):

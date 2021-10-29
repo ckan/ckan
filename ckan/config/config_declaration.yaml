@@ -131,20 +131,13 @@ groups:
         validators: not_empty
         required: true
 
-  - annotation: Configuration modes
-    options:
-      - key: config.safe
-        type: bool
-      - key: config.strict
-        type: bool
-      - key: config.normalized
-        type: bool
-
   - annotation: General settings
     options:
       - key: debug
         type: bool
       - key: ckan.legacy_route_mappings
+      - key: config.mode
+        default: default
 
   - annotation: Development settings
     options:

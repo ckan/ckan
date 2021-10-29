@@ -26,8 +26,8 @@ def serialize_ini(
             if option._has_flag(Flag.non_iterable()):
                 continue
             if minimal and not option._has_flag(Flag.required):
-                if item == "config.safe":
-                    result += "config.safe = true\n"
+                if item == "config.mode":
+                    result += "config.mode = strict\n"
                 continue
             if option.description and not no_comments:
                 result += (

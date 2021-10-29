@@ -173,7 +173,7 @@ def _declaration(
     additional = ()
     if include_enabled:
         additional = (
-            p for p in cfg.get("ckan.plugins", "").split() if p not in plugins
+            p for p in cfg.get_value("ckan.plugins") if p not in plugins
         )
 
     for name in itertools.chain(additional, plugins):

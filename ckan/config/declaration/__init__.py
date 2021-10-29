@@ -89,7 +89,7 @@ class Declaration:
     def make_safe(self, config: "CKANConfig") -> bool:
         from ckan.common import asbool
 
-        if not asbool(config.normalized("config.safe")):
+        if config.get_value("config.mode") != "strict":
             return False
 
         for key in self.iter_options(exclude=Flag.not_safe()):
@@ -100,7 +100,7 @@ class Declaration:
     def normalize(self, config: "CKANConfig") -> bool:
         import ckan.lib.navl.dictization_functions as df
 
-        if not config.normalized("config.normalized"):
+        if config.get_value("config.mode") != "strict":
             return False
 
         data, errors = self.validate(config)

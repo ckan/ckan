@@ -145,56 +145,32 @@ maintain compatibility.
   .. warning:: This configuration will be removed when migration to Flask is completed. Please
     update the extension code to use the new Flask-based route names.
 
+.. _config.mode:
 
-Configuration modes
--------------------
-
-.. _config.safe:
-
-config.safe
-^^^^^^^^^^^^^^^^^^^
+config.mode
+^^^^^^^^^^^
 
 Example::
 
-  config.safe = true
+  config.mode = strict
 
-Default value: |config:config.safe|
+Default value: |config:config.mode|
 
-Enables safe mode. For all the :ref:`declared config options
-<declare-config-options>`, if they are missing from the config file, default
-value from declareation will be copied into ``toolkit.config``. In this mode
-``toolkit.config.safe`` is no-op.
+Controls behavior of the config object. Default mode means, that no validation
+applied to configuration values and there are no guarantees whether config
+value for the given option is provided.
 
-.. _config.normalized:
+`strict` mode does the following:
 
-config.normalized
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  config.normalized = true
-
-Default value: |config:config.normalized|
-
-Enables normalized mode. All the :ref:`declared config options
-<declare-config-options>` will be normalized using validators specified in
-declaration. In this mode ``toolkit.config.safe`` is no-op.
-
-.. _config.strict:
-
-config.strict
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  config.strict = true
-
-Default value: |config:config.strict|
-
-Enables strict mode. None of CKAN CLI commands will be executed and CKAN
-application itself will not start unless **all** config options are
-valid(considering validators from the declaration). For every invalid config
-option error will be printed to the output stream.
+* For all the :ref:`declared config options <declare-config-options>`, if they
+are missing from the config file, default value from declareation will be
+copied into ``toolkit.config``.
+* All the :ref:`declared config options <declare-config-options>` will be
+normalized using validators specified in declaration.
+* None of CKAN CLI commands will be executed and CKAN application itself will
+not start unless **all** config options are valid(considering validators from
+the declaration). For every invalid config option error will be printed to the
+output stream.
 
 
 Development Settings
@@ -2808,12 +2784,12 @@ code constructions like this one::
 Any config option that has validators-converters (`convert_int`,
 `boolean_validators`) can use the following shortcut::
 
-  is_enabled = toolkit.config.normalized("ckanext.my_ext.enable")
+  is_enabled = toolkit.config.get_value("ckanext.my_ext.enable")
 
 By default, all declared config options are optional. And one can get either
 actual value of declared option either via
 ``ckan.plugins.toolkit.config.get(name, DEFAULT)`` or via
-``ckan.plguins.toolkit.config.normalized(name)``. You may have noticed, that in
+``ckan.plguins.toolkit.config.get_value(name)``. You may have noticed, that in
 the second case there is no ``DEFAULT``. ``config.`` method looks for the
 option's declaration and takes default value from it, when option is missing
 from the config file. In this way we can guarantee that the default value for
@@ -2821,6 +2797,6 @@ the particular config option is always the same through the codebase. After
 that, value passed throught validators and result is returned. If option has no
 validators, result returned as is.
 
-.. note:: An attempt to use ``config.normalized`` with an undeclared config option
+.. note:: An attempt to use ``config.get_value`` with an undeclared config option
           will print a warning to the logs and return either option's value or
           ``None`` as default.

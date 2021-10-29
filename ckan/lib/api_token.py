@@ -25,14 +25,14 @@ def _get_plugins():
 
 
 def _get_algorithm():
-    return config.normalized(_config_algorithm)
+    return config.get_value(_config_algorithm)
 
 
 def _get_secret(encode):
     config_key = _config_encode_secret if encode else _config_decode_secret
-    secret = config.normalized(config_key)
+    secret = config.get_value(config_key)
     if not secret:
-        secret = u"string:" + config.normalized(_config_secret_fallback)
+        secret = u"string:" + config.get_value(_config_secret_fallback)
     type_, value = secret.split(u":", 1)
     if type_ == u"file":
         with open(value, u"rb") as key_file:

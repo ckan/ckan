@@ -65,7 +65,7 @@ def render_snippet(*template_names, **kw):
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
-            if config.normalized('debug'):
+            if config.get_value('debug'):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
@@ -121,7 +121,7 @@ def _allow_caching(cache_force=None):
     elif request.params.get('__no_cache__'):
         allow_cache = False
     # Don't cache if caching is not enabled in config
-    elif not config.normalized('ckan.cache_enabled'):
+    elif not config.get_value('ckan.cache_enabled'):
         allow_cache = False
 
     if not allow_cache:

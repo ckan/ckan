@@ -114,28 +114,17 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-    def _safe(self, key: Union[str, Key]):
-        if asbool(self.get("config.safe")):
-            return self[key]
-
-        if key in self:
+    def get_value(self, key: Union[str, Key]) -> Any:
+        if self.get("config.mode") == "strict":
             return self[key]
 
         option = config_declaration.get(key)
         if not option:
             log.warning("Option %s is not declared", key)
-            return None
-        return option.default
+            return self.get(key)
 
-    def normalized(self, key: Union[str, Key]) -> Any:
-        if asbool(self.get("config.normalized")):
-            return self._safe(key)
-
-        option = config_declaration.get(key)
-        if not option:
-            log.warning("Option %s is not declared", key)
-            return None
-        return option._normalize(self._safe(key))
+        value = self.get(key, option.default)
+        return option._normalize(value)
 
     def subset(
             self, pattern: Key,

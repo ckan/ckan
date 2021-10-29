@@ -283,13 +283,13 @@ def _add_default_filters(search_data_dict, view_types):
     """
 
     from ckanext.textview.plugin import get_formats as get_text_formats
-    datapusher_formats = p.toolkit.config.normalized("ckan.datapusher.formats")
+    datapusher_formats = p.toolkit.config.get_value("ckan.datapusher.formats")
 
     filter_formats = []
 
     for view_type in view_types:
         if view_type == u"image_view":
-            formats = p.toolkit.config.normalized(
+            formats = p.toolkit.config.get_value(
                 "ckan.preview.image_formats").split()
             for _format in formats:
                 filter_formats.extend([_format, _format.upper()])

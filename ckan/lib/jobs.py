@@ -156,7 +156,7 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
         kwargs = {}
     if rq_kwargs is None:
         rq_kwargs = {}
-    timeout = config.normalized(u'ckan.jobs.timeout')
+    timeout = config.get_value(u'ckan.jobs.timeout')
     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
 
     job = get_queue(queue).enqueue_call(

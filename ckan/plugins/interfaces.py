@@ -886,7 +886,7 @@ class IConfigDeclaration(Interface):
         :type declaration: :py:class:`ckan.config.declaration.Declaration`
 
         :param key: object for generic option access.
-        :type key: :py:class:`ckan.plugins.toolkit.key`
+        :type key: :py:class:`ckan.config.declaration.Key`
 
         """
 

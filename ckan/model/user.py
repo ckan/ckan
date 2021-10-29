@@ -21,7 +21,7 @@ from ckan.model import domain_object
 
 
 def set_api_key():
-    if config.normalized('ckan.auth.create_default_api_keys'):
+    if config.get_value('ckan.auth.create_default_api_keys'):
         return _types.make_uuid()
     return None
 

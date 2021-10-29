@@ -126,7 +126,7 @@ class Resource(core.StatefulObjectMixin,
     @classmethod
     def get_extra_columns(cls):
         if cls.extra_columns is None:
-            cls.extra_columns = config.normalized("ckan.extra_resource_fields")
+            cls.extra_columns = config.get_value("ckan.extra_resource_fields")
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns

@@ -520,7 +520,7 @@ def check_config_permission(permission):
 
     config_key = 'ckan.auth.' + key
 
-    value = config.normalized(config_key)
+    value = config.get_value(config_key)
 
     return value
 

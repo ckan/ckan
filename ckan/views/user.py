@@ -92,7 +92,7 @@ def index():
     q = request.params.get(u'q', u'')
     order_by = request.params.get(u'order_by', u'name')
     limit = int(request.params.get(
-        u'limit', config.normalized(u'ckan.user_list_limit')))
+        u'limit', config.get_value(u'ckan.user_list_limit')))
     context = {
         u'return_query': True,
         u'user': g.user,
@@ -124,7 +124,7 @@ def index():
 
 def me():
     return h.redirect_to(
-        config.normalized(u'ckan.route_after_login'))
+        config.get_value(u'ckan.route_after_login'))
 
 
 def read(id):
@@ -372,7 +372,7 @@ class EditView(MethodView):
             u'user': g.user
         }, data_dict)
 
-        extra_vars[u'show_email_notifications'] = config.normalized(
+        extra_vars[u'show_email_notifications'] = config.get_value(
             u'ckan.activity_streams_email_notifications')
 
         vars.update(extra_vars)
@@ -660,7 +660,7 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(config.normalized(
+                return h.redirect_to(config.get_value(
                     u'ckan.user_reset_landing_page'))
 
         # always tell the user it succeeded, because otherwise we reveal
@@ -668,7 +668,7 @@ class RequestResetView(MethodView):
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(config.normalized(
+        return h.redirect_to(config.get_value(
             u'ckan.user_reset_landing_page'))
 
     def get(self):
@@ -737,7 +737,7 @@ class PerformResetView(MethodView):
                 username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(config.normalized(
+            return h.redirect_to(config.get_value(
                 u'ckan.user_reset_landing_page'))
 
         except logic.NotAuthorized:

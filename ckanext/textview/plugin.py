@@ -15,14 +15,14 @@ log = logging.getLogger(__name__)
 def get_formats(config):
     out = {}
 
-    out["text_formats"] = config.normalized(
+    out["text_formats"] = config.get_value(
         "ckan.preview.text_formats"
     ).split()
-    out["xml_formats"] = config.normalized("ckan.preview.xml_formats").split()
-    out["json_formats"] = config.normalized(
+    out["xml_formats"] = config.get_value("ckan.preview.xml_formats").split()
+    out["json_formats"] = config.get_value(
         "ckan.preview.json_formats"
     ).split()
-    out["jsonp_formats"] = config.normalized(
+    out["jsonp_formats"] = config.get_value(
         "ckan.preview.jsonp_formats"
     ).split()
 
