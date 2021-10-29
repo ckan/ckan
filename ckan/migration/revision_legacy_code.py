@@ -648,14 +648,10 @@ class RevisionTableMappings(object):
 
         self.package_relationship_revision_table = \
             make_revisioned_table(model.package_relationship_table)
-        # Commented because it gives an error, but we probably don't need it
-        # self.PackageRelationshipRevision = \
-        #     create_object_version(
-        #         model.meta.mapper, model.PackageRelationship,
-        #         self.package_relationship_revision_table)
 
         self.system_info_revision_table = \
             make_revisioned_table(model.system_info_table)
+
         self.SystemInfoRevision = create_object_version(
             model.meta.mapper, model.SystemInfo,
             self.system_info_revision_table)
