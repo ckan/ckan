@@ -1,15 +1,12 @@
 # encoding: utf-8
 
-import inspect
 import functools
 import logging
 import re
 import importlib
-import inspect
 
 from collections import defaultdict
 
-from werkzeug.utils import import_string
 import six
 
 

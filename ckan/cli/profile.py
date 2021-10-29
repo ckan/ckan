@@ -42,9 +42,9 @@ def profile(url, user):
 
     app = _get_test_app()
 
-    def profile_url(url):
+    def profile_url(url):  # noqa
         try:
-            res = app.get(
+            app.get(
                 url, status=[200], extra_environ={u"REMOTE_USER": str(user)}
             )
         except KeyboardInterrupt:
