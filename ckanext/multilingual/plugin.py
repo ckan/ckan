@@ -205,7 +205,7 @@ class MultilingualDataset(SingletonPlugin):
     implements(IPackageController, inherit=True)
     LANGS = config.normalized('ckan.locale_order') or ["en"]
 
-    def before_index(self, search_data):
+    def before_dataset_index(self, search_data):
 
         default_lang = search_data.get(
             'lang_code',
@@ -253,7 +253,7 @@ class MultilingualDataset(SingletonPlugin):
 
         return search_data
 
-    def before_search(self, search_params):
+    def before_dataset_search(self, search_params):
         lang_set = set(self.LANGS)
 
         try:
@@ -288,7 +288,7 @@ class MultilingualDataset(SingletonPlugin):
 
         return search_params
 
-    def after_search(self, search_results, search_params):
+    def after_dataset_search(self, search_results, search_params):
 
         # Translate the unselected search facets.
         facets = search_results.get('search_facets')
@@ -327,7 +327,7 @@ class MultilingualDataset(SingletonPlugin):
 
         return search_results
 
-    def before_view(self, dataset_dict):
+    def before_dataset_view(self, dataset_dict):
 
         # Translate any selected search facets (e.g. if we are rendering a
         # group read page or the dataset index page): lookup translations of
@@ -404,6 +404,6 @@ class MultilingualResource(SingletonPlugin):
    '''
    implements(IResourceController, inherit=True)
 
-   def before_show(self, data_dict):
+   def before_resource_show(self, data_dict):
         translated_data_dict = translate_resource_data_dict(data_dict)
         return translated_data_dict

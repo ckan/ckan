@@ -138,7 +138,8 @@ def datastore_create(context, data_dict):
 
         # create empty resource
         else:
-            # no need to set the full url because it will be set in before_show
+            # no need to set the full url because it will be set
+            # in before_resource_show
             resource_dict['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, resource_dict)
     else:

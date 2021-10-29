@@ -4,8 +4,6 @@ import logging
 import re
 from collections import OrderedDict
 
-import six
-
 from urllib.parse import urlencode
 from datetime import datetime
 
@@ -83,13 +81,6 @@ def _action(action_name):
 def _check_access(action_name, *args, **kw):
     u''' select the correct group/org check_access '''
     return check_access(_replace_group_org(action_name), *args, **kw)
-
-
-def _render_template(template_name, group_type):
-    u''' render the correct group/org template '''
-    return base.render(
-        _replace_group_org(template_name),
-        extra_vars={u'group_type': group_type})
 
 
 def _force_reindex(grp):
@@ -282,7 +273,7 @@ def _read(id, limit, group_type):
 
     extra_vars["remove_field"] = remove_field
 
-    def pager_url(q=None, page=None):
+    def pager_url(q=None, page=None):  # noqa
         params = list(params_nopage)
         params.append((u'page', page))
         return search_url(params)
@@ -390,7 +381,7 @@ def _update_facet_titles(facets, group_type):
     return facets
 
 
-def _get_group_dict(id, group_type):
+def _get_group_dict(id, group_type):  # noqa
     u''' returns the result of group_show action or aborts if there is a
     problem '''
     context = {
@@ -739,7 +730,7 @@ def member_delete(id, group_type, is_organization):
 
 
 # deprecated
-def history(id, group_type, is_organization):
+def history(id, group_type, is_organization):  # noqa
     return h.redirect_to(u'group.activity', id=id)
 
 
@@ -763,7 +754,7 @@ def follow(id, group_type, is_organization):
     return h.redirect_to(u'group.read', id=id)
 
 
-def unfollow(id, group_type, is_organization):
+def unfollow(id, group_type, is_organization):  # noqa
     u'''Stop following this group.'''
     set_org(is_organization)
     context = {u'model': model, u'session': model.Session, u'user': g.user}
@@ -892,7 +883,7 @@ class BulkProcessView(MethodView):
             _get_group_template(u'bulk_process_template', group_type),
             extra_vars)
 
-    def post(self, id, group_type, is_organization, data=None):
+    def post(self, id, group_type, is_organization, data=None):  # noqa
         set_org(is_organization)
         context = self._prepare(group_type, id)
         data_dict = {u'id': id, u'type': group_type}
@@ -1004,7 +995,7 @@ class CreateGroupView(MethodView):
             data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
             group = _action(u'group_create')(context, data_dict)
 
-        except (NotFound, NotAuthorized) as e:
+        except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
@@ -1058,7 +1049,7 @@ class CreateGroupView(MethodView):
 class EditGroupView(MethodView):
     u''' Edit group view'''
 
-    def _prepare(self, id, is_organization, data=None):
+    def _prepare(self, id, is_organization, data=None):  # noqa
         data_dict = {u'id': id, u'include_datasets': False}
 
         context = {
@@ -1072,7 +1063,7 @@ class EditGroupView(MethodView):
         }
 
         try:
-            group = _action(u'group_show')(context, data_dict)
+            _action(u'group_show')(context, data_dict)
             check_access(u'group_update', context)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
@@ -1097,7 +1088,7 @@ class EditGroupView(MethodView):
             if id != group['name']:
                 _force_reindex(group)
 
-        except (NotFound, NotAuthorized) as e:
+        except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
@@ -1233,7 +1224,15 @@ class MembersGroupView(MethodView):
                 u'role': data_dict['role']
             }
             del data_dict['email']
-            user_dict = _action(u'user_invite')(context, user_data_dict)
+
+            try:
+                user_dict = _action(u'user_invite')(context, user_data_dict)
+            except ValidationError as e:
+                for _key, error in e.error_summary.items():
+                    h.flash_error(error)
+                return h.redirect_to(
+                    u'{}.member_new'.format(group_type), id=id)
+
             data_dict['username'] = user_dict['name']
 
         try:
@@ -1243,7 +1242,8 @@ class MembersGroupView(MethodView):
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
-            h.flash_error(e.error_summary)
+            for _key, error in e.error_summary.items():
+                h.flash_error(error)
             return h.redirect_to(u'{}.member_new'.format(group_type), id=id)
 
         # TODO: Remove

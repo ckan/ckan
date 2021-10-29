@@ -2,7 +2,6 @@
 
 import pytest
 import copy
-import datetime
 
 from ckan import model
 from ckan.tests import factories
@@ -48,7 +47,7 @@ class TestStatsPlugin(object):
         # week 2
         freezer.move_to('2011-1-12')
         model.Package.by_name(u'test2').delete()
-        activity2 = factories.Activity(
+        factories.Activity(
             user_id=user["id"],
             object_id=dataset2["id"],
             activity_type="deleted package",

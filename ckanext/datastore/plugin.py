@@ -149,7 +149,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     # IResourceController
 
-    def before_show(self, resource_dict):
+    def before_resource_show(self, resource_dict):
         # Modify the resource url of datastore resources so that
         # they link to the datastore dumps.
         if resource_dict.get('url_type') == 'datastore':
@@ -162,7 +162,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return resource_dict
 
-    def after_delete(self, context, resources):
+    def after_resource_delete(self, context, resources):
         model = context['model']
         pkg = context['package']
         res_query = model.Session.query(model.Resource)

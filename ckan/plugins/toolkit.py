@@ -147,9 +147,6 @@ class _Toolkit(object):
     def _initialize(self):
         ''' get the required functions/objects, store them for later
         access and check that they match the contents dict. '''
-        import enum
-
-        import six
         import ckan
         import ckan.logic as logic
 

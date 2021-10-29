@@ -50,8 +50,8 @@ class TestResource(object):
 
     def test_package_purge_deletes_resources(self):
         parent = factories.Dataset()
-        res1 = factories.Resource(package_id=parent["id"])
-        res2 = factories.Resource(package_id=parent["id"])
+        factories.Resource(package_id=parent["id"])
+        factories.Resource(package_id=parent["id"])
 
         pkg = model.Package.get(parent["id"])
         pkg.purge()

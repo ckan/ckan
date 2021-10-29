@@ -25,7 +25,6 @@ import contextlib
 import functools
 import logging
 import re
-import json
 import smtplib
 
 from flask.testing import Client as FlaskClient
@@ -34,7 +33,6 @@ from click.testing import CliRunner
 import pytest
 import unittest.mock as mock
 import rq
-import six
 
 from ckan.common import config
 import ckan.lib.jobs as jobs

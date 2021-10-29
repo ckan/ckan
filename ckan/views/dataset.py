@@ -12,9 +12,6 @@ from jinja2.exceptions import TemplateNotFound
 from werkzeug.datastructures import MultiDict
 from ckan.common import asbool
 
-import six
-
-
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
@@ -117,7 +114,7 @@ def _sort_by(params_nosort, package_type, fields):
     return search_url(params, package_type)
 
 
-def _pager_url(params_nopage, package_type, q=None, page=None):
+def _pager_url(params_nopage, package_type, q=None, page=None):  # noqa
     params = list(params_nopage)
     params.append((u'page', page))
     return search_url(params, package_type)
@@ -524,14 +521,12 @@ def read(package_type, id):
         )
         return base.abort(404, msg)
 
-    assert False, u"We should never get here"
-
 
 class CreateView(MethodView):
     def _is_save(self):
         return u'save' in request.form
 
-    def _prepare(self, data=None):
+    def _prepare(self, data=None):  # noqa
 
         context = {
             u'model': model,
@@ -611,7 +606,7 @@ class CreateView(MethodView):
             )
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to read package'))
-        except NotFound as e:
+        except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
@@ -708,7 +703,7 @@ class CreateView(MethodView):
 
 
 class EditView(MethodView):
-    def _prepare(self, id, data=None):
+    def _prepare(self, id, data=None):  # noqa
         context = {
             u'model': model,
             u'session': model.Session,
@@ -747,7 +742,7 @@ class EditView(MethodView):
             )
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to read package %s') % id)
-        except NotFound as e:
+        except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
@@ -1021,7 +1016,7 @@ class GroupView(MethodView):
         return context, pkg_dict
 
     def post(self, package_type, id):
-        context, pkg_dict = self._prepare(id)
+        context, _pkg_dict = self._prepare(id)
         new_group = request.form.get(u'group_added')
         if new_group:
             data_dict = {
@@ -1085,7 +1080,7 @@ class GroupView(MethodView):
         )
 
 
-def activity(package_type, id):
+def activity(package_type, id):  # noqa
     """Render this package's public activity stream page.
     """
     context = {
@@ -1123,7 +1118,7 @@ def activity(package_type, id):
     )
 
 
-def changes(id, package_type=None):
+def changes(id, package_type=None):  # noqa
     '''
     Shows the changes to a dataset in one particular activity stream item.
     '''
@@ -1164,7 +1159,7 @@ def changes(id, package_type=None):
     )
 
 
-def changes_multiple(package_type=None):
+def changes_multiple(package_type=None):  # noqa
     '''
     Called when a user specifies a range of versions they want to look at
     changes between. Verifies that the range is valid and finds the set of
@@ -1246,7 +1241,7 @@ def changes_multiple(package_type=None):
     )
 
 
-def collaborators_read(package_type, id):
+def collaborators_read(package_type, id):  # noqa
     context = {u'model': model, u'user': g.user}
     data_dict = {u'id': id}
 
@@ -1264,7 +1259,7 @@ def collaborators_read(package_type, id):
         u'pkg_dict': pkg_dict})
 
 
-def collaborator_delete(package_type, id, user_id):
+def collaborator_delete(package_type, id, user_id):  # noqa
     context = {u'model': model, u'user': g.user}
 
     try:
@@ -1285,7 +1280,7 @@ def collaborator_delete(package_type, id, user_id):
 
 class CollaboratorEditView(MethodView):
 
-    def post(self, package_type, id):
+    def post(self, package_type, id):  # noqa
         context = {u'model': model, u'user': g.user}
 
         try:
@@ -1312,7 +1307,7 @@ class CollaboratorEditView(MethodView):
         except NotAuthorized:
             message = _(u'Unauthorized to edit collaborators {}').format(id)
             return base.abort(401, _(message))
-        except NotFound as e:
+        except NotFound:
             h.flash_error(_('User not found'))
             return h.redirect_to(u'dataset.new_collaborator', id=id)
         except ValidationError as e:
@@ -1323,7 +1318,7 @@ class CollaboratorEditView(MethodView):
 
         return h.redirect_to(u'dataset.collaborators_read', id=id)
 
-    def get(self, package_type, id):
+    def get(self, package_type, id):  # noqa
         context = {u'model': model, u'user': g.user}
         data_dict = {u'id': id}
 

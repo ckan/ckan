@@ -439,7 +439,7 @@ class TestUpdate(object):
 class TestDatasetUpdate(object):
     def test_missing_id(self):
         user = factories.User()
-        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user)
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("package_update")

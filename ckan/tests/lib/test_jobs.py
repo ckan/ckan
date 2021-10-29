@@ -192,7 +192,7 @@ class TestWorker(RQTestBase):
         u"""
         Test that exceptions in a job are logged.
         """
-        job = self.enqueue(failing_job)
+        self.enqueue(failing_job)
         worker = jobs.Worker()
 
         # Prevent worker from forking so that we can capture log

@@ -53,7 +53,7 @@ class TestConfig(object):
         url = url_for(u"admin.config")
         # change site title
         form = {"ckan.site_title": "Test Site Title", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
         # new site title
         new_index_response = app.get("/")
         assert "Welcome - Test Site Title" in new_index_response
@@ -87,7 +87,7 @@ class TestConfig(object):
         url = url_for(u"admin.config")
         # set new tagline css
         form = {"ckan.site_description": "Special Tagline", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline not visible yet
         new_index_response = app.get("/")
@@ -96,7 +96,7 @@ class TestConfig(object):
         url = url_for(u"admin.config")
         # remove logo
         form = {"ckan.site_logo": "", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline
         new_index_response = app.get("/")
@@ -117,7 +117,7 @@ class TestConfig(object):
         # set new about
         url = url_for(u"admin.config")
         form = {"ckan.site_about": "My special about text", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new about
         new_about_response = app.get("/about")
@@ -138,7 +138,7 @@ class TestConfig(object):
         # set new intro
         url = url_for(u"admin.config")
         form = {"ckan.site_intro_text": "My special intro text", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new intro
         new_intro_response = app.get("/")
@@ -185,7 +185,7 @@ class TestConfig(object):
         # set new style css
         url = url_for(u"admin.config")
         form = {"ckan.homepage_style": "2", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new style
         new_index_response = app.get("/")

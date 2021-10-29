@@ -4,7 +4,6 @@ import logging
 from collections import defaultdict
 from pkg_resources import iter_entry_points
 
-import six
 import click
 import sys
 
@@ -30,8 +29,6 @@ from ckan.cli import (
     views,
     config_tool,
 )
-
-from ckan.cli import seed
 
 META_ATTR = u'_ckan_meta'
 CMD_TYPE_PLUGIN = u'plugin'
@@ -217,7 +214,6 @@ ckan.add_command(plugin_info.plugin_info)
 ckan.add_command(profile.profile)
 ckan.add_command(sass.sass)
 ckan.add_command(search_index.search_index)
-ckan.add_command(seed.seed)
 ckan.add_command(server.run)
 ckan.add_command(sysadmin.sysadmin)
 ckan.add_command(tracking.tracking)

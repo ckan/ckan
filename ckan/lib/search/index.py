@@ -281,12 +281,12 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.normalized('ckan.site_id')))).hexdigest()
 
         for item in PluginImplementations(IPackageController):
-            pkg_dict = item.before_index(pkg_dict)
+            pkg_dict = item.before_dataset_index(pkg_dict)
 
         assert pkg_dict, 'Plugin must return non empty package dict on index'
 
         # permission labels determine visibility in search, can't be set
-        # in original dataset or before_index plugins
+        # in original dataset or before_dataset_index plugins
         labels = lib_plugins.get_permission_labels()
         dataset = model.Package.get(pkg_dict['id'])
         pkg_dict['permission_labels'] = labels.get_dataset_labels(

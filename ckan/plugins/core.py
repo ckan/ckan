@@ -6,7 +6,6 @@ Provides plugin services to the CKAN
 
 from contextlib import contextmanager
 import logging
-import blinker
 from pkg_resources import iter_entry_points
 from pyutilib.component.core import PluginGlobals, implements
 from pyutilib.component.core import ExtensionPoint

@@ -4,8 +4,6 @@ import logging
 import math
 import os
 
-import six
-
 try:
     from http.cookies import SimpleCookie
 except ImportError:

@@ -3,9 +3,6 @@
 import flask
 import pytest
 
-import six
-
-
 from ckan.common import (
     CKANConfig,
     config as ckan_config,

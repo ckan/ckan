@@ -78,7 +78,7 @@ def before_request():
         context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
-        blueprint, action = plugins.toolkit.get_endpoint()
+        _blueprint, action = plugins.toolkit.get_endpoint()
         if action not in (
                 u'login',
                 u'request_reset',
@@ -358,7 +358,6 @@ class EditView(MethodView):
             base.abort(403, _(u'Unauthorized to edit user %s') % u'')
         except logic.NotFound:
             base.abort(404, _(u'User not found'))
-        user_obj = context.get(u'user_obj')
 
         errors = errors or {}
         vars = {
@@ -757,7 +756,7 @@ class PerformResetView(MethodView):
         })
 
     def get(self, id):
-        context, user_dict = self._prepare(id)
+        _context, user_dict = self._prepare(id)
         return base.render(u'user/perform_reset.html', {
             u'user_dict': user_dict
         })
