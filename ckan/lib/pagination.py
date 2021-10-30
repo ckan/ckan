@@ -594,7 +594,7 @@ class BasePage(list):
         if self._url_generator is not None:
             url_generator = self._url_generator
         else:
-            from ckan.lib.helpers import pager_url
+            from ckan.lib.helpers import pager_url as url_generator
 
         # Create the URL to load a certain page
         link_url = url_generator(**link_params)

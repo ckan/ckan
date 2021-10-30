@@ -300,7 +300,7 @@ class TestDatastoreCreate(object):
         responses.add_passthru(config["solr_url"])
 
         dataset = factories.Dataset()
-        resource = call_action(
+        call_action(
             "resource_create",
             package_id=dataset['id'],
             format='CSV',

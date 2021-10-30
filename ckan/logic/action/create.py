@@ -206,7 +206,7 @@ def package_create(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
-        item.after_create(context, data)
+        item.after_dataset_create(context, data)
 
     # Make sure that a user provided schema is not used in create_views
     # and on package_show
@@ -293,7 +293,7 @@ def resource_create(context, data_dict):
     _check_access('resource_create', context, data_dict)
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_create(context, data_dict)
+        plugin.before_resource_create(context, data_dict)
 
     if 'resources' not in pkg_dict:
         pkg_dict['resources'] = []
@@ -343,7 +343,7 @@ def resource_create(context, data_dict):
          })
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_create(context, resource)
+        plugin.after_resource_create(context, resource)
 
     return resource
 
@@ -1114,9 +1114,11 @@ def user_invite(context, data_dict):
 
         _get_action('user_delete')(context, {'id': user.id})
 
-        msg = _('Error sending the invite email, ' +
-                'the user was not created: {0}').format(error)
-        raise ValidationError({'message': msg}, error_summary=msg)
+        error_dict = {
+            "message": _('Error sending the invite email, \
+                the user was not created: {0}').format(error)
+        }
+        raise ValidationError(error_dict, error_summary=error_dict)
 
     return model_dictize.user_dictize(user, context)
 

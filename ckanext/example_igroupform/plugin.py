@@ -39,7 +39,7 @@ class ExampleIGroupFormPlugin(plugins.SingletonPlugin,
         return 'example_igroup_form/group_form.html'
 
 
-class ExampleIGroupFormPlugin_DefaultGroupType(plugins.SingletonPlugin,
+class ExampleIGroupFormPlugin_DefaultGroupType(plugins.SingletonPlugin,  # noqa
                                                tk.DefaultGroupForm):
     '''An example IGroupForm CKAN plugin for default group_type.
 
