@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "axe-core": "^4.3.3",
-    "cypress": "^8.6.0",
+    "cypress": "^8.7.0",
     "cypress-axe": "^0.13.0"
   },
   "scripts": {
