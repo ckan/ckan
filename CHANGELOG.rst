@@ -9,6 +9,45 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.9.4 2021-09-22
+==================
+
+Note: This release includes requirements upgrades to address security issues
+
+
+Bugfixes
+--------
+
+- Don't show snippet names in non-debug mode (`#6406 <https://github.com/ckan/ckan/pull/6406>`_)
+- Show job title on job start/finish log messages (`#6387 <https://github.com/ckan/ckan/pull/6387>`_)
+- Fix unpriviledged users being able to access bulk process (`#6290 <https://github.com/ckan/ckan/pull/6290>`_)
+- Allow UTF-8 in JS translations (`#6051 <https://github.com/ckan/ckan/pull/6051>`_)
+- Handle Traceback Exception for HTTP and HTTP status Code in logging (`#6340 <https://github.com/ckan/ckan/pull/6340>`_)
+- Fix object list validation output (`#6149 <https://github.com/ckan/ckan/pull/6149>`_)
+- Coerce query string keys/values before passing to quote() (`#6099 <https://github.com/ckan/ckan/pull/6099>`_)
+- Fix datetime formatting when listing user tokens on py2. (`#6319 <https://github.com/ckan/ckan/pull/6319>`_)
+- Fix Solr HTTP basic auth cred handling (`#6286 <https://github.com/ckan/ckan/pull/6286>`_)
+- Remove not accessed user object in resource_update (`#6220 <https://github.com/ckan/ckan/pull/6220>`_)
+- Fix for g.__timer (`#6207 <https://github.com/ckan/ckan/pull/6207>`_)
+- Fix guard clause on has_more_facets, #6190 (`#6190 <https://github.com/ckan/ckan/pull/6190>`_)
+- Fix page render errors when search facets are not defined (`#6181 <https://github.com/ckan/ckan/pull/6181>`_)
+- Fix exception when using solr_user and solr_password on Py3 (`#6179 <https://github.com/ckan/ckan/pull/6179>`_)
+- Fix pagination links for custom org types (`#6162 <https://github.com/ckan/ckan/pull/6162>`_)
+- Fixture for plugin DB migrations (`#6139 <https://github.com/ckan/ckan/pull/6139>`_)
+- Render activity timestamps with title= attribute (`#6109 <https://github.com/ckan/ckan/pull/6109>`_)
+- Fix db init error in alembic (`#5998 <https://github.com/ckan/ckan/pull/5998>`_)
+- Fix user email validator when using name as id parameter (`#6113 <https://github.com/ckan/ckan/pull/6113>`_)
+- Fix DataPusher error during resource_update (`#5597 <https://github.com/ckan/ckan/pull/5597>`_)
+- render_datetime helper does not respect ckan.display_timezone configuration (`#6252 <https://github.com/ckan/ckan/pull/6252>`_)
+- Fix SQLAlchemy configuration for DataStore (`#6087 <https://github.com/ckan/ckan/pull/6086>`_)
+- Don't cache license translations across requests (`#5586 <https://github.com/ckan/ckan/pull/5586>`_)
+- Fix tracking.js module preventing links to be opened in new tabs (`#6386 <https://github.com/ckan/ckan/pull/6384>`_)
+- Fix deleted org/group feeds (`#6368 <https://github.com/ckan/ckan/pull/6368>`_)
+- Fix runaway preview height (`#6284 <https://github.com/ckan/ckan/pull/6283>`_)
+- Stable default ordering when consuming resource content from datastore
+  (`#2317 <https://github.com/ckan/ckan/pull/2317>`_)
+- Several documentation fixes and improvements
+
 v.2.9.3 2021-05-19
 ==================
 
@@ -443,6 +482,20 @@ Removals and deprecations
   (`#5112 <https://github.com/ckan/ckan/pull/5112>`_)
 - Remove paster CLI (`#5264 <https://github.com/ckan/ckan/pull/5264>`_)
 
+v.2.8.9 2021-09-22
+==================
+
+Fixes:
+
+* render_datetime helper does not respect ckan.display_timezone configuration (`#6252 <https://github.com/ckan/ckan/pull/6252>`_)
+* Fix SQLAlchemy configuration for DataStore (`#6087 <https://github.com/ckan/ckan/pull/6086>`_)
+* Don't cache license translations across requests (`#5586 <https://github.com/ckan/ckan/pull/5586>`_)
+* Fix tracking.js module preventing links to be opened in new tabs (`#6386 <https://github.com/ckan/ckan/pull/6384>`_)
+* Fix deleted org/group feeds (`#6368 <https://github.com/ckan/ckan/pull/6368>`_)
+* Fix runaway preview height (`#6284 <https://github.com/ckan/ckan/pull/6283>`_)
+* Fix unreliable ordering of DataStore results (`#2318 <https://github.com/ckan/ckan/pull/2317>`_)
+
+
 v.2.8.8 2021-05-19
 ==================
 
@@ -771,7 +824,17 @@ Changes and deprecations:
    This change is aimed to reduce usage of global variables in context. For a while, it has default value
    of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised
    to specify this argument explicitly, as in future it'll become required.
- * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
+  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
+
+v.2.7.12 2021-09-22
+===================
+
+Fixes:
+
+* Fix tracking.js module preventing links to be opened in new tabs (`#6384 <https://github.com/ckan/ckan/pull/6088>`_)
+* Fix deleted org/group feeds (`#6367 <https://github.com/ckan/ckan/pull/6088>`_)
+* Fix runaway preview height (`#6283 <https://github.com/ckan/ckan/pull/6088>`_)
+* Fix unreliable ordering of DataStore results (`#2317 <https://github.com/ckan/ckan/pull/6088>`_)
 
 v.2.7.11 2021-05-19
 ===================

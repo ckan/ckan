@@ -5,7 +5,6 @@ from ckan.common import asbool
 import six
 
 from urllib.parse import quote
-from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
 import ckan.lib.api_token as api_token

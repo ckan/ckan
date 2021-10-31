@@ -100,7 +100,6 @@ import unittest.mock as mock
 import ckan.model
 import ckan.logic
 import ckan.tests.helpers as helpers
-from ckan.lib.maintain import deprecated
 
 
 def _get_action_user_name(kwargs: Dict[str, Any]) -> Optional[str]:

@@ -142,7 +142,7 @@ def _get_engine_from_url(connection_url, **kwargs):
 def _dispose_engines():
     '''Dispose all database engines.'''
     global _engines
-    for url, engine in _engines.items():
+    for _, engine in _engines.items():
         engine.dispose()
     _engines = {}
 
@@ -338,11 +338,6 @@ def _pg_version_is_at_least(connection, version):
         return False
 
 
-def _get_read_only_user(data_dict):
-    parsed = model.parse_db_config('ckan.datastore.read_url')
-    return parsed['db_user']
-
-
 def _is_array_type(field_type):
     return field_type.startswith('_')
 
@@ -433,7 +428,7 @@ def _where_clauses(data_dict, fields_types):
 
 def _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses):
     lang = _fts_lang(data_dict.get('language'))
-    for field, value in q.items():
+    for field, _ in q.items():
         if field not in fields_types:
             continue
         query_field = _ts_query_alias(field)
@@ -635,7 +630,7 @@ def _get_fts_index_method():
     return method or 'gist'
 
 
-def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
+def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):  # noqa
     fts_indexes = []
     resource_id = data_dict['resource_id']
     # FIXME: This is repeated on the plugin.py, we should keep it DRY
@@ -1130,7 +1125,7 @@ def upsert_data(context, data_dict):
             VALUES ({values});'''.format(
             res_id=identifier(data_dict['resource_id']),
             columns=sql_columns.replace('%', '%%'),
-            values=', '.join(['%s' for field in field_names])
+            values=', '.join(['%s' for _ in field_names])
         )
 
         try:
@@ -1460,7 +1455,7 @@ def _execute_single_statement_copy_to(context, sql_string, where_values, buf):
     cursor.close()
 
 
-def format_results(context, results, data_dict, rows_max):
+def format_results(context, results, data_dict, rows_max):  # noqa
     result_fields = []
     for field in results.cursor.description:
         result_fields.append({
@@ -1592,7 +1587,7 @@ def upsert(context, data_dict):
                 'query': ['Query took too long']
             })
         raise
-    except Exception as e:
+    except Exception:
         trans.rollback()
         raise
     finally:
@@ -1853,11 +1848,13 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         if rows_max is not None:
             int(rows_max)
 
-    def datastore_delete(self, context, data_dict, fields_types, query_dict):
+    def datastore_delete(
+            self, context, data_dict, fields_types, query_dict):  # noqa
         query_dict['where'] += _where_clauses(data_dict, fields_types)
         return query_dict
 
-    def datastore_search(self, context, data_dict, fields_types, query_dict):
+    def datastore_search(
+            self, context, data_dict, fields_types, query_dict):  # noqa
 
         fields = data_dict.get('fields')
 
@@ -2021,7 +2018,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     'query': ['Query took too long']
                 })
             raise
-        except Exception as e:
+        except Exception:
             trans.rollback()
             raise
         finally:
@@ -2108,7 +2105,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             # DB_SIZE - size of database in bytes
             dbsize_sql = sqlalchemy.text(
-                u"SELECT pg_database_size(current_database())".format(id))
+                u"SELECT pg_database_size(current_database())")
             dbsize_results = engine.execute(dbsize_sql)
             info['meta']['db_size'] = dbsize_results.fetchone()[0]
 

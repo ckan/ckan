@@ -214,7 +214,7 @@ class TestUser(object):
         """Attempt to read edit user for an unknown user redirects to login
         page."""
 
-        response = app.get(
+        app.get(
             url_for("user.edit", id="unknown_person"), status=403
         )
 
@@ -224,13 +224,13 @@ class TestUser(object):
 
         user = factories.User()
         username = user["name"]
-        response = app.get(url_for("user.edit", id=username), status=403)
+        app.get(url_for("user.edit", id=username), status=403)
 
     def test_edit_user(self, app):
         user = factories.User(password="TestPassword1")
 
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.post(
+        app.post(
             url=url_for("user.edit"),
             extra_environ=env,
             data={
@@ -258,7 +258,7 @@ class TestUser(object):
         other_user = factories.User(password="TestPassword2")
 
         env = {"REMOTE_USER": six.ensure_str(other_user["name"])}
-        response = app.get(
+        app.get(
             url_for("user.edit", id=user["name"]),
             extra_environ=env,
             status=403,
@@ -301,7 +301,7 @@ class TestUser(object):
 
     def test_email_change_on_existed_email(self, app):
         password = "RandomPassword123"
-        user1 = factories.User(email="existed@email.com")
+        factories.User(email="existed@email.com")
         user2 = factories.User(password=password)
         env = {"REMOTE_USER": six.ensure_str(user2["name"])}
 
@@ -411,7 +411,7 @@ class TestUser(object):
             id=user_obj.id,
             key=user_obj.reset_key,
         )
-        response = app.post(offset, data=params)
+        app.post(offset, data=params)
         user_obj = helpers.model.User.by_name(user["name"])  # Update user_obj
 
         assert key != user_obj.reset_key
@@ -995,7 +995,7 @@ class TestUser(object):
         app.get(url, status=403)
 
     def test_perform_reset_user_password_link_user_incorrect(self, app):
-        user = factories.User()
+        factories.User()
         url = url_for(
             "user.perform_reset",
             id="randomness",
@@ -1035,7 +1035,7 @@ class TestUser(object):
             id=userobj.id,
             key=userobj.reset_key,
         )
-        res = app.post(url, params=params, status=403)
+        app.post(url, params=params, status=403)
 
         userobj = model.User.get(userobj.id)
         assert userobj.is_deleted(), userobj

@@ -5,7 +5,6 @@ import unicodedata
 
 from urllib.parse import urlparse
 from flask import Blueprint, make_response
-import six
 
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
@@ -114,7 +113,7 @@ class CKANFeed(FeedGenerator):
                 continue
             self.link(href=href, rel=rel)
 
-    def writeString(self, encoding):
+    def writeString(self, encoding):  # noqa
         return self.atom_str(encoding=encoding)
 
     def add_item(self, **kwargs):

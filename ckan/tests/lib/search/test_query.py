@@ -372,7 +372,7 @@ class TestPackageQuery:
 
     def test_quotation(self):
         pkg1 = factories.Dataset(title="Government Expenditure")
-        pkg2 = factories.Dataset(title="Government Extra Expenditure")
+        factories.Dataset(title="Government Extra Expenditure")
         # multiple words quoted
         result = search.query_for(model.Package).run(
             {"q": u'"Government Expenditure"'}

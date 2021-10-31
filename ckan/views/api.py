@@ -5,7 +5,6 @@ import logging
 import html
 
 from flask import Blueprint, make_response
-import six
 
 from werkzeug.exceptions import BadRequest
 
@@ -345,8 +344,8 @@ def dataset_autocomplete(ver=API_REST_DEFAULT_VERSION):
         package_dicts = get_action(
             u'package_autocomplete')(context, data_dict)
 
-    resultSet = {u'ResultSet': {u'Result': package_dicts}}
-    return _finish_ok(resultSet)
+    result_set = {u'ResultSet': {u'Result': package_dicts}}
+    return _finish_ok(result_set)
 
 
 def tag_autocomplete(ver=API_REST_DEFAULT_VERSION):
@@ -364,12 +363,12 @@ def tag_autocomplete(ver=API_REST_DEFAULT_VERSION):
 
         tag_names = get_action(u'tag_autocomplete')(context, data_dict)
 
-    resultSet = {
+    result_set = {
         u'ResultSet': {
             u'Result': [{u'Name': tag} for tag in tag_names]
         }
     }
-    return _finish_ok(resultSet)
+    return _finish_ok(result_set)
 
 
 def format_autocomplete(ver=API_REST_DEFAULT_VERSION):
@@ -382,12 +381,12 @@ def format_autocomplete(ver=API_REST_DEFAULT_VERSION):
         data_dict = {u'q': q, u'limit': limit}
         formats = get_action(u'format_autocomplete')(context, data_dict)
 
-    resultSet = {
+    result_set = {
         u'ResultSet': {
             u'Result': [{u'Format': format} for format in formats]
         }
     }
-    return _finish_ok(resultSet)
+    return _finish_ok(result_set)
 
 
 def user_autocomplete(ver=API_REST_DEFAULT_VERSION):
