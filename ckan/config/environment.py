@@ -6,7 +6,6 @@ import logging
 import warnings
 import pytz
 
-import six
 import sqlalchemy
 
 from urllib.parse import urlparse
@@ -20,11 +19,10 @@ from ckan.lib.redis import is_redis_available
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
-import ckan.lib.jinja_extensions as jinja_extensions
 from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
 
-from ckan.common import _, ungettext, config
+from ckan.common import config
 from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
@@ -40,6 +38,7 @@ def load_environment(conf):
     """
     conf['ckan.base_public_folder'] = 'public'
     log.info('Static files folder: public')
+
 
     # Initialize main CKAN config object
     config.update(conf)
@@ -142,7 +141,7 @@ def update_config():
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:
-            ckan_host, port = ckan_host.split(':')
+            ckan_host, _ = ckan_host.split(':')
         assert ckan_host, 'You need to configure ckan.site_url or ' \
                           'ckan.site_id for SOLR search-index rebuild to work.'
         config['ckan.site_id'] = ckan_host

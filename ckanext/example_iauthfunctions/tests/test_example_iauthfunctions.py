@@ -61,18 +61,18 @@ class TestAuthV6(object):
 @pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
 class TestAuthV5(object):
 
-    def test_sysadmin_can_create_group_when_config_is_False(self):
+    def test_sysadmin_can_create_group_when_config_is_false(self):
         sysadmin = factories.Sysadmin()
         context = {'ignore_auth': False, 'user': sysadmin['name']}
         helpers.call_action('group_create', context, name='test-group')
 
-    def test_user_cannot_create_group_when_config_is_False(self):
+    def test_user_cannot_create_group_when_config_is_false(self):
         user = factories.User()
         context = {'ignore_auth': False, 'user': user['name']}
         with pytest.raises(NotAuthorized):
             helpers.call_action('group_create', context, name='test-group')
 
-    def test_visitor_cannot_create_group_when_config_is_False(self):
+    def test_visitor_cannot_create_group_when_config_is_false(self):
         context = {'ignore_auth': False, 'user': None}
         with pytest.raises(NotAuthorized):
             helpers.call_action('group_create', context, name='test-group')
@@ -82,19 +82,19 @@ class TestAuthV5(object):
                          'example_iauthfunctions_v5_custom_config_setting')
 @pytest.mark.ckan_config('ckan.iauthfunctions.users_can_create_groups', True)
 @pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
-class testAuthV5WithUserCreateGroup(object):
+class TestAuthV5WithUserCreateGroup(object):
 
-    def test_sysadmin_can_create_group_when_config_is_True(self):
+    def test_sysadmin_can_create_group_when_config_is_true(self):
         sysadmin = factories.Sysadmin()
         context = {'ignore_auth': False, 'user': sysadmin['name']}
         helpers.call_action('group_create', context, name='test-group')
 
-    def test_user_can_create_group_when_config_is_True(self):
+    def test_user_can_create_group_when_config_is_true(self):
         user = factories.User()
         context = {'ignore_auth': False, 'user': user['name']}
         helpers.call_action('group_create', context, name='test-group')
 
-    def test_visitor_cannot_create_group_when_config_is_True(self):
+    def test_visitor_cannot_create_group_when_config_is_true(self):
         context = {'ignore_auth': False, 'user': None}
         with pytest.raises(NotAuthorized):
             helpers.call_action('group_create', context, name='test-group')
