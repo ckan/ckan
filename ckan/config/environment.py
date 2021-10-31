@@ -39,7 +39,6 @@ def load_environment(conf):
     conf['ckan.base_public_folder'] = 'public'
     log.info('Static files folder: public')
 
-
     # Initialize main CKAN config object
     config.update(conf)
 
