@@ -115,16 +115,15 @@ class CKANRequest(LocalProxy):
     This is just a wrapper around LocalProxy so we can handle some special
     cases for backwards compatibility.
     '''
+
+    @maintain.deprecated("request.params is deprecated. Please use flask's requests.args.", since="2.10.0")
     @property
     def params(self):
         u''' Special case as Pylons' request.params is used all over the place.
         All new code meant to be run just in Flask (eg views) should always
         use request.args
         '''
-        try:
-            return super(CKANRequest, self).params
-        except AttributeError:
-            return self.args
+        return self.args
 
 
 def _get_c():
