@@ -22,8 +22,9 @@ from ckan.common import config, asbool, asint, session
 
 
 def last_active_check():
-    last_active = asint(config.get('ckan.user.last_active', 30))
-    calc_time = datetime.datetime.utcnow() - datetime.timedelta(minutes = last_active)
+    last_active = asint(config.get('ckan.user.last_active_interval', 600))
+    calc_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=last_active)
+
     return calc_time
 
 

@@ -88,7 +88,7 @@
         </dl>
         {% if is_sysadmin %}
         <dl>
-          <dt>{{_('Last Login') }}</dt>
+          <dt>{{_('Last Active') }}</dt>
           <dd>{{ h.time_ago_from_timestamp(user.last_active) }}</dd>
         </dl>
         {% endif %}

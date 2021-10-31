@@ -908,20 +908,20 @@ Determines if a an API key should be automatically created for every user when c
 
 .. end_config-authorization
 
-.. _config-user-last-active
+.. _config-user-last-active-interval
 
-User last active configuration
+User last active interval configuration
 ------------------------------
 
 Example::
 
-  ckan.user.last_active = 30
+  ckan.user.last_active_interval = 600
 
-Default value: 30
+Default value: 600 (10 min)
 
-The time is measured in minutes
+The time is measured in seconds
 
-.. end_config-user-last-active
+.. end_config-user-last-active-interval
 
 .. _config-api-tokens:
 

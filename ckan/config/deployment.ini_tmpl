@@ -79,8 +79,8 @@ ckan.auth.public_activity_stream_detail = true
 ckan.auth.allow_dataset_collaborators = false
 ckan.auth.create_default_api_keys = false
 
-# User last active
-ckan.user.last_active = 30
+# User last active interval
+ckan.user.last_active_interval = 600
 
 ## API Token Settings
 api_token.nbytes = 60
