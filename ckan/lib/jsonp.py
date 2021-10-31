@@ -10,9 +10,9 @@ from ckan.common import json, request, response
 def to_jsonp(data):
     content_type = 'application/json;charset=utf-8'
     result = json.dumps(data, sort_keys=True)
-    if 'callback' in request.params:
+    if 'callback' in request.args:
         response.headers['Content-Type'] = content_type
-        cbname = request.params['callback']
+        cbname = request.args['callback']
         result = '%s(%s);' % (cbname, result)
     else:
         response.headers['Content-Type'] = content_type

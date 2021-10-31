@@ -20,8 +20,8 @@ def get_redirect():
     '''Checks the return_to value against the hash, and if it
     is valid then returns the return_to for redirect. Otherwise
     it returns None.'''
-    return_to = request.params.get('return_to')
-    hash_given = request.params.get('hash', '')
+    return_to = request.args.get('return_to')
+    hash_given = request.args.get('hash', '')
     if not (return_to and hash_given):
         return None
     hash_expected = get_message_hash(return_to)

@@ -88,11 +88,11 @@ def before_request():
 
 
 def index():
-    page_number = h.get_page_number(request.params)
-    q = request.params.get(u'q', u'')
-    order_by = request.params.get(u'order_by', u'name')
+    page_number = h.get_page_number(request.args)
+    q = request.args.get(u'q', u'')
+    order_by = request.args.get(u'order_by', u'name')
     limit = int(
-        request.params.get(u'limit', config.get(u'ckan.user_list_limit', 20)))
+        request.args.get(u'limit', config.get(u'ckan.user_list_limit', 20)))
     context = {
         u'return_query': True,
         u'user': g.user,
@@ -479,7 +479,7 @@ def login():
     if g.user:
         return base.render(u'user/logout_first.html', extra_vars)
 
-    came_from = request.params.get(u'came_from')
+    came_from = request.args.get(u'came_from')
     if not came_from:
         came_from = h.url_for(u'user.logged_in')
     g.login_handler = h.url_for(
@@ -489,7 +489,7 @@ def login():
 
 def logged_in():
     # redirect if needed
-    came_from = request.params.get(u'came_from', u'')
+    came_from = request.args.get(u'came_from', u'')
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
 
@@ -516,7 +516,7 @@ def logout():
 
 def logged_out():
     # redirect if needed
-    came_from = request.params.get(u'came_from', u'')
+    came_from = request.args.get(u'came_from', u'')
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
     return h.redirect_to(u'user.logged_out_page')
@@ -697,7 +697,7 @@ class PerformResetView(MethodView):
         except logic.NotFound:
             base.abort(404, _(u'User not found'))
         user_obj = context[u'user_obj']
-        g.reset_key = request.params.get(u'key')
+        g.reset_key = request.args.get(u'key')
         if not mailer.verify_reset_link(user_obj, g.reset_key):
             msg = _(u'Invalid reset key. Please try again.')
             h.flash_error(msg)
