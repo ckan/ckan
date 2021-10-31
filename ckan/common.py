@@ -34,15 +34,10 @@ def is_flask_request():
 def streaming_response(
         data, mimetype=u'application/octet-stream', with_context=False):
     iter_data = iter(data)
-    if is_flask_request():
-        # Removal of context variables for pylon's app is prevented
-        # inside `pylons_app.py`. It would be better to decide on the fly
-        # whether we need to preserve context, but it won't affect performance
-        # in any visible way and we are going to get rid of pylons anyway.
-        # Flask allows to do this in easy way.
-        if with_context:
-            iter_data = flask.stream_with_context(iter_data)
-        resp = flask.Response(iter_data, mimetype=mimetype)
+
+    if with_context:
+        iter_data = flask.stream_with_context(iter_data)
+    resp = flask.Response(iter_data, mimetype=mimetype)
 
     return resp
 
@@ -119,11 +114,6 @@ class CKANRequest(LocalProxy):
 
     This is just a wrapper around LocalProxy so we can handle some special
     cases for backwards compatibility.
-
-    LocalProxy will forward to Flask or Pylons own request objects depending
-    on the output of `_get_request` (which essentially calls
-    `is_flask_request`) and at the same time provide all objects methods to be
-    able to interact with them transparently.
     '''
     @property
     def params(self):
