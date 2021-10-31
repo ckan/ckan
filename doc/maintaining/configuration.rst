@@ -908,10 +908,10 @@ Determines if a an API key should be automatically created for every user when c
 
 .. end_config-authorization
 
-.. _config-user-last-active-interval
+.. _config-user-last-active-interval:
 
 User last active interval configuration
-------------------------------
+---------------------------------------
 
 Example::
 
@@ -919,7 +919,7 @@ Example::
 
 Default value: 600 (10 min)
 
-The time is measured in seconds
+The time is measured in seconds.
 
 .. end_config-user-last-active-interval
 
