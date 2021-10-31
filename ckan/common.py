@@ -116,7 +116,7 @@ class CKANRequest(LocalProxy):
     cases for backwards compatibility.
     '''
 
-    @maintain.deprecated("request.params is deprecated. Please use flask's requests.args.", since="2.10.0")
+    @maintain.deprecated(since="2.10.0")
     @property
     def params(self):
         u''' Special case as Pylons' request.params is used all over the place.
