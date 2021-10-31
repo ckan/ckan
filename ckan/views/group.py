@@ -356,8 +356,10 @@ def _read(id, limit, group_type):
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
         for facet in g.search_facets.keys():
             limit = int(
-                request.args.get(u'_%s_limit' % facet,
-                                   config.get(u'search.facets.default', 10)))
+                request.args.get(
+                    u'_%s_limit' % facet,
+                    config.get(u'search.facets.default', 10)
+                    ))
             g.search_facets_limits[facet] = limit
         extra_vars["page"].items = query['results']
 
