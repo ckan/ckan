@@ -23,6 +23,8 @@ DEFAULT_PORT = 5000
 @click.option(u"-p", u"--port", help=u"Port number")
 @click.option(u"-r", u"--disable-reloader", is_flag=True,
               help=u"Disable reloader")
+@click.option(u"-E", u"--passthrough-errors", is_flag=True,
+              help=u"Disable error caching (useful to hook debuggers)")
 @click.option(
     u"-t", u"--threaded", is_flag=True,
     help=u"Handle each request in a separate thread"
@@ -45,8 +47,8 @@ DEFAULT_PORT = 5000
     " automatically generate a new one (on each server reload).")
 @click.pass_context
 def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
-        threaded: bool, extra_files: list[str], processes: int,
-        ssl_cert: Optional[str], ssl_key: Optional[str]):
+        passthrough_errors: bool, threaded: bool, extra_files: list[str],
+        processes: int, ssl_cert: Optional[str], ssl_key: Optional[str]):
     u"""Runs the Werkzeug development server"""
 
     if config.get_value("debug"):
@@ -99,4 +101,5 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         processes=processes,
         extra_files=extra_files,
         ssl_context=ssl_context,
+        passthrough_errors=passthrough_errors,
     )
