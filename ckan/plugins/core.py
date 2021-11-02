@@ -85,7 +85,9 @@ class PluginImplementations(ExtensionPoint):
         plugin_lookup = {pf.name: pf for pf in iterator}
 
         plugins = config.get_value("ckan.plugins")
-        if isinstance(plugins, str):
+        if plugins is None:
+            plugins = []
+        elif isinstance(plugins, str):
             # this happens when core declarations loaded and validated
             plugins = plugins.split()
 
