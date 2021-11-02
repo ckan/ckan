@@ -135,7 +135,8 @@ class TestPackageNew(object):
     def test_first_page_creates_draft_package(self, app, user_env):
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
+
+        app.post(url, environ_overrides=user_env, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1

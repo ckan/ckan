@@ -406,7 +406,7 @@ class TestUser(object):
     def test_email_change_on_existed_email(self, app):
         stub = factories.User.stub()
         password = "RandomPassword123"
-        user1 = factories.User(email=stub.email)
+        factories.User(email=stub.email)
         user2 = factories.User(password=password)
         env = {"REMOTE_USER": six.ensure_str(user2["name"])}
 

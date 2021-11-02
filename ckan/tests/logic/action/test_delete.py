@@ -177,7 +177,7 @@ class TestDeleteTags(object):
                 "tag_delete", id=tag["id"], vocabulary_id="not-a-real-id"
             )
 
-    @pytest.mark.usefixtures("non_clean_db")
+    @pytest.mark.usefixtures("clean_db")
     def test_delete_tag(self):
         tag1 = factories.Tag.stub().name
         tag2 = factories.Tag.stub().name

@@ -3,7 +3,6 @@
 import pytest
 
 import ckan.authz as authz
-import ckan.cli
 from ckan.cli.cli import ckan as ckan_command
 from ckan.plugins import toolkit as tk
 

@@ -7,7 +7,6 @@ from pprint import pformat
 
 import pytest
 
-from ckan.lib.create_test_data import CreateTestData
 from ckan import model
 from ckan.logic.schema import (
     default_create_package_schema,

@@ -3,7 +3,6 @@
 import pytest
 
 import ckan.model as model
-from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import factories
 
 

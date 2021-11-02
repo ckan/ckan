@@ -710,13 +710,13 @@ class TestMemberCreate(object):
             )
 
     def test_group_member_creation_raises_validation_error_if_role_missing(
-        self,
+        self, faker
     ):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "group_member_create",
-                id=factories.Group.stub().id,
+                id=faker.uuid4(),
                 username=factories.User.stub().name,
             )
 
@@ -740,12 +740,12 @@ class TestMemberCreate(object):
                 role="member",
             )
 
-    def test_org_member_creation_raises_validation_error_if_role_missing(self):
+    def test_org_member_creation_raises_validation_error_if_role_missing(self, faker):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "organization_member_create",
-                id=factories.Group.stub().id,
+                id=faker.uuid4(),
                 username=factories.User.stub().name,
             )
 
