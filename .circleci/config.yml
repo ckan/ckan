@@ -17,14 +17,6 @@ defaults:
     run: |
       # OS Dependencies
       apt update
-      case $CIRCLE_NODE_INDEX in
-        $NODE_TESTS_CONTAINER)
-        curl -sL https://deb.nodesource.com/setup_14.x | bash -
-        apt install -y nodejs
-        apt install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-        npm install
-        ;;
-      esac
       apt install -y postgresql-client
   run_tests: &run_tests
     # Tests Backend, split across containers by segments
@@ -41,24 +33,6 @@ defaults:
         ;;
       esac
 
-  # Tests Frontend, only in one container
-  start_test_server: &start_test_server
-    run:
-      command: |
-        case $CIRCLE_NODE_INDEX in
-          $NODE_TESTS_CONTAINER) ckan -c test-core-circle-ci.ini run
-          ;;
-        esac
-      background: true
-  run_front_tests: &run_front_tests
-    run:
-      command: |
-        case $CIRCLE_NODE_INDEX in
-          $NODE_TESTS_CONTAINER)
-            sleep 5
-            $(npm bin)/cypress run
-          ;;
-        esac
   ckan_env: &ckan_env
     environment:
       CKAN_DATASTORE_POSTGRES_DB: datastore_test
@@ -70,7 +44,6 @@ defaults:
       CKAN_POSTGRES_USER: ckan_default
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
-      NODE_TESTS_CONTAINER: 3
       PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --test-group-count 4  --test-group-random-seed 1
   pg_image: &pg_image
     image: postgres:10
@@ -115,10 +88,6 @@ jobs:
       - <<: *run_tests
       - store_test_results:
           path: ~/junit
-      - <<: *start_test_server
-      - <<: *run_front_tests
-      - store_artifacts:
-          path: ~/project/cypress/screenshots
       - run: coveralls
 workflows:
   version: 2
