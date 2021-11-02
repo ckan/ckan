@@ -60,13 +60,6 @@ def _enclosure(pkg):
     return enc
 
 
-def _set_extras(**kw):
-    extras = []
-    for key, value in kw.items():
-        extras.append({key: value})
-    return extras
-
-
 class Enclosure(str):
     def __init__(self, url):
         self.url = url
