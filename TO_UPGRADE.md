@@ -29,3 +29,5 @@ in file add plugin to list
     ...
     scheming_nerf_index
 ```
+
+## remove repeating and composit plugins
