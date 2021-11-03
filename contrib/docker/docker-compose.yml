@@ -124,13 +124,3 @@ services:
     image: redis:latest
     restart: unless-stopped
     #restart: always
-
-  pycsw:
-    container_name: pycsw
-    image: geopython/pycsw
-    ports:
-      - "8000:8000"
-    build:
-      context: ../../
-    volumes:
-      - ./pycsw/pycsw.cfg:/etc/pycsw/pycsw.cfg
