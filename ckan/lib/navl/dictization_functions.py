@@ -4,7 +4,7 @@ import copy
 import json
 import six
 
-from ckan.common import config, _, asbool
+from ckan.common import _
 
 
 class Missing(object):

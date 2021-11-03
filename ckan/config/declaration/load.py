@@ -2,7 +2,7 @@
 
 import logging
 import pathlib
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 from typing_extensions import TypedDict
 import yaml
 

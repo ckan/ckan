@@ -16,9 +16,7 @@ from ckan import logic
 from ckan.cli.db import _resolve_alembic_config
 import ckan.plugins.toolkit as tk
 
-import uuid
 import string
-import secrets
 from ckan.cli import error_shout
 from ckan.common import config_declaration
 

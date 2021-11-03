@@ -9,7 +9,7 @@ from markupsafe import Markup
 from webassets import Environment
 from webassets.loaders import YAMLLoader
 
-from ckan.common import config, g, asbool
+from ckan.common import config, g
 
 
 logger = logging.getLogger(__name__)

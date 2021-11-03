@@ -23,35 +23,6 @@ def _pending_task(resource_id):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
-@pytest.mark.ckan_config("ckan.views.default_views", "")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
-def test_submit_when_url_changes(monkeypatch):
-    dataset = factories.Dataset()
-    func = mock.Mock()
-    monkeypatch.setitem(_actions, 'datapusher_submit', func)
-
-    resource = helpers.call_action(
-        "resource_create",
-        {},
-        package_id=dataset["id"],
-        url="http://example.com/file.pdf",
-    )
-
-    func.assert_not_called()
-
-    helpers.call_action(
-        "resource_update",
-        {},
-        id=resource["id"],
-        package_id=dataset["id"],
-        url="http://example.com/file.csv",
-        format="CSV",
-    )
-
-    func.assert_called()
-
-
-@pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestSubmit:
     def test_submit(self, monkeypatch):
@@ -66,6 +37,32 @@ class TestSubmit:
         helpers.call_action(
             "resource_create",
             {},
+            package_id=dataset["id"],
+            url="http://example.com/file.csv",
+            format="CSV",
+        )
+
+        func.assert_called()
+
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
+    def test_submit_when_url_changes(self, monkeypatch):
+        dataset = factories.Dataset()
+        func = mock.Mock()
+        monkeypatch.setitem(_actions, 'datapusher_submit', func)
+
+        resource = helpers.call_action(
+            "resource_create",
+            {},
+            package_id=dataset["id"],
+            url="http://example.com/file.pdf",
+        )
+
+        func.assert_not_called()
+
+        helpers.call_action(
+            "resource_update",
+            {},
+            id=resource["id"],
             package_id=dataset["id"],
             url="http://example.com/file.csv",
             format="CSV",

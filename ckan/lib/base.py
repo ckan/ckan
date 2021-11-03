@@ -16,8 +16,7 @@ from flask import (
 import ckan.lib.helpers as h
 import ckan.plugins as p
 
-from ckan.common import (request, config,
-                         session, asbool)
+from ckan.common import request, config, session
 
 
 log = logging.getLogger(__name__)

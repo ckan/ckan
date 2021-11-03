@@ -35,7 +35,6 @@ from ckan.config.middleware.common_middleware import (TrackingMiddleware,
                                                       HostHeaderMiddleware)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
-import ckan.plugins.toolkit as toolkit
 from ckan.lib.webassets_tools import get_webassets_path
 
 from ckan.plugins import PluginImplementations

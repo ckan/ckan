@@ -9,7 +9,7 @@ import simplejson
 
 from urllib.parse import quote_plus
 
-from ckan.common import config, asint
+from ckan.common import config
 
 log = logging.getLogger(__name__)
 

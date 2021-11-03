@@ -8,8 +8,6 @@ import pytz
 
 import sqlalchemy
 
-from urllib.parse import urlparse
-
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.plugins as lib_plugins

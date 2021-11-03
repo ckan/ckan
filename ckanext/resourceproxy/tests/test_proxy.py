@@ -11,7 +11,6 @@ from ckan.common import config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.create_test_data as create_test_data
-import ckanext.resourceproxy.blueprint as blueprint
 import ckanext.resourceproxy.plugin as proxy
 
 

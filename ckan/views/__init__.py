@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 from sqlalchemy import inspect
-from ckan.common import asbool
 import six
 
 from urllib.parse import quote

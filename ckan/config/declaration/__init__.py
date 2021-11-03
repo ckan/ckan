@@ -87,8 +87,6 @@ class Declaration:
         self._seal()
 
     def make_safe(self, config: "CKANConfig") -> bool:
-        from ckan.common import asbool
-
         if config.get_value("config.mode") != "strict":
             return False
 
