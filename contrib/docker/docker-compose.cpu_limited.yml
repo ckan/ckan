@@ -1,0 +1,157 @@
+# docker-compose build && docker-compose up -d
+# If "docker-compose logs ckan" shows DB not ready, run "docker-compose restart ckan" a few times.
+#
+# If using CPU limiting you must start with compatibility mode enabled.
+#   sudo docker-compose --compatibility up -d
+
+version: "3.4"
+
+x-ckan: &ckan_app
+  container_name: ckan
+  image: cioos/ckan:${CKAN_TAG}
+  links:
+    - db
+    - solr
+    # - redis
+  ports:
+    - "0.0.0.0:${CKAN_PORT}:5000"
+  environment:
+    # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
+    - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
+    - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
+    - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
+    - CKAN_SOLR_URL=http://solr:8983/solr/ckan
+    - CKAN_REDIS_URL=redis://redis:6379/1
+    - CKAN_DATAPUSHER_URL=http://datapusher:8800
+    - CKAN_SITE_URL=${CKAN_SITE_URL}
+    - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+    #- TZ=Canada/Vancouver
+  restart: unless-stopped
+  volumes:
+    - "/etc/localtime:/etc/localtime:ro" # remove and use TZ setting if running on windows
+    - ckan_config:/etc/ckan
+    - ckan_home:/usr/lib/ckan
+    - ckan_storage:/var/lib/ckan
+    - ${CKAN_LOG_PATH}:/usr/lib/ckan/venv/src/logs
+
+volumes:
+  ckan_config:
+  ckan_home:
+  ckan_storage:
+  pg_data:
+  solr_data:
+
+
+
+services:
+  ckan:
+    depends_on:
+      - db
+      - solr
+      # - redis
+    <<: *ckan_app
+    deploy:
+      resources:
+        limits:
+          cpus: '${LIMIT_CPU_CKAN:-0.5}'
+    # ports:
+      # - "5678:5678" # used by the debugger during development. NOT for production
+
+  ckan_gather_harvester:
+     <<: *ckan_app
+     container_name: ckan_gather_harvester
+     image: cioos/ckan:${CKAN_TAG}
+     entrypoint: /ckan-harvester-entrypoint.sh
+     user: root
+     command: ckan --config=/etc/ckan/production.ini harvester gather-consumer
+     deploy:
+       resources:
+         limits:
+           cpus: '${LIMIT_CPU_CKAN_GATHER_HARVESTER:-0.25}'
+     ports: []
+     depends_on:
+       - ckan
+
+  ckan_fetch_harvester:
+     <<: *ckan_app
+     container_name: ckan_fetch_harvester
+     image: cioos/ckan:${CKAN_TAG}
+     entrypoint: /ckan-harvester-entrypoint.sh
+     user: root
+     command: ckan --config=/etc/ckan/production.ini harvester fetch-consumer
+     ports: []
+     deploy:
+       resources:
+         limits:
+           cpus: '${LIMIT_CPU_CKAN_FETCH_HARVESTER:-0.5}'
+     depends_on:
+       - ckan
+       - ckan_gather_harvester
+
+  ckan_run_harvester:
+     <<: *ckan_app
+     container_name: ckan_run_harvester
+     image: cioos/ckan:${CKAN_TAG}
+     entrypoint: /ckan-run-harvester-entrypoint.sh
+     user: root
+     command: /bin/bash -c "echo 'ckan_run_harvester started' && cron -f 2>&1 "
+     ports: []
+     deploy:
+       resources:
+         limits:
+           cpus: '${LIMIT_CPU_CKAN_RUN_HARVESTER:-0.25}'
+     depends_on:
+       - ckan
+       - ckan_gather_harvester
+       - ckan_fetch_harvester
+
+  datapusher:
+    container_name: datapusher
+    image: clementmouchet/datapusher
+    restart: unless-stopped
+    #restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '${LIMIT_CPU_DATAPUSHER:-0.25}'
+    ports:
+      - "8800:8800"
+
+  db:
+    container_name: db
+    image: cioos/postgresql:latest
+    deploy:
+      resources:
+        limits:
+          cpus: '${LIMIT_CPU_DB:-0.5}'
+    ports:
+       - "5432:5432"
+    environment:
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro" # remove and use TZ setting if running on windows
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ckan"]
+
+  solr:
+    container_name: solr
+    image: cioos/solr:latest
+    deploy:
+      resources:
+        limits:
+          cpus: '${LIMIT_CPU_SOLR:-1.0}'
+
+  # redis is used by the datapusher and the spatial fetch and gather harvesters
+  redis:
+    container_name: redis
+    image: redis:latest
+    deploy:
+      resources:
+        limits:
+          cpus: '${LIMIT_CPU_REDIS:-0.25}'
+    #restart: always
