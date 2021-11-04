@@ -1,4 +1,5 @@
 #!/bin/bash
+# original can be found here: https://wiki.postgresql.org/wiki/Automated_Backup_on_Linux
 
 ###########################
 ####### LOAD CONFIG #######

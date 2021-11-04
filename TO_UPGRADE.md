@@ -1,3 +1,10 @@
+stop and clear all harvesters.
+
+
+sudo docker exec -it ckan ckan  --config=/etc/ckan/production.ini db upgrade
+sudo docker exec -it ckan ckan  --config=/etc/ckan/production.ini asset build
+
+
 ## Update who.ini
 use = ckan.lib.auth_tkt:make_plugin
 to
