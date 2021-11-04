@@ -168,4 +168,4 @@ def user_patch(context, data_dict):
     patched = dict(user_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _update.user_update(context, patched)
+    return _get_action('user_update')(context, patched)
