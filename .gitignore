@@ -65,3 +65,11 @@ contrib/docker/monitoring/prometheus_db/
 contrib/docker/monitoring/grafana_db/
 
 contrib/docker/monitoring/.env
+
+contrib/docker/src/pycsw
+
+contrib/docker/src/OWSLib
+
+contrib/docker/src/ckanext-repeating
+
+contrib/docker/src/ckanext-composite
