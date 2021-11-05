@@ -5,7 +5,6 @@ import unicodedata
 
 from urllib.parse import urlparse
 from flask import Blueprint, make_response
-import six
 
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
@@ -65,13 +64,6 @@ def _enclosure(pkg):
     return enc
 
 
-def _set_extras(**kw):
-    extras = []
-    for key, value in kw.items():
-        extras.append({key: value})
-    return extras
-
-
 class Enclosure(str):
     def __init__(self, url):
         self.url = url
@@ -114,7 +106,7 @@ class CKANFeed(FeedGenerator):
                 continue
             self.link(href=href, rel=rel)
 
-    def writeString(self, encoding):
+    def writeString(self, encoding):  # noqa
         return self.atom_str(encoding=encoding)
 
     def add_item(self, **kwargs):

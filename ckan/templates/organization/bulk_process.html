@@ -1,6 +1,8 @@
 {% extends "organization/edit_base.html" %}
+{% set dataset_type = h.default_package_type() %}
 
-{% block subtitle %}{{ _('Edit datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block subtitle %}{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
   {% snippet 'snippets/add_dataset.html', group=group_dict.id %}
@@ -8,7 +10,7 @@
 
 {% block primary_content_inner %}
   <div class="row">
-    <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
+    <h1 class="hide-heading">{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }}</h1>
     <div class="primary col-md-12">
       <h3 class="page-heading">
         {% block page_heading %}
@@ -28,7 +30,7 @@
             (_('Name Descending'), 'title_string desc'),
             (_('Last Modified'), 'data_modified desc') ]
                 %}
-        {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type='dataset', query=q, count=page.item_count, sorting=sorting, sorting_selected=sort_by_selected, no_title=true, search_class=' ' %}
+        {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type=dataset_type, query=q, count=page.item_count, sorting=sorting, sorting_selected=sort_by_selected, no_title=true, search_class=' ' %}
       {% endblock %}
 
       {% block form %}
