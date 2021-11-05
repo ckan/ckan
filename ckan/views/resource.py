@@ -64,7 +64,7 @@ def _read(context, data_dict):
 
     resource_views = get_action(u'resource_view_list')(
         context, {
-            u'id': resource["id"]
+            u'id': resource_id
         }
     )
     resource[u'has_views'] = len(resource_views) > 0

@@ -3138,7 +3138,6 @@ class TestPackageActivityList(object):
         # activity_list_to_html()
 
     def test_change_dataset_change_resource(self):
-        import uuid
         user = factories.User()
         dataset = factories.Dataset(user=user)
         resource = factories.Resource(
