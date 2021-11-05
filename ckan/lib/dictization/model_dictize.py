@@ -649,14 +649,27 @@ def vocabulary_list_dictize(vocabulary_list, context):
 
 def activity_dictize(activity, context, include_data=False):
     activity_dict = d.table_dictize(activity, context)
+
     if not include_data:
+        if 'resource' in activity_dict['activity_type']:
+            import ckan.model as model
+            for key, value in activity_dict['data'].items():
+                if isinstance(value, dict) and 'name' and 'package_id' in value:
+                    activity_dict['data'] = {key: {
+                        'name': value['name'], 'package_id': value['package_id']
+                    }}
+            if 'package' in activity_dict['data']:
+                pkg_id = activity_dict['data']['package']['package_id']
+                pkg_obj = model.Package.get(pkg_id)
+                activity_dict['data']['package']['title'] = pkg_obj.title or pkg_obj.name
         # replace the data with just a {'title': title} and not the rest of
         # the dataset/group/org/custom obj. we need the title to display it
         # in the activity stream.
-        activity_dict['data'] = {
-            key: {'title': val['title']}
-            for (key, val) in activity_dict['data'].items()
-            if isinstance(val, dict) and 'title' in val}
+        else:
+            activity_dict['data'] = {
+                key: {'title': val['title']}
+                for (key, val) in activity_dict['data'].items()
+                if isinstance(val, dict) and 'title' in val}
     return activity_dict
 
 

@@ -65,6 +65,8 @@ def resource_update(context, data_dict):
 
     '''
     model = context['model']
+    user = context['user']
+    session = context['session']
     id = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
@@ -118,6 +120,21 @@ def resource_update(context, data_dict):
              'ignore_auth': True},
             {'package': updated_pkg_dict,
              'resource': resource})
+    # Create activity
+    if not pkg_dict["private"]:
+        user_obj = model.User.by_name(user)
+        if user_obj:
+            user_id = user_obj.id
+        else:
+            user_id = "not logged in"
+
+        resource_id = resource["id"]
+        resource_obj = model.Resource.get(resource_id)
+        activity  = resource_obj.activity_stream_item("changed", user_id)
+        session.add(activity)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_update(context, resource)
@@ -261,6 +278,23 @@ def package_update(context, data_dict):
 
     _check_access('package_update', context, data_dict)
 
+    if context.get('resource'):
+        resource = context.pop('resource')
+
+        if resource.state == 'deleted':
+            model.Session.query(model.Package).filter_by(id=pkg.id).update(
+                {"metadata_modified": datetime.datetime.utcnow()})
+            model.Session.refresh(pkg)
+
+            pkg = model_save.package_dict_save(data_dict, context)
+
+            output = _get_action(
+                'package_show'
+                )(context,
+                {'id': data_dict['id']})
+
+            return output
+
     user = context['user']
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
@@ -343,8 +377,9 @@ def package_update(context, data_dict):
         else:
             user_id = 'not logged in'
 
-        activity = pkg.activity_stream_item('changed', user_id)
-        session.add(activity)
+        if not data_dict.get('resources'):
+            activity = pkg.activity_stream_item('changed', user_id)
+            session.add(activity)
 
     if not context.get('defer_commit'):
         model.repo.commit()

@@ -283,6 +283,8 @@ def resource_create(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
+    user = context['user']
 
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
@@ -331,6 +333,22 @@ def resource_create(context, data_dict):
     #  Run package show again to get out actual last_resource
     updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
+
+    # Create activity
+    if not pkg_dict["private"]:
+        user_obj = model.User.by_name(user)
+        if user_obj:
+            user_id = user_obj.id
+        else:
+            user_id = "not logged in"
+
+        resource_id = resource["id"]
+        resource_obj = model.Resource.get(resource_id)
+        activity = resource_obj.activity_stream_item('new', user_id)
+        session.add(activity)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
 
     #  Add the default views to the new resource
     logic.get_action('resource_create_default_resource_views')(

@@ -67,21 +67,22 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     new_resource_set = set()
     new_resource_dict = {}
 
-    for resource in old.get(u'resources'):
-        old_resource_set.add(resource['id'])
-        old_resource_dict[resource['id']] = {
-            key: value for (key, value) in resource.items() if key != u'id'}
-
-    for resource in new.get(u'resources'):
-        new_resource_set.add(resource['id'])
-        new_resource_dict[resource['id']] = {
-            key: value for (key, value) in resource.items() if key != u'id'}
+    if old:
+        old_resource_set.add(old['id'])
+        old_resource_dict[old['id']] = {
+            key: value for (key, value) in old.items() if key != u'id'
+        }
+    if new:
+        new_resource_set.add(new['id'])
+        new_resource_dict[new['id']] = {
+            key: value for (key, value) in new.items() if key != u'id'
+        }
 
     # get the IDs of the resources that have been added between the versions
     new_resources = list(new_resource_set - old_resource_set)
     for resource_id in new_resources:
         change_list.append({u'type': u'new_resource',
-                            u'pkg_id': new['id'],
+                            u'pkg_id': new['package_id'],
                             u'title': new.get(u'title'),
                             u'resource_name':
                             new_resource_dict[resource_id].get(u'name'),
@@ -91,8 +92,8 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     deleted_resources = list(old_resource_set - new_resource_set)
     for resource_id in deleted_resources:
         change_list.append({u'type': u'delete_resource',
-                            u'pkg_id': new['id'],
-                            u'title': new.get(u'title'),
+                            u'pkg_id': old['package_id'],
+                            u'title': old.get(u'title'),
                             u'resource_id': resource_id,
                             u'resource_name':
                             old_resource_dict[resource_id].get(u'name'),
@@ -108,8 +109,8 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         if old_metadata.get(u'name') != new_metadata.get(u'name'):
             change_list.append({u'type': u'resource_name',
                                 u'title': new.get(u'title'),
-                                u'old_pkg_id': old['id'],
-                                u'new_pkg_id': new['id'],
+                                u'old_pkg_id': old_metadata['package_id'],
+                                u'new_pkg_id': new_metadata['package_id'],
                                 u'resource_id': resource_id,
                                 u'old_resource_name':
                                 old_resource_dict[resource_id].get(u'name'),
@@ -124,7 +125,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         if not old_metadata.get(u'format') and new_metadata.get(u'format'):
             change_list.append({u'type': u'resource_format',
                                 u'method': u'add',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -137,7 +138,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         elif old_metadata.get(u'format') != new_metadata.get(u'format'):
             change_list.append({u'type': u'resource_format',
                                 u'method': u'change',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -152,7 +153,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                 new_metadata.get(u'description'):
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'add',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -164,7 +165,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                 not new_metadata.get(u'description'):
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'remove',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -175,7 +176,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                 != new_metadata.get(u'description'):
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'change',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -188,7 +189,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         # new and old files
         if old_metadata.get(u'url') != new_metadata.get(u'url'):
             change_list.append({u'type': u'new_file',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -208,17 +209,14 @@ def check_resource_changes(change_list, old, new, old_activity_id):
             if new_metadata[new_fields[0]]:
                 change_list.append({u'type': u'resource_extras',
                                     u'method': u'add_one_value',
-                                    u'pkg_id': new['id'],
+                                    u'pkg_id': new_metadata['package_id'],
                                     u'title': new.get(u'title'),
-                                    u'resource_id': resource_id,
-                                    u'resource_name':
-                                    new_metadata.get(u'name'),
                                     u'key': new_fields[0],
                                     u'value': new_metadata[new_fields[0]]})
             else:
                 change_list.append({u'type': u'resource_extras',
                                     u'method': u'add_one_no_value',
-                                    u'pkg_id': new['id'],
+                                    u'pkg_id': new_metadata['package_id'],
                                     u'title': new.get(u'title'),
                                     u'resource_id': resource_id,
                                     u'resource_name':
@@ -227,7 +225,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         elif len(new_fields) > 1:
             change_list.append({u'type': u'resource_extras',
                                 u'method': u'add_multiple',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -241,7 +239,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         if len(deleted_fields) == 1:
             change_list.append({u'type': u'resource_extras',
                                 u'method': u'remove_one',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -250,7 +248,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         elif len(deleted_fields) > 1:
             change_list.append({u'type': u'resource_extras',
                                 u'method': u'remove_multiple',
-                                u'pkg_id': new['id'],
+                                u'pkg_id': new_metadata['package_id'],
                                 u'title': new.get(u'title'),
                                 u'resource_id': resource_id,
                                 u'resource_name':
@@ -267,7 +265,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                 if new_metadata[field] and old_metadata[field]:
                     change_list.append({u'type': u'resource_extras',
                                         u'method': u'change_value_with_old',
-                                        u'pkg_id': new['id'],
+                                        u'pkg_id': new_metadata['package_id'],
                                         u'title': new.get(u'title'),
                                         u'resource_id': resource_id,
                                         u'resource_name':
@@ -278,7 +276,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                 elif not old_metadata[field]:
                     change_list.append({u'type': u'resource_extras',
                                         u'method': u'change_value_no_old',
-                                        u'pkg_id': new['id'],
+                                        u'pkg_id': new_metadata['package_id'],
                                         u'title': new.get(u'title'),
                                         u'resource_id': resource_id,
                                         u'resource_name':
@@ -288,11 +286,11 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                 elif not new_metadata[field]:
                     change_list.append({u'type': u'resource_extras',
                                         u'method': u'change_value_no_new',
-                                        u'pkg_id': new['id'],
+                                        u'pkg_id': new_metadata['package_id'],
                                         u'title': new.get(u'title'),
                                         u'resource_id': resource_id,
                                         u'resource_name':
-                                        new_metadata.get(u'name'),
+                                        new_metadata.get('name'),
                                         u'key': field})
 
 
@@ -630,21 +628,25 @@ def _url_change(change_list, old, new):
     # if both old and new versions have source URLs
     if old.get(u'url') and new.get(u'url'):
         change_list.append({u'type': u'url', u'method': u'change',
-                            u'pkg_id': new.get(u'id'), u'title':
-                            new.get(u'title'), u'new_url': new.get(u'url'),
-                            u'old_url': old.get(u'url')})
+                            u'pkg_id': new.get(u'package_id'),
+                            u'name': new.get(u'name'),
+                            u'new_url': new.get(u'url'),
+                            u'old_url': old.get(u'url'),
+                            u'res_id': new.get(u'id')})
     # if the user removed the source URL
     elif not new.get(u'url'):
         change_list.append({u'type': u'url', u'method': u'remove',
-                            u'pkg_id': new.get(u'id'),
-                            u'title': new.get(u'title'),
-                            u'old_url': old.get(u'url')})
+                            u'pkg_id': new.get(u'package_id'),
+                            u'name': new.get(u'name'),
+                            u'old_url': old.get(u'url'),
+                            u'res_id': new.get(u'id')})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'url', u'method': u'add',
-                            u'pkg_id': new.get(u'id'),
-                            u'title': new.get(u'title'),
-                            u'new_url': new.get(u'url')})
+                            u'pkg_id': new.get(u'package_id'),
+                            u'name': new.get(u'name'),
+                            u'new_url': new.get(u'url'),
+                            u'res_id': new.get(u'id')})
 
 
 def _version_change(change_list, old, new):
@@ -721,8 +723,9 @@ def _extension_fields(change_list, old, new):
     for field in addl_fields_list:
         if old.get(field) != new.get(field):
             change_list.append({u'type': u'extension_fields',
-                                u'pkg_id': new.get(u'id'),
+                                u'pkg_id': new.get(u'package_id'),
                                 u'title': new.get(u'title'),
+                                u'resource_name': new.get(u'name'),
                                 u'key': field,
                                 u'value': new.get(field)})
 

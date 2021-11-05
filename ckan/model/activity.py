@@ -209,6 +209,40 @@ def package_activity_list(
     return _activities_at_offset(q, limit, offset)
 
 
+def _resource_activity_query(resource_id):
+    import ckan.model as model
+    q = model.Session.query(model.Activity) \
+        .filter_by(object_id=resource_id)
+    return q
+
+def resource_activity_list(
+    resource_id, limit, offset, include_hidden_activity=False,
+    activity_types=None, exclude_activity_types=None):
+    '''Return the given resource public activity stream.
+
+    activity_types, exclude_activity_types: Optional. list of strings for activity types
+
+    Returns activities about the given resource, i.e. where the given
+    resource is the object of the activity, e.g.:
+
+    "{USER} added the resource {RESOURCE} to the dataset {DATASET}"
+    "{USER} updated the resource {RESOURCE} in the dataset {DATASET}"
+    etc.
+
+    '''
+    q = _resource_activity_query(resource_id)
+
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+
+    if activity_types:
+        q = _filter_activitites_from_type(q, include=True, types=activity_types)
+    elif exclude_activity_types:
+        q = _filter_activitites_from_type(q, include=False, types=exclude_activity_types)
+
+    return _activities_at_offset(q, limit, offset)
+
+
 def _group_activity_query(group_id, include_hidden_activity=False):
     '''Return an SQLAlchemy query for all activities about group_id.
 

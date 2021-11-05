@@ -296,6 +296,11 @@ def package_activity_list(context, data_dict):
     return activity_list(context, data_dict)
 
 
+def resource_activity_list(context, data_dict):
+    data_dict['object_type'] = 'package'
+    return activity_list(context, data_dict)
+
+
 def group_activity_list(context, data_dict):
     data_dict['object_type'] = 'group'
     return activity_list(context, data_dict)

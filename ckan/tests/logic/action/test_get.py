@@ -3126,37 +3126,39 @@ class TestPackageActivityList(object):
         resource = factories.Resource(package_id=dataset["id"], user=user)
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "resource_activity_list", id=resource["id"]
         )
         assert [activity["activity_type"] for activity in activities] == [
-            "changed package"
+            "new resource"
         ]
         assert activities[0]["user_id"] == user["id"]
-        assert activities[0]["object_id"] == dataset["id"]
+        assert activities[0]["object_id"] == resource["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
         # NB the detail is not included - that is only added in by
         # activity_list_to_html()
 
     def test_change_dataset_change_resource(self):
+        import uuid
         user = factories.User()
-        dataset = factories.Dataset(
-            user=user,
-            resources=[dict(url="https://example.com/foo.csv", format="csv")],
+        dataset = factories.Dataset(user=user)
+        resource = factories.Resource(
+            package_id=dataset["id"],
+            url="https://example.com/foo.csv",
+            format="csv"
         )
         _clear_activities()
-        dataset["resources"][0]["format"] = "pdf"
+        resource["format"] = "pdf"
         helpers.call_action(
-            "package_update", context={"user": user["name"]}, **dataset
+            "resource_update", context={"user": user["name"]}, **resource
         )
-
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "resource_activity_list", id=resource["id"]
         )
         assert [activity["activity_type"] for activity in activities] == [
-            "changed package"
+            "changed resource"
         ]
         assert activities[0]["user_id"] == user["id"]
-        assert activities[0]["object_id"] == dataset["id"]
+        assert activities[0]["object_id"] == resource["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
 
     def test_change_dataset_delete_resource(self):
@@ -3342,7 +3344,7 @@ class TestPackageActivityList(object):
             model.Activity(
                 user_id=user["id"],
                 object_id=dataset["id"],
-                activity_type=None,
+                activity_type="changed package",
                 data=None,
             )
             for i in range(count)
@@ -3578,7 +3580,7 @@ class TestUserActivityList(object):
             model.Activity(
                 user_id=user["id"],
                 object_id=None,
-                activity_type=None,
+                activity_type="changed user",
                 data=None,
             )
             for i in range(count)
@@ -3794,7 +3796,7 @@ class TestGroupActivityList(object):
             model.Activity(
                 user_id=user["id"],
                 object_id=group["id"],
-                activity_type=None,
+                activity_type="changed group",
                 data=None,
             )
             for i in range(count)
@@ -4027,7 +4029,7 @@ class TestOrganizationActivityList(object):
             model.Activity(
                 user_id=user["id"],
                 object_id=org["id"],
-                activity_type=None,
+                activity_type="changed organization",
                 data=None,
             )
             for i in range(count)
@@ -4306,7 +4308,7 @@ class TestDashboardActivityList(object):
             model.Activity(
                 user_id=user["id"],
                 object_id=None,
-                activity_type=None,
+                activity_type="changed package",
                 data=None,
             )
             for i in range(count)

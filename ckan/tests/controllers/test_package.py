@@ -2160,27 +2160,27 @@ class TestActivity(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         self._clear_activities()
-        helpers.call_action(
+        resource = helpers.call_action(
             "resource_create",
             context={"user": user["name"]},
             name="Test resource",
             package_id=dataset["id"],
         )
 
-        url = url_for("dataset.activity", id=dataset["id"])
+        url = url_for("resource.activity", id=dataset["name"], pkg_id=dataset["id"])
         response = app.get(url)
         page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
+        href = page.select_one(".resource")
 
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
-        assert "updated the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
+        assert "added the resource" in response
+        assert resource["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert resource["name"] in href.text.strip()
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "resource_activity_list", id=resource["id"]
         )
 
         assert len(activities) == 1
@@ -2188,10 +2188,10 @@ class TestActivity(object):
     def test_update_resource(self, app):
         user = factories.User()
         dataset = factories.Dataset(user=user)
-        resource = factories.Resource(package_id=dataset["id"])
+        resource = factories.Resource(name="Test Resource", package_id=dataset["id"])
         self._clear_activities()
 
-        helpers.call_action(
+        updated_resource = helpers.call_action(
             "resource_update",
             context={"user": user["name"]},
             id=resource["id"],
@@ -2199,19 +2199,48 @@ class TestActivity(object):
             package_id=dataset["id"],
         )
 
-        url = url_for("dataset.activity", id=dataset["id"])
+        url = url_for("resource.activity", id=dataset["name"], pkg_id=dataset["name"])
         response = app.get(url)
         page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
+        href = page.select_one(".resource")
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
-        assert "updated the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
+        assert "updated the resource" in response
+        assert resource["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert updated_resource["name"] in href.text.strip()
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "resource_activity_list", id=resource["id"]
+        )
+
+        assert len(activities) == 1
+
+    def test_delete_resource(self, app):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        resource = factories.Resource(package_id=dataset["id"])
+        self._clear_activities()
+
+        helpers.call_action(
+            "resource_delete", context={"user": user["name"]},
+            id=resource["id"],
+            package_id=dataset["id"]
+        )
+        url = url_for("resource.activity", id=dataset["name"], pkg_id=dataset["name"])
+        response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".resource")
+
+        assert (
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+        )
+        assert "deleted the resource" in response
+        assert resource["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert resource["name"] in href.text.strip()
+
+        activities = helpers.call_action(
+            "resource_activity_list", id=resource["id"]
         )
 
         assert len(activities) == 1

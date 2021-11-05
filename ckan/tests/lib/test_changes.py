@@ -5,7 +5,7 @@ import copy
 import pytest
 from ckan.lib.changes import check_metadata_changes, check_resource_changes
 from ckan.tests import helpers
-from ckan.tests.factories import Dataset, Organization
+from ckan.tests.factories import Dataset, Organization, Resource
 
 
 def _new_pkg(new):
@@ -489,17 +489,14 @@ class TestChanges(object):
 
     def test_add_resource(self):
         changes = []
-        original = Dataset()
+        package = Dataset()
+        original = {}
         new = helpers.call_action(
-            u"package_patch",
-            id=original["id"],
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                }
-            ],
+            u"resource_create",
+            package_id=package["id"],
+            url=u"http://example.com/image.png",
+            format=u"png",
+            name="Image 1",
         )
 
         check_resource_changes(changes, original, new, u"fake")
@@ -510,10 +507,11 @@ class TestChanges(object):
 
     def test_add_multiple_resources(self):
         changes = []
-        original = Dataset()
+        package = Dataset()
+        original = {}
         new = helpers.call_action(
             u"package_patch",
-            id=original["id"],
+            id=package["id"],
             resources=[
                 {
                     u"url": u"http://example.com/image.png",
@@ -528,7 +526,8 @@ class TestChanges(object):
             ],
         )
 
-        check_resource_changes(changes, original, new, u"fake")
+        for resource in new.get("resources"):
+            check_resource_changes(changes, original, resource, u"fake")
 
         assert len(changes) == 2, changes
         assert changes[0]["type"] == u"new_resource"
@@ -541,126 +540,84 @@ class TestChanges(object):
 
     def test_change_resource_url(self):
         changes = []
-        original = Dataset(
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                },
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 2",
-                },
-            ]
+        package = Dataset()
+        original = Resource(
+            id=package["id"], url="http://example.com/image.png", format="png",
+            name="Image 1"
         )
         new = copy.deepcopy(original)
-        new["resources"][1][u"url"] = u"http://example.com/image_changed.png"
-        new = helpers.call_action(u"package_update", **new)
+        new[u"url"] = u"http://example.com/image_changed.png"
+        new = helpers.call_action(u"resource_update", **new)
 
         check_resource_changes(changes, original, new, u"fake")
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"new_file"
-        assert changes[0]["resource_name"] == u"Image 2"
+        assert changes[0]["resource_name"] == u"Image 1"
 
     def test_change_resource_format(self):
         changes = []
-        original = Dataset(
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                },
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 2",
-                },
-            ]
+        package = Dataset()
+        original = Resource(
+            id=package["id"], url="http://example.com/image.png", format="png",
+            name="Image 1"
         )
         new = copy.deepcopy(original)
-        new["resources"][1]["format"] = u"jpg"
-        new = helpers.call_action(u"package_update", **new)
+        new["format"] = u"jpg"
+        new = helpers.call_action(u"resource_update", **new)
 
         check_resource_changes(changes, original, new, u"fake")
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"resource_format"
-        assert changes[0]["resource_name"] == u"Image 2"
+        assert changes[0]["resource_name"] == u"Image 1"
 
     def test_change_resource_name(self):
         changes = []
-        original = Dataset(
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                },
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 2",
-                },
-            ]
+        package = Dataset()
+        original = Resource(
+            id=package["id"], url="http://example.com/image.png", format="png",
+            name="Image 1"
         )
         new = copy.deepcopy(original)
-        new["resources"][1]["name"] = u"Image changed"
-        new = helpers.call_action(u"package_update", **new)
+        new["name"] = u"Image changed"
+        new = helpers.call_action(u"resource_update", **new)
 
         check_resource_changes(changes, original, new, u"fake")
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"resource_name"
-        assert changes[0]["old_resource_name"] == u"Image 2"
+        assert changes[0]["old_resource_name"] == u"Image 1"
         assert changes[0]["new_resource_name"] == u"Image changed"
 
     def test_change_resource_description(self):
         changes = []
-        original = Dataset(
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                    u"description": u"First image",
-                },
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 2",
-                    u"description": u"Second image",
-                },
-            ]
+        package = Dataset()
+        original = Resource(
+            id=package["id"], url="http://example.com/image.png", format="png",
+            name="Image 1", description="First image"
         )
         new = copy.deepcopy(original)
-        new["resources"][1]["description"] = u"changed"
-        new = helpers.call_action(u"package_update", **new)
+        new["description"] = u"changed"
+        new = helpers.call_action(u"resource_update", **new)
 
         check_resource_changes(changes, original, new, u"fake")
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"resource_desc"
         assert changes[0]["method"] == u"change"
-        assert changes[0]["resource_name"] == u"Image 2"
+        assert changes[0]["resource_name"] == u"Image 1"
 
     def test_add_resource_extra(self):
         changes = []
-        original = Dataset(
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                }
-            ]
+        package = Dataset()
+        original = Resource(
+            id=package["id"], url="http://example.com/image.png", format="png",
+            name="Image 1",
         )
         new = copy.deepcopy(original)
-        new["resources"][0]["new key"] = u"new value"
-        new = helpers.call_action(u"package_update", **new)
+        new["new key"] = u"new value"
+        new = helpers.call_action(u"resource_update", **new)
 
         check_resource_changes(changes, original, new, u"fake")
 
@@ -672,19 +629,14 @@ class TestChanges(object):
 
     def test_change_resource_extra(self):
         changes = []
-        original = Dataset(
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                    u"key1": u"value1",
-                }
-            ]
+        package = Dataset()
+        original = Resource(
+            id=package["id"], url="http://example.com/image.png", format="png",
+            name="Image 1", key1="value1"
         )
         new = copy.deepcopy(original)
-        new["resources"][0]["key1"] = u"new value"
-        new = helpers.call_action(u"package_update", **new)
+        new["key1"] = u"new value"
+        new = helpers.call_action(u"resource_update", **new)
 
         check_resource_changes(changes, original, new, u"fake")
 
@@ -697,19 +649,14 @@ class TestChanges(object):
 
     def test_remove_resource_extra(self):
         changes = []
-        original = Dataset(
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                    u"key1": u"value1",
-                }
-            ]
+        package = Dataset()
+        original = Resource(
+            id=package["id"], url="http://example.com/image.png", format="png",
+            name="Image 1", key1="value1"
         )
         new = copy.deepcopy(original)
-        del new["resources"][0]["key1"]
-        new = helpers.call_action(u"package_update", **new)
+        del new["key1"]
+        new = helpers.call_action(u"resource_update", **new)
 
         check_resource_changes(changes, original, new, u"fake")
 
@@ -744,7 +691,8 @@ class TestChanges(object):
         new["resources"][1]["name"] = u"changed-2"
         new = helpers.call_action(u"package_update", **new)
 
-        check_resource_changes(changes, original, new, u"fake")
+        for old, new in zip(original.get('resources'), new.get('resources')):
+            check_resource_changes(changes, old, new, u"fake")
 
         assert len(changes) == 2, changes
         assert changes[0]["type"] == u"resource_name"
@@ -757,23 +705,13 @@ class TestChanges(object):
 
     def test_delete_resource(self):
         changes = []
-        original = Dataset(
-            resources=[
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 1",
-                },
-                {
-                    u"url": u"http://example.com/image.png",
-                    u"format": u"png",
-                    u"name": u"Image 2",
-                },
-            ]
+        package = Dataset()
+        original = Resource(
+            id=package["id"], url="http://example.com/image.png", format="png",
+            name="Image 1"
         )
         new = copy.deepcopy(original)
-        del new["resources"][0]
-        new = helpers.call_action(u"package_update", **new)
+        new = helpers.call_action(u"resource_delete", **new)
 
         check_resource_changes(changes, original, new, u"fake")
 
@@ -800,16 +738,17 @@ class TestChanges(object):
                     u"format": u"png",
                     u"name": u"Image 3",
                 },
-            ]
+            ],
         )
+
         new = copy.deepcopy(original)
-        del new["resources"][1]
-        del new["resources"][0]
-        new = helpers.call_action(u"package_update", **new)
+        for resource in new.get('resources'):
+            new = helpers.call_action(u'resource_delete', id=resource["id"])
 
-        check_resource_changes(changes, original, new, u"fake")
+        for old in original.get('resources'):
+            check_resource_changes(changes, old, new, u"fake")
 
-        assert len(changes) == 2, changes
+        assert len(changes) == 3, changes
         assert changes[0]["type"] == u"delete_resource"
         if changes[0]["resource_name"] == u"Image 1":
             assert changes[1]["resource_name"] == u"Image 2"

@@ -36,6 +36,15 @@
 </span>
 {% endmacro %}
 
+{% macro resource(activity) %}
+<span class="resource">
+  <a href="{{ h.url_for('resource.read', package_type='dataset', id=activity.data.package.package_id, resource_id=activity.object_id) }}">
+    {{ activity.data.package.name if activity.data.package else _('unknown') }}
+  </a>
+    {# object_id because the object_name may be out of date) #}
+</span>
+{% endmacro %}
+
 {# Displays an activity stream
 
 activity_stream - the activity data. e.g. the output from package_activity_list
@@ -56,6 +65,7 @@ object_type - 'package', 'organization', 'group', 'user'
         'organization': organization,
         'user': user,
         'group': group,
+        'resource': resource,
       }, id=id
     -%}
   {% endfor %}

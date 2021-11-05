@@ -135,6 +135,56 @@ class Resource(core.StatefulObjectMixin,
     def related_packages(self):
         return [self.package]
 
+    def activity_stream_item(self, activity_type, user_id):
+        import ckan.model
+        import ckan.logic
+
+        assert activity_type in ("new", "changed"), (
+            str(activity_type))
+
+        # Handle 'deleted' objects.
+        # When the user marks a resource as deleted this comes through here as
+        # a 'changed' resource activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            if meta.Session.query(ckan.model.activity.Activity).filter_by(
+                    object_id=self.id, activity_type='deleted').all():
+                # A 'deleted' activity for this object has already been emitted
+                # FIXME: What if the object was deleted and then activated
+                # again?
+                return None
+            else:
+                # Emit a 'deleted' activity for this object.
+                activity_type = 'deleted'
+        try:
+            # We save the entire rendered resource dict so we can support
+            # viewing the past resource from the activity feed.
+            dictized_resource = ckan.logic.get_action('resource_show')({
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'for_view': False,  # avoid ckanext-multilingual translating it
+                'ignore_auth': True
+            }, {
+                'id': self.id,
+                'include_tracking': False
+            })
+        except ckan.logic.NotFound:
+            return None
+
+        actor = meta.Session.query(ckan.model.User).get(user_id)
+
+        return ckan.model.activity.Activity(
+            user_id,
+            self.id,
+            "%s resource" % activity_type,
+            {
+                'package': dictized_resource,
+                # We keep the acting user name around so that actions can be
+                # properly displayed even if the user is deleted in the future.
+                'actor': actor.name if actor else None
+            }
+        )
+
 
 ## Mappers
 

@@ -47,9 +47,11 @@ def resource_dict_save(res_dict, context):
 
     if changed or obj.extras != skipped:
         obj.metadata_modified = datetime.datetime.utcnow()
-    obj.state = u'active'
-    obj.extras = skipped
 
+    if not obj.state == 'deleted':
+        obj.state = u'active'
+
+    obj.extras = skipped
     session.add(obj)
     return obj
 

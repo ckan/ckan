@@ -2138,6 +2138,7 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
     if filter_type:
         action_functions = {
             'dataset': 'package_activity_list',
+            'resource': 'resource_activity_list',
             'user': 'user_activity_list',
             'group': 'group_activity_list',
             'organization': 'organization_activity_list',
@@ -2823,9 +2824,10 @@ def compare_pkg_dicts(old, new, old_activity_id):
     from ckan.lib.changes import check_metadata_changes, check_resource_changes
     change_list = []
 
-    check_metadata_changes(change_list, old, new)
-
-    check_resource_changes(change_list, old, new, old_activity_id)
+    if old.get('type') or new.get('type'):
+        check_metadata_changes(change_list, old, new)
+    else:
+        check_resource_changes(change_list, old, new, old_activity_id)
 
     # if the dataset was updated but none of the fields we check were changed,
     # display a message stating that
@@ -2944,3 +2946,10 @@ def can_update_owner_org(package_dict, user_orgs=None):
         return True
 
     return False
+
+
+@core_helper
+def get_pkg_title_from_id(id):
+    if id:
+        obj = model.Session.query(model.Package).get(id)
+        return obj.title if obj.title else None
