@@ -45,7 +45,7 @@ Bugfixes
 - Fix deleted org/group feeds (`#6368 <https://github.com/ckan/ckan/pull/6368>`_)
 - Fix runaway preview height (`#6284 <https://github.com/ckan/ckan/pull/6283>`_)
 - Stable default ordering when consuming resource content from datastore
-  (`#2317 <https://github.com/ckan/ckan/pull/2317>`__)
+  (`#2317 <https://github.com/ckan/ckan/pull/2317>`_)
 - Several documentation fixes and improvements
 
 v.2.9.3 2021-05-19
