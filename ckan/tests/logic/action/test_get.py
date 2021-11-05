@@ -3123,7 +3123,7 @@ class TestPackageActivityList(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         _clear_activities()
-        factories.Resource(package_id=dataset["id"], user=user)
+        resource = factories.Resource(package_id=dataset["id"], user=user)
 
         activities = helpers.call_action(
             "resource_activity_list", id=resource["id"]
