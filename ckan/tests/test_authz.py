@@ -1,13 +1,11 @@
 # encoding: utf-8
 
-import six
 import unittest.mock as mock
 import pytest
 
 from ckan import authz as auth, model, logic
 
 from ckan.tests import factories, helpers
-from ckan.lib.create_test_data import CreateTestData
 
 _check = auth.check_config_permission
 
@@ -55,9 +53,9 @@ def test_roles_that_cascade_to_sub_groups_is_a_list():
 
 
 @mock.patch('flask.globals.RuntimeError')
-def test_get_user_outside_web_request_py3(mock_RuntimeError):
+def test_get_user_outside_web_request_py3(mock_runtimeerror):
     auth._get_user("example")
-    assert mock_RuntimeError.called
+    assert mock_runtimeerror.called
 
 
 @pytest.mark.usefixtures("with_request_context", "clean_db")

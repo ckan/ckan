@@ -29,8 +29,6 @@ from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
 
-import six
-
 from urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
 )
@@ -48,7 +46,7 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-from ckan.lib.pagination import Page
+from ckan.lib.pagination import Page  # noqa: re-export
 from ckan.common import _, ungettext, c, g, request, session, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -107,7 +105,7 @@ _builtin_functions = {}
 helper_functions = HelperAttributeDict()
 
 
-class literal(Markup):
+class literal(Markup):  # noqa
     """Represents an HTML literal.
 
     """
@@ -490,8 +488,8 @@ def url_for_static(*args, **kw):
         url = urlparse(args[0])
         url_is_external = (url.scheme != '' or url.netloc != '')
         if url_is_external:
-            CkanUrlException = ckan.exceptions.CkanUrlException
-            raise CkanUrlException('External URL passed to url_for_static()')
+            raise ckan.exceptions.CkanUrlException(
+                'External URL passed to url_for_static()')
     return url_for_static_or_external(*args, **kw)
 
 
@@ -1054,10 +1052,17 @@ def _make_menu_item(menu_item, title, **kw):
 
 
 @core_helper
-def default_group_type(type_='group'):
+def default_group_type(type_):
     """Get default group/organization type for using site-wide.
     """
     return str(config.get('ckan.default.{}_type'.format(type_), type_))
+
+
+@core_helper
+def default_package_type() -> str:
+    """Get default package type for using site-wide.
+    """
+    return str(config.get('ckan.default.package_type', "dataset"))
 
 
 @core_helper
@@ -1077,9 +1082,38 @@ def humanize_entity_type(entity_type, object_type, purpose):
       >>> humanize_entity_type('group', 'custom_group', 'not real purpuse')
       'Custom Group'
 
+    Possible purposes(depends on `entity_type` and change over time):
+        `add link`: "Add [object]" button on search pages
+        `breadcrumb`: "Home / [object]s / New" section in breadcrums
+        `content tab`: "[object]s | Groups | Activity" tab on details page
+        `create label`: "Home / ... / Create [object]" part of breadcrumb
+        `create title`: "Create [object] - CKAN" section of page title
+        `delete confirmation`: Confirmation popup when object is deleted
+        `description placeholder`: Placeholder for description field on form
+        `edit label`: "Edit [object]" label/breadcrumb/title
+        `facet label`: "[object]s" label in sidebar(facets/follower counters)
+        `form label`: "[object] Form" heading on object form page
+        `main nav`: "[object]s" link in the header
+        `view label`: "View [object]s" button on edit form
+        `my label`: "My [object]s" tab in dashboard
+        `name placeholder`: "<[object]>" section of URL preview on object form
+        `no any objects`: No objects created yet
+        `no associated label`: no gorups for dataset
+        `no description`: object has no description
+        `no label`: package with no organization
+        `page title`: "Title - [objec]s - CKAN" section of page title
+        `save label`: "Save [object]" button
+        `search placeholder`: "Search [object]s..." placeholder
+        `update label`: "Update [object]" button
+        `you not member`: Dashboard with no groups
+
     """
     if entity_type == object_type:
         return  # use the default text included in template
+
+    if (entity_type, object_type) == ("package", "dataset"):
+        # special case for the previous condition
+        return
 
     log.debug(
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
@@ -1098,6 +1132,7 @@ def humanize_entity_type(entity_type, object_type, purpose):
         u'form label': _(u"{object_type} Form"),
         u'main nav': _(u"{object_type}s"),
         u'my label': _(u"My {object_type}s"),
+        u'view label': _("View {object_type}"),
         u'name placeholder': _(u"My {object_type}"),
         u'no any objects': _(
             u"There are currently no {object_type}s for this site"),
@@ -2243,7 +2278,7 @@ def html_auto_link(data):
     `http://` converted to a link
     '''
 
-    LINK_FNS = {
+    link_fns = {
         'tag': tag_link,
         'group': group_link,
         'dataset': dataset_link,
@@ -2254,7 +2289,7 @@ def html_auto_link(data):
         obj = matchobj.group(1)
         name = matchobj.group(2)
         title = '%s:%s' % (obj, name)
-        return LINK_FNS[obj]({'name': name.strip('"'), 'title': title})
+        return link_fns[obj]({'name': name.strip('"'), 'title': title})
 
     def link(matchobj):
         return '<a href="%s" target="_blank" rel="nofollow">%s</a>' \
@@ -2506,7 +2541,7 @@ def list_dict_filter(list_, search_field, output_field, value):
 
 
 @core_helper
-def SI_number_span(number):
+def SI_number_span(number):  # noqa
     ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
     number = int(number)
     if number < 1000:
@@ -2519,7 +2554,7 @@ def SI_number_span(number):
 
 # add some formatter functions
 localised_number = formatters.localised_number
-localised_SI_number = formatters.localised_SI_number
+localised_SI_number = formatters.localised_SI_number  # noqa
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 

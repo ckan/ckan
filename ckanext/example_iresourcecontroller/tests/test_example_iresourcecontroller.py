@@ -23,7 +23,7 @@ class TestExampleIResourceController(object):
 
         plugin = ckan.plugins.get_plugin("example_iresourcecontroller")
 
-        res = helpers.call_action(
+        helpers.call_action(
             "resource_create",
             package_id=package["id"],
             name="test-resource",
@@ -31,31 +31,31 @@ class TestExampleIResourceController(object):
             apikey=user["apikey"],
         )
 
-        assert plugin.counter["before_create"] == 1, plugin.counter
-        assert plugin.counter["after_create"] == 1, plugin.counter
-        assert plugin.counter["before_update"] == 0, plugin.counter
-        assert plugin.counter["after_update"] == 0, plugin.counter
-        assert plugin.counter["before_delete"] == 0, plugin.counter
-        assert plugin.counter["after_delete"] == 0, plugin.counter
+        assert plugin.counter["before_resource_create"] == 1, plugin.counter
+        assert plugin.counter["after_resource_create"] == 1, plugin.counter
+        assert plugin.counter["before_resource_update"] == 0, plugin.counter
+        assert plugin.counter["after_resource_update"] == 0, plugin.counter
+        assert plugin.counter["before_resource_delete"] == 0, plugin.counter
+        assert plugin.counter["after_resource_delete"] == 0, plugin.counter
 
     def test_resource_controller_plugin_update(self):
         user = factories.Sysadmin()
         resource = factories.Resource(user=user)
         plugin = ckan.plugins.get_plugin("example_iresourcecontroller")
 
-        res = helpers.call_action(
+        helpers.call_action(
             "resource_update",
             id=resource["id"],
             url="http://resource.updated/",
             apikey=user["apikey"],
         )
 
-        assert plugin.counter["before_create"] == 1, plugin.counter
-        assert plugin.counter["after_create"] == 1, plugin.counter
-        assert plugin.counter["before_update"] == 1, plugin.counter
-        assert plugin.counter["after_update"] == 1, plugin.counter
-        assert plugin.counter["before_delete"] == 0, plugin.counter
-        assert plugin.counter["after_delete"] == 0, plugin.counter
+        assert plugin.counter["before_resource_create"] == 1, plugin.counter
+        assert plugin.counter["after_resource_create"] == 1, plugin.counter
+        assert plugin.counter["before_resource_update"] == 1, plugin.counter
+        assert plugin.counter["after_resource_update"] == 1, plugin.counter
+        assert plugin.counter["before_resource_delete"] == 0, plugin.counter
+        assert plugin.counter["after_resource_delete"] == 0, plugin.counter
 
     def test_resource_controller_plugin_delete(self):
         user = factories.Sysadmin()
@@ -63,16 +63,16 @@ class TestExampleIResourceController(object):
 
         plugin = ckan.plugins.get_plugin("example_iresourcecontroller")
 
-        res = helpers.call_action(
+        helpers.call_action(
             "resource_delete", id=resource["id"], apikey=user["apikey"]
         )
 
-        assert plugin.counter["before_create"] == 1, plugin.counter
-        assert plugin.counter["after_create"] == 1, plugin.counter
-        assert plugin.counter["before_update"] == 0, plugin.counter
-        assert plugin.counter["after_update"] == 0, plugin.counter
-        assert plugin.counter["before_delete"] == 1, plugin.counter
-        assert plugin.counter["after_delete"] == 1, plugin.counter
+        assert plugin.counter["before_resource_create"] == 1, plugin.counter
+        assert plugin.counter["after_resource_create"] == 1, plugin.counter
+        assert plugin.counter["before_resource_update"] == 0, plugin.counter
+        assert plugin.counter["after_resource_update"] == 0, plugin.counter
+        assert plugin.counter["before_resource_delete"] == 1, plugin.counter
+        assert plugin.counter["after_resource_delete"] == 1, plugin.counter
 
     def test_resource_controller_plugin_show(self):
         """
@@ -82,16 +82,16 @@ class TestExampleIResourceController(object):
         """
         user = factories.Sysadmin()
         package = factories.Dataset(user=user)
-        resource = factories.Resource(user=user, package_id=package["id"])
+        factories.Resource(user=user, package_id=package["id"])
 
         plugin = ckan.plugins.get_plugin("example_iresourcecontroller")
 
-        res = helpers.call_action("package_show", name_or_id=package["id"])
+        helpers.call_action("package_show", name_or_id=package["id"])
 
-        assert plugin.counter["before_create"] == 1, plugin.counter
-        assert plugin.counter["after_create"] == 1, plugin.counter
-        assert plugin.counter["before_update"] == 0, plugin.counter
-        assert plugin.counter["after_update"] == 0, plugin.counter
-        assert plugin.counter["before_delete"] == 0, plugin.counter
-        assert plugin.counter["after_delete"] == 0, plugin.counter
-        assert plugin.counter["before_show"] == 5, plugin.counter
+        assert plugin.counter["before_resource_create"] == 1, plugin.counter
+        assert plugin.counter["after_resource_create"] == 1, plugin.counter
+        assert plugin.counter["before_resource_update"] == 0, plugin.counter
+        assert plugin.counter["after_resource_update"] == 0, plugin.counter
+        assert plugin.counter["before_resource_delete"] == 0, plugin.counter
+        assert plugin.counter["after_resource_delete"] == 0, plugin.counter
+        assert plugin.counter["before_resource_show"] == 5, plugin.counter

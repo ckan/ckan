@@ -269,15 +269,17 @@ db: Manage databases
 See :doc:`database-management`.
 
 
-generate: Generate empty extension files to expand CKANs
-========================================================
+generate: Scaffolding for regular development tasks
+===================================================
 
 Usage
 
 .. parsed-literal::
 
- ckan generate extension           - Create empty extension
- ckan generate --output-dir (-o)   - Location to put the generated template
+ ckan generate config        -  Create a ckan.ini file.
+ ckan generate extension     -  Create empty extension.
+ ckan generate fake-data     -  Generate random entities of the given category.
+ ckan generate migration     -  Create new alembic revision for DB migration.
 
 
 .. _cli jobs:
@@ -528,29 +530,6 @@ There are other search related commands, mostly useful for debugging purposes
  ckan search-index check                  - checks for datasets not indexed
  ckan search-index show DATASET_NAME      - shows index of a dataset
  ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
-
-
-seed: Create test data in the database
-======================================
-
-Usage
-
-.. parsed-literal::
-
- basic           - annakarenina and warandpeace.
- family          - package relationships data.
- gov             - government style data.
- hierarchy       - hierarchy of groups.
- search          - realistic data to test search.
- translations    - test translations of terms.
- user            - create a user "tester" with api key "tester".
- vocabs          - some test vocabularies.
-
-Examples
-
-.. parsed-literal::
-
- ckan -c |ckan.ini| seed basic
 
 
 sysadmin: Give sysadmin rights

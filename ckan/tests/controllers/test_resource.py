@@ -2,13 +2,9 @@
 
 import csv
 import datetime
-from io import StringIO
 import pytest
 import ckan.lib.helpers as h
-import ckan.logic as logic
-import ckan.model as model
 import ckan.plugins as plugins
-import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.tests.factories as factories
 from ckan.tests.helpers import call_action
 
@@ -127,9 +123,9 @@ def update_tracking_summary():
     tracking.update_all(engine=ckan.model.meta.engine, start_date=date)
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "app")
 class TestTracking(object):
-    def test_package_with_0_views(self, app):
+    def test_package_with_0_views(self):
         package = factories.Dataset()
 
         # The API should return 0 recent views and 0 total views for the
@@ -149,7 +145,7 @@ class TestTracking(object):
             "total views"
         )
 
-    def test_resource_with_0_views(self, app):
+    def test_resource_with_0_views(self):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
 
@@ -189,7 +185,7 @@ class TestTracking(object):
             "total views"
         )
 
-    def test_package_with_one_view(self, app, track):
+    def test_package_with_one_view(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
 
@@ -228,7 +224,7 @@ class TestTracking(object):
             "of the package's resources"
         )
 
-    def test_resource_with_one_preview(self, app, track):
+    def test_resource_with_one_preview(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
         url = h.url_for(
@@ -274,7 +270,7 @@ class TestTracking(object):
             "recent views"
         )
 
-    def test_resource_with_one_download(self, app, track):
+    def test_resource_with_one_download(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
 
@@ -316,7 +312,7 @@ class TestTracking(object):
             "views"
         )
 
-    def test_view_page(self, app, track):
+    def test_view_page(self, track):
         # Visit the front page.
         track(url="", type_="page")
         # Visit the /organization page.
@@ -346,7 +342,7 @@ class TestTracking(object):
                 tracking_summary.running_total == 0
             ), "running_total for a page is always 0"
 
-    def test_package_with_many_views(self, app, track):
+    def test_package_with_many_views(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
         url = h.url_for("dataset.read", id=package["name"])
@@ -382,7 +378,7 @@ class TestTracking(object):
             "package's resources"
         )
 
-    def test_resource_with_many_downloads(self, app, track):
+    def test_resource_with_many_downloads(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
         url = resource["url"]
@@ -420,7 +416,7 @@ class TestTracking(object):
             "package's total views"
         )
 
-    def test_page_with_many_views(self, app, track):
+    def test_page_with_many_views(self, track):
 
         # View each page three times, from three different IPs.
         for ip in ("111.111.11.111", "222.222.22.222", "333.333.33.333"):
@@ -455,13 +451,13 @@ class TestTracking(object):
                 "running_total for " "pages is always 0"
             )
 
-    def test_dataset_view_count_throttling(self, app, track):
+    def test_dataset_view_count_throttling(self, track):
         """If the same user visits the same dataset multiple times on the same
         day, only one view should get counted.
 
         """
         package = factories.Dataset()
-        resource = factories.Resource(package_id=package["id"])
+        factories.Resource(package_id=package["id"])
         url = h.url_for("dataset.read", id=package["name"])
 
         # Visit the dataset three times from the same IP.
@@ -483,7 +479,7 @@ class TestTracking(object):
             "Repeat dataset views should " "not add to total views count"
         )
 
-    def test_resource_download_count_throttling(self, app, track):
+    def test_resource_download_count_throttling(self, track):
         """If the same user downloads the same resource multiple times on the
         same day, only one view should get counted.
 
@@ -510,7 +506,7 @@ class TestTracking(object):
         ), "Repeat resource downloads should not add to total views count"
 
     @pytest.mark.usefixtures("clean_index")
-    def test_sorting_datasets_by_recent_views(self, app, reset_index, track):
+    def test_sorting_datasets_by_recent_views(self, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
         factories.Dataset(name="consider_phlebas")
@@ -540,7 +536,7 @@ class TestTracking(object):
         assert packages[2]["name"] == "consider_phlebas"
 
     @pytest.mark.usefixtures("clean_index")
-    def test_sorting_datasets_by_total_views(self, app, track):
+    def test_sorting_datasets_by_total_views(self, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
         factories.Dataset(name="consider_phlebas")
@@ -569,7 +565,7 @@ class TestTracking(object):
         assert packages[1]["name"] == "the_player_of_games"
         assert packages[2]["name"] == "consider_phlebas"
 
-    def test_export(self, app, track, export):
+    def test_export(self, track, export):
         """`paster tracking export` should export tracking data for all
         datasets in CSV format.
 
