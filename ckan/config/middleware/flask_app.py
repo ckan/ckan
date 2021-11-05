@@ -403,7 +403,7 @@ def ckan_after_request(response):
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
 
-    log.info(' %s render time %.3f seconds' % (url, r_time))
+    log.debug(' %s render time %.3f seconds' % (url, r_time))
 
     return response
 
