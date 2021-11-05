@@ -3,6 +3,8 @@
 {% set user = g.userobj %}
 {% set org_type = h.default_group_type('organization') %}
 {% set group_type = h.default_group_type('group') %}
+{% set dataset_type = h.default_package_type() %}
+
 
 {% block breadcrumb_content %}
   <li class="active"><a href="{{ h.url_for('dashboard.index') }}">{{ _('Dashboard') }}</a></li>
@@ -17,14 +19,14 @@
         <div class="content_action">
           {% link_for _('Profile settings'), named_route='user.edit', id=user.name, class_='btn btn-default', icon='cog' %}
         </div>
-    {% block content_primary_nav %}    
+    {% block content_primary_nav %}
         <ul class="nav nav-tabs">
           {{ h.build_nav_icon('dashboard.index', _('News feed'), icon='list') }}
-          {{ h.build_nav_icon('dashboard.datasets', _('My Datasets'), icon='sitemap') }}
+          {{ h.build_nav_icon('dashboard.datasets', h.humanize_entity_type('package', dataset_type, 'my label') or _('My Datasets'), icon='sitemap') }}
           {{ h.build_nav_icon('dashboard.organizations', h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations'), icon='building-o') }}
           {{ h.build_nav_icon('dashboard.groups', h.humanize_entity_type('group', group_type, 'my label') or _('My Groups'), icon='users') }}
         </ul>
-     {% endblock %}   
+     {% endblock %}
       </header>
     {% endblock %}
     <div class="module-content">

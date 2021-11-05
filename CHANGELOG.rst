@@ -493,7 +493,7 @@ Fixes:
 * Fix tracking.js module preventing links to be opened in new tabs (`#6386 <https://github.com/ckan/ckan/pull/6384>`_)
 * Fix deleted org/group feeds (`#6368 <https://github.com/ckan/ckan/pull/6368>`_)
 * Fix runaway preview height (`#6284 <https://github.com/ckan/ckan/pull/6283>`_)
-* Fix unreliable ordering of DataStore results (`#2318 <https://github.com/ckan/ckan/pull/2317>`_)
+* Fix unreliable ordering of DataStore results (`#2317 <https://github.com/ckan/ckan/pull/2317>`_)
 
 
 v.2.8.8 2021-05-19
@@ -824,7 +824,7 @@ Changes and deprecations:
    This change is aimed to reduce usage of global variables in context. For a while, it has default value
    of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised
    to specify this argument explicitly, as in future it'll become required.
-  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
+ * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
 
 v.2.7.12 2021-09-22
 ===================
@@ -834,7 +834,7 @@ Fixes:
 * Fix tracking.js module preventing links to be opened in new tabs (`#6384 <https://github.com/ckan/ckan/pull/6088>`_)
 * Fix deleted org/group feeds (`#6367 <https://github.com/ckan/ckan/pull/6088>`_)
 * Fix runaway preview height (`#6283 <https://github.com/ckan/ckan/pull/6088>`_)
-* Fix unreliable ordering of DataStore results (`#2317 <https://github.com/ckan/ckan/pull/6088>`_)
+* Fix unreliable ordering of DataStore results (`#2317 <https://github.com/ckan/ckan/pull/2317>`_)
 
 v.2.7.11 2021-05-19
 ===================
