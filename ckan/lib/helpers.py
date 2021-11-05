@@ -1047,10 +1047,17 @@ def _make_menu_item(menu_item, title, **kw):
 
 
 @core_helper
-def default_group_type(type_='group'):
+def default_group_type(type_):
     """Get default group/organization type for using site-wide.
     """
     return config.get_value(f'ckan.default.{type_}_type')
+
+
+@core_helper
+def default_package_type() -> str:
+    """Get default package type for using site-wide.
+    """
+    return str(config.get('ckan.default.package_type', "dataset"))
 
 
 @core_helper
@@ -1070,9 +1077,38 @@ def humanize_entity_type(entity_type, object_type, purpose):
       >>> humanize_entity_type('group', 'custom_group', 'not real purpuse')
       'Custom Group'
 
+    Possible purposes(depends on `entity_type` and change over time):
+        `add link`: "Add [object]" button on search pages
+        `breadcrumb`: "Home / [object]s / New" section in breadcrums
+        `content tab`: "[object]s | Groups | Activity" tab on details page
+        `create label`: "Home / ... / Create [object]" part of breadcrumb
+        `create title`: "Create [object] - CKAN" section of page title
+        `delete confirmation`: Confirmation popup when object is deleted
+        `description placeholder`: Placeholder for description field on form
+        `edit label`: "Edit [object]" label/breadcrumb/title
+        `facet label`: "[object]s" label in sidebar(facets/follower counters)
+        `form label`: "[object] Form" heading on object form page
+        `main nav`: "[object]s" link in the header
+        `view label`: "View [object]s" button on edit form
+        `my label`: "My [object]s" tab in dashboard
+        `name placeholder`: "<[object]>" section of URL preview on object form
+        `no any objects`: No objects created yet
+        `no associated label`: no gorups for dataset
+        `no description`: object has no description
+        `no label`: package with no organization
+        `page title`: "Title - [objec]s - CKAN" section of page title
+        `save label`: "Save [object]" button
+        `search placeholder`: "Search [object]s..." placeholder
+        `update label`: "Update [object]" button
+        `you not member`: Dashboard with no groups
+
     """
     if entity_type == object_type:
         return  # use the default text included in template
+
+    if (entity_type, object_type) == ("package", "dataset"):
+        # special case for the previous condition
+        return
 
     log.debug(
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
@@ -1091,6 +1127,7 @@ def humanize_entity_type(entity_type, object_type, purpose):
         u'form label': _(u"{object_type} Form"),
         u'main nav': _(u"{object_type}s"),
         u'my label': _(u"My {object_type}s"),
+        u'view label': _("View {object_type}"),
         u'name placeholder': _(u"My {object_type}"),
         u'no any objects': _(
             u"There are currently no {object_type}s for this site"),
