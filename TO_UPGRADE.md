@@ -38,3 +38,6 @@ in file add plugin to list
 ```
 
 ## remove repeating and composit plugins
+
+## turn off tracking in the config, it dosnt seem to work
+ckan.tracking_enabled = false
