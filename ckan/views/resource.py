@@ -52,7 +52,7 @@ def _read(context, data_dict):
     resource = data_dict.get('resource')
     resource_id = data_dict.get('resource_id')
     view_id = data_dict.get('view_id')
-    activity_id = package.get('activity_id', None)
+    activity_id = data_dict.get('activity_id', None)
     license_id = package.get(u'license_id')
 
     try:
