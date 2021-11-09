@@ -2669,3 +2669,15 @@ Example::
 Default value: ``None``
 
 This controls from which email the error messages will come from.
+
+email_log_level
+^^^^^^^^^^^^^^^
+
+Example::
+
+  email_log_level = 40
+
+Default value: ``40``
+
+This controls the level of the logs that should be sent as error messages to
+`email_to`. The values should be "Logging Levels" as defined in the [docs](https://docs.python.org/3/library/logging.html#levels).
