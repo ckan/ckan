@@ -11,7 +11,7 @@ from ckan.common import config as cfg
 from . import error_shout
 
 
-@click.group(short_help="Search, validate, describe config options")
+@click.group(short_help="Search, validate and describe config options on strict mode")
 def config():
     pass
 
@@ -21,12 +21,12 @@ def config():
 @click.option(
     "--core",
     is_flag=True,
-    help="add declaration of CKAN native config options",
+    help="Include declarations of CKAN core config options",
 )
 @click.option(
     "--enabled",
     is_flag=True,
-    help="add declaration of plugins enabled via CKAN config file",
+    help="Include declarations of plugins enabled in the CKAN config file",
 )
 @click.option(
     "-f",
@@ -34,9 +34,10 @@ def config():
     "fmt",
     type=click.Choice(["python", "yaml", "dict", "json", "toml"]),
     default="python",
+    help="Output the config declaration in this format",
 )
 def describe(plugins: Tuple[str, ...], core: bool, enabled: bool, fmt: str):
-    """Print out config declaration for the given plugins."""
+    """Print out config declarations for the given plugins."""
     decl = _declaration(plugins, core, enabled)
     if decl:
         click.echo(decl.describe(fmt))
@@ -47,24 +48,24 @@ def describe(plugins: Tuple[str, ...], core: bool, enabled: bool, fmt: str):
 @click.option(
     "--core",
     is_flag=True,
-    help="add declaration of CKAN native config options",
+    help="Include declarations of CKAN core config options",
 )
 @click.option(
     "--enabled",
     is_flag=True,
-    help="add declaration of plugins enabled via CKAN config file",
+    help="Include declarations of plugins enabled in the CKAN config file",
 )
 @click.option(
     "-q",
     "--no-comments",
     is_flag=True,
-    help="do not explain purpose of options",
+    help="Do not include comments",
 )
 @click.option(
     "-m",
     "--minimal",
     is_flag=True,
-    help="print only mandatory options",
+    help="Print only mandatory options",
 )
 def declaration(
     plugins: Tuple[str, ...],
@@ -127,7 +128,7 @@ def search(
 @config.command()
 @click.option("-i", "--include-plugin", "plugins", multiple=True)
 def undeclared(plugins: Tuple[str, ...]):
-    """Print config options that has no declaration.
+    """Print config options that have no declaration.
 
     This command includes options from the config file as well as options set
     in run-time, by IConfigurer, for example.
@@ -153,7 +154,7 @@ def undeclared(plugins: Tuple[str, ...]):
 @config.command()
 @click.option("-i", "--include-plugin", "plugins", multiple=True)
 def validate(plugins: Tuple[str, ...]):
-    """Validate global configuration object against declaration."""
+    """Validate the global configuration object against the config declaration."""
     decl = _declaration(plugins, True, True)
     _, errors = decl.validate(cfg)
 
