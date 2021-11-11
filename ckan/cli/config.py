@@ -154,7 +154,7 @@ def undeclared(plugins: Tuple[str, ...]):
 @config.command()
 @click.option("-i", "--include-plugin", "plugins", multiple=True)
 def validate(plugins: Tuple[str, ...]):
-    """Validate the global configuration object against the config declaration."""
+    """Validate the global configuration object against the declaration."""
     decl = _declaration(plugins, True, True)
     _, errors = decl.validate(cfg)
 
