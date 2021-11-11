@@ -9,7 +9,7 @@ import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 
-from ckan.common import _
+from ckan.common import _, aslist
 
 
 def convert_to_extras(key, data, errors, context):
@@ -183,6 +183,10 @@ def convert_to_json_if_string(value, context):
             raise df.Invalid(_('Could not parse as valid JSON'))
     else:
         return value
+
+
+def as_list(value):
+    return aslist(value)
 
 
 def convert_to_list_if_string(value, context=None):

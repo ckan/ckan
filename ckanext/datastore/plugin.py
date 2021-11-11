@@ -1,10 +1,11 @@
 # encoding: utf-8
 
 import logging
-
+import os
 import ckan.plugins as p
 import ckan.logic as logic
 from ckan.model.core import State
+from ckan.config.declaration import Declaration, Key
 
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.logic.action as action
@@ -21,6 +22,10 @@ import ckanext.datastore.blueprint as view
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
+_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "allowed_functions.txt"
+)
+
 DEFAULT_FORMATS = []
 
 ValidationError = p.toolkit.ValidationError
@@ -28,6 +33,7 @@ ValidationError = p.toolkit.ValidationError
 
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
+    p.implements(p.IConfigDeclaration)
     p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
@@ -67,7 +73,7 @@ class DatastorePlugin(p.SingletonPlugin):
         DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
-        templates_base = config.get('ckan.base_templates_folder')
+        templates_base = config.get_value('ckan.base_templates_folder')
 
         p.toolkit.add_template_directory(config, templates_base)
         self.backend = DatastoreBackend.get_active_backend()
@@ -77,6 +83,33 @@ class DatastorePlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
         self.backend.configure(config)
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        section = key.ckan.datastore
+
+        declaration.annotate("Datastore settings")
+        declaration.declare(
+            section.write_url,
+            "postgresql://ckan_default:pass@localhost/datastore_default"
+        ).required()
+        declaration.declare(
+            section.read_url,
+            "postgresql://datastore_default:pass@localhost/datastore_default"
+        ).required()
+
+        declaration.declare(
+            section.sqlsearch.allowed_functions_file,
+            _SQL_FUNCTIONS_ALLOWLIST_FILE)
+        declaration.declare_bool(section.sqlsearch.enabled, False)
+        declaration.declare_int(section.search.rows_default, 100)
+        declaration.declare_int(section.search.rows_max, 32000)
+        declaration.declare_dynamic(section.sqlalchemy.dynamic("OPTION"))
+
+        declaration.annotate("PostgreSQL' full-text search parameters")
+        declaration.declare(section.default_fts_lang, "english")
+        declaration.declare(section.default_fts_index_method, "gist")
 
     # IActions
 

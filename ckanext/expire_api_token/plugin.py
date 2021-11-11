@@ -4,15 +4,17 @@ from datetime import datetime, timedelta
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.api_token as api_token
+from ckan.config.declaration import Declaration, Key
 
 
 def default_token_lifetime():
-    return p.toolkit.config.get(u"expire_api_token.default_lifetime", 3600)
+    return p.toolkit.config.get_value(u"expire_api_token.default_lifetime")
 
 
 class ExpireApiTokenPlugin(p.SingletonPlugin):
     p.implements(p.IApiToken, inherit=True)
     p.implements(p.IConfigurer)
+    p.implements(p.IConfigDeclaration)
     p.implements(p.ITemplateHelpers)
 
     # IConfigurer
@@ -53,6 +55,13 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
             u"expire_api_token", {u"exp": expire_at.isoformat()}, True
         )
         return data
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        declaration.annotate("expire_api_token plugin")
+        key = key.expire_api_token.default_lifetime
+        declaration.declare_int(key, 3600)
 
     # TODO: subscribe to signal, sent from api_token.decode and remove
     # expired tokens
