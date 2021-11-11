@@ -117,7 +117,12 @@ the :py:class:`~ckan.plugins.interfaces.IValidators` interface.
           validators must be idempotent and that the efault value itself must be valid for
           the given set of validators.
 
-In addition, if you are going to declare a lot of options, you can declare all of them at once::
+If this is a mandatory option (ie users need to explicitly provide a value and can't
+rely on a default value)::
+
+    option.required()
+
+If you need to declare a lot of options, you can declare all of them at once loading a dict::
 
   declaration.load_dict(DICT_WITH_DECLARATIONS)
 
