@@ -1,0 +1,76 @@
+name: Pytest
+on: [pull_request]
+env:
+  PYTHON_VERSION: '3.7'
+  POSTGRES_USER: ckan_default
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    services:
+      ckan-postgres:
+        image: postgres:10
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --name ckan-postgres
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: ${{ env.POSTGRES_USER }}
+
+      ckan-redis:
+        image: redis
+        ports:
+          - 6379:6379
+      ckan-solr:
+        image: solr:8.0
+        ports:
+          - 8983:8983
+        options: --name ckan-solr
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install python deps
+        run: pip install -r requirement-setuptools.txt -r requirements.txt -r dev-requirements.txt -e.
+
+      - name: Init environment
+        run: |
+          docker exec ckan-solr solr create -c ckan
+          docker cp ckan/config/solr/schema.xml ckan-solr:/var/solr/data/ckan/conf/managed-schema
+          docker restart ckan-solr
+          sleep 5
+          echo Create test DB
+          docker exec ckan-postgres createdb -U ${{ env.POSTGRES_USER }} ckan_test
+
+          echo Create datastore users
+          docker exec ckan-postgres createuser -U ${{ env.POSTGRES_USER }} datastore_write
+          docker exec ckan-postgres createuser -U ${{ env.POSTGRES_USER }} datastore_read
+
+          echo Alter passwords
+          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_write WITH ENCRYPTED PASSWORD 'pass';"
+          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} -c "ALTER USER datastore_read WITH ENCRYPTED PASSWORD 'pass';"
+
+          echo Create datastore tables
+          docker exec ckan-postgres createdb -U ${{ env.POSTGRES_USER }} -O datastore_write datastore_test
+
+          echo Init DB
+          ckan -c test-core-circle-ci.ini db init
+
+          echo Init datastore
+          docker exec ckan-postgres psql -U ${{ env.POSTGRES_USER }} --dbname=datastore_test -c "CREATE extension tablefunc;"
+          ckan -c test-core-circle-ci.ini datastore set-permissions | docker exec -i ckan-postgres psql -U ${{ env.POSTGRES_USER }}
+
+      - name: Run Tests
+        run: |
+          python -m pytest -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext
+
+      - name: Coveralls
+        run: coveralls
