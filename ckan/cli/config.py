@@ -14,7 +14,12 @@ from . import error_shout
 @click.group(
     short_help="Search, validate and describe config options on strict mode")
 def config():
-    pass
+    mode = cfg.get_value("config.mode")
+    if mode != "strict":
+        error_shout(
+            "`config.mode = strict` is required to use the declarative"
+            " config features")
+        raise click.Abort()
 
 
 @config.command()
