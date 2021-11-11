@@ -35,7 +35,6 @@ from ckan.config.middleware.common_middleware import (TrackingMiddleware,
                                                       HostHeaderMiddleware)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
-import ckan.plugins.toolkit as toolkit
 from ckan.lib.webassets_tools import get_webassets_path
 
 from ckan.plugins import PluginImplementations
@@ -131,9 +130,9 @@ def make_flask_stack(conf):
         storage_folder = [os.path.join(storage, 'storage')]
 
     # Static files folders (core and extensions)
-    public_folder = config.get(u'ckan.base_public_folder')
-    app.static_folder = config.get(
-        'extra_public_paths', ''
+    public_folder = config.get_value(u'ckan.base_public_folder')
+    app.static_folder = config.get_value(
+        'extra_public_paths'
     ).split(',') + [os.path.join(root, public_folder)] + storage_folder
 
     app.jinja_options = jinja_extensions.get_jinja_env_options()
@@ -156,12 +155,12 @@ def make_flask_stack(conf):
 
     # Secret key needed for flask-debug-toolbar and sessions
     if not app.config.get('SECRET_KEY'):
-        app.config['SECRET_KEY'] = config.get('beaker.session.secret')
+        app.config['SECRET_KEY'] = config.get_value('beaker.session.secret')
     if not app.config.get('SECRET_KEY'):
         raise RuntimeError(u'You must provide a value for the secret key'
                            ' with the SECRET_KEY config option')
 
-    root_path = config.get('ckan.root_path', None)
+    root_path = config.get_value('ckan.root_path')
     if debug:
         from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
@@ -309,7 +308,7 @@ def make_flask_stack(conf):
 
     app = I18nMiddleware(app)
 
-    if asbool(config.get('ckan.tracking_enabled', 'false')):
+    if config.get_value('ckan.tracking_enabled'):
         app = TrackingMiddleware(app, config)
 
     # Add a reference to the actual Flask app so it's easier to access
@@ -326,7 +325,7 @@ def get_locale():
     '''
     return request.environ.get(
         u'CKAN_LANG',
-        config.get(u'ckan.locale_default', u'en'))
+        config.get_value(u'ckan.locale_default'))
 
 
 def ckan_before_request():
@@ -501,7 +500,7 @@ def _register_error_handler(app):
     u'''Register error handler'''
 
     def error_handler(e):
-        debug = asbool(config.get('debug', config.get('DEBUG', False)))
+        debug = config.get_value('debug')
         if isinstance(e, HTTPException):
             log.debug(e, exc_info=sys.exc_info) if debug else log.info(e)
             extra_vars = {
@@ -520,7 +519,7 @@ def _register_error_handler(app):
         app.register_error_handler(code, error_handler)
     if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
-        if config.get('email_to'):
+        if config.get_value('email_to'):
             _setup_error_mail_handler(app)
 
 
@@ -534,17 +533,20 @@ def _setup_error_mail_handler(app):
             log_record.headers = request.headers
             return True
 
-    smtp_server = config.get('smtp.server', 'localhost')
+    smtp_server = config.get_value('smtp.server')
     mailhost = tuple(smtp_server.split(':')) \
         if ':' in smtp_server else smtp_server
     credentials = None
-    if config.get('smtp.user'):
-        credentials = (config.get('smtp.user'), config.get('smtp.password'))
-    secure = () if asbool(config.get('smtp.starttls')) else None
+    if config.get_value('smtp.user'):
+        credentials = (
+            config.get_value('smtp.user'),
+            config.get_value('smtp.password')
+        )
+    secure = () if config.get_value('smtp.starttls') else None
     mail_handler = SMTPHandler(
         mailhost=mailhost,
-        fromaddr=config.get('error_email_from'),
-        toaddrs=[config.get('email_to')],
+        fromaddr=config.get_value('error_email_from'),
+        toaddrs=[config.get_value('email_to')],
         subject='Application Error',
         credentials=credentials,
         secure=secure
@@ -565,9 +567,7 @@ Headers:            %(headers)s
 
 
 def _setup_webassets(app):
-    app.use_x_sendfile = toolkit.asbool(
-        config.get('ckan.webassets.use_x_sendfile')
-    )
+    app.use_x_sendfile = config.get_value('ckan.webassets.use_x_sendfile')
 
     webassets_folder = get_webassets_path()
 

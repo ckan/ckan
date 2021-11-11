@@ -36,8 +36,8 @@ def _mail_recipient(recipient_name, recipient_email,
     if not headers:
         headers = {}
 
-    mail_from = config.get('smtp.mail_from')
-    reply_to = config.get('smtp.reply_to')
+    mail_from = config.get_value('smtp.mail_from')
+    reply_to = config.get_value('smtp.reply_to')
     if body_html:
         # multipart
         msg = MIMEMultipart('alternative')
@@ -63,19 +63,10 @@ def _mail_recipient(recipient_name, recipient_email,
         msg['Reply-to'] = reply_to
 
     # Send the email using Python's smtplib.
-    if 'smtp.test_server' in config:
-        # If 'smtp.test_server' is configured we assume we're running tests,
-        # and don't use the smtp.server, starttls, user, password etc. options.
-        smtp_server = config['smtp.test_server']
-        smtp_starttls = False
-        smtp_user = None
-        smtp_password = None
-    else:
-        smtp_server = config.get('smtp.server', 'localhost')
-        smtp_starttls = ckan.common.asbool(
-            config.get('smtp.starttls'))
-        smtp_user = config.get('smtp.user')
-        smtp_password = config.get('smtp.password')
+    smtp_server = config.get_value('smtp.server')
+    smtp_starttls = config.get_value('smtp.starttls')
+    smtp_user = config.get_value('smtp.user')
+    smtp_password = config.get_value('smtp.password')
 
     try:
         smtp_connection = smtplib.SMTP(smtp_server)
@@ -118,8 +109,8 @@ def _mail_recipient(recipient_name, recipient_email,
 def mail_recipient(recipient_name, recipient_email, subject,
                    body, body_html=None, headers={}):
     '''Sends an email'''
-    site_title = config.get('ckan.site_title')
-    site_url = config.get('ckan.site_url')
+    site_title = config.get_value('ckan.site_title')
+    site_url = config.get_value('ckan.site_url')
     return _mail_recipient(recipient_name, recipient_email,
                            site_title, site_url, subject, body,
                            body_html=body_html, headers=headers)
@@ -136,8 +127,8 @@ def mail_user(recipient, subject, body, body_html=None, headers={}):
 def get_reset_link_body(user):
     extra_vars = {
         'reset_link': get_reset_link(user),
-        'site_title': config.get('ckan.site_title'),
-        'site_url': config.get('ckan.site_url'),
+        'site_title': config.get_value('ckan.site_title'),
+        'site_url': config.get_value('ckan.site_url'),
         'user_name': user.name,
     }
     # NOTE: This template is translated
@@ -151,8 +142,8 @@ def get_invite_body(user, group_dict=None, role=None):
 
     extra_vars = {
         'reset_link': get_reset_link(user),
-        'site_title': config.get('ckan.site_title'),
-        'site_url': config.get('ckan.site_url'),
+        'site_title': config.get_value('ckan.site_title'),
+        'site_url': config.get_value('ckan.site_url'),
         'user_name': user.name,
     }
     if role:
@@ -176,7 +167,7 @@ def send_reset_link(user):
     create_reset_key(user)
     body = get_reset_link_body(user)
     extra_vars = {
-        'site_title': config.get('ckan.site_title')
+        'site_title': config.get_value('ckan.site_title')
     }
     subject = render('emails/reset_password_subject.txt', extra_vars)
 
@@ -190,7 +181,7 @@ def send_invite(user, group_dict=None, role=None):
     create_reset_key(user)
     body = get_invite_body(user, group_dict, role)
     extra_vars = {
-        'site_title': config.get('ckan.site_title')
+        'site_title': config.get_value('ckan.site_title')
     }
     subject = render('emails/invite_user_subject.txt', extra_vars)
 

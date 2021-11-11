@@ -12,21 +12,22 @@ import ckan.cli as ckan_cli
 from ckan.config.middleware import make_app
 from ckan.exceptions import CkanConfigurationException
 from ckan.cli import (
-    config_tool,
-    jobs,
-    db, search_index, server,
-    profile,
     asset,
-    sysadmin,
-    translation,
+    config,
     dataset,
-    views,
-    plugin_info,
-    notify,
-    tracking,
-    sass,
+    db, search_index, server,
     generate,
-    user
+    jobs,
+    notify,
+    plugin_info,
+    profile,
+    sass,
+    sysadmin,
+    tracking,
+    translation,
+    user,
+    views,
+    config_tool,
 )
 
 META_ATTR = u'_ckan_meta'
@@ -201,20 +202,21 @@ def ckan():
     pass
 
 
-ckan.add_command(jobs.jobs)
-ckan.add_command(config_tool.config_tool)
-ckan.add_command(server.run)
-ckan.add_command(profile.profile)
-ckan.add_command(db.db)
-ckan.add_command(search_index.search_index)
-ckan.add_command(sysadmin.sysadmin)
 ckan.add_command(asset.asset)
-ckan.add_command(translation.translation)
+ckan.add_command(config.config)
+ckan.add_command(config_tool.config_tool)
 ckan.add_command(dataset.dataset)
-ckan.add_command(views.views)
-ckan.add_command(plugin_info.plugin_info)
-ckan.add_command(notify.notify)
-ckan.add_command(tracking.tracking)
-ckan.add_command(sass.sass)
+ckan.add_command(db.db)
 ckan.add_command(generate.generate)
+ckan.add_command(jobs.jobs)
+ckan.add_command(notify.notify)
+ckan.add_command(plugin_info.plugin_info)
+ckan.add_command(profile.profile)
+ckan.add_command(sass.sass)
+ckan.add_command(search_index.search_index)
+ckan.add_command(server.run)
+ckan.add_command(sysadmin.sysadmin)
+ckan.add_command(tracking.tracking)
+ckan.add_command(translation.translation)
 ckan.add_command(user.user)
+ckan.add_command(views.views)
