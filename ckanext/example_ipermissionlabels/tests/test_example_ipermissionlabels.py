@@ -24,10 +24,10 @@ class TestExampleIPermissionLabels(object):
             user=user2, users=[{u"name": user3["id"], u"capacity": u"member"}]
         )
 
-        dataset = factories.Dataset(
+        factories.Dataset(
             name=u"d1", user=user, private=True, owner_org=org["id"]
         )
-        dataset2 = factories.Dataset(
+        factories.Dataset(
             name=u"d2", user=user2, private=True, owner_org=org2["id"]
         )
 
@@ -45,7 +45,7 @@ class TestExampleIPermissionLabels(object):
 
     def test_proposed_overrides_public(self):
         user = factories.User()
-        dataset = factories.Dataset(name=u"d1", notes=u"Proposed:", user=user)
+        factories.Dataset(name=u"d1", notes=u"Proposed:", user=user)
 
         results = get_action(u"package_search")(
             {u"user": u""}, {u"include_private": True}
@@ -60,7 +60,7 @@ class TestExampleIPermissionLabels(object):
 
     def test_proposed_dataset_visible_to_creator(self):
         user = factories.User()
-        dataset = factories.Dataset(name=u"d1", notes=u"Proposed:", user=user)
+        factories.Dataset(name=u"d1", notes=u"Proposed:", user=user)
 
         results = get_action(u"package_search")(
             {u"user": user["name"]}, {u"include_private": True}
@@ -79,7 +79,7 @@ class TestExampleIPermissionLabels(object):
         org = factories.Organization(
             user=user2, users=[{u"name": user["id"], u"capacity": u"editor"}]
         )
-        dataset = factories.Dataset(
+        factories.Dataset(
             name=u"d1", notes=u"Proposed:", user=user, owner_org=org["id"]
         )
 
@@ -102,7 +102,7 @@ class TestExampleIPermissionLabels(object):
         org = factories.Organization(
             user=user2, users=[{u"name": user["id"], u"capacity": u"editor"}]
         )
-        dataset = factories.Dataset(
+        factories.Dataset(
             name=u"d1", notes=u"Proposed:", user=user2, owner_org=org["id"]
         )
 

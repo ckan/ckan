@@ -2,7 +2,6 @@
 
 import os
 import sys
-import re
 import time
 import inspect
 import itertools
@@ -396,7 +395,7 @@ def c_object():
     return dict(c=g)
 
 
-class CKAN_Rule(Rule):
+class CKAN_Rule(Rule):  # noqa
 
     u'''Custom Flask url_rule_class.
 
@@ -408,7 +407,7 @@ class CKAN_Rule(Rule):
         super(CKAN_Rule, self).__init__(*args, **kwargs)
 
 
-class CKAN_AppCtxGlobals(_AppCtxGlobals):
+class CKAN_AppCtxGlobals(_AppCtxGlobals):  # noqa
 
     '''Custom Flask AppCtxGlobal class (flask.g).'''
 

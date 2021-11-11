@@ -21,4 +21,4 @@ class TestExampleHumanizer(object):
         resp = app.get(url, extra_environ=env)
         page = bs4.BeautifulSoup(resp.body)
         assert page.select_one(u'.toolbar .active').text == breadcrumb
-        btn = page.select_one(u'.page_primary_action').text.strip() == button
+        page.select_one(u'.page_primary_action').text.strip() == button
