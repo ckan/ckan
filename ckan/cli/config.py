@@ -89,7 +89,9 @@ def declaration(
 
 @config.command()
 @click.argument("pattern", default="*")
-@click.option("-i", "--include-plugin", "plugins", multiple=True)
+@click.option(
+    "-i", "--include-plugin", "plugins", multiple=True,
+    help="Include this plugin even if disabled")
 @click.option("--with-default", is_flag=True)
 @click.option("--with-current", is_flag=True)
 @click.option("--custom-only", is_flag=True)
@@ -132,7 +134,9 @@ def search(
 
 
 @config.command()
-@click.option("-i", "--include-plugin", "plugins", multiple=True)
+@click.option(
+    "-i", "--include-plugin", "plugins", multiple=True,
+    help="Include this plugin even if disabled")
 def undeclared(plugins: Tuple[str, ...]):
     """Print config options that have no declaration.
 
@@ -158,7 +162,9 @@ def undeclared(plugins: Tuple[str, ...]):
 
 
 @config.command()
-@click.option("-i", "--include-plugin", "plugins", multiple=True)
+@click.option(
+    "-i", "--include-plugin", "plugins", multiple=True,
+    help="Include this plugin even if disabled")
 def validate(plugins: Tuple[str, ...]):
     """Validate the global configuration object against the declaration."""
     decl = _declaration(plugins, True, True)
