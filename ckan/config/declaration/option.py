@@ -103,15 +103,19 @@ class Option(Generic[T]):
 
     def ignore(self):
         self._set_flag(Flag.ignored)
+        return self
 
     def experimental(self):
         self._set_flag(Flag.experimental)
+        return self
 
     def internal(self):
         self._set_flag(Flag.internal)
+        return self
 
     def required(self):
         self._set_flag(Flag.required)
+        return self
 
     def _normalize(self, value: Any):
         from ckan.lib.navl.dictization_functions import validate
