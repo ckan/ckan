@@ -11,7 +11,8 @@ from ckan.common import config as cfg
 from . import error_shout
 
 
-@click.group(short_help="Search, validate and describe config options on strict mode")
+@click.group(
+    short_help="Search, validate and describe config options on strict mode")
 def config():
     pass
 
