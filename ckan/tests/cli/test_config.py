@@ -16,6 +16,7 @@ def command(cli):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
+@pytest.mark.ckan_config("config.mode", "strict")
 class TestDescribe(object):
     def test_basic_invocation(self, command):
         """Command prints nothing without arguments;"""
@@ -95,6 +96,7 @@ class TestDescribe(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
+@pytest.mark.ckan_config("config.mode", "strict")
 class TestDeclaration(object):
     def test_basic_invocation(self, command):
         result = command("declaration")
@@ -131,6 +133,7 @@ class TestDeclaration(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
+@pytest.mark.ckan_config("config.mode", "strict")
 class TestSearch(object):
     def test_wrong_non_pattern(self, command):
         result = command("search", "ckan")
@@ -177,6 +180,7 @@ class TestSearch(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
+@pytest.mark.ckan_config("config.mode", "strict")
 class TestUndeclared(object):
     def test_no_undeclared_options_by_default(self, command):
         result = command("undeclared", "-idatapusher", "-idatastore")
@@ -208,21 +212,21 @@ class TestUndeclared(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
+@pytest.mark.ckan_config("config.mode", "strict")
 class TestValidate(object):
-    @pytest.mark.ckan_config("config.mode", "strict")
     def test_no_errors_by_default_in_safe_mofe(self, command):
         result = command("validate")
         assert not result.output
         assert not result.exit_code, result.output
 
-    @pytest.mark.ckan_config("ckan.redis.url", "")
-    def test_report_missing_redis(self, command):
+    @pytest.mark.ckan_config("beaker.session.secret", "")
+    def test_report_missing_use(self, command, capsys):
         result = command("validate")
-        assert "ckan.redis.url" in result.output, result.output
-        assert not result.exit_code, result.output
+        assert result.exit_code, result
+        assert "beaker.session.secret" in result.exception.args[0]
 
     @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")
     def test_invalid_port(self, command):
         result = command("validate")
-        assert "ckan.devserver.port" in result.output
-        assert not result.exit_code, result.output
+        assert result.exit_code, result.stdout
+        assert "ckan.devserver.port" in result.exception.args[0]
