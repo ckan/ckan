@@ -76,10 +76,6 @@ class _Toolkit(object):
         'StopOnError',
         # validation invalid exception
         'Invalid',
-        # old class for providing CLI interfaces
-        'CkanCommand',
-        # function for initializing CLI interfaces
-        'load_config',
         # function to promt the exception in CLI command
         'error_shout',
         # base class for IDatasetForm plugins
@@ -88,10 +84,6 @@ class _Toolkit(object):
         'DefaultGroupForm',
         # base class for IGroupForm plugins for orgs
         'DefaultOrganizationForm',
-        # response object for cookies etc
-        'response',
-        # Allow controllers to be created
-        'BaseController',
         # abort actions
         'abort',
         # allow redirections
