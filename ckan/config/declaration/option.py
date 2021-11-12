@@ -58,6 +58,9 @@ class Option(Generic[T]):
         self.default = default
 
     def __str__(self):
+        as_list = "as_list" in self.get_validators()
+        if isinstance(self.default, list) and as_list:
+            return " ".join(self.default)
         return str(self.default)
 
     def _unset_flag(self, flag: Flag):
