@@ -6,9 +6,8 @@ import smtplib
 import socket
 import logging
 from time import time
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.header import Header
+
+from email.message import EmailMessage
 from email import utils
 
 from ckan.common import config
@@ -38,22 +37,20 @@ def _mail_recipient(recipient_name, recipient_email,
 
     mail_from = config.get_value('smtp.mail_from')
     reply_to = config.get_value('smtp.reply_to')
+
+    msg = EmailMessage()
+
+    msg.set_content(body, cte='base64')
+
     if body_html:
-        # multipart
-        msg = MIMEMultipart('alternative')
-        part1 = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
-        part2 = MIMEText(body_html.encode('utf-8'), 'html', 'utf-8')
-        msg.attach(part1)
-        msg.attach(part2)
-    else:
-        # just plain text
-        msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
+        msg.add_alternative(body_html, subtype='html', cte='base64')
+
     for k, v in headers.items():
         if k in msg.keys():
             msg.replace_header(k, v)
         else:
             msg.add_header(k, v)
-    subject = Header(subject.encode('utf-8'), 'utf-8')
+
     msg['Subject'] = subject
     msg['From'] = _("%s <%s>") % (sender_name, mail_from)
     msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
