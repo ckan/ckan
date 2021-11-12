@@ -10,14 +10,6 @@ import ckan.plugins as p
 import ckan.model as model
 
 log = logging.getLogger(__name__)
-cache_enabled = p.toolkit.asbool(
-    config.get("ckanext.stats.cache_enabled", False)
-)
-
-if cache_enabled:
-    log.warn(
-        "ckanext.stats does not support caching in current implementations"
-    )
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -240,14 +232,7 @@ class Stats(object):
                 weekly_pkg_ids.append(build_weekly_stats(week_commences, []))
             return weekly_pkg_ids
 
-        if cache_enabled:
-            log.warn(
-                "ckanext.stats does not support caching in current\
-                     implementations"
-            )
-        else:
-            objects_by_week_ = objects_by_week()
-        return objects_by_week_
+        return objects_by_week()
 
     @classmethod
     def get_new_packages(cls):
@@ -279,14 +264,7 @@ class Stats(object):
                 res_pickleable.append((pkg_id, created_datetime.toordinal()))
             return res_pickleable
 
-        if cache_enabled:
-            log.warn(
-                "ckanext.stats does not support caching in current\
-                     implementations"
-            )
-        else:
-            new_packages = new_packages()
-        return new_packages
+        return new_packages()
 
     @classmethod
     def get_date_week_started(cls, date_):
@@ -384,14 +362,7 @@ class Stats(object):
             assert deleted_package_week_index == len(deleted_packages_by_week)
             return weekly_numbers
 
-        if cache_enabled:
-            log.warn(
-                "ckanext.stats does not support caching in current\
-                     implementations"
-            )
-        else:
-            num_packages = num_packages()
-        return num_packages
+        return num_packages()
 
     @classmethod
     def get_deleted_packages(cls):
@@ -425,11 +396,4 @@ class Stats(object):
                 res_pickleable.append((pkg_id, deleted_datetime.toordinal()))
             return res_pickleable
 
-        if cache_enabled:
-            log.warn(
-                "ckanext.stats does not support caching in current\
-                     implementations"
-            )
-        else:
-            deleted_packages = deleted_packages()
-        return deleted_packages
+        return deleted_packages()

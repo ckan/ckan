@@ -68,7 +68,7 @@ class TestInterace(object):
         context.pop("task_status", None)
 
         with pytest.raises(p.toolkit.ObjectNotFound):
-            task = p.toolkit.get_action("task_status_show")(
+            p.toolkit.get_action("task_status_show")(
                 context,
                 {
                     "entity_id": resource["id"],

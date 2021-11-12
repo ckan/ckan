@@ -138,7 +138,8 @@ def datastore_create(context, data_dict):
 
         # create empty resource
         else:
-            # no need to set the full url because it will be set in before_show
+            # no need to set the full url because it will be set
+            # in before_resource_show
             resource_dict['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, resource_dict)
     else:
@@ -655,7 +656,7 @@ def set_datastore_active_flag(model, data_dict, flag):
         'q': 'id:"{0}"'.format(package_id),
         'fl': 'data_dict',
         'wt': 'json',
-        'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+        'fq': 'site_id:"%s"' % config.get_value('ckan.site_id'),
         'rows': 1
     }
     for record in solr_query.run(q)['results']:

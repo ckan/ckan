@@ -33,7 +33,7 @@ def test_readonly_is_get_able_with_normal_url_params(app):
     populated from the url parameters.
     """
     params = {"q": "russian"}
-    resp = app.get(
+    app.get(
         url_for("api.action", logic_function="package_search", ver=3),
         params=params,
         status=200,
@@ -180,7 +180,7 @@ class TestApiController(object):
         )
 
     def test_group_autocomplete_by_name(self, app):
-        org = factories.Group(name="rivers", title="Bridges")
+        factories.Group(name="rivers", title="Bridges")
         url = url_for("api.group_autocomplete", ver=2)
         assert url == "/api/2/util/group/autocomplete"
 
@@ -196,7 +196,7 @@ class TestApiController(object):
         )
 
     def test_group_autocomplete_by_title(self, app):
-        org = factories.Group(name="frogs", title="Bugs")
+        factories.Group(name="frogs", title="Bugs")
         url = url_for("api.group_autocomplete", ver=2)
 
         response = app.get(url=url, query_string={"q": u"bug"}, status=200)
@@ -222,7 +222,7 @@ class TestApiController(object):
         )
 
     def test_organization_autocomplete_by_title(self, app):
-        org = factories.Organization(title="Simple dummy org")
+        factories.Organization(title="Simple dummy org")
         url = url_for("api.organization_autocomplete", ver=2)
 
         response = app.get(

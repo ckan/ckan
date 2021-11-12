@@ -42,10 +42,11 @@ def test_request_signals(app):
 
 @pytest.mark.usefixtures(u"clean_db", u"with_request_context")
 class TestUserSignals:
-    def test_user_created(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_user_created(self):
         created = mock.Mock()
         with tk.signals.user_created.connected_to(created):
-            user = factories.User()
+            factories.User()
             assert created.call_count == 1
 
     def test_password_reset(self, app, monkeypatch):

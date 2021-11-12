@@ -25,7 +25,7 @@ def validator_errors_dict():
     return {("other key",): ["other error"]}
 
 
-def returns_None(function):
+def returns_none(function):
     """A decorator that asserts that the decorated function returns None.
 
     :param function: the function to decorate
@@ -57,7 +57,7 @@ def returns_None(function):
     return call_and_assert
 
 
-def raises_StopOnError(function):
+def raises_stoponerror(function):
     """A decorator that asserts that the decorated function raises
     dictization_functions.StopOnError.
 
@@ -290,7 +290,7 @@ class TestValidators(object):
             @does_not_modify_other_keys_in_data_dict
             @does_not_modify_errors_dict
             @removes_key_from_data_dict
-            @raises_StopOnError
+            @raises_stoponerror
             def call_validator(*args, **kwargs):
                 return validators.ignore_missing(*args, **kwargs)
 
@@ -307,7 +307,7 @@ class TestValidators(object):
         errors = validator_errors_dict()
         errors[key] = []
 
-        @returns_None
+        @returns_none
         @does_not_modify_data_dict
         @does_not_modify_errors_dict
         def call_validator(*args, **kwargs):

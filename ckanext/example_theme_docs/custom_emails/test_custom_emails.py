@@ -35,7 +35,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         msgs = mail_server.get_smtp_messages()
         assert len(msgs) == 1
         msg = msgs[0]
-        extra_vars = {"site_title": config.get("ckan.site_title")}
+        extra_vars = {"site_title": config.get_value("ckan.site_title")}
         expected = render(
             "emails/reset_password_subject.txt", extra_vars
         )
@@ -72,7 +72,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         assert len(msgs) == 1
         msg = msgs[0]
         extra_vars = {
-            "site_title": config.get("ckan.site_title"),
+            "site_title": config.get_value("ckan.site_title"),
         }
         expected = render("emails/invite_user_subject.txt", extra_vars)
         expected = expected.split("\n")[0]
@@ -94,7 +94,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         extra_vars = {
             "reset_link": mailer.get_reset_link(user_obj),
             "user_name": user["name"],
-            "site_title": config.get("ckan.site_title"),
+            "site_title": config.get_value("ckan.site_title"),
         }
         expected = render("emails/invite_user.txt", extra_vars)
         body = self.get_email_body(msg[3]).decode()

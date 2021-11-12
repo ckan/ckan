@@ -12,8 +12,9 @@ import ckanext.datastore.backend as backend
 import ckanext.datastore.backend.postgres as db
 
 
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins")
 class TestCreateIndexes(object):
-    @pytest.mark.ckan_config("ckan.datastore.default_fts_index_method", None)
     def test_creates_fts_index_using_gist_by_default(self):
         connection = mock.MagicMock()
         context = {"connection": connection}
@@ -39,7 +40,6 @@ class TestCreateIndexes(object):
             "_full_text", connection, resource_id, method="gin"
         )
 
-    @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", None)
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_fts_index_on_all_fields_except_dates_nested_and_arrays_with_english_as_default(
         self, _get_fields
