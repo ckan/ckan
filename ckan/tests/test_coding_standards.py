@@ -257,22 +257,6 @@ def test_building_the_docs():
     # Some warnings have been around for a long time and aren't easy to fix.
     # These are allowed, but no more should be added.
     allowed_warnings = [
-        u"WARNING: duplicate label ckan.auth.create_user_via_web",
-        u"WARNING: duplicate label ckan.auth.create_unowned_dataset",
-        u"WARNING: duplicate label ckan.auth.user_create_groups",
-        u"WARNING: duplicate label ckan.auth.anon_create_dataset",
-        u"WARNING: duplicate label ckan.auth.user_delete_organizations",
-        u"WARNING: duplicate label ckan.auth.create_user_via_api",
-        u"WARNING: duplicate label ckan.auth.create_dataset_if_not_in_organization",
-        u"WARNING: duplicate label ckan.auth.user_delete_groups",
-        u"WARNING: duplicate label ckan.auth.user_create_organizations",
-        u"WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups",
-        u"WARNING: duplicate label ckan.auth.public_user_details",
-        u"WARNING: duplicate label ckan.auth.public_activity_stream_detail",
-        u"WARNING: duplicate label ckan.auth.allow_dataset_collaborators",
-        u"WARNING: duplicate label ckan.auth.allow_admin_collaborators",
-        u"WARNING: duplicate label ckan.auth.allow_collaborators_to_change_owner_org",
-        u"WARNING: duplicate label ckan.auth.create_default_api_keys",
     ]
 
     # Remove the allowed warnings from the list of collected warnings.

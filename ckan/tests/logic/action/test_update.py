@@ -758,6 +758,7 @@ class TestSendEmailNotifications(object):
         assert len(messages) == 0
 
 
+@pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceViewUpdate(object):

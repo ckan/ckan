@@ -45,7 +45,6 @@ def pytest_runtestloop(session):
     interpreter visits their files.
 
     Make sure only configured plugins are active when test loop starts.
-
     """
     plugins.load_all()
 

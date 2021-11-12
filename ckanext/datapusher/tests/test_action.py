@@ -44,10 +44,8 @@ class TestSubmit:
 
         func.assert_called()
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
     def test_submit_when_url_changes(self, monkeypatch):
-        """Auto-submit when URL changes from unsupported to supported one.
-
-        """
         dataset = factories.Dataset()
         func = mock.Mock()
         monkeypatch.setitem(_actions, 'datapusher_submit', func)
