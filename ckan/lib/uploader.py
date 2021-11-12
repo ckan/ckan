@@ -13,7 +13,7 @@ from werkzeug.datastructures import FileStorage as FlaskFileStorage
 import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
-from ckan.common import config, aslist
+from ckan.common import config
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
 MB = 1 << 20
