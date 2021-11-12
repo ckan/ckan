@@ -41,7 +41,7 @@ class TestMailer(MailerBase):
             "recipient_name": "Bob",
             "recipient_email": user["email"],
             "subject": "Meeting",
-            "body": "The meeting is cancelled.",
+            "body": "The meeting is cancelled.\n",
             "headers": {"header1": "value1"},
         }
         mailer.mail_recipient(**test_email)
@@ -72,8 +72,8 @@ class TestMailer(MailerBase):
             "recipient_name": "Bob",
             "recipient_email": user["email"],
             "subject": "Meeting",
-            "body": "The meeting is cancelled.",
-            "body_html": "The <a href=\"meeting\">meeting</a> is cancelled.",
+            "body": "The meeting is cancelled.\n",
+            "body_html": "The <a href=\"meeting\">meeting</a> is cancelled.\n",
             "headers": {"header1": "value1"},
         }
         mailer.mail_recipient(**test_email)
@@ -87,7 +87,7 @@ class TestMailer(MailerBase):
         assert list(test_email["headers"].keys())[0] in msg[3], msg[3]
         assert list(test_email["headers"].values())[0] in msg[3], msg[3]
         assert test_email["subject"] in msg[3], msg[3]
-        assert msg[3].startswith('Content-Type: multipart'), msg[3]
+        assert 'Content-Type: multipart' in msg[3]
         expected_plain_body = self.mime_encode(
             test_email["body"], test_email["recipient_name"],
             subtype='plain'
@@ -111,7 +111,7 @@ class TestMailer(MailerBase):
         test_email = {
             "recipient": user_obj,
             "subject": "Meeting",
-            "body": "The meeting is cancelled.",
+            "body": "The meeting is cancelled.\n",
             "headers": {"header1": "value1"},
         }
         mailer.mail_user(**test_email)
@@ -185,7 +185,7 @@ class TestMailer(MailerBase):
         assert msg[2] == [user["email"]]
         assert "Reset" in msg[3], msg[3]
         test_msg = mailer.get_reset_link_body(user_obj)
-        expected_body = self.mime_encode(test_msg, user["name"])
+        expected_body = self.mime_encode(test_msg + '\n', user["name"])
 
         assert expected_body in msg[3]
 
@@ -204,7 +204,7 @@ class TestMailer(MailerBase):
         assert msg[1] == config["smtp.mail_from"]
         assert msg[2] == [user["email"]]
         test_msg = mailer.get_invite_body(user_obj)
-        expected_body = self.mime_encode(test_msg, user["name"])
+        expected_body = self.mime_encode(test_msg + '\n', user["name"])
 
         assert expected_body in msg[3]
         assert user_obj.reset_key is not None, user
