@@ -158,6 +158,9 @@ groups:
 
   - annotation: Session settings
     options:
+      - key: ckan.user.last_active_interval
+        type: int
+        default: 600
       - key: cache_dir
         placeholder: "/tmp/%(ckan.site_id)s"
       - key: beaker.session.key
@@ -284,12 +287,6 @@ groups:
         type: bool
       - key: ckan.auth.create_default_api_keys
         type: bool
-
-  - annotation: User last active interval
-    options:
-      - key: ckan.user.last_active_interval
-      - type: int
-      - default: 600
 
   - annotation: API Token Settings
     options:
