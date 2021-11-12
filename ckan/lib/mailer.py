@@ -30,10 +30,14 @@ class MailerException(Exception):
 
 def _mail_recipient(recipient_name, recipient_email,
                     sender_name, sender_url, subject,
-                    body, body_html=None, headers=None):
+                    body, body_html=None, headers=None,
+                    attachments=None):
 
     if not headers:
         headers = {}
+
+    if not attachments:
+        attachments = []
 
     mail_from = config.get_value('smtp.mail_from')
     reply_to = config.get_value('smtp.reply_to')
@@ -58,6 +62,14 @@ def _mail_recipient(recipient_name, recipient_email,
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
     if reply_to and reply_to != '':
         msg['Reply-to'] = reply_to
+
+    for attachment in attachments:
+        name, _file, media_type = attachment
+        if media_type:
+            main_type, sub_type = media_type.split('/')
+
+        msg.add_attachment(
+            _file.read(), filename=name, maintype=main_type, subtype=sub_type)
 
     # Send the email using Python's smtplib.
     smtp_server = config.get_value('smtp.server')
@@ -103,22 +115,27 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_connection.quit()
 
 
-def mail_recipient(recipient_name, recipient_email, subject,
-                   body, body_html=None, headers={}):
+def mail_recipient(
+        recipient_name, recipient_email, subject, body,
+        body_html=None, headers=None, attachments=None):
     '''Sends an email'''
     site_title = config.get_value('ckan.site_title')
     site_url = config.get_value('ckan.site_url')
-    return _mail_recipient(recipient_name, recipient_email,
-                           site_title, site_url, subject, body,
-                           body_html=body_html, headers=headers)
+    return _mail_recipient(
+        recipient_name, recipient_email,
+        site_title, site_url, subject, body,
+        body_html=body_html, headers=headers, attachments=attachments)
 
 
-def mail_user(recipient, subject, body, body_html=None, headers={}):
+def mail_user(
+        recipient, subject, body,
+        body_html=None, headers=None, attachments=None):
     '''Sends an email to a CKAN user'''
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
-    mail_recipient(recipient.display_name, recipient.email, subject,
-                   body, body_html=body_html, headers=headers)
+    mail_recipient(
+        recipient.display_name, recipient.email, subject,
+        body, body_html=body_html, headers=headers, attachments=attachments)
 
 
 def get_reset_link_body(user):
