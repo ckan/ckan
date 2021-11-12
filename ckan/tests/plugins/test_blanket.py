@@ -8,6 +8,7 @@ from ckan.cli.cli import ckan as ckan_command
 from ckan.logic import get_action, get_validator, UnknownValidator
 from ckan.lib.helpers import helper_functions as h
 
+
 @pytest.mark.usefixtures(u"with_plugins", u"with_extended_cli")
 class TestBlanketImplementation(object):
     @pytest.fixture(autouse=True)

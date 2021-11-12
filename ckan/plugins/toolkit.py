@@ -14,7 +14,7 @@ import ckan  # noqa: re-export
 import ckan.lib.base as base  # noqa: re-export
 from ckan.lib.base import render, abort  # noqa: re-export
 
-from ckan.logic import (
+from ckan.logic import (  # noqa: re-export
     get_action,
     check_access,
     get_validator,
@@ -29,29 +29,29 @@ from ckan.logic import (
     auth_sysadmins_check,
     auth_allow_anonymous_access,
     auth_disallow_anonymous_access,
-)  # noqa: re-export
+)
 
 import ckan.plugins.blanket as blanket  # noqa: re-export
 import ckan.lib.signals as signals  # noqa: re-export
 from ckan.lib.jobs import enqueue as enqueue_job  # noqa: re-export
 from ckan.logic.validators import Invalid  # noqa: re-export
-from ckan.lib.navl.dictization_functions import (
+from ckan.lib.navl.dictization_functions import (  # noqa: re-export
     validate as navl_validate,
     missing,
     StopOnError,
-)  # noqa: re-export
-from ckan.lib.helpers import (
+)
+from ckan.lib.helpers import (  # noqa: re-export
     helper_functions as h,
     literal,
     chained_helper,
     redirect_to,
     url_for,
-)  # noqa: re-export
-from ckan.exceptions import (
+)
+from ckan.exceptions import (  # noqa: re-export
     CkanVersionException,
     HelperError,
-)  # noqa: re-export
-from ckan.common import (
+)
+from ckan.common import (  # noqa: re-export
     config,
     _,
     ungettext,
@@ -61,13 +61,13 @@ from ckan.common import (
     asbool,
     asint,
     aslist,
-)  # noqa: re-export
+)
 
-from ckan.lib.plugins import (
+from ckan.lib.plugins import (  # noqa: re-export
     DefaultDatasetForm,
     DefaultGroupForm,
     DefaultOrganizationForm,
-)  # noqa: re-export
+)
 from ckan.cli import error_shout  # noqa: re-export
 
 from ckan.lib.mailer import mail_recipient, mail_user  # noqa: re-export
@@ -87,16 +87,16 @@ def render_snippet(template, data=None):
     return base.render_snippet(template, **data)
 
 
-def add_template_directory(config, relative_path):
+def add_template_directory(config_, relative_path):
     """Add a path to the :ref:`extra_template_paths` config setting.
 
     The path is relative to the file calling this function.
 
     """
-    _add_served_directory(config, relative_path, "extra_template_paths")
+    _add_served_directory(config_, relative_path, "extra_template_paths")
 
 
-def add_public_directory(config, relative_path):
+def add_public_directory(config_, relative_path):
     """Add a path to the :ref:`extra_public_paths` config setting.
 
     The path is relative to the file calling this function.
@@ -106,15 +106,15 @@ def add_public_directory(config, relative_path):
     public urls.
 
     """
-    import ckan.lib.helpers as h
+    from ckan.lib.helpers import _local_url
     from ckan.lib.webassets_tools import add_public_path
 
-    path = _add_served_directory(config, relative_path, "extra_public_paths")
-    url = h._local_url("/", locale="default")
+    path = _add_served_directory(config_, relative_path, "extra_public_paths")
+    url = _local_url("/", locale="default")
     add_public_path(path, url)
 
 
-def _add_served_directory(config, relative_path, config_var):
+def _add_served_directory(config_, relative_path, config_var):
     """Add extra public/template directories to config."""
     import inspect
     import os
@@ -126,11 +126,11 @@ def _add_served_directory(config, relative_path, config_var):
 
     this_dir = os.path.dirname(filename)
     absolute_path = os.path.join(this_dir, relative_path)
-    if absolute_path not in config.get_value(config_var).split(","):
-        if config.get_value(config_var):
-            config[config_var] += "," + absolute_path
+    if absolute_path not in config_.get_value(config_var).split(","):
+        if config_.get_value(config_var):
+            config_[config_var] += "," + absolute_path
         else:
-            config[config_var] = absolute_path
+            config_[config_var] = absolute_path
     return absolute_path
 
 
@@ -161,17 +161,17 @@ def add_resource(path, name):
 
 
 def add_ckan_admin_tab(
-    config, route_name, tab_label, config_var="ckan.admin_tabs", icon=None
+    config_, route_name, tab_label, config_var="ckan.admin_tabs", icon=None
 ):
     """
     Update 'ckan.admin_tabs' dict the passed config dict.
     """
     # get the admin_tabs dict from the config, or an empty dict.
-    admin_tabs_dict = config.get(config_var, {})
+    admin_tabs_dict = config_.get(config_var, {})
     # update the admin_tabs dict with the new values
     admin_tabs_dict.update({route_name: {"label": tab_label, "icon": icon}})
     # update the config with the updated admin_tabs dict
-    config.update({config_var: admin_tabs_dict})
+    config_.update({config_var: admin_tabs_dict})
 
 
 def _version_str_2_list(v_str):
@@ -237,8 +237,6 @@ def requires_ckan_version(min_version, max_version=None):
     :type max_version: string
 
     """
-    from ckan.exceptions import CkanVersionException
-
     if not check_ckan_version(
         min_version=min_version, max_version=max_version
     ):
@@ -253,8 +251,6 @@ def requires_ckan_version(min_version, max_version=None):
 
 def get_endpoint():
     """Returns tuple in format: (blueprint, view)."""
-    from ckan.common import request
-
     if not request:
         return None, None
 

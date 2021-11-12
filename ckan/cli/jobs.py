@@ -4,7 +4,6 @@ import click
 
 import ckan.lib.jobs as bg_jobs
 import ckan.logic as logic
-import ckan.plugins as p
 from ckan.cli import error_shout
 
 

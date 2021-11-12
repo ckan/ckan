@@ -190,7 +190,7 @@ def migration(plugin, message):
     alembic_config = CKANAlembicConfig(_resolve_alembic_config(plugin))
     migration_dir = os.path.dirname(alembic_config.config_file_name)
     alembic_config.set_main_option(u"sqlalchemy.url",
-                           str(ckan.model.repo.metadata.bind.url))
+                                   str(ckan.model.repo.metadata.bind.url))
     alembic_config.set_main_option(u'script_location', migration_dir)
 
     if not os.path.exists(os.path.join(migration_dir, u'script.py.mako')):
