@@ -203,14 +203,13 @@ class Upload(object):
 
         err = {self.file_field: [f"Unsupported upload type: {actual}"]}
 
-        mimetypes = aslist(
-            config.get(f"ckan.upload.{self.object_type}.mimetypes"))
+        mimetypes = config.get_value(
+            f"ckan.upload.{self.object_type}.mimetypes")
         if mimetypes and actual not in mimetypes:
             raise logic.ValidationError(err)
 
         type_ = actual.split("/")[0]
-        types = aslist(
-            config.get(f"ckan.upload.{self.object_type}.types"))
+        types = config.get_value(f"ckan.upload.{self.object_type}.types")
         if types and type_ not in types:
             raise logic.ValidationError(err)
 

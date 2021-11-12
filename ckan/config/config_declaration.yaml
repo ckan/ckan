@@ -461,6 +461,26 @@ groups:
         type: int
         default: 2
 
+  - annotation: Uploader Settings
+    options:
+      - key: ckan.upload.user.types
+        type: list
+        description: >-
+          File types allowed to upload as user's avatar
+      - key: ckan.upload.user.mimetypes
+        type: list
+        description: >-
+          File MIMETypes allowed to upload as user's avatar
+      - key: ckan.upload.group.types
+        type: list
+        description: >-
+          File types allowed to upload as group image
+      - key: ckan.upload.group.mimetypes
+        type: list
+        description: >-
+          File MIMETypes allowed to upload as group image
+
+
   - annotation: Webassets Settings
     options:
       - key: ckan.webassets.path
