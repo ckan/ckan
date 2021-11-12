@@ -10,16 +10,6 @@ from ckan.tests import factories, helpers
 _check = auth.check_config_permission
 
 
-@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", None)
-@pytest.mark.parametrize(
-    "perm", ["anon_create_dataset", "ckan.auth.anon_create_dataset"]
-)
-def test_get_default_value_if_not_set_in_config(perm):
-    assert (
-        _check(perm) == auth.CONFIG_PERMISSIONS_DEFAULTS["anon_create_dataset"]
-    )
-
-
 @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
 def test_config_overrides_default():
     assert _check("anon_create_dataset") is True
