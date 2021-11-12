@@ -165,7 +165,8 @@ class TestMailer(MailerBase):
         msg = msgs[0]
 
         expected_from_header = "{0} <{1}>".format(
-            config.get("ckan.site_title"), config.get("smtp.mail_from")
+            config.get_value("ckan.site_title"),
+            config.get_value("smtp.mail_from")
         )
 
         assert expected_from_header in msg[3]
@@ -242,7 +243,7 @@ class TestMailer(MailerBase):
         assert org["title"] in six.ensure_text(body)
         assert h.roles_translated()[role] in six.ensure_text(body)
 
-    @pytest.mark.ckan_config("smtp.test_server", "999.999.999.999")
+    @pytest.mark.ckan_config("smtp.server", "999.999.999.999")
     def test_bad_smtp_host(self):
         test_email = {
             "recipient_name": "Bob",
@@ -275,7 +276,7 @@ class TestMailer(MailerBase):
         msg = msgs[0]
 
         expected_from_header = "Reply-to: {}".format(
-            config.get("smtp.reply_to")
+            config.get_value("smtp.reply_to")
         )
 
         assert expected_from_header in msg[3]

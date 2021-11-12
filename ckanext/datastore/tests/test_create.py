@@ -106,7 +106,7 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         resource = helpers.call_action("resource_show", id=resource_id)
         url = resource["url"]
-        assert url.startswith(config.get("ckan.site_url"))
+        assert url.startswith(config.get_value("ckan.site_url"))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
