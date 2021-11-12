@@ -44,9 +44,7 @@ class TestTextView(object):
             _create_test_view(self.view_type)
 
     def test_can_view(self):
-        url_same_domain = urljoin(
-            config.get('ckan.site_url', '//localhost:5000'),
-            '/resource.txt')
+        url_same_domain = urljoin(config.get_value('ckan.site_url'), '/resource.txt')
         url_different_domain = 'http://some.com/resource.txt'
 
         data_dict = {'resource': {'format': 'jsonp',

@@ -60,7 +60,6 @@ class MockDatastoreBasedResourceView(p.SingletonPlugin):
 )
 @pytest.mark.usefixtures("with_plugins")
 class TestDatapreviewWithWebpageView(object):
-    @pytest.mark.ckan_config("ckan.views.default_views", None)
     def test_no_config(self):
 
         default_views = datapreview.get_default_view_plugins()

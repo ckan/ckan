@@ -2,20 +2,23 @@
 
 import contextlib
 import os
+import json
 import shutil
+from typing import Type
 
 import alembic.command
 import click
 from alembic.config import Config as AlembicConfig
+from werkzeug.utils import import_string
 
 import ckan
+from ckan import logic
 from ckan.cli.db import _resolve_alembic_config
 import ckan.plugins.toolkit as tk
 
-import uuid
 import string
-import secrets
 from ckan.cli import error_shout
+from ckan.common import config_declaration
 
 
 class CKANAlembicConfig(AlembicConfig):
@@ -140,7 +143,9 @@ def remove_code_examples(root: str):
 @generate.command(name=u'config',
                   short_help=u'Create a ckan.ini file.')
 @click.argument(u'output_path', nargs=1)
-def make_config(output_path):
+@click.option('-i', '--include-plugin', multiple=True,
+              help="Include config declaration from the given plugin")
+def make_config(output_path, include_plugin):
     u"""Generate a new CKAN configuration ini file."""
 
     # Output to current directory if no path is specified
@@ -150,18 +155,18 @@ def make_config(output_path):
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     template_loc = os.path.join(cur_loc, u'..', u'config',
                                 u'deployment.ini_tmpl')
-    template_variables = {
-        u'app_instance_uuid': uuid.uuid4(),
-        u'app_instance_secret': secrets.token_urlsafe(20)[:25]
-    }
 
+    config_declaration._reset()
+    config_declaration.load_core_declaration()
+    for plugin in include_plugin:
+        config_declaration.load_plugin(plugin)
+
+    variables = {"declaration": config_declaration.into_ini(False, False)}
     with open(template_loc, u'r') as file_in:
         template = string.Template(file_in.read())
-
         try:
             with open(output_path, u'w') as file_out:
-                file_out.writelines(template.substitute(template_variables))
-
+                file_out.writelines(template.substitute(variables))
         except IOError as e:
             error_shout(e)
             raise click.Abort()
@@ -197,3 +202,102 @@ def migration(plugin, message):
         u"Revision file created. Now, you need to update it: \n\t{}".format(
             rev.path),
         fg=u"green")
+
+
+_factories = {
+    "activity": "ckan.tests.factories:Activity",
+    "api-token": "ckan.tests.factories:APIToken",
+    "dataset": "ckan.tests.factories:Dataset",
+    "group": "ckan.tests.factories:Group",
+    "organization": "ckan.tests.factories:Organization",
+    "resource": "ckan.tests.factories:Resource",
+    "resource-view": "ckan.tests.factories:ResourceView",
+    "user": "ckan.tests.factories:User",
+    "vocabulary": "ckan.tests.factories:Vocabulary",
+}
+
+
+@generate.command(context_settings={
+    "allow_extra_args": True, "ignore_unknown_options": True
+})
+@click.argument(
+    "category", required=False, type=click.Choice(list(_factories)))
+@click.option(
+    "-f", "--factory-class",
+    help="Import path of the factory class that can generate an entity")
+@click.option("-n", "--fake-count", type=int, default=1,
+              help="Number of entities to create")
+@click.pass_context
+def fake_data(ctx, category, factory_class, fake_count):
+    """Generate random entities of the given category.
+
+    Either positional `category` or named `--factory-class`/`-f` argument must
+    be specified. `--factory-class` has higher priority, which means that
+    `category` is ignored if both arguments are provided at the same time.
+
+    All the extra arguments that follows format `--NAME=VALUE` will be passed
+    into the entity factory.
+
+    For instance:
+
+         ckan generate fake-data dataset
+         ckan generate fake-data dataset  --title="My test dataset"
+
+         ckan generate fake-data dataset \
+                 --factory-class=ckanext.myext.tests.factories.MyCustomDataset
+
+    All the validation rules still apply. For example, if you have
+    `ckan.auth.create_unowned_dataset` config option set to `False`,
+    `--owner_org` must be supplied:
+
+        owner_org=$(ckan generate fake-data organization | jq .id -r)
+        ckan generate fake-data dataset  --owner_org=$owner_org
+
+    """
+    try:
+        from ckan.tests.factories import CKANFactory
+    except ImportError as e:
+        error_shout(e)
+        error_shout("Make sure you have dev-dependencies installed:")
+        error_shout("\tpip install -r dev-requirements.txt")
+        raise click.Abort()
+
+    factory: Type[CKANFactory]
+    if not factory_class:
+        if not category:
+            error_shout(
+                "Either `category` or `--factory-class` must be specified")
+            raise click.Abort()
+        factory_class = _factories[category]
+    if not factory_class:
+        error_shout("Either `category` or `factory_class` must be specified")
+        raise click.Abort()
+
+    factory = import_string(factory_class, silent=True)
+    if not factory:
+        error_shout(f"{factory_class} cannot be imported")
+        raise click.Abort()
+
+    if not issubclass(factory, CKANFactory):
+        error_shout("Factory must be a subclass of `{module}:{cls}`".format(
+            module=CKANFactory.__module__,
+            cls=CKANFactory.__name__,
+        ))
+        raise click.Abort()
+
+    try:
+        extras = dict(
+            arg[2:].split("=") for arg in ctx.args if arg.startswith("--")
+        )
+    except ValueError:
+        error_shout("Extra arguments must follow the format: --NAME=VALUE")
+        raise click.Abort()
+
+    try:
+        for entity in factory.create_batch(fake_count, **extras):
+            # print entity as json, so that it can be stored in file or passed
+            # through jq-pipeline or similar tool
+            click.echo(json.dumps(entity))
+    except logic.ValidationError as e:
+        error_shout(f"Cannot create entity: {e.error_dict}")
+        raise click.Abort()

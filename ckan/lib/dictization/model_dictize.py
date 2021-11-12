@@ -447,7 +447,7 @@ def tag_dictize(tag, context, include_datasets=True):
             tag_dict['packages'] = []
             for package_dict in package_dicts:
                 for item in plugins.PluginImplementations(plugins.IPackageController):
-                    package_dict = item.before_view(package_dict)
+                    package_dict = item.before_dataset_view(package_dict)
                 tag_dict['packages'].append(package_dict)
     else:
         if include_datasets:
@@ -580,7 +580,7 @@ def package_to_api(pkg, context):
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['notes_rendered'] = h.render_markdown(pkg.notes)
 
-    site_url = config.get('ckan.site_url', None)
+    site_url = config.get_value('ckan.site_url')
     if site_url:
         dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
 

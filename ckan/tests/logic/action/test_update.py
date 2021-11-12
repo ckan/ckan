@@ -439,7 +439,7 @@ class TestUpdate(object):
 class TestDatasetUpdate(object):
     def test_missing_id(self):
         user = factories.User()
-        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user)
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("package_update")
@@ -758,6 +758,7 @@ class TestSendEmailNotifications(object):
         assert len(messages) == 0
 
 
+@pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestResourceViewUpdate(object):
