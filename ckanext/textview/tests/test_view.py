@@ -6,7 +6,7 @@ from ckan.common import config
 from urllib.parse import urljoin
 
 import ckan.lib.helpers as h
-import ckanext.textview.plugin as plugin
+import ckanext.textview.plugin as p
 from ckan.tests import factories
 
 
