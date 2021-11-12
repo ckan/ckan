@@ -6,7 +6,7 @@ from ckan.common import config
 from urllib.parse import urljoin
 
 import ckan.lib.helpers as h
-import ckanext.textview.plugin as p
+import ckanext.textview.plugin as plugin
 from ckan.tests import factories
 
 
@@ -16,6 +16,7 @@ from ckan.tests import factories
 class TestTextView(object):
 
     def test_can_view(self):
+        p = plugin.TextView()
         url_same_domain = urljoin(config.get_value('ckan.site_url'), '/resource.txt')
         url_different_domain = 'http://some.com/resource.txt'
 
