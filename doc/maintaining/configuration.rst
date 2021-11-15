@@ -590,19 +590,6 @@ Default value: ``False``
 
 This enables cache control headers on all requests. If the user is not logged in and there is no session data a ``Cache-Control: public`` header will be added. For all other requests the ``Cache-control: private`` header will be added.
 
-.. _ckan.use_pylons_response_cleanup_middleware:
-
-ckan.use_pylons_response_cleanup_middleware
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.use_pylons_response_cleanup_middleware = true
-
-Default value: true
-
-This enables middleware that clears the response string after it has been sent. This helps CKAN's memory management if CKAN repeatedly serves very large requests.
-
 .. _ckan.mimetype_guess:
 
 ckan.mimetype_guess
