@@ -10,9 +10,9 @@ Functions/objects should only be removed after reasonable deprecation notice
 has been given.
 
 """
-import ckan  # noqa: re-export
-import ckan.lib.base as base  # noqa: re-export
-from ckan.lib.base import render, abort  # noqa: re-export
+import ckan
+import ckan.lib.base as base
+from ckan.lib.base import render, abort
 
 from ckan.logic import (  # noqa: re-export
     get_action,
@@ -31,27 +31,27 @@ from ckan.logic import (  # noqa: re-export
     auth_disallow_anonymous_access,
 )
 
-import ckan.plugins.blanket as blanket  # noqa: re-export
-import ckan.lib.signals as signals  # noqa: re-export
-from ckan.lib.jobs import enqueue as enqueue_job  # noqa: re-export
-from ckan.logic.validators import Invalid  # noqa: re-export
-from ckan.lib.navl.dictization_functions import (  # noqa: re-export
+import ckan.plugins.blanket as blanket
+import ckan.lib.signals as signals
+from ckan.lib.jobs import enqueue as enqueue_job
+from ckan.logic.validators import Invalid
+from ckan.lib.navl.dictization_functions import (
     validate as navl_validate,
     missing,
     StopOnError,
 )
-from ckan.lib.helpers import (  # noqa: re-export
+from ckan.lib.helpers import (
     helper_functions as h,
     literal,
     chained_helper,
     redirect_to,
     url_for,
 )
-from ckan.exceptions import (  # noqa: re-export
+from ckan.exceptions import (
     CkanVersionException,
     HelperError,
 )
-from ckan.common import (  # noqa: re-export
+from ckan.common import (
     config,
     _,
     ungettext,
@@ -63,14 +63,38 @@ from ckan.common import (  # noqa: re-export
     aslist,
 )
 
-from ckan.lib.plugins import (  # noqa: re-export
+from ckan.lib.plugins import (
     DefaultDatasetForm,
     DefaultGroupForm,
     DefaultOrganizationForm,
 )
-from ckan.cli import error_shout  # noqa: re-export
+from ckan.cli import error_shout
 
-from ckan.lib.mailer import mail_recipient, mail_user  # noqa: re-export
+from ckan.lib.mailer import mail_recipient, mail_user
+
+
+__all__ = [
+    "ckan", "base", "render", "abort",
+    "get_action", "check_access",
+    "get_validator", "get_converter",
+    "chained_auth_function", "chained_action",
+    "ObjectNotFound", "NotAuthorized", "ValidationError", "UnknownValidator",
+    "get_or_bust",
+    "side_effect_free", "auth_sysadmins_check",
+    "auth_allow_anonymous_access", "auth_disallow_anonymous_access",
+    "blanket", "signals", "enqueue_job",
+    "Invalid", "navl_validate", "missing", "StopOnError",
+    "h", "literal", "chained_helper", "redirect_to", "url_for",
+    "CkanVersionException", "HelperError",
+    "config", "_", "ungettext", "g", "c", "request",
+    "asbool", "asint", "aslist",
+    "DefaultDatasetForm", "DefaultGroupForm", "DefaultOrganizationForm",
+    "error_shout",
+    "mail_recipient", "mail_user",
+    "render_snippet", "add_template_directory", "add_public_directory",
+    "add_resource", "add_ckan_admin_tab",
+    "check_ckan_version", "requires_ckan_version", "get_endpoint",
+]
 
 get_converter = get_validator
 
@@ -270,7 +294,7 @@ docstring_overrides = {
 
 It stores the configuration values defined in the :ref:`config_file`, eg::
 
-title = toolkit.config.get_value("ckan.site_title")
+    title = toolkit.config.get_value("ckan.site_title")
 
 """,
     "_": """Translates a string to the current locale.
@@ -280,7 +304,7 @@ Everywhere in your code where you want strings to be internationalized
 (made available for translation into different languages), wrap them in the
 ``_()`` function, eg.::
 
-msg = toolkit._("Hello")
+    msg = toolkit._("Hello")
 
 Returns the localized unicode string.
 """,
@@ -293,7 +317,7 @@ the pluralized value.
 
 Mark a string to be localized as follows::
 
-msg = toolkit.ungettext("Mouse", "Mice", len(mouses))
+    msg = toolkit.ungettext("Mouse", "Mice", len(mouses))
 
 """,
     "c": """The Pylons template context object.
@@ -322,13 +346,13 @@ current request.
 It is a bad pattern to pass variables to the templates using the ``g`` object.
 Pass them explicitly from the view functions as ``extra_vars``, eg::
 
-return toolkit.render(
-'myext/package/read.html',
-extra_vars={
-    u'some_var': some_value,
-    u'some_other_var': some_other_value,
-}
-)
+    return toolkit.render(
+        'myext/package/read.html',
+        extra_vars={
+            u'some_var': some_value,
+            u'some_other_var': some_other_value,
+        }
+    )
 
 """,
     "request": """Flask request object.
@@ -353,7 +377,7 @@ For example: ``bar = toolkit.asint("111")``
     "aslist": """Convert a space-separated
 string from the config file into a list.
 
-For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
+For example: `bar = toolkit.aslist(config.get('ckan.foo.bar', []))`
 
 """,
 }

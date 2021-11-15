@@ -403,8 +403,9 @@ class DefaultGroupForm(object):
      - it provides the fallback behaviour if no plugin is setup to
        provide the fallback behaviour.
 
-    Note - this isn't a plugin implementation. This is deliberate, as we
-           don't want this being registered.
+    .. note:: this isn't a plugin implementation. This is deliberate, as we
+        don't want this being registered.
+
     """
     def group_controller(self):
         return 'group'
