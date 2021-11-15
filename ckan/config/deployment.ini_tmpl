@@ -1,5 +1,5 @@
 #
-# CKAN - Pylons configuration
+# CKAN configuration file
 #
 # These are some of the configuration options available for your CKAN
 # instance. Check the documentation in 'doc/configuration.rst' or at the
