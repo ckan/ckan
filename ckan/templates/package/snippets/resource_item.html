@@ -71,6 +71,16 @@
         </a>
       </li>
       {% endif %}
+       {% if res.id %}
+        {% if h.check_access('resource_delete', {'id': res.id})  %}
+        <li>
+	       <a href="{{ h.url_for(pkg.type ~ '_resource.delete', id=pkg.name, resource_id=res.id) }}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this resource?') }}" >
+	         <i class="fa fa-trash-o"></i>
+            {{ _('Delete') }}
+	       </a>
+        </li>  
+       {% endif %}
+      {% endif %}
       {% endblock %}
     </ul>
   </div>
