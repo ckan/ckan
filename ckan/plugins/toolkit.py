@@ -1,8 +1,7 @@
 # encoding: utf-8
-"""This class is intended to make functions/objects consistently available to
+"""This module is intended to make functions/objects consistently available to
 plugins, whilst giving core CKAN developers the ability move code around or
-change underlying frameworks etc. This object allows us to avoid circular
-imports while making functions/objects available to plugins.
+change underlying frameworks etc. 
 
 It should not be used internally within ckan - only by extensions.
 
