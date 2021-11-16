@@ -20,4 +20,3 @@ __license__ = 'AGPL'
 
 # The packaging system relies on this import, please do not remove it
 import sys; sys.path.insert(0, __path__[0])
-import ckan.cli.cli  # noqa: solves circular imports introduced by toolkit
