@@ -590,7 +590,7 @@ def package_to_api(pkg, context):
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['notes_rendered'] = h.render_markdown(pkg.notes)
 
-    site_url = config.get('ckan.site_url', None)
+    site_url = config.get_value('ckan.site_url')
     if site_url:
         dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
 

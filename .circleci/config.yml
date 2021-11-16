@@ -3,7 +3,6 @@ defaults:
   init_environemnt: &init_environment
     run: |
       # Database Creation
-
       psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
       createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_POSTGRES_USER} ${CKAN_POSTGRES_DB}
       psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_READ_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_READ_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
@@ -58,12 +57,11 @@ defaults:
     name: ckan-redis
 
   solr_image: &solr_image
-    image: solr:8.0
+    image: smotornyuk/ckan-solr:latest
     name: ckan-solr
 
 jobs:
   test-python-3:
-    machine: true
     docker:
       - image: python:3.7-bullseye
         <<: *ckan_env
@@ -75,7 +73,7 @@ jobs:
 
     steps:
       - checkout
-      - setup_remote_docker
+
       - <<: *install_deps
       - run: |
           # Python Dependencies
@@ -84,12 +82,6 @@ jobs:
           pip install -r dev-requirements.txt
           python setup.py develop
           pip check
-      - run: |
-          docker exec ckan-solr solr create -c ckan
-          docker cp ckan/config/solr/schema.xml ckan-solr:/var/solr/data/ckan/conf/managed-schema
-          docker restart ckan-solr
-          sleep 5
-
       - <<: *init_environment
 
       # Tests Backend, split across containers by segments

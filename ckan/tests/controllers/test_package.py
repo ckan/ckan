@@ -1222,6 +1222,7 @@ class TestResourceView(object):
         )
         assert helpers.body_contains(response, "Updated RV Title")
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
     def test_resource_view_delete(self, app):
         user = factories.User()
         env = {"REMOTE_USER": six.ensure_str(user["name"])}

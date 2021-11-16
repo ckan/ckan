@@ -178,7 +178,7 @@ class _Toolkit(object):
 
 It stores the configuration values defined in the :ref:`config_file`, eg::
 
-    title = toolkit.config.get("ckan.site_title")
+    title = toolkit.config.get_value("ckan.site_title")
 
 '''
         t['_'] = common._
@@ -262,14 +262,14 @@ request body variables, cookies, the request URL, etc.
         self.docstring_overrides['asbool'] = '''Convert a string (e.g. 1,
 true, True) from the config file into a boolean.
 
-For example: ``if toolkit.asbool(config.get('ckan.legacy_templates', False)):``
+For example: ``if toolkit.asbool("yes"):``
 
 '''
         t['asint'] = converters.asint
         self.docstring_overrides['asint'] = '''Convert a string from the config
 file into an int.
 
-For example: ``bar = toolkit.asint(config.get('ckan.foo.bar', 0))``
+For example: ``bar = toolkit.asint("111")``
 
 '''
         t['aslist'] = converters.aslist
@@ -391,8 +391,8 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, relative_path)
-        if absolute_path not in config.get(config_var, '').split(','):
-            if config.get(config_var):
+        if absolute_path not in config.get_value(config_var).split(','):
+            if config.get_value(config_var):
                 config[config_var] += ',' + absolute_path
             else:
                 config[config_var] = absolute_path
