@@ -1,7 +1,7 @@
 # encoding: utf-8
 """This module is intended to make functions/objects consistently available to
 plugins, whilst giving core CKAN developers the ability move code around or
-change underlying frameworks etc. 
+change underlying frameworks etc.
 
 It should not be used internally within ckan - only by extensions.
 
