@@ -200,7 +200,7 @@ class TestDatasetSearchIndex(object):
             "title": u"david",
         }
 
-        result = mulilingual_plugin.MultilingualDataset().before_index(
+        result = mulilingual_plugin.MultilingualDataset().before_dataset_index(
             sample_index_data
         )
         assert result == {

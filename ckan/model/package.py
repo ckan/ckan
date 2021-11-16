@@ -208,7 +208,7 @@ class Package(core.StatefulObjectMixin,
         _dict['extras'] = {key: value for key, value in self.extras.items()}
         _dict['resources'] = [res.as_dict(core_columns_only=False) \
                               for res in self.resources]
-        site_url = config.get('ckan.site_url', None)
+        site_url = config.get_value('ckan.site_url')
         if site_url:
             _dict['ckan_url'] = '%s/dataset/%s' % (site_url, self.name)
         _dict['relationships'] = [rel.as_dict(self, ref_package_by=ref_package_by) for rel in self.get_relationships()]

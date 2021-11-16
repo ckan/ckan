@@ -5,7 +5,6 @@ import pytest
 from pprint import pformat
 from difflib import unified_diff
 
-import ckan.lib.search as search
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
 from ckan.lib.dictization import table_dictize, table_dict_save
@@ -26,8 +25,6 @@ from ckan.lib.dictization.model_save import (
     package_tag_list_save,
 )
 import ckan.logic.action.get
-import ckan.tests.factories as factories
-from ckan.tests.helpers import call_action
 
 
 @pytest.mark.usefixtures("clean_db")

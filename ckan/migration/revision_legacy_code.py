@@ -321,7 +321,7 @@ def make_revision_table(metadata):
 
 
 # Copied from vdm
-def make_Revision(mapper, revision_table):
+def make_Revision(mapper, revision_table):  # noqa
     mapper(Revision, revision_table, properties={},
            order_by=revision_table.c.timestamp.desc())
     return Revision
@@ -435,8 +435,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
             else:
                 # TODO: actually deal with this
                 # raise a warning of some kind
-                msg = \
-                    u'Skipping adding property %s to revisioned object' % prop
+                pass
 
     return MyClass
 
@@ -499,7 +498,7 @@ def make_revision(instances):
     '''
     # model.repo.new_revision() was called in the model code, which is:
     # vdm.sqlalchemy.tools.Repository.new_revision() which did this:
-    Revision = RevisionTableMappings.instance().Revision
+    Revision = RevisionTableMappings.instance().Revision  # noqa
     revision = Revision()
     model.Session.add(revision)
     # new_revision then calls:

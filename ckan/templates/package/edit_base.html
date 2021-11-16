@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content_action %}
-    {% link_for _('View dataset'), named_route=pkg.type ~ '.read', id=pkg.name, class_='btn btn-default', icon='eye' %}
+    {% link_for h.humanize_entity_type('package', pkg.type, 'view label') or _('View dataset'), named_route=pkg.type ~ '.read', id=pkg.name, class_='btn btn-default', icon='eye' %}
 {% endblock %}
 
 {% block content_primary_nav %}

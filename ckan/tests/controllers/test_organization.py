@@ -3,7 +3,6 @@
 import pytest
 import six
 from bs4 import BeautifulSoup
-from unittest.mock import patch
 
 import ckan.authz as authz
 from ckan import model
@@ -28,7 +27,7 @@ class TestOrganizationNew(object):
         assert "Name: Missing value" in response
 
     def test_saved(self, app, user_env):
-        response = app.post(
+        app.post(
             url=url_for("organization.new"), extra_environ=user_env,
             data={"save": "", "name": "saved"}
         )
@@ -38,7 +37,7 @@ class TestOrganizationNew(object):
         assert group["state"] == "active"
 
     def test_all_fields_saved(self, app, user_env):
-        response = app.post(
+        app.post(
             url=url_for("organization.new"), extra_environ=user_env,
             data={
                 "name": u"all-fields-saved",
@@ -67,7 +66,7 @@ class TestOrganizationList(object):
         self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization_list_url = url_for("organization.index")
 
-        response = app.get(
+        app.get(
             url=self.organization_list_url,
             extra_environ=self.user_env,
             status=403,
@@ -114,7 +113,7 @@ class TestOrganizationEdit(object):
         app.get(url=url, extra_environ=initial_data["user_env"], status=404)
 
     def test_saved(self, app, initial_data):
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.edit", id=initial_data["organization"]["id"]
             ),
@@ -129,7 +128,7 @@ class TestOrganizationEdit(object):
         assert group["state"] == "active"
 
     def test_all_fields_saved(self, app, initial_data):
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.edit", id=initial_data["organization"]["id"]
             ),
@@ -162,7 +161,7 @@ class TestOrganizationDelete(object):
         }
 
     def test_owner_delete(self, app, initial_data):
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
@@ -177,7 +176,7 @@ class TestOrganizationDelete(object):
     def test_sysadmin_delete(self, app, initial_data):
         sysadmin = factories.Sysadmin()
         extra_environ = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
@@ -226,10 +225,9 @@ class TestOrganizationDelete(object):
     def test_delete_organization_with_datasets(self, app, initial_data):
         """ Test deletion of organization that has datasets"""
         text = "Organization cannot be deleted while it still has datasets"
-        datasets = [
+        for i in range(0, 5):
             factories.Dataset(owner_org=initial_data["organization"]["id"])
-            for i in range(0, 5)
-        ]
+
         response = app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
@@ -272,7 +270,7 @@ class TestOrganizationBulkProcess(object):
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.private"] = "private"
 
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
@@ -295,7 +293,7 @@ class TestOrganizationBulkProcess(object):
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.public"] = "public"
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
@@ -317,7 +315,7 @@ class TestOrganizationBulkProcess(object):
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.delete"] = "delete"
 
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
@@ -643,7 +641,7 @@ class TestActivity(object):
 
         url = url_for("organization.activity", id=org["id"])
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(url, extra_environ=env, status=404)
+        app.get(url, extra_environ=env, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
         # Therefore you can't render the activity stream of that org. You'd
