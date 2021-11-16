@@ -173,9 +173,6 @@ def add_resource(path, name):
 
     # we want the filename that of the function caller but they
     # will have used one of the available helper functions
-    # TODO: starting from python 3.5, `inspect.stack` returns list
-    # of named tuples `FrameInfo`. Don't forget to remove
-    # `getframeinfo` wrapper after migration.
     filename = inspect.stack()[1].filename
 
     this_dir = os.path.dirname(filename)
