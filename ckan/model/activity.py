@@ -487,10 +487,8 @@ def _activity_stream_get_filtered_users():
     option and return a list of their ids. If the config is not specified,
     returns the id of the site user.
     '''
-    users = config.get('ckan.hide_activity_from_users')
-    if users:
-        users_list = users.split()
-    else:
+    users_list = config.get_value('ckan.hide_activity_from_users')
+    if not users_list:
         from ckan.logic import get_action
         context = {'ignore_auth': True}
         site_user = get_action('get_site_user')(context)
