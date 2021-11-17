@@ -91,4 +91,3 @@ def test_access_via_attribute_2():
     license = LicenseRegister()["cc-by"]
     assert license.od_conformance
     assert license.osd_conformance == "not reviewed"
-
