@@ -55,41 +55,11 @@ class License(object):
             # behavior of `hasattr`
             raise AttributeError(*e.args)
 
-    @maintain.deprecated("License.__getitem__() is deprecated and will be "
-                         "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.", since="2.4.0")
-    def __getitem__(self, key):
-        '''NB This method is deprecated and will be removed in a future version
-        of CKAN. Instead, please use attribute access.
-        '''
-        return self.__getattr__(key)
-
     def isopen(self):
         if not hasattr(self, '_isopen'):
             self._isopen = self.od_conformance == 'approved' or \
                 self.osd_conformance == 'approved'
         return self._isopen
-
-    @maintain.deprecated("License.as_dict() is deprecated and will be "
-                         "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.", since="2.4.0")
-    def as_dict(self):
-        '''NB This method is deprecated and will be removed in a future version
-        of CKAN. Instead, please use attribute access.
-        '''
-        data = self._data.copy()
-        if 'date_created' in data:
-            value = data['date_created']
-            value = value.isoformat()
-            data['date_created'] = value
-
-        # deprecated keys
-        if 'od_conformance' in data:
-            data['is_okd_compliant'] = data['od_conformance'] == 'approved'
-        if 'osd_conformance' in data:
-            data['is_osi_compliant'] = data['osd_conformance'] == 'approved'
-
-        return data
 
 
 class LicenseRegister(object):
