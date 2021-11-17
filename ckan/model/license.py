@@ -19,16 +19,6 @@ class License(object):
     """Domain object for a license."""
 
     def __init__(self, data):
-        # convert old keys if necessary
-        if 'is_okd_compliant' in data:
-            data['od_conformance'] = 'approved' \
-                if asbool(data['is_okd_compliant']) else ''
-            del data['is_okd_compliant']
-        if 'is_osi_compliant' in data:
-            data['osd_conformance'] = 'approved' \
-                if asbool(data['is_osi_compliant']) else ''
-            del data['is_osi_compliant']
-
         self._data = data
         for (key, value) in self._data.items():
             if key == 'date_created':
@@ -40,14 +30,6 @@ class License(object):
                 self._data[key] = value
 
     def __getattr__(self, name):
-        if name == 'is_okd_compliant':
-            log.warn('license.is_okd_compliant is deprecated - use '
-                     'od_conformance instead.')
-            return self._data['od_conformance'] == 'approved'
-        if name == 'is_osi_compliant':
-            log.warn('license.is_osi_compliant is deprecated - use '
-                     'osd_conformance instead.')
-            return self._data['osd_conformance'] == 'approved'
         try:
             return self._data[name]
         except KeyError as e:
