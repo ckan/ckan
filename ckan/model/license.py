@@ -7,10 +7,8 @@ import requests
 
 from ckan.common import config
 from ckan.common import asbool
-import six
 
 from ckan.common import _, json
-import ckan.lib.maintain as maintain
 
 log = logging.getLogger(__name__)
 
