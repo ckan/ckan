@@ -41,7 +41,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         )
         expected = expected.split("\n")[0]
 
-        subject = self.get_email_subject(msg[3]).decode()
+        subject = self.get_email_subject(msg[3])
         assert expected == subject
         assert "**test**" in subject
 
@@ -58,7 +58,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         extra_vars = {"reset_link": mailer.get_reset_link(user_obj)}
         expected = render("emails/reset_password.txt", extra_vars)
         body = self.get_email_body(msg[3]).decode()
-        assert expected == body
+        assert expected == body.strip()
         assert "**test**" in body
 
     def test_invite_user_custom_subject(self, mail_server):
@@ -77,7 +77,7 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         expected = render("emails/invite_user_subject.txt", extra_vars)
         expected = expected.split("\n")[0]
 
-        subject = self.get_email_subject(msg[3]).decode()
+        subject = self.get_email_subject(msg[3])
         assert expected == subject
         assert "**test**" in subject
 
@@ -98,5 +98,5 @@ class TestExampleCustomEmailsPlugin(MailerBase):
         }
         expected = render("emails/invite_user.txt", extra_vars)
         body = self.get_email_body(msg[3]).decode()
-        assert expected == body
+        assert expected == body.strip()
         assert "**test**" in body

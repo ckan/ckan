@@ -3,6 +3,7 @@
 import base64
 import pytest
 import six
+import io
 from email.header import decode_header
 from email.mime.text import MIMEText
 from email.parser import Parser
@@ -41,7 +42,7 @@ class TestMailer(MailerBase):
             "recipient_name": "Bob",
             "recipient_email": user["email"],
             "subject": "Meeting",
-            "body": "The meeting is cancelled.",
+            "body": "The meeting is cancelled.\n",
             "headers": {"header1": "value1"},
         }
         mailer.mail_recipient(**test_email)
@@ -72,8 +73,8 @@ class TestMailer(MailerBase):
             "recipient_name": "Bob",
             "recipient_email": user["email"],
             "subject": "Meeting",
-            "body": "The meeting is cancelled.",
-            "body_html": "The <a href=\"meeting\">meeting</a> is cancelled.",
+            "body": "The meeting is cancelled.\n",
+            "body_html": "The <a href=\"meeting\">meeting</a> is cancelled.\n",
             "headers": {"header1": "value1"},
         }
         mailer.mail_recipient(**test_email)
@@ -87,7 +88,7 @@ class TestMailer(MailerBase):
         assert list(test_email["headers"].keys())[0] in msg[3], msg[3]
         assert list(test_email["headers"].values())[0] in msg[3], msg[3]
         assert test_email["subject"] in msg[3], msg[3]
-        assert msg[3].startswith('Content-Type: multipart'), msg[3]
+        assert 'Content-Type: multipart' in msg[3]
         expected_plain_body = self.mime_encode(
             test_email["body"], test_email["recipient_name"],
             subtype='plain'
@@ -111,7 +112,7 @@ class TestMailer(MailerBase):
         test_email = {
             "recipient": user_obj,
             "subject": "Meeting",
-            "body": "The meeting is cancelled.",
+            "body": "The meeting is cancelled.\n",
             "headers": {"header1": "value1"},
         }
         mailer.mail_user(**test_email)
@@ -185,7 +186,7 @@ class TestMailer(MailerBase):
         assert msg[2] == [user["email"]]
         assert "Reset" in msg[3], msg[3]
         test_msg = mailer.get_reset_link_body(user_obj)
-        expected_body = self.mime_encode(test_msg, user["name"])
+        expected_body = self.mime_encode(test_msg + '\n', user["name"])
 
         assert expected_body in msg[3]
 
@@ -204,7 +205,7 @@ class TestMailer(MailerBase):
         assert msg[1] == config["smtp.mail_from"]
         assert msg[2] == [user["email"]]
         test_msg = mailer.get_invite_body(user_obj)
-        expected_body = self.mime_encode(test_msg, user["name"])
+        expected_body = self.mime_encode(test_msg + '\n', user["name"])
 
         assert expected_body in msg[3]
         assert user_obj.reset_key is not None, user
@@ -280,3 +281,72 @@ class TestMailer(MailerBase):
         )
 
         assert expected_from_header in msg[3]
+
+    def test_mail_user_with_attachments(self, mail_server):
+
+        user = factories.User()
+        user_obj = model.User.by_name(user["name"])
+
+        msgs = mail_server.get_smtp_messages()
+        assert msgs == []
+
+        # send email
+        test_email = {
+            "recipient": user_obj,
+            "subject": "Meeting",
+            "body": "The meeting is cancelled.\n",
+            "headers": {"header1": "value1"},
+            "attachments": [
+                ("strategy.pdf", io.BytesIO(b'Some fake pdf'), 'application/pdf'),
+                ("goals.png", io.BytesIO(b'Some fake png'), 'image/png'),
+            ]
+        }
+        mailer.mail_user(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == 1
+        msg = msgs[0]
+        assert msg[1] == config["smtp.mail_from"]
+        assert msg[2] == [user["email"]]
+        assert list(test_email["headers"].keys())[0] in msg[3], msg[3]
+        assert list(test_email["headers"].values())[0] in msg[3], msg[3]
+        assert test_email["subject"] in msg[3], msg[3]
+
+        for item in [
+            "strategy.pdf", base64.b64encode(b'Some fake pdf').decode(), "application/pdf",
+            "goals.png", base64.b64encode(b'Some fake png').decode(), "image/png",
+        ]:
+            assert item in msg[3]
+
+    def test_mail_user_with_attachments_no_media_type_provided(self, mail_server):
+
+        user = factories.User()
+        user_obj = model.User.by_name(user["name"])
+
+        msgs = mail_server.get_smtp_messages()
+        assert msgs == []
+
+        # send email
+        test_email = {
+            "recipient": user_obj,
+            "subject": "Meeting",
+            "body": "The meeting is cancelled.\n",
+            "headers": {"header1": "value1"},
+            "attachments": [
+                ("strategy.pdf", io.BytesIO(b'Some fake pdf')),
+                ("goals.png", io.BytesIO(b'Some fake png')),
+            ]
+        }
+        mailer.mail_user(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == 1
+        msg = msgs[0]
+
+        for item in [
+            "strategy.pdf", "application/pdf",
+            "goals.png", "image/png",
+        ]:
+            assert item in msg[3]
