@@ -5,6 +5,7 @@ import os
 import smtplib
 import socket
 import logging
+import mimetypes
 from time import time
 
 from email.message import EmailMessage
@@ -64,9 +65,18 @@ def _mail_recipient(recipient_name, recipient_email,
         msg['Reply-to'] = reply_to
 
     for attachment in attachments:
-        name, _file, media_type = attachment
+        if len(attachment) == 3:
+            name, _file, media_type = attachment
+        else:
+            name, _file = attachment
+            media_type = None
+
+        if not media_type:
+            media_type, encoding = mimetypes.guess_type(name)
         if media_type:
             main_type, sub_type = media_type.split('/')
+        else:
+            main_type = sub_type = None
 
         msg.add_attachment(
             _file.read(), filename=name, maintype=main_type, subtype=sub_type)

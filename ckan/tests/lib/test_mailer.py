@@ -318,3 +318,35 @@ class TestMailer(MailerBase):
             "goals.png", base64.b64encode(b'Some fake png').decode(), "image/png",
         ]:
             assert item in msg[3]
+
+    def test_mail_user_with_attachments_no_media_type_provided(self, mail_server):
+
+        user = factories.User()
+        user_obj = model.User.by_name(user["name"])
+
+        msgs = mail_server.get_smtp_messages()
+        assert msgs == []
+
+        # send email
+        test_email = {
+            "recipient": user_obj,
+            "subject": "Meeting",
+            "body": "The meeting is cancelled.\n",
+            "headers": {"header1": "value1"},
+            "attachments": [
+                ("strategy.pdf", io.BytesIO(b'Some fake pdf')),
+                ("goals.png", io.BytesIO(b'Some fake png')),
+            ]
+        }
+        mailer.mail_user(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == 1
+        msg = msgs[0]
+
+        for item in [
+            "strategy.pdf", "application/pdf",
+            "goals.png", "image/png",
+        ]:
+            assert item in msg[3]
