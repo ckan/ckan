@@ -130,7 +130,7 @@ def mail_recipient(
         body_html=None, headers=None, attachments=None):
     '''Sends an email to a an email address.
 
-    .. note:: You need to set up the :ref:`email_settings` to able to send emails.
+    .. note:: You need to set up the :ref:`email-settings` to able to send emails.
 
     :param recipient_name: the name of the recipient
     :type recipient: string
@@ -174,7 +174,7 @@ def mail_user(
         body_html=None, headers=None, attachments=None):
     '''Sends an email to a CKAN user.
 
-    You need to set up the :ref:`email_settings` to able to send emails.
+    You need to set up the :ref:`email-settings` to able to send emails.
 
     :param recipient: a CKAN user object
     :type recipient: a model.User object
