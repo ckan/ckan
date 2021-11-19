@@ -130,7 +130,8 @@ def mail_recipient(
         body_html=None, headers=None, attachments=None):
     '''Sends an email to a an email address.
 
-    .. note:: You need to set up the :ref:`email-settings` to able to send emails.
+    .. note:: You need to set up the :ref:`email-settings` to able to send
+        emails.
 
     :param recipient_name: the name of the recipient
     :type recipient: string
@@ -143,18 +144,20 @@ def mail_recipient(
     :type body: string
     :param body_html: the email body, in html format (optional)
     :type body_html: string
-    :headers: extra headers to add to email, in the form {'Header name': 'Header value'}
+    :headers: extra headers to add to email, in the form
+        {'Header name': 'Header value'}
     :type: dict
-    :attachments: a list of tuples containing file attachments to add to the email.
-        Tuples should contain the file name and a file-like object pointing to the file
-        contents::
+    :attachments: a list of tuples containing file attachments to add to the
+        email. Tuples should contain the file name and a file-like object
+        pointing to the file contents::
 
             [
                 ('some_report.csv', file_object),
             ]
 
-        Optionally, you can add a third element to the tuple containing the media type.
-        If not provided, it will be guessed using the ``mimetypes`` module::
+        Optionally, you can add a third element to the tuple containing the
+        media type. If not provided, it will be guessed using
+        the ``mimetypes`` module::
 
             [
                 ('some_report.csv', file_object, 'text/csv'),
