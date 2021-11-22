@@ -284,7 +284,6 @@ def get_min_setuptools_version():
 
 
 def config_defaults_from_declaration():
-    import ckan.cli.cli  # noqa: solves circular imports introduced by toolkit
     from ckan.config.declaration import Declaration
     decl = Declaration()
     decl.load_core_declaration()
