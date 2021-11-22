@@ -923,8 +923,8 @@ sudo docker-compose up -d
 ### Reindex if project was already installed / running
 
 ```bash
-sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild --config=/etc/ckan/production.ini
-sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester reindex --config=/etc/ckan/production.ini
+sudo docker exec -it ckan ckan  --config=/etc/ckan/production.ini search-index rebuild
+sudo docker exec -it ckan ckan  --config=/etc/ckan/production.ini harvester reindex
 ```
 
 ### change selinux permissions on web folders
