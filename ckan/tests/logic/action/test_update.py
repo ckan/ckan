@@ -642,10 +642,7 @@ class TestSendEmailNotifications(object):
     def check_email(self, email, address, name, subject):
         assert email[1] == "info@test.ckan.net"
         assert email[2] == [address]
-        encoded_subject = "Subject: =?utf-8?q?{subject}".format(
-            subject=subject.replace(" ", "_")
-        )
-        assert encoded_subject in email[3]
+        assert subject in email[3]
         # TODO: Check that body contains link to dashboard and email prefs.
 
     def test_fresh_setupnotifications(self, mail_server):
