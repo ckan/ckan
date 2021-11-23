@@ -27,7 +27,7 @@ class Key:
         site_url = Key().ckan.site_url
 
         assert site_url == "ckan.site_url"
-        assert toolkit.config[site_url] is toolkit.config["ckan.site_url"]
+        assert config[site_url] is config["ckan.site_url"]
 
     In addition, `Key` objects are similar to the curried functions. Existing
     `key` can be extended to the sub-key at any moment. Example::
