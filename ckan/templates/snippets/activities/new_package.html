@@ -2,8 +2,9 @@
 <li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
   <i class="fa icon fa-sitemap"></i>
   <p>
-    {{ _('{actor} created the dataset {dataset}').format(
+    {{ _('{actor} created the {dataset_type} {dataset}').format(
       actor=ah.actor(activity),
+      dataset_type=dataset_type,
       dataset=ah.dataset(activity)
     )|safe }}
     <br />

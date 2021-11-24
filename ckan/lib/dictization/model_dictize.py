@@ -654,7 +654,7 @@ def activity_dictize(activity, context, include_data=False):
         # the dataset/group/org/custom obj. we need the title to display it
         # in the activity stream.
         activity_dict['data'] = {
-            key: {'title': val['title']}
+            key: {'title': val['title'], 'type': val['type']}
             for (key, val) in activity_dict['data'].items()
             if isinstance(val, dict) and 'title' in val}
     return activity_dict
