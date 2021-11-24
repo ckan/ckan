@@ -1929,7 +1929,7 @@ the specific language governing permissions and limitations under the Apache Lic
                 return;
             }
 
-            if (opts.formatSearching) {
+            if (opts.formatSearching && this.findHighlightableChoices().length === 0) {
                 render("<li class='select2-searching'>" + evaluate(opts.formatSearching, opts.element) + "</li>");
             }
 
