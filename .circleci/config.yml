@@ -57,7 +57,7 @@ defaults:
     name: ckan-redis
 
   solr_image: &solr_image
-    image: smotornyuk/ckan-solr:latest
+    image: ckan/ckan-solr-dev:master
     name: ckan-solr
 
 jobs:
