@@ -10,9 +10,9 @@ from itertools import groupby
 
 import ckan.migration as migration_repo
 import ckan.plugins as p
-import ckan.plugins.toolkit as tk
 import ckan.model as model
 from ckan.common import config
+from . import error_shout
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ def init():
     try:
         model.repo.init_db()
     except Exception as e:
-        tk.error_shout(e)
+        error_shout(e)
     else:
         click.secho(u'Initialising DB: SUCCESS', fg=u'green', bold=True)
 
@@ -50,7 +50,7 @@ def clean():
     try:
         model.repo.clean_db()
     except Exception as e:
-        tk.error_shout(e)
+        error_shout(e)
     else:
         click.secho(u'Cleaning DB: SUCCESS', fg=u'green', bold=True)
 
@@ -167,7 +167,7 @@ def duplicate_emails():
                     s.format(k, len(users), u", ".join(users)),
                     fg=u"green", bold=True)
     except Exception as e:
-        tk.error_shout(e)
+        error_shout(e)
     if not duplicates_found:
         click.secho(u"No duplicate emails found", fg=u"green")
 
@@ -185,7 +185,7 @@ def _version_hash_to_ordinal(version):
     for name in versions:
         if version in name:
             return int(name.split(u'_')[0])
-    tk.error_shout(u'Version `{}` was not found in {}'.format(
+    error_shout(u'Version `{}` was not found in {}'.format(
         version, versions_dir))
 
 
@@ -193,7 +193,7 @@ def _resolve_alembic_config(plugin):
     if plugin:
         plugin_obj = p.get_plugin(plugin)
         if plugin_obj is None:
-            tk.error_shout(u"Plugin '{}' cannot be loaded.".format(plugin))
+            error_shout(u"Plugin '{}' cannot be loaded.".format(plugin))
             raise click.Abort()
         plugin_dir = os.path.dirname(inspect.getsourcefile(type(plugin_obj)))
 

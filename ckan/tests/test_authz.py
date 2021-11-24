@@ -61,9 +61,8 @@ def test_get_user_not_found():
 
 def test_no_attributes_set_on_imported_auth_members():
     import ckan.logic.auth.get as auth_get
-    import ckan.plugins.toolkit as tk
 
-    tk.check_access("site_read", {})
+    logic.check_access("site_read", {})
     assert hasattr(auth_get.package_show, "auth_allow_anonymous_access")
     assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
 
