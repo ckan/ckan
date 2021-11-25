@@ -1345,7 +1345,7 @@ class TestResourceDelete(object):
         assert 200 == response.status_code
         assert helpers.body_contains(response, "This dataset has no data")
 
-        with pytest.raises(p.toolkit.ObjectNotFound):
+        with pytest.raises(logic.NotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
     def test_deleting_non_existing_resource_404s(self, app, user):
@@ -1420,7 +1420,7 @@ class TestResourceDelete(object):
         assert 200 == response.status_code
         assert helpers.body_contains(response, "This dataset has no data")
 
-        with pytest.raises(p.toolkit.ObjectNotFound):
+        with pytest.raises(logic.NotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
     def test_confirm_and_cancel_deleting_a_resource(self, app, user):
