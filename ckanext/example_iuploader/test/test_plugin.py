@@ -2,7 +2,6 @@
 
 import flask
 import pytest
-import six
 from unittest.mock import patch
 from ckan.lib.helpers import url_for
 

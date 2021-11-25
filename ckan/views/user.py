@@ -265,16 +265,6 @@ class EditView(MethodView):
         if not context[u'save']:
             return self.get(id)
 
-        # checks if user id match with the current logged user
-        if id in (g.userobj.id, g.userobj.name):
-            current_user = True
-        else:
-            current_user = False
-
-        # we save the username for later use.. in case the current
-        # logged in user change his username
-        old_username = g.userobj.name
-
         try:
             data_dict = logic.clean_dict(
                 dictization_functions.unflatten(

@@ -1,7 +1,6 @@
 # encoding: utf-8
 import unittest.mock as mock
 import pytest
-import six
 from bs4 import BeautifulSoup
 
 import ckan.tests.factories as factories
@@ -301,7 +300,6 @@ class TestUser(object):
         assert "Profile updated" in response
 
     def test_email_change_on_existed_email(self, app, user):
-        password = "RandomPassword123"
         factories.User(email="existed@email.com")
         helpers.login_user(app, user["identity"])
 
@@ -351,7 +349,7 @@ class TestUser(object):
         assert "That login name can not be modified" in response
 
     def test_edit_user_logged_in_username_change_by_id(self, app, user):
-        
+ 
         helpers.login_user(app, user["identity"])
         response = app.post(
             url=url_for("user.edit", id=user["user_dict"]["id"]),

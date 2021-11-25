@@ -3,7 +3,6 @@
 import unittest.mock as mock
 from bs4 import BeautifulSoup
 import pytest
-import six
 from ckan.lib.helpers import url_for
 import ckan.logic as logic
 import ckan.tests.helpers as helpers
@@ -279,7 +278,7 @@ class TestGroupDelete(object):
 
     def test_non_authorized_user_trying_to_delete_fails(
         self, app, user
-    ):  
+    ):
         data = factories.User(password="correct123")
         identity = {"login": data["name"], "password": "correct123"}
         helpers.login_user(app, identity)

@@ -7,7 +7,7 @@ from . import signals
 
 log = logging.getLogger(__name__)
 
-# @implementer(IAuthenticator)
+
 class UsernamePasswordAuthenticator(object):
 
     def authenticate(self, identity):

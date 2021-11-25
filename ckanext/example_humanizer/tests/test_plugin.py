@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import pytest
-import six
 import bs4
 
 import ckan.tests.factories as factories

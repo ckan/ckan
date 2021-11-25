@@ -12,7 +12,7 @@ from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
 
-import webob
+# import webob
 
 from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule

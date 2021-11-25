@@ -36,7 +36,7 @@
 
 #     def _get_cookies(self, *args, **kwargs):
 #         u'''
-#         Override method in superclass to ensure HttpOnly is set appropriately.
+#         Override method in superclass to ensure HttpOnly is set appropriately
 #         '''
 #         super_cookies = super(CkanAuthTktCookiePlugin, self). \
 #             _get_cookies(*args, **kwargs)
@@ -101,7 +101,7 @@
 
 #     # back to repoze boilerplate
 #     if (secret is None and secretfile is None):
-#         raise ValueError(u"One of 'secret' or 'secretfile' must not be None.")
+#         raise ValueError(u"One of 'secret' or 'secretfile' must not be None")
 #     if (secret is not None and secretfile is not None):
 #         raise ValueError(u"Specify only one of 'secret' or 'secretfile'.")
 #     if secretfile:

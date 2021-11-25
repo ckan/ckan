@@ -7,7 +7,6 @@ import unittest.mock as mock
 import ckan.authz as authz
 from ckan.lib.helpers import url_for
 import pytest
-import six
 from urllib.parse import urlparse
 import ckan.model as model
 import ckan.model.activity as activity_model
@@ -2357,7 +2356,7 @@ class TestResourceListing(object):
         pkg = factories.Dataset(owner_org=org["id"])
 
         helpers.login_user(app, identity)
-        app.get(url_for("dataset.resources", id=pkg["name"]),status=200)
+        app.get(url_for("dataset.resources", id=pkg["name"]), status=200)
 
     def test_resource_listing_premissions_non_auth_user(self, app, user):
         org = factories.Organization()

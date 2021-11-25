@@ -18,8 +18,8 @@
 # # This software is subject to the provisions of the BSD-like license at
 # # http://www.repoze.org/LICENSE.txt.  A copy of the license should accompany
 # # this distribution.  THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL
-# # EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO,
-# # THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND
+# # EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED
+# # TO, THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND
 # # FITNESS FOR A PARTICULAR PURPOSE.
 # #
 # ##############################################################################
@@ -64,9 +64,9 @@
 #       will allow developers not using a post-login page to handle logins that
 #       fail/succeed.
 
-#     You should keep in mind that if you're using a post-login or a post-logout
-#     page, that page will receive the referrer URL as a query string variable
-#     whose name is 'came_from'.
+#     You should keep in mind that if you're using a post-login or a
+#     post-logout page, that page will receive the referrer URL as a query
+#     string variable whose name is 'came_from'.
 
 #     Forms can be submitted with any encoding (non-ASCII credentials are
 #     supported) and ISO-8859-1 (aka 'Latin-1') is the default one.
@@ -88,10 +88,10 @@
 #         :param login_handler_path: The URL/path where the login form is
 #             submitted to (where it is processed by this plugin).
 #         :type login_handler_path: str
-#         :param post_login_url: The URL/path where the user should be redirected
-#             to after login (even if wrong credentials were provided).
+#         :param post_login_url: The URL/path where the user should be
+#           redirected to after login (even if wrong credentials were provided)
 #         :type post_login_url: str
-#         :param logout_handler_path: The URL/path where the user is logged out.
+#         :param logout_handler_path: The URL/path where the user is logged out
 #         :type logout_handler_path: str
 #         :param post_logout_url: The URL/path where the user should be
 #             redirected to after logout.
@@ -99,8 +99,8 @@
 #         :param rememberer_name: The name of the repoze.who identifier which
 #             acts as rememberer.
 #         :type rememberer_name: str
-#         :param login_counter_name: The name of the query string variable which
-#             will represent the login counter.
+#         :param login_counter_name: The name of the query string variable
+#             which will represent the login counter.
 #         :type login_counter_name: str
 #         :param charset: The character encoding to be assumed when the user
 #             agent does not submit the form with an explicit charset.
@@ -128,8 +128,8 @@
 #     def identify(self, environ):
 #         u'''
 #         Override the parent's identifier to introduce a login counter
-#         (possibly along with a post-login page) and load the login counter into
-#         the ``environ``.
+#         (possibly along with a post-login page) and load the login counter
+#         into the ``environ``.
 
 #         '''
 #         request = Request(environ, charset=self.charset)
@@ -173,8 +173,8 @@
 #                 destination = self._get_full_path(self.post_login_url,
 #                                                   environ)
 #                 if u'came_from' in query:
-#                     # There's a referrer URL defined, so we have to pass it to
-#                     # the post-login page as a GET variable.
+#                     # There's a referrer URL defined, so we have to pass it
+#                     # to the post-login page as a GET variable.
 #                     destination = self._insert_qs_variable(destination,
 #                                                            u'came_from',
 #                                                            query[u'came_from'])
@@ -199,9 +199,10 @@
 #         elif path_info == self.login_form_url or self._get_logins(environ):
 #             #  We are on the URL that displays the from OR any other page  #
 #             #   where the login counter is included in the query string.   #
-#             # So let's load the counter into the environ and then hide it from
-#             # the query string (it will cause problems in frameworks like TG2,
-#             # where this unexpected variable would be passed to the controller)
+#             # So let's load the counter into the environ and then hide it
+#             # from the query string (it will cause problems in frameworks
+#             # like TG2, where this unexpected variable would be passed
+#             # to the controller)
 #             environ[u'repoze.who.logins'] = self._get_logins(environ, True)
 #             # Hiding the GET variable in the environ:
 #             if self.login_counter_name in query:
@@ -315,8 +316,8 @@
 
 #     def _insert_qs_variable(self, url, var_name, var_value):
 #         u'''
-#         Insert the variable ``var_name`` with value ``var_value`` in the query
-#         string of ``url`` and return the new URL.
+#         Insert the variable ``var_name`` with value ``var_value`` in the
+#         query string of ``url`` and return the new URL.
 
 #         '''
 #         url_parts = list(urlparse(url))

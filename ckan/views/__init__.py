@@ -8,7 +8,6 @@ from urllib.parse import quote
 import ckan.model as model
 import ckan.lib.api_token as api_token
 from ckan.common import g, request, config, session
-from ckan.lib.helpers import redirect_to as redirect
 from ckan.lib.i18n import get_locales_from_config
 import ckan.plugins as p
 

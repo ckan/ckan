@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 from bs4 import BeautifulSoup
 
 import ckan.authz as authz

@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 import bs4
 from ckan.lib.helpers import url_for
 
