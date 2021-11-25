@@ -1,0 +1,17 @@
+{% ckan_extends %}
+
+{% block resource_additional_information_inner %}
+  {% if res.url_type == 'tabledesigner' and res.datastore_active %}
+    {% block resource_tabledesigner %}
+      <div class="module-content">
+        <h2>{{ _('Table Designer') }}</h2>
+        {% block resource_tabledesigner_add %}
+          <a class="btn" name="tabledesigner-add-row" href="{{
+              h.url_for('tabledesigner.add_row', id=pkg.name, resource_id=res.id ) }}"
+            >{% block add_row_button_text %}<i class="fa fa-plus" aria-hidden="true"></i> {{ _('Add Row') }}{% endblock %}</a>
+        {% endblock %}
+      </div>
+    {% endblock %}
+  {% endif %}
+  {{ super() }}
+{% endblock %}

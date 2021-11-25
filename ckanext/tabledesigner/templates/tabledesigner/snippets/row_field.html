@@ -1,0 +1,5 @@
+{% import 'macros/form.html' as form %}
+
+{{ form.input('col__' ~ position ~ '__value',
+  label=field.get('info', {}).get('label', '') or field.id, classes=['control-full'],
+  id='field-' ~ position)}}
