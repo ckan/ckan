@@ -9,7 +9,7 @@
 # # * Replace usage of paster methods with webob ones
 # #
 
-# ##############################################################################
+# #############################################################################
 # #
 # # Copyright (c) 2009-2010, Gustavo Narea <me@gustavonarea.net> and
 # # contributors.
@@ -19,10 +19,10 @@
 # # http://www.repoze.org/LICENSE.txt.  A copy of the license should accompany
 # # this distribution.  THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL
 # # EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED
-# # TO, THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND
-# # FITNESS FOR A PARTICULAR PURPOSE.
+# # TO, THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT,
+# # AND FITNESS FOR A PARTICULAR PURPOSE.
 # #
-# ##############################################################################
+# #############################################################################
 
 # u'''Collection of :mod:`repoze.who` friendly forms'''
 
@@ -177,7 +177,7 @@
 #                     # to the post-login page as a GET variable.
 #                     destination = self._insert_qs_variable(destination,
 #                                                            u'came_from',
-#                                                            query[u'came_from'])
+#                                                          query[u'came_from'])
 #             failed_logins = self._get_logins(environ, True)
 #             new_dest = self._set_logins_in_url(destination, failed_logins)
 #             environ[u'repoze.who.application'] = HTTPFound(location=new_dest)

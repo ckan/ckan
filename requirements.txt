@@ -38,6 +38,8 @@ flask==2.0.2
     #   flask-multistatic
 flask-babel==1.0.0
     # via -r requirements.in
+flask-login==0.5.0
+    #
 flask-multistatic==1.0
     # via -r requirements.in
 idna==3.3

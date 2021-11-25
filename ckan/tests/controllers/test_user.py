@@ -349,7 +349,7 @@ class TestUser(object):
         assert "That login name can not be modified" in response
 
     def test_edit_user_logged_in_username_change_by_id(self, app, user):
- 
+
         helpers.login_user(app, user["identity"])
         response = app.post(
             url=url_for("user.edit", id=user["user_dict"]["id"]),
