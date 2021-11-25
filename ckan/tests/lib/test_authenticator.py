@@ -12,7 +12,7 @@ class TestUsernamePasswordAuthenticator(object):
         user = factories.User(password=password)
         identity = {"login": user["name"], "password": password}
         assert (
-            UsernamePasswordAuthenticator().authenticate({}, identity)
+            UsernamePasswordAuthenticator().authenticate(identity)
             == user["name"]
         )
 
@@ -22,7 +22,7 @@ class TestUsernamePasswordAuthenticator(object):
         user = factories.User(password=password, state="deleted")
         identity = {"login": user["name"], "password": password}
         assert (
-            UsernamePasswordAuthenticator().authenticate({}, identity) is None
+            UsernamePasswordAuthenticator().authenticate(identity) is None
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -31,7 +31,7 @@ class TestUsernamePasswordAuthenticator(object):
         user = factories.User(password=password, state="pending")
         identity = {"login": user["name"], "password": password}
         assert (
-            UsernamePasswordAuthenticator().authenticate({}, identity) is None
+            UsernamePasswordAuthenticator().authenticate(identity) is None
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -39,7 +39,7 @@ class TestUsernamePasswordAuthenticator(object):
         user = factories.User()
         identity = {"login": user["name"], "password": "wrong-password"}
         assert (
-            UsernamePasswordAuthenticator().authenticate({}, identity) is None
+            UsernamePasswordAuthenticator().authenticate(identity) is None
         )
 
     @pytest.mark.parametrize(
@@ -52,5 +52,5 @@ class TestUsernamePasswordAuthenticator(object):
     )
     def test_fails_if_received_no_login_or_pass(self, identity):
         assert (
-            UsernamePasswordAuthenticator().authenticate({}, identity) is None
+            UsernamePasswordAuthenticator().authenticate(identity) is None
         )

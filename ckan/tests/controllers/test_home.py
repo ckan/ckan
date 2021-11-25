@@ -5,6 +5,7 @@ import six
 from ckan.lib.helpers import url_for
 from bs4 import BeautifulSoup
 
+import ckan.tests.helpers as helpers
 from ckan.tests import factories
 
 
@@ -35,12 +36,13 @@ class TestHome(object):
         # can't use factory to create user as without email it fails validation
         from ckan import model
 
-        user = model.user.User(name="has-no-email")
+        user = model.user.User(name="has-no-email", password="correct123")
+        data = {"login": user.name, "password": "correct123"}
         model.Session.add(user)
         model.Session.commit()
-        env = {"REMOTE_USER": six.ensure_str(user.name)}
 
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        helpers.login_user(app, data)
+        response = app.get(url=url_for("home.index"))
 
         assert "update your profile" in response.body
         assert str(url_for("user.edit")) in response.body
@@ -49,9 +51,10 @@ class TestHome(object):
     @pytest.mark.usefixtures("clean_db")
     def test_email_address_no_nag(self, app):
         user = factories.User(email="filled_in@nicely.com")
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        data = {"login": user["name"], "password": "correct123"}
 
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        helpers.login_user(app, data)
+        response = app.get(url=url_for("home.index"))
 
         assert "add your email address" not in response
 

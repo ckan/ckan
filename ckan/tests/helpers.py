@@ -616,3 +616,9 @@ class FakeSMTP(smtplib.SMTP):
 
 def body_contains(res: CKANResponse, content: str):
     return content in res.body
+
+
+def login_user(app, credentials):
+    from ckan.lib.helpers import url_for
+    url = url_for("user.login")
+    app.post(url, data=credentials)

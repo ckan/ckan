@@ -19,6 +19,7 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import _, config, g, request
+from flask_login import login_user, logout_user
 
 log = logging.getLogger(__name__)
 
@@ -29,19 +30,19 @@ edit_user_form = u'user/edit_user_form.html'
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
 
 
-def _get_repoze_handler(handler_name):
-    u'''Returns the URL that repoze.who will respond to and perform a
-    login or logout.'''
-    return getattr(request.environ[u'repoze.who.plugins'][u'friendlyform'],
-                   handler_name)
+# def _get_repoze_handler(handler_name):
+#     u'''Returns the URL that repoze.who will respond to and perform a
+#     login or logout.'''
+#     return getattr(request.environ[u'repoze.who.plugins'][u'friendlyform'],
+#                    handler_name)
 
 
-def set_repoze_user(user_id, resp):
-    u'''Set the repoze.who cookie to match a given user_id'''
-    if u'repoze.who.plugins' in request.environ:
-        rememberer = request.environ[u'repoze.who.plugins'][u'friendlyform']
-        identity = {u'repoze.who.userid': user_id}
-        resp.headers.extend(rememberer.remember(request.environ, identity))
+# def set_repoze_user(user_id, resp):
+#     u'''Set the repoze.who cookie to match a given user_id'''
+#     if u'repoze.who.plugins' in request.environ:
+#         rememberer = request.environ[u'repoze.who.plugins'][u'friendlyform']
+#         identity = {u'repoze.who.userid': user_id}
+#         resp.headers.extend(rememberer.remember(request.environ, identity))
 
 
 def _edit_form_to_db_schema():
@@ -315,7 +316,7 @@ class EditView(MethodView):
 
             # we are checking if the identity is not the
             # same with the current logged user if so raise error.
-            if auth.authenticate(request.environ, identity) != g.user:
+            if auth.authenticate(identity) != g.user:
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
                 }
@@ -337,10 +338,7 @@ class EditView(MethodView):
 
         h.flash_success(_(u'Profile updated'))
         resp = h.redirect_to(u'user.read', id=user[u'name'])
-        if current_user and data_dict[u'name'] != old_username:
-            # Changing currently logged in user's name.
-            # Update repoze.who cookie to match
-            set_repoze_user(data_dict[u'name'], resp)
+
         return resp
 
     def get(self, id=None, data=None, errors=None, error_summary=None):
@@ -420,7 +418,7 @@ class RegisterView(MethodView):
             return self.get(data_dict)
 
         try:
-            logic.get_action(u'user_create')(context, data_dict)
+            user_dict = logic.get_action(u'user_create')(context, data_dict)
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to create user %s') % u'')
         except logic.NotFound:
@@ -445,8 +443,11 @@ class RegisterView(MethodView):
                 return base.render(u'user/logout_first.html')
 
         # log the user in programatically
+        g.userobj = model.User.get(user_dict["id"])
+        g.user = g.userobj.name
+        login_user(g.userobj)
+
         resp = h.redirect_to(u'user.me')
-        set_repoze_user(data_dict[u'name'], resp)
         return resp
 
     def get(self, data=None, errors=None, error_summary=None):
@@ -469,8 +470,8 @@ class RegisterView(MethodView):
         return base.render(u'user/new.html', extra_vars)
 
 
+@user.route("/login.html", methods=["GET", "POST"])
 def login():
-    # Do any plugin login stuff
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.login()
         if response:
@@ -478,49 +479,56 @@ def login():
 
     extra_vars = {}
     if g.user:
-        return base.render(u'user/logout_first.html', extra_vars)
+        return base.render("user/logout_first.html", extra_vars)
 
-    came_from = request.params.get(u'came_from')
-    if not came_from:
-        came_from = h.url_for(u'user.logged_in')
-    g.login_handler = h.url_for(
-        _get_repoze_handler(u'login_handler_path'), came_from=came_from)
-    return base.render(u'user/login.html', extra_vars)
+    if request.method == "POST":
+        username = request.form.get("login")
+        password = request.form.get("password")
+        _remember = request.form.get("remember")
+
+        user = model.User.by_name(username)
+        identity = {
+            u"login": username,
+            u"password": password
+        }
+
+        auth = authenticator.UsernamePasswordAuthenticator()
+        if auth.authenticate(identity):
+            if _remember:
+                import datetime
+                dur_time = datetime.timedelta(days=5)
+                login_user(user, remember=True, duration=dur_time)
+                return me()
+            else:
+                login_user(user)
+                return me()
+        else:
+            err = _(u"Login failed. Bad username or password.")
+            h.flash_error(err)
+            return base.render("user/login.html", extra_vars)
+
+    return base.render("user/login.html", extra_vars)
 
 
-def logged_in():
-    # redirect if needed
-    came_from = request.params.get(u'came_from', u'')
-    if h.url_is_local(came_from):
-        return h.redirect_to(str(came_from))
-
-    if g.user:
-        return me()
-    else:
-        err = _(u'Login failed. Bad username or password.')
-        h.flash_error(err)
-        return login()
-
-
+@user.route("/logout.html", methods=["GET", "POST"])
 def logout():
-    # Do any plugin logout stuff
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.logout()
         if response:
             return response
 
-    url = h.url_for(u'user.logged_out_page')
-    return h.redirect_to(
-        _get_repoze_handler(u'logout_handler_path') + u'?came_from=' + url,
-        parse_url=True)
+    if not g.user:
+        return h.redirect_to('user.login')
 
+    came_from = request.params.get('came_from', '')
+    logout_user()
+    g.userobj = None
+    g.user = None
 
-def logged_out():
-    # redirect if needed
-    came_from = request.params.get(u'came_from', u'')
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
-    return h.redirect_to(u'user.logged_out_page')
+
+    return h.redirect_to('user.logged_out_page')
 
 
 def logged_out_page():
@@ -872,9 +880,7 @@ user.add_url_rule(
     u'/register', view_func=RegisterView.as_view(str(u'register')))
 
 user.add_url_rule(u'/login', view_func=login)
-user.add_url_rule(u'/logged_in', view_func=logged_in)
 user.add_url_rule(u'/_logout', view_func=logout)
-user.add_url_rule(u'/logged_out', view_func=logged_out)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
 user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', ))

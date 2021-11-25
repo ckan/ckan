@@ -79,7 +79,7 @@ class TestUserSignals:
 
     def test_login(self, app):
         user = factories.User(password=u"correct123")
-        url = u"/login_generic"
+        url = url_for(u"user.login")
         success = mock.Mock()
         fail = mock.Mock()
         with tk.signals.successful_login.connected_to(success):

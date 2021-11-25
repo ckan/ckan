@@ -5,6 +5,7 @@ import os
 import pytest
 
 import ckan.model as model
+import ckan.tests.helpers as helpers
 from ckan.common import config
 from ckan.model.license import LicenseRegister
 from ckan.tests import factories
@@ -62,10 +63,10 @@ def test_import_v2_style_register():
 )
 @pytest.mark.ckan_config("ckan.locale_default", "ca")
 def test_import_v1_style_register_i18n(app):
-    sysadmin = factories.Sysadmin()
-    resp = app.get(
-        "/dataset/new", extra_environ={"REMOTE_USER": str(sysadmin["name"])}
-    )
+    sysadmin = factories.Sysadmin(password="correct123")
+    identity = {"login": sysadmin["name"], "password": "correct123"}
+    helpers.login_user(app, identity)
+    resp = app.get("/dataset/new")
     assert "Altres (Oberta)" in resp.body
 
 
@@ -75,10 +76,10 @@ def test_import_v1_style_register_i18n(app):
 )
 @pytest.mark.ckan_config("ckan.locale_default", "ca")
 def test_import_v2_style_register_i18n(app):
-    sysadmin = factories.Sysadmin()
-    resp = app.get(
-        "/dataset/new", extra_environ={"REMOTE_USER": str(sysadmin["name"])}
-    )
+    sysadmin = factories.Sysadmin(password="correct123")
+    identity = {"login": sysadmin["name"], "password": "correct123"}
+    helpers.login_user(app, identity)
+    resp = app.get("/dataset/new")
     assert "Altres (Oberta)" in resp.body
 
 

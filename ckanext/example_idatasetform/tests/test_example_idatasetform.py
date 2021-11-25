@@ -118,13 +118,13 @@ class TestVersion5(object):
 )
 class TestUrlsForCustomDatasetType(object):
     def test_dataset_create_redirects(self, app):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        user = factories.User(password="correct123")
+        identity = {"login": user["name"], "password": "correct123"}
+        helpers.login_user(app, identity)
         name = "fancy-urls"
 
         resp = app.post(
             url_for("fancy_type.new"),
-            environ_overrides=env,
             data={"name": name, "save": "", "_ckan_phase": 1},
             follow_redirects=False,
         )
@@ -135,7 +135,6 @@ class TestUrlsForCustomDatasetType(object):
         res_form_url = url_for("fancy_type_resource.new", id=name)
         resp = app.post(
             res_form_url,
-            environ_overrides=env,
             data={"id": "", "url": "", "save": "go-dataset", "_ckan_phase": 2},
             follow_redirects=False,
         )
@@ -145,7 +144,6 @@ class TestUrlsForCustomDatasetType(object):
 
         resp = app.post(
             res_form_url,
-            environ_overrides=env,
             data={"id": "", "url": "", "save": "again", "_ckan_phase": 2},
             follow_redirects=False,
         )
@@ -155,7 +153,6 @@ class TestUrlsForCustomDatasetType(object):
         )
         resp = app.post(
             res_form_url,
-            environ_overrides=env,
             data={
                 "id": "",
                 "url": "",
@@ -170,14 +167,13 @@ class TestUrlsForCustomDatasetType(object):
         )
 
     def test_links_on_edit_pages(self, app):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        user = factories.User(password="correct123")
+        identity = {"login": user["name"], "password": "correct123"}
+        helpers.login_user(app, identity)
         pkg = factories.Dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
         page = bs4.BeautifulSoup(
-            app.get(
-                url_for("fancy_type.edit", id=pkg["name"]), extra_environ=env
-            ).body
+            app.get(url_for("fancy_type.edit", id=pkg["name"])).body
         )
         page_header = page.find(class_="page-header")
         for action in ["edit", "resources", "read"]:
@@ -259,14 +255,14 @@ class TestUrlsForCustomDatasetType(object):
         )
 
     def test_links_on_read_pages(self, app):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        user = factories.User(password="correct123")
+        identity = {"login": user["name"], "password": "correct123"}
+        helpers.login_user(app, identity)
         pkg = factories.Dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
         page = bs4.BeautifulSoup(
             app.get(
-                url_for("fancy_type.read", id=pkg["name"]), extra_environ=env
-            ).body
+                url_for("fancy_type.read", id=pkg["name"])).body
         )
         page_header = page.find(class_="page-header")
         for action in ["read", "groups", "activity", "edit"]:
@@ -512,11 +508,12 @@ class TestDatasetMultiTypes(object):
     @pytest.mark.usefixtures('clean_db')
     @pytest.mark.parametrize('type_', ['first', 'second'])
     def test_template_without_options(self, type_, app):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        user = factories.User(password="correct123")
+        identity = {"login": user["name"], "password": "correct123"}
+        helpers.login_user(app, identity)
 
         resp = app.get(
-            '/{}/new'.format(type_), status=200, environ_overrides=env)
+            '/{}/new'.format(type_), status=200)
         assert resp.body == 'new package form'
 
     @pytest.mark.usefixtures('clean_db')

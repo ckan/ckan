@@ -10,12 +10,15 @@ from ckan.logic import _actions
 @pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
 @pytest.mark.usefixtures(u"clean_db", u"with_plugins", u"with_request_context")
 def test_resource_data(app, monkeypatch):
-    user = factories.User()
+    import ckan.tests.helpers as helpers
+
+    user = factories.User(password="correct123")
+    identity = {"login": user["name"], "password": "correct123"}
     dataset = factories.Dataset(creator_user_id=user["id"])
     resource = factories.Resource(
         package_id=dataset["id"], creator_user_id=user["id"]
     )
-    auth = {u"REMOTE_USER": user["name"]}
+    helpers.login_user(app, identity)
 
     url = u"/dataset/{id}/resource_data/{resource_id}".format(
         id=str(dataset["name"]), resource_id=str(resource["id"])
@@ -23,9 +26,9 @@ def test_resource_data(app, monkeypatch):
 
     func = mock.Mock()
     monkeypatch.setitem(_actions, 'datapusher_submit', func)
-    app.post(url=url, environ_overrides=auth, status=200)
+    app.post(url=url, status=200)
     func.assert_called()
     func.reset_mock()
 
-    app.get(url=url, environ_overrides=auth, status=200)
+    app.get(url=url, status=200)
     func.assert_not_called()

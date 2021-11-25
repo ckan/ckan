@@ -150,35 +150,35 @@ def identify_user():
 def _identify_user_default():
     u'''
     Identifies the user using two methods:
-    a) If they logged into the web interface then repoze.who will
-       set REMOTE_USER.
-    b) For API calls they may set a header with an API key.
+    a) If they logged into the web interface then flask-login will
+       set _user_id into beaker.session.
+    b) For API calls they may set a header with an API token.
     '''
 
-    # environ['REMOTE_USER'] is set by repoze.who if it authenticates a
-    # user's cookie. But repoze.who doesn't check the user (still) exists
-    # in our database - we need to do that here. (Another way would be
-    # with an userid_checker, but that would mean another db access.
-    # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
-    # .plugins.sql )
-    g.user = six.ensure_text(request.environ.get(u'REMOTE_USER', u''))
+    # beaker_session['_user_id'] is set by flask-login if it authenticates a
+    # user's cookie. But flask-login doesn't check the user (still) exists
+    # in our database - we need to do that here.
+    g.user = None
+    beaker_session = request.environ.get('beaker.session')
+    if beaker_session.get('_user_id'):
+        user_id = beaker_session['_user_id']
+        g.userobj = model.User.get(user_id)
+        g.user = g.userobj.name
+
     if g.user:
         g.userobj = model.User.by_name(g.user)
-
         if g.userobj is None or not g.userobj.is_active():
 
             # This occurs when a user that was still logged in is deleted, or
             # when you are logged in, clean db and then restart (or when you
             # change your username). There is no user object, so even though
-            # repoze thinks you are logged in and your cookie has
+            # flask-login thinks you are logged in and your cookie has
             # ckan_display_name, we need to force user to logout and login
             # again to get the User object.
-
-            ev = request.environ
-            if u'repoze.who.plugins' in ev:
-                pth = getattr(ev[u'repoze.who.plugins'][u'friendlyform'],
-                              u'logout_handler_path')
-                redirect(pth)
+            from flask_login import logout_user
+            logout_user()
+            g.userobj = None
+            g.user = None
     else:
         g.userobj = _get_user_for_apitoken()
         if g.userobj is not None:

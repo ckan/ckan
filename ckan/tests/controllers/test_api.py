@@ -67,7 +67,8 @@ class TestApiController(object):
         monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
         monkeypatch.setattr(ckan_uploader, u"_storage_path", str(tmpdir))
 
-        user = factories.User()
+        user = factories.User(password="correct123")
+        identity = {"login": user["name"], "password": "correct123"}
         pkg = factories.Dataset(creator_user_id=user["id"])
 
         url = url_for(
@@ -75,7 +76,7 @@ class TestApiController(object):
             logic_function="resource_create",
             ver=3,
         )
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        helpers.login_user(app, identity)
 
         content = six.ensure_binary('upload-content')
         upload_content = BytesIO(content)
@@ -88,7 +89,6 @@ class TestApiController(object):
         resp = app.post(
             url,
             data=postparams,
-            environ_overrides=env,
             content_type="multipart/form-data",
         )
         result = resp.json["result"]
@@ -234,34 +234,26 @@ class TestApiController(object):
         assert results[0]["title"] == "Simple dummy org"
 
     def test_config_option_list_access_sysadmin(self, app):
-        user = factories.Sysadmin()
+        user = factories.Sysadmin(password="correct123")
+        identity = {"login": user["name"], "password": "correct123"}
         url = url_for(
             "api.action",
             logic_function="config_option_list",
             ver=3,
         )
-
-        app.get(
-            url=url,
-            query_string={},
-            environ_overrides={"REMOTE_USER": six.ensure_str(user["name"])},
-            status=200,
-        )
+        helpers.login_user(app, identity)
+        app.get(url=url, query_string={}, status=200)
 
     def test_config_option_list_access_sysadmin_jsonp(self, app):
-        user = factories.Sysadmin()
+        user = factories.Sysadmin(password="correct123")
+        identity = {"login": user["name"], "password": "correct123"}
         url = url_for(
             "api.action",
             logic_function="config_option_list",
             ver=3,
         )
-
-        app.get(
-            url=url,
-            query_string={"callback": "myfn"},
-            environ_overrides={"REMOTE_USER": six.ensure_str(user["name"])},
-            status=403,
-        )
+        helpers.login_user(app, identity)
+        app.get(url=url, query_string={"callback": "myfn"}, status=403)
 
     def test_jsonp_works_on_get_requests(self, app):
 

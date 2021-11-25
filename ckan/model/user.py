@@ -293,6 +293,14 @@ class User(core.StatefulObjectMixin,
                                  cls.id.in_(user_list)))
         return [user.id for user in query.all()]
 
+    def get_id(self):
+        '''Needed by flask-login'''
+        return str(self.id)
+
+    def is_authenticated(self):
+        '''Needed by flask-login'''
+        return True
+
 
 meta.mapper(User, user_table,
     properties={'password': synonym('_password', map_column=True)},

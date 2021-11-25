@@ -2,19 +2,17 @@
 
 import logging
 
-from zope.interface import implementer
-from repoze.who.interfaces import IAuthenticator
-
 from ckan.model import User
 from ckan.plugins import toolkit as tk
+# from zope.interface import implementer
+# from repoze.who.interfaces import IAuthenticator
 
 log = logging.getLogger(__name__)
 
-
-@implementer(IAuthenticator)
+# @implementer(IAuthenticator)
 class UsernamePasswordAuthenticator(object):
 
-    def authenticate(self, environ, identity):
+    def authenticate(self, identity):
         if not ('login' in identity and 'password' in identity):
             return None
 

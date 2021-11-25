@@ -30,11 +30,14 @@ CONTENT = "data"
 def test_resource_download_iuploader_called(
         send_file, app, monkeypatch, tmpdir, ckan_config
 ):
+    import ckan.tests.helpers as helpers
+
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
     monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
 
-    user = factories.User()
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    user = factories.User(password="correct123")
+    identity = {"login": user["name"], "password": "correct123"}
+    helpers.login_user(app, identity)
     url = url_for("dataset.new")
 
     dataset_name = u"package_with_resource"
@@ -43,8 +46,7 @@ def test_resource_download_iuploader_called(
         "save": "",
         "_ckan_phase": 1
     }
-    response = app.post(
-        url, data=form, environ_overrides=env, follow_redirects=False)
+    response = app.post(url, data=form, follow_redirects=False)
     location = response.headers['location']
     location = urlparse(location)._replace(scheme='', netloc='').geturl()
 
@@ -56,7 +58,7 @@ def test_resource_download_iuploader_called(
         side_effect=plugin.ResourceUpload.get_path,
         autospec=True,
     ) as mock_get_path:
-        response = app.post(location, environ_overrides=env, data={
+        response = app.post(location, data={
             "id": "",
             "url": "http://example.com/resource",
             "save": "go-metadata",
