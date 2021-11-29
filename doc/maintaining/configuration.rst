@@ -1870,6 +1870,61 @@ Default value: ``2``
 
 The maximum in megabytes an image upload can be.
 
+Uploader Settings
+-----------------
+
+.. _ckan.upload.user.types:
+
+ckan.upload.user.types
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.user.types = image text
+
+Default value: |config:ckan.upload.user.types|
+
+File types allowed to upload as user's avatar. No restrictions applied when empty
+
+.. _ckan.upload.user.mimetypes:
+
+ckan.upload.user.mimetypes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.user.mimetypes = image/png text/svg
+
+Default value: |config:ckan.upload.user.mimetypes|
+
+File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+
+.. _ckan.upload.group.types:
+
+ckan.upload.group.types
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.group.types = image text
+
+Default value: |config:ckan.upload.group.types|
+
+File types allowed to upload as group image. No restrictions applied when empty
+
+.. _ckan.upload.group.mimetypes:
+
+ckan.upload.group.mimetypes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.group.mimetypes = image/png text/svg
+
+Default value: |config:ckan.upload.group.mimetypes|
+
+File MIMETypes allowed to upload as group image. No restrictions applied when empty
+
 
 Webassets Settings
 ------------------
