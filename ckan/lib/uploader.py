@@ -198,18 +198,20 @@ class Upload(object):
         if not self.filename:
             return
 
-        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
-        self.upload_file.seek(0, os.SEEK_SET)
-
-        err = {self.file_field: [f"Unsupported upload type: {actual}"]}
-
         mimetypes = config.get_value(
             f"ckan.upload.{self.object_type}.mimetypes")
+        types = config.get_value(f"ckan.upload.{self.object_type}.types")
+        if not mimetypes and not types:
+            return
+
+        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
+        self.upload_file.seek(0, os.SEEK_SET)
+        err = {self.file_field: [f"Unsupported upload type: {actual}"]}
+
         if mimetypes and actual not in mimetypes:
             raise logic.ValidationError(err)
 
         type_ = actual.split("/")[0]
-        types = config.get_value(f"ckan.upload.{self.object_type}.types")
         if types and type_ not in types:
             raise logic.ValidationError(err)
 
