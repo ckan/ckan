@@ -1,7 +1,7 @@
 # BACKUP!
 ```
 cd ~/ckan/contrib/docker/postgresql
-sudo bash ./ph_backup_rotated.sh
+sudo bash ./pg_backup_rotated.sh
 ```
 # Update config
 Compare existin production.ini with template. make updates as needed. You may need to generate a new config file to populate some of the missing api keys.
