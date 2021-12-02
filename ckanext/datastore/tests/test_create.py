@@ -106,7 +106,7 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         resource = helpers.call_action("resource_show", id=resource_id)
         url = resource["url"]
-        assert url.startswith(config.get("ckan.site_url"))
+        assert url.startswith(config.get_value("ckan.site_url"))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -346,9 +346,11 @@ class TestDatastoreCreate(object):
     def create_test_data(self, clean_datastore, test_request_context):
         ctd.CreateTestData.create()
         self.sysadmin_user = factories.Sysadmin()
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user["id"])
+        self.sysadmin_token = self.sysadmin_token["token"]
         self.normal_user = factories.User()
-        self.normal_user_token = factories.APIToken(user=self.normal_user)
+        self.normal_user_token = factories.APIToken(user=self.normal_user["id"])
+        self.normal_user_token = self.normal_user_token["token"]
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         with test_request_context():

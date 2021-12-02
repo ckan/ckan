@@ -6,13 +6,11 @@ Provides plugin services to the CKAN
 
 from contextlib import contextmanager
 import logging
-import blinker
 from pkg_resources import iter_entry_points
 from pyutilib.component.core import PluginGlobals, implements
 from pyutilib.component.core import ExtensionPoint
 from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
-from ckan.common import asbool
 
 
 from ckan.plugins import interfaces
@@ -86,8 +84,14 @@ class PluginImplementations(ExtensionPoint):
 
         plugin_lookup = {pf.name: pf for pf in iterator}
 
-        plugins_in_config = (
-            config.get('ckan.plugins', '').split() + find_system_plugins())
+        plugins = config.get_value("ckan.plugins")
+        if plugins is None:
+            plugins = []
+        elif isinstance(plugins, str):
+            # this happens when core declarations loaded and validated
+            plugins = plugins.split()
+
+        plugins_in_config = plugins + find_system_plugins()
 
         ordered_plugins = []
         for pc in plugins_in_config:
@@ -161,7 +165,7 @@ def load_all():
     # Clear any loaded plugins
     unload_all()
 
-    plugins = config.get('ckan.plugins', '').split() + find_system_plugins()
+    plugins = config.get_value('ckan.plugins') + find_system_plugins()
 
     load(*plugins)
 

@@ -99,7 +99,8 @@ def resource_update(context, data_dict):
         data_dict['datastore_active'] = resource.extras['datastore_active']
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_update(context, pkg_dict['resources'][n], data_dict)
+        plugin.before_resource_update(context, pkg_dict['resources'][n],
+                                      data_dict)
 
     pkg_dict['resources'][n] = data_dict
 
@@ -122,7 +123,7 @@ def resource_update(context, data_dict):
              'resource': resource})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_update(context, resource)
+        plugin.after_resource_update(context, resource)
 
     return resource
 
@@ -335,7 +336,7 @@ def package_update(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
 
-        item.after_update(context, data)
+        item.after_dataset_update(context, data)
 
     # Create activity
     if not pkg.private:
@@ -1128,8 +1129,7 @@ def send_email_notifications(context, data_dict):
     if not request.environ.get('paste.command_request'):
         _check_access('send_email_notifications', context, data_dict)
 
-    if not converters.asbool(
-            config.get('ckan.activity_streams_email_notifications')):
+    if not config.get_value('ckan.activity_streams_email_notifications'):
         raise ValidationError('ckan.activity_streams_email_notifications'
                               ' is not enabled in config')
 
@@ -1229,7 +1229,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             'q': q,
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'fq': 'site_id:"%s"' % config.get_value('ckan.site_id'),
             'rows': BATCH_SIZE
         }
 

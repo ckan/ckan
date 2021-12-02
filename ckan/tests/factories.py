@@ -100,7 +100,6 @@ import unittest.mock as mock
 import ckan.model
 import ckan.logic
 import ckan.tests.helpers as helpers
-from ckan.lib.maintain import deprecated
 
 
 def _get_action_user_name(kwargs: Dict[str, Any]) -> Optional[str]:
@@ -141,8 +140,8 @@ class CKANOptions(factory.alchemy.SQLAlchemyOptions):
     """CKANFactory options.
 
     :param action: name of the CKAN API action used for entity creation
-    :param primary_key: name of the entity's property that can be used for retriving
-        entity object from database
+    :param primary_key: name of the entity's property that can be used for
+        retriving entity object from database
 
     """
 
@@ -174,7 +173,7 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     @classmethod
     def _api_prepare_args(cls, data_dict):
-        """Add any extra details to pass into the action on the entity create stage."""
+        """Add any extra details for the action."""
         if "context" not in data_dict:
             data_dict["context"] = {"user": _get_action_user_name(data_dict)}
         return data_dict
@@ -209,8 +208,7 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
 
 
 class User(CKANFactory):
-    """A factory class for creating CKAN users.
-    """
+    """A factory class for creating CKAN users."""
 
     class Meta:
         model = ckan.model.User
@@ -219,7 +217,7 @@ class User(CKANFactory):
     # These are the default params that will be used to create new users.
     fullname = factory.Faker("name")
     password = factory.Faker("password")
-    about = factory.Faker("text")
+    about = factory.Faker("text", max_nb_chars=60)
     image_url = factory.Faker("image_url")
     name = factory.Faker("user_name")
     email = factory.Faker("email", domain="ckan.example.com")
@@ -228,15 +226,14 @@ class User(CKANFactory):
 
 
 class Resource(CKANFactory):
-    """A factory class for creating CKAN resources.
-    """
+    """A factory class for creating CKAN resources."""
 
     class Meta:
         model = ckan.model.Resource
         action = "resource_create"
 
     name = _name("resource")
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=60)
     format = factory.Faker("file_extension")
     url = factory.Faker("url")
     package_id = factory.LazyFunction(lambda: Dataset()["id"])
@@ -261,21 +258,19 @@ class ResourceView(CKANFactory):
         action = "resource_view_create"
 
     title = _name("resource-view")
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=60)
     view_type = "image_view"
     resource_id = factory.LazyFunction(lambda: Resource()["id"])
 
 
 class Sysadmin(User):
-    """A factory class for creating sysadmin users.
-    """
+    """A factory class for creating sysadmin users."""
 
     sysadmin = True
 
 
 class Group(CKANFactory):
-    """A factory class for creating CKAN groups.
-    """
+    """A factory class for creating CKAN groups."""
 
     class Meta:
         model = ckan.model.Group
@@ -284,13 +279,12 @@ class Group(CKANFactory):
     name = _name("group")
     title = factory.Faker("company")
 
-    description = factory.Faker("text")
+    description = factory.Faker("text", max_nb_chars=60)
     image_url = factory.Faker("image_url")
 
 
 class Organization(Group):
-    """A factory class for creating CKAN organizations.
-    """
+    """A factory class for creating CKAN organizations."""
 
     class Meta:
         action = "organization_create"
@@ -301,8 +295,7 @@ class Organization(Group):
 
 
 class Dataset(CKANFactory):
-    """A factory class for creating CKAN datasets.
-    """
+    """A factory class for creating CKAN datasets."""
 
     class Meta:
         model = ckan.model.Package
@@ -310,13 +303,11 @@ class Dataset(CKANFactory):
 
     name = _name("dataset")
     title = factory.Faker("sentence", nb_words=5)
-    notes = factory.Faker("text")
-
+    notes = factory.Faker("text", max_nb_chars=60)
 
 
 class Vocabulary(CKANFactory):
-    """A factory class for creating tag vocabularies.
-    """
+    """A factory class for creating tag vocabularies."""
 
     class Meta:
         model = ckan.model.Vocabulary
@@ -326,8 +317,7 @@ class Vocabulary(CKANFactory):
 
 
 class Activity(CKANFactory):
-    """A factory class for creating CKAN activity objects.
-    """
+    """A factory class for creating CKAN activity objects."""
 
     class Meta:
         model = ckan.model.Activity
@@ -335,17 +325,14 @@ class Activity(CKANFactory):
 
 
 class MockUser(factory.Factory):
-    """A factory class for creating mock CKAN users using the mock library.
-
-    """
+    """A factory class for creating mock CKAN users using the mock library."""
 
     class Meta:
         model = mock.MagicMock
 
-
     fullname = factory.Faker("name")
     password = factory.Faker("password")
-    about = factory.Faker("text")
+    about = factory.Faker("text", max_nb_chars=60)
     image_url = factory.Faker("image_url")
     name = factory.Faker("user_name")
     email = factory.Faker("email", domain="ckan.example.com")
@@ -401,3 +388,9 @@ class APIToken(CKANFactory):
         action = "api_token_create"
 
     name = factory.Faker("name")
+    user = factory.LazyFunction(lambda: User()["id"])
+
+    @classmethod
+    def _api_prepare_args(cls, data_dict):
+        """Do not try to put `user` parameter into context."""
+        return data_dict

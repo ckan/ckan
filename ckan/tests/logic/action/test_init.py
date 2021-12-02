@@ -27,11 +27,11 @@ def test_41_missing_action():
 class MockPackageSearchPlugin(p.SingletonPlugin):
     p.implements(p.IPackageController, inherit=True)
 
-    def before_index(self, data_dict):
+    def before_dataset_index(self, data_dict):
         data_dict["extras_test"] = "abcabcabc"
         return data_dict
 
-    def before_search(self, search_params):
+    def before_dataset_search(self, search_params):
         if (
             "extras" in search_params
             and "ext_avoid" in search_params["extras"]
@@ -48,7 +48,7 @@ class MockPackageSearchPlugin(p.SingletonPlugin):
 
         return search_params
 
-    def after_search(self, search_results, search_params):
+    def after_dataset_search(self, search_results, search_params):
 
         assert "results" in search_results
         assert "count" in search_results
@@ -71,7 +71,7 @@ class MockPackageSearchPlugin(p.SingletonPlugin):
 
         return search_results
 
-    def before_view(self, data_dict):
+    def before_dataset_view(self, data_dict):
         data_dict["title"] = "string_not_found_in_rest_of_template"
         return data_dict
 

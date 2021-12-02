@@ -29,7 +29,9 @@ Example:
               {% endif %}
             {% endblock %}
             {% block heading_title %}
-		{{ h.link_to(title|truncate(80), h.url_for('%s.read' % package.type, id=package.name)) }}
+    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}">
+      {{title|truncate(80)}}
+    </a>
             {% endblock %}
             {% block heading_meta %}
               {% if package.get('state', '').startswith('draft') %}
@@ -50,7 +52,7 @@ Example:
           {% if notes %}
             <div>{{ notes|urlize }}</div>
           {% else %}
-            <p class="empty">{{ _("This dataset has no description") }}</p>
+            <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no description for this dataset") }}</p>
           {% endif %}
         {% endblock %}
       </div>

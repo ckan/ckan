@@ -86,85 +86,85 @@ class TestPackageShow(object):
         replace_uuid(dataset2["tags"][0], "id")
 
         assert dataset2 == {
-            "author": None,
-            "author_email": None,
+            "author": dataset1["author"],
+            "author_email": dataset1["author_email"],
             "creator_user_id": "<SOME-UUID>",
-            "extras": [{"key": "subject", "value": "science"}],
+            "extras": dataset1["extras"],
             "groups": [
                 {
-                    "description": "A test description for this test group.",
-                    "display_name": "Test Group num",
+                    "description": group["description"],
+                    "display_name": group["display_name"],
                     "id": "<SOME-UUID>",
-                    "image_display_url": "",
-                    "name": "test_group_num",
-                    "title": "Test Group num",
+                    "image_display_url": group["image_display_url"],
+                    "name": group["name"],
+                    "title": group["title"],
                 }
             ],
             "id": "<SOME-UUID>",
-            "isopen": False,
-            "license_id": None,
-            "license_title": None,
-            "maintainer": None,
-            "maintainer_email": None,
+            "isopen": dataset1["isopen"],
+            "license_id": dataset1["license_id"],
+            "license_title": dataset1["license_title"],
+            "maintainer": dataset1["maintainer"],
+            "maintainer_email": dataset1["maintainer_email"],
             "metadata_created": "2019-05-24T15:52:30.123456",
             "metadata_modified": "2019-05-24T15:52:30.123456",
-            "name": "test_dataset_num",
-            "notes": "Just another test dataset.",
-            "num_resources": 1,
-            "num_tags": 1,
+            "name": dataset1["name"],
+            "notes": dataset1["notes"],
+            "num_resources": dataset1["num_resources"],
+            "num_tags": dataset1["num_tags"],
             "organization": {
-                "approval_status": "approved",
+                "approval_status": org["approval_status"],
                 "created": "2019-05-24T15:52:30.123456",
-                "description": "Just another test organization.",
+                "description": org["description"],
                 "id": "<SOME-UUID>",
-                "image_url": "https://placekitten.com/g/200/100",
-                "is_organization": True,
-                "name": "test_org_num",
-                "state": "active",
-                "title": "Test Organization",
-                "type": "organization",
+                "image_url": org["image_url"],
+                "is_organization": org["is_organization"],
+                "name": org["name"],
+                "state": org["state"],
+                "title": org["title"],
+                "type": org["type"],
             },
             "owner_org": "<SOME-UUID>",
-            "private": False,
-            "relationships_as_object": [],
-            "relationships_as_subject": [],
+            "private": dataset1["private"],
+            "relationships_as_object": dataset1["relationships_as_object"],
+            "relationships_as_subject": dataset1["relationships_as_subject"],
             "resources": [
                 {
                     "cache_last_updated": None,
-                    "cache_url": None,
+                    "cache_url": dataset1["resources"][0]["cache_url"],
                     "created": "2019-05-24T15:52:30.123456",
-                    "description": None,
-                    "format": "PNG",
+                    "description": dataset1["resources"][0]["description"],
+                    "format": dataset1["resources"][0]["format"],
                     "hash": "",
                     "id": "<SOME-UUID>",
-                    "last_modified": None,
+                    "last_modified": dataset1["resources"][0]["last_modified"],
                     "metadata_modified": "2019-05-24T15:52:30.123456",
-                    "mimetype": None,
+                    "mimetype": dataset1["resources"][0]["mimetype"],
                     "mimetype_inner": None,
                     "name": "Image num",
                     "package_id": "<SOME-UUID>",
-                    "position": 0,
-                    "resource_type": None,
-                    "size": None,
-                    "state": "active",
-                    "url": "http://example.com/image.png",
-                    "url_type": None,
+                    "position": dataset1["resources"][0]["position"],
+                    "resource_type": dataset1["resources"][0]["resource_type"],
+                    "size": dataset1["resources"][0]["size"],
+                    "state": dataset1["resources"][0]["state"],
+                    "url": dataset1["resources"][0]["url"],
+                    "url_type": dataset1["resources"][0]["url_type"],
                 }
             ],
-            "state": "active",
+            "state": dataset1["state"],
             "tags": [
                 {
-                    "display_name": "science",
+                    "display_name": dataset1["tags"][0]["display_name"],
                     "id": "<SOME-UUID>",
-                    "name": "science",
-                    "state": "active",
-                    "vocabulary_id": None,
+                    "name": dataset1["tags"][0]["name"],
+                    "state": dataset1["tags"][0]["state"],
+                    "vocabulary_id": dataset1["tags"][0]["vocabulary_id"],
                 }
             ],
-            "title": dataset2["title"],
-            "type": "dataset",
-            "url": None,
-            "version": None,
+            "title": dataset1["title"],
+            "type": dataset1["type"],
+            "url": dataset1["url"],
+            "version": dataset1["version"],
         }
 
     def test_package_show_with_custom_schema(self):
@@ -173,7 +173,7 @@ class TestPackageShow(object):
 
         custom_schema = default_show_package_schema()
 
-        def foo(key, data, errors, context):
+        def foo(key, data, errors, context):  # noqa
             data[key] = "foo"
 
         custom_schema["new_field"] = [foo]
@@ -192,7 +192,7 @@ class TestPackageShow(object):
 
         custom_schema = default_show_package_schema()
 
-        def foo(key, data, errors, context):
+        def foo(key, data, errors, context):  # noqa
             data[key] = "foo"
 
         custom_schema["new_field"] = [foo]
@@ -409,9 +409,9 @@ class TestGroupList(object):
 
         child_group_returned = group_list[0]
         if group_list[0]["name"] == child_group["name"]:
-            child_group_returned, parent_group_returned = group_list
+            child_group_returned, _ = group_list
         else:
-            child_group_returned, parent_group_returned = group_list[::-1]
+            child_group_returned, _ = group_list[::-1]
         expected_parent_group = dict(parent_group)
 
         assert [g["name"] for g in child_group_returned["groups"]] == [
@@ -420,21 +420,21 @@ class TestGroupList(object):
 
     def test_group_list_limit(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
-        group3 = factories.Group()
+        group1 = factories.Group(title="aa")
+        group2 = factories.Group(title="bb")
+        group3 = factories.Group(title="cc")
         group_names = [g["name"] for g in [group1, group2, group3]]
 
         group_list = helpers.call_action("group_list", limit=1)
 
         assert len(group_list) == 1
-        assert group_list[0] == sorted(group_names)[0]
+        assert group_list[0] == group_names[0]
 
     def test_group_list_offset(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
-        group3 = factories.Group()
+        group1 = factories.Group(title="aa")
+        group2 = factories.Group(title="bb")
+        group3 = factories.Group(title="cc")
         group_names = [g["name"] for g in [group1, group2, group3]]
 
         group_list = helpers.call_action("group_list", offset=2)
@@ -442,13 +442,13 @@ class TestGroupList(object):
         assert len(group_list) == 1
         # group list returns sorted result. This is not necessarily
         # order of creation
-        assert group_list[0] == sorted(group_names)[2]
+        assert group_list[0] == group_names[2]
 
     def test_group_list_limit_and_offset(self):
 
-        group1 = factories.Group(name="aa")
-        group2 = factories.Group(name="bb")
-        group3 = factories.Group(name="cc")
+        factories.Group(title="aa")
+        group2 = factories.Group(title="bb")
+        factories.Group(title="cc")
 
         group_list = helpers.call_action("group_list", offset=1, limit=1)
 
@@ -457,8 +457,8 @@ class TestGroupList(object):
 
     def test_group_list_limit_as_string(self):
 
-        group1 = factories.Group(name="aa")
-        group2 = factories.Group(name="bb")
+        factories.Group(name="aa")
+        factories.Group(name="bb")
 
         group_list = helpers.call_action("group_list", limit="1")
 
@@ -648,7 +648,7 @@ class TestGroupShow(object):
     @pytest.mark.ckan_config("ckan.search.rows_max", "5")
     def test_package_limit_configured(self):
         group = factories.Group()
-        for i in range(7):
+        for _ in range(7):
             factories.Dataset(groups=[{"id": group["id"]}])
         id = group["id"]
 
@@ -700,7 +700,7 @@ class TestOrganizationList(object):
         Getting the org_list with a type defined should only return
         orgs of that type.
         """
-        org1 = factories.Organization()
+        factories.Organization()
         org2 = factories.Organization(type="custom_org")
         factories.Group(type="custom")
         factories.Group(type="custom")
@@ -841,7 +841,7 @@ class TestOrganizationShow(object):
     @pytest.mark.ckan_config("ckan.search.rows_max", "5")
     def test_package_limit_configured(self):
         org = factories.Organization()
-        for i in range(7):
+        for _ in range(7):
             factories.Dataset(owner_org=org["id"])
         id = org["id"]
 
@@ -854,8 +854,9 @@ class TestOrganizationShow(object):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUserList(object):
     def test_user_list_default_values(self):
-
-        user = factories.User()
+        # we need to set fullname because user_list by default sorts by
+        # display_name
+        user = factories.User(fullname="Guido")
 
         got_users = helpers.call_action("user_list")
 
@@ -877,14 +878,14 @@ class TestUserList(object):
         assert "datasets" not in got_user
 
     def test_user_list_edits(self):
-
-        user = factories.User()
+        # we need to set fullname because user_list by default sorts by
+        # display_name
+        user = factories.User(fullname="Guido")
         dataset = factories.Dataset(user=user)
         dataset["title"] = "Edited title"
         helpers.call_action(
             "package_update", context={"user": user["name"]}, **dataset
         )
-
         got_users = helpers.call_action("user_list")
 
         # There is one default user
@@ -893,8 +894,9 @@ class TestUserList(object):
         assert got_user["number_created_packages"] == 1
 
     def test_user_list_excludes_deleted_users(self):
-
-        user = factories.User()
+        # we need to set fullname because user_list by default sorts by
+        # display_name
+        user = factories.User(fullname="Guido")
         factories.User(state="deleted")
 
         got_users = helpers.call_action("user_list")
@@ -904,8 +906,9 @@ class TestUserList(object):
         assert got_users[0]["name"] == user["name"]
 
     def test_user_list_not_all_fields(self):
-
-        user = factories.User()
+        # we need to set fullname because user_list by default sorts by
+        # display_name
+        user = factories.User(fullname="Guido")
 
         got_users = helpers.call_action("user_list", all_fields=False)
 
@@ -1228,8 +1231,8 @@ class TestCurrentPackageList(object):
         Test current_package_list_with_resources with no parameters
         """
         user = factories.User()
-        dataset1 = factories.Dataset(user=user)
-        dataset2 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
+        factories.Dataset(user=user)
         current_package_list = helpers.call_action(
             "current_package_list_with_resources"
         )
@@ -1240,7 +1243,7 @@ class TestCurrentPackageList(object):
         Test current_package_list_with_resources with limit parameter
         """
         user = factories.User()
-        dataset1 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         dataset2 = factories.Dataset(user=user)
         current_package_list = helpers.call_action(
             "current_package_list_with_resources", limit=1
@@ -1254,7 +1257,7 @@ class TestCurrentPackageList(object):
         """
         user = factories.User()
         dataset1 = factories.Dataset(user=user)
-        dataset2 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         current_package_list = helpers.call_action(
             "current_package_list_with_resources", offset=1
         )
@@ -1268,10 +1271,10 @@ class TestCurrentPackageList(object):
         """
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(
+        factories.Dataset(
             user=user, owner_org=org["name"], private=True
         )
-        dataset2 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         current_package_list = helpers.call_action(
             "current_package_list_with_resources", context={}
         )
@@ -1284,10 +1287,10 @@ class TestCurrentPackageList(object):
         """
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(
+        factories.Dataset(
             user=user, owner_org=org["name"], private=True
         )
-        dataset2 = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         sysadmin = factories.Sysadmin()
         current_package_list = helpers.call_action(
             "current_package_list_with_resources",
@@ -1321,10 +1324,10 @@ class TestPackageAutocomplete(object):
 
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(
+        factories.Dataset(
             user=user, owner_org=org["name"], title="Some public stuff"
         )
-        dataset2 = factories.Dataset(
+        factories.Dataset(
             user=user,
             owner_org=org["name"],
             private=True,
@@ -1382,7 +1385,7 @@ class TestPackageSearch(object):
 
     def test_search_fl(self):
         d1 = factories.Dataset(title="Rivers", name="test_ri")
-        d2 = factories.Dataset(title="Lakes")
+        factories.Dataset(title="Lakes")
 
         search_result = helpers.call_action(
             "package_search", q="rivers", fl=["title", "name"]
@@ -1566,7 +1569,7 @@ class TestPackageSearch(object):
         """
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user)
         factories.Dataset(user=user, state="deleted")
         factories.Dataset(user=user, state="draft")
         factories.Dataset(user=user, private=True, owner_org=org["name"])
@@ -1915,9 +1918,9 @@ class TestPackageSearch(object):
     ):
         user = factories.User()
         user2 = factories.User()
-        org = factories.Organization(user=user)
+        factories.Organization(user=user)
         org2 = factories.Organization(user=user2)
-        private_dataset = factories.Dataset(
+        factories.Dataset(
             user=user2, private=True, owner_org=org2["name"]
         )
 
@@ -2429,7 +2432,7 @@ class TestOrganizationListForUser(object):
         authorized user. Users who aren't logged-in don't have any permissions.
         """
         # Create an organization so we can test that it doesn't get returned.
-        organization = factories.Organization()
+        factories.Organization()
 
         organizations = helpers.call_action("organization_list_for_user")
 
@@ -2832,7 +2835,7 @@ class TestFollow(object):
 
         group1 = factories.Group(title="Finance")
         group2 = factories.Group(title="Environment")
-        group3 = factories.Group(title="Education")
+        factories.Group(title="Education")
 
         user = factories.User()
 
@@ -2855,7 +2858,7 @@ class TestFollow(object):
 
         group1 = factories.Group(title="Finance")
         group2 = factories.Group(title="Environment")
-        group3 = factories.Group(title="Education")
+        factories.Group(title="Education")
 
         user = factories.User()
 
@@ -2907,7 +2910,7 @@ class TestJobList(helpers.FunctionalRQTestBase):
         """
         Test getting jobs from specific queues.
         """
-        job1 = self.enqueue()
+        self.enqueue()
         job2 = self.enqueue(queue="q2")
         job3 = self.enqueue(queue="q3")
         job4 = self.enqueue(queue="q3")
@@ -3120,7 +3123,7 @@ class TestPackageActivityList(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         _clear_activities()
-        resource = factories.Resource(package_id=dataset["id"], user=user)
+        factories.Resource(package_id=dataset["id"], user=user)
 
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
@@ -3342,7 +3345,7 @@ class TestPackageActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -3578,7 +3581,7 @@ class TestUserActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -3794,7 +3797,7 @@ class TestGroupActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -4027,7 +4030,7 @@ class TestOrganizationActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -4198,7 +4201,7 @@ class TestRecentlyChangedPackagesActivityList(object):
                 activity_type="new_package",
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -4306,7 +4309,7 @@ class TestDashboardActivityList(object):
                 activity_type=None,
                 data=None,
             )
-            for i in range(count)
+            for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
@@ -4983,7 +4986,7 @@ class TestGetSiteUser:
     def test_get_site_user_not_authorized(self, ckan_config):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("get_site_user", {"model": model, "user": ""})
-        site_id = ckan_config.get("ckan.site_id")
+
         assert helpers.call_auth(
             "get_site_user", {"model": model, "user": "", "ignore_auth": True}
         )
@@ -4991,7 +4994,8 @@ class TestGetSiteUser:
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestPackageList:
-    def test_package_list(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_package_list(self):
         pkg1 = factories.Dataset()
         pkg2 = factories.Dataset()
         packages = helpers.call_action("package_list")
@@ -5001,6 +5005,6 @@ class TestPackageList:
     def test_package_list_private(self):
         org = factories.Organization()
         pkg1 = factories.Dataset()
-        pkg2 = factories.Dataset(private=True, owner_org=org["id"])
+        factories.Dataset(private=True, owner_org=org["id"])
         packages = helpers.call_action("package_list")
         assert packages == [pkg1["name"]]

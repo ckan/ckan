@@ -17,13 +17,6 @@ def _clear_activities():
     model.Session.flush()
 
 
-def _get_user_edit_page(app):
-    user = factories.User()
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
-    response = app.get(url=url_for("user.edit"), extra_environ=env)
-    return env, response, user
-
-
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUser(object):
     def test_register_a_user(self, app):
@@ -99,14 +92,15 @@ class TestUser(object):
         be returned to appropriate place.
         """
         # make a user
-        user = factories.User()
+        password = "RandomPassword123"
+        user = factories.User(password=password)
 
         # get the form
         response = app.post(
             "/login_generic?came_from=/user/logged_in",
             data={
                 "login": user["name"],
-                "password": "RandomPassword123",
+                "password": password
             },
         )
         # the response is the user dashboard, right?
@@ -220,7 +214,7 @@ class TestUser(object):
         """Attempt to read edit user for an unknown user redirects to login
         page."""
 
-        response = app.get(
+        app.get(
             url_for("user.edit", id="unknown_person"), status=403
         )
 
@@ -230,13 +224,13 @@ class TestUser(object):
 
         user = factories.User()
         username = user["name"]
-        response = app.get(url_for("user.edit", id=username), status=403)
+        app.get(url_for("user.edit", id=username), status=403)
 
     def test_edit_user(self, app):
         user = factories.User(password="TestPassword1")
 
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.post(
+        app.post(
             url=url_for("user.edit"),
             extra_environ=env,
             data={
@@ -264,7 +258,7 @@ class TestUser(object):
         other_user = factories.User(password="TestPassword2")
 
         env = {"REMOTE_USER": six.ensure_str(other_user["name"])}
-        response = app.get(
+        app.get(
             url_for("user.edit", id=user["name"]),
             extra_environ=env,
             status=403,
@@ -288,8 +282,8 @@ class TestUser(object):
         assert "Old Password: incorrect password" in response
 
     def test_email_change_with_password(self, app):
-
-        user = factories.User()
+        password = "RandomPassword123"
+        user = factories.User(password=password)
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url=url_for("user.edit"),
@@ -297,7 +291,7 @@ class TestUser(object):
             data={
                 "email": "new@example.com",
                 "save": "",
-                "old_password": "RandomPassword123",
+                "old_password": password,
                 "password1": "",
                 "password2": "",
                 "name": user["name"],
@@ -306,8 +300,9 @@ class TestUser(object):
         assert "Profile updated" in response
 
     def test_email_change_on_existed_email(self, app):
-        user1 = factories.User(email="existed@email.com")
-        user2 = factories.User()
+        password = "RandomPassword123"
+        factories.User(email="existed@email.com")
+        user2 = factories.User(password=password)
         env = {"REMOTE_USER": six.ensure_str(user2["name"])}
 
         response = app.post(
@@ -316,7 +311,7 @@ class TestUser(object):
             data={
                 "email": "existed@email.com",
                 "save": "",
-                "old_password": "RandomPassword123",
+                "old_password": password,
                 "password1": "",
                 "password2": "",
                 "name": user2["name"],
@@ -416,7 +411,7 @@ class TestUser(object):
             id=user_obj.id,
             key=user_obj.reset_key,
         )
-        response = app.post(offset, data=params)
+        app.post(offset, data=params)
         user_obj = helpers.model.User.by_name(user["name"])  # Update user_obj
 
         assert key != user_obj.reset_key
@@ -426,14 +421,15 @@ class TestUser(object):
         user password reset attempted with correct old password
         """
 
-        user = factories.User()
+        password = "RandomPassword123"
+        user = factories.User(password=password)
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url=url_for("user.edit"),
             extra_environ=env,
             data={
                 "save": "",
-                "old_password": "RandomPassword123",
+                "old_password": password,
                 "password1": "NewPassword1",
                 "password2": "NewPassword1",
                 "name": user["name"],
@@ -658,7 +654,7 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
-        assert "Mr. Test User" in response
+        assert user["fullname"] in response
         assert "signed up" in response
 
     def test_create_user(self, app):
@@ -668,7 +664,7 @@ class TestUser(object):
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "signed up" in response
 
@@ -684,7 +680,7 @@ class TestUser(object):
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Changed Name'.format(user["name"])
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
             in response
         )
         assert "updated their profile" in response
@@ -697,14 +693,14 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_change_dataset(self, app):
 
@@ -718,16 +714,15 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
+
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]
-            )
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
 
@@ -741,14 +736,14 @@ class TestUser(object):
         url = url_for("user.activity", id=user["id"])
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_create_group(self, app):
 
@@ -757,11 +752,15 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".group")
+
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the group" in response
-        assert '<a href="/group/{}">Test Group'.format(group["id"]) in response
+        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert group["title"] in href.text.strip()
 
     def test_change_group(self, app):
 
@@ -775,14 +774,14 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".group")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the group" in response
-        assert (
-            '<a href="/group/{}">Group with changed title'.format(group["id"])
-            in response
-        )
+        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert group["title"] in href.text.strip()
 
     def test_delete_group_using_group_delete(self, app):
 
@@ -795,11 +794,14 @@ class TestUser(object):
 
         url = url_for("user.activity", id=user["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".group")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the group" in response
-        assert '<a href="/group/{}">Test Group'.format(group["id"]) in response
+        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert group["title"] in href.text.strip()
 
     def test_delete_group_by_updating_state(self, app):
 
@@ -815,11 +817,11 @@ class TestUser(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the group" in response
         assert (
-            '<a href="/group/{}">Test Group'.format(group["name"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
         )
 
     @mock.patch("ckan.lib.mailer.send_reset_link")
@@ -993,7 +995,7 @@ class TestUser(object):
         app.get(url, status=403)
 
     def test_perform_reset_user_password_link_user_incorrect(self, app):
-        user = factories.User()
+        factories.User()
         url = url_for(
             "user.perform_reset",
             id="randomness",
@@ -1033,7 +1035,7 @@ class TestUser(object):
             id=userobj.id,
             key=userobj.reset_key,
         )
-        res = app.post(url, params=params, status=403)
+        app.post(url, params=params, status=403)
 
         userobj = model.User.get(userobj.id)
         assert userobj.is_deleted(), userobj

@@ -1,25 +1,13 @@
 # encoding: utf-8
 
-import six
 import unittest.mock as mock
 import pytest
 
 from ckan import authz as auth, model, logic
 
 from ckan.tests import factories, helpers
-from ckan.lib.create_test_data import CreateTestData
 
 _check = auth.check_config_permission
-
-
-@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", None)
-@pytest.mark.parametrize(
-    "perm", ["anon_create_dataset", "ckan.auth.anon_create_dataset"]
-)
-def test_get_default_value_if_not_set_in_config(perm):
-    assert (
-        _check(perm) == auth.CONFIG_PERMISSIONS_DEFAULTS["anon_create_dataset"]
-    )
 
 
 @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
@@ -55,9 +43,9 @@ def test_roles_that_cascade_to_sub_groups_is_a_list():
 
 
 @mock.patch('flask.globals.RuntimeError')
-def test_get_user_outside_web_request_py3(mock_RuntimeError):
+def test_get_user_outside_web_request_py3(mock_runtimeerror):
     auth._get_user("example")
-    assert mock_RuntimeError.called
+    assert mock_runtimeerror.called
 
 
 @pytest.mark.usefixtures("with_request_context", "clean_db")
@@ -75,9 +63,8 @@ def test_get_user_inside_web_request_not_found():
 @pytest.mark.usefixtures("with_request_context", "app")
 def test_no_attributes_set_on_imported_auth_members():
     import ckan.logic.auth.get as auth_get
-    import ckan.plugins.toolkit as tk
 
-    tk.check_access("site_read", {})
+    logic.check_access("site_read", {})
     assert hasattr(auth_get.package_show, "auth_allow_anonymous_access")
     assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
 
