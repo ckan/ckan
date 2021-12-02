@@ -112,7 +112,7 @@ class ExtendableGroup(click.Group):
         argument. If no, let's print help message manually
 
         """
-        result = super().parse_args(ctx, args)
+        result = super(ExtendableGroup, self).parse_args(ctx, args)
         if not ctx.protected_args and not ctx.args:
             click.echo(ctx.get_help(), color=ctx.color)
             ctx.exit()
