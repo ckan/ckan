@@ -7,9 +7,25 @@
 Changelog
 ---------
 
+v.2.8.9 2021-09-22
+==================
+
+Fixes:
+
+* render_datetime helper does not respect ckan.display_timezone configuration (`#6252 <https://github.com/ckan/ckan/pull/6252>`_)
+* Fix SQLAlchemy configuration for DataStore (`#6087 <https://github.com/ckan/ckan/pull/6086>`_)
+* Don't cache license translations across requests (`#5586 <https://github.com/ckan/ckan/pull/5586>`_)
+* Fix tracking.js module preventing links to be opened in new tabs (`#6386 <https://github.com/ckan/ckan/pull/6384>`_)
+* Fix deleted org/group feeds (`#6368 <https://github.com/ckan/ckan/pull/6368>`_)
+* Fix runaway preview height (`#6284 <https://github.com/ckan/ckan/pull/6283>`_)
+* Fix unreliable ordering of DataStore results (`#2318 <https://github.com/ckan/ckan/pull/2317>`_)
+
+
 
 v.2.8.8 2021-05-19
 ==================
+
+Fixes:
 
 * Fix Chinese locales (`#4413 <https://github.com/ckan/ckan/pull/4413>`_)
 * Allow installation of requirements without any additional actions using pip (`#5408 <https://github.com/ckan/ckan/pull/5408>`_)
