@@ -1160,8 +1160,7 @@ def send_email_notifications(context, data_dict):
     if not request.environ.get('paste.command_request'):
         _check_access('send_email_notifications', context, data_dict)
 
-    if not converters.asbool(
-            config.get('ckan.activity_streams_email_notifications')):
+    if not config.get_value('ckan.activity_streams_email_notifications'):
         raise ValidationError('ckan.activity_streams_email_notifications'
                               ' is not enabled in config')
 
@@ -1261,7 +1260,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             'q': q,
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'fq': 'site_id:"%s"' % config.get_value('ckan.site_id'),
             'rows': BATCH_SIZE
         }
 

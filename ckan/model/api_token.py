@@ -8,15 +8,14 @@ from sqlalchemy import types, Column, Table, ForeignKey, orm
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 
-import ckan.plugins.toolkit as tk
 from ckan.model import meta, User, DomainObject
-
+from ckan.common import config
 
 __all__ = [u"ApiToken", u"api_token_table"]
 
 
 def _make_token():
-    nbytes = tk.asint(tk.config.get(u"api_token.nbytes", 32))
+    nbytes = config.get_value(u"api_token.nbytes")
     return token_urlsafe(nbytes)
 
 

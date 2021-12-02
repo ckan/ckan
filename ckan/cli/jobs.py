@@ -4,7 +4,6 @@ import click
 
 import ckan.lib.jobs as bg_jobs
 import ckan.logic as logic
-import ckan.plugins as p
 from ckan.cli import error_shout
 
 
@@ -48,7 +47,7 @@ def list_jobs(queues):
     data_dict = {
         u"queues": list(queues),
     }
-    jobs = p.toolkit.get_action(u"job_list")({u"ignore_auth": True}, data_dict)
+    jobs = logic.get_action(u"job_list")({u"ignore_auth": True}, data_dict)
     if not jobs:
         return click.secho(u"There are no pending jobs.", fg=u"green")
     for job in jobs:
@@ -63,7 +62,7 @@ def list_jobs(queues):
 @click.argument(u"id")
 def show(id):
     try:
-        job = p.toolkit.get_action(u"job_show")(
+        job = logic.get_action(u"job_show")(
             {u"ignore_auth": True}, {u"id": id}
         )
     except logic.NotFound:
@@ -89,7 +88,7 @@ def cancel(id):
 
     """
     try:
-        p.toolkit.get_action(u"job_cancel")(
+        logic.get_action(u"job_cancel")(
             {u"ignore_auth": True}, {u"id": id}
         )
     except logic.NotFound:
@@ -109,7 +108,7 @@ def clear(queues):
     data_dict = {
         u"queues": list(queues),
     }
-    queues = p.toolkit.get_action(u"job_clear")(
+    queues = logic.get_action(u"job_clear")(
         {u"ignore_auth": True}, data_dict
     )
     queues = (u'"{}"'.format(q) for q in queues)

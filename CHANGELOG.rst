@@ -2692,7 +2692,7 @@ New frontend (see :doc:`/theming/index`):
  CKAN's frontend has been completely redesigned, inside and out. There is
  a new default theme and the template engine has moved from Genshi to
  Jinja2. Any custom templates using Genshi will need to be updated, although
- there is a :ref:`ckan.legacy_templates` setting to aid in the migration.
+ there is a ``ckan.legacy_templates`` setting to aid in the migration.
 
  * Block-based template inheritance
  * Custom jinja tags: {% ckan_extends %}, {% snippet %} and {% url_for %} (#2502, #2503)
