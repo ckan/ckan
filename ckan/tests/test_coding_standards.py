@@ -243,38 +243,20 @@ def test_building_the_docs():
         ), u"Building the docs failed with return code: {code}".format(
             code=err.returncode
         )
-    output_lines = output.split(six.b(u"\n"))
+    output_lines = output.decode("utf8").split("\n")
 
-    errors = [line for line in output_lines if six.b(u"ERROR") in line]
+    errors = [line for line in output_lines if "ERROR" in line]
     if errors:
         assert False, (
-            u"Don't add any errors to the Sphinx build: "
-            u"{errors}".format(errors=errors)
+            u"Don't add any errors to the Sphinx build: \n"
+            u"{errors}".format(errors="\n".join(errors))
         )
 
-    warnings = [line for line in output_lines if six.b(u"WARNING") in line]
-
-    # Some warnings have been around for a long time and aren't easy to fix.
-    # These are allowed, but no more should be added.
-    allowed_warnings = [
-    ]
-
-    # Remove the allowed warnings from the list of collected warnings.
-    # Be sure to only remove one warning for each allowed warning.
-    warnings_to_remove = []
-    for allowed_warning in allowed_warnings:
-        for warning in warnings:
-            if six.b(allowed_warning) in warning:
-                warnings_to_remove.append(warning)
-                break
-    new_warnings = [
-        warning for warning in warnings if warning not in warnings_to_remove
-    ]
-
-    if new_warnings:
+    warnings = [line for line in output_lines if "WARNING" in line]
+    if warnings:
         assert False, (
-            u"Don't add any new warnings to the Sphinx build: "
-            u"{warnings}".format(warnings=new_warnings)
+            u"Don't add any new warnings to the Sphinx build: \n"
+            u"{warnings}".format(warnings="\n".join(warnings))
         )
 
 

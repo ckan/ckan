@@ -5,10 +5,10 @@ import os
 import smtplib
 import socket
 import logging
+import mimetypes
 from time import time
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.header import Header
+
+from email.message import EmailMessage
 from email import utils
 
 from ckan.common import config
@@ -31,29 +31,31 @@ class MailerException(Exception):
 
 def _mail_recipient(recipient_name, recipient_email,
                     sender_name, sender_url, subject,
-                    body, body_html=None, headers=None):
+                    body, body_html=None, headers=None,
+                    attachments=None):
 
     if not headers:
         headers = {}
 
+    if not attachments:
+        attachments = []
+
     mail_from = config.get_value('smtp.mail_from')
     reply_to = config.get_value('smtp.reply_to')
+
+    msg = EmailMessage()
+
+    msg.set_content(body, cte='base64')
+
     if body_html:
-        # multipart
-        msg = MIMEMultipart('alternative')
-        part1 = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
-        part2 = MIMEText(body_html.encode('utf-8'), 'html', 'utf-8')
-        msg.attach(part1)
-        msg.attach(part2)
-    else:
-        # just plain text
-        msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
+        msg.add_alternative(body_html, subtype='html', cte='base64')
+
     for k, v in headers.items():
         if k in msg.keys():
             msg.replace_header(k, v)
         else:
             msg.add_header(k, v)
-    subject = Header(subject.encode('utf-8'), 'utf-8')
+
     msg['Subject'] = subject
     msg['From'] = _("%s <%s>") % (sender_name, mail_from)
     msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
@@ -61,6 +63,23 @@ def _mail_recipient(recipient_name, recipient_email,
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
     if reply_to and reply_to != '':
         msg['Reply-to'] = reply_to
+
+    for attachment in attachments:
+        if len(attachment) == 3:
+            name, _file, media_type = attachment
+        else:
+            name, _file = attachment
+            media_type = None
+
+        if not media_type:
+            media_type, encoding = mimetypes.guess_type(name)
+        if media_type:
+            main_type, sub_type = media_type.split('/')
+        else:
+            main_type = sub_type = None
+
+        msg.add_attachment(
+            _file.read(), filename=name, maintype=main_type, subtype=sub_type)
 
     # Send the email using Python's smtplib.
     smtp_server = config.get_value('smtp.server')
@@ -106,22 +125,72 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_connection.quit()
 
 
-def mail_recipient(recipient_name, recipient_email, subject,
-                   body, body_html=None, headers={}):
-    '''Sends an email'''
+def mail_recipient(
+        recipient_name, recipient_email, subject, body,
+        body_html=None, headers=None, attachments=None):
+    '''Sends an email to a an email address.
+
+    .. note:: You need to set up the :ref:`email-settings` to able to send
+        emails.
+
+    :param recipient_name: the name of the recipient
+    :type recipient: string
+    :param recipient_email: the email address of the recipient
+    :type recipient: string
+
+    :param subject: the email subject
+    :type subject: string
+    :param body: the email body, in plain text
+    :type body: string
+    :param body_html: the email body, in html format (optional)
+    :type body_html: string
+    :headers: extra headers to add to email, in the form
+        {'Header name': 'Header value'}
+    :type: dict
+    :attachments: a list of tuples containing file attachments to add to the
+        email. Tuples should contain the file name and a file-like object
+        pointing to the file contents::
+
+            [
+                ('some_report.csv', file_object),
+            ]
+
+        Optionally, you can add a third element to the tuple containing the
+        media type. If not provided, it will be guessed using
+        the ``mimetypes`` module::
+
+            [
+                ('some_report.csv', file_object, 'text/csv'),
+            ]
+    :type: list
+    '''
     site_title = config.get_value('ckan.site_title')
     site_url = config.get_value('ckan.site_url')
-    return _mail_recipient(recipient_name, recipient_email,
-                           site_title, site_url, subject, body,
-                           body_html=body_html, headers=headers)
+    return _mail_recipient(
+        recipient_name, recipient_email,
+        site_title, site_url, subject, body,
+        body_html=body_html, headers=headers, attachments=attachments)
 
 
-def mail_user(recipient, subject, body, body_html=None, headers={}):
-    '''Sends an email to a CKAN user'''
+def mail_user(
+        recipient, subject, body,
+        body_html=None, headers=None, attachments=None):
+    '''Sends an email to a CKAN user.
+
+    You need to set up the :ref:`email-settings` to able to send emails.
+
+    :param recipient: a CKAN user object
+    :type recipient: a model.User object
+
+    For further parameters see
+    :py:func:`~ckan.lib.mailer.mail_recipient`.
+    '''
+
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
-    mail_recipient(recipient.display_name, recipient.email, subject,
-                   body, body_html=body_html, headers=headers)
+    mail_recipient(
+        recipient.display_name, recipient.email, subject,
+        body, body_html=body_html, headers=headers, attachments=attachments)
 
 
 def get_reset_link_body(user):
@@ -192,12 +261,12 @@ def send_invite(user, group_dict=None, role=None):
 
 
 def create_reset_key(user):
-    user.reset_key = str(make_key())
+    user.reset_key = make_key()
     model.repo.commit_and_remove()
 
 
 def make_key():
-    return codecs.encode(os.urandom(16), 'hex')
+    return codecs.encode(os.urandom(16), 'hex').decode()
 
 
 def verify_reset_link(user, key):
