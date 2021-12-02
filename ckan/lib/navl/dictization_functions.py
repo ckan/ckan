@@ -245,6 +245,18 @@ def convert(converter, key, converted_data, errors, context):
         return
 
 
+def _remove_blank_keys_nested(schema_copy, key, value):
+
+    if schema_copy['resources'][0]:
+        resource_item = [i for i in schema_copy['resources'][0]]
+        resource_item = resource_item[0]
+        if not any(value[0][resource_item]):
+            schema_copy.pop(key)
+    else:
+        if not any(value[0]):
+            schema_copy.pop(key)
+
+
 def _remove_blank_keys(schema):
 
     schema_copy = copy.copy(schema)
@@ -253,7 +265,10 @@ def _remove_blank_keys(schema):
         if isinstance(value[0], dict):
             for item in value:
                 _remove_blank_keys(item)
-            if not any(value):
+                if key == 'resources':
+                    _remove_blank_keys_nested(schema_copy, key, value)
+                    break
+            if not any(value) and key != 'resources':
                 schema_copy.pop(key)
 
     return schema_copy
