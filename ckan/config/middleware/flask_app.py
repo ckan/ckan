@@ -287,7 +287,7 @@ def make_flask_stack(conf):
     @login_manager.user_loader
     def load_user(user_id):
         return model.User.get(user_id)
-    
+
     # Initialize repoze.who
     # who_parser = WhoConfig(conf['here'])
     # who_parser.parse(open(conf['who.config_file']))
