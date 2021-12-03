@@ -1882,7 +1882,7 @@ Example::
 
     ckan.upload.user.types = image text
 
-Default value: |config:ckan.upload.user.types|
+Default value: <empty>
 
 File types allowed to upload as user's avatar. No restrictions applied when empty
 
@@ -1895,7 +1895,7 @@ Example::
 
     ckan.upload.user.mimetypes = image/png text/svg
 
-Default value: |config:ckan.upload.user.mimetypes|
+Default value: <empty>
 
 File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
 
@@ -1908,7 +1908,7 @@ Example::
 
     ckan.upload.group.types = image text
 
-Default value: |config:ckan.upload.group.types|
+Default value: <empty>
 
 File types allowed to upload as group image. No restrictions applied when empty
 
@@ -1921,7 +1921,7 @@ Example::
 
     ckan.upload.group.mimetypes = image/png text/svg
 
-Default value: |config:ckan.upload.group.mimetypes|
+Default value: <empty>
 
 File MIMETypes allowed to upload as group image. No restrictions applied when empty
 
