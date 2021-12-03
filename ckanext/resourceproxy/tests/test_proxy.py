@@ -150,9 +150,9 @@ class TestProxyPrettyfied(object):
 
         for url in [http_url, https_url]:
             self.resource['url'] = url
-            proxied_url = proxied_url = proxy.get_proxified_resource_url({
-            'package': self.dataset,
-            'resource': self.resource
+            proxied_url = proxy.get_proxified_resource_url({
+                'package': self.dataset,
+                'resource': self.resource
             })
             assert proxied_url != url, proxied_url
 
