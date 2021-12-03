@@ -90,7 +90,7 @@ class TestApiToken(object):
 
         # tid must be escaped. When it starts with a hyphen it treated as a
         # flag otherwise.
-        args = f'user token revoke "{tid}"'
+        args = u'user token revoke "{tid}"'.format(tid=tid)
         result = cli.invoke(ckan, args)
         assert result.exit_code == 0
         assert u"API Token has been revoked" in result.output
