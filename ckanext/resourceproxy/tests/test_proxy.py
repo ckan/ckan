@@ -7,10 +7,8 @@ import responses
 import six
 
 from ckan.common import config
+from ckan.tests import factories, helpers
 
-import ckan.model as model
-import ckan.plugins as p
-import ckan.lib.create_test_data as create_test_data
 import ckanext.resourceproxy.plugin as proxy
 
 
@@ -21,27 +19,12 @@ JSON_STRING = json.dumps({
 
 
 def set_resource_url(url):
-    testpackage = model.Package.get('annakarenina')
+    dataset = factories.Dataset()
+    resource = factories.Resource(package_id=dataset['id'])
 
-    context = {
-        'model': model,
-        'session': model.Session,
-        'user': model.User.get('testsysadmin').name,
-        'use_cache': False,
-    }
+    resource = helpers.call_action('resource_patch', {}, id=resource['id'], url=url)
 
-    resource = p.toolkit.get_action('resource_show')(
-        context, {'id': testpackage.resources[0].id})
-    package = p.toolkit.get_action('package_show')(
-        context, {'id': testpackage.id})
-
-    resource['url'] = url
-    p.toolkit.get_action('resource_update')(context, resource)
-
-    testpackage = model.Package.get('annakarenina')
-    assert testpackage.resources[0].url == resource['url']
-
-    return {'resource': resource, 'package': package}
+    return {'resource': resource, 'package': dataset}
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'resource_proxy')
@@ -52,7 +35,6 @@ class TestProxyPrettyfied(object):
 
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_db, with_request_context):
-        create_test_data.CreateTestData.create()
         self.url = 'http://www.ckan.org/static/example.json'
         self.data_dict = set_resource_url(self.url)
 
