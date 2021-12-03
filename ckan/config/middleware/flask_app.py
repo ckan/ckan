@@ -361,7 +361,7 @@ def ckan_before_request():
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
-    
+
     # Sets REMOTE_USER in request.environ
     remote_user()
 
