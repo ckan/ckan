@@ -12,8 +12,6 @@ from ckan.lib.dictization import table_dictize, table_dict_save
 from ckan.lib.dictization.model_dictize import (
     package_dictize,
     resource_dictize,
-    package_to_api1,
-    package_to_api2,
     user_dictize,
 )
 from ckan.lib.dictization.model_save import (
@@ -29,88 +27,6 @@ import ckan.logic.action.get
 
 @pytest.mark.usefixtures("clean_db")
 class TestBasicDictize:
-    def test_package_to_api1(self):
-        CreateTestData.create()
-        context = {"model": model, "session": model.Session}
-        pkg = model.Package.get("annakarenina")
-        asdict = pkg.as_dict()
-        asdict["download_url"] = asdict["resources"][0]["url"]
-        asdict["license_title"] = u"Other (Open)"
-        asdict["num_tags"] = 3
-        asdict["num_resources"] = 2
-
-        dictize = package_to_api1(pkg, context)
-        # the is_dict method doesn't care about organizations
-        del dictize["organization"]
-        assert dictize == asdict
-
-    def test_package_to_api1_with_relationship(self):
-        context = {"model": model, "session": model.Session}
-        CreateTestData.create_family_test_data()
-        pkg = model.Package.get("homer")
-
-        as_dict = dict(pkg.as_dict())
-        as_dict["license_title"] = None
-        as_dict["num_tags"] = 0
-        as_dict["num_resources"] = 0
-        dictize = package_to_api1(pkg, context)
-
-        as_dict["relationships"].sort(key=lambda x: list(x.items()))
-        dictize["relationships"].sort(key=lambda x: list(x.items()))
-        # the is_dict method doesn't care about organizations
-        del dictize["organization"]
-        as_dict_string = pformat(as_dict)
-        dictize_string = pformat(dictize)
-
-        assert as_dict == dictize, "\n".join(
-            unified_diff(
-                as_dict_string.split("\n"), dictize_string.split("\n")
-            )
-        )
-
-    def test_package_to_api2(self):
-        CreateTestData.create()
-        context = {"model": model, "session": model.Session}
-
-        pkg = model.Package.get("annakarenina")
-        as_dict = pkg.as_dict(ref_package_by="id", ref_group_by="id")
-        dictize = package_to_api2(pkg, context)
-
-        as_dict_string = pformat(as_dict)
-        dictize_string = pformat(dictize)
-
-        assert package_to_api2(pkg, context) == dictize, "\n".join(
-            unified_diff(
-                as_dict_string.split("\n"), dictize_string.split("\n")
-            )
-        )
-
-    def test_package_to_api2_with_relationship(self):
-        context = {"model": model, "session": model.Session}
-        CreateTestData.create_family_test_data()
-
-        pkg = model.Package.get("homer")
-
-        as_dict = pkg.as_dict(ref_package_by="id", ref_group_by="id")
-        as_dict["license_title"] = None
-        as_dict["num_tags"] = 0
-        as_dict["num_resources"] = 0
-        dictize = package_to_api2(pkg, context)
-
-        as_dict["relationships"].sort(key=lambda x: list(x.items()))
-        dictize["relationships"].sort(key=lambda x: list(x.items()))
-
-        # the is_dict method doesn't care about organizations
-        del dictize["organization"]
-        as_dict_string = pformat(as_dict)
-        dictize_string = pformat(dictize)
-
-        assert as_dict == dictize, "\n".join(
-            unified_diff(
-                as_dict_string.split("\n"), dictize_string.split("\n")
-            )
-        )
-
     def test_group_apis_to_dict(self):
         context = {"model": model, "session": model.Session}
         api_group = {

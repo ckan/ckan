@@ -665,37 +665,6 @@ def activity_list_dictize(activity_list, context,
     return [activity_dictize(activity, context, include_data)
             for activity in activity_list]
 
-
-def package_to_api1(pkg, context):
-    # DEPRICIATED set api_version in context and use package_to_api()
-    context['api_version'] = 1
-    return package_to_api(pkg, context)
-
-def package_to_api2(pkg, context):
-    # DEPRICIATED set api_version in context and use package_to_api()
-    context['api_version'] = 2
-    return package_to_api(pkg, context)
-
-def group_to_api1(group, context):
-    # DEPRICIATED set api_version in context and use group_to_api()
-    context['api_version'] = 1
-    return group_to_api(group, context)
-
-def group_to_api2(group, context):
-    # DEPRICIATED set api_version in context and use group_to_api()
-    context['api_version'] = 2
-    return group_to_api(group, context)
-
-def tag_to_api1(tag, context):
-    # DEPRICIATED set api_version in context and use tag_to_api()
-    context['api_version'] = 1
-    return tag_to_api(tag, context)
-
-def tag_to_api2(tag, context):
-    # DEPRICIATED set api_version in context and use tag_to_api()
-    context['api_version'] = 2
-    return tag_to_api(tag, context)
-
 def user_following_user_dictize(follower, context):
     return d.table_dictize(follower, context)
 
