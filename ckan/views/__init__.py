@@ -157,13 +157,14 @@ def _identify_user_default():
     # beaker_session['_user_id'] is set by flask-login if it authenticates a
     # user's cookie. But flask-login doesn't check the user (still) exists
     # in our database - we need to do that here.
-    g.user = None
-    beaker_session = request.environ.get('beaker.session')
-    if beaker_session.get('_user_id'):
-        user_id = beaker_session['_user_id']
-        g.userobj = model.User.get(user_id)
-        g.user = g.userobj.name
-
+    g.user = six.ensure_text(request.environ.get(u'REMOTE_USER', u''))
+    # g.user = None
+    # beaker_session = request.environ.get('beaker.session')
+    # if beaker_session.get('_user_id'):
+    #     user_id = beaker_session['_user_id']
+    #     g.userobj = model.User.get(user_id)
+    #     g.user = g.userobj.name
+    # breakpoint()
     if g.user:
         g.userobj = model.User.by_name(g.user)
         if g.userobj is None or not g.userobj.is_active():

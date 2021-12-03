@@ -287,7 +287,7 @@ def make_flask_stack(conf):
     @login_manager.user_loader
     def load_user(user_id):
         return model.User.get(user_id)
-
+    
     # Initialize repoze.who
     # who_parser = WhoConfig(conf['here'])
     # who_parser.parse(open(conf['who.config_file']))
@@ -336,6 +336,16 @@ def get_locale():
         config.get_value(u'ckan.locale_default'))
 
 
+def remote_user():
+    header = "REMOTE_USER"
+    request.environ[header] = ""
+
+    if "_user_id" in request.environ.get("beaker.session"):
+        user_id = request.environ["beaker.session"]["_user_id"]
+        userobj = model.User.get(user_id)
+        request.environ[header] = userobj.name
+
+
 def ckan_before_request():
     u'''
     Common handler executed before all Flask requests
@@ -351,8 +361,11 @@ def ckan_before_request():
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
+    
+    # Sets REMOTE_USER in request.environ
+    remote_user()
 
-    # Identify the user from the repoze cookie or the API header
+    # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj
     response = identify_user()
 
