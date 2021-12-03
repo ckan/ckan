@@ -184,7 +184,7 @@ def add_views_to_resource(context,
     if not view_plugins:
         return []
 
-    existing_views = p.toolkit.get_action('resource_view_list')(
+    existing_views = logic.get_action('resource_view_list')(
         context, {'id': resource_dict['id']})
 
     existing_view_types = ([v['view_type'] for v in existing_views]
@@ -210,8 +210,7 @@ def add_views_to_resource(context,
                     'title': view_info.get('default_title', _('View')),
                     'description': view_info.get('default_description', '')}
 
-            view_dict = p.toolkit.get_action('resource_view_create')(context,
-                                                                     view)
+            view_dict = logic.get_action('resource_view_create')(context, view)
             created_views.append(view_dict)
 
     return created_views

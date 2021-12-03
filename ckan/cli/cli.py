@@ -11,7 +11,7 @@ import ckan.plugins as p
 import ckan.cli as ckan_cli
 from ckan.config.middleware import make_app
 from ckan.exceptions import CkanConfigurationException
-from ckan.cli import (
+from . import (
     asset,
     config,
     dataset,
@@ -28,6 +28,7 @@ from ckan.cli import (
     user,
     views,
     config_tool,
+    error_shout
 )
 
 META_ATTR = u'_ckan_meta'
@@ -129,7 +130,7 @@ def _add_ctx_object(ctx, path=None):
     try:
         ctx.obj = CtxObject(path)
     except CkanConfigurationException as e:
-        p.toolkit.error_shout(e)
+        error_shout(e)
         ctx.abort()
 
     ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
@@ -177,7 +178,7 @@ def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
     registered_entries = {}
     for entry in iter_entry_points(entry_point):
         if entry.name in registered_entries:
-            p.toolkit.error_shout((
+            error_shout((
                 u'Attempt to override entry_point `{name}`.\n'
                 u'First encounter:\n\t{first!r}\n'
                 u'Second encounter:\n\t{second!r}\n'
