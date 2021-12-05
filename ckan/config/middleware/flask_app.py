@@ -338,7 +338,6 @@ def get_locale():
 
 def remote_user():
     header = "REMOTE_USER"
-    request.environ[header] = ""
 
     if "_user_id" in request.environ.get("beaker.session"):
         user_id = request.environ["beaker.session"]["_user_id"]

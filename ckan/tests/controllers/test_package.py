@@ -71,9 +71,9 @@ class TestPackageNew(object):
         assert plugin.id_in_dict
 
     @pytest.mark.usefixtures("clean_index")
-    def test_new_indexerror(self, app, user):
+    def test_new_indexerror(self, app):
         from ckan.lib.search.common import SolrSettings
-        helpers.login_user(app, user)
+        user = factories.User()
         bad_solr_url = "http://example.com/badsolrurl"
         solr_url = SolrSettings.get()[0]
         try:
@@ -82,6 +82,7 @@ class TestPackageNew(object):
             offset = url_for("dataset.new")
             res = app.post(
                 offset,
+                extra_environ={"REMOTE_USER": user["name"]},
                 data={"save": "", "name": new_package_name},
             )
             assert "Unable to add package to search index" in res, res

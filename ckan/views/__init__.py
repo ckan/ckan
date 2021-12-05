@@ -164,7 +164,6 @@ def _identify_user_default():
     #     user_id = beaker_session['_user_id']
     #     g.userobj = model.User.get(user_id)
     #     g.user = g.userobj.name
-    # breakpoint()
     if g.user:
         g.userobj = model.User.by_name(g.user)
         if g.userobj is None or not g.userobj.is_active():
