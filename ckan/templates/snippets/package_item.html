@@ -4,18 +4,14 @@ Displays a single of dataset.
 package        - A package to display.
 item_class     - The class name to use on the list item.
 hide_resources - If true hides the resources (default: false).
-truncate       - The length to trucate the description to (default: 180)
-truncate_title - The length to truncate the title to (default: 80).
 
 Example:
 
   {% snippet 'snippets/package_item.html', package=c.datasets[0] %}
 
 #}
-{% set truncate = truncate or 180 %}
-{% set truncate_title = truncate_title or 80 %}
 {% set title = package.title or package.name %}
-{% set notes = h.markdown_extract(package.notes, extract_length=truncate) %}
+{% set notes = h.markdown_extract(package.notes, extract_length=180) %}
 
 {% block package_item %}
   <li class="{{ item_class or "dataset-item" }}">
@@ -32,7 +28,9 @@ Example:
               {% endif %}
             {% endblock %}
             {% block heading_title %}
-		{{ h.link_to(h.truncate(title, truncate_title), h.url_for('%s.read' % package.type, id=package.name)) }}
+    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}">
+      {{title|truncate(80)}}
+    </a>
             {% endblock %}
             {% block heading_meta %}
               {% if package.get('state', '').startswith('draft') %}
@@ -48,7 +46,7 @@ Example:
           {% if notes %}
             <div>{{ notes|urlize }}</div>
           {% else %}
-            <p class="empty">{{ _("This dataset has no description") }}</p>
+            <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no description for this dataset") }}</p>
           {% endif %}
         {% endblock %}
       </div>

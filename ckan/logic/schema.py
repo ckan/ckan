@@ -402,7 +402,6 @@ def default_user_schema(
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
         'sysadmin': [ignore_missing, ignore_not_sysadmin],
-        'apikey': [ignore],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
@@ -416,11 +415,9 @@ def default_user_schema(
 @validator_args
 def user_new_form_schema(
         unicode_safe, user_both_passwords_entered,
-        user_password_validator, user_passwords_match,
-        email_is_unique):
+        user_password_validator, user_passwords_match):
     schema = default_user_schema()
 
-    schema['email'] = [email_is_unique]
     schema['password1'] = [unicode_safe, user_both_passwords_entered,
                            user_password_validator, user_passwords_match]
     schema['password2'] = [unicode_safe]
@@ -430,11 +427,10 @@ def user_new_form_schema(
 
 @validator_args
 def user_edit_form_schema(
-        ignore_missing, unicode_safe, user_both_passwords_entered,
-        user_password_validator, user_passwords_match, email_is_unique):
+        ignore_missing, unicode_safe, user_password_validator,
+        user_passwords_match):
     schema = default_user_schema()
 
-    schema['email'] = [email_is_unique]
     schema['password'] = [ignore_missing]
     schema['password1'] = [ignore_missing, unicode_safe,
                            user_password_validator, user_passwords_match]
@@ -452,8 +448,6 @@ def default_update_user_schema(
 
     schema['name'] = [
         ignore_missing, name_validator, user_name_validator, unicode_safe]
-    schema['email'] = [
-        not_empty, strip_value, email_validator, email_is_unique, unicode_safe]
     schema['password'] = [
         user_password_validator, ignore_missing, unicode_safe]
 
@@ -461,19 +455,10 @@ def default_update_user_schema(
 
 
 @validator_args
-def default_generate_apikey_user_schema(
-        not_empty, unicode_safe):
-    schema = default_update_user_schema()
-
-    schema['apikey'] = [not_empty, unicode_safe]
-    return schema
-
-
-@validator_args
 def default_user_invite_schema(
-        not_empty, unicode_safe):
+        not_empty, email_validator, email_is_unique, unicode_safe):
     return {
-        'email': [not_empty, unicode_safe],
+        'email': [not_empty, email_validator, email_is_unique, unicode_safe],
         'group_id': [not_empty],
         'role': [not_empty],
     }
@@ -833,4 +818,45 @@ def package_revise_schema(
         # collect_prefix moves values to these, always dicts:
         u'match__': [],
         u'update__': [],
+    }
+
+
+@validator_args
+def config_declaration_v1(
+        ignore_missing, unicode_safe, not_empty, default, boolean_validator,
+        dict_only, one_of, ignore_empty):
+    from ckan.config.declaration import Key
+    from ckan.config.declaration.load import option_types
+
+    def key_from_string(s):
+        return Key.from_string(s)
+
+    def importable_string(value):
+        from werkzeug.utils import import_string, ImportStringError
+        from ckan.logic.validators import Invalid
+        try:
+            return import_string(value)
+        except ImportStringError as e:
+            raise Invalid(e)
+
+    return {
+        "groups": {
+            "annotation": [default(""), unicode_safe],
+            "options": {
+                "key": [not_empty, key_from_string],
+                "default": [ignore_missing],
+                "default_callable": [ignore_empty, importable_string],
+                "placeholder_callable": [ignore_empty, importable_string],
+                "callable_args": [ignore_empty, dict_only],
+                "description": [default(""), unicode_safe],
+                "placeholder": [default(""), unicode_safe],
+                "validators": [default(""), unicode_safe],
+                "type": [default("base"), one_of(list(option_types))],
+
+                "ignored": [default(False), boolean_validator],
+                "experimental": [default(False), boolean_validator],
+                "internal": [default(False), boolean_validator],
+                "required": [default(False), boolean_validator],
+            }
+        }
     }

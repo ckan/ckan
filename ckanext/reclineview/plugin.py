@@ -2,12 +2,12 @@
 
 from logging import getLogger
 
-import six
 
 from ckan.common import json, config
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckan.plugins.toolkit import _
+from ckan.config.declaration import Declaration, Key
 
 log = getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
@@ -21,7 +21,7 @@ def get_mapview_config():
     '''
     namespace = 'ckanext.spatial.common_map.'
     return {k.replace(namespace, ''): v
-            for k, v in six.iteritems(config)
+            for k, v in config.items()
             if k.startswith(namespace)}
 
 
@@ -29,8 +29,7 @@ def get_dataproxy_url():
     '''
     Returns the value of the ckan.recline.dataproxy_url config option
     '''
-    return config.get(
-        'ckan.recline.dataproxy_url', '//jsonpdataproxy.appspot.com')
+    return config.get_value('ckan.recline.dataproxy_url')
 
 
 def in_list(list_possible_values):
@@ -71,6 +70,7 @@ class ReclineViewBase(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.ITemplateHelpers, inherit=True)
+    p.implements(p.IConfigDeclaration)
 
     def update_config(self, config):
         '''
@@ -98,6 +98,13 @@ class ReclineViewBase(p.SingletonPlugin):
             'get_map_config': get_mapview_config,
             'get_dataproxy_url': get_dataproxy_url,
         }
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        declaration.annotate("recline_view settings")
+        declaration.declare(
+            key.ckan.recline.dataproxy_url, "//jsonpdataproxy.appspot.com")
 
 
 class ReclineView(ReclineViewBase):

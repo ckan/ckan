@@ -12,17 +12,16 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
-from six import text_type
 
+from ckan.common import config
 from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
-from ckan.common import config, asbool
 
 
 def set_api_key():
-    if asbool(config.get('ckan.auth.create_default_api_keys', False)):
+    if config.get_value('ckan.auth.create_default_api_keys'):
         return _types.make_uuid()
     return None
 
@@ -111,7 +110,7 @@ class User(core.StatefulObjectMixin,
         '''
         hashed_password = pbkdf2_sha512.encrypt(password)
 
-        if not isinstance(hashed_password, text_type):
+        if not isinstance(hashed_password, str):
             hashed_password = six.ensure_text(hashed_password)
         self._password = hashed_password
 
@@ -119,7 +118,7 @@ class User(core.StatefulObjectMixin,
         return self._password
 
     def _verify_and_upgrade_from_sha1(self, password):
-        # if isinstance(password, text_type):
+        # if isinstance(password, str):
         #     password_8bit = password.encode('ascii', 'ignore')
         # else:
         #     password_8bit = password

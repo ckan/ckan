@@ -5,15 +5,15 @@ import os
 import smtplib
 import socket
 import logging
+import mimetypes
 from time import time
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.header import Header
+
+from email.message import EmailMessage
 from email import utils
 
 from ckan.common import config
 import ckan.common
-from six import text_type
+
 
 import ckan
 import ckan.model as model
@@ -31,29 +31,31 @@ class MailerException(Exception):
 
 def _mail_recipient(recipient_name, recipient_email,
                     sender_name, sender_url, subject,
-                    body, body_html=None, headers=None):
+                    body, body_html=None, headers=None,
+                    attachments=None):
 
     if not headers:
         headers = {}
 
-    mail_from = config.get('smtp.mail_from')
-    reply_to = config.get('smtp.reply_to')
+    if not attachments:
+        attachments = []
+
+    mail_from = config.get_value('smtp.mail_from')
+    reply_to = config.get_value('smtp.reply_to')
+
+    msg = EmailMessage()
+
+    msg.set_content(body, cte='base64')
+
     if body_html:
-        # multipart
-        msg = MIMEMultipart('alternative')
-        part1 = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
-        part2 = MIMEText(body_html.encode('utf-8'), 'html', 'utf-8')
-        msg.attach(part1)
-        msg.attach(part2)
-    else:
-        # just plain text
-        msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
+        msg.add_alternative(body_html, subtype='html', cte='base64')
+
     for k, v in headers.items():
         if k in msg.keys():
             msg.replace_header(k, v)
         else:
             msg.add_header(k, v)
-    subject = Header(subject.encode('utf-8'), 'utf-8')
+
     msg['Subject'] = subject
     msg['From'] = _("%s <%s>") % (sender_name, mail_from)
     msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
@@ -62,20 +64,28 @@ def _mail_recipient(recipient_name, recipient_email,
     if reply_to and reply_to != '':
         msg['Reply-to'] = reply_to
 
+    for attachment in attachments:
+        if len(attachment) == 3:
+            name, _file, media_type = attachment
+        else:
+            name, _file = attachment
+            media_type = None
+
+        if not media_type:
+            media_type, encoding = mimetypes.guess_type(name)
+        if media_type:
+            main_type, sub_type = media_type.split('/')
+        else:
+            main_type = sub_type = None
+
+        msg.add_attachment(
+            _file.read(), filename=name, maintype=main_type, subtype=sub_type)
+
     # Send the email using Python's smtplib.
-    if 'smtp.test_server' in config:
-        # If 'smtp.test_server' is configured we assume we're running tests,
-        # and don't use the smtp.server, starttls, user, password etc. options.
-        smtp_server = config['smtp.test_server']
-        smtp_starttls = False
-        smtp_user = None
-        smtp_password = None
-    else:
-        smtp_server = config.get('smtp.server', 'localhost')
-        smtp_starttls = ckan.common.asbool(
-            config.get('smtp.starttls'))
-        smtp_user = config.get('smtp.user')
-        smtp_password = config.get('smtp.password')
+    smtp_server = config.get_value('smtp.server')
+    smtp_starttls = config.get_value('smtp.starttls')
+    smtp_user = config.get_value('smtp.user')
+    smtp_password = config.get_value('smtp.password')
 
     try:
         smtp_connection = smtplib.SMTP(smtp_server)
@@ -115,29 +125,79 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_connection.quit()
 
 
-def mail_recipient(recipient_name, recipient_email, subject,
-                   body, body_html=None, headers={}):
-    '''Sends an email'''
-    site_title = config.get('ckan.site_title')
-    site_url = config.get('ckan.site_url')
-    return _mail_recipient(recipient_name, recipient_email,
-                           site_title, site_url, subject, body,
-                           body_html=body_html, headers=headers)
+def mail_recipient(
+        recipient_name, recipient_email, subject, body,
+        body_html=None, headers=None, attachments=None):
+    '''Sends an email to a an email address.
+
+    .. note:: You need to set up the :ref:`email-settings` to able to send
+        emails.
+
+    :param recipient_name: the name of the recipient
+    :type recipient: string
+    :param recipient_email: the email address of the recipient
+    :type recipient: string
+
+    :param subject: the email subject
+    :type subject: string
+    :param body: the email body, in plain text
+    :type body: string
+    :param body_html: the email body, in html format (optional)
+    :type body_html: string
+    :headers: extra headers to add to email, in the form
+        {'Header name': 'Header value'}
+    :type: dict
+    :attachments: a list of tuples containing file attachments to add to the
+        email. Tuples should contain the file name and a file-like object
+        pointing to the file contents::
+
+            [
+                ('some_report.csv', file_object),
+            ]
+
+        Optionally, you can add a third element to the tuple containing the
+        media type. If not provided, it will be guessed using
+        the ``mimetypes`` module::
+
+            [
+                ('some_report.csv', file_object, 'text/csv'),
+            ]
+    :type: list
+    '''
+    site_title = config.get_value('ckan.site_title')
+    site_url = config.get_value('ckan.site_url')
+    return _mail_recipient(
+        recipient_name, recipient_email,
+        site_title, site_url, subject, body,
+        body_html=body_html, headers=headers, attachments=attachments)
 
 
-def mail_user(recipient, subject, body, body_html=None, headers={}):
-    '''Sends an email to a CKAN user'''
+def mail_user(
+        recipient, subject, body,
+        body_html=None, headers=None, attachments=None):
+    '''Sends an email to a CKAN user.
+
+    You need to set up the :ref:`email-settings` to able to send emails.
+
+    :param recipient: a CKAN user object
+    :type recipient: a model.User object
+
+    For further parameters see
+    :py:func:`~ckan.lib.mailer.mail_recipient`.
+    '''
+
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
-    mail_recipient(recipient.display_name, recipient.email, subject,
-                   body, body_html=body_html, headers=headers)
+    mail_recipient(
+        recipient.display_name, recipient.email, subject,
+        body, body_html=body_html, headers=headers, attachments=attachments)
 
 
 def get_reset_link_body(user):
     extra_vars = {
         'reset_link': get_reset_link(user),
-        'site_title': config.get('ckan.site_title'),
-        'site_url': config.get('ckan.site_url'),
+        'site_title': config.get_value('ckan.site_title'),
+        'site_url': config.get_value('ckan.site_url'),
         'user_name': user.name,
     }
     # NOTE: This template is translated
@@ -151,8 +211,8 @@ def get_invite_body(user, group_dict=None, role=None):
 
     extra_vars = {
         'reset_link': get_reset_link(user),
-        'site_title': config.get('ckan.site_title'),
-        'site_url': config.get('ckan.site_url'),
+        'site_title': config.get_value('ckan.site_title'),
+        'site_url': config.get_value('ckan.site_url'),
         'user_name': user.name,
     }
     if role:
@@ -176,7 +236,7 @@ def send_reset_link(user):
     create_reset_key(user)
     body = get_reset_link_body(user)
     extra_vars = {
-        'site_title': config.get('ckan.site_title')
+        'site_title': config.get_value('ckan.site_title')
     }
     subject = render('emails/reset_password_subject.txt', extra_vars)
 
@@ -190,7 +250,7 @@ def send_invite(user, group_dict=None, role=None):
     create_reset_key(user)
     body = get_invite_body(user, group_dict, role)
     extra_vars = {
-        'site_title': config.get('ckan.site_title')
+        'site_title': config.get_value('ckan.site_title')
     }
     subject = render('emails/invite_user_subject.txt', extra_vars)
 
@@ -201,12 +261,12 @@ def send_invite(user, group_dict=None, role=None):
 
 
 def create_reset_key(user):
-    user.reset_key = text_type(make_key())
+    user.reset_key = make_key()
     model.repo.commit_and_remove()
 
 
 def make_key():
-    return codecs.encode(os.urandom(16), 'hex')
+    return codecs.encode(os.urandom(16), 'hex').decode()
 
 
 def verify_reset_link(user, key):

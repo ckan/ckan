@@ -8,10 +8,8 @@ from jinja2 import nodes
 from jinja2 import loaders
 from jinja2 import ext
 from jinja2.exceptions import TemplateNotFound
-from jinja2.utils import open_if_exists, escape
-
-from six import text_type
-from six.moves import xrange
+from jinja2.utils import open_if_exists
+from markupsafe import escape
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -27,7 +25,6 @@ def _get_extensions():
             CkanExtend,
             CkanInternationalizationExtension,
             LinkForExtension,
-            ResourceExtension,
             UrlForStaticExtension,
             UrlForExtension,
             AssetExtension]
@@ -61,7 +58,7 @@ def regularise_html(html):
         return
     html = re.sub('\n', ' ', html)
     matches = re.findall('(<[^>]*>|%[^%]\([^)]*\)\w|[^<%]+|%)', html)
-    for i in xrange(len(matches)):
+    for i in range(len(matches)):
         match = matches[i]
         if match.startswith('<') or match.startswith('%'):
             continue
@@ -83,7 +80,7 @@ class CkanInternationalizationExtension(ext.InternationalizationExtension):
             for arg in args:
                 if isinstance(arg, nodes.Const):
                     value = arg.value
-                    if isinstance(value, text_type):
+                    if isinstance(value, str):
                         arg.value = regularise_html(value)
         return node
 
@@ -314,24 +311,6 @@ class LinkForExtension(BaseExtension):
     @classmethod
     def _call(cls, args, kwargs):
         return h.nav_link(*args, **kwargs)
-
-class ResourceExtension(BaseExtension):
-    ''' Deprecated. Custom include_resource tag.
-
-    {% resource <resource_name> %}
-
-    see lib.helpers.include_resource() for more details.
-    '''
-
-    tags = set(['resource'])
-
-    @classmethod
-    def _call(cls, args, kwargs):
-        assert len(args) == 1
-        assert len(kwargs) == 0
-        h.include_resource(args[0], **kwargs)
-        return ''
-
 
 class AssetExtension(BaseExtension):
     ''' Custom include_asset tag.

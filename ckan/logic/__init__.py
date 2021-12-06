@@ -1,17 +1,14 @@
 # encoding: utf-8
 
-import inspect
 import functools
 import logging
 import re
 import importlib
-import inspect
 
 from collections import defaultdict
 
-from werkzeug.utils import import_string
 import six
-from six import string_types, text_type
+
 
 import ckan.model as model
 import ckan.authz as authz
@@ -40,7 +37,7 @@ class ActionError(Exception):
 
     def __str__(self):
         msg = self.message
-        if not isinstance(msg, six.string_types):
+        if not isinstance(msg, str):
             msg = str(msg)
         return six.ensure_text(msg)
 
@@ -102,7 +99,7 @@ class ValidationError(ActionError):
 
             summary = {}
 
-            for key, error in six.iteritems(error_dict):
+            for key, error in error_dict.items():
                 if key == 'resources':
                     summary[_('Resources')] = _('Package resource(s) invalid')
                 elif key == 'extras':
@@ -184,7 +181,7 @@ def clean_dict(data_dict):
         if not isinstance(value, list):
             continue
         for inner_dict in value[:]:
-            if isinstance(inner_dict, string_types):
+            if isinstance(inner_dict, str):
                 break
             if not any(inner_dict.values()):
                 value.remove(inner_dict)
@@ -203,7 +200,7 @@ def tuplize_dict(data_dict):
     May raise a DataError if the format of the key is incorrect.
     '''
     tuplized_dict = {}
-    for key, value in six.iteritems(data_dict):
+    for key, value in data_dict.items():
         key_list = key.split('__')
         for num, key in enumerate(key_list):
             if num % 2 == 1:
@@ -218,7 +215,7 @@ def tuplize_dict(data_dict):
 def untuplize_dict(tuplized_dict):
 
     data_dict = {}
-    for key, value in six.iteritems(tuplized_dict):
+    for key, value in tuplized_dict.items():
         new_key = '__'.join([str(item) for item in key])
         data_dict[new_key] = value
     return data_dict
@@ -235,17 +232,20 @@ def _prepopulate_context(context):
         context = {}
     context.setdefault('model', model)
     context.setdefault('session', model.Session)
+
     try:
-        context.setdefault('user', c.user)
+        user = c.user
     except AttributeError:
         # c.user not set
-        pass
+        user = ""
     except RuntimeError:
         # Outside of request context
-        pass
+        user = ""
     except TypeError:
         # c not registered
-        pass
+        user = ""
+
+    context.setdefault('user', user)
     return context
 
 
@@ -295,32 +295,26 @@ def check_access(action, context, data_dict=None):
     if audit and audit[0] == action:
         context['__auth_audit'].pop()
 
-    user = context.get('user')
+    if 'auth_user_obj' not in context:
+        context['auth_user_obj'] = None
 
+    context = _prepopulate_context(context)
+    if not context.get('ignore_auth'):
+        if not context.get('__auth_user_obj_checked'):
+            if context["user"] and not context["auth_user_obj"]:
+                context['auth_user_obj'] = model.User.by_name(context['user'])
+            context['__auth_user_obj_checked'] = True
     try:
-        if 'auth_user_obj' not in context:
-            context['auth_user_obj'] = None
-
-        if not context.get('ignore_auth'):
-            if not context.get('__auth_user_obj_checked'):
-                if context.get('user') and not context.get('auth_user_obj'):
-                    context['auth_user_obj'] = \
-                        model.User.by_name(context['user'])
-                context['__auth_user_obj_checked'] = True
-
-        context = _prepopulate_context(context)
-
-        logic_authorization = authz.is_authorized(action, context,
-                                                  data_dict)
+        logic_authorization = authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
     except NotAuthorized as e:
         log.debug(u'check access NotAuthorized - %s user=%s "%s"',
-                  action, user, text_type(e))
+                  action, context["user"], str(e))
         raise
 
-    log.debug('check access OK - %s user=%s', action, user)
+    log.debug('check access OK - %s user=%s', action, context["user"])
     return True
 
 
@@ -458,7 +452,7 @@ def get_action(action):
                 # This needs to be resolved later
                 action_function.auth_audit_exempt = True
                 fetched_actions[name] = action_function
-    for name, func_list in six.iteritems(chained_actions):
+    for name, func_list in chained_actions.items():
         if name not in fetched_actions and name not in _actions:
             # nothing to override from plugins or core
             raise NotFound('The action %r is not found for chained action' % (
@@ -468,7 +462,7 @@ def get_action(action):
             prev_func = fetched_actions.get(name, _actions.get(name))
             new_func = functools.partial(func, prev_func)
             # persisting attributes to the new partial function
-            for attribute, value in six.iteritems(func.__dict__):
+            for attribute, value in func.__dict__.items():
                 setattr(new_func, attribute, value)
             fetched_actions[name] = new_func
 
@@ -546,7 +540,7 @@ def get_or_bust(data_dict, keys):
         not in the given dictionary
 
     '''
-    if isinstance(keys, string_types):
+    if isinstance(keys, str):
         keys = [keys]
 
     import ckan.logic.schema as schema

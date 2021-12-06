@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import ckan.plugins as plugins
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
 
@@ -37,6 +38,15 @@ def pytest_sessionstart(session):
     except AttributeError:
         flask_app = app._wsgi_app
     _tests_test_request_context = flask_app.test_request_context()
+
+
+def pytest_runtestloop(session):
+    """When all the tests collected, extra plugin may be enabled because python
+    interpreter visits their files.
+
+    Make sure only configured plugins are active when test loop starts.
+    """
+    plugins.load_all()
 
 
 def pytest_runtest_setup(item):

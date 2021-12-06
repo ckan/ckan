@@ -234,6 +234,7 @@ class TestDatapreview(object):
 
         assert created_views[0]["view_type"] == "image_view"
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "image_view")
     def test_default_views_created_on_package_create(self):
 
         dataset_dict = factories.Dataset(
@@ -259,6 +260,7 @@ class TestDatapreview(object):
             assert len(views_list) == 1
             assert views_list[0]["view_type"] == "image_view"
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "image_view")
     def test_default_views_created_on_resource_create(self):
 
         dataset_dict = factories.Dataset(

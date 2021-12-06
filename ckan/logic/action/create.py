@@ -24,6 +24,7 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
 import ckan.lib.mailer as mailer
+import ckan.lib.signals as signals
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
 import ckan.authz as authz
@@ -206,7 +207,7 @@ def package_create(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
-        item.after_create(context, data)
+        item.after_dataset_create(context, data)
 
     # Make sure that a user provided schema is not used in create_views
     # and on package_show
@@ -293,7 +294,7 @@ def resource_create(context, data_dict):
     _check_access('resource_create', context, data_dict)
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_create(context, data_dict)
+        plugin.before_resource_create(context, data_dict)
 
     if 'resources' not in pkg_dict:
         pkg_dict['resources'] = []
@@ -343,7 +344,7 @@ def resource_create(context, data_dict):
          })
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_create(context, resource)
+        plugin.after_resource_create(context, resource)
 
     return resource
 
@@ -926,60 +927,6 @@ def organization_create(context, data_dict):
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
-@logic.auth_audit_exempt
-def rating_create(context, data_dict):
-    '''Rate a dataset (package).
-
-    You must provide your API key in the Authorization header.
-
-    :param package: the name or id of the dataset to rate
-    :type package: string
-    :param rating: the rating to give to the dataset, an integer between 1 and
-        5
-    :type rating: int
-
-    :returns: a dictionary with two keys: ``'rating average'`` (the average
-        rating of the dataset you rated) and ``'rating count'`` (the number of
-        times the dataset has been rated)
-    :rtype: dictionary
-
-    '''
-    model = context['model']
-    user = context.get("user")
-
-    package_ref = data_dict.get('package')
-    rating = data_dict.get('rating')
-    opts_err = None
-    if not package_ref:
-        opts_err = _('You must supply a package id or name '
-                     '(parameter "package").')
-    elif not rating:
-        opts_err = _('You must supply a rating (parameter "rating").')
-    else:
-        try:
-            rating_int = int(rating)
-        except ValueError:
-            opts_err = _('Rating must be an integer value.')
-        else:
-            package = model.Package.get(package_ref)
-            if rating < model.MIN_RATING or rating > model.MAX_RATING:
-                opts_err = _('Rating must be between %i and %i.') \
-                    % (model.MIN_RATING, model.MAX_RATING)
-            elif not package:
-                opts_err = _('Not found') + ': %r' % package_ref
-    if opts_err:
-        raise ValidationError(opts_err)
-
-    user = model.User.by_name(user)
-    package.set_rating(user, rating_int)
-    model.repo.commit()
-
-    package = model.Package.get(package_ref)
-    ret_dict = {'rating average': package.get_average_rating(),
-                'rating count': len(package.ratings)}
-    return ret_dict
-
-
 def user_create(context, data_dict):
     '''Create a new user.
 
@@ -1047,7 +994,7 @@ def user_create(context, data_dict):
         data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
-    plugins.toolkit.signals.user_created.send(user.name, user=user)
+    signals.user_created.send(user.name, user=user)
     # Flush the session to cause user.id to be initialised, because
     # activity_create() (below) needs it.
     session.flush()
@@ -1168,9 +1115,11 @@ def user_invite(context, data_dict):
 
         _get_action('user_delete')(context, {'id': user.id})
 
-        msg = _('Error sending the invite email, ' +
-                'the user was not created: {0}').format(error)
-        raise ValidationError({'message': msg}, error_summary=msg)
+        error_dict = {
+            "message": _('Error sending the invite email, \
+                the user was not created: {0}').format(error)
+        }
+        raise ValidationError(error_dict, error_summary=error_dict)
 
     return model_dictize.user_dictize(user, context)
 
@@ -1260,8 +1209,7 @@ def activity_create(context, activity_dict, **kw):
                         'ignore_auth must be passed in the context not as '
                         'a param')
 
-    if not ckan.common.asbool(
-            config.get('ckan.activity_streams_enabled', 'true')):
+    if not config.get_value('ckan.activity_streams_enabled'):
         return
 
     model = context['model']

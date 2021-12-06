@@ -6,7 +6,7 @@ import datetime
 import logging
 import magic
 import mimetypes
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
@@ -83,7 +83,7 @@ def get_storage_path():
 
     # None means it has not been set. False means not in config.
     if _storage_path is None:
-        storage_path = config.get('ckan.storage_path')
+        storage_path = config.get_value('ckan.storage_path')
         if storage_path:
             _storage_path = storage_path
         else:
@@ -97,14 +97,14 @@ def get_storage_path():
 def get_max_image_size():
     global _max_image_size
     if _max_image_size is None:
-        _max_image_size = int(config.get('ckan.max_image_size', 2))
+        _max_image_size = config.get_value('ckan.max_image_size')
     return _max_image_size
 
 
 def get_max_resource_size():
     global _max_resource_size
     if _max_resource_size is None:
-        _max_resource_size = int(config.get('ckan.max_resource_size', 10))
+        _max_resource_size = config.get_value('ckan.max_resource_size')
     return _max_resource_size
 
 
@@ -173,6 +173,8 @@ class Upload(object):
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
 
+        self.verify_type()
+
         if self.filename:
             with open(self.tmp_filepath, 'wb+') as output_file:
                 try:
@@ -192,11 +194,32 @@ class Upload(object):
             except OSError:
                 pass
 
+    def verify_type(self):
+        if not self.filename:
+            return
+
+        mimetypes = config.get_value(
+            f"ckan.upload.{self.object_type}.mimetypes")
+        types = config.get_value(f"ckan.upload.{self.object_type}.types")
+        if not mimetypes and not types:
+            return
+
+        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
+        self.upload_file.seek(0, os.SEEK_SET)
+        err = {self.file_field: [f"Unsupported upload type: {actual}"]}
+
+        if mimetypes and actual not in mimetypes:
+            raise logic.ValidationError(err)
+
+        type_ = actual.split("/")[0]
+        if types and type_ not in types:
+            raise logic.ValidationError(err)
+
 
 class ResourceUpload(object):
     def __init__(self, resource):
         path = get_storage_path()
-        config_mimetype_guess = config.get('ckan.mimetype_guess', 'file_ext')
+        config_mimetype_guess = config.get_value('ckan.mimetype_guess')
 
         if not path:
             self.storage_path = None
@@ -243,7 +266,7 @@ class ResourceUpload(object):
                     self.mimetype = magic.from_buffer(self.upload_file.read(),
                                                       mime=True)
                     self.upload_file.seek(0, os.SEEK_SET)
-                except IOError as e:
+                except IOError:
                     # Not that important if call above fails
                     self.mimetype = None
 
@@ -309,5 +332,5 @@ class ResourceUpload(object):
         if self.clear:
             try:
                 os.remove(filepath)
-            except OSError as e:
+            except OSError:
                 pass

@@ -128,10 +128,6 @@ def organization_create(context, data_dict=None):
     return {'success': False,
             'msg': _('User %s not authorized to create organizations') % user}
 
-def rating_create(context, data_dict):
-    # No authz check in the logic function
-    return {'success': True}
-
 
 @logic.auth_allow_anonymous_access
 def user_create(context, data_dict=None):
@@ -172,8 +168,6 @@ def _check_group_auth(context, data_dict):
     model = context['model']
     user = context['user']
     pkg = context.get("package")
-
-    api_version = context.get('api_version') or '1'
 
     group_blobs = data_dict.get('groups', [])
     groups = set()

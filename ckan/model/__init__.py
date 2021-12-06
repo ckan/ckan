@@ -7,7 +7,7 @@ import re
 from time import sleep
 from os.path import splitext
 
-from sqlalchemy import MetaData, __version__ as sqav, Table
+from sqlalchemy import MetaData, Table
 from sqlalchemy.exc import ProgrammingError
 
 from alembic.command import (
@@ -79,11 +79,7 @@ from ckan.model.tracking import (
     TrackingSummary,
     tracking_raw_table
 )
-from ckan.model.rating import (
-    Rating,
-    MIN_RATING,
-    MAX_RATING,
-)
+
 from ckan.model.package_relationship import (
     PackageRelationship,
     package_relationship_table,
@@ -190,17 +186,10 @@ class Repository():
         warnings.filterwarnings('ignore', 'SAWarning')
         self.session.rollback()
         self.session.remove()
-        # sqlite database needs to be recreated each time as the
-        # memory database is lost.
 
-        if self.metadata.bind.engine.url.drivername == 'sqlite':
-            # this creates the tables, which isn't required inbetween tests
-            # that have simply called rebuild_db.
-            self.create_db()
-        else:
-            if not self.tables_created_and_initialised:
-                self.upgrade_db()
-                self.tables_created_and_initialised = True
+        if not self.tables_created_and_initialised:
+            self.upgrade_db()
+            self.tables_created_and_initialised = True
         log.info('Database initialised')
 
     def clean_db(self):
@@ -240,10 +229,7 @@ class Repository():
         self.session.remove()
         ## use raw connection for performance
         connection = self.session.connection()
-        if sqav.startswith("0.4"):
-            tables = self.metadata.table_iterator()
-        else:
-            tables = reversed(self.metadata.sorted_tables)
+        tables = reversed(self.metadata.sorted_tables)
         for table in tables:
             if table.name == 'alembic_version':
                 continue
@@ -266,7 +252,7 @@ class Repository():
         self.reset_alembic_output()
         alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
-            "sqlalchemy.url", config.get("sqlalchemy.url")
+            "sqlalchemy.url", config.get_value("sqlalchemy.url")
         )
         try:
             sqlalchemy_migrate_version = self.metadata.bind.execute(

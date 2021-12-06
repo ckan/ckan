@@ -12,8 +12,7 @@ The basic recipe is to call:
 which builds the dictionary by iterating over the table columns.
 '''
 import copy
-import six
-from six.moves.urllib.parse import urlsplit
+from urllib.parse import urlsplit
 
 from ckan.common import config
 from sqlalchemy.sql import select
@@ -76,7 +75,7 @@ def resource_list_dictize(res_list, context):
 
 def extras_dict_dictize(extras_dict, context):
     result_list = []
-    for name, extra in six.iteritems(extras_dict):
+    for name, extra in extras_dict.items():
         dictized = d.table_dictize(extra, context)
         if not extra.state == 'active':
             continue
@@ -458,7 +457,7 @@ def tag_dictize(tag, context, include_datasets=True):
             tag_dict['packages'] = []
             for package_dict in package_dicts:
                 for item in plugins.PluginImplementations(plugins.IPackageController):
-                    package_dict = item.before_view(package_dict)
+                    package_dict = item.before_dataset_view(package_dict)
                 tag_dict['packages'].append(package_dict)
     else:
         if include_datasets:
@@ -589,11 +588,9 @@ def package_to_api(pkg, context):
     dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     dictized['license'] = pkg.license.title if pkg.license else None
-    dictized['ratings_average'] = pkg.get_average_rating()
-    dictized['ratings_count'] = len(pkg.ratings)
     dictized['notes_rendered'] = h.render_markdown(pkg.notes)
 
-    site_url = config.get('ckan.site_url', None)
+    site_url = config.get_value('ckan.site_url')
     if site_url:
         dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
 

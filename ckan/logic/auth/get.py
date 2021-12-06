@@ -83,7 +83,7 @@ def user_list(context, data_dict):
     if data_dict.get('email'):
         # only sysadmins can specify the 'email' parameter
         return {'success': False}
-    if not asbool(config.get('ckan.auth.public_user_details', True)):
+    if not config.get_value('ckan.auth.public_user_details'):
         return restrict_anon(context)
     else:
         return {'success': True}
@@ -165,7 +165,7 @@ def group_show(context, data_dict):
     user = context.get('user')
     group = get_group_object(context, data_dict)
     if group.state == 'active':
-        if asbool(config.get('ckan.auth.public_user_details', True)) or \
+        if config.get_value('ckan.auth.public_user_details') or \
             (not asbool(data_dict.get('include_users', False)) and
                 (data_dict.get('object_type', None) != 'user')):
             return {'success': True}
@@ -194,7 +194,7 @@ def tag_show(context, data_dict):
 def user_show(context, data_dict):
     # By default, user details can be read by anyone, but some properties like
     # the API key are stripped at the action level if not not logged in.
-    if not asbool(config.get('ckan.auth.public_user_details', True)):
+    if not config.get_value('ckan.auth.public_user_details'):
         return restrict_anon(context)
     else:
         return {'success': True}
