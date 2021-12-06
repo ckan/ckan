@@ -33,6 +33,7 @@ showcontent = true
 
 [tool.black]
 line-length = 79
+experimental-string-processing = true
 
 [tool.pytest.ini_options]
 filterwarnings = [

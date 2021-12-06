@@ -56,14 +56,14 @@ class TestDelete:
             "ignore_auth": False,
         }
 
-        created_resource = helpers.call_action(
+        helpers.call_action(
             "resource_delete", context=context, id=resource["id"]
         )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "app")
 class TestDeleteResource(object):
-    def test_01_delete_resource(self, app):
+    def test_01_delete_resource(self):
         res = factories.Resource()
         pkg = helpers.call_action("package_show", id=res["package_id"])
         assert len(pkg["resources"]) == 1
@@ -105,6 +105,7 @@ class TestDeleteResourceViews(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+@pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestClearResourceViews(object):
     def test_resource_view_clear(self):
@@ -636,9 +637,9 @@ class TestJobClear(helpers.FunctionalRQTestBase):
         Test clearing specific queues.
         """
         job1 = self.enqueue()
-        job2 = self.enqueue(queue=u"q1")
-        job3 = self.enqueue(queue=u"q1")
-        job4 = self.enqueue(queue=u"q2")
+        self.enqueue(queue=u"q1")
+        self.enqueue(queue=u"q1")
+        self.enqueue(queue=u"q2")
         with helpers.recorded_logs(u"ckan.logic") as logs:
             queues = helpers.call_action(u"job_clear", queues=[u"q1", u"q2"])
         assert {u"q1", u"q2"} == set(queues)

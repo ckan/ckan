@@ -1,11 +1,9 @@
 # encoding: utf-8
 
 from sqlalchemy import inspect
-from ckan.common import asbool
 import six
 
 from urllib.parse import quote
-from werkzeug.utils import import_string, cached_property
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
@@ -16,9 +14,6 @@ import ckan.plugins as p
 
 import logging
 log = logging.getLogger(__name__)
-
-APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
-APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
 
 
 def check_session_cookie(response):
@@ -56,15 +51,14 @@ def set_cors_headers_for_response(response):
     Set up Access Control Allow headers if either origin_allow_all is True, or
     the request Origin is in the origin_whitelist.
     '''
-    if config.get(u'ckan.cors.origin_allow_all') \
-       and request.headers.get(u'Origin'):
-
+    if request.headers.get(u'Origin'):
         cors_origin_allowed = None
-        if asbool(config.get(u'ckan.cors.origin_allow_all')):
+        allow_all = config.get_value(u'ckan.cors.origin_allow_all')
+        whitelisted = request.headers.get(u'Origin') in config.get_value(
+            u'ckan.cors.origin_whitelist')
+        if allow_all:
             cors_origin_allowed = b'*'
-        elif config.get(u'ckan.cors.origin_whitelist') and \
-                request.headers.get(u'Origin') \
-                in config[u'ckan.cors.origin_whitelist'].split(u' '):
+        elif whitelisted:
             # set var to the origin to allow it.
             cors_origin_allowed = request.headers.get(u'Origin')
 
@@ -90,7 +84,7 @@ def set_cache_control_headers_for_response(response):
     if allow_cache:
         response.cache_control.public = True
         try:
-            cache_expire = int(config.get(u'ckan.cache_expires', 0))
+            cache_expire = config.get_value(u'ckan.cache_expires')
             response.cache_control.max_age = cache_expire
             response.cache_control.must_revalidate = True
         except ValueError:
@@ -192,9 +186,8 @@ def _identify_user_default():
 
 
 def _get_user_for_apitoken():
-    apitoken_header_name = config.get(
-        APIKEY_HEADER_NAME_KEY, APIKEY_HEADER_NAME_DEFAULT
-    )
+    apitoken_header_name = config.get_value("apikey_header_name")
+
     apitoken = request.headers.get(apitoken_header_name, u'')
     if not apitoken:
         apitoken = request.environ.get(apitoken_header_name, u'')
@@ -232,7 +225,7 @@ def handle_i18n(environ=None):
     '''
     environ = environ or request.environ
     locale_list = get_locales_from_config()
-    default_locale = config.get(u'ckan.locale_default', u'en')
+    default_locale = config.get_value(u'ckan.locale_default')
 
     # We only update once for a request so we can keep
     # the language and original url which helps with 404 pages etc

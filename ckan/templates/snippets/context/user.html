@@ -1,3 +1,5 @@
+{% set dataset_type = h.default_package_type() %}
+
 <div class="context-info">
   {% if about != 'null' %}
     {% set about = about|striptags %}
@@ -16,7 +18,7 @@
       <dd>{{ h.SI_number_span(num_followers) }}</dd>
     </dl>
     <dl>
-      <dt>{{ _('Datasets') }}</dt>
+      <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>
       <dd>{{ h.SI_number_span(number_created_packages) }}</dd>
     </dl>
   </div>

@@ -3,9 +3,9 @@
 import os
 import logging
 import html
+import io
 
 from flask import Blueprint, make_response
-import six
 
 from werkzeug.exceptions import BadRequest
 
@@ -111,20 +111,6 @@ def _finish_ok(response_data=None,
     return _finish(status_int, response_data, content_type, headers)
 
 
-def _finish_not_authz(extra_msg=None):
-    response_data = _(u'Access denied')
-    if extra_msg:
-        response_data = u'%s - %s' % (response_data, extra_msg)
-    return _finish(403, response_data, u'json')
-
-
-def _finish_not_found(extra_msg=None):
-    response_data = _(u'Not found')
-    if extra_msg:
-        response_data = u'%s - %s' % (response_data, extra_msg)
-    return _finish(404, response_data, u'json')
-
-
 def _finish_bad_request(extra_msg=None):
     response_data = _(u'Bad request')
     if extra_msg:
@@ -210,21 +196,6 @@ def _get_request_data(try_url_params=False):
     log.debug(u'Request data extracted: %r', request_data)
 
     return request_data
-
-
-def _get_action_from_map(action_map, register, subregister):
-    u'''Helper function to get the action function specified in
-        the action map'''
-
-    # translate old package calls to use dataset
-    if register == u'package':
-        register = u'dataset'
-
-    action = action_map.get((register, subregister))
-    if not action:
-        action = action_map.get(register)
-    if action:
-        return get_action(action)
 
 
 # View functions
@@ -374,8 +345,8 @@ def dataset_autocomplete(ver=API_REST_DEFAULT_VERSION):
         package_dicts = get_action(
             u'package_autocomplete')(context, data_dict)
 
-    resultSet = {u'ResultSet': {u'Result': package_dicts}}
-    return _finish_ok(resultSet)
+    result_set = {u'ResultSet': {u'Result': package_dicts}}
+    return _finish_ok(result_set)
 
 
 def tag_autocomplete(ver=API_REST_DEFAULT_VERSION):
@@ -393,12 +364,12 @@ def tag_autocomplete(ver=API_REST_DEFAULT_VERSION):
 
         tag_names = get_action(u'tag_autocomplete')(context, data_dict)
 
-    resultSet = {
+    result_set = {
         u'ResultSet': {
             u'Result': [{u'Name': tag} for tag in tag_names]
         }
     }
-    return _finish_ok(resultSet)
+    return _finish_ok(result_set)
 
 
 def format_autocomplete(ver=API_REST_DEFAULT_VERSION):
@@ -411,12 +382,12 @@ def format_autocomplete(ver=API_REST_DEFAULT_VERSION):
         data_dict = {u'q': q, u'limit': limit}
         formats = get_action(u'format_autocomplete')(context, data_dict)
 
-    resultSet = {
+    result_set = {
         u'ResultSet': {
             u'Result': [{u'Format': format} for format in formats]
         }
     }
-    return _finish_ok(resultSet)
+    return _finish_ok(result_set)
 
 
 def user_autocomplete(ver=API_REST_DEFAULT_VERSION):
@@ -479,7 +450,7 @@ def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
                              u'base', u'i18n', u'{0}.js'.format(lang)))
     if not os.path.exists(source):
         return u'{}'
-    translations = json.load(open(source, u'r', encoding='utf-8'))
+    translations = json.load(io.open(source, u'r', encoding='utf-8'))
     return _finish_ok(translations)
 
 

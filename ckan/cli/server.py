@@ -7,8 +7,8 @@ import warnings
 import click
 from werkzeug.serving import run_simple
 
-import ckan.plugins.toolkit as tk
 from ckan.common import config
+from . import error_shout
 
 log = logging.getLogger(__name__)
 
@@ -46,30 +46,26 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
         ssl_cert, ssl_key):
     u"""Runs the Werkzeug development server"""
 
-    if tk.asbool(config.get("debug")):
+    if config.get_value("debug"):
         warnings.filterwarnings("default", category=CkanDeprecationWarning)
 
     # Reloading
     use_reloader = not disable_reloader
-    config_extra_files = tk.aslist(
-        config.get(u"ckan.devserver.watch_patterns")
-    )
+    config_extra_files = config.get_value(u"ckan.devserver.watch_patterns")
     extra_files = list(extra_files) + [
         config[u"__file__"]
     ] + config_extra_files
 
     # Threads and processes
-    threaded = threaded or tk.asbool(config.get(u"ckan.devserver.threaded"))
-    processes = processes or tk.asint(
-        config.get(u"ckan.devserver.multiprocess", 1)
-    )
+    threaded = threaded or config.get_value(u"ckan.devserver.threaded")
+    processes = processes or config.get_value(u"ckan.devserver.multiprocess")
     if threaded and processes > 1:
-        tk.error_shout(u"Cannot have a multithreaded and multi process server")
+        error_shout(u"Cannot have a multithreaded and multi process server")
         raise click.Abort()
 
     # SSL
-    cert_file = ssl_cert or config.get('ckan.devserver.ssl_cert')
-    key_file = ssl_key or config.get('ckan.devserver.ssl_key')
+    cert_file = ssl_cert or config.get_value('ckan.devserver.ssl_cert')
+    key_file = ssl_key or config.get_value('ckan.devserver.ssl_key')
 
     if cert_file and key_file:
         if cert_file == key_file == 'adhoc':
@@ -79,12 +75,12 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
     else:
         ssl_context = None
 
-    host = host or config.get('ckan.devserver.host', DEFAULT_HOST)
-    port = port or config.get('ckan.devserver.port', DEFAULT_PORT)
+    host = host or config.get_value('ckan.devserver.host')
+    port = port or config.get_value('ckan.devserver.port')
     try:
         port = int(port)
     except ValueError:
-        tk.error_shout(u"Server port must be an integer, not {}".format(port))
+        error_shout(u"Server port must be an integer, not {}".format(port))
         raise click.Abort()
 
     log.info(u"Running CKAN on {scheme}://{host}:{port}".format(

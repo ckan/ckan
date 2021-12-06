@@ -1,0 +1,567 @@
+version: 1
+groups:
+  # Internal options, that are used/computed by CKAN in runtime
+  - annotation: ~
+    options:
+      - key: __file__
+        internal: true
+      - key: here
+        internal: true
+      - key: ckan.admin_tabs
+        internal: true
+      - key: computed_template_paths
+        ignored: true
+      - key: clear_logo_upload
+        ignored: true
+      - key: logo_upload
+        ignored: true
+      - key: ckan.host
+        ignored: true
+      - key: testing
+        ignored: true
+        type: bool
+
+  # Options that are available inside CircleCI containers:
+  - annotation: ~
+    options:
+      - key: CKAN_POSTGRES_USER
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_WRITE_USER
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_READ_USER
+        internal: true
+      - key: CKAN_POSTGRES_DB
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_DB
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_WRITE_PWD
+        internal: true
+      - key: CKAN_POSTGRES_PWD
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_READ_PWD
+        internal: true
+
+  # Flask configuration options
+  - annotation: ~
+    options:
+      - key: APPLICATION_ROOT
+        internal: true
+      - key: BABEL_DEFAULT_LOCALE
+        internal: true
+      - key: BABEL_DEFAULT_TIMEZONE
+        ignored: true
+      - key: BABEL_DOMAIN
+        ignored: true
+      - key: BABEL_MULTIPLE_DOMAINS
+        ignored: true
+      - key: BABEL_TRANSLATION_DIRECTORIES
+        ignored: true
+      - key: CKAN_INI
+        internal: true
+      - key: DEBUG
+        internal: true
+      - key: ENV
+        internal: true
+      - key: EXPLAIN_TEMPLATE_LOADING
+        internal: true
+      - key: JSONIFY_MIMETYPE
+        internal: true
+      - key: JSONIFY_PRETTYPRINT_REGULAR
+        internal: true
+      - key: JSON_AS_ASCII
+        internal: true
+      - key: JSON_SORT_KEYS
+        internal: true
+      - key: MAX_CONTENT_LENGTH
+        internal: true
+      - key: MAX_COOKIE_SIZE
+        internal: true
+      - key: PERMANENT_SESSION_LIFETIME
+        internal: true
+      - key: PREFERRED_URL_SCHEME
+        internal: true
+      - key: PRESERVE_CONTEXT_ON_EXCEPTION
+        internal: true
+      - key: PROPAGATE_EXCEPTIONS
+        internal: true
+      - key: SECRET_KEY
+        internal: true
+      - key: SEND_FILE_MAX_AGE_DEFAULT
+        internal: true
+      - key: SERVER_NAME
+        internal: true
+      - key: SESSION_COOKIE_DOMAIN
+        internal: true
+      - key: SESSION_COOKIE_HTTPONLY
+        internal: true
+      - key: SESSION_COOKIE_NAME
+        internal: true
+      - key: SESSION_COOKIE_PATH
+        internal: true
+      - key: SESSION_COOKIE_SAMESITE
+        internal: true
+      - key: SESSION_COOKIE_SECURE
+        internal: true
+      - key: SESSION_REFRESH_EACH_REQUEST
+        internal: true
+      - key: TEMPLATES_AUTO_RELOAD
+        internal: true
+      - key: TESTING
+        internal: true
+      - key: TRAP_BAD_REQUEST_ERRORS
+        internal: true
+      - key: TRAP_HTTP_EXCEPTIONS
+        internal: true
+      - key: USE_X_SENDFILE
+        internal: true
+      - key: DEBUG_TB_HOSTS
+        internal: true
+      - key: DEBUG_TB_ENABLED
+        internal: true
+      - key: DEBUG_TB_INTERCEPT_REDIRECTS
+        internal: true
+      - key: DEBUG_TB_PANELS
+        internal: true
+
+  # Global modifiers
+  - annotation: ~
+    options:
+      - key: use
+        placeholder: egg:ckan
+        validators: not_empty
+        required: true
+
+  - annotation: General settings
+    options:
+      - key: debug
+        type: bool
+      - key: ckan.legacy_route_mappings
+      - key: config.mode
+        default: default
+
+  - annotation: Development settings
+    options:
+      - key: ckan.devserver.host
+        default: localhost
+      - key: ckan.devserver.port
+        type: int
+        default: 5000
+      - key: ckan.devserver.threaded
+        type: bool
+      - key: ckan.devserver.multiprocess
+        type: int
+        default: 1
+      - key: ckan.devserver.watch_patterns
+        type: list
+      - key: ckan.devserver.ssl_cert
+      - key: ckan.devserver.ssl_key
+
+  - annotation: Session settings
+    options:
+      - key: cache_dir
+        placeholder: "/tmp/%(ckan.site_id)s"
+      - key: beaker.session.key
+        default: ckan
+      - key: beaker.session.secret
+        validators: not_empty
+        required: true
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
+          nbytes: 20
+        description: >-
+          This is the secret token that the beaker library uses to hash the
+          cookie sent to the client. `ckan generate config` generates a unique
+          value for this each time it generates a config file.
+
+  - annotation: repoze.who settings
+    options:
+      - key: who.config_file
+        validators: not_empty
+        required: true
+        placeholder: "%(here)s/who.ini"
+      - key: who.log_level
+        default: warning
+      - key: who.log_file
+        placeholder: "%(cache_dir)s/who_log.ini"
+      - key: who.reissue_time
+        default: 0
+        type: int
+      - key: who.timeout
+        validators: ignore_empty convert_int
+        description: >-
+          Session timeout (user logged out after period of inactivity, in
+          seconds). Inactive by default, so the session doesn't expire.
+      - key: who.httponly
+        type: bool
+        default: true
+      - key: who.secure
+        type: bool
+      - key: who.samesite
+        default: Lax
+
+  - annotation: Database settings
+    options:
+      - key: sqlalchemy.url
+        placeholder: postgresql://ckan_default:pass@localhost/ckan_default
+        validators: not_empty
+        required: true
+      - key: sqlalchemy.pool_pre_ping
+        type: bool
+        default: true
+      - key: sqlalchemy.<OPTION>
+        type: dynamic
+        description: >-
+          Custom sqlalchemy config parameters used to establish the main
+          database connection.
+
+  - annotation: Site Settings
+    options:
+      - key: ckan.site_url
+        validators: not_empty
+        required: true
+        placeholder: http://127.0.0.1:5000
+      - key: apikey_header_name
+        default: X-CKAN-API-Key
+      - key: ckan.cache_expires
+        default: 0
+        type: int
+      - key: ckan.cache_enabled
+        type: bool
+      - key: ckan.mimetype_guess
+        default: file_ext
+      - key: ckan.static_max_age
+        default: 3600
+        type: int
+      - key: ckan.tracking_enabled
+        type: bool
+      - key: ckan.valid_url_schemes
+        type: list
+        default:
+          - http
+          - https
+          - ftp
+
+  - annotation: Authorization Settings
+    options:
+      - key: ckan.auth.anon_create_dataset
+        type: bool
+      - key: ckan.auth.create_unowned_dataset
+        default: true
+        type: bool
+      - key: ckan.auth.create_dataset_if_not_in_organization
+        default: true
+        type: bool
+      - key: ckan.auth.user_create_groups
+        type: bool
+      - key: ckan.auth.user_create_organizations
+        default: true
+        type: bool
+      - key: ckan.auth.user_delete_groups
+        type: bool
+        default: true
+      - key: ckan.auth.user_delete_organizations
+        type: bool
+        default: true
+      - key: ckan.auth.create_user_via_api
+        type: bool
+      - key: ckan.auth.create_user_via_web
+        type: bool
+        default: true
+      - key: ckan.auth.roles_that_cascade_to_sub_groups
+        type: list
+        default:
+          - admin
+      - key: ckan.auth.public_user_details
+        type: bool
+        default: true
+      - key: ckan.auth.public_activity_stream_detail
+        type: bool
+      - key: ckan.auth.allow_dataset_collaborators
+        type: bool
+      - key: ckan.auth.allow_admin_collaborators
+        type: bool
+      - key: ckan.auth.allow_collaborators_to_change_owner_org
+        type: bool
+      - key: ckan.auth.create_default_api_keys
+        type: bool
+
+  - annotation: API Token Settings
+    options:
+      - key: api_token.nbytes
+        type: int
+        default: 32
+      - key: api_token.jwt.encode.secret
+      - key: api_token.jwt.decode.secret
+      - key: api_token.jwt.algorithm
+        default: "HS256"
+
+  - annotation: Search Settings
+    options:
+      - key: ckan.site_id
+        default: default
+      - key: solr_url
+        placeholder: http://127.0.0.1:8983/solr
+        validators: not_empty
+        required: true
+      - key: solr_user
+      - key: solr_password
+      - key: ckan.search.automatic_indexing
+        type: bool
+        default: true
+      - key: ckan.search.solr_commit
+        type: bool
+        default: true
+      - key: ckan.cache_validated_datasets
+        type: bool
+        default: true
+      - key: ckan.search.show_all_types
+        default: dataset
+      - key: ckan.search.default_include_private
+        type: bool
+        default: true
+      - key: ckan.search.default_package_sort
+        default:  score desc, metadata_modified desc
+      - key: search.facets
+        type: list
+        default:
+          - organization
+          - groups
+          - tags
+          - res_format
+          - license_id
+      - key: search.facets.limit
+        type: int
+        default: 50
+      - key: search.facets.default
+        type: int
+        default: 10
+      - key: ckan.extra_resource_fields
+        type: list
+      - key: ckan.search.rows_max
+        type: int
+        default: 1000
+      - key: ckan.group_and_organization_list_max
+        type: int
+        default: 1000
+      - key: ckan.group_and_organization_list_all_fields_max
+        type: int
+        default: 25
+      - key: solr_timeout
+        type: int
+        default: 60
+
+  - annotation: Redis Settings
+    options:
+      - key: ckan.redis.url
+        default: redis://localhost:6379/0
+        validators: not_empty
+        description: URL to your Redis instance, including the database to be used.
+
+  - annotation: CORS Settings
+    options:
+      - key: ckan.cors.origin_allow_all
+        type: bool
+        description: >-
+          If cors.origin_allow_all is true, all origins are allowed.  If false,
+          the cors.origin_whitelist is used.
+      - key: ckan.cors.origin_whitelist
+        type: list
+        description: cors.origin_whitelist is a space separated list of allowed domains.
+
+  - annotation: Plugins Settings
+    options:
+      - key: ckan.plugins
+        required: true
+        type: list
+        description: |-
+          Note: Add ``datastore`` to enable the CKAN DataStore.
+          Add ``datapusher`` to enable DataPusher.
+          Add ``resource_proxy`` to enable resorce proxying and get around the same origin policy.
+
+  - annotation: Front-End Settings
+    options:
+      - key: ckan.site_title
+        default: CKAN
+      - key: ckan.site_description
+      - key: ckan.site_intro_text
+      - key: ckan.site_logo
+        default: /base/images/ckan-logo.png
+      - key: ckan.site_about
+      - key: ckan.main_css
+        default: /base/css/main.css
+      - key: ckan.favicon
+        default: /base/images/ckan.ico
+      - key: ckan.legacy_templates
+        ignored: true
+        type: bool
+      - key: ckan.datasets_per_page
+        type: int
+        default: 20
+      - key: package_hide_extras
+        type: list
+      - key: ckan.dumps_url
+      - key: ckan.dumps_format
+      - key: ckan.recaptcha.publickey
+      - key: ckan.recaptcha.privatekey
+      - key: ckan.featured_groups
+        type: list
+      - key: ckan.featured_orgs
+        type: list
+      - key: ckan.default_group_sort
+        default: title
+      - key: ckan.gravatar_default
+        default: identicon
+      - key: ckan.debug_supress_header
+        type: bool
+
+      - key: ckan.homepage_style
+        default: "1"
+      - key: ckan.site_custom_css
+
+
+  - annotation: Resource Views Settings
+    options:
+      - key: ckan.views.default_views
+        type: list
+        default:
+          - image_view
+          - recline_view
+        description: >-
+          Define which views should be created by default (plugins must be
+          loaded in ckan.plugins)
+
+  - annotation: Theming Settings
+    options:
+      - key: ckan.template_head_end
+      - key: ckan.template_footer_end
+      - key: ckan.template_title_delimiter
+        default: '-'
+      - key: extra_template_paths
+        default: ""
+      - key: extra_public_paths
+        default: ""
+      - key: ckan.base_public_folder
+        default: public
+      - key: ckan.base_templates_folder
+        default: templates
+      - key: ckan.default.group_type
+        default: group
+      - key: ckan.default.organization_type
+        default: organization
+
+
+  - annotation: Storage Settings
+    options:
+      - key: ckan.storage_path
+        placeholder: /var/lib/storage
+      - key: ckan.max_resource_size
+        type: int
+        default: 10
+      - key: ckan.max_image_size
+        type: int
+        default: 2
+
+  - annotation: Webassets Settings
+    options:
+      - key: ckan.webassets.path
+      - key: ckan.webassets.use_x_sendfile
+        type: bool
+
+  - annotation: User Settings
+    options:
+      - key: ckan.user_list_limit
+        type: int
+        default: 20
+      - key: ckan.user_reset_landing_page
+        default: home.index
+      - key: ckan.route_after_login
+        default: dashboard.index
+
+  - annotation: Activity Streams Settings
+    options:
+      - key: ckan.activity_streams_enabled
+        type: bool
+        default: true
+      - key: ckan.activity_streams_email_notifications
+        type: bool
+        default: false
+      - key: ckan.activity_list_limit
+        type: int
+        default: 31
+      - key: ckan.activity_list_limit_max
+        type: int
+        default: 100
+      - key: ckan.email_notifications_since
+        default: '2 days'
+      - key: ckan.hide_activity_from_users
+        type: list
+        placeholder: "%(ckan.site_id)s"
+
+  - annotation: Feeds Settings
+    options:
+      - key: ckan.feeds.author_name
+        default: ""
+      - key: ckan.feeds.author_link
+      - key: ckan.feeds.authority_name
+        default: ""
+      - key: ckan.feeds.date
+        default: ""
+      - key: ckan.feeds.limit
+        type: int
+        default: 20
+
+  - annotation: Internationalisation Settings
+    options:
+      - key: ckan.locale_default
+        default: en
+      - key: ckan.locales_offered
+        type: list
+      - key: ckan.locales_filtered_out
+        type: list
+      - key: ckan.locale_order
+        type: list
+      - key: ckan.i18n_directory
+      - key: ckan.i18n.extra_directory
+      - key: ckan.i18n.extra_gettext_domain
+      - key: ckan.i18n.extra_locales
+        type: list
+      - key: ckan.i18n.rtl_languages
+        type: list
+        default:
+          - he
+          - ar
+          - fa_IR
+      - key: ckan.i18n.rtl_css
+        default: /base/css/main-rtl.css
+      - key: ckan.display_timezone
+        default: UTC
+      - key: ckan.root_path
+      - key: ckan.resource_formats
+
+  - annotation: Form Settings
+    options:
+      - key: ckan.dataset.create_on_ui_requires_resources
+        type: bool
+        default: true
+      - key: package_new_return_url
+      - key: package_edit_return_url
+      - key: licenses_group_url
+
+  - annotation: Email settings
+    options:
+      - key: smtp.server
+        default: localhost
+      - key: smtp.starttls
+        type: bool
+      - key: smtp.user
+      - key: smtp.password
+      - key: smtp.mail_from
+      - key: smtp.reply_to
+      - key: email_to
+      - key: error_email_from
+
+  - annotation: Background Job Settings
+    options:
+      - key: ckan.jobs.timeout
+        type: int
+        default: 180
