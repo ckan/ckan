@@ -14,12 +14,10 @@ from werkzeug.utils import import_string
 import ckan
 from ckan import logic
 from ckan.cli.db import _resolve_alembic_config
-import ckan.plugins.toolkit as tk
 
-import uuid
 import string
-import secrets
 from ckan.cli import error_shout
+from ckan.common import config_declaration, config
 
 
 class CKANAlembicConfig(AlembicConfig):
@@ -144,7 +142,9 @@ def remove_code_examples(root: str):
 @generate.command(name=u'config',
                   short_help=u'Create a ckan.ini file.')
 @click.argument(u'output_path', nargs=1)
-def make_config(output_path):
+@click.option('-i', '--include-plugin', multiple=True,
+              help="Include config declaration from the given plugin")
+def make_config(output_path, include_plugin):
     u"""Generate a new CKAN configuration ini file."""
 
     # Output to current directory if no path is specified
@@ -154,18 +154,18 @@ def make_config(output_path):
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     template_loc = os.path.join(cur_loc, u'..', u'config',
                                 u'deployment.ini_tmpl')
-    template_variables = {
-        u'app_instance_uuid': uuid.uuid4(),
-        u'app_instance_secret': secrets.token_urlsafe(20)[:25]
-    }
 
+    config_declaration._reset()
+    config_declaration.load_core_declaration()
+    for plugin in include_plugin:
+        config_declaration.load_plugin(plugin)
+
+    variables = {"declaration": config_declaration.into_ini(False, False)}
     with open(template_loc, u'r') as file_in:
         template = string.Template(file_in.read())
-
         try:
             with open(output_path, u'w') as file_out:
-                file_out.writelines(template.substitute(template_variables))
-
+                file_out.writelines(template.substitute(variables))
         except IOError as e:
             error_shout(e)
             raise click.Abort()
@@ -184,19 +184,19 @@ def migration(plugin, message):
     """Create new alembic revision for DB migration.
     """
     import ckan.model
-    if not tk.config:
+    if not config:
         error_shout(u'Config is not loaded')
         raise click.Abort()
-    config = CKANAlembicConfig(_resolve_alembic_config(plugin))
-    migration_dir = os.path.dirname(config.config_file_name)
-    config.set_main_option(u"sqlalchemy.url",
-                           str(ckan.model.repo.metadata.bind.url))
-    config.set_main_option(u'script_location', migration_dir)
+    alembic_config = CKANAlembicConfig(_resolve_alembic_config(plugin))
+    migration_dir = os.path.dirname(alembic_config.config_file_name)
+    alembic_config.set_main_option(u"sqlalchemy.url",
+                                   str(ckan.model.repo.metadata.bind.url))
+    alembic_config.set_main_option(u'script_location', migration_dir)
 
     if not os.path.exists(os.path.join(migration_dir, u'script.py.mako')):
-        alembic.command.init(config, migration_dir)
+        alembic.command.init(alembic_config, migration_dir)
 
-    rev = alembic.command.revision(config, message)
+    rev = alembic.command.revision(alembic_config, message)
     click.secho(
         u"Revision file created. Now, you need to update it: \n\t{}".format(
             rev.path),

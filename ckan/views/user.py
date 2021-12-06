@@ -19,6 +19,7 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import _, config, g, request
+from ckan.lib import signals
 
 log = logging.getLogger(__name__)
 
@@ -91,8 +92,8 @@ def index():
     page_number = h.get_page_number(request.params)
     q = request.params.get(u'q', u'')
     order_by = request.params.get(u'order_by', u'name')
-    limit = int(
-        request.params.get(u'limit', config.get(u'ckan.user_list_limit', 20)))
+    limit = int(request.params.get(
+        u'limit', config.get_value(u'ckan.user_list_limit')))
     context = {
         u'return_query': True,
         u'user': g.user,
@@ -124,7 +125,7 @@ def index():
 
 def me():
     return h.redirect_to(
-        config.get(u'ckan.route_after_login', u'dashboard.index'))
+        config.get_value(u'ckan.route_after_login'))
 
 
 def read(id):
@@ -372,8 +373,9 @@ class EditView(MethodView):
             u'user': g.user
         }, data_dict)
 
-        extra_vars[u'show_email_notifications'] = asbool(
-            config.get(u'ckan.activity_streams_email_notifications'))
+        extra_vars[u'show_email_notifications'] = config.get_value(
+            u'ckan.activity_streams_email_notifications')
+
         vars.update(extra_vars)
         extra_vars[u'form'] = base.render(edit_user_form, extra_vars=vars)
 
@@ -651,7 +653,7 @@ class RequestResetView(MethodView):
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above
                 mailer.send_reset_link(user_obj)
-                plugins.toolkit.signals.request_password_reset.send(
+                signals.request_password_reset.send(
                     user_obj.name, user=user_obj)
             except mailer.MailerException as e:
                 # SMTP is not configured correctly or the server is
@@ -659,18 +661,16 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(config.get(
-                    u'ckan.user_reset_landing_page',
-                    u'home.index'))
+                return h.redirect_to(config.get_value(
+                    u'ckan.user_reset_landing_page'))
 
         # always tell the user it succeeded, because otherwise we reveal
         # which accounts exist or not
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(config.get(
-            u'ckan.user_reset_landing_page',
-            u'home.index'))
+        return h.redirect_to(config.get_value(
+            u'ckan.user_reset_landing_page'))
 
     def get(self):
         self._prepare()
@@ -734,13 +734,13 @@ class PerformResetView(MethodView):
             user_dict[u'state'] = model.State.ACTIVE
             logic.get_action(u'user_update')(context, user_dict)
             mailer.create_reset_key(context[u'user_obj'])
-            plugins.toolkit.signals.perform_password_reset.send(
+            signals.perform_password_reset.send(
                 username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(config.get(
-                u'ckan.user_reset_landing_page',
-                u'home.index'))
+            return h.redirect_to(config.get_value(
+                u'ckan.user_reset_landing_page'))
+
         except logic.NotAuthorized:
             h.flash_error(_(u'Unauthorized to edit user %s') % id)
         except logic.NotFound:

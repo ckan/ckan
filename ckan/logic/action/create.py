@@ -24,6 +24,7 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
 import ckan.lib.mailer as mailer
+import ckan.lib.signals as signals
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
 import ckan.authz as authz
@@ -993,7 +994,7 @@ def user_create(context, data_dict):
         data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
-    plugins.toolkit.signals.user_created.send(user.name, user=user)
+    signals.user_created.send(user.name, user=user)
     # Flush the session to cause user.id to be initialised, because
     # activity_create() (below) needs it.
     session.flush()
@@ -1208,8 +1209,7 @@ def activity_create(context, activity_dict, **kw):
                         'ignore_auth must be passed in the context not as '
                         'a param')
 
-    if not ckan.common.asbool(
-            config.get('ckan.activity_streams_enabled', 'true')):
+    if not config.get_value('ckan.activity_streams_enabled'):
         return
 
     model = context['model']

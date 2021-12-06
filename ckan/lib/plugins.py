@@ -10,7 +10,9 @@ from ckan.common import c, g
 from ckan import logic
 from ckan import plugins
 import ckan.authz
-import ckan.plugins.toolkit as toolkit
+from . import signals
+from .navl.dictization_functions import validate
+
 
 log = logging.getLogger(__name__)
 
@@ -152,7 +154,7 @@ def register_package_blueprints(app):
                     dataset_blueprint)
             register_dataset_plugin_rules(dataset_blueprint)
 
-            toolkit.signals.register_blueprint.send(
+            signals.register_blueprint.send(
                 u"dataset", blueprint=dataset_blueprint)
             app.register_blueprint(dataset_blueprint)
 
@@ -166,7 +168,7 @@ def register_package_blueprints(app):
                     package_type,
                     resource_blueprint)
             dataset_resource_rules(resource_blueprint)
-            toolkit.signals.register_blueprint.send(
+            signals.register_blueprint.send(
                 u"resource", blueprint=resource_blueprint)
             app.register_blueprint(resource_blueprint)
             log.debug(
@@ -279,7 +281,7 @@ def register_group_blueprints(app):
                 blueprint = plugin.prepare_group_blueprint(
                     group_type, blueprint)
             register_group_plugin_rules(blueprint)
-            toolkit.signals.register_blueprint.send(
+            signals.register_blueprint.send(
                 u"organization" if is_organization else u"group",
                 blueprint=blueprint)
             app.register_blueprint(blueprint)
@@ -310,7 +312,7 @@ def plugin_validate(plugin, context, data_dict, schema, action):
         if result is not None:
             return result
 
-    return toolkit.navl_validate(data_dict, schema, context)
+    return validate(data_dict, schema, context)
 
 
 def get_permission_labels():
@@ -401,8 +403,9 @@ class DefaultGroupForm(object):
      - it provides the fallback behaviour if no plugin is setup to
        provide the fallback behaviour.
 
-    Note - this isn't a plugin implementation. This is deliberate, as we
-           don't want this being registered.
+    .. note:: this isn't a plugin implementation. This is deliberate, as we
+        don't want this being registered.
+
     """
     def group_controller(self):
         return 'group'

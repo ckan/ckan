@@ -169,8 +169,6 @@ def _check_group_auth(context, data_dict):
     user = context['user']
     pkg = context.get("package")
 
-    api_version = context.get('api_version') or '1'
-
     group_blobs = data_dict.get('groups', [])
     groups = set()
     for group_blob in group_blobs:
