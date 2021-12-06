@@ -16,8 +16,7 @@ from flask import (
 import ckan.lib.helpers as h
 import ckan.plugins as p
 
-from ckan.common import (request, config,
-                         session, asbool)
+from ckan.common import request, config, session
 
 
 log = logging.getLogger(__name__)
@@ -65,7 +64,7 @@ def render_snippet(*template_names, **kw):
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
-            if asbool(config.get('debug')):
+            if config.get_value('debug'):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
@@ -121,7 +120,7 @@ def _allow_caching(cache_force=None):
     elif request.args.get('__no_cache__'):
         allow_cache = False
     # Don't cache if caching is not enabled in config
-    elif not asbool(config.get('ckan.cache_enabled', False)):
+    elif not config.get_value('ckan.cache_enabled'):
         allow_cache = False
 
     if not allow_cache:

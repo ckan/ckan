@@ -121,7 +121,7 @@ def index(group_type, is_organization):
     extra_vars = {}
     set_org(is_organization)
     page = h.get_page_number(request.args) or 1
-    items_per_page = int(config.get(u'ckan.datasets_per_page', 20))
+    items_per_page = config.get_value('ckan.datasets_per_page')
 
     context = {
         u'model': model,
@@ -358,8 +358,7 @@ def _read(id, limit, group_type):
             limit = int(
                 request.args.get(
                     u'_%s_limit' % facet,
-                    config.get(u'search.facets.default', 10)
-                    ))
+                    config.get_value(u'search.facets.default')))
             g.search_facets_limits[facet] = limit
         extra_vars["page"].items = query['results']
 

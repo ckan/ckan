@@ -8,6 +8,7 @@ import json
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
+from ckan.common import config
 from ckan.cli import error_shout
 from ckan.lib.datapreview import (
     add_views_to_dataset_resources,
@@ -44,7 +45,7 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
     """
 
     datastore_enabled = (
-        u"datastore" in p.toolkit.config[u"ckan.plugins"].split()
+        u"datastore" in config[u"ckan.plugins"].split()
     )
 
     flask_app = ctx.meta['flask_app']
@@ -258,7 +259,7 @@ def _search_datasets(
     if not search_data_dict.get(u"q"):
         search_data_dict[u"q"] = u"*:*"
 
-    query = p.toolkit.get_action(u"package_search")({}, search_data_dict)
+    query = logic.get_action(u"package_search")({}, search_data_dict)
 
     return query
 
@@ -282,20 +283,20 @@ def _add_default_filters(search_data_dict, view_types):
     modified with extra filters.
     """
 
-    from ckanext.imageview.plugin import DEFAULT_IMAGE_FORMATS
     from ckanext.textview.plugin import get_formats as get_text_formats
-    from ckanext.datapusher.plugin import DEFAULT_FORMATS as DATAPUSHER_FORMATS
+    datapusher_formats = config.get_value("ckan.datapusher.formats")
 
     filter_formats = []
 
     for view_type in view_types:
         if view_type == u"image_view":
-
-            for _format in DEFAULT_IMAGE_FORMATS:
+            formats = config.get_value(
+                "ckan.preview.image_formats").split()
+            for _format in formats:
                 filter_formats.extend([_format, _format.upper()])
 
         elif view_type == u"text_view":
-            formats = get_text_formats(p.toolkit.config)
+            formats = get_text_formats(config)
             for _format in itertools.chain.from_iterable(formats.values()):
                 filter_formats.extend([_format, _format.upper()])
 
@@ -309,10 +310,10 @@ def _add_default_filters(search_data_dict, view_types):
             u"recline_map_view",
         ]:
 
-            if DATAPUSHER_FORMATS[0] in filter_formats:
+            if datapusher_formats[0] in filter_formats:
                 continue
 
-            for _format in DATAPUSHER_FORMATS:
+            for _format in datapusher_formats:
                 if u"/" not in _format:
                     filter_formats.extend([_format, _format.upper()])
         else:

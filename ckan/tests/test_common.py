@@ -10,6 +10,7 @@ from ckan.common import (
     g as ckan_g,
     c as ckan_c,
 )
+from ckan.config.declaration import Key
 from ckan.tests import helpers
 
 pylons = None
@@ -26,6 +27,15 @@ def test_get_item_works():
     my_conf = CKANConfig()
     my_conf[u"test_key_1"] = u"Test value 1"
     assert my_conf.get(u"test_key_1") == u"Test value 1"
+
+
+def test_subset_works():
+    conf = CKANConfig({
+        "a.b": 1,
+        "a.c": 2,
+        "x.b": 3,
+    })
+    assert conf.subset(Key().a.dynamic("any")) == {"a.b": 1, "a.c": 2}
 
 
 def test_repr_works():
