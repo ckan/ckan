@@ -30,7 +30,6 @@ import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
 
-import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import config
 

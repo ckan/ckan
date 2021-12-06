@@ -4,11 +4,8 @@ import copy
 import uuid
 import simplejson as json
 
-from datetime import datetime
 from sqlalchemy import types
 
-
-from ckan.model import meta
 
 __all__ = ['make_uuid', 'UuidType',
            'JsonType', 'JsonDictType']
