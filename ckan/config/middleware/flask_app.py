@@ -551,6 +551,7 @@ def _setup_error_mail_handler(app):
         secure=secure
     )
 
+    mail_handler.setLevel(logging.ERROR)
     mail_handler.setFormatter(logging.Formatter('''
 Time:               %(asctime)s
 URL:                %(url)s
