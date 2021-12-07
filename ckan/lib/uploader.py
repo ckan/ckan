@@ -122,7 +122,8 @@ class Upload(object):
             return
         self.storage_path = os.path.join(path, 'storage',
                                          'uploads', object_type)
-        # check if the storage directory is already created by the user or third-party
+        # check if the storage directory is already created by 
+        # the user or third-party
         if os.path.isdir(self.storage_path):
             pass
         else:
