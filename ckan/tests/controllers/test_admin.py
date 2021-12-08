@@ -26,6 +26,20 @@ def _reset_config(app):
     app.post(url=url_for("admin.reset_config"), extra_environ=env)
 
 
+@pytest.mark.usefixtures("clean_db")
+def test_index(app, sysadmin_env):
+    url = url_for("admin.index")
+    response = app.get(url, status=403)
+    # random username
+    response = app.get(
+        url, status=403, extra_environ={"REMOTE_USER": "my-random-user-name"}
+    )
+    # now test real access
+
+    response = app.get(url, extra_environ=sysadmin_env)
+    assert "Administration" in response, response
+
+
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestConfig(object):
     """View tests to go along with 'Customizing look and feel' docs."""
@@ -39,7 +53,7 @@ class TestConfig(object):
         url = url_for(u"admin.config")
         # change site title
         form = {"ckan.site_title": "Test Site Title", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
         # new site title
         new_index_response = app.get("/")
         assert "Welcome - Test Site Title" in new_index_response
@@ -73,7 +87,7 @@ class TestConfig(object):
         url = url_for(u"admin.config")
         # set new tagline css
         form = {"ckan.site_description": "Special Tagline", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline not visible yet
         new_index_response = app.get("/")
@@ -82,7 +96,7 @@ class TestConfig(object):
         url = url_for(u"admin.config")
         # remove logo
         form = {"ckan.site_logo": "", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline
         new_index_response = app.get("/")
@@ -103,7 +117,7 @@ class TestConfig(object):
         # set new about
         url = url_for(u"admin.config")
         form = {"ckan.site_about": "My special about text", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new about
         new_about_response = app.get("/about")
@@ -124,7 +138,7 @@ class TestConfig(object):
         # set new intro
         url = url_for(u"admin.config")
         form = {"ckan.site_intro_text": "My special intro text", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new intro
         new_intro_response = app.get("/")
@@ -171,7 +185,7 @@ class TestConfig(object):
         # set new style css
         url = url_for(u"admin.config")
         form = {"ckan.homepage_style": "2", "save": ""}
-        resp = app.post(url, data=form, environ_overrides=sysadmin_env)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new style
         new_index_response = app.get("/")

@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
-from six import text_type, ensure_str
+from six import ensure_str
 import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
@@ -19,6 +19,7 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import _, config, g, request
+from ckan.lib import signals
 
 log = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ def before_request():
         context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
-        blueprint, action = plugins.toolkit.get_endpoint()
+        _blueprint, action = plugins.toolkit.get_endpoint()
         if action not in (
                 u'login',
                 u'request_reset',
@@ -91,8 +92,8 @@ def index():
     page_number = h.get_page_number(request.params)
     q = request.params.get(u'q', u'')
     order_by = request.params.get(u'order_by', u'name')
-    limit = int(
-        request.params.get(u'limit', config.get(u'ckan.user_list_limit', 20)))
+    limit = int(request.params.get(
+        u'limit', config.get_value(u'ckan.user_list_limit')))
     context = {
         u'return_query': True,
         u'user': g.user,
@@ -124,7 +125,7 @@ def index():
 
 def me():
     return h.redirect_to(
-        config.get(u'ckan.route_after_login', u'dashboard.index'))
+        config.get_value(u'ckan.route_after_login'))
 
 
 def read(id):
@@ -263,10 +264,14 @@ class EditView(MethodView):
         if not context[u'save']:
             return self.get(id)
 
+        # checks if user id match with the current logged user
         if id in (g.userobj.id, g.userobj.name):
             current_user = True
         else:
             current_user = False
+
+        # we save the username for later use.. in case the current
+        # logged in user change his username
         old_username = g.userobj.name
 
         try:
@@ -284,16 +289,33 @@ class EditView(MethodView):
 
         context[u'message'] = data_dict.get(u'log_message', u'')
         data_dict[u'id'] = id
+
+        # we need this comparison when sysadmin edits a user,
+        # this will return True
+        # and we can utilize it for later use.
         email_changed = data_dict[u'email'] != g.userobj.email
 
+        # common users can edit their own profiles without providing
+        # password, but if they want to change
+        # their old password with new one... old password must be provided..
+        # so we are checking here if password1
+        # and password2 are filled so we can enter the validation process.
+        # when sysadmins edits a user he MUST provide sysadmin password.
+        # We are recognizing sysadmin user
+        # by email_changed variable.. this returns True
+        # and we are entering the validation.
         if (data_dict[u'password1']
                 and data_dict[u'password2']) or email_changed:
+
+            # getting the identity for current logged user
             identity = {
                 u'login': g.user,
                 u'password': data_dict[u'old_password']
             }
             auth = authenticator.UsernamePasswordAuthenticator()
 
+            # we are checking if the identity is not the
+            # same with the current logged user if so raise error.
             if auth.authenticate(request.environ, identity) != g.user:
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
@@ -337,7 +359,6 @@ class EditView(MethodView):
             base.abort(403, _(u'Unauthorized to edit user %s') % u'')
         except logic.NotFound:
             base.abort(404, _(u'User not found'))
-        user_obj = context.get(u'user_obj')
 
         errors = errors or {}
         vars = {
@@ -352,8 +373,9 @@ class EditView(MethodView):
             u'user': g.user
         }, data_dict)
 
-        extra_vars[u'show_email_notifications'] = asbool(
-            config.get(u'ckan.activity_streams_email_notifications'))
+        extra_vars[u'show_email_notifications'] = config.get_value(
+            u'ckan.activity_streams_email_notifications')
+
         vars.update(extra_vars)
         extra_vars[u'form'] = base.render(edit_user_form, extra_vars=vars)
 
@@ -529,32 +551,6 @@ def delete(id):
         return h.redirect_to(user_index)
 
 
-def generate_apikey(id=None):
-    u'''Cycle the API key of a user'''
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
-    }
-    if id is None:
-        if g.userobj:
-            id = g.userobj.id
-        else:
-            base.abort(400, _(u'No user specified'))
-    data_dict = {u'id': id}
-
-    try:
-        result = logic.get_action(u'user_generate_apikey')(context, data_dict)
-    except logic.NotAuthorized:
-        base.abort(403, _(u'Unauthorized to edit user %s') % u'')
-    except logic.NotFound:
-        base.abort(404, _(u'User not found'))
-
-    h.flash_success(_(u'Profile updated'))
-    return h.redirect_to(u'user.read', id=result[u'name'])
-
-
 def activity(id, offset=0):
     u'''Render this user's public activity stream page.'''
 
@@ -657,7 +653,7 @@ class RequestResetView(MethodView):
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above
                 mailer.send_reset_link(user_obj)
-                plugins.toolkit.signals.request_password_reset.send(
+                signals.request_password_reset.send(
                     user_obj.name, user=user_obj)
             except mailer.MailerException as e:
                 # SMTP is not configured correctly or the server is
@@ -665,18 +661,16 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(config.get(
-                    u'ckan.user_reset_landing_page',
-                    u'home.index'))
+                return h.redirect_to(config.get_value(
+                    u'ckan.user_reset_landing_page'))
 
         # always tell the user it succeeded, because otherwise we reveal
         # which accounts exist or not
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(config.get(
-            u'ckan.user_reset_landing_page',
-            u'home.index'))
+        return h.redirect_to(config.get_value(
+            u'ckan.user_reset_landing_page'))
 
     def get(self):
         self._prepare()
@@ -740,13 +734,13 @@ class PerformResetView(MethodView):
             user_dict[u'state'] = model.State.ACTIVE
             logic.get_action(u'user_update')(context, user_dict)
             mailer.create_reset_key(context[u'user_obj'])
-            plugins.toolkit.signals.perform_password_reset.send(
+            signals.perform_password_reset.send(
                 username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(config.get(
-                u'ckan.user_reset_landing_page',
-                u'home.index'))
+            return h.redirect_to(config.get_value(
+                u'ckan.user_reset_landing_page'))
+
         except logic.NotAuthorized:
             h.flash_error(_(u'Unauthorized to edit user %s') % id)
         except logic.NotFound:
@@ -756,14 +750,14 @@ class PerformResetView(MethodView):
         except logic.ValidationError as e:
             h.flash_error(u'%r' % e.error_dict)
         except ValueError as e:
-            h.flash_error(text_type(e))
+            h.flash_error(str(e))
         user_dict[u'state'] = user_state
         return base.render(u'user/perform_reset.html', {
             u'user_dict': user_dict
         })
 
     def get(self, id):
-        context, user_dict = self._prepare(id)
+        _context, user_dict = self._prepare(id)
         return base.render(u'user/perform_reset.html', {
             u'user_dict': user_dict
         })
@@ -885,11 +879,6 @@ user.add_url_rule(u'/logged_out', view_func=logged_out)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
 user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', ))
-
-user.add_url_rule(
-    u'/generate_key', view_func=generate_apikey, methods=(u'POST', ))
-user.add_url_rule(
-    u'/generate_key/<id>', view_func=generate_apikey, methods=(u'POST', ))
 
 user.add_url_rule(u'/activity/<id>', view_func=activity)
 user.add_url_rule(u'/activity/<id>/<int:offset>', view_func=activity)

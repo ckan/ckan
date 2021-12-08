@@ -7,16 +7,18 @@
 {% macro dataset(activity) %}
   {% set dataset_type = activity.data.package.type or 'dataset' %}
   <span class="dataset">
-    {{ h.link_to(activity.data.package.title if activity.data.package else _('unknown'),
-      h.url_for(dataset_type ~ '.read', id=activity.object_id)) }}
+    <a href="{{ h.url_for(dataset_type ~ '.read', id=activity.object_id ) }}">
+      {{ activity.data.package.title if activity.data.package else _("unknown") }}
+    </a>
     {# object_id because the object_name may be out of date) #}
   </span>
 {% endmacro %}
 
 {% macro organization(activity) %}
-  {{ h.link_to(activity.data.group.title if activity.data.group else _('unknown'),
-               h.url_for('organization.read', id=activity.object_id)) }}
-               {# object_id because the object_name may be out of date) #}
+  <a href="{{ h.url_for('organization.read', id=activity.object_id) }}">
+    {{ activity.data.group.title if activity.data.group else _('unknown') }}
+  </a>
+    {# object_id because the object_name may be out of date) #}
 {% endmacro %}
 
 {% macro user(activity) %}
@@ -27,9 +29,10 @@
 
 {% macro group(activity) %}
 <span class="group">
-  {{ h.link_to(activity.data.group.title if activity.data.group else _('unknown'),
-               h.url_for('group.read', id=activity.object_id)) }}
-               {# object_id because the object_name may be out of date) #}
+  <a href="{{ h.url_for('group.read', id=activity.object_id) }}">
+    {{ activity.data.group.title if activity.data.group else _('unknown') }}
+  </a>
+    {# object_id because the object_name may be out of date) #}
 </span>
 {% endmacro %}
 

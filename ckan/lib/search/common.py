@@ -6,10 +6,10 @@ import re
 import pysolr
 import simplejson
 
-from six import string_types
-from six.moves.urllib.parse import quote_plus
 
-from ckan.common import config, asint
+from urllib.parse import quote_plus
+
+from ckan.common import config
 
 log = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ def make_connection(decode_dates=True):
                                        quote_plus(solr_password),
                                        solr_url)
 
-    timeout = asint(config.get('solr_timeout', 60))
+    timeout = config.get_value('solr_timeout')
 
     if decode_dates:
         decoder = simplejson.JSONDecoder(object_hook=solr_datetime_decoder)
@@ -90,7 +90,7 @@ def make_connection(decode_dates=True):
 
 def solr_datetime_decoder(d):
     for k, v in d.items():
-        if isinstance(v, string_types):
+        if isinstance(v, str):
             possible_datetime = re.search(pysolr.DATETIME_REGEX, v)
             if possible_datetime:
                 date_values = possible_datetime.groupdict()

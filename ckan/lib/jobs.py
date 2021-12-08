@@ -37,7 +37,6 @@ import ckan.plugins as plugins
 log = logging.getLogger(__name__)
 
 DEFAULT_QUEUE_NAME = u'default'
-DEFAULT_JOB_TIMEOUT = 180
 
 # RQ job queues. Do not use this directly, use ``get_queue`` instead.
 _queues = {}
@@ -157,7 +156,7 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
         kwargs = {}
     if rq_kwargs is None:
         rq_kwargs = {}
-    timeout = config.get(u'ckan.jobs.timeout', DEFAULT_JOB_TIMEOUT)
+    timeout = config.get_value(u'ckan.jobs.timeout')
     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
 
     job = get_queue(queue).enqueue_call(
@@ -271,13 +270,19 @@ class Worker(rq.Worker):
 
         # The original implementation performs the actual fork
         queue = remove_queue_name_prefix(job.origin)
+
+        if job.meta.get('title'):
+            job_id = '{} ({})'.format(job.id, job.meta['title'])
+        else:
+            job_id = job.id
+
         log.info(u'Worker {} starts job {} from queue "{}"'.format(
-                 self.key, job.id, queue))
+                 self.key, job_id, queue))
         for plugin in plugins.PluginImplementations(plugins.IForkObserver):
             plugin.before_fork()
         result = super(Worker, self).execute_job(job, *args, **kwargs)
         log.info(u'Worker {} has finished job {} from queue "{}"'.format(
-                 self.key, job.id, queue))
+                 self.key, job_id, queue))
 
         return result
 

@@ -1,3 +1,4 @@
+{% set dataset_type = h.default_package_type() %}
 
 {% block header_wrapper %} {% block header_account %}
   <div class="account-masthead">
@@ -7,7 +8,7 @@
           <ul class="list-unstyled">
             {% block header_account_logged %} {% if c.userobj.sysadmin %}
               <li>
-                <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
+                <a href="{{ h.url_for('admin.index') }}" title="{{ _('Sysadmin settings') }}">
                   <i class="fa fa-gavel" aria-hidden="true"></i>
                   <span class="text">{{ _('Admin') }}</span>
                 </a>
@@ -38,7 +39,7 @@
               </li>
             {% endblock %} {% block header_account_log_out_link %}
               <li>
-                <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log out') }}">
+                <a href="{{ h.url_for('user.logout') }}" title="{{ _('Log out') }}">
                   <i class="fa fa-sign-out" aria-hidden="true"></i>
                   <span class="text">{{ _('Log out') }}</span>
                 </a>
@@ -91,7 +92,7 @@
               {% set group_type = h.default_group_type('group') %}
 
 		          {{ h.build_nav_main(
-		            ('dataset.search', _('Datasets'), ["dataset", "resource"]),
+		            (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), ["dataset", "resource"]),
 		            (org_type ~ '.index',
                   h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), ['organization']),
 		            (group_type ~ '.index',
@@ -101,10 +102,10 @@
           </ul>
         </nav>
       {% endblock %} {% block header_site_search %}
-        <form class="section site-search simple-input" action="{% url_for 'dataset.search' %}" method="get">
+        <form class="section site-search simple-input" action="{% url_for dataset_type ~ '.search' %}" method="get">
           <div class="field">
-            <label for="field-sitewide-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
-            <input id="field-sitewide-search" type="text" class="form-control" name="q" placeholder="{{ _('Search') }}" aria-label="{{ _('Search datasets') }}"/>
+            <label for="field-sitewide-search">{% block header_site_search_label %}{{ h.humanize_entity_type('package', dataset_type, 'search_placeholder') or _('Search Datasets...') }}{% endblock %}</label>
+            <input id="field-sitewide-search" type="text" class="form-control" name="q" placeholder="{{ _('Search') }}" aria-label="{{ h.humanize_entity_type('package', dataset_type, 'search_placeholder') or _('Search datasets...') }}"/>
             <button class="btn-search" type="submit" aria-label="{{ _('Submit') }}"><i class="fa fa-search"></i></button>
           </div>
         </form>

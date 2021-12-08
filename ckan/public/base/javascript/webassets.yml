@@ -42,7 +42,6 @@ ckan:
     - modules/data-viewer.js
     - modules/table-selectable-rows.js
     - modules/resource-form.js
-    - modules/resource-upload-field.js
     - modules/resource-reorder.js
     - modules/resource-view-reorder.js
     - modules/follow.js

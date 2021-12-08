@@ -9,7 +9,7 @@ from markupsafe import Markup
 from webassets import Environment
 from webassets.loaders import YAMLLoader
 
-from ckan.common import config, g, asbool
+from ckan.common import config, g
 
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def webassets_init():
 
     static_path = get_webassets_path()
 
-    public = config.get(u'ckan.base_public_folder')
+    public = config.get_value(u'ckan.base_public_folder')
 
     public_folder = os.path.abspath(os.path.join(
         os.path.dirname(__file__), u'..', public))
@@ -58,7 +58,7 @@ def webassets_init():
 
     env = Environment()
     env.directory = static_path
-    env.debug = asbool(config.get(u'debug', False))
+    env.debug = config.get_value(u'debug')
     env.url = u'/webassets/'
 
     add_public_path(base_path, u'/base/')
@@ -146,10 +146,10 @@ def render_assets(type_):
 
 
 def get_webassets_path():
-    webassets_path = config.get(u'ckan.webassets.path')
+    webassets_path = config.get_value(u'ckan.webassets.path')
 
     if not webassets_path:
-        storage_path = config.get(
+        storage_path = config.get_value(
             u'ckan.storage_path'
         ) or tempfile.gettempdir()
 

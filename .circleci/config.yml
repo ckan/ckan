@@ -2,10 +2,6 @@ version: 2
 defaults:
   init_environemnt: &init_environment
     run: |
-      # SOLR config
-      cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-      service jetty9 restart || true  # erroring out but does seem to work
-
       # Database Creation
       psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
       createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_POSTGRES_USER} ${CKAN_POSTGRES_DB}
@@ -21,15 +17,7 @@ defaults:
     run: |
       # OS Dependencies
       apt update
-      case $CIRCLE_NODE_INDEX in
-        $NODE_TESTS_CONTAINER)
-        curl -sL https://deb.nodesource.com/setup_10.x | bash -
-        apt install -y nodejs
-        apt install -y libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-        npm install
-        ;;
-      esac
-      apt install -y postgresql-client solr-jetty openjdk-8-jdk
+      apt install -y postgresql-client
   run_tests: &run_tests
     # Tests Backend, split across containers by segments
     run: |
@@ -45,24 +33,6 @@ defaults:
         ;;
       esac
 
-  # Tests Frontend, only in one container
-  start_test_server: &start_test_server
-    run:
-      command: |
-        case $CIRCLE_NODE_INDEX in
-          $NODE_TESTS_CONTAINER) ckan -c test-core-circle-ci.ini run
-          ;;
-        esac
-      background: true
-  run_front_tests: &run_front_tests
-    run:
-      command: |
-        case $CIRCLE_NODE_INDEX in
-          $NODE_TESTS_CONTAINER)
-            sleep 5
-            $(npm bin)/cypress run
-          ;;
-        esac
   ckan_env: &ckan_env
     environment:
       CKAN_DATASTORE_POSTGRES_DB: datastore_test
@@ -74,7 +44,6 @@ defaults:
       CKAN_POSTGRES_USER: ckan_default
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
-      NODE_TESTS_CONTAINER: 3
       PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --test-group-count 4  --test-group-random-seed 1
   pg_image: &pg_image
     image: postgres:10
@@ -86,13 +55,19 @@ defaults:
   redis_image: &redis_image
     image: redis:3
     name: ckan-redis
+
+  solr_image: &solr_image
+    image: ckan/ckan-solr-dev:master
+    name: ckan-solr
+
 jobs:
   test-python-3:
     docker:
-      - image: python:3-stretch
+      - image: python:3.7-bullseye
         <<: *ckan_env
       - <<: *pg_image
       - <<: *redis_image
+      - <<: *solr_image
 
     parallelism: 4
 
@@ -113,10 +88,6 @@ jobs:
       - <<: *run_tests
       - store_test_results:
           path: ~/junit
-      - <<: *start_test_server
-      - <<: *run_front_tests
-      - store_artifacts:
-          path: ~/project/cypress/screenshots
       - run: coveralls
 workflows:
   version: 2

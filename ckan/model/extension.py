@@ -15,15 +15,6 @@ import ckan.plugins as plugins
 log = logging.getLogger(__name__)
 
 
-class ObserverNotifier(object):
-    """
-    Mixin for hooking into SQLAlchemy
-    MapperExtension/SessionExtension
-    """
-
-    observers = None
-
-
 class PluginMapperExtension(MapperExtension):
     """
     Extension that calls plugins implementing IMapper on SQLAlchemy

@@ -2,7 +2,7 @@
 
 import datetime
 
-from six import text_type
+
 from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
@@ -126,8 +126,7 @@ class Resource(core.StatefulObjectMixin,
     @classmethod
     def get_extra_columns(cls):
         if cls.extra_columns is None:
-            cls.extra_columns = config.get(
-                'ckan.extra_resource_fields', '').split()
+            cls.extra_columns = config.get_value("ckan.extra_resource_fields")
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
@@ -160,7 +159,7 @@ def resource_identifier(obj):
 
 class DictProxy(object):
 
-    def __init__(self, target_key, target_dict, data_type=text_type):
+    def __init__(self, target_key, target_dict, data_type=str):
         self.target_key = target_key
         self.target_dict = target_dict
         self.data_type = data_type

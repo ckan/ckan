@@ -5,30 +5,18 @@
 Provides the BaseController class for subclassing.
 """
 import logging
-import time
-import inspect
-import sys
 
 from jinja2.exceptions import TemplateNotFound
 
-import six
 from flask import (
     render_template as flask_render_template,
     abort as flask_abort
 )
 
-import ckan.lib.i18n as i18n
-import ckan.lib.render as render_
 import ckan.lib.helpers as h
-import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
-import ckan.model as model
-from ckan.views import (identify_user,
-                        set_cors_headers_for_response,
-                        check_session_cookie,
-                        )
-from ckan.common import (c, request, config,
-                         session, asbool)
+
+from ckan.common import request, config, session
 
 
 log = logging.getLogger(__name__)
@@ -40,7 +28,7 @@ APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 def abort(status_code=None, detail='', headers=None, comment=None):
     '''Abort the current request immediately by returning an HTTP exception.
 
-    This is a wrapper for :py:func:`pylons.controllers.util.abort` that adds
+    This is a wrapper for :py:func:`flask.abort` that adds
     some CKAN custom behavior, including allowing
     :py:class:`~ckan.plugins.interfaces.IAuthenticator` plugins to alter the
     abort response, and showing flash messages in the web interface.
@@ -76,7 +64,7 @@ def render_snippet(*template_names, **kw):
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
-            if config.get('debug'):
+            if config.get_value('debug'):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
@@ -94,13 +82,7 @@ def render_snippet(*template_names, **kw):
         raise last_exc or TemplateNotFound
 
 
-def render_jinja2(template_name, extra_vars):
-    env = config['pylons.app_globals'].jinja_env
-    template = env.get_template(template_name)
-    return template.render(**extra_vars)
-
-
-def render(template_name, extra_vars=None, *pargs, **kwargs):
+def render(template_name, extra_vars=None):
     '''Render a template and return the output.
 
     This is CKAN's main template rendering function.
@@ -109,19 +91,8 @@ def render(template_name, extra_vars=None, *pargs, **kwargs):
     :type template_name: str
     :params extra_vars: additional variables available in template
     :type extra_vars: dict
-    :params pargs: DEPRECATED
-    :type pargs: tuple
-    :params kwargs: DEPRECATED
-    :type kwargs: dict
 
     '''
-    if pargs or kwargs:
-        tb = inspect.getframeinfo(sys._getframe(1))
-        log.warning(
-            'Extra arguments to `base.render` are deprecated: ' +
-            '<{0.filename}:{0.lineno}>'.format(tb)
-        )
-
     if extra_vars is None:
         extra_vars = {}
 
@@ -149,7 +120,7 @@ def _allow_caching(cache_force=None):
     elif request.params.get('__no_cache__'):
         allow_cache = False
     # Don't cache if caching is not enabled in config
-    elif not asbool(config.get('ckan.cache_enabled', False)):
+    elif not config.get_value('ckan.cache_enabled'):
         allow_cache = False
 
     if not allow_cache:
@@ -165,7 +136,3 @@ def _is_valid_session_cookie_data():
             break
 
     return is_valid_cookie_data
-
-
-class ValidationException(Exception):
-    pass

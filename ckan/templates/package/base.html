@@ -21,6 +21,6 @@
     <li{{ self.breadcrumb_content_selected() }}>{% link_for dataset|truncate(30), named_route=pkg.type ~ '.read', id=pkg.id if is_activity_archive else pkg.name %}</li>
   {% else %}
     <li>{% link_for _(dataset_type.title()), named_route=dataset_type ~ '.search' %}</li>
-    <li class="active"><a href="">{{ _('Create Dataset') }}</a></li>
+    <li class="active"><a href="">{{ h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset') }}</a></li>
   {% endif %}
 {% endblock %}

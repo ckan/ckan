@@ -67,12 +67,12 @@ def index():
         g.package_count = 0
 
     if g.userobj and not g.userobj.email:
-        url = h.url_for(controller=u'user', action=u'edit')
+        url = h.url_for('user.edit')
         msg = _(u'Please <a href="%s">update your profile</a>'
                 u' and add your email address. ') % url + \
             _(u'%s uses your email address'
                 u' if you need to reset your password.') \
-            % config.get(u'ckan.site_title')
+            % config.get_value(u'ckan.site_title')
         h.flash_notice(msg, allow_html=True)
     return base.render(u'home/index.html', extra_vars={})
 
