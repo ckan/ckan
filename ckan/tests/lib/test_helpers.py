@@ -658,57 +658,6 @@ class TestBuildNavMain(object):
         link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil-square-o')
         assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
 
-    def test_dataset_navigation_legacy_routes(self):
-        dataset_name = "test-dataset"
-        assert (
-            h.build_nav_icon("dataset_read", "Datasets", id=dataset_name)
-            == '<li><a href="/dataset/test-dataset">Datasets</a></li>'
-        )
-        assert (
-            h.build_nav_icon("dataset_groups", "Groups", id=dataset_name)
-            == '<li><a href="/dataset/groups/test-dataset">Groups</a></li>'
-        )
-        assert (
-            h.build_nav_icon(
-                "dataset_activity", "Activity Stream", id=dataset_name
-            )
-            == '<li><a href="/dataset/activity/test-dataset">Activity Stream</a></li>'
-        )
-
-    def test_group_navigation_legacy_routes(self):
-        group_name = "test-group"
-        assert (
-            h.build_nav_icon("group_read", "Datasets", id=group_name)
-            == '<li><a href="/group/test-group">Datasets</a></li>'
-        )
-        assert (
-            h.build_nav_icon(
-                "group_activity", "Activity Stream", id=group_name
-            )
-            == '<li><a href="/group/activity/test-group">Activity Stream</a></li>'
-        )
-        assert (
-            h.build_nav_icon("group_about", "About", id=group_name)
-            == '<li><a href="/group/about/test-group">About</a></li>'
-        )
-
-    def test_organization_navigation_legacy_routes(self):
-        org_name = "test-org"
-        assert (
-            h.build_nav_icon("organization_read", "Datasets", id=org_name)
-            == '<li><a href="/organization/test-org">Datasets</a></li>'
-        )
-        assert (
-            h.build_nav_icon(
-                "organization_activity", "Activity Stream", id=org_name
-            )
-            == '<li><a href="/organization/activity/test-org">Activity Stream</a></li>'
-        )
-        assert (
-            h.build_nav_icon("organization_about", "About", id=org_name)
-            == '<li><a href="/organization/about/test-org">About</a></li>'
-        )
-
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivityListSelect(object):
