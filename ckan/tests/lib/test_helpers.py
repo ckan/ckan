@@ -658,22 +658,6 @@ class TestBuildNavMain(object):
     def test_build_nav_icon(self):
         link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil-square-o')
         assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
-        resource = factories.Resource(name="some_resource")
-        with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
-            menu = (
-                ("home", "Home"),
-                ("search", "Datasets", ['dataset', 'resource']),
-                ("organizations_index", "Organizations"),
-                ("group_index", "Groups"),
-                ("about", "About"),
-            )
-            assert h.build_nav_main(*menu) == (
-                '<li><a href="/">Home</a></li>'
-                '<li class="active"><a href="/dataset/">Datasets</a></li>'
-                '<li><a href="/organization/">Organizations</a></li>'
-                '<li><a href="/group/">Groups</a></li>'
-                '<li><a href="/about">About</a></li>'
-            )
 
     def test_dataset_navigation_legacy_routes(self):
         dataset_name = "test-dataset"
