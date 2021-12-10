@@ -312,22 +312,6 @@ def make_flask_stack(conf):
     if config.get_value('ckan.tracking_enabled'):
         app = TrackingMiddleware(app, config)
 
-    # Initialize ISession Plugins
-    for plugin in PluginImplementations(ISession):
-        event.listen(model.Session, 'after_begin', plugin.after_begin)
-        event.listen(model.Session, 'before_flush', plugin.before_flush)
-        event.listen(model.Session, 'after_flush', plugin.after_flush)
-        event.listen(model.Session, 'before_commit', plugin.before_commit)
-        event.listen(model.Session, 'after_commit', plugin.after_commit)
-        event.listen(model.Session, 'after_rollback', plugin.after_rollback)
-
-        event.listen(model.meta.create_local_session, 'after_begin', plugin.after_begin)
-        event.listen(model.meta.create_local_session, 'before_flush', plugin.before_flush)
-        event.listen(model.meta.create_local_session, 'after_flush', plugin.after_flush)
-        event.listen(model.meta.create_local_session, 'before_commit', plugin.before_commit)
-        event.listen(model.meta.create_local_session, 'after_commit', plugin.after_commit)
-        event.listen(model.meta.create_local_session, 'after_rollback', plugin.after_rollback)
-
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
