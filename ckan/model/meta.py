@@ -17,7 +17,6 @@ Session = orm.scoped_session(orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    extension=[extension.PluginSessionExtension(),],
 ))
 
 
@@ -25,7 +24,6 @@ create_local_session = orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    extension=[extension.PluginSessionExtension(),],
 )
 
 
