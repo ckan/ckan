@@ -2,7 +2,6 @@
 
 """SQLAlchemy Metadata and Session object"""
 from sqlalchemy import MetaData, event
-import ckan.plugins as p
 import sqlalchemy.orm as orm
 
 __all__ = ['Session']
@@ -24,12 +23,6 @@ create_local_session = orm.sessionmaker(
     autocommit=False,
     expire_on_commit=False,
 )
-
-# Initialize ISession Plugins
-for plugin in p.PluginImplementations(p.ISession):
-    plugin.register_events(Session)
-    plugin.register_events(create_local_session)
-
 
 @event.listens_for(create_local_session, 'before_flush')
 @event.listens_for(Session, 'before_flush')
