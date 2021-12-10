@@ -14,8 +14,6 @@ from flask_multistatic import MultiStaticFlask
 
 import webob
 
-from sqlalchemy import event
-
 from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
@@ -40,7 +38,7 @@ import ckan.lib.plugins as lib_plugins
 from ckan.lib.webassets_tools import get_webassets_path
 
 from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation, ISession
+from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
