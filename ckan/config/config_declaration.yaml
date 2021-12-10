@@ -300,7 +300,7 @@ groups:
       - key: ckan.site_id
         default: default
       - key: solr_url
-        placeholder: http://127.0.0.1:8983/solr
+        placeholder: http://127.0.0.1:8983/solr/ckan
         validators: not_empty
         required: true
       - key: solr_user
