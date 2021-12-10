@@ -161,6 +161,9 @@ class Declaration:
     def into_schema(self) -> Dict[str, Any]:
         return serialize(self, "validation_schema")
 
+    def into_docs(self) -> str:
+        return serialize(self, "rst")
+
     def describe(self, fmt: str) -> str:
         return describe(self, fmt)
 

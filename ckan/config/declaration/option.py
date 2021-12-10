@@ -42,25 +42,28 @@ class Option(Generic[T]):
         "description",
         "_validators",
         "placeholder",
+        "example",
     )
 
     flags: Flag
     default: Optional[T]
     description: Optional[str]
     placeholder: Optional[str]
+    example: Optional[Any]
     _validators: str
 
     def __init__(self, default: Optional[T] = None):
         self.flags = Flag.none()
         self.description = None
         self.placeholder = None
+        self.example = None
         self._validators = ""
         self.default = default
 
     def __str__(self):
         as_list = "as_list" in self.get_validators()
         if isinstance(self.default, list) and as_list:
-            return " ".join(self.default)
+            return " ".join(map(str, self.default))
         return str(self.default)
 
     def _unset_flag(self, flag: Flag):

@@ -65,3 +65,30 @@ def serialize_validation_schema(declaration: "Declaration") -> Dict[str, Any]:
         schema[str(key)] = option._parse_validators()
 
     return schema
+
+
+@handler.register("rst")
+def serialize_rst(declaration: "Declaration"):
+    result = ""
+    for item in declaration._order:
+        if isinstance(item, Annotation):
+            result += "{}\n{}\n\n".format(item, len(item) * "-")
+
+        elif isinstance(item, Key):
+            option = declaration._mapping[item]
+            if option._has_flag(Flag.non_iterable()):
+                continue
+            if not option.description:
+                continue
+
+            result += ".. _{}:\n\n{}\n{}\n".format(item, item, len(str(item)) * '^')
+
+            if option.example:
+                result += f"Example::\n\n\t{item} = {option.example}\n\n"
+
+            if option.has_default():
+                result += f"Default value: ``{option.default}``\n\n"
+
+            result += option.description + "\n\n"
+
+    return result

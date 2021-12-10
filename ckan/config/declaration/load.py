@@ -107,6 +107,9 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
                 if details["placeholder"]:
                     option.set_placeholder(details["placeholder"])
 
+                if "example" in details:
+                    option.example = details["example"]
+
                 if "default_callable" in details:
                     args = details.get("callable_args", {})
                     default = details["default_callable"](**args)
