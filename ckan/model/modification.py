@@ -10,10 +10,6 @@ from ckan.common import g
 import ckan.plugins as plugins
 import ckan.model as model
 
-domain_object = model.domain_object
-_package = model.package
-resource = model.resource
-
 log = logging.getLogger(__name__)
 
 __all__ = ['DomainObjectModificationExtension']
@@ -46,23 +42,23 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
         deleted = obj_cache['deleted']
 
         for obj in set(new):
-            if isinstance(obj, (_package.Package, resource.Resource)):
-                method(obj, domain_object.DomainObjectOperation.new)
+            if isinstance(obj, ( model.package.Package, model.resource.Resource)):
+                method(obj, model.domain_object.DomainObjectOperation.new)
         for obj in set(deleted):
-            if isinstance(obj, (_package.Package, resource.Resource)):
-                method(obj, domain_object.DomainObjectOperation.deleted)
+            if isinstance(obj, ( model.package.Package, model.resource.Resource)):
+                method(obj, model.domain_object.DomainObjectOperation.deleted)
         for obj in set(changed):
-            if isinstance(obj, resource.Resource):
-                method(obj, domain_object.DomainObjectOperation.changed)
+            if isinstance(obj, model.resource.Resource):
+                method(obj, model.domain_object.DomainObjectOperation.changed)
             if getattr(obj, 'url_changed', False):
                 for item in plugins.PluginImplementations(plugins.IResourceUrlChange):
                     item.notify(obj)
 
         changed_pkgs = set(obj for obj in changed
-                           if isinstance(obj, _package.Package))
+                           if isinstance(obj,  model.package.Package))
 
         for obj in new | changed | deleted:
-            if not isinstance(obj, _package.Package):
+            if not isinstance(obj,  model.package.Package):
                 try:
                     related_packages = obj.related_packages()
                 except AttributeError:
@@ -73,7 +69,7 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                     if package and package not in deleted | new:
                         changed_pkgs.add(package)
         for obj in changed_pkgs:
-            method(obj, domain_object.DomainObjectOperation.changed)
+            method(obj, model.domain_object.DomainObjectOperation.changed)
 
     def notify(self, entity, operation):
         for observer in plugins.PluginImplementations(
