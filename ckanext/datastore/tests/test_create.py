@@ -428,8 +428,8 @@ class TestDatastoreCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_duplicate_alias_name(self, app):
-        resource = model.Package.get("annakarenina").resources[0]
-        data = {"resource_id": resource.id, "aliases": u"myalias"}
+        resource = factories.Resource(url_type = 'datastore')
+        data = {"resource_id": resource['id'], "aliases": u"myalias"}
         auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
@@ -441,8 +441,8 @@ class TestDatastoreCreate(object):
         assert res_dict["success"] is True
 
         # try to create another table with the same alias
-        resource = model.Package.get("annakarenina").resources[1]
-        data = {"resource_id": resource.id, "aliases": u"myalias"}
+        resource_2 = factories.Resource(url_type = 'datastore')
+        data = {"resource_id": resource_2['id'], "aliases": u"myalias"}
         auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
@@ -455,10 +455,9 @@ class TestDatastoreCreate(object):
         assert res_dict["success"] is False
 
         # try to create an alias that is a resource id
-        resource = model.Package.get("annakarenina").resources[1]
         data = {
-            "resource_id": resource.id,
-            "aliases": model.Package.get("annakarenina").resources[0].id,
+            "resource_id": resource_2['id'],
+            "aliases": resource_2['id'],
         }
         auth = {"Authorization": self.sysadmin_token}
         res = app.post(
