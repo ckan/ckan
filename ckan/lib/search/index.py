@@ -13,7 +13,6 @@ import re
 import six
 import pysolr
 from ckan.common import config
-from ckan.common import asbool
 import six
 
 
