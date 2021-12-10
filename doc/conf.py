@@ -56,7 +56,6 @@ rst_epilog = '''
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |storage_path| replace:: |storage_parent_dir|/default
 .. |restart_uwsgi| replace:: sudo supervisorctl restart ckan-uwsgi:*
-.. |restart_solr| replace:: sudo service jetty8 restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
 .. |nginx| replace:: Nginx
@@ -333,6 +332,7 @@ def write_substitutions_file(**kwargs):
 
 current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
+current_minor_version = current_release_version[:3]
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
 latest_minor_version = latest_release_version[:3]
@@ -343,6 +343,7 @@ is_latest_version = version == latest_release_version
 write_substitutions_file(
     current_release_tag=current_release_tag_value,
     current_release_version=current_release_version,
+    current_minor_version=current_minor_version,
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
     latest_package_name_bionic=get_latest_package_name('bionic'),
