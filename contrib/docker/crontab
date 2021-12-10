@@ -4,4 +4,5 @@
 30 * * * *   /usr/local/bin/ckan --config=/etc/ckan/production.ini search-index rebuild -r  > /proc/1/fd/1 2>/proc/1/fd/2
 50 * * * *   /usr/local/bin/ckan --config=/etc/ckan/production.ini harvester reindex  > /proc/1/fd/1 2>/proc/1/fd/2
 0  1 * * *   /usr/local/bin/ckan --config=/etc/ckan/production.ini post /api/action/send_email_notifications  > /proc/1/fd/1 2>/proc/1/fd/2
-20 */4 * * *    /usr/local/bin/ckan --config=/etc/ckan/production.ini package_relationships rebuild > /proc/1/fd/1 2>/proc/1/fd/2
+20 */4 * * *    /usr/local/bin/ckan --config=/etc/ckan/production.ini package-relationships build > /proc/1/fd/1 2>/proc/1/fd/2
+0 2 * * *    /usr/local/bin/ckan --config=/etc/ckan/production.ini sitemap create > /proc/1/fd/1 2>/proc/1/fd/2

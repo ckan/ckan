@@ -72,5 +72,6 @@ sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reind
 
 # Run this after updating ckan:
 ```bash
-sudo docker exec -u root -it ckan  /bin/bash -c "python /usr/lib/ckan/venv/src/ckan/ckan/migration/migrate_package_activity.py -c /etc/ckan/production.ini"
+sudo cp -r ../../ckan/migration $VOL_CKAN_HOME/venv/src/ckan/
+sudo docker exec -u root -it ckan  /bin/bash -c "source ../bin/activate && python /usr/lib/ckan/venv/src/ckan/ckan/migration/migrate_package_activity.py -c /etc/ckan/production.ini"
 ```
