@@ -5,6 +5,8 @@ extend CKAN.
 
 '''
 from inspect import isclass
+from sqlalchemy import event
+
 import warnings
 
 from ckan.exceptions import CkanDeprecationWarning
@@ -201,6 +203,11 @@ class ISession(Interface):
     A subset of the SQLAlchemy session extension hooks.
     '''
 
+    __event_attrs__ = [
+        'after_begin', 'before_flush', 'after_flush',
+        'before_commit', 'after_commit', 'after_rollback'
+        ]
+
     def after_begin(self, session, transaction, connection):
         u'''
         Executed after a transaction is begun on a connection
@@ -231,6 +238,12 @@ class ISession(Interface):
         u'''
         Executed after a rollback has occured.
         '''
+
+    def register_events(self, session):
+        ''' Register all the events in the session object.
+        '''
+        for attr in getattr(self, '__event_attrs__', ()):
+            event.listen(session, attr, getattr(self, attr))
 
 
 class IDomainObjectModification(Interface):

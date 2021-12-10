@@ -27,19 +27,8 @@ create_local_session = orm.sessionmaker(
 
 # Initialize ISession Plugins
 for plugin in p.PluginImplementations(p.ISession):
-    event.listen(Session, 'after_begin', plugin.after_begin)
-    event.listen(Session, 'before_flush', plugin.before_flush)
-    event.listen(Session, 'after_flush', plugin.after_flush)
-    event.listen(Session, 'before_commit', plugin.before_commit)
-    event.listen(Session, 'after_commit', plugin.after_commit)
-    event.listen(Session, 'after_rollback', plugin.after_rollback)
-
-    event.listen(create_local_session, 'after_begin', plugin.after_begin)
-    event.listen(create_local_session, 'before_flush', plugin.before_flush)
-    event.listen(create_local_session, 'after_flush', plugin.after_flush)
-    event.listen(create_local_session, 'before_commit', plugin.before_commit)
-    event.listen(create_local_session, 'after_commit', plugin.after_commit)
-    event.listen(create_local_session, 'after_rollback', plugin.after_rollback)
+    plugin.register_events(Session)
+    plugin.register_events(create_local_session)
 
 
 @event.listens_for(create_local_session, 'before_flush')
