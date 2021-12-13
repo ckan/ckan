@@ -42,10 +42,10 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
         deleted = obj_cache['deleted']
 
         for obj in set(new):
-            if isinstance(obj, ( model.package.Package, model.resource.Resource)):
+            if isinstance(obj, (model.package.Package, model.resource.Resource)):
                 method(obj, model.domain_object.DomainObjectOperation.new)
         for obj in set(deleted):
-            if isinstance(obj, ( model.package.Package, model.resource.Resource)):
+            if isinstance(obj, (model.package.Package, model.resource.Resource)):
                 method(obj, model.domain_object.DomainObjectOperation.deleted)
         for obj in set(changed):
             if isinstance(obj, model.resource.Resource):
@@ -55,7 +55,7 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                     item.notify(obj)
 
         changed_pkgs = set(obj for obj in changed
-                           if isinstance(obj,  model.package.Package))
+                           if isinstance(obj, model.package.Package))
 
         for obj in new | changed | deleted:
             if not isinstance(obj,  model.package.Package):
