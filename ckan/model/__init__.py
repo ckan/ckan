@@ -152,12 +152,6 @@ def init_model(engine):
                 continue
             raise
 
-    # Initialize ISession Plugins
-    import ckan.plugins as p
-    for plugin in p.PluginImplementations(p.ISession):
-        plugin.register_events(meta.Session)
-        plugin.register_events(meta.create_local_session)
-
 
 
 class Repository():

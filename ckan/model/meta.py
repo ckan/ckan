@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 """SQLAlchemy Metadata and Session object"""
+import ckan.plugins as p
+
 from sqlalchemy import MetaData, event
 import sqlalchemy.orm as orm
 
@@ -24,6 +26,7 @@ create_local_session = orm.sessionmaker(
     expire_on_commit=False,
 )
 
+
 @event.listens_for(create_local_session, 'before_flush')
 @event.listens_for(Session, 'before_flush')
 def ckan_before_flush(session, flush_context, instances):
@@ -44,6 +47,10 @@ def ckan_before_flush(session, flush_context, instances):
     session._object_cache['deleted'].update(session.deleted)
     session._object_cache['changed'].update(changed)
 
+    for plugin in p.PluginImplementations(p.ISession):
+        if hasattr(plugin, 'before_flush'):
+            plugin.before_flush(session, flush_context, instances)
+
 
 @event.listens_for(create_local_session, 'after_commit')
 @event.listens_for(Session, 'after_commit')
@@ -52,6 +59,10 @@ def ckan_after_commit(session):
     """
     if hasattr(session, '_object_cache'):
         del session._object_cache
+
+    for plugin in p.PluginImplementations(p.ISession):
+        if hasattr(plugin, 'after_commit'):
+            plugin.after_commit(session)
 
 
 @event.listens_for(create_local_session, 'before_commit')
@@ -63,6 +74,10 @@ def ckan_before_commit(session):
     except AttributeError:
         return
 
+    for plugin in p.PluginImplementations(p.ISession):
+        if hasattr(plugin, 'before_commit'):
+            plugin.before_commit(session)
+
 
 @event.listens_for(create_local_session, 'after_rollback')
 @event.listens_for(Session, 'after_rollback')
@@ -71,6 +86,30 @@ def ckan_after_rollback(session):
     """
     if hasattr(session, '_object_cache'):
         del session._object_cache
+
+    for plugin in p.PluginImplementations(p.ISession):
+        if hasattr(plugin, 'after_rollback'):
+            plugin.after_rollback(session)
+
+
+@event.listens_for(create_local_session, 'after_begin')
+@event.listens_for(Session, 'after_begin')
+def ckan_after_begin(session, transaction, connection):
+    """ Allows extensions to listen to the after_begin event.
+    """
+    for plugin in p.PluginImplementations(p.ISession):
+        if hasattr(plugin, 'after_begin'):
+            plugin.after_begin(session, transaction, connection)
+
+
+@event.listens_for(create_local_session, 'after_flush')
+@event.listens_for(Session, 'after_flush')
+def ckan_after_flush(session, flush_context):
+    """ Allows extensions to listen to the after_flush event.
+    """
+    for plugin in p.PluginImplementations(p.ISession):
+        if hasattr(plugin, 'after_flush'):
+            plugin.after_flush(session, flush_context)
 
 
 #mapper = Session.mapper
