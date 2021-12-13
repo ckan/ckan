@@ -5,7 +5,6 @@ extend CKAN.
 
 '''
 from inspect import isclass
-from sqlalchemy import event
 
 import warnings
 
