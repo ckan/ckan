@@ -128,13 +128,13 @@ def reset_observer():
 
 
 def test_plugins_load(monkeypatch):
-    monkeypatch.setitem(config, "ckan.plugins", "mapper_plugin routes_plugin")
+    monkeypatch.setitem(config, "ckan.plugins", "mapper_plugin action_plugin")
     plugins.load_all()
     # synchronous_search automatically gets loaded
     current_plugins = set(
         [
             plugins.get_plugin(p)
-            for p in ["mapper_plugin", "routes_plugin", "synchronous_search"]
+            for p in ["mapper_plugin", "action_plugin", "synchronous_search"]
             + find_system_plugins()
         ]
     )
