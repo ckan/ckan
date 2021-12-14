@@ -245,33 +245,16 @@ def convert(converter, key, converted_data, errors, context):
         return
 
 
-def _remove_blank_keys_nested(schema_copy, key, value):
-
-    if schema_copy['resources'][0]:
-        resource_item = [i for i in schema_copy['resources'][0]]
-        resource_item = resource_item[0]
-        if not any(value[0][resource_item]):
-            schema_copy.pop(key)
-    else:
-        if not any(value[0]):
-            schema_copy.pop(key)
-
-
 def _remove_blank_keys(schema):
 
-    schema_copy = copy.copy(schema)
-
-    for key, value in schema.items():
+    for key, value in list(schema.items()):
         if isinstance(value[0], dict):
             for item in value:
                 _remove_blank_keys(item)
-                if key == 'resources':
-                    _remove_blank_keys_nested(schema_copy, key, value)
-                    break
-            if not any(value) and key != 'resources':
-                schema_copy.pop(key)
+            if not any(value):
+                schema.pop(key)    
 
-    return schema_copy
+    return schema
 
 
 def validate(data, schema, context=None):
@@ -312,7 +295,7 @@ def validate(data, schema, context=None):
             if isinstance(value[0], dict):
                 dicts_to_process.extend(value)
 
-    errors_unflattened = _remove_blank_keys(errors_unflattened)
+    _remove_blank_keys(errors_unflattened)
 
     return converted_data, errors_unflattened
 
