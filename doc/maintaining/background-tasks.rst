@@ -207,7 +207,7 @@ via
 
     ckan -c |ckan.ini| jobs test
 
-The worker's log files (``/var/log/ckan/ckan-worker.stdout.log`` and ``/var/log/ckan/ckan-worker.stderr.log``) 
+The worker's log files (``/var/log/ckan/ckan-worker.stdout.log`` and/or ``/var/log/ckan/ckan-worker.stderr.log``) 
 should then show how the job was processed by the worker.
 
 In case you run into problems, make sure to check the logs of Supervisor and
