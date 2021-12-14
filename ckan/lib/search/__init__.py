@@ -38,7 +38,7 @@ def text_traceback():
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -314,7 +314,15 @@ def check_solr_schema_version(schema_file=None):
 
     tree = xml.dom.minidom.parseString(schema_content)
 
-    version = tree.documentElement.getAttribute('version')
+    # Up to CKAN 2.9 the schema version was stored in the `version` attribute.
+    # Going forward, we are storing it in the `name` one in the form `ckan-X.Y`
+    version = ''
+    name_attr = tree.documentElement.getAttribute('name')
+    if name_attr.startswith('ckan-'):
+        version = name_attr.split('-')[1]
+    else:
+        version = tree.documentElement.getAttribute('version')
+
     if not len(version):
         msg = 'Could not extract version info from the SOLR schema'
         if schema_file:
