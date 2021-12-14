@@ -5,7 +5,6 @@ extend CKAN.
 
 '''
 from inspect import isclass
-
 import warnings
 
 from ckan.exceptions import CkanDeprecationWarning
