@@ -72,7 +72,8 @@ def serialize_rst(declaration: "Declaration"):
     result = ""
     for item in declaration._order:
         if isinstance(item, Annotation):
-            result += "{}\n{}\n\n".format(item, len(item) * "-")
+
+            result += ".. _{}:\n\n{}\n{}\n\n".format(item.lower().replace(' ', '-'), item, len(item) * "-")
 
         elif isinstance(item, Key):
             option = declaration._mapping[item]
@@ -87,7 +88,7 @@ def serialize_rst(declaration: "Declaration"):
                 result += f"Example::\n\n\t{item} = {option.example}\n\n"
 
             if option.has_default():
-                result += f"Default value: ``{option.default}``\n\n"
+                result += f"Default value: ``{repr(option.default)}``\n\n"
 
             result += option.description + "\n\n"
 
