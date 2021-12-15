@@ -252,7 +252,7 @@ def _remove_blank_keys(schema):
             for item in value:
                 _remove_blank_keys(item)
             if not any(value):
-                schema.pop(key)    
+                schema.pop(key)
 
     return schema
 
