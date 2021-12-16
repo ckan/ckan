@@ -12,7 +12,6 @@ from babel import Locale
 import pytest
 
 import ckan.lib.helpers as h
-import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers, factories
 
@@ -658,41 +657,6 @@ class TestBuildNavMain(object):
     def test_build_nav_icon(self):
         link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil-square-o')
         assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
-
-
-class HelpersTestPlugin(p.SingletonPlugin):
-
-    p.implements(p.IRoutes, inherit=True)
-
-    controller = "ckan.tests.lib.test_helpers:TestHelperController"
-
-    def after_map(self, _map):
-
-        _map.connect(
-            "/broken_helper_as_attribute",
-            controller=self.controller,
-            action="broken_helper_as_attribute",
-        )
-
-        _map.connect(
-            "/broken_helper_as_item",
-            controller=self.controller,
-            action="broken_helper_as_item",
-        )
-
-        _map.connect(
-            "/helper_as_attribute",
-            controller=self.controller,
-            action="helper_as_attribute",
-        )
-
-        _map.connect(
-            "/helper_as_item",
-            controller=self.controller,
-            action="helper_as_item",
-        )
-
-        return _map
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
