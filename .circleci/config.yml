@@ -123,6 +123,7 @@ jobs:
         <<: *ckan_env
       - <<: *pg_image
       - <<: *redis_image
+      - <<: *solr_image
 
     parallelism: 4
 
