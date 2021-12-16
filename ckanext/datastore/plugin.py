@@ -29,6 +29,7 @@ DEFAULT_FORMATS = []
 
 ValidationError = p.toolkit.ValidationError
 
+
 def sql_functions_allowlist_file():
     return os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "allowed_functions.txt"
