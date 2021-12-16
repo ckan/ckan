@@ -67,7 +67,7 @@ Installing Solr manually
 Next steps with Solr
 ====================
 
-To check that Solr started you can visit the web interface at http://localhost:8989/solr
+To check that Solr started you can visit the web interface at http://localhost:8983/solr
 
 .. warning:: The two installation methods above will leave you with a setup that is fine for local development, but Solr should never be exposed publicly in a production site. Pleaser refer to the `Solr documentation <https://solr.apache.org/guide/securing-solr.html>`_ to learn how to secure your Solr instance.
 
