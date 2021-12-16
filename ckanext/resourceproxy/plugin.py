@@ -1,8 +1,11 @@
 # encoding: utf-8
 
 from logging import getLogger
+import pathlib
 
 from urllib.parse import urlparse
+
+import yaml
 
 import ckan.lib.helpers as h
 import ckan.plugins as p
@@ -73,11 +76,8 @@ class ResourceProxy(p.SingletonPlugin):
 
     # IConfigDeclaration
 
-    def declare_config_options(self, declaration: Declaration, option: Key):
-        proxy = option.ckan.resource_proxy
-        declaration.annotate("Resource Proxy settings")
-
-        declaration.declare_int(proxy.max_file_size, 1048576).set_description(
-            "Preview size limit, default: 1MB")
-        declaration.declare_int(proxy.chunk_size, 4096).set_description(
-            "Size of chunks to read/write.")
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
+        with source.open("r") as stream:
+            data = yaml.safe_load(stream)
+            declaration.load_dict(data)

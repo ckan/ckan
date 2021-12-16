@@ -1,7 +1,9 @@
 # encoding: utf-8
 
 import logging
+import pathlib
 
+import yaml
 
 from ckan.common import json
 import ckan.plugins as p
@@ -100,11 +102,7 @@ class TextView(p.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        section = key.ckan.preview
-
-        declaration.annotate("text_view settings")
-        declaration.declare(section.text_formats, "text/plain txt plain")
-        declaration.declare(
-            section.xml_formats, "xml rdf rdf+xml owl+xml atom rss")
-        declaration.declare(section.json_formats, "json")
-        declaration.declare(section.jsonp_formats, "jsonp")
+        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
+        with source.open("r") as stream:
+            data = yaml.safe_load(stream)
+            declaration.load_dict(data)

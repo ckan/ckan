@@ -1,6 +1,9 @@
 # encoding: utf-8
 
 from logging import getLogger
+import pathlib
+
+import yaml
 
 
 from ckan.common import json, config
@@ -102,9 +105,10 @@ class ReclineViewBase(p.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        declaration.annotate("recline_view settings")
-        declaration.declare(
-            key.ckan.recline.dataproxy_url, "//jsonpdataproxy.appspot.com")
+        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
+        with source.open("r") as stream:
+            data = yaml.safe_load(stream)
+            declaration.load_dict(data)
 
 
 class ReclineView(ReclineViewBase):

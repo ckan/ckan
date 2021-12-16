@@ -1,5 +1,8 @@
 # encoding: utf-8
 
+import pathlib
+
+import yaml
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckanext.datatablesview import blueprint
@@ -97,20 +100,7 @@ class DataTablesView(p.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        section = key.ckan.datatables
-
-        declaration.annotate("datatables_view settings")
-
-        declaration.declare_list(
-            section.page_length_choices, [20, 50, 100, 500, 1000]
-        ).set_description(
-            "https://datatables.net/examples/advanced_init/length_menu.html"
-        )
-        declaration.declare_bool(section.state_saving, True)
-        declaration.declare_int(section.state_duration, 7200)
-        declaration.declare_bool(section.data_dictionary_labels, True)
-        declaration.declare_int(section.ellipsis_length, 100)
-        declaration.declare(section.date_format, "llll").set_description(
-            "see Moment.js cheatsheet https://devhints.io/moment"
-        )
-        declaration.declare(section.default_view, "table")
+        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
+        with source.open("r") as stream:
+            data = yaml.safe_load(stream)
+            declaration.load_dict(data)

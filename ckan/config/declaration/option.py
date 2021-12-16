@@ -75,11 +75,15 @@ class Option(Generic[T]):
     def _has_flag(self, flag: Flag) -> bool:
         return bool(self.flags & flag)
 
-    def has_default(self):
+    def has_default(self) -> bool:
         return self.default is not None
 
     def set_default(self, default: T):
         self.default = default
+        return self
+
+    def set_example(self, example: str):
+        self.example = example
         return self
 
     def set_description(self, description: str):
@@ -95,14 +99,23 @@ class Option(Generic[T]):
         return self
 
     def append_validators(self, validators: str, before: bool = False):
+        """Add extra validators before or after the current list.
+
+        Use it together with `Declaration.declare_*` shortcats in order to
+        define more specific common options::
+
+            declaration.declare_bool(...).append_validators(
+                "not_missing", before=True)
+
+        """
         left = self._validators
         right = validators
         if before:
             left, right = right, left
 
         glue = " " if left and right else ""
-
         self._validators = left + glue + right
+        return self
 
     def get_validators(self):
         return self._validators

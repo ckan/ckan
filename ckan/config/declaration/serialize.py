@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import os
 import textwrap
 from typing import TYPE_CHECKING, Any, Callable, Dict
 
+import ckan
 
 from .key import Key, Pattern
 from .option import Flag, Annotation
@@ -70,10 +72,14 @@ def serialize_validation_schema(declaration: "Declaration") -> Dict[str, Any]:
 @handler.register("rst")
 def serialize_rst(declaration: "Declaration"):
     result = ""
+    ckan_root = os.path.dirname(
+        os.path.dirname(os.path.realpath(ckan.__file__)))
+
     for item in declaration._order:
         if isinstance(item, Annotation):
 
-            result += ".. _{}:\n\n{}\n{}\n\n".format(item.lower().replace(' ', '-'), item, len(item) * "-")
+            result += ".. _{}:\n\n{}\n{}\n\n".format(
+                item.lower().replace(' ', '-'), item, len(item) * "-")
 
         elif isinstance(item, Key):
             option = declaration._mapping[item]
@@ -82,13 +88,21 @@ def serialize_rst(declaration: "Declaration"):
             if not option.description:
                 continue
 
-            result += ".. _{}:\n\n{}\n{}\n".format(item, item, len(str(item)) * '^')
+            result += ".. _{}:\n\n{}\n{}\n".format(
+                item, item, len(str(item)) * '^')
 
             if option.example:
                 result += f"Example::\n\n\t{item} = {option.example}\n\n"
 
-            if option.has_default():
-                result += f"Default value: ``{repr(option.default)}``\n\n"
+            default = str(option) if option.has_default() else ''
+
+            if default != '':
+                if default.startswith(ckan_root):
+                    default = default.replace(ckan_root, '/<CKAN_ROOT>')
+                default = f"``{default}``"
+            else:
+                default = "none"
+            result += f"Default value: {default}\n\n"
 
             result += option.description + "\n\n"
 

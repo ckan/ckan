@@ -1,6 +1,9 @@
 # encoding: utf-8
 
 import logging
+import pathlib
+
+import yaml
 
 import ckan.plugins as p
 from ckan.config.declaration import Declaration, Key
@@ -44,11 +47,7 @@ class ImageView(p.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        section = key.ckan.preview
-
-        declaration.annotate("image_view settings")
-        declaration.declare(
-            section.image_formats, "png jpeg jpg gif"
-        ).set_description(
-            "Customize which image formats the image_view plugin will show"
-        )
+        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
+        with source.open("r") as stream:
+            data = yaml.safe_load(stream)
+            declaration.load_dict(data)

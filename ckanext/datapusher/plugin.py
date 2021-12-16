@@ -1,6 +1,9 @@
 # encoding: utf-8
 
 import logging
+import pathlib
+
+import yaml
 
 import ckan.model as model
 import ckan.plugins as p
@@ -161,9 +164,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        datapusher = key.ckan.datapusher
-        declaration.annotate("Datapusher settings")
-        declaration.declare_list(datapusher.formats, _default_formats)
-        declaration.declare(datapusher.url)
-        declaration.declare(datapusher.callback_url_base)
-        declaration.declare_int(datapusher.assume_task_stale_after, 3600)
+        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
+        with source.open("r") as stream:
+            data = yaml.safe_load(stream)
+            declaration.load_dict(data)

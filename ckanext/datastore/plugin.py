@@ -2,6 +2,9 @@
 
 import logging
 import os
+import pathlib
+import yaml
+
 import ckan.plugins as p
 import ckan.logic as logic
 from ckan.model.core import State
@@ -22,13 +25,14 @@ import ckanext.datastore.blueprint as view
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
-_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "allowed_functions.txt"
-)
-
 DEFAULT_FORMATS = []
 
 ValidationError = p.toolkit.ValidationError
+
+def sql_functions_allowlist_file():
+    return os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "allowed_functions.txt"
+    )
 
 
 class DatastorePlugin(p.SingletonPlugin):
@@ -86,29 +90,10 @@ class DatastorePlugin(p.SingletonPlugin):
     # IConfigDeclaration
 
     def declare_config_options(self, declaration: Declaration, key: Key):
-        section = key.ckan.datastore
-
-        declaration.annotate("Datastore settings")
-        declaration.declare(
-            section.write_url,
-            "postgresql://ckan_default:pass@localhost/datastore_default"
-        ).required()
-        declaration.declare(
-            section.read_url,
-            "postgresql://datastore_default:pass@localhost/datastore_default"
-        ).required()
-
-        declaration.declare(
-            section.sqlsearch.allowed_functions_file,
-            _SQL_FUNCTIONS_ALLOWLIST_FILE)
-        declaration.declare_bool(section.sqlsearch.enabled, False)
-        declaration.declare_int(section.search.rows_default, 100)
-        declaration.declare_int(section.search.rows_max, 32000)
-        declaration.declare_dynamic(section.sqlalchemy.dynamic("OPTION"))
-
-        declaration.annotate("PostgreSQL' full-text search parameters")
-        declaration.declare(section.default_fts_lang, "english")
-        declaration.declare(section.default_fts_index_method, "gist")
+        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
+        with source.open("r") as stream:
+            data = yaml.safe_load(stream)
+            declaration.load_dict(data)
 
     # IActions
 

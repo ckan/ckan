@@ -364,11 +364,11 @@ groups:
           *not* be included in ``ckan.site_url``. Instead, you need to set
           :ref:`ckan.root_path`.
 
+
           .. important:: It is mandatory to complete this setting
 
-          .. warning::
 
-            This setting should not have a trailing / on the end.
+          .. warning:: This setting should not have a trailing / on the end.
 
       - key: apikey_header_name
         default: X-CKAN-API-Key
@@ -485,7 +485,7 @@ groups:
       - key: ckan.auth.create_user_via_web
         type: bool
         default: true
-        example: True
+        example: "true"
         description: >-
           Allow new user accounts to be created via the Web.
 
@@ -502,29 +502,31 @@ groups:
       - key: ckan.auth.public_user_details
         type: bool
         default: true
-        example: False
+        example: "false"
         description: >-
           Restricts anonymous access to user information. If is set to ``False`` accessing users details when not logged in will raise a ``Not Authorized`` exception.
+
 
           .. note:: This setting should be used when user registration is disabled (``ckan.auth.create_user_via_web = False``), otherwise users can just create an account to see other users details.
 
       - key: ckan.auth.public_activity_stream_detail
         type: bool
-        example: True
+        example: "true"
         description: >-
           Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
 
       - key: ckan.auth.allow_dataset_collaborators
         type: bool
-        example: True
+        example: "true"
         description: >-
           Enables or disable collaborators in individual datasets. If ``True``, in addition to the standard organization based permissions, users can be added as collaborators to individual datasets with different roles, regardless of the organization they belong to. For more information, check the documentation on :ref:`dataset_collaborators`.
+
 
           .. warning:: If this setting is turned off in a site where there already were collaborators created, you must reindex all datasets to update the permission labels, in order to prevent access to private datasets to the previous collaborators.
 
       - key: ckan.auth.allow_admin_collaborators
         type: bool
-        example: True
+        example: "true"
         description: >-
           Allows dataset collaborators to have the "Admin" role, allowing them to add more collaborators or remove existing ones. By default, collaborators can only be managed by administrators of the organization the dataset belongs to. For more information, check the documentation on :ref:`dataset_collaborators`.
 
@@ -533,13 +535,13 @@ groups:
 
       - key: ckan.auth.allow_collaborators_to_change_owner_org
         type: bool
-        example: True
+        example: "true"
         description: >-
           Allows dataset collaborators to change the owner organization of the datasets they are collaborators on. Defaults to False, meaning that collaborators with role admin or editor can edit the dataset metadata but not the organization field.
 
       - key: ckan.auth.create_default_api_keys
         type: bool
-        example: True
+        example: "true"
         description: >-
           Determines if a an API key should be automatically created for every user when creating a user account. If set to False (the default value), users can manually create an API token from their profile instead. See :ref:`api authentication`: for more details.
 
@@ -595,7 +597,8 @@ groups:
           CKAN instance using the same `solr_url`_, they will each have a separate search index as long as their ``ckan.site_id`` values are different. If you are only running
           a single CKAN instance then this can be ignored.
 
-          Note, if you change this value, you need to rebuild the search index.
+
+          .. note:: If you change this value, you need to rebuild the search index.
 
       - key: solr_url
         placeholder: http://127.0.0.1:8983/solr/ckan
@@ -607,6 +610,7 @@ groups:
 
           Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests.
 
+
           .. note::  If you change this value, you need to rebuild the search index.
 
       - key: solr_user
@@ -614,11 +618,12 @@ groups:
       - key: ckan.search.automatic_indexing
         type: bool
         default: true
-        example: true
+        example: "true"
         description: >-
           Make all changes immediately available via the search after editing or
           creating a dataset. Default is true. If for some reason you need the indexing
           to occur asynchronously, set this option to false.
+
 
           .. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
 
@@ -737,7 +742,7 @@ groups:
     options:
       - key: ckan.cors.origin_allow_all
         type: bool
-        example: True
+        example: "true"
         description: >-
           This setting must be present to enable CORS. If True, all origins will be allowed (the response header Access-Control-Allow-Origin is set to '*'). If False, only origins from the ``ckan.cors.origin_whitelist`` setting will be allowed.
 
@@ -756,9 +761,12 @@ groups:
         description: >-
           Specify which CKAN plugins are to be enabled.
 
+
           .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
+
           Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`/extensions/index`.
+
 
           .. note::
 
@@ -781,11 +789,11 @@ groups:
               template files: templates found in template directories added earlier will
               override templates in template directories added later.
 
-              .. todo::
+          .. todo::
 
-                  Fix CKAN's plugin loading order to simply load all plugins in the order
-                  they're given in the config file, regardless of which Python modules
-                  they're implemented in.
+              Fix CKAN's plugin loading order to simply load all plugins in the order
+              they're given in the config file, regardless of which Python modules
+              they're implemented in.
 
 
   - annotation: Front-End Settings
@@ -814,11 +822,10 @@ groups:
 
       - key: ckan.site_about
         example: A _community-driven_ catalogue of _open data_ for the Greenfield area.
-        description: >-
+        description: |
           Format tips:
 
           * multiline strings can be used by indenting following lines
-
           * the format is Markdown
 
           .. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable. For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`/theming/index`.
@@ -850,6 +857,7 @@ groups:
         example: my_private_field other_field
         description: >-
           This sets a space-separated list of extra field key values which will not be shown on the dataset read page.
+
 
           .. warning::  While this is useful to e.g. create internal notes, it is not a security measure. The keys will still be available via the API and in revision diffs.
 
@@ -922,13 +930,13 @@ groups:
 
       - key: ckan.debug_supress_header
         type: bool
-        example: False
+        example: "false"
         description: >-
           This configs if the debug information showing the controller and action
           receiving the request being is shown in the header.
 
-          .. note:: This info only shows if debug is set to True.
 
+          .. note:: This info only shows if debug is set to True.
 
       - key: ckan.homepage_style
         default: "1"
@@ -943,7 +951,7 @@ groups:
           - image_view
           - recline_view
         example: image_view webpage_view recline_grid_view
-        description: >-
+        description: |
           Defines the resource views that should be created by default when creating or
           updating a dataset. From this list only the views that are relevant to a particular
           resource format will be created. This is determined by each individual view.
@@ -951,11 +959,10 @@ groups:
           If not present (or commented), the default value is used. If left empty, no
           default views are created.
 
+
           .. note:: You must have the relevant view plugins loaded on the ``ckan.plugins`` setting to be able to create the default views, eg::
-
-                  ckan.plugins = image_view webpage_view recline_grid_view datatables_view ...
-
-                  ckan.views.default_views = image_view webpage_view recline_grid_view
+                        ckan.plugins = image_view webpage_view recline_grid_view datatables_view ...
+                        ckan.views.default_views = image_view webpage_view recline_grid_view
 
   - annotation: Theming Settings
     options:
@@ -973,7 +980,7 @@ groups:
           .. note:: This is only for legacy code, and shouldn't be used anymore.
 
       - key: ckan.template_footer_end
-        description: >-
+        description: |
           HTML content to be inserted just before ``</body>`` tag (e.g. Google Analytics code).
 
           .. note:: you can have multiline strings (just indent following lines)
@@ -990,6 +997,7 @@ groups:
               } catch(err) {}
               </script>
               <!-- /Google Analytics -->
+
 
           .. note:: This is only for legacy code, and shouldn't be used anymore.
 
@@ -1127,14 +1135,14 @@ groups:
       - key: ckan.activity_streams_enabled
         type: bool
         default: true
-        example: False
+        example: "false"
         description: >-
           Turns on and off the activity streams used to track changes on datasets, groups, users, etc
 
       - key: ckan.activity_streams_email_notifications
         type: bool
         default: false
-        example: False
+        example: "false"
         description: >-
           Turns on and off the activity streams' email notifications. You'd also need to setup a cron job to send
           the emails. For more information, visit :ref:`email-notifications`.
@@ -1208,6 +1216,7 @@ groups:
         example: de
         description: >-
           Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`/contributing/i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
+
 
           .. note: In versions of CKAN before 1.5, the settings used for this was variously `lang` or `ckan.locale`, which have now been deprecated in favour of `ckan.locale_default`.
 
@@ -1314,6 +1323,7 @@ groups:
 
       - key: ckan.resource_formats
         example: /path/to/resource_formats
+        default_callable: ckan.lib.helpers:resource_formats_default_file
         description: >-
           The purpose of this file is to supply a thorough list of resource formats
           and to make sure the formats are normalized when saved to the database
@@ -1332,7 +1342,7 @@ groups:
       - key: ckan.dataset.create_on_ui_requires_resources
         type: bool
         default: true
-        example: False
+        example: "false"
         description: >-
           If False, there is no need to add any resources when creating a new dataset.
 
@@ -1386,7 +1396,7 @@ groups:
 
       - key: smtp.starttls
         type: bool
-        example: True
+        example: "true"
         description: >-
           Whether or not to use STARTTLS when connecting to the SMTP server.
 
@@ -1429,3 +1439,4 @@ groups:
       - key: ckan.jobs.timeout
         type: int
         default: 180
+        description: The option defines the timeout in seconds until giving up on a job
