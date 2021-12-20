@@ -951,9 +951,9 @@ def email_is_unique(key, data, errors, context):
 
 
 def one_of(list_of_value):
-    ''' Checks if the provided value is present in a list '''
+    ''' Checks if the provided value is present in a list or is an empty string'''
     def callable(value):
-        if value not in list_of_value:
+        if value == "" or value not in list_of_value:
             raise Invalid(_('Value must be one of {}'.format(list_of_value)))
         return value
     return callable
