@@ -840,5 +840,7 @@ class TestOneOfValidator(object):
         func = validators.one_of(cont)
         raises_Invalid(func)(5)
 
-
-# TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show
+    def test_empty_val_accepted(self):
+        cont = [1, 2, 3, 4]
+        func = validators.one_of(cont)
+        assert func("") == ""
