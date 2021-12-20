@@ -7,6 +7,8 @@ from ckan.logic import (
     tuplize_dict,
     parse_params,
 )
+from ckan.lib import base
+from ckan.logic import NotAuthorized
 from ckan.plugins.toolkit import (
     get_action,
     h,
@@ -67,9 +69,6 @@ tabledesigner.add_url_rule(
 
 
 class _TableDesignerAddRow(MethodView):
-    def post(self, id, resource_id):
-        pass
-
     def get(self, id, resource_id):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
@@ -99,4 +98,51 @@ class _TableDesignerAddRow(MethodView):
 tabledesigner.add_url_rule(
     '/dataset/<id>/tabledesigner/<resource_id>/add-row',
     view_func=_TableDesignerAddRow.as_view('add_row'),
+)
+
+
+class _TableDesignerEditRow(MethodView):
+    def get(self, id, resource_id):
+        _datastore_view = DictionaryView()
+        data_dict = _datastore_view._prepare(id, resource_id)
+        _id = request.params['_id']
+
+        try:
+            r = get_action('datastore_search')(
+                None, {
+                    'resource_id': resource_id,
+                    'filters': {'_id': _id},
+                }
+            )
+        except NotAuthorized:
+            return base.abort(403, _('Not authorized to see this page'))
+        if not r['records']:
+            return base.abort(404, _('Row not found'))
+        data_dict['row'] = r['records'][0]
+        return render('tabledesigner/edit_row.html', data_dict)
+
+    def post(self, id, resource_id):
+        _datastore_view = DictionaryView()
+        data_dict = _datastore_view._prepare(id, resource_id)
+        _id = request.params['_id']
+
+        data = dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
+        col = data.get('col', [])
+        row = {'_id': _id}
+        for f, c in zip(data_dict['fields'], col):
+            row[f['id']] = c['value'] or None
+
+        get_action('datastore_upsert')(
+            None, {
+                'resource_id': resource_id,
+                'method': 'update',
+                'force': True,  # FIXME: don't require this for tabledesigner tables
+                'records': [row],
+            }
+        )
+        return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
+
+tabledesigner.add_url_rule(
+    '/dataset/<id>/tabledesigner/<resource_id>/edit-row',
+    view_func=_TableDesignerEditRow.as_view('edit_row'),
 )

@@ -1,14 +1,27 @@
 {% ckan_extends %}
 
+{% import 'macros/form.html' as form %}
+
 {% block resource_additional_information_inner %}
   {% if res.url_type == 'tabledesigner' and res.datastore_active %}
     {% block resource_tabledesigner %}
       <div class="module-content">
         <h2>{{ _('Table Designer') }}</h2>
+        {% block resource_tabledesigner_edit %}
+          <form method="get" action="{{
+            h.url_for('tabledesigner.edit_row', id=pkg.name, resource_id=res.id) }}"
+            >{{ form.input('_id', label='_id', classes=['control-full'], id='_id', is_required=true) }}
+            <button class="btn btn-primary" type="submit">
+              {%- block edit_row_button_text %}<i class="fa fa-edit"></i>{{ _('Edit Row') }}{% endblock -%}
+            </button>
+          </form>
+        {% endblock %}
         {% block resource_tabledesigner_add %}
-          <a class="btn" name="tabledesigner-add-row" href="{{
-              h.url_for('tabledesigner.add_row', id=pkg.name, resource_id=res.id ) }}"
-            >{% block add_row_button_text %}<i class="fa fa-plus" aria-hidden="true"></i> {{ _('Add Row') }}{% endblock %}</a>
+          <p>
+            <a class="btn" name="tabledesigner-add-row" href="{{
+                h.url_for('tabledesigner.add_row', id=pkg.name, resource_id=res.id ) }}"
+              >{% block add_row_button_text %}<i class="fa fa-plus" aria-hidden="true"></i> {{ _('Add Row') }}{% endblock %}</a>
+          </p>
         {% endblock %}
       </div>
     {% endblock %}
