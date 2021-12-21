@@ -12,13 +12,15 @@ from . import error_shout
 
 
 @click.group(
-    short_help="Search, validate and describe config options on strict mode")
+    short_help="Search, validate and describe config options on strict mode"
+)
 def config():
     mode = cfg.get_value("config.mode")
     if mode != "strict":
         error_shout(
             "`config.mode = strict` is required to use the declarative"
-            " config features")
+            " config features"
+        )
         raise click.Abort()
 
 
@@ -90,12 +92,35 @@ def declaration(
 @config.command()
 @click.argument("pattern", default="*")
 @click.option(
-    "-i", "--include-plugin", "plugins", multiple=True,
-    help="Include this plugin even if disabled")
-@click.option("--with-default", is_flag=True)
-@click.option("--with-current", is_flag=True)
-@click.option("--custom-only", is_flag=True)
-@click.option("--no-custom", is_flag=True)
+    "-i",
+    "--include-plugin",
+    "plugins",
+    multiple=True,
+    help="Include this plugin even if disabled",
+)
+@click.option(
+    "--with-default",
+    is_flag=True,
+    help="Print default value of the config option",
+)
+@click.option(
+    "--with-current",
+    is_flag=True,
+    help="Print an actual value of the config option",
+)
+@click.option(
+    "--custom-only",
+    is_flag=True,
+    help="Ignore options that are using default value",
+)
+@click.option(
+    "--no-custom",
+    is_flag=True,
+    help="Ignore options that are not using default value",
+)
+@click.option(
+    "--explain", is_flag=True, help="Print documentation for config option"
+)
 def search(
     pattern: str,
     plugins: Tuple[str, ...],
@@ -103,6 +128,7 @@ def search(
     with_current: bool,
     custom_only: bool,
     no_custom: bool,
+    explain: bool,
 ):
     """Print all declared config options that match pattern."""
     decl = _declaration(plugins, True, True)
@@ -128,15 +154,25 @@ def search(
             current_section = click.style(
                 f" [Current: {repr(current)}]", fg="green"
             )
+        docs = ""
+        if explain and option.description:
+            docs = "\n".join(
+                f"\t{dl}" for dl in option.description.splitlines()
+            )
+            docs = click.style(f"\n{docs}\n", bold=True)
 
-        line = f"{key}{default_section}{current_section}"
+        line = f"{key}{default_section}{current_section}{docs}"
         click.secho(line)
 
 
 @config.command()
 @click.option(
-    "-i", "--include-plugin", "plugins", multiple=True,
-    help="Include this plugin even if disabled")
+    "-i",
+    "--include-plugin",
+    "plugins",
+    multiple=True,
+    help="Include this plugin even if disabled",
+)
 def undeclared(plugins: Tuple[str, ...]):
     """Print config options that have no declaration.
 
@@ -163,8 +199,12 @@ def undeclared(plugins: Tuple[str, ...]):
 
 @config.command()
 @click.option(
-    "-i", "--include-plugin", "plugins", multiple=True,
-    help="Include this plugin even if disabled")
+    "-i",
+    "--include-plugin",
+    "plugins",
+    multiple=True,
+    help="Include this plugin even if disabled",
+)
 def validate(plugins: Tuple[str, ...]):
     """Validate the global configuration object against the declaration."""
     decl = _declaration(plugins, True, True)
