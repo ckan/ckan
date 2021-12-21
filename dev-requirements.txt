@@ -12,14 +12,14 @@ ipdb==0.13.7
 pip-tools==5.1.2
 Pillow==8.4.0
 responses==0.13.3
-sphinx-rtd-theme==0.4.3
+sphinx-rtd-theme==1.0.0
 sqlalchemy-stubs==0.4
 sphinx==4.4.0
 towncrier==21.3.0
 
-pytest==6.2.2
-pytest-cov==2.11.1
+pytest==6.2.5
+pytest-cov==3.0.0
 pytest-factoryboy==2.1.0
 pytest-freezegun==0.4.2
-pytest-rerunfailures==9.1.1
+pytest-rerunfailures==10.2
 pytest-split==0.3.3

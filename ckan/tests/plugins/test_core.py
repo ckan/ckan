@@ -135,7 +135,6 @@ def test_plugins_load():
     assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
 
 
-@pytest.mark.usefixtures("with_plugins")
 def test_action_plugin_override():
     status_show_original = logic.get_action("status_show")(None, {})
     with plugins.use_plugin("action_plugin"):
