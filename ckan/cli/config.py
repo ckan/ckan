@@ -62,10 +62,10 @@ def describe(plugins: Tuple[str, ...], core: bool, enabled: bool, fmt: str):
     help="Include declarations of plugins enabled in the CKAN config file",
 )
 @click.option(
-    "-q",
-    "--no-comments",
+    "-v",
+    "--verbose",
     is_flag=True,
-    help="Do not include comments",
+    help="Include documentation for options",
 )
 @click.option(
     "-m",
@@ -77,14 +77,14 @@ def declaration(
     plugins: Tuple[str, ...],
     core: bool,
     enabled: bool,
-    no_comments: bool,
+    verbose: bool,
     minimal: bool,
 ):
     """Print declared config options for the given plugins."""
 
     decl = _declaration(plugins, core, enabled)
     if decl:
-        click.echo(decl.into_ini(minimal, no_comments))
+        click.echo(decl.into_ini(minimal, verbose))
 
 
 @config.command()

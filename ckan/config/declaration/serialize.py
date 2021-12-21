@@ -19,7 +19,7 @@ serialize = handler.handle
 
 @handler.register("ini")
 def serialize_ini(
-    declaration: "Declaration", minimal: bool, no_comments: bool
+    declaration: "Declaration", minimal: bool, verbose: bool
 ):
     result = ""
     for item in declaration._order:
@@ -31,16 +31,10 @@ def serialize_ini(
                 if item == "config.mode":
                     result += "config.mode = strict\n"
                 continue
-            if option.description and not no_comments:
-                result += (
-                    textwrap.fill(
-                        option.description,
-                        initial_indent="## ",
-                        subsequent_indent="## ",
-                    )
-                    + "\n"
-                )
-
+            if option.description and verbose:
+                result += "\n".join(
+                    "## " + line for line in option.description.splitlines()
+                ) + "\n"
             if not option.has_default():
                 value = option.placeholder or ""
             elif isinstance(option.default, bool):

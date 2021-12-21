@@ -157,6 +157,7 @@ groups:
              commands.
 
       - key: ckan.legacy_route_mappings
+        default: {}
         example: '{"home": "home.index", "about": "home.about", "search": "dataset.search"}'
         description: >-
           This can be used when using an extension that is still using old (Pylons-based) route names to

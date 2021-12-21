@@ -60,11 +60,13 @@ class TestDescribe(object):
         data = load(result.output)
 
         assert data == {
+            "version": 1,
             "groups": [
                 {
                     "annotation": "Datapusher settings",
                     "options": [
                         {
+                            "key": "ckan.datapusher.formats",
                             "default": [
                                 "csv",
                                 "xls",
@@ -78,20 +80,56 @@ class TestDescribe(object):
                                 "application/vnd.oasis.opendocument"
                                 ".spreadsheet",
                             ],
-                            "key": "ckan.datapusher.formats",
-                            "validators": "as_list"
+                            "validators": "as_list",
+                            "description": (
+                                "File formats that will be pushed to the"
+                                " DataStore by the DataPusher. When adding or"
+                                " editing a resource which links to a file in"
+                                " one of these formats, the DataPusher will"
+                                " automatically try to import its contents to"
+                                " the DataStore."
+                            ),
                         },
-                        {"key": "ckan.datapusher.url"},
-                        {"key": "ckan.datapusher.callback_url_base"},
                         {
-                            "default": 3600,
+                            "key": "ckan.datapusher.url",
+                            "description": (
+                                "DataPusher endpoint to use when enabling the"
+                                " ``datapusher`` extension. If you installed"
+                                " CKAN via"
+                                " :doc:`/maintaining/installing/install-from-package`,"
+                                " the DataPusher was installed for you running"
+                                " on port 8800. If you want to manually"
+                                " install the DataPusher, follow the"
+                                " installation `instructions"
+                                " <http://docs.ckan.org/projects/datapusher>`_."
+                            ),
+                        },
+                        {
+                            "key": "ckan.datapusher.callback_url_base",
+                            "description": (
+                                "Alternative callback URL for DataPusher when"
+                                " performing a request to CKAN. This is useful"
+                                " on scenarios where the host where DataPusher"
+                                " is running can not access the public CKAN"
+                                " site URL."
+                            ),
+                            "placeholder": "%(ckan.site_url)s",
+                        },
+                        {
                             "key": "ckan.datapusher.assume_task_stale_after",
+                            "default": 3600,
                             "validators": "convert_int",
+                            "description": (
+                                "In case a DataPusher task gets stuck and"
+                                " fails to recover, this is the minimum amount"
+                                " of time (in seconds) after a resource is"
+                                " submitted to DataPusher that the resource"
+                                " can be submitted again."
+                            ),
                         },
                     ],
                 }
             ],
-            "version": 1,
         }, data
 
 
@@ -105,7 +143,7 @@ class TestDeclaration(object):
 
     def test_core(self, command):
         result = command("declaration", "--core")
-        assert result.output.startswith("use = egg:ckan")
+        assert result.output.startswith("\n## General settings ##")
         assert not result.exit_code, result.output
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")

@@ -3,7 +3,16 @@ groups:
 - annotation: Datapusher settings
   options:
   - key: ckan.datapusher.formats
-    default: csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet ods application/vnd.oasis.opendocument.spreadsheet
+    default:
+      - csv
+      - xls
+      - xlsx
+      - tsv
+      - application/csv
+      - application/vnd.ms-excel
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      - ods
+      - application/vnd.oasis.opendocument.spreadsheet
     type: list
     example: csv xls
     description: >-
