@@ -6,7 +6,6 @@ from six import text_type
 
 from ckan.plugins.toolkit import BaseController, get_action, request, h
 from ckan.common import json
-import re
 
 
 class DataTablesController(BaseController):
@@ -19,7 +18,7 @@ class DataTablesController(BaseController):
         offset = int(request.params['start'])
         limit = int(request.params['length'])
         view_filters = resource_view.get(u'filters', {})
-        user_filters = text_type(request.params['filters']) 
+        user_filters = text_type(request.params['filters'])
         filters = merge_filters(view_filters, user_filters)
 
         datastore_search = get_action(u'datastore_search')
@@ -53,7 +52,6 @@ class DataTablesController(BaseController):
             u"sort": u', '.join(sort_list),
             u"filters": filters,
         })
-
 
         return json.dumps({
             u'draw': draw,
@@ -128,27 +126,10 @@ def merge_filters(view_filters, user_filters_str):
     if not user_filters_str:
         return filters
     user_filters = {}
-
-    updated_user_filters = reformat_user_filters(user_filters_str)
-
-    for k_v in updated_user_filters.split(u'~'):
+    for k_v in user_filters_str.split(u'|'):
         k, sep, v = k_v.partition(u':')
         if k not in view_filters or v in view_filters[k]:
             user_filters.setdefault(k, []).append(v)
     for k in user_filters:
         filters[k] = user_filters[k]
     return filters
-
-# TODO Remove this workaround when organization field uses scheming extension
-# This changes the character to split from | to ~ to avoid conflict with organization name
-def reformat_user_filters(filters):
-    
-    updated_filters = filters.replace('|', '~')
-    try:
-        for org_idx in [m.start() for m in re.finditer('Organization / Organisation', updated_filters)]:
-            idx = updated_filters.find('~', org_idx)
-            updated_filters = updated_filters[:idx] + '|' + updated_filters[idx+1:]
-    except ValueError:
-        return updated_filters
-    
-    return updated_filters

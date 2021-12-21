@@ -128,7 +128,7 @@ this.ckan.views.filters = (function (queryString) {
 
     if (searchParams.filters) {
       var filters = {},
-          fieldValuesStr = String(searchParams.filters).split('~'),
+          fieldValuesStr = String(searchParams.filters).split('|'),
           i,
           len;
 
