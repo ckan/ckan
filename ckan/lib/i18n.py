@@ -47,12 +47,11 @@ from babel import Locale
 from babel.core import (LOCALE_ALIASES,
                         get_locale_identifier,
                         UnknownLocaleError)
-from babel.support import Translations
 import polib
 
-from ckan.common import config, aslist
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
+from ckan.common import config
 
 log = logging.getLogger(__name__)
 
@@ -68,8 +67,8 @@ _JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, u'public', u'base', u'i18n')
 
 
 def get_ckan_i18n_dir():
-    path = config.get(
-        u'ckan.i18n_directory', os.path.join(_CKAN_DIR, u'i18n'))
+    path = config.get_value(u'ckan.i18n_directory') or os.path.join(
+        _CKAN_DIR, u'i18n')
     if os.path.isdir(os.path.join(path, u'i18n')):
         path = os.path.join(path, u'i18n')
 
@@ -79,10 +78,10 @@ def get_ckan_i18n_dir():
 def get_locales_from_config():
     ''' despite the name of this function it gets the locales defined by
     the config AND also the locals available subject to the config. '''
-    locales_offered = config.get('ckan.locales_offered', '').split()
-    filtered_out = config.get('ckan.locales_filtered_out', '').split()
-    locale_default = [config.get('ckan.locale_default', 'en')]
-    locale_order = config.get('ckan.locale_order', '').split()
+    locales_offered = config.get_value('ckan.locales_offered')
+    filtered_out = config.get_value('ckan.locales_filtered_out')
+    locale_default = [config.get_value('ckan.locale_default')]
+    locale_order = config.get_value('ckan.locale_order')
 
     known_locales = get_locales()
     all_locales = (set(known_locales) |
@@ -98,10 +97,10 @@ def _get_locales():
     assert not config.get('lang'), \
         ('"lang" config option not supported - please use ckan.locale_default '
          'instead.')
-    locales_offered = config.get('ckan.locales_offered', '').split()
-    filtered_out = config.get('ckan.locales_filtered_out', '').split()
-    locale_default = config.get('ckan.locale_default', 'en')
-    locale_order = config.get('ckan.locale_order', '').split()
+    locales_offered = config.get_value('ckan.locales_offered')
+    filtered_out = config.get_value('ckan.locales_filtered_out')
+    locale_default = config.get_value('ckan.locale_default')
+    locale_order = config.get_value('ckan.locale_order')
 
     locales = ['en']
     i18n_path = get_ckan_i18n_dir()
@@ -169,7 +168,7 @@ def non_translated_locals():
     no translations. returns a list like ['en', 'de', ...] '''
     global _non_translated_locals
     if not _non_translated_locals:
-        locales = config.get('ckan.locale_order', '').split()
+        locales = config.get_value('ckan.locale_order')
         _non_translated_locals = [x for x in locales if x not in get_locales()]
     return _non_translated_locals
 
@@ -220,7 +219,7 @@ def get_identifier_from_locale_class(locale):
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
-        config.get('ckan.locale_default', 'en')
+        config.get_value('ckan.locale_default')
     if lang != 'en':
         set_lang(lang)
 
@@ -238,7 +237,7 @@ def get_lang():
 def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
-        language_code = config.get('ckan.locale_default', 'en')
+        language_code = config.get_value('ckan.locale_default')
 
 
 def _get_js_translation_entries(filename):
@@ -293,7 +292,7 @@ def _build_js_translation(lang, source_filenames, entries, dest_filename):
             elif entry.msgstr_plural:
                 plural = result[entry.msgid] = [entry.msgid_plural]
                 ordered_plural = sorted(entry.msgstr_plural.items())
-                for order, msgstr in ordered_plural:
+                for _, msgstr in ordered_plural:
                     plural.append(msgstr)
     with open(dest_filename, u'w', encoding='utf-8') as f:
         s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)

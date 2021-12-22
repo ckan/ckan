@@ -1,3 +1,5 @@
+{% set dataset_type = h.default_package_type() %}
+
 {% block header_wrapper %} {% block header_account %}
 <div class="account-masthead">
   <div class="container">
@@ -84,7 +86,7 @@
       {% endif %}
       {% endblock %}
 
-    </hgroup>
+       </hgroup>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navigation-toggle"
         aria-controls="main-navigation-toggle" aria-expanded="false" aria-label="Toggle navigation">
         <span class="fa fa-bars text-white"></span>
@@ -96,27 +98,27 @@
             {% block header_site_navigation_tabs %}
               {% set org_type = h.default_group_type('organization') %}
               {% set group_type = h.default_group_type('group') %}
-              {{ h.build_nav_main(
-              ('dataset.search', _('Datasets'), ["dataset", "resource"]),
-              (org_type ~ '.index',
-              h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), ['organization']),
-              (group_type ~ '.index',
-              h.humanize_entity_type('group_type', group_type, 'main nav') or _('Groups'), ['group']),
-              ('home.about', _('About')) ) }}
-            {% endblock %}
-          {% endblock %}
-        </ul>
-        <form class="d-flex site-search" action="{% url_for 'dataset.search' %}" method="get">
-          <label class="d-none" for="masthead-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
-          <input id="masthead-search"  class="form-control me-2"  name="q" type="search" placeholder="Search" aria-label="Search datasets">
-          <button class="btn" type="submit" aria-label="{{ _('Submit') }}"><i class="fa fa-search"></i></button>
-        </form>
+
+		          {{ h.build_nav_main(
+		            (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), ["dataset", "resource"]),
+		            (org_type ~ '.index',
+                  h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), ['organization']),
+		            (group_type ~ '.index',
+                  h.humanize_entity_type('group_type', group_type, 'main nav') or _('Groups'), ['group']),
+		            ('home.about', _('About')) ) }}
+	          {% endblock %}
+          </ul>
+      
+      {% endblock %} 
+      {% block header_site_search %}
+          <form class="d-flex site-search" action="{% url_for dataset_type ~ '.search' %}" method="get">
+              <label class="d-none" for="field-sitewide-search">{% block header_site_search_label %}{{ h.humanize_entity_type('package', dataset_type, 'search_placeholder') or _('Search Datasets...') }}{% endblock %}</label>
+              <input id="field-sitewide-search" class="form-control me-2"  type="text" name="q" placeholder="{{ _('Search') }}" aria-label="{{ h.humanize_entity_type('package', dataset_type, 'search_placeholder') or _('Search datasets...') }}"/>
+              <button class="btn" type="submit" aria-label="{{ _('Submit') }}"><i class="fa fa-search"></i></button>
+          </form>
+      {% endblock %}
       </div>
-
     </nav>
-
   </div>
-
-
 </header>
 {% endblock %}

@@ -4,12 +4,13 @@ beautifulsoup4==4.9.3
 cookiecutter==1.7.3
 coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.16
+Faker==9.3.1
 factory-boy==3.2.0
 flask-debugtoolbar==0.11.0
 freezegun==1.1.0
 ipdb==0.13.7
 pip-tools==5.1.2
-pycodestyle==2.5.0
+Pillow==8.4.0
 responses==0.13.3
 sphinx-rtd-theme==0.4.3
 sphinx==1.8.5

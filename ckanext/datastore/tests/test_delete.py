@@ -180,7 +180,6 @@ class TestDatastoreDeleteLegacy(object):
 
     def _delete(self):
         data = {"resource_id": self.data["resource_id"]}
-        postparams = "%s=1" % json.dumps(data)
         auth = {"Authorization": self.sysadmin_token}
         res = self.app.post(
             "/api/action/datastore_delete",

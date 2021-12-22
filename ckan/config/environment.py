@@ -6,10 +6,7 @@ import logging
 import warnings
 import pytz
 
-import six
 import sqlalchemy
-
-from urllib.parse import urlparse
 
 import ckan.model as model
 import ckan.plugins as p
@@ -20,13 +17,11 @@ from ckan.lib.redis import is_redis_available
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
-import ckan.lib.jinja_extensions as jinja_extensions
 from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
 
-from ckan.common import _, ungettext, config
+from ckan.common import config, config_declaration
 from ckan.exceptions import CkanConfigurationException
-
 log = logging.getLogger(__name__)
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
@@ -54,10 +49,6 @@ def load_environment(conf):
         )
 
     log.info('Loading static files from %s' % static_files)
-    paths = dict(root=root,
-                 controllers=os.path.join(root, 'controllers'),
-                 static_files=os.path.join(root, static_files),
-                 templates=[])
 
     # Initialize main CKAN config object
     config.update(conf)
@@ -121,6 +112,10 @@ def update_config():
     plugin might have changed the config values (for instance it might
     change ckan.site_url) '''
 
+    config_declaration.setup()
+    config_declaration.make_safe(config)
+    config_declaration.normalize(config)
+
     webassets_init()
 
     for plugin in p.PluginImplementations(p.IConfigurer):
@@ -143,9 +138,18 @@ def update_config():
         if from_env:
             config[option] = from_env
 
+    if config.get_value("config.mode") == "strict":
+        _, errors = config_declaration.validate(config)
+        if errors:
+            msg = "\n".join(
+                "{}: {}".format(key, "; ".join(issues))
+                for key, issues in errors.items()
+            )
+            raise CkanConfigurationException(msg)
+
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    site_url = config.get('ckan.site_url', '')
+    site_url = config.get_value('ckan.site_url')
     if not site_url:
         raise RuntimeError(
             'ckan.site_url is not configured and it must have a value.'
@@ -154,8 +158,10 @@ def update_config():
         raise RuntimeError(
             'ckan.site_url should be a full URL, including the schema '
             '(http or https)')
+    # Remove backslash from site_url if present
+    config['ckan.site_url'] = site_url.rstrip('/')
 
-    display_timezone = config.get('ckan.display_timezone', '')
+    display_timezone = config.get_value('ckan.display_timezone')
     if (display_timezone and
             display_timezone != 'server' and
             display_timezone not in pytz.all_timezones):
@@ -163,28 +169,13 @@ def update_config():
             "ckan.display_timezone is not 'server' or a valid timezone"
         )
 
-    # Remove backslash from site_url if present
-    config['ckan.site_url'] = config['ckan.site_url'].rstrip('/')
-
-    ckan_host = config['ckan.host'] = urlparse(site_url).netloc
-    if config.get('ckan.site_id') is None:
-        if ':' in ckan_host:
-            ckan_host, port = ckan_host.split(':')
-        assert ckan_host, 'You need to configure ckan.site_url or ' \
-                          'ckan.site_id for SOLR search-index rebuild to work.'
-        config['ckan.site_id'] = ckan_host
-
-    # ensure that a favicon has been set
-    favicon = config.get('ckan.favicon', '/base/images/ckan.ico')
-    config['ckan.favicon'] = favicon
-
     # Init SOLR settings and check if the schema is compatible
     # from ckan.lib.search import SolrSettings, check_solr_schema_version
 
     # lib.search is imported here as we need the config enabled and parsed
-    search.SolrSettings.init(config.get('solr_url'),
-                             config.get('solr_user'),
-                             config.get('solr_password'))
+    search.SolrSettings.init(config.get_value('solr_url'),
+                             config.get_value('solr_user'),
+                             config.get_value('solr_password'))
     search.check_solr_schema_version()
 
     lib_plugins.reset_package_plugins()
@@ -212,19 +203,11 @@ def update_config():
     log.info('Loading templates from %s' % jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
-    extra_template_paths = config.get('extra_template_paths', '')
+    extra_template_paths = config.get_value('extra_template_paths')
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
     config['computed_template_paths'] = template_paths
-
-    # Markdown ignores the logger config, so to get rid of excessive
-    # markdown debug messages in the log, set it to the level of the
-    # root logger.
-    logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
-
-    # CONFIGURATION OPTIONS HERE (note: all config options will override
-    # any Pylons config options)
 
     # Enable pessimistic disconnect handling (added in SQLAlchemy 1.2)
     # to eliminate database errors due to stale pooled connections
@@ -245,12 +228,7 @@ def update_config():
     try:
         logic.get_action('get_site_user')({'ignore_auth': True}, None)
     except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
-        # (ProgrammingError for Postgres, OperationalError for SQLite)
-        # The database is not initialised.  This is a bit dirty.  This occurs
-        # when running tests.
-        pass
-    except sqlalchemy.exc.InternalError:
-        # The database is not initialised.  Travis hits this
+        # The database is not yet initialised. It happens in `ckan db init`
         pass
 
     # Close current session and open database connections to ensure a clean

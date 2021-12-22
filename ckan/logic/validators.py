@@ -158,10 +158,6 @@ def isodate(value, context):
     return date
 
 def no_http(value, context):
-
-    model = context['model']
-    session = context['session']
-
     if 'http:' in value:
         raise Invalid(_('No links are allowed in the log_message.'))
     return value
@@ -492,7 +488,6 @@ def ignore_not_admin(key, data, errors, context):
 def ignore_not_package_admin(key, data, errors, context):
     '''Ignore if the user is not allowed to administer the package specified.'''
 
-    model = context['model']
     user = context.get('user')
 
     if 'ignore_auth' in context:
@@ -534,7 +529,6 @@ def ignore_not_sysadmin(key, data, errors, context):
 def ignore_not_group_admin(key, data, errors, context):
     '''Ignore if the user is not allowed to administer for the group specified.'''
 
-    model = context['model']
     user = context.get('user')
 
     if user and authz.is_sysadmin(user):
@@ -948,8 +942,8 @@ def email_is_unique(key, data, errors, context):
     else:
         # allow user to update their own email
         for user in users:
-            if (user.name in [data[("name",)], data[("id",)]]
-                    or user.id == data[("id",)]):
+            if (user.name in (data.get(("name",)), data.get(("id",)))
+                    or user.id == data.get(("id",))):
                 return
 
     raise Invalid(

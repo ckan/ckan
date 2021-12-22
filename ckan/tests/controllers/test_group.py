@@ -3,7 +3,6 @@
 import unittest.mock as mock
 from bs4 import BeautifulSoup
 import pytest
-import factory
 import six
 from ckan.lib.helpers import url_for
 import ckan.logic as logic
@@ -163,7 +162,7 @@ class TestGroupControllerEdit(object):
             "image_url": "http://example.com/image.png",
             "save": "",
         }
-        resp = app.post(
+        app.post(
             url=url_for("group.edit", id=group["name"]),
             extra_environ=env,
             data=form,
@@ -238,7 +237,7 @@ class TestGroupRead(object):
         # 200 == no redirect
         app.get(url_for("group.read", id=group["id"]), status=200)
 
-    def test_search_with_extra_params(self, app, monkeypatch):
+    def test_search_with_extra_params(self, app):
         group = factories.Group()
         url = url_for('group.read', id=group['id'])
         url += '?ext_a=1&ext_a=2&ext_b=3'
@@ -614,7 +613,7 @@ class TestGroupFollow:
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("group.unfollow", id="not-here")
-        unfollow_response = app.post(
+        app.post(
             unfollow_url, extra_environ=env, status=404
         )
 
@@ -901,7 +900,7 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(url, extra_environ=env, status=404)
+        app.get(url, extra_environ=env, status=404)
         # group_delete causes the Member to state=deleted and then the user
         # doesn't have permission to see their own deleted Group. Therefore you
         # can't render the activity stream of that group. You'd hope that

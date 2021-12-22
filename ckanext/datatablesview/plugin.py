@@ -3,18 +3,12 @@
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckanext.datatablesview import blueprint
+from ckan.config.declaration import Declaration, Key
 
 default = toolkit.get_validator(u'default')
 boolean_validator = toolkit.get_validator(u'boolean_validator')
 natural_number_validator = toolkit.get_validator(u'natural_number_validator')
 ignore_missing = toolkit.get_validator(u'ignore_missing')
-
-# see https://datatables.net/examples/advanced_init/length_menu.html
-DEFAULT_PAGE_LENGTH_CHOICES = '20 50 100 500 1000'
-DEFAULT_STATE_DURATION = 7200  # 2 hours
-DEFAULT_ELLIPSIS_LENGTH = 100
-# see Moment.js cheatsheet https://devhints.io/moment
-DEFAULT_DATE_FORMAT = 'llll'
 
 
 class DataTablesView(p.SingletonPlugin):
@@ -24,6 +18,7 @@ class DataTablesView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.IBlueprint)
+    p.implements(p.IConfigDeclaration)
 
     # IBlueprint
 
@@ -39,25 +34,22 @@ class DataTablesView(p.SingletonPlugin):
         '''
 
         # https://datatables.net/reference/option/lengthMenu
-        self.page_length_choices = toolkit.aslist(
-            config.get(u'ckan.datatables.page_length_choices',
-                       DEFAULT_PAGE_LENGTH_CHOICES))
+        self.page_length_choices = config.get_value(
+            u'ckan.datatables.page_length_choices')
+
         self.page_length_choices = [int(i) for i in self.page_length_choices]
-        self.state_saving = toolkit.asbool(
-            config.get(u'ckan.datatables.state_saving', True))
+        self.state_saving = config.get_value(u'ckan.datatables.state_saving')
+
         # https://datatables.net/reference/option/stateDuration
-        self.state_duration = toolkit.asint(
-            config.get(u'ckan.datatables.state_duration',
-                       DEFAULT_STATE_DURATION))
-        self.data_dictionary_labels = toolkit.asbool(
-            config.get(u'ckan.datatables.data_dictionary_labels', True))
-        self.ellipsis_length = toolkit.asint(
-            config.get(u'ckan.datatables.ellipsis_length',
-                       DEFAULT_ELLIPSIS_LENGTH))
-        self.date_format = config.get(u'ckan.datatables.date_format',
-                                      DEFAULT_DATE_FORMAT)
-        self.default_view = config.get(u'ckan.datatables.default_view',
-                                       'table')
+        self.state_duration = config.get_value(
+            u"ckan.datatables.state_duration")
+        self.data_dictionary_labels = config.get_value(
+            u"ckan.datatables.data_dictionary_labels")
+        self.ellipsis_length = config.get_value(
+            u"ckan.datatables.ellipsis_length")
+        self.date_format = config.get_value(u"ckan.datatables.date_format")
+        self.default_view = config.get_value(u"ckan.datatables.default_view")
+
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_public_directory(config, u'public')
         toolkit.add_resource(u'public', u'ckanext-datatablesview')
@@ -101,3 +93,24 @@ class DataTablesView(p.SingletonPlugin):
                 u'filterable': [default(True), boolean_validator],
             }
         }
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        section = key.ckan.datatables
+
+        declaration.annotate("datatables_view settings")
+
+        declaration.declare_list(
+            section.page_length_choices, [20, 50, 100, 500, 1000]
+        ).set_description(
+            "https://datatables.net/examples/advanced_init/length_menu.html"
+        )
+        declaration.declare_bool(section.state_saving, True)
+        declaration.declare_int(section.state_duration, 7200)
+        declaration.declare_bool(section.data_dictionary_labels, True)
+        declaration.declare_int(section.ellipsis_length, 100)
+        declaration.declare(section.date_format, "llll").set_description(
+            "see Moment.js cheatsheet https://devhints.io/moment"
+        )
+        declaration.declare(section.default_view, "table")
