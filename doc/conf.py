@@ -17,7 +17,6 @@
 import re
 import os
 import subprocess
-import six
 
 import ckan
 
@@ -57,7 +56,6 @@ rst_epilog = '''
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |storage_path| replace:: |storage_parent_dir|/default
 .. |restart_uwsgi| replace:: sudo supervisorctl restart ckan-uwsgi:*
-.. |restart_solr| replace:: sudo service jetty8 restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
 .. |nginx| replace:: Nginx
@@ -129,8 +127,9 @@ SUPPORTED_CKAN_VERSIONS = 3
 
 def get_release_tags():
     git_tags = subprocess.check_output(
-        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
-    release_tags_ = [tag for tag in git_tags if tag.startswith(six.b('ckan-'))]
+        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).decode('utf8')
+    git_tags = git_tags.split()
+    release_tags_ = [tag for tag in git_tags if tag.startswith('ckan-')]
 
     # git tag -l prints out the tags in the right order anyway, but don't rely
     # on that, sort them again here for good measure.
@@ -333,6 +332,7 @@ def write_substitutions_file(**kwargs):
 
 current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
+current_minor_version = current_release_version[:3]
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
 latest_minor_version = latest_release_version[:3]
@@ -343,6 +343,7 @@ is_latest_version = version == latest_release_version
 write_substitutions_file(
     current_release_tag=current_release_tag_value,
     current_release_version=current_release_version,
+    current_minor_version=current_minor_version,
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
     latest_package_name_bionic=get_latest_package_name('bionic'),
