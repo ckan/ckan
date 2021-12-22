@@ -43,7 +43,7 @@ def load_environment(conf):
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    valid_base_public_folder_names = ['public']
+    valid_base_public_folder_names = ['public', 'public-bs3']
     static_files = conf.get('ckan.base_public_folder', 'public')
     conf['ckan.base_public_folder'] = static_files
 
@@ -198,7 +198,7 @@ def update_config():
     helpers.load_plugin_helpers()
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates']
+    valid_base_templates_folder_names = ['templates', 'templates-bs3']
     templates = config.get('ckan.base_templates_folder', 'templates')
     config['ckan.base_templates_folder'] = templates
 
