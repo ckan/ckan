@@ -47,3 +47,8 @@ class ExampleBlanketCliPlugin(p.SingletonPlugin):
 @tk.blanket.validators(_validators)
 class ExampleBlanketValidatorPlugin(p.SingletonPlugin):
     pass
+
+
+@tk.blanket.config_declarations
+class ExampleBlanketConfigDeclarationPlugin(p.SingletonPlugin):
+    pass

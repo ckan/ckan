@@ -101,7 +101,7 @@ class Option(Generic[T]):
     def append_validators(self, validators: str, before: bool = False):
         """Add extra validators before or after the current list.
 
-        Use it together with `Declaration.declare_*` shortcats in order to
+        Use it together with `Declaration.declare_*` shortcuts in order to
         define more specific common options::
 
             declaration.declare_bool(...).append_validators(

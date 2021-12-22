@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import unittest.mock as mock
 import pytest
 
 from werkzeug.utils import import_string
@@ -81,51 +82,22 @@ class TestDescribe(object):
                                 ".spreadsheet",
                             ],
                             "validators": "as_list",
-                            "description": (
-                                "File formats that will be pushed to the"
-                                " DataStore by the DataPusher. When adding or"
-                                " editing a resource which links to a file in"
-                                " one of these formats, the DataPusher will"
-                                " automatically try to import its contents to"
-                                " the DataStore."
-                            ),
+                            "description": mock.ANY,
                         },
                         {
                             "key": "ckan.datapusher.url",
-                            "description": (
-                                "DataPusher endpoint to use when enabling the"
-                                " ``datapusher`` extension. If you installed"
-                                " CKAN via"
-                                " :doc:`/maintaining/installing/install-from-package`,"
-                                " the DataPusher was installed for you running"
-                                " on port 8800. If you want to manually"
-                                " install the DataPusher, follow the"
-                                " installation `instructions"
-                                " <http://docs.ckan.org/projects/datapusher>`_."
-                            ),
+                            "description": mock.ANY,
                         },
                         {
                             "key": "ckan.datapusher.callback_url_base",
-                            "description": (
-                                "Alternative callback URL for DataPusher when"
-                                " performing a request to CKAN. This is useful"
-                                " on scenarios where the host where DataPusher"
-                                " is running can not access the public CKAN"
-                                " site URL."
-                            ),
+                            "description": mock.ANY,
                             "placeholder": "%(ckan.site_url)s",
                         },
                         {
                             "key": "ckan.datapusher.assume_task_stale_after",
                             "default": 3600,
                             "validators": "convert_int",
-                            "description": (
-                                "In case a DataPusher task gets stuck and"
-                                " fails to recover, this is the minimum amount"
-                                " of time (in seconds) after a resource is"
-                                " submitted to DataPusher that the resource"
-                                " can be submitted again."
-                            ),
+                            "description": mock.ANY,
                         },
                     ],
                 }
