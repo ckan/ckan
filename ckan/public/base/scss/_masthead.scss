@@ -84,8 +84,12 @@ $notificationsBg: #C9403A;
         position: fixed;
         top: 0;
         left: 0;
-        background-color: opacify($color: $primary, $amount: 0.6);
-        padding: 2px;
+        color: $white;
+        background-color: opacify($color: $primary, $amount: 0.3);
+        padding: 2px 4px;
+        border: $white 1px solid;
+        border-left: 0px;
+        z-index: 9;
     }
     .navbar {
         hgroup {

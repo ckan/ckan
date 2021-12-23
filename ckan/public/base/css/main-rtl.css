@@ -13786,8 +13786,12 @@ td.diff_header {
   position: fixed;
   top: 0;
   left: 0;
+  color: #fff;
   background-color: #206b82;
-  padding: 2px;
+  padding: 2px 4px;
+  border: #fff 1px solid;
+  border-left: 0px;
+  z-index: 9;
 }
 .masthead .navbar hgroup h1, .masthead .navbar hgroup .h1,
 .masthead .navbar hgroup h2,
