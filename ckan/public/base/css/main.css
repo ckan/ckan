@@ -12091,7 +12091,6 @@ select[data-module=autocomplete] {
 .js .image-upload #field-image-upload {
   cursor: pointer;
   position: absolute;
-  z-index: 1;
 }
 .js .image-upload .controls {
   position: relative;
