@@ -2,13 +2,10 @@
 
 import logging
 import os
-import pathlib
-import yaml
 
 import ckan.plugins as p
 import ckan.logic as logic
 from ckan.model.core import State
-from ckan.config.declaration import Declaration, Key
 
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.logic.action as action
@@ -36,9 +33,9 @@ def sql_functions_allowlist_file():
     )
 
 
+@p.toolkit.blanket.config_declarations
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
-    p.implements(p.IConfigDeclaration)
     p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
@@ -87,14 +84,6 @@ class DatastorePlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
         self.backend.configure(config)
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
-        with source.open("r") as stream:
-            data = yaml.safe_load(stream)
-            declaration.load_dict(data)
 
     # IActions
 

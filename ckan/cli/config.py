@@ -156,9 +156,11 @@ def search(
             )
         docs = ""
         if explain and option.description:
-            docs = "\n".join(
-                f"\t{dl}" for dl in option.description.splitlines()
-            )
+            lines = option.description.splitlines()
+            lines += ["", f"Default value: {repr(default)}"]
+            if option.example:
+                lines += ["", f"Example: {key} = {option.example}"]
+            docs = "\n".join(f"\t{dl}" for dl in lines)
             docs = click.style(f"\n{docs}\n", bold=True)
 
         line = f"{key}{default_section}{current_section}{docs}"

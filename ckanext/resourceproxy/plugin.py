@@ -1,17 +1,13 @@
 # encoding: utf-8
 
 from logging import getLogger
-import pathlib
 
 from urllib.parse import urlparse
-
-import yaml
 
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
 from ckan.common import config
-from ckan.config.declaration import Declaration, Key
 from ckanext.resourceproxy import blueprint
 
 log = getLogger(__name__)
@@ -41,13 +37,13 @@ def get_proxified_resource_url(data_dict, proxy_schemes=[u'http', u'https']):
     return url
 
 
+@p.toolkit.blanket.config_declarations
 class ResourceProxy(p.SingletonPlugin):
     """A proxy for CKAN resources to get around the same
     origin policy for previews
     """
     p.implements(p.ITemplateHelpers, inherit=True)
     p.implements(p.IBlueprint)
-    p.implements(p.IConfigDeclaration)
 
     def get_blueprint(self):
         return blueprint.resource_proxy
@@ -73,11 +69,3 @@ class ResourceProxy(p.SingletonPlugin):
         return get_proxified_resource_url(
             data_dict, proxy_schemes=proxy_schemes
         )
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
-        with source.open("r") as stream:
-            data = yaml.safe_load(stream)
-            declaration.load_dict(data)

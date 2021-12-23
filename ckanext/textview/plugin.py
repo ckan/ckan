@@ -1,15 +1,11 @@
 # encoding: utf-8
 
 import logging
-import pathlib
-
-import yaml
 
 from ckan.common import json
 import ckan.plugins as p
 import ckanext.resourceproxy.plugin as proxy
 import ckan.lib.datapreview as datapreview
-from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
 
@@ -31,13 +27,13 @@ def get_formats(config):
     return out
 
 
+@p.toolkit.blanket.config_declarations
 class TextView(p.SingletonPlugin):
     '''This extension previews JSON(P).'''
 
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourceView, inherit=True)
-    p.implements(p.IConfigDeclaration)
 
     proxy_is_enabled = False
     text_formats = []
@@ -98,11 +94,3 @@ class TextView(p.SingletonPlugin):
 
     def form_template(self, context, data_dict):
         return 'text_form.html'
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
-        with source.open("r") as stream:
-            data = yaml.safe_load(stream)
-            declaration.load_dict(data)

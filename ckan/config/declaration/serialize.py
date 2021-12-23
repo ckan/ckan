@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import textwrap
 from typing import TYPE_CHECKING, Any, Callable, Dict
 
 import ckan

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """Quick implementations of simple plugin interfaces.
 
 Blankets allow to reduce boilerplate code in plugins by simplifying the way
@@ -37,40 +36,43 @@ helpers using the corresponding blanket decorator from the plugins toolkit::
 
 
 The following table lists the available blanket decorators, the interface they
-implement and the default module path where the blanket will automatically look
-for items to import:
+implement and the default source where the blanket will automatically look for
+items to import:
 
+.. list-table::
+   :widths: 20 20 60
+   :header-rows: 1
 
-+---------------------------------------+------------------------------------\
--------------------+--------------------------------+
-| Decorator                             | Interface                          \
-                   | Default module path            |
-+=======================================+====================================\
-===================+================================+
-| ``toolkit.blanket.helpers``           | :py:class:`~ckan.plugins.interfaces\
-.ITemplateHelpers` | ckanext.myext.helpers          |
-+---------------------------------------+------------------------------------\
--------------------+--------------------------------+
-| ``toolkit.blanket.auth_functions``    | :py:class:`~ckan.plugins.interfaces\
-.IAuthFunctions`   | ckanext.myext.logic.auth       |
-+---------------------------------------+------------------------------------\
--------------------+--------------------------------+
-| ``toolkit.blanket.actions``           | :py:class:`~ckan.plugins.interfaces\
-.IActions`         | ckanext.myext.logic.action     |
-+---------------------------------------+------------------------------------\
--------------------+--------------------------------+
-| ``toolkit.blanket.validators``        | :py:class:`~ckan.plugins.interfaces\
-.IValidators`      | ckanext.myext.logic.validators |
-+---------------------------------------+------------------------------------\
--------------------+--------------------------------+
-| ``toolkit.blanket.blueprints``        | :py:class:`~ckan.plugins.interfaces\
-.IBlueprint`       | ckanext.myext.logic.views      |
-+---------------------------------------+------------------------------------\
--------------------+--------------------------------+
-| ``toolkit.blanket.cli``               | :py:class:`~ckan.plugins.interfaces\
-.IClick`           | ckanext.myext.cli              |
-+---------------------------------------+------------------------------------\
--------------------+--------------------------------+
+   * - Decorator
+     - Interfaces
+     - Default source
+   * - ``toolkit.blanket.helpers``
+     - :py:class:`~ckan.plugins.interfaces.ITemplateHelpers`
+     - ``ckanext.myext.helpers``
+
+   * - ``toolkit.blanket.auth_functions``
+     - :py:class:`~ckan.plugins.interfaces.IAuthFunctions`
+     - ``ckanext.myext.logic.auth``
+
+   * - ``toolkit.blanket.actions``
+     - :py:class:`~ckan.plugins.interfaces.IActions`
+     - ``ckanext.myext.logic.action``
+
+   * - ``toolkit.blanket.validators``
+     - :py:class:`~ckan.plugins.interfaces.IValidators`
+     - ``ckanext.myext.logic.validators``
+
+   * - ``toolkit.blanket.blueprints``
+     - :py:class:`~ckan.plugins.interfaces.IBlueprint`
+     - ``ckanext.myext.logic.views``
+
+   * - ``toolkit.blanket.cli``
+     - :py:class:`~ckan.plugins.interfaces.IClick`
+     - ``ckanext.myext.cli``
+
+   * - ``toolkit.blanket.config_declarations``
+     - :py:class:`~ckan.plugins.interfaces.IConfigDeclaration`
+     - ``ckanext/myext/config_declaration.{json,yaml,toml}``
 
 
 .. note:: By default, all local module members, whose ``__name__``/``name``
@@ -89,7 +91,12 @@ the decorator::
     class MyPlugin(p.SingletonPlugin):
         pass
 
-You can also pass a function that returns the items required by the interface::
+.. note:: The ``config_declarations`` blanket is an exception. Instead of a
+          module object it accepts absolute path to the JSON, YAML or TOML file
+          with the config declarations.
+
+You can also pass a function that produces the artifacts required by the
+interface::
 
     def all_actions():
         return {'ext_action': ext_action}
@@ -115,12 +122,17 @@ import enum
 import types
 import inspect
 import pathlib
+import json
+import yaml
+import toml
 
-from functools import update_wrapper
 from importlib import import_module
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Type, Union
 
+import flask
+
 import ckan.plugins as p
+from ckan.authz import get_local_functions
 
 __all__ = [
     "helpers",
@@ -137,16 +149,11 @@ log = logging.getLogger(__name__)
 Subject = Union[
     types.FunctionType, types.ModuleType, Dict[str, Any], List[Any], str
 ]
+ModuleHarvester = Callable[[types.ModuleType], Dict[str, Any]]
 
 
 class Blanket(enum.Flag):
-    """Enumeration of all available blanket types.
-
-    In addition, contains hidden `_all` option, that contains all
-    other types. This option is experimental and shouldn't be used
-    outside current module, as it can be removed in future.
-
-    """
+    """Enumeration of all available blanket types."""
 
     helpers = enum.auto()
     auth_functions = enum.auto()
@@ -157,14 +164,21 @@ class Blanket(enum.Flag):
     config_declarations = enum.auto()
 
     def get_subject(self, plugin: p.SingletonPlugin) -> Subject:
-        return _mapping[self].source(plugin)
+        """Extract artifacts required for the default implementation.
+
+        Depending on interface, this method can produce function that satisfy
+        iterface's requirements, or collection with items that are used by the
+        interface, or path to the file(config_declaration).
+        """
+        return _mapping[self].extract_subject(plugin)
 
     def make_implementation(self, subject: Subject):
+        """Create the actual function-implementation."""
         return _mapping[self].implementation_factory(subject)
 
-    def method(self) -> str:
+    def method_name(self) -> str:
         """Return the name of the method, required for implementation."""
-        return _mapping[self].method
+        return _mapping[self].method_name
 
     def interface(self) -> p.Interface:
         """Return interface provided by blanket."""
@@ -172,27 +186,29 @@ class Blanket(enum.Flag):
 
     def implement(
         self,
-        locals: Dict[str, Any],
         plugin: p.SingletonPlugin,
         subject: Optional[Subject],
     ):
-        """Provide implementation for interface."""
+        """Implement for interface inside the given plugin."""
         if subject is None:
             subject = self.get_subject(plugin)
-        locals[self.method()] = self.make_implementation(subject)
+        setattr(plugin, self.method_name(), self.make_implementation(subject))
 
 
-class BlanketMapping(NamedTuple):
-    source: Callable[[p.SingletonPlugin], Subject]
-    method: str
+class Mapping(NamedTuple):
+    extract_subject: Callable[[p.SingletonPlugin], Subject]
+    method_name: str
     interface: p.Interface
     implementation_factory: Callable[..., Any]
 
 
-def _plugin_source(path: str):
+def _plugin_extractor(path: str):
+    """Extract the subject from the sub-modue(`path`) of the plugin."""
+
     def source(plugin: p.SingletonPlugin):
         root = plugin.__module__.rsplit(".", 1)[0]
         import_path = ".".join([root, path])
+
         try:
             return import_module(import_path)
         except ImportError:
@@ -206,17 +222,10 @@ def _plugin_source(path: str):
     return source
 
 
-def _declaration_source(plugin: p.SingletonPlugin):
-    root = plugin.__module__.rsplit(".", 1)[0]
-    module = import_module(root)
-    module_path = module.__file__
-    if not module_path:
-        log.error("Cannot locate source file for %s", plugin)
-        raise ValueError(plugin)
-
-    options = list(
-        pathlib.Path(module_path).parent.glob("config_declaration.*")
-    )
+def _declaration_file_extractor(plugin: p.SingletonPlugin):
+    """Extract path to the file that contains the config declarations."""
+    path = _plugin_root(plugin)
+    options = list(path.glob("config_declaration.*"))
     if not options:
         log.error(
             "Unable to import config_declaration for "
@@ -225,85 +234,41 @@ def _declaration_source(plugin: p.SingletonPlugin):
             plugin.__name__,
         )
         raise FileNotFoundError("config_declaration.EXT")
+
     if len(options) > 1:
-        log.warning(
-            "Found multiple declaration files for %s, using first match: %s",
-            plugin.__name__,
-            options,
-        )
+        log.error("Found multiple declaration files for %s", plugin.__name__)
+        raise ValueError(options)
+
     return str(options[0])
 
 
+def _plugin_root(plugin: p.SingletonPlugin) -> pathlib.Path:
+    """Return the path to the plugin's root(`ckanext/ext`)."""
+    root = plugin.__module__.rsplit(".", 1)[0]
+    file_ = inspect.getsourcefile(import_module(root))
+    if not file_:
+        log.error("Cannot locate source file for %s", plugin)
+        raise ValueError(plugin)
+    return pathlib.Path(file_).parent.resolve()
+
+
 def _dict_implementation(subject: Subject) -> Callable[..., dict[str, Any]]:
-    return _as_implementation(subject, False)
+    return _as_implementation(subject, False, _get_public_members)
 
 
 def _list_implementation(subject: Subject) -> Callable[..., list[Any]]:
-    return _as_implementation(subject, True)
+    return _as_implementation(subject, True, _get_public_members)
 
 
-def _declaration_implementation(subject: Subject) -> Callable[..., None]:
-    def func(self: p.SingletonPlugin, declaration: Any, key: Any) -> None:
-        if isinstance(subject, types.FunctionType):
-            return subject(declaration, key)
-        elif isinstance(subject, dict):
-            return declaration.load_dict(subject)
-        elif isinstance(subject, str):
-            # TODO: implement
-            ...
-        else:
-            raise TypeError(
-                "Unsupported subject for config declaration of "
-                f"{self.__name__}: {type(subject)}"
-            )
-
-    return func
+def _blueprint_implementation(
+    subject: Subject,
+) -> Callable[..., list[flask.Blueprint]]:
+    return _as_implementation(subject, True, _get_blueprint_members)
 
 
-_mapping: Dict[Blanket, BlanketMapping] = {
-    Blanket.helpers: BlanketMapping(
-        _plugin_source("helpers"),
-        "get_helpers",
-        p.ITemplateHelpers,
-        _dict_implementation,
-    ),
-    Blanket.auth_functions: BlanketMapping(
-        _plugin_source("logic.auth"),
-        "get_auth_functions",
-        p.IAuthFunctions,
-        _dict_implementation,
-    ),
-    Blanket.actions: BlanketMapping(
-        _plugin_source("logic.action"),
-        "get_actions",
-        p.IActions,
-        _dict_implementation,
-    ),
-    Blanket.blueprints: BlanketMapping(
-        _plugin_source("views"),
-        "get_blueprint",
-        p.IBlueprint,
-        _list_implementation,
-    ),
-    Blanket.cli: BlanketMapping(
-        _plugin_source("cli"), "get_commands", p.IClick, _list_implementation
-    ),
-    Blanket.validators: BlanketMapping(
-        _plugin_source("logic.validators"),
-        "get_validators",
-        p.IValidators,
-        _dict_implementation,
-    ),
-    Blanket.config_declarations: BlanketMapping(
-        _declaration_source,
-        "declare_config_options",
-        p.IConfigDeclaration,
-        _declaration_implementation,
-    ),
-}
-
-
-def _as_implementation(subject: Subject, as_list: bool) -> Callable[..., Any]:
+def _as_implementation(
+    subject: Subject, as_list: bool, harvester: ModuleHarvester
+) -> Callable[..., Any]:
     """Convert subject into acceptable interface implementation.
 
     Subject is one of:
@@ -314,11 +279,11 @@ def _as_implementation(subject: Subject, as_list: bool) -> Callable[..., Any]:
 
     def func(
         self: p.SingletonPlugin, *args: Any, **kwargs: Any
-    ) -> Union[Dict[str, Any], List[Any]]:
+    ) -> Union[dict[str, Any], List[Any]]:
         if isinstance(subject, types.FunctionType):
             return subject(*args, **kwargs)
         elif isinstance(subject, types.ModuleType):
-            result = _get_public_module_members(subject)
+            result = harvester(subject)
             if as_list:
                 return list(result.values())
             return result
@@ -333,21 +298,107 @@ def _as_implementation(subject: Subject, as_list: bool) -> Callable[..., Any]:
     return func
 
 
-def _get_public_module_members(module: types.ModuleType) -> Dict[str, Any]:
-    all_ = getattr(module, "__all__", None)
+def _declaration_implementation(subject: Subject) -> Callable[..., None]:
+
+    loaders = {
+        ".json": json.load,
+        ".yaml": yaml.safe_load,
+        ".yml": yaml.safe_load,
+        ".toml": toml.load,
+    }
+
+    def func(plugin: p.SingletonPlugin, declaration: Any, key: Any) -> None:
+        if isinstance(subject, types.FunctionType):
+            return subject(declaration, key)
+        elif isinstance(subject, dict):
+            return declaration.load_dict(subject)
+        elif isinstance(subject, str):
+            source = pathlib.Path(subject)
+            if not source.is_absolute():
+                source = _plugin_root(plugin) / subject
+
+            if not source.is_file():
+                raise ValueError("%s is not a file", source)
+
+            data_dict = loaders[source.suffix.lower()](source.open("rb"))
+
+            return declaration.load_dict(data_dict)
+
+        else:
+            raise TypeError(
+                "Unsupported subject for config declaration of "
+                f"{plugin.__name__}: {type(subject)}"
+            )
+
+    return func
+
+
+_mapping: Dict[Blanket, Mapping] = {
+    Blanket.helpers: Mapping(
+        _plugin_extractor("helpers"),
+        "get_helpers",
+        p.ITemplateHelpers,
+        _dict_implementation,
+    ),
+    Blanket.auth_functions: Mapping(
+        _plugin_extractor("logic.auth"),
+        "get_auth_functions",
+        p.IAuthFunctions,
+        _dict_implementation,
+    ),
+    Blanket.actions: Mapping(
+        _plugin_extractor("logic.action"),
+        "get_actions",
+        p.IActions,
+        _dict_implementation,
+    ),
+    Blanket.blueprints: Mapping(
+        _plugin_extractor("views"),
+        "get_blueprint",
+        p.IBlueprint,
+        _blueprint_implementation,
+    ),
+    Blanket.cli: Mapping(
+        _plugin_extractor("cli"),
+        "get_commands",
+        p.IClick,
+        _list_implementation,
+    ),
+    Blanket.validators: Mapping(
+        _plugin_extractor("logic.validators"),
+        "get_validators",
+        p.IValidators,
+        _dict_implementation,
+    ),
+    Blanket.config_declarations: Mapping(
+        _declaration_file_extractor,
+        "declare_config_options",
+        p.IConfigDeclaration,
+        _declaration_implementation,
+    ),
+}
+
+
+def _get_explicit_members(module: types.ModuleType) -> dict[str, Any]:
+    all_ = getattr(module, "__all__", [])
+    return {item: getattr(module, item) for item in all_}
+
+
+def _get_blueprint_members(
+    module: types.ModuleType,
+) -> dict[str, flask.Blueprint]:
+    all_ = _get_explicit_members(module)
     if all_:
-        return {item: getattr(module, item) for item in all_}
+        return all_
+    return dict(
+        inspect.getmembers(
+            module, lambda member: isinstance(member, flask.Blueprint)
+        )
+    )
 
-    def _is_public(member: Any) -> bool:
-        if inspect.getmodule(member) is not module:
-            return False
 
-        name = getattr(member, "__name__", None)
-        if not name:
-            name = getattr(member, "name", "_")
-        return not name.startswith("_")
-
-    return dict(inspect.getmembers(module, _is_public))
+def _get_public_members(module: types.ModuleType) -> dict[str, Any]:
+    return _get_explicit_members(module) or dict(get_local_functions(module))
 
 
 def _blanket_implementation(
@@ -363,13 +414,17 @@ def _blanket_implementation(
 
     def decorator(subject: Optional[Subject] = None) -> Callable[..., Any]:
         def wrapper(plugin: Type[p.SingletonPlugin]):
-            class WrappedPlugin(plugin):
-                for key in Blanket:
-                    if key & group:
-                        p.implements(key.interface())
-                        key.implement(locals(), plugin, subject)
+            for key in Blanket:
+                if key & group:
+                    # short version of the trick performed by
+                    # `ckan.plugin.implements`
+                    if not hasattr(plugin, "_implements"):
+                        setattr(plugin, "_implements", {})
+                    plugin._implements.setdefault(key.interface(), [None])
+                    plugin.__interfaces__.setdefault(key.interface(), [None])
 
-            return update_wrapper(WrappedPlugin, plugin, updated=[])
+                    key.implement(plugin, subject)
+            return plugin
 
         if isinstance(subject, type) and issubclass(
             subject, p.SingletonPlugin

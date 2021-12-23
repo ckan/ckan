@@ -1,16 +1,11 @@
 # encoding: utf-8
 
 from logging import getLogger
-import pathlib
-
-import yaml
-
 
 from ckan.common import json, config
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckan.plugins.toolkit import _
-from ckan.config.declaration import Declaration, Key
 
 log = getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
@@ -66,6 +61,7 @@ def datastore_fields(resource, valid_field_types):
             if f['type'] in valid_field_types]
 
 
+@p.toolkit.blanket.config_declarations
 class ReclineViewBase(p.SingletonPlugin):
     '''
     This base class for the Recline view extensions.
@@ -73,7 +69,6 @@ class ReclineViewBase(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.ITemplateHelpers, inherit=True)
-    p.implements(p.IConfigDeclaration)
 
     def update_config(self, config):
         '''
@@ -101,14 +96,6 @@ class ReclineViewBase(p.SingletonPlugin):
             'get_map_config': get_mapview_config,
             'get_dataproxy_url': get_dataproxy_url,
         }
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
-        with source.open("r") as stream:
-            data = yaml.safe_load(stream)
-            declaration.load_dict(data)
 
 
 class ReclineView(ReclineViewBase):

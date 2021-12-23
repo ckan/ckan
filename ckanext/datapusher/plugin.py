@@ -1,9 +1,6 @@
 # encoding: utf-8
 
 import logging
-import pathlib
-
-import yaml
 
 import ckan.model as model
 import ckan.plugins as p
@@ -12,27 +9,18 @@ import ckanext.datapusher.views as views
 import ckanext.datapusher.helpers as helpers
 import ckanext.datapusher.logic.action as action
 import ckanext.datapusher.logic.auth as auth
-from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
-
-_default_formats = [
-    "csv", "xls", "xlsx", "tsv", "application/csv",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "ods",
-    "application/vnd.oasis.opendocument.spreadsheet"
-]
 
 
 class DatastoreException(Exception):
     pass
 
 
+@p.toolkit.blanket.config_declarations
 class DatapusherPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
-    p.implements(p.IConfigDeclaration)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IResourceUrlChange)
@@ -160,11 +148,3 @@ class DatapusherPlugin(p.SingletonPlugin):
 
     def get_blueprint(self):
         return views.get_blueprints()
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
-        with source.open("r") as stream:
-            data = yaml.safe_load(stream)
-            declaration.load_dict(data)

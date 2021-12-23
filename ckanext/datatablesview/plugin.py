@@ -1,12 +1,8 @@
 # encoding: utf-8
 
-import pathlib
-
-import yaml
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckanext.datatablesview import blueprint
-from ckan.config.declaration import Declaration, Key
 
 default = toolkit.get_validator(u'default')
 boolean_validator = toolkit.get_validator(u'boolean_validator')
@@ -14,6 +10,7 @@ natural_number_validator = toolkit.get_validator(u'natural_number_validator')
 ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 
+@toolkit.blanket.config_declarations
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
@@ -21,7 +18,6 @@ class DataTablesView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.IBlueprint)
-    p.implements(p.IConfigDeclaration)
 
     # IBlueprint
 
@@ -96,11 +92,3 @@ class DataTablesView(p.SingletonPlugin):
                 u'filterable': [default(True), boolean_validator],
             }
         }
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        source = pathlib.Path(__file__).parent / "config_declaration.yaml"
-        with source.open("r") as stream:
-            data = yaml.safe_load(stream)
-            declaration.load_dict(data)
