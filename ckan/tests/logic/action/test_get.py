@@ -858,14 +858,11 @@ class TestOrganizationShow(object):
 @pytest.mark.usefixtures("clean_db")
 class TestUserList(object):
     def test_user_list_default_values(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
 
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["id"] == user["id"]
         assert got_user["name"] == user["name"]
@@ -882,9 +879,7 @@ class TestUserList(object):
         assert "datasets" not in got_user
 
     def test_user_list_edits(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
         dataset = factories.Dataset(user=user)
         dataset["title"] = "Edited title"
         helpers.call_action(
@@ -892,32 +887,34 @@ class TestUserList(object):
         )
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["number_created_packages"] == 1
 
+    def test_include_site_user(self, ckan_config):
+        factories.User()
+
+        users = helpers.call_action("user_list")
+        assert len(users) == 1
+
+        users = helpers.call_action("user_list", include_site_user=True)
+        assert len(users) == 2
+
     def test_user_list_excludes_deleted_users(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
         factories.User(state="deleted")
 
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         assert got_users[0]["name"] == user["name"]
 
     def test_user_list_not_all_fields(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
 
         got_users = helpers.call_action("user_list", all_fields=False)
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user == user["name"]
 
