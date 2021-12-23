@@ -92,8 +92,8 @@ the decorator::
         pass
 
 .. note:: The ``config_declarations`` blanket is an exception. Instead of a
-          module object it accepts absolute path to the JSON, YAML or TOML file
-          with the config declarations.
+          module object it accepts path to the JSON, YAML or TOML file with the
+          config declarations.
 
 You can also pass a function that produces the artifacts required by the
 interface::
@@ -202,8 +202,8 @@ class Mapping(NamedTuple):
     implementation_factory: Callable[..., Any]
 
 
-def _plugin_extractor(path: str):
-    """Extract the subject from the sub-modue(`path`) of the plugin."""
+def _module_extractor(path: str):
+    """Import sub-modue of the plugin."""
 
     def source(plugin: p.SingletonPlugin):
         root = plugin.__module__.rsplit(".", 1)[0]
@@ -223,7 +223,7 @@ def _plugin_extractor(path: str):
 
 
 def _declaration_file_extractor(plugin: p.SingletonPlugin):
-    """Extract path to the file that contains the config declarations."""
+    """Compute the path to a file that contains config declarations."""
     path = _plugin_root(plugin)
     options = list(path.glob("config_declaration.*"))
     if not options:
@@ -335,37 +335,37 @@ def _declaration_implementation(subject: Subject) -> Callable[..., None]:
 
 _mapping: Dict[Blanket, Mapping] = {
     Blanket.helpers: Mapping(
-        _plugin_extractor("helpers"),
+        _module_extractor("helpers"),
         "get_helpers",
         p.ITemplateHelpers,
         _dict_implementation,
     ),
     Blanket.auth_functions: Mapping(
-        _plugin_extractor("logic.auth"),
+        _module_extractor("logic.auth"),
         "get_auth_functions",
         p.IAuthFunctions,
         _dict_implementation,
     ),
     Blanket.actions: Mapping(
-        _plugin_extractor("logic.action"),
+        _module_extractor("logic.action"),
         "get_actions",
         p.IActions,
         _dict_implementation,
     ),
     Blanket.blueprints: Mapping(
-        _plugin_extractor("views"),
+        _module_extractor("views"),
         "get_blueprint",
         p.IBlueprint,
         _blueprint_implementation,
     ),
     Blanket.cli: Mapping(
-        _plugin_extractor("cli"),
+        _module_extractor("cli"),
         "get_commands",
         p.IClick,
         _list_implementation,
     ),
     Blanket.validators: Mapping(
-        _plugin_extractor("logic.validators"),
+        _module_extractor("logic.validators"),
         "get_validators",
         p.IValidators,
         _dict_implementation,
