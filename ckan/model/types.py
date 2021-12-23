@@ -4,13 +4,10 @@ import copy
 import uuid
 import simplejson as json
 
-from datetime import datetime
 from sqlalchemy import types
 
 
-from ckan.model import meta
-
-__all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
+__all__ = ['make_uuid', 'UuidType',
            'JsonType', 'JsonDictType']
 
 
@@ -84,18 +81,3 @@ class JsonDictType(JsonType):
 
     def copy(self):
         return JsonDictType(self.impl.length)
-
-
-def iso_date_to_datetime_for_sqlite(datetime_or_iso_date_if_sqlite):
-    # Because sqlite cannot store dates properly (see this:
-    # http://www.sqlalchemy.org/docs/dialects/sqlite.html#date-and-time-types )
-    # when you get a result from a date field in the database, you need
-    # to call this to convert it into a datetime type. When running on
-    # postgres then you have a datetime anyway, so this function doesn't
-    # do anything.
-    is_string = isinstance(datetime_or_iso_date_if_sqlite, str)
-    if meta.engine_is_sqlite() and is_string:
-        return datetime.strptime(datetime_or_iso_date_if_sqlite,
-                                 '%Y-%m-%d %H:%M:%S.%f')
-
-    return datetime_or_iso_date_if_sqlite

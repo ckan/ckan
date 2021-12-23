@@ -14,11 +14,10 @@ from werkzeug.utils import import_string
 import ckan
 from ckan import logic
 from ckan.cli.db import _resolve_alembic_config
-import ckan.plugins.toolkit as tk
 
 import string
 from ckan.cli import error_shout
-from ckan.common import config_declaration
+from ckan.common import config_declaration, config
 
 
 class CKANAlembicConfig(AlembicConfig):
@@ -185,19 +184,19 @@ def migration(plugin, message):
     """Create new alembic revision for DB migration.
     """
     import ckan.model
-    if not tk.config:
+    if not config:
         error_shout(u'Config is not loaded')
         raise click.Abort()
-    config = CKANAlembicConfig(_resolve_alembic_config(plugin))
-    migration_dir = os.path.dirname(config.config_file_name)
-    config.set_main_option(u"sqlalchemy.url",
-                           str(ckan.model.repo.metadata.bind.url))
-    config.set_main_option(u'script_location', migration_dir)
+    alembic_config = CKANAlembicConfig(_resolve_alembic_config(plugin))
+    migration_dir = os.path.dirname(alembic_config.config_file_name)
+    alembic_config.set_main_option(u"sqlalchemy.url",
+                                   str(ckan.model.repo.metadata.bind.url))
+    alembic_config.set_main_option(u'script_location', migration_dir)
 
     if not os.path.exists(os.path.join(migration_dir, u'script.py.mako')):
-        alembic.command.init(config, migration_dir)
+        alembic.command.init(alembic_config, migration_dir)
 
-    rev = alembic.command.revision(config, message)
+    rev = alembic.command.revision(alembic_config, message)
     click.secho(
         u"Revision file created. Now, you need to update it: \n\t{}".format(
             rev.path),
