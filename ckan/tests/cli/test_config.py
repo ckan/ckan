@@ -83,6 +83,7 @@ class TestDescribe(object):
                         },
                         {"key": "ckan.datapusher.url"},
                         {"key": "ckan.datapusher.callback_url_base"},
+                        {"key": "ckan.datapusher.token"},
                         {
                             "default": 3600,
                             "key": "ckan.datapusher.assume_task_stale_after",
