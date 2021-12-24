@@ -89,9 +89,9 @@ this.ckan.views.filters = (function (queryString) {
         if (!$.isArray(fields)) {
           fields = [fields];
         }
-
+        // Encode ':' and '|' as '#:' and '#|' to avoid conflicts when splitting filters.
         var fieldsStr = $.map(fields, function (field) {
-          return filter + ':' + field;
+          return filter.replace(/(?<!#):/g, '#:') + ':' + field.replace(/(?<!#)\|/g, '#|').replace(/(?<!#):/g, '#:');
         });
 
         return fieldsStr.join('|');
@@ -128,12 +128,12 @@ this.ckan.views.filters = (function (queryString) {
 
     if (searchParams.filters) {
       var filters = {},
-          fieldValuesStr = String(searchParams.filters).split('|'),
+          fieldValuesStr = String(searchParams.filters).split(/(?<!#)\|/g),
           i,
           len;
 
       for (i = 0, len = fieldValuesStr.length; i < len; i++) {
-        var fieldValue = fieldValuesStr[i].match(/([^:]+):(.*)/),
+        var fieldValue = fieldValuesStr[i].replace(/#:/g, ':').match(/([^:]+):(.*)/),
             field = fieldValue[1],
             value = fieldValue[2];
 

@@ -6,6 +6,7 @@ from six import text_type
 
 from ckan.plugins.toolkit import BaseController, get_action, request, h
 from ckan.common import json
+import re
 
 
 class DataTablesController(BaseController):
@@ -126,8 +127,13 @@ def merge_filters(view_filters, user_filters_str):
     if not user_filters_str:
         return filters
     user_filters = {}
-    for k_v in user_filters_str.split(u'|'):
-        k, sep, v = k_v.partition(u':')
+
+    #Decode '#:' and '#|' as ':' and '|' to avoid conflicts when splitting filters.
+    for k_v in re.split(r'(?<!#)\|', user_filters_str):
+        k_v = k_v.replace('#|', '|')
+        k, v = re.split(r'(?<!#):', k_v)
+        k = k.replace('#:', ':')
+        v = v.replace('#:', ':')
         if k not in view_filters or v in view_filters[k]:
             user_filters.setdefault(k, []).append(v)
     for k in user_filters:
