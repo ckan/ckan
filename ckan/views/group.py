@@ -926,8 +926,8 @@ class EditGroupView(MethodView):
         }
 
         try:
-            group = _action(u'group_show')(context, data_dict)
-            check_access(u'group_update', context)
+            _action(u'group_show')(context, data_dict)
+            _check_access(u'group_update', context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
         except NotFound:
