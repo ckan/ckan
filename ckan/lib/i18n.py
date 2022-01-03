@@ -348,8 +348,9 @@ def build_js_translations():
 
         latest = max(os.path.getmtime(fn) for fn in po_files)
         dest_file = os.path.join(_JS_TRANSLATIONS_DIR, lang + u'.js')
-        if os.path.isfile(dest_file) and os.path.getmtime(dest_file) > latest:
-            log.debug(u'JS translation for "{}" is up to date'.format(lang))
-        else:
-            log.debug(u'Generating JS translation for "{}"'.format(lang))
+
+        if not (os.path.isfile(dest_file) and os.path.getmtime(dest_file) > latest):
+            log.debug('Generating JS translation for "{}"'.format(lang))
             _build_js_translation(lang, po_files, js_entries, dest_file)
+
+    log.debug('All JS translation are up to date')
