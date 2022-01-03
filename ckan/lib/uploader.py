@@ -84,11 +84,11 @@ def get_storage_path():
 
 
 def get_max_image_size():
-    return config.get_value('ckan.max_image_size', 2)
+    return config.get_value('ckan.max_image_size')
 
 
 def get_max_resource_size():
-    return config.get_value('ckan.max_resource_size', 10)
+    return config.get_value('ckan.max_resource_size')
 
 
 class Upload(object):
