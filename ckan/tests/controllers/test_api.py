@@ -65,7 +65,6 @@ class TestApiController(object):
         self, app, monkeypatch, tmpdir, ckan_config
     ):
         monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
-        monkeypatch.setattr(ckan_uploader, u"_storage_path", str(tmpdir))
 
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user["id"])

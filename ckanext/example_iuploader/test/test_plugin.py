@@ -31,7 +31,6 @@ def test_resource_download_iuploader_called(
         send_file, app, monkeypatch, tmpdir, ckan_config
 ):
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
 
     user = factories.User()
     env = {"REMOTE_USER": six.ensure_str(user["name"])}

@@ -11,7 +11,6 @@ class TestInitResourceUpload(object):
     def test_resource_without_upload_with_old_werkzeug(
             self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
 
         # this test data is based on real observation using a browser
         # and werkzeug 0.14.1
@@ -30,7 +29,6 @@ class TestInitResourceUpload(object):
     def test_resource_without_upload(
             self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'true',
                u'format': u'PNG',
@@ -47,7 +45,6 @@ class TestInitResourceUpload(object):
     def test_resource_with_upload(
             self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'',
                u'format': u'PNG',
@@ -70,7 +67,6 @@ class TestUpload(object):
 
         """
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
                      BytesIO(six.ensure_binary(u'hello')),
