@@ -350,7 +350,7 @@ def build_js_translations():
         dest_file = os.path.join(_JS_TRANSLATIONS_DIR, lang + u'.js')
 
         if (not os.path.isfile(dest_file) or
-            os.path.getmtime(dest_file) < latest):
+                os.path.getmtime(dest_file) < latest):
             log.debug('Generating JS translation for "{}"'.format(lang))
             _build_js_translation(lang, po_files, js_entries, dest_file)
 
