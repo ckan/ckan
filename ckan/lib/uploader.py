@@ -20,6 +20,7 @@ MB = 1 << 20
 
 log = logging.getLogger(__name__)
 
+
 def _copy_file(input_file, output_file, max_size):
     input_file.seek(0)
     current_size = 0
