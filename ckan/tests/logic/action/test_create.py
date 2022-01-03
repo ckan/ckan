@@ -8,7 +8,6 @@ import unittest.mock as mock
 import pytest
 
 
-import ckan
 import ckan.logic as logic
 import ckan.model as model
 import ckan.tests.factories as factories

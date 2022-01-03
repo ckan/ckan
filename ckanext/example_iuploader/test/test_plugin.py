@@ -7,7 +7,6 @@ from unittest.mock import patch
 from ckan.lib.helpers import url_for
 
 from urllib.parse import urlparse
-import ckan.lib.uploader
 import ckan.model as model
 
 import ckan.tests.factories as factories

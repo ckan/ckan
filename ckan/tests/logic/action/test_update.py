@@ -6,7 +6,6 @@ import time
 import unittest.mock as mock
 import pytest
 
-import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
 import ckan.plugins as p

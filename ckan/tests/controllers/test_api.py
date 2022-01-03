@@ -12,7 +12,6 @@ from io import BytesIO
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import uploader as ckan_uploader
 
 
 @pytest.mark.parametrize(
