@@ -10,7 +10,7 @@ from ckan.common import config, asbool, aslist
 
 import ckan
 import ckan.model as model
-from logic.schema import update_configuration_schema
+from ckan.logic.schema import update_configuration_schema
 
 
 log = logging.getLogger(__name__)
