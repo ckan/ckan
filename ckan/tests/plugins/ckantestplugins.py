@@ -46,21 +46,6 @@ class SessionPlugin(p.SingletonPlugin):
         self.deleted.append(instance)
 
 
-class RoutesPlugin(p.SingletonPlugin):
-    p.implements(p.IRoutes, inherit=True)
-
-    def __init__(self, *args, **kw):
-        self.calls_made = []
-
-    def before_map(self, map):
-        self.calls_made.append("before_map")
-        return map
-
-    def after_map(self, map):
-        self.calls_made.append("after_map")
-        return map
-
-
 class PluginObserverPlugin(mock_plugin.MockSingletonPlugin):
     p.implements(p.IPluginObserver)
 

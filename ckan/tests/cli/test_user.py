@@ -86,12 +86,10 @@ class TestApiToken(object):
         user = factories.User()
         call_action(u"api_token_create", user=user[u"id"], name=u"first token")
         tid = model.Session.query(model.ApiToken).first().id
-        args = [
-            u"user",
-            u"token",
-            u"revoke",
-            tid,
-        ]
+
+        # tid must be escaped. When it starts with a hyphen it treated as a
+        # flag otherwise.
+        args = f'user token revoke "{tid}"'
         result = cli.invoke(ckan, args)
         assert not result.exit_code, result.output
         assert u"API Token has been revoked" in result.output

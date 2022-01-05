@@ -13,7 +13,6 @@ from pyutilib.component.core import Interface as _pca_Interface
 
 __all__ = [
     u'Interface',
-    u'IRoutes',
     u'IMapper',
     u'ISession',
     u'IMiddleware',
@@ -114,32 +113,6 @@ class IMiddleware(Interface):
         Pylons app.
         '''
         return app
-
-
-class IRoutes(Interface):
-    u'''
-    Plugin into the setup of the routes map creation.
-
-    '''
-    def before_map(self, map):
-        u'''
-        Called before the routes map is generated. ``before_map`` is before any
-        other mappings are created so can override all other mappings.
-
-        :param map: Routes map object
-        :returns: Modified version of the map object
-        '''
-        return map
-
-    def after_map(self, map):
-        u'''
-        Called after routes map is set up. ``after_map`` can be used to
-        add fall-back handlers.
-
-        :param map: Routes map object
-        :returns: Modified version of the map object
-        '''
-        return map
 
 
 class IMapper(Interface):

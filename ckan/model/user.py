@@ -294,6 +294,7 @@ class User(core.StatefulObjectMixin,
         return [user.id for user in query.all()]
 
 
-meta.mapper(User, user_table,
-    properties={'password': synonym('_password', map_column=True)},
-    order_by=user_table.c.name)
+meta.mapper(
+    User, user_table,
+    properties={'password': synonym('_password', map_column=True)}
+    )

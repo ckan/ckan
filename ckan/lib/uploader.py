@@ -122,12 +122,17 @@ class Upload(object):
             return
         self.storage_path = os.path.join(path, 'storage',
                                          'uploads', object_type)
-        try:
-            os.makedirs(self.storage_path)
-        except OSError as e:
-            # errno 17 is file already exists
-            if e.errno != 17:
-                raise
+        # check if the storage directory is already created by
+        # the user or third-party
+        if os.path.isdir(self.storage_path):
+            pass
+        else:
+            try:
+                os.makedirs(self.storage_path)
+            except OSError as e:
+                # errno 17 is file already exists
+                if e.errno != 17:
+                    raise
         self.object_type = object_type
         self.old_filename = old_filename
         if old_filename:
@@ -173,6 +178,8 @@ class Upload(object):
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
 
+        self.verify_type()
+
         if self.filename:
             with open(self.tmp_filepath, 'wb+') as output_file:
                 try:
@@ -191,6 +198,27 @@ class Upload(object):
                 os.remove(self.old_filepath)
             except OSError:
                 pass
+
+    def verify_type(self):
+        if not self.filename:
+            return
+
+        mimetypes = config.get_value(
+            f"ckan.upload.{self.object_type}.mimetypes")
+        types = config.get_value(f"ckan.upload.{self.object_type}.types")
+        if not mimetypes and not types:
+            return
+
+        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
+        self.upload_file.seek(0, os.SEEK_SET)
+        err = {self.file_field: [f"Unsupported upload type: {actual}"]}
+
+        if mimetypes and actual not in mimetypes:
+            raise logic.ValidationError(err)
+
+        type_ = actual.split("/")[0]
+        if types and type_ not in types:
+            raise logic.ValidationError(err)
 
 
 class ResourceUpload(object):
