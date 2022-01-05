@@ -111,19 +111,17 @@ class PackageSearchIndex(SearchIndex):
         for r in pkg_dict.get('resources', []):
             r.pop('tracking_summary', None)
 
+        # Index validated data-dict
+        package_plugin = lib_plugins.lookup_package_plugin(
+            pkg_dict.get('type'))
+        schema = package_plugin.show_package_schema()
+        validated_pkg_dict, errors = lib_plugins.plugin_validate(
+            package_plugin, {'model': model, 'session': model.Session},
+            pkg_dict, schema, 'package_show')
+        pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
+            cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
+
         data_dict_json = json.dumps(pkg_dict)
-
-        if config.get_value('ckan.cache_validated_datasets'):
-            package_plugin = lib_plugins.lookup_package_plugin(
-                pkg_dict.get('type'))
-
-            schema = package_plugin.show_package_schema()
-            validated_pkg_dict, errors = lib_plugins.plugin_validate(
-                package_plugin, {'model': model, 'session': model.Session},
-                pkg_dict, schema, 'package_show')
-            pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
-                cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
-
         pkg_dict['data_dict'] = data_dict_json
 
         # add to string field for sorting
