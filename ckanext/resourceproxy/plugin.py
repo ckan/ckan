@@ -8,7 +8,7 @@ import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
 from ckan.common import config
-
+from ckan.config.declaration import Declaration, Key
 from ckanext.resourceproxy import blueprint
 
 log = getLogger(__name__)
@@ -25,7 +25,7 @@ def get_proxified_resource_url(data_dict, proxy_schemes=[u'http', u'https']):
     if not p.plugin_loaded(u'resource_proxy'):
         return url
 
-    ckan_url = config.get(u'ckan.site_url', u'//localhost:5000')
+    ckan_url = config.get_value(u'ckan.site_url')
     scheme = urlparse(url).scheme
     compare_domains = datapreview.compare_domains
     if not compare_domains([ckan_url, url]) and scheme in proxy_schemes:
@@ -41,23 +41,10 @@ def get_proxified_resource_url(data_dict, proxy_schemes=[u'http', u'https']):
 class ResourceProxy(p.SingletonPlugin):
     """A proxy for CKAN resources to get around the same
     origin policy for previews
-
-    This extension implements the IRoute interface
-      - ``IRoutes`` allows to add a route to the proxy action
-
-
-    Instructions on how to use the extension:
-
-    1. Import the proxy plugin if it exists
-        ``import ckanext.resourceproxy.plugin as proxy``
-
-    2. In you extension, make sure that the proxy plugin is enabled by
-        checking the ``ckan.resource_proxy_enabled`` config variable.
-        ``config.get('ckan.resource_proxy_enabled', False)``
-
     """
     p.implements(p.ITemplateHelpers, inherit=True)
     p.implements(p.IBlueprint)
+    p.implements(p.IConfigDeclaration)
 
     def get_blueprint(self):
         return blueprint.resource_proxy
@@ -83,3 +70,14 @@ class ResourceProxy(p.SingletonPlugin):
         return get_proxified_resource_url(
             data_dict, proxy_schemes=proxy_schemes
         )
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, option: Key):
+        proxy = option.ckan.resource_proxy
+        declaration.annotate("Resource Proxy settings")
+
+        declaration.declare_int(proxy.max_file_size, 1048576).set_description(
+            "Preview size limit, default: 1MB")
+        declaration.declare_int(proxy.chunk_size, 4096).set_description(
+            "Size of chunks to read/write.")

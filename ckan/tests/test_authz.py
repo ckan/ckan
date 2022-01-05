@@ -10,16 +10,6 @@ from ckan.tests import factories, helpers
 _check = auth.check_config_permission
 
 
-@pytest.mark.ckan_config("ckan.auth.anon_create_dataset", None)
-@pytest.mark.parametrize(
-    "perm", ["anon_create_dataset", "ckan.auth.anon_create_dataset"]
-)
-def test_get_default_value_if_not_set_in_config(perm):
-    assert (
-        _check(perm) == auth.CONFIG_PERMISSIONS_DEFAULTS["anon_create_dataset"]
-    )
-
-
 @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
 def test_config_overrides_default():
     assert _check("anon_create_dataset") is True
@@ -73,9 +63,8 @@ def test_get_user_inside_web_request_not_found():
 @pytest.mark.usefixtures("with_request_context", "app")
 def test_no_attributes_set_on_imported_auth_members():
     import ckan.logic.auth.get as auth_get
-    import ckan.plugins.toolkit as tk
 
-    tk.check_access("site_read", {})
+    logic.check_access("site_read", {})
     assert hasattr(auth_get.package_show, "auth_allow_anonymous_access")
     assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
 

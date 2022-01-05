@@ -547,93 +547,6 @@ def user_dictize(
 def task_status_dictize(task_status, context):
     return d.table_dictize(task_status, context)
 
-## conversion to api
-
-def group_to_api(group, context):
-    api_version = context.get('api_version')
-    assert api_version, 'No api_version supplied in context'
-    dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], extra["value"])
-                              for extra in dictized["extras"])
-    if api_version == 1:
-        dictized["packages"] = sorted(pkg["name"]
-                                      for pkg in dictized["packages"])
-    else:
-        dictized["packages"] = sorted(pkg["id"]
-                                      for pkg in dictized["packages"])
-    return dictized
-
-def tag_to_api(tag, context):
-    api_version = context.get('api_version')
-    assert api_version, 'No api_version supplied in context'
-    dictized = tag_dictize(tag, context)
-    if api_version == 1:
-        return sorted(package["name"] for package in dictized["packages"])
-    else:
-        return sorted(package["id"] for package in dictized["packages"])
-
-
-def resource_dict_to_api(res_dict, package_id, context):
-    res_dict.pop("state")
-    res_dict["package_id"] = package_id
-
-
-def package_to_api(pkg, context):
-    api_version = context.get('api_version')
-    assert api_version, 'No api_version supplied in context'
-    dictized = package_dictize(pkg, context)
-
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"] \
-                        if not tag.get('vocabulary_id')]
-    dictized["extras"] = dict((extra["key"], extra["value"])
-                              for extra in dictized["extras"])
-    dictized['license'] = pkg.license.title if pkg.license else None
-    dictized['notes_rendered'] = h.render_markdown(pkg.notes)
-
-    site_url = config.get('ckan.site_url', None)
-    if site_url:
-        dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
-
-    for resource in dictized["resources"]:
-        resource_dict_to_api(resource, pkg.id, context)
-
-    def make_api_1(package_id):
-        return pkg.get(package_id).name
-
-    def make_api_2(package_id):
-        return package_id
-
-    if api_version == 1:
-        api_fn = make_api_1
-        dictized["groups"] = [group["name"] for group in dictized["groups"]]
-        # FIXME why is this just for version 1?
-        if pkg.resources:
-            dictized['download_url'] = pkg.resources[0].url
-    else:
-        api_fn = make_api_2
-        dictized["groups"] = [group["id"] for group in dictized["groups"]]
-
-    subjects = dictized.pop("relationships_as_subject")
-    objects = dictized.pop("relationships_as_object")
-
-    relationships = []
-    for rel in objects:
-        model = context['model']
-        swap_types = model.PackageRelationship.forward_to_reverse_type
-        type = swap_types(rel['type'])
-        relationships.append({'subject': api_fn(rel['object_package_id']),
-                              'type': type,
-                              'object': api_fn(rel['subject_package_id']),
-                              'comment': rel["comment"]})
-    for rel in subjects:
-        relationships.append({'subject': api_fn(rel['subject_package_id']),
-                              'type': rel['type'],
-                              'object': api_fn(rel['object_package_id']),
-                              'comment': rel["comment"]})
-
-    dictized['relationships'] = relationships
-
-    return dictized
 
 def vocabulary_dictize(vocabulary, context, include_datasets=False):
     vocabulary_dict = d.table_dictize(vocabulary, context)
@@ -664,37 +577,6 @@ def activity_list_dictize(activity_list, context,
                           include_data=False):
     return [activity_dictize(activity, context, include_data)
             for activity in activity_list]
-
-
-def package_to_api1(pkg, context):
-    # DEPRICIATED set api_version in context and use package_to_api()
-    context['api_version'] = 1
-    return package_to_api(pkg, context)
-
-def package_to_api2(pkg, context):
-    # DEPRICIATED set api_version in context and use package_to_api()
-    context['api_version'] = 2
-    return package_to_api(pkg, context)
-
-def group_to_api1(group, context):
-    # DEPRICIATED set api_version in context and use group_to_api()
-    context['api_version'] = 1
-    return group_to_api(group, context)
-
-def group_to_api2(group, context):
-    # DEPRICIATED set api_version in context and use group_to_api()
-    context['api_version'] = 2
-    return group_to_api(group, context)
-
-def tag_to_api1(tag, context):
-    # DEPRICIATED set api_version in context and use tag_to_api()
-    context['api_version'] = 1
-    return tag_to_api(tag, context)
-
-def tag_to_api2(tag, context):
-    # DEPRICIATED set api_version in context and use tag_to_api()
-    context['api_version'] = 2
-    return tag_to_api(tag, context)
 
 def user_following_user_dictize(follower, context):
     return d.table_dictize(follower, context)

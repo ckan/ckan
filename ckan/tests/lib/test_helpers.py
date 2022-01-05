@@ -12,7 +12,6 @@ from babel import Locale
 import pytest
 
 import ckan.lib.helpers as h
-import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers, factories
 
@@ -467,7 +466,6 @@ def test_unified_resource_format(fmt, exp):
 
 
 class TestGetDisplayTimezone(object):
-    @pytest.mark.ckan_config("ckan.display_timezone", "")
     def test_missing_config(self):
         assert h.get_display_timezone() == pytz.timezone("utc")
 
@@ -661,41 +659,6 @@ class TestBuildNavMain(object):
         assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
 
 
-class HelpersTestPlugin(p.SingletonPlugin):
-
-    p.implements(p.IRoutes, inherit=True)
-
-    controller = "ckan.tests.lib.test_helpers:TestHelperController"
-
-    def after_map(self, _map):
-
-        _map.connect(
-            "/broken_helper_as_attribute",
-            controller=self.controller,
-            action="broken_helper_as_attribute",
-        )
-
-        _map.connect(
-            "/broken_helper_as_item",
-            controller=self.controller,
-            action="broken_helper_as_item",
-        )
-
-        _map.connect(
-            "/helper_as_attribute",
-            controller=self.controller,
-            action="helper_as_attribute",
-        )
-
-        _map.connect(
-            "/helper_as_item",
-            controller=self.controller,
-            action="helper_as_item",
-        )
-
-        return _map
-
-
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivityListSelect(object):
     def test_simple(self):
@@ -848,7 +811,7 @@ def test_gravatar():
 def test_gravatar_config_set_default(ckan_config):
     """Test when default gravatar is None, it is pulled from the config file"""
     email = "zephod@gmail.com"
-    default = ckan_config.get("ckan.gravatar_default", "identicon")
+    default = ckan_config.get_value("ckan.gravatar_default")
     expected = (
         '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
         % default

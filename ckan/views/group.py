@@ -121,7 +121,7 @@ def index(group_type, is_organization):
     extra_vars = {}
     set_org(is_organization)
     page = h.get_page_number(request.params) or 1
-    items_per_page = int(config.get(u'ckan.datasets_per_page', 20))
+    items_per_page = config.get_value(u'ckan.datasets_per_page')
 
     context = {
         u'model': model,
@@ -356,8 +356,9 @@ def _read(id, limit, group_type):
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
         for facet in g.search_facets.keys():
             limit = int(
-                request.params.get(u'_%s_limit' % facet,
-                                   config.get(u'search.facets.default', 10)))
+                request.params.get(
+                    u'_%s_limit' % facet,
+                    config.get_value(u'search.facets.default')))
             g.search_facets_limits[facet] = limit
         extra_vars["page"].items = query['results']
 
@@ -1063,7 +1064,7 @@ class EditGroupView(MethodView):
 
         try:
             _action(u'group_show')(context, data_dict)
-            check_access(u'group_update', context)
+            _check_access(u'group_update', context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
         except NotFound:

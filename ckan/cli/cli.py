@@ -11,22 +11,24 @@ import ckan.plugins as p
 import ckan.cli as ckan_cli
 from ckan.config.middleware import make_app
 from ckan.exceptions import CkanConfigurationException
-from ckan.cli import (
-    config_tool,
-    jobs,
-    db, search_index, server,
-    profile,
+from . import (
     asset,
-    sysadmin,
-    translation,
+    config,
     dataset,
-    views,
-    plugin_info,
-    notify,
-    tracking,
-    sass,
+    db, search_index, server,
     generate,
-    user
+    jobs,
+    notify,
+    plugin_info,
+    profile,
+    sass,
+    sysadmin,
+    tracking,
+    translation,
+    user,
+    views,
+    config_tool,
+    error_shout
 )
 
 META_ATTR = u'_ckan_meta'
@@ -128,7 +130,7 @@ def _add_ctx_object(ctx, path=None):
     try:
         ctx.obj = CtxObject(path)
     except CkanConfigurationException as e:
-        p.toolkit.error_shout(e)
+        error_shout(e)
         ctx.abort()
 
     ctx.meta["flask_app"] = ctx.obj.app._wsgi_app
@@ -176,7 +178,7 @@ def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
     registered_entries = {}
     for entry in iter_entry_points(entry_point):
         if entry.name in registered_entries:
-            p.toolkit.error_shout((
+            error_shout((
                 u'Attempt to override entry_point `{name}`.\n'
                 u'First encounter:\n\t{first!r}\n'
                 u'Second encounter:\n\t{second!r}\n'
@@ -201,20 +203,21 @@ def ckan():
     pass
 
 
-ckan.add_command(jobs.jobs)
-ckan.add_command(config_tool.config_tool)
-ckan.add_command(server.run)
-ckan.add_command(profile.profile)
-ckan.add_command(db.db)
-ckan.add_command(search_index.search_index)
-ckan.add_command(sysadmin.sysadmin)
 ckan.add_command(asset.asset)
-ckan.add_command(translation.translation)
+ckan.add_command(config.config)
+ckan.add_command(config_tool.config_tool)
 ckan.add_command(dataset.dataset)
-ckan.add_command(views.views)
-ckan.add_command(plugin_info.plugin_info)
-ckan.add_command(notify.notify)
-ckan.add_command(tracking.tracking)
-ckan.add_command(sass.sass)
+ckan.add_command(db.db)
 ckan.add_command(generate.generate)
+ckan.add_command(jobs.jobs)
+ckan.add_command(notify.notify)
+ckan.add_command(plugin_info.plugin_info)
+ckan.add_command(profile.profile)
+ckan.add_command(sass.sass)
+ckan.add_command(search_index.search_index)
+ckan.add_command(server.run)
+ckan.add_command(sysadmin.sysadmin)
+ckan.add_command(tracking.tracking)
+ckan.add_command(translation.translation)
 ckan.add_command(user.user)
+ckan.add_command(views.views)

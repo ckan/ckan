@@ -11,11 +11,29 @@ import sqlalchemy as sa
 from ckan.common import config
 
 
+class RootPathMiddleware(object):
+    '''
+    Prevents the SCRIPT_NAME server variable conflicting with the ckan.root_url
+    config. The routes package uses the SCRIPT_NAME variable and appends to the
+    path and ckan addes the root url causing a duplication of the root path.
+    This is a middleware to ensure that even redirects use this logic.
+    '''
+    def __init__(self, app, config):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        # Prevents the variable interfering with the root_path logic
+        if 'SCRIPT_NAME' in environ:
+            environ['SCRIPT_NAME'] = ''
+
+        return self.app(environ, start_response)
+
+
 class TrackingMiddleware(object):
 
     def __init__(self, app, config):
         self.app = app
-        self.engine = sa.create_engine(config.get('sqlalchemy.url'))
+        self.engine = sa.create_engine(config.get_value('sqlalchemy.url'))
 
     def __call__(self, environ, start_response):
         path = environ['PATH_INFO']
@@ -61,7 +79,7 @@ class HostHeaderMiddleware(object):
         if path_info in ['/login_generic', '/user/login',
                          '/user/logout', '/user/logged_in',
                          '/user/logged_out']:
-            site_url = config.get('ckan.site_url')
+            site_url = config.get_value('ckan.site_url')
             parts = urlparse(site_url)
             environ['HTTP_HOST'] = str(parts.netloc)
         return self.app(environ, start_response)

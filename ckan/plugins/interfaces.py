@@ -13,7 +13,6 @@ from pyutilib.component.core import Interface as _pca_Interface
 
 __all__ = [
     u'Interface',
-    u'IRoutes',
     u'IMapper',
     u'ISession',
     u'IMiddleware',
@@ -25,6 +24,7 @@ __all__ = [
     u'IPackageController',
     u'IPluginObserver',
     u'IConfigurable',
+    u'IConfigDeclaration',
     u'IConfigurer',
     u'IActions',
     u'IResourceUrlChange',
@@ -113,32 +113,6 @@ class IMiddleware(Interface):
         Pylons app.
         '''
         return app
-
-
-class IRoutes(Interface):
-    u'''
-    Plugin into the setup of the routes map creation.
-
-    '''
-    def before_map(self, map):
-        u'''
-        Called before the routes map is generated. ``before_map`` is before any
-        other mappings are created so can override all other mappings.
-
-        :param map: Routes map object
-        :returns: Modified version of the map object
-        '''
-        return map
-
-    def after_map(self, map):
-        u'''
-        Called after routes map is set up. ``after_map`` can be used to
-        add fall-back handlers.
-
-        :param map: Routes map object
-        :returns: Modified version of the map object
-        '''
-        return map
 
 
 class IMapper(Interface):
@@ -841,6 +815,53 @@ class IConfigurable(Interface):
         :param config: dict-like configuration object
         :type config: :py:class:`ckan.common.CKANConfig`
         '''
+        return
+
+
+class IConfigDeclaration(Interface):
+    """Register additional configuration options.
+
+    While it's not necessary, declared config options can be printed out using
+    CLI or additionally verified in code. This makes the task of adding new
+    configuration, removing obsolete config options, checking the sanity of
+    config options much simpler for extension consumers.
+
+    """
+
+    def declare_config_options(self, declaration, key):
+        """Register extra config options.
+
+        Example::
+
+            from ckan.config.declaration import Declaration, Key
+
+            def declare_config_options(
+                self, declaration: Declaration, key: Key):
+
+                declaration.annotate("MyExt config section")
+                group = key.ckanext.my_ext.feature
+                declaration.declare(group.enabled, "no").set_description(
+                    "Enables feature"
+                )
+                declaration.declare(group.mode, "simple")
+
+        Produces the following config suggestion::
+
+            ####### MyExt config section #######
+            # Enables feature
+            ckanext.my_ext.feature.enabled = no
+            # ckanext.my_ext.feature.mode = simple
+
+        See :ref:`declare configuration <declare-config-options>` guide for
+        details.
+
+        :param declaration:  object containing all the config declarations
+        :type declaration: :py:class:`ckan.config.declaration.Declaration`
+
+        :param key: object for generic option access.
+        :type key: :py:class:`ckan.config.declaration.Key`
+
+        """
 
 
 class IConfigurer(Interface):

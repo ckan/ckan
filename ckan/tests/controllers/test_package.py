@@ -196,11 +196,9 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
         pkg = model.Package.by_name(u"complete-package-with-two-resources")
-        assert pkg.resources[0].url == u"http://example.com/resource0"
-        assert pkg.resources[1].url == u"http://example.com/resource1"
+        assert pkg.resources[0].url == u"http://example.com/resource1"
+        assert pkg.resources[1].url == u"http://example.com/resource0"
         assert pkg.state == "active"
-
-    # resource upload is tested in TestExampleIUploaderPlugin
 
     def test_previous_button_works(self, app, user_env):
         url = url_for("dataset.new")
@@ -1222,6 +1220,7 @@ class TestResourceView(object):
         )
         assert helpers.body_contains(response, "Updated RV Title")
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
     def test_resource_view_delete(self, app):
         user = factories.User()
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
@@ -1417,7 +1416,7 @@ class TestResourceDelete(object):
         assert 200 == response.status_code
         assert helpers.body_contains(response, "This dataset has no data")
 
-        with pytest.raises(p.toolkit.ObjectNotFound):
+        with pytest.raises(logic.NotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
     def test_deleting_non_existing_resource_404s(self, app):
@@ -1500,7 +1499,7 @@ class TestResourceDelete(object):
         assert 200 == response.status_code
         assert helpers.body_contains(response, "This dataset has no data")
 
-        with pytest.raises(p.toolkit.ObjectNotFound):
+        with pytest.raises(logic.NotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
     def test_confirm_and_cancel_deleting_a_resource(self, app):

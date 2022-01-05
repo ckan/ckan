@@ -96,7 +96,7 @@ class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
 
     def __init__(self):
-        group_url = config.get('licenses_group_url', None)
+        group_url = config.get_value('licenses_group_url')
         if group_url:
             self.load_licenses(group_url)
         else:

@@ -17,7 +17,6 @@
 import re
 import os
 import subprocess
-import six
 
 import ckan
 
@@ -57,7 +56,6 @@ rst_epilog = '''
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |storage_path| replace:: |storage_parent_dir|/default
 .. |restart_uwsgi| replace:: sudo supervisorctl restart ckan-uwsgi:*
-.. |restart_solr| replace:: sudo service jetty8 restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
 .. |nginx| replace:: Nginx
@@ -81,8 +79,10 @@ rst_epilog = '''
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo',
-    'sphinx.ext.autosummary', 'ckan.plugins.toolkit_sphinx_extension']
+extensions = [
+    'sphinx.ext.autodoc', 'sphinx.ext.todo',
+    'sphinx.ext.autosummary', 'ckan.plugins.toolkit_sphinx_extension',
+]
 autodoc_member_order = 'bysource'
 todo_include_todos = True
 
@@ -127,8 +127,9 @@ SUPPORTED_CKAN_VERSIONS = 3
 
 def get_release_tags():
     git_tags = subprocess.check_output(
-        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
-    release_tags_ = [tag for tag in git_tags if tag.startswith(six.b('ckan-'))]
+        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).decode('utf8')
+    git_tags = git_tags.split()
+    release_tags_ = [tag for tag in git_tags if tag.startswith('ckan-')]
 
     # git tag -l prints out the tags in the right order anyway, but don't rely
     # on that, sort them again here for good measure.
@@ -281,6 +282,25 @@ def get_min_setuptools_version():
         return f.read().split('==')[1].strip()
 
 
+def config_defaults_from_declaration():
+    from ckan.config.declaration import Declaration
+    decl = Declaration()
+    decl.load_core_declaration()
+    decl.load_plugin("datastore")
+    decl.load_plugin("datapusher")
+    decl.load_plugin("resource_proxy")
+    decl.load_plugin("text_view")
+    decl.load_plugin("image_view")
+    decl.load_plugin("recline_view")
+    decl.load_plugin("datatables_view")
+
+    return {
+        f"config:{k}": "``{}``".format(
+            repr(decl[k].default) if decl[k].has_default() else None
+        ) for k in decl.iter_options()
+    }
+
+
 def write_substitutions_file(**kwargs):
     '''
     Write a file in the doc/ dir containing reStructuredText substitutions.
@@ -312,6 +332,7 @@ def write_substitutions_file(**kwargs):
 
 current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
+current_minor_version = current_release_version[:3]
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
 latest_minor_version = latest_release_version[:3]
@@ -322,12 +343,14 @@ is_latest_version = version == latest_release_version
 write_substitutions_file(
     current_release_tag=current_release_tag_value,
     current_release_version=current_release_version,
+    current_minor_version=current_minor_version,
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
     latest_package_name_bionic=get_latest_package_name('bionic'),
     latest_package_name_focal_py2=get_latest_package_name('focal', py_version=2),
     latest_package_name_focal_py3=get_latest_package_name('focal', py_version=3),
     min_setuptools_version=get_min_setuptools_version(),
+    **config_defaults_from_declaration()
 )
 
 

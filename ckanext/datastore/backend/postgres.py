@@ -30,7 +30,6 @@ import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
 
-import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import config
 
@@ -72,10 +71,6 @@ _DATE_FORMATS = ['%Y-%m-%d',
 _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
-
-_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), u"..", "allowed_functions.txt"
-)
 
 
 if not os.environ.get('DATASTORE_LOAD'):
@@ -527,10 +522,7 @@ def _build_query_and_rank_statements(lang, query, plain, field=None):
 
 
 def _fts_lang(lang=None):
-    default_fts_lang = config.get('ckan.datastore.default_fts_lang')
-    if default_fts_lang is None:
-        default_fts_lang = u'english'
-    return lang or default_fts_lang
+    return lang or config.get_value('ckan.datastore.default_fts_lang')
 
 
 def _sort(sort, fields_types, rank_columns):
@@ -626,18 +618,14 @@ def _generate_index_name(resource_id, field):
 
 
 def _get_fts_index_method():
-    method = config.get('ckan.datastore.default_fts_index_method')
-    return method or 'gist'
+    return config.get_value('ckan.datastore.default_fts_index_method')
 
 
 def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):  # noqa
     fts_indexes = []
     resource_id = data_dict['resource_id']
-    # FIXME: This is repeated on the plugin.py, we should keep it DRY
-    default_fts_lang = config.get('ckan.datastore.default_fts_lang')
-    if default_fts_lang is None:
-        default_fts_lang = u'english'
-    fts_lang = data_dict.get('language', default_fts_lang)
+    fts_lang = data_dict.get(
+        'language', config.get_value('ckan.datastore.default_fts_lang'))
 
     # create full-text search indexes
     def to_tsvector(x):
@@ -1634,7 +1622,7 @@ def search_sql(context, data_dict):
 
     # limit the number of results to ckan.datastore.search.rows_max + 1
     # (the +1 is so that we know if the results went over the limit or not)
-    rows_max = int(config.get('ckan.datastore.search.rows_max', 32000))
+    rows_max = config.get_value('ckan.datastore.search.rows_max')
     sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
 
     try:
@@ -1708,7 +1696,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return _get_engine_from_url(self.read_url)
 
     def _log_or_raise(self, message):
-        if self.config.get('debug'):
+        if self.config.get_value('debug'):
             log.critical(message)
         else:
             raise DatastoreException(message)
@@ -1727,6 +1715,16 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         if not self._read_connection_has_correct_privileges():
             self._log_or_raise('The read-only user has write privileges.')
+
+    def _is_postgresql_engine(self):
+        ''' Returns True if the read engine is a Postgresql Database.
+
+        According to
+        http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+        all Postgres driver names start with `postgres`.
+        '''
+        drivername = self._get_read_engine().engine.url.drivername
+        return drivername.startswith('postgres')
 
     def _is_read_only_database(self):
         ''' Returns True if no connection has CREATE privileges on the public
@@ -1792,13 +1790,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             raise DatastoreException(error_msg)
 
         # Check whether users have disabled datastore_search_sql
-        self.enable_sql_search = toolkit.asbool(
-            self.config.get('ckan.datastore.sqlsearch.enabled', False))
+        self.enable_sql_search = self.config.get_value(
+            'ckan.datastore.sqlsearch.enabled')
 
         if self.enable_sql_search:
-            allowed_sql_functions_file = self.config.get(
-                'ckan.datastore.sqlsearch.allowed_functions_file',
-                _SQL_FUNCTIONS_ALLOWLIST_FILE
+            allowed_sql_functions_file = self.config.get_value(
+                'ckan.datastore.sqlsearch.allowed_functions_file'
             )
 
             def format_entry(line):
@@ -1829,8 +1826,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         self.write_url = self.config['ckan.datastore.write_url']
         self.read_url = self.config['ckan.datastore.read_url']
 
-        self.read_engine = self._get_read_engine()
-        if not model.engine_is_pg(self.read_engine):
+        if not self._is_postgresql_engine():
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
@@ -1842,11 +1838,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                      'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
-
-        # check rows_max is valid on CKAN start-up
-        rows_max = config.get('ckan.datastore.search.rows_max')
-        if rows_max is not None:
-            int(rows_max)
 
     def datastore_delete(
             self, context, data_dict, fields_types, query_dict):  # noqa
