@@ -8,7 +8,6 @@
       </tr>
     </thead>
     <tbody>
-      {% block package_additional_info %}
         {% if pkg_dict.url %}
           <tr>
             <th scope="row" class="dataset-label">{{ _('Source') }}</th>
@@ -22,8 +21,6 @@
               <td class="dataset-details" property="foaf:homepage">{{ pkg_dict.url }}</td>
             {% endif %}
           </tr>
-        {% endif %}
-
         {% if pkg_dict.author_email %}
           <tr>
             <th scope="row" class="dataset-label">{{ _("Author") }}</th>
