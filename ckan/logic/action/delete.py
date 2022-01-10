@@ -13,9 +13,10 @@ import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization as dictization
 import ckan.lib.api_token as api_token
-from ckan import authz
 
+from ckan import authz
 from ckan.common import _
+from ckan.lib.search.index import PackageSearchIndex
 
 
 log = logging.getLogger('ckan.logic')
@@ -122,6 +123,9 @@ def package_delete(context, data_dict):
 
     model.repo.commit()
 
+    psi = PackageSearchIndex()
+    psi.delete_package({'id': id})
+
 
 def dataset_purge(context, data_dict):
     '''Purge a dataset.
@@ -165,6 +169,9 @@ def dataset_purge(context, data_dict):
     pkg = model.Package.get(id)
     pkg.purge()
     model.repo.commit_and_remove()
+
+    psi = PackageSearchIndex()
+    psi.delete_package({'id': id})
 
 
 def resource_delete(context, data_dict):

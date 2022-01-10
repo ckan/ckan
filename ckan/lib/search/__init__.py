@@ -103,8 +103,6 @@ def dispatch_by_operation(entity_type, entity, operation):
             index.insert_dict(entity)
         elif operation == model.domain_object.DomainObjectOperation.changed:
             index.update_dict(entity)
-        elif operation == model.domain_object.DomainObjectOperation.deleted:
-            index.remove_dict(entity)
         else:
             log.warn("Unknown operation: %s" % operation)
     except Exception as ex:
@@ -119,8 +117,7 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
 
     def notify(self, entity, operation):
-        if (not isinstance(entity, model.Package) or
-                not config.get_value('ckan.search.automatic_indexing')):
+        if not isinstance(entity, model.Package):
             return
         if operation != model.domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(
@@ -131,9 +128,6 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
                     {'id': entity.id}),
                 operation
             )
-        elif operation == model.domain_object.DomainObjectOperation.deleted:
-            dispatch_by_operation(entity.__class__.__name__,
-                                  {'id': entity.id}, operation)
         else:
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
