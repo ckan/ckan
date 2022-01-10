@@ -119,8 +119,7 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
 
     def notify(self, entity, operation):
-        if (not isinstance(entity, model.Package) or
-                not config.get_value('ckan.search.automatic_indexing')):
+        if not isinstance(entity, model.Package):
             return
         if operation != model.domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(
