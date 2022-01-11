@@ -305,9 +305,6 @@ groups:
         required: true
       - key: solr_user
       - key: solr_password
-      - key: ckan.search.automatic_indexing
-        type: bool
-        default: true
       - key: ckan.search.solr_commit
         type: bool
         default: true
