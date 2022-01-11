@@ -226,7 +226,7 @@ class TestImportStar(object):
         )
         show_fails(msg, results[0])
 
-
+@pytest.mark.skip("Annoying to run this locally")
 def test_building_the_docs():
     u"""There should be no warnings or errors when building the Sphinx docs.
 

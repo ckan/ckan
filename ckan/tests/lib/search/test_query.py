@@ -434,7 +434,25 @@ class TestPackageQuery:
         assert result["results"] == [pkg1["name"]]
 
     def test_overall(self):
-        CreateTestData.create()
+        user = factories.User()
+        david = factories.Group(user=user, name="david")
+        roger = factories.Group(user=user, name="roger")
+        factories.Dataset(
+            name="annakarenina",
+            title="A Novel By Tolstoy",
+            version="0.7a",
+            url="http://datahub.io",
+            tags=[{"name": "russian"}, {"name": "tolstoy"}, {"name": "Flexible \u30a1"}],
+            groups=[{"id": david["id"]}, {"id": roger["id"]}],
+            )
+
+        factories.Dataset(
+            name="warandpeace",
+            groups=[{"id": david["id"]}],
+            tags=[{"name": "russian"}, {"name": "Flexible \u30a1"}]
+        )
+
+
         query = search.query_for(model.Package)
         assert query.run({"q": "annakarenina"})["count"] == 1
         assert query.run({"q": "warandpeace"})["count"] == 1

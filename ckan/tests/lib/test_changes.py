@@ -8,10 +8,6 @@ from ckan.tests import helpers
 from ckan.tests.factories import Dataset, Organization
 
 
-def _new_pkg(new):
-    return {u"pkg_id": new["id"], u"name": new["name"], u"title": new["title"]}
-
-
 @pytest.mark.usefixtures(u"clean_db")
 class TestChanges(object):
     def test_title(self):

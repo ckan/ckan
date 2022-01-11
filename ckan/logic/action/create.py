@@ -14,6 +14,7 @@ import ckan.common
 from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
+from ckan.lib.search.index import PackageSearchIndex
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.dictization
@@ -235,6 +236,18 @@ def package_create(context, data_dict):
         model.repo.commit()
 
     return_id_only = context.get('return_id_only', False)
+
+
+
+    # TODO: Document validate parameter
+    package_for_index = _get_action('package_show')(
+        {'model': model, 'ignore_auth': True, 'validate': False, 'use_cache': False},
+        {'id': pkg.id}
+        )
+
+    # index_package will modify the package dict so we pass a copy.
+    psi = PackageSearchIndex()
+    psi.index_package(package_for_index)
 
     if return_id_only:
         return pkg.id

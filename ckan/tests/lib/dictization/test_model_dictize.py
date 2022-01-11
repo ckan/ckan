@@ -811,7 +811,29 @@ class TestPackageSchema(object):
 
     @pytest.mark.usefixtures("clean_index")
     def test_group_schema(self):
-        CreateTestData.create()
+        user = factories.User()
+        david = factories.Group(
+            user=user,
+            title="Dave's books",
+            name="david",
+            description="These are books that David likes.",
+            image_url="",
+
+            )
+        factories.Dataset(
+            name="annakarenina",
+            title="A Novel By Tolstoy",
+            version="0.7a",
+            url="http://datahub.io",
+            tags=[{"name": "russian"}, {"name": "tolstoy"}, {"name": "Flexible \u30a1"}],
+            groups=[{"id": david["id"]}],
+            )
+
+        factories.Dataset(
+            name="warandpeace",
+            groups=[{"id": david["id"]}],
+            tags=[{"name": "russian"}, {"name": "Flexible \u30a1"}]
+        )
         context = {"model": model, "session": model.Session}
         group = model.Session.query(model.Group).first()
         data = group_dictize(group, context)
