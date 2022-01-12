@@ -18,7 +18,6 @@ from . import (
     db, search_index, server,
     generate,
     jobs,
-    notify,
     plugin_info,
     profile,
     sass,
@@ -210,7 +209,6 @@ ckan.add_command(dataset.dataset)
 ckan.add_command(db.db)
 ckan.add_command(generate.generate)
 ckan.add_command(jobs.jobs)
-ckan.add_command(notify.notify)
 ckan.add_command(plugin_info.plugin_info)
 ckan.add_command(profile.profile)
 ckan.add_command(sass.sass)
