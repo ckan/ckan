@@ -95,37 +95,6 @@ def query_for(_type):
         raise SearchError("Unknown search type: %s" % _type)
 
 
-def dispatch_by_operation(entity_type, entity, operation):
-    """Call the appropriate index method for a given notification."""
-    try:
-        index_for(entity_type)
-    except Exception as ex:
-        log.exception(ex)
-        # we really need to know about any exceptions, so reraise
-        # (see #1172)
-        raise
-
-
-class SynchronousSearchPlugin(p.SingletonPlugin):
-    """Update the search index automatically."""
-    p.implements(p.IDomainObjectModification, inherit=True)
-
-    def notify(self, entity, operation):
-        if not isinstance(entity, model.Package):
-            return
-        if operation != model.domain_object.DomainObjectOperation.deleted:
-            dispatch_by_operation(
-                entity.__class__.__name__,
-                logic.get_action('package_show')(
-                    {'model': model, 'ignore_auth': True, 'validate': False,
-                     'use_cache': False},
-                    {'id': entity.id}),
-                operation
-            )
-        else:
-            log.warn("Discarded Sync. indexing for: %s" % entity)
-
-
 def rebuild(package_id=None, only_missing=False, force=False, defer_commit=False,
             package_ids=None, quiet=False, clear=False):
     '''

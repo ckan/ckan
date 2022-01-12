@@ -159,7 +159,6 @@ entry_points = {
         'example_database_migrations = ckanext.example_database_migrations.plugin:ExampleDatabaseMigrationsPlugin',
     ],
     'ckan.system_plugins': [
-        'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
     ],
     'ckan.test_plugins': [
