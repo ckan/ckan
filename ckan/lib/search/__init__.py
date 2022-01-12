@@ -98,11 +98,7 @@ def query_for(_type):
 def dispatch_by_operation(entity_type, entity, operation):
     """Call the appropriate index method for a given notification."""
     try:
-        index = index_for(entity_type)
-        if operation == model.domain_object.DomainObjectOperation.changed:
-            index.update_dict(entity)
-        else:
-            log.warn("Unknown operation: %s" % operation)
+        index_for(entity_type)
     except Exception as ex:
         log.exception(ex)
         # we really need to know about any exceptions, so reraise

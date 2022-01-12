@@ -30,6 +30,7 @@ import ckan.lib.app_globals as app_globals
 
 
 from ckan.common import _, request
+from ckan.lib.search.index import PackageSearchIndex
 
 log = logging.getLogger(__name__)
 
@@ -356,6 +357,14 @@ def package_update(context, data_dict):
 
     # Make sure that a user provided schema is not used on package_show
     context.pop('schema', None)
+
+    # TODO: Document validate parameter
+    package_for_index = _get_action('package_show')(
+        {'model': model, 'ignore_auth': True, 'validate': False, 'use_cache': False},
+        {'id': pkg.id}
+        )
+    psi = PackageSearchIndex()
+    psi.update_dict(package_for_index)
 
     # we could update the dataset so we should still be able to read it.
     context['ignore_auth'] = True

@@ -5,6 +5,7 @@ import pytest
 
 import ckan.config as config
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
 import ckan.model as model
 import ckan.lib.search as search
 from ckan.lib.search import check_solr_schema_version, SearchError
@@ -58,25 +59,22 @@ def test_02_add_package_from_dict():
 @pytest.mark.usefixtures("clean_db", "clean_index")
 def test_03_update_package_from_dict():
     factories.Dataset()
-    factories.Dataset(**get_data())
+    package = factories.Dataset(**get_data())
     query = search.query_for(model.Package)
 
-    package = model.Package.by_name("council-owned-litter-bins")
-
     # update package
-    package.name = u"new_name"
-    extra = model.PackageExtra(key="published_by", value="barrow")
-    package._extras[extra.key] = extra
-    model.repo.commit_and_remove()
+    package['name'] = "new_name"
+    package['extras'].append({"key": "published_by", "value": "barrow"})
+    helpers.call_action("package_update", context={}, **package)
+
 
     assert query.run({"q": ""})["count"] == 2
     assert query.run({"q": "barrow"})["count"] == 1
     assert query.run({"q": "barrow"})["results"][0] == "new_name"
 
     # update package again
-    package = model.Package.by_name("new_name")
-    package.name = u"council-owned-litter-bins"
-    model.repo.commit_and_remove()
+    package['name'] = "council-owned-litter-bins"
+    helpers.call_action("package_update", context={}, **package)
 
     assert query.run({"q": ""})["count"] == 2
     assert query.run({"q": "spatial"})["count"] == 1
@@ -89,12 +87,9 @@ def test_03_update_package_from_dict():
 @pytest.mark.usefixtures("clean_db", "clean_index")
 def test_04_delete_package_from_dict():
     factories.Dataset()
-    factories.Dataset(**get_data())
+    package = factories.Dataset(**get_data())
     query = search.query_for(model.Package)
 
-    package = model.Package.by_name("council-owned-litter-bins")
-    # delete it
-    package.delete()
-    model.repo.commit_and_remove()
+    helpers.call_action("package_delete", context={}, id=package["id"])
 
     assert query.run({"q": ""})["count"] == 1
