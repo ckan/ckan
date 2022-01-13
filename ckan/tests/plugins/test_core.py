@@ -7,7 +7,6 @@ import ckan.logic as logic
 import ckan.authz as authz
 import ckan.plugins as plugins
 from ckan.plugins.core import find_system_plugins
-from ckan.tests import factories
 
 
 def _make_calls(*args):
