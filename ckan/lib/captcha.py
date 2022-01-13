@@ -6,6 +6,7 @@ import requests
 
 TIMEOUT = config.get_value('ckan.requests.timeout')
 
+
 def check_recaptcha(request):
     '''Check a user\'s recaptcha submission is valid, and raise CaptchaError
     on failure.'''
